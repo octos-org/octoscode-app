@@ -1,0 +1,31 @@
+// Receive-path + socket_stream probe.
+// 1) open a ws to the push server (8766) and log frames the SERVER sends us
+//    -> proves the receive path works (only send is missing).
+// 2) try net.socket_stream(...).write_string(...) -> a policed isolate refuses it.
+fn note(s){ log("PROBE: " + s) ui.status.set_text(s) }
+
+fn attempt(){
+    let ws = net.web_socket("ws://127.0.0.1:8766/" net.WebSocketEvents{
+        on_opened: || { note("ws on_opened") }
+        on_string: |s| { note("RECV: " + s) }
+        on_closed: || { note("ws closed") }
+        on_error: |e| { note("ws err: " + e) }
+    })
+    note("ws returned " + ws.to_string())
+
+    // The other transmit path: a raw socket, which CAN write.
+    let sock = net.socket_stream(net.SocketStreamOptions{host: "127.0.0.1" port: "8766"})
+    note("socket_stream returned " + sock.to_string())
+    let r = sock.write_string("PROBE-SOCK")
+    note("sock.write_string -> " + r.to_string())
+}
+start_timeout(0.05, || attempt())
+
+HostedView{width: Fill height: Fill
+    full: View{width: Fill height: Fill flow: Down show_bg: true draw_bg.color: #xf2f2f7
+        main := View{width: Fill height: Fill flow: Down padding: 24 spacing: 14
+            Label{text: "receive + socket_stream probe" draw_text.color: #x1c1c1e}
+            status := Label{width: Fill text: "(booting)" draw_text.color: #x8e8e93}
+        }
+    }
+}

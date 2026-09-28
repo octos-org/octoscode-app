@@ -1,0 +1,26 @@
+## scale + state findings (verbatim)
+
+# 2000-row stream (click stream, 50 Hz x25):
+[I] splash:37524777472:121:17 - string:"OUP: DONE rows=2000 frames=80 first100=65.26612500000084ms total=1585.6327079999985ms"
+
+# monolithic 5000-line diff in one run -> hard bail:
+[E] splash:32095027200:148:19 - script time budget exceeded (/Users/yuechen/home/oa.noindex/p0-build/tmp/makepad/platform/script/src/vm.rs:1046)
+
+# the Splash pump re-evaluates a sys.simsecs body once per sim-second:
+-n   live re-eval lines (bundle with sys.simsecs): 
+96
+-n   live re-eval lines (control probe, NO sys.simsecs): 
+0
+0
+  pump source: widgets/src/splash.rs:641 if (… !is_tick_card) || sim_due { … eval_styled_body(cx,false) }
+
+# state resets across re-eval (rpc_id restarts at 1):
+   1 "id":"1"
+   1 "id":"2"
+   1 "id":"3"
+   1 "id":"1"
+   1 "id":"2"
+   1 "id":"3"
+
+# re-eval line (verbatim):
+[I] /Users/yuechen/home/oa.noindex/p0-build/tmp/makepad/widgets/src/splash.rs:644:17 - [SPLASH] live re-eval: epoch 0 -> 0 sim_due=true (7331 bytes)

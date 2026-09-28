@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "id": "os.oup-script",
+  "version": "1.0.0",
+  "name": "OUP Script",
+  "integrity": { "bundle_blake3": "" },
+  "capabilities": ["storage", "net"],
+  "network": { "hosts": ["example.org"] }
+}

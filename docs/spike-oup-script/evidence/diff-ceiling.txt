@@ -1,0 +1,19 @@
+## diff-size ceiling probe (one run builds 200/500/1000/2000 lines; the re-run exhausts the heap)
+[I] splash:54499852288:6:17 - string:"DIF: n=200 bytes=2090 ms=0.606334"
+[I] splash:54499852288:6:17 - string:"DIF: n=500 bytes=5390 ms=2.863458999999999"
+[I] splash:54499852288:6:17 - string:"DIF: n=1000 bytes=10890 ms=10.971208000000003"
+[I] splash:54499852288:6:17 - string:"DIF: n=2000 bytes=22890 ms=42.441125"
+[I] splash:54499852288:6:17 - string:"DIF: all built"
+[I] splash:54499852288:6:17 - string:"DIF: n=200 bytes=2090 ms=1.1079590000000472"
+[I] splash:54499852288:6:17 - string:"DIF: n=500 bytes=5390 ms=4.006415999999957"
+[I] splash:54499852288:6:17 - string:"DIF: n=1000 bytes=10890 ms=14.590166999999932"
+[E] splash:54499852288:10:24 - script heap allocation limit exceeded while concatenating strings: requested 17606 bytes, 9681 remaining (/Users/yuechen/home/oa.noindex/p0-build/tmp/makepad/platform/script/src/vm.rs:990)
+[I] splash:54499852288:6:17 - string:"DIF: n=200 bytes=2090 ms=0.9549999999998171"
+[I] splash:54499852288:6:17 - string:"DIF: n=500 bytes=5390 ms=5.00987499999983"
+[I] splash:54499852288:6:17 - string:"DIF: n=1000 bytes=10890 ms=13.846957999999798"
+[E] splash:54499852288:10:42 - script heap allocation limit exceeded while concatenating strings: requested 14961 bytes, 5575 remaining (/Users/yuechen/home/oa.noindex/p0-build/tmp/makepad/platform/script/src/vm.rs:990)
+[I] splash:54499852288:6:17 - string:"DIF: n=200 bytes=2090 ms=0.5049169999997716"
+
+# reading: 2000 lines (22,890 B) costs ~42 ms in ONE run. The same build
+# repeated on the next pass hits the isolate heap cap — strings from the
+# previous eval are still live, so concatenation exhausts the budget.
