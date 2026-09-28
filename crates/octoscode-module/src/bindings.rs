@@ -558,12 +558,14 @@ mod tests {
         for (id, _) in ACTIONS {
             assert!(is_action(id), "{id} must be an action");
         }
-        // The four conversation actions + session.refresh.
-        assert_eq!(ACTIONS.len(), 5);
+        // The four conversation actions + session.refresh + session.new
+        // (card #14 defect 4: New chat mints a fresh session id).
+        assert_eq!(ACTIONS.len(), 6);
         assert!(is_action("composer.submit"));
         assert!(is_action("turn.interrupt"));
         assert!(is_action("turn.steer"));
         assert!(is_action("answer.expand"));
+        assert!(is_action("session.new"), "New chat is a declared action");
         assert!(!is_action("session.delete"));
     }
 }

@@ -1,0 +1,7 @@
+# card #14 defect-4 live proof: the session id the server stored for the New-chat run
+# (a fresh id, never the reused dsflash:main)
+dsflash
+dsflash:01a0e76e-6af1-704f-b9ea-99ce1de0b463
+
+# the stored session record for that id:
+dsflash%3A01a0e76e-6af1-704f-b9ea-99ce1de0b463.jsonl
