@@ -1,0 +1,12 @@
+{"scene": "1", "stage": "measure", "result": {"retained": "annotations.json; existing source measurements preserved"}}
+{"scene": "2", "stage": "measure", "result": {"retained": "annotations.json; existing source measurements preserved"}}
+{"scene": "3", "stage": "measure", "result": {"id": "conversation-03", "surfaces_found": 0, "nontext": 2, "candidates": 11}}
+{"scene": "4", "stage": "measure", "result": {"retained": "annotations.json; existing source measurements preserved"}}
+{"scene": "5", "stage": "measure", "result": {"retained": "annotations.json; existing source measurements preserved"}}
+{"scene": "6", "stage": "measure", "result": {"id": "conversation-06", "surfaces_found": 0, "nontext": 4, "candidates": 3}}
+{"scene": "7", "stage": "measure", "result": {"retained": "annotations.json; existing source measurements preserved"}}
+{"scene": "8", "stage": "measure", "result": {"id": "conversation-08", "surfaces_found": 0, "nontext": 2, "candidates": 9}}
+{"scene": "9", "stage": "measure", "result": {"retained": "annotations.json; existing source measurements preserved"}}
+{"scene": "10", "stage": "measure", "result": {"retained": "annotations.json; existing source measurements preserved"}}
+{"scene": "11", "stage": "measure", "result": {"retained": "annotations.json; existing source measurements preserved"}}
+{"scene": "12", "stage": "measure", "result": {"retained": "annotations.json; existing source measurements preserved"}}

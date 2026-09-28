@@ -204,7 +204,7 @@
       "native_id": "beauty_0_10",
       "parent": "page",
       "kind": "input",
-      "component": "Inputbccc3166f8d4",
+      "component": "Inpute855bccb9fd1",
       "semantic_role": "input",
       "bounds": [
         21.32,
@@ -212,10 +212,10 @@
         200.0,
         41.0
       ],
-      "text": null,
+      "text": "",
       "enabled": 1,
-      "font": null,
-      "size": null
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 18.0
     },
     {
       "source_id": "t11",
@@ -294,6 +294,6 @@
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "ae0bdc47705afc69721a1b7b986914a0f8bcf6a8362bc1de8797d82d2f4ec766",
+  "contract_sha256": "c276af869f5fe9fef853118951340f8460296143c9bf7dd00b85f60c3957faae",
   "mapping_basis": "mapped.json"
 }

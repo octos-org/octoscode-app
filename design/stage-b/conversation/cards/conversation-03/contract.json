@@ -214,7 +214,13 @@
           }
         ],
         "enabled": 1,
-        "placeholder": "Ask Octos anything"
+        "placeholder": "Ask Octos anything",
+        "size": 18.0,
+        "weight": 400,
+        "text": "",
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {
         "t": "text",

@@ -1,0 +1,73 @@
+# ledger conversation-04@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t01_text { class: user-copy, en: "Read ui_protocol_transport.rs" }
+copy t02_text { class: user-copy, en: "• 412 lines" }
+copy t03_text { class: user-copy, en: "Search 'steer_dropped'" }
+copy t04_text { class: user-copy, en: "• 7 matches" }
+copy t05_text { class: user-copy, en: ">_ Ran cargo test -p octos-cli" }
+copy t06_text { class: user-copy, en: "steer_queue" }
+copy t07_text { class: user-copy, en: "running 12 tests" }
+copy t08_text { class: user-copy, en: "••" }
+copy t09_text { class: user-copy, en: "test steer_queue::reconnect_ok ... ok" }
+copy t10_text { class: user-copy, en: "test result: ok. 12 passed; 0 failed" }
+state tool_1_enabled { shape: bool, initial: true }
+state tool_2_enabled { shape: bool, initial: true }
+state tool_3_enabled { shape: bool, initial: true }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component NativeButton939d519a17bf(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton939d519a17bf", instance: instance, enabled: enabled) { slot }
+}
+component Text6cd1b7f8c89a(instance: text, text: text) {
+  view Kit(component: "Text6cd1b7f8c89a", instance: instance, text: text)
+}
+component Text405297c01224(instance: text, text: text) {
+  view Kit(component: "Text405297c01224", instance: instance, text: text)
+}
+component Textf89127c63abb(instance: text, text: text) {
+  view Kit(component: "Textf89127c63abb", instance: instance, text: text)
+}
+component Textd089a2b386c7(instance: text, text: text) {
+  view Kit(component: "Textd089a2b386c7", instance: instance, text: text)
+}
+component Text9f33b90bfa2e(instance: text, text: text) {
+  view Kit(component: "Text9f33b90bfa2e", instance: instance, text: text)
+}
+component Text0ce04e0c00fd(instance: text, text: text) {
+  view Kit(component: "Text0ce04e0c00fd", instance: instance, text: text)
+}
+component Text954d962bd3ea(instance: text, text: text) {
+  view Kit(component: "Text954d962bd3ea", instance: instance, text: text)
+}
+component Text6316fc49056e(instance: text, text: text) {
+  view Kit(component: "Text6316fc49056e", instance: instance, text: text)
+}
+component Text65096c7115c3(instance: text, text: text) {
+  view Kit(component: "Text65096c7115c3", instance: instance, text: text)
+}
+component Text1e404b06d9d2(instance: text, text: text) {
+  view Kit(component: "Text1e404b06d9d2", instance: instance, text: text)
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  NativeButton939d519a17bf(instance: "tool_1", enabled: tool_1_enabled) {
+    Text6cd1b7f8c89a(instance: "t01", text: copy.t01_text)
+  }
+  Text405297c01224(instance: "t02", text: copy.t02_text)
+  NativeButton939d519a17bf(instance: "tool_2", enabled: tool_2_enabled) {
+    Textf89127c63abb(instance: "t03", text: copy.t03_text)
+  }
+  Textd089a2b386c7(instance: "t04", text: copy.t04_text)
+  NativeButton939d519a17bf(instance: "tool_3", enabled: tool_3_enabled) {
+    Text9f33b90bfa2e(instance: "t05", text: copy.t05_text)
+  }
+  Text0ce04e0c00fd(instance: "t06", text: copy.t06_text)
+  Text954d962bd3ea(instance: "t07", text: copy.t07_text)
+  Text6316fc49056e(instance: "t08", text: copy.t08_text)
+  Text65096c7115c3(instance: "t09", text: copy.t09_text)
+  Text1e404b06d9d2(instance: "t10", text: copy.t10_text)
+}

@@ -182,6 +182,10 @@
       "value": 0.1480777138157895,
       "property": "font_desc"
     },
+    "size_f957bd7f48ae": {
+      "value": 17.52,
+      "property": "size"
+    },
     "size_4048c7e63a66": {
       "value": 26.34300791556728,
       "property": "size"
@@ -512,13 +516,25 @@
       },
       "slot": false
     },
-    "Inputbccc3166f8d4": {
+    "Inputafa2fd0876ee": {
       "style": {
-        "t": "input"
+        "t": "input",
+        "size": {
+          "$token": "size_f957bd7f48ae"
+        },
+        "weight": {
+          "$token": "weight_26d228663f13"
+        },
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_86ab34a300f7"
+        }
       },
       "props": {
         "enabled": "enabled",
-        "placeholder": "placeholder"
+        "placeholder": "placeholder",
+        "text": "text"
       },
       "slot": true
     },

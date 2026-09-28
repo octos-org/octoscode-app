@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/yuechen/home/oa.noindex/p0-harness/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py", line 103, in <module>
+    main()
+  File "/Users/yuechen/home/oa.noindex/p0-harness/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py", line 70, in main
+    raise ValueError('Existing mapped.json retained; use a new design version for a fresh mapping')
+ValueError: Existing mapped.json retained; use a new design version for a fresh mapping

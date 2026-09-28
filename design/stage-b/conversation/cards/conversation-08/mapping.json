@@ -24,7 +24,7 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "input",
-      "component": "Inputbccc3166f8d4",
+      "component": "Inputedacf1c2a927",
       "semantic_role": "input",
       "bounds": [
         22.22,
@@ -32,10 +32,10 @@
         200.0,
         46.07
       ],
-      "text": null,
+      "text": "",
       "enabled": 1,
-      "font": null,
-      "size": null
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 21.65
     },
     {
       "source_id": "t01",
@@ -201,9 +201,9 @@
     }
   ],
   "fonts": {
-    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
-    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242"
   },
-  "contract_sha256": "efd61e86c86ec038d15640e0e6e5d20b6a6bdf001518ff5b0a77b6a4830ad60c",
+  "contract_sha256": "dc10c09f61d8dbc84dae2ef931f5226561b5f8a1a7f4fd6b2619671fbfa41b7a",
   "mapping_basis": "mapped.json"
 }

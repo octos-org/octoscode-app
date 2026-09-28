@@ -151,6 +151,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 485.14,
     "w": 200,
     "h": 40.33,
+    "text": "",
+    "font_src": "self:resources/ux/Inter-400.ttf",
+    "size": 17.52,
+    "weight": 400,
     "role": "input",
     "native_candidates": [
       "TextInput",

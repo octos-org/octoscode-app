@@ -22,8 +22,8 @@ component Text4217c9f66dc7(instance: text, text: text) {
 component Texta5d0834ca7a1(instance: text, text: text) {
   view Kit(component: "Texta5d0834ca7a1", instance: instance, text: text)
 }
-component Inputbccc3166f8d4(instance: text, enabled: bool, placeholder: text) {
-  view Kit(component: "Inputbccc3166f8d4", instance: instance, enabled: enabled, placeholder: placeholder) { slot }
+component Inputafa2fd0876ee(instance: text, enabled: bool, placeholder: text, text: text) {
+  view Kit(component: "Inputafa2fd0876ee", instance: instance, enabled: enabled, placeholder: placeholder, text: text) { slot }
 }
 component Text9127233a0664(instance: text, text: text) {
   view Kit(component: "Text9127233a0664", instance: instance, text: text)

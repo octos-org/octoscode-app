@@ -1,0 +1,10 @@
+{
+  "capabilities": [],
+  "id": "octoscode.conversation-03",
+  "integrity": {
+    "bundle_blake3": "dd5c1e370e3d414310f361463bb3e03071531340b4b4db842c76261e9e9e0d09"
+  },
+  "name": "OctosCode conversation 03",
+  "schema": 1,
+  "version": "0.1.0"
+}

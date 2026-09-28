@@ -128,8 +128,12 @@ def build(num):
                     continue
                 if pat.lower() in raw.lower():
                     used_input.add(nid)
-                    kids.append(node("input", nid, x - 8, y - 8, max(w + 16, 200), h + 16,
-                                     [dict(t, x=x, y=y)], enabled=1, placeholder=s))
+                    # design.rs NodeKind::Input requires its own size + font_src
+                    kids.append(node("input", nid, x - 8, y - 8, max(w + 16, 200), max(h + 16, 34),
+                                     [dict(t, x=x, y=y)], enabled=1, placeholder=s,
+                                     size=round(size, 2), weight=400, text="",
+                                     variant="single_line", alignx=0,
+                                     font_src=FONT.format(w=400)))
                     break
             else:
                 kids.append(t)

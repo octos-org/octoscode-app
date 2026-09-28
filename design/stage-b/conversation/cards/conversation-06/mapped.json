@@ -171,7 +171,13 @@
           }
         ],
         "enabled": 1,
-        "placeholder": "Add a note"
+        "placeholder": "Add a note",
+        "size": 17.52,
+        "weight": 400,
+        "text": "",
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {
         "t": "button",
