@@ -1,0 +1,5 @@
+2026-09-28T09:31:46.641571Z  INFO turn/interrupt decided session=dsflash:main turn=01a0e75b-23b5-73d8-8125-c37ee59361d7 outcome=captured
+2026-09-28T09:31:46.641700Z  INFO turn/interrupt acknowledged session=dsflash:main turn=01a0e75b-23b5-73d8-8125-c37ee59361d7 ack=interrupted
+2026-09-28T09:32:34.799566Z  INFO turn: LLM response received iteration=1 stop_reason=EndTurn tool_calls=0 tool_names= tool_ids= response_content_len=476 input_tokens=164 output_tokens=154 
+2026-09-28T09:32:41.123148Z  INFO turn/interrupt decided session=dsflash:main turn=01a0e75b-f89c-7042-8372-06590a201ac8 outcome=captured
+2026-09-28T09:32:41.123290Z  INFO turn/interrupt acknowledged session=dsflash:main turn=01a0e75b-f89c-7042-8372-06590a201ac8 ack=interrupted
