@@ -44,6 +44,58 @@ const FIXTURE_PATH: &str = concat!(
     "/tests/fixtures/r2-profile-a6ea8505.jsonl"
 );
 
+/// Placeholders a recorded frame uses in place of machine/lane-specific
+/// absolute paths. The committed fixture is **hermetic**: it must decode and
+/// assert identically on any clone, so no `/Users/…`, `$TMPDIR` or `$HOME`
+/// appears in it. Only the `#[ignore]` recorder reads the environment (to
+/// derive the prefixes); the replay tests read the placeholders.
+const TMP_PLACEHOLDER: &str = "<TMP>";
+const WORKSPACE_PLACEHOLDER: &str = "<WORKSPACE>";
+const HOME_PLACEHOLDER: &str = "<HOME>";
+
+/// The machine-specific absolute prefixes this recording run produced, mapped
+/// to placeholders. Derived from the compile-time crate location (workspace
+/// root and its parent) and the recorder's own `temp_dir()`. Longest first, so
+/// the most specific prefix wins (`<TMP>` inside `<WORKSPACE>`, etc.).
+///
+/// **Recorder-only.** A replay test never calls this or reads the environment.
+fn machine_path_prefixes() -> Vec<(String, &'static str)> {
+    let manifest = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    // …/<repo>/crates/octoscode-client → …/<repo>
+    let workspace_root = manifest
+        .parent()
+        .and_then(|p| p.parent())
+        .map(|p| p.to_string_lossy().to_string());
+    let mut prefixes: Vec<(String, &'static str)> = Vec::new();
+    let tmp = std::env::temp_dir().to_string_lossy().to_string();
+    if !tmp.is_empty() {
+        prefixes.push((tmp, TMP_PLACEHOLDER));
+    }
+    if let Some(ws) = &workspace_root {
+        if !ws.is_empty() {
+            prefixes.push((ws.clone(), WORKSPACE_PLACEHOLDER));
+        }
+        if let Some(home) = std::path::Path::new(ws).parent() {
+            let home = home.to_string_lossy().to_string();
+            if !home.is_empty() {
+                prefixes.push((home, HOME_PLACEHOLDER));
+            }
+        }
+    }
+    prefixes.sort_by(|a, b| b.0.len().cmp(&a.0.len()));
+    prefixes
+}
+
+/// Replace every machine-specific absolute path in `text` with its placeholder,
+/// so the fixture does not depend on the lane that recorded it.
+fn scrub_machine_paths(text: &str) -> String {
+    let mut out = text.to_owned();
+    for (from, to) in machine_path_prefixes() {
+        out = out.replace(&from, to);
+    }
+    out
+}
+
 /// One recorded frame (the JSONL line shape from `octoscode_client::trace`).
 #[derive(Debug, Clone)]
 struct Frame {
@@ -336,7 +388,20 @@ async fn capture_real_profile_frames() {
     tokio::time::sleep(std::time::Duration::from_millis(600)).await;
     let _ = client.request("session/list", serde_json::json!({})).await;
     tokio::time::sleep(std::time::Duration::from_millis(200)).await;
-    println!("[capture] wrote {path}");
+    // Scrub lane-specific absolute paths so the committed fixture is hermetic
+    // (decodes + asserts identically on any clone). This is the only place the
+    // recorder touches the environment; replay tests read the placeholders.
+    let scrubbed = std::fs::read_to_string(&path)
+        .map(|t| scrub_machine_paths(&t))
+        .unwrap_or_default();
+    if !scrubbed.is_empty() {
+        std::fs::write(&path, &scrubbed).expect("rewrite the scrubbed fixture");
+    }
+    assert!(
+        !scrubbed.contains("/Users/") && !scrubbed.contains("/var/folders/"),
+        "the fixture must carry no machine-specific absolute path"
+    );
+    println!("[capture] wrote {path} (scrubbed)");
 }
 
 // ---------------------------------------------------------- fixture pickers
@@ -491,14 +556,26 @@ fn outbound_params_match_the_recorded_frames() {
         })
         .unwrap(),
     );
-    eq(
-        "onboarding/workspace_create",
-        serde_json::to_value(WorkspaceCreateParams {
-            parent: std::env::temp_dir().to_string_lossy().to_string(),
-            name: "r2-workspace-probe".into(),
-        })
-        .unwrap(),
-    );
+    // `onboarding/workspace_create`: build the params from the fixture's OWN
+    // recorded value, never this machine's `$TMPDIR`. The recorded `parent` is
+    // a scrubbed placeholder, so the assertion is lane-independent.
+    {
+        let recorded = out_body(&f, "onboarding/workspace_create");
+        assert_eq!(
+            recorded["parent"],
+            serde_json::json!(TMP_PLACEHOLDER),
+            "the fixture scrubbed the create parent to a placeholder"
+        );
+        assert_eq!(recorded["name"], serde_json::json!("r2-workspace-probe"));
+        eq(
+            "onboarding/workspace_create",
+            serde_json::to_value(WorkspaceCreateParams {
+                parent: recorded["parent"].as_str().expect("parent string").to_owned(),
+                name: recorded["name"].as_str().expect("name string").to_owned(),
+            })
+            .unwrap(),
+        );
+    }
     // `onboarding/workspace_list` was recorded with the params OMITTED (`{}`),
     // which the server documents as identical to `{"path": null}`
     // (`ui_protocol_transport.rs`: "params may be omitted entirely, which means
@@ -587,12 +664,15 @@ async fn recorded_workspace_list_decodes() {
 #[tokio::test]
 async fn recorded_workspace_create_decodes() {
     let f = load_fixture();
+    // Hermetic: the params come from the fixture's own recorded frame, never
+    // from this machine's environment.
+    let recorded = out_body(&f, "onboarding/workspace_create");
     let out = replay::<WorkspaceCreate>(
         "onboarding/workspace_create",
         result_body(&f, "onboarding/workspace_create"),
         WorkspaceCreateParams {
-            parent: std::env::temp_dir().to_string_lossy().to_string(),
-            name: "r2-workspace-probe".into(),
+            parent: recorded["parent"].as_str().expect("parent string").to_owned(),
+            name: recorded["name"].as_str().expect("name string").to_owned(),
         },
     )
     .await;
