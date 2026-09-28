@@ -1,0 +1,8 @@
+# outer-loop control files (not product)
+/OCTOLOOP_PLAN.md
+/outer/
+# lane-local
+/.peer/
+/.octos/
+/tmp/
+/target/
