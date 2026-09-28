@@ -94,18 +94,6 @@
       "value": 4279176975,
       "property": "color"
     },
-    "size_b0c6d93b9923": {
-      "value": 17.19,
-      "property": "size"
-    },
-    "line_height_2d201dafa331": {
-      "value": 20.79,
-      "property": "line_height"
-    },
-    "color_99030f9dc9a5": {
-      "value": 4279505940,
-      "property": "color"
-    },
     "bg_07cf9621f5e0": {
       "value": 4294901502,
       "property": "bg"
@@ -328,35 +316,6 @@
         },
         "color": {
           "$token": "color_c43aba66bfa1"
-        },
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": {
-          "$token": "font_src_86ab34a300f7"
-        },
-        "tracking": {
-          "$token": "tracking_8aed642bf511"
-        }
-      },
-      "props": {
-        "text": "text"
-      },
-      "slot": false
-    },
-    "Texte417d444380e": {
-      "style": {
-        "t": "text",
-        "size": {
-          "$token": "size_b0c6d93b9923"
-        },
-        "line_height": {
-          "$token": "line_height_2d201dafa331"
-        },
-        "weight": {
-          "$token": "weight_26d228663f13"
-        },
-        "color": {
-          "$token": "color_99030f9dc9a5"
         },
         "variant": "single_line",
         "alignx": 0,

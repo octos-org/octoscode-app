@@ -132,15 +132,6 @@
           "h": 23.0
         }
       },
-      "t_reco": {
-        "component": "Texte417d444380e",
-        "layout": {
-          "x": 80.67,
-          "y": 292.0,
-          "w": 134.5,
-          "h": 27.0
-        }
-      },
       "note_box": {
         "component": "Surfaceb8dcba023741",
         "layout": {

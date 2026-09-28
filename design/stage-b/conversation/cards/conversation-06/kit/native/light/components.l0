@@ -31,9 +31,6 @@ component Group4fe983c4793c(instance: text) {
 component Text5a6b3a90fb2a(instance: text, text: text) {
   view Kit(component: "Text5a6b3a90fb2a", instance: instance, text: text)
 }
-component Texte417d444380e(instance: text, text: text) {
-  view Kit(component: "Texte417d444380e", instance: instance, text: text)
-}
 component Surfaceb8dcba023741(instance: text) {
   view Kit(component: "Surfaceb8dcba023741", instance: instance) { slot }
 }

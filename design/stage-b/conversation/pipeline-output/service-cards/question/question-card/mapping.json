@@ -236,26 +236,8 @@
       "size": 17.93
     },
     {
-      "source_id": "t_reco",
-      "native_id": "beauty_0_6",
-      "parent": "question_card",
-      "kind": "text",
-      "component": "Texte417d444380e",
-      "semantic_role": "text",
-      "bounds": [
-        64.67,
-        232.0,
-        134.5,
-        27.0
-      ],
-      "text": "(recommended)",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 17.19
-    },
-    {
       "source_id": "note_box",
-      "native_id": "beauty_0_7",
+      "native_id": "beauty_0_6",
       "parent": "question_card",
       "kind": "stack",
       "component": "Surfaceb8dcba023741",
@@ -273,7 +255,7 @@
     },
     {
       "source_id": "note_input",
-      "native_id": "beauty_0_7_0",
+      "native_id": "beauty_0_6_0",
       "parent": "note_box",
       "kind": "input",
       "component": "Inputc2483154ab8c",
@@ -291,7 +273,7 @@
     },
     {
       "source_id": "submit_answer",
-      "native_id": "beauty_0_8",
+      "native_id": "beauty_0_7",
       "parent": "question_card",
       "kind": "stack",
       "component": "KitButton2c6804b990a5",
@@ -309,7 +291,7 @@
     },
     {
       "source_id": "submit_answer_surface",
-      "native_id": "beauty_0_8_0",
+      "native_id": "beauty_0_7_0",
       "parent": "submit_answer",
       "kind": "stack",
       "component": "Surface85e47be2cb0b",
@@ -327,7 +309,7 @@
     },
     {
       "source_id": "submit_answer_control",
-      "native_id": "beauty_0_8_1",
+      "native_id": "beauty_0_7_1",
       "parent": "submit_answer",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -345,7 +327,7 @@
     },
     {
       "source_id": "submit_answer_label",
-      "native_id": "beauty_0_8_2",
+      "native_id": "beauty_0_7_2",
       "parent": "submit_answer",
       "kind": "text",
       "component": "Text7a4adc61e226",
@@ -363,7 +345,7 @@
     },
     {
       "source_id": "skip",
-      "native_id": "beauty_0_9",
+      "native_id": "beauty_0_8",
       "parent": "question_card",
       "kind": "stack",
       "component": "KitButton2c6804b990a5",
@@ -381,7 +363,7 @@
     },
     {
       "source_id": "skip_surface",
-      "native_id": "beauty_0_9_0",
+      "native_id": "beauty_0_8_0",
       "parent": "skip",
       "kind": "stack",
       "component": "Surface90bffad792f0",
@@ -399,7 +381,7 @@
     },
     {
       "source_id": "skip_control",
-      "native_id": "beauty_0_9_1",
+      "native_id": "beauty_0_8_1",
       "parent": "skip",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -417,7 +399,7 @@
     },
     {
       "source_id": "skip_label",
-      "native_id": "beauty_0_9_2",
+      "native_id": "beauty_0_8_2",
       "parent": "skip",
       "kind": "text",
       "component": "Text5d47e359c8cc",
@@ -439,6 +421,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "c7f633e4498c4c0de481079fcdf7425b2b65d6b036ca61e6c49a7e1c4150a12a",
+  "contract_sha256": "94c650674d61573981bfbea1b78848dcfab645e29827645152fd8cedd2fbbf86",
   "mapping_basis": "mapped.json"
 }

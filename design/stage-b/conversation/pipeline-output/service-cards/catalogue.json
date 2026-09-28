@@ -26,9 +26,9 @@
         374.0,
         660.0
       ],
-      "nodes": 24,
+      "nodes": 23,
       "native_controls": 2,
-      "components": 19
+      "components": 18
     },
     {
       "id": "edited-files-card",
@@ -82,7 +82,7 @@
         362.0,
         566.0
       ],
-      "nodes": 42,
+      "nodes": 43,
       "native_controls": 0,
       "components": 35
     },

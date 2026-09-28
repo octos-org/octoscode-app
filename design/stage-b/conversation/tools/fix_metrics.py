@@ -50,6 +50,12 @@ X_OVERRIDE = {(4, "t05"): 87.5}   # conversation-04 tool_3: ">_ " is the termina
 #             the run's 61.5px ink box pushed it to 24pt (the atlas is ~14pt).
 SIZE_KEEP = {(7, "t_undo")}
 
+# Card #18d item 4: the OCR row MERGED the trailing chevron GLYPH into the label,
+# so the ink-width fit ran the text under the icon ("Last turn v" fitted across
+# 208.5..285.5 while the chevron sits at 277..285.5 — the glyph drew on the "n").
+# Value = the logical x the label's ink must stop at.
+X_RIGHT = {(11, "scope_label"): 268.0}
+
 # Fonts must be resolved from the SAME tree compile.py validates against: the flow's
 # repository('splash-makepad') = <native workspace>/octoscript-makepad. The mono face
 # (ux/LiberationMono-Regular.ttf) is bundled in THIS clone, not in the read-only
@@ -140,6 +146,9 @@ def fix_scene(d, scene_no):
             new_x = X_OVERRIDE[(scene_no, n["id"])]
             iw = (ix + iw) - new_x
             ix = new_x
+        if (scene_no, n["id"]) in X_RIGHT:
+            # cap the ink's right edge (the merged chevron is a separate icon)
+            iw = X_RIGHT[(scene_no, n["id"])] - ix
         if (scene_no, n["id"]) in SIZE_KEEP:
             # The OCR row merged a glyph into the text, so the ink-width fit is
             # wrong for this node: restore the AUTHORED size/box instead of leaving

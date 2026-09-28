@@ -548,9 +548,10 @@ def build_06(sc):
             text(cid + "_label", label, x, y, w + (150 if i == 0 else 0), h, size=14,
                  weight=500 if i == 0 else 400)], event=event))
         sc.controls[cid] = (event, [int(34), int(y - 6), int(340), int(h + 12)], True)
-    # the "(recommended)" suffix stays beside the first option
-    _, rx, ry, rw, rh = sc.rows[4]
-    sc.put(text("t_reco", sc.t(4), rx, ry, rw, rh, size=13, color="muted"))
+    # Card #18d item 3: the "(recommended)" suffix is part of the FIRST option's
+    # own label (see the option loop). It was ALSO drawn here as `t_reco`, which
+    # duplicated it and rendered the copy at a different (smaller) size, so the
+    # card read "In the session ledger (recommended)" a second time below.
     # note input: the reference draws a bordered rounded box around it
     # (z6 view), not bare text.
     sc.put(surface("note_box", 34, 478, 338, 50, bg="white", radius=10, border=1,
@@ -669,8 +670,12 @@ def build_11(sc):
     # followed by "-5" red, not one small green string.
     sc.put(surface("scope_pill", 196, 30, 96, 34, bg="white", radius=999, border=1,
                    bordercolor="hair", kids=[
-        text("scope_label", sc.t(1), 205, 38, 74, 22, size=14, weight=500),
-        icon("scope_chev", "chevron_down", 266, 40, 16, 16, color="muted")]))
+        # Card #18d item 4: the OCR row "Last turn v" INCLUDED the chevron glyph, so
+        # fix_metrics fitted the label across the whole 77px ink and it ran under the
+        # icon. Author the label clear of the icon's own slot and cap its ink at the
+        # text's right edge (X_RIGHT in fix_metrics).
+        text("scope_label", sc.t(1), 204, 38, 68, 22, size=14, weight=500),
+        icon("scope_chev", "chevron_down", 276, 40, 14, 16, color="muted")]))
     sc.controls["scope_pill"] = ("diff.scope", [196, 30, 96, 34], True)
     # totals: "+62" green then "-5" red, split at the measured "+62 -5" row.
     # Card #18c: the first pass placed them across the FULL 64px OCR run (t_del at
@@ -679,13 +684,14 @@ def build_11(sc):
     _, tx, ty, tw, th = sc.rows[2]
     sc.put(text("t_add", "+62", tx, ty, 30, th, weight=500, size=15, color="green"))
     sc.put(text("t_del", "-5", tx + 34, ty, 22, th, weight=500, size=15, color="red"))
-    # file header: a flat bordered row, filename in mono, +31 green / -4 red.
+    # file header: a FLAT row inside the one diff card (card #18d item 2b) — the
+    # atlas has a header row + a divider, not a second rounded box cut on the right.
     _, fx, fy, fw, fh = sc.rows[3]
-    sc.put(surface("file_header", 20, fy - 10, 366, 42, bg="white", radius=10, border=1,
-                   bordercolor="hair", kids=[
+    sc.put(stack("file_header", 20, fy - 10, 366, 42, [
         code("t_file", "ui_protocol_transport.rs", fx, fy, 220, fh, size=14, weight=500),
         text("t_fadd", "+31", 268, fy, 40, fh, size=14, weight=500, color="green"),
         text("t_fdel", "-4", 312, fy, 30, fh, size=14, weight=500, color="red")]))
+    sc.put(surface("file_divider", 24, fy + fh + 4, 358, 1, bg="hair", radius=0))
     # the diff rows (a list of rows; the outer loop reads the flow binding).
     # Row pitch and the first row's y are the MEASURED ref bands
     # (207,256,304,357,407,457,508,558 → pitch ~50.2, start 199 for the row box).
@@ -706,15 +712,18 @@ def build_11(sc):
         y = 199 + i * 50
         color = {"del": "red", "add": "green", "ctx": "ink"}[kind]
         gutter = code(f"ln_{i}", num, 30, y, 18, 22, color="muted")
-        # Card #18c item 5: the atlas puts the `+`/`-` marker in its OWN column
-        # (measured x≈52..66) with the code starting at x≈87 — the first pass baked
-        # the marker into the code string, so the two ran together.
+        # Card #18d item 1: the atlas has THREE columns — number | marker | code.
+        # `mk_N` has no OCR ink (Apple Vision folds `-`/`+` into the code row), so
+        # fix_metrics never re-fits it: it stayed at the authored x=52, INSIDE the
+        # fitted gutter (gutter ink ends 63.5 scene / 43.5 component), and collided
+        # as `199-`. Author all three columns wide enough for their fitted ink:
+        # component atlas = gutter 19.5..40, marker ~54.5, code from 67.5.
         marker = None
         body_text = line
         if kind in ("del", "add"):
-            marker = code(f"mk_{i}", line[:1], 52, y, 14, 24, color=color)
+            marker = code(f"mk_{i}", line[:1], 74, y, 11, 24, color=color)
             body_text = line[2:]
-        body = code(f"dl_{i}", body_text, 72, y, 300, 24, color=color)
+        body = code(f"dl_{i}", body_text, 88, y, 280, 24, color=color)
         row_kids = [gutter] + ([marker] if marker else []) + [body]
         if kind == "del":
             # the reference tints removed rows with a soft red band (measured

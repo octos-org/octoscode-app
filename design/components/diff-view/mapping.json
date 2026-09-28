@@ -60,18 +60,18 @@
       "native_id": "beauty_0_1_0",
       "parent": "scope_pill",
       "kind": "text",
-      "component": "Text0ecbde8d760e",
+      "component": "Text0ee66d3ce531",
       "semantic_role": "text",
       "bounds": [
-        187.03,
+        187.36,
         -56.5,
-        81.0,
-        22.14
+        63.5,
+        21.5
       ],
       "text": "Last turn",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 18.29
+      "size": 14.14
     },
     {
       "source_id": "scope_chev",
@@ -81,9 +81,9 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        251.10399999999998,
+        261.833,
         -55.765,
-        17.167,
+        15.021,
         21.176
       ],
       "text": null,
@@ -132,13 +132,13 @@
       "native_id": "beauty_0_4",
       "parent": "diff_view",
       "kind": "stack",
-      "component": "Surface66974e630766",
+      "component": "Group3d2637879433",
       "semantic_role": "layout",
       "bounds": [
-        6.0,
-        7.0,
-        354.0,
-        81.0
+        0.0,
+        29.97,
+        366.0,
+        42.0
       ],
       "text": null,
       "enabled": null,
@@ -200,8 +200,26 @@
       "size": 14
     },
     {
-      "source_id": "diff_rows",
+      "source_id": "file_divider",
       "native_id": "beauty_0_5",
+      "parent": "diff_view",
+      "kind": "stack",
+      "component": "Surfacec4c38149242a",
+      "semantic_role": "layout",
+      "bounds": [
+        4.0,
+        67.65,
+        358.0,
+        1.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "diff_rows",
+      "native_id": "beauty_0_6",
       "parent": "diff_view",
       "kind": "stack",
       "component": "Group3d2637879433",
@@ -219,7 +237,7 @@
     },
     {
       "source_id": "ln_0",
-      "native_id": "beauty_0_5_0",
+      "native_id": "beauty_0_6_0",
       "parent": "diff_rows",
       "kind": "text",
       "component": "Texta0da122baa92",
@@ -237,7 +255,7 @@
     },
     {
       "source_id": "dl_0",
-      "native_id": "beauty_0_5_1",
+      "native_id": "beauty_0_6_1",
       "parent": "diff_rows",
       "kind": "text",
       "component": "Text82e58d1f7453",
@@ -255,7 +273,7 @@
     },
     {
       "source_id": "row_1",
-      "native_id": "beauty_0_5_2",
+      "native_id": "beauty_0_6_2",
       "parent": "diff_rows",
       "kind": "stack",
       "component": "Surfaced75db230497b",
@@ -273,7 +291,7 @@
     },
     {
       "source_id": "ln_1",
-      "native_id": "beauty_0_5_2_0",
+      "native_id": "beauty_0_6_2_0",
       "parent": "row_1",
       "kind": "text",
       "component": "Textf32407f8980b",
@@ -291,15 +309,15 @@
     },
     {
       "source_id": "mk_1",
-      "native_id": "beauty_0_5_2_1",
+      "native_id": "beauty_0_6_2_1",
       "parent": "row_1",
       "kind": "text",
       "component": "Text73b9b5c4f0e4",
       "semantic_role": "text",
       "bounds": [
-        32.0,
+        54.0,
         157.0,
-        14.0,
+        11.0,
         24.0
       ],
       "text": "-",
@@ -309,7 +327,7 @@
     },
     {
       "source_id": "dl_1",
-      "native_id": "beauty_0_5_2_2",
+      "native_id": "beauty_0_6_2_2",
       "parent": "row_1",
       "kind": "text",
       "component": "Text9347b987ab1a",
@@ -327,7 +345,7 @@
     },
     {
       "source_id": "row_2",
-      "native_id": "beauty_0_5_3",
+      "native_id": "beauty_0_6_3",
       "parent": "diff_rows",
       "kind": "stack",
       "component": "Surfacefcd0436a33ea",
@@ -345,7 +363,7 @@
     },
     {
       "source_id": "ln_2",
-      "native_id": "beauty_0_5_3_0",
+      "native_id": "beauty_0_6_3_0",
       "parent": "row_2",
       "kind": "text",
       "component": "Text2798b068bf5b",
@@ -363,15 +381,15 @@
     },
     {
       "source_id": "mk_2",
-      "native_id": "beauty_0_5_3_1",
+      "native_id": "beauty_0_6_3_1",
       "parent": "row_2",
       "kind": "text",
       "component": "Text73b9b5c4f0e4",
       "semantic_role": "text",
       "bounds": [
-        32.0,
+        54.0,
         207.0,
-        14.0,
+        11.0,
         24.0
       ],
       "text": "-",
@@ -381,7 +399,7 @@
     },
     {
       "source_id": "dl_2",
-      "native_id": "beauty_0_5_3_2",
+      "native_id": "beauty_0_6_3_2",
       "parent": "row_2",
       "kind": "text",
       "component": "Text5ed0aef22d93",
@@ -399,7 +417,7 @@
     },
     {
       "source_id": "row_3",
-      "native_id": "beauty_0_5_4",
+      "native_id": "beauty_0_6_4",
       "parent": "diff_rows",
       "kind": "stack",
       "component": "Surface8fb0f9d1e1aa",
@@ -417,7 +435,7 @@
     },
     {
       "source_id": "ln_3",
-      "native_id": "beauty_0_5_4_0",
+      "native_id": "beauty_0_6_4_0",
       "parent": "row_3",
       "kind": "text",
       "component": "Textbedc46ae06d1",
@@ -435,15 +453,15 @@
     },
     {
       "source_id": "mk_3",
-      "native_id": "beauty_0_5_4_1",
+      "native_id": "beauty_0_6_4_1",
       "parent": "row_3",
       "kind": "text",
       "component": "Textc6ef761c69e6",
       "semantic_role": "text",
       "bounds": [
-        32.0,
+        54.0,
         257.0,
-        14.0,
+        11.0,
         24.0
       ],
       "text": "+",
@@ -453,7 +471,7 @@
     },
     {
       "source_id": "dl_3",
-      "native_id": "beauty_0_5_4_2",
+      "native_id": "beauty_0_6_4_2",
       "parent": "row_3",
       "kind": "text",
       "component": "Textd3c6476acb74",
@@ -471,7 +489,7 @@
     },
     {
       "source_id": "row_4",
-      "native_id": "beauty_0_5_5",
+      "native_id": "beauty_0_6_5",
       "parent": "diff_rows",
       "kind": "stack",
       "component": "Surface8fb0f9d1e1aa",
@@ -489,7 +507,7 @@
     },
     {
       "source_id": "ln_4",
-      "native_id": "beauty_0_5_5_0",
+      "native_id": "beauty_0_6_5_0",
       "parent": "row_4",
       "kind": "text",
       "component": "Textd88beed3e030",
@@ -507,15 +525,15 @@
     },
     {
       "source_id": "mk_4",
-      "native_id": "beauty_0_5_5_1",
+      "native_id": "beauty_0_6_5_1",
       "parent": "row_4",
       "kind": "text",
       "component": "Textc6ef761c69e6",
       "semantic_role": "text",
       "bounds": [
-        32.0,
+        54.0,
         307.0,
-        14.0,
+        11.0,
         24.0
       ],
       "text": "+",
@@ -525,7 +543,7 @@
     },
     {
       "source_id": "dl_4",
-      "native_id": "beauty_0_5_5_2",
+      "native_id": "beauty_0_6_5_2",
       "parent": "row_4",
       "kind": "text",
       "component": "Text0706174c2a9d",
@@ -543,7 +561,7 @@
     },
     {
       "source_id": "row_5",
-      "native_id": "beauty_0_5_6",
+      "native_id": "beauty_0_6_6",
       "parent": "diff_rows",
       "kind": "stack",
       "component": "Surface8fb0f9d1e1aa",
@@ -561,7 +579,7 @@
     },
     {
       "source_id": "ln_5",
-      "native_id": "beauty_0_5_6_0",
+      "native_id": "beauty_0_6_6_0",
       "parent": "row_5",
       "kind": "text",
       "component": "Text5aacbcae43ed",
@@ -579,15 +597,15 @@
     },
     {
       "source_id": "mk_5",
-      "native_id": "beauty_0_5_6_1",
+      "native_id": "beauty_0_6_6_1",
       "parent": "row_5",
       "kind": "text",
       "component": "Textc6ef761c69e6",
       "semantic_role": "text",
       "bounds": [
-        32.0,
+        54.0,
         357.0,
-        14.0,
+        11.0,
         24.0
       ],
       "text": "+",
@@ -597,7 +615,7 @@
     },
     {
       "source_id": "dl_5",
-      "native_id": "beauty_0_5_6_2",
+      "native_id": "beauty_0_6_6_2",
       "parent": "row_5",
       "kind": "text",
       "component": "Texta31b6a8d052a",
@@ -615,7 +633,7 @@
     },
     {
       "source_id": "row_6",
-      "native_id": "beauty_0_5_7",
+      "native_id": "beauty_0_6_7",
       "parent": "diff_rows",
       "kind": "stack",
       "component": "Surface8fb0f9d1e1aa",
@@ -633,7 +651,7 @@
     },
     {
       "source_id": "ln_6",
-      "native_id": "beauty_0_5_7_0",
+      "native_id": "beauty_0_6_7_0",
       "parent": "row_6",
       "kind": "text",
       "component": "Text702d8e0568e1",
@@ -651,15 +669,15 @@
     },
     {
       "source_id": "mk_6",
-      "native_id": "beauty_0_5_7_1",
+      "native_id": "beauty_0_6_7_1",
       "parent": "row_6",
       "kind": "text",
       "component": "Textc6ef761c69e6",
       "semantic_role": "text",
       "bounds": [
-        32.0,
+        54.0,
         407.0,
-        14.0,
+        11.0,
         24.0
       ],
       "text": "+",
@@ -669,7 +687,7 @@
     },
     {
       "source_id": "dl_6",
-      "native_id": "beauty_0_5_7_2",
+      "native_id": "beauty_0_6_7_2",
       "parent": "row_6",
       "kind": "text",
       "component": "Text87551b558623",
@@ -687,7 +705,7 @@
     },
     {
       "source_id": "ln_7",
-      "native_id": "beauty_0_5_8",
+      "native_id": "beauty_0_6_8",
       "parent": "diff_rows",
       "kind": "text",
       "component": "Textb2dc805d1fc5",
@@ -705,15 +723,15 @@
     },
     {
       "source_id": "dl_7",
-      "native_id": "beauty_0_5_9",
+      "native_id": "beauty_0_6_9",
       "parent": "diff_rows",
       "kind": "text",
       "component": "Text6292c61548c3",
       "semantic_role": "text",
       "bounds": [
-        52.0,
+        68.0,
         457.0,
-        300.0,
+        280.0,
         24.0
       ],
       "text": "}",
@@ -723,7 +741,7 @@
     },
     {
       "source_id": "folded",
-      "native_id": "beauty_0_6",
+      "native_id": "beauty_0_7",
       "parent": "diff_view",
       "kind": "stack",
       "component": "Surface3f4294893b55",
@@ -741,7 +759,7 @@
     },
     {
       "source_id": "t_fold",
-      "native_id": "beauty_0_6_0",
+      "native_id": "beauty_0_7_0",
       "parent": "folded",
       "kind": "text",
       "component": "Text76b2bc3a3ce4",
@@ -764,6 +782,6 @@
     "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "765e46f7e88e41320cdca6b5216838d132d6dc39febfd3d68ccd4a4e18dce28d",
+  "contract_sha256": "cb96028dc795d08921784b889240321a9782b89c36613e48d9dd02d9a94d76c4",
   "mapping_basis": "mapped.json"
 }

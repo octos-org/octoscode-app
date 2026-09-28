@@ -161,23 +161,6 @@
         "event": "question.select.ask"
       },
       {
-        "t": "text",
-        "id": "t_reco",
-        "text": "(recommended)",
-        "x": 64.67,
-        "y": 232.0,
-        "w": 134.5,
-        "h": 27.0,
-        "size": 17.19,
-        "line_height": 20.79,
-        "weight": 400,
-        "color": 4279505940,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
         "t": "stack",
         "id": "note_box",
         "x": 7.0,
@@ -317,7 +300,7 @@
   "changes": [
     {
       "source": "cards/conversation-06/mapped.json",
-      "source_sha256": "d575ed0e9ad03dbdcf22e882219e98deb3365705c8359368462b084aa8fd03a1",
+      "source_sha256": "7d1c725aacbaf0b744520c9bb8195b99a57d00b7c351db0f966a8c87afe043fe",
       "operation": "Extract native subtree and translate origin",
       "source_root": "question_card",
       "translation": [

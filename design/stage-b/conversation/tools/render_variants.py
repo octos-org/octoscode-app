@@ -91,6 +91,11 @@ RESPONSIVE = {
                    "t01": {"fillw": 1}},
     "diff-view": {"diff_view": {"fillw": 1, "fith": 1},
                   "diff_rows": {"fillw": 1},
+                  # Card #18d: the header divider must be fill-width too. As a bare
+                  # surface it emitted `abs_pos` (window-absolute), so it drew at
+                  # x4..362 OUTSIDE the card (root margin 16) and tripped the
+                  # rightmost-4px check — the exact regression the check exists for.
+                  "file_divider": {"fillw": 1},
                   "file_header": {"fillw": 1}, "scope_pill": {"fillw": 1},
                   "row_1": {"fillw": 1}, "row_2": {"fillw": 1},
                   "row_3": {"fillw": 1}, "row_4": {"fillw": 1},
@@ -163,7 +168,7 @@ VARIANTS = {
         "short": {"text": {"t_file": "ui_protocol.rs", "t_fadd": "+9", "t_fdel": "-1",
                            "t_fold": "⋮ 88 unmodified lines ⋮"}},
         "long": {"text": {"t_file": "ui_protocol_transport.rs", "t_fadd": "+31", "t_fdel": "-4",
-                          "t_fold": ":412 unmodified lines"}},
+                          "t_fold": "⋮ 412 unmodified lines ⋮"}},
     },
     "settings-group": {
         "short": {"text": {"t01": "Permissions"}},

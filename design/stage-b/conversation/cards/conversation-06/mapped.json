@@ -169,23 +169,6 @@
             "event": "question.select.ask"
           },
           {
-            "t": "text",
-            "id": "t_reco",
-            "text": "(recommended)",
-            "x": 80.67,
-            "y": 292.0,
-            "w": 134.5,
-            "h": 27.0,
-            "size": 17.19,
-            "line_height": 20.79,
-            "weight": 400,
-            "color": 4279505940,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-400.ttf",
-            "tracking": 0.0
-          },
-          {
             "t": "stack",
             "id": "note_box",
             "x": 23.0,
@@ -412,12 +395,6 @@
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.14868056983278513
-    },
-    {
-      "id": "t_reco",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.1856087947237319
     },
     {
       "id": "submit_answer_label",

@@ -46,12 +46,12 @@
       "value": 22.5,
       "property": "radius"
     },
-    "size_8a996e28cbb2": {
-      "value": 18.29,
+    "size_9e6467479872": {
+      "value": 14.14,
       "property": "size"
     },
-    "line_height_9f1bc1358f9b": {
-      "value": 22.14,
+    "line_height_48f0954709a6": {
+      "value": 17.1,
       "property": "line_height"
     },
     "weight_0604cd3138fe": {
@@ -82,14 +82,6 @@
       "value": 4291764782,
       "property": "color"
     },
-    "bg_96b9880d1b2b": {
-      "value": 4294901246,
-      "property": "bg"
-    },
-    "radius_64d7b147c046": {
-      "value": 19.29,
-      "property": "radius"
-    },
     "size_20859fc7798f": {
       "value": 14.3,
       "property": "size"
@@ -113,6 +105,14 @@
     "line_height_af56dccdaa9c": {
       "value": 23.69,
       "property": "line_height"
+    },
+    "bg_642da6636bd0": {
+      "value": 4293256679,
+      "property": "bg"
+    },
+    "radius_5feceb66ffc8": {
+      "value": 0,
+      "property": "radius"
     },
     "size_b0fdcdd2b98e": {
       "value": 11.39,
@@ -384,14 +384,14 @@
       "props": {},
       "slot": true
     },
-    "Text0ecbde8d760e": {
+    "Text0ee66d3ce531": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_8a996e28cbb2"
+          "$token": "size_9e6467479872"
         },
         "line_height": {
-          "$token": "line_height_9f1bc1358f9b"
+          "$token": "line_height_48f0954709a6"
         },
         "weight": {
           "$token": "weight_0604cd3138fe"
@@ -472,18 +472,9 @@
       },
       "slot": false
     },
-    "Surface66974e630766": {
+    "Group3d2637879433": {
       "style": {
-        "t": "stack",
-        "variant": "surface",
-        "bg": {
-          "$token": "bg_96b9880d1b2b"
-        },
-        "radius": {
-          "$token": "radius_64d7b147c046"
-        },
-        "border": 1,
-        "bordercolor": 4293256679
+        "t": "stack"
       },
       "props": {},
       "slot": true
@@ -569,9 +560,16 @@
       },
       "slot": false
     },
-    "Group3d2637879433": {
+    "Surfacec4c38149242a": {
       "style": {
-        "t": "stack"
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_642da6636bd0"
+        },
+        "radius": {
+          "$token": "radius_5feceb66ffc8"
+        }
       },
       "props": {},
       "slot": true

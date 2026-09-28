@@ -44,9 +44,9 @@
       "id": "scope_label",
       "expected_text": "Last turn",
       "requested_bounds": [
-        205.0,
+        204.0,
         38.0,
-        74.0,
+        68.0,
         22.0
       ],
       "status": "observed",
@@ -184,9 +184,9 @@
       "id": "dl_0",
       "expected_text": "fn handle_disconnect(&mut self) {",
       "requested_bounds": [
-        72.0,
+        88.0,
         199.0,
-        300.0,
+        280.0,
         24.0
       ],
       "status": "observed",
@@ -248,9 +248,9 @@
       "id": "mk_1",
       "expected_text": "-",
       "requested_bounds": [
-        52.0,
+        74.0,
         249.0,
-        14.0,
+        11.0,
         24.0
       ],
       "status": "missing_or_ocr_unresolved"
@@ -259,9 +259,9 @@
       "id": "dl_1",
       "expected_text": "self.queue.clear();",
       "requested_bounds": [
-        72.0,
+        88.0,
         249.0,
-        300.0,
+        280.0,
         24.0
       ],
       "status": "observed",
@@ -323,9 +323,9 @@
       "id": "mk_2",
       "expected_text": "-",
       "requested_bounds": [
-        52.0,
+        74.0,
         299.0,
-        14.0,
+        11.0,
         24.0
       ],
       "status": "missing_or_ocr_unresolved"
@@ -334,9 +334,9 @@
       "id": "dl_2",
       "expected_text": "self.state = State::Disconnected;",
       "requested_bounds": [
-        72.0,
+        88.0,
         299.0,
-        300.0,
+        280.0,
         24.0
       ],
       "status": "observed",
@@ -398,9 +398,9 @@
       "id": "mk_3",
       "expected_text": "+",
       "requested_bounds": [
-        52.0,
+        74.0,
         349.0,
-        14.0,
+        11.0,
         24.0
       ],
       "status": "missing_or_ocr_unresolved"
@@ -409,9 +409,9 @@
       "id": "dl_3",
       "expected_text": "self.persist_queue()?;",
       "requested_bounds": [
-        72.0,
+        88.0,
         349.0,
-        300.0,
+        280.0,
         24.0
       ],
       "status": "observed",
@@ -473,9 +473,9 @@
       "id": "mk_4",
       "expected_text": "+",
       "requested_bounds": [
-        52.0,
+        74.0,
         399.0,
-        14.0,
+        11.0,
         24.0
       ],
       "status": "missing_or_ocr_unresolved"
@@ -484,9 +484,9 @@
       "id": "dl_4",
       "expected_text": "self.queue.mark_pending();",
       "requested_bounds": [
-        72.0,
+        88.0,
         399.0,
-        300.0,
+        280.0,
         24.0
       ],
       "status": "observed",
@@ -548,9 +548,9 @@
       "id": "mk_5",
       "expected_text": "+",
       "requested_bounds": [
-        52.0,
+        74.0,
         449.0,
-        14.0,
+        11.0,
         24.0
       ],
       "status": "missing_or_ocr_unresolved"
@@ -559,9 +559,9 @@
       "id": "dl_5",
       "expected_text": "self.metrics.reconnects += 1;",
       "requested_bounds": [
-        72.0,
+        88.0,
         449.0,
-        300.0,
+        280.0,
         24.0
       ],
       "status": "observed",
@@ -623,9 +623,9 @@
       "id": "mk_6",
       "expected_text": "+",
       "requested_bounds": [
-        52.0,
+        74.0,
         499.0,
-        14.0,
+        11.0,
         24.0
       ],
       "status": "missing_or_ocr_unresolved"
@@ -634,9 +634,9 @@
       "id": "dl_6",
       "expected_text": "self.state = State::Disconnected;",
       "requested_bounds": [
-        72.0,
+        88.0,
         499.0,
-        300.0,
+        280.0,
         24.0
       ],
       "status": "observed",
@@ -698,9 +698,9 @@
       "id": "dl_7",
       "expected_text": "}",
       "requested_bounds": [
-        72.0,
+        88.0,
         549.0,
-        300.0,
+        280.0,
         24.0
       ],
       "status": "missing_or_ocr_unresolved"
@@ -780,9 +780,9 @@
     {
       "id": "scope_chev",
       "bounds": [
-        271.104,
+        281.833,
         36.235,
-        17.167,
+        15.021,
         21.176
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
@@ -791,15 +791,24 @@
     {
       "id": "file_header",
       "bounds": [
-        26.0,
-        99.0,
-        354.0,
-        81.0
+        20.0,
+        121.97,
+        366.0,
+        42.0
       ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294901246,
-      "radius": 19.29
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "file_divider",
+      "bounds": [
+        24.0,
+        159.65,
+        358.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
     },
     {
       "id": "diff_rows",

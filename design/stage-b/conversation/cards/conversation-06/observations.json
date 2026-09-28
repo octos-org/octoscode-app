@@ -127,38 +127,6 @@
       ]
     },
     {
-      "id": "t_reco",
-      "expected_text": "(recommended)",
-      "requested_bounds": [
-        76.61,
-        293.91,
-        140.01,
-        25.76
-      ],
-      "status": "observed",
-      "ocr_text": "(recommended)",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        82.5,
-        294.0,
-        130.5,
-        23.0
-      ],
-      "ink_color": [
-        20,
-        20,
-        20
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        76.60621416897794,
-        293.90909558624446,
-        140.00979614257812,
-        25.76320457458491
-      ]
-    },
-    {
       "id": "submit_answer_label",
       "expected_text": "Submit answer",
       "requested_bounds": [
@@ -450,6 +418,16 @@
       ],
       "confidence": 1,
       "text": "In the session ledger"
+    },
+    {
+      "bounds": [
+        153.21242833795588,
+        587.8181911724889,
+        280.01959228515625,
+        51.52640914916982
+      ],
+      "confidence": 1,
+      "text": "(recommended)"
     },
     {
       "bounds": [

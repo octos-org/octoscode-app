@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "c7f633e4498c4c0de481079fcdf7425b2b65d6b036ca61e6c49a7e1c4150a12a",
+  "contract_sha256": "94c650674d61573981bfbea1b78848dcfab645e29827645152fd8cedd2fbbf86",
   "reference_sha256": "579b5396e106aaa223ebf2655f1dfac53f795058e362202c78634d64e15c456e",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -127,13 +127,6 @@
     },
     {
       "id": "opt_ask_label",
-      "role": "text",
-      "basis": "authored text node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "t_reco",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,

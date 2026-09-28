@@ -68,7 +68,7 @@
         374.0,
         660.0
       ],
-      "nodes": 24,
+      "nodes": 23,
       "native_controls": 2,
       "card": "design/components/question-card/page.card",
       "data": "design/components/question-card/page.data.json",
@@ -221,18 +221,18 @@
       "variants": {
         "short": {
           "file": "ui_protocol.rs  +9 -1",
-          "folded": ":88 unmodified lines"
+          "folded": "\u22ee 88 unmodified lines \u22ee"
         },
         "long": {
           "file": "ui_protocol_transport.rs  +31 -4",
-          "folded": ":412 unmodified lines"
+          "folded": "\u22ee 412 unmodified lines \u22ee"
         }
       },
       "artboard": [
         362.0,
         566.0
       ],
-      "nodes": 42,
+      "nodes": 43,
       "native_controls": 0,
       "card": "design/components/diff-view/page.card",
       "data": "design/components/diff-view/page.data.json",

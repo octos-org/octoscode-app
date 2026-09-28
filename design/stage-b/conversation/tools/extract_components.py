@@ -71,8 +71,11 @@ SPEC = {
         "scene": "11", "source": "conversation-11",
         "bindings": ["scope", "file", "rows", "folded"],
         "variants": {
-            "short": {"file": "ui_protocol.rs  +9 -1", "folded": ":88 unmodified lines"},
-            "long": {"file": "ui_protocol_transport.rs  +31 -4", "folded": ":412 unmodified lines"}}},
+            # Card #18d item 2a: the OCR read the atlas's leading vertical-ellipsis
+            # as a colon, so both variants carried a stray ':' and no marks; copy
+            # scene 11's correct text.
+            "short": {"file": "ui_protocol.rs  +9 -1", "folded": "⋮ 88 unmodified lines ⋮"},
+            "long": {"file": "ui_protocol_transport.rs  +31 -4", "folded": "⋮ 412 unmodified lines ⋮"}}},
     "settings-group": {
         "scene": "12", "source": "conversation-12",
         "bindings": ["section", "rows", "model"],

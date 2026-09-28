@@ -8,7 +8,6 @@ copy question_text_text { class: user-copy, en: "Where should queued steers be p
 copy opt_ledger_label_text { class: user-copy, en: "In the session ledger  (recommended)" }
 copy opt_memory_label_text { class: user-copy, en: "In memory only" }
 copy opt_ask_label_text { class: user-copy, en: "Ask each time" }
-copy t_reco_text { class: user-copy, en: "(recommended)" }
 copy note_input_text { class: user-copy, en: "" }
 copy note_input_placeholder { class: user-copy, en: "Add a note" }
 copy submit_answer_label_text { class: user-copy, en: "Submit answer" }
@@ -48,9 +47,6 @@ component Group4fe983c4793c(instance: text) {
 }
 component Text5a6b3a90fb2a(instance: text, text: text) {
   view Kit(component: "Text5a6b3a90fb2a", instance: instance, text: text)
-}
-component Texte417d444380e(instance: text, text: text) {
-  view Kit(component: "Texte417d444380e", instance: instance, text: text)
 }
 component Surfaceb8dcba023741(instance: text) {
   view Kit(component: "Surfaceb8dcba023741", instance: instance) { slot }
@@ -94,7 +90,6 @@ view root Surface16fae9a63e16(instance: "page") {
       Vectore0a378fde04f(instance: "opt_ask_radio")
       Text5a6b3a90fb2a(instance: "opt_ask_label", text: copy.opt_ask_label_text)
     }
-    Texte417d444380e(instance: "t_reco", text: copy.t_reco_text)
     Surfaceb8dcba023741(instance: "note_box") {
       Inputc2483154ab8c(instance: "note_input", text: copy.note_input_text, placeholder: copy.note_input_placeholder, enabled: note_input_enabled) {
 

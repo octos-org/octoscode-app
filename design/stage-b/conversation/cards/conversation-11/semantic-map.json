@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "1a7fed2f5c97e85b7987c0d32333a2d3418f808fad151df17a6fd2e887c73b9c",
+  "contract_sha256": "970d893c73d40a25c8ec064a6ddb2f57f185af227db840a9fe86d20271153253",
   "reference_sha256": "d64d89d4555db79774edd25128866286bcdbac7ef5f8f4df412e792eab09b655",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -95,6 +95,13 @@
       "id": "t_fdel",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "file_divider",
+      "role": "layout",
+      "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },
