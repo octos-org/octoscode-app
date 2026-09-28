@@ -11,53 +11,41 @@ copy t05_text { class: user-copy, en: "Approve once" }
 copy t06_text { class: user-copy, en: "Approve for session" }
 copy t07_text { class: user-copy, en: "Deny" }
 copy t08_text { class: user-copy, en: "Y /S / N" }
-state approve_once_enabled { shape: bool, initial: true }
-state approve_session_enabled { shape: bool, initial: true }
-state deny_enabled { shape: bool, initial: true }
 component Surface16fae9a63e16(instance: text) {
   view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
 }
-component Text302b6ef6aea4(instance: text, text: text) {
-  view Kit(component: "Text302b6ef6aea4", instance: instance, text: text)
+component Text8cb1e9073ec4(instance: text, text: text) {
+  view Kit(component: "Text8cb1e9073ec4", instance: instance, text: text)
 }
-component Text14214d12b99a(instance: text, text: text) {
-  view Kit(component: "Text14214d12b99a", instance: instance, text: text)
+component Text35f0a2e18a80(instance: text, text: text) {
+  view Kit(component: "Text35f0a2e18a80", instance: instance, text: text)
 }
-component Textb81f047caaf8(instance: text, text: text) {
-  view Kit(component: "Textb81f047caaf8", instance: instance, text: text)
+component Text0ec9c7831f76(instance: text, text: text) {
+  view Kit(component: "Text0ec9c7831f76", instance: instance, text: text)
 }
-component Text8d94763719d8(instance: text, text: text) {
-  view Kit(component: "Text8d94763719d8", instance: instance, text: text)
+component Text37f3e2fa568e(instance: text, text: text) {
+  view Kit(component: "Text37f3e2fa568e", instance: instance, text: text)
 }
-component NativeButton939d519a17bf(instance: text, enabled: bool) {
-  view Kit(component: "NativeButton939d519a17bf", instance: instance, enabled: enabled) { slot }
+component Text4babf535c3bd(instance: text, text: text) {
+  view Kit(component: "Text4babf535c3bd", instance: instance, text: text)
 }
-component Text287a999af11e(instance: text, text: text) {
-  view Kit(component: "Text287a999af11e", instance: instance, text: text)
+component Texteaf9cf71c02e(instance: text, text: text) {
+  view Kit(component: "Texteaf9cf71c02e", instance: instance, text: text)
 }
-component Text023a2761d3ab(instance: text, text: text) {
-  view Kit(component: "Text023a2761d3ab", instance: instance, text: text)
+component Textd69d397afce1(instance: text, text: text) {
+  view Kit(component: "Textd69d397afce1", instance: instance, text: text)
 }
-component Text7655be70583a(instance: text, text: text) {
-  view Kit(component: "Text7655be70583a", instance: instance, text: text)
-}
-component Text19749189e0cf(instance: text, text: text) {
-  view Kit(component: "Text19749189e0cf", instance: instance, text: text)
+component Text67f5fdec256d(instance: text, text: text) {
+  view Kit(component: "Text67f5fdec256d", instance: instance, text: text)
 }
 
 view root Surface16fae9a63e16(instance: "page") {
-  Text302b6ef6aea4(instance: "t01", text: copy.t01_text)
-  Text14214d12b99a(instance: "t02", text: copy.t02_text)
-  Textb81f047caaf8(instance: "t03", text: copy.t03_text)
-  Text8d94763719d8(instance: "t04", text: copy.t04_text)
-  NativeButton939d519a17bf(instance: "approve_once", enabled: approve_once_enabled) {
-    Text287a999af11e(instance: "t05", text: copy.t05_text)
-  }
-  NativeButton939d519a17bf(instance: "approve_session", enabled: approve_session_enabled) {
-    Text023a2761d3ab(instance: "t06", text: copy.t06_text)
-  }
-  NativeButton939d519a17bf(instance: "deny", enabled: deny_enabled) {
-    Text7655be70583a(instance: "t07", text: copy.t07_text)
-  }
-  Text19749189e0cf(instance: "t08", text: copy.t08_text)
+  Text8cb1e9073ec4(instance: "t01", text: copy.t01_text)
+  Text35f0a2e18a80(instance: "t02", text: copy.t02_text)
+  Text0ec9c7831f76(instance: "t03", text: copy.t03_text)
+  Text37f3e2fa568e(instance: "t04", text: copy.t04_text)
+  Text4babf535c3bd(instance: "t05", text: copy.t05_text)
+  Texteaf9cf71c02e(instance: "t06", text: copy.t06_text)
+  Textd69d397afce1(instance: "t07", text: copy.t07_text)
+  Text67f5fdec256d(instance: "t08", text: copy.t08_text)
 }

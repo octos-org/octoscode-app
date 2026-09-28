@@ -62,12 +62,69 @@
     {
       "id": "worked_row",
       "bounds": [
-        17.94,
-        34.86,
-        196.44,
-        38.64
+        16.0,
+        32.0,
+        374.0,
+        44.0
       ],
       "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "worked_row_surface",
+      "bounds": [
+        16.0,
+        32.0,
+        374.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.0
+    },
+    {
+      "id": "worked_row_control",
+      "bounds": [
+        16.0,
+        32.0,
+        374.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "icon_copy",
+      "bounds": [
+        24.0,
+        662.0,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_thumbs",
+      "bounds": [
+        52.0,
+        662.0,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_share",
+      "bounds": [
+        80.0,
+        662.0,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
     }
   ]

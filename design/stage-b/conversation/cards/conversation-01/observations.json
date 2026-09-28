@@ -10,17 +10,17 @@
   "text": [
     {
       "id": "t01",
-      "expected_text": "OctosCode v",
+      "expected_text": "OctosCode \u25be",
       "requested_bounds": [
         22.46,
         46.77,
         154.7,
-        29.31
+        28.5
       ],
       "status": "observed",
       "ocr_text": "OctosCode v",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9090909090909091,
       "ink_bounds": [
         24.5,
         48.5,
@@ -41,13 +41,13 @@
       ]
     },
     {
-      "id": "t02",
+      "id": "new_chat_label",
       "expected_text": "New chat",
       "requested_bounds": [
-        35.948785546400075,
-        137.02212955863436,
-        87.12,
-        24.41
+        38.0,
+        132.0,
+        140.0,
+        24.0
       ],
       "status": "observed",
       "ocr_text": "New chat",
@@ -73,13 +73,13 @@
       ]
     },
     {
-      "id": "t03",
+      "id": "thread_1_label",
       "expected_text": "Fix steer queue drop on reconnect",
       "requested_bounds": [
-        32.222231299192686,
-        229.50000006902022,
-        309.33,
-        33.0
+        32.22,
+        229.5,
+        300.0,
+        32.51
       ],
       "status": "observed",
       "ocr_text": "Fix steer queue drop on reconnect",
@@ -105,13 +105,13 @@
       ]
     },
     {
-      "id": "t04",
+      "id": "thread_2_label",
       "expected_text": "Add session fork",
       "requested_bounds": [
-        34.961108470425344,
-        313.4999995637694,
-        145.48,
-        23.22
+        34.96,
+        313.5,
+        300.0,
+        21.5
       ],
       "status": "observed",
       "ocr_text": "Add session fork",
@@ -137,13 +137,13 @@
       ]
     },
     {
-      "id": "t05",
+      "id": "thread_3_label",
       "expected_text": "Review PR #2566",
       "requested_bounds": [
-        36.08888806335851,
-        394.7674417807523,
-        148.87,
-        26.8
+        36.09,
+        394.77,
+        300.0,
+        24.81
       ],
       "status": "observed",
       "ocr_text": "Review PR #2556",
@@ -169,13 +169,13 @@
       ]
     },
     {
-      "id": "t06",
+      "id": "thread_4_label",
       "expected_text": "Bump octos-core to a6ea8505",
       "requested_bounds": [
-        36.08888937433068,
-        481.499999744909,
-        258.26,
-        28.14
+        36.09,
+        481.5,
+        300.0,
+        26.06
       ],
       "status": "observed",
       "ocr_text": "Bump octos-core to abea8505",
@@ -201,13 +201,13 @@
       ]
     },
     {
-      "id": "t07",
+      "id": "thread_5_label",
       "expected_text": "Why is hydrate slow?",
       "requested_bounds": [
-        34.96111294487628,
-        565.0000001958095,
-        179.32,
-        29.33
+        34.96,
+        565.0,
+        300.0,
+        27.15
       ],
       "status": "observed",
       "ocr_text": "Why is hydrate slow?",
@@ -247,23 +247,104 @@
       "bg": 4294901502
     },
     {
+      "id": "icon_bell",
+      "bounds": [
+        306.0,
+        46.0,
+        21.0,
+        25.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_search",
+      "bounds": [
+        359.0,
+        46.0,
+        22.0,
+        25.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
       "id": "new_chat",
       "bounds": [
-        27.95,
-        129.02,
-        103.12,
-        38.6
+        16.0,
+        109.0,
+        374.0,
+        76.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "new_chat_surface",
+      "bounds": [
+        16.0,
+        109.0,
+        374.0,
+        76.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 17.27
+    },
+    {
+      "id": "new_chat_control",
+      "bounds": [
+        16.0,
+        109.0,
+        374.0,
+        76.0
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
     },
     {
+      "id": "icon_compose",
+      "bounds": [
+        347.0,
+        130.0,
+        24.0,
+        28.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
       "id": "thread_1",
       "bounds": [
-        24.22,
-        221.5,
-        325.33,
-        48.5
+        14.0,
+        204.0,
+        379.0,
+        78.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "thread_1_surface",
+      "bounds": [
+        14.0,
+        204.0,
+        379.0,
+        78.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294046195,
+      "radius": 12.89
+    },
+    {
+      "id": "thread_1_control",
+      "bounds": [
+        14.0,
+        204.0,
+        379.0,
+        78.0
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -271,10 +352,34 @@
     {
       "id": "thread_2",
       "bounds": [
-        26.96,
-        305.5,
-        161.48,
-        37.5
+        16.0,
+        299.5,
+        374.0,
+        49.5
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thread_2_surface",
+      "bounds": [
+        16.0,
+        299.5,
+        374.0,
+        49.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.0
+    },
+    {
+      "id": "thread_2_control",
+      "bounds": [
+        16.0,
+        299.5,
+        374.0,
+        49.5
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -282,10 +387,34 @@
     {
       "id": "thread_3",
       "bounds": [
-        28.09,
-        386.77,
-        164.87,
-        40.81
+        16.0,
+        380.77,
+        374.0,
+        52.81
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thread_3_surface",
+      "bounds": [
+        16.0,
+        380.77,
+        374.0,
+        52.81
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 10.0
+    },
+    {
+      "id": "thread_3_control",
+      "bounds": [
+        16.0,
+        380.77,
+        374.0,
+        52.81
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -293,10 +422,34 @@
     {
       "id": "thread_4",
       "bounds": [
-        28.09,
-        473.5,
-        274.26,
-        42.06
+        16.0,
+        467.5,
+        374.0,
+        54.06
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thread_4_surface",
+      "bounds": [
+        16.0,
+        467.5,
+        374.0,
+        54.06
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.0
+    },
+    {
+      "id": "thread_4_control",
+      "bounds": [
+        16.0,
+        467.5,
+        374.0,
+        54.06
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -304,12 +457,47 @@
     {
       "id": "thread_5",
       "bounds": [
-        26.96,
-        557.0,
-        195.32,
-        43.15
+        16.0,
+        551.0,
+        374.0,
+        55.15
       ],
       "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thread_5_surface",
+      "bounds": [
+        16.0,
+        551.0,
+        374.0,
+        55.15
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.0
+    },
+    {
+      "id": "thread_5_control",
+      "bounds": [
+        16.0,
+        551.0,
+        374.0,
+        55.15
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "icon_fork",
+      "bounds": [
+        352.0,
+        310.5,
+        19.0,
+        26.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
     }
   ],

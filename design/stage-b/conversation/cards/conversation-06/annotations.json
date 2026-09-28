@@ -34,39 +34,6 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4294901502
-    },
-    {
-      "id": "note_input",
-      "bounds": [
-        31.26,
-        485.14,
-        200.0,
-        40.33
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "submit_answer",
-      "bounds": [
-        129.55,
-        582.77,
-        151.42,
-        40.19
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "skip",
-      "bounds": [
-        172.44,
-        665.36,
-        58.86,
-        45.33
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
     }
   ]
 }

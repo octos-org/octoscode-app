@@ -24,10 +24,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
 [
   {
     "id": "page",
-    "x": 0,
-    "y": 0,
-    "w": 406,
-    "h": 776,
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -38,10 +38,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 22.46,
     "y": 46.77,
     "w": 154.7,
-    "h": 29.31,
-    "text": "OctosCode v",
+    "h": 28.5,
+    "text": "OctosCode \u25be",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 19.54,
+    "size": 19,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -50,11 +50,29 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "icon_bell",
+    "x": 306.0,
+    "y": 46.0,
+    "w": 21.0,
+    "h": 25.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "icon_search",
+    "x": 359.0,
+    "y": 46.0,
+    "w": 22.0,
+    "h": 25.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
     "id": "new_chat",
-    "x": 27.95,
-    "y": 129.02,
-    "w": 103.12,
-    "h": 38.6,
+    "x": 16.0,
+    "y": 120.0,
+    "w": 374.0,
+    "h": 44.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -62,15 +80,38 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t02",
-    "x": 35.948785546400075,
-    "y": 137.02212955863436,
-    "w": 87.12,
-    "h": 24.41,
+    "id": "new_chat_surface",
+    "x": 16.0,
+    "y": 120.0,
+    "w": 374.0,
+    "h": 44.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "new_chat_control",
+    "x": 16.0,
+    "y": 120.0,
+    "w": 374.0,
+    "h": 44.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "new_chat_label",
+    "x": 38.0,
+    "y": 132.0,
+    "w": 140.0,
+    "h": 24.0,
     "text": "New chat",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.27,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 16.0,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -78,11 +119,20 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "icon_compose",
+    "x": 347.0,
+    "y": 130.0,
+    "w": 24.0,
+    "h": 28.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
     "id": "thread_1",
-    "x": 24.22,
-    "y": 221.5,
-    "w": 325.33,
-    "h": 48.5,
+    "x": 16.0,
+    "y": 215.5,
+    "w": 374.0,
+    "h": 60.5,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -90,15 +140,38 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t03",
-    "x": 32.222231299192686,
-    "y": 229.50000006902022,
-    "w": 309.33,
-    "h": 33.0,
+    "id": "thread_1_surface",
+    "x": 16.0,
+    "y": 215.5,
+    "w": 374.0,
+    "h": 60.5,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "thread_1_control",
+    "x": 16.0,
+    "y": 215.5,
+    "w": 374.0,
+    "h": 60.5,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "thread_1_label",
+    "x": 32.22,
+    "y": 229.5,
+    "w": 300.0,
+    "h": 32.51,
     "text": "Fix steer queue drop on reconnect",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 22,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 21.67,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -107,10 +180,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "thread_2",
-    "x": 26.96,
-    "y": 305.5,
-    "w": 161.48,
-    "h": 37.5,
+    "x": 16.0,
+    "y": 299.5,
+    "w": 374.0,
+    "h": 49.5,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -118,14 +191,37 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t04",
-    "x": 34.961108470425344,
-    "y": 313.4999995637694,
-    "w": 145.48,
-    "h": 23.22,
+    "id": "thread_2_surface",
+    "x": 16.0,
+    "y": 299.5,
+    "w": 374.0,
+    "h": 49.5,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "thread_2_control",
+    "x": 16.0,
+    "y": 299.5,
+    "w": 374.0,
+    "h": 49.5,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "thread_2_label",
+    "x": 34.96,
+    "y": 313.5,
+    "w": 300.0,
+    "h": 21.5,
     "text": "Add session fork",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.48,
+    "size": 14.33,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -135,10 +231,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "thread_3",
-    "x": 28.09,
-    "y": 386.77,
-    "w": 164.87,
-    "h": 40.81,
+    "x": 16.0,
+    "y": 380.77,
+    "w": 374.0,
+    "h": 52.81,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -146,14 +242,37 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t05",
-    "x": 36.08888806335851,
-    "y": 394.7674417807523,
-    "w": 148.87,
-    "h": 26.8,
+    "id": "thread_3_surface",
+    "x": 16.0,
+    "y": 380.77,
+    "w": 374.0,
+    "h": 52.81,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "thread_3_control",
+    "x": 16.0,
+    "y": 380.77,
+    "w": 374.0,
+    "h": 52.81,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "thread_3_label",
+    "x": 36.09,
+    "y": 394.77,
+    "w": 300.0,
+    "h": 24.81,
     "text": "Review PR #2566",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 17.87,
+    "size": 16.54,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -163,10 +282,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "thread_4",
-    "x": 28.09,
-    "y": 473.5,
-    "w": 274.26,
-    "h": 42.06,
+    "x": 16.0,
+    "y": 467.5,
+    "w": 374.0,
+    "h": 54.06,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -174,14 +293,37 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t06",
-    "x": 36.08888937433068,
-    "y": 481.499999744909,
-    "w": 258.26,
-    "h": 28.14,
+    "id": "thread_4_surface",
+    "x": 16.0,
+    "y": 467.5,
+    "w": 374.0,
+    "h": 54.06,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "thread_4_control",
+    "x": 16.0,
+    "y": 467.5,
+    "w": 374.0,
+    "h": 54.06,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "thread_4_label",
+    "x": 36.09,
+    "y": 481.5,
+    "w": 300.0,
+    "h": 26.06,
     "text": "Bump octos-core to a6ea8505",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 18.76,
+    "size": 17.37,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -191,10 +333,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "thread_5",
-    "x": 26.96,
-    "y": 557.0,
-    "w": 195.32,
-    "h": 43.15,
+    "x": 16.0,
+    "y": 551.0,
+    "w": 374.0,
+    "h": 55.15,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -202,20 +344,52 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t07",
-    "x": 34.96111294487628,
-    "y": 565.0000001958095,
-    "w": 179.32,
-    "h": 29.33,
+    "id": "thread_5_surface",
+    "x": 16.0,
+    "y": 551.0,
+    "w": 374.0,
+    "h": 55.15,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "thread_5_control",
+    "x": 16.0,
+    "y": 551.0,
+    "w": 374.0,
+    "h": 55.15,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "thread_5_label",
+    "x": 34.96,
+    "y": 565.0,
+    "w": 300.0,
+    "h": 27.15,
     "text": "Why is hydrate slow?",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 19.55,
+    "size": 18.1,
     "weight": 400,
     "role": "text",
     "native_candidates": [
       "Label",
       "TextFlow"
     ]
+  },
+  {
+    "id": "icon_fork",
+    "x": 352.0,
+    "y": 310.5,
+    "w": 19.0,
+    "h": 26.0,
+    "role": "unknown",
+    "native_candidates": []
   }
 ]
 ```

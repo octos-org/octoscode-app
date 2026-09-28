@@ -1,0 +1,12 @@
+{"scene": "1", "stage": "compile", "result": {"id": "conversation-01", "nodes": 30, "native_controls": 6, "components": 15}}
+{"scene": "2", "stage": "compile", "result": {"id": "conversation-02", "nodes": 10, "native_controls": 0, "components": 10}}
+{"scene": "3", "stage": "compile", "result": {"id": "conversation-03", "nodes": 24, "native_controls": 0, "components": 20}}
+{"scene": "4", "stage": "compile", "result": {"id": "conversation-04", "nodes": 20, "native_controls": 0, "components": 15}}
+{"scene": "5", "stage": "compile", "result": {"id": "conversation-05", "nodes": 9, "native_controls": 0, "components": 9}}
+{"scene": "6", "stage": "compile", "result": {"id": "conversation-06", "nodes": 11, "native_controls": 0, "components": 11}}
+{"scene": "7", "stage": "compile", "result": {"id": "conversation-07", "nodes": 15, "native_controls": 0, "components": 15}}
+{"scene": "8", "stage": "compile", "result": {"id": "conversation-08", "nodes": 17, "native_controls": 0, "components": 14}}
+{"scene": "9", "stage": "compile", "result": {"id": "conversation-09", "nodes": 19, "native_controls": 1, "components": 16}}
+{"scene": "10", "stage": "compile", "result": {"id": "conversation-10", "nodes": 8, "native_controls": 0, "components": 8}}
+{"scene": "11", "stage": "compile", "result": {"id": "conversation-11", "nodes": 21, "native_controls": 0, "components": 21}}
+{"scene": "12", "stage": "compile", "result": {"id": "conversation-12", "nodes": 11, "native_controls": 0, "components": 11}}

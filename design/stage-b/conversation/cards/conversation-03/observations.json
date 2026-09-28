@@ -15,24 +15,24 @@
         104.88,
         60.91,
         256.01,
-        29.27
+        27.09
       ],
       "status": "observed",
       "ocr_text": "Fix the steer queue so queued",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        103.5,
-        59.5,
-        258.5,
-        29.5
+        108.0,
+        62.0,
+        251.5,
+        23.5
       ],
       "ink_color": [
-        2,
-        2,
-        2
+        250,
+        251,
+        251
       ],
-      "light_foreground": false,
+      "light_foreground": true,
       "ocr_bounds": [
         104.88333387052953,
         60.90697719155219,
@@ -47,24 +47,24 @@
         104.88,
         100.38,
         226.68,
-        23.34
+        21.62
       ],
       "status": "observed",
       "ocr_text": "steers survive a reconnect",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        103.5,
-        99.0,
-        229.5,
-        24.5
+        107.5,
+        99.5,
+        220.5,
+        19.0
       ],
       "ink_color": [
-        2,
-        2,
-        2
+        253,
+        253,
+        253
       ],
-      "light_foreground": false,
+      "light_foreground": true,
       "ocr_bounds": [
         104.88333408405886,
         100.3837206395202,
@@ -79,7 +79,7 @@
         64.28,
         195.0,
         122.93,
-        28.16
+        26.07
       ],
       "status": "observed",
       "ocr_text": "Working \u2022 12s",
@@ -105,132 +105,15 @@
       ]
     },
     {
-      "id": "t04",
-      "expected_text": "I'm tracing how queued steers are",
+      "id": "assistant_md",
+      "expected_text": "I'm tracing how queued steers are handled across reconnects\u2026\n\nI'll run tests to confirm the fix and update the affected `steer_dropped` path\u2026",
       "requested_bounds": [
-        21.43,
-        256.0,
-        275.18,
-        27.0
+        21.0,
+        248.0,
+        358.0,
+        176.0
       ],
-      "status": "observed",
-      "ocr_text": "I'm tracing how queued steers are",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        25.0,
-        258.0,
-        270.0,
-        22.0
-      ],
-      "ink_color": [
-        35,
-        35,
-        35
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        21.42778202121096,
-        256.00000005935874,
-        275.1777648925781,
-        25.000000000000085
-      ]
-    },
-    {
-      "id": "t05",
-      "expected_text": "handled across reconnects\u2026",
-      "requested_bounds": [
-        23.55,
-        292.75,
-        229.21,
-        22.62
-      ],
-      "status": "observed",
-      "ocr_text": "handled across reconnects...",
-      "confidence": 1,
-      "text_similarity": 0.9259259259259259,
-      "ink_bounds": [
-        24.5,
-        293.5,
-        225.5,
-        17.0
-      ],
-      "ink_color": [
-        26,
-        26,
-        27
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        23.553448546679533,
-        292.74574419115237,
-        229.2105865478516,
-        20.946590423583988
-      ]
-    },
-    {
-      "id": "t06",
-      "expected_text": "I'll run tests to confirm the fix",
-      "requested_bounds": [
-        21.43,
-        349.5,
-        251.49,
-        22.14
-      ],
-      "status": "observed",
-      "ocr_text": "l'Il run tests to confirm the fix",
-      "confidence": 1,
-      "text_similarity": 0.9393939393939394,
-      "ink_bounds": [
-        25.0,
-        350.5,
-        243.0,
-        18.0
-      ],
-      "ink_color": [
-        21,
-        21,
-        21
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        21.427777654100083,
-        349.50000016349105,
-        251.4944458007812,
-        20.500000000000014
-      ]
-    },
-    {
-      "id": "t07",
-      "expected_text": "and update the affected code\u2026",
-      "requested_bounds": [
-        22.56,
-        381.5,
-        280.33,
-        31.47
-      ],
-      "status": "observed",
-      "ocr_text": "and update the affected code... |",
-      "confidence": 1,
-      "text_similarity": 0.9032258064516129,
-      "ink_bounds": [
-        24.0,
-        382.5,
-        271.5,
-        27.0
-      ],
-      "ink_color": [
-        37,
-        36,
-        37
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        22.555569970674014,
-        381.4999998328914,
-        280.33331298828125,
-        29.13333225250252
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
       "id": "t08",
@@ -239,7 +122,7 @@
         37.13,
         509.62,
         44.15,
-        21.12
+        19.56
       ],
       "status": "observed",
       "ocr_text": "octos",
@@ -271,7 +154,7 @@
         129.69,
         508.69,
         43.98,
-        21.93
+        20.3
       ],
       "status": "observed",
       "ocr_text": "Local",
@@ -303,7 +186,7 @@
         228.75,
         509.34,
         122.21,
-        22.0
+        20.37
       ],
       "status": "observed",
       "ocr_text": "feat/steer-queue",
@@ -329,77 +212,13 @@
       ]
     },
     {
-      "id": "t11",
-      "expected_text": "Ask Octos anything",
-      "requested_bounds": [
-        29.322226521551865,
-        601.0000001745416,
-        163.53,
-        27.0
-      ],
-      "status": "observed",
-      "ocr_text": "Ask Octos anything",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        31.0,
-        601.5,
-        159.5,
-        24.0
-      ],
-      "ink_color": [
-        167,
-        167,
-        171
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        29.322226521551865,
-        601.0000001745416,
-        163.52777099609375,
-        24.999999999999996
-      ]
-    },
-    {
-      "id": "t12",
-      "expected_text": "+",
-      "requested_bounds": [
-        19.17,
-        673.36,
-        38.34,
-        47.37
-      ],
-      "status": "observed",
-      "ocr_text": "+",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        23.0,
-        672.0,
-        36.0,
-        50.0
-      ],
-      "ink_color": [
-        251,
-        251,
-        251
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        19.172222419771046,
-        673.3604649744873,
-        38.34444427490234,
-        47.372093200683636
-      ]
-    },
-    {
       "id": "t13",
       "expected_text": "Ask for approval",
       "requested_bounds": [
         73.25,
         687.76,
         102.73,
-        22.5
+        20.83
       ],
       "status": "observed",
       "ocr_text": "Ask for approval",
@@ -431,7 +250,7 @@
         215.36,
         691.24,
         73.39,
-        19.84
+        19.5
       ],
       "status": "observed",
       "ocr_text": "v4-flash v",
@@ -471,18 +290,225 @@
       "bg": 4294901502
     },
     {
-      "id": "composer_input",
+      "id": "user_bubble",
       "bounds": [
-        21.32,
-        593.0,
-        200.0,
-        41.0
+        90.88,
+        48.91,
+        284.01,
+        85.09
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4278387202,
+      "radius": 16.0
+    },
+    {
+      "id": "icon_spinner",
+      "bounds": [
+        44.0,
+        198.0,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "chips",
+      "bounds": [
+        24.0,
+        501.62,
+        358.0,
+        35.56
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
+    },
+    {
+      "id": "chip_ws",
+      "bounds": [
+        19.0,
+        496.0,
+        80.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 22.0
+    },
+    {
+      "id": "chip_mode",
+      "bounds": [
+        117.0,
+        496.0,
+        74.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 22.0
+    },
+    {
+      "id": "chip_branch",
+      "bounds": [
+        215.0,
+        496.0,
+        151.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 22.0
+    },
+    {
+      "id": "composer",
+      "bounds": [
+        15.0,
+        569.0,
+        377.0,
+        171.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.68
+    },
+    {
+      "id": "composer_input",
+      "bounds": [
+        29.112,
+        580.4,
+        302.406,
+        45.6
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "icon_plus",
+      "bounds": [
+        27.096,
+        684.14,
+        18.144,
+        27.36
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "approval_pill",
+      "bounds": [
+        63.0,
+        674.0,
+        122.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 22.0
+    },
+    {
+      "id": "icon_mic",
+      "bounds": [
+        310.35,
+        679.58,
+        17.136,
+        30.78
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "stop_btn",
+      "bounds": [
+        347.647,
+        671.6,
+        36.289,
+        41.04
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4278519045,
+      "radius": 18.14
+    },
+    {
+      "id": "icon_stop",
+      "bounds": [
+        357.727,
+        683.0,
+        16.128,
+        18.24
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     }
   ],
-  "unmapped_ocr": [],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        42.85556404242192,
+        512.0000001187175,
+        550.3555297851562,
+        50.00000000000017
+      ],
+      "confidence": 1,
+      "text": "I'm tracing how queued steers are"
+    },
+    {
+      "bounds": [
+        47.106897093359066,
+        585.4914883823047,
+        458.4211730957032,
+        41.893180847167976
+      ],
+      "confidence": 1,
+      "text": "handled across reconnects..."
+    },
+    {
+      "bounds": [
+        42.85555530820017,
+        699.0000003269821,
+        502.9888916015624,
+        41.00000000000003
+      ],
+      "confidence": 1,
+      "text": "l'Il run tests to confirm the fix"
+    },
+    {
+      "bounds": [
+        45.11113994134803,
+        762.9999996657828,
+        560.6666259765625,
+        58.26666450500504
+      ],
+      "confidence": 1,
+      "text": "and update the affected code... |"
+    },
+    {
+      "bounds": [
+        58.64445304310373,
+        1202.0000003490832,
+        327.0555419921875,
+        49.99999999999999
+      ],
+      "confidence": 1,
+      "text": "Ask Octos anything"
+    },
+    {
+      "bounds": [
+        38.34444483954209,
+        1346.7209299489746,
+        76.68888854980467,
+        94.74418640136727
+      ],
+      "confidence": 1,
+      "text": "+"
+    }
+  ],
   "non_text_ocr": [],
   "limits": [
     "OCR cannot prove font family, hierarchy or control behavior.",

@@ -13,34 +13,34 @@ copy t07_text { class: user-copy, en: "Run full suite and push" }
 component Surface991755d1cfb2(instance: text) {
   view Kit(component: "Surface991755d1cfb2", instance: instance) { slot }
 }
-component Text8a4404453a54(instance: text, text: text) {
-  view Kit(component: "Text8a4404453a54", instance: instance, text: text)
+component Text137eead2583a(instance: text, text: text) {
+  view Kit(component: "Text137eead2583a", instance: instance, text: text)
 }
-component Text49c7a5394996(instance: text, text: text) {
-  view Kit(component: "Text49c7a5394996", instance: instance, text: text)
+component Texte862ba55a85d(instance: text, text: text) {
+  view Kit(component: "Texte862ba55a85d", instance: instance, text: text)
 }
-component Text89fb47ef9b1f(instance: text, text: text) {
-  view Kit(component: "Text89fb47ef9b1f", instance: instance, text: text)
+component Text10450de85f33(instance: text, text: text) {
+  view Kit(component: "Text10450de85f33", instance: instance, text: text)
 }
-component Texte94b00206d16(instance: text, text: text) {
-  view Kit(component: "Texte94b00206d16", instance: instance, text: text)
+component Textee1e7e5ed697(instance: text, text: text) {
+  view Kit(component: "Textee1e7e5ed697", instance: instance, text: text)
 }
-component Texted7adfeeedd1(instance: text, text: text) {
-  view Kit(component: "Texted7adfeeedd1", instance: instance, text: text)
+component Textfcb7eee893cc(instance: text, text: text) {
+  view Kit(component: "Textfcb7eee893cc", instance: instance, text: text)
 }
-component Text64e3ccbb7cee(instance: text, text: text) {
-  view Kit(component: "Text64e3ccbb7cee", instance: instance, text: text)
+component Text77009da7de2b(instance: text, text: text) {
+  view Kit(component: "Text77009da7de2b", instance: instance, text: text)
 }
-component Text22c9cbd96b92(instance: text, text: text) {
-  view Kit(component: "Text22c9cbd96b92", instance: instance, text: text)
+component Text378d81a8d7fe(instance: text, text: text) {
+  view Kit(component: "Text378d81a8d7fe", instance: instance, text: text)
 }
 
 view root Surface991755d1cfb2(instance: "page") {
-  Text8a4404453a54(instance: "t01", text: copy.t01_text)
-  Text49c7a5394996(instance: "t02", text: copy.t02_text)
-  Text89fb47ef9b1f(instance: "t03", text: copy.t03_text)
-  Texte94b00206d16(instance: "t04", text: copy.t04_text)
-  Texted7adfeeedd1(instance: "t05", text: copy.t05_text)
-  Text64e3ccbb7cee(instance: "t06", text: copy.t06_text)
-  Text22c9cbd96b92(instance: "t07", text: copy.t07_text)
+  Text137eead2583a(instance: "t01", text: copy.t01_text)
+  Texte862ba55a85d(instance: "t02", text: copy.t02_text)
+  Text10450de85f33(instance: "t03", text: copy.t03_text)
+  Textee1e7e5ed697(instance: "t04", text: copy.t04_text)
+  Textfcb7eee893cc(instance: "t05", text: copy.t05_text)
+  Text77009da7de2b(instance: "t06", text: copy.t06_text)
+  Text378d81a8d7fe(instance: "t07", text: copy.t07_text)
 }

@@ -46,28 +46,6 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4294901502
-    },
-    {
-      "id": "undo",
-      "bounds": [
-        223.19,
-        78.85,
-        80.28,
-        38.65
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "review",
-      "bounds": [
-        311.05,
-        79.67,
-        73.75,
-        38.05
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
     }
   ]
 }

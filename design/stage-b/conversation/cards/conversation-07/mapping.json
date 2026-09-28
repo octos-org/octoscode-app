@@ -24,10 +24,10 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "text",
-      "component": "Text47853eea08ee",
+      "component": "Text5113f491f005",
       "semantic_role": "text",
       "bounds": [
-        20.416666666666668,
+        21.05,
         78.5,
         128.0,
         26.0
@@ -35,17 +35,17 @@
       "text": "Edited 3 files",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 28.444444444444443
+      "size": 19.83
     },
     {
       "source_id": "t02",
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "text",
-      "component": "Textd4348d6d02f2",
+      "component": "Textc44b6dbaba54",
       "semantic_role": "text",
       "bounds": [
-        18.887254901960784,
+        20.59,
         124.5,
         35.0,
         24.5
@@ -53,35 +53,17 @@
       "text": "+62 -5",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 27.440522875816992
-    },
-    {
-      "source_id": "undo",
-      "native_id": "beauty_0_2",
-      "parent": "page",
-      "kind": "button",
-      "component": "NativeButton939d519a17bf",
-      "semantic_role": "button",
-      "bounds": [
-        223.19,
-        78.85,
-        80.28,
-        38.65
-      ],
-      "text": null,
-      "enabled": 1,
-      "font": null,
-      "size": null
+      "size": 9.61
     },
     {
       "source_id": "t03",
-      "native_id": "beauty_0_2_0",
-      "parent": "undo",
+      "native_id": "beauty_0_2",
+      "parent": "page",
       "kind": "text",
-      "component": "Text6b5175996e72",
+      "component": "Text6ce21eea01d1",
       "semantic_role": "text",
       "bounds": [
-        231.0947242871408,
+        231.93,
         85.0,
         65.5,
         24.5
@@ -89,35 +71,17 @@
       "text": "Undo 9",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 27.36669255519805
-    },
-    {
-      "source_id": "review",
-      "native_id": "beauty_0_3",
-      "parent": "page",
-      "kind": "button",
-      "component": "NativeButton939d519a17bf",
-      "semantic_role": "button",
-      "bounds": [
-        311.05,
-        79.67,
-        73.75,
-        38.05
-      ],
-      "text": null,
-      "enabled": 1,
-      "font": null,
-      "size": null
+      "size": 17.84
     },
     {
       "source_id": "t04",
-      "native_id": "beauty_0_3_0",
-      "parent": "review",
+      "native_id": "beauty_0_3",
+      "parent": "page",
       "kind": "text",
-      "component": "Text78ee3839a0d5",
+      "component": "Textc917208d6f8f",
       "semantic_role": "text",
       "bounds": [
-        320.3119001919386,
+        321.14,
         86.5,
         57.0,
         23.0
@@ -125,17 +89,17 @@
       "text": "Review",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 24.89571337172105
+      "size": 15.44
     },
     {
       "source_id": "t05",
       "native_id": "beauty_0_4",
       "parent": "page",
       "kind": "text",
-      "component": "Text67c89389bec3",
+      "component": "Textae2640d69bbf",
       "semantic_role": "text",
       "bounds": [
-        38.50896860986547,
+        38.75,
         214.0,
         145.5,
         21.0
@@ -143,17 +107,17 @@
       "text": "crates/octos-cli/src/",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 19.515695067264573
+      "size": 14.67
     },
     {
       "source_id": "t06",
       "native_id": "beauty_0_5",
       "parent": "page",
       "kind": "text",
-      "component": "Text55b1a103a699",
+      "component": "Text02968943951d",
       "semantic_role": "text",
       "bounds": [
-        37.9989888776542,
+        38.31,
         249.0,
         206.0,
         26.0
@@ -161,17 +125,17 @@
       "text": "api/ui_protocol_transport.rs",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 22.778564206268957
+      "size": 15.61
     },
     {
       "source_id": "t07",
       "native_id": "beauty_0_6",
       "parent": "page",
       "kind": "text",
-      "component": "Text59fabea31ee5",
+      "component": "Textdc9c18fa772b",
       "semantic_role": "text",
       "bounds": [
-        302.3235294117647,
+        304.16,
         232.5,
         31.0,
         25.0
@@ -179,17 +143,17 @@
       "text": "+31 -4",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 28.109803921568627
+      "size": 8.79
     },
     {
       "source_id": "t08",
       "native_id": "beauty_0_7",
       "parent": "page",
       "kind": "text",
-      "component": "Text3e0092f3203c",
+      "component": "Text9016802f4a87",
       "semantic_role": "text",
       "bounds": [
-        38.47982062780269,
+        38.75,
         343.0,
         163.0,
         21.5
@@ -197,17 +161,17 @@
       "text": "crates/octos-core/src/",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 20.08968609865471
+      "size": 14.83
     },
     {
       "source_id": "t09",
       "native_id": "beauty_0_8",
       "parent": "page",
       "kind": "text",
-      "component": "Text5082d4aac92c",
+      "component": "Text6f1db48d48a6",
       "semantic_role": "text",
       "bounds": [
-        37.76417986714359,
+        38.33,
         378.5,
         101.5,
         25.5
@@ -215,17 +179,17 @@
       "text": "ui_protocol.rs",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 22.499744506898313
+      "size": 15.21
     },
     {
       "source_id": "t10",
       "native_id": "beauty_0_9",
       "parent": "page",
       "kind": "text",
-      "component": "Texta3c79dd01225",
+      "component": "Textb0b9223e4853",
       "semantic_role": "text",
       "bounds": [
-        306.82375271149675,
+        308.82,
         361.0,
         23.5,
         25.0
@@ -233,17 +197,17 @@
       "text": "+9 - 1",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 28.10745870181879
+      "size": 7.19
     },
     {
       "source_id": "t11",
       "native_id": "beauty_0_10",
       "parent": "page",
       "kind": "text",
-      "component": "Text7ed2f09dfeba",
+      "component": "Textc53cee50c43a",
       "semantic_role": "text",
       "bounds": [
-        38.50896860986547,
+        38.74,
         471.0,
         160.0,
         21.0
@@ -251,17 +215,17 @@
       "text": "crates/octos-cli/tests/",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 19.515695067264573
+      "size": 14.91
     },
     {
       "source_id": "t12",
       "native_id": "beauty_0_11",
       "parent": "page",
       "kind": "text",
-      "component": "Text7828c64ddc45",
+      "component": "Text568b6a0dc5ba",
       "semantic_role": "text",
       "bounds": [
-        38.301331853496116,
+        38.7,
         508.0,
         110.0,
         24.0
@@ -269,17 +233,17 @@
       "text": "steer_queue.rs",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 22.730299667036626
+      "size": 15.13
     },
     {
       "source_id": "t13",
       "native_id": "beauty_0_12",
       "parent": "page",
       "kind": "text",
-      "component": "Text7dc2df4a3369",
+      "component": "Texta1b347f8cbae",
       "semantic_role": "text",
       "bounds": [
-        294.8872549019608,
+        296.62,
         489.5,
         34.0,
         24.5
@@ -287,17 +251,17 @@
       "text": "+22 -0",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 27.440522875816992
+      "size": 9.22
     },
     {
       "source_id": "t14",
       "native_id": "beauty_0_13",
       "parent": "page",
       "kind": "text",
-      "component": "Textbcdcb74e9376",
+      "component": "Texta0d9e419a67b",
       "semantic_role": "text",
       "bounds": [
-        34.07377049180328,
+        34.53,
         604.0,
         81.5,
         23.5
@@ -305,13 +269,13 @@
       "text": "Show diff",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 25.18032786885246
+      "size": 17.12
     }
   ],
   "fonts": {
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "5c271da428d9f707c4dfeaf70b6bf0fcd33a5515bcb02e719abafb6474d41279",
+  "contract_sha256": "329f2c998997bc81d519899cc0aaf397b139b13b44180c4ef591e6189955bedb",
   "mapping_basis": "mapped.json"
 }

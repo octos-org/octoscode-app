@@ -24,10 +24,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
 [
   {
     "id": "page",
-    "x": 0,
-    "y": 0,
-    "w": 406,
-    "h": 776,
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -38,10 +38,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 77.82,
     "y": 98.0,
     "w": 210.89,
-    "h": 29.37,
+    "h": 27.2,
     "text": "Run this command?",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 19.58,
+    "size": 18.13,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -54,10 +54,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 29.0,
     "y": 187.5,
     "w": 328.67,
-    "h": 33.0,
+    "h": 32.51,
     "text": "git push origin feat/steer-queue",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 22,
+    "size": 21.67,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -70,10 +70,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 21.43,
     "y": 276.34,
     "w": 297.73,
-    "h": 23.4,
+    "h": 21.66,
     "text": "Reason: Push the fix branch so Cl",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.6,
+    "size": 14.44,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -86,66 +86,42 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 19.14,
     "y": 317.93,
     "w": 66.6,
-    "h": 17.36,
+    "h": 16.07,
     "text": "can run",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 11.57,
+    "size": 10.71,
     "weight": 400,
     "role": "text",
     "native_candidates": [
       "Label",
       "TextFlow"
-    ]
-  },
-  {
-    "id": "approve_once",
-    "x": 128.31,
-    "y": 381.55,
-    "w": 141.48,
-    "h": 44.48,
-    "role": "button",
-    "native_candidates": [
-      "Button",
-      "KitButton"
     ]
   },
   {
     "id": "t05",
-    "x": 136.3124928412235,
-    "y": 389.55116308171085,
+    "x": 136.31,
+    "y": 389.55,
     "w": 125.48,
-    "h": 30.75,
+    "h": 28.48,
     "text": "Approve once",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 20.5,
+    "size": 18.99,
     "weight": 400,
     "role": "text",
     "native_candidates": [
       "Label",
       "TextFlow"
-    ]
-  },
-  {
-    "id": "approve_session",
-    "x": 101.48,
-    "y": 463.66,
-    "w": 196.59,
-    "h": 49.14,
-    "role": "button",
-    "native_candidates": [
-      "Button",
-      "KitButton"
     ]
   },
   {
     "id": "t06",
-    "x": 109.48380345210495,
-    "y": 471.664193697788,
+    "x": 109.48,
+    "y": 471.66,
     "w": 180.59,
     "h": 33.14,
     "text": "Approve for session",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 22,
+    "size": 22.09,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -154,26 +130,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "deny",
-    "x": 162.29,
-    "y": 544.67,
-    "w": 63.37,
-    "h": 43.07,
-    "role": "button",
-    "native_candidates": [
-      "Button",
-      "KitButton"
-    ]
-  },
-  {
     "id": "t07",
-    "x": 170.29444560238767,
-    "y": 552.6744189956219,
+    "x": 170.29,
+    "y": 552.67,
     "w": 47.37,
-    "h": 29.23,
+    "h": 27.08,
     "text": "Deny",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 19.49,
+    "size": 18.05,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -186,10 +150,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 153.38,
     "y": 653.0,
     "w": 78.94,
-    "h": 23.22,
+    "h": 21.5,
     "text": "Y /S / N",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.48,
+    "size": 14.33,
     "weight": 400,
     "role": "text",
     "native_candidates": [

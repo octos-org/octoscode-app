@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "bce0597e02cf588384c7d8a6d922fd50ab638b09806b31740d212c9ea619a2f2",
+  "contract_sha256": "7e2b1c64328ccdb0f72218df2b9f44a4fa72abd24b553d0c9f5cc09ae7eacfff",
   "reference_sha256": "021709d23fa93ac7352248edbbdbfab04e5304817caf2e2f989987a69aae17bf",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -20,28 +20,104 @@
       "decision": "declared"
     },
     {
+      "id": "icon_bell",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_bell.svg",
+        "sha256": "655ceea5074c79a1a9c29c88168a54f127d5d21b3faff864599b5a2df6061230",
+        "method": "reference_svg",
+        "reference_sha256": "021709d23fa93ac7352248edbbdbfab04e5304817caf2e2f989987a69aae17bf",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "icon_search",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_search.svg",
+        "sha256": "071182d3ecef9245c7399742469b66063c6c8b55cc5e98d884e45bb64b8a37ec",
+        "method": "reference_svg",
+        "reference_sha256": "021709d23fa93ac7352248edbbdbfab04e5304817caf2e2f989987a69aae17bf",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
       "id": "new_chat",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "new_chat_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "new_chat_control",
       "role": "button",
       "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t02",
+      "id": "new_chat_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
+      "id": "icon_compose",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_compose.svg",
+        "sha256": "2b495cfdb8f2c43b307e992133d2a558ec2c8e3c2dedc99dda9ee6a66bb9aac9",
+        "method": "reference_svg",
+        "reference_sha256": "021709d23fa93ac7352248edbbdbfab04e5304817caf2e2f989987a69aae17bf",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
       "id": "thread_1",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "thread_1_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "thread_1_control",
       "role": "button",
       "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t03",
+      "id": "thread_1_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
@@ -50,12 +126,26 @@
     {
       "id": "thread_2",
       "role": "button",
+      "basis": "authored KitButton composition",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "thread_2_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "thread_2_control",
+      "role": "button",
       "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t04",
+      "id": "thread_2_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
@@ -64,12 +154,26 @@
     {
       "id": "thread_3",
       "role": "button",
+      "basis": "authored KitButton composition",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "thread_3_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "thread_3_control",
+      "role": "button",
       "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t05",
+      "id": "thread_3_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
@@ -78,12 +182,26 @@
     {
       "id": "thread_4",
       "role": "button",
+      "basis": "authored KitButton composition",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "thread_4_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "thread_4_control",
+      "role": "button",
       "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t06",
+      "id": "thread_4_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
@@ -92,16 +210,46 @@
     {
       "id": "thread_5",
       "role": "button",
+      "basis": "authored KitButton composition",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "thread_5_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "thread_5_control",
+      "role": "button",
       "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t07",
+      "id": "thread_5_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
+    },
+    {
+      "id": "icon_fork",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_fork.svg",
+        "sha256": "97fddcd59c0b4111e2abc257e2243a4e15c2b53078801a90f7cd705cf4243c52",
+        "method": "reference_svg",
+        "reference_sha256": "021709d23fa93ac7352248edbbdbfab04e5304817caf2e2f989987a69aae17bf",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
     }
   ]
 }
