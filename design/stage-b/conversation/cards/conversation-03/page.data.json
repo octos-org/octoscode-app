@@ -12,12 +12,12 @@
         }
       },
       "user_bubble": {
-        "component": "Surface3fb7e191a9be",
+        "component": "Surfacec6d1fb983710",
         "layout": {
-          "x": 85.0,
-          "y": 39.0,
-          "w": 302.0,
-          "h": 103.0
+          "x": 90.88,
+          "y": 48.91,
+          "w": 284.01,
+          "h": 85.09
         }
       },
       "t01": {
@@ -58,7 +58,7 @@
         }
       },
       "assistant_md": {
-        "component": "Text1f98af367ebb",
+        "component": "Text25d739aac68d",
         "layout": {
           "x": 21.0,
           "y": 248.0,

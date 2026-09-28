@@ -107,7 +107,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 248.0,
     "w": 358.0,
     "h": 176.0,
-    "text": "I'm tracing how queued steers are handled across reconnects\u2026\n\nI'll run tests to confirm the fix and update the affected code\u2026",
+    "text": "I'm tracing how queued steers are handled across reconnects\u2026\n\nI'll run tests to confirm the fix and update the affected `steer_dropped` path\u2026",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 17.5,
     "weight": 400,

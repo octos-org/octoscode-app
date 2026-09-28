@@ -1,0 +1,118 @@
+diff --git a/crates/octoscript-makepad/src/design.rs b/crates/octoscript-makepad/src/design.rs
+index 685dcd7..d144d32 100644
+--- a/crates/octoscript-makepad/src/design.rs
++++ b/crates/octoscript-makepad/src/design.rs
+@@ -139,6 +139,14 @@ pub fn to_makepad_ui(tree: &UiNode) -> Result<String, String> {
+             NodeKind::Stack if a.bg.is_some() => "DesignSurface",
+             NodeKind::Stack => "View",
+             NodeKind::Text if a.rotation.is_some() => "DesignRotatedLabel",
++            // Card #11f: a flowing prose region whose inline code must draw as
++            // the kit's grey rounded chip. makepad's `Markdown` is the only
++            // reachable widget that has both a declarative body AND an
++            // inline-code draw hook (`widgets/src/markdown.rs:118-176`:
++            // `inline_code_padding`, `inline_code_margin`, `text_style_fixed`,
++            // `draw_block.code_color`; the box is drawn at
++            // `widgets/src/text_flow.rs:2201`).
++            NodeKind::Text if a.variant.as_deref() == Some("markdown") => "Markdown",
+             NodeKind::Text => "Label",
+             NodeKind::Web => "Browser",
+             NodeKind::Input => "DesignInput",
+@@ -297,6 +305,98 @@ pub fn to_makepad_ui(tree: &UiNode) -> Result<String, String> {
+                 }
+             }
+             NodeKind::Text | NodeKind::Input => {
++                if n.kind == NodeKind::Text && a.variant.as_deref() == Some("markdown") {
++                    // Card #11f. `body` is raw markdown: makepad parses the
++                    // backtick spans and draws each as an inline code box — the
++                    // chip — coloured by the node's own `bg` kit token, in the
++                    // SAME flow as the prose.
++                    let size = a.size.ok_or("design font size required")?;
++                    let font = a.font_src.as_ref().ok_or("design font resource required")?;
++                    let weight = a.weight.unwrap_or(400);
++                    let resource = if let Some(path) = font.strip_prefix("file:") {
++                        if !std::path::Path::new(path).is_absolute() {
++                            return Err("platform font path must be absolute".into());
++                        }
++                        format!("file_resource({path:?})")
++                    } else {
++                        format!("crate_resource({font:?})")
++                    };
++                    let emoji = if cfg!(target_os = "macos") {
++                        "file_resource(\"/System/Library/Fonts/Apple Color Emoji.ttc\")"
++                    } else {
++                        "crate_resource(\"makepad_widgets:resources/NotoColorEmoji.ttf\")"
++                    };
++                    let symbols = "crate_resource(\"makepad_widgets:resources/jetbrains_mono_variable.ttf\")";
++                    // Reproduce the source line height, not a compressed rhythm.
++                    //
++                    // `TextFlow` advances each line from its OWN base: measured on
++                    // this host, a 13.125pt Inter run at `line_spacing: 1.0` advances
++                    // 19.78 logical px, i.e. `1.130 * size` — tighter than the `Label`
++                    // arm's `line_box * size` (21.17 px). Feeding it the Label's scale
++                    // therefore rendered the body ~7% tight. Scale against TextFlow's
++                    // own base so a flow region keeps the same line pitch the Label
++                    // had (the layout #11e's review accepted).
++                    let line_box = if font.contains("PlusJakarta") {
++                        1.26
++                    } else if font.contains("Poppins") {
++                        1.5
++                    } else {
++                        2478. / 2048.
++                    };
++                    let spacing = if a.font_asc.is_some() {
++                        1.0
++                    } else {
++                        a.line_height.unwrap_or(size * line_box) / (size * 1.1303)
++                    };
++                    let style = |res: &str| format!(
++                        "TextStyle{{font_family: FontFamily{{latin := FontMember{{res: {res} asc: 0.04 desc: 0.04 weight: {weight}}} symbols := FontMember{{res: {symbols} asc: 0 desc: 0 weight: 400}} emoji := FontMember{{res: {emoji} asc: 0 desc: 0}}}} font_size: {} line_spacing: {spacing}}}",
++                        size * 0.75
++                    );
++                    // The bundled monospace face, copied into the host's
++                    // `resources/ux/` by rebuild.sh step 1.
++                    let mono = "crate_resource(\"self:resources/ux/LiberationMono-Regular.ttf\")";
++                    writeln!(out, "body: {:?}", a.text.as_deref().unwrap_or("")).unwrap();
++                    // `TextFlow` reads its OWN `font_size` live field for every
++                    // run, overriding the style just before drawing
++                    // (`text_flow.rs:2111`: `self.draw_text.text_style.font_size
++                    // = *font_size`). So the widget field — not the style — is
++                    // the effective size, and it must be the same points the
++                    // `Label` arm emits (`size * 0.75`), or the body's type grows
++                    // and the line pitch moves.
++                    writeln!(out, "font_size: {}", size * 0.75).unwrap();
++                    writeln!(
++                        out,
++                        "paragraph_spacing: {}",
++                        a.line_height.unwrap_or(size * 1.45)
++                    )
++                    .unwrap();
++                    writeln!(out, "text_style_normal: {}", style(&resource)).unwrap();
++                    writeln!(out, "text_style_fixed: {}", style(mono)).unwrap();
++                    // `TextFlow` does NOT read `draw_text.color`: each run is
++                    // painted with its own live `font_color`, which overrides
++                    // the draw style right before the glyphs are emitted
++                    // (`makepad/widgets/src/text_flow.rs:2111`:
++                    // `self.draw_text.color = *font_color`), and its default is
++                    // `theme.color_text` (`text_flow.rs:165`). Setting only
++                    // `draw_text.color` left the prose in the host theme's
++                    // near-white ink — invisible on this white page. State the
++                    // ink on the field the flow actually reads.
++                    writeln!(
++                        out,
++                        "font_color: {}",
++                        super::hex_rgba(a.color.unwrap_or(0xff111927))
++                    )
++                    .unwrap();
++                    writeln!(
++                        out,
++                        "draw_block +: {{code_color: {} inline_code_padding: 4 inline_code_margin: 3}}",
++                        super::hex_rgba(a.bg.unwrap_or(0xfff4f4f5))
++                    )
++                    .unwrap();
++                    writeln!(out, "}}").unwrap();
++                    if wrapped { writeln!(out, "}}").unwrap(); }
++                    return Ok(());
++                }
+                 let size = a.size.ok_or("design font size required")?;
+                 let font = a.font_src.as_ref().ok_or("design font resource required")?;
+                 let weight = a.weight.unwrap_or(400);

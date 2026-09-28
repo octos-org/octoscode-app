@@ -18,7 +18,20 @@ mkdir -p "$WS/octoscript-makepad/apps/kit-host/resources/ux"
   cp "$WS/makepad/widgets/resources/LiberationMono-Regular.ttf" \
      "$WS/octoscript-makepad/apps/kit-host/resources/ux/LiberationMono-Regular.ttf"
 
-# 2) Build beauty-host from the clone (it bakes the resource set above).
+# 2) Apply the renderer patch the inline-code chips need (card #11f).
+#    `design.rs`'s widget match had no arm emitting makepad's `Markdown`, so a
+#    prose node carrying inline `code` could not reach the widget's inline-code
+#    draw hook (`widgets/src/markdown.rs:118-176`). The patch adds the arm; it is
+#    idempotently applied to the clone (a no-op once present).
+PATCH="$PWD/design/stage-b/conversation/tools/renderer-inline-code.patch"
+if [ -f "$PATCH" ] && ! git -C "$WS/octoscript-makepad" apply --reverse --check "$PATCH" >/dev/null 2>&1; then
+  git -C "$WS/octoscript-makepad" apply "$PATCH"
+  echo "applied renderer-inline-code.patch"
+  # The patched renderer changes the host, so force a rebuild of that binary.
+  rm -f "$PWD/tmp/beauty-clone-target/release/beauty-host"
+fi
+
+# 3) Build beauty-host from the clone (it bakes the resource set above).
 TARGET="$PWD/tmp/beauty-clone-target"
 BEAUTY="$TARGET/release/beauty-host"
 if [ ! -x "$BEAUTY" ]; then

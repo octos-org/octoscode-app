@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "656f2336e5e2dce2dcf127c2c853801270ee79104140a2aa5e3890b43ec205bc",
+  "contract_sha256": "aa9e4ec7a26ee91b3bb3e986c2bf1edbe6278013e5f6af0923a6b63f24226ceb",
   "reference_sha256": "8d49354eb55c0b9134e6b27998b0cae234706a2744bc34be68baa2b106735383",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [

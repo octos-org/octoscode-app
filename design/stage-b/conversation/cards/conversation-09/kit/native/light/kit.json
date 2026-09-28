@@ -54,6 +54,10 @@
       "value": 4280098079,
       "property": "color"
     },
+    "bg_20ab133515d1": {
+      "value": 4294243573,
+      "property": "bg"
+    },
     "font_src_86ab34a300f7": {
       "value": "self:resources/ux/Inter-400.ttf",
       "property": "font_src"
@@ -143,7 +147,7 @@
       },
       "slot": false
     },
-    "Textf8b245030bdc": {
+    "Textf628ddef93a6": {
       "style": {
         "t": "text",
         "size": {
@@ -158,7 +162,11 @@
         "color": {
           "$token": "color_e0ccdd36059a"
         },
+        "bg": {
+          "$token": "bg_20ab133515d1"
+        },
         "alignx": 0,
+        "variant": "markdown",
         "font_src": {
           "$token": "font_src_86ab34a300f7"
         }

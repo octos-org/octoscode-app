@@ -12,10 +12,10 @@
       {
         "t": "stack",
         "id": "user_bubble",
-        "x": 85.0,
-        "y": 39.0,
-        "w": 302.0,
-        "h": 103.0,
+        "x": 90.88,
+        "y": 48.91,
+        "w": 284.01,
+        "h": 85.09,
         "c": [
           {
             "t": "text",
@@ -53,8 +53,8 @@
           }
         ],
         "variant": "surface",
-        "bg": 4278387458,
-        "radius": 19.37
+        "bg": 4278387202,
+        "radius": 16.0
       },
       {
         "t": "svg",
@@ -85,7 +85,7 @@
       {
         "t": "text",
         "id": "assistant_md",
-        "text": "I'm tracing how queued steers are handled across reconnects\u2026\n\nI'll run tests to confirm the fix and update the affected code\u2026",
+        "text": "I'm tracing how queued steers are handled across reconnects\u2026\n\nI'll run tests to confirm the fix and update the affected `steer_dropped` path\u2026",
         "x": 21.0,
         "y": 248.0,
         "w": 358.0,
@@ -94,7 +94,9 @@
         "line_height": 35.0,
         "weight": 400,
         "color": 4280098079,
+        "bg": 4294243573,
         "alignx": 0,
+        "variant": "markdown",
         "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {

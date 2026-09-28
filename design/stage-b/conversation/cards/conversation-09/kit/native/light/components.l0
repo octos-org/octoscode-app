@@ -13,8 +13,8 @@ component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
 component Textf545a5164562(instance: text, text: text) {
   view Kit(component: "Textf545a5164562", instance: instance, text: text)
 }
-component Textf8b245030bdc(instance: text, text: text) {
-  view Kit(component: "Textf8b245030bdc", instance: instance, text: text)
+component Textf628ddef93a6(instance: text, text: text) {
+  view Kit(component: "Textf628ddef93a6", instance: instance, text: text)
 }
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)

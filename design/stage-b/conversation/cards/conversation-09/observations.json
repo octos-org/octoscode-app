@@ -42,7 +42,7 @@
     },
     {
       "id": "answer_md",
-      "expected_text": "Queued steers now survive a reconnect.\n\n\u2022 Fixed loss of queued steers when reconnecting after a drop in steer_dropped handling.\n\n\u2022 Updated ui_protocol_transport.rs to persist queued steers to the session ledger.\n\n\u2022 All tests pass: 12 passed.\n\n\u2022 Changes included in commit a6ea8505.",
+      "expected_text": "Queued steers now survive a reconnect.\n\n\u2022 Fixed loss of queued steers when reconnecting after a drop in `steer_dropped` handling.\n\n\u2022 Updated `ui_protocol_transport.rs` to persist queued steers to the session ledger.\n\n\u2022 All tests pass: `12 passed`.\n\n\u2022 Changes included in commit `a6ea8505`.",
       "requested_bounds": [
         27.0,
         106.0,

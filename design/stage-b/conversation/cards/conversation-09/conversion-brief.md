@@ -90,7 +90,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 106.0,
     "w": 356.0,
     "h": 492.0,
-    "text": "Queued steers now survive a reconnect.\n\n\u2022 Fixed loss of queued steers when reconnecting after a drop in steer_dropped handling.\n\n\u2022 Updated ui_protocol_transport.rs to persist queued steers to the session ledger.\n\n\u2022 All tests pass: 12 passed.\n\n\u2022 Changes included in commit a6ea8505.",
+    "text": "Queued steers now survive a reconnect.\n\n\u2022 Fixed loss of queued steers when reconnecting after a drop in `steer_dropped` handling.\n\n\u2022 Updated `ui_protocol_transport.rs` to persist queued steers to the session ledger.\n\n\u2022 All tests pass: `12 passed`.\n\n\u2022 Changes included in commit `a6ea8505`.",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 17.5,
     "weight": 400,

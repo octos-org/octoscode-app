@@ -101,7 +101,7 @@
       {
         "t": "text",
         "id": "assistant_md",
-        "text": "I'm tracing how queued steers are handled across reconnects…\n\nI'll run tests to confirm the fix and update the affected code…",
+        "text": "I'm tracing how queued steers are handled across reconnects…\n\nI'll run tests to confirm the fix and update the affected `steer_dropped` path…",
         "x": 21.0,
         "y": 248.0,
         "w": 358.0,
@@ -110,7 +110,9 @@
         "line_height": 35.0,
         "weight": 400,
         "color": 4280098079,
+        "bg": 4294243573,
         "alignx": 0,
+        "variant": "markdown",
         "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {

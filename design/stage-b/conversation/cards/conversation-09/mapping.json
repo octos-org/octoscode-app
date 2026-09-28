@@ -96,7 +96,7 @@
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "text",
-      "component": "Textf8b245030bdc",
+      "component": "Textf628ddef93a6",
       "semantic_role": "text",
       "bounds": [
         27.0,
@@ -104,7 +104,7 @@
         356.0,
         492.0
       ],
-      "text": "Queued steers now survive a reconnect.\n\n\u2022 Fixed loss of queued steers when reconnecting after a drop in steer_dropped handling.\n\n\u2022 Updated ui_protocol_transport.rs to persist queued steers to the session ledger.\n\n\u2022 All tests pass: 12 passed.\n\n\u2022 Changes included in commit a6ea8505.",
+      "text": "Queued steers now survive a reconnect.\n\n\u2022 Fixed loss of queued steers when reconnecting after a drop in `steer_dropped` handling.\n\n\u2022 Updated `ui_protocol_transport.rs` to persist queued steers to the session ledger.\n\n\u2022 All tests pass: `12 passed`.\n\n\u2022 Changes included in commit `a6ea8505`.",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
       "size": 17.5
@@ -186,6 +186,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "656f2336e5e2dce2dcf127c2c853801270ee79104140a2aa5e3890b43ec205bc",
+  "contract_sha256": "aa9e4ec7a26ee91b3bb3e986c2bf1edbe6278013e5f6af0923a6b63f24226ceb",
   "mapping_basis": "mapped.json"
 }

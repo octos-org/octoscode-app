@@ -130,6 +130,27 @@ def flow_text(id, s, x, y, w, h, *, size=14, weight=400, color="ink", font=None,
             "weight": weight, "color": C[color], "alignx": 0,
             "font_src": font or FONT.get(weight, FONT[400])}
 
+def flow_md(id, s, x, y, w, h, *, size=14, weight=400, color="ink", font=None,
+            line_height=None, chip="box"):
+    """A dynamic MARKDOWN prose region: one native flowing widget whose inline
+    `code` spans draw as the kit's grey rounded mono chip (card #11f).
+
+    `variant: "markdown"` lowers (design.rs) to makepad's `Markdown` — the only
+    reachable widget with both a declarative body AND an inline-code draw hook
+    (makepad/widgets/src/markdown.rs:118-176: `inline_code_padding`,
+    `inline_code_margin`, `text_style_fixed`, `draw_block.code_color`; the chip
+    box is drawn at makepad/widgets/src/text_flow.rs:2201). `Markdown` parses the
+    backticks in `body` and draws each span with the mono `text_style_fixed` and
+    a `draw_block.code_color` background — `bg` here — IN THE SAME flow as the
+    prose. A plain `Label` is a single style, so it cannot carry a chip.
+    """
+    size = size or r(max(h / 1.5, 10.0))
+    lh = line_height if line_height else size * 1.45
+    return {"t": "text", "id": id, "text": s, "x": r(x), "y": r(y), "w": r(max(w, 8)),
+            "h": r(h), "size": size, "line_height": r(lh),
+            "weight": weight, "color": C[color], "bg": C[chip], "alignx": 0,
+            "variant": "markdown", "font_src": font or FONT.get(weight, FONT[400])}
+
 def dots(id, x, y, w, h, *, n=15, size=13, color="ink", track=4.0):
     """A dotted progress line: n round dots, pitch set by tracking.
 
@@ -261,7 +282,9 @@ def build_01(sc):
 
 STREAM_MD = ("I'm tracing how queued steers are handled across reconnects…\n"
              "\n"
-             "I'll run tests to confirm the fix and update the affected code…")
+             # Card #11f: one backticked token proves 03's streaming paragraphs
+             # render inline code the same way as 09's answer body.
+             "I'll run tests to confirm the fix and update the affected `steer_dropped` path…")
 
 def build_03(sc):
     _, x1, y1, w1, h1 = sc.rows[0]
@@ -274,7 +297,9 @@ def build_03(sc):
         text("t02", sc.t(1), x2, y2, w2, h2, weight=500, color="white")]))
     sc.add_icon("icon_spinner", "spinner", 44, 198, 18, 18, color="muted")
     sc.add_text("t03", 2, color="muted", weight=500)
-    sc.put(flow_text("assistant_md", STREAM_MD, 21, 248, 358, 176, size=17.5, line_height=35))
+    # Card #11f: same flowing widget as 09, so 03's streaming paragraphs render an
+    # inline `code` span as the kit chip too.
+    sc.put(flow_md("assistant_md", STREAM_MD, 21, 248, 358, 176, size=17.5, line_height=35))
     sc.flows["assistant_md"] = ("timeline.assistant.markdown", 21, 248, 358, 176)
     _, x8, y8, w8, h8 = sc.rows[7]
     chips = []
@@ -370,13 +395,13 @@ def chip_row(sc, id, row_i, *, pad=10, bg="white"):
 # is separated by a blank line rather than packed tight.
 ANSWER_MD = ("Queued steers now survive a reconnect.\n"
              "\n"
-             "• Fixed loss of queued steers when reconnecting after a drop in steer_dropped handling.\n"
+             "• Fixed loss of queued steers when reconnecting after a drop in `steer_dropped` handling.\n"
              "\n"
-             "• Updated ui_protocol_transport.rs to persist queued steers to the session ledger.\n"
+             "• Updated `ui_protocol_transport.rs` to persist queued steers to the session ledger.\n"
              "\n"
-             "• All tests pass: 12 passed.\n"
+             "• All tests pass: `12 passed`.\n"
              "\n"
-             "• Changes included in commit a6ea8505.")
+             "• Changes included in commit `a6ea8505`.")
 
 def build_09(sc):
     """Completed answer. Card #11e: the body is ONE native flowing region bound to
@@ -387,7 +412,7 @@ def build_09(sc):
     rx, ry, rw, rh = sc.rows[0][1:]
     sc.add_control("worked_row", 16, 32, 374, 44, 0, bg="panel", radius=10, weight=500,
                    color="muted", lx=rx, ly=ry, lw=rw, lh=rh, event="turn.expand")
-    sc.put(flow_text("answer_md", ANSWER_MD, 27, 106, 356, 492, size=17.5, line_height=38))
+    sc.put(flow_md("answer_md", ANSWER_MD, 27, 106, 356, 492, size=17.5, line_height=38))
     sc.flows["answer_md"] = ("answer.markdown", 27, 106, 356, 492)
     sc.add_icon("icon_copy", "copy", 24, 662, 20, 20, color="muted")
     sc.add_icon("icon_thumbs", "thumbs", 52, 662, 20, 20, color="muted")

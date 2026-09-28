@@ -24,13 +24,13 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "stack",
-      "component": "Surface3fb7e191a9be",
+      "component": "Surfacec6d1fb983710",
       "semantic_role": "layout",
       "bounds": [
-        85.0,
-        39.0,
-        302.0,
-        103.0
+        90.88,
+        48.91,
+        284.01,
+        85.09
       ],
       "text": null,
       "enabled": null,
@@ -114,7 +114,7 @@
       "native_id": "beauty_0_3",
       "parent": "page",
       "kind": "text",
-      "component": "Text1f98af367ebb",
+      "component": "Text25d739aac68d",
       "semantic_role": "text",
       "bounds": [
         21.0,
@@ -122,7 +122,7 @@
         358.0,
         176.0
       ],
-      "text": "I'm tracing how queued steers are handled across reconnects\u2026\n\nI'll run tests to confirm the fix and update the affected code\u2026",
+      "text": "I'm tracing how queued steers are handled across reconnects\u2026\n\nI'll run tests to confirm the fix and update the affected `steer_dropped` path\u2026",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
       "size": 17.5
@@ -420,6 +420,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "86e5b674ff5c59835eab68c72f9db2ebaf07409b863f810227f5476c44e24139",
+  "contract_sha256": "b777053eb8f63564969fe30d60beffb36771cdb73ec730123b299b5c26440382",
   "mapping_basis": "mapped.json"
 }

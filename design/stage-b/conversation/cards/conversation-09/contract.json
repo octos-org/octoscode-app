@@ -79,7 +79,7 @@
       {
         "t": "text",
         "id": "answer_md",
-        "text": "Queued steers now survive a reconnect.\n\n• Fixed loss of queued steers when reconnecting after a drop in steer_dropped handling.\n\n• Updated ui_protocol_transport.rs to persist queued steers to the session ledger.\n\n• All tests pass: 12 passed.\n\n• Changes included in commit a6ea8505.",
+        "text": "Queued steers now survive a reconnect.\n\n• Fixed loss of queued steers when reconnecting after a drop in `steer_dropped` handling.\n\n• Updated `ui_protocol_transport.rs` to persist queued steers to the session ledger.\n\n• All tests pass: `12 passed`.\n\n• Changes included in commit `a6ea8505`.",
         "x": 27.0,
         "y": 106.0,
         "w": 356.0,
@@ -88,7 +88,9 @@
         "line_height": 38.0,
         "weight": 400,
         "color": 4280098079,
+        "bg": 4294243573,
         "alignx": 0,
+        "variant": "markdown",
         "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {

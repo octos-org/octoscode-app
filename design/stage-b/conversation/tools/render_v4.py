@@ -26,7 +26,10 @@ BEAUTY = ROOT / "tmp/beauty-clone-target/release/beauty-host"
 EVIDENCE = HERE / "evidence/gate-b"
 WORK = ROOT / "tmp/stage-b/render-v4"
 ART_PORT = 8179
-SCENES = [("01", 8391), ("03", 8393), ("04", 8394), ("08", 8395), ("09", 8396)]
+# Card #11f: 8393 was taken by another lane's `replay_se` process, and we must
+# never touch another lane's port. Stay on the ad-hoc block but on ports that are
+# actually free at render time.
+SCENES = [("01", 8380), ("03", 8381), ("04", 8382), ("08", 8383), ("09", 8384)]
 
 
 class Quiet(SimpleHTTPRequestHandler):

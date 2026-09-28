@@ -86,15 +86,15 @@
     {
       "id": "user_bubble",
       "bounds": [
-        85.0,
-        39.0,
-        302.0,
-        103.0
+        90.88,
+        48.91,
+        284.01,
+        85.09
       ],
-      "method": "reference edge contour with contained OCR text anchors",
+      "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
-      "bg": 4278387458,
-      "radius": 19.37
+      "bg": 4278387202,
+      "radius": 16.0
     },
     {
       "id": "icon_spinner",

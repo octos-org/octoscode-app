@@ -6,12 +6,12 @@
       "value": 4294901502,
       "property": "bg"
     },
-    "bg_4fdf73b708e7": {
-      "value": 4278387458,
+    "bg_32d13ae67b4b": {
+      "value": 4278387202,
       "property": "bg"
     },
-    "radius_98e2b77c28c7": {
-      "value": 19.37,
+    "radius_e38e216cb55b": {
+      "value": 16.0,
       "property": "radius"
     },
     "size_c6893771323e": {
@@ -77,6 +77,10 @@
     "color_e0ccdd36059a": {
       "value": 4280098079,
       "property": "color"
+    },
+    "bg_20ab133515d1": {
+      "value": 4294243573,
+      "property": "bg"
     },
     "font_src_86ab34a300f7": {
       "value": "self:resources/ux/Inter-400.ttf",
@@ -187,15 +191,15 @@
       "props": {},
       "slot": true
     },
-    "Surface3fb7e191a9be": {
+    "Surfacec6d1fb983710": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_4fdf73b708e7"
+          "$token": "bg_32d13ae67b4b"
         },
         "radius": {
-          "$token": "radius_98e2b77c28c7"
+          "$token": "radius_e38e216cb55b"
         }
       },
       "props": {},
@@ -295,7 +299,7 @@
       },
       "slot": false
     },
-    "Text1f98af367ebb": {
+    "Text25d739aac68d": {
       "style": {
         "t": "text",
         "size": {
@@ -310,7 +314,11 @@
         "color": {
           "$token": "color_e0ccdd36059a"
         },
+        "bg": {
+          "$token": "bg_20ab133515d1"
+        },
         "alignx": 0,
+        "variant": "markdown",
         "font_src": {
           "$token": "font_src_86ab34a300f7"
         }
