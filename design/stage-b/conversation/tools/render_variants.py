@@ -58,15 +58,15 @@ MONOBG = 0xFFF6F6F7
 # the root lets it hug its content.
 RESPONSIVE = {
     "thread-row": {"thread_1": {"fillw": 1, "fith": 1},
-                   "thread_1_surface": {"fillw": 1, "fillh": 1},
+                   "thread_1_surface": {"fillw": 1},
                    "thread_1_control": {"fillw": 1, "fillh": 1},
                    "thread_1_label": {"fillw": 1}},
     "new-chat": {"new_chat": {"fillw": 1, "fith": 1},
-                 "new_chat_surface": {"fillw": 1, "fillh": 1},
+                 "new_chat_surface": {"fillw": 1},
                  "new_chat_control": {"fillw": 1, "fillh": 1},
                  "new_chat_label": {"fillw": 1}},
     "worked-for": {"worked_row": {"fillw": 1, "fith": 1},
-                   "worked_row_surface": {"fillw": 1, "fillh": 1},
+                   "worked_row_surface": {"fillw": 1},
                    "worked_row_control": {"fillw": 1, "fillh": 1},
                    "worked_row_label": {"fillw": 1}},
     "user-bubble": {"user_bubble": {"fillw": 1, "fith": 1},
@@ -75,7 +75,7 @@ RESPONSIVE = {
     "assistant-prose": {"answer_prose": {"fillw": 1, "fith": 1},
                         "answer_md": {"fillw": 1, "fith": 1}},
     "answer-actions": {"answer_actions": {"fillw": 1, "fith": 1},
-                       "t11": {"fillw": 1, "alignx": 1}},
+                       "t11": {"fillw": 1, "alignx": 1, "x": 0}},
     "tool-cell": {"tool_1": {"fillw": 1, "fith": 1}, "t01": {"fillw": 1},
                   "t02": {"fillw": 1}},
     "composer": {"composer_idle": {"fillw": 1, "fith": 1},
@@ -83,7 +83,7 @@ RESPONSIVE = {
 }
 
 # The expanded tool-cell console, from scene 04's third card (`tool_3_output`).
-OUTPUT_BOX = {"t": "stack", "id": "tool_1_output", "x": 10, "y": 62, "w": 351, "h": 116,
+OUTPUT_BOX = {"t": "stack", "id": "tool_1_output", "x": 10, "y": 84, "w": 351, "h": 116,
               "variant": "surface", "bg": MONOBG, "radius": 8, "c": [
                   {"t": "text", "id": "o1", "x": 18, "y": 10, "w": 316, "h": 17, "size": 13.4,
                    "weight": 400, "font_src": MONO, "line_height": 16.6, "color": 4281216815,
@@ -142,7 +142,7 @@ VARIANTS = {
     "tool-cell": {
         "short": {"text": {"t01": "Read ui_protocol_transport.rs", "t02": "\u2022 412 lines"}},
         "long": {"text": {"t01": "Ran cargo test -p octos-cli", "t02": "\u2022 12 passed"},
-                 "flags": {"tool_1": {"h": 190}}, "insert": [("tool_1", OUTPUT_BOX)]},
+                 "flags": {"tool_1": {"h": 210}}, "insert": [("tool_1", OUTPUT_BOX)]},
         "failed": {"text": {"t01": "Ran cargo test -p octos-cli",
                             "t02": "\u2022 exit 2 \u00b7 0 passed, 2 failed"},
                    "flags": {"icon_check1": {"w": 0, "h": 0}, "t02": {"color": RED}},
@@ -169,6 +169,21 @@ def walk(node):
     yield node
     for c in node.get("c", []):
         yield from walk(c)
+
+
+def absolutize(node, ox, oy):
+    """Rewrite a subtree's box-relative coords to root-absolute, in place.
+
+    The measured backend emits every node's own x/y as `abs_pos` (design.rs),
+    which makepad resolves against the WINDOW, not the parent. An inserted
+    subtree authored with coords relative to its own box would therefore paint
+    at the box's origin: the console's four lines all landed at y=10/38/66 (OCR)
+    instead of 94/122/… Add each ancestor's offset on the way down.
+    """
+    node["x"] = node.get("x", 0.0) + ox
+    node["y"] = node.get("y", 0.0) + oy
+    for c in node.get("c", []):
+        absolutize(c, node["x"], node["y"])
 
 
 def wait_port(port, timeout=40):
@@ -204,7 +219,15 @@ def apply_variant(tree, comp, variant):
         prune(tree)
     for parent_id, node in inserts:
         parent = next(n for n in walk(tree) if n["id"] == parent_id)
-        parent.setdefault("c", []).append(json.loads(json.dumps(node)))
+        node = json.loads(json.dumps(node))
+        # The measured backend emits a node's own x/y as ROOT-absolute
+        # `abs_pos` (design.rs), so a subtree written with coords relative to
+        # its own box would paint at the box's origin, not inside it — the
+        # inserted console's lines all stacked at y=10/38/66 (OCR). Convert the
+        # insert to absolute, exactly like the v6 tree it is copied from
+        # (scene 04: nested `tool_3_output` at y=398, its line `t07` at 442.86).
+        absolutize(node, parent.get("x", 0.0), parent.get("y", 0.0))
+        parent.setdefault("c", []).append(node)
     return tree, inserts, drops
 
 

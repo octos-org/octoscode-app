@@ -18,22 +18,27 @@ mkdir -p "$WS/octoscript-makepad/apps/kit-host/resources/ux"
   cp "$WS/makepad/widgets/resources/LiberationMono-Regular.ttf" \
      "$WS/octoscript-makepad/apps/kit-host/resources/ux/LiberationMono-Regular.ttf"
 
-# 2) Apply the renderer patch the inline-code chips need (card #11f).
+# 2) Apply the renderer patches in order (idempotent).
 #    `design.rs`'s widget match had no arm emitting makepad's `Markdown`, so a
 #    prose node carrying inline `code` could not reach the widget's inline-code
-#    draw hook (`widgets/src/markdown.rs:118-176`). The patch adds the arm; it is
-#    idempotently applied to the clone (a no-op once present).
-#    Applied in order: the inline-code patch first (base), then the responsive
-#    patch (card #16b) on top of it.
-for PATCH in renderer-inline-code.patch renderer-responsive.patch; do
-  P="$PWD/design/stage-b/conversation/tools/$PATCH"
-  if [ -f "$P" ] && ! git -C "$WS/octoscript-makepad" apply --reverse --check "$P" >/dev/null 2>&1; then
-    git -C "$WS/octoscript-makepad" apply "$P"
+#    draw hook (`widgets/src/markdown.rs:118-176`); card #16b then made the
+#    measured backend honour the fill/fit flags. Both patches touch the same
+#    regions of `design.rs`, so a PER-PATCH reverse-check is unreliable: once
+#    both are applied, reverse-checking only the first fails because the second
+#    moved its context. Detect the fully-applied state from the TOP patch, and
+#    otherwise rebuild the renderer from pristine and apply both in order —
+#    deterministic and order-correct (the clone is a build artifact).
+TOP="$PWD/design/stage-b/conversation/tools/renderer-responsive.patch"
+if ! git -C "$WS/octoscript-makepad" apply --reverse --check "$TOP" >/dev/null 2>&1; then
+  git -C "$WS/octoscript-makepad" checkout -- \
+    crates/octoscript-makepad/src/design.rs apps/kit-host/src/beauty.rs
+  for PATCH in renderer-inline-code.patch renderer-responsive.patch; do
+    git -C "$WS/octoscript-makepad" apply "$PWD/design/stage-b/conversation/tools/$PATCH"
     echo "applied $PATCH"
-    # The patched renderer changes the host, so force a rebuild of that binary.
-    rm -f "$PWD/tmp/beauty-clone-target/release/beauty-host"
-  fi
-done
+  done
+  # The patched renderer changes the host, so force a rebuild of that binary.
+  rm -f "$PWD/tmp/beauty-clone-target/release/beauty-host"
+fi
 
 # 3) Build beauty-host from the clone (it bakes the resource set above).
 TARGET="$PWD/tmp/beauty-clone-target"

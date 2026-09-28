@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "kind": "octoscode-l0-components",
-  "note": "Reusable per-item components compiled from the approved conversation scenes (card #16). Width-responsive: fill the slot width, height from content.",
+  "note": "Reusable per-item components compiled from the approved conversation scenes (card #16). Width-responsive: fill the slot width, height from content. Each variant was rendered hidden at 360 and 540 through the Gate-B renderer (beauty-host) and reviewed against its atlas crop (card #16b).",
   "components": [
     {
       "id": "thread-row",
@@ -33,7 +33,15 @@
       "card": "design/components/thread-row/page.card",
       "data": "design/components/thread-row/page.data.json",
       "render": [
-        "design/components/thread-row/reference.png"
+        "design/components/thread-row/reference.png",
+        "design/components/thread-row/review-short.png",
+        "design/components/thread-row/review-long.png"
+      ],
+      "render_variants": [
+        "design/components/thread-row/variants/short-360.png",
+        "design/components/thread-row/variants/short-540.png",
+        "design/components/thread-row/variants/long-360.png",
+        "design/components/thread-row/variants/long-540.png"
       ]
     },
     {
@@ -61,7 +69,15 @@
       "card": "design/components/new-chat/page.card",
       "data": "design/components/new-chat/page.data.json",
       "render": [
-        "design/components/new-chat/reference.png"
+        "design/components/new-chat/reference.png",
+        "design/components/new-chat/review-short.png",
+        "design/components/new-chat/review-long.png"
+      ],
+      "render_variants": [
+        "design/components/new-chat/variants/short-360.png",
+        "design/components/new-chat/variants/short-540.png",
+        "design/components/new-chat/variants/long-360.png",
+        "design/components/new-chat/variants/long-540.png"
       ]
     },
     {
@@ -89,7 +105,15 @@
       "card": "design/components/user-bubble/page.card",
       "data": "design/components/user-bubble/page.data.json",
       "render": [
-        "design/components/user-bubble/reference.png"
+        "design/components/user-bubble/reference.png",
+        "design/components/user-bubble/review-short.png",
+        "design/components/user-bubble/review-long.png"
+      ],
+      "render_variants": [
+        "design/components/user-bubble/variants/short-360.png",
+        "design/components/user-bubble/variants/short-540.png",
+        "design/components/user-bubble/variants/long-360.png",
+        "design/components/user-bubble/variants/long-540.png"
       ]
     },
     {
@@ -120,7 +144,15 @@
       "card": "design/components/working-row/page.card",
       "data": "design/components/working-row/page.data.json",
       "render": [
-        "design/components/working-row/reference.png"
+        "design/components/working-row/reference.png",
+        "design/components/working-row/review-short.png",
+        "design/components/working-row/review-long.png"
+      ],
+      "render_variants": [
+        "design/components/working-row/variants/short-360.png",
+        "design/components/working-row/variants/short-540.png",
+        "design/components/working-row/variants/long-360.png",
+        "design/components/working-row/variants/long-540.png"
       ]
     },
     {
@@ -136,7 +168,7 @@
           "markdown": "Fixed `steer_dropped` handling."
         },
         "long": {
-          "markdown": "Queued steers now survive a reconnect.\n\n\u2022 Updated `ui_protocol_transport.rs` to persist queued steers.\n\n\u2022 All tests pass: `12 passed`."
+          "markdown": "Queued steers now survive a reconnect.\n\n• Updated `ui_protocol_transport.rs` to persist queued steers.\n\n• All tests pass: `12 passed`."
         }
       },
       "artboard": [
@@ -148,7 +180,15 @@
       "card": "design/components/assistant-prose/page.card",
       "data": "design/components/assistant-prose/page.data.json",
       "render": [
-        "design/components/assistant-prose/reference.png"
+        "design/components/assistant-prose/reference.png",
+        "design/components/assistant-prose/review-short.png",
+        "design/components/assistant-prose/review-long.png"
+      ],
+      "render_variants": [
+        "design/components/assistant-prose/variants/short-360.png",
+        "design/components/assistant-prose/variants/short-540.png",
+        "design/components/assistant-prose/variants/long-360.png",
+        "design/components/assistant-prose/variants/long-540.png"
       ]
     },
     {
@@ -162,10 +202,10 @@
       ],
       "variants": {
         "short": {
-          "label": "Worked for 3s \u203a"
+          "label": "Worked for 3s ›"
         },
         "long": {
-          "label": "Worked for 3m 4s \u203a"
+          "label": "Worked for 3m 4s ›"
         }
       },
       "artboard": [
@@ -177,7 +217,15 @@
       "card": "design/components/worked-for/page.card",
       "data": "design/components/worked-for/page.data.json",
       "render": [
-        "design/components/worked-for/reference.png"
+        "design/components/worked-for/reference.png",
+        "design/components/worked-for/review-short.png",
+        "design/components/worked-for/review-long.png"
+      ],
+      "render_variants": [
+        "design/components/worked-for/variants/short-360.png",
+        "design/components/worked-for/variants/short-540.png",
+        "design/components/worked-for/variants/long-360.png",
+        "design/components/worked-for/variants/long-540.png"
       ]
     },
     {
@@ -206,7 +254,15 @@
       "card": "design/components/answer-actions/page.card",
       "data": "design/components/answer-actions/page.data.json",
       "render": [
-        "design/components/answer-actions/reference.png"
+        "design/components/answer-actions/reference.png",
+        "design/components/answer-actions/review-short.png",
+        "design/components/answer-actions/review-long.png"
+      ],
+      "render_variants": [
+        "design/components/answer-actions/variants/short-360.png",
+        "design/components/answer-actions/variants/short-540.png",
+        "design/components/answer-actions/variants/long-360.png",
+        "design/components/answer-actions/variants/long-540.png"
       ]
     },
     {
@@ -230,7 +286,7 @@
         "long": {
           "summary": "Ran cargo test -p octos-cli",
           "status": "ok",
-          "output": "running 12 tests\u2026 12 passed"
+          "output": "running 12 tests… 12 passed"
         }
       },
       "artboard": [
@@ -242,7 +298,15 @@
       "card": "design/components/tool-cell/page.card",
       "data": "design/components/tool-cell/page.data.json",
       "render": [
-        "design/components/tool-cell/reference.png"
+        "design/components/tool-cell/reference.png",
+        "design/components/tool-cell/review-short.png",
+        "design/components/tool-cell/review-long.png"
+      ],
+      "render_variants": [
+        "design/components/tool-cell/variants/short-360.png",
+        "design/components/tool-cell/variants/short-540.png",
+        "design/components/tool-cell/variants/long-360.png",
+        "design/components/tool-cell/variants/long-540.png"
       ]
     },
     {
@@ -277,7 +341,15 @@
       "card": "design/components/composer/page.card",
       "data": "design/components/composer/page.data.json",
       "render": [
-        "design/components/composer/reference.png"
+        "design/components/composer/reference.png",
+        "design/components/composer/review-short.png",
+        "design/components/composer/review-long.png"
+      ],
+      "render_variants": [
+        "design/components/composer/variants/short-360.png",
+        "design/components/composer/variants/short-540.png",
+        "design/components/composer/variants/long-360.png",
+        "design/components/composer/variants/long-540.png"
       ]
     }
   ]
