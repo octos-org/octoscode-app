@@ -162,16 +162,14 @@ fn r1_autonomy_fixture_replays_through_the_real_registry_into_the_store() {
     assert_eq!(store.seen_count("session/goal/updated"), 1, "goal/updated frame handled");
     assert_eq!(store.seen_count("session/goal/cleared"), 1, "goal/cleared frame handled");
 
-    // No autonomy notification method fell through to the unknown arm.
-    for m in registry.unknown_methods() {
-        assert!(
-            !m.starts_with("loop/")
-                && !m.starts_with("monitor/")
-                && !m.starts_with("agent/")
-                && !m.starts_with("session/goal"),
-            "an autonomy notification was not handled: {m}"
-        );
-    }
+    // R1 step 4: NO recorded live notification hit the registry's tolerated
+    // `debug!` arm — every frame kind the real server sent is handled by some
+    // domain (autonomy or another lane's). `unknown_methods()` is empty.
+    assert_eq!(
+        registry.unknown_methods(),
+        Vec::<String>::new(),
+        "a recorded live frame kind is unhandled (would hit the debug! arm)"
+    );
 
     assert_eq!(store.domains.autonomy.agent_count(), 0, "no agents in a turn-free recording");
     assert!(decoded >= 6, "decoded {decoded} notifications from the fixture");
