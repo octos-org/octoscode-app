@@ -1,43 +1,37 @@
 #!/usr/bin/env python3
-"""Card #19 — the Phase-4 walk-runner.
+"""Card #19 / #19b / #19c — the Phase-4 walk-runner.
 
 Turns the rows of `docs/walk-rows.csv` (one per web Playwright case) into
 scripted checks on the **native** app, and records a verdict for every row in
-`docs/walk/results.csv`.
+`docs/walk/results.csv` (per row) plus `docs/walk/results-checks.csv` (per check).
 
 Operator view: `docs/walk/README.md`.
 
 Design:
-* A **backend** per scenario is the recording-replay server
-  (`crates/octoscode-module/examples/replay_serve.rs --scenario <name>`), which
-  serves the committed real fixtures under `crates/octoscode-client/tests/fixtures/`.
-  **No model runs.**
+* A **backend** per area is the recording-replay server
+  (`crates/octoscode-module/examples/replay_serve.rs --scenario <name>`), serving
+  the committed real fixtures. **No model runs.**
 * The **app** is launched hidden via `harness/headless.sh` on this card's port
   block **8370-8379** and driven with real input (`/click`, `/t`). Assertions
   read the app's own `/snap`; a failure also writes `/g` + the snap JSON under
   `docs/walk/evidence/`.
 
-## Which rows are scripted, and the verdict rule
+## Row → check mapping (#19c item 3)
 
-The card says to automate "the first 30 rows that exercise **what exists
-today**: conversation (prompt, stream, interrupt, order), threads (list, new
-chat, select), composer (draft clears, queue/steer where supported), approval
-(request -> approve/deny), and reconnect/replay."
+Each check declares which rows it covers (`rows=` in `@check`): a tuple of
+lowercase substrings matched against the row's `case` and `protocol_methods`, or
+`ALL`. A row is `pass` iff **every check mapped to it** passed — so one broken
+check fails only the rows that actually use it, not its whole area.
 
-An area qualifies only if its native surface exists today. Per the built design
-batch (`design/cards/`: conversation-01/03/04/08/09) there is **no approval
-card** — `design/bindings.json:40` says the inline-approval scene
-(`conversation-05`) "is NOT in this batch's 5 mapped components". So:
+## Why the composer checks clear first (#19c items 1-2)
 
-* **Scripted areas** (native surface exists): conversation, threads, composer,
-  recovery/reconnect. The runner selects the first 30 rows in these areas.
-  A row is `pass` iff every strict check of its area passes; else `fail` with
-  `/g` + `/snap` evidence.
-* **approval** rows are `not-yet-implemented`, naming the missing card (with the
-  design citation). The delivery of `approval/requested` is a *store* fact, not
-  a widget, so it cannot be asserted from `/snap` — claiming a row `pass` on it
-  would be dishonest.
-* the 3 `real-turn` rows are `blocked`; the 31 web-only rows are `skipped`.
+`/t` sends makepad `Input::Text` with `replace_last: false`
+(`native/makepad/platform/src/remote.rs:1328-1332`): it **inserts at the caret**,
+it never replaces the field. A centre click on a **populated** field sometimes
+places the caret, sometimes selects, so asserting exact equality after typing
+into a non-empty field is inherently non-deterministic (14/20 failures in a tight
+loop). The checks therefore **focus, clear with backspace, then type**, and wait
+for the observable result — never a fixed sleep.
 
 Run:  python3 tools/walk/run.py [--limit 30] [--only AREA] [--port 8370]
 """
@@ -61,6 +55,7 @@ WALK = ROOT / "docs" / "walk"
 EVIDENCE = WALK / "evidence"
 WALK_ROWS = ROOT / "docs" / "walk-rows.csv"
 PARITY = ROOT / "docs" / "parity-matrix.csv"
+
 DEFAULT_APP_BIN = "/Users/yuechen/home/oa.noindex/p0-build/tmp/octosense-target/debug/octosense"
 BIN = pathlib.Path(os.environ.get("OCTOSCODE_APP_BIN", DEFAULT_APP_BIN))
 REPLAY = ROOT / "target" / "debug" / "examples" / "replay_serve"
@@ -85,6 +80,17 @@ tools/walk drives the real desktop shell, which is built from the OctoSense fork
 (A prebuilt copy may exist read-only at {DEFAULT_APP_BIN}; set that instead.)
 """
 
+# How long a wait_for() poll may take, and the poll period.
+WAIT_TIMEOUT_S = 12.0
+POLL_S = 0.15
+# Backspaces used to clear the composer (the field is short; extra presses on an
+# empty field are harmless).
+CLEAR_PRESSES = 48
+# The composer's empty-state copy (design `conversation-08`, `composer.placeholder`
+# === "Ask Octos anything", `design/bindings.json:28`) — what `/snap` shows when
+# the draft is empty.
+PLACEHOLDER = "Ask Octos anything"
+
 
 class PrereqError(RuntimeError):
     """A documented prerequisite is missing; the message says exactly what to do."""
@@ -94,17 +100,8 @@ def default_shell_cwd(bin_path: pathlib.Path) -> pathlib.Path:
     """The desktop crate dir for a built binary (makepad resolves resources
     relative to it).
 
-    Two layouts occur, and both are supported:
-
-    * baseline/fork build — crate `<fork>/desktop`, target `<fork>/tmp/octosense-target`
-      (`CARGO_TARGET_DIR=$PWD/tmp/octosense-target`), so walking up finds
-      `<fork>/desktop`.
-    * p0-build lane build — target `<base>/octosense-target`, crate
-      `<base>/octosense/desktop` (a **sibling** of the target dir).
-
-    At each ancestor `p` we therefore probe both `p/desktop` and
-    `p/octosense/desktop`; the first that has a `Cargo.toml` wins. If nothing
-    matches, fall back to the binary's own directory (never raises).
+    Supports both layouts: `<fork>/desktop` (baseline/fork build) and
+    `<tmp>/octosense/desktop` (p0-build sibling layout).
     """
     p = bin_path.resolve()
     for parent in p.parents:
@@ -146,6 +143,7 @@ def check_prereqs(build_replay: bool = True) -> tuple[pathlib.Path, pathlib.Path
         raise PrereqError(APP_BIN_HELP)
     return replay, BIN
 
+
 APP_PORT = 8370
 SCENARIO_PORTS = {"conversation": 8380, "approval": 8381, "task": 8382,
                   "autonomy": 8383, "peer": 8384, "session": 8385}
@@ -175,6 +173,9 @@ APPROVAL_MISSING = ("missing: inline approval card — design scene conversation
                     "is not in the built batch (design/bindings.json:40); "
                     "approval/requested reaches the store but has no widget")
 
+# The subset marker used by `@check(rows=…)` for "every row of the area".
+ALL = "__all__"
+
 
 # --------------------------------------------------------------------------- #
 class App:
@@ -183,11 +184,31 @@ class App:
         self.base = f"http://127.0.0.1:{port}"
 
     def _get(self, path: str) -> str:
-        with urllib.request.urlopen(self.base + path, timeout=15) as r:
-            return r.read().decode()
+        try:
+            with urllib.request.urlopen(self.base + path, timeout=20) as r:
+                return r.read().decode()
+        except urllib.error.HTTPError as e:
+            # The makepad bridge answers errors as HTTP 404 with a JSON body; a
+            # bare "HTTP Error 404" hides the real cause (e.g. a bridge timeout).
+            body = e.read().decode(errors="replace")
+            raise AssertionError(f"{path} -> HTTP {e.code} {body[:200]}") from None
 
     def snap(self) -> dict:
         return json.loads(self._get("/snap?all=1"))
+
+    def _get_retry(self, path: str, tries: int = 4) -> str:
+        """`_get` with a short retry, for bursty input where the bridge can time
+        out under load (`ask()` answers `Reply::Err("timeout …")` as HTTP 404,
+        `native/makepad/platform/src/remote.rs:2740-2742`). A dropped keystroke
+        must not masquerade as a check failure."""
+        last = None
+        for _ in range(tries):
+            try:
+                return self._get(path)
+            except Exception as e:  # noqa: BLE001
+                last = e
+                time.sleep(0.2)
+        raise AssertionError(f"retries exhausted for {path}: {last}")
 
     def text_of(self, snap: dict, ident: str):
         return next((w.get("t") for w in snap.get("s", []) if str(w.get("i", "")) == ident), None)
@@ -198,26 +219,89 @@ class App:
     def kinds(self, snap: dict):
         return [w.get("t") for w in snap.get("s", []) if str(w.get("i", "")) == "item_kind"]
 
+    def rect(self, snap: dict, ident: str):
+        for w in snap.get("s", []):
+            if str(w.get("i", "")) == ident:
+                return w["r"]
+        return None
+
     def click(self, x, y):
         return self._get(f"/click?x={x}&y={y}&wait=1")
 
-    def type_text(self, text):
-        return self._get("/t?" + urllib.parse.urlencode({"t": text, "wait": 1}))
-
-    def rect(self, snap, ident):
-        for w in snap.get("s", []):
-            if str(w.get("i", "")) == ident:
-                x, y, ww, hh = w["r"]
-                return int(x + ww / 2), int(y + hh / 2)
-        return None
-
-    def click_id(self, snap, ident):
+    def click_id(self, snap: dict, ident: str):
         r = self.rect(snap, ident)
         if not r:
             raise AssertionError(f"widget '{ident}' is not present")
-        return self.click(*r)
+        return self.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
+
+    def type(self, text):
+        return self._get_retry("/t?" + urllib.parse.urlencode({"t": text, "wait": 1}))
+
+    def key(self, code):
+        return self._get_retry("/k?" + urllib.parse.urlencode({"c": code, "wait": 1}))
+
+    def wait_for(self, predicate, timeout=WAIT_TIMEOUT_S, poll=POLL_S, what="condition"):
+        """Poll `/snap` until `predicate(snap)` holds; return the snapshot, else raise.
+
+        Waiting on the observable condition — never a fixed sleep (card #19c).
+        """
+        deadline = time.monotonic() + timeout
+        last = None
+        while time.monotonic() < deadline:
+            last = self.snap()
+            if predicate(last):
+                return last
+            time.sleep(poll)
+        raise AssertionError(f"timed out after {timeout:g}s waiting for {what}")
+
+    def draft(self, snap=None):
+        snap = snap or self.snap()
+        return next((w.get("t") for w in snap.get("s", []) if str(w.get("i", "")) == "draft"), None)
+
+    def focus_composer(self, snap=None):
+        """Focus the composer and put the caret at the END (a right-edge click).
+
+        A right-edge click reliably places the caret at the end of the text
+        (verified), so a subsequent clear-by-backspace is deterministic.
+        """
+        snap = snap or self.snap()
+        r = self.rect(snap, "draft")
+        if not r:
+            raise AssertionError("the composer ('draft') is not present")
+        x, y, w, h = r
+        return self.click(int(x + w - 2), int(y + h / 2))
+
+    def clear_composer(self):
+        """Empty the composer: focus at the end, then backspace it away.
+
+        Waits for the field to read empty (or the placeholder), so the caller
+        never races the reducer (card #19c).
+        """
+        self.focus_composer()
+        for _ in range(CLEAR_PRESSES):
+            self.key("backspace")
+        return self.wait_for(
+            lambda s: (self.draft(s) or "") in ("", PLACEHOLDER),
+            what="the composer to clear",
+        )
+
+    def type_into_composer(self, text):
+        """Clear, focus, type, and wait until the draft equals `text` exactly.
+
+        Returns the snapshot that showed it. Raises if it never matches — the
+        failure is then a real one, not a race.
+        """
+        self.clear_composer()
+        self.focus_composer()
+        self.type(text)
+        return self.wait_for(lambda s: self.draft(s) == text,
+                             what=f"the composer to read {text!r}")
+
+    def send(self):
+        return self.click_id(self.snap(), "send")
 
 
+# --------------------------------------------------------------------------- #
 class Procs:
     def __init__(self, app_port: int, shell_cwd: pathlib.Path | None = None):
         self.servers: dict[str, subprocess.Popen] = {}
@@ -277,7 +361,11 @@ class Procs:
                 f"the app did not start on port {self.app_port}:\n"
                 + (r.stdout or "")[-800:] + (r.stderr or "")[-800:])
         self.app = self.app_port
-        time.sleep(4)
+        # Wait for the bridge to serve a snapshot with the module mounted — never
+        # a fixed sleep (a slow first frame must not time out the first click).
+        app = App(self.app_port)
+        app.wait_for(lambda s: "heading" in app.widget_ids(s), timeout=30.0,
+                     what="the module to mount after launch")
 
     def stop_app(self):
         if self.app is None:
@@ -300,23 +388,31 @@ class Procs:
 
 
 # --------------------------------------------------------------------------- #
-# Area checks. Each returns (passed, reason). Strict: no lenient proxies.
+# Checks. Each returns (passed, reason). `rows` scopes it to the walk rows it
+# covers (card #19c item 3): ALL, or lowercase substrings of case/protocol_methods.
 # --------------------------------------------------------------------------- #
-CHECKS: dict[str, list] = {a: [] for a in AREA_PATTERNS}
+CHECKS: list = []
 
 
-def check(area: str, name: str):
+def check(area: str, name: str, rows=ALL):
     def deco(fn):
-        CHECKS[area].append((name, fn))
+        CHECKS.append({"area": area, "name": name, "rows": rows, "fn": fn})
         return fn
     return deco
 
 
-def _send_turn(app: App, text: str):
-    d = app.snap()
-    app.click_id(d, "draft")
-    app.type_text(text)
-    app.click_id(app.snap(), "send")
+def check_applies(chk: dict, row: dict) -> bool:
+    """Does `chk` run against this walk row?"""
+    if chk["rows"] is ALL:
+        return True
+    hay = (row["case"] + " " + (row.get("protocol_methods") or "")).lower()
+    return any(k in hay for k in chk["rows"])
+
+
+def _compose_and_send(app: App, text: str):
+    """Clear, type `text`, and send it; return the snapshot right after send."""
+    app.type_into_composer(text)
+    app.send()
 
 
 # ---- conversation: prompt, stream, order, interrupt ----------------------- #
@@ -332,46 +428,67 @@ def c_thread(app):
     return bool(app.text_of(app.snap(), "thread_name")), "thread row present"
 
 
-@check("conversation", "the composer accepts typed text (prompt input)")
-def c_draft(app):
-    d = app.snap()
-    app.click_id(d, "draft")
-    app.type_text("walk draft probe")
-    return app.text_of(app.snap(), "draft") == "walk draft probe", "draft round-trips"
+@check("conversation", "the composer accepts typed text (prompt input)",
+       rows=("prompt", "input"))
+def c_input(app):
+    app.type_into_composer("walk draft probe")
+    return True, "draft reads 'walk draft probe' after clearing and typing"
 
 
-@check("conversation", "composing clears the draft on send")
-def c_send_clears(app):
-    _send_turn(app, "walk: clear the draft")
-    time.sleep(1.0)
-    got = app.text_of(app.snap(), "draft")
-    return (got or "") in ("", "Ask Octos anything"), f"draft after send={got!r}"
+@check("conversation", "composing clears the draft on send", rows=("prompt", "input"))
+def c_clear_on_send(app):
+    _compose_and_send(app, "walk: clear the draft")
+    app.wait_for(lambda s: (app.draft(s) or "") in ("", PLACEHOLDER),
+                 what="the draft to clear after send")
+    return True, f"draft after send={app.draft()!r}"
 
 
-@check("conversation", "a sent prompt streams an assistant answer row")
+@check("conversation", "a sent prompt streams an assistant answer row",
+       rows=("stream", "answer", "turn", "prompt"))
 def c_stream(app):
-    time.sleep(2.5)
-    k = app.kinds(app.snap())
-    return "assistant-prose" in k, f"kinds={k}"
+    app.wait_for(lambda s: "assistant-prose" in app.kinds(s),
+                 what="the assistant answer row")
+    return True, f"kinds={app.kinds(app.snap())}"
 
 
-@check("conversation", "the user's own prompt renders as a row")
+@check("conversation", "the user's own prompt renders as a row",
+       rows=("prompt", "stream", "turn"))
 def c_user(app):
-    k = app.kinds(app.snap())
-    return "user-bubble" in k, f"kinds={k}"
+    app.wait_for(lambda s: "user-bubble" in app.kinds(s),
+                 what="the user-bubble row")
+    return True, f"kinds={app.kinds(app.snap())}"
 
 
-@check("conversation", "the answer row renders after the prompt row (order)")
+@check("conversation", "the answer row renders after the prompt row (order)",
+       rows=("order", "stream", "turn"))
 def c_order(app):
-    ys = {}
-    for w in app.snap().get("s", []):
-        if str(w.get("i", "")) == "item_kind":
-            ys.setdefault(w.get("t"), w["r"][1])
-    ok = ("user-bubble" in ys and "assistant-prose" in ys and ys["user-bubble"] < ys["assistant-prose"])
-    return ok, f"y(user)={ys.get('user-bubble')} y(answer)={ys.get('assistant-prose')}"
+    app.wait_for(lambda s: {"user-bubble", "assistant-prose"} <= set(app.kinds(s)),
+                 what="both the user row and the answer row")
+
+    def ys(s):
+        out = {}
+        for w in s.get("s", []):
+            if str(w.get("i", "")) == "item_kind":
+                out.setdefault(w.get("t"), w["r"][1])
+        return out
+
+    d = app.snap()
+    y = ys(d)
+    ok = y.get("user-bubble", 0) < y.get("assistant-prose", 0)
+    return ok, f"y(user)={y.get('user-bubble')} y(answer)={y.get('assistant-prose')}"
 
 
-@check("conversation", "the Stop control is present for the live turn")
+@check("conversation", "the turn's timeline item kinds are present",
+       rows=("stream", "turn", "message"))
+def c_kinds(app):
+    app.wait_for(lambda s: bool(app.kinds(s)), what="the timeline item rows")
+    got = set(app.kinds(app.snap()))
+    ok = {"user-bubble", "assistant-prose"} <= got
+    return ok, f"kinds={sorted(got)}"
+
+
+@check("conversation", "the Stop control is present for the live turn",
+       rows=("interrupt", "turn"))
 def c_stop(app):
     return "stop" in app.widget_ids(app.snap()), "stop widget present"
 
@@ -384,26 +501,28 @@ def t_portal(app):
 
 @check("threads", "refresh (session/list) keeps the module live")
 def t_refresh(app):
-    d = app.snap()
-    app.click_id(d, "refresh")
-    time.sleep(1.5)
-    return "Live" in (app.text_of(app.snap(), "status") or ""), "status stays Live"
+    app.click_id(app.snap(), "refresh")
+    app.wait_for(lambda s: "Live" in (app.text_of(s, "status") or ""),
+                 what="the module to stay Live after refresh")
+    return True, "status stays Live"
 
 
-@check("threads", "New chat mints a fresh Session and re-opens the workspace")
+@check("threads", "New chat mints a fresh Session and re-opens the workspace",
+       rows=("new chat", "session"))
 def t_new_chat(app):
+    app.click_id(app.snap(), "new_chat")
+    app.wait_for(lambda s: (app.text_of(s, "heading") == "OctosCode"
+                            and "draft" in app.widget_ids(s)),
+                 what="the workspace to re-open after New chat")
     d = app.snap()
-    app.click_id(d, "new_chat")
-    time.sleep(2.0)
-    d = app.snap()
-    ok = app.text_of(d, "heading") == "OctosCode" and "draft" in app.widget_ids(d)
-    return ok, f"heading={app.text_of(d,'heading')!r} has draft={'draft' in app.widget_ids(d)}"
+    return True, f"heading={app.text_of(d, 'heading')!r} has draft={'draft' in app.widget_ids(d)}"
 
 
-# ---- composer: draft, send, timeline, persistence ------------------------- #
+# ---- composer: draft, send, timeline, input round-trip -------------------- #
 @check("composer", "the draft is a single TextInput with a placeholder")
 def comp_draft(app):
-    ph = next((w.get("t") for w in app.snap().get("s", []) if str(w.get("i", "")) == "draft"), None)
+    ph = next((w.get("t") for w in app.snap().get("s", [])
+               if str(w.get("i", "")) == "draft"), None)
     return ph is not None, f"draft={ph!r}"
 
 
@@ -417,13 +536,10 @@ def comp_timeline(app):
     return "timeline_list" in app.widget_ids(app.snap()), "timeline_list present"
 
 
-@check("composer", "a typed draft survives a snap (no re-render wipe)")
-def comp_survives(app):
-    d = app.snap()
-    app.click_id(d, "draft")
-    app.type_text("survive me")
-    app.snap()
-    return app.text_of(app.snap(), "draft") == "survive me", "draft persists across snaps"
+@check("composer", "a typed draft round-trips through the composer")
+def comp_input_roundtrip(app):
+    app.type_into_composer("survive me")
+    return True, "draft reads 'survive me' after clearing and typing"
 
 
 # ---- recovery: reconnect, replay ------------------------------------------ #
@@ -433,12 +549,53 @@ def r_live(app):
     return "Live" in s, f"status={s!r}"
 
 
-@check("recovery", "a replayed turn lands in the module's own transcript")
+@check("recovery", "a replayed turn lands in the module's own transcript",
+       rows=("replay", "reconnect", "recovery"))
 def r_replay(app):
-    _send_turn(app, "walk: replay a turn")
-    time.sleep(2.5)
-    k = app.kinds(app.snap())
-    return bool(k), f"timeline kinds={k}"
+    _compose_and_send(app, "walk: replay a turn")
+    app.wait_for(lambda s: bool(app.kinds(s)), what="the replayed timeline")
+    return True, f"timeline kinds={app.kinds(app.snap())}"
+
+
+# --------------------------------------------------------------------------- #
+# Verdict logic (unit-tested in tools/walk/test_run.py)
+# --------------------------------------------------------------------------- #
+def decided_status(check_statuses, area_blocked: bool) -> str:
+    """The row status from its checks (or `blocked` when the area never started).
+
+    * `blocked` — the area's server/app failed to start (card #19b, defect 1).
+    * `pass` — at least one check ran and every check passed. An EMPTY run can
+      never be `pass` (`all([]) == True` was the #19b defect).
+    * `fail` — otherwise.
+    """
+    if area_blocked:
+        return "blocked"
+    if not check_statuses:
+        return "fail"
+    return "pass" if all(s == "pass" for s in check_statuses) else "fail"
+
+
+def row_reason(check_statuses, area_reason: str = "") -> str:
+    """The human reason for a row, from its checks."""
+    if not check_statuses:
+        return area_reason or "no checks ran for this row"
+    failed = [name for name, st in check_statuses if st != "pass"]
+    if failed:
+        return f"failing checks: {'; '.join(failed)}"
+    return f"{len(check_statuses)} checks, all pass"
+
+
+def exit_code(counts: dict, infra_blocked: int) -> int:
+    """The process exit code, so a failure can never look green (card #19b).
+
+    `1` when a check failed, a row was not run, or a **selected** row is blocked
+    by a start failure. (`infra_blocked` counts the latter; the 3 `real-turn`
+    rows are never selected, so they never count here.) A prerequisite failure is
+    handled earlier and exits `2`.
+    """
+    if counts.get("fail", 0) or counts.get("not-run", 0) or infra_blocked:
+        return 1
+    return 0
 
 
 # --------------------------------------------------------------------------- #
@@ -458,10 +615,10 @@ def area_of(row):
 def select_targets(limit: int):
     """The first `limit` rows in the scriptable areas, **round-robin by area**.
 
-    Pure file order lets `conversation`/`recovery` crowd out `threads` (which has
-    only 4 eligible rows), so the card's named areas would not all appear. Taking
-    one row per area in turn keeps every named area represented while still
-    taking the earliest rows within each.
+    Pure file order lets `conversation`/`recovery` crowd out `threads` (only 4-5
+    eligible rows), so the card's named areas would not all appear. Taking one row
+    per area in turn keeps every named area represented while still taking the
+    earliest rows within each.
     """
     eligible: dict[str, list] = {a: [] for a in AREA_PATTERNS}
     for i, row in enumerate(load_rows(), start=1):
@@ -502,51 +659,6 @@ def missing_capability(spec: str) -> str:
     return "native capability not yet built (see docs/parity-matrix.csv)"
 
 
-def area_verdict(run: list) -> str:
-    """`pass` only when there is at least one check and every check passed.
-
-    An **empty** run can never be `pass`: "0 checks, all pass" was the #19b
-    defect that turned a start failure into a green row (card #19b, defect 1).
-    """
-    if not run:
-        return "fail"
-    return "pass" if all(c["status"] == "pass" for c in run) else "fail"
-
-
-def row_reason(area: str, res: dict) -> str:
-    """The human reason for a scripted row.
-
-    A blocked/unstarted area **keeps its own start-failure reason** — it must
-    never be overwritten by the "all checks pass" text on an empty check list
-    (card #19b, defect 1).
-    """
-    if res["status"] == "blocked":
-        return res.get("reason") or f"area '{area}' did not start"
-    if not res["run"]:
-        # Defensive: no area may ever read as "all pass" on an empty check list,
-        # even if a caller hands one a non-blocked empty result.
-        return res.get("reason") or f"area '{area}': no checks ran"
-    failed = [c["check"] for c in res["run"] if c["status"] != "pass"]
-    if failed:
-        return f"area '{area}' failing: {'; '.join(failed)}"
-    return f"area '{area}': {len(res['run'])} checks, all pass"
-
-
-def exit_code(counts: dict, infra_blocked: int) -> int:
-    """The process exit code, so a failure can never look green (card #19b).
-
-    * `1` — a check failed, an area was not run, or a **selected** row is blocked
-      because its area could not start. (`infra_blocked` counts the latter: the
-      3 `real-turn` rows are never selected, so they never count here.)
-    * `0` — otherwise (every selected row passed).
-
-    A prerequisite failure is handled earlier and exits `2`.
-    """
-    if counts.get("fail", 0) or counts.get("not-run", 0) or infra_blocked:
-        return 1
-    return 0
-
-
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=30)
@@ -573,26 +685,34 @@ def main():
     areas = sorted({a for _, a, _ in targets})
     if args.only:
         areas = [a for a in areas if a == args.only]
-    area_result: dict[str, dict] = {}
+
+    # area -> {"blocked": bool, "reason": str}. A row's checks run against the app
+    # for its area; per-check results are recorded per row (card #19c item 3).
+    area_state: dict[str, dict] = {}
+    per_row_checks: dict[int, list] = {}   # row_id -> [(check_name, status, reason)]
     for area in areas:
         scenario = AREA_SCENARIO[area]
         try:
             procs.start_server(scenario)
             procs.start_app(scenario)
         except Exception as e:  # noqa: BLE001
-            area_result[area] = {"status": "blocked", "run": [], "evidence": "",
-                                 "reason": f"scenario '{scenario}' failed to start: {e}"}
+            area_state[area] = {"blocked": True,
+                                "reason": f"scenario '{scenario}' failed to start: {e}"}
             continue
         app = App(procs.app_port)
-        run, evidence = [], ""
-        for name, fn in CHECKS[area]:
+        # Run each check ONCE against this area's app; record its status.
+        area_checks = [c for c in CHECKS if c["area"] == area]
+        results = []
+        evidence = ""
+        for chk in area_checks:
             try:
-                ok, reason = fn(app)
+                ok, reason = chk["fn"](app)
                 status = "pass" if ok else "fail"
             except Exception as e:  # noqa: BLE001
                 ok, status, reason = False, "fail", f"exception: {e}"
-            run.append({"check": name, "status": status, "reason": reason[:200]})
-            if status == "fail" and not evidence:
+            results.append({"name": chk["name"], "status": status, "reason": reason[:200],
+                            "rows": chk["rows"]})
+            if status == "fail":
                 try:
                     sj = EVIDENCE / f"area-{area}.snap.json"
                     sj.write_text(json.dumps(app.snap()))
@@ -603,64 +723,74 @@ def main():
                     evidence = str(sj.relative_to(ROOT))
                 except Exception:  # noqa: BLE001
                     pass
-            print(f"  [{area}] {status:5} {name[:62]:62} :: {reason[:60]}")
-        overall = area_verdict(run)
-        area_result[area] = {"status": overall, "run": run, "evidence": evidence}
+            print(f"  [{area}] {status:5} {chk['name'][:62]:62} :: {reason[:60]}")
+        # Map each selected row of this area to the checks that apply to it.
+        for rid, a, row in targets:
+            if a != area:
+                continue
+            applied = [(r["name"], r["status"]) for r in results if check_applies(r, row)]
+            krs = [(r["name"], r["status"], r["reason"]) for r in results if check_applies(r, row)]
+            per_row_checks[rid] = [(n, s, rr) for (n, s, rr) in krs]
+        area_state[area] = {"blocked": False, "reason": "", "evidence": evidence,
+                            "results": results}
 
     procs.stop_all()
 
-    target_by_row = {i: a for i, a, _ in targets}
-    out = []
+    target_area = {i: a for i, a, _ in targets}
+    out_rows: list = []          # per-row aggregate
+    check_rows: list = []        # per-check detail (card #19c item 3)
     for i, row in enumerate(rows, start=1):
         spec, case, needs = row["spec"], row["case"], row["needs"]
         web_only = (row.get("web_only_reason") or "").strip()
         area = area_of(row) or ""
-        if i in target_by_row:
-            res = area_result.get(area)
-            if res is None:
-                status, reason, ev = "not-run", "area not selected", ""
-            else:
-                status = res["status"]
-                reason = row_reason(area, res)
-                ev = res["evidence"]
-            out.append({"row_id": i, "area": area, "spec": spec, "case": case,
-                        "status": status, "evidence": ev, "reason": reason})
+        if i in target_area:
+            area = target_area[i]
+            st = area_state.get(area, {})
+            checks = per_row_checks.get(i, [])
+            status = decided_status([s for _, s, _ in checks], st.get("blocked", False))
+            reason = row_reason([(n, s) for n, s, _ in checks], st.get("reason", ""))
+            ev = st.get("evidence", "")
+            out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
+                             "status": status, "evidence": ev, "reason": reason})
+            for n, s, rr in checks:
+                check_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
+                                   "check": n, "status": s, "evidence": ev, "reason": rr})
         elif web_only:
-            out.append({"row_id": i, "area": area, "spec": spec, "case": case,
-                        "status": "skipped", "evidence": "",
-                        "reason": f"skipped: operator-confirmation-pending ({web_only})"})
+            out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
+                             "status": "skipped", "evidence": "",
+                             "reason": f"skipped: operator-confirmation-pending ({web_only})"})
         elif needs == "real-turn":
-            out.append({"row_id": i, "area": area, "spec": spec, "case": case,
-                        "status": "blocked", "evidence": "",
-                        "reason": "blocked: needs outer-loop live run (real model turn)"})
+            out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
+                             "status": "blocked", "evidence": "",
+                             "reason": "blocked: needs outer-loop live run (real model turn)"})
         elif area == "approval":
-            out.append({"row_id": i, "area": area, "spec": spec, "case": case,
-                        "status": "not-yet-implemented", "evidence": "", "reason": APPROVAL_MISSING})
+            out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
+                             "status": "not-yet-implemented", "evidence": "", "reason": APPROVAL_MISSING})
         else:
-            out.append({"row_id": i, "area": area, "spec": spec, "case": case,
-                        "status": "not-yet-implemented", "evidence": "",
-                        "reason": f"missing: {missing_capability(spec)}"})
+            out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
+                             "status": "not-yet-implemented", "evidence": "",
+                             "reason": f"missing: {missing_capability(spec)}"})
 
     with open(WALK / "results.csv", "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=["row_id", "area", "spec", "case", "status", "evidence", "reason"])
         w.writeheader()
-        w.writerows(out)
+        w.writerows(out_rows)
+    with open(WALK / "results-checks.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["row_id", "area", "spec", "case", "check", "status", "evidence", "reason"])
+        w.writeheader()
+        w.writerows(check_rows)
 
     from collections import Counter
-    counts = Counter(r["status"] for r in out)
-    # A selected row blocked because its area could not start is an infra
-    # failure, not a pass (card #19b). The 3 real-turn rows are never selected,
-    # so they do not count here.
-    infra_blocked = sum(
-        1 for i, r in enumerate(out, start=1)
-        if i in target_by_row and r["status"] == "blocked"
-    )
+    counts = Counter(r["status"] for r in out_rows)
+    infra_blocked = sum(1 for i, r in enumerate(out_rows, start=1)
+                        if i in target_area and r["status"] == "blocked")
     print("\n== walk-runner summary ==")
     for k in ("pass", "fail", "not-yet-implemented", "blocked", "skipped", "not-run"):
         if counts.get(k):
             print(f"   {k:20} {counts[k]}")
-    print(f"   total                {len(out)}")
+    print(f"   total                {len(out_rows)}")
     print(f"   scripted rows        {len(targets)}  (areas: {areas})")
+    print(f"   per-check rows       {len(check_rows)}  (docs/walk/results-checks.csv)")
     if infra_blocked:
         print(f"   NOTE: {infra_blocked} selected row(s) blocked by a start failure")
     return exit_code(counts, infra_blocked)
