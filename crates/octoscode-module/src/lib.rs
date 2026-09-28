@@ -141,7 +141,6 @@ pub(crate) struct Bridge {
 /// virtualization proof (`OCTOSCODE_SYNTHETIC_TIMELINE`). No transport: the
 /// window draws the virtualized list on its own.
 fn seed_synthetic(store: &Arc<Store>, n: usize) {
-    use octoscode_store::timeline::EntryKind;
     use octoscode_store::Session;
     store.set_connection("Live".into(), false);
     store.set_sessions(vec![Session {
@@ -153,14 +152,16 @@ fn seed_synthetic(store: &Arc<Store>, n: usize) {
         active_turn: false,
     }]);
     store.set_active(Some("synthetic:main".into()));
+    // One TURN per row, each with its own user message: the rows are then
+    // DISTINCT (`synthetic row #i`), so a scroll is visible in the `/snap`
+    // bodies — which is what makes the virtualization proof checkable.
     let tl = &store.domains.session.timeline;
-    tl.upsert_user_message("synthetic:main", "t0", "synthetic timeline", serde_json::json!({}));
     for i in 0..n {
-        tl.append(
+        tl.upsert_user_message(
             "synthetic:main",
-            Some("t0".into()),
-            EntryKind::TOOL_CALL,
-            format!("tool call #{i}"),
+            &format!("t{i}"),
+            &format!("synthetic row #{i}"),
+            serde_json::json!({}),
         );
     }
 }
