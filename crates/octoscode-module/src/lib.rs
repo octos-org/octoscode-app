@@ -50,6 +50,7 @@ script_mod! {
         status := Label { width: Fill draw_text.wrap: Words text: "conn: (connecting…)" }
         sessions := Label { width: Fill text: "sessions: 0" }
         refresh := Button { text: "session/list" }
+        new_chat := Button { text: "New chat" }
         // Card #12 §4: the plain FALLBACK conversation view (binding-only),
         // replaced by the mounted L0 cards (#11b) later. Every id below is a
         // binding id (`threads`, `timeline.entries`, `tools`,
@@ -213,6 +214,17 @@ impl OctoscodeView {
                     }
                 });
             }
+            // Card #14 defect 4: "New chat" mints a FRESH session id, so a new
+            // chat never reuses the previous run's context.
+            bindings::ACTION_NEW_CHAT => {
+                let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
+                rt.spawn(async move {
+                    match conv.new_chat(cwd).await {
+                        Ok(id) => ::log::info!("octoscode: new chat opened {id}"),
+                        Err(e) => ::log::warn!("octoscode: session.new: {e}"),
+                    }
+                });
+            }
             other => ::log::warn!("octoscode: unhandled action id {other:?}"),
         }
     }
@@ -272,6 +284,9 @@ impl Widget for OctoscodeView {
                 // Header + composer controls emit BINDING ACTION ids.
                 if self.view.button(cx, ids!(refresh)).clicked(actions) {
                     self.perform_action("session.refresh");
+                }
+                if self.view.button(cx, ids!(new_chat)).clicked(actions) {
+                    self.perform_action(bindings::ACTION_NEW_CHAT);
                 }
                 if self.view.button(cx, ids!(send)).clicked(actions) {
                     // Card #13 §4: the draft clears on send. The flow clears

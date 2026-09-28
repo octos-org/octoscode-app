@@ -340,7 +340,9 @@ pub struct Conversation {
     cmd_tx: tokio::sync::mpsc::Sender<OutboundCommand>,
     registry: Mutex<Registry>,
     profile: String,
-    session_id: String,
+    /// Card #14 defect 4: mutable, so a New chat adopts a fresh id and a resume
+    /// adopts a listed one. Read through [`Conversation::session_id`].
+    session_id: Mutex<String>,
     started: Instant,
 }
 
@@ -414,7 +416,7 @@ impl Conversation {
                 cmd_tx,
                 registry: Mutex::new(registry),
                 profile: profile.to_owned(),
-                session_id: format!("{profile}:main"),
+                session_id: Mutex::new(format!("{profile}:main")),
                 started: Instant::now(),
             },
             evt_rx,
@@ -425,8 +427,10 @@ impl Conversation {
         &self.profile
     }
 
-    pub fn session_id(&self) -> &str {
-        &self.session_id
+    /// The session the flow currently drives — `<profile>:main` until a
+    /// `session/new` or a resume changes it.
+    pub fn session_id(&self) -> String {
+        self.session_id.lock().unwrap().clone()
     }
 
     pub fn client(&self) -> &Client {
@@ -479,7 +483,7 @@ impl Conversation {
     /// way the web does (`session-defaults.ts:5-7`). Sends the transport's
     /// typed `OpenSession` (it owns the replay-cursor bracket).
     pub async fn open_workspace(&self, cwd: Option<String>) -> Result<String, String> {
-        let id = self.session_id.clone();
+        let id = self.session_id();
         self.open_workspace_as(&id, cwd).await
     }
 
@@ -520,9 +524,9 @@ impl Conversation {
             .send(OutboundCommand::OpenSession(params))
             .await
             .map_err(|_| "transport channel closed".to_owned())?;
-        // Card #13 §4: refresh the session list after `session/open`, so the
-        // sidebar reflects the workspace the moment the session is live (the
-        // web's catalog read follows the open the same way).
+        // Adopt the id we opened, so `turn/start` / `turn/interrupt` drive the
+        // session that is actually live (a fresh chat or a resume).
+        *self.session_id.lock().unwrap() = session_id.0.clone();
         if let Err(e) = self.refresh_sessions().await {
             ::log::warn!("octoscode: session/list after open: {e}");
         }
@@ -536,7 +540,7 @@ impl Conversation {
     pub async fn start_turn(&self, text: impl Into<String>) -> Result<String, ClientError> {
         let turn_id = TurnId::new().0.to_string();
         let params = serde_json::json!({
-            "session_id": self.session_id,
+            "session_id": self.session_id(),
             "turn_id": turn_id,
             "input": [{"kind": "text", "text": text.into()}],
         });
@@ -583,7 +587,7 @@ impl Conversation {
         self.client
             .request(
                 "turn/interrupt",
-                serde_json::json!({"session_id": self.session_id, "turn_id": turn_id}),
+                serde_json::json!({"session_id": self.session_id(), "turn_id": turn_id}),
             )
             .await
     }
@@ -603,15 +607,33 @@ impl Conversation {
     /// The id-minting rule, as a pure function so it is testable without a
     /// transport.
     ///
-    /// STUB (current behaviour): reuse the one fixed session — the defect.
+    /// A fresh, profile-scoped, unique id, mirroring the web: `freshWebSessionId`
+    /// mints a random one (`session-identity.ts:10`) and
+    /// `bindWebSessionIdToProfile` embeds the resolved profile exactly once
+    /// (`session-identity.ts:23`). We mint `<profile>:<uuid>` (the uuid from
+    /// `TurnId`, a UUID newtype octos-core already exposes — no new dep).
     pub fn fresh_session_id_for(profile: &str) -> String {
-        format!("{profile}:main")
+        format!("{profile}:{}", TurnId::new().0)
     }
 
     /// Open a specific session id — the resume path (an id the server listed),
     /// or a freshly minted one from [`Conversation::fresh_session_id`].
     pub async fn open_session(&self, id: &str, cwd: Option<String>) -> Result<String, String> {
         self.open_workspace_as(id, cwd).await
+    }
+
+    /// `session.new` — a **New chat**: mint a fresh session id, adopt it, and
+    /// open it (card #14 defect 4).
+    ///
+    /// Every gate run reused `dsflash:main`, so context leaked between runs.
+    /// The web mints a fresh id per new session
+    /// (`session-identity.ts:10` `freshWebSessionId`, bound to the profile at
+    /// `:23`). Resume is unchanged: [`Conversation::open_session`] takes any
+    /// existing id the server listed.
+    pub async fn new_chat(&self, cwd: Option<String>) -> Result<String, String> {
+        let id = Self::fresh_session_id_for(&self.profile);
+        ::log::info!("octoscode: new chat -> {id}");
+        self.open_workspace_as(&id, cwd).await
     }
 
     /// `session/list` — re-ask for the session rows and fold them into the
