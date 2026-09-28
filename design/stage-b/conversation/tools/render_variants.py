@@ -19,6 +19,7 @@ entries so `preflight` stays green (it requires every id classified).
 
 Run:  python3 tools/render_variants.py [component ...]
 """
+import hashlib
 import json
 import os
 import shutil
@@ -69,17 +70,26 @@ RESPONSIVE = {
                    "worked_row_surface": {"fillw": 1},
                    "worked_row_control": {"fillw": 1, "fillh": 1},
                    "worked_row_label": {"fillw": 1}},
-    "user-bubble": {"user_bubble": {"fillw": 1, "fith": 1},
-                    "t01": {"fillw": 1}, "t02": {"fillw": 1}},
+    # Card #16c: the bubble hugs its text and right-aligns. `fitw` makes the
+    # bubble take its content width, `alignx: 1` wraps it in a Fill/align-right
+    # box (design.rs); the labels keep their measured widths so they define the
+    # hug instead of stretching it.
+    "user-bubble": {"user_bubble": {"fitw": 1, "alignx": 1},
+                    "t01": {}, "t02": {}},
     "working-row": {"working_row": {"fillw": 1, "fith": 1}, "t03": {"fillw": 1}},
     "assistant-prose": {"answer_prose": {"fillw": 1, "fith": 1},
                         "answer_md": {"fillw": 1, "fith": 1}},
     "answer-actions": {"answer_actions": {"fillw": 1, "fith": 1},
                        "t11": {"fillw": 1, "alignx": 1, "x": 0}},
     "tool-cell": {"tool_1": {"fillw": 1, "fith": 1}, "t01": {"fillw": 1},
-                  "t02": {"fillw": 1}},
+                  "t02": {"fillw": 1},
+                  # Card #16c: the ✓ pins to the card's right edge.
+                  "icon_check1": {"alignx": 1}},
     "composer": {"composer_idle": {"fillw": 1, "fith": 1},
-                 "composer_idle_input": {"fillw": 1}},
+                 "composer_idle_input": {"fillw": 1},
+                 # Card #16c: the send/stop button pins to the right edge (at 360
+                 # its atlas x put it past the card).
+                 "send1": {"alignx": 1}},
 }
 
 # The expanded tool-cell console, from scene 04's third card (`tool_3_output`).
@@ -103,8 +113,22 @@ OUTPUT_BOX = {"t": "stack", "id": "tool_1_output", "x": 10, "y": 84, "w": 351, "
 FAILED_X = {"t": "text", "id": "status_x", "x": 336, "y": 25, "w": 20, "h": 23, "size": 17,
             "weight": 700, "font_src": INTER7, "line_height": 21, "color": RED,
             "variant": "single_line", "text": "\u2715"}
-# The queued chip, from scene 08 (`queued_row`).
-QUEUED = {"t": "stack", "id": "queued_row", "x": 10, "y": 196, "w": 240, "h": 50,
+# Card #16c: the compose (pencil) glyph lives at the new-chat row's right edge in
+# scene 01, as a SIBLING of `new_chat` — so extraction (which takes only the root
+# subtree) dropped it. Re-attach it, parent-relative (scene x347-16=331, y130-120=10).
+COMPOSE_ICON = {"t": "svg", "id": "icon_compose", "x": 347, "y": 10, "w": 24, "h": 28,
+                "alignx": 1, "src": ""}
+# Card #16c: a command cell ("Ran cargo test") carries the terminal `>_` glyph, not
+# the file glyph (which is for Read/Edit). Same measured box as `icon_file`.
+TERM_ICON = {"t": "svg", "id": "icon_term", "x": 25.791, "y": 27.391, "w": 23.807, "h": 29.674, "src": ""}
+# The asset each inserted svg binds to (relative to the component folder). The
+# semantic map needs it or preflight reports the icon as artwork-less.
+ICON_ASSETS = {"icon_compose": "assets/icon_compose.svg",
+               "icon_term": "assets/icon_term.svg"}
+
+# The queued chip, from scene 08 (`queued_row`). Card #16c: it sits ABOVE the
+# input (atlas: the chip row is over the composer, not under the controls).
+QUEUED = {"t": "stack", "id": "queued_row", "x": 10, "y": 10, "w": 240, "h": 50,
           "variant": "surface", "bg": 4294440952, "radius": 12, "c": [
               {"t": "text", "id": "q1", "x": 16, "y": 13, "w": 208, "h": 24, "size": 15,
                "weight": 500, "font_src": INTER5, "line_height": 18, "color": 4280953387,
@@ -120,20 +144,33 @@ VARIANTS = {
                           "Bump octos-core to a6ea8505 and re-verify the steer queue timeout"},
                  "flags": {"thread_1_surface": {"bg": 0xFFF1F1F3}}},
     },
-    "new-chat": {"short": {"text": {}}, "long": {"text": {}}},
+    "new-chat": {"short": {"text": {}, "insert": [("new_chat", COMPOSE_ICON)]},
+                 "long": {"text": {}, "insert": [("new_chat", COMPOSE_ICON)]}},
     "user-bubble": {
-        "short": {"text": {"t01": "Retry the build"}, "drop": ["t02"]},
+        # Card #16c: heights are the atlas's own boxes (2-line 85.5), so the
+        # vertical padding stays symmetric — a Fit height would end at the last
+        # label's bottom edge and cut the lower padding entirely. Labels keep the
+        # atlas line pitch (their measured y, ~37.5 apart).
+        "short": {"text": {"t01": "Retry the build"}, "drop": ["t02"],
+                  "flags": {"user_bubble": {"h": 50.2}}},
         "long": {"text": {"t01": "Fix the steer queue so queued",
-                          "t02": "steers survive a reconnect"}},
+                          "t02": "steers survive a reconnect"},
+                 "flags": {"user_bubble": {"h": 85.09}}},
     },
     "working-row": {"short": {"text": {"t03": "Working \u2022 3s"}},
                     "long": {"text": {"t03": "Working \u2022 12s"}}},
     "assistant-prose": {
         "short": {"text": {"answer_md": "Fixed `steer_dropped` handling."}},
+        # Card #16c: the atlas has FOUR bullets; the old fixture authored only two
+        # (a fixture truncation, not a renderer drop). Use scene 09's full prose.
         "long": {"text": {"answer_md":
                           "Queued steers now survive a reconnect.\n\n"
-                          "\u2022 Updated `ui_protocol_transport.rs` to persist queued steers.\n\n"
-                          "\u2022 All tests pass: `12 passed`."}},
+                          "\u2022 Fixed loss of queued steers when reconnecting after a drop in "
+                          "`steer_dropped` handling.\n\n"
+                          "\u2022 Updated `ui_protocol_transport.rs` to persist queued steers to "
+                          "the session ledger.\n\n"
+                          "\u2022 All tests pass: `12 passed`.\n\n"
+                          "\u2022 Changes included in commit `a6ea8505`."}},
     },
     "worked-for": {"short": {"text": {"worked_row_label": "Worked for 3s \u203a"}},
                    "long": {"text": {"worked_row_label": "Worked for 3m 4s \u203a"}}},
@@ -141,23 +178,41 @@ VARIANTS = {
                        "long": {"text": {"t11": "Sep 28, 9:41 PM"}}},
     "tool-cell": {
         "short": {"text": {"t01": "Read ui_protocol_transport.rs", "t02": "\u2022 412 lines"}},
+        # Card #16c: a command cell uses the terminal glyph, so swap the file icon
+        # out for `icon_term` (the atlas's ">_ " is that icon, not OCR text).
         "long": {"text": {"t01": "Ran cargo test -p octos-cli", "t02": "\u2022 12 passed"},
-                 "flags": {"tool_1": {"h": 210}}, "insert": [("tool_1", OUTPUT_BOX)]},
+                 "flags": {"tool_1": {"h": 210}}, "drop": ["icon_file"],
+                 "insert": [("tool_1", TERM_ICON), ("tool_1", OUTPUT_BOX)]},
+        # Card #16c: this is also a COMMAND cell, so it takes the terminal glyph.
         "failed": {"text": {"t01": "Ran cargo test -p octos-cli",
                             "t02": "\u2022 exit 2 \u00b7 0 passed, 2 failed"},
                    "flags": {"icon_check1": {"w": 0, "h": 0}, "t02": {"color": RED}},
-                   "insert": [("tool_1", FAILED_X)]},
+                   "drop": ["icon_file"], "insert": [("tool_1", TERM_ICON), ("tool_1", FAILED_X)]},
     },
     "composer": {
         "short": {"text": {}},
+        # Card #16c: the send/stop control is BLACK in the atlas (the old fixture
+        # painted it salmon), and the queued chip belongs ABOVE the input, so the
+        # input and the control row shift down to make room for it at the top.
         "long": {"text": {"composer_idle_input": "also add a test for reconnect"},
-                 "flags": {"composer_idle": {"h": 250}, "send1": {"bg": 0xFFFF5F5F}},
+                 # Every child (grandchildren too — a shifted parent does NOT
+                 # move an `abs_pos` child) moves down by the chip's 58px.
+                 "flags": {"composer_idle": {"h": 250},
+                           "composer_idle_input": {"y": 68.556},
+                           "icon_plus1": {"y": 186.778}, "pill1": {"y": 179.0},
+                           "pill1_t": {"y": 193.5},
+                           "icon_mic1": {"y": 183.611}, "t04": {"y": 196.5},
+                           "send1": {"y": 176.222}, "icon_send": {"y": 186.778}},
                  "insert": [("composer_idle", QUEUED)]},
     },
 }
 
 ROLE_BY_KIND = {"stack": "layout", "text": "text", "svg": "icon", "button": "button",
                 "input": "input"}
+
+
+def _sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
 class Quiet(SimpleHTTPRequestHandler):
@@ -258,9 +313,23 @@ def build_workspace(comp, variant):
             if n["id"] in known:
                 continue
             role = ROLE_BY_KIND.get(n["t"], "layout")
-            semantic["elements"].append({"id": n["id"], "role": role,
-                                         "basis": f"authored {n['t']} node (card #16b variant)",
-                                         "confidence": 1.0, "decision": "declared"})
+            entry = {"id": n["id"], "role": role,
+                     "basis": f"authored {n['t']} node (card #16c variant)",
+                     "confidence": 1.0, "decision": "declared"}
+            # Card #16c: `compile_page` reads `asset.path` for EVERY svg node, and
+            # preflight requires an `icon` role to carry verified artwork
+            # provenance — so an inserted glyph must declare its SVG (copied into
+            # the component's assets/ beside the other icons).
+            if n["t"] == "svg":
+                path = ICON_ASSETS.get(n["id"])
+                if not path:
+                    raise SystemExit(f"inserted svg {n['id']} needs an entry in ICON_ASSETS")
+                asset = Path("design/components") / comp / path
+                entry["asset"] = {"path": path, "sha256": _sha(asset), "method": "reference_svg",
+                                  "reference_sha256": _sha(COMPONENTS / comp / "reference.png"),
+                                  "fit": "stretch", "clip": True,
+                                  "notes": "Source glyph re-attached from the owning scene (card #16c)"}
+            semantic["elements"].append(entry)
             known.add(n["id"])
     semantic.pop("contract_sha256", None)
     semantic.pop("reference_sha256", None)
