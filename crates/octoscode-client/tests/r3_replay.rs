@@ -26,6 +26,7 @@ use octos_app_transport::{
     TransportEvent,
 };
 use octos_core::app_ui::AppUiBackendEvent as UiNotification;
+use octos_core::ui_protocol::methods;
 use octoscode_client::trace::FrameTrace;
 use octoscode_store::Store;
 
@@ -273,6 +274,22 @@ async fn r3_capture_live_serve_frames() {
     }
     settle(120).await;
 
+    // snapshot/restore against the throwaway dir with a snapshot id that does
+    // not exist: exercises this owned method AND records a real error frame
+    // (the server refuses a restore it cannot satisfy). Safe — throwaway dir.
+    match call_recorded(
+        &client,
+        &trace,
+        "snapshot/restore",
+        serde_json::json!({"session_id": sid, "snapshot_id": "r3-does-not-exist"}),
+    )
+    .await
+    {
+        Ok(v) => println!("snapshot/restore -> {}", short(&v)),
+        Err(e) => println!("snapshot/restore -> err: {e}"),
+    }
+    settle(120).await;
+
     // Fork, then delete the child we created (leave the parent alive).
     let fork = call_recorded(
         &client,
@@ -365,20 +382,26 @@ fn wired() -> (octoscode_client::Registry, std::sync::Arc<Store>) {
     (reg, store)
 }
 
-/// Replay result: what the fixture carried and what each frame did.
+/// The body of the first fixture frame with `method` and `dir`.
+fn frame_body(dir: &str, method: &str) -> serde_json::Value {
+    load_frames(FIXTURE)
+        .into_iter()
+        .find(|f| f.dir == dir && f.method == method)
+        .unwrap_or_else(|| panic!("fixture has a {dir} frame for {method}"))
+        .body
+}
+
+/// Replay result: what the fixture carried and what each notification frame did.
+#[derive(Debug, Default)]
 struct Replayed {
     dispatched: usize,
     unknown: Vec<String>,
-    skipped_non_notification: Vec<String>,
+    not_a_notification: Vec<String>,
 }
 
 /// Feed every inbound frame of the fixture through the registry.
 fn replay(reg: &mut octoscode_client::Registry) -> Replayed {
-    let mut out = Replayed {
-        dispatched: 0,
-        unknown: Vec::new(),
-        skipped_non_notification: Vec::new(),
-    };
+    let mut out = Replayed::default();
     for f in load_frames(FIXTURE) {
         if f.dir != "in" {
             continue;
@@ -390,7 +413,10 @@ fn replay(reg: &mut octoscode_client::Registry) -> Replayed {
                 }
                 out.dispatched += 1;
             }
-            Err(_) => out.skipped_non_notification.push(f.method.clone()),
+            // `res:*` / `err:*` / `state:*` / `session/open` are replies and
+            // lifecycle transitions, not notifications — they decode as non-
+            // notifications here by construction (the recorder names them).
+            Err(_) => out.not_a_notification.push(f.method.clone()),
         }
     }
     out
@@ -403,5 +429,206 @@ fn r3_fixture_is_present_and_parses() {
     assert!(
         frames.iter().any(|f| f.dir == "out" && f.method == "session/open"),
         "the capture opened a session"
+    );
+}
+
+/// **The card's core test.** Replay the recorded real notifications through the
+/// production registry into the store and assert the state they produce.
+#[test]
+fn r3_replay_real_notifications_into_the_store() {
+    let (mut reg, store) = wired();
+    let run = replay(&mut reg);
+    println!(
+        "replayed {} inbound frames; {} not-a-notification; unknown={:?}",
+        run.dispatched, run.not_a_notification.len(), run.unknown
+    );
+
+    // The capture produced the two context-lifecycle notifications this domain
+    // owns (reached via `session/compact` on the authorised profile).
+    assert!(
+        reg.handles(methods::CONTEXT_COMPACTION_STARTED),
+        "the session domain owns context/compaction_started"
+    );
+    assert_eq!(
+        store.seen_count(methods::CONTEXT_COMPACTION_STARTED),
+        1,
+        "context/compaction_started was seen once"
+    );
+    assert_eq!(
+        store.seen_count(methods::CONTEXT_COMPACTION_COMPLETED),
+        1,
+        "context/compaction_completed was seen once"
+    );
+
+    // The store's context projection reflects the LAST lifecycle frame, which is
+    // `compaction_completed` (real order: started → completed).
+    let sid = "dsflash:api:main";
+    let ctx = store
+        .domains
+        .session
+        .context(sid)
+        .expect("the context lifecycle projection is stored");
+    assert_eq!(ctx.kind, "compaction_completed");
+    // The real frame carried the server's compaction record.
+    let detail = ctx.detail.expect("the completed frame carries its record");
+    assert!(
+        detail.get("compaction_id").and_then(|v| v.as_str()).is_some(),
+        "the real compaction record has its id: {detail}"
+    );
+
+    // Every decodable notification the fixture carried was claimed by a handler:
+    // nothing fell to the tolerated-unknown arm.
+    assert!(
+        run.unknown.is_empty(),
+        "no recorded notification hit the debug! arm: {:?}",
+        run.unknown
+    );
+}
+
+/// **Value-parity test.** The server's REAL result frames must decode into this
+/// crate's typed `Method::Result`. A hand-written fake could not prove this —
+/// that is the whole point of the card.
+#[test]
+fn r3_real_results_decode_into_the_owned_types() {
+    use octos_core::ui_protocol as core;
+
+    // launch/resolve -> LaunchResolveResult -> store projection
+    let launch: core::LaunchResolveResult =
+        serde_json::from_value(frame_body("in", "res:launch/resolve")).expect("launch/resolve decodes");
+    let res = octoscode_client::domains::config::launch_resolution_from(launch);
+    assert_eq!(
+        res.decision,
+        octoscode_store::domains::config::LaunchDecision::Activate
+    );
+    assert_eq!(res.resolved_profile.as_deref(), Some("dsflash"));
+
+    // snapshot/list -> our SnapshotListResult -> store projection
+    let snaps: octoscode_client::domains::config::SnapshotListResult =
+        serde_json::from_value(frame_body("in", "res:snapshot/list")).expect("snapshot/list decodes");
+    assert_eq!(snaps.session_id, "dsflash:api:main");
+    assert!(snaps.available);
+    assert!(!snaps.enabled);
+    assert!(snaps.snapshots.is_empty());
+    let stored = snaps.into_store();
+    assert!(stored.available && stored.snapshots.is_empty());
+
+    // session/list -> our SessionListResult -> store rows
+    let list: octoscode_client::domains::session::SessionListResult =
+        serde_json::from_value(frame_body("in", "res:session/list")).expect("session/list decodes");
+    assert!(list.into_sessions().is_empty(), "a fresh profile has no sessions");
+
+    // session/status/read -> the identity check the web performs
+    let status: octoscode_client::domains::session::SessionStatusReadResult =
+        serde_json::from_value(frame_body("in", "res:session/status/read"))
+            .expect("session/status/read decodes");
+    assert_eq!(status.session_id, "dsflash:api:main");
+    assert_eq!(status.profile_id.as_deref(), Some("dsflash"));
+
+    // session/fork -> the pin's own type
+    let fork: core::SessionForkResult =
+        serde_json::from_value(frame_body("in", "res:session/fork")).expect("session/fork decodes");
+    assert_eq!(fork.parent_session_id.0, "dsflash:api:main");
+    assert_eq!(fork.new_session_id.0, "dsflash:api:r3child");
+    assert_eq!(fork.copied_messages, 0);
+
+    // session/rollback -> the pin's own type
+    let roll: core::SessionRollbackResult = serde_json::from_value(frame_body("in", "res:session/rollback"))
+        .expect("session/rollback decodes");
+    assert_eq!(roll.dropped_turns, 0);
+
+    // session/delete -> the empty result the pin models
+    let _: core::SessionDeleteResult =
+        serde_json::from_value(frame_body("in", "res:session/delete")).expect("session/delete decodes");
+
+    // session/files.list -> the pin's own type
+    let files: core::SessionFilesListResult =
+        serde_json::from_value(frame_body("in", "res:session/files.list")).expect("files.list decodes");
+    assert_eq!(files.files, serde_json::json!([]));
+
+    // session/compact -> our SessionCompactResult (a real FAILED compaction)
+    let compact: octoscode_client::domains::session::SessionCompactResult =
+        serde_json::from_value(frame_body("in", "res:session/compact")).expect("session/compact decodes");
+    assert_eq!(compact.session_id, "dsflash:api:main");
+    assert!(!compact.compacted, "the empty-history compaction reports compacted=false");
+    assert_eq!(compact.reason.as_deref(), Some("no_safe_semantic_boundary"));
+    assert_eq!(compact.token_estimate_before, Some(1));
+
+    // session/compact/mode/set -> our result
+    let mode: octoscode_client::domains::session::SessionCompactModeSetResult =
+        serde_json::from_value(frame_body("in", "res:session/compact/mode/set"))
+            .expect("mode/set decodes");
+    assert_eq!(mode.mode, "heuristic");
+    assert_eq!(mode.session_id, "dsflash:api:main");
+
+    // server/shutdown -> our result
+    let shut: octoscode_client::domains::config::ServerShutdownResult =
+        serde_json::from_value(frame_body("in", "res:server/shutdown")).expect("shutdown decodes");
+    assert!(shut.stopping);
+}
+
+/// The one real **error** frame the capture produced must decode into the
+/// fixture's error record and be recognizable by method.
+///
+/// With the authorised profile present, `session/compact` *succeeds* (its
+/// empty-history pass is LLM-free), so the real error the capture yields is
+/// `snapshot/restore` refusing a restore with no snapshots taken — a real,
+/// server-authored failure that a hand-written fake never produced.
+#[test]
+fn r3_real_error_frame_is_recorded() {
+    let frames = load_frames(FIXTURE);
+    let err = frames
+        .iter()
+        .find(|f| f.dir == "in" && f.method == "error:snapshot/restore")
+        .expect("the capture recorded the real snapshot/restore error");
+    assert_eq!(err.body["code"], -32602);
+    assert!(
+        err.body["message"]
+            .as_str()
+            .unwrap_or("")
+            .contains("no snapshots have been taken"),
+        "the real error text is kept: {}",
+        err.body["message"]
+    );
+    // Every recorded error frame names its method (`error:<method>`).
+    for f in &frames {
+        if let Some(m) = f.method.strip_prefix("error:") {
+            assert!(
+                !m.is_empty() && m.contains('/'),
+                "an error frame must name a method, got {m:?}"
+            );
+        }
+    }
+    // The failed snapshot/restore also produced no `res:` frame.
+    assert!(
+        !frames
+            .iter()
+            .any(|f| f.dir == "in" && f.method == "res:snapshot/restore"),
+        "a failed request records no result frame"
+    );
+}
+
+/// **Step 4.** List every frame kind the capture saw that this domain does not
+/// handle. These hit the registry's `debug!` arm (never fatal).
+#[test]
+fn r3_report_unhandled_frame_kinds() {
+    let frames = load_frames(FIXTURE);
+    let mut unhandled: Vec<String> = Vec::new();
+    for f in &frames {
+        if f.dir != "in" {
+            continue;
+        }
+        if let Ok(n) = UiNotification::from_method_and_params(&f.method, f.body.clone()) {
+            let (mut reg, _store) = wired();
+            if !reg.dispatch(&n) {
+                unhandled.push(f.method.clone());
+            }
+        }
+    }
+    unhandled.sort();
+    unhandled.dedup();
+    println!("unhandled notification kinds in the R3 fixture: {unhandled:?}");
+    assert!(
+        unhandled.is_empty(),
+        "the fixture contains notification kinds no domain handles: {unhandled:?}"
     );
 }
