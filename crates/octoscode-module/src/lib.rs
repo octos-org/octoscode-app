@@ -82,7 +82,12 @@ script_mod! {
             // is clipped; the `Fit` column takes the artboard's full height and
             // the view scrolls it.
             cards_col := View {
-            width: Fill height: Fit
+            // A DEFINITE height, not `Fit`: an isolate-hosted `Splash` does not
+            // report intrinsic height to a scroll parent (measured: `Fit` came
+            // out equal to the 471 viewport, so the artboard's lower rows were
+            // clipped and unreachable). A definite 830 gives the view a scroll
+            // range that covers the whole 776 card.
+            width: Fill height: 830
             flow: Down
             thread_card := Splash { width: 406 height: 776 }
             threads_label := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 12 text: "threads: (none)" }
