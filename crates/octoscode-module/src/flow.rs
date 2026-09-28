@@ -256,7 +256,6 @@ impl FlowUi {
     pub fn answer_expanded(&self) -> bool {
         self.answer_expanded
     }
-
     pub fn toggle_answer_expanded(&mut self) -> bool {
         self.answer_expanded = !self.answer_expanded;
         self.answer_expanded
@@ -572,6 +571,21 @@ impl Conversation {
                 Err(e)
             }
         }
+    }
+
+    /// `turn/steer` — send the queued input into the LIVE turn's input buffer
+    /// (card #21 §3: the composer's "Steer now" control). The AppUI extension
+    /// shape: `{session_id, expected_turn_id, input:[{kind:"text",text}]}`
+    /// (`domains/turn.rs:141`, web `steer.ts:41`).
+    pub async fn steer(&self, text: &str) -> Result<serde_json::Value, ClientError> {
+        let expected = self.ui.lock().unwrap().active_turn();
+        let params = serde_json::json!({
+            "session_id": self.session_id(),
+            "expected_turn_id": expected,
+            "input": [{"kind": "text", "text": text}],
+        });
+        self.trace.record(self.started, Direction::Out, "turn/steer", None, None);
+        self.client.request("turn/steer", params).await
     }
 
     /// `turn/interrupt` — `{session_id, turn_id}` (`ui_protocol.rs:2097`).

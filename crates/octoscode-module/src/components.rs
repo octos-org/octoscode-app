@@ -408,3 +408,30 @@ pub fn declared_copies(kind: ItemKind) -> Vec<String> {
 pub fn all_ids() -> Vec<&'static str> {
     ItemKind::ALL.iter().map(|k| k.id()).collect()
 }
+
+/// The per-item control actions a component emits (card #21 §3): the semantic
+/// control name inside `kind`, and the **declared action id**
+/// ([`bindings::ACTIONS`]) the host dispatches for it.
+///
+/// This is the routing table the screen uses — the same "view names an id, the
+/// module owns the meaning" rule as the header controls (lib.rs). `row` is the
+/// whole-row hit (a `thread-row`/`new-chat` is a button); the rest name the
+/// specific control the component shows.
+pub const CONTROLS: &[(ItemKind, &str, &str)] = &[
+    (ItemKind::ThreadRow, "row", "thread.open"),
+    (ItemKind::NewChat, "row", "session.new"),
+    (ItemKind::ToolCell, "expand", "tool.toggle"),
+    (ItemKind::AnswerActions, "copy", "answer.copy"),
+    (ItemKind::Composer, "send", "composer.submit"),
+    (ItemKind::Composer, "stop", "turn.interrupt"),
+    (ItemKind::Composer, "steer", "turn.steer"),
+];
+
+/// The action id a `control` inside `kind` emits, or `None` when that control
+/// is not a declared action on that component.
+pub fn action_for(kind: ItemKind, control: &str) -> Option<&'static str> {
+    CONTROLS
+        .iter()
+        .find(|(k, c, _)| *k == kind && *c == control)
+        .map(|(_, _, a)| *a)
+}

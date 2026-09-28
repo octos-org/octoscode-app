@@ -30,6 +30,7 @@ use std::sync::{Arc, Mutex};
 
 use octoscode_store::Store;
 
+pub mod actions;
 pub mod bindings;
 pub mod cards;
 pub mod components;
@@ -81,13 +82,26 @@ script_mod! {
             threads_column := View {
                 width: 220 height: Fill flow: Down spacing: 6
                 Label { width: Fill height: Fit text: "Threads" draw_text.text_style.font_size: 14 }
-                // One `thread-row` component per session (virtualized).
+                // One `thread-row` component per session (virtualized). A
+                // transparent `row_hit` button overlays the row so the HOST sees
+                // the click and routes it with the item id (`thread.open`); the
+                // #16 component's own inner button lives in the Splash isolate and
+                // never reports to the host.
                 thread_list := PortalList {
                     width: Fill height: Fill flow: Down drag_scrolling: true
                     ThreadRowTpl := View {
-                        width: Fill height: Fit flow: Down padding: 2
-                        thread_name := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "(thread)" }
-                        thread_splash := Splash { width: Fill height: 34 }
+                        width: Fill height: Fit flow: Overlay
+                        thread_body := View {
+                            width: Fill height: Fit flow: Down padding: 2
+                            thread_name := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "(thread)" }
+                            thread_splash := Splash { width: Fill height: 34 }
+                        }
+                        row_hit := Button {
+                            width: Fill height: Fill text: ""
+                            draw_bg.color: #00000000
+                            draw_bg.color_hover: #00000012
+                            draw_bg.color_down: #00000022
+                        }
                     }
                 }
             }
@@ -95,26 +109,38 @@ script_mod! {
             conversation_column := View {
                 width: Fill height: Fill flow: Down spacing: 6
                 Label { width: Fill height: Fit text: "Conversation" draw_text.text_style.font_size: 14 }
-                // One L0 component per timeline entry, from the store timeline in
-                // DISPLAY order (user first, reasoning folded, answer, tools,
-                // worked-for) — `screen::timeline_rows`.
+                // One L0 component per timeline entry, in DISPLAY order (user
+                // first, reasoning folded, answer, tools, worked-for). A
+                // transparent `row_hit` overlays each row so the host routes the
+                // click with the item id (`tool.toggle`, `answer.copy`).
                 timeline_list := PortalList {
                     width: Fill height: Fill flow: Down drag_scrolling: true
                     TimelineItemTpl := View {
-                        width: Fill height: Fit flow: Down
-                        item_kind := Label { width: Fill height: Fit draw_text.text_style.font_size: 9 text: "" }
-                        item_splash := Splash { width: Fill height: 56 }
+                        width: Fill height: Fit flow: Overlay
+                        item_body := View {
+                            width: Fill height: Fit flow: Down
+                            item_kind := Label { width: Fill height: Fit draw_text.text_style.font_size: 9 text: "" }
+                            item_splash := Splash { width: Fill height: 56 }
+                        }
+                        row_hit := Button {
+                            width: Fill height: Fill text: ""
+                            draw_bg.color: #00000000
+                            draw_bg.color_hover: #00000010
+                            draw_bg.color_down: #00000020
+                        }
                     }
                 }
-                // The composer docked at the center column's bottom — ONE
-                // composer. (The conversation-08 composer CARD, re-homed as the
-                // dock, is a follow-up: #16 owns the composer component.)
+                // The composer docked at the center column's bottom. The #16
+                // `composer` component is the LOOK; these are the host controls
+                // that emit the declared action ids (`composer.submit`,
+                // `turn.steer`, `turn.interrupt`).
                 composer_row := View {
                     width: Fill height: Fit
                     flow: Right spacing: 8
                     draft := TextInput { width: Fill height: Fit empty_text: "Ask Octos anything" }
+                    steer := Button { text: "Steer now" }
                     send := Button { text: "Send" }
-                    stop := Button { text: "Stop" }
+                    stop := Button { text: "×" }
                 }
             }
 
@@ -275,36 +301,38 @@ impl OctoscodeView {
         self.runtime = Some(runtime);
     }
 
-    /// Run one binding action, off the UI thread.
-    fn perform_action(&self, action: &str) {
+    /// Run one binding action with the item index that emitted it (card #21 §3).
+    /// The mapping is the pure [`actions::resolve`]; this only performs the
+    /// resulting effect (off the UI thread).
+    fn perform_action(&self, action: &str, index: usize) {
+        let (store, ui, conv) = {
+            let b = self.bridge.lock().unwrap();
+            (b.store.clone(), b.ui.clone(), b.conv.clone())
+        };
+        let effect = {
+            let ctx = bindings::Ctx::new(&store, &ui);
+            actions::resolve(action, index, &ctx)
+        };
+        // UI-local effects need no runtime/transport.
+        match &effect {
+            actions::Effect::ToggleTool(key) => {
+                let _ = ui.lock().map(|mut u| u.toggle_expanded(key));
+                return;
+            }
+            actions::Effect::Unhandled(id) => {
+                ::log::warn!("octoscode: unhandled action id {id:?}");
+                return;
+            }
+            _ => {}
+        }
         let Some(rt) = self.runtime.as_ref() else {
             return;
         };
-        let Some(conv) = ({
-            let b = self.bridge.lock().unwrap();
-            b.conv.clone()
-        }) else {
+        let Some(conv) = conv else {
             return;
         };
-        match action {
-            bindings::ACTION_SUBMIT => {
-                rt.spawn(async move {
-                    if let Err(e) = conv.submit_draft().await {
-                        ::log::warn!("octoscode: composer.submit: {e}");
-                    }
-                });
-            }
-            bindings::ACTION_INTERRUPT => {
-                let turn = conv.ui().lock().unwrap().active_turn();
-                if let Some(turn) = turn {
-                    rt.spawn(async move {
-                        if let Err(e) = conv.interrupt(&turn).await {
-                            ::log::warn!("octoscode: turn.interrupt: {e}");
-                        }
-                    });
-                }
-            }
-            "session.refresh" => {
+        match effect {
+            actions::Effect::Refresh => {
                 rt.spawn(async move {
                     if let Err(e) = conv.refresh_sessions().await {
                         ::log::warn!("octoscode: session.refresh: {e}");
@@ -313,7 +341,7 @@ impl OctoscodeView {
             }
             // Card #14 defect 4: "New chat" mints a FRESH session id, so a new
             // chat never reuses the previous run's context.
-            bindings::ACTION_NEW_CHAT => {
+            actions::Effect::NewChat => {
                 let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
                 rt.spawn(async move {
                     match conv.new_chat(cwd).await {
@@ -322,7 +350,40 @@ impl OctoscodeView {
                     }
                 });
             }
-            other => ::log::warn!("octoscode: unhandled action id {other:?}"),
+            actions::Effect::Submit => {
+                rt.spawn(async move {
+                    if let Err(e) = conv.submit_draft().await {
+                        ::log::warn!("octoscode: composer.submit: {e}");
+                    }
+                });
+            }
+            actions::Effect::Steer(text) => {
+                rt.spawn(async move {
+                    if let Err(e) = conv.steer(&text).await {
+                        ::log::warn!("octoscode: turn.steer: {e}");
+                    }
+                });
+            }
+            actions::Effect::Interrupt(turn) => {
+                rt.spawn(async move {
+                    if let Err(e) = conv.interrupt(&turn).await {
+                        ::log::warn!("octoscode: turn.interrupt: {e}");
+                    }
+                });
+            }
+            actions::Effect::Open(session) => {
+                let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
+                rt.spawn(async move {
+                    match conv.open_session(&session, cwd).await {
+                        Ok(id) => ::log::info!("octoscode: thread.open opened {id}"),
+                        Err(e) => ::log::warn!("octoscode: thread.open: {e}"),
+                    }
+                });
+            }
+            // Handled above / needs `cx` (copy).
+            actions::Effect::ToggleTool(_)
+            | actions::Effect::Unhandled(_)
+            | actions::Effect::CopyAnswer => {}
         }
     }
 
@@ -425,10 +486,10 @@ impl Widget for OctoscodeView {
                 }
                 // Header + composer controls emit BINDING ACTION ids.
                 if self.view.button(cx, ids!(refresh)).clicked(actions) {
-                    self.perform_action("session.refresh");
+                    self.perform_action("session.refresh", 0);
                 }
                 if self.view.button(cx, ids!(new_chat)).clicked(actions) {
-                    self.perform_action(bindings::ACTION_NEW_CHAT);
+                    self.perform_action(bindings::ACTION_NEW_CHAT, 0);
                 }
                 if self.view.button(cx, ids!(send)).clicked(actions) {
                     // Card #13 §4: the draft clears on send. The flow clears
@@ -444,7 +505,7 @@ impl Widget for OctoscodeView {
                         .unwrap()
                         .draft()
                         .len();
-                    self.perform_action(bindings::ACTION_SUBMIT);
+                    self.perform_action(bindings::ACTION_SUBMIT, 0);
                     if len > 0 {
                         let _ = self.view.text_input(cx, ids!(draft)).replace_range(
                             cx,
@@ -455,7 +516,50 @@ impl Widget for OctoscodeView {
                     }
                 }
                 if self.view.button(cx, ids!(stop)).clicked(actions) {
-                    self.perform_action(bindings::ACTION_INTERRUPT);
+                    self.perform_action(bindings::ACTION_INTERRUPT, 0);
+                }
+                if self.view.button(cx, ids!(steer)).clicked(actions) {
+                    // "Steer now": send the queued draft into the live turn.
+                    self.perform_action("turn.steer", 0);
+                }
+                // Card #21 §3 — the per-item controls. A row click is routed
+                // WITH its item id (the same `items_with_actions` contract the
+                // makepad examples use).
+                let thread_list = self.view.portal_list(cx, ids!(thread_list));
+                for (item_id, item) in thread_list.items_with_actions(actions) {
+                    if item.button(cx, ids!(row_hit)).clicked(actions) {
+                        self.perform_action("thread.open", item_id);
+                    }
+                }
+                let timeline_list = self.view.portal_list(cx, ids!(timeline_list));
+                let (live, rows) = {
+                    let b = self.bridge.lock().unwrap();
+                    let ctx = bindings::Ctx::new(&b.store, &b.ui);
+                    let live = bindings::query(&ctx, "turn.active")
+                        .and_then(|v| v.as_bool())
+                        .unwrap_or(false);
+                    let rows = screen::timeline_rows(&b.store, live);
+                    (live, rows)
+                };
+                let _ = live;
+                for (item_id, item) in timeline_list.items_with_actions(actions) {
+                    let Some(row) = rows.get(item_id) else { continue };
+                    if !item.button(cx, ids!(row_hit)).clicked(actions) {
+                        continue;
+                    }
+                    // Each row kind owns a different control id.
+                    let control = match row.kind {
+                        components::ItemKind::ToolCell => "expand",
+                        components::ItemKind::AnswerActions => "copy",
+                        _ => continue,
+                    };
+                    if let Some(action) = components::action_for(row.kind, control) {
+                        if action == "tool.toggle" {
+                            self.perform_action(action, row.index);
+                        } else {
+                            self.perform_action(action, 0);
+                        }
+                    }
                 }
                 self.sync_labels(cx);
             }
