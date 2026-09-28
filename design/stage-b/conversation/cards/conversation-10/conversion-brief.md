@@ -70,6 +70,17 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "native_candidates": []
   },
   {
+    "id": "plan_card",
+    "x": 16.0,
+    "y": 130.0,
+    "w": 374.0,
+    "h": 500.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "t02",
     "x": 33.73,
     "y": 151.77,

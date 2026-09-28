@@ -28,6 +28,9 @@ state scope_pill_control_enabled { shape: bool, initial: true }
 component Surface991755d1cfb2(instance: text) {
   view Kit(component: "Surface991755d1cfb2", instance: instance) { slot }
 }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
 component Text9834725221d0(instance: text, text: text) {
   view Kit(component: "Text9834725221d0", instance: instance, text: text)
 }
@@ -54,9 +57,6 @@ component Surfaceb1730749f362(instance: text) {
 }
 component Text6d7583a6c3db(instance: text, text: text) {
   view Kit(component: "Text6d7583a6c3db", instance: instance, text: text)
-}
-component Group3d2637879433(instance: text) {
-  view Kit(component: "Group3d2637879433", instance: instance) { slot }
 }
 component Texta0da122baa92(instance: text, text: text) {
   view Kit(component: "Texta0da122baa92", instance: instance, text: text)
@@ -123,50 +123,52 @@ component Text4bbbe223ad3f(instance: text, text: text) {
 }
 
 view root Surface991755d1cfb2(instance: "page") {
-  Text9834725221d0(instance: "t01", text: copy.t01_text)
-  KitButton3ea7d97692cf(instance: "scope_pill") {
-    Surfacea5608e1e058c(instance: "scope_pill_surface") {
+  Group3d2637879433(instance: "diff_view") {
+    Text9834725221d0(instance: "t01", text: copy.t01_text)
+    KitButton3ea7d97692cf(instance: "scope_pill") {
+      Surfacea5608e1e058c(instance: "scope_pill_surface") {
 
+      }
+      NativeButton02f1d1bd99b4(instance: "scope_pill_control", enabled: scope_pill_control_enabled)
+      Vectore0a378fde04f(instance: "scope_pill_icon")
+      Text48b00185d34b(instance: "scope_pill_label", text: copy.scope_pill_label_text)
     }
-    NativeButton02f1d1bd99b4(instance: "scope_pill_control", enabled: scope_pill_control_enabled)
-    Vectore0a378fde04f(instance: "scope_pill_icon")
-    Text48b00185d34b(instance: "scope_pill_label", text: copy.scope_pill_label_text)
-  }
-  Text47a505168e6b(instance: "t03", text: copy.t03_text)
-  Surfaceb1730749f362(instance: "file_header") {
-    Text6d7583a6c3db(instance: "t_file", text: copy.t_file_text)
-  }
-  Group3d2637879433(instance: "diff_rows") {
-    Texta0da122baa92(instance: "ln_0", text: copy.ln_0_text)
-    Text82e58d1f7453(instance: "dl_0", text: copy.dl_0_text)
-    Surfaced75db230497b(instance: "row_1") {
-      Textf32407f8980b(instance: "ln_1", text: copy.ln_1_text)
-      Text6fde119dbc25(instance: "dl_1", text: copy.dl_1_text)
+    Text47a505168e6b(instance: "t03", text: copy.t03_text)
+    Surfaceb1730749f362(instance: "file_header") {
+      Text6d7583a6c3db(instance: "t_file", text: copy.t_file_text)
     }
-    Surfacefcd0436a33ea(instance: "row_2") {
-      Text2798b068bf5b(instance: "ln_2", text: copy.ln_2_text)
-      Text95cc63f39348(instance: "dl_2", text: copy.dl_2_text)
+    Group3d2637879433(instance: "diff_rows") {
+      Texta0da122baa92(instance: "ln_0", text: copy.ln_0_text)
+      Text82e58d1f7453(instance: "dl_0", text: copy.dl_0_text)
+      Surfaced75db230497b(instance: "row_1") {
+        Textf32407f8980b(instance: "ln_1", text: copy.ln_1_text)
+        Text6fde119dbc25(instance: "dl_1", text: copy.dl_1_text)
+      }
+      Surfacefcd0436a33ea(instance: "row_2") {
+        Text2798b068bf5b(instance: "ln_2", text: copy.ln_2_text)
+        Text95cc63f39348(instance: "dl_2", text: copy.dl_2_text)
+      }
+      Surface8fb0f9d1e1aa(instance: "row_3") {
+        Textbedc46ae06d1(instance: "ln_3", text: copy.ln_3_text)
+        Textcd61d659d484(instance: "dl_3", text: copy.dl_3_text)
+      }
+      Surface8fb0f9d1e1aa(instance: "row_4") {
+        Textd88beed3e030(instance: "ln_4", text: copy.ln_4_text)
+        Text975d0df2280e(instance: "dl_4", text: copy.dl_4_text)
+      }
+      Surface8fb0f9d1e1aa(instance: "row_5") {
+        Text5aacbcae43ed(instance: "ln_5", text: copy.ln_5_text)
+        Textc3cba5801495(instance: "dl_5", text: copy.dl_5_text)
+      }
+      Surface8fb0f9d1e1aa(instance: "row_6") {
+        Text702d8e0568e1(instance: "ln_6", text: copy.ln_6_text)
+        Text13d7b100db1c(instance: "dl_6", text: copy.dl_6_text)
+      }
+      Textb2dc805d1fc5(instance: "ln_7", text: copy.ln_7_text)
+      Text6292c61548c3(instance: "dl_7", text: copy.dl_7_text)
     }
-    Surface8fb0f9d1e1aa(instance: "row_3") {
-      Textbedc46ae06d1(instance: "ln_3", text: copy.ln_3_text)
-      Textcd61d659d484(instance: "dl_3", text: copy.dl_3_text)
+    Surface3f4294893b55(instance: "folded") {
+      Text4bbbe223ad3f(instance: "t_fold", text: copy.t_fold_text)
     }
-    Surface8fb0f9d1e1aa(instance: "row_4") {
-      Textd88beed3e030(instance: "ln_4", text: copy.ln_4_text)
-      Text975d0df2280e(instance: "dl_4", text: copy.dl_4_text)
-    }
-    Surface8fb0f9d1e1aa(instance: "row_5") {
-      Text5aacbcae43ed(instance: "ln_5", text: copy.ln_5_text)
-      Textc3cba5801495(instance: "dl_5", text: copy.dl_5_text)
-    }
-    Surface8fb0f9d1e1aa(instance: "row_6") {
-      Text702d8e0568e1(instance: "ln_6", text: copy.ln_6_text)
-      Text13d7b100db1c(instance: "dl_6", text: copy.dl_6_text)
-    }
-    Textb2dc805d1fc5(instance: "ln_7", text: copy.ln_7_text)
-    Text6292c61548c3(instance: "dl_7", text: copy.dl_7_text)
-  }
-  Surface3f4294893b55(instance: "folded") {
-    Text4bbbe223ad3f(instance: "t_fold", text: copy.t_fold_text)
   }
 }

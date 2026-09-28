@@ -20,9 +20,27 @@
       "size": null
     },
     {
-      "source_id": "icon_shield",
+      "source_id": "approval_card",
       "native_id": "beauty_0_0",
       "parent": "page",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        16.0,
+        74.0,
+        374.0,
+        622.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_shield",
+      "native_id": "beauty_0_0_0",
+      "parent": "approval_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
@@ -39,8 +57,8 @@
     },
     {
       "source_id": "t01",
-      "native_id": "beauty_0_1",
-      "parent": "page",
+      "native_id": "beauty_0_0_1",
+      "parent": "approval_card",
       "kind": "text",
       "component": "Text8cb1e9073ec4",
       "semantic_role": "text",
@@ -57,8 +75,8 @@
     },
     {
       "source_id": "cmd_box",
-      "native_id": "beauty_0_2",
-      "parent": "page",
+      "native_id": "beauty_0_0_2",
+      "parent": "approval_card",
       "kind": "stack",
       "component": "Surface1f1c4c84b15b",
       "semantic_role": "layout",
@@ -75,7 +93,7 @@
     },
     {
       "source_id": "t02",
-      "native_id": "beauty_0_2_0",
+      "native_id": "beauty_0_0_2_0",
       "parent": "cmd_box",
       "kind": "text",
       "component": "Textd0578af30f19",
@@ -93,8 +111,8 @@
     },
     {
       "source_id": "reason_text",
-      "native_id": "beauty_0_3",
-      "parent": "page",
+      "native_id": "beauty_0_0_3",
+      "parent": "approval_card",
       "kind": "text",
       "component": "Text5767bb516ca2",
       "semantic_role": "text",
@@ -111,8 +129,8 @@
     },
     {
       "source_id": "approve_once",
-      "native_id": "beauty_0_4",
-      "parent": "page",
+      "native_id": "beauty_0_0_4",
+      "parent": "approval_card",
       "kind": "stack",
       "component": "KitButton2c6804b990a5",
       "semantic_role": "button",
@@ -129,7 +147,7 @@
     },
     {
       "source_id": "approve_once_surface",
-      "native_id": "beauty_0_4_0",
+      "native_id": "beauty_0_0_4_0",
       "parent": "approve_once",
       "kind": "stack",
       "component": "Surfaceb09388d9616a",
@@ -147,7 +165,7 @@
     },
     {
       "source_id": "approve_once_control",
-      "native_id": "beauty_0_4_1",
+      "native_id": "beauty_0_0_4_1",
       "parent": "approve_once",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -165,7 +183,7 @@
     },
     {
       "source_id": "approve_once_label",
-      "native_id": "beauty_0_4_2",
+      "native_id": "beauty_0_0_4_2",
       "parent": "approve_once",
       "kind": "text",
       "component": "Text1203da972db2",
@@ -183,8 +201,8 @@
     },
     {
       "source_id": "approve_session",
-      "native_id": "beauty_0_5",
-      "parent": "page",
+      "native_id": "beauty_0_0_5",
+      "parent": "approval_card",
       "kind": "stack",
       "component": "KitButton2c6804b990a5",
       "semantic_role": "button",
@@ -201,7 +219,7 @@
     },
     {
       "source_id": "approve_session_surface",
-      "native_id": "beauty_0_5_0",
+      "native_id": "beauty_0_0_5_0",
       "parent": "approve_session",
       "kind": "stack",
       "component": "Surfacecf419a0f4c2f",
@@ -219,7 +237,7 @@
     },
     {
       "source_id": "approve_session_control",
-      "native_id": "beauty_0_5_1",
+      "native_id": "beauty_0_0_5_1",
       "parent": "approve_session",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -237,7 +255,7 @@
     },
     {
       "source_id": "approve_session_label",
-      "native_id": "beauty_0_5_2",
+      "native_id": "beauty_0_0_5_2",
       "parent": "approve_session",
       "kind": "text",
       "component": "Textb89d74582783",
@@ -255,8 +273,8 @@
     },
     {
       "source_id": "deny",
-      "native_id": "beauty_0_6",
-      "parent": "page",
+      "native_id": "beauty_0_0_6",
+      "parent": "approval_card",
       "kind": "stack",
       "component": "KitButton2c6804b990a5",
       "semantic_role": "button",
@@ -273,7 +291,7 @@
     },
     {
       "source_id": "deny_surface",
-      "native_id": "beauty_0_6_0",
+      "native_id": "beauty_0_0_6_0",
       "parent": "deny",
       "kind": "stack",
       "component": "Surface9eeb0502ed91",
@@ -291,7 +309,7 @@
     },
     {
       "source_id": "deny_control",
-      "native_id": "beauty_0_6_1",
+      "native_id": "beauty_0_0_6_1",
       "parent": "deny",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -309,7 +327,7 @@
     },
     {
       "source_id": "deny_label",
-      "native_id": "beauty_0_6_2",
+      "native_id": "beauty_0_0_6_2",
       "parent": "deny",
       "kind": "text",
       "component": "Textd69d397afce1",
@@ -327,8 +345,8 @@
     },
     {
       "source_id": "t_hint",
-      "native_id": "beauty_0_7",
-      "parent": "page",
+      "native_id": "beauty_0_0_7",
+      "parent": "approval_card",
       "kind": "text",
       "component": "Text67f5fdec256d",
       "semantic_role": "text",
@@ -350,6 +368,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "c32ba572a7c01884ad98014ed1a9ef372372a668acc77e6a79fe4e02ed35df8a",
+  "contract_sha256": "907d36d9ee471c9802ff7b3e4576d2d8c5d55b55bfee11561cc79ebb1f0b6b4a",
   "mapping_basis": "mapped.json"
 }

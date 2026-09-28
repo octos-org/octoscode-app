@@ -11,6 +11,15 @@
           "h": 776
         }
       },
+      "settings_group": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 16.0,
+          "y": 30.0,
+          "w": 374.0,
+          "h": 620.0
+        }
+      },
       "t01": {
         "component": "Texte6662bb38e5f",
         "layout": {

@@ -16,6 +16,9 @@ state deny_control_enabled { shape: bool, initial: true }
 component Surface16fae9a63e16(instance: text) {
   view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
 }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
@@ -60,32 +63,34 @@ component Text67f5fdec256d(instance: text, text: text) {
 }
 
 view root Surface16fae9a63e16(instance: "page") {
-  Vectore0a378fde04f(instance: "icon_shield")
-  Text8cb1e9073ec4(instance: "t01", text: copy.t01_text)
-  Surface1f1c4c84b15b(instance: "cmd_box") {
-    Textd0578af30f19(instance: "t02", text: copy.t02_text)
-  }
-  Text5767bb516ca2(instance: "reason_text", text: copy.reason_text_text)
-  KitButton2c6804b990a5(instance: "approve_once") {
-    Surfaceb09388d9616a(instance: "approve_once_surface") {
-
+  Group3d2637879433(instance: "approval_card") {
+    Vectore0a378fde04f(instance: "icon_shield")
+    Text8cb1e9073ec4(instance: "t01", text: copy.t01_text)
+    Surface1f1c4c84b15b(instance: "cmd_box") {
+      Textd0578af30f19(instance: "t02", text: copy.t02_text)
     }
-    NativeButton02f1d1bd99b4(instance: "approve_once_control", enabled: approve_once_control_enabled)
-    Text1203da972db2(instance: "approve_once_label", text: copy.approve_once_label_text)
-  }
-  KitButton2c6804b990a5(instance: "approve_session") {
-    Surfacecf419a0f4c2f(instance: "approve_session_surface") {
+    Text5767bb516ca2(instance: "reason_text", text: copy.reason_text_text)
+    KitButton2c6804b990a5(instance: "approve_once") {
+      Surfaceb09388d9616a(instance: "approve_once_surface") {
 
+      }
+      NativeButton02f1d1bd99b4(instance: "approve_once_control", enabled: approve_once_control_enabled)
+      Text1203da972db2(instance: "approve_once_label", text: copy.approve_once_label_text)
     }
-    NativeButton02f1d1bd99b4(instance: "approve_session_control", enabled: approve_session_control_enabled)
-    Textb89d74582783(instance: "approve_session_label", text: copy.approve_session_label_text)
-  }
-  KitButton2c6804b990a5(instance: "deny") {
-    Surface9eeb0502ed91(instance: "deny_surface") {
+    KitButton2c6804b990a5(instance: "approve_session") {
+      Surfacecf419a0f4c2f(instance: "approve_session_surface") {
 
+      }
+      NativeButton02f1d1bd99b4(instance: "approve_session_control", enabled: approve_session_control_enabled)
+      Textb89d74582783(instance: "approve_session_label", text: copy.approve_session_label_text)
     }
-    NativeButton02f1d1bd99b4(instance: "deny_control", enabled: deny_control_enabled)
-    Textd69d397afce1(instance: "deny_label", text: copy.deny_label_text)
+    KitButton2c6804b990a5(instance: "deny") {
+      Surface9eeb0502ed91(instance: "deny_surface") {
+
+      }
+      NativeButton02f1d1bd99b4(instance: "deny_control", enabled: deny_control_enabled)
+      Textd69d397afce1(instance: "deny_label", text: copy.deny_label_text)
+    }
+    Text67f5fdec256d(instance: "t_hint", text: copy.t_hint_text)
   }
-  Text67f5fdec256d(instance: "t_hint", text: copy.t_hint_text)
 }

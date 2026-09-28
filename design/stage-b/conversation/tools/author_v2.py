@@ -241,6 +241,15 @@ class Scene:
         self.put(input_node(id, x, y, w, h, s))
         self.inputs[id] = (event or id, [int(x), int(y), int(w), int(h)])
 
+    def wrap(self, id, x, y, w, h):
+        """Reparent every node placed so far into ONE `stack` root — the design
+        flow's "native composition root" (card #16) — so the subtree can be
+        extracted as a reusable component. A fill-less plain stack is
+        appearance-inert: makepad `abs_pos` is window-absolute (design.rs:200)."""
+        kids = self.kids
+        self.kids = []
+        self.put(stack(id, x, y, w, h, kids))
+
 def load_ocr(num):
     d = json.loads((OCR / f"conversation-{num:02d}.ocr.json").read_text())
     w, h = d["width"], d["height"]
@@ -459,6 +468,8 @@ def build_05(sc):
     sc.add_control("deny", 18, 532, 368, 58, 6, bg="white", radius=999, weight=400,
                    lx=170, ly=553, lw=80, lh=28, event="approval.deny")
     sc.add_text("t_hint", 7, color="muted", size=12)
+    # one composition root so the subtree extracts as `approval-card` (card #18)
+    sc.wrap("approval_card", 16, 74, 374, 622)
 
 def build_06(sc):
     """USER QUESTION. Card with title "Octos needs a decision", the question as a
@@ -490,6 +501,7 @@ def build_06(sc):
                    color="white", lx=138, ly=591, lw=220, lh=30, event="question.submit")
     sc.add_control("skip", 24, 650, 362, 60, 9, bg="white", radius=999, weight=400,
                    color="muted", lx=180, ly=673, lw=80, lh=30, event="question.skip")
+    sc.wrap("question_card", 16, 60, 374, 660)
 
 def build_07(sc):
     """EDITED FILES. Header "Edited 3 files" with totals "+62 −5", top-right plain
@@ -517,6 +529,7 @@ def build_07(sc):
         sc.controls[cid] = (f"files.open.{cid}", [int(16), int(cy), int(374), 96], True)
     sc.add_icon("icon_show", "chevron_right", 33, 605, 16, 18, color="muted")
     sc.add_text("t_show", 13, weight=500, size=14)
+    sc.wrap("edited_files_card", 16, 60, 374, 580)
 
 def build_10(sc):
     """GOAL AND PLAN. A slim goal strip ("Goal · … · 18m") with pause/stop icons,
@@ -549,6 +562,13 @@ def build_10(sc):
         else:
             sc.put(surface(f"icon_step{i}", 42, my, 24, 24, bg="white", radius=999,
                            border=1, bordercolor="hair"))
+    # wrap the plan parts as `plan-card` (card #18); the goal strip was already
+    # placed above and stays its own component (`goal-strip`).
+    # NOTE: goal_strip was put first, so re-parent it out before wrapping.
+    goal = sc.kids.pop(0) if sc.kids else None
+    sc.wrap("plan_card", 16, 130, 374, 500)
+    if goal is not None:
+        sc.kids.insert(0, goal)
 
 def build_11(sc):
     """REVIEW DIFF. Header "Review" + scope pill "Last turn ▾" + totals; one file
@@ -599,6 +619,8 @@ def build_11(sc):
     _, ux, uy, uw, uh = sc.rows[19]
     sc.put(surface("folded", 24, uy - 8, 358, 34, bg="box", radius=8, kids=[
         text("t_fold", sc.t(19), ux, uy, uw, uh, size=12, color="muted")]))
+    # one composition root so the subtree extracts as `diff-view` (card #18)
+    sc.wrap("diff_view", 16, 20, 374, 640)
 
 def build_12(sc):
     """SETTINGS CARD. Section title "Permissions" + a grouped card with 2 rows
@@ -629,6 +651,8 @@ def build_12(sc):
         text("t_model", sc.t(8), mx, my, mw, mh, size=15, weight=500),
         text("t_pick", fix(sc.t(9)), 205, my, 160, mh, size=14, weight=500, color="muted")]))
     sc.controls["model_picker"] = ("settings.model.select", [205, 550, 160, 32], True)
+    # one composition root so the subtree extracts as `settings-group` (card #18)
+    sc.wrap("settings_group", 16, 30, 374, 620)
 
 BUILDERS = {1: build_01, 3: build_03, 4: build_04, 5: build_05, 6: build_06, 7: build_07,
             8: build_08, 9: build_09, 10: build_10, 11: build_11, 12: build_12}

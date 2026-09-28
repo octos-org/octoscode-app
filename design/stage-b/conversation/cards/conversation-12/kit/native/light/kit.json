@@ -179,6 +179,13 @@
       "props": {},
       "slot": true
     },
+    "Group3d2637879433": {
+      "style": {
+        "t": "stack"
+      },
+      "props": {},
+      "slot": true
+    },
     "Texte6662bb38e5f": {
       "style": {
         "t": "text",

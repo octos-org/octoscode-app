@@ -41,6 +41,17 @@
       "reviewed": false
     },
     {
+      "id": "plan_card",
+      "bounds": [
+        16.0,
+        130.0,
+        374.0,
+        500.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
       "id": "plan_steps",
       "bounds": [
         24.0,

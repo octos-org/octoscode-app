@@ -471,6 +471,17 @@
       "bg": 4294901502
     },
     {
+      "id": "edited_files_card",
+      "bounds": [
+        16.0,
+        60.0,
+        374.0,
+        580.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
       "id": "icon_undo",
       "bounds": [
         231.0,

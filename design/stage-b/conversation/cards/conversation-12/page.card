@@ -14,6 +14,9 @@ copy t_pick_text { class: user-copy, en: "deepseek-v4-flash v" }
 component Surface156d085f4ff5(instance: text) {
   view Kit(component: "Surface156d085f4ff5", instance: instance) { slot }
 }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
 component Texte6662bb38e5f(instance: text, text: text) {
   view Kit(component: "Texte6662bb38e5f", instance: instance, text: text)
 }
@@ -55,26 +58,28 @@ component Textc59130a9c7f8(instance: text, text: text) {
 }
 
 view root Surface156d085f4ff5(instance: "page") {
-  Texte6662bb38e5f(instance: "t01", text: copy.t01_text)
-  Surface40a6adb74bc2(instance: "perm_card") {
-    Texta09488cf4ea1(instance: "t_r1", text: copy.t_r1_text)
-    Text601320deb0cd(instance: "t_d1", text: copy.t_d1_text)
-    Text383523ce1bc1(instance: "t_r2", text: copy.t_r2_text)
-    Text601320deb0cd(instance: "t_d2", text: copy.t_d2_text)
-    Surface420bbc664d64(instance: "toggle1") {
-      Surface6143ba49aec0(instance: "toggle1_knob") {
+  Group3d2637879433(instance: "settings_group") {
+    Texte6662bb38e5f(instance: "t01", text: copy.t01_text)
+    Surface40a6adb74bc2(instance: "perm_card") {
+      Texta09488cf4ea1(instance: "t_r1", text: copy.t_r1_text)
+      Text601320deb0cd(instance: "t_d1", text: copy.t_d1_text)
+      Text383523ce1bc1(instance: "t_r2", text: copy.t_r2_text)
+      Text601320deb0cd(instance: "t_d2", text: copy.t_d2_text)
+      Surface420bbc664d64(instance: "toggle1") {
+        Surface6143ba49aec0(instance: "toggle1_knob") {
 
+        }
+      }
+      Surface7b8eda49274c(instance: "toggle2") {
+        Surfacea57520e99c15(instance: "toggle2_knob") {
+
+        }
       }
     }
-    Surface7b8eda49274c(instance: "toggle2") {
-      Surfacea57520e99c15(instance: "toggle2_knob") {
-
-      }
+    Text10fc92947883(instance: "t_sec2", text: copy.t_sec2_text)
+    Surfacef73992c5f8a4(instance: "model_card") {
+      Texta445ee2dd47b(instance: "t_model", text: copy.t_model_text)
+      Textc59130a9c7f8(instance: "t_pick", text: copy.t_pick_text)
     }
-  }
-  Text10fc92947883(instance: "t_sec2", text: copy.t_sec2_text)
-  Surfacef73992c5f8a4(instance: "model_card") {
-    Texta445ee2dd47b(instance: "t_model", text: copy.t_model_text)
-    Textc59130a9c7f8(instance: "t_pick", text: copy.t_pick_text)
   }
 }

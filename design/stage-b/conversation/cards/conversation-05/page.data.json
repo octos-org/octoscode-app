@@ -11,6 +11,15 @@
           "h": 776
         }
       },
+      "approval_card": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 16.0,
+          "y": 74.0,
+          "w": 374.0,
+          "h": 622.0
+        }
+      },
       "icon_shield": {
         "component": "Vectore0a378fde04f",
         "layout": {

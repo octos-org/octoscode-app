@@ -74,9 +74,27 @@
       "size": null
     },
     {
-      "source_id": "t02",
+      "source_id": "plan_card",
       "native_id": "beauty_0_1",
       "parent": "page",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        16.0,
+        130.0,
+        374.0,
+        500.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t02",
+      "native_id": "beauty_0_1_0",
+      "parent": "plan_card",
       "kind": "text",
       "component": "Text6d7683639e3a",
       "semantic_role": "text",
@@ -93,8 +111,8 @@
     },
     {
       "source_id": "plan_steps",
-      "native_id": "beauty_0_2",
-      "parent": "page",
+      "native_id": "beauty_0_1_1",
+      "parent": "plan_card",
       "kind": "stack",
       "component": "Group3d2637879433",
       "semantic_role": "layout",
@@ -111,7 +129,7 @@
     },
     {
       "source_id": "step_0_label",
-      "native_id": "beauty_0_2_0",
+      "native_id": "beauty_0_1_1_0",
       "parent": "plan_steps",
       "kind": "text",
       "component": "Text10450de85f33",
@@ -129,7 +147,7 @@
     },
     {
       "source_id": "step_1_label",
-      "native_id": "beauty_0_2_1",
+      "native_id": "beauty_0_1_1_1",
       "parent": "plan_steps",
       "kind": "text",
       "component": "Textee1e7e5ed697",
@@ -147,7 +165,7 @@
     },
     {
       "source_id": "step_2_label",
-      "native_id": "beauty_0_2_2",
+      "native_id": "beauty_0_1_1_2",
       "parent": "plan_steps",
       "kind": "text",
       "component": "Textfcb7eee893cc",
@@ -165,7 +183,7 @@
     },
     {
       "source_id": "step_3_label",
-      "native_id": "beauty_0_2_3",
+      "native_id": "beauty_0_1_1_3",
       "parent": "plan_steps",
       "kind": "text",
       "component": "Textc378303468e9",
@@ -183,7 +201,7 @@
     },
     {
       "source_id": "step_4_label",
-      "native_id": "beauty_0_2_4",
+      "native_id": "beauty_0_1_1_4",
       "parent": "plan_steps",
       "kind": "text",
       "component": "Text378d81a8d7fe",
@@ -201,8 +219,8 @@
     },
     {
       "source_id": "icon_step0",
-      "native_id": "beauty_0_3",
-      "parent": "page",
+      "native_id": "beauty_0_1_2",
+      "parent": "plan_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
@@ -219,8 +237,8 @@
     },
     {
       "source_id": "icon_step1",
-      "native_id": "beauty_0_4",
-      "parent": "page",
+      "native_id": "beauty_0_1_3",
+      "parent": "plan_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
@@ -237,8 +255,8 @@
     },
     {
       "source_id": "icon_step2",
-      "native_id": "beauty_0_5",
-      "parent": "page",
+      "native_id": "beauty_0_1_4",
+      "parent": "plan_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
@@ -255,8 +273,8 @@
     },
     {
       "source_id": "icon_step3",
-      "native_id": "beauty_0_6",
-      "parent": "page",
+      "native_id": "beauty_0_1_5",
+      "parent": "plan_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
@@ -273,8 +291,8 @@
     },
     {
       "source_id": "icon_step4",
-      "native_id": "beauty_0_7",
-      "parent": "page",
+      "native_id": "beauty_0_1_6",
+      "parent": "plan_card",
       "kind": "stack",
       "component": "Surfaceb4ab38079b26",
       "semantic_role": "layout",
@@ -295,6 +313,6 @@
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "634bc7028b8a03f2d7d0b180db30b7682fcfd224171db4ffb9f5d15e97e65d95",
+  "contract_sha256": "99dd4bab495866605bc66626554f25b3b77c915e7ae84a38d4f775cee4aaf1e0",
   "mapping_basis": "mapped.json"
 }

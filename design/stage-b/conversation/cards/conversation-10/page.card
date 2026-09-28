@@ -22,11 +22,11 @@ component Textfaa232946c99(instance: text, text: text) {
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
-component Text6d7683639e3a(instance: text, text: text) {
-  view Kit(component: "Text6d7683639e3a", instance: instance, text: text)
-}
 component Group3d2637879433(instance: text) {
   view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Text6d7683639e3a(instance: text, text: text) {
+  view Kit(component: "Text6d7683639e3a", instance: instance, text: text)
 }
 component Text10450de85f33(instance: text, text: text) {
   view Kit(component: "Text10450de85f33", instance: instance, text: text)
@@ -52,19 +52,21 @@ view root Surface991755d1cfb2(instance: "page") {
     Textfaa232946c99(instance: "t01", text: copy.t01_text)
     Vectore0a378fde04f(instance: "icon_pause")
   }
-  Text6d7683639e3a(instance: "t02", text: copy.t02_text)
-  Group3d2637879433(instance: "plan_steps") {
-    Text10450de85f33(instance: "step_0_label", text: copy.step_0_label_text)
-    Textee1e7e5ed697(instance: "step_1_label", text: copy.step_1_label_text)
-    Textfcb7eee893cc(instance: "step_2_label", text: copy.step_2_label_text)
-    Textc378303468e9(instance: "step_3_label", text: copy.step_3_label_text)
-    Text378d81a8d7fe(instance: "step_4_label", text: copy.step_4_label_text)
-  }
-  Vectore0a378fde04f(instance: "icon_step0")
-  Vectore0a378fde04f(instance: "icon_step1")
-  Vectore0a378fde04f(instance: "icon_step2")
-  Vectore0a378fde04f(instance: "icon_step3")
-  Surfaceb4ab38079b26(instance: "icon_step4") {
+  Group3d2637879433(instance: "plan_card") {
+    Text6d7683639e3a(instance: "t02", text: copy.t02_text)
+    Group3d2637879433(instance: "plan_steps") {
+      Text10450de85f33(instance: "step_0_label", text: copy.step_0_label_text)
+      Textee1e7e5ed697(instance: "step_1_label", text: copy.step_1_label_text)
+      Textfcb7eee893cc(instance: "step_2_label", text: copy.step_2_label_text)
+      Textc378303468e9(instance: "step_3_label", text: copy.step_3_label_text)
+      Text378d81a8d7fe(instance: "step_4_label", text: copy.step_4_label_text)
+    }
+    Vectore0a378fde04f(instance: "icon_step0")
+    Vectore0a378fde04f(instance: "icon_step1")
+    Vectore0a378fde04f(instance: "icon_step2")
+    Vectore0a378fde04f(instance: "icon_step3")
+    Surfaceb4ab38079b26(instance: "icon_step4") {
 
+    }
   }
 }

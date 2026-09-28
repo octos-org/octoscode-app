@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "2dd69cc1481130117edd06dfeb4a37295736738264a34dce3df649b84dbd4dee",
+  "manifest_sha256": "20d1bdd37c55ce0edf79f0feec7405d6ccdadab3fd78c34571e12c3cff6c48b8",
   "reference_sha256": "76ac7c43df118ffd0a4be3321c653c4bcf817e59d4b50fe05cca4e5f1fb5b1aa",
   "id": "conversation-07",
   "round": null,
@@ -13,6 +13,17 @@
   "elements": [
     {
       "id": "page",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "edited_files_card",
       "role": "layout",
       "basis": "authored stack node",
       "expected_widgets": [

@@ -193,6 +193,13 @@
       "props": {},
       "slot": false
     },
+    "Group3d2637879433": {
+      "style": {
+        "t": "stack"
+      },
+      "props": {},
+      "slot": true
+    },
     "Text6d7683639e3a": {
       "style": {
         "t": "text",
@@ -221,13 +228,6 @@
         "text": "text"
       },
       "slot": false
-    },
-    "Group3d2637879433": {
-      "style": {
-        "t": "stack"
-      },
-      "props": {},
-      "slot": true
     },
     "Text10450de85f33": {
       "style": {

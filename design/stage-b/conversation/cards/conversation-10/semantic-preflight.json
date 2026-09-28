@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "3c37702e3abe8318e0f581eea7a17c7b7c7dbf48f8cf37211b0d554de971d55e",
+  "manifest_sha256": "38cb4a1800fbd1eca09a5a14adb0d8b3802dc7073fccd1be0657947e62557506",
   "reference_sha256": "fe2a07008abd5030ea7578123a3a20b4540bb1f7b61ddc0df0f3c1c66d7401b6",
   "id": "conversation-10",
   "round": null,
@@ -57,6 +57,17 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "plan_card",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
       "id": "t02",

@@ -11,6 +11,15 @@
           "h": 776
         }
       },
+      "diff_view": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 16.0,
+          "y": 20.0,
+          "w": 374.0,
+          "h": 640.0
+        }
+      },
       "t01": {
         "component": "Text9834725221d0",
         "layout": {

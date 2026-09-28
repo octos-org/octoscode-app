@@ -20,9 +20,27 @@
       "size": null
     },
     {
-      "source_id": "icon_decision",
+      "source_id": "question_card",
       "native_id": "beauty_0_0",
       "parent": "page",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        16.0,
+        60.0,
+        374.0,
+        660.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_decision",
+      "native_id": "beauty_0_0_0",
+      "parent": "question_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
@@ -39,8 +57,8 @@
     },
     {
       "source_id": "t01",
-      "native_id": "beauty_0_1",
-      "parent": "page",
+      "native_id": "beauty_0_0_1",
+      "parent": "question_card",
       "kind": "text",
       "component": "Text3a321d4c403b",
       "semantic_role": "text",
@@ -57,8 +75,8 @@
     },
     {
       "source_id": "question_text",
-      "native_id": "beauty_0_2",
-      "parent": "page",
+      "native_id": "beauty_0_0_2",
+      "parent": "question_card",
       "kind": "text",
       "component": "Text974d2475b0aa",
       "semantic_role": "text",
@@ -75,8 +93,8 @@
     },
     {
       "source_id": "opt_ledger",
-      "native_id": "beauty_0_3",
-      "parent": "page",
+      "native_id": "beauty_0_0_3",
+      "parent": "question_card",
       "kind": "stack",
       "component": "Groupfe37d7063bc0",
       "semantic_role": "layout",
@@ -93,7 +111,7 @@
     },
     {
       "source_id": "opt_ledger_ring",
-      "native_id": "beauty_0_3_0",
+      "native_id": "beauty_0_0_3_0",
       "parent": "opt_ledger",
       "kind": "stack",
       "component": "Surface0b71cfcd2704",
@@ -111,7 +129,7 @@
     },
     {
       "source_id": "opt_ledger_label",
-      "native_id": "beauty_0_3_1",
+      "native_id": "beauty_0_0_3_1",
       "parent": "opt_ledger",
       "kind": "text",
       "component": "Text4a39fec9983e",
@@ -129,8 +147,8 @@
     },
     {
       "source_id": "opt_memory",
-      "native_id": "beauty_0_4",
-      "parent": "page",
+      "native_id": "beauty_0_0_4",
+      "parent": "question_card",
       "kind": "stack",
       "component": "Group797ca8139faf",
       "semantic_role": "layout",
@@ -147,7 +165,7 @@
     },
     {
       "source_id": "opt_memory_ring",
-      "native_id": "beauty_0_4_0",
+      "native_id": "beauty_0_0_4_0",
       "parent": "opt_memory",
       "kind": "stack",
       "component": "Surface01dd50e9e876",
@@ -165,7 +183,7 @@
     },
     {
       "source_id": "opt_memory_label",
-      "native_id": "beauty_0_4_1",
+      "native_id": "beauty_0_0_4_1",
       "parent": "opt_memory",
       "kind": "text",
       "component": "Text5e310874fe95",
@@ -183,8 +201,8 @@
     },
     {
       "source_id": "opt_ask",
-      "native_id": "beauty_0_5",
-      "parent": "page",
+      "native_id": "beauty_0_0_5",
+      "parent": "question_card",
       "kind": "stack",
       "component": "Group4fe983c4793c",
       "semantic_role": "layout",
@@ -201,7 +219,7 @@
     },
     {
       "source_id": "opt_ask_ring",
-      "native_id": "beauty_0_5_0",
+      "native_id": "beauty_0_0_5_0",
       "parent": "opt_ask",
       "kind": "stack",
       "component": "Surface829b0eb31acc",
@@ -219,7 +237,7 @@
     },
     {
       "source_id": "opt_ask_label",
-      "native_id": "beauty_0_5_1",
+      "native_id": "beauty_0_0_5_1",
       "parent": "opt_ask",
       "kind": "text",
       "component": "Text5a6b3a90fb2a",
@@ -237,8 +255,8 @@
     },
     {
       "source_id": "t_reco",
-      "native_id": "beauty_0_6",
-      "parent": "page",
+      "native_id": "beauty_0_0_6",
+      "parent": "question_card",
       "kind": "text",
       "component": "Texte417d444380e",
       "semantic_role": "text",
@@ -255,8 +273,8 @@
     },
     {
       "source_id": "note_input",
-      "native_id": "beauty_0_7",
-      "parent": "page",
+      "native_id": "beauty_0_0_7",
+      "parent": "question_card",
       "kind": "input",
       "component": "Inputd4c45cbb8a67",
       "semantic_role": "input",
@@ -273,8 +291,8 @@
     },
     {
       "source_id": "submit_answer",
-      "native_id": "beauty_0_8",
-      "parent": "page",
+      "native_id": "beauty_0_0_8",
+      "parent": "question_card",
       "kind": "stack",
       "component": "KitButton2c6804b990a5",
       "semantic_role": "button",
@@ -291,7 +309,7 @@
     },
     {
       "source_id": "submit_answer_surface",
-      "native_id": "beauty_0_8_0",
+      "native_id": "beauty_0_0_8_0",
       "parent": "submit_answer",
       "kind": "stack",
       "component": "Surface85e47be2cb0b",
@@ -309,7 +327,7 @@
     },
     {
       "source_id": "submit_answer_control",
-      "native_id": "beauty_0_8_1",
+      "native_id": "beauty_0_0_8_1",
       "parent": "submit_answer",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -327,7 +345,7 @@
     },
     {
       "source_id": "submit_answer_label",
-      "native_id": "beauty_0_8_2",
+      "native_id": "beauty_0_0_8_2",
       "parent": "submit_answer",
       "kind": "text",
       "component": "Text7a4adc61e226",
@@ -345,8 +363,8 @@
     },
     {
       "source_id": "skip",
-      "native_id": "beauty_0_9",
-      "parent": "page",
+      "native_id": "beauty_0_0_9",
+      "parent": "question_card",
       "kind": "stack",
       "component": "KitButton2c6804b990a5",
       "semantic_role": "button",
@@ -363,7 +381,7 @@
     },
     {
       "source_id": "skip_surface",
-      "native_id": "beauty_0_9_0",
+      "native_id": "beauty_0_0_9_0",
       "parent": "skip",
       "kind": "stack",
       "component": "Surface90bffad792f0",
@@ -381,7 +399,7 @@
     },
     {
       "source_id": "skip_control",
-      "native_id": "beauty_0_9_1",
+      "native_id": "beauty_0_0_9_1",
       "parent": "skip",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -399,7 +417,7 @@
     },
     {
       "source_id": "skip_label",
-      "native_id": "beauty_0_9_2",
+      "native_id": "beauty_0_0_9_2",
       "parent": "skip",
       "kind": "text",
       "component": "Text5d47e359c8cc",
@@ -421,6 +439,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "38a17f7c4c93822a9ea136154abca85c6f531d631ffdade3559ef35c93f0dacb",
+  "contract_sha256": "6d4edb1e03bd53af6b96081e7a4971d3405df387ab6f851cbea90ebd404ab464",
   "mapping_basis": "mapped.json"
 }

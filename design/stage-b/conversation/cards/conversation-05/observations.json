@@ -247,6 +247,17 @@
       "bg": 4294901502
     },
     {
+      "id": "approval_card",
+      "bounds": [
+        16.0,
+        74.0,
+        374.0,
+        622.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
       "id": "icon_shield",
       "bounds": [
         25.0,

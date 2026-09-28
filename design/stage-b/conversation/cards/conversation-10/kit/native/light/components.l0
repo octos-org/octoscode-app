@@ -10,11 +10,11 @@ component Textfaa232946c99(instance: text, text: text) {
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
-component Text6d7683639e3a(instance: text, text: text) {
-  view Kit(component: "Text6d7683639e3a", instance: instance, text: text)
-}
 component Group3d2637879433(instance: text) {
   view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Text6d7683639e3a(instance: text, text: text) {
+  view Kit(component: "Text6d7683639e3a", instance: instance, text: text)
 }
 component Text10450de85f33(instance: text, text: text) {
   view Kit(component: "Text10450de85f33", instance: instance, text: text)

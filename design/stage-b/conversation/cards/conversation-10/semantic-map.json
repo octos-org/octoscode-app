@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "634bc7028b8a03f2d7d0b180db30b7682fcfd224171db4ffb9f5d15e97e65d95",
+  "contract_sha256": "99dd4bab495866605bc66626554f25b3b77c915e7ae84a38d4f775cee4aaf1e0",
   "reference_sha256": "fe2a07008abd5030ea7578123a3a20b4540bb1f7b61ddc0df0f3c1c66d7401b6",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -41,6 +41,13 @@
         "clip": true,
         "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
       }
+    },
+    {
+      "id": "plan_card",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
     },
     {
       "id": "t02",

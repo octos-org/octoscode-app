@@ -183,6 +183,13 @@
       "props": {},
       "slot": true
     },
+    "Group3d2637879433": {
+      "style": {
+        "t": "stack"
+      },
+      "props": {},
+      "slot": true
+    },
     "Vectore0a378fde04f": {
       "style": {
         "t": "svg"
