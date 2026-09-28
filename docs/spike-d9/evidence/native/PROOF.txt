@@ -1,0 +1,25 @@
+## shape (i) native AppModule — headless proof
+# launch:
+MAKEPAD_HIDE_WINDOWS=1 MAKEPAD_WM_TEST_APP=octoscode <bin> --module octoscode --remote 8390
+
+# listening line (/grep shell.log):
+[makepad-remote] listening on 127.0.0.1:8390 pid=16813 app=octosense
+
+# /snap BEFORE the click (Label texts):
+  session :: session: octoscode:main
+  status :: conn: Live   sessions listed: 0
+  refresh :: session/list
+
+# click: curl -s "127.0.0.1:8390/click?x=124&y=265&wait=1"
+-n   -> 
+{"ok":1,"f":14028}
+
+# /snap AFTER the click:
+  session :: session: octoscode:main
+  status :: conn: Live   sessions listed: 0
+  refresh :: session/list
+
+# app log lines ([octoscode]):
+[octoscode] session: (opening…) | conn: dialing
+[octoscode] session: octoscode:main | conn: Live
+

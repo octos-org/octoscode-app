@@ -1,0 +1,24 @@
+## shape (ii) contained bundle + host service — headless proof
+# launch:
+MAKEPAD_HIDE_WINDOWS=1 MAKEPAD_WM_TEST_APP=octoscode-script <bin> --remote 8391
+
+# listening line:
+[makepad-remote] listening on 127.0.0.1:8391 pid=59334 app=octosense
+
+# admission line (card runner):
+card: os.octoscode-script running under 2 capability(ies), 1 host(s), 67108864 bytes of storage, 4000000000 instructions, 134217728 bytes of heap
+
+# /snap BEFORE the click:
+  session :: session: octoscode:host
+  status :: conn: session open
+  refresh :: session/list
+
+# click: curl -s "127.0.0.1:8391/click?x=119&y=262&wait=1"
+-n   -> 
+{"ok":1,"f":1617}
+
+# /snap AFTER the click:
+  session :: session: octoscode:host
+  status :: conn: sessions listed: 0
+  refresh :: session/list
+{"png":["/Users/yuechen/home/oa.noindex/p0-build/tmp/peer-tmp/makepad-remote/octosense-59334/grab-w0-00002.png"],"quit":1}
