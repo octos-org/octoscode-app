@@ -24,10 +24,10 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "text",
-      "component": "Text8a4404453a54",
+      "component": "Text137eead2583a",
       "semantic_role": "text",
       "bounds": [
-        33.40702374936837,
+        33.87,
         33.5,
         256.5,
         25.0
@@ -35,17 +35,17 @@
       "text": "Goal \u2022 Fix steer queue on reconnect \u2022 18m",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 21.732187973724102
+      "size": 12.46
     },
     {
       "source_id": "t02",
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "text",
-      "component": "Text49c7a5394996",
+      "component": "Texte862ba55a85d",
       "semantic_role": "text",
       "bounds": [
-        33.73013871374527,
+        34.51,
         151.0,
         104.0,
         24.0
@@ -53,17 +53,17 @@
       "text": "Plan \u2022 3 of 5",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 25.825977301387137
+      "size": 16.95
     },
     {
       "source_id": "t03",
       "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "text",
-      "component": "Text89fb47ef9b1f",
+      "component": "Text10450de85f33",
       "semantic_role": "text",
       "bounds": [
-        85.9245283018868,
+        86.68,
         234.5,
         194.5,
         26.0
@@ -71,17 +71,17 @@
       "text": "Reproduce reconnect drop",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 23.61425576519916
+      "size": 14.97
     },
     {
       "source_id": "t04",
       "native_id": "beauty_0_3",
       "parent": "page",
       "kind": "text",
-      "component": "Texte94b00206d16",
+      "component": "Textee1e7e5ed697",
       "semantic_role": "text",
       "bounds": [
-        85.38972809667673,
+        85.79,
         320.0,
         194.5,
         26.5
@@ -89,17 +89,17 @@
       "text": "Trace steer queue lifecycle",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 23.202416918429
+      "size": 14.76
     },
     {
       "source_id": "t05",
       "native_id": "beauty_0_4",
       "parent": "page",
       "kind": "text",
-      "component": "Texted7adfeeedd1",
+      "component": "Textfcb7eee893cc",
       "semantic_role": "text",
       "bounds": [
-        86.41558441558442,
+        86.6,
         406.0,
         124.0,
         26.5
@@ -107,17 +107,17 @@
       "text": "Write failing test",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 23.016983016983016
+      "size": 15.58
     },
     {
       "source_id": "t06",
       "native_id": "beauty_0_5",
       "parent": "page",
       "kind": "text",
-      "component": "Text64e3ccbb7cee",
+      "component": "Text77009da7de2b",
       "semantic_role": "text",
       "bounds": [
-        86.4245283018868,
+        87.16,
         492.5,
         188.0,
         26.0
@@ -125,17 +125,17 @@
       "text": "Implement durable queue",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 23.61425576519916
+      "size": 15.26
     },
     {
       "source_id": "t07",
       "native_id": "beauty_0_6",
       "parent": "page",
       "kind": "text",
-      "component": "Text22c9cbd96b92",
+      "component": "Text378d81a8d7fe",
       "semantic_role": "text",
       "bounds": [
-        87.95247724974722,
+        88.67,
         578.0,
         166.5,
         26.5
@@ -143,13 +143,13 @@
       "text": "Run full suite and push",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 23.296258847320527
+      "size": 15.11
     }
   ],
   "fonts": {
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "7c57ba5dc4c8112f92e68b033dd5063f1d6c09268183c2ac5615d928fe380b8b",
+  "contract_sha256": "6c693f0a7431e1f7b324f782793061a863ed7d352d8985884c5d1ed42e13de9d",
   "mapping_basis": "mapped.json"
 }

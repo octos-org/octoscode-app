@@ -15,7 +15,7 @@
         78.94,
         82.34,
         246.98,
-        29.34
+        27.16
       ],
       "status": "observed",
       "ocr_text": "Octos needs a decision",
@@ -47,7 +47,7 @@
         37.22,
         154.5,
         257.13,
-        30.48
+        28.22
       ],
       "status": "observed",
       "ocr_text": "Where should queued steers",
@@ -79,7 +79,7 @@
         36.09,
         192.87,
         121.8,
-        30.45
+        28.2
       ],
       "status": "observed",
       "ocr_text": "be persisted?",
@@ -111,7 +111,7 @@
         75.1,
         254.59,
         181.49,
-        33.0
+        31.71
       ],
       "status": "observed",
       "ocr_text": "In the session ledger",
@@ -143,7 +143,7 @@
         76.61,
         293.91,
         140.01,
-        27.83
+        25.77
       ],
       "status": "observed",
       "ocr_text": "(recommended)",
@@ -175,7 +175,7 @@
         76.66,
         355.12,
         138.78,
-        28.38
+        26.28
       ],
       "status": "observed",
       "ocr_text": "In memory only",
@@ -207,7 +207,7 @@
         79.96,
         415.52,
         124.28,
-        24.6
+        22.79
       ],
       "status": "observed",
       "ocr_text": "Ask each time",
@@ -236,10 +236,10 @@
       "id": "t08",
       "expected_text": "Add a note",
       "requested_bounds": [
-        39.26405983846847,
-        493.1372056586084,
+        39.26,
+        493.14,
         92.89,
-        26.28
+        24.33
       ],
       "status": "observed",
       "ocr_text": "Add a note",
@@ -268,10 +268,10 @@
       "id": "t09",
       "expected_text": "Submit answer",
       "requested_bounds": [
-        137.54531165402653,
-        590.7717433066812,
+        137.55,
+        590.77,
         135.42,
-        26.13
+        24.2
       ],
       "status": "observed",
       "ocr_text": "Submit answer",
@@ -300,10 +300,10 @@
       "id": "t10",
       "expected_text": "Skip",
       "requested_bounds": [
-        180.44444420375925,
-        673.3604656987765,
+        180.44,
+        673.36,
         42.86,
-        31.66
+        29.33
       ],
       "status": "observed",
       "ocr_text": "Skip",
@@ -341,39 +341,6 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4294901502
-    },
-    {
-      "id": "note_input",
-      "bounds": [
-        31.26,
-        485.14,
-        200.0,
-        40.33
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "submit_answer",
-      "bounds": [
-        129.55,
-        582.77,
-        151.42,
-        40.19
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "skip",
-      "bounds": [
-        172.44,
-        665.36,
-        58.86,
-        45.33
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
     }
   ],
   "unmapped_ocr": [],

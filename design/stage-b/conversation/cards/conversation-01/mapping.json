@@ -24,31 +24,103 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "text",
-      "component": "Text4a3ecddb8000",
+      "component": "Text50ebf376856a",
       "semantic_role": "text",
       "bounds": [
-        22.98825831702544,
+        23.34,
         46.5,
         150.0,
-        26.5
+        27.9
       ],
-      "text": "OctosCode v",
+      "text": "OctosCode \u25be",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 30.058708414872797
+      "size": 23.06
+    },
+    {
+      "source_id": "icon_bell",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        306.0,
+        46.0,
+        21.0,
+        25.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_search",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        359.0,
+        46.0,
+        22.0,
+        25.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
     },
     {
       "source_id": "new_chat",
-      "native_id": "beauty_0_1",
+      "native_id": "beauty_0_3",
       "parent": "page",
-      "kind": "button",
-      "component": "NativeButton939d519a17bf",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
       "semantic_role": "button",
       "bounds": [
-        27.95,
-        129.02,
-        103.12,
-        38.6
+        16.0,
+        109.0,
+        374.0,
+        76.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "new_chat_surface",
+      "native_id": "beauty_0_3_0",
+      "parent": "new_chat",
+      "kind": "stack",
+      "component": "Surface2c8289ea3ffc",
+      "semantic_role": "layout",
+      "bounds": [
+        16.0,
+        109.0,
+        374.0,
+        76.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "new_chat_control",
+      "native_id": "beauty_0_3_1",
+      "parent": "new_chat",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        16.0,
+        109.0,
+        374.0,
+        76.0
       ],
       "text": null,
       "enabled": 1,
@@ -56,35 +128,89 @@
       "size": null
     },
     {
-      "source_id": "t02",
-      "native_id": "beauty_0_1_0",
+      "source_id": "new_chat_label",
+      "native_id": "beauty_0_3_2",
       "parent": "new_chat",
       "kind": "text",
-      "component": "Text272e9dc0441e",
+      "component": "Text0cb52ec5325c",
       "semantic_role": "text",
       "bounds": [
-        36.24406332453826,
+        37.04,
         136.0,
         86.0,
         23.0
       ],
       "text": "New chat",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 25.66754617414248
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 18.12
+    },
+    {
+      "source_id": "icon_compose",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        347.0,
+        130.0,
+        24.0,
+        28.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
     },
     {
       "source_id": "thread_1",
-      "native_id": "beauty_0_2",
+      "native_id": "beauty_0_5",
       "parent": "page",
-      "kind": "button",
-      "component": "NativeButton939d519a17bf",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
       "semantic_role": "button",
       "bounds": [
-        24.22,
-        221.5,
-        325.33,
-        48.5
+        14.0,
+        204.0,
+        379.0,
+        78.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "thread_1_surface",
+      "native_id": "beauty_0_5_0",
+      "parent": "thread_1",
+      "kind": "stack",
+      "component": "Surface8f954c9fd892",
+      "semantic_role": "layout",
+      "bounds": [
+        14.0,
+        204.0,
+        379.0,
+        78.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "thread_1_control",
+      "native_id": "beauty_0_5_1",
+      "parent": "thread_1",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        14.0,
+        204.0,
+        379.0,
+        78.0
       ],
       "text": null,
       "enabled": 1,
@@ -92,35 +218,71 @@
       "size": null
     },
     {
-      "source_id": "t03",
-      "native_id": "beauty_0_2_0",
+      "source_id": "thread_1_label",
+      "native_id": "beauty_0_5_2",
       "parent": "thread_1",
       "kind": "text",
-      "component": "Text9914a6d576d0",
+      "component": "Text68bd508108d5",
       "semantic_role": "text",
       "bounds": [
-        36.29253960143076,
+        37.04,
         231.0,
         302.0,
         28.0
       ],
       "text": "Fix steer queue drop on reconnect",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 25.11599386816556
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 18.1
     },
     {
       "source_id": "thread_2",
-      "native_id": "beauty_0_3",
+      "native_id": "beauty_0_6",
       "parent": "page",
-      "kind": "button",
-      "component": "NativeButton939d519a17bf",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
       "semantic_role": "button",
       "bounds": [
-        26.96,
-        305.5,
-        161.48,
-        37.5
+        16.0,
+        299.5,
+        374.0,
+        49.5
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "thread_2_surface",
+      "native_id": "beauty_0_6_0",
+      "parent": "thread_2",
+      "kind": "stack",
+      "component": "Surface5e06c9b428ce",
+      "semantic_role": "layout",
+      "bounds": [
+        16.0,
+        299.5,
+        374.0,
+        49.5
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "thread_2_control",
+      "native_id": "beauty_0_6_1",
+      "parent": "thread_2",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        16.0,
+        299.5,
+        374.0,
+        49.5
       ],
       "text": null,
       "enabled": 1,
@@ -128,14 +290,14 @@
       "size": null
     },
     {
-      "source_id": "t04",
-      "native_id": "beauty_0_3_0",
+      "source_id": "thread_2_label",
+      "native_id": "beauty_0_6_2",
       "parent": "thread_2",
       "kind": "text",
-      "component": "Textf877b5725cc3",
+      "component": "Textaa698d2fd403",
       "semantic_role": "text",
       "bounds": [
-        36.39267676767677,
+        36.55,
         312.0,
         145.5,
         22.5
@@ -143,20 +305,56 @@
       "text": "Add session fork",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 23.91919191919192
+      "size": 17.75
     },
     {
       "source_id": "thread_3",
-      "native_id": "beauty_0_4",
+      "native_id": "beauty_0_7",
       "parent": "page",
-      "kind": "button",
-      "component": "NativeButton939d519a17bf",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
       "semantic_role": "button",
       "bounds": [
-        28.09,
-        386.77,
-        164.87,
-        40.81
+        16.0,
+        380.77,
+        374.0,
+        52.81
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "thread_3_surface",
+      "native_id": "beauty_0_7_0",
+      "parent": "thread_3",
+      "kind": "stack",
+      "component": "Surface716f7b9e59a5",
+      "semantic_role": "layout",
+      "bounds": [
+        16.0,
+        380.77,
+        374.0,
+        52.81
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "thread_3_control",
+      "native_id": "beauty_0_7_1",
+      "parent": "thread_3",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        16.0,
+        380.77,
+        374.0,
+        52.81
       ],
       "text": null,
       "enabled": 1,
@@ -164,14 +362,14 @@
       "size": null
     },
     {
-      "source_id": "t05",
-      "native_id": "beauty_0_4_0",
+      "source_id": "thread_3_label",
+      "native_id": "beauty_0_7_2",
       "parent": "thread_3",
       "kind": "text",
-      "component": "Text794302f84e15",
+      "component": "Textfa82cc3abc92",
       "semantic_role": "text",
       "bounds": [
-        35.81190019193858,
+        36.47,
         395.5,
         149.5,
         23.0
@@ -179,20 +377,56 @@
       "text": "Review PR #2566",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 24.89571337172105
+      "size": 17.42
     },
     {
       "source_id": "thread_4",
-      "native_id": "beauty_0_5",
+      "native_id": "beauty_0_8",
       "parent": "page",
-      "kind": "button",
-      "component": "NativeButton939d519a17bf",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
       "semantic_role": "button",
       "bounds": [
-        28.09,
-        473.5,
-        274.26,
-        42.06
+        16.0,
+        467.5,
+        374.0,
+        54.06
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "thread_4_surface",
+      "native_id": "beauty_0_8_0",
+      "parent": "thread_4",
+      "kind": "stack",
+      "component": "Surface5e06c9b428ce",
+      "semantic_role": "layout",
+      "bounds": [
+        16.0,
+        467.5,
+        374.0,
+        54.06
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "thread_4_control",
+      "native_id": "beauty_0_8_1",
+      "parent": "thread_4",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        16.0,
+        467.5,
+        374.0,
+        54.06
       ],
       "text": null,
       "enabled": 1,
@@ -200,14 +434,14 @@
       "size": null
     },
     {
-      "source_id": "t06",
-      "native_id": "beauty_0_5_0",
+      "source_id": "thread_4_label",
+      "native_id": "beauty_0_8_2",
       "parent": "thread_4",
       "kind": "text",
-      "component": "Text6c25d3b6d21d",
+      "component": "Text209fc50dee4a",
       "semantic_role": "text",
       "bounds": [
-        35.71265560165975,
+        36.46,
         480.5,
         258.5,
         28.5
@@ -215,20 +449,56 @@
       "text": "Bump octos-core to a6ea8505",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 26.024896265560166
+      "size": 17.57
     },
     {
       "source_id": "thread_5",
-      "native_id": "beauty_0_6",
+      "native_id": "beauty_0_9",
       "parent": "page",
-      "kind": "button",
-      "component": "NativeButton939d519a17bf",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
       "semantic_role": "button",
       "bounds": [
-        26.96,
-        557.0,
-        195.32,
-        43.15
+        16.0,
+        551.0,
+        374.0,
+        55.15
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "thread_5_surface",
+      "native_id": "beauty_0_9_0",
+      "parent": "thread_5",
+      "kind": "stack",
+      "component": "Surface5e06c9b428ce",
+      "semantic_role": "layout",
+      "bounds": [
+        16.0,
+        551.0,
+        374.0,
+        55.15
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "thread_5_control",
+      "native_id": "beauty_0_9_1",
+      "parent": "thread_5",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        16.0,
+        551.0,
+        374.0,
+        55.15
       ],
       "text": null,
       "enabled": 1,
@@ -236,14 +506,14 @@
       "size": null
     },
     {
-      "source_id": "t07",
-      "native_id": "beauty_0_6_0",
+      "source_id": "thread_5_label",
+      "native_id": "beauty_0_9_2",
       "parent": "thread_5",
       "kind": "text",
-      "component": "Text3bcc9ac8d090",
+      "component": "Textbe1a2af7f457",
       "semantic_role": "text",
       "bounds": [
-        35.864885496183206,
+        36.06,
         564.5,
         179.5,
         28.0
@@ -251,13 +521,32 @@
       "text": "Why is hydrate slow?",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 25.013740458015267
+      "size": 17.44
+    },
+    {
+      "source_id": "icon_fork",
+      "native_id": "beauty_0_10",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        352.0,
+        310.5,
+        19.0,
+        26.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
     }
   ],
   "fonts": {
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "bce0597e02cf588384c7d8a6d922fd50ab638b09806b31740d212c9ea619a2f2",
+  "contract_sha256": "7e2b1c64328ccdb0f72218df2b9f44a4fa72abd24b553d0c9f5cc09ae7eacfff",
   "mapping_basis": "mapped.json"
 }

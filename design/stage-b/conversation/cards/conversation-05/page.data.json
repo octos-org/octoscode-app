@@ -12,102 +12,75 @@
         }
       },
       "t01": {
-        "component": "Text302b6ef6aea4",
+        "component": "Text8cb1e9073ec4",
         "layout": {
-          "x": 77.8219696969697,
+          "x": 78.42,
           "y": 95.5,
           "w": 209.5,
           "h": 27.0
         }
       },
       "t02": {
-        "component": "Text14214d12b99a",
+        "component": "Text35f0a2e18a80",
         "layout": {
-          "x": 34.701298701298704,
+          "x": 34.93,
           "y": 188.0,
           "w": 322.0,
           "h": 29.0
         }
       },
       "t03": {
-        "component": "Textb81f047caaf8",
+        "component": "Text0ec9c7831f76",
         "layout": {
-          "x": 19.78688524590164,
+          "x": 20.38,
           "y": 274.5,
           "w": 297.0,
           "h": 23.5
         }
       },
       "t04": {
-        "component": "Text8d94763719d8",
+        "component": "Text37f3e2fa568e",
         "layout": {
-          "x": 19.78965517241379,
+          "x": 20.11,
           "y": 317.0,
           "w": 66.5,
-          "h": 17.5
-        }
-      },
-      "approve_once": {
-        "component": "NativeButton939d519a17bf",
-        "layout": {
-          "x": 128.31,
-          "y": 381.55,
-          "w": 141.48,
-          "h": 44.48
+          "h": 21.22
         }
       },
       "t05": {
-        "component": "Text287a999af11e",
+        "component": "Text4babf535c3bd",
         "layout": {
-          "x": 134.15513626834382,
+          "x": 134.51,
           "y": 386.5,
           "w": 132.0,
           "h": 35.0
         }
       },
-      "approve_session": {
-        "component": "NativeButton939d519a17bf",
-        "layout": {
-          "x": 101.48,
-          "y": 463.66,
-          "w": 196.59,
-          "h": 49.14
-        }
-      },
       "t06": {
-        "component": "Text023a2761d3ab",
+        "component": "Texteaf9cf71c02e",
         "layout": {
-          "x": 113.3427704752275,
+          "x": 113.54,
           "y": 472.5,
           "w": 175.5,
           "h": 29.0
         }
       },
-      "deny": {
-        "component": "NativeButton939d519a17bf",
-        "layout": {
-          "x": 162.29,
-          "y": 544.67,
-          "w": 63.37,
-          "h": 43.07
-        }
-      },
       "t07": {
-        "component": "Text7655be70583a",
+        "component": "Textd69d397afce1",
         "layout": {
-          "x": 170.15135699373695,
+          "x": 170.93,
           "y": 551.5,
           "w": 48.0,
           "h": 29.0
         }
       },
       "t08": {
-        "component": "Text19749189e0cf",
+        "component": "Text67f5fdec256d",
         "layout": {
-          "x": 154.902466367713,
+          "x": 154.98,
           "y": 651.0,
           "w": 79.0,
-          "h": 24.5
+          "h": 24.94
         }
       }
     },

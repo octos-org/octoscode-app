@@ -72,14 +72,171 @@
       "bg": 4294901502
     },
     {
-      "id": "composer_input",
+      "id": "composer_idle",
       "bounds": [
-        22.22,
-        158.56,
-        200.0,
-        46.07
+        17.0,
+        130.0,
+        374.0,
+        190.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 12.67
+    },
+    {
+      "id": "composer_idle_input",
+      "bounds": [
+        31.0,
+        140.556,
+        300.0,
+        42.222
       ],
       "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "icon_plus1",
+      "bounds": [
+        31.0,
+        258.778,
+        18.0,
+        25.333
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "pill1",
+      "bounds": [
+        66.0,
+        251.0,
+        122.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 23.0
+    },
+    {
+      "id": "icon_mic1",
+      "bounds": [
+        307.0,
+        255.611,
+        16.0,
+        28.5
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "send1",
+      "bounds": [
+        345.0,
+        248.222,
+        36.0,
+        38.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4278452995,
+      "radius": 18.0
+    },
+    {
+      "id": "icon_send",
+      "bounds": [
+        355.0,
+        258.778,
+        16.0,
+        16.889
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "queued_row",
+      "bounds": [
+        15.0,
+        409.0,
+        240.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294440952,
+      "radius": 12.59
+    },
+    {
+      "id": "composer_active",
+      "bounds": [
+        16.0,
+        476.0,
+        374.0,
+        180.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 12.27
+    },
+    {
+      "id": "icon_plus2",
+      "bounds": [
+        28.0,
+        600.773,
+        18.0,
+        24.545
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "pill2",
+      "bounds": [
+        66.0,
+        586.0,
+        122.0,
+        47.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 23.5
+    },
+    {
+      "id": "icon_mic2",
+      "bounds": [
+        306.0,
+        600.773,
+        16.0,
+        26.591
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "stop2",
+      "bounds": [
+        346.0,
+        592.591,
+        36.0,
+        36.818
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4278650631,
+      "radius": 18.0
+    },
+    {
+      "id": "icon_stop2",
+      "bounds": [
+        356.0,
+        602.818,
+        16.0,
+        16.364
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
     }
   ]

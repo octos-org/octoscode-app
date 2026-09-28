@@ -3,70 +3,46 @@
 # profile: ui/l0
 # Static design fixture, runtime native Kit composition.
 theme light
-copy t01_text { class: user-copy, en: "Worked for 3m 4s ›" }
-copy t02_text { class: user-copy, en: "Queued steers now survive a reconnect." }
-copy t03_text { class: user-copy, en: "• Fixed loss of queuedsteers when" }
-copy t04_text { class: user-copy, en: "reconnecting after a drop in" }
-copy t05_text { class: user-copy, en: "steer_dropped handling." }
-copy t06_text { class: user-copy, en: "• Updated ui_protocol_transport.rs" }
-copy t07_text { class: user-copy, en: "to persist queued steers to the" }
-copy t08_text { class: user-copy, en: "session ledger." }
-copy t09_text { class: user-copy, en: "• All tests pass: 12 passed ." }
-copy t10_text { class: user-copy, en: "• Changes included in commit a6ea8505 ." }
+copy worked_row_label_text { class: user-copy, en: "Worked for 3m 4s ›" }
+copy answer_md_text { class: user-copy, en: "Queued steers now survive a reconnect.\n\n• Fixed loss of queued steers when reconnecting after a drop in `steer_dropped` handling.\n\n• Updated `ui_protocol_transport.rs` to persist queued steers to the session ledger.\n\n• All tests pass: `12 passed`.\n\n• Changes included in commit `a6ea8505`." }
 copy t11_text { class: user-copy, en: "Sep 28, 9:41 PM" }
-state worked_row_enabled { shape: bool, initial: true }
+state worked_row_control_enabled { shape: bool, initial: true }
 component Surface16fae9a63e16(instance: text) {
   view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
 }
-component NativeButton939d519a17bf(instance: text, enabled: bool) {
-  view Kit(component: "NativeButton939d519a17bf", instance: instance, enabled: enabled) { slot }
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
 }
-component Textb3c7b3552785(instance: text, text: text) {
-  view Kit(component: "Textb3c7b3552785", instance: instance, text: text)
+component Surface5e06c9b428ce(instance: text) {
+  view Kit(component: "Surface5e06c9b428ce", instance: instance) { slot }
 }
-component Text36d364e24c7e(instance: text, text: text) {
-  view Kit(component: "Text36d364e24c7e", instance: instance, text: text)
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
 }
-component Textdf1a5af79db9(instance: text, text: text) {
-  view Kit(component: "Textdf1a5af79db9", instance: instance, text: text)
+component Textf545a5164562(instance: text, text: text) {
+  view Kit(component: "Textf545a5164562", instance: instance, text: text)
 }
-component Textad17ce310e92(instance: text, text: text) {
-  view Kit(component: "Textad17ce310e92", instance: instance, text: text)
+component Textf628ddef93a6(instance: text, text: text) {
+  view Kit(component: "Textf628ddef93a6", instance: instance, text: text)
 }
-component Text41f0641eda64(instance: text, text: text) {
-  view Kit(component: "Text41f0641eda64", instance: instance, text: text)
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
-component Text16dbd377bf97(instance: text, text: text) {
-  view Kit(component: "Text16dbd377bf97", instance: instance, text: text)
-}
-component Texta87908f3c033(instance: text, text: text) {
-  view Kit(component: "Texta87908f3c033", instance: instance, text: text)
-}
-component Text207aca9a7fbc(instance: text, text: text) {
-  view Kit(component: "Text207aca9a7fbc", instance: instance, text: text)
-}
-component Textb33e49d69b37(instance: text, text: text) {
-  view Kit(component: "Textb33e49d69b37", instance: instance, text: text)
-}
-component Textc5e8a9e6f0ae(instance: text, text: text) {
-  view Kit(component: "Textc5e8a9e6f0ae", instance: instance, text: text)
-}
-component Text7d50eb9afbf6(instance: text, text: text) {
-  view Kit(component: "Text7d50eb9afbf6", instance: instance, text: text)
+component Texta0abe1806ac3(instance: text, text: text) {
+  view Kit(component: "Texta0abe1806ac3", instance: instance, text: text)
 }
 
 view root Surface16fae9a63e16(instance: "page") {
-  NativeButton939d519a17bf(instance: "worked_row", enabled: worked_row_enabled) {
-    Textb3c7b3552785(instance: "t01", text: copy.t01_text)
+  KitButton2c6804b990a5(instance: "worked_row") {
+    Surface5e06c9b428ce(instance: "worked_row_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "worked_row_control", enabled: worked_row_control_enabled)
+    Textf545a5164562(instance: "worked_row_label", text: copy.worked_row_label_text)
   }
-  Text36d364e24c7e(instance: "t02", text: copy.t02_text)
-  Textdf1a5af79db9(instance: "t03", text: copy.t03_text)
-  Textad17ce310e92(instance: "t04", text: copy.t04_text)
-  Text41f0641eda64(instance: "t05", text: copy.t05_text)
-  Text16dbd377bf97(instance: "t06", text: copy.t06_text)
-  Texta87908f3c033(instance: "t07", text: copy.t07_text)
-  Text207aca9a7fbc(instance: "t08", text: copy.t08_text)
-  Textb33e49d69b37(instance: "t09", text: copy.t09_text)
-  Textc5e8a9e6f0ae(instance: "t10", text: copy.t10_text)
-  Text7d50eb9afbf6(instance: "t11", text: copy.t11_text)
+  Textf628ddef93a6(instance: "answer_md", text: copy.answer_md_text)
+  Vectore0a378fde04f(instance: "icon_copy")
+  Vectore0a378fde04f(instance: "icon_thumbs")
+  Vectore0a378fde04f(instance: "icon_share")
+  Texta0abe1806ac3(instance: "t11", text: copy.t11_text)
 }

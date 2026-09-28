@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "21f3d56b1c964214693ab357a3eb0b24e73f429538350d5c5ae35094c942605a",
+  "contract_sha256": "aef4dc076427e31281c566c912927504097d744a902a60bdb06ca2f8b1fb7f76",
   "reference_sha256": "f0c5063d5ef28d36e17bc1b77314478d4493a9a04897fbb6c050db5a10d7f874",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -41,13 +41,6 @@
       "decision": "declared"
     },
     {
-      "id": "approve_once",
-      "role": "button",
-      "basis": "authored button node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
       "id": "t05",
       "role": "text",
       "basis": "authored text node",
@@ -55,23 +48,9 @@
       "decision": "declared"
     },
     {
-      "id": "approve_session",
-      "role": "button",
-      "basis": "authored button node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
       "id": "t06",
       "role": "text",
       "basis": "authored text node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "deny",
-      "role": "button",
-      "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },

@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "ad698ece62cc01ce64450f29721acd9d49b7b6266a6cb0a80b8a466ae42eb3aa",
+  "manifest_sha256": "3b2c40963052af93c26bb286dddacca7649ce43c0f80459c051018649d97c65d",
   "reference_sha256": "021709d23fa93ac7352248edbbdbfab04e5304817caf2e2f989987a69aae17bf",
   "id": "conversation-01",
   "round": null,
@@ -35,7 +35,56 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
+      "id": "icon_bell",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "icon_search",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
       "id": "new_chat",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "expected_widgets": [
+        "Button",
+        "KitButton"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a native control and verify its declared action."
+    },
+    {
+      "id": "new_chat_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "new_chat_control",
       "role": "button",
       "basis": "authored button node",
       "expected_widgets": [
@@ -47,7 +96,7 @@
       "repair": "Use a native control and verify its declared action."
     },
     {
-      "id": "t02",
+      "id": "new_chat_label",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -59,7 +108,43 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
+      "id": "icon_compose",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
       "id": "thread_1",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "expected_widgets": [
+        "Button",
+        "KitButton"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a native control and verify its declared action."
+    },
+    {
+      "id": "thread_1_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "thread_1_control",
       "role": "button",
       "basis": "authored button node",
       "expected_widgets": [
@@ -71,7 +156,7 @@
       "repair": "Use a native control and verify its declared action."
     },
     {
-      "id": "t03",
+      "id": "thread_1_label",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -85,6 +170,29 @@
     {
       "id": "thread_2",
       "role": "button",
+      "basis": "authored KitButton composition",
+      "expected_widgets": [
+        "Button",
+        "KitButton"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a native control and verify its declared action."
+    },
+    {
+      "id": "thread_2_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "thread_2_control",
+      "role": "button",
       "basis": "authored button node",
       "expected_widgets": [
         "Button",
@@ -95,7 +203,7 @@
       "repair": "Use a native control and verify its declared action."
     },
     {
-      "id": "t04",
+      "id": "thread_2_label",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -109,6 +217,29 @@
     {
       "id": "thread_3",
       "role": "button",
+      "basis": "authored KitButton composition",
+      "expected_widgets": [
+        "Button",
+        "KitButton"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a native control and verify its declared action."
+    },
+    {
+      "id": "thread_3_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "thread_3_control",
+      "role": "button",
       "basis": "authored button node",
       "expected_widgets": [
         "Button",
@@ -119,7 +250,7 @@
       "repair": "Use a native control and verify its declared action."
     },
     {
-      "id": "t05",
+      "id": "thread_3_label",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -133,6 +264,29 @@
     {
       "id": "thread_4",
       "role": "button",
+      "basis": "authored KitButton composition",
+      "expected_widgets": [
+        "Button",
+        "KitButton"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a native control and verify its declared action."
+    },
+    {
+      "id": "thread_4_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "thread_4_control",
+      "role": "button",
       "basis": "authored button node",
       "expected_widgets": [
         "Button",
@@ -143,7 +297,7 @@
       "repair": "Use a native control and verify its declared action."
     },
     {
-      "id": "t06",
+      "id": "thread_4_label",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -157,6 +311,29 @@
     {
       "id": "thread_5",
       "role": "button",
+      "basis": "authored KitButton composition",
+      "expected_widgets": [
+        "Button",
+        "KitButton"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a native control and verify its declared action."
+    },
+    {
+      "id": "thread_5_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "thread_5_control",
+      "role": "button",
       "basis": "authored button node",
       "expected_widgets": [
         "Button",
@@ -167,7 +344,7 @@
       "repair": "Use a native control and verify its declared action."
     },
     {
-      "id": "t07",
+      "id": "thread_5_label",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -177,6 +354,19 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "icon_fork",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
     }
   ],
   "scope": "Semantic mapping checks only; geometry, visual fidelity and complete app workflows remain separate."

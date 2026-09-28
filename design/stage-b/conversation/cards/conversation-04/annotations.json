@@ -62,35 +62,120 @@
     {
       "id": "tool_1",
       "bounds": [
-        79.97,
-        69.83,
-        247.19,
-        38.67
+        18.0,
+        47.0,
+        371.0,
+        105.0
       ],
-      "method": "inferred semantic extent from observed parent",
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 13.7
+    },
+    {
+      "id": "icon_file",
+      "bounds": [
+        43.791,
+        74.391,
+        23.807,
+        29.674
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_check1",
+      "bounds": [
+        355.273,
+        71.915,
+        19.84,
+        22.826
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
     },
     {
       "id": "tool_2",
       "bounds": [
-        79.97,
-        197.28,
-        193.06,
-        40.81
+        18.0,
+        178.0,
+        371.0,
+        103.0
       ],
-      "method": "inferred semantic extent from observed parent",
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.43
+    },
+    {
+      "id": "icon_search2",
+      "bounds": [
+        41.807,
+        202.63,
+        23.807,
+        26.87
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_check2",
+      "bounds": [
+        355.273,
+        199.585,
+        19.84,
+        22.391
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
     },
     {
       "id": "tool_3",
       "bounds": [
-        27.44,
-        328.27,
-        286.67,
-        48.33
+        18.0,
+        307.0,
+        371.0,
+        370.0
       ],
-      "method": "inferred semantic extent from observed parent",
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294309367,
+      "radius": 12.47
+    },
+    {
+      "id": "icon_term",
+      "bounds": [
+        41.807,
+        331.944,
+        21.824,
+        22.865
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
+    },
+    {
+      "id": "icon_check3",
+      "bounds": [
+        355.273,
+        328.067,
+        19.84,
+        20.787
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "tool_3_output",
+      "bounds": [
+        29.0,
+        409.0,
+        348.0,
+        242.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294243574,
+      "radius": 7.74
     }
   ]
 }

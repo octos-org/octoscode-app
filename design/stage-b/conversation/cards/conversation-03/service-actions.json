@@ -4,10 +4,10 @@
     "composer_input": {
       "event": "composer.draft",
       "source_bounds": [
-        21,
-        593,
-        200,
-        41
+        30,
+        594,
+        300,
+        40
       ],
       "enabled": true
     }

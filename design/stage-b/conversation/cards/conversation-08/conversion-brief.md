@@ -24,24 +24,35 @@ legacy Studio capture/gate adapters require their own evidence schema.
 [
   {
     "id": "page",
-    "x": 0,
-    "y": 0,
-    "w": 406,
-    "h": 776,
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
     "role": "layout",
     "native_candidates": [
       "View"
     ]
   },
   {
-    "id": "composer_input",
-    "x": 22.22,
-    "y": 158.56,
-    "w": 200,
-    "h": 46.07,
+    "id": "composer_idle",
+    "x": 16.0,
+    "y": 140.0,
+    "w": 374.0,
+    "h": 180.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "composer_idle_input",
+    "x": 30.0,
+    "y": 150.0,
+    "w": 300.0,
+    "h": 40.0,
     "text": "",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 21.65,
+    "size": 15,
     "weight": 400,
     "role": "input",
     "native_candidates": [
@@ -50,67 +61,95 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t01",
-    "x": 30.215171617750414,
-    "y": 166.5588828563699,
-    "w": 164.0,
-    "h": 32.47,
-    "text": "Ask Octos anything",
-    "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 21.65,
-    "weight": 600,
-    "role": "text",
+    "id": "icon_plus1",
+    "x": 30.0,
+    "y": 262.0,
+    "w": 18.0,
+    "h": 24.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "pill1",
+    "x": 66.67,
+    "y": 260.09,
+    "w": 122.67,
+    "h": 34.62,
+    "role": "layout",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "View"
     ]
   },
   {
-    "id": "t02",
-    "x": 23.68,
-    "y": 257.16,
-    "w": 32.71,
-    "h": 39.48,
-    "text": "+",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 22,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t03",
+    "id": "pill1_t",
     "x": 76.67,
     "y": 266.09,
     "w": 102.67,
-    "h": 23.36,
+    "h": 21.62,
     "text": "Ask for approval",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.57,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
       "Label",
       "TextFlow"
     ]
+  },
+  {
+    "id": "icon_mic1",
+    "x": 306.0,
+    "y": 259.0,
+    "w": 16.0,
+    "h": 27.0,
+    "role": "unknown",
+    "native_candidates": []
   },
   {
     "id": "t04",
     "x": 213.13,
     "y": 270.62,
     "w": 74.47,
-    "h": 20.88,
+    "h": 19.5,
     "text": "v4-flash \u25be",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 13.92,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 13,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
       "TextFlow"
+    ]
+  },
+  {
+    "id": "send1",
+    "x": 344.0,
+    "y": 252.0,
+    "w": 36.0,
+    "h": 36.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "icon_send",
+    "x": 354.0,
+    "y": 262.0,
+    "w": 16.0,
+    "h": 16.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "queued_row",
+    "x": 16.0,
+    "y": 417.48,
+    "w": 237.77,
+    "h": 43.69,
+    "role": "layout",
+    "native_candidates": [
+      "View"
     ]
   },
   {
@@ -118,15 +157,26 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 30.45,
     "y": 427.48,
     "w": 209.77,
-    "h": 25.58,
+    "h": 23.69,
     "text": "1 queued \u00b7 Steer now \u00b7 \u2715",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 17.05,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 13,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
       "TextFlow"
+    ]
+  },
+  {
+    "id": "composer_active",
+    "x": 16.0,
+    "y": 476.0,
+    "w": 374.0,
+    "h": 176.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
     ]
   },
   {
@@ -134,10 +184,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 29.32,
     "y": 507.5,
     "w": 237.96,
-    "h": 24.42,
+    "h": 22.62,
     "text": "also add a test for reconnect",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.28,
+    "size": 15,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -146,52 +196,85 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t07",
-    "x": 25.94,
-    "y": 594.41,
-    "w": 28.19,
-    "h": 36.09,
-    "text": "+",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 22,
-    "weight": 400,
-    "role": "text",
+    "id": "icon_plus2",
+    "x": 28.0,
+    "y": 598.0,
+    "w": 18.0,
+    "h": 24.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "pill2",
+    "x": 66.63,
+    "y": 596.02,
+    "w": 122.74,
+    "h": 33.86,
+    "role": "layout",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "View"
     ]
   },
   {
-    "id": "t08",
+    "id": "pill2_t",
     "x": 76.63,
     "y": 602.02,
     "w": 102.74,
-    "h": 22.53,
+    "h": 20.86,
     "text": "Ask for approval",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.02,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
       "Label",
       "TextFlow"
     ]
+  },
+  {
+    "id": "icon_mic2",
+    "x": 306.0,
+    "y": 598.0,
+    "w": 16.0,
+    "h": 26.0,
+    "role": "unknown",
+    "native_candidates": []
   },
   {
     "id": "t09",
     "x": 213.08,
     "y": 604.29,
     "w": 74.58,
-    "h": 22.5,
+    "h": 20.84,
     "text": "v4-flash \u25be",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.0,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 13,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
       "TextFlow"
     ]
+  },
+  {
+    "id": "stop2",
+    "x": 346.0,
+    "y": 590.0,
+    "w": 36.0,
+    "h": 36.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "icon_stop2",
+    "x": 356.0,
+    "y": 600.0,
+    "w": 16.0,
+    "h": 16.0,
+    "role": "unknown",
+    "native_candidates": []
   }
 ]
 ```
