@@ -80,3 +80,11 @@ build standalone with no `[patch]`. Path deps are for the local dev loop only.
 Lanes self-validate UI with the headless harness (hidden window, real input, the app's own `/g`, clean exit). The
 outer loop re-runs a sample. Known limits: needs the macOS GUI session; `--remote` is compiled out on Android. Known
 red: 7 appcard lib tests on the clean base (`baseline.md`). Diffs aren't gated on them.
+
+## D12. Design-flow granularity: DECIDED by the operator (2026-09-28)
+The design flow's native adapter accepts only a **406×776** artboard (`flows/image-to-card/flow.py:43`), and its atlas
+prompt template forbids chat/approval UI. octoscode-app is a desktop, Codex-style window. **Decision:** use the flow for
+**components ~406 wide**, not whole windows: conversation column, tool cell, approval card, edited-files card,
+composer, thread list, settings cards, review header. Each becomes an L0 card, and the Rust host (D9) lays out the
+desktop columns (Codex's conversation column is ~540 pt, close to one component width). The atlas prompt is our own:
+it allows the coding-chat UI and keeps the flow's tooling (intake, measure, map, compile) unchanged.
