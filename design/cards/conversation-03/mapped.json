@@ -1,0 +1,442 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "20c93ab2acc37e0b32815a730cd218b3103dfabd3ca56626adb4ac5ea52edd7b",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "stack",
+        "id": "user_bubble",
+        "x": 85.0,
+        "y": 39.0,
+        "w": 302.0,
+        "h": 103.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t01",
+            "text": "Fix the steer queue so queued",
+            "x": 106.6,
+            "y": 60.0,
+            "w": 255.5,
+            "h": 27.5,
+            "size": 17.4,
+            "line_height": 21.05,
+            "weight": 500,
+            "color": 4294638587,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "t02",
+            "text": "steers survive a reconnect",
+            "x": 106.67,
+            "y": 97.5,
+            "w": 224.5,
+            "h": 23.0,
+            "size": 17.33,
+            "line_height": 20.97,
+            "weight": 500,
+            "color": 4294835709,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          }
+        ],
+        "variant": "surface",
+        "bg": 4278387458,
+        "radius": 19.37
+      },
+      {
+        "t": "svg",
+        "id": "icon_spinner",
+        "x": 44.0,
+        "y": 198.0,
+        "w": 18.0,
+        "h": 18.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t03",
+        "text": "Working \u2022 12s",
+        "x": 66.05,
+        "y": 193.0,
+        "w": 123.5,
+        "h": 29.5,
+        "size": 17.94,
+        "line_height": 21.7,
+        "weight": 500,
+        "color": 4287730325,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "assistant_md",
+        "text": "I'm tracing how queued steers are handled across reconnects\u2026\n\nI'll run tests to confirm the fix and update the affected code\u2026",
+        "x": 21.0,
+        "y": 248.0,
+        "w": 358.0,
+        "h": 176.0,
+        "size": 17.5,
+        "line_height": 35.0,
+        "weight": 400,
+        "color": 4280098079,
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "stack",
+        "id": "chips",
+        "x": 24.0,
+        "y": 501.62,
+        "w": 358.0,
+        "h": 35.56,
+        "c": [
+          {
+            "t": "stack",
+            "id": "chip_ws",
+            "x": 19.0,
+            "y": 496.0,
+            "w": 80.0,
+            "h": 44.0,
+            "c": [
+              {
+                "t": "text",
+                "id": "t08",
+                "text": "octos",
+                "x": 40.35,
+                "y": 509.5,
+                "w": 41.0,
+                "h": 18.0,
+                "size": 13.89,
+                "line_height": 16.8,
+                "weight": 500,
+                "color": 4279966491,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf",
+                "tracking": 0.0
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294835709,
+            "radius": 22.0,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "stack",
+            "id": "chip_mode",
+            "x": 117.0,
+            "y": 496.0,
+            "w": 74.0,
+            "h": 44.0,
+            "c": [
+              {
+                "t": "text",
+                "id": "t09",
+                "text": "Local",
+                "x": 133.39,
+                "y": 507.5,
+                "w": 39.5,
+                "h": 20.0,
+                "size": 13.83,
+                "line_height": 16.74,
+                "weight": 500,
+                "color": 4281677109,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf",
+                "tracking": 0.0
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294835709,
+            "radius": 22.0,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "stack",
+            "id": "chip_branch",
+            "x": 215.0,
+            "y": 496.0,
+            "w": 151.0,
+            "h": 44.0,
+            "c": [
+              {
+                "t": "text",
+                "id": "t10",
+                "text": "feat/steer-queue",
+                "x": 231.86,
+                "y": 508.0,
+                "w": 120.5,
+                "h": 24.5,
+                "size": 14.31,
+                "line_height": 17.31,
+                "weight": 500,
+                "color": 4280887594,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf",
+                "tracking": 0.0
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294835709,
+            "radius": 22.0,
+            "border": 1,
+            "bordercolor": 4293256679
+          }
+        ]
+      },
+      {
+        "t": "stack",
+        "id": "composer",
+        "x": 15.0,
+        "y": 569.0,
+        "w": 377.0,
+        "h": 171.0,
+        "c": [
+          {
+            "t": "input",
+            "id": "composer_input",
+            "text": "",
+            "placeholder": "Ask Octos anything",
+            "x": 29.112,
+            "y": 580.4,
+            "w": 302.406,
+            "h": 45.6,
+            "size": 15,
+            "line_height": 40.0,
+            "weight": 400,
+            "color": 4285427315,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "enabled": 1,
+            "c": []
+          },
+          {
+            "t": "svg",
+            "id": "icon_plus",
+            "x": 27.096,
+            "y": 684.14,
+            "w": 18.144,
+            "h": 27.36,
+            "src": ""
+          },
+          {
+            "t": "stack",
+            "id": "approval_pill",
+            "x": 63.0,
+            "y": 674.0,
+            "w": 122.0,
+            "h": 44.0,
+            "c": [
+              {
+                "t": "text",
+                "id": "t13",
+                "text": "Ask for approval",
+                "x": 74.18,
+                "y": 687.5,
+                "w": 103.0,
+                "h": 22.5,
+                "size": 12.69,
+                "line_height": 15.35,
+                "weight": 400,
+                "color": 4281808952,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 0.0
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294835709,
+            "radius": 22.0,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "svg",
+            "id": "icon_mic",
+            "x": 310.35,
+            "y": 679.58,
+            "w": 17.136,
+            "h": 30.78,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "t14",
+            "text": "v4-flash \u25be",
+            "x": 216.68,
+            "y": 690.5,
+            "w": 74.0,
+            "h": 20.0,
+            "size": 14.13,
+            "line_height": 17.09,
+            "weight": 500,
+            "color": 4281413937,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "stack",
+            "id": "stop_btn",
+            "x": 347.647,
+            "y": 671.6,
+            "w": 36.289,
+            "h": 41.04,
+            "c": [
+              {
+                "t": "svg",
+                "id": "icon_stop",
+                "x": 357.727,
+                "y": 683.0,
+                "w": 16.128,
+                "h": 18.24,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4278519045,
+            "radius": 18.14
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 13.68,
+        "border": 1,
+        "bordercolor": 4293256679
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "user_bubble",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_spinner",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "chips",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "chip_ws",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "chip_mode",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "chip_branch",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "composer",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "composer_input",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_plus",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "approval_pill",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_mic",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "stop_btn",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_stop",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t01",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.14347120476348788
+    },
+    {
+      "id": "t02",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.14933028371710527
+    },
+    {
+      "id": "t03",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.16947189031862744
+    },
+    {
+      "id": "t08",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.18902587890625
+    },
+    {
+      "id": "t09",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.19306564331054685
+    },
+    {
+      "id": "t10",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.17331284933943095
+    },
+    {
+      "id": "t13",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.16881598395270273
+    },
+    {
+      "id": "t14",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": 0.008951822916666697
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

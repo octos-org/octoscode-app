@@ -1,0 +1,232 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "user_bubble": {
+        "component": "Surface3fb7e191a9be",
+        "layout": {
+          "x": 85.0,
+          "y": 39.0,
+          "w": 302.0,
+          "h": 103.0
+        }
+      },
+      "t01": {
+        "component": "Textc1ebd2fa9447",
+        "layout": {
+          "x": 106.6,
+          "y": 60.0,
+          "w": 255.5,
+          "h": 27.5
+        }
+      },
+      "t02": {
+        "component": "Text9434d668ed74",
+        "layout": {
+          "x": 106.67,
+          "y": 97.5,
+          "w": 224.5,
+          "h": 23.0
+        }
+      },
+      "icon_spinner": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 44.0,
+          "y": 198.0,
+          "w": 18.0,
+          "h": 18.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-03/assets/icon_spinner-68949e64fa67.svg"
+        }
+      },
+      "t03": {
+        "component": "Texta0a4e959ef2b",
+        "layout": {
+          "x": 66.05,
+          "y": 193.0,
+          "w": 123.5,
+          "h": 29.5
+        }
+      },
+      "assistant_md": {
+        "component": "Text1f98af367ebb",
+        "layout": {
+          "x": 21.0,
+          "y": 248.0,
+          "w": 358.0,
+          "h": 176.0
+        }
+      },
+      "chips": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 24.0,
+          "y": 501.62,
+          "w": 358.0,
+          "h": 35.56
+        }
+      },
+      "chip_ws": {
+        "component": "Surfacee231cd44f879",
+        "layout": {
+          "x": 19.0,
+          "y": 496.0,
+          "w": 80.0,
+          "h": 44.0
+        }
+      },
+      "t08": {
+        "component": "Text1f017ba89bfc",
+        "layout": {
+          "x": 40.35,
+          "y": 509.5,
+          "w": 41.0,
+          "h": 18.0
+        }
+      },
+      "chip_mode": {
+        "component": "Surfacee231cd44f879",
+        "layout": {
+          "x": 117.0,
+          "y": 496.0,
+          "w": 74.0,
+          "h": 44.0
+        }
+      },
+      "t09": {
+        "component": "Textb103f85eb43d",
+        "layout": {
+          "x": 133.39,
+          "y": 507.5,
+          "w": 39.5,
+          "h": 20.0
+        }
+      },
+      "chip_branch": {
+        "component": "Surfacee231cd44f879",
+        "layout": {
+          "x": 215.0,
+          "y": 496.0,
+          "w": 151.0,
+          "h": 44.0
+        }
+      },
+      "t10": {
+        "component": "Textd2ad79182009",
+        "layout": {
+          "x": 231.86,
+          "y": 508.0,
+          "w": 120.5,
+          "h": 24.5
+        }
+      },
+      "composer": {
+        "component": "Surface95f1042eb7db",
+        "layout": {
+          "x": 15.0,
+          "y": 569.0,
+          "w": 377.0,
+          "h": 171.0
+        }
+      },
+      "composer_input": {
+        "component": "Input9ca276b5cc2e",
+        "layout": {
+          "x": 29.112,
+          "y": 580.4,
+          "w": 302.406,
+          "h": 45.6
+        }
+      },
+      "icon_plus": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 27.096,
+          "y": 684.14,
+          "w": 18.144,
+          "h": 27.36,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-03/assets/icon_plus-e726c53afe21.svg"
+        }
+      },
+      "approval_pill": {
+        "component": "Surfacee231cd44f879",
+        "layout": {
+          "x": 63.0,
+          "y": 674.0,
+          "w": 122.0,
+          "h": 44.0
+        }
+      },
+      "t13": {
+        "component": "Text0cd152d08913",
+        "layout": {
+          "x": 74.18,
+          "y": 687.5,
+          "w": 103.0,
+          "h": 22.5
+        }
+      },
+      "icon_mic": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 310.35,
+          "y": 679.58,
+          "w": 17.136,
+          "h": 30.78,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-03/assets/icon_mic-e21b462810d1.svg"
+        }
+      },
+      "t14": {
+        "component": "Text401b1cb300a9",
+        "layout": {
+          "x": 216.68,
+          "y": 690.5,
+          "w": 74.0,
+          "h": 20.0
+        }
+      },
+      "stop_btn": {
+        "component": "Surface8f38f76c9144",
+        "layout": {
+          "x": 347.647,
+          "y": 671.6,
+          "w": 36.289,
+          "h": 41.04
+        }
+      },
+      "icon_stop": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 357.727,
+          "y": 683.0,
+          "w": 16.128,
+          "h": 18.24,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-03/assets/icon_stop-6a28cc1098c8.svg"
+        }
+      }
+    },
+    "bindings": [
+      {
+        "id": "composer_input",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "composer_input",
+          "property": "text"
+        }
+      }
+    ]
+  }
+}

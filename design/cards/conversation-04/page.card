@@ -1,0 +1,90 @@
+# ledger conversation-04@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t01_text { class: user-copy, en: "Read ui_protocol_transport.rs" }
+copy t02_text { class: user-copy, en: "• 412 lines" }
+copy t03_text { class: user-copy, en: "Search 'steer_dropped'" }
+copy t04_text { class: user-copy, en: "• 7 matches" }
+copy t05_text { class: user-copy, en: "Ran cargo test -p octos-cli" }
+copy t06_text { class: user-copy, en: "steer_queue" }
+copy t07_text { class: user-copy, en: "running 12 tests" }
+copy t08_text { class: user-copy, en: "···············" }
+copy t09_text { class: user-copy, en: "test steer_queue::reconnect_ok ... ok" }
+copy t10_text { class: user-copy, en: "test result: ok. 12 passed; 0 failed" }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Surface2d72cf7029d3(instance: text) {
+  view Kit(component: "Surface2d72cf7029d3", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Text3990198d8404(instance: text, text: text) {
+  view Kit(component: "Text3990198d8404", instance: instance, text: text)
+}
+component Textbed76d0b7729(instance: text, text: text) {
+  view Kit(component: "Textbed76d0b7729", instance: instance, text: text)
+}
+component Surfaceb060bdad908b(instance: text) {
+  view Kit(component: "Surfaceb060bdad908b", instance: instance) { slot }
+}
+component Textf22af036f1c2(instance: text, text: text) {
+  view Kit(component: "Textf22af036f1c2", instance: instance, text: text)
+}
+component Text163954f783be(instance: text, text: text) {
+  view Kit(component: "Text163954f783be", instance: instance, text: text)
+}
+component Surfacec46731a5743a(instance: text) {
+  view Kit(component: "Surfacec46731a5743a", instance: instance) { slot }
+}
+component Text0ce5e47c7875(instance: text, text: text) {
+  view Kit(component: "Text0ce5e47c7875", instance: instance, text: text)
+}
+component Text594e36cc2912(instance: text, text: text) {
+  view Kit(component: "Text594e36cc2912", instance: instance, text: text)
+}
+component Surface152385e55336(instance: text) {
+  view Kit(component: "Surface152385e55336", instance: instance) { slot }
+}
+component Text6e49ffedd215(instance: text, text: text) {
+  view Kit(component: "Text6e49ffedd215", instance: instance, text: text)
+}
+component Text571d65a91df7(instance: text, text: text) {
+  view Kit(component: "Text571d65a91df7", instance: instance, text: text)
+}
+component Textc9bc3027d67c(instance: text, text: text) {
+  view Kit(component: "Textc9bc3027d67c", instance: instance, text: text)
+}
+component Text488694eb2f0a(instance: text, text: text) {
+  view Kit(component: "Text488694eb2f0a", instance: instance, text: text)
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Surface2d72cf7029d3(instance: "tool_1") {
+    Vectore0a378fde04f(instance: "icon_file")
+    Text3990198d8404(instance: "t01", text: copy.t01_text)
+    Textbed76d0b7729(instance: "t02", text: copy.t02_text)
+    Vectore0a378fde04f(instance: "icon_check1")
+  }
+  Surfaceb060bdad908b(instance: "tool_2") {
+    Vectore0a378fde04f(instance: "icon_search2")
+    Textf22af036f1c2(instance: "t03", text: copy.t03_text)
+    Text163954f783be(instance: "t04", text: copy.t04_text)
+    Vectore0a378fde04f(instance: "icon_check2")
+  }
+  Surfacec46731a5743a(instance: "tool_3") {
+    Vectore0a378fde04f(instance: "icon_term")
+    Text0ce5e47c7875(instance: "t05", text: copy.t05_text)
+    Text594e36cc2912(instance: "t06", text: copy.t06_text)
+    Vectore0a378fde04f(instance: "icon_check3")
+    Surface152385e55336(instance: "tool_3_output") {
+      Text6e49ffedd215(instance: "t07", text: copy.t07_text)
+      Text571d65a91df7(instance: "t08", text: copy.t08_text)
+      Textc9bc3027d67c(instance: "t09", text: copy.t09_text)
+      Text488694eb2f0a(instance: "t10", text: copy.t10_text)
+    }
+  }
+}

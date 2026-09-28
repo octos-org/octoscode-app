@@ -1,0 +1,103 @@
+# ledger conversation-03@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t01_text { class: user-copy, en: "Fix the steer queue so queued" }
+copy t02_text { class: user-copy, en: "steers survive a reconnect" }
+copy t03_text { class: user-copy, en: "Working • 12s" }
+copy assistant_md_text { class: user-copy, en: "I'm tracing how queued steers are handled across reconnects…\n\nI'll run tests to confirm the fix and update the affected code…" }
+copy t08_text { class: user-copy, en: "octos" }
+copy t09_text { class: user-copy, en: "Local" }
+copy t10_text { class: user-copy, en: "feat/steer-queue" }
+copy composer_input_text { class: user-copy, en: "" }
+copy composer_input_placeholder { class: user-copy, en: "Ask Octos anything" }
+copy t13_text { class: user-copy, en: "Ask for approval" }
+copy t14_text { class: user-copy, en: "v4-flash ▾" }
+state composer_input_enabled { shape: bool, initial: true }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Surface3fb7e191a9be(instance: text) {
+  view Kit(component: "Surface3fb7e191a9be", instance: instance) { slot }
+}
+component Textc1ebd2fa9447(instance: text, text: text) {
+  view Kit(component: "Textc1ebd2fa9447", instance: instance, text: text)
+}
+component Text9434d668ed74(instance: text, text: text) {
+  view Kit(component: "Text9434d668ed74", instance: instance, text: text)
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Texta0a4e959ef2b(instance: text, text: text) {
+  view Kit(component: "Texta0a4e959ef2b", instance: instance, text: text)
+}
+component Text1f98af367ebb(instance: text, text: text) {
+  view Kit(component: "Text1f98af367ebb", instance: instance, text: text)
+}
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Surfacee231cd44f879(instance: text) {
+  view Kit(component: "Surfacee231cd44f879", instance: instance) { slot }
+}
+component Text1f017ba89bfc(instance: text, text: text) {
+  view Kit(component: "Text1f017ba89bfc", instance: instance, text: text)
+}
+component Textb103f85eb43d(instance: text, text: text) {
+  view Kit(component: "Textb103f85eb43d", instance: instance, text: text)
+}
+component Textd2ad79182009(instance: text, text: text) {
+  view Kit(component: "Textd2ad79182009", instance: instance, text: text)
+}
+component Surface95f1042eb7db(instance: text) {
+  view Kit(component: "Surface95f1042eb7db", instance: instance) { slot }
+}
+component Input9ca276b5cc2e(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Input9ca276b5cc2e", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+}
+component Text0cd152d08913(instance: text, text: text) {
+  view Kit(component: "Text0cd152d08913", instance: instance, text: text)
+}
+component Text401b1cb300a9(instance: text, text: text) {
+  view Kit(component: "Text401b1cb300a9", instance: instance, text: text)
+}
+component Surface8f38f76c9144(instance: text) {
+  view Kit(component: "Surface8f38f76c9144", instance: instance) { slot }
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Surface3fb7e191a9be(instance: "user_bubble") {
+    Textc1ebd2fa9447(instance: "t01", text: copy.t01_text)
+    Text9434d668ed74(instance: "t02", text: copy.t02_text)
+  }
+  Vectore0a378fde04f(instance: "icon_spinner")
+  Texta0a4e959ef2b(instance: "t03", text: copy.t03_text)
+  Text1f98af367ebb(instance: "assistant_md", text: copy.assistant_md_text)
+  Group3d2637879433(instance: "chips") {
+    Surfacee231cd44f879(instance: "chip_ws") {
+      Text1f017ba89bfc(instance: "t08", text: copy.t08_text)
+    }
+    Surfacee231cd44f879(instance: "chip_mode") {
+      Textb103f85eb43d(instance: "t09", text: copy.t09_text)
+    }
+    Surfacee231cd44f879(instance: "chip_branch") {
+      Textd2ad79182009(instance: "t10", text: copy.t10_text)
+    }
+  }
+  Surface95f1042eb7db(instance: "composer") {
+    Input9ca276b5cc2e(instance: "composer_input", text: copy.composer_input_text, placeholder: copy.composer_input_placeholder, enabled: composer_input_enabled) {
+
+    }
+    Vectore0a378fde04f(instance: "icon_plus")
+    Surfacee231cd44f879(instance: "approval_pill") {
+      Text0cd152d08913(instance: "t13", text: copy.t13_text)
+    }
+    Vectore0a378fde04f(instance: "icon_mic")
+    Text401b1cb300a9(instance: "t14", text: copy.t14_text)
+    Surface8f38f76c9144(instance: "stop_btn") {
+      Vectore0a378fde04f(instance: "icon_stop")
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "worked_row": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 16.0,
+          "y": 32.0,
+          "w": 374.0,
+          "h": 44.0
+        }
+      },
+      "worked_row_surface": {
+        "component": "Surface5e06c9b428ce",
+        "layout": {
+          "x": 16.0,
+          "y": 32.0,
+          "w": 374.0,
+          "h": 44.0
+        }
+      },
+      "worked_row_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 32.0,
+          "w": 374.0,
+          "h": 44.0
+        }
+      },
+      "worked_row_label": {
+        "component": "Textf545a5164562",
+        "layout": {
+          "x": 26.53,
+          "y": 41.5,
+          "w": 178.0,
+          "h": 24.0
+        }
+      },
+      "answer_md": {
+        "component": "Textf8b245030bdc",
+        "layout": {
+          "x": 27.0,
+          "y": 106.0,
+          "w": 356.0,
+          "h": 492.0
+        }
+      },
+      "icon_copy": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 24.0,
+          "y": 662.0,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-09/assets/icon_copy-e71cb744fd09.svg"
+        }
+      },
+      "icon_thumbs": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 52.0,
+          "y": 662.0,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-09/assets/icon_thumbs-348cb6a4c084.svg"
+        }
+      },
+      "icon_share": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 80.0,
+          "y": 662.0,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-09/assets/icon_share-b9aa1c6b91b9.svg"
+        }
+      },
+      "t11": {
+        "component": "Texta0abe1806ac3",
+        "layout": {
+          "x": 267.64,
+          "y": 663.5,
+          "w": 121.5,
+          "h": 28.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

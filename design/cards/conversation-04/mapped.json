@@ -1,0 +1,401 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "f61d0aa1a64c1cdbeb5840251845de53eb403702e794c8d571da8827b197b45b",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "stack",
+        "id": "tool_1",
+        "x": 18.0,
+        "y": 47.0,
+        "w": 371.0,
+        "h": 105.0,
+        "c": [
+          {
+            "t": "svg",
+            "id": "icon_file",
+            "x": 43.791,
+            "y": 74.391,
+            "w": 23.807,
+            "h": 29.674,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "t01",
+            "text": "Read ui_protocol_transport.rs",
+            "x": 88.47,
+            "y": 76.0,
+            "w": 231.5,
+            "h": 23.5,
+            "size": 13.07,
+            "line_height": 15.82,
+            "weight": 500,
+            "color": 4281282352,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "t02",
+            "text": "\u2022 412 lines",
+            "x": 88.15,
+            "y": 104.0,
+            "w": 77.5,
+            "h": 19.5,
+            "size": 14.78,
+            "line_height": 17.88,
+            "weight": 400,
+            "color": 4280755751,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "svg",
+            "id": "icon_check1",
+            "x": 355.273,
+            "y": 71.915,
+            "w": 19.84,
+            "h": 22.826,
+            "src": ""
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901246,
+        "radius": 13.7,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "stack",
+        "id": "tool_2",
+        "x": 18.0,
+        "y": 178.0,
+        "w": 371.0,
+        "h": 103.0,
+        "c": [
+          {
+            "t": "svg",
+            "id": "icon_search2",
+            "x": 41.807,
+            "y": 202.63,
+            "w": 23.807,
+            "h": 26.87,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "t03",
+            "text": "Search 'steer_dropped'",
+            "x": 88.49,
+            "y": 206.5,
+            "w": 177.0,
+            "h": 23.5,
+            "size": 13.1,
+            "line_height": 15.86,
+            "weight": 500,
+            "color": 4281414194,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "t04",
+            "text": "\u2022 7 matches",
+            "x": 88.19,
+            "y": 234.5,
+            "w": 87.0,
+            "h": 19.5,
+            "size": 14.49,
+            "line_height": 17.53,
+            "weight": 400,
+            "color": 4281150766,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "svg",
+            "id": "icon_check2",
+            "x": 355.273,
+            "y": 199.585,
+            "w": 19.84,
+            "h": 22.391,
+            "src": ""
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 13.43,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "stack",
+        "id": "tool_3",
+        "x": 18.0,
+        "y": 307.0,
+        "w": 371.0,
+        "h": 370.0,
+        "c": [
+          {
+            "t": "svg",
+            "id": "icon_term",
+            "x": 41.807,
+            "y": 331.944,
+            "w": 21.824,
+            "h": 22.865,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "t05",
+            "text": "Ran cargo test -p octos-cli",
+            "x": 86.45,
+            "y": 335.0,
+            "w": 220.0,
+            "h": 31.0,
+            "size": 13.33,
+            "line_height": 16.13,
+            "weight": 500,
+            "color": 4282795847,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "t06",
+            "text": "steer_queue",
+            "x": 88.44,
+            "y": 369.0,
+            "w": 89.5,
+            "h": 21.0,
+            "size": 12.95,
+            "line_height": 15.67,
+            "weight": 500,
+            "color": 4280756263,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "svg",
+            "id": "icon_check3",
+            "x": 355.273,
+            "y": 328.067,
+            "w": 19.84,
+            "h": 20.787,
+            "src": ""
+          },
+          {
+            "t": "stack",
+            "id": "tool_3_output",
+            "x": 29.0,
+            "y": 409.0,
+            "w": 348.0,
+            "h": 242.0,
+            "c": [
+              {
+                "t": "text",
+                "id": "t07",
+                "text": "running 12 tests",
+                "x": 44.88,
+                "y": 441.5,
+                "w": 135.5,
+                "h": 25.0,
+                "size": 13.7,
+                "line_height": 16.57,
+                "weight": 400,
+                "color": 4281216815,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+                "tracking": 0.0
+              },
+              {
+                "t": "text",
+                "id": "t08",
+                "text": "\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7",
+                "x": 46.0,
+                "y": 484.23,
+                "w": 112.0,
+                "h": 17.55,
+                "size": 13,
+                "line_height": 17.55,
+                "weight": 700,
+                "color": 4280098079,
+                "variant": "single_line",
+                "alignx": 0,
+                "tracking": 4.0,
+                "font_src": "self:resources/ux/Inter-700.ttf"
+              },
+              {
+                "t": "text",
+                "id": "t09",
+                "text": "test steer_queue::reconnect_ok ... ok",
+                "x": 40.76,
+                "y": 514.0,
+                "w": 300.5,
+                "h": 24.0,
+                "size": 13.35,
+                "line_height": 16.16,
+                "weight": 400,
+                "color": 4281479731,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+                "tracking": 0.0
+              },
+              {
+                "t": "text",
+                "id": "t10",
+                "text": "test result: ok. 12 passed; 0 failed",
+                "x": 43.21,
+                "y": 567.0,
+                "w": 304.0,
+                "h": 25.0,
+                "size": 13.89,
+                "line_height": 16.8,
+                "weight": 500,
+                "color": 4281362226,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+                "tracking": 0.0
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294243574,
+            "radius": 7.74
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294967295,
+        "radius": 12.47,
+        "border": 1,
+        "bordercolor": 4293256679
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "tool_1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_file",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_check1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "tool_2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_search2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_check2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "tool_3",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_term",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_check3",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "tool_3_output",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t01",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.22737048921130953
+    },
+    {
+      "id": "t02",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.11798607610887095
+    },
+    {
+      "id": "t03",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2213482047466422
+    },
+    {
+      "id": "t04",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1590363533266129
+    },
+    {
+      "id": "t05",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.26896645744301995
+    },
+    {
+      "id": "t06",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.20602452895220588
+    },
+    {
+      "id": "t07",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.23780226934523804
+    },
+    {
+      "id": "t09",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.22892354329427086
+    },
+    {
+      "id": "t10",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.23162069515306122
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

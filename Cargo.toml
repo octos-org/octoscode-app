@@ -32,6 +32,15 @@ octos-app-store = { git = "https://github.com/OctoSense-org/OctoSense", rev = "6
 octoscode-client = { path = "crates/octoscode-client" }
 octoscode-store = { path = "crates/octoscode-store" }
 octoscode-module = { path = "crates/octoscode-module" }
+# The L0 card runtime (card #15b): the SAME renderer card-host used for the
+# Gate-B renders (`card-host/src/host.rs:144-154` calls
+# `octoscript_makepad::l0::prepare` then `design::to_makepad_ui`).
+# `octoscript-widgets` registers the DSL's widget names (DesignSurface,
+# DesignNativeButton, …); `octoscript-ui-l0` realizes + lowers the card.
+octoscript-makepad = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "6881fb6c3c3220e407633b0ba5211c3d42c7e625" }
+octoscript-widgets = { git = "https://github.com/OctoSense-org/Octoscript-Makepad.git", rev = "6881fb6c3c3220e407633b0ba5211c3d42c7e625" }
+octoscript-ui-l0 = { git = "https://github.com/OctoSense-org/Octoscript.git", rev = "68f6a9df55692b5d8ef8873a12721e279a3f40d6" }
+
 # Makepad, for the AppModule (shape (i)). Same rev OctoSense pins.
 makepad-widgets = { git = "https://github.com/OctoSense-org/makepad.git", rev = "6cf03859630761f5cb99ce7fcdfd8c30475d9ab8" }
 makepad-app-module = { git = "https://github.com/OctoSense-org/makepad.git", rev = "6cf03859630761f5cb99ce7fcdfd8c30475d9ab8" }

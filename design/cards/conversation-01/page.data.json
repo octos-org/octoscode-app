@@ -1,0 +1,282 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "t01": {
+        "component": "Text50ebf376856a",
+        "layout": {
+          "x": 23.34,
+          "y": 46.5,
+          "w": 150.0,
+          "h": 27.9
+        }
+      },
+      "icon_bell": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 306.0,
+          "y": 46.0,
+          "w": 21.0,
+          "h": 25.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-01/assets/icon_bell-655ceea5074c.svg"
+        }
+      },
+      "icon_search": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 359.0,
+          "y": 46.0,
+          "w": 22.0,
+          "h": 25.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-01/assets/icon_search-071182d3ecef.svg"
+        }
+      },
+      "new_chat": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 16.0,
+          "y": 109.0,
+          "w": 374.0,
+          "h": 76.0
+        }
+      },
+      "new_chat_surface": {
+        "component": "Surface2c8289ea3ffc",
+        "layout": {
+          "x": 16.0,
+          "y": 109.0,
+          "w": 374.0,
+          "h": 76.0
+        }
+      },
+      "new_chat_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 109.0,
+          "w": 374.0,
+          "h": 76.0
+        }
+      },
+      "new_chat_label": {
+        "component": "Text0cb52ec5325c",
+        "layout": {
+          "x": 37.04,
+          "y": 136.0,
+          "w": 86.0,
+          "h": 23.0
+        }
+      },
+      "icon_compose": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 347.0,
+          "y": 130.0,
+          "w": 24.0,
+          "h": 28.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-01/assets/icon_compose-2b495cfdb8f2.svg"
+        }
+      },
+      "thread_1": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 14.0,
+          "y": 204.0,
+          "w": 379.0,
+          "h": 78.0
+        }
+      },
+      "thread_1_surface": {
+        "component": "Surface8f954c9fd892",
+        "layout": {
+          "x": 14.0,
+          "y": 204.0,
+          "w": 379.0,
+          "h": 78.0
+        }
+      },
+      "thread_1_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 14.0,
+          "y": 204.0,
+          "w": 379.0,
+          "h": 78.0
+        }
+      },
+      "thread_1_label": {
+        "component": "Text68bd508108d5",
+        "layout": {
+          "x": 37.04,
+          "y": 231.0,
+          "w": 302.0,
+          "h": 28.0
+        }
+      },
+      "thread_2": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 16.0,
+          "y": 299.5,
+          "w": 374.0,
+          "h": 49.5
+        }
+      },
+      "thread_2_surface": {
+        "component": "Surface5e06c9b428ce",
+        "layout": {
+          "x": 16.0,
+          "y": 299.5,
+          "w": 374.0,
+          "h": 49.5
+        }
+      },
+      "thread_2_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 299.5,
+          "w": 374.0,
+          "h": 49.5
+        }
+      },
+      "thread_2_label": {
+        "component": "Textaa698d2fd403",
+        "layout": {
+          "x": 36.55,
+          "y": 312.0,
+          "w": 145.5,
+          "h": 22.5
+        }
+      },
+      "thread_3": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 16.0,
+          "y": 380.77,
+          "w": 374.0,
+          "h": 52.81
+        }
+      },
+      "thread_3_surface": {
+        "component": "Surface716f7b9e59a5",
+        "layout": {
+          "x": 16.0,
+          "y": 380.77,
+          "w": 374.0,
+          "h": 52.81
+        }
+      },
+      "thread_3_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 380.77,
+          "w": 374.0,
+          "h": 52.81
+        }
+      },
+      "thread_3_label": {
+        "component": "Textfa82cc3abc92",
+        "layout": {
+          "x": 36.47,
+          "y": 395.5,
+          "w": 149.5,
+          "h": 23.0
+        }
+      },
+      "thread_4": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 16.0,
+          "y": 467.5,
+          "w": 374.0,
+          "h": 54.06
+        }
+      },
+      "thread_4_surface": {
+        "component": "Surface5e06c9b428ce",
+        "layout": {
+          "x": 16.0,
+          "y": 467.5,
+          "w": 374.0,
+          "h": 54.06
+        }
+      },
+      "thread_4_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 467.5,
+          "w": 374.0,
+          "h": 54.06
+        }
+      },
+      "thread_4_label": {
+        "component": "Text209fc50dee4a",
+        "layout": {
+          "x": 36.46,
+          "y": 480.5,
+          "w": 258.5,
+          "h": 28.5
+        }
+      },
+      "thread_5": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 16.0,
+          "y": 551.0,
+          "w": 374.0,
+          "h": 55.15
+        }
+      },
+      "thread_5_surface": {
+        "component": "Surface5e06c9b428ce",
+        "layout": {
+          "x": 16.0,
+          "y": 551.0,
+          "w": 374.0,
+          "h": 55.15
+        }
+      },
+      "thread_5_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 551.0,
+          "w": 374.0,
+          "h": 55.15
+        }
+      },
+      "thread_5_label": {
+        "component": "Textbe1a2af7f457",
+        "layout": {
+          "x": 36.06,
+          "y": 564.5,
+          "w": 179.5,
+          "h": 28.0
+        }
+      },
+      "icon_fork": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 352.0,
+          "y": 310.5,
+          "w": 19.0,
+          "h": 26.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-01/assets/icon_fork-97fddcd59c0b.svg"
+        }
+      }
+    },
+    "bindings": []
+  }
+}

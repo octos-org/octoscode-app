@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "8d49354eb55c0b9134e6b27998b0cae234706a2744bc34be68baa2b106735383",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "stack",
+        "id": "worked_row",
+        "x": 16.0,
+        "y": 32.0,
+        "w": 374.0,
+        "h": 44.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "worked_row_surface",
+            "x": 16.0,
+            "y": 32.0,
+            "w": 374.0,
+            "h": 44.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294835709,
+            "radius": 10.0
+          },
+          {
+            "t": "button",
+            "id": "worked_row_control",
+            "x": 16.0,
+            "y": 32.0,
+            "w": 374.0,
+            "h": 44.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "worked_row_label",
+            "text": "Worked for 3m 4s \u203a",
+            "x": 26.53,
+            "y": 41.5,
+            "w": 178.0,
+            "h": 24.0,
+            "size": 18.7,
+            "line_height": 22.63,
+            "weight": 500,
+            "color": 4281019180,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      {
+        "t": "text",
+        "id": "answer_md",
+        "text": "Queued steers now survive a reconnect.\n\n\u2022 Fixed loss of queued steers when reconnecting after a drop in steer_dropped handling.\n\n\u2022 Updated ui_protocol_transport.rs to persist queued steers to the session ledger.\n\n\u2022 All tests pass: 12 passed.\n\n\u2022 Changes included in commit a6ea8505.",
+        "x": 27.0,
+        "y": 106.0,
+        "w": 356.0,
+        "h": 492.0,
+        "size": 17.5,
+        "line_height": 38.0,
+        "weight": 400,
+        "color": 4280098079,
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "svg",
+        "id": "icon_copy",
+        "x": 24.0,
+        "y": 662.0,
+        "w": 20.0,
+        "h": 20.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "icon_thumbs",
+        "x": 52.0,
+        "y": 662.0,
+        "w": 20.0,
+        "h": 20.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "icon_share",
+        "x": 80.0,
+        "y": 662.0,
+        "w": 20.0,
+        "h": 20.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t11",
+        "text": "Sep 28, 9:41 PM",
+        "x": 267.64,
+        "y": 663.5,
+        "w": 121.5,
+        "h": 28.0,
+        "size": 15.26,
+        "line_height": 18.46,
+        "weight": 400,
+        "color": 4288848550,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "worked_row",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "worked_row_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "worked_row_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_copy",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_thumbs",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_share",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "worked_row_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.14754423253676477
+    },
+    {
+      "id": "t11",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2104564848400298
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}
