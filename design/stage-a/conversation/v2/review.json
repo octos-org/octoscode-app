@@ -1,0 +1,3 @@
+{"reviewer":"outer loop (Claude, vision)","against":"outer/codex-refs 00-06","score":8.0,"decision":"iterate",
+ "fixed_since_v1":["2048x3072 (~450x930 px per screen)","composer one line, v4-flash","diff numbering monotonic","Undo plain black text"],
+ "issues":["font still condensed (image-model bias; native rebuild uses the real font)","composer 8 lost the model picker","approval buttons small and cramped in one row (5)"]}

@@ -1,0 +1,6 @@
+{"reviewer":"outer loop (Claude, vision)","against":"outer/codex-refs 00-06 (Codex window captures, 2026-09-28)","score":7.0,
+ "decision":"iterate",
+ "issues":["condensed sans instead of regular-width SF Pro (all screens)","composer cramped; model picker wraps to 2 lines (2,3,8)",
+  "1024x1536 atlas -> ~230x440 px per screen, too small for measurement (flow wants 406x776 @2x)",
+  "diff line numbers duplicated on added lines (11)","Undo rendered as blue link; Codex uses plain black text (7)"],
+ "keep":["approval card (5)","user question (6)","edited files structure (7)","streaming row + STOP (3)","goal strip + plan (10)","settings card (12)"]}
