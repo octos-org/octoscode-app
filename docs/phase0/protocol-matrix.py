@@ -1,5 +1,5 @@
 import re, os, sys, csv
-W='/Users/yuechen/home/oa.noindex/src-web'
+W=os.environ.get('SRC_WEB','/Users/yuechen/home/oa.noindex/src-web')
 N='/Users/yuechen/home/Octoscript-AppCard/app'
 CORE='/Users/yuechen/home/Octoscript-AppCard/octos/crates/octos-core/src/ui_protocol.rs'
 src=open(f'{W}/packages/client/src/generated/core-contract.ts').read()
