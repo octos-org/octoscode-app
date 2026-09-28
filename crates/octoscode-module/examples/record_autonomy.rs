@@ -11,6 +11,14 @@
 //! **No model turns.** Reads are free; mutations run only against a throwaway
 //! data dir (create then delete what is created).
 //!
+//! ## Hermetic fixture (R2 lesson)
+//!
+//! The real `session/open` reply embeds absolute machine paths (the repo root,
+//! the serve's workspace root). After flushing the trace this example **scrubs**
+//! them to placeholders (`<WORKSPACE>`, `<TMP>`, `<HOME>`) in place and asserts
+//! none remain, so the committed fixture decodes and asserts identically on any
+//! clone. This is the only place the recorder reads the environment.
+//!
 //! ```sh
 //! OCTOS_BASE_URL=http://127.0.0.1:50170 \
 //! OCTOS_BEARER=r1-dummy-token OCTOS_PROFILE_ID=dsflash \
@@ -23,6 +31,54 @@ use octos_app_transport::TransportEvent;
 use octoscode_client::domains::autonomy as au;
 use octoscode_module::flow::Conversation;
 use tokio::sync::mpsc::Receiver;
+
+/// Placeholders for machine/lane-specific absolute paths (R2 lesson: the
+/// committed fixture must be hermetic).
+const TMP_PLACEHOLDER: &str = "<TMP>";
+const WORKSPACE_PLACEHOLDER: &str = "<WORKSPACE>";
+const HOME_PLACEHOLDER: &str = "<HOME>";
+
+/// The machine-specific absolute prefixes this recording run produced, mapped
+/// to placeholders. Derived from the compile-time crate location (workspace
+/// root and its parent) and the process `temp_dir()`. Longest first, so the most
+/// specific prefix wins (`<WORKSPACE>` inside `<HOME>`, etc.).
+///
+/// **Recorder-only** — a replay test never reads the environment.
+fn machine_path_prefixes() -> Vec<(String, &'static str)> {
+    let manifest = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    // …/<repo>/crates/octoscode-module → …/<repo>
+    let workspace_root = manifest
+        .parent()
+        .and_then(|p| p.parent())
+        .map(|p| p.to_string_lossy().to_string());
+    let mut prefixes: Vec<(String, &'static str)> = Vec::new();
+    let tmp = std::env::temp_dir().to_string_lossy().to_string();
+    if !tmp.is_empty() {
+        prefixes.push((tmp, TMP_PLACEHOLDER));
+    }
+    if let Some(ws) = &workspace_root {
+        if !ws.is_empty() {
+            prefixes.push((ws.clone(), WORKSPACE_PLACEHOLDER));
+        }
+        if let Some(home) = std::path::Path::new(ws).parent() {
+            let home = home.to_string_lossy().to_string();
+            if !home.is_empty() {
+                prefixes.push((home, HOME_PLACEHOLDER));
+            }
+        }
+    }
+    prefixes.sort_by(|a, b| b.0.len().cmp(&a.0.len()));
+    prefixes
+}
+
+/// Replace every machine-specific absolute path in `text` with its placeholder.
+fn scrub_machine_paths(text: &str) -> String {
+    let mut out = text.to_owned();
+    for (from, to) in machine_path_prefixes() {
+        out = out.replace(&from, to);
+    }
+    out
+}
 
 /// Drain pending transport events through the conversation for `ms`, so every
 /// inbound frame is recorded by `Conversation::on_event` (the trace hook).
@@ -164,5 +220,23 @@ async fn main() {
     // Let any trailing frames land, then flush the flow's own transitions.
     drain(&conv, &mut events, 800).await;
     conv.flush_trace();
-    println!("[record] trace flushed");
+
+    // R2 lesson: scrub lane-specific absolute paths so the committed fixture is
+    // hermetic (decodes + asserts identically on any clone).
+    let path = std::env::var("OCTOSCODE_TRACE_FILE").unwrap_or_default();
+    if !path.trim().is_empty() {
+        let scrubbed = std::fs::read_to_string(&path)
+            .map(|t| scrub_machine_paths(&t))
+            .unwrap_or_default();
+        if !scrubbed.is_empty() {
+            std::fs::write(&path, &scrubbed).expect("rewrite the scrubbed fixture");
+        }
+        assert!(
+            !scrubbed.contains("/Users/") && !scrubbed.contains("/var/folders/"),
+            "the fixture must carry no machine-specific absolute path"
+        );
+        println!("[record] trace flushed and scrubbed: {path}");
+    } else {
+        println!("[record] trace flushed (no OCTOSCODE_TRACE_FILE to scrub)");
+    }
 }
