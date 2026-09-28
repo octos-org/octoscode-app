@@ -143,7 +143,8 @@ cmd_shot() {
   [ -n "$port" ] && [ -n "$png" ] || die "usage: headless.sh shot <port> <out.png>"
   mkdir -p "$(dirname "$png")"
   curl -s --max-time 20 -o "$png" "http://$HOST:$port/g?raw=1"
-  head -c 8 "$png" | od -An -tx1 | grep -qi '89 50 4e 47' || die "'$png' is not a PNG (is the app up on $port?)"
+  # PNG magic, whitespace-independent (BSD od pads bytes with two spaces, GNU with one)
+  [ "$(head -c 4 "$png" | od -An -tx1 | tr -d ' \n')" = "89504e47" ] || die "'$png' is not a PNG (is the app up on $port?)"
   local bytes; bytes="$(wc -c < "$png" | tr -d ' ')"
   echo "[headless] wrote $png ($bytes bytes)"
   [ -n "$EVIDENCE" ] && cp "$png" "$EVIDENCE/$(basename "$png")" 2>/dev/null || true

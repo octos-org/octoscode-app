@@ -113,6 +113,9 @@ card used the harness block (`8301`).
 | 5 | `8350–8359` | p0-map-e |
 | 6 | `8360–8369` | p0-map-f |
 | 7 | `8370–8379` | p0-proto |
+| 8 | `8380–8389` | p0-proto2 |
+| 9 | `8390–8399` | p0-build D9 spike (card #6) |
+| — | `8490–8499` | outer loop (re-verification only) |
 | 8 | `8380–8389` | next lane to land |
 | 9 | `8390–8399` | manual / ad-hoc |
 
