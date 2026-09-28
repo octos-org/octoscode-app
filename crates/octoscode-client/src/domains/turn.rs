@@ -36,12 +36,11 @@ impl NotificationHandler for TurnStartedHandler {
             let session = started.session_id.0.clone();
             let turn_id = started.turn_id.0.to_string();
             self.store.domains.turn.started(&turn_id);
-            self.store.domains.session.timeline.append(
-                &session,
-                Some(turn_id),
-                EntryKind::ASSISTANT_TEXT,
-                String::new(),
-            );
+            // Card #14 defect 2: do NOT create an entry here. A row is born on
+            // the first delta / `assistant_persisted`, as on the web
+            // (`timeline/model.ts:648-678` `appendText`) — creating one eagerly
+            // left a stray empty `[assistant.text]` whenever a turn produced no
+            // assistant text (e.g. an interrupted turn, turn 2 in `trace.jsonl`).
         }
     }
 }
@@ -257,14 +256,19 @@ impl NotificationHandler for ProjectionEnvelopeHandler {
 
         let timeline = &self.store.domains.session.timeline;
         match &env.payload {
-            // The user's own prompt becomes a `user.message` entry (card #13
-            // §4), which is also what the web does (`model.ts:340-350`).
+            // The user's own prompt becomes a `user.message` entry.
+            //
+            // Card #14 defect 1: the real server sends this at `seq 154`,
+            // BEHIND 153 delta frames (`trace.jsonl`), so arrival order puts it
+            // last. The web splices the canonical row in before its turn's
+            // first reply and dedups an optimistic row
+            // (`timeline/model.ts:1019-1043`, `upsertUser`), which
+            // [`Timeline::upsert_user_message`] reproduces.
             PayloadV2::UserMessage { text, files } => {
-                timeline.append_data(
+                timeline.upsert_user_message(
                     &session,
-                    Some(turn_id.clone()),
-                    EntryKind::USER_MESSAGE,
-                    text.clone(),
+                    &turn_id,
+                    text,
                     serde_json::json!({"files": files}),
                 );
             }

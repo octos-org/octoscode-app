@@ -210,6 +210,67 @@ impl Timeline {
         entries.push(e);
     }
 
+    /// Insert (or update in place) a **user message**, ordered BEFORE its
+    /// turn's first activity entry.
+    ///
+    /// The web's `upsertUser`
+    /// (`src-web/apps/web/src/features/timeline/model.ts:1019-1043`) exists
+    /// because the canonical `user_message` can arrive *after* streaming
+    /// replies: the real server sends it at `seq 154`, behind 153 delta frames
+    /// (`docs/phase1/live-gate/trace.jsonl`). So arrival order is not display
+    /// order. This also dedups: a turn keeps exactly one user row, so an
+    /// optimistic row and the persisted copy never both render.
+    pub fn upsert_user_message(
+        &self,
+        session: &str,
+        turn_id: &str,
+        text: &str,
+        data: serde_json::Value,
+    ) -> u64 {
+        let mut map = self.inner.lock().unwrap();
+        let entries = map.entry(session.to_owned()).or_default();
+
+        // Existing user row for this turn? Update it in place (dedup) and reuse
+        // its id; else make a fresh row.
+        let id = match entries.iter_mut().find(|e| {
+            e.kind == EntryKind::USER_MESSAGE && e.turn_id.as_deref() == Some(turn_id)
+        }) {
+            Some(e) => {
+                e.text = text.to_owned();
+                e.data = data;
+                e.id
+            }
+            None => {
+                let id = self.next_id.fetch_add(1, Ordering::Relaxed);
+                let mut e =
+                    TimelineEntry::new(id, Some(turn_id.to_owned()), EntryKind::USER_MESSAGE);
+                e.text = text.to_owned();
+                e.data = data;
+                entries.push(e);
+                id
+            }
+        };
+
+        // Move the row so it precedes the turn's first activity entry — but
+        // only then (the web: "Only the first observed question may need moving
+        // before its replies"). `reasoning`/`assistant`/`tool` are the activity.
+        let user_at = entries.iter().position(|e| e.id == id);
+        let first_reply = entries.iter().position(|e| {
+            e.turn_id.as_deref() == Some(turn_id)
+                && matches!(
+                    e.kind.tag(),
+                    "assistant.reasoning" | "assistant.text" | "tool.call"
+                )
+        });
+        if let (Some(user_at), Some(reply_at)) = (user_at, first_reply) {
+            if reply_at < user_at {
+                let entry = entries.remove(user_at);
+                entries.insert(reply_at, entry);
+            }
+        }
+        id
+    }
+
     /// Close every open entry of a turn (a turn boundary stops folding).
     pub fn close_turn(&self, session: &str, turn_id: &str) {
         let mut map = self.inner.lock().unwrap();

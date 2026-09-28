@@ -96,6 +96,7 @@ pub fn all_conversation_ids() -> Vec<&'static str> {
 /// #12; the rest are `design/bindings.json`'s `client_action`s.
 pub const ACTIONS: &[(&str, &str)] = &[
     ("session.refresh", "re-ask the server for the session list"),
+    ("session.new", "start a NEW chat: mint a fresh session id and open it"),
     ("composer.submit", "turn/start with the current composer draft"),
     ("turn.interrupt", "turn/interrupt the live turn"),
     ("turn.steer", "turn/steer the live turn's input buffer"),
@@ -104,6 +105,7 @@ pub const ACTIONS: &[(&str, &str)] = &[
 
 /// The conversation action ids the fallback view emits (its buttons map to
 /// these). Kept here so the view names an id the binding table owns.
+pub const ACTION_NEW_CHAT: &str = "session.new";
 pub const ACTION_SUBMIT: &str = "composer.submit";
 pub const ACTION_INTERRUPT: &str = "turn.interrupt";
 
@@ -556,12 +558,14 @@ mod tests {
         for (id, _) in ACTIONS {
             assert!(is_action(id), "{id} must be an action");
         }
-        // The four conversation actions + session.refresh.
-        assert_eq!(ACTIONS.len(), 5);
+        // The four conversation actions + session.refresh + session.new
+        // (card #14 defect 4: New chat mints a fresh session id).
+        assert_eq!(ACTIONS.len(), 6);
         assert!(is_action("composer.submit"));
         assert!(is_action("turn.interrupt"));
         assert!(is_action("turn.steer"));
         assert!(is_action("answer.expand"));
+        assert!(is_action("session.new"), "New chat is a declared action");
         assert!(!is_action("session.delete"));
     }
 }
