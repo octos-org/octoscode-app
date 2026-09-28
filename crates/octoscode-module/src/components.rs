@@ -67,6 +67,11 @@ pub enum ItemKind {
     WorkedFor,
     /// The answer actions row (timestamp) under a completed answer.
     AnswerActions,
+    /// The composer dock (card #16's `composer` component): draft, model, the
+    /// running/queued states.
+    Composer,
+    /// The "New chat" affordance (card #16's `new-chat` component).
+    NewChat,
 }
 
 impl ItemKind {
@@ -79,6 +84,8 @@ impl ItemKind {
         ItemKind::WorkingRow,
         ItemKind::WorkedFor,
         ItemKind::AnswerActions,
+        ItemKind::Composer,
+        ItemKind::NewChat,
     ];
 
     /// The component id (the file stem under `design/components/`, #16's index
@@ -92,6 +99,8 @@ impl ItemKind {
             ItemKind::WorkingRow => "working-row",
             ItemKind::WorkedFor => "worked-for",
             ItemKind::AnswerActions => "answer-actions",
+            ItemKind::Composer => "composer",
+            ItemKind::NewChat => "new-chat",
         }
     }
 
@@ -174,60 +183,64 @@ fn ledger(leaves: &[Leaf]) -> (String, Value) {
     (src, json!({"$kit": {"theme": "light", "placements": placements}}))
 }
 
-/// The built-in placeholder component for `kind` (see the module docs).
+/// The live slots of one component (card #21 §2): the `copy` id card #16's
+/// ledger declares, and the binding id whose value fills it.
+///
+/// These are the REAL copy ids read off `design/components/<id>/page.card`
+/// (`thread_1_label_text`, `t01_text`, `answer_md_text`, …), so both the
+/// on-disk component and the placeholder fallback share one table: swapping in
+/// #16's component is a file drop, not a Rust change.
+///
+/// A `binding` of `""` is a **static** slot (the ledger's own `en:` stays); the
+/// sentinel [`CLEAR`] blanks the slot (the base ledgers ship a measured fixture
+/// string that must not show through live data).
+pub fn slots(kind: ItemKind) -> &'static [Binding] {
+    match kind {
+        ItemKind::ThreadRow => &[Binding { copy: "thread_1_label_text", binding: "threads[].title" }],
+        // The "New chat" label is the component's own copy (`New chat`) — static.
+        ItemKind::NewChat => &[Binding { copy: "new_chat_label_text", binding: "" }],
+        // The bubble's two measured lines: the message goes in the first; the
+        // second is a fixture line that must be cleared.
+        ItemKind::UserBubble => &[
+            Binding { copy: "t01_text", binding: "timeline.entries[].text" },
+            Binding { copy: "t02_text", binding: CLEAR },
+        ],
+        ItemKind::AssistantProse => {
+            &[Binding { copy: "answer_md_text", binding: "timeline.entries[].text" }]
+        }
+        ItemKind::ToolCell => &[
+            Binding { copy: "t01_text", binding: "tools[].summary" },
+            Binding { copy: "t02_text", binding: "tools[].status" },
+        ],
+        ItemKind::WorkingRow => &[Binding { copy: "t03_text", binding: "turn.activity" }],
+        ItemKind::WorkedFor => {
+            &[Binding { copy: "worked_row_label_text", binding: "answer.worked_for" }]
+        }
+        ItemKind::AnswerActions => &[Binding { copy: "t11_text", binding: "answer.timestamp" }],
+        ItemKind::Composer => &[
+            Binding { copy: "composer_idle_input_text", binding: "composer.draft" },
+            Binding { copy: "composer_idle_input_placeholder", binding: "composer.placeholder" },
+            // The model pill (`v4-flash ▾`) and the approval pill are the
+            // component's own copy — static until `composer.model` is declared.
+            Binding { copy: "t04_text", binding: "" },
+            Binding { copy: "pill1_t_text", binding: "" },
+        ],
+    }
+}
+
+/// The sentinel binding that blanks a slot (see [`slots`]).
+pub const CLEAR: &str = "@clear";
+
+/// The built-in placeholder component for `kind` (see the module docs). Its
+/// `copy` ids are [`slots`]' own, so a placeholder renders the same slots the
+/// real component does and the swap is invisible to the screen.
 pub fn builtin(kind: ItemKind) -> Component {
-    let (leaves, bindings): (&[Leaf], &'static [Binding]) = match kind {
-        ItemKind::ThreadRow => (
-            &[
-                Leaf("title", "thread_row_title", "Thread title", 320.0, 20.0),
-                Leaf("meta", "thread_row_meta", "0 messages", 320.0, 16.0),
-            ],
-            &[
-                Binding { copy: "thread_row_title", binding: "threads[].title" },
-                Binding { copy: "thread_row_meta", binding: "threads[].meta" },
-            ],
-        ),
-        ItemKind::UserBubble => (
-            &[Leaf("text", "user_bubble_text", "User message", 330.0, 36.0)],
-            &[Binding { copy: "user_bubble_text", binding: "timeline.entries[].text" }],
-        ),
-        ItemKind::AssistantProse => (
-            &[Leaf("text", "assistant_prose_text", "Assistant reply", 340.0, 60.0)],
-            &[Binding { copy: "assistant_prose_text", binding: "timeline.entries[].text" }],
-        ),
-        ItemKind::ToolCell => (
-            &[
-                Leaf("name", "tool_cell_name", "tool", 200.0, 18.0),
-                Leaf("status", "tool_cell_status", "running", 120.0, 16.0),
-                Leaf("summary", "tool_cell_summary", "", 340.0, 28.0),
-            ],
-            &[
-                Binding { copy: "tool_cell_name", binding: "tools[].name" },
-                Binding { copy: "tool_cell_status", binding: "tools[].status" },
-                Binding { copy: "tool_cell_summary", binding: "tools[].summary" },
-            ],
-        ),
-        ItemKind::WorkingRow => (
-            &[Leaf("text", "working_row_text", "Working", 200.0, 18.0)],
-            &[Binding { copy: "working_row_text", binding: "turn.activity" }],
-        ),
-        ItemKind::WorkedFor => (
-            &[Leaf("label", "worked_row_label", "Worked for 0s", 240.0, 20.0)],
-            &[Binding { copy: "worked_row_label", binding: "answer.worked_for" }],
-        ),
-        ItemKind::AnswerActions => (
-            &[
-                Leaf("copy_btn", "answer_actions_copy", "Copy", 60.0, 16.0),
-                Leaf("time", "answer_actions_time", "", 160.0, 16.0),
-            ],
-            &[
-                Binding { copy: "answer_actions_copy", binding: "" },
-                Binding { copy: "answer_actions_time", binding: "answer.timestamp" },
-            ],
-        ),
-    };
-    let (ledger, data) = ledger(leaves);
-    Component { id: kind.id(), kind, ledger, data, kit_dir: components_dir(), bindings }
+    let leaves: Vec<Leaf> = slots(kind)
+        .iter()
+        .map(|b| Leaf(b.copy, b.copy, "", 300.0, 22.0))
+        .collect();
+    let (ledger, data) = ledger(&leaves);
+    Component { id: kind.id(), kind, ledger, data, kit_dir: components_dir(), bindings: slots(kind) }
 }
 
 /// The component directory: `OCTOSCODE_COMPONENTS_DIR`, else `design/components`
@@ -244,23 +257,49 @@ pub fn components_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../design/components")
 }
 
-/// Resolve the component for `kind`: an on-disk `<id>.l0` + `<id>.json` when
-/// present (card #16's component, or any dropped-in file), else the built-in
-/// placeholder. The bool reports whether the on-disk component was used.
+/// Resolve the component for `kind`, preferring card #16's on-disk component
+/// over the placeholder. The bool reports whether the on-disk one was used.
 ///
-/// A dropped-in component may ship its own kit (`<id>/native/<mood>/kit.json`);
-/// absent one it lowers against the shared placeholder pack.
+/// Card #16 ships each component as a **directory** — `design/components/<id>/`
+/// with `page.card` (the ledger), `page.data.json` (its placements) and its own
+/// `kit/native/light/kit.json` pack (the one the renderer used). A dropped-in
+/// component may also ship a flat `<id>.l0` + `<id>.json`; both shapes are
+/// accepted, the directory first (that is what #16 writes).
 pub fn resolve(kind: ItemKind) -> (Component, bool) {
     let dir = components_dir();
-    let l0 = dir.join(format!("{}.l0", kind.id()));
-    if let Ok(ledger) = std::fs::read_to_string(&l0) {
-        let json_path = dir.join(format!("{}.json", kind.id()));
-        let data = std::fs::read_to_string(&json_path)
-            .ok()
+    let own = dir.join(kind.id());
+    // (ledger, data) for the on-disk component, in preference order.
+    let sources = [
+        // #16's shape: a per-component directory with its own kit pack.
+        (own.join("page.card"), Some(own.join("page.data.json")), Some(own.clone())),
+        // The dropped-in shape a swap may use: a flat file beside the dir.
+        (dir.join(format!("{}.l0", kind.id())), Some(dir.join(format!("{}.json", kind.id()))), Some(own)),
+    ];
+    for (ledger_path, data_path, kit_candidate) in sources {
+        let Ok(ledger) = std::fs::read_to_string(&ledger_path) else {
+            continue;
+        };
+        let data = data_path
+            .and_then(|p| std::fs::read_to_string(p).ok())
             .and_then(|s| serde_json::from_str::<Value>(&s).ok())
             .unwrap_or_else(|| json!({}));
-        let own_kit = dir.join(kind.id());
-        let kit_dir = if own_kit.join("native/light/kit.json").is_file() { own_kit } else { dir };
+        // A component that ships its own kit pack lowers against that pack.
+        // #16 writes it at `<id>/kit/native/<mood>/kit.json` (the kit's parent
+        // is the dir `l0::prepare` appends `native/<mood>/kit.json` to); a flat
+        // drop-in may instead put it at `<id>/native/<mood>/kit.json`.
+        let kit_dir = match kit_candidate {
+            Some(c) => {
+                let nested = c.join("kit");
+                if nested.join("native/light/kit.json").is_file() {
+                    nested
+                } else if c.join("native/light/kit.json").is_file() {
+                    c
+                } else {
+                    dir.clone()
+                }
+            }
+            None => dir.clone(),
+        };
         let base = builtin(kind);
         return (Component { ledger, data, kit_dir, ..base }, true);
     }
@@ -288,34 +327,39 @@ pub fn item_copies(
         }
     };
 
-    let component = resolve(kind).0;
     let mut out = Vec::new();
-    for b in component.bindings {
+    for b in slots(kind) {
+        if b.binding == CLEAR {
+            // A measured fixture string that must not show through live data.
+            out.push((b.copy.to_owned(), String::new()));
+            continue;
+        }
         if b.binding.is_empty() {
             continue; // static copy (the ledger's own en: stays)
         }
-        let value = match kind {
-            ItemKind::ThreadRow => match b.binding {
-                "threads[].title" => text(&row("threads")?.get("title").cloned().unwrap_or(Value::Null)),
-                "threads[].meta" => {
-                    let r = row("threads")?;
-                    let n = r.get("message_count").and_then(|v| v.as_u64()).unwrap_or(0);
-                    format!("{n} messages")
-                }
-                other => return Err(format!("thread-row has no arm for {other:?}")),
-            },
-            ItemKind::UserBubble | ItemKind::AssistantProse => {
+        let value = match b.binding {
+            // ---- thread list ------------------------------------------------
+            "threads[].title" => text(&row("threads")?.get("title").cloned().unwrap_or(Value::Null)),
+            // A synthetic/seeded row may carry no title; fall back to its id.
+            "threads[].id" => text(&row("threads")?.get("id").cloned().unwrap_or(Value::Null)),
+            // ---- timeline ---------------------------------------------------
+            "timeline.entries[].text" => {
                 text(&row("timeline.entries")?.get("text").cloned().unwrap_or(Value::Null))
             }
-            ItemKind::ToolCell => match b.binding {
-                "tools[].name" => text(&row("tools")?.get("name").cloned().unwrap_or(Value::Null)),
-                "tools[].status" => text(&row("tools")?.get("status").cloned().unwrap_or(Value::Null)),
-                "tools[].summary" => text(&row("tools")?.get("summary").cloned().unwrap_or(Value::Null)),
-                other => return Err(format!("tool-cell has no arm for {other:?}")),
-            },
-            ItemKind::WorkingRow => text(&get("turn.activity")?),
-            ItemKind::WorkedFor => text(&get("answer.worked_for")?),
-            ItemKind::AnswerActions => text(&get("answer.timestamp")?),
+            // ---- tool cells -------------------------------------------------
+            "tools[].summary" | "tools[].name" => {
+                text(&row("tools")?.get("summary").cloned().unwrap_or(Value::Null))
+            }
+            "tools[].status" => text(&row("tools")?.get("status").cloned().unwrap_or(Value::Null)),
+            "tools[].detail" => text(&row("tools")?.get("summary").cloned().unwrap_or(Value::Null)),
+            // ---- turn / answer ---------------------------------------------
+            "turn.activity" => text(&get("turn.activity")?),
+            "answer.worked_for" => text(&get("answer.worked_for")?),
+            "answer.timestamp" => text(&get("answer.timestamp")?),
+            // ---- composer ---------------------------------------------------
+            "composer.draft" => text(&get("composer.draft")?),
+            "composer.placeholder" => text(&get("composer.placeholder")?),
+            other => return Err(format!("{} has no arm for binding {other:?}", kind.id())),
         };
         out.push((b.copy.to_owned(), value));
     }
