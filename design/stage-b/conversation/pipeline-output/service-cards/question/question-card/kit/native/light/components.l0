@@ -13,8 +13,8 @@ component Text15ed7064d520(instance: text, text: text) {
 component Groupfe37d7063bc0(instance: text) {
   view Kit(component: "Groupfe37d7063bc0", instance: instance) { slot }
 }
-component Text4a39fec9983e(instance: text, text: text) {
-  view Kit(component: "Text4a39fec9983e", instance: instance, text: text)
+component Textac0df43466fb(instance: text, text: text) {
+  view Kit(component: "Textac0df43466fb", instance: instance, text: text)
 }
 component Group797ca8139faf(instance: text) {
   view Kit(component: "Group797ca8139faf", instance: instance) { slot }

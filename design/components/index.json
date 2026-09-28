@@ -108,7 +108,7 @@
         374.0,
         580.0
       ],
-      "nodes": 27,
+      "nodes": 28,
       "native_controls": 1,
       "card": "design/components/edited-files-card/page.card",
       "data": "design/components/edited-files-card/page.data.json",
@@ -232,7 +232,7 @@
         362.0,
         566.0
       ],
-      "nodes": 36,
+      "nodes": 42,
       "native_controls": 0,
       "card": "design/components/diff-view/page.card",
       "data": "design/components/diff-view/page.data.json",
@@ -270,7 +270,7 @@
         374.0,
         620.0
       ],
-      "nodes": 16,
+      "nodes": 17,
       "native_controls": 0,
       "card": "design/components/settings-group/page.card",
       "data": "design/components/settings-group/page.data.json",

@@ -69,28 +69,27 @@
               {
                 "t": "svg",
                 "id": "opt_ledger_radio",
-                "x": 38.0,
-                "y": 256.59,
-                "w": 20.0,
-                "h": 20.0,
+                "x": 37.0,
+                "y": 255.59,
+                "w": 22.0,
+                "h": 22.0,
                 "src": ""
               },
               {
                 "t": "text",
                 "id": "opt_ledger_label",
-                "text": "In the session ledger",
-                "x": 81.61,
-                "y": 257.5,
-                "w": 174.5,
-                "h": 28.5,
-                "size": 17.2,
-                "line_height": 20.81,
+                "text": "In the session ledger  (recommended)",
+                "x": 75.1,
+                "y": 254.59,
+                "w": 331.49,
+                "h": 31.71,
+                "size": 14,
+                "line_height": 31.71,
                 "weight": 500,
-                "color": 4280558885,
+                "color": 4280098079,
                 "variant": "single_line",
                 "alignx": 0,
-                "font_src": "self:resources/ux/Inter-500.ttf",
-                "tracking": 0.0
+                "font_src": "self:resources/ux/Inter-500.ttf"
               }
             ],
             "event": "question.select.ledger"
@@ -106,10 +105,10 @@
               {
                 "t": "svg",
                 "id": "opt_memory_radio",
-                "x": 38.0,
-                "y": 357.12,
-                "w": 20.0,
-                "h": 20.0,
+                "x": 37.0,
+                "y": 356.12,
+                "w": 22.0,
+                "h": 22.0,
                 "src": ""
               },
               {
@@ -143,10 +142,10 @@
               {
                 "t": "svg",
                 "id": "opt_ask_radio",
-                "x": 38.0,
-                "y": 417.52,
-                "w": 20.0,
-                "h": 20.0,
+                "x": 37.0,
+                "y": 416.52,
+                "w": 22.0,
+                "h": 22.0,
                 "src": ""
               },
               {
@@ -401,12 +400,6 @@
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.14933886619807496
-    },
-    {
-      "id": "opt_ledger_label",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.15222915338010204
     },
     {
       "id": "opt_memory_label",

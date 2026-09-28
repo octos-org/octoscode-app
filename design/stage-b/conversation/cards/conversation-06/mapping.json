@@ -117,10 +117,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        38.0,
-        256.59,
-        20.0,
-        20.0
+        37.0,
+        255.59,
+        22.0,
+        22.0
       ],
       "text": null,
       "enabled": null,
@@ -132,18 +132,18 @@
       "native_id": "beauty_0_0_3_1",
       "parent": "opt_ledger",
       "kind": "text",
-      "component": "Text4a39fec9983e",
+      "component": "Textac0df43466fb",
       "semantic_role": "text",
       "bounds": [
-        81.61,
-        257.5,
-        174.5,
-        28.5
+        75.1,
+        254.59,
+        331.49,
+        31.71
       ],
-      "text": "In the session ledger",
+      "text": "In the session ledger  (recommended)",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 17.2
+      "size": 14
     },
     {
       "source_id": "opt_memory",
@@ -171,10 +171,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        38.0,
-        357.12,
-        20.0,
-        20.0
+        37.0,
+        356.12,
+        22.0,
+        22.0
       ],
       "text": null,
       "enabled": null,
@@ -225,10 +225,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        38.0,
-        417.52,
-        20.0,
-        20.0
+        37.0,
+        416.52,
+        22.0,
+        22.0
       ],
       "text": null,
       "enabled": null,
@@ -457,6 +457,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "664665cb667ee8ff20c10999bdd3fe3e74471818ff67707d4c08e8a669a63ec5",
+  "contract_sha256": "03da3d19cf2906ec65191a0828bcf12bc6a53f80a7ce3e23726c47aeeeb620c1",
   "mapping_basis": "mapped.json"
 }

@@ -47,19 +47,28 @@
           "h": 23.69
         }
       },
+      "undo_group": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 210.0,
+          "y": 86.85,
+          "w": 74.0,
+          "h": 22.65
+        }
+      },
       "t_undo": {
         "component": "Textf7d96879fa40",
         "layout": {
-          "x": 231.19,
+          "x": 210.0,
           "y": 86.85,
-          "w": 62.0,
+          "w": 54.0,
           "h": 22.65
         }
       },
       "icon_undo": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 295.19,
+          "x": 266.0,
           "y": 88.85,
           "w": 18.0,
           "h": 18.0,

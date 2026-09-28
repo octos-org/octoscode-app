@@ -78,18 +78,18 @@
       "native_id": "beauty_0_0_1_0",
       "parent": "scope_pill",
       "kind": "text",
-      "component": "Text48b00185d34b",
+      "component": "Text0ecbde8d760e",
       "semantic_role": "text",
       "bounds": [
-        207.27,
+        207.03,
         35.5,
         81.0,
-        21.5
+        22.14
       ],
-      "text": "Last turn v",
+      "text": "Last turn",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 15.25
+      "size": 18.29
     },
     {
       "source_id": "scope_chev",
@@ -119,7 +119,7 @@
       "bounds": [
         309.01,
         37.0,
-        46.0,
+        30.0,
         22.5
       ],
       "text": "+62",
@@ -135,9 +135,9 @@
       "component": "Text5abfe3ea15d7",
       "semantic_role": "text",
       "bounds": [
-        357.01,
+        343.01,
         37.0,
-        40.0,
+        22.0,
         22.5
       ],
       "text": "-5",
@@ -308,22 +308,40 @@
       "size": 11.11
     },
     {
-      "source_id": "dl_1",
+      "source_id": "mk_1",
       "native_id": "beauty_0_0_5_2_1",
       "parent": "row_1",
       "kind": "text",
-      "component": "Text6fde119dbc25",
+      "component": "Text73b9b5c4f0e4",
       "semantic_role": "text",
       "bounds": [
-        85.72,
+        52.0,
+        249.0,
+        14.0,
+        24.0
+      ],
+      "text": "-",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 16.0
+    },
+    {
+      "source_id": "dl_1",
+      "native_id": "beauty_0_0_5_2_2",
+      "parent": "row_1",
+      "kind": "text",
+      "component": "Text9347b987ab1a",
+      "semantic_role": "text",
+      "bounds": [
+        86.74,
         254.0,
         180.5,
         24.5
       ],
-      "text": "- self.queue.clear();",
+      "text": "self.queue.clear();",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 14.01
+      "size": 15.48
     },
     {
       "source_id": "row_2",
@@ -362,22 +380,40 @@
       "size": 12.22
     },
     {
-      "source_id": "dl_2",
+      "source_id": "mk_2",
       "native_id": "beauty_0_0_5_3_1",
       "parent": "row_2",
       "kind": "text",
-      "component": "Text95cc63f39348",
+      "component": "Text73b9b5c4f0e4",
       "semantic_role": "text",
       "bounds": [
-        86.3,
+        52.0,
+        299.0,
+        14.0,
+        24.0
+      ],
+      "text": "-",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 16.0
+    },
+    {
+      "source_id": "dl_2",
+      "native_id": "beauty_0_0_5_3_2",
+      "parent": "row_2",
+      "kind": "text",
+      "component": "Text5ed0aef22d93",
+      "semantic_role": "text",
+      "bounds": [
+        87.33,
         302.5,
         287.0,
         23.5
       ],
-      "text": "- self.state = State::Disconnected;",
+      "text": "self.state = State::Disconnected;",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 13.47
+      "size": 14.29
     },
     {
       "source_id": "row_3",
@@ -416,22 +452,40 @@
       "size": 11.11
     },
     {
-      "source_id": "dl_3",
+      "source_id": "mk_3",
       "native_id": "beauty_0_0_5_4_1",
       "parent": "row_3",
       "kind": "text",
-      "component": "Textcd61d659d484",
+      "component": "Textc6ef761c69e6",
       "semantic_role": "text",
       "bounds": [
-        90.23,
+        52.0,
+        349.0,
+        14.0,
+        24.0
+      ],
+      "text": "+",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 16.0
+    },
+    {
+      "source_id": "dl_3",
+      "native_id": "beauty_0_0_5_4_2",
+      "parent": "row_3",
+      "kind": "text",
+      "component": "Textd3c6476acb74",
+      "semantic_role": "text",
+      "bounds": [
+        89.78,
         355.5,
         201.0,
         24.5
       ],
-      "text": "+ self.persist_queue()?;",
+      "text": "self.persist_queue()?;",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 13.68
+      "size": 14.92
     },
     {
       "source_id": "row_4",
@@ -470,22 +524,40 @@
       "size": 11.94
     },
     {
-      "source_id": "dl_4",
+      "source_id": "mk_4",
       "native_id": "beauty_0_0_5_5_1",
       "parent": "row_4",
       "kind": "text",
-      "component": "Text975d0df2280e",
+      "component": "Textc6ef761c69e6",
       "semantic_role": "text",
       "bounds": [
-        87.22,
+        52.0,
+        399.0,
+        14.0,
+        24.0
+      ],
+      "text": "+",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 16.0
+    },
+    {
+      "source_id": "dl_4",
+      "native_id": "beauty_0_0_5_5_2",
+      "parent": "row_4",
+      "kind": "text",
+      "component": "Text0706174c2a9d",
+      "semantic_role": "text",
+      "bounds": [
+        86.79,
         405.0,
         235.5,
         24.5
       ],
-      "text": "+ self.queue.mark_pending();",
+      "text": "self.queue.mark_pending();",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 13.78
+      "size": 14.84
     },
     {
       "source_id": "row_5",
@@ -524,22 +596,40 @@
       "size": 11.94
     },
     {
-      "source_id": "dl_5",
+      "source_id": "mk_5",
       "native_id": "beauty_0_0_5_6_1",
       "parent": "row_5",
       "kind": "text",
-      "component": "Textc3cba5801495",
+      "component": "Textc6ef761c69e6",
       "semantic_role": "text",
       "bounds": [
-        87.22,
+        52.0,
+        449.0,
+        14.0,
+        24.0
+      ],
+      "text": "+",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 16.0
+    },
+    {
+      "source_id": "dl_5",
+      "native_id": "beauty_0_0_5_6_2",
+      "parent": "row_5",
+      "kind": "text",
+      "component": "Texta31b6a8d052a",
+      "semantic_role": "text",
+      "bounds": [
+        86.8,
         454.5,
         261.0,
         24.0
       ],
-      "text": "+ self.metrics.reconnects += 1;",
+      "text": "self.metrics.reconnects += 1;",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 13.81
+      "size": 14.77
     },
     {
       "source_id": "row_6",
@@ -578,22 +668,40 @@
       "size": 12.22
     },
     {
-      "source_id": "dl_6",
+      "source_id": "mk_6",
       "native_id": "beauty_0_0_5_7_1",
       "parent": "row_6",
       "kind": "text",
-      "component": "Text13d7b100db1c",
+      "component": "Textc6ef761c69e6",
       "semantic_role": "text",
       "bounds": [
-        87.74,
+        52.0,
+        499.0,
+        14.0,
+        24.0
+      ],
+      "text": "+",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 16.0
+    },
+    {
+      "source_id": "dl_6",
+      "native_id": "beauty_0_0_5_7_2",
+      "parent": "row_6",
+      "kind": "text",
+      "component": "Text87551b558623",
+      "semantic_role": "text",
+      "bounds": [
+        87.33,
         505.5,
         287.0,
         23.5
       ],
-      "text": "+ self.state = State::Disconnected;",
+      "text": "self.state = State::Disconnected;",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 13.47
+      "size": 14.29
     },
     {
       "source_id": "ln_7",
@@ -623,7 +731,7 @@
       "bounds": [
         72.0,
         549.0,
-        320.0,
+        300.0,
         24.0
       ],
       "text": "}",
@@ -674,6 +782,6 @@
     "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "debc3f386fba5fe64c354874c7baca3789930da2b3959b373aa7d1df8c8a3dde",
+  "contract_sha256": "1a7fed2f5c97e85b7987c0d32333a2d3418f808fad151df17a6fd2e887c73b9c",
   "mapping_basis": "mapped.json"
 }

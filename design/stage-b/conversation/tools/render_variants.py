@@ -41,6 +41,8 @@ WORK = ROOT / "tmp/stage-b/render-variants-18"
 ART_PORT = 8180                                     # 8179 is another lane's art server
 PORTS = [8346, 8347, 8348, 8349]                    # this card's block (8340-8349)
 WIDTHS = (360, 540)
+ROOT_GUTTER_X = 16   # logical page gutter each side (card #18c item 1)
+ROOT_GUTTER_Y = 8
 
 def _btn(*ids):
     """A KitButton is a `stack` wrapping `_surface` (the rounded pill), `_control`
@@ -97,23 +99,38 @@ RESPONSIVE = {
     "settings-group": {"settings_group": {"fillw": 1, "fith": 1},
                        "perm_card": {"fillw": 1}, "model_card": {"fillw": 1},
                        "perm_divider": {"fillw": 1},
-                       # t01 is a single-line section title whose authored width was
-                       # fitted to the SHORT text ("Permissions"); filling it lets the
-                       # long variant ("Permissions and defaults") draw fully. Safe
-                       # once `design.rs` emits `abs_pos` for a responsive node — with
-                       # the earlier `margin` variant any filled text painted nothing.
-                       "t01": {"fillw": 1}},
+                       # t01 is the section title — FIXED CHROME, not a fill region.
+                       # A `text` node with `fillw` is emitted with a `margin`
+                       # (design.rs), and makepad pins the glyphs to the box bottom,
+                       # clipping the title to a 9px band (probe: `fillw` 9px vs
+                       # 27px un-flagged). Give it a WIDER MEASURED box instead: it
+                       # keeps `abs_pos` (correct vertical anchor, full glyph height)
+                       # and has room for the long variant "Permissions and defaults".
+                       "t01": {"w": 340}},
 }
 
 VARIANTS = {
     "approval-card": {
         "short": {"text": {"t02": "git push origin feat/steer-queue",
                            "reason_text": "Reason: Push the fix branch so CI can run"}},
-        "long": {"text": {"t02": "cargo test -p octos-cli steer_queue -- --nocapture",
-                          "reason_text": "Run the full steer-queue integration suite before "
-                                         "pushing so a regression in the durable queue is caught "
-                                         "locally rather than in CI."},
-                 "flags": {"approval_card": {"h": 700}, "reason_text": {"h": 130}}},
+        "long": {
+            # Card #18c item 4: (a) keep the "Reason:" prefix; (b) make the long
+            # command WRAP in the mono box (drop `single_line` + give the box room);
+            # (c) grow the card AND push every action down by the reason's extra
+            # height, so the taller runtime reason never runs under the Approve
+            # button (measured overlap: reason bottom 331 vs button top 300).
+            "text": {"t02": "cargo test -p octos-cli steer_queue -- --nocapture",
+                     "reason_text": "Reason: Run the full steer-queue integration suite "
+                                    "before pushing so a regression in the durable queue "
+                                    "is caught locally rather than in CI."},
+            "flags": {"approval_card": {"h": 704},
+                      "t02": {"variant": None, "h": 56},
+                      "cmd_box": {"h": 112},
+                      "reason_text": {"y": 210, "h": 130},
+                      "approve_once": {"y": 352},
+                      "approve_session": {"y": 435},
+                      "deny": {"y": 518},
+                      "t_hint": {"y": 618}}},
     },
     "question-card": {
         "short": {"text": {"question_text": "Where should queued steers be persisted?"}},
@@ -140,8 +157,11 @@ VARIANTS = {
         "long": {"text": {"t01": "Goal \u00b7 Fix steer queue on reconnect \u00b7 18m"}},
     },
     "diff-view": {
+        # Card #18c item 5: the atlas folded row leads AND trails with a vertical
+        # ellipsis (OCR read the leading one as a colon); the short variant carried
+        # the stale ":88" string.
         "short": {"text": {"t_file": "ui_protocol.rs", "t_fadd": "+9", "t_fdel": "-1",
-                           "t_fold": ":88 unmodified lines"}},
+                           "t_fold": "⋮ 88 unmodified lines ⋮"}},
         "long": {"text": {"t_file": "ui_protocol_transport.rs", "t_fadd": "+31", "t_fdel": "-4",
                           "t_fold": ":412 unmodified lines"}},
     },
@@ -176,6 +196,58 @@ def wait_port(port, timeout=40):
     return False
 
 
+
+def relativize(tree):
+    """Card #18c: give every fill-width node the geometry a responsive parent needs.
+
+    `design.rs` emits a responsive node's inset as a MARGIN and makepad insets a
+    `Fill` extent by it. Two things must therefore be parent-relative:
+
+    * `x`/`y` — the offset FROM the parent (a nested fill would otherwise apply the
+      outer inset twice).
+    * `padright` — the RIGHT inset = parent_w - (x + w), i.e. the node's authored right
+      gap. Using `x` on the right (symmetric) collapsed right-anchored fills such as
+      edited-files' Review pill (left 296 + right 296 > its parent width). The gap
+      is right for every node: the box then spans x .. x+authored_w, which is the
+      atlas geometry, at any parent width.
+
+    The ROOT has no `padright`: its parent is the render slot, and the atlas card is
+    wider than a 360 slot once the page gutters are restored, so it must inset
+    symmetrically (left = x, right = x) to shrink into the slot.
+    """
+    def rec(n, ox, oy, pw):
+        for c in n.get("c", []) or []:
+            filled = any(c.get(k) == 1 for k in ("fillw", "fith", "fillh", "fitw"))
+            cx, cy, cw = c.get("x", 0), c.get("y", 0), c.get("w")
+            if filled:
+                c["x"] = round(cx - ox, 2)
+                c["y"] = round(cy - oy, 2)
+                if pw is not None and cw is not None:
+                    # Use the RELATIVE x: pw is the parent's width, so the gap must
+                    # be measured from the parent's own origin. With the absolute x
+                    # a nested fill got a hugely negative gap (review_surface:
+                    # 79 - (296 + 79) = -296), which mis-placed and clipped it.
+                    c["padright"] = round(pw - ((cx - ox) + cw), 2)
+                rec(c, cx, cy, cw)
+            else:
+                rec(c, ox, oy, pw)
+    rec(tree, 0, 0, None)
+    return tree
+
+
+def right_edge_ok(png_path, tol=6):
+    """Card #18c acceptance check: the rightmost 4px column of a variant must be
+    background (near-white page ground, or the host's #4c4c4c), i.e. no card
+    border, radius or tint may be cut off at the render's right edge."""
+    a = np.asarray(Image.open(png_path).convert("RGB")).astype(int)
+    strip = a[:, -4:, :]
+    white = (strip.min(axis=2) > 238).all()
+    ground = (np.abs(strip - 76).max(axis=2) <= 8).all()
+    from collections import Counter
+    top = Counter(map(tuple, strip.reshape(-1, 3))).most_common(1)[0][0]
+    return bool(white or ground), [int(v) for v in top]
+
+
 def apply_variant(tree, comp, variant):
     spec = VARIANTS[comp][variant]
     # Merge per NODE ID so a variant flag does not replace the responsive flags.
@@ -184,11 +256,29 @@ def apply_variant(tree, comp, variant):
         flags.setdefault(nid, {}).update(fl)
     inserts = spec.get("insert", [])
     drops = set(spec.get("drop", []))
+    moved = []
     for n in walk(tree):
         if n["id"] in spec.get("text", {}):
             n["text"] = spec["text"][n["id"]]
         if n["id"] in flags:
+            before = (n.get("x"), n.get("y"))
             n.update(flags[n["id"]])
+            if (n.get("x"), n.get("y")) != before:
+                moved.append((n, before[0], before[1]))
+    # Card #18c item 4: a positional flag moves a node AND its subtree. Without
+    # this a moved KitButton left its `_surface`/`_label` at the old y, so
+    # `relativize` computed a stale offset (button surface rendered 60px above its
+    # wrapper). Shift every descendant by the same delta.
+    for n, bx, by in moved:
+        dx = (n.get("x") or 0) - (bx or 0)
+        dy = (n.get("y") or 0) - (by or 0)
+        for c in walk(n):
+            if c is n:
+                continue
+            if c.get("x") is not None:
+                c["x"] = round(c["x"] + dx, 2)
+            if c.get("y") is not None:
+                c["y"] = round(c["y"] + dy, 2)
     if drops:
         def prune(node):
             node["c"] = [c for c in node.get("c", []) if c["id"] not in drops]
@@ -198,7 +288,16 @@ def apply_variant(tree, comp, variant):
     for parent_id, node in inserts:
         parent = next(n for n in walk(tree) if n["id"] == parent_id)
         parent.setdefault("c", []).append(json.loads(json.dumps(node)))
-
+    relativize(tree)
+    # Card #18c item 1: the atlas crop is card-tight, so the extracted root sits
+    # at x=0 and a `Fill` root would run edge-to-edge with its right border/radius
+    # at the window's last pixel. Give it the page gutter the atlas normalised
+    # away, so all four rounded corners are inside the render at every width.
+    # Applied AFTER relativize: children keep their offsets relative to the card's
+    # own box, and makepad insets them by the root's margin.
+    tree["x"] = round(tree.get("x", 0) + ROOT_GUTTER_X, 2)
+    tree["y"] = round(tree.get("y", 0) + ROOT_GUTTER_Y, 2)
+    tree.pop("padright", None)          # root insets symmetrically (see relativize)
     return tree, inserts, drops
 
 
@@ -301,8 +400,12 @@ def render(dest, port, w, h):
                     right -= 1
                 while left < right and near[top:bot + 1, left].all():
                     left += 1
-                if bot > top and right > left:
-                    im = im.crop((left, top, right + 1, bot + 1))
+                # Card #18c item 1: KEEP the full window width and crop only
+                # vertically. Displaying a card-tight crop would hide the very
+                # defect the card asks about; keeping the window makes the
+                # rightmost-4px background check meaningful rather than vacuous.
+                if bot > top:
+                    im = im.crop((0, top, a.shape[1], bot + 1))
                 im.save(dest / f"native-{w}.png")
             subprocess.run(["curl", "-s", "--max-time", "5", f"127.0.0.1:{port}/quit"],
                            capture_output=True)
@@ -311,7 +414,11 @@ def render(dest, port, w, h):
             if proc.poll() is None:
                 proc.kill()
     text = (dest / f"host-{w}.log").read_text(errors="ignore")
-    return {"w": w, "font_warnings": text.count("not available in this build")}
+    clip = {}
+    cf = dest / f"clip-{w}.json"
+    if cf.exists():
+        clip = json.loads(cf.read_text())
+    return {"w": w, "clipped": clip, "font_warnings": text.count("not available in this build")}
 
 
 def assemble(comp, variant, panels):
@@ -353,22 +460,40 @@ def main():
                     continue
                 renders = []
                 for wi, w in enumerate(WIDTHS):
+                    # Card #18c: delete the destination first. A failed width must
+                    # NOT pass the acceptance check on a stale PNG from an earlier
+                    # run (settings-group-short had no native-360 yet reported ok).
+                    stale = vdir / f"{variant}-{w}.png"
+                    if stale.exists():
+                        stale.unlink()
                     r = render(dest, PORTS[(vi * len(WIDTHS) + wi) % len(PORTS)], w, 720)
                     renders.append(r)
                     if (dest / f"native-{w}.png").exists():
-                        shutil.copy(dest / f"native-{w}.png", vdir / f"{variant}-{w}.png")
+                        shutil.copy(dest / f"native-{w}.png", stale)
                 panels = [str(COMPONENTS / comp / "reference.png")]
                 for w in WIDTHS:
                     panels.append(str(vdir / f"{variant}-{w}.png"))
-                ok = all(Path(p).is_file() for p in panels)
+                # Card #18c item 1 acceptance check: the rightmost 4px column of
+                # every variant must be background, i.e. no card border/radius/tint
+                # is cut off at the render's right edge.
+                edge = {}
+                for w in WIDTHS:
+                    f = vdir / f"{variant}-{w}.png"
+                    if f.exists():
+                        ok_e, col = right_edge_ok(f)
+                        edge[w] = {"ok": ok_e, "colour": col}
+                edge_ok = all(v["ok"] for v in edge.values()) if edge else False
+                widths_ok = len(edge) == len(WIDTHS)
+                ok = all(Path(p).is_file() for p in panels) and edge_ok and widths_ok
                 review = str(assemble(comp, variant, panels)) if ok else None
                 summary[comp][variant] = {
                     "render": str(Path(review).relative_to(ROOT)) if review else None,
                     "widths": list(WIDTHS),
+                    "right_edge": edge,
                     "font_warnings": sum(r.get("font_warnings", 0) for r in renders),
                 }
                 print(json.dumps({"component": comp, "variant": variant, "review": review,
-                                  "ok": ok}, ensure_ascii=False))
+                                  "ok": ok, "right_edge": edge}, ensure_ascii=False))
     finally:
         httpd.shutdown()
     (WORK / "summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n")

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "3facabf1d1211416ca34f91da41f1ee9c8494ad99e296e34a6be48f01b7d0201",
+  "contract_sha256": "c7f633e4498c4c0de481079fcdf7425b2b65d6b036ca61e6c49a7e1c4150a12a",
   "reference_sha256": "579b5396e106aaa223ebf2655f1dfac53f795058e362202c78634d64e15c456e",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -87,7 +87,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/opt_memory_radio.svg",
-        "sha256": "c5fdf81a4628a6039d9610530e0078eb69624a817306e8630b837599ceb2a760",
+        "sha256": "912d54d8f84f31876872de6773fd5946e84cc2b63c437ccb2329e0da5af39236",
         "method": "reference_svg",
         "reference_sha256": "579b5396e106aaa223ebf2655f1dfac53f795058e362202c78634d64e15c456e",
         "fit": "stretch",
@@ -117,7 +117,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/opt_ask_radio.svg",
-        "sha256": "c5fdf81a4628a6039d9610530e0078eb69624a817306e8630b837599ceb2a760",
+        "sha256": "912d54d8f84f31876872de6773fd5946e84cc2b63c437ccb2329e0da5af39236",
         "method": "reference_svg",
         "reference_sha256": "579b5396e106aaa223ebf2655f1dfac53f795058e362202c78634d64e15c456e",
         "fit": "stretch",

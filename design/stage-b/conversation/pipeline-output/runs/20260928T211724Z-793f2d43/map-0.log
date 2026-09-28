@@ -1,0 +1,12 @@
+{"scene": "1", "stage": "map", "result": {"id": "conversation-01", "texts": 7, "matched": 7, "extra_ocr": 0, "opaque": true}}
+{"scene": "2", "stage": "map", "result": {"id": "conversation-02", "texts": 9, "matched": 9, "extra_ocr": 0, "opaque": true}}
+{"scene": "3", "stage": "map", "result": {"id": "conversation-03", "texts": 9, "matched": 8, "extra_ocr": 6, "opaque": true}}
+{"scene": "4", "stage": "map", "result": {"id": "conversation-04", "texts": 10, "matched": 9, "extra_ocr": 1, "opaque": true}}
+{"scene": "5", "stage": "map", "result": {"id": "conversation-05", "texts": 7, "matched": 7, "extra_ocr": 1, "opaque": true}}
+{"scene": "6", "stage": "map", "result": {"id": "conversation-06", "texts": 8, "matched": 6, "extra_ocr": 4, "opaque": true}}
+{"scene": "7", "stage": "map", "result": {"id": "conversation-07", "texts": 18, "matched": 10, "extra_ocr": 4, "opaque": true}}
+{"scene": "8", "stage": "map", "result": {"id": "conversation-08", "texts": 6, "matched": 6, "extra_ocr": 3, "opaque": true}}
+{"scene": "9", "stage": "map", "result": {"id": "conversation-09", "texts": 3, "matched": 2, "extra_ocr": 9, "opaque": true}}
+{"scene": "10", "stage": "map", "result": {"id": "conversation-10", "texts": 7, "matched": 7, "extra_ocr": 0, "opaque": true}}
+{"scene": "11", "stage": "map", "result": {"id": "conversation-11", "texts": 24, "matched": 19, "extra_ocr": 1, "opaque": true}}
+{"scene": "12", "stage": "map", "result": {"id": "conversation-12", "texts": 8, "matched": 6, "extra_ocr": 4, "opaque": true}}

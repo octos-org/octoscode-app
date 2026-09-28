@@ -40,9 +40,9 @@
         374.0,
         580.0
       ],
-      "nodes": 27,
+      "nodes": 28,
       "native_controls": 1,
-      "components": 25
+      "components": 26
     },
     {
       "id": "plan-card",
@@ -82,9 +82,9 @@
         362.0,
         566.0
       ],
-      "nodes": 36,
+      "nodes": 42,
       "native_controls": 0,
-      "components": 33
+      "components": 35
     },
     {
       "id": "settings-group",
@@ -96,9 +96,9 @@
         374.0,
         620.0
       ],
-      "nodes": 16,
+      "nodes": 17,
       "native_controls": 0,
-      "components": 15
+      "components": 16
     }
   ],
   "validation": "Compiled native subtrees; independent Studio input/layout and visual review remain required"

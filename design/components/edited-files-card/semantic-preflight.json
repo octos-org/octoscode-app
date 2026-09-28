@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "f270970fe4fee0ade76c798a23cc75e851defc430ab0a8f23ac43108f6c3a68d",
+  "manifest_sha256": "b10656895ce0630a0a20ef0032345188ab9531e1be656c8748ad5d39108f6efe",
   "reference_sha256": "9f995e3c5c54e4779fb7eefdf40f044cf70715c3469346bf2caf777aec279ae6",
   "id": "edited-files-card",
   "round": null,
@@ -57,6 +57,17 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "undo_group",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
       "id": "t_undo",

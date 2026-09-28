@@ -294,18 +294,36 @@
       "native_id": "beauty_0_0_4_1",
       "parent": "model_card",
       "kind": "text",
-      "component": "Textc59130a9c7f8",
+      "component": "Text47dd2c54383e",
       "semantic_role": "text",
       "bounds": [
-        206.82,
+        206.76,
         561.0,
         149.0,
         26.5
       ],
-      "text": "deepseek-v4-flash v",
+      "text": "deepseek-v4-flash",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14.47
+      "size": 15.8
+    },
+    {
+      "source_id": "pick_chev",
+      "native_id": "beauty_0_0_4_2",
+      "parent": "model_card",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        356.0,
+        557.833,
+        16.0,
+        23.111
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
     }
   ],
   "fonts": {
@@ -313,6 +331,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "1491a50e934aa3f1973d4a2b914f06240171fa11691f9e948b16ab41869df50a",
+  "contract_sha256": "fba9a63e91d82e24a331918458ef6bedbadb9284669631691f9975c26cee1575",
   "mapping_basis": "mapped.json"
 }

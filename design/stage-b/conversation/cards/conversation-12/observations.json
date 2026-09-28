@@ -192,17 +192,17 @@
     },
     {
       "id": "t_pick",
-      "expected_text": "deepseek-v4-flash v",
+      "expected_text": "deepseek-v4-flash",
       "requested_bounds": [
         205.0,
         561.5,
-        160.0,
+        150.0,
         21.63
       ],
       "status": "observed",
       "ocr_text": "deepseek-v4-flash v",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9444444444444444,
       "ink_bounds": [
         207.5,
         563.0,
@@ -336,6 +336,17 @@
       "reviewed": false,
       "bg": 4294901502,
       "radius": 17.33
+    },
+    {
+      "id": "pick_chev",
+      "bounds": [
+        356.0,
+        557.833,
+        16.0,
+        23.111
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     }
   ],
   "unmapped_ocr": [

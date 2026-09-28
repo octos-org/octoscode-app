@@ -34,6 +34,9 @@ component Textaf5b4a445c6d(instance: text, text: text) {
 component Texte8095f1ab825(instance: text, text: text) {
   view Kit(component: "Texte8095f1ab825", instance: instance, text: text)
 }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
 component Textf7d96879fa40(instance: text, text: text) {
   view Kit(component: "Textf7d96879fa40", instance: instance, text: text)
 }
@@ -102,8 +105,10 @@ view root Surface13b18c6e4e55(instance: "edited_files_card") {
   Text5113f491f005(instance: "t01", text: copy.t01_text)
   Textaf5b4a445c6d(instance: "t02_add", text: copy.t02_add_text)
   Texte8095f1ab825(instance: "t02_del", text: copy.t02_del_text)
-  Textf7d96879fa40(instance: "t_undo", text: copy.t_undo_text)
-  Vectore0a378fde04f(instance: "icon_undo")
+  Group3d2637879433(instance: "undo_group") {
+    Textf7d96879fa40(instance: "t_undo", text: copy.t_undo_text)
+    Vectore0a378fde04f(instance: "icon_undo")
+  }
   KitButton2c6804b990a5(instance: "review") {
     Surface03c877f6732d(instance: "review_surface") {
 

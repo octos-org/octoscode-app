@@ -13,6 +13,9 @@ component Textaf5b4a445c6d(instance: text, text: text) {
 component Texte8095f1ab825(instance: text, text: text) {
   view Kit(component: "Texte8095f1ab825", instance: instance, text: text)
 }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
 component Textf7d96879fa40(instance: text, text: text) {
   view Kit(component: "Textf7d96879fa40", instance: instance, text: text)
 }

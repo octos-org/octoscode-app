@@ -4,7 +4,7 @@
 # Static design fixture, runtime native Kit composition.
 theme light
 copy t01_text { class: user-copy, en: "Review" }
-copy scope_label_text { class: user-copy, en: "Last turn v" }
+copy scope_label_text { class: user-copy, en: "Last turn" }
 copy t_add_text { class: user-copy, en: "+62" }
 copy t_del_text { class: user-copy, en: "-5" }
 copy t_file_text { class: user-copy, en: "ui_protocol_transport.rs" }
@@ -13,17 +13,23 @@ copy t_fdel_text { class: user-copy, en: "-4" }
 copy ln_0_text { class: user-copy, en: "198" }
 copy dl_0_text { class: user-copy, en: "fn handle_disconnect(&mut self) {" }
 copy ln_1_text { class: user-copy, en: "199" }
-copy dl_1_text { class: user-copy, en: "- self.queue.clear();" }
+copy mk_1_text { class: user-copy, en: "-" }
+copy dl_1_text { class: user-copy, en: "self.queue.clear();" }
 copy ln_2_text { class: user-copy, en: "200" }
-copy dl_2_text { class: user-copy, en: "- self.state = State::Disconnected;" }
+copy mk_2_text { class: user-copy, en: "-" }
+copy dl_2_text { class: user-copy, en: "self.state = State::Disconnected;" }
 copy ln_3_text { class: user-copy, en: "201" }
-copy dl_3_text { class: user-copy, en: "+ self.persist_queue()?;" }
+copy mk_3_text { class: user-copy, en: "+" }
+copy dl_3_text { class: user-copy, en: "self.persist_queue()?;" }
 copy ln_4_text { class: user-copy, en: "202" }
-copy dl_4_text { class: user-copy, en: "+ self.queue.mark_pending();" }
+copy mk_4_text { class: user-copy, en: "+" }
+copy dl_4_text { class: user-copy, en: "self.queue.mark_pending();" }
 copy ln_5_text { class: user-copy, en: "203" }
-copy dl_5_text { class: user-copy, en: "+ self.metrics.reconnects += 1;" }
+copy mk_5_text { class: user-copy, en: "+" }
+copy dl_5_text { class: user-copy, en: "self.metrics.reconnects += 1;" }
 copy ln_6_text { class: user-copy, en: "204" }
-copy dl_6_text { class: user-copy, en: "+ self.state = State::Disconnected;" }
+copy mk_6_text { class: user-copy, en: "+" }
+copy dl_6_text { class: user-copy, en: "self.state = State::Disconnected;" }
 copy ln_7_text { class: user-copy, en: "205" }
 copy dl_7_text { class: user-copy, en: "}" }
 copy t_fold_text { class: user-copy, en: "⋮ 412 unmodified lines ⋮" }
@@ -36,8 +42,8 @@ component Text9834725221d0(instance: text, text: text) {
 component Surfacea5608e1e058c(instance: text) {
   view Kit(component: "Surfacea5608e1e058c", instance: instance) { slot }
 }
-component Text48b00185d34b(instance: text, text: text) {
-  view Kit(component: "Text48b00185d34b", instance: instance, text: text)
+component Text0ecbde8d760e(instance: text, text: text) {
+  view Kit(component: "Text0ecbde8d760e", instance: instance, text: text)
 }
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
@@ -75,8 +81,11 @@ component Surfaced75db230497b(instance: text) {
 component Textf32407f8980b(instance: text, text: text) {
   view Kit(component: "Textf32407f8980b", instance: instance, text: text)
 }
-component Text6fde119dbc25(instance: text, text: text) {
-  view Kit(component: "Text6fde119dbc25", instance: instance, text: text)
+component Text73b9b5c4f0e4(instance: text, text: text) {
+  view Kit(component: "Text73b9b5c4f0e4", instance: instance, text: text)
+}
+component Text9347b987ab1a(instance: text, text: text) {
+  view Kit(component: "Text9347b987ab1a", instance: instance, text: text)
 }
 component Surfacefcd0436a33ea(instance: text) {
   view Kit(component: "Surfacefcd0436a33ea", instance: instance) { slot }
@@ -84,8 +93,8 @@ component Surfacefcd0436a33ea(instance: text) {
 component Text2798b068bf5b(instance: text, text: text) {
   view Kit(component: "Text2798b068bf5b", instance: instance, text: text)
 }
-component Text95cc63f39348(instance: text, text: text) {
-  view Kit(component: "Text95cc63f39348", instance: instance, text: text)
+component Text5ed0aef22d93(instance: text, text: text) {
+  view Kit(component: "Text5ed0aef22d93", instance: instance, text: text)
 }
 component Surface8fb0f9d1e1aa(instance: text) {
   view Kit(component: "Surface8fb0f9d1e1aa", instance: instance) { slot }
@@ -93,26 +102,29 @@ component Surface8fb0f9d1e1aa(instance: text) {
 component Textbedc46ae06d1(instance: text, text: text) {
   view Kit(component: "Textbedc46ae06d1", instance: instance, text: text)
 }
-component Textcd61d659d484(instance: text, text: text) {
-  view Kit(component: "Textcd61d659d484", instance: instance, text: text)
+component Textc6ef761c69e6(instance: text, text: text) {
+  view Kit(component: "Textc6ef761c69e6", instance: instance, text: text)
+}
+component Textd3c6476acb74(instance: text, text: text) {
+  view Kit(component: "Textd3c6476acb74", instance: instance, text: text)
 }
 component Textd88beed3e030(instance: text, text: text) {
   view Kit(component: "Textd88beed3e030", instance: instance, text: text)
 }
-component Text975d0df2280e(instance: text, text: text) {
-  view Kit(component: "Text975d0df2280e", instance: instance, text: text)
+component Text0706174c2a9d(instance: text, text: text) {
+  view Kit(component: "Text0706174c2a9d", instance: instance, text: text)
 }
 component Text5aacbcae43ed(instance: text, text: text) {
   view Kit(component: "Text5aacbcae43ed", instance: instance, text: text)
 }
-component Textc3cba5801495(instance: text, text: text) {
-  view Kit(component: "Textc3cba5801495", instance: instance, text: text)
+component Texta31b6a8d052a(instance: text, text: text) {
+  view Kit(component: "Texta31b6a8d052a", instance: instance, text: text)
 }
 component Text702d8e0568e1(instance: text, text: text) {
   view Kit(component: "Text702d8e0568e1", instance: instance, text: text)
 }
-component Text13d7b100db1c(instance: text, text: text) {
-  view Kit(component: "Text13d7b100db1c", instance: instance, text: text)
+component Text87551b558623(instance: text, text: text) {
+  view Kit(component: "Text87551b558623", instance: instance, text: text)
 }
 component Textb2dc805d1fc5(instance: text, text: text) {
   view Kit(component: "Textb2dc805d1fc5", instance: instance, text: text)
@@ -130,7 +142,7 @@ component Text76b2bc3a3ce4(instance: text, text: text) {
 view root Surface075259015c99(instance: "diff_view") {
   Text9834725221d0(instance: "t01", text: copy.t01_text)
   Surfacea5608e1e058c(instance: "scope_pill") {
-    Text48b00185d34b(instance: "scope_label", text: copy.scope_label_text)
+    Text0ecbde8d760e(instance: "scope_label", text: copy.scope_label_text)
     Vectore0a378fde04f(instance: "scope_chev")
   }
   Text98953305a681(instance: "t_add", text: copy.t_add_text)
@@ -145,27 +157,33 @@ view root Surface075259015c99(instance: "diff_view") {
     Text82e58d1f7453(instance: "dl_0", text: copy.dl_0_text)
     Surfaced75db230497b(instance: "row_1") {
       Textf32407f8980b(instance: "ln_1", text: copy.ln_1_text)
-      Text6fde119dbc25(instance: "dl_1", text: copy.dl_1_text)
+      Text73b9b5c4f0e4(instance: "mk_1", text: copy.mk_1_text)
+      Text9347b987ab1a(instance: "dl_1", text: copy.dl_1_text)
     }
     Surfacefcd0436a33ea(instance: "row_2") {
       Text2798b068bf5b(instance: "ln_2", text: copy.ln_2_text)
-      Text95cc63f39348(instance: "dl_2", text: copy.dl_2_text)
+      Text73b9b5c4f0e4(instance: "mk_2", text: copy.mk_2_text)
+      Text5ed0aef22d93(instance: "dl_2", text: copy.dl_2_text)
     }
     Surface8fb0f9d1e1aa(instance: "row_3") {
       Textbedc46ae06d1(instance: "ln_3", text: copy.ln_3_text)
-      Textcd61d659d484(instance: "dl_3", text: copy.dl_3_text)
+      Textc6ef761c69e6(instance: "mk_3", text: copy.mk_3_text)
+      Textd3c6476acb74(instance: "dl_3", text: copy.dl_3_text)
     }
     Surface8fb0f9d1e1aa(instance: "row_4") {
       Textd88beed3e030(instance: "ln_4", text: copy.ln_4_text)
-      Text975d0df2280e(instance: "dl_4", text: copy.dl_4_text)
+      Textc6ef761c69e6(instance: "mk_4", text: copy.mk_4_text)
+      Text0706174c2a9d(instance: "dl_4", text: copy.dl_4_text)
     }
     Surface8fb0f9d1e1aa(instance: "row_5") {
       Text5aacbcae43ed(instance: "ln_5", text: copy.ln_5_text)
-      Textc3cba5801495(instance: "dl_5", text: copy.dl_5_text)
+      Textc6ef761c69e6(instance: "mk_5", text: copy.mk_5_text)
+      Texta31b6a8d052a(instance: "dl_5", text: copy.dl_5_text)
     }
     Surface8fb0f9d1e1aa(instance: "row_6") {
       Text702d8e0568e1(instance: "ln_6", text: copy.ln_6_text)
-      Text13d7b100db1c(instance: "dl_6", text: copy.dl_6_text)
+      Textc6ef761c69e6(instance: "mk_6", text: copy.mk_6_text)
+      Text87551b558623(instance: "dl_6", text: copy.dl_6_text)
     }
     Textb2dc805d1fc5(instance: "ln_7", text: copy.ln_7_text)
     Text6292c61548c3(instance: "dl_7", text: copy.dl_7_text)

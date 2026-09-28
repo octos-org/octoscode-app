@@ -303,6 +303,13 @@
       },
       "slot": false
     },
+    "Group3d2637879433": {
+      "style": {
+        "t": "stack"
+      },
+      "props": {},
+      "slot": true
+    },
     "Textf7d96879fa40": {
       "style": {
         "t": "text",

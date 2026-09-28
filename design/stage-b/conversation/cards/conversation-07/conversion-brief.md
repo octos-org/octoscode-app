@@ -93,10 +93,21 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t_undo",
-    "x": 231.19,
+    "id": "undo_group",
+    "x": 210.0,
     "y": 86.85,
-    "w": 62.0,
+    "w": 74.0,
+    "h": 22.65,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t_undo",
+    "x": 210.0,
+    "y": 86.85,
+    "w": 54.0,
     "h": 22.65,
     "text": "Undo",
     "font_src": "self:resources/ux/Inter-500.ttf",
@@ -110,7 +121,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_undo",
-    "x": 295.19,
+    "x": 266.0,
     "y": 88.85,
     "w": 18.0,
     "h": 18.0,
@@ -119,9 +130,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "review",
-    "x": 316.0,
+    "x": 296.0,
     "y": 78.0,
-    "w": 74.0,
+    "w": 76.0,
     "h": 40.0,
     "role": "button",
     "native_candidates": [
@@ -131,9 +142,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "review_surface",
-    "x": 316.0,
+    "x": 296.0,
     "y": 78.0,
-    "w": 74.0,
+    "w": 76.0,
     "h": 40.0,
     "role": "layout",
     "native_candidates": [
@@ -142,9 +153,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "review_control",
-    "x": 316.0,
+    "x": 296.0,
     "y": 78.0,
-    "w": 74.0,
+    "w": 76.0,
     "h": 40.0,
     "role": "button",
     "native_candidates": [
@@ -154,9 +165,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "review_label",
-    "x": 319.0,
+    "x": 299.0,
     "y": 88.0,
-    "w": 80.0,
+    "w": 70.0,
     "h": 24.0,
     "text": "Review",
     "font_src": "self:resources/ux/Inter-500.ttf",

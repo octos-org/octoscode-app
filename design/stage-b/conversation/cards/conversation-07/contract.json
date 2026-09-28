@@ -85,44 +85,54 @@
             "font_src": "self:resources/ux/Inter-500.ttf"
           },
           {
-            "t": "text",
-            "id": "t_undo",
-            "text": "Undo",
-            "x": 231.19,
+            "t": "stack",
+            "id": "undo_group",
+            "x": 210.0,
             "y": 86.85,
-            "w": 62.0,
+            "w": 74.0,
             "h": 22.65,
-            "size": 14,
-            "line_height": 22.65,
-            "weight": 500,
-            "color": 4280098079,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-500.ttf"
-          },
-          {
-            "t": "svg",
-            "id": "icon_undo",
-            "x": 295.19,
-            "y": 88.85,
-            "w": 18.0,
-            "h": 18.0,
-            "src": ""
+            "c": [
+              {
+                "t": "text",
+                "id": "t_undo",
+                "text": "Undo",
+                "x": 210.0,
+                "y": 86.85,
+                "w": 54.0,
+                "h": 22.65,
+                "size": 14,
+                "line_height": 22.65,
+                "weight": 500,
+                "color": 4280098079,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf"
+              },
+              {
+                "t": "svg",
+                "id": "icon_undo",
+                "x": 266.0,
+                "y": 88.85,
+                "w": 18.0,
+                "h": 18.0,
+                "src": ""
+              }
+            ]
           },
           {
             "t": "stack",
             "id": "review",
-            "x": 316.0,
+            "x": 296.0,
             "y": 78.0,
-            "w": 74.0,
+            "w": 76.0,
             "h": 40.0,
             "c": [
               {
                 "t": "stack",
                 "id": "review_surface",
-                "x": 316.0,
+                "x": 296.0,
                 "y": 78.0,
-                "w": 74.0,
+                "w": 76.0,
                 "h": 40.0,
                 "c": [],
                 "variant": "surface",
@@ -134,9 +144,9 @@
               {
                 "t": "button",
                 "id": "review_control",
-                "x": 316.0,
+                "x": 296.0,
                 "y": 78.0,
-                "w": 74.0,
+                "w": 76.0,
                 "h": 40.0,
                 "enabled": 1
               },
@@ -144,9 +154,9 @@
                 "t": "text",
                 "id": "review_label",
                 "text": "Review",
-                "x": 319.0,
+                "x": 299.0,
                 "y": 88.0,
-                "w": 80.0,
+                "w": 70.0,
                 "h": 24.0,
                 "size": 16.0,
                 "line_height": 24.0,

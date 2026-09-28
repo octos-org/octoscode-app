@@ -159,6 +159,17 @@
       "reviewed": false,
       "bg": 4294901502,
       "radius": 17.33
+    },
+    {
+      "id": "pick_chev",
+      "bounds": [
+        356.0,
+        557.833,
+        16.0,
+        23.111
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     }
   ]
 }

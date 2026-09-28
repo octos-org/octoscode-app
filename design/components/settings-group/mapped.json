@@ -212,19 +212,28 @@
           {
             "t": "text",
             "id": "t_pick",
-            "text": "deepseek-v4-flash v",
-            "x": 190.82,
+            "text": "deepseek-v4-flash",
+            "x": 190.76,
             "y": 531.0,
             "w": 149.0,
             "h": 26.5,
-            "size": 14.47,
-            "line_height": 17.51,
+            "size": 15.8,
+            "line_height": 19.11,
             "weight": 500,
             "color": 4281414194,
             "variant": "single_line",
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-500.ttf",
             "tracking": 0.0
+          },
+          {
+            "t": "svg",
+            "id": "pick_chev",
+            "x": 340.0,
+            "y": 527.833,
+            "w": 16.0,
+            "h": 23.111,
+            "src": ""
           }
         ],
         "variant": "surface",
@@ -241,7 +250,7 @@
   "changes": [
     {
       "source": "cards/conversation-12/mapped.json",
-      "source_sha256": "b8022f1ce068441e8c29381ae1a8210c27da83782aa06a2103f1789145e815ac",
+      "source_sha256": "424e3ea5df75c73c1db218856e6d4996ec18b9cb032ba8450914a1a15b0df399",
       "operation": "Extract native subtree and translate origin",
       "source_root": "settings_group",
       "translation": [

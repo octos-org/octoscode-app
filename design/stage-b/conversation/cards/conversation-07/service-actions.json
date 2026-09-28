@@ -4,9 +4,9 @@
     "review": {
       "event": "files.review",
       "source_bounds": [
-        316,
+        296,
         78,
-        74,
+        76,
         40
       ],
       "enabled": true

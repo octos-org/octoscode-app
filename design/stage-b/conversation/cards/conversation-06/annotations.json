@@ -72,10 +72,10 @@
     {
       "id": "opt_ledger_radio",
       "bounds": [
-        38.0,
-        256.59,
-        20.0,
-        20.0
+        37.0,
+        255.59,
+        22.0,
+        22.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -94,10 +94,10 @@
     {
       "id": "opt_memory_radio",
       "bounds": [
-        38.0,
-        357.12,
-        20.0,
-        20.0
+        37.0,
+        356.12,
+        22.0,
+        22.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -116,10 +116,10 @@
     {
       "id": "opt_ask_radio",
       "bounds": [
-        38.0,
-        417.52,
-        20.0,
-        20.0
+        37.0,
+        416.52,
+        22.0,
+        22.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false

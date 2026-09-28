@@ -84,7 +84,7 @@ ICONS = {
                        '<circle cx="11.8" cy="17" r="0.9" fill="#1D1D1F" stroke="none"/>',
     "radio_on": '<circle cx="12" cy="12" r="8.2" fill="none" stroke="#2F6FEB" stroke-width="1.8"/>'
                 '<circle cx="12" cy="12" r="3.7" fill="#2F6FEB" stroke="none"/>',
-    "radio_off": '<circle cx="12" cy="12" r="8.2" fill="none" stroke="#C7C7CC" stroke-width="1.6"/>',
+    "radio_off": '<circle cx="12" cy="12" r="8.2" fill="none" stroke="#6E6E73" stroke-width="1.8"/>',
     "chevron": '<path d="M9 6l6 6-6 6"/>',
     # Card #18b: the atlas draws the pause as two FILLED bars (the first pass used
     # stroke-only rects, which rendered as two thin outlines).
@@ -307,7 +307,12 @@ FIX = {"Review PR #2556": "Review PR #2566", "Bump octos-core to abea8505": "Bum
        "• Fixed loss of queuedsteers when": "• Fixed loss of queued steers when",
        "• All tests pass: 12 passed .": "• All tests pass: 12 passed.",
        "• Changes included in commit a6ea8505 .": "• Changes included in commit a6ea8505.",
-       "• Updated ui_protocol_transport.rs": "• Updated ui_protocol_transport.rs"}
+       "• Updated ui_protocol_transport.rs": "• Updated ui_protocol_transport.rs",
+       # Card #18c item 6: Apple Vision reads the chevron-down GLYPH as the letter
+       # "v", so the OCR text ends with a stray " v" — strip it and draw the real
+       # `chevron_down` icon instead (the atlas pill/picker has a vector chevron).
+       "deepseek-v4-flash v": "deepseek-v4-flash",
+       "Last turn v": "Last turn"}
 
 def fix(s):
     return FIX.get(s, s)
@@ -533,9 +538,14 @@ def build_06(sc):
             (5, "opt_memory", "question.select.memory", "radio_off"),
             (6, "opt_ask", "question.select.ask", "radio_off")]):
         _, x, y, w, h = sc.rows[row_i]
+        # Card #18c item 7: the "(recommended)" suffix belongs to the FIRST option
+        # as ONE flowing label (a separate node kept the atlas's doubled line
+        # spacing); and the radios are the atlas's ~22px dark rings, not the faint
+        # 20px ones (radio_off's stroke was #C7C7CC).
+        label = sc.t(row_i) + ("  " + sc.t(4) if i == 0 else "")
         sc.put(stack(cid, 34, y - 6, 340, h + 12, [
-            icon(cid + "_radio", glyph, 38, y + 2, 20, 20, color="ink"),
-            text(cid + "_label", sc.t(row_i), x, y, w, h, size=14,
+            icon(cid + "_radio", glyph, 37, y + 1, 22, 22, color="ink"),
+            text(cid + "_label", label, x, y, w + (150 if i == 0 else 0), h, size=14,
                  weight=500 if i == 0 else 400)], event=event))
         sc.controls[cid] = (event, [int(34), int(y - 6), int(340), int(h + 12)], True)
     # the "(recommended)" suffix stays beside the first option
@@ -567,11 +577,15 @@ def build_07(sc):
     sc.put(text("t02_del", "-5", ttx + 46, tty, 40, tth, weight=500, size=15, color="red"))
     # ref z7-07-undorev: "Undo" is the LABEL and the ↺ glyph sits to its RIGHT
     # (OCR "Undo 9" merged the glyph). v7 drew the icon at x231, over the label.
+    # Card #18c item 3: `Undo ↺` is ONE group, then a hugging bordered Review pill —
+    # both right-aligned with no overlap. Before, the glyph sat at x279..297 while
+    # the Review pill started at 293, so the glyph rendered UNDER the pill.
     _, ux, uy, uw, uh = sc.rows[2]
-    sc.put(text("t_undo", "Undo", ux, uy, 62, uh, weight=500, size=14))
-    sc.add_icon("icon_undo", "undo", ux + 64, uy + 2, 18, 18, color="ink")
-    sc.add_control("review", 316, 78, 74, 40, 3, bg="white", radius=999, weight=500,
-                   border=1, bordercolor="hair", lx=319, ly=88, lw=80, lh=24,
+    sc.put(stack("undo_group", 210, uy, 74, uh, [
+        text("t_undo", "Undo", 210, uy, 54, uh, weight=500, size=14),
+        icon("icon_undo", "undo", 266, uy + 2, 18, 18, color="ink")]))
+    sc.add_control("review", 296, 78, 76, 40, 3, bg="white", radius=999, weight=500,
+                   border=1, bordercolor="hair", lx=299, ly=88, lw=70, lh=24,
                    event="files.review")
     rows = [(4, 5, 6, "file_1"), (7, 8, 9, "file_2"), (10, 11, 12, "file_3")]
     # ref z7-07: the three file rows are ONE card (measured hairlines at its top
@@ -659,9 +673,12 @@ def build_11(sc):
         icon("scope_chev", "chevron_down", 266, 40, 16, 16, color="muted")]))
     sc.controls["scope_pill"] = ("diff.scope", [196, 30, 96, 34], True)
     # totals: "+62" green then "-5" red, split at the measured "+62 -5" row.
+    # Card #18c: the first pass placed them across the FULL 64px OCR run (t_del at
+    # tx+48 w40 -> right edge 397, 15px past the 362 card). Split the run's own
+    # width instead, so both fit inside the card's right padding.
     _, tx, ty, tw, th = sc.rows[2]
-    sc.put(text("t_add", "+62", tx, ty, 46, th, weight=500, size=15, color="green"))
-    sc.put(text("t_del", "-5", tx + 48, ty, 40, th, weight=500, size=15, color="red"))
+    sc.put(text("t_add", "+62", tx, ty, 30, th, weight=500, size=15, color="green"))
+    sc.put(text("t_del", "-5", tx + 34, ty, 22, th, weight=500, size=15, color="red"))
     # file header: a flat bordered row, filename in mono, +31 green / -4 red.
     _, fx, fy, fw, fh = sc.rows[3]
     sc.put(surface("file_header", 20, fy - 10, 366, 42, bg="white", radius=10, border=1,
@@ -688,19 +705,27 @@ def build_11(sc):
     for i, (num, line, kind) in enumerate(diff_lines):
         y = 199 + i * 50
         color = {"del": "red", "add": "green", "ctx": "ink"}[kind]
-        gutter = code(f"ln_{i}", num, 30, y, 30, 22, color="muted")
-        body = code(f"dl_{i}", line, 72, y, 320, 24, color=color)
+        gutter = code(f"ln_{i}", num, 30, y, 18, 22, color="muted")
+        # Card #18c item 5: the atlas puts the `+`/`-` marker in its OWN column
+        # (measured x≈52..66) with the code starting at x≈87 — the first pass baked
+        # the marker into the code string, so the two ran together.
+        marker = None
+        body_text = line
+        if kind in ("del", "add"):
+            marker = code(f"mk_{i}", line[:1], 52, y, 14, 24, color=color)
+            body_text = line[2:]
+        body = code(f"dl_{i}", body_text, 72, y, 300, 24, color=color)
+        row_kids = [gutter] + ([marker] if marker else []) + [body]
         if kind == "del":
             # the reference tints removed rows with a soft red band (measured
             # pink rows at logical y 238-338), added rows with a soft green band.
             rows.append(surface(f"row_{i}", 24, y - 8, 358, 44, bg="redbg", radius=6,
-                                kids=[gutter, body]))
+                                kids=row_kids))
         elif kind == "add":
             rows.append(surface(f"row_{i}", 24, y - 8, 358, 44, bg="greenbg", radius=6,
-                                kids=[gutter, body]))
+                                kids=row_kids))
         else:
-            rows.append(gutter)
-            rows.append(body)
+            rows.extend(row_kids)
     sc.put(stack("diff_rows", 20, 180, 366, 420, rows))
     sc.flows["diff_rows"] = ("diff.rows", 20, 180, 366, 420)
     # Card #18b: the atlas folded row is "⋮ 412 unmodified lines ⋮" — OCR read the
@@ -750,7 +775,10 @@ def build_12(sc):
     sc.put(surface("model_card", 28, 540, 348, 72, bg="white", radius=12, border=1,
                    bordercolor="hair", kids=[
         text("t_model", sc.t(8), mx, my, mw, mh, size=15, weight=500),
-        text("t_pick", fix(sc.t(9)), 205, my, 160, mh, size=14, weight=500, color="muted")]))
+        text("t_pick", fix(sc.t(9)), 205, my, 150, mh, size=14, weight=500, color="muted"),
+        # Card #18c item 6: the atlas picker has a vector chevron-down after the
+        # value (OCR had merged it into the text as " v").
+        icon("pick_chev", "chevron_down", 356, my + 4, 16, 16, color="muted")]))
     sc.controls["model_picker"] = ("settings.model.select", [205, 550, 160, 32], True)
     # one composition root so the subtree extracts as `settings-group` (card #18)
     sc.wrap("settings_group", 16, 30, 374, 620)

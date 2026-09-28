@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "debc3f386fba5fe64c354874c7baca3789930da2b3959b373aa7d1df8c8a3dde",
+  "contract_sha256": "1a7fed2f5c97e85b7987c0d32333a2d3418f808fad151df17a6fd2e887c73b9c",
   "reference_sha256": "d64d89d4555db79774edd25128866286bcdbac7ef5f8f4df412e792eab09b655",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -134,6 +134,13 @@
       "decision": "declared"
     },
     {
+      "id": "mk_1",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "dl_1",
       "role": "text",
       "basis": "authored text node",
@@ -149,6 +156,13 @@
     },
     {
       "id": "ln_2",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "mk_2",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
@@ -176,6 +190,13 @@
       "decision": "declared"
     },
     {
+      "id": "mk_3",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "dl_3",
       "role": "text",
       "basis": "authored text node",
@@ -191,6 +212,13 @@
     },
     {
       "id": "ln_4",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "mk_4",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
@@ -218,6 +246,13 @@
       "decision": "declared"
     },
     {
+      "id": "mk_5",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "dl_5",
       "role": "text",
       "basis": "authored text node",
@@ -233,6 +268,13 @@
     },
     {
       "id": "ln_6",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "mk_6",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,

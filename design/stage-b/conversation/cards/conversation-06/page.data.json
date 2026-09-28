@@ -60,20 +60,20 @@
       "opt_ledger_radio": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 38.0,
-          "y": 256.59,
-          "w": 20.0,
-          "h": 20.0,
+          "x": 37.0,
+          "y": 255.59,
+          "w": 22.0,
+          "h": 22.0,
           "src": "http://127.0.0.1:8170/ux-images/conversation-06/assets/opt_ledger_radio-def80ed3f9f0.svg"
         }
       },
       "opt_ledger_label": {
-        "component": "Text4a39fec9983e",
+        "component": "Textac0df43466fb",
         "layout": {
-          "x": 81.61,
-          "y": 257.5,
-          "w": 174.5,
-          "h": 28.5
+          "x": 75.1,
+          "y": 254.59,
+          "w": 331.49,
+          "h": 31.71
         }
       },
       "opt_memory": {
@@ -88,11 +88,11 @@
       "opt_memory_radio": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 38.0,
-          "y": 357.12,
-          "w": 20.0,
-          "h": 20.0,
-          "src": "http://127.0.0.1:8170/ux-images/conversation-06/assets/opt_memory_radio-c5fdf81a4628.svg"
+          "x": 37.0,
+          "y": 356.12,
+          "w": 22.0,
+          "h": 22.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-06/assets/opt_memory_radio-912d54d8f84f.svg"
         }
       },
       "opt_memory_label": {
@@ -116,11 +116,11 @@
       "opt_ask_radio": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 38.0,
-          "y": 417.52,
-          "w": 20.0,
-          "h": 20.0,
-          "src": "http://127.0.0.1:8170/ux-images/conversation-06/assets/opt_ask_radio-c5fdf81a4628.svg"
+          "x": 37.0,
+          "y": 416.52,
+          "w": 22.0,
+          "h": 22.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-06/assets/opt_ask_radio-912d54d8f84f.svg"
         }
       },
       "opt_ask_label": {

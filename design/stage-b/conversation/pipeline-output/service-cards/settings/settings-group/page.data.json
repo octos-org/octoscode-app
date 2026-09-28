@@ -138,12 +138,22 @@
         }
       },
       "t_pick": {
-        "component": "Textc59130a9c7f8",
+        "component": "Text47dd2c54383e",
         "layout": {
-          "x": 190.82,
+          "x": 190.76,
           "y": 531.0,
           "w": 149.0,
           "h": 26.5
+        }
+      },
+      "pick_chev": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 340.0,
+          "y": 527.833,
+          "w": 16.0,
+          "h": 23.111,
+          "src": "http://127.0.0.1:8170/ux-images/settings-group/assets/pick_chev-a742d013f874.svg"
         }
       }
     },

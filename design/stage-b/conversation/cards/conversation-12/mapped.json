@@ -220,19 +220,28 @@
               {
                 "t": "text",
                 "id": "t_pick",
-                "text": "deepseek-v4-flash v",
-                "x": 206.82,
+                "text": "deepseek-v4-flash",
+                "x": 206.76,
                 "y": 561.0,
                 "w": 149.0,
                 "h": 26.5,
-                "size": 14.47,
-                "line_height": 17.51,
+                "size": 15.8,
+                "line_height": 19.11,
                 "weight": 500,
                 "color": 4281414194,
                 "variant": "single_line",
                 "alignx": 0,
                 "font_src": "self:resources/ux/Inter-500.ttf",
                 "tracking": 0.0
+              },
+              {
+                "t": "svg",
+                "id": "pick_chev",
+                "x": 356.0,
+                "y": 557.833,
+                "w": 16.0,
+                "h": 23.111,
+                "src": ""
               }
             ],
             "variant": "surface",
@@ -288,6 +297,10 @@
       "source": "observed non-text annotation"
     },
     {
+      "id": "pick_chev",
+      "source": "observed non-text annotation"
+    },
+    {
       "id": "t01",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
@@ -321,7 +334,7 @@
       "id": "t_pick",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.20700110918209882
+      "tracking_em": -0.1772121853298611
     }
   ],
   "limits": [

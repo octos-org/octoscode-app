@@ -60,9 +60,20 @@
       "bg": 4294901246
     },
     {
+      "id": "undo_group",
+      "bounds": [
+        210.0,
+        86.85,
+        74.0,
+        22.65
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
       "id": "icon_undo",
       "bounds": [
-        295.19,
+        266.0,
         88.85,
         18.0,
         18.0

@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "aba3d8d200cf693a376c86a7c700291e79b3ea1977e51366099278f7fbb37d07",
+  "manifest_sha256": "4a4ab8ea7f686d84e966acd34d2569dc0d3aa834f69f5f41c7181ac4da356952",
   "reference_sha256": "248f5c707e5f99352736a2fca675971be6f8ed76d04e24817e08e06433a07dbf",
   "id": "settings-group",
   "round": null,
@@ -194,6 +194,19 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "pick_chev",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
     }
   ],
   "scope": "Semantic mapping checks only; geometry, visual fidelity and complete app workflows remain separate."

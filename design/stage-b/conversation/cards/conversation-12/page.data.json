@@ -147,12 +147,22 @@
         }
       },
       "t_pick": {
-        "component": "Textc59130a9c7f8",
+        "component": "Text47dd2c54383e",
         "layout": {
-          "x": 206.82,
+          "x": 206.76,
           "y": 561.0,
           "w": 149.0,
           "h": 26.5
+        }
+      },
+      "pick_chev": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 356.0,
+          "y": 557.833,
+          "w": 16.0,
+          "h": 23.111,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-12/assets/pick_chev-a742d013f874.svg"
         }
       }
     },

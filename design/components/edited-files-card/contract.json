@@ -78,32 +78,42 @@
         "font_src": "self:resources/ux/Inter-500.ttf"
       },
       {
-        "t": "text",
-        "id": "t_undo",
-        "text": "Undo",
-        "x": 215.19,
+        "t": "stack",
+        "id": "undo_group",
+        "x": 194.0,
         "y": 26.849999999999994,
-        "w": 62.0,
+        "w": 74.0,
         "h": 22.65,
-        "size": 14,
-        "line_height": 22.65,
-        "weight": 500,
-        "color": 4278979596,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-500.ttf",
-        "tracking": 0.0,
-        "font_asc": -0.16913586128048785,
-        "font_desc": 0.15790539253048783
-      },
-      {
-        "t": "svg",
-        "id": "icon_undo",
-        "x": 279.19,
-        "y": 28.849999999999994,
-        "w": 18.0,
-        "h": 18.0,
-        "src": ""
+        "c": [
+          {
+            "t": "text",
+            "id": "t_undo",
+            "text": "Undo",
+            "x": 194.0,
+            "y": 26.849999999999994,
+            "w": 54.0,
+            "h": 22.65,
+            "size": 14,
+            "line_height": 22.65,
+            "weight": 500,
+            "color": 4278979596,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0,
+            "font_asc": -0.16913586128048785,
+            "font_desc": 0.15790539253048783
+          },
+          {
+            "t": "svg",
+            "id": "icon_undo",
+            "x": 250.0,
+            "y": 28.849999999999994,
+            "w": 18.0,
+            "h": 18.0,
+            "src": ""
+          }
+        ]
       },
       {
         "t": "stack",

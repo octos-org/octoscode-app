@@ -53,35 +53,14 @@
     },
     {
       "id": "opt_ledger_label",
-      "expected_text": "In the session ledger",
+      "expected_text": "In the session ledger  (recommended)",
       "requested_bounds": [
         75.1,
         254.59,
-        181.49,
+        331.49,
         31.71
       ],
-      "status": "observed",
-      "ocr_text": "In the session ledger",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        83.0,
-        259.5,
-        170.5,
-        24.5
-      ],
-      "ink_color": [
-        36,
-        37,
-        37
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        75.10019440047037,
-        254.59158427035575,
-        181.4917144775391,
-        31.70685005187994
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
       "id": "opt_memory_label",
@@ -294,10 +273,10 @@
     {
       "id": "opt_ledger_radio",
       "bounds": [
-        38.0,
-        256.59,
-        20.0,
-        20.0
+        37.0,
+        255.59,
+        22.0,
+        22.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -316,10 +295,10 @@
     {
       "id": "opt_memory_radio",
       "bounds": [
-        38.0,
-        357.12,
-        20.0,
-        20.0
+        37.0,
+        356.12,
+        22.0,
+        22.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -338,10 +317,10 @@
     {
       "id": "opt_ask_radio",
       "bounds": [
-        38.0,
-        417.52,
-        20.0,
-        20.0
+        37.0,
+        416.52,
+        22.0,
+        22.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -461,6 +440,16 @@
       ],
       "confidence": 1,
       "text": "be persisted?"
+    },
+    {
+      "bounds": [
+        150.20038880094074,
+        509.1831685407115,
+        362.9834289550782,
+        63.41370010375988
+      ],
+      "confidence": 1,
+      "text": "In the session ledger"
     },
     {
       "bounds": [

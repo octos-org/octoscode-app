@@ -51,20 +51,20 @@
       "opt_ledger_radio": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 22.0,
-          "y": 196.58999999999997,
-          "w": 20.0,
-          "h": 20.0,
+          "x": 21.0,
+          "y": 195.59,
+          "w": 22.0,
+          "h": 22.0,
           "src": "http://127.0.0.1:8170/ux-images/question-card/assets/opt_ledger_radio-def80ed3f9f0.svg"
         }
       },
       "opt_ledger_label": {
-        "component": "Text4a39fec9983e",
+        "component": "Textac0df43466fb",
         "layout": {
-          "x": 65.61,
-          "y": 197.5,
-          "w": 174.5,
-          "h": 28.5
+          "x": 59.099999999999994,
+          "y": 194.59,
+          "w": 331.49,
+          "h": 31.71
         }
       },
       "opt_memory": {
@@ -79,11 +79,11 @@
       "opt_memory_radio": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 22.0,
-          "y": 297.12,
-          "w": 20.0,
-          "h": 20.0,
-          "src": "http://127.0.0.1:8170/ux-images/question-card/assets/opt_memory_radio-c5fdf81a4628.svg"
+          "x": 21.0,
+          "y": 296.12,
+          "w": 22.0,
+          "h": 22.0,
+          "src": "http://127.0.0.1:8170/ux-images/question-card/assets/opt_memory_radio-912d54d8f84f.svg"
         }
       },
       "opt_memory_label": {
@@ -107,11 +107,11 @@
       "opt_ask_radio": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 22.0,
-          "y": 357.52,
-          "w": 20.0,
-          "h": 20.0,
-          "src": "http://127.0.0.1:8170/ux-images/question-card/assets/opt_ask_radio-c5fdf81a4628.svg"
+          "x": 21.0,
+          "y": 356.52,
+          "w": 22.0,
+          "h": 22.0,
+          "src": "http://127.0.0.1:8170/ux-images/question-card/assets/opt_ask_radio-912d54d8f84f.svg"
         }
       },
       "opt_ask_label": {

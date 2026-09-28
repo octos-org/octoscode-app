@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "2a4b7f3c91747d27b9c569cc1a6b1085d5cdc63a04853d0169a4fed4e43678b2",
+  "contract_sha256": "8be8409ee1c1c315e18ed7343fd30c9a4fd75689c183b4b07902332d4a511375",
   "reference_sha256": "9f995e3c5c54e4779fb7eefdf40f044cf70715c3469346bf2caf777aec279ae6",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -30,6 +30,13 @@
       "id": "t02_del",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "undo_group",
+      "role": "layout",
+      "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },

@@ -58,21 +58,17 @@
       "value": "self:resources/ux/Inter-400.ttf",
       "property": "font_src"
     },
-    "size_45727b293bf7": {
-      "value": 17.2,
+    "size_8527a891e224": {
+      "value": 14,
       "property": "size"
     },
-    "line_height_dc8860f98687": {
-      "value": 20.81,
+    "line_height_71f154c21f0e": {
+      "value": 31.71,
       "property": "line_height"
     },
     "weight_0604cd3138fe": {
       "value": 500,
       "property": "weight"
-    },
-    "color_0bf4cf5fd0e8": {
-      "value": 4280558885,
-      "property": "color"
     },
     "font_src_cb352dc03af3": {
       "value": "self:resources/ux/Inter-500.ttf",
@@ -117,10 +113,6 @@
     "radius_e99956ed2f9a": {
       "value": 13.8,
       "property": "radius"
-    },
-    "size_8527a891e224": {
-      "value": 14,
-      "property": "size"
     },
     "line_height_26c9a96ce053": {
       "value": 30.0,
@@ -262,28 +254,25 @@
       "props": {},
       "slot": true
     },
-    "Text4a39fec9983e": {
+    "Textac0df43466fb": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_45727b293bf7"
+          "$token": "size_8527a891e224"
         },
         "line_height": {
-          "$token": "line_height_dc8860f98687"
+          "$token": "line_height_71f154c21f0e"
         },
         "weight": {
           "$token": "weight_0604cd3138fe"
         },
         "color": {
-          "$token": "color_0bf4cf5fd0e8"
+          "$token": "color_e0ccdd36059a"
         },
         "variant": "single_line",
         "alignx": 0,
         "font_src": {
           "$token": "font_src_cb352dc03af3"
-        },
-        "tracking": {
-          "$token": "tracking_8aed642bf511"
         }
       },
       "props": {

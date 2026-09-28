@@ -80,28 +80,27 @@
           {
             "t": "svg",
             "id": "opt_ledger_radio",
-            "x": 22.0,
-            "y": 196.58999999999997,
-            "w": 20.0,
-            "h": 20.0,
+            "x": 21.0,
+            "y": 195.59,
+            "w": 22.0,
+            "h": 22.0,
             "src": ""
           },
           {
             "t": "text",
             "id": "opt_ledger_label",
-            "text": "In the session ledger",
-            "x": 65.61,
-            "y": 197.5,
-            "w": 174.5,
-            "h": 28.5,
-            "size": 17.2,
-            "line_height": 20.81,
+            "text": "In the session ledger  (recommended)",
+            "x": 59.099999999999994,
+            "y": 194.59,
+            "w": 331.49,
+            "h": 31.71,
+            "size": 14,
+            "line_height": 31.71,
             "weight": 500,
-            "color": 4280558885,
+            "color": 4280098079,
             "variant": "single_line",
             "alignx": 0,
-            "font_src": "self:resources/ux/Inter-500.ttf",
-            "tracking": 0.0
+            "font_src": "self:resources/ux/Inter-500.ttf"
           }
         ],
         "event": "question.select.ledger"
@@ -117,10 +116,10 @@
           {
             "t": "svg",
             "id": "opt_memory_radio",
-            "x": 22.0,
-            "y": 297.12,
-            "w": 20.0,
-            "h": 20.0,
+            "x": 21.0,
+            "y": 296.12,
+            "w": 22.0,
+            "h": 22.0,
             "src": ""
           },
           {
@@ -154,10 +153,10 @@
           {
             "t": "svg",
             "id": "opt_ask_radio",
-            "x": 22.0,
-            "y": 357.52,
-            "w": 20.0,
-            "h": 20.0,
+            "x": 21.0,
+            "y": 356.52,
+            "w": 22.0,
+            "h": 22.0,
             "src": ""
           },
           {

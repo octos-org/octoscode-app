@@ -60,18 +60,18 @@
       "native_id": "beauty_0_1_0",
       "parent": "scope_pill",
       "kind": "text",
-      "component": "Text48b00185d34b",
+      "component": "Text0ecbde8d760e",
       "semantic_role": "text",
       "bounds": [
-        187.27,
+        187.03,
         -56.5,
         81.0,
-        21.5
+        22.14
       ],
-      "text": "Last turn v",
+      "text": "Last turn",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 15.25
+      "size": 18.29
     },
     {
       "source_id": "scope_chev",
@@ -101,7 +101,7 @@
       "bounds": [
         289.01,
         -55.0,
-        46.0,
+        30.0,
         22.5
       ],
       "text": "+62",
@@ -117,9 +117,9 @@
       "component": "Text5abfe3ea15d7",
       "semantic_role": "text",
       "bounds": [
-        337.01,
+        323.01,
         -55.0,
-        40.0,
+        22.0,
         22.5
       ],
       "text": "-5",
@@ -290,22 +290,40 @@
       "size": 11.11
     },
     {
-      "source_id": "dl_1",
+      "source_id": "mk_1",
       "native_id": "beauty_0_5_2_1",
       "parent": "row_1",
       "kind": "text",
-      "component": "Text6fde119dbc25",
+      "component": "Text73b9b5c4f0e4",
       "semantic_role": "text",
       "bounds": [
-        65.72,
+        32.0,
+        157.0,
+        14.0,
+        24.0
+      ],
+      "text": "-",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 16.0
+    },
+    {
+      "source_id": "dl_1",
+      "native_id": "beauty_0_5_2_2",
+      "parent": "row_1",
+      "kind": "text",
+      "component": "Text9347b987ab1a",
+      "semantic_role": "text",
+      "bounds": [
+        66.74,
         162.0,
         180.5,
         24.5
       ],
-      "text": "- self.queue.clear();",
+      "text": "self.queue.clear();",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 14.01
+      "size": 15.48
     },
     {
       "source_id": "row_2",
@@ -344,22 +362,40 @@
       "size": 12.22
     },
     {
-      "source_id": "dl_2",
+      "source_id": "mk_2",
       "native_id": "beauty_0_5_3_1",
       "parent": "row_2",
       "kind": "text",
-      "component": "Text95cc63f39348",
+      "component": "Text73b9b5c4f0e4",
       "semantic_role": "text",
       "bounds": [
-        66.3,
+        32.0,
+        207.0,
+        14.0,
+        24.0
+      ],
+      "text": "-",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 16.0
+    },
+    {
+      "source_id": "dl_2",
+      "native_id": "beauty_0_5_3_2",
+      "parent": "row_2",
+      "kind": "text",
+      "component": "Text5ed0aef22d93",
+      "semantic_role": "text",
+      "bounds": [
+        67.33,
         210.5,
         287.0,
         23.5
       ],
-      "text": "- self.state = State::Disconnected;",
+      "text": "self.state = State::Disconnected;",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 13.47
+      "size": 14.29
     },
     {
       "source_id": "row_3",
@@ -398,22 +434,40 @@
       "size": 11.11
     },
     {
-      "source_id": "dl_3",
+      "source_id": "mk_3",
       "native_id": "beauty_0_5_4_1",
       "parent": "row_3",
       "kind": "text",
-      "component": "Textcd61d659d484",
+      "component": "Textc6ef761c69e6",
       "semantic_role": "text",
       "bounds": [
-        70.23,
+        32.0,
+        257.0,
+        14.0,
+        24.0
+      ],
+      "text": "+",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 16.0
+    },
+    {
+      "source_id": "dl_3",
+      "native_id": "beauty_0_5_4_2",
+      "parent": "row_3",
+      "kind": "text",
+      "component": "Textd3c6476acb74",
+      "semantic_role": "text",
+      "bounds": [
+        69.78,
         263.5,
         201.0,
         24.5
       ],
-      "text": "+ self.persist_queue()?;",
+      "text": "self.persist_queue()?;",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 13.68
+      "size": 14.92
     },
     {
       "source_id": "row_4",
@@ -452,22 +506,40 @@
       "size": 11.94
     },
     {
-      "source_id": "dl_4",
+      "source_id": "mk_4",
       "native_id": "beauty_0_5_5_1",
       "parent": "row_4",
       "kind": "text",
-      "component": "Text975d0df2280e",
+      "component": "Textc6ef761c69e6",
       "semantic_role": "text",
       "bounds": [
-        67.22,
+        32.0,
+        307.0,
+        14.0,
+        24.0
+      ],
+      "text": "+",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 16.0
+    },
+    {
+      "source_id": "dl_4",
+      "native_id": "beauty_0_5_5_2",
+      "parent": "row_4",
+      "kind": "text",
+      "component": "Text0706174c2a9d",
+      "semantic_role": "text",
+      "bounds": [
+        66.79,
         313.0,
         235.5,
         24.5
       ],
-      "text": "+ self.queue.mark_pending();",
+      "text": "self.queue.mark_pending();",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 13.78
+      "size": 14.84
     },
     {
       "source_id": "row_5",
@@ -506,22 +578,40 @@
       "size": 11.94
     },
     {
-      "source_id": "dl_5",
+      "source_id": "mk_5",
       "native_id": "beauty_0_5_6_1",
       "parent": "row_5",
       "kind": "text",
-      "component": "Textc3cba5801495",
+      "component": "Textc6ef761c69e6",
       "semantic_role": "text",
       "bounds": [
-        67.22,
+        32.0,
+        357.0,
+        14.0,
+        24.0
+      ],
+      "text": "+",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 16.0
+    },
+    {
+      "source_id": "dl_5",
+      "native_id": "beauty_0_5_6_2",
+      "parent": "row_5",
+      "kind": "text",
+      "component": "Texta31b6a8d052a",
+      "semantic_role": "text",
+      "bounds": [
+        66.8,
         362.5,
         261.0,
         24.0
       ],
-      "text": "+ self.metrics.reconnects += 1;",
+      "text": "self.metrics.reconnects += 1;",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 13.81
+      "size": 14.77
     },
     {
       "source_id": "row_6",
@@ -560,22 +650,40 @@
       "size": 12.22
     },
     {
-      "source_id": "dl_6",
+      "source_id": "mk_6",
       "native_id": "beauty_0_5_7_1",
       "parent": "row_6",
       "kind": "text",
-      "component": "Text13d7b100db1c",
+      "component": "Textc6ef761c69e6",
       "semantic_role": "text",
       "bounds": [
-        67.74,
+        32.0,
+        407.0,
+        14.0,
+        24.0
+      ],
+      "text": "+",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 16.0
+    },
+    {
+      "source_id": "dl_6",
+      "native_id": "beauty_0_5_7_2",
+      "parent": "row_6",
+      "kind": "text",
+      "component": "Text87551b558623",
+      "semantic_role": "text",
+      "bounds": [
+        67.33,
         413.5,
         287.0,
         23.5
       ],
-      "text": "+ self.state = State::Disconnected;",
+      "text": "self.state = State::Disconnected;",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 13.47
+      "size": 14.29
     },
     {
       "source_id": "ln_7",
@@ -605,7 +713,7 @@
       "bounds": [
         52.0,
         457.0,
-        320.0,
+        300.0,
         24.0
       ],
       "text": "}",
@@ -656,6 +764,6 @@
     "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "74d160968aa36a26b32b01308bbb3ec01e6fc3f82733841da0a8691bbdd76f36",
+  "contract_sha256": "765e46f7e88e41320cdca6b5216838d132d6dc39febfd3d68ccd4a4e18dce28d",
   "mapping_basis": "mapped.json"
 }

@@ -158,12 +158,12 @@
       "value": 4279440147,
       "property": "color"
     },
-    "size_50aebeee67fc": {
-      "value": 14.47,
+    "size_857e6ec25056": {
+      "value": 15.8,
       "property": "size"
     },
-    "line_height_9e6d89069cde": {
-      "value": 17.51,
+    "line_height_7e6f9e3b5f2a": {
+      "value": 19.11,
       "property": "line_height"
     },
     "color_2edf6233b94d": {
@@ -458,14 +458,14 @@
       },
       "slot": false
     },
-    "Textc59130a9c7f8": {
+    "Text47dd2c54383e": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_50aebeee67fc"
+          "$token": "size_857e6ec25056"
         },
         "line_height": {
-          "$token": "line_height_9e6d89069cde"
+          "$token": "line_height_7e6f9e3b5f2a"
         },
         "weight": {
           "$token": "weight_0604cd3138fe"
@@ -485,6 +485,13 @@
       "props": {
         "text": "text"
       },
+      "slot": false
+    },
+    "Vectore0a378fde04f": {
+      "style": {
+        "t": "svg"
+      },
+      "props": {},
       "slot": false
     }
   }

@@ -237,9 +237,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "id": "t_pick",
     "x": 205.0,
     "y": 561.5,
-    "w": 160.0,
+    "w": 150.0,
     "h": 21.63,
-    "text": "deepseek-v4-flash v",
+    "text": "deepseek-v4-flash",
     "font_src": "self:resources/ux/Inter-500.ttf",
     "size": 14,
     "weight": 500,
@@ -248,6 +248,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
       "Label",
       "TextFlow"
     ]
+  },
+  {
+    "id": "pick_chev",
+    "x": 356.0,
+    "y": 565.5,
+    "w": 16.0,
+    "h": 16.0,
+    "role": "unknown",
+    "native_candidates": []
   }
 ]
 ```
