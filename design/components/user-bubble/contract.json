@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "id": "user-bubble",
+  "app": "octoscode",
+  "number": 3,
+  "title": "Streaming turn",
+  "structure": "Native component reconstructed from the approved conversation atlas",
+  "artboard": [
+    284.01,
+    85.09
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "user_bubble",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 284.01,
+    "h": 85.09,
+    "c": [
+      {
+        "t": "text",
+        "id": "t01",
+        "text": "Fix the steer queue so queued",
+        "x": 15.719999999999999,
+        "y": 11.090000000000003,
+        "w": 255.5,
+        "h": 27.5,
+        "size": 17.4,
+        "line_height": 21.05,
+        "weight": 500,
+        "color": 4294638587,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t02",
+        "text": "steers survive a reconnect",
+        "x": 15.790000000000006,
+        "y": 48.59,
+        "w": 224.5,
+        "h": 23.0,
+        "size": 17.33,
+        "line_height": 20.97,
+        "weight": 500,
+        "color": 4294835709,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      }
+    ],
+    "variant": "surface",
+    "bg": 4278387202,
+    "radius": 16.0
+  },
+  "standalone_service_card": true
+}

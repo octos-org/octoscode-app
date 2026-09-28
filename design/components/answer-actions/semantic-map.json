@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "policy_version": "1.1.0",
+  "contract_sha256": "bdb41e25596559979d35f1f8fc284e888dc2ef9e1d1e776b928d98a60646355a",
+  "reference_sha256": "46aefa4a8b4ec3e5f769d3489c8760d5d7e168fe9e213c6b13ce478600af3550",
+  "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
+  "elements": [
+    {
+      "id": "answer_actions",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "icon_copy",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_copy.svg",
+        "sha256": "e71cb744fd0915e8aa53341e93d994fab4c0bd623ae3582995319c32b6ce3f4f",
+        "method": "reference_svg",
+        "reference_sha256": "46aefa4a8b4ec3e5f769d3489c8760d5d7e168fe9e213c6b13ce478600af3550",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "icon_thumbs",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_thumbs.svg",
+        "sha256": "348cb6a4c084337269f739e62d969a401878a0a94b4d46e6381a7065e6e15dc2",
+        "method": "reference_svg",
+        "reference_sha256": "46aefa4a8b4ec3e5f769d3489c8760d5d7e168fe9e213c6b13ce478600af3550",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "icon_share",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_share.svg",
+        "sha256": "b9aa1c6b91b99df0066bac908b90202d449ca57caabdbf5a3da7c77b3abffda0",
+        "method": "reference_svg",
+        "reference_sha256": "46aefa4a8b4ec3e5f769d3489c8760d5d7e168fe9e213c6b13ce478600af3550",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "t11",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    }
+  ]
+}

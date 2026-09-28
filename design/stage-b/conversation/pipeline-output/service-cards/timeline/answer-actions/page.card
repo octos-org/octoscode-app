@@ -1,0 +1,22 @@
+# ledger answer-actions@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t11_text { class: user-copy, en: "Sep 28, 9:41 PM" }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Texta0abe1806ac3(instance: text, text: text) {
+  view Kit(component: "Texta0abe1806ac3", instance: instance, text: text)
+}
+
+view root Group3d2637879433(instance: "answer_actions") {
+  Vectore0a378fde04f(instance: "icon_copy")
+  Vectore0a378fde04f(instance: "icon_thumbs")
+  Vectore0a378fde04f(instance: "icon_share")
+  Texta0abe1806ac3(instance: "t11", text: copy.t11_text)
+}

@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "theme": "light",
+  "tokens": {
+    "bg_7e9066344305": {
+      "value": 4294046195,
+      "property": "bg"
+    },
+    "radius_c6c042161d28": {
+      "value": 12.89,
+      "property": "radius"
+    },
+    "size_047ac209c3a3": {
+      "value": 18.1,
+      "property": "size"
+    },
+    "line_height_89ebff7bf414": {
+      "value": 21.9,
+      "property": "line_height"
+    },
+    "weight_0604cd3138fe": {
+      "value": 500,
+      "property": "weight"
+    },
+    "color_c15b740a97bd": {
+      "value": 4279045390,
+      "property": "color"
+    },
+    "font_src_cb352dc03af3": {
+      "value": "self:resources/ux/Inter-500.ttf",
+      "property": "font_src"
+    },
+    "tracking_8aed642bf511": {
+      "value": 0.0,
+      "property": "tracking"
+    }
+  },
+  "components": {
+    "KitButton2c6804b990a5": {
+      "style": {
+        "t": "stack",
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      "props": {},
+      "slot": true
+    },
+    "Surface8f954c9fd892": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_7e9066344305"
+        },
+        "radius": {
+          "$token": "radius_c6c042161d28"
+        }
+      },
+      "props": {},
+      "slot": true
+    },
+    "NativeButton02f1d1bd99b4": {
+      "style": {
+        "t": "button"
+      },
+      "props": {
+        "enabled": "enabled"
+      },
+      "slot": false
+    },
+    "Text68bd508108d5": {
+      "style": {
+        "t": "text",
+        "size": {
+          "$token": "size_047ac209c3a3"
+        },
+        "line_height": {
+          "$token": "line_height_89ebff7bf414"
+        },
+        "weight": {
+          "$token": "weight_0604cd3138fe"
+        },
+        "color": {
+          "$token": "color_c15b740a97bd"
+        },
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_cb352dc03af3"
+        },
+        "tracking": {
+          "$token": "tracking_8aed642bf511"
+        }
+      },
+      "props": {
+        "text": "text"
+      },
+      "slot": false
+    }
+  }
+}

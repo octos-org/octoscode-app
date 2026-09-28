@@ -3,6 +3,132 @@
   "kind": "native-service-appcards",
   "cards": [
     {
+      "id": "thread-row",
+      "scene": "1",
+      "root": "thread_1",
+      "owner": "threads",
+      "folder": "threads/thread-row",
+      "artboard": [
+        379.0,
+        78.0
+      ],
+      "nodes": 4,
+      "native_controls": 1,
+      "components": 4
+    },
+    {
+      "id": "new-chat",
+      "scene": "1",
+      "root": "new_chat",
+      "owner": "threads",
+      "folder": "threads/new-chat",
+      "artboard": [
+        374.0,
+        76.0
+      ],
+      "nodes": 4,
+      "native_controls": 1,
+      "components": 4
+    },
+    {
+      "id": "user-bubble",
+      "scene": "3",
+      "root": "user_bubble",
+      "owner": "timeline",
+      "folder": "timeline/user-bubble",
+      "artboard": [
+        284.01,
+        85.09
+      ],
+      "nodes": 3,
+      "native_controls": 0,
+      "components": 3
+    },
+    {
+      "id": "working-row",
+      "scene": "3",
+      "root": "working_row",
+      "owner": "timeline",
+      "folder": "timeline/working-row",
+      "artboard": [
+        145.55,
+        29.5
+      ],
+      "nodes": 3,
+      "native_controls": 0,
+      "components": 3
+    },
+    {
+      "id": "assistant-prose",
+      "scene": "9",
+      "root": "answer_prose",
+      "owner": "timeline",
+      "folder": "timeline/assistant-prose",
+      "artboard": [
+        356.0,
+        492.0
+      ],
+      "nodes": 2,
+      "native_controls": 0,
+      "components": 2
+    },
+    {
+      "id": "worked-for",
+      "scene": "9",
+      "root": "worked_row",
+      "owner": "timeline",
+      "folder": "timeline/worked-for",
+      "artboard": [
+        374.0,
+        44.0
+      ],
+      "nodes": 4,
+      "native_controls": 1,
+      "components": 4
+    },
+    {
+      "id": "answer-actions",
+      "scene": "9",
+      "root": "answer_actions",
+      "owner": "timeline",
+      "folder": "timeline/answer-actions",
+      "artboard": [
+        364.11,
+        29.05
+      ],
+      "nodes": 5,
+      "native_controls": 0,
+      "components": 3
+    },
+    {
+      "id": "tool-cell",
+      "scene": "4",
+      "root": "tool_1",
+      "owner": "tools",
+      "folder": "tools/tool-cell",
+      "artboard": [
+        371.0,
+        105.0
+      ],
+      "nodes": 5,
+      "native_controls": 0,
+      "components": 4
+    },
+    {
+      "id": "composer",
+      "scene": "8",
+      "root": "composer_idle",
+      "owner": "composer",
+      "folder": "composer/composer",
+      "artboard": [
+        374.0,
+        190.0
+      ],
+      "nodes": 9,
+      "native_controls": 0,
+      "components": 7
+    },
+    {
       "id": "approval-card",
       "scene": "5",
       "root": "approval_card",

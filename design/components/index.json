@@ -4,6 +4,283 @@
   "note": "Reusable per-item components compiled from the approved conversation scenes (card #18). Width-responsive: fill the slot width, height from content.",
   "components": [
     {
+      "id": "thread-row",
+      "source_scene": "conversation-01",
+      "extracted_from": "scene 1 root 'thread_1'",
+      "owner": "threads",
+      "bindings": [
+        "title",
+        "selected",
+        "forked",
+        "action:open"
+      ],
+      "variants": {
+        "short": {
+          "title": "Add session fork",
+          "selected": false
+        },
+        "long": {
+          "title": "Bump octos-core to a6ea8505 and re-verify the steer queue timeout",
+          "selected": true
+        }
+      },
+      "artboard": [
+        379.0,
+        78.0
+      ],
+      "nodes": 4,
+      "native_controls": 1,
+      "card": "design/components/thread-row/page.card",
+      "data": "design/components/thread-row/page.data.json",
+      "render": [
+        "design/components/thread-row/reference.png"
+      ]
+    },
+    {
+      "id": "new-chat",
+      "source_scene": "conversation-01",
+      "extracted_from": "scene 1 root 'new_chat'",
+      "owner": "threads",
+      "bindings": [
+        "action:new_chat"
+      ],
+      "variants": {
+        "short": {
+          "label": "New chat"
+        },
+        "long": {
+          "label": "New chat"
+        }
+      },
+      "artboard": [
+        374.0,
+        76.0
+      ],
+      "nodes": 4,
+      "native_controls": 1,
+      "card": "design/components/new-chat/page.card",
+      "data": "design/components/new-chat/page.data.json",
+      "render": [
+        "design/components/new-chat/reference.png"
+      ]
+    },
+    {
+      "id": "user-bubble",
+      "source_scene": "conversation-03",
+      "extracted_from": "scene 3 root 'user_bubble'",
+      "owner": "timeline",
+      "bindings": [
+        "text"
+      ],
+      "variants": {
+        "short": {
+          "text": "Retry the build"
+        },
+        "long": {
+          "text": "Fix the steer queue so queued steers survive a reconnect"
+        }
+      },
+      "artboard": [
+        284.01,
+        85.09
+      ],
+      "nodes": 3,
+      "native_controls": 0,
+      "card": "design/components/user-bubble/page.card",
+      "data": "design/components/user-bubble/page.data.json",
+      "render": [
+        "design/components/user-bubble/reference.png"
+      ]
+    },
+    {
+      "id": "working-row",
+      "source_scene": "conversation-03",
+      "extracted_from": "scene 3 root 'working_row'",
+      "owner": "timeline",
+      "bindings": [
+        "label",
+        "elapsed"
+      ],
+      "variants": {
+        "short": {
+          "label": "Working",
+          "elapsed": "3s"
+        },
+        "long": {
+          "label": "Working",
+          "elapsed": "12s"
+        }
+      },
+      "artboard": [
+        145.55,
+        29.5
+      ],
+      "nodes": 3,
+      "native_controls": 0,
+      "card": "design/components/working-row/page.card",
+      "data": "design/components/working-row/page.data.json",
+      "render": [
+        "design/components/working-row/reference.png"
+      ]
+    },
+    {
+      "id": "assistant-prose",
+      "source_scene": "conversation-09",
+      "extracted_from": "scene 9 root 'answer_prose'",
+      "owner": "timeline",
+      "bindings": [
+        "markdown"
+      ],
+      "variants": {
+        "short": {
+          "markdown": "Fixed `steer_dropped` handling."
+        },
+        "long": {
+          "markdown": "Queued steers now survive a reconnect.\n\n\u2022 Updated `ui_protocol_transport.rs` to persist queued steers.\n\n\u2022 All tests pass: `12 passed`."
+        }
+      },
+      "artboard": [
+        356.0,
+        492.0
+      ],
+      "nodes": 2,
+      "native_controls": 0,
+      "card": "design/components/assistant-prose/page.card",
+      "data": "design/components/assistant-prose/page.data.json",
+      "render": [
+        "design/components/assistant-prose/reference.png"
+      ]
+    },
+    {
+      "id": "worked-for",
+      "source_scene": "conversation-09",
+      "extracted_from": "scene 9 root 'worked_row'",
+      "owner": "timeline",
+      "bindings": [
+        "label",
+        "action:toggle"
+      ],
+      "variants": {
+        "short": {
+          "label": "Worked for 3s \u203a"
+        },
+        "long": {
+          "label": "Worked for 3m 4s \u203a"
+        }
+      },
+      "artboard": [
+        374.0,
+        44.0
+      ],
+      "nodes": 4,
+      "native_controls": 1,
+      "card": "design/components/worked-for/page.card",
+      "data": "design/components/worked-for/page.data.json",
+      "render": [
+        "design/components/worked-for/reference.png"
+      ]
+    },
+    {
+      "id": "answer-actions",
+      "source_scene": "conversation-09",
+      "extracted_from": "scene 9 root 'answer_actions'",
+      "owner": "timeline",
+      "bindings": [
+        "timestamp",
+        "actions"
+      ],
+      "variants": {
+        "short": {
+          "timestamp": "now"
+        },
+        "long": {
+          "timestamp": "Sep 28, 9:41 PM"
+        }
+      },
+      "artboard": [
+        364.11,
+        29.05
+      ],
+      "nodes": 5,
+      "native_controls": 0,
+      "card": "design/components/answer-actions/page.card",
+      "data": "design/components/answer-actions/page.data.json",
+      "render": [
+        "design/components/answer-actions/reference.png"
+      ]
+    },
+    {
+      "id": "tool-cell",
+      "source_scene": "conversation-04",
+      "extracted_from": "scene 4 root 'tool_1'",
+      "owner": "tools",
+      "bindings": [
+        "kind",
+        "summary",
+        "detail",
+        "status",
+        "expanded",
+        "output"
+      ],
+      "variants": {
+        "short": {
+          "summary": "Read steer_queue.rs",
+          "status": "ok"
+        },
+        "long": {
+          "summary": "Ran cargo test -p octos-cli",
+          "status": "ok",
+          "output": "running 12 tests\u2026 12 passed"
+        }
+      },
+      "artboard": [
+        371.0,
+        105.0
+      ],
+      "nodes": 5,
+      "native_controls": 0,
+      "card": "design/components/tool-cell/page.card",
+      "data": "design/components/tool-cell/page.data.json",
+      "render": [
+        "design/components/tool-cell/reference.png"
+      ]
+    },
+    {
+      "id": "composer",
+      "source_scene": "conversation-08",
+      "extracted_from": "scene 8 root 'composer_idle'",
+      "owner": "composer",
+      "bindings": [
+        "draft",
+        "model",
+        "running",
+        "queued",
+        "action:submit",
+        "action:interrupt",
+        "action:steer"
+      ],
+      "variants": {
+        "short": {
+          "model": "v4-flash"
+        },
+        "long": {
+          "model": "v4-flash",
+          "queued": true
+        }
+      },
+      "artboard": [
+        374.0,
+        190.0
+      ],
+      "nodes": 9,
+      "native_controls": 0,
+      "card": "design/components/composer/page.card",
+      "data": "design/components/composer/page.data.json",
+      "render": [
+        "design/components/composer/reference.png"
+      ]
+    },
+    {
       "id": "approval-card",
       "source_scene": "conversation-05",
       "extracted_from": "scene 5 root 'approval_card'",
@@ -34,13 +311,7 @@
       "card": "design/components/approval-card/page.card",
       "data": "design/components/approval-card/page.data.json",
       "render": [
-        "design/components/approval-card/reference.png",
-        "design/components/approval-card/review-short.png",
-        "design/components/approval-card/review-long.png",
-        "design/components/approval-card/variants/short-360.png",
-        "design/components/approval-card/variants/short-540.png",
-        "design/components/approval-card/variants/long-360.png",
-        "design/components/approval-card/variants/long-540.png"
+        "design/components/approval-card/reference.png"
       ]
     },
     {
@@ -73,13 +344,7 @@
       "card": "design/components/question-card/page.card",
       "data": "design/components/question-card/page.data.json",
       "render": [
-        "design/components/question-card/reference.png",
-        "design/components/question-card/review-short.png",
-        "design/components/question-card/review-long.png",
-        "design/components/question-card/variants/short-360.png",
-        "design/components/question-card/variants/short-540.png",
-        "design/components/question-card/variants/long-360.png",
-        "design/components/question-card/variants/long-540.png"
+        "design/components/question-card/reference.png"
       ]
     },
     {
@@ -113,13 +378,7 @@
       "card": "design/components/edited-files-card/page.card",
       "data": "design/components/edited-files-card/page.data.json",
       "render": [
-        "design/components/edited-files-card/reference.png",
-        "design/components/edited-files-card/review-short.png",
-        "design/components/edited-files-card/review-long.png",
-        "design/components/edited-files-card/variants/short-360.png",
-        "design/components/edited-files-card/variants/short-540.png",
-        "design/components/edited-files-card/variants/long-360.png",
-        "design/components/edited-files-card/variants/long-540.png"
+        "design/components/edited-files-card/reference.png"
       ]
     },
     {
@@ -159,13 +418,7 @@
       "card": "design/components/plan-card/page.card",
       "data": "design/components/plan-card/page.data.json",
       "render": [
-        "design/components/plan-card/reference.png",
-        "design/components/plan-card/review-short.png",
-        "design/components/plan-card/review-long.png",
-        "design/components/plan-card/variants/short-360.png",
-        "design/components/plan-card/variants/short-540.png",
-        "design/components/plan-card/variants/long-360.png",
-        "design/components/plan-card/variants/long-540.png"
+        "design/components/plan-card/reference.png"
       ]
     },
     {
@@ -198,13 +451,7 @@
       "card": "design/components/goal-strip/page.card",
       "data": "design/components/goal-strip/page.data.json",
       "render": [
-        "design/components/goal-strip/reference.png",
-        "design/components/goal-strip/review-short.png",
-        "design/components/goal-strip/review-long.png",
-        "design/components/goal-strip/variants/short-360.png",
-        "design/components/goal-strip/variants/short-540.png",
-        "design/components/goal-strip/variants/long-360.png",
-        "design/components/goal-strip/variants/long-540.png"
+        "design/components/goal-strip/reference.png"
       ]
     },
     {
@@ -237,13 +484,7 @@
       "card": "design/components/diff-view/page.card",
       "data": "design/components/diff-view/page.data.json",
       "render": [
-        "design/components/diff-view/reference.png",
-        "design/components/diff-view/review-short.png",
-        "design/components/diff-view/review-long.png",
-        "design/components/diff-view/variants/short-360.png",
-        "design/components/diff-view/variants/short-540.png",
-        "design/components/diff-view/variants/long-360.png",
-        "design/components/diff-view/variants/long-540.png"
+        "design/components/diff-view/reference.png"
       ]
     },
     {
@@ -275,13 +516,7 @@
       "card": "design/components/settings-group/page.card",
       "data": "design/components/settings-group/page.data.json",
       "render": [
-        "design/components/settings-group/reference.png",
-        "design/components/settings-group/review-short.png",
-        "design/components/settings-group/review-long.png",
-        "design/components/settings-group/variants/short-360.png",
-        "design/components/settings-group/variants/short-540.png",
-        "design/components/settings-group/variants/long-360.png",
-        "design/components/settings-group/variants/long-540.png"
+        "design/components/settings-group/reference.png"
       ]
     }
   ]

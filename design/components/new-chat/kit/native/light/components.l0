@@ -1,0 +1,12 @@
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surface2c8289ea3ffc(instance: text) {
+  view Kit(component: "Surface2c8289ea3ffc", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Text0cb52ec5325c(instance: text, text: text) {
+  view Kit(component: "Text0cb52ec5325c", instance: instance, text: text)
+}

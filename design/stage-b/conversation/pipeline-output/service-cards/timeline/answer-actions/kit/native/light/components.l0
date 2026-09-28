@@ -1,0 +1,9 @@
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Texta0abe1806ac3(instance: text, text: text) {
+  view Kit(component: "Texta0abe1806ac3", instance: instance, text: text)
+}

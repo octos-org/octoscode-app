@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "tool_1",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface2d72cf7029d3",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        371.0,
+        105.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_file",
+      "native_id": "beauty_0_0",
+      "parent": "tool_1",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        25.790999999999997,
+        27.391000000000005,
+        23.807,
+        29.674
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_1",
+      "parent": "tool_1",
+      "kind": "text",
+      "component": "Text3990198d8404",
+      "semantic_role": "text",
+      "bounds": [
+        70.47,
+        29.0,
+        231.5,
+        23.5
+      ],
+      "text": "Read ui_protocol_transport.rs",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 13.07
+    },
+    {
+      "source_id": "t02",
+      "native_id": "beauty_0_2",
+      "parent": "tool_1",
+      "kind": "text",
+      "component": "Textbed76d0b7729",
+      "semantic_role": "text",
+      "bounds": [
+        70.15,
+        57.0,
+        77.5,
+        19.5
+      ],
+      "text": "\u2022 412 lines",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14.78
+    },
+    {
+      "source_id": "icon_check1",
+      "native_id": "beauty_0_3",
+      "parent": "tool_1",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        337.273,
+        24.915000000000006,
+        19.84,
+        22.826
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "b4ecfab8042d8eb4bf231dc6f0064318b3e2def01e7ffcd80f15044a69dba195",
+  "mapping_basis": "mapped.json"
+}

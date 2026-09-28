@@ -1,0 +1,17 @@
+{
+  "frame_id": 9,
+  "controls": {
+    "worked_row": {
+      "event": "turn.expand",
+      "source_bounds": [
+        16,
+        32,
+        374,
+        44
+      ],
+      "enabled": true
+    }
+  },
+  "source": "completed-answer",
+  "owner": "timeline"
+}

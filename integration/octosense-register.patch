@@ -2535,3 +2535,16 @@ index fac87c5..8ab291f 100644
  app-aichat = ["octosense-shell/app-aichat"]
  # Rinx as a module; its assistant is the shell's (implies `octos-core`).
  app-rinx = ["octosense-shell/app-rinx"]
+diff --git a/phone/Cargo.toml b/phone/Cargo.toml
+index 6f13b8d..5cd66f7 100644
+--- a/phone/Cargo.toml
++++ b/phone/Cargo.toml
+@@ -86,6 +86,8 @@ app-reference = ["dep:octosense-reference", "octosense-shell/app-reference"]
+ app-sheets = ["octosense-shell/app-sheets"]
+ app-photos = ["octosense-shell/app-photos"]
+ app-appcard = ["octosense-shell/app-appcard"]
++# Phase-1 core: the octoscode client module (recipe (i) forwarded to the phone packaging).
++app-octoscode = ["octosense-shell/app-octoscode"]
+ app-news = ["octosense-shell/app-news"]
+ app-maps = ["octosense-shell/app-maps"]
+ app-aichat = ["dep:makepad-aichat", "octosense-shell/app-aichat"]

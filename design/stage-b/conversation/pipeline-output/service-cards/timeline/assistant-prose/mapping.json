@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "answer_prose",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        356.0,
+        492.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "answer_md",
+      "native_id": "beauty_0_0",
+      "parent": "answer_prose",
+      "kind": "text",
+      "component": "Textf628ddef93a6",
+      "semantic_role": "text",
+      "bounds": [
+        0.0,
+        0.0,
+        356.0,
+        492.0
+      ],
+      "text": "Queued steers now survive a reconnect.\n\n\u2022 Fixed loss of queued steers when reconnecting after a drop in `steer_dropped` handling.\n\n\u2022 Updated `ui_protocol_transport.rs` to persist queued steers to the session ledger.\n\n\u2022 All tests pass: `12 passed`.\n\n\u2022 Changes included in commit `a6ea8505`.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 17.5
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "30019f28dba4431cd18788a47cdded239059a58342083ae5547ce4e386be0d2d",
+  "mapping_basis": "mapped.json"
+}

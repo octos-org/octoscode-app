@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "faf1df8762039e2855a41102c507e92ad7b2759bc56b398f96ce7ab46c8596cf",
+  "manifest_sha256": "ae0b91768d7a8175a22122e3baa4af1821c775deb10b24ff06d4a7ba9676f954",
   "reference_sha256": "8d49354eb55c0b9134e6b27998b0cae234706a2744bc34be68baa2b106735383",
   "id": "conversation-09",
   "round": null,
@@ -70,6 +70,17 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
+      "id": "answer_prose",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
       "id": "answer_md",
       "role": "text",
       "basis": "authored text node",
@@ -80,6 +91,17 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "answer_actions",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
       "id": "icon_copy",

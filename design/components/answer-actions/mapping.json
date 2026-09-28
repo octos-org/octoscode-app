@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "answer_actions",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        364.11,
+        29.05
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_copy",
+      "native_id": "beauty_0_0",
+      "parent": "answer_actions",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        0.0,
+        0.0,
+        20.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_thumbs",
+      "native_id": "beauty_0_1",
+      "parent": "answer_actions",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        28.0,
+        0.0,
+        20.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_share",
+      "native_id": "beauty_0_2",
+      "parent": "answer_actions",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        56.0,
+        0.0,
+        20.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t11",
+      "native_id": "beauty_0_3",
+      "parent": "answer_actions",
+      "kind": "text",
+      "component": "Texta0abe1806ac3",
+      "semantic_role": "text",
+      "bounds": [
+        243.64,
+        1.5,
+        121.5,
+        28.0
+      ],
+      "text": "Sep 28, 9:41 PM",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15.26
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "bdb41e25596559979d35f1f8fc284e888dc2ef9e1d1e776b928d98a60646355a",
+  "mapping_basis": "mapped.json"
+}

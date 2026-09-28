@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "id": "thread-row",
+  "app": "octoscode",
+  "number": 1,
+  "title": "Thread list",
+  "structure": "Native component reconstructed from the approved conversation atlas",
+  "artboard": [
+    379.0,
+    78.0
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "thread_1",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 379.0,
+    "h": 78.0,
+    "c": [
+      {
+        "t": "stack",
+        "id": "thread_1_surface",
+        "x": 0.0,
+        "y": 0.0,
+        "w": 379.0,
+        "h": 78.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294046195,
+        "radius": 12.89
+      },
+      {
+        "t": "button",
+        "id": "thread_1_control",
+        "x": 0.0,
+        "y": 0.0,
+        "w": 379.0,
+        "h": 78.0,
+        "enabled": 1
+      },
+      {
+        "t": "text",
+        "id": "thread_1_label",
+        "text": "Fix steer queue drop on reconnect",
+        "x": 23.04,
+        "y": 27.0,
+        "w": 302.0,
+        "h": 28.0,
+        "size": 18.1,
+        "line_height": 21.9,
+        "weight": 500,
+        "color": 4279045390,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      }
+    ],
+    "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+  },
+  "standalone_service_card": true
+}

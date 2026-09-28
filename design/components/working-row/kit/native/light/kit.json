@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "theme": "light",
+  "tokens": {
+    "size_2adbfc52f2da": {
+      "value": 17.94,
+      "property": "size"
+    },
+    "line_height_adfc8056b40f": {
+      "value": 21.7,
+      "property": "line_height"
+    },
+    "weight_0604cd3138fe": {
+      "value": 500,
+      "property": "weight"
+    },
+    "color_30003d7f6f04": {
+      "value": 4287730325,
+      "property": "color"
+    },
+    "font_src_cb352dc03af3": {
+      "value": "self:resources/ux/Inter-500.ttf",
+      "property": "font_src"
+    },
+    "tracking_8aed642bf511": {
+      "value": 0.0,
+      "property": "tracking"
+    }
+  },
+  "components": {
+    "Group3d2637879433": {
+      "style": {
+        "t": "stack"
+      },
+      "props": {},
+      "slot": true
+    },
+    "Vectore0a378fde04f": {
+      "style": {
+        "t": "svg"
+      },
+      "props": {},
+      "slot": false
+    },
+    "Texta0a4e959ef2b": {
+      "style": {
+        "t": "text",
+        "size": {
+          "$token": "size_2adbfc52f2da"
+        },
+        "line_height": {
+          "$token": "line_height_adfc8056b40f"
+        },
+        "weight": {
+          "$token": "weight_0604cd3138fe"
+        },
+        "color": {
+          "$token": "color_30003d7f6f04"
+        },
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_cb352dc03af3"
+        },
+        "tracking": {
+          "$token": "tracking_8aed642bf511"
+        }
+      },
+      "props": {
+        "text": "text"
+      },
+      "slot": false
+    }
+  }
+}

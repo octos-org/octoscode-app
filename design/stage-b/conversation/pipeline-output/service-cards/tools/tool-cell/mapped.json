@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "fa24bf3b3cb3235b8582d76185934d82e98e9691f1d6e3e5ff1106cc96dc2c63",
+  "tree": {
+    "t": "stack",
+    "id": "tool_1",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 371.0,
+    "h": 105.0,
+    "c": [
+      {
+        "t": "svg",
+        "id": "icon_file",
+        "x": 25.790999999999997,
+        "y": 27.391000000000005,
+        "w": 23.807,
+        "h": 29.674,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t01",
+        "text": "Read ui_protocol_transport.rs",
+        "x": 70.47,
+        "y": 29.0,
+        "w": 231.5,
+        "h": 23.5,
+        "size": 13.07,
+        "line_height": 15.82,
+        "weight": 500,
+        "color": 4281282352,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t02",
+        "text": "• 412 lines",
+        "x": 70.15,
+        "y": 57.0,
+        "w": 77.5,
+        "h": 19.5,
+        "size": 14.78,
+        "line_height": 17.88,
+        "weight": 400,
+        "color": 4280755751,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "svg",
+        "id": "icon_check1",
+        "x": 337.273,
+        "y": 24.915000000000006,
+        "w": 19.84,
+        "h": 22.826,
+        "src": ""
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901246,
+    "radius": 13.7,
+    "border": 1,
+    "bordercolor": 4293256679
+  },
+  "changes": [
+    {
+      "source": "cards/conversation-04/mapped.json",
+      "source_sha256": "080efb0a3b723f479ad3db14dc6da689dd85c35467a0f18c0d2b5a0c9a844123",
+      "operation": "Extract native subtree and translate origin",
+      "source_root": "tool_1",
+      "translation": [
+        -18.0,
+        -47.0
+      ]
+    }
+  ]
+}

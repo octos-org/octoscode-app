@@ -1,0 +1,44 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "new_chat": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 374.0,
+          "h": 76.0
+        }
+      },
+      "new_chat_surface": {
+        "component": "Surface2c8289ea3ffc",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 374.0,
+          "h": 76.0
+        }
+      },
+      "new_chat_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 374.0,
+          "h": 76.0
+        }
+      },
+      "new_chat_label": {
+        "component": "Text0cb52ec5325c",
+        "layout": {
+          "x": 21.04,
+          "y": 27.0,
+          "w": 86.0,
+          "h": 23.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

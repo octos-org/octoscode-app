@@ -1,0 +1,26 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "answer_prose": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 356.0,
+          "h": 492.0
+        }
+      },
+      "answer_md": {
+        "component": "Textf628ddef93a6",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 356.0,
+          "h": 492.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

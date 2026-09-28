@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "policy_version": "1.1.0",
+  "contract_sha256": "b4ecfab8042d8eb4bf231dc6f0064318b3e2def01e7ffcd80f15044a69dba195",
+  "reference_sha256": "fa24bf3b3cb3235b8582d76185934d82e98e9691f1d6e3e5ff1106cc96dc2c63",
+  "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
+  "elements": [
+    {
+      "id": "tool_1",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "icon_file",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_file.svg",
+        "sha256": "3ad579322f88ec0dad3fba38aee4bf65b4c2035aa16fb2a066df05f04d3eced9",
+        "method": "reference_svg",
+        "reference_sha256": "fa24bf3b3cb3235b8582d76185934d82e98e9691f1d6e3e5ff1106cc96dc2c63",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "t01",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t02",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "icon_check1",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_check1.svg",
+        "sha256": "4b2ffeb0c612b6ac5d6eab283e75e2e6fa93faeb288385b664af75f20d257415",
+        "method": "reference_svg",
+        "reference_sha256": "fa24bf3b3cb3235b8582d76185934d82e98e9691f1d6e3e5ff1106cc96dc2c63",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    }
+  ]
+}

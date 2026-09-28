@@ -15,7 +15,7 @@ index 6ca42d7..0238ed2 100644
                      flow: Overlay
                      host := Splash { width: Fill height: Fill }
 diff --git a/crates/octoscript-makepad/src/design.rs b/crates/octoscript-makepad/src/design.rs
-index d144d32..81f03a8 100644
+index d144d32..1f9928b 100644
 --- a/crates/octoscript-makepad/src/design.rs
 +++ b/crates/octoscript-makepad/src/design.rs
 @@ -108,12 +108,36 @@ pub fn prepare(source: &str) -> Result<UiNode, String> {
@@ -127,7 +127,7 @@ index d144d32..81f03a8 100644
              writeln!(out, "margin: Inset{{left: {} top: {} right: 0 bottom: 0}}",
                  a.x.unwrap_or(0.) - x, a.y.unwrap_or(0.) - y).unwrap();
 +        } else if responsive {
-+            writeln!(out, "margin: Inset{{left: {} top: {}}}",
++            writeln!(out, "abs_pos: vec2({}, {})",
 +                a.x.unwrap_or(0.), a.y.unwrap_or(0.)).unwrap();
          } else {
              writeln!(out, "abs_pos: vec2({}, {})", a.x.unwrap_or(0.), a.y.unwrap_or(0.)).unwrap();
@@ -211,7 +211,27 @@ index d144d32..81f03a8 100644
                  }
              }
              NodeKind::Text | NodeKind::Input => {
-@@ -516,7 +625,7 @@ pub fn to_makepad_ui(tree: &UiNode) -> Result<String, String> {
+@@ -438,7 +547,18 @@ pub fn to_makepad_ui(tree: &UiNode) -> Result<String, String> {
+                 } else if a.variant.as_deref()==Some("single_line") || a.h.unwrap_or(0.) <= a.line_height.unwrap_or(size * 1.3) + 0.5 {
+                     // A single Sketch line must not wrap a whole word because
+                     // native font advances differ by a fraction of a point.
+-                    writeln!(out, "flow: Right").unwrap();
++                    // Card #16b: a single line that FILLS its slot has a width
++                    // the authoring tool could not know (a reusable row binds a
++                    // title of any length), so it ellipsizes instead of clipping.
++                    // A measured line keeps its measured box and clips exactly as
++                    // before — gating on `fillw` leaves every approved scene
++                    // byte-identical (no scene text node sets `fillw`); the
++                    // ellipsis only draws on actual overflow.
++                    if a.fillw == Some(1) {
++                        writeln!(out, "flow: Right max_lines: 1 text_overflow: TextOverflow.Ellipsis").unwrap();
++                    } else {
++                        writeln!(out, "flow: Right").unwrap();
++                    }
+                 }
+                 // Use real font metrics and a measured line height. The
+                 // bundled families' natural line box is supplied by importer.
+@@ -516,7 +636,7 @@ pub fn to_makepad_ui(tree: &UiNode) -> Result<String, String> {
          Ok(())
      }
      let mut out = String::new();

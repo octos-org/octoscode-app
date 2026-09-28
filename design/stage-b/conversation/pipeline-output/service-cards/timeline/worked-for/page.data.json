@@ -1,0 +1,44 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "worked_row": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 374.0,
+          "h": 44.0
+        }
+      },
+      "worked_row_surface": {
+        "component": "Surface5e06c9b428ce",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 374.0,
+          "h": 44.0
+        }
+      },
+      "worked_row_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 374.0,
+          "h": 44.0
+        }
+      },
+      "worked_row_label": {
+        "component": "Textf545a5164562",
+        "layout": {
+          "x": 10.530000000000001,
+          "y": 9.5,
+          "w": 178.0,
+          "h": 24.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

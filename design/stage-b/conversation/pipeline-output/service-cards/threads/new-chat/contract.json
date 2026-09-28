@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "id": "new-chat",
+  "app": "octoscode",
+  "number": 1,
+  "title": "Thread list",
+  "structure": "Native component reconstructed from the approved conversation atlas",
+  "artboard": [
+    374.0,
+    76.0
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "new_chat",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 374.0,
+    "h": 76.0,
+    "c": [
+      {
+        "t": "stack",
+        "id": "new_chat_surface",
+        "x": 0.0,
+        "y": 0.0,
+        "w": 374.0,
+        "h": 76.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 17.27,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "button",
+        "id": "new_chat_control",
+        "x": 0.0,
+        "y": 0.0,
+        "w": 374.0,
+        "h": 76.0,
+        "enabled": 1
+      },
+      {
+        "t": "text",
+        "id": "new_chat_label",
+        "text": "New chat",
+        "x": 21.04,
+        "y": 27.0,
+        "w": 86.0,
+        "h": 23.0,
+        "size": 18.12,
+        "line_height": 21.92,
+        "weight": 500,
+        "color": 4278650374,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      }
+    ],
+    "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+  },
+  "standalone_service_card": true
+}

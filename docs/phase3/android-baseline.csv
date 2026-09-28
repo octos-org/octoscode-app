@@ -1,0 +1,31 @@
+section,key,value,evidence
+toolchain,cargo-makepad,installed at ~/.cargo/bin/cargo-makepad (built from Octoscript-AppCard/makepad/tools/cargo_makepad),cargo makepad android --help
+toolchain,android rust target,aarch64-linux-android installed,rustup target list --installed
+toolchain,NDK,28.2.13676358 (bundled under cargo_makepad/android_33_macos_aarch64/ndk),ls .../android_33_macos_aarch64/ndk
+toolchain,NDK clang,aarch64-linux-android33-clang (versioned; the unversioned name the NDK no longer ships),ls .../llvm/prebuilt/darwin-x86_64/bin
+toolchain,Android SDK (bundled),"platforms/android-33-ext4, build-tools/33.0.1, platform-tools, openjdk 17.0.2",ls .../android_33_macos_aarch64; .../openjdk/bin/java -version
+toolchain,JAVA_HOME,/Applications/Android Studio.app/Contents/jbr/Contents/Home (JBR 21.0.10); /usr/bin/java absent,java -version
+toolchain,ANDROID_HOME / NDK_HOME env,unset (cargo-makepad reads its own bundled SDK; --sdk-path points at it),env | grep ANDROID
+toolchain,disk,"533 GB free before, 518 GB after (targets 6.4 GB)",df -g /Users
+command,prepare pinned sources,"python3 tools/setup.py -> wrote native-runtime.lock.json + .sources/{makepad,octoscript,octoscript-makepad}",python3 tools/setup.py
+command,apply registration recipe (i),"git apply integration/octosense-register.patch -> 5 files (root Cargo.toml, crates/shell/{Cargo.toml,src/apps.rs}, desktop/Cargo.toml, phone/Cargo.toml) + apps/octoscode/",git apply --check (rc=0)
+command,apply generic-Request fork (D10a),"git apply patches/octosense/0001-transport-generic-request.patch -> apps/appcard/.../octos-app-transport src/{lib,proto}.rs",git apply --index (rc=0)
+command,our crates on Android,"cargo check -p octoscode-module --target aarch64-linux-android -> Finished, 0 warnings",cargo check
+command,phone APK (no kernel),cargo makepad android --sdk-path=<bundled> build -p octosense-home --features app-octoscode -> APK Build completed,BUILD_EXIT=0
+command,kernel cross-build,"python3 tools/kernel-artifact.py --sdk <bundled> -> octos aarch64 ELF, 129,905,784 B, 13m49s",KERNEL_EXIT=0
+command,phone APK (kernel bundled),same build with MAKEPAD_ANDROID_EXTRA_LIBS=liboctos.so=<octos> -> Bundled extra native lib: liboctos.so,APK2_EXIT=0
+result,APK path,tmp/oS20/target/makepad-android-apk/octosense_home/apk/octo_sense.apk,find target -name '*.apk'
+result,APK size (no kernel),"214,865,794 B (208 MB); libs libmakepad.so + libstd-*.so",stat -f '%z'; unzip -l
+result,APK size (kernel bundled),"257,484,745 B (256 MB); adds lib/arm64-v8a/liboctos.so (129,905,784 B)",stat -f '%z'; unzip -l
+result,aapt badging,package=dev.makepad.octosense versionCode=1 versionName=0.1.0 label=OctoSense sdkVersion=26 targetSdkVersion=35 native-code=arm64-v8a launchable-activity=dev.makepad.octosense.MakepadApp,aapt dump badging
+result,device install,NOT installed (adb devices may list the operator's phone; installing is the operator's call),card step 4
+error-group,makepad-Android (buildtool arg),"Error: ""Failed to get crate dir for: app-octoscode"" — cargo-makepad takes the first positional arg as the build crate; must pass -p octosense-home",cargo_makepad/src/utils.rs:390
+error-group,makepad-Android (cc-rs / NDK),"cc-rs 'failed to find tool ""aarch64-linux-android-clang""' — export CC_/CXX_/AR_/RANLIB_aarch64_linux_android at the NDK versioned clang",apps/appcard/docs/BUILDING-ANDROID.md:71-75
+error-group,stdio transport on Android,none observed,build logs grep ^error = 0
+error-group,octos-cli embedding / kernel,none — kernel-artifact.py cross-built octos-cli clean (13m49s),KERNEL_EXIT=0
+ours-vs-upstream,our crates (octoscode client/store/module),compiled for aarch64-linux-android with ZERO warnings and ZERO errors; no Android fix needed,cargo check + grep 'octoscode.*warning' = 0
+ours-vs-upstream,upstream makepad / Java activity,"2 dead-code warnings (makepad-platform, makepad-filesystem-watcher); 4 javac deprecation warnings in MakepadActivity.java",build log lines 34/46/90
+ours-vs-upstream,kernel integration,liboctos.so is NOT bundled by plain cargo makepad; the supported path is tools/kernel-artifact.py exporting MAKEPAD_ANDROID_EXTRA_LIBS,build log; kernel-artifact.py:20
+next-steps,device run,install octo_sense.apk on an arm64 device and confirm the android-appcard-build.md log lines (kernel service ready / octos serve --stdio),unverified on device
+next-steps,registration patch,merge the phone hunk into integration/octosense-register.patch upstream (now extended here),git apply --check on pristine = 0
+next-steps,icons,cargo makepad warns on missing launcher/app icons; add mipmap-*/ic_launcher.png or pass --no-icon,"build log lines 27,90"

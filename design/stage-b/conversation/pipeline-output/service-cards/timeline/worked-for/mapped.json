@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "a7092bffc82783ecb04fd44bda1dd80664a051d621cf5d95322a2cb4d79c682a",
+  "tree": {
+    "t": "stack",
+    "id": "worked_row",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 374.0,
+    "h": 44.0,
+    "c": [
+      {
+        "t": "stack",
+        "id": "worked_row_surface",
+        "x": 0.0,
+        "y": 0.0,
+        "w": 374.0,
+        "h": 44.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294835709,
+        "radius": 10.0
+      },
+      {
+        "t": "button",
+        "id": "worked_row_control",
+        "x": 0.0,
+        "y": 0.0,
+        "w": 374.0,
+        "h": 44.0,
+        "enabled": 1
+      },
+      {
+        "t": "text",
+        "id": "worked_row_label",
+        "text": "Worked for 3m 4s ›",
+        "x": 10.530000000000001,
+        "y": 9.5,
+        "w": 178.0,
+        "h": 24.0,
+        "size": 18.7,
+        "line_height": 22.63,
+        "weight": 500,
+        "color": 4281019180,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      }
+    ],
+    "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+  },
+  "changes": [
+    {
+      "source": "cards/conversation-09/mapped.json",
+      "source_sha256": "f3e7f64f552d7666c044229cd48ac4a412ed5521ed31941a5fa310cfa87fa7f6",
+      "operation": "Extract native subtree and translate origin",
+      "source_root": "worked_row",
+      "translation": [
+        -16.0,
+        -32.0
+      ]
+    }
+  ]
+}

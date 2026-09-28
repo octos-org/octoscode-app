@@ -350,8 +350,15 @@ def build_03(sc):
     sc.put(surface("user_bubble", bx, by, bw, bh, bg="black", radius=16, kids=[
         text("t01", sc.t(0), x1, y1, w1, h1, weight=500, color="white"),
         text("t02", sc.t(1), x2, y2, w2, h2, weight=500, color="white")]))
-    sc.add_icon("icon_spinner", "spinner", 44, 198, 18, 18, color="muted")
-    sc.add_text("t03", 2, color="muted", weight=500)
+    # Card #16: the extract stage compiles only a native COMPOSITION ROOT
+    # (extract.py:49-50 requires tree['t']=='stack'). The working-row is spinner +
+    # "Working · 12s"; neither is a stack, so wrap the pair in a minimal stack —
+    # the same plain-stack pattern the `chips` row above already uses. makepad's
+    # abs_pos is window-absolute (design.rs:200 emits the node's own x/y), so a
+    # wrapper with no fill moves NOTHING: children keep their measured coords.
+    wr = [icon("icon_spinner", "spinner", 44, 198, 18, 18, color="muted"),
+          text("t03", sc.t(2), *sc.rows[2][1:], color="muted", weight=500)]
+    sc.put(stack("working_row", 44, 193, 145.55, 29.5, wr))
     # Card #11f: same flowing widget as 09, so 03's streaming paragraphs render an
     # inline `code` span as the kit chip too.
     sc.put(flow_md("assistant_md", STREAM_MD, 21, 248, 358, 176, size=17.5, line_height=35))
@@ -467,12 +474,20 @@ def build_09(sc):
     rx, ry, rw, rh = sc.rows[0][1:]
     sc.add_control("worked_row", 16, 32, 374, 44, 0, bg="panel", radius=10, weight=500,
                    color="muted", lx=rx, ly=ry, lw=rw, lh=rh, event="turn.expand")
-    sc.put(flow_md("answer_md", ANSWER_MD, 27, 106, 356, 492, size=17.5, line_height=38))
+    # Card #16: `extract` compiles a native COMPOSITION ROOT (extract.py:49-50
+    # requires tree['t']=='stack'). The answer prose and the action row are each a
+    # minimal stack. makepad abs_pos is window-absolute (design.rs:200 emits the
+    # node's own x/y), so a wrapper with no fill moves NO child — every leaf keeps
+    # its measured coords and the scene looks identical.
+    body = flow_md("answer_md", ANSWER_MD, 27, 106, 356, 492, size=17.5, line_height=38)
+    sc.put(stack("answer_prose", 27, 106, 356, 492, [body]))
     sc.flows["answer_md"] = ("answer.markdown", 27, 106, 356, 492)
-    sc.add_icon("icon_copy", "copy", 24, 662, 20, 20, color="muted")
-    sc.add_icon("icon_thumbs", "thumbs", 52, 662, 20, 20, color="muted")
-    sc.add_icon("icon_share", "share", 80, 662, 20, 20, color="muted")
-    sc.add_text("t11", 10, color="muted", size=13)
+    tx, ty, tw, th = sc.rows[10][1:]
+    sc.put(stack("answer_actions", 24, 662, max(100, tx + tw) - 24, max(682, ty + th) - 662, [
+        icon("icon_copy", "copy", 24, 662, 20, 20, color="muted"),
+        icon("icon_thumbs", "thumbs", 52, 662, 20, 20, color="muted"),
+        icon("icon_share", "share", 80, 662, 20, 20, color="muted"),
+        text("t11", sc.t(10), *sc.rows[10][1:], color="muted", size=13)]))
 
 MUTED = {"• 412 lines", "• 7 matches", "Working • 12s", "Ask for approval", "running 12 tests",
          "Sep 28, 9:41 PM", "Sep 28,9:41 PM", "+", "••", "Skip", "Deny", "v4-flash ▾", "V4-flash v",

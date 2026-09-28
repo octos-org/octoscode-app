@@ -57,30 +57,40 @@
         "radius": 16.0
       },
       {
-        "t": "svg",
-        "id": "icon_spinner",
+        "t": "stack",
+        "id": "working_row",
         "x": 44.0,
-        "y": 198.0,
-        "w": 18.0,
-        "h": 18.0,
-        "src": ""
-      },
-      {
-        "t": "text",
-        "id": "t03",
-        "text": "Working \u2022 12s",
-        "x": 66.05,
         "y": 193.0,
-        "w": 123.5,
+        "w": 145.55,
         "h": 29.5,
-        "size": 17.94,
-        "line_height": 21.7,
-        "weight": 500,
-        "color": 4287730325,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-500.ttf",
-        "tracking": 0.0
+        "c": [
+          {
+            "t": "svg",
+            "id": "icon_spinner",
+            "x": 44.0,
+            "y": 198.0,
+            "w": 18.0,
+            "h": 18.0,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "t03",
+            "text": "Working \u2022 12s",
+            "x": 66.05,
+            "y": 193.0,
+            "w": 123.5,
+            "h": 29.5,
+            "size": 17.94,
+            "line_height": 21.7,
+            "weight": 500,
+            "color": 4287730325,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          }
+        ]
       },
       {
         "t": "text",
@@ -339,6 +349,10 @@
     },
     {
       "id": "user_bubble",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "working_row",
       "source": "observed non-text annotation"
     },
     {

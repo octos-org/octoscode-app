@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "thread_1",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        0.0,
+        0.0,
+        379.0,
+        78.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "thread_1_surface",
+      "native_id": "beauty_0_0",
+      "parent": "thread_1",
+      "kind": "stack",
+      "component": "Surface8f954c9fd892",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        379.0,
+        78.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "thread_1_control",
+      "native_id": "beauty_0_1",
+      "parent": "thread_1",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        0.0,
+        0.0,
+        379.0,
+        78.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "thread_1_label",
+      "native_id": "beauty_0_2",
+      "parent": "thread_1",
+      "kind": "text",
+      "component": "Text68bd508108d5",
+      "semantic_role": "text",
+      "bounds": [
+        23.04,
+        27.0,
+        302.0,
+        28.0
+      ],
+      "text": "Fix steer queue drop on reconnect",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 18.1
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
+  },
+  "contract_sha256": "c59e1bedec07273e47079f82bd889a666ff8a24200494d19251f333923c5d9cb",
+  "mapping_basis": "mapped.json"
+}

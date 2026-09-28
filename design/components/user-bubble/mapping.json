@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "user_bubble",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surfacec6d1fb983710",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        284.01,
+        85.09
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_0",
+      "parent": "user_bubble",
+      "kind": "text",
+      "component": "Textc1ebd2fa9447",
+      "semantic_role": "text",
+      "bounds": [
+        15.719999999999999,
+        11.090000000000003,
+        255.5,
+        27.5
+      ],
+      "text": "Fix the steer queue so queued",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 17.4
+    },
+    {
+      "source_id": "t02",
+      "native_id": "beauty_0_1",
+      "parent": "user_bubble",
+      "kind": "text",
+      "component": "Text9434d668ed74",
+      "semantic_role": "text",
+      "bounds": [
+        15.790000000000006,
+        48.59,
+        224.5,
+        23.0
+      ],
+      "text": "steers survive a reconnect",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 17.33
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
+  },
+  "contract_sha256": "63187ed7e5c25cb3722b6e6de0c0bba087566567d3a2d209add92ddea69e3844",
+  "mapping_basis": "mapped.json"
+}

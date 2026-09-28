@@ -29,7 +29,38 @@ PY = "/Users/yuechen/miniconda3/bin/python3"
 
 # Per-item bindings + the two Gate-B data variants, from card #18's component list.
 SPEC = {
-    "approval-card": {
+    "thread-row": {"scene": "1", "source": "conversation-01", "bindings": ["title", "selected", "forked",
+                   "action:open"], "variants": {"short": {"title": "Add session fork", "selected": False},
+                   "long": {"title": "Bump octos-core to a6ea8505 and re-verify the steer queue timeout",
+                            "selected": True}}},
+    "new-chat": {"scene": "1", "source": "conversation-01", "bindings": ["action:new_chat"],
+                 "variants": {"short": {"label": "New chat"}, "long": {"label": "New chat"}}},
+    "user-bubble": {"scene": "3", "source": "conversation-03", "bindings": ["text"],
+                    "variants": {"short": {"text": "Retry the build"},
+                                 "long": {"text": "Fix the steer queue so queued steers survive a reconnect"}}},
+    "working-row": {"scene": "3", "source": "conversation-03", "bindings": ["label", "elapsed"],
+                    "variants": {"short": {"label": "Working", "elapsed": "3s"},
+                                 "long": {"label": "Working", "elapsed": "12s"}}},
+    "assistant-prose": {"scene": "9", "source": "conversation-09", "bindings": ["markdown"],
+                        "variants": {"short": {"markdown": "Fixed `steer_dropped` handling."},
+                                     "long": {"markdown": "Queued steers now survive a reconnect.\n\n"
+                                              "\u2022 Updated `ui_protocol_transport.rs` to persist queued steers.\n\n"
+                                              "\u2022 All tests pass: `12 passed`."}}},
+    "worked-for": {"scene": "9", "source": "conversation-09", "bindings": ["label", "action:toggle"],
+                   "variants": {"short": {"label": "Worked for 3s \u203a"},
+                                "long": {"label": "Worked for 3m 4s \u203a"}}},
+    "answer-actions": {"scene": "9", "source": "conversation-09", "bindings": ["timestamp", "actions"],
+                       "variants": {"short": {"timestamp": "now"},
+                                    "long": {"timestamp": "Sep 28, 9:41 PM"}}},
+    "tool-cell": {"scene": "4", "source": "conversation-04", "bindings": ["kind", "summary", "detail",
+                  "status", "expanded", "output"],
+                  "variants": {"short": {"summary": "Read steer_queue.rs", "status": "ok"},
+                               "long": {"summary": "Ran cargo test -p octos-cli", "status": "ok",
+                                        "output": "running 12 tests\u2026 12 passed"}}},
+    "composer": {"scene": "8", "source": "conversation-08", "bindings": ["draft", "model", "running", "queued",
+                 "action:submit", "action:interrupt", "action:steer"],
+                 "variants": {"short": {"model": "v4-flash"}, "long": {"model": "v4-flash", "queued": True}}},
+"approval-card": {
         "scene": "5", "source": "conversation-05",
         "bindings": ["command", "reason", "action:approve", "action:approve_session", "action:deny"],
         "variants": {
@@ -81,8 +112,7 @@ SPEC = {
         "bindings": ["section", "rows", "model"],
         "variants": {
             "short": {"section": "Permissions", "model": "deepseek-v4-flash"},
-            "long": {"section": "Permissions and defaults", "model": "deepseek-v4-flash"}}},
-}
+            "long": {"section": "Permissions and defaults", "model": "deepseek-v4-flash"}}},}
 
 
 def run_extract():

@@ -13,6 +13,9 @@ component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
 component Textf545a5164562(instance: text, text: text) {
   view Kit(component: "Textf545a5164562", instance: instance, text: text)
 }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
 component Textf628ddef93a6(instance: text, text: text) {
   view Kit(component: "Textf628ddef93a6", instance: instance, text: text)
 }
