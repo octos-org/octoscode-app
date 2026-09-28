@@ -15,7 +15,9 @@ use std::sync::Arc;
 use serde::{Deserialize, Serialize};
 
 use octos_core::app_ui::AppUiBackendEvent as UiNotification;
-use octos_core::ui_protocol::{methods, InputItem};
+use octos_core::ui_protocol::{
+    methods, AttachmentOwnerV2, EnvelopeToolEndStatus, InputItem, PayloadV2, TurnTerminalOutcome,
+};
 use octoscode_store::{EntryKind, Store};
 
 use crate::method::Method;
@@ -204,6 +206,271 @@ impl NotificationHandler for TurnSteerDroppedHandler {
     }
 }
 
+/// `projection/envelope` — the v2 projection stream.
+///
+/// **Owner: turn** (card #13 §2). This is the frame the server actually sends
+/// once `projection.envelope.v2` is negotiated — which our feature list does
+/// (`features.rs:53`) — so without this handler the whole live turn is
+/// dropped (the bug the gate found).
+///
+/// The transport has already decoded the frame (`UiNotification::EnvelopeV2`,
+/// `ui_protocol.rs:6688`); this handler unwraps the [`PayloadV2`] kinds and
+/// folds them into the SAME store domains the bare notifications use, so a
+/// turn looks identical on both transports. The web's fold lives at
+/// `src-web/apps/web/src/features/timeline/model.ts:326-360` (payload kind →
+/// entry) and `session/durable-session.ts:140-195` (ordering).
+///
+/// Ordering rules (`durable-session.ts:174-195`): per-thread `seq` must be
+/// strictly increasing (a `seq <=` the last accepted is dropped), and the
+/// canonical cursor advances to the max. Both live in `store.domains.turn`.
+pub struct ProjectionEnvelopeHandler {
+    pub store: Arc<Store>,
+}
+
+impl NotificationHandler for ProjectionEnvelopeHandler {
+    const METHOD: &'static str = methods::PROJECTION_ENVELOPE;
+
+    fn handle(&self, notification: &UiNotification) {
+        let UiNotification::EnvelopeV2(frame) = notification else {
+            return;
+        };
+        self.store.note_seen(Self::METHOD);
+        let env = &frame.envelope;
+        let session = frame.session_id.0.clone();
+        let turn_id = env.turn_id.clone();
+
+        // Ordering: drop a non-increasing per-thread seq, else advance.
+        let cursor = env.cursor.as_ref().map(|c| (c.stream.as_str(), c.seq));
+        if !self
+            .store
+            .domains
+            .turn
+            .accept_envelope(&env.thread_id, env.seq, cursor)
+        {
+            log::debug!(
+                "octoscode: dropped stale projection seq {} for thread {}",
+                env.seq,
+                env.thread_id
+            );
+            return;
+        }
+
+        let timeline = &self.store.domains.session.timeline;
+        match &env.payload {
+            // The user's own prompt becomes a `user.message` entry (card #13
+            // §4), which is also what the web does (`model.ts:340-350`).
+            PayloadV2::UserMessage { text, files } => {
+                timeline.append_data(
+                    &session,
+                    Some(turn_id.clone()),
+                    EntryKind::USER_MESSAGE,
+                    text.clone(),
+                    serde_json::json!({"files": files}),
+                );
+            }
+            // Streamed assistant text folds into ONE entry, exactly like
+            // `message/delta` (the web maps both to the same segment).
+            PayloadV2::AssistantDelta { text, .. } => {
+                timeline.append_delta(&session, Some(&turn_id), EntryKind::ASSISTANT_TEXT, text);
+            }
+            // Reasoning is its own entry kind, never the answer text.
+            PayloadV2::ReasoningDelta { text } => {
+                timeline.append_delta(&session, Some(&turn_id), EntryKind::REASONING, text);
+            }
+            // Finalizes the segment its deltas wrote: our `finalize_assistant`
+            // keeps the streamed text and closes the entry (falling back to
+            // the persisted text if the deltas never arrived).
+            PayloadV2::AssistantPersisted { text, .. } => {
+                timeline.finalize_assistant(&session, &turn_id, text);
+            }
+            PayloadV2::ToolStart {
+                tool_call_id,
+                name,
+                arguments_preview,
+            } => {
+                self.store.domains.tool.call_started(
+                    tool_call_id,
+                    name,
+                    arguments_preview.as_deref(),
+                );
+                timeline.append_data(
+                    &session,
+                    Some(turn_id.clone()),
+                    EntryKind::TOOL_CALL,
+                    name.clone(),
+                    serde_json::json!({"tool_call_id": tool_call_id, "status": "running"}),
+                );
+            }
+            PayloadV2::ToolProgress {
+                tool_call_id,
+                message,
+            } => {
+                self.store
+                    .domains
+                    .tool
+                    .call_progress(tool_call_id, message);
+            }
+            PayloadV2::ToolEnd {
+                tool_call_id,
+                status,
+                output_preview,
+                duration_ms,
+                ..
+            } => {
+                let wire = match status {
+                    EnvelopeToolEndStatus::Complete => "complete",
+                    EnvelopeToolEndStatus::Error => "error",
+                    EnvelopeToolEndStatus::Skipped => "skipped",
+                    EnvelopeToolEndStatus::Aborted => "aborted",
+                };
+                self.store.domains.tool.call_ended(
+                    tool_call_id,
+                    wire,
+                    output_preview.as_deref(),
+                    *duration_ms,
+                );
+            }
+            PayloadV2::FileAttached {
+                path,
+                mime,
+                size_bytes,
+                attachment_owner,
+            } => {
+                timeline.append_data(
+                    &session,
+                    Some(turn_id.clone()),
+                    EntryKind::ATTACHMENT,
+                    path.clone(),
+                    serde_json::json!({
+                        "path": path, "mime": mime, "size_bytes": size_bytes,
+                        "owner": owner_json(attachment_owner),
+                    }),
+                );
+            }
+            // The canonical terminal for completed/errored/interrupted/
+            // rate-limited. It settles the turn exactly like `turn/completed`
+            // or `turn/error` do (the web's `turn_terminal` fold).
+            PayloadV2::TurnTerminal {
+                outcome,
+                error,
+                token_usage,
+            } => {
+                let name = match outcome {
+                    TurnTerminalOutcome::Completed => "completed",
+                    TurnTerminalOutcome::Errored => "errored",
+                    TurnTerminalOutcome::Interrupted => "interrupted",
+                    TurnTerminalOutcome::RateLimited => "rate_limited",
+                };
+                self.store.domains.turn.ended(&turn_id);
+                self.store.domains.turn.set_terminal(&turn_id, name);
+                match outcome {
+                    TurnTerminalOutcome::Completed => {
+                        timeline.close_turn(&session, &turn_id);
+                    }
+                    TurnTerminalOutcome::Errored => {
+                        let (code, message) = error
+                            .as_ref()
+                            .map(|e| (e.code.clone(), e.message.clone()))
+                            .unwrap_or_else(|| ("error".to_owned(), String::new()));
+                        timeline.close_turn(&session, &turn_id);
+                        timeline.append_data(
+                            &session,
+                            Some(turn_id.clone()),
+                            EntryKind::SYSTEM_NOTICE,
+                            format!("{code}: {message}"),
+                            serde_json::json!({"code": code, "message": message}),
+                        );
+                    }
+                    TurnTerminalOutcome::Interrupted | TurnTerminalOutcome::RateLimited => {
+                        // Non-clean ends still close the streamed entry, with
+                        // a named notice (never a silent stop).
+                        timeline.close_turn(&session, &turn_id);
+                        timeline.append_data(
+                            &session,
+                            Some(turn_id.clone()),
+                            EntryKind::SYSTEM_NOTICE,
+                            name.to_owned(),
+                            serde_json::json!({"outcome": name, "token_usage": token_usage}),
+                        );
+                    }
+                }
+            }
+            // A background child stream's late completion. Record it as a
+            // notice on this session (the child stream carries its own
+            // `parent_turn_id`); never fatal.
+            PayloadV2::BackgroundChildCompleted {
+                parent_turn_id,
+                content,
+                task_id,
+                ..
+            } => {
+                timeline.append_data(
+                    &session,
+                    Some(parent_turn_id.clone()),
+                    EntryKind::SYSTEM_NOTICE,
+                    content.clone(),
+                    serde_json::json!({"task_id": task_id, "kind": "background_spawn_complete"}),
+                );
+            }
+        }
+    }
+}
+
+/// The `attachment_owner` half of a `file_attached` payload, as JSON.
+fn owner_json(owner: &AttachmentOwnerV2) -> serde_json::Value {
+    serde_json::json!({
+        "assistant_segment_id": owner.assistant_segment_id,
+        "tool_call_id": owner.tool_call_id,
+    })
+}
+
+/// `message/reasoning_delta` — the model's streamed thinking (card #13 §3).
+///
+/// The web renders reasoning as its own timeline row, never as answer text
+/// (`src-web/apps/web/src/features/timeline/model.ts`, the reasoning kind), so
+/// it folds into the `assistant.reasoning` entry kind — a separate entry from
+/// `assistant.text`.
+pub struct ReasoningDeltaHandler {
+    pub store: Arc<Store>,
+}
+
+impl NotificationHandler for ReasoningDeltaHandler {
+    const METHOD: &'static str = methods::MESSAGE_REASONING_DELTA;
+    fn handle(&self, notification: &UiNotification) {
+        if let UiNotification::ReasoningDelta(delta) = notification {
+            self.store.note_seen(Self::METHOD);
+            let session = delta.session_id.0.clone();
+            let turn_id = delta.turn_id.0.to_string();
+            self.store.domains.session.timeline.append_delta(
+                &session,
+                Some(&turn_id),
+                EntryKind::REASONING,
+                &delta.text,
+            );
+        }
+    }
+}
+
+/// `progress/updated` — the harness's rich progress metadata (card #13 §3).
+///
+/// The web renders a progress bar/spinner from this
+/// (`src-web/apps/web/src/features/...`, `UiProgressEvent`), so the latest
+/// metadata is stored per session and cleared at a turn boundary.
+pub struct ProgressUpdatedHandler {
+    pub store: Arc<Store>,
+}
+
+impl NotificationHandler for ProgressUpdatedHandler {
+    const METHOD: &'static str = methods::PROGRESS_UPDATED;
+    fn handle(&self, notification: &UiNotification) {
+        if let UiNotification::ProgressUpdated(e) = notification {
+            self.store.note_seen(Self::METHOD);
+            let metadata = serde_json::to_value(&e.metadata).unwrap_or(serde_json::Value::Null);
+            self.store.domains.turn.set_progress(&e.session_id.0, Some(metadata));
+        }
+    }
+}
+
 /// Request methods owned by this domain: `turn/state/get` and `turn/steer`
 /// are implemented here; `turn/start` and `turn/interrupt` stay on the
 /// transport's typed `OutboundCommand`s (they carry the lifecycle reply).
@@ -214,5 +481,10 @@ pub fn register(reg: &mut Registry, store: Arc<Store>) {
     reg.register(TurnCompletedHandler { store: store.clone() });
     reg.register(TurnErrorHandler { store: store.clone() });
     reg.register(MessageDeltaHandler { store: store.clone() });
-    reg.register(TurnSteerDroppedHandler { store });
+    reg.register(TurnSteerDroppedHandler { store: store.clone() });
+    // Card #13 §2: the v2 projection stream is owned by turn (one owner —
+    // the registry panics on a duplicate).
+    reg.register(ProjectionEnvelopeHandler { store: store.clone() });
+    reg.register(ReasoningDeltaHandler { store: store.clone() });
+    reg.register(ProgressUpdatedHandler { store });
 }

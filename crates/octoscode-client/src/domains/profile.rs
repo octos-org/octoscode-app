@@ -795,3 +795,19 @@ impl Method for SubProvidersRemove {
 /// No notifications in this domain (see the module docs): the profile and
 /// onboarding extension surfaces are request-only.
 pub fn register(_reg: &mut Registry, _store: Arc<Store>) {}
+
+/// `profile/local/create` — onboard a local profile (card #13 §3).
+///
+/// **Truly missing** before this card: unlike `turn/start` / `session/hydrate`
+/// there is NO typed transport command for it (`octos-app-transport`'s
+/// `OutboundCommand` has no variant), so it must ride the client's generic
+/// request path. The web calls it during onboarding
+/// (`packages/client/src/client.ts`), and a fresh solo serve needs it before a
+/// session can open. Params/result are the octos-core types.
+pub struct ProfileLocalCreate;
+
+impl Method for ProfileLocalCreate {
+    const NAME: &'static str = methods::PROFILE_LOCAL_CREATE;
+    type Params = octos_core::ui_protocol::ProfileLocalCreateParams;
+    type Result = octos_core::ui_protocol::ProfileLocalCreateResult;
+}

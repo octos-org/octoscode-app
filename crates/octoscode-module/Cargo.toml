@@ -26,3 +26,5 @@ url = "2"
 # tokio-tungstenite major the transport uses.
 tokio-tungstenite = "0.24"
 futures-util = "0.3"
+# The replay test (card #13 §5) builds a store directly.
+octoscode-store = { workspace = true }

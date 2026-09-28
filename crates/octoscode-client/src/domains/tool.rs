@@ -121,41 +121,70 @@ impl Method for McpStatusList {
     type Result = McpStatusListResult;
 }
 
-/// `tool/started` — a tool call began.
+/// `tool/started` — a tool call began. Folds into the tool domain's live call
+/// rows (card #13 §3), the same rows the `projection/envelope` `tool_start`
+/// payload writes, so both transports render identically.
 pub struct ToolStartedHandler {
     pub store: Arc<Store>,
 }
 impl NotificationHandler for ToolStartedHandler {
     const METHOD: &'static str = methods::TOOL_STARTED;
     fn handle(&self, notification: &UiNotification) {
-        if matches!(notification, UiNotification::ToolStarted(_)) {
+        if let UiNotification::ToolStarted(e) = notification {
             self.store.note_seen(Self::METHOD);
+            // `ToolStartedEvent` carries the raw `arguments` Value; the card's
+            // preview is the serialized form, truncated by the store row.
+            let preview = e
+                .arguments
+                .as_ref()
+                .map(|v| v.to_string())
+                .filter(|s| !s.is_empty() && s != "null");
+            self.store.domains.tool.call_started(
+                &e.tool_call_id,
+                &e.tool_name,
+                preview.as_deref(),
+            );
         }
     }
 }
 
-/// `tool/progress` — a tool call reported progress.
+/// `tool/progress` — a tool call reported progress. Updates the row's message.
 pub struct ToolProgressHandler {
     pub store: Arc<Store>,
 }
 impl NotificationHandler for ToolProgressHandler {
     const METHOD: &'static str = methods::TOOL_PROGRESS;
     fn handle(&self, notification: &UiNotification) {
-        if matches!(notification, UiNotification::ToolProgress(_)) {
+        if let UiNotification::ToolProgress(e) = notification {
             self.store.note_seen(Self::METHOD);
+            if let Some(message) = &e.message {
+                self.store.domains.tool.call_progress(&e.tool_call_id, message);
+            }
         }
     }
 }
 
-/// `tool/completed` — a tool call finished.
+/// `tool/completed` — a tool call finished. Marks the row's terminal status.
 pub struct ToolCompletedHandler {
     pub store: Arc<Store>,
 }
 impl NotificationHandler for ToolCompletedHandler {
     const METHOD: &'static str = methods::TOOL_COMPLETED;
     fn handle(&self, notification: &UiNotification) {
-        if matches!(notification, UiNotification::ToolCompleted(_)) {
+        if let UiNotification::ToolCompleted(e) = notification {
             self.store.note_seen(Self::METHOD);
+            // `success: None` means the server did not attest an outcome; treat
+            // that as complete (the terminal did arrive).
+            let status = match e.success {
+                Some(false) => "error",
+                _ => "complete",
+            };
+            self.store.domains.tool.call_ended(
+                &e.tool_call_id,
+                status,
+                e.output_preview.as_deref(),
+                e.duration_ms,
+            );
         }
     }
 }

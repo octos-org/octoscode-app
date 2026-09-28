@@ -10,6 +10,7 @@ use std::sync::Arc;
 
 use octos_core::app_ui::AppUiBackendEvent as UiNotification;
 use octos_core::ui_protocol::methods;
+use octoscode_store::domains::approval::PendingQuestion;
 use octoscode_store::Store;
 
 use crate::method::Method;
@@ -117,6 +118,49 @@ impl Method for UserQuestionRespond {
     type Result = octos_core::ui_protocol::UserQuestionRespondResult;
 }
 
+/// `approval/respond` — the person's decision on a pending approval.
+///
+/// The transport ALSO carries a typed `OutboundCommand::SendApprovalResponse`
+/// for this method (`octos-app-transport/src/proto.rs:167`); this `Method`
+/// makes it reachable through the client's ONE generic request path
+/// (`Client::request`), which is how the web issues it
+/// (`packages/client/src/client.ts`). Params/result are the octos-core types.
+pub struct ApprovalRespond;
+
+impl Method for ApprovalRespond {
+    const NAME: &'static str = methods::APPROVAL_RESPOND;
+    type Params = octos_core::ui_protocol::ApprovalRespondParams;
+    type Result = octos_core::ui_protocol::ApprovalRespondResult;
+}
+
+/// `user_question/requested` — the server paused the turn to ask the person
+/// (UPCR-2026-023, card #13 §3).
+///
+/// The web renders this as the question sheet and answers it with
+/// `user_question/respond` (`src-web/apps/web/src/features/session/`,
+/// `session-interaction-ledger.ts`). The store keeps the ONE outstanding
+/// question so the sheet has something to render.
+pub struct UserQuestionRequestedHandler {
+    pub store: Arc<Store>,
+}
+
+impl NotificationHandler for UserQuestionRequestedHandler {
+    const METHOD: &'static str = methods::USER_QUESTION_REQUESTED;
+    fn handle(&self, notification: &UiNotification) {
+        if let UiNotification::UserQuestionRequested(e) = notification {
+            self.store.note_seen(Self::METHOD);
+            self.store.domains.approval.set_question(PendingQuestion {
+                question_id: e.question_id.0.to_string(),
+                session_id: e.session_id.0.clone(),
+                turn_id: e.turn_id.0.to_string(),
+                title: e.title.clone(),
+                body: e.body.clone(),
+                questions: serde_json::to_value(&e.questions).unwrap_or(serde_json::Value::Null),
+            });
+        }
+    }
+}
+
 /// Register this domain's notification handlers: the full approval lifecycle
 /// the parity matrix names (`approval/requested` → `decided`/`cancelled`/
 /// `auto_resolved`).
@@ -124,5 +168,7 @@ pub fn register(reg: &mut Registry, store: Arc<Store>) {
     reg.register(ApprovalRequestedHandler { store: store.clone() });
     reg.register(ApprovalDecidedHandler { store: store.clone() });
     reg.register(ApprovalCancelledHandler { store: store.clone() });
-    reg.register(ApprovalAutoResolvedHandler { store });
+    reg.register(ApprovalAutoResolvedHandler { store: store.clone() });
+    // Card #13 §3: the turn-pausing question (UPCR-2026-023).
+    reg.register(UserQuestionRequestedHandler { store });
 }
