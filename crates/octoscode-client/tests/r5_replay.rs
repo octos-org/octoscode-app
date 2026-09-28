@@ -39,6 +39,64 @@ fn fixture_path() -> std::path::PathBuf {
     std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/r5-turn-a6ea8505.jsonl")
 }
 
+// ---------------------------------------------------------- fixture hermeticity
+
+/// Placeholders a recorded frame uses in place of machine/lane-specific
+/// absolute paths. The committed fixture is **hermetic**: it must decode and
+/// assert identically on any clone, so no `/Users/…`, `$TMPDIR` or `$HOME`
+/// appears in it. Only the `#[ignore]` recorder reads the environment (to
+/// derive the prefixes); the replay tests read the placeholders.
+/// (Same scheme as R2/R3 — LESSONS "Replay tests must be hermetic".)
+const TMP_PLACEHOLDER: &str = "<TMP>";
+const WORKSPACE_PLACEHOLDER: &str = "<WORKSPACE>";
+const HOME_PLACEHOLDER: &str = "<HOME>";
+
+/// The machine-specific path prefixes a fixture must never carry.
+const FORBIDDEN_PATH_PREFIXES: &[&str] = &["/Users/", "/var/folders/"];
+
+/// The machine-specific absolute prefixes this recording run produced, mapped
+/// to placeholders. Derived from the compile-time crate location (workspace
+/// root and its parent) and the recorder's own `temp_dir()`. Longest first, so
+/// the most specific prefix wins (`<WORKSPACE>` inside `<HOME>`, etc.).
+///
+/// **Recorder-only.** A replay test never calls this or reads the environment.
+fn machine_path_prefixes() -> Vec<(String, &'static str)> {
+    let manifest = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    // …/<repo>/crates/octoscode-client → …/<repo>
+    let workspace_root = manifest
+        .parent()
+        .and_then(|p| p.parent())
+        .map(|p| p.to_string_lossy().to_string());
+    let mut prefixes: Vec<(String, &'static str)> = Vec::new();
+    let tmp = std::env::temp_dir().to_string_lossy().to_string();
+    if !tmp.is_empty() {
+        prefixes.push((tmp, TMP_PLACEHOLDER));
+    }
+    if let Some(ws) = &workspace_root {
+        if !ws.is_empty() {
+            prefixes.push((ws.clone(), WORKSPACE_PLACEHOLDER));
+        }
+        if let Some(home) = std::path::Path::new(ws).parent() {
+            let home = home.to_string_lossy().to_string();
+            if !home.is_empty() {
+                prefixes.push((home, HOME_PLACEHOLDER));
+            }
+        }
+    }
+    prefixes.sort_by(|a, b| b.0.len().cmp(&a.0.len()));
+    prefixes
+}
+
+/// Replace every machine-specific absolute path in `text` with its placeholder,
+/// so the fixture does not depend on the lane that recorded it.
+fn scrub_machine_paths(text: &str) -> String {
+    let mut out = text.to_owned();
+    for (from, to) in machine_path_prefixes() {
+        out = out.replace(&from, to);
+    }
+    out
+}
+
 /// The M9 deterministic-fixture prompts (octos-cli `ui_protocol_transport.rs`
 /// `m9_protocol_fixture_for_prompt`). Each drives a real server-side turn with
 /// **no model call**.
@@ -254,7 +312,21 @@ async fn capture_r5_frames() {
     tokio::time::sleep(std::time::Duration::from_secs(3)).await;
 
     drop(client);
-    eprintln!("capture: wrote {}", path.display());
+
+    // Hermeticity: replace every machine-specific absolute path (this lane's
+    // workspace root, `$TMPDIR`, `$HOME`) with a placeholder so the committed
+    // fixture decodes and asserts identically on any clone — the same scrub
+    // R2/R3 use (LESSONS "Replay tests must be hermetic").
+    let scrubbed = std::fs::read_to_string(&path)
+        .map(|t| scrub_machine_paths(&t))
+        .expect("read the captured fixture back for scrubbing");
+    std::fs::write(&path, &scrubbed).expect("rewrite the scrubbed fixture");
+    assert!(
+        !scrubbed.contains("/Users/") && !scrubbed.contains("/var/folders/"),
+        "the scrub left a machine path in {}",
+        path.display()
+    );
+    eprintln!("capture: wrote {} (scrubbed)", path.display());
 }
 
 /// Start the approval fixture turn, wait for its `approval/requested`, answer
@@ -368,6 +440,94 @@ fn session_of(frames: &[Frame]) -> String {
         .find(|f| f.dir == "out" && f.method == "session/open")
         .and_then(|f| f.body["session_id"].as_str().map(str::to_owned))
         .expect("the fixture carries our outbound session/open")
+}
+
+/// **Scrub-only** (run manually once to migrate an already-recorded fixture;
+/// no serve needed). Applies the same [`scrub_machine_paths`] the recorder
+/// uses, so the committed fixture is hermetic without a re-record. The normal
+/// suite never runs this; the gate is [`r5_fixture_carries_no_machine_path`].
+#[test]
+#[ignore = "one-off migration: scrub machine paths out of an already-recorded fixture"]
+fn scrub_r5_fixture_in_place() {
+    let path = fixture_path();
+    let text = std::fs::read_to_string(&path).expect("read the R5 fixture");
+    let scrubbed = scrub_machine_paths(&text);
+    std::fs::write(&path, &scrubbed).expect("rewrite the scrubbed fixture");
+    eprintln!("scrub: rewrote {}", path.display());
+}
+
+/// Every string value anywhere in `v` (recursively) — so a shape-agnostic
+/// assertion catches a path regardless of which frame nesting carries it.
+fn all_strings(v: &Value) -> Vec<String> {
+    let mut out = Vec::new();
+    fn walk(v: &Value, out: &mut Vec<String>) {
+        match v {
+            Value::String(s) => out.push(s.clone()),
+            Value::Array(items) => items.iter().for_each(|i| walk(i, out)),
+            Value::Object(map) => map.values().for_each(|i| walk(i, out)),
+            _ => {}
+        }
+    }
+    walk(v, &mut out);
+    out
+}
+
+#[test]
+fn r5_fixture_carries_no_machine_path() {
+    // Card #R5b's gate. The committed fixture must be hermetic: no frame may
+    // carry a machine-specific absolute path, so it decodes and asserts the
+    // same on any clone. Read the raw text (not the decoded frames) so a path
+    // anywhere in a line is caught.
+    let text = std::fs::read_to_string(fixture_path()).expect("read the R5 fixture");
+    for prefix in FORBIDDEN_PATH_PREFIXES {
+        assert!(
+            !text.contains(prefix),
+            "the fixture must carry no machine-specific path ({prefix}); run the \
+             #[ignore] recorder, which scrubs machine paths to placeholders"
+        );
+    }
+    // The workspace placeholder must actually be present — the scrub ran.
+    assert!(
+        text.contains(WORKSPACE_PLACEHOLDER),
+        "the recorded workspace path should be threaded through as {WORKSPACE_PLACEHOLDER}"
+    );
+    // And no string value in any frame carries a machine path — checked
+    // shape-agnostically (the two `session/open` results nest the same fields
+    // differently: one under `opened.panes`, the other under `panes`).
+    let frames = load_fixture();
+    for f in &frames {
+        if f.dir != "in" || f.method != "session/open" {
+            continue;
+        }
+        for s in all_strings(&f.body) {
+            assert!(
+                !FORBIDDEN_PATH_PREFIXES.iter().any(|p| s.contains(p)),
+                "session/open must not carry a machine path; got {s:?}"
+            );
+        }
+    }
+    // The board's specific fields are placeholder'd, whichever nesting holds
+    // them: both `session/open` results carried the workspace root 4× each.
+    let opens: Vec<&Frame> = frames
+        .iter()
+        .filter(|f| f.dir == "in" && f.method == "session/open")
+        .collect();
+    assert!(!opens.is_empty(), "the fixture carries the session/open result(s)");
+    let mut placeholder_roots = 0usize;
+    for f in opens {
+        for s in all_strings(&f.body) {
+            // `contains`, not `starts_with`: the `limitations[].message` value
+            // reads `"workspace root does not exist: <WORKSPACE>/…"`.
+            if s.contains(WORKSPACE_PLACEHOLDER) {
+                placeholder_roots += 1;
+            }
+        }
+    }
+    assert!(
+        placeholder_roots >= 8,
+        "the 4 workspace fields × 2 session/open frames should be placeholder'd; \
+         found {placeholder_roots}"
+    );
 }
 
 #[test]
