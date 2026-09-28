@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "stage": "B",
+  "source_repo": "p0-harness",
+  "source_branch": "task/11",
+  "source_commit": "7c2117303ab480776d4b32ff51b14c9b281f53d2",
+  "mount": "native",
+  "note": "Card #15: a card is DATA (id + declared binding ids + kit tokens). The module mounts each card into its slot by id; swapping an id in this manifest changes the screen with no code change. Dynamic content renders through native flow widgets (RULES 8.10), not the atlas's measured coordinates.",
+  "cards": [
+    {
+      "id": "conversation-01",
+      "slot": "thread_list",
+      "title": "THREAD LIST",
+      "source_commit": "7c2117303ab480776d4b32ff51b14c9b281f53d2",
+      "gate_b_score": 9.0,
+      "bindings": [
+        "threads",
+        "threads.active",
+        "threads[].active",
+        "threads[].title"
+      ],
+      "artifacts": {
+        "card": "conversation-01/page.card",
+        "data": "conversation-01/page.data.json",
+        "kit_tokens": "conversation-01/kit/kit.json",
+        "kit_components": "conversation-01/kit/components.l0",
+        "semantic_map": "conversation-01/semantic-map.json",
+        "mapped": "conversation-01/mapped.json"
+      }
+    },
+    {
+      "id": "conversation-03",
+      "slot": "conversation",
+      "title": "STREAMING TURN",
+      "source_commit": "7c2117303ab480776d4b32ff51b14c9b281f53d2",
+      "gate_b_score": 9.0,
+      "bindings": [
+        "composer.draft",
+        "timeline.entries",
+        "timeline.entries[].kind",
+        "timeline.entries[].text",
+        "turn.active",
+        "turn.activity",
+        "turn.interrupt",
+        "turn.steer"
+      ],
+      "artifacts": {
+        "card": "conversation-03/page.card",
+        "data": "conversation-03/page.data.json",
+        "kit_tokens": "conversation-03/kit/kit.json",
+        "kit_components": "conversation-03/kit/components.l0",
+        "semantic_map": "conversation-03/semantic-map.json",
+        "mapped": "conversation-03/mapped.json"
+      }
+    },
+    {
+      "id": "conversation-08",
+      "slot": "composer",
+      "title": "COMPOSER STATES",
+      "source_commit": "7c2117303ab480776d4b32ff51b14c9b281f53d2",
+      "gate_b_score": 9.0,
+      "bindings": [
+        "composer.draft",
+        "composer.placeholder",
+        "composer.submit",
+        "turn.active",
+        "turn.interrupt",
+        "turn.steer"
+      ],
+      "artifacts": {
+        "card": "conversation-08/page.card",
+        "data": "conversation-08/page.data.json",
+        "kit_tokens": "conversation-08/kit/kit.json",
+        "kit_components": "conversation-08/kit/components.l0",
+        "semantic_map": "conversation-08/semantic-map.json",
+        "mapped": "conversation-08/mapped.json"
+      }
+    },
+    {
+      "id": "conversation-04",
+      "slot": "tool_cells",
+      "title": "TOOL CELLS",
+      "source_commit": "7c2117303ab480776d4b32ff51b14c9b281f53d2",
+      "gate_b_score": 8.5,
+      "bindings": [
+        "tool.output",
+        "tools",
+        "tools[].expanded",
+        "tools[].status",
+        "tools[].summary"
+      ],
+      "artifacts": {
+        "card": "conversation-04/page.card",
+        "data": "conversation-04/page.data.json",
+        "kit_tokens": "conversation-04/kit/kit.json",
+        "kit_components": "conversation-04/kit/components.l0",
+        "semantic_map": "conversation-04/semantic-map.json",
+        "mapped": "conversation-04/mapped.json"
+      }
+    },
+    {
+      "id": "conversation-09",
+      "slot": "completed_answer",
+      "title": "COMPLETED ANSWER",
+      "source_commit": "7c2117303ab480776d4b32ff51b14c9b281f53d2",
+      "gate_b_score": 8.5,
+      "bindings": [
+        "answer.expand",
+        "answer.timestamp",
+        "answer.worked_for",
+        "timeline.entries",
+        "timeline.entries[].text"
+      ],
+      "artifacts": {
+        "card": "conversation-09/page.card",
+        "data": "conversation-09/page.data.json",
+        "kit_tokens": "conversation-09/kit/kit.json",
+        "kit_components": "conversation-09/kit/components.l0",
+        "semantic_map": "conversation-09/semantic-map.json",
+        "mapped": "conversation-09/mapped.json"
+      }
+    }
+  ]
+}
