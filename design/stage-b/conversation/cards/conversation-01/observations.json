@@ -249,10 +249,10 @@
     {
       "id": "icon_bell",
       "bounds": [
-        354.0,
-        50.0,
-        18.0,
-        18.0
+        306.0,
+        46.0,
+        21.0,
+        25.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -260,10 +260,10 @@
     {
       "id": "icon_search",
       "bounds": [
-        380.0,
-        50.0,
-        18.0,
-        18.0
+        359.0,
+        46.0,
+        22.0,
+        25.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -306,10 +306,10 @@
     {
       "id": "icon_compose",
       "bounds": [
-        22.0,
-        132.0,
-        20.0,
-        20.0
+        347.0,
+        130.0,
+        24.0,
+        28.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -492,10 +492,10 @@
     {
       "id": "icon_fork",
       "bounds": [
-        350.0,
-        314.5,
-        18.0,
-        18.0
+        352.0,
+        310.5,
+        19.0,
+        26.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false

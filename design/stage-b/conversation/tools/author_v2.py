@@ -66,6 +66,8 @@ ICONS = {
     "pause": '<rect x="8" y="6" width="3" height="12" rx="1"/><rect x="13" y="6" width="3" height="12" rx="1"/>',
     "bell_dot": '<path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/>'
                 '<circle cx="17" cy="5" r="2" fill="#CF222E" stroke="none"/>',
+    "mic": '<rect x="9" y="2.6" width="6" height="11" rx="3"/>'
+           '<path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/><path d="M8.5 21h7"/>',
 }
 
 def r(v):
@@ -181,11 +183,12 @@ def fix(s):
 # ------------------------------------------------------------------- scenes
 def build_01(sc):
     sc.add_text("t01", 0, weight=600, size=19)
-    sc.add_icon("icon_bell", "bell_dot", 354, 50, 18, 18)
-    sc.add_icon("icon_search", "search", 380, 50, 18, 18)
+    sc.add_icon("icon_bell", "bell_dot", 306, 46, 21, 25)
+    sc.add_icon("icon_search", "search", 359, 46, 22, 25)
     sc.add_control("new_chat", 16, 120, 374, 44, 1, bg="panel", radius=10, weight=500,
-                   lx=38, ly=132, lw=140, lh=24, event="thread.new")
-    sc.add_icon("icon_compose", "compose", 22, 132, 20, 20)
+                   border=1, bordercolor="hair", lx=38, ly=132, lw=140, lh=24, event="thread.new")
+    # the compose icon belongs at the ROW'S RIGHT EDGE (atlas x=348), not left of the label
+    sc.add_icon("icon_compose", "compose", 347, 130, 24, 28)
     rows = [(2, "thread_1", "sel", 500), (3, "thread_2", "white", 400), (4, "thread_3", "white", 400),
             (5, "thread_4", "white", 400), (6, "thread_5", "white", 400)]
     for i, cid, bg, wt in rows:
@@ -193,7 +196,7 @@ def build_01(sc):
         sc.add_control(cid, 16, y - 14, 374, h + 28, i, bg=bg, radius=10, weight=wt,
                        lx=x, ly=y, lw=300, lh=h, event="thread.open")
     _, x3, y3, _, _ = sc.rows[3]
-    sc.add_icon("icon_fork", "fork", 350, y3 + 1, 18, 18, color="muted")
+    sc.add_icon("icon_fork", "fork", 352, y3 - 3, 19, 26, color="muted")
 
 def build_03(sc):
     _, x1, y1, w1, h1 = sc.rows[0]
@@ -213,15 +216,20 @@ def build_03(sc):
     for i, cid in [(7, "chip_ws"), (8, "chip_mode"), (9, "chip_branch")]:
         s, x, y, w, h = sc.rows[i]
         chips.append(surface(cid, x - 8, y - 6, w + 16, h + 12, bg="panel", radius=999,
+                             border=1, bordercolor="hair",
                              kids=[text(f"t{i+1:02d}", s, x, y, w, h, size=13, weight=500)]))
     sc.put(stack("chips", 24, y8 - 8, 358, h8 + 16, chips))
     _, px, py, pw, ph = sc.rows[10]
+    ax, ay, aw, ah = sc.rows[12][1:]
     kids = [input_node("composer_input", 30, 594, 300, 40, sc.t(10)),
-            icon("icon_plus", "plus", 24, 672, 20, 20, color="muted"),
-            text("t13", sc.t(12), *sc.rows[12][1:], size=13, color="muted"),
+            icon("icon_plus", "plus", 28, 685, 18, 24, color="muted"),
+            surface("approval_pill", ax - 10, ay - 6, aw + 20, ah + 13, bg="white",
+                    radius=999, border=1, bordercolor="hair",
+                    kids=[text("t13", sc.t(12), ax, ay, aw, ah, size=13, color="muted")]),
+            icon("icon_mic", "mic", 309, 681, 17, 27, color="muted"),
             text("t14", fix(sc.t(13)), *sc.rows[13][1:], size=13, weight=500),
-            surface("stop_btn", 350, 672, 36, 36, bg="black", radius=999,
-                    kids=[icon("icon_stop", "stop", 360, 682, 16, 16)])]
+            surface("stop_btn", 346, 674, 36, 36, bg="black", radius=999,
+                    kids=[icon("icon_stop", "stop", 356, 684, 16, 16)])]
     sc.put(surface("composer", 16, 584, 374, 150, bg="panel", radius=12, border=1,
                    bordercolor="hair", kids=kids))
     sc.inputs["composer_input"] = ("composer.draft", [30, 594, 300, 40])
@@ -252,26 +260,34 @@ def build_04(sc):
 
 def build_08(sc):
     _, px, py, pw, ph = sc.rows[0]
+    ax0, ay0, aw0, ah0 = sc.rows[2][1:]
     sc.put(surface("composer_idle", 16, 140, 374, 160, bg="panel", radius=12, border=1,
                    bordercolor="hair", kids=[
         input_node("composer_idle_input", 30, 150, 300, 40, sc.t(0)),
-        icon("icon_plus1", "plus", 24, 258, 20, 20, color="muted"),
-        text("t03", sc.t(2), *sc.rows[2][1:], size=13, color="muted"),
+        icon("icon_plus1", "plus", 30, 262, 18, 24, color="muted"),
+        surface("approval_pill1", ax0 - 10, ay0 - 6, aw0 + 20, ah0 + 13, bg="white",
+                radius=999, border=1, bordercolor="hair",
+                kids=[text("t03", sc.t(2), ax0, ay0, aw0, ah0, size=13, color="muted")]),
+        icon("icon_mic1", "mic", 306, 259, 16, 27, color="muted"),
         text("t04", fix(sc.t(3)), *sc.rows[3][1:], size=13, weight=500),
-        surface("send1", 350, 252, 36, 36, bg="black", radius=999,
-                kids=[icon("icon_send", "send", 360, 262, 16, 16)])]))
+        surface("send1", 344, 252, 36, 36, bg="black", radius=999,
+                kids=[icon("icon_send", "send", 354, 262, 16, 16)])]))
     sc.inputs["composer_idle_input"] = ("composer.draft", [30, 150, 300, 40])
     _, qx, qy, qw, qh = sc.rows[4]
     sc.put(surface("queued_row", 16, qy - 10, qw + 28, qh + 20, bg="panel", radius=10,
                    kids=[text("t05", fix(sc.t(4)), qx, qy, qw, qh, size=13, weight=500)]))
+    ax1, ay1, aw1, ah1 = sc.rows[7][1:]
     sc.put(surface("composer_active", 16, 480, 374, 170, bg="panel", radius=12, border=1,
                    bordercolor="hair", kids=[
         text("t06", sc.t(5), *sc.rows[5][1:], size=15),
-        icon("icon_plus2", "plus", 24, 596, 20, 20, color="muted"),
-        text("t08", sc.t(7), *sc.rows[7][1:], size=13, color="muted"),
+        icon("icon_plus2", "plus", 28, 598, 18, 24, color="muted"),
+        surface("approval_pill2", ax1 - 10, ay1 - 6, aw1 + 20, ah1 + 13, bg="white",
+                radius=999, border=1, bordercolor="hair",
+                kids=[text("t08", sc.t(7), ax1, ay1, aw1, ah1, size=13, color="muted")]),
+        icon("icon_mic2", "mic", 306, 598, 16, 26, color="muted"),
         text("t09", fix(sc.t(8)), *sc.rows[8][1:], size=13, weight=500),
-        surface("stop2", 350, 590, 36, 36, bg="black", radius=999,
-                kids=[icon("icon_stop2", "stop", 360, 600, 16, 16)])]))
+        surface("stop2", 346, 590, 36, 36, bg="black", radius=999,
+                kids=[icon("icon_stop2", "stop", 356, 600, 16, 16)])]))
 
 def build_09(sc):
     sc.add_control("worked_row", 16, 32, 374, 44, 0, bg="panel", radius=10, weight=500,

@@ -286,12 +286,23 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_plus",
-    "x": 24.0,
-    "y": 672.0,
-    "w": 20.0,
-    "h": 20.0,
+    "x": 28.0,
+    "y": 685.0,
+    "w": 18.0,
+    "h": 24.0,
     "role": "unknown",
     "native_candidates": []
+  },
+  {
+    "id": "approval_pill",
+    "x": 63.25,
+    "y": 681.76,
+    "w": 122.73,
+    "h": 33.83,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
   },
   {
     "id": "t13",
@@ -308,6 +319,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
       "Label",
       "TextFlow"
     ]
+  },
+  {
+    "id": "icon_mic",
+    "x": 309.0,
+    "y": 681.0,
+    "w": 17.0,
+    "h": 27.0,
+    "role": "unknown",
+    "native_candidates": []
   },
   {
     "id": "t14",
@@ -327,8 +347,8 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "stop_btn",
-    "x": 350.0,
-    "y": 672.0,
+    "x": 346.0,
+    "y": 674.0,
     "w": 36.0,
     "h": 36.0,
     "role": "layout",
@@ -338,8 +358,8 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_stop",
-    "x": 360.0,
-    "y": 682.0,
+    "x": 356.0,
+    "y": 684.0,
     "w": 16.0,
     "h": 16.0,
     "role": "unknown",

@@ -51,8 +51,8 @@ component Text77fb604d4ac4(instance: text, text: text) {
 component Group3d2637879433(instance: text) {
   view Kit(component: "Group3d2637879433", instance: instance) { slot }
 }
-component Surface75645ae3b651(instance: text) {
-  view Kit(component: "Surface75645ae3b651", instance: instance) { slot }
+component Surfacee231cd44f879(instance: text) {
+  view Kit(component: "Surfacee231cd44f879", instance: instance) { slot }
 }
 component Text1f017ba89bfc(instance: text, text: text) {
   view Kit(component: "Text1f017ba89bfc", instance: instance, text: text)
@@ -75,8 +75,8 @@ component Text0cd152d08913(instance: text, text: text) {
 component Text401b1cb300a9(instance: text, text: text) {
   view Kit(component: "Text401b1cb300a9", instance: instance, text: text)
 }
-component Surface467ef8b13050(instance: text) {
-  view Kit(component: "Surface467ef8b13050", instance: instance) { slot }
+component Surface8f38f76c9144(instance: text) {
+  view Kit(component: "Surface8f38f76c9144", instance: instance) { slot }
 }
 
 view root Surface16fae9a63e16(instance: "page") {
@@ -91,13 +91,13 @@ view root Surface16fae9a63e16(instance: "page") {
   Text067f1c5fe6b5(instance: "t06", text: copy.t06_text)
   Text77fb604d4ac4(instance: "t07", text: copy.t07_text)
   Group3d2637879433(instance: "chips") {
-    Surface75645ae3b651(instance: "chip_ws") {
+    Surfacee231cd44f879(instance: "chip_ws") {
       Text1f017ba89bfc(instance: "t08", text: copy.t08_text)
     }
-    Surface75645ae3b651(instance: "chip_mode") {
+    Surfacee231cd44f879(instance: "chip_mode") {
       Textb103f85eb43d(instance: "t09", text: copy.t09_text)
     }
-    Surface75645ae3b651(instance: "chip_branch") {
+    Surfacee231cd44f879(instance: "chip_branch") {
       Textd2ad79182009(instance: "t10", text: copy.t10_text)
     }
   }
@@ -106,9 +106,12 @@ view root Surface16fae9a63e16(instance: "page") {
 
     }
     Vectore0a378fde04f(instance: "icon_plus")
-    Text0cd152d08913(instance: "t13", text: copy.t13_text)
+    Surfacee231cd44f879(instance: "approval_pill") {
+      Text0cd152d08913(instance: "t13", text: copy.t13_text)
+    }
+    Vectore0a378fde04f(instance: "icon_mic")
     Text401b1cb300a9(instance: "t14", text: copy.t14_text)
-    Surface467ef8b13050(instance: "stop_btn") {
+    Surface8f38f76c9144(instance: "stop_btn") {
       Vectore0a378fde04f(instance: "icon_stop")
     }
   }

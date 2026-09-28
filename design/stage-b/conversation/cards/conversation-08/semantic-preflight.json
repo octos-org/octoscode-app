@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "ad3193166098e61ac05dc712467779e3b31bcbb9ca094cbab3a7022be8d6a06e",
+  "manifest_sha256": "26c9cbaf8a522f78018b12bf1760a07bfddb4b5603de17e3a901d31106687adc",
   "reference_sha256": "829a53ebc3854b7200c2a4e0d713ebf76586f802deee43ca535060f28068b3d9",
   "id": "conversation-08",
   "round": null,
@@ -59,6 +59,17 @@
       "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
     },
     {
+      "id": "approval_pill1",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
       "id": "t03",
       "role": "text",
       "basis": "authored text node",
@@ -69,6 +80,19 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "icon_mic1",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
     },
     {
       "id": "t04",
@@ -166,6 +190,17 @@
       "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
     },
     {
+      "id": "approval_pill2",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
       "id": "t08",
       "role": "text",
       "basis": "authored text node",
@@ -176,6 +211,19 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "icon_mic2",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
     },
     {
       "id": "t09",

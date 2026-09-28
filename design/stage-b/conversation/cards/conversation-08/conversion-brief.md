@@ -62,12 +62,23 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_plus1",
-    "x": 24.0,
-    "y": 258.0,
-    "w": 20.0,
-    "h": 20.0,
+    "x": 30.0,
+    "y": 262.0,
+    "w": 18.0,
+    "h": 24.0,
     "role": "unknown",
     "native_candidates": []
+  },
+  {
+    "id": "approval_pill1",
+    "x": 66.67,
+    "y": 260.09,
+    "w": 122.67,
+    "h": 34.62,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
   },
   {
     "id": "t03",
@@ -84,6 +95,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
       "Label",
       "TextFlow"
     ]
+  },
+  {
+    "id": "icon_mic1",
+    "x": 306.0,
+    "y": 259.0,
+    "w": 16.0,
+    "h": 27.0,
+    "role": "unknown",
+    "native_candidates": []
   },
   {
     "id": "t04",
@@ -103,7 +123,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "send1",
-    "x": 350.0,
+    "x": 344.0,
     "y": 252.0,
     "w": 36.0,
     "h": 36.0,
@@ -114,7 +134,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_send",
-    "x": 360.0,
+    "x": 354.0,
     "y": 262.0,
     "w": 16.0,
     "h": 16.0,
@@ -177,12 +197,23 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_plus2",
-    "x": 24.0,
-    "y": 596.0,
-    "w": 20.0,
-    "h": 20.0,
+    "x": 28.0,
+    "y": 598.0,
+    "w": 18.0,
+    "h": 24.0,
     "role": "unknown",
     "native_candidates": []
+  },
+  {
+    "id": "approval_pill2",
+    "x": 66.63,
+    "y": 596.02,
+    "w": 122.74,
+    "h": 33.86,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
   },
   {
     "id": "t08",
@@ -199,6 +230,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
       "Label",
       "TextFlow"
     ]
+  },
+  {
+    "id": "icon_mic2",
+    "x": 306.0,
+    "y": 598.0,
+    "w": 16.0,
+    "h": 26.0,
+    "role": "unknown",
+    "native_candidates": []
   },
   {
     "id": "t09",
@@ -218,7 +258,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "stop2",
-    "x": 350.0,
+    "x": 346.0,
     "y": 590.0,
     "w": 36.0,
     "h": 36.0,
@@ -229,7 +269,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_stop2",
-    "x": 360.0,
+    "x": 356.0,
     "y": 600.0,
     "w": 16.0,
     "h": 16.0,

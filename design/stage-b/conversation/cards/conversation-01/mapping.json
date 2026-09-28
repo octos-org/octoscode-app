@@ -45,10 +45,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        354.0,
-        50.0,
-        18.0,
-        18.0
+        306.0,
+        46.0,
+        21.0,
+        25.0
       ],
       "text": null,
       "enabled": null,
@@ -63,10 +63,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        380.0,
-        50.0,
-        18.0,
-        18.0
+        359.0,
+        46.0,
+        22.0,
+        25.0
       ],
       "text": null,
       "enabled": null,
@@ -96,7 +96,7 @@
       "native_id": "beauty_0_3_0",
       "parent": "new_chat",
       "kind": "stack",
-      "component": "Surface27633031c859",
+      "component": "Surface2c8289ea3ffc",
       "semantic_role": "layout",
       "bounds": [
         16.0,
@@ -153,10 +153,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        22.0,
-        132.0,
-        20.0,
-        20.0
+        347.0,
+        130.0,
+        24.0,
+        28.0
       ],
       "text": null,
       "enabled": null,
@@ -531,10 +531,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        350.0,
-        314.5,
-        18.0,
-        18.0
+        352.0,
+        310.5,
+        19.0,
+        26.0
       ],
       "text": null,
       "enabled": null,
@@ -547,6 +547,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "40c86ef15bb477f2189da5755aeb9f12eff10d3316541cd71e197203e034ab6d",
+  "contract_sha256": "7e2b1c64328ccdb0f72218df2b9f44a4fa72abd24b553d0c9f5cc09ae7eacfff",
   "mapping_basis": "mapped.json"
 }

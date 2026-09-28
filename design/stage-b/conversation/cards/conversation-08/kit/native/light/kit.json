@@ -30,6 +30,14 @@
       "value": "self:resources/ux/Inter-400.ttf",
       "property": "font_src"
     },
+    "bg_40fe55fff4f6": {
+      "value": 4294835709,
+      "property": "bg"
+    },
+    "radius_c22cd1ea7268": {
+      "value": 23.0,
+      "property": "radius"
+    },
     "size_2396fccb9931": {
       "value": 12.49,
       "property": "size"
@@ -66,8 +74,8 @@
       "value": "self:resources/ux/Inter-500.ttf",
       "property": "font_src"
     },
-    "bg_334b01ebcd0a": {
-      "value": 4278584581,
+    "bg_3474979c4807": {
+      "value": 4278518788,
       "property": "bg"
     },
     "radius_566afbb607a8": {
@@ -114,6 +122,10 @@
       "value": 4279505940,
       "property": "color"
     },
+    "radius_e378bdd3a01c": {
+      "value": 23.5,
+      "property": "radius"
+    },
     "size_61fb72b23aae": {
       "value": 12.56,
       "property": "size"
@@ -138,8 +150,8 @@
       "value": 4281348401,
       "property": "color"
     },
-    "bg_9d7f93efee0f": {
-      "value": 4278782217,
+    "bg_5539f3fae1c4": {
+      "value": 4278650631,
       "property": "bg"
     }
   },
@@ -206,6 +218,22 @@
       "props": {},
       "slot": false
     },
+    "Surface595642fcfba0": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_40fe55fff4f6"
+        },
+        "radius": {
+          "$token": "radius_c22cd1ea7268"
+        },
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      "props": {},
+      "slot": true
+    },
     "Text78e146733ffe": {
       "style": {
         "t": "text",
@@ -264,12 +292,12 @@
       },
       "slot": false
     },
-    "Surface1bffca0bfe09": {
+    "Surface7e4e2610b615": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_334b01ebcd0a"
+          "$token": "bg_3474979c4807"
         },
         "radius": {
           "$token": "radius_566afbb607a8"
@@ -366,6 +394,22 @@
       },
       "slot": false
     },
+    "Surfacef4a36566f5dc": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_40fe55fff4f6"
+        },
+        "radius": {
+          "$token": "radius_e378bdd3a01c"
+        },
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      "props": {},
+      "slot": true
+    },
     "Textf5dec8faacc2": {
       "style": {
         "t": "text",
@@ -424,12 +468,12 @@
       },
       "slot": false
     },
-    "Surface7c3be3b4ae90": {
+    "Surfacef59992fb050f": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_9d7f93efee0f"
+          "$token": "bg_5539f3fae1c4"
         },
         "radius": {
           "$token": "radius_566afbb607a8"

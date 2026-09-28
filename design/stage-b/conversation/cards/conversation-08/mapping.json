@@ -63,10 +63,28 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        25.0,
-        270.125,
-        20.0,
-        23.75
+        31.0,
+        274.875,
+        18.0,
+        28.5
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "approval_pill1",
+      "native_id": "beauty_0_0_2",
+      "parent": "composer_idle",
+      "kind": "stack",
+      "component": "Surface595642fcfba0",
+      "semantic_role": "layout",
+      "bounds": [
+        66.0,
+        251.0,
+        122.0,
+        46.0
       ],
       "text": null,
       "enabled": null,
@@ -75,8 +93,8 @@
     },
     {
       "source_id": "t03",
-      "native_id": "beauty_0_0_2",
-      "parent": "composer_idle",
+      "native_id": "beauty_0_0_2_0",
+      "parent": "approval_pill1",
       "kind": "text",
       "component": "Text78e146733ffe",
       "semantic_role": "text",
@@ -92,8 +110,26 @@
       "size": 12.49
     },
     {
-      "source_id": "t04",
+      "source_id": "icon_mic1",
       "native_id": "beauty_0_0_3",
+      "parent": "composer_idle",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        307.0,
+        271.312,
+        16.0,
+        32.062
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t04",
+      "native_id": "beauty_0_0_4",
       "parent": "composer_idle",
       "kind": "text",
       "component": "Text4c1a70e63ea9",
@@ -111,13 +147,13 @@
     },
     {
       "source_id": "send1",
-      "native_id": "beauty_0_0_4",
+      "native_id": "beauty_0_0_5",
       "parent": "composer_idle",
       "kind": "stack",
-      "component": "Surface1bffca0bfe09",
+      "component": "Surface7e4e2610b615",
       "semantic_role": "layout",
       "bounds": [
-        351.0,
+        345.0,
         263.0,
         36.0,
         42.75
@@ -129,13 +165,13 @@
     },
     {
       "source_id": "icon_send",
-      "native_id": "beauty_0_0_4_0",
+      "native_id": "beauty_0_0_5_0",
       "parent": "send1",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        361.0,
+        355.0,
         274.875,
         16.0,
         19.0
@@ -225,10 +261,28 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        24.0,
-        598.824,
-        20.0,
-        21.176
+        28.0,
+        600.941,
+        18.0,
+        25.412
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "approval_pill2",
+      "native_id": "beauty_0_2_2",
+      "parent": "composer_active",
+      "kind": "stack",
+      "component": "Surfacef4a36566f5dc",
+      "semantic_role": "layout",
+      "bounds": [
+        66.0,
+        586.0,
+        122.0,
+        47.0
       ],
       "text": null,
       "enabled": null,
@@ -237,8 +291,8 @@
     },
     {
       "source_id": "t08",
-      "native_id": "beauty_0_2_2",
-      "parent": "composer_active",
+      "native_id": "beauty_0_2_2_0",
+      "parent": "approval_pill2",
       "kind": "text",
       "component": "Textf5dec8faacc2",
       "semantic_role": "text",
@@ -254,8 +308,26 @@
       "size": 12.56
     },
     {
-      "source_id": "t09",
+      "source_id": "icon_mic2",
       "native_id": "beauty_0_2_3",
+      "parent": "composer_active",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        306.0,
+        600.941,
+        16.0,
+        27.529
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t09",
+      "native_id": "beauty_0_2_4",
       "parent": "composer_active",
       "kind": "text",
       "component": "Textb02dacb12d54",
@@ -273,13 +345,13 @@
     },
     {
       "source_id": "stop2",
-      "native_id": "beauty_0_2_4",
+      "native_id": "beauty_0_2_5",
       "parent": "composer_active",
       "kind": "stack",
-      "component": "Surface7c3be3b4ae90",
+      "component": "Surfacef59992fb050f",
       "semantic_role": "layout",
       "bounds": [
-        350.0,
+        346.0,
         592.471,
         36.0,
         38.118
@@ -291,13 +363,13 @@
     },
     {
       "source_id": "icon_stop2",
-      "native_id": "beauty_0_2_4_0",
+      "native_id": "beauty_0_2_5_0",
       "parent": "stop2",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        360.0,
+        356.0,
         603.059,
         16.0,
         16.941
@@ -312,6 +384,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "a2d694c30c3812dccefa0b619d02bfcb0ce9d5fc2f543b87c671070d9544da18",
+  "contract_sha256": "9f432c2ebf1f407249a2a0e65a93c3308750f1c6aee39194fabd090bfe4a96ed",
   "mapping_basis": "mapped.json"
 }

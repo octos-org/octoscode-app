@@ -32,11 +32,20 @@
       "icon_plus1": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 25.0,
-          "y": 270.125,
-          "w": 20.0,
-          "h": 23.75,
+          "x": 31.0,
+          "y": 274.875,
+          "w": 18.0,
+          "h": 28.5,
           "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_plus1-e726c53afe21.svg"
+        }
+      },
+      "approval_pill1": {
+        "component": "Surface595642fcfba0",
+        "layout": {
+          "x": 66.0,
+          "y": 251.0,
+          "w": 122.0,
+          "h": 46.0
         }
       },
       "t03": {
@@ -46,6 +55,16 @@
           "y": 265.5,
           "w": 101.5,
           "h": 23.0
+        }
+      },
+      "icon_mic1": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 307.0,
+          "y": 271.312,
+          "w": 16.0,
+          "h": 32.062,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_mic1-e21b462810d1.svg"
         }
       },
       "t04": {
@@ -58,9 +77,9 @@
         }
       },
       "send1": {
-        "component": "Surface1bffca0bfe09",
+        "component": "Surface7e4e2610b615",
         "layout": {
-          "x": 351.0,
+          "x": 345.0,
           "y": 263.0,
           "w": 36.0,
           "h": 42.75
@@ -69,7 +88,7 @@
       "icon_send": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 361.0,
+          "x": 355.0,
           "y": 274.875,
           "w": 16.0,
           "h": 19.0,
@@ -115,11 +134,20 @@
       "icon_plus2": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 24.0,
-          "y": 598.824,
-          "w": 20.0,
-          "h": 21.176,
+          "x": 28.0,
+          "y": 600.941,
+          "w": 18.0,
+          "h": 25.412,
           "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_plus2-e726c53afe21.svg"
+        }
+      },
+      "approval_pill2": {
+        "component": "Surfacef4a36566f5dc",
+        "layout": {
+          "x": 66.0,
+          "y": 586.0,
+          "w": 122.0,
+          "h": 47.0
         }
       },
       "t08": {
@@ -129,6 +157,16 @@
           "y": 601.0,
           "w": 102.0,
           "h": 23.0
+        }
+      },
+      "icon_mic2": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 306.0,
+          "y": 600.941,
+          "w": 16.0,
+          "h": 27.529,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_mic2-e21b462810d1.svg"
         }
       },
       "t09": {
@@ -141,9 +179,9 @@
         }
       },
       "stop2": {
-        "component": "Surface7c3be3b4ae90",
+        "component": "Surfacef59992fb050f",
         "layout": {
-          "x": 350.0,
+          "x": 346.0,
           "y": 592.471,
           "w": 36.0,
           "h": 38.118
@@ -152,7 +190,7 @@
       "icon_stop2": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 360.0,
+          "x": 356.0,
           "y": 603.059,
           "w": 16.0,
           "h": 16.941,

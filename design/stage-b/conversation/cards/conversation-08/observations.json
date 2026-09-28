@@ -241,10 +241,34 @@
     {
       "id": "icon_plus1",
       "bounds": [
-        25.0,
-        270.125,
-        20.0,
-        23.75
+        31.0,
+        274.875,
+        18.0,
+        28.5
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "approval_pill1",
+      "bounds": [
+        66.0,
+        251.0,
+        122.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 23.0
+    },
+    {
+      "id": "icon_mic1",
+      "bounds": [
+        307.0,
+        271.312,
+        16.0,
+        32.062
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -252,20 +276,20 @@
     {
       "id": "send1",
       "bounds": [
-        351.0,
+        345.0,
         263.0,
         36.0,
         42.75
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
-      "bg": 4278584581,
+      "bg": 4278518788,
       "radius": 18.0
     },
     {
       "id": "icon_send",
       "bounds": [
-        361.0,
+        355.0,
         274.875,
         16.0,
         19.0
@@ -302,10 +326,34 @@
     {
       "id": "icon_plus2",
       "bounds": [
-        24.0,
-        598.824,
-        20.0,
-        21.176
+        28.0,
+        600.941,
+        18.0,
+        25.412
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "approval_pill2",
+      "bounds": [
+        66.0,
+        586.0,
+        122.0,
+        47.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 23.5
+    },
+    {
+      "id": "icon_mic2",
+      "bounds": [
+        306.0,
+        600.941,
+        16.0,
+        27.529
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -313,20 +361,20 @@
     {
       "id": "stop2",
       "bounds": [
-        350.0,
+        346.0,
         592.471,
         36.0,
         38.118
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
-      "bg": 4278782217,
+      "bg": 4278650631,
       "radius": 18.0
     },
     {
       "id": "icon_stop2",
       "bounds": [
-        360.0,
+        356.0,
         603.059,
         16.0,
         16.941

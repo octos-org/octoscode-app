@@ -197,7 +197,9 @@
             ],
             "variant": "surface",
             "bg": 4294440952,
-            "radius": 999
+            "radius": 999,
+            "border": 1,
+            "bordercolor": 4293256679
           },
           {
             "t": "stack",
@@ -226,7 +228,9 @@
             ],
             "variant": "surface",
             "bg": 4294440952,
-            "radius": 999
+            "radius": 999,
+            "border": 1,
+            "bordercolor": 4293256679
           },
           {
             "t": "stack",
@@ -255,7 +259,9 @@
             ],
             "variant": "surface",
             "bg": 4294440952,
-            "radius": 999
+            "radius": 999,
+            "border": 1,
+            "bordercolor": 4293256679
           }
         ]
       },
@@ -289,27 +295,51 @@
           {
             "t": "svg",
             "id": "icon_plus",
-            "x": 24.0,
-            "y": 672.0,
-            "w": 20.0,
-            "h": 20.0,
+            "x": 28.0,
+            "y": 685.0,
+            "w": 18.0,
+            "h": 24.0,
             "src": ""
           },
           {
-            "t": "text",
-            "id": "t13",
-            "text": "Ask for approval",
-            "x": 73.25,
-            "y": 687.76,
-            "w": 102.73,
-            "h": 20.83,
-            "size": 13,
-            "line_height": 20.83,
-            "weight": 400,
-            "color": 4285427315,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-400.ttf"
+            "t": "stack",
+            "id": "approval_pill",
+            "x": 63.25,
+            "y": 681.76,
+            "w": 122.73,
+            "h": 33.83,
+            "c": [
+              {
+                "t": "text",
+                "id": "t13",
+                "text": "Ask for approval",
+                "x": 73.25,
+                "y": 687.76,
+                "w": 102.73,
+                "h": 20.83,
+                "size": 13,
+                "line_height": 20.83,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf"
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 999,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "svg",
+            "id": "icon_mic",
+            "x": 309.0,
+            "y": 681.0,
+            "w": 17.0,
+            "h": 27.0,
+            "src": ""
           },
           {
             "t": "text",
@@ -330,16 +360,16 @@
           {
             "t": "stack",
             "id": "stop_btn",
-            "x": 350.0,
-            "y": 672.0,
+            "x": 346.0,
+            "y": 674.0,
             "w": 36.0,
             "h": 36.0,
             "c": [
               {
                 "t": "svg",
                 "id": "icon_stop",
-                "x": 360.0,
-                "y": 682.0,
+                "x": 356.0,
+                "y": 684.0,
                 "w": 16.0,
                 "h": 16.0,
                 "src": ""

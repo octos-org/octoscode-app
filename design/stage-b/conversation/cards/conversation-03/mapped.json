@@ -186,7 +186,9 @@
             ],
             "variant": "surface",
             "bg": 4294835709,
-            "radius": 22.0
+            "radius": 22.0,
+            "border": 1,
+            "bordercolor": 4293256679
           },
           {
             "t": "stack",
@@ -216,7 +218,9 @@
             ],
             "variant": "surface",
             "bg": 4294835709,
-            "radius": 22.0
+            "radius": 22.0,
+            "border": 1,
+            "bordercolor": 4293256679
           },
           {
             "t": "stack",
@@ -246,7 +250,9 @@
             ],
             "variant": "surface",
             "bg": 4294835709,
-            "radius": 22.0
+            "radius": 22.0,
+            "border": 1,
+            "bordercolor": 4293256679
           }
         ]
       },
@@ -280,28 +286,52 @@
           {
             "t": "svg",
             "id": "icon_plus",
-            "x": 23.064,
-            "y": 669.32,
-            "w": 20.16,
-            "h": 22.8,
+            "x": 27.096,
+            "y": 684.14,
+            "w": 18.144,
+            "h": 27.36,
             "src": ""
           },
           {
-            "t": "text",
-            "id": "t13",
-            "text": "Ask for approval",
-            "x": 74.18,
-            "y": 687.5,
-            "w": 103.0,
-            "h": 22.5,
-            "size": 12.69,
-            "line_height": 15.35,
-            "weight": 400,
-            "color": 4281808952,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-400.ttf",
-            "tracking": 0.0
+            "t": "stack",
+            "id": "approval_pill",
+            "x": 63.0,
+            "y": 674.0,
+            "w": 122.0,
+            "h": 44.0,
+            "c": [
+              {
+                "t": "text",
+                "id": "t13",
+                "text": "Ask for approval",
+                "x": 74.18,
+                "y": 687.5,
+                "w": 103.0,
+                "h": 22.5,
+                "size": 12.69,
+                "line_height": 15.35,
+                "weight": 400,
+                "color": 4281808952,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 0.0
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294835709,
+            "radius": 22.0,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "svg",
+            "id": "icon_mic",
+            "x": 310.35,
+            "y": 679.58,
+            "w": 17.136,
+            "h": 30.78,
+            "src": ""
           },
           {
             "t": "text",
@@ -323,23 +353,23 @@
           {
             "t": "stack",
             "id": "stop_btn",
-            "x": 351.679,
-            "y": 669.32,
+            "x": 347.647,
+            "y": 671.6,
             "w": 36.289,
             "h": 41.04,
             "c": [
               {
                 "t": "svg",
                 "id": "icon_stop",
-                "x": 361.759,
-                "y": 680.72,
+                "x": 357.727,
+                "y": 683.0,
                 "w": 16.128,
                 "h": 18.24,
                 "src": ""
               }
             ],
             "variant": "surface",
-            "bg": 4278650631,
+            "bg": 4278519045,
             "radius": 18.14
           }
         ],
@@ -392,6 +422,14 @@
     },
     {
       "id": "icon_plus",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "approval_pill",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_mic",
       "source": "observed non-text annotation"
     },
     {

@@ -28,8 +28,8 @@ component Vectore0a378fde04f(instance: text) {
 component KitButton2c6804b990a5(instance: text) {
   view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
 }
-component Surface27633031c859(instance: text) {
-  view Kit(component: "Surface27633031c859", instance: instance) { slot }
+component Surface2c8289ea3ffc(instance: text) {
+  view Kit(component: "Surface2c8289ea3ffc", instance: instance) { slot }
 }
 component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
   view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
@@ -67,7 +67,7 @@ view root Surface16fae9a63e16(instance: "page") {
   Vectore0a378fde04f(instance: "icon_bell")
   Vectore0a378fde04f(instance: "icon_search")
   KitButton2c6804b990a5(instance: "new_chat") {
-    Surface27633031c859(instance: "new_chat_surface") {
+    Surface2c8289ea3ffc(instance: "new_chat_surface") {
 
     }
     NativeButton02f1d1bd99b4(instance: "new_chat_control", enabled: new_chat_control_enabled)

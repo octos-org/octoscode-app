@@ -103,7 +103,7 @@
         }
       },
       "chip_ws": {
-        "component": "Surface75645ae3b651",
+        "component": "Surfacee231cd44f879",
         "layout": {
           "x": 19.0,
           "y": 496.0,
@@ -121,7 +121,7 @@
         }
       },
       "chip_mode": {
-        "component": "Surface75645ae3b651",
+        "component": "Surfacee231cd44f879",
         "layout": {
           "x": 117.0,
           "y": 496.0,
@@ -139,7 +139,7 @@
         }
       },
       "chip_branch": {
-        "component": "Surface75645ae3b651",
+        "component": "Surfacee231cd44f879",
         "layout": {
           "x": 215.0,
           "y": 496.0,
@@ -177,11 +177,20 @@
       "icon_plus": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 23.064,
-          "y": 669.32,
-          "w": 20.16,
-          "h": 22.8,
+          "x": 27.096,
+          "y": 684.14,
+          "w": 18.144,
+          "h": 27.36,
           "src": "http://127.0.0.1:8170/ux-images/conversation-03/assets/icon_plus-e726c53afe21.svg"
+        }
+      },
+      "approval_pill": {
+        "component": "Surfacee231cd44f879",
+        "layout": {
+          "x": 63.0,
+          "y": 674.0,
+          "w": 122.0,
+          "h": 44.0
         }
       },
       "t13": {
@@ -191,6 +200,16 @@
           "y": 687.5,
           "w": 103.0,
           "h": 22.5
+        }
+      },
+      "icon_mic": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 310.35,
+          "y": 679.58,
+          "w": 17.136,
+          "h": 30.78,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-03/assets/icon_mic-e21b462810d1.svg"
         }
       },
       "t14": {
@@ -203,10 +222,10 @@
         }
       },
       "stop_btn": {
-        "component": "Surface467ef8b13050",
+        "component": "Surface8f38f76c9144",
         "layout": {
-          "x": 351.679,
-          "y": 669.32,
+          "x": 347.647,
+          "y": 671.6,
           "w": 36.289,
           "h": 41.04
         }
@@ -214,8 +233,8 @@
       "icon_stop": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 361.759,
-          "y": 680.72,
+          "x": 357.727,
+          "y": 683.0,
           "w": 16.128,
           "h": 18.24,
           "src": "http://127.0.0.1:8170/ux-images/conversation-03/assets/icon_stop-6a28cc1098c8.svg"

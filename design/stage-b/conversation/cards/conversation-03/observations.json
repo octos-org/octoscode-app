@@ -507,10 +507,34 @@
     {
       "id": "icon_plus",
       "bounds": [
-        23.064,
-        669.32,
-        20.16,
-        22.8
+        27.096,
+        684.14,
+        18.144,
+        27.36
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "approval_pill",
+      "bounds": [
+        63.0,
+        674.0,
+        122.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 22.0
+    },
+    {
+      "id": "icon_mic",
+      "bounds": [
+        310.35,
+        679.58,
+        17.136,
+        30.78
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -518,21 +542,21 @@
     {
       "id": "stop_btn",
       "bounds": [
-        351.679,
-        669.32,
+        347.647,
+        671.6,
         36.289,
         41.04
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
-      "bg": 4278650631,
+      "bg": 4278519045,
       "radius": 18.14
     },
     {
       "id": "icon_stop",
       "bounds": [
-        361.759,
-        680.72,
+        357.727,
+        683.0,
         16.128,
         18.24
       ],
