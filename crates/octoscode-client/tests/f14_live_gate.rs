@@ -56,13 +56,10 @@ fn replay(frames: &[Frame]) -> Arc<Store> {
         if f.dir != "in" {
             continue;
         }
-        // Skip the handshake replies and connection states (they are RPC
-        // results / state transitions, not notifications).
-        if matches!(
-            f.method.as_str(),
-            "session/open" | "capabilities" | "session/list"
-        ) || f.method.starts_with("state:")
-        {
+        // Skip only the non-notifications: connection-state transitions and
+        // the `capabilities` negotiation event. `session/open` IS a
+        // notification (it carries the opened session) and must be dispatched.
+        if matches!(f.method.as_str(), "capabilities") || f.method.starts_with("state:") {
             continue;
         }
         match UiNotification::from_method_and_params(&f.method, f.body.clone()) {
@@ -174,5 +171,33 @@ fn defect2_no_stray_or_empty_assistant_entry() {
     assert!(
         answer.contains("`main.rs` prints a single line"),
         "the turn's assistant text is the canonical answer; got {answer:?}"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Defect 3 — the opened session must appear in the session list.
+//
+// The gate showed `sessions: 0` after a successful open (`s3-completed.json`),
+// and the trace holds no `session/list` reply at all — so relying on the
+// catalog reply alone leaves the sidebar empty. The web treats the opened
+// session as known immediately (`session/opened` seeds the tab-known registry;
+// `workspace-session-catalog.ts` only augments it), so a session the server has
+// confirmed open must be listed.
+// ---------------------------------------------------------------------------
+#[test]
+fn defect3_the_opened_session_is_listed() {
+    let frames = fixture();
+    let store = replay(&frames);
+
+    let ids: Vec<String> = store.sessions().into_iter().map(|s| s.id).collect();
+    assert!(
+        ids.iter().any(|id| id == SESSION),
+        "the opened session {SESSION:?} must appear in the session list; got {ids:?}"
+    );
+    assert!(
+        store.session_count() >= 1,
+        "the session count must be > 0 after a successful open (the gate showed \
+         `sessions: 0`); got {}",
+        store.session_count()
     );
 }
