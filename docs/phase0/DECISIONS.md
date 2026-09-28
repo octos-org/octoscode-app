@@ -54,7 +54,7 @@ a native card can claim them (list in `parity-matrix.md`).
 234 walk rows from 49 Playwright specs. 226 need only a fixture server, 5 none, and **3 need a real model turn**
 (`dsflash`). 31 are web-only (browser mechanics) with reasons, to be reviewed rather than silently dropped.
 
-## D9. App shape: RECOMMENDED, needs operator decision (evidence: `docs/spike-d9/REPORT.md`, card #6 10/10)
+## D9. App shape: DECIDED by the operator (2026-09-28): native AppModule mounting design-flow L0 cards (evidence: `docs/spike-d9/REPORT.md`, card #6 10/10)
 Both shapes were built as minimal apps, registered in the OctoSense desktop shell, connected to a local `octos serve`
 @ `a6ea8505` (`profile/local/create` → `session/open`), and driven headlessly (evidence + screenshots in `docs/spike-d9/evidence/`).
 
