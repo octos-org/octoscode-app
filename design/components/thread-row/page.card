@@ -1,0 +1,27 @@
+# ledger thread-row@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy thread_1_label_text { class: user-copy, en: "Fix steer queue drop on reconnect" }
+state thread_1_control_enabled { shape: bool, initial: true }
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surface8f954c9fd892(instance: text) {
+  view Kit(component: "Surface8f954c9fd892", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Text68bd508108d5(instance: text, text: text) {
+  view Kit(component: "Text68bd508108d5", instance: instance, text: text)
+}
+
+view root KitButton2c6804b990a5(instance: "thread_1") {
+  Surface8f954c9fd892(instance: "thread_1_surface") {
+
+  }
+  NativeButton02f1d1bd99b4(instance: "thread_1_control", enabled: thread_1_control_enabled)
+  Text68bd508108d5(instance: "thread_1_label", text: copy.thread_1_label_text)
+}

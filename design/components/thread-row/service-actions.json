@@ -1,0 +1,17 @@
+{
+  "frame_id": 1,
+  "controls": {
+    "thread_1": {
+      "event": "thread.open",
+      "source_bounds": [
+        16,
+        215,
+        374,
+        60
+      ],
+      "enabled": true
+    }
+  },
+  "source": "thread-list",
+  "owner": "threads"
+}

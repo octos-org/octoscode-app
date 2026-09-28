@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "82193c04370cd4c70445cd2449f4458e43748ca531c8815ae40f3e215978188d",
+  "tree": {
+    "t": "stack",
+    "id": "thread_1",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 379.0,
+    "h": 78.0,
+    "c": [
+      {
+        "t": "stack",
+        "id": "thread_1_surface",
+        "x": 0.0,
+        "y": 0.0,
+        "w": 379.0,
+        "h": 78.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294046195,
+        "radius": 12.89
+      },
+      {
+        "t": "button",
+        "id": "thread_1_control",
+        "x": 0.0,
+        "y": 0.0,
+        "w": 379.0,
+        "h": 78.0,
+        "enabled": 1
+      },
+      {
+        "t": "text",
+        "id": "thread_1_label",
+        "text": "Fix steer queue drop on reconnect",
+        "x": 23.04,
+        "y": 27.0,
+        "w": 302.0,
+        "h": 28.0,
+        "size": 18.1,
+        "line_height": 21.9,
+        "weight": 500,
+        "color": 4279045390,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      }
+    ],
+    "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+  },
+  "changes": [
+    {
+      "source": "cards/conversation-01/mapped.json",
+      "source_sha256": "4e734bf24026ae22d53c90ace3e3f9e7f9a8c0b4729a74fc23584853ed4fbd9e",
+      "operation": "Extract native subtree and translate origin",
+      "source_root": "thread_1",
+      "translation": [
+        -14.0,
+        -204.0
+      ]
+    }
+  ]
+}

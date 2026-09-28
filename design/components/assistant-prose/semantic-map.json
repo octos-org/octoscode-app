@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "policy_version": "1.1.0",
+  "contract_sha256": "30019f28dba4431cd18788a47cdded239059a58342083ae5547ce4e386be0d2d",
+  "reference_sha256": "a6ff9f5a591ea6e98df9c2951d89b471471fa907f5ae44463126c359791c7713",
+  "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
+  "elements": [
+    {
+      "id": "answer_prose",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "answer_md",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    }
+  ]
+}

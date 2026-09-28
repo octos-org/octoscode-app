@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "policy_version": "1.1.0",
+  "contract_sha256": "f70c61dd3bc8fa0f8dd8fb0a4dd1df3547aa4d0d9de8c0896ec0abf6e5c2f9f8",
+  "reference_sha256": "cb926505c637457ad9eec5acd12cc5792370ee0fee546702ba912361a4900791",
+  "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
+  "elements": [
+    {
+      "id": "working_row",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "icon_spinner",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_spinner.svg",
+        "sha256": "68949e64fa670803567974db86636a931b30bb85caa5059730fbfa7e95794889",
+        "method": "reference_svg",
+        "reference_sha256": "cb926505c637457ad9eec5acd12cc5792370ee0fee546702ba912361a4900791",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "t03",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    }
+  ]
+}

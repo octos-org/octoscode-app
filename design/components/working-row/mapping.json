@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "working_row",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        145.55,
+        29.5
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_spinner",
+      "native_id": "beauty_0_0",
+      "parent": "working_row",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        0.0,
+        5.0,
+        18.0,
+        18.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t03",
+      "native_id": "beauty_0_1",
+      "parent": "working_row",
+      "kind": "text",
+      "component": "Texta0a4e959ef2b",
+      "semantic_role": "text",
+      "bounds": [
+        22.049999999999997,
+        0.0,
+        123.5,
+        29.5
+      ],
+      "text": "Working \u2022 12s",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 17.94
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
+  },
+  "contract_sha256": "f70c61dd3bc8fa0f8dd8fb0a4dd1df3547aa4d0d9de8c0896ec0abf6e5c2f9f8",
+  "mapping_basis": "mapped.json"
+}

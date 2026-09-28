@@ -22,6 +22,9 @@ component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
 component Textf545a5164562(instance: text, text: text) {
   view Kit(component: "Textf545a5164562", instance: instance, text: text)
 }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
 component Textf628ddef93a6(instance: text, text: text) {
   view Kit(component: "Textf628ddef93a6", instance: instance, text: text)
 }
@@ -40,9 +43,13 @@ view root Surface16fae9a63e16(instance: "page") {
     NativeButton02f1d1bd99b4(instance: "worked_row_control", enabled: worked_row_control_enabled)
     Textf545a5164562(instance: "worked_row_label", text: copy.worked_row_label_text)
   }
-  Textf628ddef93a6(instance: "answer_md", text: copy.answer_md_text)
-  Vectore0a378fde04f(instance: "icon_copy")
-  Vectore0a378fde04f(instance: "icon_thumbs")
-  Vectore0a378fde04f(instance: "icon_share")
-  Texta0abe1806ac3(instance: "t11", text: copy.t11_text)
+  Group3d2637879433(instance: "answer_prose") {
+    Textf628ddef93a6(instance: "answer_md", text: copy.answer_md_text)
+  }
+  Group3d2637879433(instance: "answer_actions") {
+    Vectore0a378fde04f(instance: "icon_copy")
+    Vectore0a378fde04f(instance: "icon_thumbs")
+    Vectore0a378fde04f(instance: "icon_share")
+    Texta0abe1806ac3(instance: "t11", text: copy.t11_text)
+  }
 }

@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "46aefa4a8b4ec3e5f769d3489c8760d5d7e168fe9e213c6b13ce478600af3550",
+  "tree": {
+    "t": "stack",
+    "id": "answer_actions",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 364.11,
+    "h": 29.05,
+    "c": [
+      {
+        "t": "svg",
+        "id": "icon_copy",
+        "x": 0.0,
+        "y": 0.0,
+        "w": 20.0,
+        "h": 20.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "icon_thumbs",
+        "x": 28.0,
+        "y": 0.0,
+        "w": 20.0,
+        "h": 20.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "icon_share",
+        "x": 56.0,
+        "y": 0.0,
+        "w": 20.0,
+        "h": 20.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t11",
+        "text": "Sep 28, 9:41 PM",
+        "x": 243.64,
+        "y": 1.5,
+        "w": 121.5,
+        "h": 28.0,
+        "size": 15.26,
+        "line_height": 18.46,
+        "weight": 400,
+        "color": 4288848550,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      }
+    ]
+  },
+  "changes": [
+    {
+      "source": "cards/conversation-09/mapped.json",
+      "source_sha256": "f3e7f64f552d7666c044229cd48ac4a412ed5521ed31941a5fa310cfa87fa7f6",
+      "operation": "Extract native subtree and translate origin",
+      "source_root": "answer_actions",
+      "translation": [
+        -24.0,
+        -662.0
+      ]
+    }
+  ]
+}

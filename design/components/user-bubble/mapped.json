@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "8f480e60d9319adc93da297cc3f6addd10aa0e4cf4f7d54c75399d4ed8c9a54c",
+  "tree": {
+    "t": "stack",
+    "id": "user_bubble",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 284.01,
+    "h": 85.09,
+    "c": [
+      {
+        "t": "text",
+        "id": "t01",
+        "text": "Fix the steer queue so queued",
+        "x": 15.719999999999999,
+        "y": 11.090000000000003,
+        "w": 255.5,
+        "h": 27.5,
+        "size": 17.4,
+        "line_height": 21.05,
+        "weight": 500,
+        "color": 4294638587,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t02",
+        "text": "steers survive a reconnect",
+        "x": 15.790000000000006,
+        "y": 48.59,
+        "w": 224.5,
+        "h": 23.0,
+        "size": 17.33,
+        "line_height": 20.97,
+        "weight": 500,
+        "color": 4294835709,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      }
+    ],
+    "variant": "surface",
+    "bg": 4278387202,
+    "radius": 16.0
+  },
+  "changes": [
+    {
+      "source": "cards/conversation-03/mapped.json",
+      "source_sha256": "56c25209a1f541fd5e98ec08305423edc74da45dcbf8d60c7d9be7dde7f1bc69",
+      "operation": "Extract native subtree and translate origin",
+      "source_root": "user_bubble",
+      "translation": [
+        -90.88,
+        -48.91
+      ]
+    }
+  ]
+}

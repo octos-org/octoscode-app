@@ -1,0 +1,35 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "user_bubble": {
+        "component": "Surfacec6d1fb983710",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 284.01,
+          "h": 85.09
+        }
+      },
+      "t01": {
+        "component": "Textc1ebd2fa9447",
+        "layout": {
+          "x": 15.719999999999999,
+          "y": 11.090000000000003,
+          "w": 255.5,
+          "h": 27.5
+        }
+      },
+      "t02": {
+        "component": "Text9434d668ed74",
+        "layout": {
+          "x": 15.790000000000006,
+          "y": 48.59,
+          "w": 224.5,
+          "h": 23.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

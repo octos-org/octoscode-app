@@ -1,0 +1,44 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "thread_1": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 379.0,
+          "h": 78.0
+        }
+      },
+      "thread_1_surface": {
+        "component": "Surface8f954c9fd892",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 379.0,
+          "h": 78.0
+        }
+      },
+      "thread_1_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 379.0,
+          "h": 78.0
+        }
+      },
+      "thread_1_label": {
+        "component": "Text68bd508108d5",
+        "layout": {
+          "x": 23.04,
+          "y": 27.0,
+          "w": 302.0,
+          "h": 28.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

@@ -1,0 +1,20 @@
+# ledger working-row@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t03_text { class: user-copy, en: "Working • 12s" }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Texta0a4e959ef2b(instance: text, text: text) {
+  view Kit(component: "Texta0a4e959ef2b", instance: instance, text: text)
+}
+
+view root Group3d2637879433(instance: "working_row") {
+  Vectore0a378fde04f(instance: "icon_spinner")
+  Texta0a4e959ef2b(instance: "t03", text: copy.t03_text)
+}

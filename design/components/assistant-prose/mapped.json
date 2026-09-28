@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "a6ff9f5a591ea6e98df9c2951d89b471471fa907f5ae44463126c359791c7713",
+  "tree": {
+    "t": "stack",
+    "id": "answer_prose",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 356.0,
+    "h": 492.0,
+    "c": [
+      {
+        "t": "text",
+        "id": "answer_md",
+        "text": "Queued steers now survive a reconnect.\n\n• Fixed loss of queued steers when reconnecting after a drop in `steer_dropped` handling.\n\n• Updated `ui_protocol_transport.rs` to persist queued steers to the session ledger.\n\n• All tests pass: `12 passed`.\n\n• Changes included in commit `a6ea8505`.",
+        "x": 0.0,
+        "y": 0.0,
+        "w": 356.0,
+        "h": 492.0,
+        "size": 17.5,
+        "line_height": 38.0,
+        "weight": 400,
+        "color": 4280098079,
+        "bg": 4294243573,
+        "alignx": 0,
+        "variant": "markdown",
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      }
+    ]
+  },
+  "changes": [
+    {
+      "source": "cards/conversation-09/mapped.json",
+      "source_sha256": "f3e7f64f552d7666c044229cd48ac4a412ed5521ed31941a5fa310cfa87fa7f6",
+      "operation": "Extract native subtree and translate origin",
+      "source_root": "answer_prose",
+      "translation": [
+        -27.0,
+        -106.0
+      ]
+    }
+  ]
+}

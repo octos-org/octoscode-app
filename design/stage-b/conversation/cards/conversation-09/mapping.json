@@ -92,9 +92,27 @@
       "size": 18.7
     },
     {
-      "source_id": "answer_md",
+      "source_id": "answer_prose",
       "native_id": "beauty_0_1",
       "parent": "page",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        27.0,
+        106.0,
+        356.0,
+        492.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "answer_md",
+      "native_id": "beauty_0_1_0",
+      "parent": "answer_prose",
       "kind": "text",
       "component": "Textf628ddef93a6",
       "semantic_role": "text",
@@ -110,9 +128,27 @@
       "size": 17.5
     },
     {
-      "source_id": "icon_copy",
+      "source_id": "answer_actions",
       "native_id": "beauty_0_2",
       "parent": "page",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        24.0,
+        662.0,
+        364.11,
+        29.05
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_copy",
+      "native_id": "beauty_0_2_0",
+      "parent": "answer_actions",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
@@ -129,8 +165,8 @@
     },
     {
       "source_id": "icon_thumbs",
-      "native_id": "beauty_0_3",
-      "parent": "page",
+      "native_id": "beauty_0_2_1",
+      "parent": "answer_actions",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
@@ -147,8 +183,8 @@
     },
     {
       "source_id": "icon_share",
-      "native_id": "beauty_0_4",
-      "parent": "page",
+      "native_id": "beauty_0_2_2",
+      "parent": "answer_actions",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
@@ -165,8 +201,8 @@
     },
     {
       "source_id": "t11",
-      "native_id": "beauty_0_5",
-      "parent": "page",
+      "native_id": "beauty_0_2_3",
+      "parent": "answer_actions",
       "kind": "text",
       "component": "Texta0abe1806ac3",
       "semantic_role": "text",
@@ -186,6 +222,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "aa9e4ec7a26ee91b3bb3e986c2bf1edbe6278013e5f6af0923a6b63f24226ceb",
+  "contract_sha256": "36f758bf7937519879e63d66536c01ed7b81cf0a5cde95e4e95c3a8b4741787f",
   "mapping_basis": "mapped.json"
 }

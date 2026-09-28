@@ -1,0 +1,27 @@
+# ledger worked-for@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy worked_row_label_text { class: user-copy, en: "Worked for 3m 4s ›" }
+state worked_row_control_enabled { shape: bool, initial: true }
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surface5e06c9b428ce(instance: text) {
+  view Kit(component: "Surface5e06c9b428ce", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Textf545a5164562(instance: text, text: text) {
+  view Kit(component: "Textf545a5164562", instance: instance, text: text)
+}
+
+view root KitButton2c6804b990a5(instance: "worked_row") {
+  Surface5e06c9b428ce(instance: "worked_row_surface") {
+
+  }
+  NativeButton02f1d1bd99b4(instance: "worked_row_control", enabled: worked_row_control_enabled)
+  Textf545a5164562(instance: "worked_row_label", text: copy.worked_row_label_text)
+}

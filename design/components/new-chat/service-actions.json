@@ -1,0 +1,17 @@
+{
+  "frame_id": 1,
+  "controls": {
+    "new_chat": {
+      "event": "thread.new",
+      "source_bounds": [
+        16,
+        120,
+        374,
+        44
+      ],
+      "enabled": true
+    }
+  },
+  "source": "thread-list",
+  "owner": "threads"
+}

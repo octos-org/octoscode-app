@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "id": "tool-cell",
+  "app": "octoscode",
+  "number": 4,
+  "title": "Tool cells",
+  "structure": "Native component reconstructed from the approved conversation atlas",
+  "artboard": [
+    371.0,
+    105.0
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "tool_1",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 371.0,
+    "h": 105.0,
+    "c": [
+      {
+        "t": "svg",
+        "id": "icon_file",
+        "x": 25.790999999999997,
+        "y": 27.391000000000005,
+        "w": 23.807,
+        "h": 29.674,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t01",
+        "text": "Read ui_protocol_transport.rs",
+        "x": 70.47,
+        "y": 29.0,
+        "w": 231.5,
+        "h": 23.5,
+        "size": 13.07,
+        "line_height": 15.82,
+        "weight": 500,
+        "color": 4281282352,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t02",
+        "text": "• 412 lines",
+        "x": 70.15,
+        "y": 57.0,
+        "w": 77.5,
+        "h": 19.5,
+        "size": 14.78,
+        "line_height": 17.88,
+        "weight": 400,
+        "color": 4280755751,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "svg",
+        "id": "icon_check1",
+        "x": 337.273,
+        "y": 24.915000000000006,
+        "w": 19.84,
+        "h": 22.826,
+        "src": ""
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901246,
+    "radius": 13.7,
+    "border": 1,
+    "bordercolor": 4293256679
+  },
+  "standalone_service_card": true
+}

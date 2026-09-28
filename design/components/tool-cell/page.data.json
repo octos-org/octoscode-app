@@ -1,0 +1,55 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "tool_1": {
+        "component": "Surface2d72cf7029d3",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 371.0,
+          "h": 105.0
+        }
+      },
+      "icon_file": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 25.790999999999997,
+          "y": 27.391000000000005,
+          "w": 23.807,
+          "h": 29.674,
+          "src": "http://127.0.0.1:8170/ux-images/tool-cell/assets/icon_file-3ad579322f88.svg"
+        }
+      },
+      "t01": {
+        "component": "Text3990198d8404",
+        "layout": {
+          "x": 70.47,
+          "y": 29.0,
+          "w": 231.5,
+          "h": 23.5
+        }
+      },
+      "t02": {
+        "component": "Textbed76d0b7729",
+        "layout": {
+          "x": 70.15,
+          "y": 57.0,
+          "w": 77.5,
+          "h": 19.5
+        }
+      },
+      "icon_check1": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 337.273,
+          "y": 24.915000000000006,
+          "w": 19.84,
+          "h": 22.826,
+          "src": "http://127.0.0.1:8170/ux-images/tool-cell/assets/icon_check1-4b2ffeb0c612.svg"
+        }
+      }
+    },
+    "bindings": []
+  }
+}
