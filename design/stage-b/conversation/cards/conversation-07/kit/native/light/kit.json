@@ -397,15 +397,6 @@
       },
       "slot": false
     },
-    "NativeButton939d519a17bf": {
-      "style": {
-        "t": "button"
-      },
-      "props": {
-        "enabled": "enabled"
-      },
-      "slot": true
-    },
     "Text6b5175996e72": {
       "style": {
         "t": "text",

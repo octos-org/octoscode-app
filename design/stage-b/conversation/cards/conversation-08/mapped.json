@@ -10,193 +10,242 @@
     "h": 776,
     "c": [
       {
-        "t": "input",
-        "id": "composer_input",
-        "x": 22.22,
-        "y": 158.56,
-        "w": 200.0,
-        "h": 46.07,
+        "t": "stack",
+        "id": "composer_idle",
+        "x": 17.0,
+        "y": 130.0,
+        "w": 374.0,
+        "h": 190.0,
+        "c": [
+          {
+            "t": "input",
+            "id": "composer_idle_input",
+            "text": "",
+            "placeholder": "Ask Octos anything",
+            "x": 31.0,
+            "y": 141.875,
+            "w": 300.0,
+            "h": 47.5,
+            "size": 15,
+            "line_height": 40.0,
+            "weight": 400,
+            "color": 4285427315,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "enabled": 1,
+            "c": []
+          },
+          {
+            "t": "svg",
+            "id": "icon_plus1",
+            "x": 25.0,
+            "y": 270.125,
+            "w": 20.0,
+            "h": 23.75,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "t03",
+            "text": "Ask for approval",
+            "x": 78.0005055611729,
+            "y": 265.5,
+            "w": 101.5,
+            "h": 23.0,
+            "size": 19.672396359959556,
+            "line_height": 23.0,
+            "weight": 400,
+            "color": 4282598211,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": -3.5993933265925175,
+            "font_asc": -0.10536595394736847,
+            "font_desc": -0.06455592105263147
+          },
+          {
+            "t": "text",
+            "id": "t04",
+            "text": "v4-flash \u25be",
+            "x": 215.6456866197183,
+            "y": 268.5,
+            "w": 73.18165590766823,
+            "h": 21.5,
+            "size": 15.774647887323944,
+            "line_height": 21.5,
+            "weight": 500,
+            "color": 4280624421,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": -0.6990659233176836,
+            "font_asc": 0.06428571428571428,
+            "font_desc": -0.08869977678571428
+          },
+          {
+            "t": "stack",
+            "id": "send1",
+            "x": 351.0,
+            "y": 263.0,
+            "w": 36.0,
+            "h": 42.75,
+            "c": [
+              {
+                "t": "svg",
+                "id": "icon_send",
+                "x": 361.0,
+                "y": 274.875,
+                "w": 16.0,
+                "h": 19.0,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4278584581,
+            "radius": 18.0
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 14.25,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "stack",
+        "id": "queued_row",
+        "x": 15.0,
+        "y": 409.0,
+        "w": 240.0,
+        "h": 55.0,
         "c": [
           {
             "t": "text",
-            "id": "t01",
-            "text": "Ask Octos anything",
-            "x": 31.850973539690465,
-            "y": 165.5,
-            "w": 163.5,
-            "h": 30.0,
-            "size": 26.58412381427858,
-            "line_height": 30.0,
-            "weight": 600,
-            "color": 4288848548,
+            "id": "t05",
+            "text": "1 queued \u00b7 Steer now \u00b7 \u2715",
+            "x": 32.01824978012313,
+            "y": 425.5,
+            "w": 209.91605483537916,
+            "h": 27.5,
+            "size": 21.164467897977133,
+            "line_height": 27.5,
+            "weight": 500,
+            "color": 4280953387,
             "variant": "single_line",
             "alignx": 0,
-            "font_src": "self:resources/ux/Inter-600.ttf",
-            "tracking": -5.253575519074328,
-            "font_asc": -0.13131009615384615,
-            "font_desc": -0.049842247596153966
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": -1.4553171962831248,
+            "font_asc": 0.03199800531914887,
+            "font_desc": -0.05738863031914898
           }
         ],
-        "enabled": 1,
-        "placeholder": "Ask Octos anything",
-        "size": 21.65,
-        "weight": 400,
-        "text": "",
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf"
+        "variant": "surface",
+        "bg": 4294440952,
+        "radius": 12.59
       },
       {
-        "t": "text",
-        "id": "t02",
-        "text": "+",
-        "x": 14.021739130434783,
-        "y": 254.0,
-        "w": 53.95652173913044,
-        "h": 46.0,
-        "size": 89.04347826086956,
-        "line_height": 46.0,
-        "weight": 400,
-        "color": 4294769916,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -6.95652173913043,
-        "font_asc": -0.42578125,
-        "font_desc": 0.267578125
-      },
-      {
-        "t": "text",
-        "id": "t03",
-        "text": "Ask for approval",
-        "x": 78.0005055611729,
-        "y": 265.5,
-        "w": 101.5,
-        "h": 23.0,
-        "size": 19.672396359959556,
-        "line_height": 23.0,
-        "weight": 400,
-        "color": 4282598211,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -3.5993933265925175,
-        "font_asc": -0.10536595394736847,
-        "font_desc": -0.06455592105263147
-      },
-      {
-        "t": "text",
-        "id": "t04",
-        "text": "v4-flash \u25be",
-        "x": 215.58406690140845,
-        "y": 268.5,
-        "w": 73.35025430359937,
-        "h": 21.5,
-        "size": 15.774647887323944,
-        "line_height": 21.5,
-        "weight": 400,
-        "color": 4280624421,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -0.5920872456964,
-        "font_asc": 0.06428571428571428,
-        "font_desc": -0.08869977678571428
-      },
-      {
-        "t": "text",
-        "id": "t05",
-        "text": "1 queued \u00b7 Steer now \u00b7 \u2715",
-        "x": 32.007915567282325,
-        "y": 425.5,
-        "w": 209.97671217161866,
-        "h": 27.5,
-        "size": 21.164467897977133,
-        "line_height": 27.5,
-        "weight": 400,
-        "color": 4280953387,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -1.4049940728844021,
-        "font_asc": 0.03199800531914887,
-        "font_desc": -0.05738863031914898
-      },
-      {
-        "t": "text",
-        "id": "t06",
-        "text": "also add a test for reconnect",
-        "x": 31.365069356872635,
-        "y": 506.0,
-        "w": 236.0,
-        "h": 24.0,
-        "size": 25.825977301387137,
-        "line_height": 24.0,
-        "weight": 400,
-        "color": 4279505940,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -4.189965771932985,
-        "font_asc": -0.12958984375000004,
-        "font_desc": 0.15107421875000002
-      },
-      {
-        "t": "text",
-        "id": "t07",
-        "text": "+",
-        "x": 27.15527950310559,
-        "y": 597.5,
-        "w": 27.689440993788818,
-        "h": 28.0,
-        "size": 50.88198757763975,
-        "line_height": 28.0,
-        "weight": 400,
-        "color": 4294506744,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -7.975155279503102,
-        "font_asc": -0.408935546875,
-        "font_desc": 0.250732421875
-      },
-      {
-        "t": "text",
-        "id": "t08",
-        "text": "Ask for approval",
-        "x": 78.0005055611729,
-        "y": 601.0,
-        "w": 102.0,
-        "h": 23.0,
-        "size": 19.672396359959556,
-        "line_height": 23.0,
-        "weight": 400,
-        "color": 4282992970,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -3.566059993259184,
-        "font_asc": -0.10536595394736847,
-        "font_desc": -0.06455592105263147
-      },
-      {
-        "t": "text",
-        "id": "t09",
-        "text": "v4-flash \u25be",
-        "x": 215.58406690140845,
-        "y": 603.0,
-        "w": 74.46136541471049,
-        "h": 21.5,
-        "size": 15.774647887323944,
-        "line_height": 21.5,
-        "weight": 400,
-        "color": 4281348401,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -0.480976134585289,
-        "font_asc": 0.06428571428571428,
-        "font_desc": -0.08869977678571428
+        "t": "stack",
+        "id": "composer_active",
+        "x": 16.0,
+        "y": 476.0,
+        "w": 374.0,
+        "h": 180.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t06",
+            "text": "also add a test for reconnect",
+            "x": 31.365069356872635,
+            "y": 506.0,
+            "w": 236.0,
+            "h": 24.0,
+            "size": 25.825977301387137,
+            "line_height": 24.0,
+            "weight": 400,
+            "color": 4279505940,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": -4.189965771932985,
+            "font_asc": -0.12958984375000004,
+            "font_desc": 0.15107421875000002
+          },
+          {
+            "t": "svg",
+            "id": "icon_plus2",
+            "x": 24.0,
+            "y": 598.824,
+            "w": 20.0,
+            "h": 21.176,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "t08",
+            "text": "Ask for approval",
+            "x": 78.0005055611729,
+            "y": 601.0,
+            "w": 102.0,
+            "h": 23.0,
+            "size": 19.672396359959556,
+            "line_height": 23.0,
+            "weight": 400,
+            "color": 4282992970,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": -3.566059993259184,
+            "font_asc": -0.10536595394736847,
+            "font_desc": -0.06455592105263147
+          },
+          {
+            "t": "text",
+            "id": "t09",
+            "text": "v4-flash \u25be",
+            "x": 215.6456866197183,
+            "y": 603.0,
+            "w": 74.29276701877934,
+            "h": 21.5,
+            "size": 15.774647887323944,
+            "line_height": 21.5,
+            "weight": 500,
+            "color": 4281348401,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": -0.5879548122065725,
+            "font_asc": 0.06428571428571428,
+            "font_desc": -0.08869977678571428
+          },
+          {
+            "t": "stack",
+            "id": "stop2",
+            "x": 350.0,
+            "y": 592.471,
+            "w": 36.0,
+            "h": 38.118,
+            "c": [
+              {
+                "t": "svg",
+                "id": "icon_stop2",
+                "x": 360.0,
+                "y": 603.059,
+                "w": 16.0,
+                "h": 16.941,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4278782217,
+            "radius": 18.0
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901246,
+        "radius": 12.71,
+        "border": 1,
+        "bordercolor": 4293256679
       }
     ],
     "variant": "surface",
@@ -208,20 +257,44 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "composer_input",
+      "id": "composer_idle",
       "source": "observed non-text annotation"
     },
     {
-      "id": "t01",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.19762078885039588
+      "id": "composer_idle_input",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t02",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.07812499999999994
+      "id": "icon_plus1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "send1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_send",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "queued_row",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "composer_active",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_plus2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "stop2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_stop2",
+      "source": "observed non-text annotation"
     },
     {
       "id": "t03",
@@ -233,25 +306,19 @@
       "id": "t04",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.03753410218253964
+      "tracking_em": -0.04431578621031744
     },
     {
       "id": "t05",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.06638456868640148
+      "tracking_em": -0.06876228607770582
     },
     {
       "id": "t06",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.16223842075892858
-    },
-    {
-      "id": "t07",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.15673828124999994
     },
     {
       "id": "t08",
@@ -263,7 +330,7 @@
       "id": "t09",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.030490451388888853
+      "tracking_em": -0.03727213541666665
     }
   ],
   "limits": [

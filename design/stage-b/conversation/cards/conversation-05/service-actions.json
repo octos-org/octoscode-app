@@ -1,36 +1,5 @@
 {
   "frame_id": 5,
-  "controls": {
-    "approve_once": {
-      "event": "approval.approve_once",
-      "source_bounds": [
-        128,
-        381,
-        141,
-        44
-      ],
-      "enabled": true
-    },
-    "approve_session": {
-      "event": "approval.approve_session",
-      "source_bounds": [
-        101,
-        463,
-        196,
-        49
-      ],
-      "enabled": true
-    },
-    "deny": {
-      "event": "approval.deny",
-      "source_bounds": [
-        162,
-        544,
-        63,
-        43
-      ],
-      "enabled": true
-    }
-  },
+  "controls": {},
   "source": "inline-approval"
 }

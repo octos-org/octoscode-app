@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "dc10c09f61d8dbc84dae2ef931f5226561b5f8a1a7f4fd6b2619671fbfa41b7a",
+  "contract_sha256": "a2d694c30c3812dccefa0b619d02bfcb0ce9d5fc2f543b87c671070d9544da18",
   "reference_sha256": "829a53ebc3854b7200c2a4e0d713ebf76586f802deee43ca535060f28068b3d9",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -13,30 +13,39 @@
       "decision": "declared"
     },
     {
-      "id": "composer_input",
+      "id": "composer_idle",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "composer_idle_input",
       "role": "input",
       "basis": "authored input node",
       "confidence": 1.0,
       "decision": "declared",
       "behavior": {
         "event": "changed",
-        "target": "composer_input",
+        "target": "composer_idle_input",
         "property": "text"
       }
     },
     {
-      "id": "t01",
-      "role": "text",
-      "basis": "authored text node",
+      "id": "icon_plus1",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
       "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "t02",
-      "role": "text",
-      "basis": "authored text node",
-      "confidence": 1.0,
-      "decision": "declared"
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_plus1.svg",
+        "sha256": "e726c53afe21ccd44b022a3d38bb1bac44317afd41ea711b4a0936faed7f96bd",
+        "method": "reference_svg",
+        "reference_sha256": "829a53ebc3854b7200c2a4e0d713ebf76586f802deee43ca535060f28068b3d9",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
     },
     {
       "id": "t03",
@@ -53,9 +62,46 @@
       "decision": "declared"
     },
     {
+      "id": "send1",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "icon_send",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_send.svg",
+        "sha256": "868293c3426ffd3f782fb891bb9b81c83565a8c7467a9166dd989fd05378c836",
+        "method": "reference_svg",
+        "reference_sha256": "829a53ebc3854b7200c2a4e0d713ebf76586f802deee43ca535060f28068b3d9",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "queued_row",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "t05",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "composer_active",
+      "role": "layout",
+      "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -67,11 +113,20 @@
       "decision": "declared"
     },
     {
-      "id": "t07",
-      "role": "text",
-      "basis": "authored text node",
+      "id": "icon_plus2",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
       "confidence": 1.0,
-      "decision": "declared"
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_plus2.svg",
+        "sha256": "e726c53afe21ccd44b022a3d38bb1bac44317afd41ea711b4a0936faed7f96bd",
+        "method": "reference_svg",
+        "reference_sha256": "829a53ebc3854b7200c2a4e0d713ebf76586f802deee43ca535060f28068b3d9",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
     },
     {
       "id": "t08",
@@ -86,6 +141,29 @@
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
+    },
+    {
+      "id": "stop2",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "icon_stop2",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_stop2.svg",
+        "sha256": "6a28cc1098c830b74cea4c568bf83dd2194f14feaebf18e2a0f58f843c3959be",
+        "method": "reference_svg",
+        "reference_sha256": "829a53ebc3854b7200c2a4e0d713ebf76586f802deee43ca535060f28068b3d9",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
     }
   ]
 }

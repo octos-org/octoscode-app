@@ -11,9 +11,6 @@ copy t05_text { class: user-copy, en: "Approve once" }
 copy t06_text { class: user-copy, en: "Approve for session" }
 copy t07_text { class: user-copy, en: "Deny" }
 copy t08_text { class: user-copy, en: "Y /S / N" }
-state approve_once_enabled { shape: bool, initial: true }
-state approve_session_enabled { shape: bool, initial: true }
-state deny_enabled { shape: bool, initial: true }
 component Surface16fae9a63e16(instance: text) {
   view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
 }
@@ -28,9 +25,6 @@ component Textb81f047caaf8(instance: text, text: text) {
 }
 component Text8d94763719d8(instance: text, text: text) {
   view Kit(component: "Text8d94763719d8", instance: instance, text: text)
-}
-component NativeButton939d519a17bf(instance: text, enabled: bool) {
-  view Kit(component: "NativeButton939d519a17bf", instance: instance, enabled: enabled) { slot }
 }
 component Text287a999af11e(instance: text, text: text) {
   view Kit(component: "Text287a999af11e", instance: instance, text: text)
@@ -50,14 +44,8 @@ view root Surface16fae9a63e16(instance: "page") {
   Text14214d12b99a(instance: "t02", text: copy.t02_text)
   Textb81f047caaf8(instance: "t03", text: copy.t03_text)
   Text8d94763719d8(instance: "t04", text: copy.t04_text)
-  NativeButton939d519a17bf(instance: "approve_once", enabled: approve_once_enabled) {
-    Text287a999af11e(instance: "t05", text: copy.t05_text)
-  }
-  NativeButton939d519a17bf(instance: "approve_session", enabled: approve_session_enabled) {
-    Text023a2761d3ab(instance: "t06", text: copy.t06_text)
-  }
-  NativeButton939d519a17bf(instance: "deny", enabled: deny_enabled) {
-    Text7655be70583a(instance: "t07", text: copy.t07_text)
-  }
+  Text287a999af11e(instance: "t05", text: copy.t05_text)
+  Text023a2761d3ab(instance: "t06", text: copy.t06_text)
+  Text7655be70583a(instance: "t07", text: copy.t07_text)
   Text19749189e0cf(instance: "t08", text: copy.t08_text)
 }

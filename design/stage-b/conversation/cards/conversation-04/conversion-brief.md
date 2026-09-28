@@ -24,10 +24,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
 [
   {
     "id": "page",
-    "x": 0,
-    "y": 0,
-    "w": 406,
-    "h": 776,
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -35,26 +35,34 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "tool_1",
-    "x": 79.97,
-    "y": 69.83,
-    "w": 247.19,
-    "h": 38.67,
-    "role": "button",
+    "x": 16.0,
+    "y": 65.83,
+    "w": 374.0,
+    "h": 56.0,
+    "role": "layout",
     "native_candidates": [
-      "Button",
-      "KitButton"
+      "View"
     ]
   },
   {
+    "id": "icon_file",
+    "x": 26.0,
+    "y": 75.83,
+    "w": 18.0,
+    "h": 18.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
     "id": "t01",
-    "x": 87.96666879879072,
-    "y": 77.82558119961651,
+    "x": 87.97,
+    "y": 77.83,
     "w": 231.19,
-    "h": 24.49,
+    "h": 22.67,
     "text": "Read ui_protocol_transport.rs",
-    "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 16.33,
-    "weight": 600,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -66,10 +74,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 86.84,
     "y": 104.9,
     "w": 78.94,
-    "h": 19.56,
+    "h": 19.5,
     "text": "\u2022 412 lines",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 13.04,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -78,27 +86,44 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "icon_check1",
+    "x": 356.0,
+    "y": 75.83,
+    "w": 18.0,
+    "h": 18.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
     "id": "tool_2",
-    "x": 79.97,
-    "y": 197.28,
-    "w": 193.06,
-    "h": 40.81,
-    "role": "button",
+    "x": 16.0,
+    "y": 193.28,
+    "w": 374.0,
+    "h": 56.0,
+    "role": "layout",
     "native_candidates": [
-      "Button",
-      "KitButton"
+      "View"
     ]
   },
   {
+    "id": "icon_search2",
+    "x": 26.0,
+    "y": 203.28,
+    "w": 18.0,
+    "h": 18.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
     "id": "t03",
-    "x": 87.9666673824301,
-    "y": 205.27906969900806,
+    "x": 87.97,
+    "y": 205.28,
     "w": 177.06,
-    "h": 26.8,
+    "h": 24.81,
     "text": "Search 'steer_dropped'",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 17.87,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -110,10 +135,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 86.62,
     "y": 234.57,
     "w": 88.41,
-    "h": 21.99,
+    "h": 20.37,
     "text": "\u2022 7 matches",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14.66,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -122,27 +147,44 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "icon_check2",
+    "x": 356.0,
+    "y": 203.28,
+    "w": 18.0,
+    "h": 18.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
     "id": "tool_3",
-    "x": 27.44,
-    "y": 328.27,
-    "w": 286.67,
-    "h": 48.33,
-    "role": "button",
+    "x": 16.0,
+    "y": 324.27,
+    "w": 374.0,
+    "h": 62.0,
+    "role": "layout",
     "native_candidates": [
-      "Button",
-      "KitButton"
+      "View"
     ]
   },
   {
+    "id": "icon_term",
+    "x": 26.0,
+    "y": 338.27,
+    "w": 18.0,
+    "h": 18.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
     "id": "t05",
-    "x": 35.444446227929745,
-    "y": 336.26666689828295,
+    "x": 35.44,
+    "y": 336.27,
     "w": 270.67,
-    "h": 33.0,
+    "h": 32.33,
     "text": ">_ Ran cargo test -p octos-cli",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 22,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -154,11 +196,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 87.66,
     "y": 370.55,
     "w": 89.57,
-    "h": 21.84,
+    "h": 21.0,
     "text": "steer_queue",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14.56,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -166,14 +208,34 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "icon_check3",
+    "x": 356.0,
+    "y": 334.27,
+    "w": 18.0,
+    "h": 18.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "tool_3_output",
+    "x": 16.0,
+    "y": 424.0,
+    "w": 374.0,
+    "h": 180.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "t07",
     "x": 45.05,
     "y": 442.86,
     "w": 135.46,
-    "h": 24.03,
+    "h": 22.25,
     "text": "running 12 tests",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.02,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -183,13 +245,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "t08",
-    "x": 143.23,
-    "y": 488.38,
-    "w": 15.79,
-    "h": 16.5,
-    "text": "\u2022\u2022",
+    "x": 39.47,
+    "y": 515.45,
+    "w": 302.24,
+    "h": 23.69,
+    "text": "test steer_queue::reconnect_ok ... ok",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 11,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -199,30 +261,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "t09",
-    "x": 39.47,
-    "y": 515.45,
-    "w": 302.24,
-    "h": 25.58,
-    "text": "test steer_queue::reconnect_ok ... ok",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 17.05,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t10",
     "x": 42.86,
     "y": 568.47,
     "w": 303.37,
-    "h": 25.58,
+    "h": 23.69,
     "text": "test result: ok. 12 passed; 0 failed",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 17.05,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 13,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",

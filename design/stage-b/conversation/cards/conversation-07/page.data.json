@@ -29,15 +29,6 @@
           "h": 24.5
         }
       },
-      "undo": {
-        "component": "NativeButton939d519a17bf",
-        "layout": {
-          "x": 223.19,
-          "y": 78.85,
-          "w": 80.28,
-          "h": 38.65
-        }
-      },
       "t03": {
         "component": "Text6b5175996e72",
         "layout": {
@@ -45,15 +36,6 @@
           "y": 85.0,
           "w": 65.5,
           "h": 24.5
-        }
-      },
-      "review": {
-        "component": "NativeButton939d519a17bf",
-        "layout": {
-          "x": 311.05,
-          "y": 79.67,
-          "w": 73.75,
-          "h": 38.05
         }
       },
       "t04": {

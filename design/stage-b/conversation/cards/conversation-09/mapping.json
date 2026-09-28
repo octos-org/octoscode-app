@@ -23,14 +23,50 @@
       "source_id": "worked_row",
       "native_id": "beauty_0_0",
       "parent": "page",
-      "kind": "button",
-      "component": "NativeButton939d519a17bf",
+      "kind": "stack",
+      "component": "KitButton3ea7d97692cf",
       "semantic_role": "button",
       "bounds": [
-        17.94,
-        34.86,
-        196.44,
-        38.64
+        16.0,
+        32.0,
+        374.0,
+        44.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "worked_row_surface",
+      "native_id": "beauty_0_0_0",
+      "parent": "worked_row",
+      "kind": "stack",
+      "component": "Surface5e06c9b428ce",
+      "semantic_role": "layout",
+      "bounds": [
+        16.0,
+        32.0,
+        374.0,
+        44.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "worked_row_control",
+      "native_id": "beauty_0_0_1",
+      "parent": "worked_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        16.0,
+        32.0,
+        374.0,
+        44.0
       ],
       "text": null,
       "enabled": 1,
@@ -38,21 +74,39 @@
       "size": null
     },
     {
-      "source_id": "t01",
-      "native_id": "beauty_0_0_0",
+      "source_id": "worked_row_icon",
+      "native_id": "beauty_0_0_2",
+      "parent": "worked_row",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        26.0,
+        45.0,
+        18.0,
+        18.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "worked_row_label",
+      "native_id": "beauty_0_0_3",
       "parent": "worked_row",
       "kind": "text",
-      "component": "Textb3c7b3552785",
+      "component": "Text3208f79d1542",
       "semantic_role": "text",
       "bounds": [
-        26.368288060644346,
+        26.35565382185723,
         41.5,
         178.0,
         24.0
       ],
       "text": "Worked for 3m 4s \u203a",
       "enabled": null,
-      "font": "self:resources/ux/Inter-600.ttf",
+      "font": "self:resources/ux/Inter-500.ttf",
       "size": 25.87492103600758
     },
     {
@@ -60,25 +114,25 @@
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "text",
-      "component": "Text36d364e24c7e",
+      "component": "Text8dfbe547d7ac",
       "semantic_role": "text",
       "bounds": [
-        27.046754020250148,
+        27.281065088757398,
         110.5,
         323.0,
         24.0
       ],
       "text": "Queued steers now survive a reconnect.",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 24.39547349612865
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 24.236686390532544
     },
     {
       "source_id": "t03",
       "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "text",
-      "component": "Textdf1a5af79db9",
+      "component": "Textaf10a199b130",
       "semantic_role": "text",
       "bounds": [
         26.264408493427705,
@@ -86,7 +140,7 @@
         301.0,
         29.0
       ],
-      "text": "\u2022 Fixed loss of queuedsteers when",
+      "text": "\u2022 Fixed loss of queued steers when",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
       "size": 25.88473205257836
@@ -186,15 +240,15 @@
       "native_id": "beauty_0_8",
       "parent": "page",
       "kind": "text",
-      "component": "Textb33e49d69b37",
+      "component": "Text423d770af436",
       "semantic_role": "text",
       "bounds": [
         26.180497925311204,
         468.0,
-        253.18392486662714,
+        253.3416512986015,
         29.0
       ],
-      "text": "\u2022 All tests pass: 12 passed .",
+      "text": "\u2022 All tests pass: 12 passed.",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
       "size": 26.556016597510375
@@ -204,7 +258,7 @@
       "native_id": "beauty_0_9",
       "parent": "page",
       "kind": "text",
-      "component": "Textc5e8a9e6f0ae",
+      "component": "Text437cadc73eeb",
       "semantic_role": "text",
       "bounds": [
         26.269308430085815,
@@ -212,14 +266,68 @@
         355.5,
         29.0
       ],
-      "text": "\u2022 Changes included in commit a6ea8505 .",
+      "text": "\u2022 Changes included in commit a6ea8505.",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
       "size": 25.84553255931348
     },
     {
-      "source_id": "t11",
+      "source_id": "icon_copy",
       "native_id": "beauty_0_10",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        24.0,
+        640.0,
+        20.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_thumbs",
+      "native_id": "beauty_0_11",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        52.0,
+        640.0,
+        20.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_share",
+      "native_id": "beauty_0_12",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        80.0,
+        640.0,
+        20.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t11",
+      "native_id": "beauty_0_13",
       "parent": "page",
       "kind": "text",
       "component": "Text7d50eb9afbf6",
@@ -237,9 +345,10 @@
     }
   ],
   "fonts": {
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "3a45caeaae0cdedc086e21519a5703e3f1585447edfbb5ce97c6594a122d4e27",
+  "contract_sha256": "8ee287cfc596dbc686194a972c2ea502a26d4a5f1e066782380654a1db834ab2",
   "mapping_basis": "mapped.json"
 }

@@ -74,15 +74,6 @@
           "h": 23.0
         }
       },
-      "note_input": {
-        "component": "Inputafa2fd0876ee",
-        "layout": {
-          "x": 31.26,
-          "y": 485.14,
-          "w": 200.0,
-          "h": 40.33
-        }
-      },
       "t08": {
         "component": "Text9127233a0664",
         "layout": {
@@ -92,15 +83,6 @@
           "h": 23.5
         }
       },
-      "submit_answer": {
-        "component": "NativeButton939d519a17bf",
-        "layout": {
-          "x": 129.55,
-          "y": 582.77,
-          "w": 151.42,
-          "h": 40.19
-        }
-      },
       "t09": {
         "component": "Text1c4f3701b4d7",
         "layout": {
@@ -108,15 +90,6 @@
           "y": 587.5,
           "w": 141.5,
           "h": 30.5
-        }
-      },
-      "skip": {
-        "component": "NativeButton939d519a17bf",
-        "layout": {
-          "x": 172.44,
-          "y": 665.36,
-          "w": 58.86,
-          "h": 45.33
         }
       },
       "t10": {
@@ -129,19 +102,6 @@
         }
       }
     },
-    "bindings": [
-      {
-        "id": "note_input",
-        "role": "input",
-        "basis": "authored input node",
-        "confidence": 1.0,
-        "decision": "declared",
-        "behavior": {
-          "event": "changed",
-          "target": "note_input",
-          "property": "text"
-        }
-      }
-    ]
+    "bindings": []
   }
 }

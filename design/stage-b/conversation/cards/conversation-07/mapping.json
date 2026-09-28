@@ -56,27 +56,9 @@
       "size": 27.440522875816992
     },
     {
-      "source_id": "undo",
+      "source_id": "t03",
       "native_id": "beauty_0_2",
       "parent": "page",
-      "kind": "button",
-      "component": "NativeButton939d519a17bf",
-      "semantic_role": "button",
-      "bounds": [
-        223.19,
-        78.85,
-        80.28,
-        38.65
-      ],
-      "text": null,
-      "enabled": 1,
-      "font": null,
-      "size": null
-    },
-    {
-      "source_id": "t03",
-      "native_id": "beauty_0_2_0",
-      "parent": "undo",
       "kind": "text",
       "component": "Text6b5175996e72",
       "semantic_role": "text",
@@ -92,27 +74,9 @@
       "size": 27.36669255519805
     },
     {
-      "source_id": "review",
+      "source_id": "t04",
       "native_id": "beauty_0_3",
       "parent": "page",
-      "kind": "button",
-      "component": "NativeButton939d519a17bf",
-      "semantic_role": "button",
-      "bounds": [
-        311.05,
-        79.67,
-        73.75,
-        38.05
-      ],
-      "text": null,
-      "enabled": 1,
-      "font": null,
-      "size": null
-    },
-    {
-      "source_id": "t04",
-      "native_id": "beauty_0_3_0",
-      "parent": "review",
       "kind": "text",
       "component": "Text78ee3839a0d5",
       "semantic_role": "text",
@@ -312,6 +276,6 @@
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "5c271da428d9f707c4dfeaf70b6bf0fcd33a5515bcb02e719abafb6474d41279",
+  "contract_sha256": "329f2c998997bc81d519899cc0aaf397b139b13b44180c4ef591e6189955bedb",
   "mapping_basis": "mapped.json"
 }

@@ -48,64 +48,42 @@
         "font_desc": 0.15856040396341453
       },
       {
-        "t": "button",
-        "id": "undo",
-        "x": 223.19,
-        "y": 78.85,
-        "w": 80.28,
-        "h": 38.65,
-        "c": [
-          {
-            "t": "text",
-            "id": "t03",
-            "text": "Undo 9",
-            "x": 231.0947242871408,
-            "y": 85.0,
-            "w": 65.5,
-            "h": 24.5,
-            "size": 27.36669255519805,
-            "line_height": 24.5,
-            "weight": 400,
-            "color": 4278979596,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-400.ttf",
-            "tracking": -5.766293132142462,
-            "font_asc": -0.15830144006227298,
-            "font_desc": 0.15641064883886877
-          }
-        ],
-        "enabled": 1
+        "t": "text",
+        "id": "t03",
+        "text": "Undo 9",
+        "x": 231.0947242871408,
+        "y": 85.0,
+        "w": 65.5,
+        "h": 24.5,
+        "size": 27.36669255519805,
+        "line_height": 24.5,
+        "weight": 400,
+        "color": 4278979596,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -5.766293132142462,
+        "font_asc": -0.15830144006227298,
+        "font_desc": 0.15641064883886877
       },
       {
-        "t": "button",
-        "id": "review",
-        "x": 311.05,
-        "y": 79.67,
-        "w": 73.75,
-        "h": 38.05,
-        "c": [
-          {
-            "t": "text",
-            "id": "t04",
-            "text": "Review",
-            "x": 320.3119001919386,
-            "y": 86.5,
-            "w": 57.0,
-            "h": 23.0,
-            "size": 24.89571337172105,
-            "line_height": 23.0,
-            "weight": 400,
-            "color": 4279703320,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-400.ttf",
-            "tracking": -5.88125399872041,
-            "font_asc": -0.13695004111842102,
-            "font_desc": 0.14915707236842107
-          }
-        ],
-        "enabled": 1
+        "t": "text",
+        "id": "t04",
+        "text": "Review",
+        "x": 320.3119001919386,
+        "y": 86.5,
+        "w": 57.0,
+        "h": 23.0,
+        "size": 24.89571337172105,
+        "line_height": 23.0,
+        "weight": 400,
+        "color": 4279703320,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -5.88125399872041,
+        "font_asc": -0.13695004111842102,
+        "font_desc": 0.14915707236842107
       },
       {
         "t": "text",
@@ -304,14 +282,6 @@
   "changes": [
     {
       "id": "page",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "undo",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "review",
       "source": "observed non-text annotation"
     },
     {

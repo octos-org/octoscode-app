@@ -12,18 +12,28 @@
         }
       },
       "tool_1": {
-        "component": "NativeButton939d519a17bf",
+        "component": "Surface9cadffcb1f72",
         "layout": {
-          "x": 79.97,
-          "y": 69.83,
-          "w": 247.19,
-          "h": 38.67
+          "x": 18.0,
+          "y": 47.0,
+          "w": 371.0,
+          "h": 105.0
+        }
+      },
+      "icon_file": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 27.92,
+          "y": 65.75,
+          "w": 17.856,
+          "h": 33.75,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-04/assets/icon_file-3ad579322f88.svg"
         }
       },
       "t01": {
-        "component": "Text6cd1b7f8c89a",
+        "component": "Text5950df96c432",
         "layout": {
-          "x": 88.02198079838303,
+          "x": 87.86509146341463,
           "y": 76.0,
           "w": 231.5,
           "h": 23.5
@@ -38,19 +48,39 @@
           "h": 19.5
         }
       },
-      "tool_2": {
-        "component": "NativeButton939d519a17bf",
+      "icon_check1": {
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 79.97,
-          "y": 197.28,
-          "w": 193.06,
-          "h": 40.81
+          "x": 355.273,
+          "y": 65.75,
+          "w": 17.856,
+          "h": 33.75,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-04/assets/icon_check1-4b2ffeb0c612.svg"
+        }
+      },
+      "tool_2": {
+        "component": "Surfaced8788237672f",
+        "layout": {
+          "x": 18.0,
+          "y": 178.0,
+          "w": 371.0,
+          "h": 103.0
+        }
+      },
+      "icon_search2": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 27.92,
+          "y": 196.393,
+          "w": 17.856,
+          "h": 33.107,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-04/assets/icon_search2-071182d3ecef.svg"
         }
       },
       "t03": {
-        "component": "Textf89127c63abb",
+        "component": "Text06dd039ac514",
         "layout": {
-          "x": 87.82676348547717,
+          "x": 87.92790456431536,
           "y": 206.5,
           "w": 177.0,
           "h": 23.5
@@ -65,31 +95,70 @@
           "h": 19.5
         }
       },
-      "tool_3": {
-        "component": "NativeButton939d519a17bf",
+      "icon_check2": {
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 27.44,
-          "y": 328.27,
-          "w": 286.67,
-          "h": 48.33
+          "x": 355.273,
+          "y": 196.393,
+          "w": 17.856,
+          "h": 33.107,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-04/assets/icon_check2-4b2ffeb0c612.svg"
+        }
+      },
+      "tool_3": {
+        "component": "Surface5e06c9b428ce",
+        "layout": {
+          "x": 16.0,
+          "y": 324.27,
+          "w": 374.0,
+          "h": 62.0
+        }
+      },
+      "icon_term": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 26.0,
+          "y": 338.27,
+          "w": 18.0,
+          "h": 18.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-04/assets/icon_term-5e4ab2add346.svg"
         }
       },
       "t05": {
-        "component": "Text9f33b90bfa2e",
+        "component": "Text6e8a24079d08",
         "layout": {
-          "x": 37.26981322564362,
+          "x": 37.43674698795181,
           "y": 335.0,
           "w": 267.0,
           "h": 31.0
         }
       },
       "t06": {
-        "component": "Text0ce04e0c00fd",
+        "component": "Texte56f37cf8706",
         "layout": {
-          "x": 88.48113207547169,
+          "x": 88.5754716981132,
           "y": 369.0,
           "w": 89.5,
           "h": 21.0
+        }
+      },
+      "icon_check3": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 356.0,
+          "y": 334.27,
+          "w": 18.0,
+          "h": 18.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-04/assets/icon_check3-4b2ffeb0c612.svg"
+        }
+      },
+      "tool_3_output": {
+        "component": "Surfaceac74e05f3513",
+        "layout": {
+          "x": 29.0,
+          "y": 409.0,
+          "w": 348.0,
+          "h": 242.0
         }
       },
       "t07": {
@@ -102,15 +171,6 @@
         }
       },
       "t08": {
-        "component": "Text6316fc49056e",
-        "layout": {
-          "x": 145.6,
-          "y": 489.0,
-          "w": 15.000000000000002,
-          "h": 7.5
-        }
-      },
-      "t09": {
         "component": "Text65096c7115c3",
         "layout": {
           "x": 41.79035639412998,
@@ -119,8 +179,8 @@
           "h": 24.0
         }
       },
-      "t10": {
-        "component": "Text1e404b06d9d2",
+      "t09": {
+        "component": "Textf3341b801117",
         "layout": {
           "x": 44.28766430738119,
           "y": 567.0,

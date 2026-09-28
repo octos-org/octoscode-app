@@ -86,94 +86,61 @@
         "font_desc": 0.144603587962963
       },
       {
-        "t": "button",
-        "id": "approve_once",
-        "x": 128.31,
-        "y": 381.55,
-        "w": 141.48,
-        "h": 44.48,
-        "c": [
-          {
-            "t": "text",
-            "id": "t05",
-            "text": "Approve once",
-            "x": 134.15513626834382,
-            "y": 386.5,
-            "w": 132.0,
-            "h": 35.0,
-            "size": 33.274633123689725,
-            "line_height": 35.0,
-            "weight": 400,
-            "color": 4278321665,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-400.ttf",
-            "tracking": -8.290308747855915,
-            "font_asc": -0.1811050907258065,
-            "font_desc": -0.02299647177419356
-          }
-        ],
-        "enabled": 1
+        "t": "text",
+        "id": "t05",
+        "text": "Approve once",
+        "x": 134.15513626834382,
+        "y": 386.5,
+        "w": 132.0,
+        "h": 35.0,
+        "size": 33.274633123689725,
+        "line_height": 35.0,
+        "weight": 400,
+        "color": 4278321665,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -8.290308747855915,
+        "font_asc": -0.1811050907258065,
+        "font_desc": -0.02299647177419356
       },
       {
-        "t": "button",
-        "id": "approve_session",
-        "x": 101.48,
-        "y": 463.66,
-        "w": 196.59,
-        "h": 49.14,
-        "c": [
-          {
-            "t": "text",
-            "id": "t06",
-            "text": "Approve for session",
-            "x": 113.3427704752275,
-            "y": 472.5,
-            "w": 175.5,
-            "h": 29.0,
-            "size": 25.88473205257836,
-            "line_height": 29.0,
-            "weight": 400,
-            "color": 4278650631,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-400.ttf",
-            "tracking": -4.048646219525896,
-            "font_asc": -0.129765625,
-            "font_desc": -0.040156250000000004
-          }
-        ],
-        "enabled": 1
+        "t": "text",
+        "id": "t06",
+        "text": "Approve for session",
+        "x": 113.3427704752275,
+        "y": 472.5,
+        "w": 175.5,
+        "h": 29.0,
+        "size": 25.88473205257836,
+        "line_height": 29.0,
+        "weight": 400,
+        "color": 4278650631,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -4.048646219525896,
+        "font_asc": -0.129765625,
+        "font_desc": -0.040156250000000004
       },
       {
-        "t": "button",
-        "id": "deny",
-        "x": 162.29,
-        "y": 544.67,
-        "w": 63.37,
-        "h": 43.07,
-        "c": [
-          {
-            "t": "text",
-            "id": "t07",
-            "text": "Deny",
-            "x": 170.15135699373695,
-            "y": 551.5,
-            "w": 48.0,
-            "h": 29.0,
-            "size": 26.7223382045929,
-            "line_height": 29.0,
-            "weight": 400,
-            "color": 4278650375,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-400.ttf",
-            "tracking": -6.20581071677105,
-            "font_asc": -0.1663671875,
-            "font_desc": -0.04164062499999999
-          }
-        ],
-        "enabled": 1
+        "t": "text",
+        "id": "t07",
+        "text": "Deny",
+        "x": 170.15135699373695,
+        "y": 551.5,
+        "w": 48.0,
+        "h": 29.0,
+        "size": 26.7223382045929,
+        "line_height": 29.0,
+        "weight": 400,
+        "color": 4278650375,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -6.20581071677105,
+        "font_asc": -0.1663671875,
+        "font_desc": -0.04164062499999999
       },
       {
         "t": "text",
@@ -201,18 +168,6 @@
   "changes": [
     {
       "id": "page",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "approve_once",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "approve_session",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "deny",
       "source": "observed non-text annotation"
     },
     {

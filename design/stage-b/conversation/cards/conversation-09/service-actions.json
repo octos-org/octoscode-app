@@ -4,10 +4,10 @@
     "worked_row": {
       "event": "turn.expand",
       "source_bounds": [
-        17,
-        34,
-        196,
-        38
+        16,
+        32,
+        374,
+        44
       ],
       "enabled": true
     }

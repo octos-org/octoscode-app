@@ -182,10 +182,6 @@
       "value": 0.1480777138157895,
       "property": "font_desc"
     },
-    "size_f957bd7f48ae": {
-      "value": 17.52,
-      "property": "size"
-    },
     "size_4048c7e63a66": {
       "value": 26.34300791556728,
       "property": "size"
@@ -516,28 +512,6 @@
       },
       "slot": false
     },
-    "Inputafa2fd0876ee": {
-      "style": {
-        "t": "input",
-        "size": {
-          "$token": "size_f957bd7f48ae"
-        },
-        "weight": {
-          "$token": "weight_26d228663f13"
-        },
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": {
-          "$token": "font_src_86ab34a300f7"
-        }
-      },
-      "props": {
-        "enabled": "enabled",
-        "placeholder": "placeholder",
-        "text": "text"
-      },
-      "slot": true
-    },
     "Text9127233a0664": {
       "style": {
         "t": "text",
@@ -572,15 +546,6 @@
         "text": "text"
       },
       "slot": false
-    },
-    "NativeButton939d519a17bf": {
-      "style": {
-        "t": "button"
-      },
-      "props": {
-        "enabled": "enabled"
-      },
-      "slot": true
     },
     "Text1c4f3701b4d7": {
       "style": {

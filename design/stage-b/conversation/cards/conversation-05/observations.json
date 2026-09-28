@@ -15,7 +15,7 @@
         77.82,
         98.0,
         210.89,
-        29.37
+        27.2
       ],
       "status": "observed",
       "ocr_text": "Run this command?",
@@ -47,7 +47,7 @@
         29.0,
         187.5,
         328.67,
-        33.0
+        32.51
       ],
       "status": "observed",
       "ocr_text": "git push origin feat/steer-queue",
@@ -79,7 +79,7 @@
         21.43,
         276.34,
         297.73,
-        23.4
+        21.66
       ],
       "status": "observed",
       "ocr_text": "Reason: Push the fix branch so Cl",
@@ -111,7 +111,7 @@
         19.14,
         317.93,
         66.6,
-        17.36
+        16.07
       ],
       "status": "observed",
       "ocr_text": "can run",
@@ -140,10 +140,10 @@
       "id": "t05",
       "expected_text": "Approve once",
       "requested_bounds": [
-        136.3124928412235,
-        389.55116308171085,
+        136.31,
+        389.55,
         125.48,
-        30.75
+        28.48
       ],
       "status": "observed",
       "ocr_text": "Approve once",
@@ -172,8 +172,8 @@
       "id": "t06",
       "expected_text": "Approve for session",
       "requested_bounds": [
-        109.48380345210495,
-        471.664193697788,
+        109.48,
+        471.66,
         180.59,
         33.14
       ],
@@ -204,10 +204,10 @@
       "id": "t07",
       "expected_text": "Deny",
       "requested_bounds": [
-        170.29444560238767,
-        552.6744189956219,
+        170.29,
+        552.67,
         47.37,
-        29.23
+        27.08
       ],
       "status": "observed",
       "ocr_text": "Deny",
@@ -239,7 +239,7 @@
         153.38,
         653.0,
         78.94,
-        23.22
+        21.5
       ],
       "status": "observed",
       "ocr_text": "Y /S / N",
@@ -277,39 +277,6 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4294901502
-    },
-    {
-      "id": "approve_once",
-      "bounds": [
-        128.31,
-        381.55,
-        141.48,
-        44.48
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "approve_session",
-      "bounds": [
-        101.48,
-        463.66,
-        196.59,
-        49.14
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "deny",
-      "bounds": [
-        162.29,
-        544.67,
-        63.37,
-        43.07
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
     }
   ],
   "unmapped_ocr": [],

@@ -150,6 +150,6 @@
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "7c57ba5dc4c8112f92e68b033dd5063f1d6c09268183c2ac5615d928fe380b8b",
+  "contract_sha256": "6c693f0a7431e1f7b324f782793061a863ed7d352d8985884c5d1ed42e13de9d",
   "mapping_basis": "mapped.json"
 }

@@ -9,77 +9,13 @@
   "aspect_error": 0.0,
   "text": [
     {
-      "id": "t01",
-      "expected_text": "Ask Octos anything",
-      "requested_bounds": [
-        30.215171617750414,
-        166.5588828563699,
-        164.0,
-        32.47
-      ],
-      "status": "observed",
-      "ocr_text": "Ask Octos anything",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        32.5,
-        167.5,
-        159.5,
-        26.0
-      ],
-      "ink_color": [
-        162,
-        162,
-        164
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        30.215171617750414,
-        166.5588828563699,
-        163.99743652343747,
-        30.068280220031653
-      ]
-    },
-    {
-      "id": "t02",
-      "expected_text": "+",
-      "requested_bounds": [
-        23.68,
-        257.16,
-        32.71,
-        39.48
-      ],
-      "status": "observed",
-      "ocr_text": "+",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        22.5,
-        256.0,
-        35.0,
-        42.0
-      ],
-      "ink_color": [
-        252,
-        252,
-        252
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        23.683333513226458,
-        257.16279003227396,
-        32.7055549621582,
-        39.47674560546875
-      ]
-    },
-    {
       "id": "t03",
       "expected_text": "Ask for approval",
       "requested_bounds": [
         76.67,
         266.09,
         102.67,
-        23.36
+        21.62
       ],
       "status": "observed",
       "ocr_text": "Ask for approval",
@@ -111,7 +47,7 @@
         213.13,
         270.62,
         74.47,
-        20.88
+        19.5
       ],
       "status": "observed",
       "ocr_text": "v4-flash v",
@@ -143,7 +79,7 @@
         30.45,
         427.48,
         209.77,
-        25.58
+        23.69
       ],
       "status": "observed",
       "ocr_text": "1 queued \u2022 Steer now \u2022 X",
@@ -175,7 +111,7 @@
         29.32,
         507.5,
         237.96,
-        24.42
+        22.62
       ],
       "status": "observed",
       "ocr_text": "also add a test for reconnect",
@@ -201,45 +137,13 @@
       ]
     },
     {
-      "id": "t07",
-      "expected_text": "+",
-      "requested_bounds": [
-        25.94,
-        594.41,
-        28.19,
-        36.09
-      ],
-      "status": "observed",
-      "ocr_text": "+",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        32.0,
-        599.5,
-        16.0,
-        24.0
-      ],
-      "ink_color": [
-        248,
-        248,
-        248
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        25.938888833675076,
-        594.406977856147,
-        28.194444656372074,
-        36.09302139282234
-      ]
-    },
-    {
       "id": "t08",
       "expected_text": "Ask for approval",
       "requested_bounds": [
         76.63,
         602.02,
         102.74,
-        22.53
+        20.86
       ],
       "status": "observed",
       "ocr_text": "Ask for approval",
@@ -271,7 +175,7 @@
         213.08,
         604.29,
         74.58,
-        22.5
+        20.84
       ],
       "status": "observed",
       "ocr_text": "V4-flash v",
@@ -311,18 +215,158 @@
       "bg": 4294901502
     },
     {
-      "id": "composer_input",
+      "id": "composer_idle",
       "bounds": [
-        22.22,
-        158.56,
-        200.0,
-        46.07
+        17.0,
+        130.0,
+        374.0,
+        190.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 14.25
+    },
+    {
+      "id": "composer_idle_input",
+      "bounds": [
+        31.0,
+        141.875,
+        300.0,
+        47.5
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
+    },
+    {
+      "id": "icon_plus1",
+      "bounds": [
+        25.0,
+        270.125,
+        20.0,
+        23.75
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "send1",
+      "bounds": [
+        351.0,
+        263.0,
+        36.0,
+        42.75
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4278584581,
+      "radius": 18.0
+    },
+    {
+      "id": "icon_send",
+      "bounds": [
+        361.0,
+        274.875,
+        16.0,
+        19.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "queued_row",
+      "bounds": [
+        15.0,
+        409.0,
+        240.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294440952,
+      "radius": 12.59
+    },
+    {
+      "id": "composer_active",
+      "bounds": [
+        16.0,
+        476.0,
+        374.0,
+        180.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 12.71
+    },
+    {
+      "id": "icon_plus2",
+      "bounds": [
+        24.0,
+        598.824,
+        20.0,
+        21.176
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "stop2",
+      "bounds": [
+        350.0,
+        592.471,
+        36.0,
+        38.118
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4278782217,
+      "radius": 18.0
+    },
+    {
+      "id": "icon_stop2",
+      "bounds": [
+        360.0,
+        603.059,
+        16.0,
+        16.941
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     }
   ],
-  "unmapped_ocr": [],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        60.43034323550083,
+        333.1177657127398,
+        327.99487304687494,
+        60.136560440063306
+      ],
+      "confidence": 1,
+      "text": "Ask Octos anything"
+    },
+    {
+      "bounds": [
+        47.366667026452916,
+        514.3255800645479,
+        65.4111099243164,
+        78.9534912109375
+      ],
+      "confidence": 1,
+      "text": "+"
+    },
+    {
+      "bounds": [
+        51.87777766735015,
+        1188.813955712294,
+        56.38888931274415,
+        72.18604278564467
+      ],
+      "confidence": 1,
+      "text": "+"
+    }
+  ],
   "non_text_ocr": [],
   "limits": [
     "OCR cannot prove font family, hierarchy or control behavior.",

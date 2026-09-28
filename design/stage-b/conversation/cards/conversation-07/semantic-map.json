@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "5c271da428d9f707c4dfeaf70b6bf0fcd33a5515bcb02e719abafb6474d41279",
+  "contract_sha256": "329f2c998997bc81d519899cc0aaf397b139b13b44180c4ef591e6189955bedb",
   "reference_sha256": "76ac7c43df118ffd0a4be3321c653c4bcf817e59d4b50fe05cca4e5f1fb5b1aa",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -27,23 +27,9 @@
       "decision": "declared"
     },
     {
-      "id": "undo",
-      "role": "button",
-      "basis": "authored button node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
       "id": "t03",
       "role": "text",
       "basis": "authored text node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "review",
-      "role": "button",
-      "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },

@@ -92,27 +92,9 @@
       "size": 23.83448275862069
     },
     {
-      "source_id": "approve_once",
+      "source_id": "t05",
       "native_id": "beauty_0_4",
       "parent": "page",
-      "kind": "button",
-      "component": "NativeButton939d519a17bf",
-      "semantic_role": "button",
-      "bounds": [
-        128.31,
-        381.55,
-        141.48,
-        44.48
-      ],
-      "text": null,
-      "enabled": 1,
-      "font": null,
-      "size": null
-    },
-    {
-      "source_id": "t05",
-      "native_id": "beauty_0_4_0",
-      "parent": "approve_once",
       "kind": "text",
       "component": "Text287a999af11e",
       "semantic_role": "text",
@@ -128,27 +110,9 @@
       "size": 33.274633123689725
     },
     {
-      "source_id": "approve_session",
+      "source_id": "t06",
       "native_id": "beauty_0_5",
       "parent": "page",
-      "kind": "button",
-      "component": "NativeButton939d519a17bf",
-      "semantic_role": "button",
-      "bounds": [
-        101.48,
-        463.66,
-        196.59,
-        49.14
-      ],
-      "text": null,
-      "enabled": 1,
-      "font": null,
-      "size": null
-    },
-    {
-      "source_id": "t06",
-      "native_id": "beauty_0_5_0",
-      "parent": "approve_session",
       "kind": "text",
       "component": "Text023a2761d3ab",
       "semantic_role": "text",
@@ -164,27 +128,9 @@
       "size": 25.88473205257836
     },
     {
-      "source_id": "deny",
+      "source_id": "t07",
       "native_id": "beauty_0_6",
       "parent": "page",
-      "kind": "button",
-      "component": "NativeButton939d519a17bf",
-      "semantic_role": "button",
-      "bounds": [
-        162.29,
-        544.67,
-        63.37,
-        43.07
-      ],
-      "text": null,
-      "enabled": 1,
-      "font": null,
-      "size": null
-    },
-    {
-      "source_id": "t07",
-      "native_id": "beauty_0_6_0",
-      "parent": "deny",
       "kind": "text",
       "component": "Text7655be70583a",
       "semantic_role": "text",
@@ -222,6 +168,6 @@
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "21f3d56b1c964214693ab357a3eb0b24e73f429538350d5c5ae35094c942605a",
+  "contract_sha256": "aef4dc076427e31281c566c912927504097d744a902a60bdb06ca2f8b1fb7f76",
   "mapping_basis": "mapped.json"
 }

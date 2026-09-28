@@ -10,227 +10,281 @@
     "h": 776,
     "c": [
       {
-        "t": "button",
+        "t": "stack",
         "id": "tool_1",
-        "x": 79.97,
-        "y": 69.83,
-        "w": 247.19,
-        "h": 38.67,
+        "x": 18.0,
+        "y": 47.0,
+        "w": 371.0,
+        "h": 105.0,
         "c": [
+          {
+            "t": "svg",
+            "id": "icon_file",
+            "x": 27.92,
+            "y": 65.75,
+            "w": 17.856,
+            "h": 33.75,
+            "src": ""
+          },
           {
             "t": "text",
             "id": "t01",
             "text": "Read ui_protocol_transport.rs",
-            "x": 88.02198079838303,
+            "x": 87.86509146341463,
             "y": 76.0,
             "w": 231.5,
             "h": 23.5,
-            "size": 20.17988883274381,
+            "size": 20.29268292682927,
             "line_height": 23.5,
-            "weight": 600,
+            "weight": 500,
             "color": 4281282352,
             "variant": "single_line",
             "alignx": 0,
-            "font_src": "self:resources/ux/Inter-600.ttf",
-            "tracking": -2.087760773839601,
-            "font_asc": -0.10743439503205132,
-            "font_desc": -0.06199919871794862
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": -1.9781685540069682,
+            "font_asc": -0.11335637019230771,
+            "font_desc": -0.061448317307692235
+          },
+          {
+            "t": "text",
+            "id": "t02",
+            "text": "\u2022 412 lines",
+            "x": 87.46129238643634,
+            "y": 104.0,
+            "w": 77.5,
+            "h": 19.5,
+            "size": 20.309660908509276,
+            "line_height": 19.5,
+            "weight": 400,
+            "color": 4280755751,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": -2.3962571976967366,
+            "font_asc": -0.11880985383064513,
+            "font_desc": 0.13101688508064513
+          },
+          {
+            "t": "svg",
+            "id": "icon_check1",
+            "x": 355.273,
+            "y": 65.75,
+            "w": 17.856,
+            "h": 33.75,
+            "src": ""
           }
         ],
-        "enabled": 1
+        "variant": "surface",
+        "bg": 4294901246,
+        "radius": 18.75
       },
       {
-        "t": "text",
-        "id": "t02",
-        "text": "\u2022 412 lines",
-        "x": 87.46129238643634,
-        "y": 104.0,
-        "w": 77.5,
-        "h": 19.5,
-        "size": 20.309660908509276,
-        "line_height": 19.5,
-        "weight": 400,
-        "color": 4280755751,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -2.3962571976967366,
-        "font_asc": -0.11880985383064513,
-        "font_desc": 0.13101688508064513
-      },
-      {
-        "t": "button",
+        "t": "stack",
         "id": "tool_2",
-        "x": 79.97,
-        "y": 197.28,
-        "w": 193.06,
-        "h": 40.81,
+        "x": 18.0,
+        "y": 178.0,
+        "w": 371.0,
+        "h": 103.0,
         "c": [
+          {
+            "t": "svg",
+            "id": "icon_search2",
+            "x": 27.92,
+            "y": 196.393,
+            "w": 17.856,
+            "h": 33.107,
+            "src": ""
+          },
           {
             "t": "text",
             "id": "t03",
             "text": "Search 'steer_dropped'",
-            "x": 87.82676348547717,
+            "x": 87.92790456431536,
             "y": 206.5,
             "w": 177.0,
             "h": 23.5,
             "size": 20.713692946058092,
             "line_height": 23.5,
-            "weight": 400,
+            "weight": 500,
             "color": 4281414194,
             "variant": "single_line",
             "alignx": 0,
-            "font_src": "self:resources/ux/Inter-400.ttf",
-            "tracking": -2.5218706777316737,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": -2.671174175064217,
             "font_asc": -0.13489082532051277,
             "font_desc": -0.059445112179487114
+          },
+          {
+            "t": "text",
+            "id": "t04",
+            "text": "\u2022 7 matches",
+            "x": 87.3825857519789,
+            "y": 234.5,
+            "w": 87.0,
+            "h": 19.5,
+            "size": 20.939313984168866,
+            "line_height": 19.5,
+            "weight": 400,
+            "color": 4281150766,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": -3.330112137203166,
+            "font_asc": -0.14569682459677424,
+            "font_desc": 0.13300151209677424
+          },
+          {
+            "t": "svg",
+            "id": "icon_check2",
+            "x": 355.273,
+            "y": 196.393,
+            "w": 17.856,
+            "h": 33.107,
+            "src": ""
           }
         ],
-        "enabled": 1
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 18.39
       },
       {
-        "t": "text",
-        "id": "t04",
-        "text": "\u2022 7 matches",
-        "x": 87.3825857519789,
-        "y": 234.5,
-        "w": 87.0,
-        "h": 19.5,
-        "size": 20.939313984168866,
-        "line_height": 19.5,
-        "weight": 400,
-        "color": 4281150766,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -3.330112137203166,
-        "font_asc": -0.14569682459677424,
-        "font_desc": 0.13300151209677424
-      },
-      {
-        "t": "button",
+        "t": "stack",
         "id": "tool_3",
-        "x": 27.44,
-        "y": 328.27,
-        "w": 286.67,
-        "h": 48.33,
+        "x": 16.0,
+        "y": 324.27,
+        "w": 374.0,
+        "h": 62.0,
         "c": [
+          {
+            "t": "svg",
+            "id": "icon_term",
+            "x": 26.0,
+            "y": 338.27,
+            "w": 18.0,
+            "h": 18.0,
+            "src": ""
+          },
           {
             "t": "text",
             "id": "t05",
             "text": ">_ Ran cargo test -p octos-cli",
-            "x": 37.26981322564362,
+            "x": 37.43674698795181,
             "y": 335.0,
             "w": 267.0,
             "h": 31.0,
-            "size": 27.913175164058558,
+            "size": 27.759036144578314,
             "line_height": 31.0,
-            "weight": 400,
+            "weight": 500,
             "color": 4282795847,
             "variant": "single_line",
             "alignx": 0,
-            "font_src": "self:resources/ux/Inter-400.ttf",
-            "tracking": -4.257846089575102,
-            "font_asc": -0.14563440393518523,
-            "font_desc": -0.046260127314814825
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": -4.296427087660988,
+            "font_asc": -0.13986545138888884,
+            "font_desc": -0.046657986111111105
+          },
+          {
+            "t": "text",
+            "id": "t06",
+            "text": "steer_queue",
+            "x": 88.5754716981132,
+            "y": 369.0,
+            "w": 89.5,
+            "h": 21.0,
+            "size": 19.32075471698113,
+            "line_height": 21.0,
+            "weight": 500,
+            "color": 4280756263,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": -2.667924528301886,
+            "font_asc": -0.189453125,
+            "font_desc": -0.06640625
+          },
+          {
+            "t": "svg",
+            "id": "icon_check3",
+            "x": 356.0,
+            "y": 334.27,
+            "w": 18.0,
+            "h": 18.0,
+            "src": ""
           }
         ],
-        "enabled": 1
+        "variant": "surface",
+        "bg": 4294835709,
+        "radius": 10.0
       },
       {
-        "t": "text",
-        "id": "t06",
-        "text": "steer_queue",
-        "x": 88.48113207547169,
-        "y": 369.0,
-        "w": 89.5,
-        "h": 21.0,
-        "size": 19.32075471698113,
-        "line_height": 21.0,
-        "weight": 400,
-        "color": 4280756263,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -2.487735849056604,
-        "font_asc": -0.189453125,
-        "font_desc": -0.06640625
-      },
-      {
-        "t": "text",
-        "id": "t07",
-        "text": "running 12 tests",
-        "x": 44.82508833922262,
-        "y": 441.5,
-        "w": 135.5,
-        "h": 25.0,
-        "size": 21.710247349823323,
-        "line_height": 25.0,
-        "weight": 400,
-        "color": 4281216815,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -1.8580683156654894,
-        "font_asc": -0.12516276041666663,
-        "font_desc": -0.0667317708333332
-      },
-      {
-        "t": "text",
-        "id": "t08",
-        "text": "\u2022\u2022",
-        "x": 145.6,
-        "y": 489.0,
-        "w": 15.000000000000002,
-        "h": 7.5,
-        "size": 11.2,
-        "line_height": 7.5,
-        "weight": 400,
-        "color": 4285558896,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.20000000000000107,
-        "font_asc": -0.3438895089285714,
-        "font_desc": 0.1964285714285714
-      },
-      {
-        "t": "text",
-        "id": "t09",
-        "text": "test steer_queue::reconnect_ok ... ok",
-        "x": 41.79035639412998,
-        "y": 514.0,
-        "w": 300.5,
-        "h": 24.0,
-        "size": 21.467505241090148,
-        "line_height": 24.0,
-        "weight": 400,
-        "color": 4281479731,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -2.1319298858607048,
-        "font_asc": -0.14804687500000002,
-        "font_desc": -0.05605468750000003
-      },
-      {
-        "t": "text",
-        "id": "t10",
-        "text": "test result: ok. 12 passed; 0 failed",
-        "x": 44.28766430738119,
-        "y": 567.0,
-        "w": 304.0,
-        "h": 25.0,
-        "size": 21.743174924165825,
-        "line_height": 25.0,
-        "weight": 400,
-        "color": 4281362226,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -1.1966199624440281,
-        "font_asc": -0.11504836309523814,
-        "font_desc": -0.05487351190476186
+        "t": "stack",
+        "id": "tool_3_output",
+        "x": 29.0,
+        "y": 409.0,
+        "w": 348.0,
+        "h": 242.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t07",
+            "text": "running 12 tests",
+            "x": 44.82508833922262,
+            "y": 441.5,
+            "w": 135.5,
+            "h": 25.0,
+            "size": 21.710247349823323,
+            "line_height": 25.0,
+            "weight": 400,
+            "color": 4281216815,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": -1.8580683156654894,
+            "font_asc": -0.12516276041666663,
+            "font_desc": -0.0667317708333332
+          },
+          {
+            "t": "text",
+            "id": "t08",
+            "text": "test steer_queue::reconnect_ok ... ok",
+            "x": 41.79035639412998,
+            "y": 514.0,
+            "w": 300.5,
+            "h": 24.0,
+            "size": 21.467505241090148,
+            "line_height": 24.0,
+            "weight": 400,
+            "color": 4281479731,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": -2.1319298858607048,
+            "font_asc": -0.14804687500000002,
+            "font_desc": -0.05605468750000003
+          },
+          {
+            "t": "text",
+            "id": "t09",
+            "text": "test result: ok. 12 passed; 0 failed",
+            "x": 44.28766430738119,
+            "y": 567.0,
+            "w": 304.0,
+            "h": 25.0,
+            "size": 21.743174924165825,
+            "line_height": 25.0,
+            "weight": 500,
+            "color": 4281362226,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": -1.3173479705330058,
+            "font_asc": -0.11504836309523814,
+            "font_desc": -0.05487351190476186
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294243574,
+        "radius": 13.44
       }
     ],
     "variant": "surface",
@@ -246,7 +300,23 @@
       "source": "observed non-text annotation"
     },
     {
+      "id": "icon_file",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_check1",
+      "source": "observed non-text annotation"
+    },
+    {
       "id": "tool_2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_search2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_check2",
       "source": "observed non-text annotation"
     },
     {
@@ -254,10 +324,22 @@
       "source": "observed non-text annotation"
     },
     {
+      "id": "icon_term",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_check3",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "tool_3_output",
+      "source": "observed non-text annotation"
+    },
+    {
       "id": "t01",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.10345749627976189
+      "tracking_em": -0.0974818638392857
     },
     {
       "id": "t02",
@@ -269,7 +351,7 @@
       "id": "t03",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.12174896501068376
+      "tracking_em": -0.12895692632020758
     },
     {
       "id": "t04",
@@ -281,13 +363,13 @@
       "id": "t05",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.15253893777937422
+      "tracking_em": -0.1547758022030651
     },
     {
       "id": "t06",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.12875976562500002
+      "tracking_em": -0.13808593749999995
     },
     {
       "id": "t07",
@@ -299,19 +381,13 @@
       "id": "t08",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": 0.017857142857142953
+      "tracking_em": -0.09930962456597228
     },
     {
       "id": "t09",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.09930962456597228
-    },
-    {
-      "id": "t10",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.055034279336734736
+      "tracking_em": -0.06058673469387754
     }
   ],
   "limits": [

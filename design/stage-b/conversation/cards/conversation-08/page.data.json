@@ -11,31 +11,32 @@
           "h": 776
         }
       },
-      "composer_input": {
-        "component": "Inputedacf1c2a927",
+      "composer_idle": {
+        "component": "Surfacebf3195b7a107",
         "layout": {
-          "x": 22.22,
-          "y": 158.56,
-          "w": 200.0,
-          "h": 46.07
+          "x": 17.0,
+          "y": 130.0,
+          "w": 374.0,
+          "h": 190.0
         }
       },
-      "t01": {
-        "component": "Text83df3ff13072",
+      "composer_idle_input": {
+        "component": "Input9ca276b5cc2e",
         "layout": {
-          "x": 31.850973539690465,
-          "y": 165.5,
-          "w": 163.5,
-          "h": 30.0
+          "x": 31.0,
+          "y": 141.875,
+          "w": 300.0,
+          "h": 47.5
         }
       },
-      "t02": {
-        "component": "Texta654002a6f5a",
+      "icon_plus1": {
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 14.021739130434783,
-          "y": 254.0,
-          "w": 53.95652173913044,
-          "h": 46.0
+          "x": 25.0,
+          "y": 270.125,
+          "w": 20.0,
+          "h": 23.75,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_plus1-e726c53afe21.svg"
         }
       },
       "t03": {
@@ -48,21 +49,58 @@
         }
       },
       "t04": {
-        "component": "Textc2e2836f4b52",
+        "component": "Text4617df8fb031",
         "layout": {
-          "x": 215.58406690140845,
+          "x": 215.6456866197183,
           "y": 268.5,
-          "w": 73.35025430359937,
+          "w": 73.18165590766823,
           "h": 21.5
         }
       },
-      "t05": {
-        "component": "Text109c7ab1b72a",
+      "send1": {
+        "component": "Surface1bffca0bfe09",
         "layout": {
-          "x": 32.007915567282325,
+          "x": 351.0,
+          "y": 263.0,
+          "w": 36.0,
+          "h": 42.75
+        }
+      },
+      "icon_send": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 361.0,
+          "y": 274.875,
+          "w": 16.0,
+          "h": 19.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_send-868293c3426f.svg"
+        }
+      },
+      "queued_row": {
+        "component": "Surface43e7445f8879",
+        "layout": {
+          "x": 15.0,
+          "y": 409.0,
+          "w": 240.0,
+          "h": 55.0
+        }
+      },
+      "t05": {
+        "component": "Text718d22b14134",
+        "layout": {
+          "x": 32.01824978012313,
           "y": 425.5,
-          "w": 209.97671217161866,
+          "w": 209.91605483537916,
           "h": 27.5
+        }
+      },
+      "composer_active": {
+        "component": "Surface2cbaaf5b6624",
+        "layout": {
+          "x": 16.0,
+          "y": 476.0,
+          "w": 374.0,
+          "h": 180.0
         }
       },
       "t06": {
@@ -74,13 +112,14 @@
           "h": 24.0
         }
       },
-      "t07": {
-        "component": "Texte77a361e1713",
+      "icon_plus2": {
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 27.15527950310559,
-          "y": 597.5,
-          "w": 27.689440993788818,
-          "h": 28.0
+          "x": 24.0,
+          "y": 598.824,
+          "w": 20.0,
+          "h": 21.176,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_plus2-e726c53afe21.svg"
         }
       },
       "t08": {
@@ -93,25 +132,44 @@
         }
       },
       "t09": {
-        "component": "Text103b0e17e31a",
+        "component": "Texta2a09da26164",
         "layout": {
-          "x": 215.58406690140845,
+          "x": 215.6456866197183,
           "y": 603.0,
-          "w": 74.46136541471049,
+          "w": 74.29276701877934,
           "h": 21.5
+        }
+      },
+      "stop2": {
+        "component": "Surface7c3be3b4ae90",
+        "layout": {
+          "x": 350.0,
+          "y": 592.471,
+          "w": 36.0,
+          "h": 38.118
+        }
+      },
+      "icon_stop2": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 360.0,
+          "y": 603.059,
+          "w": 16.0,
+          "h": 16.941,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_stop2-6a28cc1098c8.svg"
         }
       }
     },
     "bindings": [
       {
-        "id": "composer_input",
+        "id": "composer_idle_input",
         "role": "input",
         "basis": "authored input node",
         "confidence": 1.0,
         "decision": "declared",
         "behavior": {
           "event": "changed",
-          "target": "composer_input",
+          "target": "composer_idle_input",
           "property": "text"
         }
       }

@@ -47,15 +47,6 @@
           "h": 17.5
         }
       },
-      "approve_once": {
-        "component": "NativeButton939d519a17bf",
-        "layout": {
-          "x": 128.31,
-          "y": 381.55,
-          "w": 141.48,
-          "h": 44.48
-        }
-      },
       "t05": {
         "component": "Text287a999af11e",
         "layout": {
@@ -65,15 +56,6 @@
           "h": 35.0
         }
       },
-      "approve_session": {
-        "component": "NativeButton939d519a17bf",
-        "layout": {
-          "x": 101.48,
-          "y": 463.66,
-          "w": 196.59,
-          "h": 49.14
-        }
-      },
       "t06": {
         "component": "Text023a2761d3ab",
         "layout": {
@@ -81,15 +63,6 @@
           "y": 472.5,
           "w": 175.5,
           "h": 29.0
-        }
-      },
-      "deny": {
-        "component": "NativeButton939d519a17bf",
-        "layout": {
-          "x": 162.29,
-          "y": 544.67,
-          "w": 63.37,
-          "h": 43.07
         }
       },
       "t07": {

@@ -15,7 +15,7 @@
         87.97,
         272.95,
         223.3,
-        33.0
+        32.71
       ],
       "status": "observed",
       "ocr_text": "What should we",
@@ -47,7 +47,7 @@
         100.21,
         326.07,
         202.19,
-        34.75
+        34.76
       ],
       "status": "observed",
       "ocr_text": "build in octos?",
@@ -79,7 +79,7 @@
         34.93,
         506.36,
         41.79,
-        18.43
+        17.07
       ],
       "status": "observed",
       "ocr_text": "octos",
@@ -111,7 +111,7 @@
         127.44,
         503.05,
         42.86,
-        23.14
+        21.43
       ],
       "status": "observed",
       "ocr_text": "Local",
@@ -143,7 +143,7 @@
         236.58,
         504.28,
         125.66,
-        22.83
+        21.15
       ],
       "status": "observed",
       "ocr_text": "feat/steer-queue",
@@ -175,7 +175,7 @@
         30.37,
         596.13,
         164.82,
-        29.17
+        27.02
       ],
       "status": "observed",
       "ocr_text": "Ask Octos anything",
@@ -239,7 +239,7 @@
         75.45,
         682.92,
         103.98,
-        23.21
+        21.48
       ],
       "status": "observed",
       "ocr_text": "Ask for approval",
@@ -271,7 +271,7 @@
         214.28,
         686.9,
         69.92,
-        19.56
+        18.11
       ],
       "status": "observed",
       "ocr_text": "v4-flash v",

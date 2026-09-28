@@ -10,58 +10,88 @@
     "h": 776,
     "c": [
       {
-        "t": "button",
+        "t": "stack",
         "id": "worked_row",
-        "x": 17.94,
-        "y": 34.86,
-        "w": 196.44,
-        "h": 38.64,
+        "x": 16.0,
+        "y": 32.0,
+        "w": 374.0,
+        "h": 44.0,
         "c": [
           {
+            "t": "stack",
+            "id": "worked_row_surface",
+            "x": 16.0,
+            "y": 32.0,
+            "w": 374.0,
+            "h": 44.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294835709,
+            "radius": 10.0
+          },
+          {
+            "t": "button",
+            "id": "worked_row_control",
+            "x": 16.0,
+            "y": 32.0,
+            "w": 374.0,
+            "h": 44.0,
+            "enabled": 1
+          },
+          {
+            "t": "svg",
+            "id": "worked_row_icon",
+            "x": 26.0,
+            "y": 45.0,
+            "w": 18.0,
+            "h": 18.0,
+            "src": ""
+          },
+          {
             "t": "text",
-            "id": "t01",
+            "id": "worked_row_label",
             "text": "Worked for 3m 4s \u203a",
-            "x": 26.368288060644346,
+            "x": 26.35565382185723,
             "y": 41.5,
             "w": 178.0,
             "h": 24.0,
             "size": 25.87492103600758,
             "line_height": 24.0,
-            "weight": 600,
+            "weight": 500,
             "color": 4281019180,
             "variant": "single_line",
             "alignx": 0,
-            "font_src": "self:resources/ux/Inter-600.ttf",
-            "tracking": -3.9358626583924794,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": -3.8176953662071287,
             "font_asc": -0.12973632812500002,
             "font_desc": 0.152685546875
           }
         ],
-        "enabled": 1
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [3]}}"
       },
       {
         "t": "text",
         "id": "t02",
         "text": "Queued steers now survive a reconnect.",
-        "x": 27.046754020250148,
+        "x": 27.281065088757398,
         "y": 110.5,
         "w": 323.0,
         "h": 24.0,
-        "size": 24.39547349612865,
+        "size": 24.236686390532544,
         "line_height": 24.0,
-        "weight": 400,
+        "weight": 600,
         "color": 4279768856,
         "variant": "single_line",
         "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -3.916407771678767,
-        "font_asc": -0.13530273437499996,
-        "font_desc": 0.09086914062499998
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": -4.10762833839757,
+        "font_asc": -0.1240234375,
+        "font_desc": 0.09570312499999994
       },
       {
         "t": "text",
         "id": "t03",
-        "text": "\u2022 Fixed loss of queuedsteers when",
+        "text": "\u2022 Fixed loss of queued steers when",
         "x": 26.264408493427705,
         "y": 171.0,
         "w": 301.0,
@@ -73,7 +103,7 @@
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -3.895333038422649,
+        "tracking": -3.9979011551306796,
         "font_asc": -0.129765625,
         "font_desc": -0.040156250000000004
       },
@@ -175,10 +205,10 @@
       {
         "t": "text",
         "id": "t09",
-        "text": "\u2022 All tests pass: 12 passed .",
+        "text": "\u2022 All tests pass: 12 passed.",
         "x": 26.180497925311204,
         "y": 468.0,
-        "w": 253.18392486662714,
+        "w": 253.3416512986015,
         "h": 29.0,
         "size": 26.556016597510375,
         "line_height": 29.0,
@@ -187,14 +217,14 @@
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -3.210266004742146,
+        "tracking": -3.0525395727677886,
         "font_asc": -0.1561328125,
         "font_desc": -0.03820312499999995
       },
       {
         "t": "text",
         "id": "t10",
-        "text": "\u2022 Changes included in commit a6ea8505 .",
+        "text": "\u2022 Changes included in commit a6ea8505.",
         "x": 26.269308430085815,
         "y": 533.0,
         "w": 355.5,
@@ -206,9 +236,36 @@
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -4.125753872313293,
+        "tracking": -4.040799759881033,
         "font_asc": -0.13990234375,
         "font_desc": -0.05199218749999995
+      },
+      {
+        "t": "svg",
+        "id": "icon_copy",
+        "x": 24.0,
+        "y": 640.0,
+        "w": 20.0,
+        "h": 20.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "icon_thumbs",
+        "x": 52.0,
+        "y": 640.0,
+        "w": 20.0,
+        "h": 20.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "icon_share",
+        "x": 80.0,
+        "y": 640.0,
+        "w": 20.0,
+        "h": 20.0,
+        "src": ""
       },
       {
         "t": "text",
@@ -243,22 +300,46 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "t01",
+      "id": "worked_row_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "worked_row_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "worked_row_icon",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_copy",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_thumbs",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_share",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "worked_row_label",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.15211109834558825
+      "tracking_em": -0.14754423253676477
     },
     {
       "id": "t02",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.16053829708614867
+      "tracking_em": -0.1694797825168919
     },
     {
       "id": "t03",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.1504876708984375
+      "tracking_em": -0.15445016571969697
     },
     {
       "id": "t04",
@@ -294,13 +375,13 @@
       "id": "t09",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.12088657924107143
+      "tracking_em": -0.11494719328703704
     },
     {
       "id": "t10",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.15963121916118425
+      "tracking_em": -0.15634422508445947
     },
     {
       "id": "t11",

@@ -146,27 +146,9 @@
       "size": 24.863897763578276
     },
     {
-      "source_id": "note_input",
+      "source_id": "t08",
       "native_id": "beauty_0_7",
       "parent": "page",
-      "kind": "input",
-      "component": "Inputafa2fd0876ee",
-      "semantic_role": "input",
-      "bounds": [
-        31.26,
-        485.14,
-        200.0,
-        40.33
-      ],
-      "text": "",
-      "enabled": 1,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 17.52
-    },
-    {
-      "source_id": "t08",
-      "native_id": "beauty_0_7_0",
-      "parent": "note_input",
       "kind": "text",
       "component": "Text9127233a0664",
       "semantic_role": "text",
@@ -182,27 +164,9 @@
       "size": 26.34300791556728
     },
     {
-      "source_id": "submit_answer",
+      "source_id": "t09",
       "native_id": "beauty_0_8",
       "parent": "page",
-      "kind": "button",
-      "component": "NativeButton939d519a17bf",
-      "semantic_role": "button",
-      "bounds": [
-        129.55,
-        582.77,
-        151.42,
-        40.19
-      ],
-      "text": null,
-      "enabled": 1,
-      "font": null,
-      "size": null
-    },
-    {
-      "source_id": "t09",
-      "native_id": "beauty_0_8_0",
-      "parent": "submit_answer",
       "kind": "text",
       "component": "Text1c4f3701b4d7",
       "semantic_role": "text",
@@ -218,27 +182,9 @@
       "size": 34.678594249201275
     },
     {
-      "source_id": "skip",
+      "source_id": "t10",
       "native_id": "beauty_0_9",
       "parent": "page",
-      "kind": "button",
-      "component": "NativeButton939d519a17bf",
-      "semantic_role": "button",
-      "bounds": [
-        172.44,
-        665.36,
-        58.86,
-        45.33
-      ],
-      "text": null,
-      "enabled": 1,
-      "font": null,
-      "size": null
-    },
-    {
-      "source_id": "t10",
-      "native_id": "beauty_0_9_0",
-      "parent": "skip",
       "kind": "text",
       "component": "Text4788a5d08fa8",
       "semantic_role": "text",
@@ -258,6 +204,6 @@
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "025f4e9d7c98a679c5b908282439461c93fd8f8f8eb27c9a1b296b7a2db026ff",
+  "contract_sha256": "38c1fb26f9ea2d9c5af66e53e947fc641934cf9b57ea7b67d1b5946dab1c6268",
   "mapping_basis": "mapped.json"
 }

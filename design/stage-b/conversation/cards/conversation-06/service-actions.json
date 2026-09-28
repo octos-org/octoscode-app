@@ -1,36 +1,5 @@
 {
   "frame_id": 6,
-  "controls": {
-    "note_input": {
-      "event": "question.note",
-      "source_bounds": [
-        31,
-        485,
-        200,
-        40
-      ],
-      "enabled": true
-    },
-    "submit_answer": {
-      "event": "question.answer",
-      "source_bounds": [
-        129,
-        582,
-        151,
-        40
-      ],
-      "enabled": true
-    },
-    "skip": {
-      "event": "question.skip",
-      "source_bounds": [
-        172,
-        665,
-        58,
-        45
-      ],
-      "enabled": true
-    }
-  },
+  "controls": {},
   "source": "user-question"
 }

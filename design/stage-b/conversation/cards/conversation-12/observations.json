@@ -15,7 +15,7 @@
         31.53,
         48.27,
         108.37,
-        26.09
+        24.15
       ],
       "status": "observed",
       "ocr_text": "Permissions",
@@ -47,7 +47,7 @@
         45.0,
         128.96,
         158.12,
-        28.42
+        26.32
       ],
       "status": "observed",
       "ocr_text": "Default permissions",
@@ -79,7 +79,7 @@
         45.11,
         168.0,
         199.62,
-        24.42
+        22.62
       ],
       "status": "observed",
       "ocr_text": "Ask before running commands",
@@ -111,7 +111,7 @@
         45.11,
         200.77,
         160.14,
-        23.14
+        21.43
       ],
       "status": "observed",
       "ocr_text": "that modify your system.",
@@ -143,7 +143,7 @@
         46.2,
         280.67,
         88.05,
-        22.3
+        20.66
       ],
       "status": "observed",
       "ocr_text": "Full access",
@@ -175,7 +175,7 @@
         46.24,
         319.0,
         210.89,
-        23.36
+        21.63
       ],
       "status": "observed",
       "ocr_text": "Allow Octos to run any command",
@@ -207,7 +207,7 @@
         45.11,
         353.0,
         98.12,
-        23.22
+        21.5
       ],
       "status": "observed",
       "ocr_text": "without asking.",
@@ -239,7 +239,7 @@
         30.45,
         469.21,
         60.9,
-        26.8
+        24.81
       ],
       "status": "observed",
       "ocr_text": "Model",
@@ -271,7 +271,7 @@
         42.86,
         561.5,
         110.52,
-        23.36
+        21.63
       ],
       "status": "observed",
       "ocr_text": "Default model",
@@ -303,7 +303,7 @@
         205.21,
         561.43,
         150.08,
-        26.16
+        24.22
       ],
       "status": "observed",
       "ocr_text": "deepseek-v4-flash v",

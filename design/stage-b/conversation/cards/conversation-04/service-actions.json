@@ -1,36 +1,5 @@
 {
   "frame_id": 4,
-  "controls": {
-    "tool_1": {
-      "event": "tool.toggle",
-      "source_bounds": [
-        79,
-        69,
-        247,
-        38
-      ],
-      "enabled": true
-    },
-    "tool_2": {
-      "event": "tool.toggle",
-      "source_bounds": [
-        79,
-        197,
-        193,
-        40
-      ],
-      "enabled": true
-    },
-    "tool_3": {
-      "event": "tool.toggle",
-      "source_bounds": [
-        27,
-        328,
-        286,
-        48
-      ],
-      "enabled": true
-    }
-  },
+  "controls": {},
   "source": "tool-cells"
 }

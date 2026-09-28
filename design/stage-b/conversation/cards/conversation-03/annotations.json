@@ -84,14 +84,136 @@
       "bg": 4294901502
     },
     {
-      "id": "composer_input",
+      "id": "user_bubble",
       "bounds": [
-        21.32,
-        593.0,
-        200.0,
-        41.0
+        85.0,
+        39.0,
+        302.0,
+        103.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4278387458,
+      "radius": 19.37
+    },
+    {
+      "id": "icon_spinner",
+      "bounds": [
+        44.0,
+        198.0,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "chips",
+      "bounds": [
+        24.0,
+        501.62,
+        358.0,
+        35.56
       ],
       "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "chip_ws",
+      "bounds": [
+        19.0,
+        496.0,
+        80.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 22.0
+    },
+    {
+      "id": "chip_mode",
+      "bounds": [
+        117.0,
+        496.0,
+        74.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 22.0
+    },
+    {
+      "id": "chip_branch",
+      "bounds": [
+        215.0,
+        496.0,
+        151.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 22.0
+    },
+    {
+      "id": "composer",
+      "bounds": [
+        15.0,
+        569.0,
+        377.0,
+        171.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.68
+    },
+    {
+      "id": "composer_input",
+      "bounds": [
+        29.112,
+        580.4,
+        302.406,
+        45.6
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "icon_plus",
+      "bounds": [
+        23.064,
+        669.32,
+        20.16,
+        22.8
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "stop_btn",
+      "bounds": [
+        351.679,
+        669.32,
+        36.289,
+        41.04
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4278650631,
+      "radius": 18.14
+    },
+    {
+      "id": "icon_stop",
+      "bounds": [
+        361.759,
+        680.72,
+        16.128,
+        18.24
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
     }
   ]

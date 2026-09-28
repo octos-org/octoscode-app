@@ -9,13 +9,13 @@
   "aspect_error": 0.0,
   "text": [
     {
-      "id": "t01",
+      "id": "worked_row_label",
       "expected_text": "Worked for 3m 4s \u203a",
       "requested_bounds": [
-        25.93889069521046,
-        42.860464842219876,
-        180.44,
-        24.45
+        25.94,
+        42.86,
+        280.0,
+        22.64
       ],
       "status": "observed",
       "ocr_text": "Worked for 3m 4s \u203a",
@@ -47,7 +47,7 @@
         28.04,
         111.25,
         322.88,
-        27.3
+        25.28
       ],
       "status": "observed",
       "ocr_text": "Queued steers now survive a reconnect.",
@@ -74,17 +74,17 @@
     },
     {
       "id": "t03",
-      "expected_text": "\u2022 Fixed loss of queuedsteers when",
+      "expected_text": "\u2022 Fixed loss of queued steers when",
       "requested_bounds": [
         19.33,
         171.37,
         312.56,
-        33.0
+        32.33
       ],
       "status": "observed",
       "ocr_text": "\u2022 Fixed loss of queuedsteers when",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9850746268656716,
       "ink_bounds": [
         29.5,
         173.0,
@@ -111,7 +111,7 @@
         45.11,
         210.0,
         241.67,
-        33.0
+        32.5
       ],
       "status": "observed",
       "ocr_text": "reconnecting after a drop in",
@@ -143,7 +143,7 @@
         54.78,
         252.0,
         219.11,
-        33.0
+        32.53
       ],
       "status": "observed",
       "ocr_text": "steer_dropped handling.",
@@ -175,7 +175,7 @@
         22.56,
         320.0,
         341.56,
-        33.0
+        32.5
       ],
       "status": "observed",
       "ocr_text": "\u2022 Updated ui_protocol_transport.rs",
@@ -207,7 +207,7 @@
         49.62,
         364.31,
         258.26,
-        26.8
+        24.81
       ],
       "status": "observed",
       "ocr_text": "to persist queued steers to the",
@@ -239,7 +239,7 @@
         50.61,
         404.21,
         127.71,
-        28.34
+        26.24
       ],
       "status": "observed",
       "ocr_text": "session ledger.",
@@ -266,17 +266,17 @@
     },
     {
       "id": "t09",
-      "expected_text": "\u2022 All tests pass: 12 passed .",
+      "expected_text": "\u2022 All tests pass: 12 passed.",
       "requested_bounds": [
         25.94,
         469.0,
         256.01,
-        28.24
+        26.15
       ],
       "status": "observed",
       "ocr_text": "\u2022 All tests pass: 12 passed .",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9824561403508771,
       "ink_bounds": [
         29.5,
         470.0,
@@ -298,17 +298,17 @@
     },
     {
       "id": "t10",
-      "expected_text": "\u2022 Changes included in commit a6ea8505 .",
+      "expected_text": "\u2022 Changes included in commit a6ea8505.",
       "requested_bounds": [
         22.56,
         533.5,
         364.11,
-        33.0
+        32.5
       ],
       "status": "observed",
       "ocr_text": "\u2022 Changes included in commit a6ea8505 .",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.987012987012987,
       "ink_bounds": [
         29.5,
         535.0,
@@ -335,7 +335,7 @@
         266.0,
         664.69,
         122.11,
-        28.47
+        26.36
       ],
       "status": "observed",
       "ocr_text": "Sep 28,9:41 PM",
@@ -377,12 +377,80 @@
     {
       "id": "worked_row",
       "bounds": [
-        17.94,
-        34.86,
-        196.44,
-        38.64
+        16.0,
+        32.0,
+        374.0,
+        44.0
       ],
       "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "worked_row_surface",
+      "bounds": [
+        16.0,
+        32.0,
+        374.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.0
+    },
+    {
+      "id": "worked_row_control",
+      "bounds": [
+        16.0,
+        32.0,
+        374.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "worked_row_icon",
+      "bounds": [
+        26.0,
+        45.0,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_copy",
+      "bounds": [
+        24.0,
+        640.0,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_thumbs",
+      "bounds": [
+        52.0,
+        640.0,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_share",
+      "bounds": [
+        80.0,
+        640.0,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
     }
   ],

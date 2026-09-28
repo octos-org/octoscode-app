@@ -143,101 +143,61 @@
         "font_desc": 0.1480777138157895
       },
       {
-        "t": "input",
-        "id": "note_input",
-        "x": 31.26,
-        "y": 485.14,
-        "w": 200.0,
-        "h": 40.33,
-        "c": [
-          {
-            "t": "text",
-            "id": "t08",
-            "text": "Add a note",
-            "x": 40.8311345646438,
-            "y": 492.5,
-            "w": 92.5,
-            "h": 23.5,
-            "size": 26.34300791556728,
-            "line_height": 23.5,
-            "weight": 400,
-            "color": 4288190876,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-400.ttf",
-            "tracking": -4.991754617414248,
-            "font_asc": -0.16528946314102566,
-            "font_desc": 0.1525941506410256
-          }
-        ],
-        "enabled": 1,
-        "placeholder": "Add a note",
-        "size": 17.52,
+        "t": "text",
+        "id": "t08",
+        "text": "Add a note",
+        "x": 40.8311345646438,
+        "y": 492.5,
+        "w": 92.5,
+        "h": 23.5,
+        "size": 26.34300791556728,
+        "line_height": 23.5,
         "weight": 400,
-        "text": "",
+        "color": 4288190876,
         "variant": "single_line",
         "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf"
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -4.991754617414248,
+        "font_asc": -0.16528946314102566,
+        "font_desc": 0.1525941506410256
       },
       {
-        "t": "button",
-        "id": "submit_answer",
-        "x": 129.55,
-        "y": 582.77,
-        "w": 151.42,
-        "h": 40.19,
-        "c": [
-          {
-            "t": "text",
-            "id": "t09",
-            "text": "Submit answer",
-            "x": 134.53578274760383,
-            "y": 587.5,
-            "w": 141.5,
-            "h": 30.5,
-            "size": 34.678594249201275,
-            "line_height": 30.5,
-            "weight": 400,
-            "color": 4278321666,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-400.ttf",
-            "tracking": -8.6283280085197,
-            "font_asc": -0.15961269162735847,
-            "font_desc": 0.17084316037735847
-          }
-        ],
-        "enabled": 1
+        "t": "text",
+        "id": "t09",
+        "text": "Submit answer",
+        "x": 134.53578274760383,
+        "y": 587.5,
+        "w": 141.5,
+        "h": 30.5,
+        "size": 34.678594249201275,
+        "line_height": 30.5,
+        "weight": 400,
+        "color": 4278321666,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -8.6283280085197,
+        "font_asc": -0.15961269162735847,
+        "font_desc": 0.17084316037735847
       },
       {
-        "t": "button",
-        "id": "skip",
-        "x": 172.44,
-        "y": 665.36,
-        "w": 58.86,
-        "h": 45.33,
-        "c": [
-          {
-            "t": "text",
-            "id": "t10",
-            "text": "Skip",
-            "x": 180.3995912110373,
-            "y": 672.5,
-            "w": 43.0,
-            "h": 31.0,
-            "size": 28.255493101686255,
-            "line_height": 31.0,
-            "weight": 400,
-            "color": 4287335313,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-400.ttf",
-            "tracking": -5.248339294839039,
-            "font_asc": -0.1465024594907407,
-            "font_desc": -0.033673321759259245
-          }
-        ],
-        "enabled": 1
+        "t": "text",
+        "id": "t10",
+        "text": "Skip",
+        "x": 180.3995912110373,
+        "y": 672.5,
+        "w": 43.0,
+        "h": 31.0,
+        "size": 28.255493101686255,
+        "line_height": 31.0,
+        "weight": 400,
+        "color": 4287335313,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -5.248339294839039,
+        "font_asc": -0.1465024594907407,
+        "font_desc": -0.033673321759259245
       }
     ],
     "variant": "surface",
@@ -246,18 +206,6 @@
   "changes": [
     {
       "id": "page",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "note_input",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "submit_answer",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "skip",
       "source": "observed non-text annotation"
     },
     {
