@@ -34,11 +34,18 @@ impl Registry {
         Self::default()
     }
 
-    /// Register a handler for `H::METHOD`. Re-registering replaces.
+    /// Register a handler for `H::METHOD`. Each notification method has exactly
+    /// ONE owning domain: a second registration is a wiring bug (two domains
+    /// would race to own the same state), so it panics instead of silently replacing.
     pub fn register<H: NotificationHandler + 'static>(&mut self, handler: H) {
         let method = H::METHOD;
-        self.handlers
-            .insert(method, Box::new(move |n: &UiNotification| handler.handle(n)));
+        if self
+            .handlers
+            .insert(method, Box::new(move |n: &UiNotification| handler.handle(n)))
+            .is_some()
+        {
+            panic!("duplicate notification handler for '{method}': exactly one domain may own it");
+        }
     }
 
     /// Route one decoded notification. Returns whether a handler claimed it.

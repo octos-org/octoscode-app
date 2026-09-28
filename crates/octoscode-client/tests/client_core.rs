@@ -221,3 +221,20 @@ fn unimplemented_domains_are_stub_files_with_their_methods_named() {
     // Registration is clean and idempotent regardless of which domains have landed.
     assert!(!reg.handles("x-octoscode-test/never-registered"));
 }
+
+#[test]
+#[should_panic(expected = "duplicate notification handler")]
+fn a_notification_method_has_exactly_one_owning_domain() {
+    // Registering every domain twice must trip the one-owner guard.
+    let store = std::sync::Arc::new(octoscode_store::Store::new());
+    let mut reg = octoscode_client::Registry::new();
+    octoscode_client::domains::register_all(&mut reg, store.clone());
+    octoscode_client::domains::register_all(&mut reg, store);
+}
+
+#[test]
+fn all_domains_register_without_overlap() {
+    let store = std::sync::Arc::new(octoscode_store::Store::new());
+    let mut reg = octoscode_client::Registry::new();
+    octoscode_client::domains::register_all(&mut reg, store); // panics on any overlap
+}
