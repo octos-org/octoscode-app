@@ -29,11 +29,11 @@ OCR = ROOT / "ocr"
 C = {"white": 0xFFFFFFFF, "panel": 0xFFF7F7F8, "hair": 0xFFE5E5E7, "ink": 0xFF1D1D1F,
      "muted": 0xFF6E6E73, "black": 0xFF000000, "blue": 0xFF2F6FEB, "green": 0xFF1F883D,
      "greenbg": 0xFFE6F4EA, "red": 0xFFCF222E, "redbg": 0xFFFDECEC, "sel": 0xFFF2F2F7,
-     "mono": 0xFFF6F6F7}
+     "mono": 0xFFF6F6F7, "box": 0xFFF4F4F5}
 C_HEX = {"white": "#FFFFFF", "panel": "#F7F7F8", "hair": "#E5E5E7", "ink": "#1D1D1F",
          "muted": "#6E6E73", "black": "#000000", "blue": "#2F6FEB", "green": "#1F883D",
          "greenbg": "#E6F4EA", "red": "#CF222E", "redbg": "#FDECEC", "sel": "#F2F2F7",
-         "mono": "#F6F6F7"}
+         "mono": "#F6F6F7", "box": "#F4F4F5"}
 FONT = {400: "self:resources/ux/Inter-400.ttf", 500: "self:resources/ux/Inter-500.ttf",
         600: "self:resources/ux/Inter-600.ttf", 700: "self:resources/ux/Inter-700.ttf"}
 # Card #11d: the host now bundles a monospace face. `apps/kit-host/resources/ux/
@@ -112,6 +112,31 @@ def code(id, s, x, y, w, h, *, weight=400, color="ink", size=None):
     """A code/path/command line: the bundled monospace face."""
     return text(id, s, x, y, w, h, weight=weight, color=color, size=size, font=MONO)
 
+def flow_text(id, s, x, y, w, h, *, size=14, weight=400, color="ink", font=None,
+              line_height=None):
+    """A dynamic text region: one native flowing Label bound to one data id.
+
+    Card #11e / LESSONS "Dynamic content is a flow region": runtime prose must not
+    be boxes placed at measured coordinates. `text()` sets `variant: single_line`,
+    which design.rs (octoscript-makepad/crates/octoscript-makepad/src/design.rs:338)
+    lowers to the non-wrapping `flow: Right`. Omitting the variant and stating a
+    height taller than one line leaves makepad's Label at its default
+    `Flow::right_wrap()` (makepad/widgets/src/label.rs:240), so it reflows.
+    """
+    size = size or r(max(h / 1.5, 10.0))
+    lh = line_height if line_height else size * 1.45
+    return {"t": "text", "id": id, "text": s, "x": r(x), "y": r(y), "w": r(max(w, 8)),
+            "h": r(h), "size": size, "line_height": r(lh),
+            "weight": weight, "color": C[color], "alignx": 0,
+            "font_src": font or FONT.get(weight, FONT[400])}
+
+def dots(id, x, y, w, h, *, n=15, size=12, color="ink", track=3.1):
+    """A dotted progress line: n round dots, pitch set by tracking."""
+    return {"t": "text", "id": id, "text": "·" * n, "x": r(x), "y": r(y), "w": r(w),
+            "h": r(h), "size": size, "line_height": r(max(h, size)), "weight": 700,
+            "color": C[color], "variant": "single_line", "alignx": 0,
+            "tracking": track, "font_src": FONT[700]}
+
 def chip(id, s, x, y, w, h, *, color="ink", size=None, weight=400, radius=6, padx=4, pady=3):
     """An inline code chip: a grey rounded surface wrapping a mono token."""
     size = size or r(max(h / 1.5, 9.0))
@@ -149,6 +174,7 @@ class Scene:
         self.icons = {}
         self.controls = {}        # id -> (event, bounds, enabled)
         self.inputs = {}
+        self.flows = {}           # id -> (data id, bounds) for flowing text regions
     def b(self, i):
         return self.rows[i][1:]
     def t(self, i):
@@ -227,6 +253,10 @@ def build_01(sc):
     _, x3, y3, _, _ = sc.rows[3]
     sc.add_icon("icon_fork", "fork", 352, y3 - 3, 19, 26, color="muted")
 
+STREAM_MD = ("I'm tracing how queued steers are handled across reconnects…\n"
+             "\n"
+             "I'll run tests to confirm the fix and update the affected code…")
+
 def build_03(sc):
     _, x1, y1, w1, h1 = sc.rows[0]
     _, x2, y2, w2, h2 = sc.rows[1]
@@ -238,8 +268,8 @@ def build_03(sc):
         text("t02", sc.t(1), x2, y2, w2, h2, weight=500, color="white")]))
     sc.add_icon("icon_spinner", "spinner", 44, 198, 18, 18, color="muted")
     sc.add_text("t03", 2, color="muted", weight=500)
-    for i, tid in [(3, "t04"), (4, "t05"), (5, "t06"), (6, "t07")]:
-        sc.add_text(tid, i)
+    sc.put(flow_text("assistant_md", STREAM_MD, 21, 248, 358, 176, size=17.5, line_height=35))
+    sc.flows["assistant_md"] = ("timeline.assistant.markdown", 21, 248, 358, 176)
     _, x8, y8, w8, h8 = sc.rows[7]
     chips = []
     for i, cid in [(7, "chip_ws"), (8, "chip_mode"), (9, "chip_branch")]:
@@ -267,27 +297,27 @@ def build_04(sc):
     """Three tool cells. Atlas (measured): each row is a bordered card;
     tool_3's card CONTAINS its output box. Code/paths/commands use the mono face."""
     _, x0, y0, w0, h0 = sc.rows[0]
-    sc.put(surface("tool_1", 16, 54, 374, 92, bg="panel", radius=12, border=1,
+    sc.put(surface("tool_1", 16, 54, 374, 92, bg="white", radius=12, border=1,
                    bordercolor="hair", kids=[
         icon("icon_file", "file", 42, 78, 24, 26),
         code("t01", sc.t(0), x0, y0, w0, h0, weight=500, size=14),
         text("t02", sc.t(1), *sc.rows[1][1:], size=13, color="muted"),
         icon("icon_check1", "check", 356, y0 - 2, 20, 20, color="green")]))
     _, x2, y2, w2, h2 = sc.rows[2]
-    sc.put(surface("tool_2", 16, 184, 374, 92, bg="panel", radius=12, border=1,
+    sc.put(surface("tool_2", 16, 184, 374, 92, bg="white", radius=12, border=1,
                    bordercolor="hair", kids=[
         icon("icon_search2", "search", 40, 206, 24, 24),
         code("t03", sc.t(2), x2, y2, w2, h2, weight=500, size=14),
         text("t04", sc.t(3), *sc.rows[3][1:], size=13, color="muted"),
         icon("icon_check2", "check", 356, y2 - 2, 20, 20, color="green")]))
     _, x4, y4, w4, h4 = sc.rows[4]
-    output = surface("tool_3_output", 24, 398, 358, 250, bg="mono", radius=8, kids=[
+    output = surface("tool_3_output", 24, 398, 358, 250, bg="box", radius=8, kids=[
         code("t07", sc.t(6), *sc.rows[6][1:], size=13, color="muted"),
-        text("t08", sc.t(7), *sc.rows[7][1:], size=13, color="muted"),   # the dotted progress row
+        dots("t08", 46, 489, 112, 8),                    # the full dotted progress line
         code("t09", sc.t(8), *sc.rows[8][1:], size=13),
         code("t10", sc.t(9), *sc.rows[9][1:], size=13, weight=500, color="green")])
     # the terminal glyph is the icon; the ">_ " the OCR read is that icon itself
-    sc.put(surface("tool_3", 16, 314, 374, 356, bg="panel", radius=12, border=1,
+    sc.put(surface("tool_3", 16, 314, 374, 356, bg="white", radius=12, border=1,
                    bordercolor="hair", kids=[
         icon("icon_term", "terminal", 40, 338, 22, 22),
         # the OCR row's x included the ">_ " icon glyph; the label starts AFTER the icon
@@ -329,27 +359,27 @@ def chip_row(sc, id, row_i, *, pad=10, bg="white"):
                     border=1, bordercolor="hair",
                     kids=[text(id + "_t", sc.t(row_i), x, y, w, h, size=13, color="muted")])]
 
+ANSWER_MD = ("Queued steers now survive a reconnect.\n"
+             "\n"
+             "• Fixed loss of queued steers when reconnecting after a drop in steer_dropped handling.\n"
+             "• Updated ui_protocol_transport.rs to persist queued steers to the session ledger.\n"
+             "• All tests pass: 12 passed.\n"
+             "• Changes included in commit a6ea8505.")
+
 def build_09(sc):
-    """Completed answer: regular heading, four inline code chips, no stray chevron
-    (the '‹›' in the atlas is part of the row's own copy, not an overlay)."""
+    """Completed answer. Card #11e: the body is ONE native flowing region bound to
+    `answer.markdown` (LESSONS: 'Dynamic content is a flow region'). v4 placed the
+    body as measured boxes, which overlapped ('Updated' under the ui_protocol chip),
+    changed font size per line and dropped 'commit'. The 'Worked for' row, the action
+    icons and the timestamp stay fixed chrome."""
     rx, ry, rw, rh = sc.rows[0][1:]
     sc.add_control("worked_row", 16, 32, 374, 44, 0, bg="panel", radius=10, weight=500,
                    color="muted", lx=rx, ly=ry, lw=rw, lh=rh, event="turn.expand")
-    sc.add_text("t02", 1, weight=400, size=16)
-    CHIPS = {4: ("steer_dropped", (56.5, 248, 125.5, 26)),
-             5: ("ui_protocol_transport.rs", (136.5, 318, 230.5, 26)),
-             8: ("12 passed", (178.0, 466, 89.0, 24)),
-             9: ("a6ea8505", (290.5, 530, 81.0, 26))}
-    for i in range(2, 10):
-        if i in CHIPS:
-            tok, box = CHIPS[i]
-            for n in row_with_chip(f"t{i+1:02d}", sc.t(i), sc.rows[i][1:], box, tok, size=14):
-                sc.put(n)
-        else:
-            sc.add_text(f"t{i+1:02d}", i, size=14)
-    sc.add_icon("icon_copy", "copy", 24, 640, 20, 20, color="muted")
-    sc.add_icon("icon_thumbs", "thumbs", 52, 640, 20, 20, color="muted")
-    sc.add_icon("icon_share", "share", 80, 640, 20, 20, color="muted")
+    sc.put(flow_text("answer_md", ANSWER_MD, 27, 106, 356, 464, size=17.5, line_height=38))
+    sc.flows["answer_md"] = ("answer.markdown", 27, 106, 356, 464)
+    sc.add_icon("icon_copy", "copy", 24, 578, 20, 20, color="muted")
+    sc.add_icon("icon_thumbs", "thumbs", 52, 578, 20, 20, color="muted")
+    sc.add_icon("icon_share", "share", 80, 578, 20, 20, color="muted")
     sc.add_text("t11", 10, color="muted", size=13)
 
 MUTED = {"• 412 lines", "• 7 matches", "Working • 12s", "Ask for approval", "running 12 tests",

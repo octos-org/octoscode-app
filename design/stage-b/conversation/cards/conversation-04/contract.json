@@ -88,7 +88,7 @@
           }
         ],
         "variant": "surface",
-        "bg": 4294440952,
+        "bg": 4294967295,
         "radius": 12,
         "border": 1,
         "bordercolor": 4293256679
@@ -153,7 +153,7 @@
           }
         ],
         "variant": "surface",
-        "bg": 4294440952,
+        "bg": 4294967295,
         "radius": 12,
         "border": 1,
         "bordercolor": 4293256679
@@ -243,18 +243,19 @@
               {
                 "t": "text",
                 "id": "t08",
-                "text": "••",
-                "x": 143.23,
-                "y": 488.38,
-                "w": 15.79,
-                "h": 19.5,
-                "size": 13,
-                "line_height": 19.5,
-                "weight": 400,
-                "color": 4285427315,
+                "text": "···············",
+                "x": 46.0,
+                "y": 489.0,
+                "w": 112.0,
+                "h": 8.0,
+                "size": 12,
+                "line_height": 12.0,
+                "weight": 700,
+                "color": 4280098079,
                 "variant": "single_line",
                 "alignx": 0,
-                "font_src": "self:resources/ux/Inter-400.ttf"
+                "tracking": 3.1,
+                "font_src": "self:resources/ux/Inter-700.ttf"
               },
               {
                 "t": "text",
@@ -290,12 +291,12 @@
               }
             ],
             "variant": "surface",
-            "bg": 4294375159,
+            "bg": 4294243573,
             "radius": 8
           }
         ],
         "variant": "surface",
-        "bg": 4294440952,
+        "bg": 4294967295,
         "radius": 12,
         "border": 1,
         "bordercolor": 4293256679
