@@ -169,6 +169,14 @@ question left open; it is **not run**, not inferred.
 | Native ChatList scale comparison | **not run** (separate app tree) |
 | "Reusing `octos.session.*` capabilities would server-side proxy the protocol" | **inferred** (read `app-policy/src/services.rs`, not exercised) |
 
+
+> **Outer-loop correction (2026-09-28):** the scale numbers measure **script-side appends**, not verified rendering.
+> `evidence/final/snap-after.json` and `grab-stream-diff.png` show **no timeline rows** (only the header, one
+> heartbeat counter and the two buttons), most likely because the 1 Hz `sys.simsecs` re-eval (finding 3) reset the
+> view before capture. So the click/snap latencies were taken on an empty view. "Splash renders 2,000 streamed rows
+> responsively" is **unverified**. The send-path verdict is unaffected, and the outer loop confirmed it: the network
+> layer has `ws_send` (`platform/network/src/runtime.rs:55`), but no script binding reaches it.
+
 ## Verdict
 
 **Can a pure-OctoScript client carry octoscode-app?** Not today. The receive half is proven; the
