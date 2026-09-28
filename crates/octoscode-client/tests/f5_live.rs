@@ -13,11 +13,7 @@
 //! production `Client::call` path after `profile/local/create` +
 //! `session/open`. **No model turns.** Mutating methods (`turn/steer`,
 //! `user_question/respond`, `review/start`) are NOT called live.
-use std::time::Duration;
-
-use octos_app_transport::{
-    ws, Capabilities, OutboundCommand, ProfileId, SecretString, TransportConfig,
-};
+use octos_app_transport::{ws, Capabilities, ProfileId, SecretString, TransportConfig};
 use octos_core::ui_protocol::{ApprovalScopesListParams, ThreadGraphGetParams, TurnId, TurnStateGetParams};
 use octos_core::SessionKey;
 use octoscode_client::domains::approval::ApprovalScopesList;
@@ -66,7 +62,23 @@ impl Method for SessionOpen {
 }
 
 /// Bring up the real transport, drain its events, hand back the client.
+///
+/// `thread/graph/get` and `turn/state/get` are feature-gated server-side
+/// (`method_capability_gate`, octos `ui_protocol.rs`) and enabled only when
+/// the client requests `state.thread_graph.v1` / `state.turn_state_get.v1` in
+/// the WS handshake (`x-octos-ui-features`). `Capabilities::requested()`
+/// (the transport's default) does NOT include them, so this test adds them via
+/// the public `raw` map — the same handshake path a real client uses. Without
+/// this the solo serve answers `-32004 method not supported` for both.
+/// (`approval/scopes/list` is ungated and needs no feature.)
 async fn connect() -> Client {
+    let mut requested = Capabilities::requested();
+    requested
+        .raw
+        .insert("state.thread_graph.v1".to_owned(), serde_json::Value::Bool(true));
+    requested
+        .raw
+        .insert("state.turn_state_get.v1".to_owned(), serde_json::Value::Bool(true));
     let cfg = TransportConfig {
         base_url: Url::parse(&base_url()).expect("OCTOS_BASE_URL parses"),
         bearer: SecretString::new(
@@ -77,7 +89,7 @@ async fn connect() -> Client {
         ),
         cursor: None,
         cursor_file: None,
-        requested_capabilities: Capabilities::requested(),
+        requested_capabilities: requested,
         workspace_cwd: None,
         local_kernel: false,
     };
@@ -174,7 +186,6 @@ async fn f5_readonly_methods_round_trip_against_a_live_serve() {
         .expect("thread/graph/get (repeat)");
     println!("thread/graph/get repeat -> {} threads", again.threads.len());
 
-    // Keep the transport alive until here (avoid an unused warning).
+    // A clean end: the client drops, closing the connection.
     let _ = client.request("session/list", serde_json::json!({})).await;
-    std::mem::drop(Duration::from_millis(0));
 }
