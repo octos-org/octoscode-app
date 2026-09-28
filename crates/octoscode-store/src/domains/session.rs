@@ -122,6 +122,34 @@ impl Sessions {
         self.inner.lock().unwrap().sessions.clone()
     }
 
+    /// Record a session the server has confirmed **open** (card #14 defect 3).
+    ///
+    /// The gate showed `sessions: 0` after a successful open: the sidebar had
+    /// nothing until a `session/list` reply arrived, and on that connection no
+    /// such reply came. The web treats an opened session as known immediately
+    /// (`session/opened` seeds the tab-known registry;
+    /// `src-web/apps/web/src/features/session/known-session-registry.ts`), with
+    /// the workspace catalog only *augmenting* it. Insert (or refresh) the row
+    /// so an open is visible without waiting on a catalog read.
+    pub fn note_opened(&self, id: &str, title: Option<String>) {
+        let mut i = self.inner.lock().unwrap();
+        match i.sessions.iter_mut().find(|s| s.id == id) {
+            Some(existing) => {
+                if let Some(title) = title {
+                    existing.title = Some(title);
+                }
+            }
+            None => i.sessions.push(Session {
+                id: id.to_owned(),
+                title,
+                message_count: 0,
+                updated_at: None,
+                last_prompt: None,
+                active_turn: false,
+            }),
+        }
+    }
+
     /// The session count — what the module tile shows.
     pub fn count(&self) -> usize {
         self.inner.lock().unwrap().sessions.len()

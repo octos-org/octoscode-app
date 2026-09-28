@@ -267,10 +267,14 @@ impl NotificationHandler for SessionOpenedHandler {
     fn handle(&self, notification: &UiNotification) {
         if let UiNotification::SessionOpened(opened) = notification {
             self.store.note_seen(Self::METHOD);
-            self.store
-                .domains
-                .session
-                .set_active(Some(opened.session_id.0.clone()));
+            let id = opened.session_id.0.clone();
+            self.store.domains.session.set_active(Some(id.clone()));
+            // Card #14 defect 3: the opened session is known immediately, so
+            // the sidebar lists it without waiting on a `session/list` reply
+            // (the web seeds its known-session registry on `session/opened`;
+            // `known-session-registry.ts`). A later catalog read still augments
+            // or replaces the list.
+            self.store.domains.session.note_opened(&id, None);
             self.store.domains.profile.set_current(
                 opened
                     .active_profile_id
