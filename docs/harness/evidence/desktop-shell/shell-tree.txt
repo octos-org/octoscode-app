@@ -1,0 +1,14 @@
+W3 13
+0 -1 main_window Window 0 0 1400 900
+1 0 body KeyboardView 0 0 1400 900
+2 1 bar View 0 0 1400 32
+3 2 desktop_controls View 0 0 1400 32
+4 3 shell_bar ShellBar 0 0 1400 32
+5 1 scene WmScene 0 32 1400 868
+6 5 wallpaper View 0 32 1400 868
+7 6 bg_fill View 0 32 1400 868
+8 6 bg_image Image 0 32 1400 868
+9 5 desk_row View 0 32 1400 868
+10 9 desk WmDesk 0 32 1400 868
+11 5 shell_overlay View 0 32 1400 868
+12 11 desktop_shelf DesktopShelf 411 812 578 78

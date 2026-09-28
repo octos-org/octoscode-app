@@ -1,0 +1,119 @@
+{
+  "card": 5,
+  "title": "Headless native test harness",
+  "branch": "task/5",
+  "base_commit": "70d1cd5",
+  "native_workspace": "/Users/yuechen/home/oa.noindex/native",
+  "pins": {
+    "octoscript-makepad": "99c1e5ee7925060ced59c66d6f8763c22217e4ad",
+    "makepad": "d0a9def5fc554a52955db21a2a5a196daccc8e3d",
+    "octoscript": "68f6a9df55692b5d8ef8873a12721e279a3f40d6"
+  },
+  "proofs": [
+    {
+      "id": "octo-run",
+      "what": "tools/octo run --hidden drive: start/snap/click/type/snap/shot/gq",
+      "app": "card-host",
+      "bundle": "harness/ui-smoke/fixtures/notes/bundle (harness.notes 0.1.0)",
+      "port": 8301,
+      "pid": 38916,
+      "launcher": "tools/octo run --hidden --detach",
+      "result": "typed 'hello harness', clicked Add, note appeared in list, /gq quit=1, exit 2s, port free",
+      "files": [
+        "docs/harness/evidence/octo-run/actions-8301.log",
+        "docs/harness/evidence/octo-run/headless-flow-after-add.png",
+        "docs/harness/evidence/octo-run/octo-run-after-add.png",
+        "docs/harness/evidence/octo-run/octo-run-log.json",
+        "docs/harness/evidence/octo-run/snap-8301-1.json",
+        "docs/harness/evidence/octo-run/snap-8301-2.json",
+        "docs/harness/evidence/octo-run/snap-8301-3.json",
+        "docs/harness/evidence/octo-run/snap-8301-4.json",
+        "docs/harness/evidence/octo-run/snap-after-add.txt",
+        "docs/harness/evidence/octo-run/snap-before-button.json",
+        "docs/harness/evidence/octo-run/snap-before-textinput.json",
+        "docs/harness/evidence/octo-run/start-8301.log",
+        "docs/harness/evidence/octo-run/start-verbatim.txt",
+        "docs/harness/evidence/octo-run/stop-8301.txt",
+        "docs/harness/evidence/octo-run/stop-verbatim.txt"
+      ]
+    },
+    {
+      "id": "headless-script",
+      "what": "harness/headless.sh end-to-end on :8301",
+      "app": "card-host",
+      "port": 8301,
+      "result": "start(pid 82391) -> snap/click/type/snap/shot -> stop: gq quit=1, pid exited, port free",
+      "files": [
+        "docs/harness/evidence/octo-run/start-verbatim.txt",
+        "docs/harness/evidence/octo-run/stop-verbatim.txt",
+        "docs/harness/evidence/octo-run/actions-8301.log",
+        "docs/harness/evidence/octo-run/snap-8301-3.json",
+        "docs/harness/evidence/octo-run/snap-8301-4.json",
+        "docs/harness/evidence/octo-run/headless-flow-after-add.png"
+      ]
+    },
+    {
+      "id": "ui-smoke",
+      "what": "makepad_test serial + parallel",
+      "package": "harness-ui-smoke",
+      "crate": "harness/ui-smoke",
+      "serial": "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 170.79s",
+      "parallel": "MAKEPAD_TEST_PARALLEL=1 -> test result: ok. 2 passed; 0 failed; finished in 1.22s; distinct pids 65033@:63333, 65034@:63332, both graceful",
+      "artifacts_dir": "<native>/OctoSense-App-Hub/crates/card-host/target/makepad_test/octosense-card-host/{add_note,add_second_note}",
+      "files": [
+        "harness/ui-smoke/Cargo.toml",
+        "harness/ui-smoke/tests/ui.rs",
+        "harness/ui-smoke/fixtures/notes/bundle/manifest.json",
+        "harness/ui-smoke/fixtures/notes/bundle/main.splash"
+      ]
+    },
+    {
+      "id": "desktop-shell",
+      "what": "OctoSense desktop shell hidden + --remote probe (read-only p0-build binary)",
+      "app": "octosense",
+      "port": 8302,
+      "pid": 76292,
+      "binary": "/Users/yuechen/home/oa.noindex/p0-build/tmp/octosense-target/debug/octosense (read-only, not rebuilt)",
+      "result": "listening line; /s sz 1400x900; /snap 13 widgets; /g PNG 2800x1800; /gq quit=1, exit 2s, port free",
+      "appcard": "module linked (crates/shell/src/apps.rs:69,644; lib.rs:3890); hosts exist in tree; click-through open UNVERIFIED",
+      "files": [
+        "docs/harness/evidence/desktop-shell/shell-grab.png",
+        "docs/harness/evidence/desktop-shell/shell-snap.json",
+        "docs/harness/evidence/desktop-shell/shell-tree.txt",
+        "docs/harness/evidence/desktop-shell/shell.log"
+      ]
+    }
+  ],
+  "shipped": {
+    "script": "harness/headless.sh",
+    "guide": "docs/harness/GUIDE.md",
+    "crate": "harness/ui-smoke"
+  },
+  "sha256": {
+    "docs/harness/GUIDE.md": "724683af364dc0563ce124896aadbd3b206f9d4b5ebab43749431cf23b444595",
+    "docs/harness/evidence/desktop-shell/shell-grab.png": "8f2ae328c60efd07eef168514e24cbcdb98a0b4a01c6f1afe67ebe55cd354629",
+    "docs/harness/evidence/desktop-shell/shell-snap.json": "36daf8a97a9b2d8dfa6e3369c3845b06c910771d1ac38b17e3e73a93c3bb8d3d",
+    "docs/harness/evidence/desktop-shell/shell-tree.txt": "a62d621b5c2709013e855d37574602588fb1a0238bcd96583e4dd1e4c1bec297",
+    "docs/harness/evidence/desktop-shell/shell.log": "6ea0c425161c9c9dd8eab29d4ef5d9cb5389414ac1b0f854eeeb1b5515c3984a",
+    "docs/harness/evidence/octo-run/actions-8301.log": "89f9e383e5bad4741981e80e90d6875f253f3c1d56b223c5db1203cd8db3a593",
+    "docs/harness/evidence/octo-run/headless-flow-after-add.png": "fae7442bff2fcfece2e9a99f1f9c8b9174165a31fba4183266ed4e0cc2390450",
+    "docs/harness/evidence/octo-run/octo-run-after-add.png": "734b02414423732047b2c6aeeaeeed3cbf83659b4b914967c8f4232cfb10c014",
+    "docs/harness/evidence/octo-run/octo-run-log.json": "baf65be58f9272562e0e1ceb9026718835878cd24c9f0cfe876e4a8d8170110d",
+    "docs/harness/evidence/octo-run/snap-8301-1.json": "fd58ee71c6447827f35317e35715dfbbee8bc3b988300b3f99ff109ba5238637",
+    "docs/harness/evidence/octo-run/snap-8301-2.json": "f0be23494735222c54fe79ebee011c05bf94fab2391da68b2e105d6af54cc1ae",
+    "docs/harness/evidence/octo-run/snap-8301-3.json": "8c74fde68a662c7695e9364091b6f83f56a0aafb3c998e86d84685db52e1f57f",
+    "docs/harness/evidence/octo-run/snap-8301-4.json": "aeb5ff677f18104b043567e9be43e6c9126d341829a81d38d4262f691b65feda",
+    "docs/harness/evidence/octo-run/snap-after-add.txt": "3ad162db4be2506b90e9faeba35174b4864ba0170e6424edf46c793d357a4583",
+    "docs/harness/evidence/octo-run/snap-before-button.json": "c00b8cb9a08a31a12c8e9c614258b70d52afb459a2b2741deadd7d8a019b0328",
+    "docs/harness/evidence/octo-run/snap-before-textinput.json": "861c8640d96324f7c1b517fbd49a52bcd180751ec0bd7b79e4648942fbb5a97e",
+    "docs/harness/evidence/octo-run/start-8301.log": "1abad60f7b00a6218880c126d326d3a8136771281f6990a4c3bb67820b502098",
+    "docs/harness/evidence/octo-run/start-verbatim.txt": "26ff61dac132b0ca108ff8bcf3be9d9d9d600e2dca879cbb6d837158ecb9e55f",
+    "docs/harness/evidence/octo-run/stop-8301.txt": "ec00785aca4ada0933f9b014a06dbf5ce97a230891ef257f0cc2f276876e7be1",
+    "docs/harness/evidence/octo-run/stop-verbatim.txt": "8a1b8a20c00d53dcb59e0598251d5f5d2c32b5a178f27d24b03885cb662a82b5",
+    "harness/headless.sh": "77ff035f4eab0acfed52259d754bb1c655d4258ac98e975bb45d8216e6ba9730",
+    "harness/ui-smoke/Cargo.toml": "9894db9c0959a06be4f00acc03a187d8a5b3fbccb71f17a35a0a8e6a78e76d03",
+    "harness/ui-smoke/fixtures/notes/bundle/main.splash": "47b0ad730e076a6c0d8f8bb8ff3f5d8edd935174306bc80957b41b71e4dfbd2e",
+    "harness/ui-smoke/fixtures/notes/bundle/manifest.json": "beafc689db0b7d1dcb5b9917f27bda7c4e528b6967cfb7bd9cac3c4b52e3caeb",
+    "harness/ui-smoke/tests/ui.rs": "10996e1fb514025eba725dddd1b10bf5386483b8919e3ca78aa4ebbc1bb01fe5"
+  }
+}

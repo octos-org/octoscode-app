@@ -1,0 +1,10 @@
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 /Users/yuechen/home/oa.noindex/native/OctoSense-App-Hub/target/release/card-host --bundle harness/ui-smoke/fixtures/notes/bundle --app-data /Users/yuechen/home/oa.noindex/p0-harness/tmp/peer-tmp/octos-headless/app-data-8301 --allow-unsigned --remote 8301
+[I] /Users/yuechen/home/oa.noindex/native/makepad/platform/src/web_socket.rs:321:13 - studio websocket disabled: empty studio_http
+[makepad-remote] listening on 127.0.0.1:8301 pid=81236 app=card-host grabs=/Users/yuechen/home/oa.noindex/p0-harness/tmp/peer-tmp/makepad-remote/card-host-81236
+[I] /Users/yuechen/home/oa.noindex/native/makepad/platform/src/remote.rs:547:9 - [makepad-remote] listening on 127.0.0.1:8301 pid=81236 app=card-host grabs=/Users/yuechen/home/oa.noindex/p0-harness/tmp/peer-tmp/makepad-remote/card-host-81236
+[I] /Users/yuechen/home/oa.noindex/native/makepad/platform/src/os/apple/metal.rs:3100:9 - retained-upload budgets: recommended_working_set_bytes=115448725504 physical_memory_bytes=137438953472 unified=true allocation_limit=17179869184 fraction=1/4 pool_fraction=1/16 residency_high_fraction=3/4 residency_low_fraction=5/8 source=physicalMemory/2
+[I] /Users/yuechen/home/oa.noindex/native/makepad/platform/src/cx.rs:686:9 - memory budget: 65536 MiB (ProcessInfo.processInfo.physicalMemory)
+[I] /Users/yuechen/home/oa.noindex/native/makepad/platform/src/thread.rs:928:9 - UI thread priority UserInteractive: Applied
+[I] crates/card-host/src/host.rs:248:9 - card-host: harness.notes 0.1.0 admitted — capabilities {"storage"}, hosts {}, storage 16777216 bytes, agent none
+[I] crates/card-host/src/host.rs:280:9 - card-host: isolate jailed at /Users/yuechen/home/oa.noindex/p0-harness/tmp/peer-tmp/octos-headless/app-data-8301/harness.notes with 16777216 bytes, 1 capability(ies), 1 host(s), 20000000 instructions, 67108864 bytes of heap, prompts false — all enforced
+[I] /Users/yuechen/home/oa.noindex/native/makepad/widgets/src/splash.rs:404:9 - [SPLASH] eval: 2091 bytes preserve=false view=true animating=false tick=false epoch=0
