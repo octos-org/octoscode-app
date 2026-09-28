@@ -102,6 +102,11 @@ pub const ACTIONS: &[(&str, &str)] = &[
     ("answer.expand", "toggle the worked-for disclosure (UI-local)"),
 ];
 
+/// The conversation action ids the fallback view emits (its buttons map to
+/// these). Kept here so the view names an id the binding table owns.
+pub const ACTION_SUBMIT: &str = "composer.submit";
+pub const ACTION_INTERRUPT: &str = "turn.interrupt";
+
 /// The idle placeholder copy (`bindings.json` `composer.placeholder`,
 /// card_source `idle_placeholder ('Ask Octos anything')`).
 pub const COMPOSER_PLACEHOLDER: &str = "Ask Octos anything";

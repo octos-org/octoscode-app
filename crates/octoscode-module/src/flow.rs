@@ -422,6 +422,12 @@ impl Conversation {
         &self.client
     }
 
+    /// The outbound command channel — for fire-and-forget sends the module
+    /// makes from the UI thread (`session/list` on the refresh button).
+    pub fn command_sender(&self) -> &tokio::sync::mpsc::Sender<OutboundCommand> {
+        &self.cmd_tx
+    }
+
     /// The flow's own UI state, shareable (the binding table holds this).
     pub fn ui(&self) -> Arc<Mutex<FlowUi>> {
         self.ui.clone()
@@ -529,6 +535,21 @@ impl Conversation {
                 serde_json::json!({"session_id": self.session_id, "turn_id": turn_id}),
             )
             .await
+    }
+
+    /// `session/list` — re-ask for the session rows and fold them into the
+    /// store (the `session.refresh` action). Returns the row count.
+    pub async fn refresh_sessions(&self) -> Result<usize, ClientError> {
+        let result = self
+            .client
+            .call::<octoscode_client::domains::session::SessionList>(
+                octoscode_client::domains::session::SessionListParams::default(),
+            )
+            .await?;
+        let sessions = result.into_sessions();
+        let n = sessions.len();
+        self.store.set_sessions(sessions);
+        Ok(n)
     }
 
     /// `composer.submit` — the composer's send button: `turn/start` with the
