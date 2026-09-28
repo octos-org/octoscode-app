@@ -36,6 +36,70 @@ const FIXTURE: &str = concat!(
     "/tests/fixtures/r3-session-a6ea8505.jsonl"
 );
 
+/// Placeholders a recorded frame uses in place of machine/lane-specific
+/// absolute paths. The committed fixture is **hermetic**: it must decode and
+/// assert identically on any clone, so no `/Users/…`, `/var/folders/…`,
+/// `$TMPDIR` or `$HOME` appears in it. Only the `#[ignore]` recorder reads the
+/// environment (to derive the prefixes); the replay tests read the placeholders.
+///
+/// Card #R3b: the one remaining machine path was `panes.git.repo_root` in the
+/// `session/open` reply (the board's "session/workspace.get reply"), which the
+/// server fills with the request's working directory.
+const TMP_PLACEHOLDER: &str = "<TMP>";
+const WORKSPACE_PLACEHOLDER: &str = "<WORKSPACE>";
+const HOME_PLACEHOLDER: &str = "<HOME>";
+
+/// The machine-specific absolute prefixes this recording run produced, mapped
+/// to placeholders. Derived from the compile-time crate location (workspace
+/// root and its parent) and the recorder's own `temp_dir()`. Longest first, so
+/// the most specific prefix wins (`<TMP>` inside `<WORKSPACE>`, etc.).
+///
+/// **Recorder-only.** A replay test never calls this or reads the environment.
+fn machine_path_prefixes() -> Vec<(String, &'static str)> {
+    let manifest = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    // …/<repo>/crates/octoscode-client → …/<repo>
+    let workspace_root = manifest
+        .parent()
+        .and_then(|p| p.parent())
+        .map(|p| p.to_string_lossy().to_string());
+    let mut prefixes: Vec<(String, &'static str)> = Vec::new();
+    let tmp = std::env::temp_dir().to_string_lossy().to_string();
+    if !tmp.is_empty() {
+        prefixes.push((tmp, TMP_PLACEHOLDER));
+    }
+    if let Some(ws) = &workspace_root {
+        if !ws.is_empty() {
+            prefixes.push((ws.clone(), WORKSPACE_PLACEHOLDER));
+        }
+        if let Some(home) = std::path::Path::new(ws).parent() {
+            let home = home.to_string_lossy().to_string();
+            if !home.is_empty() {
+                prefixes.push((home, HOME_PLACEHOLDER));
+            }
+        }
+    }
+    prefixes.sort_by(|a, b| b.0.len().cmp(&a.0.len()));
+    prefixes
+}
+
+/// Replace every machine-specific absolute path in `text` with its placeholder,
+/// so the fixture does not depend on the lane that recorded it.
+fn scrub_machine_paths(text: &str) -> String {
+    let mut out = text.to_owned();
+    for (from, to) in machine_path_prefixes() {
+        out = out.replace(&from, to);
+    }
+    out
+}
+
+/// The machine-specific absolute prefixes this fixture must not contain, as a
+/// **hermetic** check a replay test can run without the environment.
+///
+/// Deliberately only the two the card names. A bare `/home/` would false-positive
+/// on this fixture's *relative* `tmp/r3/home/…` data-dir paths, which are not
+/// machine paths.
+const FORBIDDEN_PATH_PREFIXES: &[&str] = &["/Users/", "/var/folders/"];
+
 // ---------------------------------------------------------------------------
 // The fixture's frame model — the shape `FrameTrace` writes.
 // ---------------------------------------------------------------------------
@@ -332,7 +396,24 @@ async fn r3_capture_live_serve_frames() {
     settle(700).await;
 
     let _ = OutboundCommand::Disconnect;
-    println!("[r3 capture] wrote {}", trace.path().unwrap_or(PathBuf::from(&path)).display());
+
+    // Scrub lane-specific absolute paths so the committed fixture is hermetic
+    // (decodes + asserts identically on any clone). This is the only place the
+    // recorder touches the environment; replay tests read the placeholders.
+    let scrubbed = std::fs::read_to_string(&path)
+        .map(|t| scrub_machine_paths(&t))
+        .unwrap_or_default();
+    if !scrubbed.is_empty() {
+        std::fs::write(&path, &scrubbed).expect("rewrite the scrubbed fixture");
+    }
+    assert!(
+        !scrubbed.contains("/Users/") && !scrubbed.contains("/var/folders/"),
+        "the fixture must carry no machine-specific absolute path"
+    );
+    println!(
+        "[r3 capture] wrote {} (scrubbed)",
+        trace.path().unwrap_or(PathBuf::from(&path)).display()
+    );
 }
 
 fn short(v: &serde_json::Value) -> String {
@@ -430,6 +511,38 @@ fn r3_fixture_is_present_and_parses() {
         frames.iter().any(|f| f.dir == "out" && f.method == "session/open"),
         "the capture opened a session"
     );
+}
+
+/// **Card #R3b's gate.** The committed fixture must be hermetic: no frame may
+/// carry a machine-specific absolute path, so it decodes and asserts the same
+/// on any clone. Read the raw text (not the decoded frames) so a path anywhere
+/// in a line is caught.
+#[test]
+fn r3_fixture_carries_no_machine_path() {
+    let text = std::fs::read_to_string(FIXTURE).expect("read the R3 fixture");
+    for prefix in FORBIDDEN_PATH_PREFIXES {
+        assert!(
+            !text.contains(prefix),
+            "the fixture must carry no machine-specific path ({prefix}); run the \
+             #[ignore] recorder, which scrubs machine paths to placeholders"
+        );
+    }
+    // The workspace placeholder must actually be present — the scrub ran.
+    assert!(
+        text.contains(WORKSPACE_PLACEHOLDER),
+        "the recorded repo_root should be threaded through as {WORKSPACE_PLACEHOLDER}"
+    );
+    // And the specific field the board flagged is placeholder'd, not a real path.
+    let repo_root = load_frames(FIXTURE)
+        .into_iter()
+        .find(|f| f.dir == "in" && f.method == "session/open")
+        .and_then(|f| f.body.get("panes").and_then(|p| p.get("git")).and_then(|g| g.get("repo_root")).cloned());
+    if let Some(serde_json::Value::String(root)) = repo_root {
+        assert_eq!(
+            root, WORKSPACE_PLACEHOLDER,
+            "panes.git.repo_root must be the placeholder, not a machine path"
+        );
+    }
 }
 
 /// **The card's core test.** Replay the recorded real notifications through the
