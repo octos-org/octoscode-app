@@ -28,11 +28,11 @@ mkdir -p "$WS/octoscript-makepad/apps/kit-host/resources/ux"
 #    moved its context. Detect the fully-applied state from the TOP patch, and
 #    otherwise rebuild the renderer from pristine and apply both in order —
 #    deterministic and order-correct (the clone is a build artifact).
-TOP="$PWD/design/stage-b/conversation/tools/renderer-16c.patch"
+TOP="$PWD/design/stage-b/conversation/tools/renderer-16e.patch"
 if ! git -C "$WS/octoscript-makepad" apply --reverse --check "$TOP" >/dev/null 2>&1; then
   git -C "$WS/octoscript-makepad" checkout -- \
     crates/octoscript-makepad/src/design.rs apps/kit-host/src/beauty.rs
-  for PATCH in renderer-inline-code.patch renderer-responsive.patch renderer-16c.patch; do
+  for PATCH in renderer-inline-code.patch renderer-responsive.patch renderer-16c.patch renderer-16d.patch renderer-16e.patch; do
     git -C "$WS/octoscript-makepad" apply "$PWD/design/stage-b/conversation/tools/$PATCH"
     echo "applied $PATCH"
   done

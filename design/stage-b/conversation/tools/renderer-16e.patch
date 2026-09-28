@@ -1,0 +1,42 @@
+--- a/crates/octoscript-makepad/src/design.rs
++++ b/crates/octoscript-makepad/src/design.rs
+@@ -593,6 +593,12 @@
+                 } else {
+                     "align"
+                 };
++                // Card #16e: a plain Text leaf that WRAPS repeats the same trap
++                // the flow arm had — its `h` can be a multi-line box, so the
++                // single-line test must be explicit here, and the wrapped-line
++                // advance is clamped to 1.4x the font size below.
++                let single_line = a.variant.as_deref()==Some("single_line")
++                    || a.h.unwrap_or(0.) <= a.line_height.unwrap_or(size * 1.3) + 0.5;
+                 writeln!(
+                     out,
+                     "padding: 0 text: {:?} {align_property}: Align{{x: {} y: 0.5}}",
+@@ -614,7 +620,7 @@
+                         a.password.unwrap_or(0) != 0
+                     )
+                     .unwrap();
+-                } else if a.variant.as_deref()==Some("single_line") || a.h.unwrap_or(0.) <= a.line_height.unwrap_or(size * 1.3) + 0.5 {
++                } else if single_line {
+                     // A single Sketch line must not wrap a whole word because
+                     // native font advances differ by a fraction of a point.
+                     // Card #16b: a single line that FILLS its slot has a width
+@@ -639,7 +645,16 @@
+                 } else {
+                     2478. / 2048.
+                 };
+-                let spacing = if a.font_asc.is_some() {1.0} else {a.line_height.unwrap_or(size * line_box) / (size * line_box)};
++                // Card #16e: same 1.4x rule as the flow arm, flag-free and
++                // renderer-wide. Only a WRAPPING Text node is clamped, so every
++                // approved scene (single-line text, or flow regions) is untouched.
++                let wrap_text = n.kind == NodeKind::Text && !single_line;
++                let lh = if wrap_text {
++                    a.line_height.unwrap_or(size * line_box).min(size * 1.4)
++                } else {
++                    a.line_height.unwrap_or(size * line_box)
++                };
++                let spacing = if a.font_asc.is_some() {1.0} else {lh / (size * line_box)};
+                 let shift = if a
+                     .text
+                     .as_deref()

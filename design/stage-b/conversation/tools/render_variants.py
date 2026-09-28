@@ -86,7 +86,7 @@ RESPONSIVE = {   'thread-row': {   'thread_1': {'fillw': 1, 'fith': 1},
                       'worked_row_surface': {'fillw': 1},
                       'worked_row_control': {'fillw': 1, 'fillh': 1},
                       'worked_row_label': {'fillw': 1}},
-    'user-bubble': {'user_bubble': {'fitw': 1, 'alignx': 1}, 't01': {}, 't02': {}},
+    'user-bubble': {'user_bubble': {'alignx': 1}, 't01': {}, 't02': {}},
     'working-row': {'working_row': {'fillw': 1, 'fith': 1}, 't03': {'fillw': 1}},
     'assistant-prose': {'answer_prose': {'fillw': 1, 'fith': 1}, 'answer_md': {'fillw': 1, 'fith': 1}},
     'answer-actions': {   'answer_actions': {'fillw': 1, 'fith': 1},
@@ -181,6 +181,7 @@ RESPONSIVE = {   'thread-row': {   'thread_1': {'fillw': 1, 'fith': 1},
 
 # The expanded tool-cell console, from scene 04's third card (`tool_3_output`).
 OUTPUT_BOX = {"t": "stack", "id": "tool_1_output", "x": 10, "y": 84, "w": 351, "h": 116,
+              "fillw": 1,
               "variant": "surface", "bg": MONOBG, "radius": 8, "c": [
                   {"t": "text", "id": "o1", "x": 18, "y": 10, "w": 316, "h": 17, "size": 13.4,
                    "weight": 400, "font_src": MONO, "line_height": 16.6, "color": 4281216815,
@@ -203,7 +204,7 @@ FAILED_X = {"t": "text", "id": "status_x", "x": 336, "y": 25, "w": 20, "h": 23, 
 # Card #16c: the compose (pencil) glyph lives at the new-chat row's right edge in
 # scene 01, as a SIBLING of `new_chat` — so extraction (which takes only the root
 # subtree) dropped it. Re-attach it, parent-relative (scene x347-16=331, y130-120=10).
-COMPOSE_ICON = {"t": "svg", "id": "icon_compose", "x": 347, "y": 10, "w": 24, "h": 28,
+COMPOSE_ICON = {"t": "svg", "id": "icon_compose", "x": 332, "y": 24.5, "w": 24, "h": 28,
                 "alignx": 1, "src": ""}
 # Card #16c: a command cell ("Ran cargo test") carries the terminal `>_` glyph, not
 # the file glyph (which is for Read/Edit). Same measured box as `icon_file`.
@@ -269,10 +270,13 @@ VARIANTS = {   'thread-row': {   'short': {   'text': {'thread_1_label': 'Add se
                                                       'src': ''})]}},
     'user-bubble': {   'short': {   'text': {'t01': 'Retry the build'},
                                     'drop': ['t02'],
-                                    'flags': {'user_bubble': {'h': 50.2}}},
-                       'long': {   'text': {   't01': 'Fix the steer queue so queued',
-                                               't02': 'steers survive a reconnect'},
-                                   'flags': {'user_bubble': {'h': 85.09}}}},
+                                    'flags': {'user_bubble': {'w': 135.0, 'h': 50.2}}},
+                       'long': {   'text': {'t01': 'Fix the steer queue so queued steers '
+                                                   'survive a reconnect'},
+                                   'drop': ['t02'],
+                                   'flags': {   'user_bubble': {'h': 85.09},
+                                                't01': {   'variant': 'wrap', 'w': 252.6,
+                                                           'h': 63.0, 'line_height': 38.0}}}},
     'working-row': {   'short': {'text': {'t03': 'Working • 3s'}},
                        'long': {'text': {'t03': 'Working • 12s'}}},
     'assistant-prose': {   'short': {'text': {'answer_md': 'Fixed `steer_dropped` handling.'}},
@@ -296,7 +300,7 @@ VARIANTS = {   'thread-row': {   'short': {   'text': {'thread_1_label': 'Add se
     'answer-actions': {'short': {'text': {'t11': 'now'}}, 'long': {'text': {'t11': 'Sep 28, 9:41 PM'}}},
     'tool-cell': {   'short': {'text': {'t01': 'Read ui_protocol_transport.rs', 't02': '• 412 lines'}},
                      'long': {   'text': {'t01': 'Ran cargo test -p octos-cli', 't02': '• 12 passed'},
-                                 'flags': {'tool_1': {'h': 210}},
+                                 'flags': {'tool_1': {'h': 210, 'fith': 0}},
                                  'drop': ['icon_file'],
                                  'insert': [   (   'tool_1',
                                                    {   't': 'svg',
@@ -400,7 +404,7 @@ VARIANTS = {   'thread-row': {   'short': {   'text': {'thread_1_label': 'Add se
                                                          'text': '✕'})]}},
     'composer': {   'short': {'text': {}},
                     'long': {   'text': {'composer_idle_input': 'also add a test for reconnect'},
-                                'flags': {   'composer_idle': {'h': 250},
+                                'flags': {   'composer_idle': {'h': 250, 'fith': 0},
                                              'composer_idle_input': {'y': 68.556},
                                              'icon_plus1': {'y': 186.778},
                                              'pill1': {'y': 179.0},
