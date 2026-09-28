@@ -1,15 +1,97 @@
-//! `task` state: background tasks and their output.
+//! `task` state: background tasks, their output, and the agent's plan.
 //!
-//! Stub for the fan-out lane (`task/list`, `task/output/read`, `task/artifact/*`).
+//! [F4] Owns: `task/list`, `task/cancel`, `task/artifact/list`,
+//! `task/artifact/read` request state (the rows), plus the `task/updated`,
+//! `task/output/delta` and `plan/updated` notifications.
+//!
+//! The row shape follows the web client's `SupervisedTask` projection
+//! (`src-web/apps/web/src/features/supervision/model.ts:12`, `tasksFromList`
+//! `:84`, `applyTaskUpdated` `:104`) and the plan follows `plan.ts`
+//! (`applyPlanUpdated` `:20` replaces wholesale; `clearPlanForTurn` `:31` drops
+//! a plan when its *authoring* turn terminates).
 use std::collections::HashMap;
 use std::sync::Mutex;
 
-/// One background task, as the list/update rows describe it.
+/// One background task, as the original stub described it (kept verbatim so
+/// existing callers keep compiling).
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Task {
     pub id: String,
     pub title: Option<String>,
     pub state: Option<String>,
+}
+
+/// A task row shaped for the supervision UI (`SupervisedTask`,
+/// `model.ts:12`): the fields `task/list` and `task/updated` both carry, merged
+/// the way the web's `applyTaskUpdated` merges a sparse live update onto a row.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TaskSnapshot {
+    pub id: String,
+    pub tool_name: String,
+    pub state: String,
+    pub status: String,
+    pub title: Option<String>,
+    pub role: Option<String>,
+    pub source: Option<String>,
+    pub summary: Option<String>,
+    pub artifact_count: u32,
+    pub output_files: Vec<String>,
+    pub error: Option<String>,
+    pub updated_at: Option<String>,
+}
+
+impl TaskSnapshot {
+    /// The `task/list` projection (`tasksFromList`, `model.ts:84`).
+    pub fn from_list_row(
+        id: String,
+        tool_name: String,
+        state: String,
+        status: String,
+        title: Option<String>,
+        role: Option<String>,
+        source: Option<String>,
+        summary: Option<String>,
+        artifact_count: u32,
+        output_files: Vec<String>,
+        error: Option<String>,
+        updated_at: Option<String>,
+    ) -> Self {
+        Self {
+            id,
+            tool_name,
+            state,
+            status,
+            title,
+            role,
+            source,
+            summary,
+            artifact_count,
+            output_files,
+            error,
+            updated_at,
+        }
+    }
+}
+
+/// One plan item (`UiPlanItem`; status is the wire snake_case string).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PlanItem {
+    pub id: String,
+    pub title: String,
+    pub status: String,
+    pub priority: Option<String>,
+}
+
+/// The agent's plan for one session. `plan/updated` REPLACES it wholesale
+/// (`plan.ts:20`), so this is stored per session, not merged item-by-item.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Plan {
+    pub items: Vec<PlanItem>,
+    pub title: Option<String>,
+    pub updated_at_ms: i64,
+    /// The turn that authored the plan, when the server named one — the key
+    /// `clear_plan_for_turn` matches on.
+    pub turn_id: Option<String>,
 }
 
 /// The task domain.
@@ -21,9 +103,17 @@ pub struct Tasks {
 #[derive(Debug, Default)]
 struct Inner {
     tasks: HashMap<String, Task>,
+    /// The richer `task/list`/`task/updated` projection, keyed by task id.
+    snapshots: HashMap<String, TaskSnapshot>,
+    /// The plan per session (a plan with no authoring turn has no removal key).
+    plans: HashMap<String, Plan>,
+    /// Accumulated `task/output/delta` text per task.
+    output: HashMap<String, String>,
 }
 
 impl Tasks {
+    // ---- the original stub API (kept) ------------------------------------
+
     pub fn upsert(&self, task: Task) {
         self.inner.lock().unwrap().tasks.insert(task.id.clone(), task);
     }
@@ -37,5 +127,113 @@ impl Tasks {
 
     pub fn count(&self) -> usize {
         self.inner.lock().unwrap().tasks.len()
+    }
+
+    // ---- task rows (task/list + task/updated) ----------------------------
+
+    /// Upsert one row, merging a sparse live update the way
+    /// `applyTaskUpdated` does (`model.ts:104`): a field the incoming snapshot
+    /// leaves empty keeps the existing value (tool name, output files, role,
+    /// source, summary).
+    pub fn upsert_snapshot(&self, incoming: TaskSnapshot) {
+        let mut i = self.inner.lock().unwrap();
+        let merged = match i.snapshots.get(&incoming.id) {
+            None => incoming,
+            Some(existing) => {
+                let pick = |new: Option<String>, old: Option<String>| new.or(old);
+                TaskSnapshot {
+                    id: incoming.id.clone(),
+                    tool_name: if incoming.tool_name.is_empty() {
+                        existing.tool_name.clone()
+                    } else {
+                        incoming.tool_name.clone()
+                    },
+                    state: incoming.state.clone(),
+                    status: incoming.status.clone(),
+                    title: pick(incoming.title.clone(), existing.title.clone()),
+                    role: pick(incoming.role.clone(), existing.role.clone()),
+                    source: pick(incoming.source.clone(), existing.source.clone()),
+                    summary: pick(incoming.summary.clone(), existing.summary.clone()),
+                    artifact_count: if incoming.artifact_count == 0 {
+                        existing.artifact_count
+                    } else {
+                        incoming.artifact_count
+                    },
+                    output_files: if incoming.output_files.is_empty() {
+                        existing.output_files.clone()
+                    } else {
+                        incoming.output_files.clone()
+                    },
+                    error: pick(incoming.error.clone(), existing.error.clone()),
+                    updated_at: pick(incoming.updated_at.clone(), existing.updated_at.clone()),
+                }
+            }
+        };
+        i.snapshots.insert(merged.id.clone(), merged);
+    }
+
+    pub fn snapshot(&self, id: &str) -> Option<TaskSnapshot> {
+        self.inner.lock().unwrap().snapshots.get(id).cloned()
+    }
+
+    /// All rows, sorted by id (deterministic for tests).
+    pub fn snapshots(&self) -> Vec<TaskSnapshot> {
+        let i = self.inner.lock().unwrap();
+        let mut v: Vec<TaskSnapshot> = i.snapshots.values().cloned().collect();
+        v.sort_by(|a, b| a.id.cmp(&b.id));
+        v
+    }
+
+    pub fn snapshot_count(&self) -> usize {
+        self.inner.lock().unwrap().snapshots.len()
+    }
+
+    // ---- plans (plan/updated) --------------------------------------------
+
+    /// Replace a session's plan wholesale (`plan.ts:20`).
+    pub fn set_plan(&self, session: &str, plan: Plan) {
+        self.inner.lock().unwrap().plans.insert(session.to_owned(), plan);
+    }
+
+    pub fn plan(&self, session: &str) -> Option<Plan> {
+        self.inner.lock().unwrap().plans.get(session).cloned()
+    }
+
+    /// Drop a session's plan when its authoring turn terminates. Turn-matched,
+    /// so a replayed terminal for an older turn cannot clear a newer plan
+    /// (`clearPlanForTurn`, `plan.ts:31`). Returns whether a plan was removed.
+    pub fn clear_plan_for_turn(&self, session: &str, turn_id: &str) -> bool {
+        let mut i = self.inner.lock().unwrap();
+        let matches = i
+            .plans
+            .get(session)
+            .map(|p| p.turn_id.as_deref() == Some(turn_id))
+            .unwrap_or(false);
+        if matches {
+            i.plans.remove(session);
+        }
+        matches
+    }
+
+    // ---- task output (task/output/delta) ---------------------------------
+
+    pub fn append_output(&self, task_id: &str, text: &str) {
+        self.inner
+            .lock()
+            .unwrap()
+            .output
+            .entry(task_id.to_owned())
+            .or_default()
+            .push_str(text);
+    }
+
+    pub fn output(&self, task_id: &str) -> String {
+        self.inner
+            .lock()
+            .unwrap()
+            .output
+            .get(task_id)
+            .cloned()
+            .unwrap_or_default()
     }
 }
