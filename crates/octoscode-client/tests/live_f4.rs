@@ -54,6 +54,27 @@ impl Method for SessionOpen {
 /// Bring up the real transport on a runtime thread; drain its events so the
 /// channel never back-pressures; hand back the client.
 async fn connect() -> Client {
+    // Request the harness feature flags with the handshake — the SAME opt-in the
+    // web client performs. Three SEPARATE server gates are involved
+    // (`octos-cli api/ui_protocol_transport.rs`):
+    //   - `task/list`, `task/cancel` — capability-gated by
+    //     `harness.task_control.v1` (octos-core `ui_protocol.rs:342-343`).
+    //   - `task/artifact/list|read` — `autonomy_method_available` routes them to
+    //     `agent_control_available()` (`:18673-18676`), which needs BOTH
+    //     `coding.autonomy.v1` AND `coding.agent_control.v1` (`:2366-2368`),
+    //     NOT `harness.task_artifacts.v1`.
+    //   - `mcp/status/list` — an AppUI extension with no feature gate.
+    let mut capabilities = Capabilities::requested();
+    for feature in [
+        "harness.task_control.v1",
+        "harness.task_artifacts.v1",
+        "coding.autonomy.v1",
+        "coding.agent_control.v1",
+    ] {
+        capabilities
+            .raw
+            .insert(feature.to_owned(), serde_json::Value::Bool(true));
+    }
     let cfg = TransportConfig {
         base_url: Url::parse(&base_url()).expect("OCTOS_BASE_URL parses"),
         bearer: SecretString::new(
@@ -64,7 +85,7 @@ async fn connect() -> Client {
         ),
         cursor: None,
         cursor_file: None,
-        requested_capabilities: Capabilities::requested(),
+        requested_capabilities: capabilities,
         workspace_cwd: None,
         local_kernel: false,
     };
