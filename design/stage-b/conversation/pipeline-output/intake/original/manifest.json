@@ -1,0 +1,223 @@
+{
+  "schema_version": 1,
+  "id": "octoscode-conversation",
+  "artboard": [
+    406,
+    776
+  ],
+  "locales": [
+    "en",
+    "cn"
+  ],
+  "generation": {
+    "atlas": "source/atlas.png",
+    "prompt": "source/prompt.txt",
+    "provider": "openai",
+    "model": "gpt-image-2",
+    "requested_size": [
+      2048,
+      3072
+    ],
+    "quality": "high"
+  },
+  "scenes": [
+    {
+      "id": "1",
+      "design_id": "conversation-01",
+      "directory": "cards/conversation-01",
+      "crop": [
+        28,
+        80,
+        471,
+        874
+      ],
+      "surface": "app",
+      "title": "Thread list"
+    },
+    {
+      "id": "2",
+      "design_id": "conversation-02",
+      "directory": "cards/conversation-02",
+      "crop": [
+        529,
+        80,
+        466,
+        874
+      ],
+      "surface": "app",
+      "title": "New chat"
+    },
+    {
+      "id": "3",
+      "design_id": "conversation-03",
+      "directory": "cards/conversation-03",
+      "crop": [
+        1025,
+        77,
+        466,
+        875
+      ],
+      "surface": "app",
+      "title": "Streaming turn"
+    },
+    {
+      "id": "4",
+      "design_id": "conversation-04",
+      "directory": "cards/conversation-04",
+      "crop": [
+        1532,
+        77,
+        471,
+        876
+      ],
+      "surface": "app",
+      "title": "Tool cells"
+    },
+    {
+      "id": "5",
+      "design_id": "conversation-05",
+      "directory": "cards/conversation-05",
+      "crop": [
+        28,
+        1090,
+        469,
+        792
+      ],
+      "surface": "app",
+      "title": "Inline approval"
+    },
+    {
+      "id": "6",
+      "design_id": "conversation-06",
+      "directory": "cards/conversation-06",
+      "crop": [
+        528,
+        1091,
+        456,
+        791
+      ],
+      "surface": "app",
+      "title": "User question"
+    },
+    {
+      "id": "7",
+      "design_id": "conversation-07",
+      "directory": "cards/conversation-07",
+      "crop": [
+        1022,
+        1091,
+        465,
+        793
+      ],
+      "surface": "app",
+      "title": "Edited files"
+    },
+    {
+      "id": "8",
+      "design_id": "conversation-08",
+      "directory": "cards/conversation-08",
+      "crop": [
+        1526,
+        1091,
+        476,
+        791
+      ],
+      "surface": "app",
+      "title": "Composer states"
+    },
+    {
+      "id": "9",
+      "design_id": "conversation-09",
+      "directory": "cards/conversation-09",
+      "crop": [
+        28,
+        2035,
+        471,
+        897
+      ],
+      "surface": "app",
+      "title": "Completed answer"
+    },
+    {
+      "id": "10",
+      "design_id": "conversation-10",
+      "directory": "cards/conversation-10",
+      "crop": [
+        530,
+        2039,
+        458,
+        962
+      ],
+      "surface": "app",
+      "title": "Goal and plan"
+    },
+    {
+      "id": "11",
+      "design_id": "conversation-11",
+      "directory": "cards/conversation-11",
+      "crop": [
+        1017,
+        2038,
+        466,
+        963
+      ],
+      "surface": "app",
+      "title": "Review diff"
+    },
+    {
+      "id": "12",
+      "design_id": "conversation-12",
+      "directory": "cards/conversation-12",
+      "crop": [
+        1523,
+        2036,
+        474,
+        964
+      ],
+      "surface": "app",
+      "title": "Settings card"
+    }
+  ],
+  "artwork": {
+    "source_prefix": "http://127.0.0.1:8170/ux-images/",
+    "root": "artwork"
+  },
+  "outputs": {
+    "intake": "pipeline-output/intake",
+    "cards": "pipeline-output/service-cards",
+    "bundle": "wizard/card-bundle",
+    "wasm": "wizard/wasm-dist",
+    "runs": "pipeline-output/runs"
+  },
+  "browser_modules": [
+    "wizard/service.mjs",
+    "wizard/render.mjs",
+    "wizard/wizard.mjs"
+  ],
+  "cards": [],
+  "checks": {
+    "service-test": [
+      {
+        "argv": [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "service",
+          "-p",
+          "test_*.py"
+        ],
+        "cwd": "."
+      },
+      {
+        "argv": [
+          "{node}",
+          "--test",
+          "wizard/service.test.mjs"
+        ],
+        "cwd": "."
+      }
+    ]
+  }
+}

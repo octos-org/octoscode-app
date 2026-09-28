@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "flow": "octoscode-conversation",
+  "status": "completed",
+  "scope": "Only explicitly executed stages; no automatic visual or production acceptance",
+  "inputs": {
+    "sha256": "032525385b0f4c4af1086afa6e068a361028ef135d7b63e30bf735c59685cc5a",
+    "files": {
+      "image-to-appcard-flow.json": "51ca03030911cb5c8797a1cf8778cf4b3ab8756c645cc0dabe70580615719c5c",
+      "source/atlas.png": "4d40773906ee473000ab204d83b1e5f137f167515366124164f67a4322d8cb13",
+      "source/prompt.txt": "f8b61ed21c5f4ea6f5add89edff35d3149f501c63453d46c706bcef43c94495c",
+      "cards/conversation-01/contract.json": null,
+      "cards/conversation-01/mapped.json": null,
+      "cards/conversation-01/semantic-map.json": null,
+      "cards/conversation-01/service-actions.json": null,
+      "cards/conversation-02/contract.json": null,
+      "cards/conversation-02/mapped.json": null,
+      "cards/conversation-02/semantic-map.json": null,
+      "cards/conversation-02/service-actions.json": null,
+      "cards/conversation-03/contract.json": null,
+      "cards/conversation-03/mapped.json": null,
+      "cards/conversation-03/semantic-map.json": null,
+      "cards/conversation-03/service-actions.json": null,
+      "cards/conversation-04/contract.json": null,
+      "cards/conversation-04/mapped.json": null,
+      "cards/conversation-04/semantic-map.json": null,
+      "cards/conversation-04/service-actions.json": null,
+      "cards/conversation-05/contract.json": null,
+      "cards/conversation-05/mapped.json": null,
+      "cards/conversation-05/semantic-map.json": null,
+      "cards/conversation-05/service-actions.json": null,
+      "cards/conversation-06/contract.json": null,
+      "cards/conversation-06/mapped.json": null,
+      "cards/conversation-06/semantic-map.json": null,
+      "cards/conversation-06/service-actions.json": null,
+      "cards/conversation-07/contract.json": null,
+      "cards/conversation-07/mapped.json": null,
+      "cards/conversation-07/semantic-map.json": null,
+      "cards/conversation-07/service-actions.json": null,
+      "cards/conversation-08/contract.json": null,
+      "cards/conversation-08/mapped.json": null,
+      "cards/conversation-08/semantic-map.json": null,
+      "cards/conversation-08/service-actions.json": null,
+      "cards/conversation-09/contract.json": null,
+      "cards/conversation-09/mapped.json": null,
+      "cards/conversation-09/semantic-map.json": null,
+      "cards/conversation-09/service-actions.json": null,
+      "cards/conversation-10/contract.json": null,
+      "cards/conversation-10/mapped.json": null,
+      "cards/conversation-10/semantic-map.json": null,
+      "cards/conversation-10/service-actions.json": null,
+      "cards/conversation-11/contract.json": null,
+      "cards/conversation-11/mapped.json": null,
+      "cards/conversation-11/semantic-map.json": null,
+      "cards/conversation-11/service-actions.json": null,
+      "cards/conversation-12/contract.json": null,
+      "cards/conversation-12/mapped.json": null,
+      "cards/conversation-12/semantic-map.json": null,
+      "cards/conversation-12/service-actions.json": null,
+      "wizard/service.mjs": null,
+      "wizard/render.mjs": null,
+      "wizard/wizard.mjs": null
+    }
+  },
+  "stages": [
+    {
+      "stage": "intake",
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "/Users/yuechen/miniconda3/bin/python3",
+            "/Users/yuechen/home/oa.noindex/p0-harness/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/atlas.py",
+            "--project",
+            "/Users/yuechen/home/oa.noindex/p0-harness/design/stage-b/conversation",
+            "--manifest",
+            "/Users/yuechen/home/oa.noindex/p0-harness/design/stage-b/conversation/image-to-appcard-flow.json",
+            "--output",
+            "/Users/yuechen/home/oa.noindex/p0-harness/design/stage-b/conversation/pipeline-output/intake"
+          ],
+          "cwd": "/Users/yuechen/home/oa.noindex/p0-harness/design/stage-b/conversation"
+        }
+      ],
+      "logs": [
+        {
+          "path": "intake-0.log",
+          "sha256": "13542c4390cbf51b2d0a61e16afcdbf7f5c06f980c7e67869aabd9c7643d9924",
+          "exit_code": 0
+        }
+      ]
+    }
+  ],
+  "not_run": [
+    "prepare",
+    "observe",
+    "measure",
+    "map",
+    "semantic",
+    "compile",
+    "capture",
+    "gate",
+    "extract",
+    "bundle",
+    "service-test",
+    "wasm",
+    "integrate",
+    "web-test",
+    "hosted-test"
+  ],
+  "finished_at": "2026-09-28T07:38:50.017253+00:00"
+}
