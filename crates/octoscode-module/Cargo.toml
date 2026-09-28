@@ -20,3 +20,9 @@ serde_json = { workspace = true }
 tokio = { workspace = true }
 log = { workspace = true }
 url = "2"
+
+[dev-dependencies]
+# The fake WS server (card #12 §1 fake test, §5 headless proof). Same
+# tokio-tungstenite major the transport uses.
+tokio-tungstenite = "0.24"
+futures-util = "0.3"
