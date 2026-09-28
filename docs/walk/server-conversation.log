@@ -1,0 +1,29 @@
+[replay-serve] scenario=conversation fixture=live-gate-a6ea8505.jsonl: 266 frames; recorded session `dsflash:main`; 2 recorded turns ["01a0e75b-dfb8-708a-a7ce-5d29c534f2f6", "01a0e75b-f89c-7042-8372-06590a201ac8"]; 6 standalone notifications
+[replay-serve] listening on ws://127.0.0.1:8380/api/ui-protocol/ws (delay 2ms)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] <- session/list (id=1)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] <- session/list (id=1)
+[replay-serve] <- turn/start (id=2)
+[replay-serve] replaying 01a0e75b-dfb8-708a-a7ce-5d29c534f2f6 (163 recorded frames)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] <- session/list (id=1)
+[replay-serve] <- turn/start (id=2)
+[replay-serve] replaying 01a0e75b-dfb8-708a-a7ce-5d29c534f2f6 (163 recorded frames)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] <- session/list (id=1)
+[replay-serve] <- session/list (id=2)
+[replay-serve] <- session/open (id=3)
+[replay-serve] <- session/list (id=4)

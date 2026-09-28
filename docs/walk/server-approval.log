@@ -1,0 +1,7 @@
+[replay-serve] scenario=approval fixture=r5-turn-a6ea8505.jsonl: 49 frames; recorded session `octoscode49213:main`; 4 recorded turns ["01920000-0000-7000-8000-0000000000a1", "01920000-0000-7000-8000-0000000000b2", "01920000-0000-7000-8000-0000000000c3", "01a0e774-0822-7ec3-9495-594014d2953c"]; 10 standalone notifications
+[replay-serve] listening on ws://127.0.0.1:8381/api/ui-protocol/ws (delay 2ms)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] <- session/list (id=1)
