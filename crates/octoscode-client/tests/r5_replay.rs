@@ -210,7 +210,49 @@ async fn capture_r5_frames() {
     // Fixture turn 3 — approval, respond **deny**.
     run_approval_fixture(&client, &trace, &seen, &session_id, TURN_DENY, "deny").await;
 
-    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+    // The remaining F5 domain methods, exercised **last** so their side effects
+    // cannot disturb the fixture turns above. All real frames, no model work:
+    //  * `turn/steer` on an idle session → codex parity (`NoActiveTurn`): the
+    //    input is submitted as a **fresh** turn and the receipt is
+    //    `{turn_id: <new>, steered:false}` (the web's valid-receipt shape). The
+    //    deterministic Basic fixture answers that fresh turn, so no model is
+    //    called. This is why it must run last: the fresh turn would otherwise
+    //    occupy the session and starve a fixture turn.
+    //  * `user_question/respond` with no pending question → typed `-32106`.
+    //  * `review/start` for an unknown profile → typed refusal (its success path
+    //    starts a server-owned review = model work, outside the card's allowance).
+    let tail_probes: [(&str, Value); 3] = [
+        (
+            "turn/steer",
+            json!({"session_id": session_id,
+                   "expected_turn_id": TURN_TOOL,
+                   "input": [{"kind": "text", "text": "steer with no live turn"}]}),
+        ),
+        (
+            "user_question/respond",
+            json!({"session_id": session_id,
+                   "question_id": "01920000-0000-7000-8000-0000000000d4",
+                   "answers": [{"selected_labels": ["Yes"]}]}),
+        ),
+        (
+            "review/start",
+            json!({"session_id": "not-this-profile:main",
+                   "turn_id": TURN_TOOL,
+                   "delivery": "inline"}),
+        ),
+    ];
+    for (method, params) in tail_probes {
+        match client.request(method, params).await {
+            Ok(v) => trace.result(method, None, &v),
+            Err(octoscode_client::ClientError::Rpc { method, error }) => {
+                trace.error(&method, None, &error.message, error.code)
+            }
+            Err(other) => eprintln!("capture: {method} unexpected {other:?}"),
+        }
+    }
+    // Drain the steer's admitted Basic turn + any trailing frames.
+    tokio::time::sleep(std::time::Duration::from_secs(3)).await;
+
     drop(client);
     eprintln!("capture: wrote {}", path.display());
 }
@@ -278,6 +320,9 @@ struct Frame {
     dir: String,
     method: String,
     body: Value,
+    /// The RPC error, when the frame is an error frame (the trace writes it
+    /// under `error`, not `body`).
+    error: Option<Value>,
 }
 
 fn load_fixture() -> Vec<Frame> {
@@ -290,6 +335,7 @@ fn load_fixture() -> Vec<Frame> {
                 dir: v["dir"].as_str().unwrap_or("").to_owned(),
                 method: v["method"].as_str().unwrap_or("").to_owned(),
                 body: v["body"].clone(),
+                error: v.get("error").cloned(),
             }
         })
         .collect()
@@ -365,7 +411,19 @@ fn the_fixture_is_a_real_recording_of_this_domain() {
             "the real server does not send a bare `{bare}` (it uses the envelope)"
         );
     }
-    for out in ["turn/start", "approval/respond", "thread/graph/get", "approval/scopes/list", "turn/state/get"] {
+    for out in [
+        "turn/start",
+        "approval/respond",
+        "thread/graph/get",
+        "approval/scopes/list",
+        "turn/state/get",
+        // Every method in the F5 domain files was exercised live, including the
+        // three whose only deterministic path is a refusal (success would need
+        // model work the card's allowance forbids recording here).
+        "turn/steer",
+        "user_question/respond",
+        "review/start",
+    ] {
         assert!(
             frames.iter().any(|f| f.dir == "out" && f.method == out),
             "the recording must carry our outbound `{out}`"
@@ -374,13 +432,61 @@ fn the_fixture_is_a_real_recording_of_this_domain() {
 }
 
 #[test]
+fn recorded_refusals_decode_as_the_server_sent_them() {
+    let frames = load_fixture();
+
+    // `turn/steer` with no live turn: the server answers a REAL result
+    // (`steered:false` + a fresh turn id) — which the web's `steer.ts` receipt
+    // rule accepts (`steered:false` ⇒ `turn_id !== expected_turn_id`). Decode it
+    // with the domain's own type.
+    let steer = frames
+        .iter()
+        .find(|f| f.dir == "in" && f.method == "turn/steer")
+        .expect("the recording carries the steer refusal");
+    let steer_result: octoscode_client::domains::turn::TurnSteerResult =
+        serde_json::from_value(steer.body.clone()).expect("decodes as TurnSteerResult");
+    assert!(
+        !steer_result.steered,
+        "no live turn ⇒ steered:false; got {steer_result:?}"
+    );
+    assert_ne!(
+        steer_result.turn_id, TURN_TOOL,
+        "a refused steer names a different turn (the web's valid-receipt shape)"
+    );
+
+    // `user_question/respond` with no pending question: the server's typed
+    // `-32106` refusal (`user_question/respond target was not found`).
+    let q = frames
+        .iter()
+        .find(|f| f.dir == "in" && f.method == "user_question/respond")
+        .expect("the recording carries the question refusal");
+    assert_eq!(
+        q.error.as_ref().and_then(|e| e["code"].as_i64()),
+        Some(-32106),
+        "the question refusal is the typed `target was not found` error: {q:?}"
+    );
+
+    // `review/start` for an unknown profile: a typed refusal, never a silent
+    // success (the fixture mode cannot start a server-owned review without
+    // model work, so the refusal is the recorded path).
+    let r = frames
+        .iter()
+        .find(|f| f.dir == "in" && f.method == "review/start")
+        .expect("the recording carries the review-start refusal");
+    assert!(
+        r.error.as_ref().and_then(|e| e["code"].as_i64()).is_some(),
+        "the review refusal is a typed RPC error: {r:?}"
+    );
+}
+
+#[test]
 fn replayed_envelopes_fold_turn_text_and_tool_rows_into_the_store() {
     let frames = load_fixture();
     let (store, _) = replay_into_store(&frames);
     let session = session_of(&frames);
 
-    // project/envelope tilled the timeline: an assistant entry closed at each
-    // turn boundary, and the approval decision echoed as its text.
+    // projection/envelope filled the timeline: the approval decision echo
+    // (assistant_delta) folded into an assistant entry per turn.
     let text = store.domains.session.timeline.assistant_text(&session);
     assert!(
         text.contains("approval approved"),
@@ -394,14 +500,73 @@ fn replayed_envelopes_fold_turn_text_and_tool_rows_into_the_store() {
     // The tool fixture drove the tool domain from the envelope `tool_*` payloads
     // (`call_started`/`call_ended`, the same rows the bare tool notifications write).
     let calls = store.domains.tool.calls();
-    assert!(
-        calls.iter().any(|t| t.name == "list_dir"),
-        "the tool fixture's `list_dir` call must land; got {calls:?}"
+    let row = calls
+        .iter()
+        .find(|t| t.name == "list_dir")
+        .unwrap_or_else(|| panic!("the tool fixture's `list_dir` call must land; got {calls:?}"));
+    assert_eq!(row.status, "done", "tool_end `complete` maps to `done`: {row:?}");
+    assert_eq!(
+        row.output_preview.as_deref(),
+        Some("deterministic fixture listing"),
+        "the recorded tool_end output must survive: {row:?}"
+    );
+    assert_eq!(
+        row.duration_ms,
+        Some(1),
+        "the recorded tool_end duration must survive: {row:?}"
     );
 
-    // Envelope ordering: the fold advanced its cursor (never stuck at 0).
-    let seq = store.domains.turn.last_envelope_seq("thread-1");
-    assert!(seq.is_none() || seq.unwrap() > 0);
+    // Envelope ordering folded: the canonical cursor advanced to the max seen
+    // and each turn's thread carries its own last accepted seq.
+    let (stream, seq) = store
+        .domains
+        .turn
+        .envelope_cursor()
+        .expect("the envelopes advanced the canonical cursor");
+    assert_eq!(stream, session, "the cursor stream is the session");
+    // The cursor advances to the max `cursor.seq` in the recording — derived,
+    // not hard-coded, so the tail probes (a fresh Basic turn) cannot silently
+    // invalidate this assertion.
+    let max_cursor = frames
+        .iter()
+        .filter(|f| f.dir == "in" && f.method == "projection/envelope")
+        .filter_map(|f| f.body["cursor"]["seq"].as_u64())
+        .max()
+        .expect("the recording carries envelope cursors");
+    assert_eq!(seq, max_cursor, "the cursor advances to the max recorded seq: got {seq}");
+
+    // The tool turn's thread (its turn id) folded through seq 4, then went terminal.
+    // (Each turn is its own thread with its own 1-based seq, so a later turn
+    // cannot disturb this.)
+    assert_eq!(
+        store.domains.turn.last_envelope_seq(TURN_TOOL),
+        Some(4),
+        "the tool turn's thread folded through seq 4"
+    );
+    assert_eq!(
+        store.domains.turn.terminal(TURN_TOOL).as_deref(),
+        Some("completed"),
+        "the tool turn's `turn_terminal` was recorded"
+    );
+    assert_eq!(
+        store.domains.turn.terminal(TURN_APPROVE).as_deref(),
+        Some("completed"),
+    );
+    assert_eq!(
+        store.domains.turn.terminal(TURN_DENY).as_deref(),
+        Some("completed"),
+    );
+    // Every turn in the recording ended: nothing is left in flight.
+    assert_eq!(
+        store.domains.turn.in_flight_count(),
+        0,
+        "every fixture turn reached its terminal"
+    );
+    assert!(
+        store.domains.turn.dropped_envelopes().is_empty(),
+        "no envelope was dropped as stale: {:?}",
+        store.domains.turn.dropped_envelopes()
+    );
 }
 
 #[test]
