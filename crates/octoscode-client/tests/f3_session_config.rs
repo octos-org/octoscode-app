@@ -374,3 +374,139 @@ fn register_all_wires_the_f3_handlers() {
         assert!(reg.handles(m), "expected a handler for {m}");
     }
 }
+
+// ---------------------------------------------------- notification handlers
+//
+// One test per notification this lane handles: fixture JSON → the SAME
+// decode path the transport uses (`UiNotification::from_method_and_params`)
+// → registry dispatch → store state.
+
+/// Decode a notification from its wire JSON, exactly as the transport does.
+fn notification(method: &str, params: serde_json::Value) -> octos_core::app_ui::AppUiBackendEvent {
+    use octos_core::app_ui::AppUiBackendEvent as N;
+    N::from_method_and_params(method, params).expect("the fixture decodes")
+}
+
+fn wired() -> (octoscode_client::Registry, Arc<Store>) {
+    let store = Arc::new(Store::new());
+    let mut reg = octoscode_client::Registry::new();
+    octoscode_client::domains::register_all(&mut reg, store.clone());
+    (reg, store)
+}
+
+#[test]
+fn session_event_notification_reaches_the_store() {
+    let (mut reg, store) = wired();
+    let n = notification(
+        "session/event",
+        serde_json::json!({
+            "session_id": "c:c1", "kind": "turn.error",
+            "payload": {"code": "boom"}
+        }),
+    );
+    assert!(reg.dispatch(&n), "the session/event handler claims it");
+    let got = store.domains.session.bridged_event("c:c1").expect("stored");
+    assert_eq!(got.kind, "turn.error");
+    assert_eq!(got.payload["code"], "boom");
+    assert_eq!(store.seen_count("session/event"), 1);
+}
+
+#[test]
+fn session_orchestration_notification_reaches_the_store() {
+    let (mut reg, store) = wired();
+    let n = notification(
+        "session/orchestration",
+        serde_json::json!({
+            "session_id": "c:c1", "active": true,
+            "running_agents": 3, "pending_continuations": 1, "phase": "agents"
+        }),
+    );
+    assert!(reg.dispatch(&n));
+    let got = store.domains.session.orchestration("c:c1").expect("stored");
+    assert!(got.active);
+    assert_eq!(got.running_agents, 3);
+    assert_eq!(got.phase.as_deref(), Some("agents"));
+}
+
+#[test]
+fn session_goal_updated_and_cleared_notifications_carry_the_generation_gate() {
+    let (mut reg, store) = wired();
+    let goal = serde_json::json!({
+        "goal_id": "g1", "objective": "ship F3", "status": "active",
+        "token_budget": 0, "tokens_used": 0, "time_used_seconds": 0,
+        "created_at_ms": 0, "updated_at_ms": 0
+    });
+    // generation 5 update applies.
+    assert!(reg.dispatch(&notification(
+        "session/goal/updated",
+        serde_json::json!({"session_id": "c:c1", "goal": goal, "generation": 5, "transition_actor": "model"}),
+    )));
+    assert_eq!(store.domains.session.goal("c:c1").unwrap()["goal_id"], "g1");
+
+    // generation 4 update is stale -> dropped, goal unchanged.
+    assert!(reg.dispatch(&notification(
+        "session/goal/updated",
+        serde_json::json!({"session_id": "c:c1", "goal": goal, "generation": 4, "transition_actor": "model"}),
+    )));
+    assert_eq!(store.domains.session.goal_generation("c:c1"), 5);
+
+    // generation 6 clear applies -> goal gone.
+    assert!(reg.dispatch(&notification(
+        "session/goal/cleared",
+        serde_json::json!({"session_id": "c:c1", "generation": 6, "transition_actor": "operator"}),
+    )));
+    assert!(store.domains.session.goal("c:c1").is_none());
+    assert_eq!(store.domains.session.goal_generation("c:c1"), 6);
+}
+
+#[test]
+fn replay_lossy_notification_reaches_the_store() {
+    let (mut reg, store) = wired();
+    let n = notification(
+        "protocol/replay_lossy",
+        serde_json::json!({
+            "session_id": "c:c1", "dropped_count": 2,
+            "last_durable_cursor": {"stream": "main", "seq": 9}
+        }),
+    );
+    assert!(reg.dispatch(&n));
+    let got = store.domains.config.replay_loss("c:c1").expect("stored");
+    assert_eq!(got.dropped_count, 2);
+    assert_eq!(got.last_durable_cursor.unwrap()["seq"], 9);
+}
+
+#[test]
+fn warning_notification_reaches_the_store() {
+    let (mut reg, store) = wired();
+    let n = notification(
+        "warning",
+        serde_json::json!({
+            "session_id": "c:c1", "code": "slow", "message": "the tool is slow"
+        }),
+    );
+    assert!(reg.dispatch(&n));
+    let got = store.domains.config.warning("c:c1").expect("stored");
+    assert_eq!(got.code, "slow");
+    assert_eq!(got.message, "the tool is slow");
+}
+
+#[test]
+fn a_deliberately_unstored_notification_still_reaches_the_tolerated_arm() {
+    // 8.8 condition 7: anything this lane does not store must still be logged
+    // by name, never silently dropped. `agent/updated` belongs to another lane.
+    let (mut reg, _store) = wired();
+    let n = notification(
+        "agent/updated",
+        serde_json::json!({
+            "session_id": "c:c1",
+            "agent": {
+                "agent_id": "a1", "session_id": "c:c1", "path": "root/a1",
+                "role": "explorer", "nickname": "Scout", "backend_kind": "builtin",
+                "status": "running", "profile_id": "coding",
+                "created_at_ms": 0, "updated_at_ms": 0
+            }
+        }),
+    );
+    assert!(!reg.dispatch(&n), "no handler claims it -> tolerated-unknown");
+    assert_eq!(reg.unknown_methods(), &["agent/updated".to_string()]);
+}

@@ -30,20 +30,6 @@ fn base_url() -> String {
     std::env::var("F3_BASE_URL").unwrap_or_else(|_| "http://127.0.0.1:50130".to_string())
 }
 
-/// `profile/local/create` — the fresh-serve precondition (not a `Method`: it is
-/// the onboarding step every lane establishes first).
-struct ProfileLocalCreate;
-#[derive(serde::Serialize)]
-struct CreateParams {
-    requested_id: String,
-    name: String,
-    username: String,
-}
-#[derive(Deserialize)]
-struct CreateResult {
-    profile_id: String,
-}
-
 /// `session/open` — via the generic path (it carries the replay bracket, so it
 /// is not one of this crate's `Method`s).
 struct SessionOpen;
@@ -101,9 +87,17 @@ async fn f3_read_only_methods_round_trip_against_a_live_serve() {
     println!("profile/local/create -> profile_id={profile_id}");
 
     // 2. session/open (generic path).
+    //
+    // The id MUST embed the profile in `{profile}:{channel}:{chat_id}` form:
+    // every follow-up read routes the profile from the id ALONE. The web does
+    // exactly this in `bindWebSessionIdToProfile` (`features/session/
+    // session-identity.ts:22`, `${profile}:api:${id}`) precisely because
+    // `session/hydrate` and `session/status/read` carry no `profile_id` param.
+    // A 2-segment id falls back to `_main` and the read fails with
+    // `profile_unresolved` (verified live).
     let open = client
         .call::<SessionOpen>(SessionOpenParams {
-            session_id: octos_core::SessionKey::new(&profile_id, "main"),
+            session_id: octos_core::SessionKey::with_profile(&profile_id, "api", "main"),
             topic: None,
             profile_id: Some(profile_id.clone()),
             cwd: None,
