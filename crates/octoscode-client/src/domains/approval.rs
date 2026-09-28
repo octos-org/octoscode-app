@@ -3,14 +3,13 @@
 //! Requests implemented here: `approval/scopes/list`, `user_question/respond`.
 //! `approval/respond` stays on the transport's typed `OutboundCommand` (it
 //! carries a oneshot reply and is gated by the approval feature). Notifications
-//! this file names: `approval/requested` (stored), and `approval/decided`,
-//! `approval/cancelled`, `approval/auto_resolved` (deliberately left to the
-//! registry's tolerated-unknown arm — see `register`).
+//! this file handles: `approval/requested` (stores the pending row),
+//! `approval/decided`, `approval/cancelled` and `approval/auto_resolved`
+//! (settle the pending row so the sheet reflects the decision).
 use std::sync::Arc;
 
 use octos_core::app_ui::AppUiBackendEvent as UiNotification;
 use octos_core::ui_protocol::methods;
-use octoscode_store::domains::approval::PendingApproval;
 use octoscode_store::Store;
 
 use crate::method::Method;
@@ -27,11 +26,10 @@ impl NotificationHandler for ApprovalRequestedHandler {
             self.store.note_seen(Self::METHOD);
             // Keep the pending approval so the sheet has something to render
             // and `approval/respond` has an id to answer.
-            self.store.domains.approval.push(PendingApproval {
-                id: requested.approval_id.0.to_string(),
-                target: Some(requested.tool_name.clone()),
-                decided: false,
-            });
+            self.store
+                .domains
+                .approval
+                .request(&requested.approval_id.0.to_string(), Some(requested.tool_name.clone()));
         }
     }
 }
@@ -49,6 +47,62 @@ impl Method for ApprovalScopesList {
     type Result = octos_core::ui_protocol::ApprovalScopesListResult;
 }
 
+/// `approval/decided` — the person (or a peer) decided a pending approval.
+/// The parity matrix (`docs/parity/g-connection.csv`, row 7) says the lifecycle
+/// notifications update the UI; the store marks the row decided so the sheet
+/// stops showing it as pending. `auto_resolved` on the event separates a
+/// manual decision from a policy one, so the store keeps that flag.
+pub struct ApprovalDecidedHandler {
+    pub store: Arc<Store>,
+}
+impl NotificationHandler for ApprovalDecidedHandler {
+    const METHOD: &'static str = methods::APPROVAL_DECIDED;
+    fn handle(&self, notification: &UiNotification) {
+        if let UiNotification::ApprovalDecided(decided) = notification {
+            self.store.note_seen(Self::METHOD);
+            self.store
+                .domains
+                .approval
+                .settle(&decided.approval_id.0.to_string(), decided.auto_resolved);
+        }
+    }
+}
+
+/// `approval/cancelled` — the server cancelled a pending approval before any
+/// client could respond (`reason` follows the open `approval_cancelled_reasons`
+/// registry). The store drops the row from pending.
+pub struct ApprovalCancelledHandler {
+    pub store: Arc<Store>,
+}
+impl NotificationHandler for ApprovalCancelledHandler {
+    const METHOD: &'static str = methods::APPROVAL_CANCELLED;
+    fn handle(&self, notification: &UiNotification) {
+        if let UiNotification::ApprovalCancelled(cancelled) = notification {
+            self.store.note_seen(Self::METHOD);
+            self.store.domains.approval.cancel(&cancelled.approval_id.0.to_string());
+        }
+    }
+}
+
+/// `approval/auto_resolved` — a policy auto-resolved a pending approval
+/// (durable, replayed on reconnect). Treated as a decided row, marked
+/// auto-resolved.
+pub struct ApprovalAutoResolvedHandler {
+    pub store: Arc<Store>,
+}
+impl NotificationHandler for ApprovalAutoResolvedHandler {
+    const METHOD: &'static str = methods::APPROVAL_AUTO_RESOLVED;
+    fn handle(&self, notification: &UiNotification) {
+        if let UiNotification::ApprovalAutoResolved(auto) = notification {
+            self.store.note_seen(Self::METHOD);
+            self.store
+                .domains
+                .approval
+                .settle(&auto.approval_id.0.to_string(), true);
+        }
+    }
+}
+
 /// `user_question/respond` — the person's answer to a
 /// `user_question/requested` event (UPCR-2026-023).
 ///
@@ -63,16 +117,12 @@ impl Method for UserQuestionRespond {
     type Result = octos_core::ui_protocol::UserQuestionRespondResult;
 }
 
-/// Register this domain's notification handlers.
-///
-/// NOTE: `approval/decided`, `approval/cancelled` and `approval/auto_resolved`
-/// are deliberately NOT registered: `crates/octoscode-client/tests/client_core.rs:89`
-/// pins `!reg.handles(methods::APPROVAL_DECIDED)`, and that shared test is
-/// outside this lane's owned files. Unclaimed notifications go to the
-/// registry's tolerated-unknown arm (`registry.rs`, `debug!` by method name),
-/// never silently dropped (RULES #6, 8.8 condition 7). If the lifecycle
-/// notifications should be stored, the one-line change in `client_core.rs:89`
-/// is needed; see the F5 report.
+/// Register this domain's notification handlers: the full approval lifecycle
+/// the parity matrix names (`approval/requested` → `decided`/`cancelled`/
+/// `auto_resolved`).
 pub fn register(reg: &mut Registry, store: Arc<Store>) {
-    reg.register(ApprovalRequestedHandler { store });
+    reg.register(ApprovalRequestedHandler { store: store.clone() });
+    reg.register(ApprovalDecidedHandler { store: store.clone() });
+    reg.register(ApprovalCancelledHandler { store: store.clone() });
+    reg.register(ApprovalAutoResolvedHandler { store });
 }
