@@ -69,7 +69,12 @@ RESPONSIVE = {
                   "file_header": {"fillw": 1}, "scope_pill": {"fillw": 1}},
     "settings-group": {"settings_group": {"fillw": 1, "fith": 1},
                        "perm_card": {"fillw": 1}, "model_card": {"fillw": 1},
-                       "perm_divider": {"fillw": 1}},
+                       "perm_divider": {"fillw": 1},
+                       # t01 is a single-line label whose authored width was fitted to
+                       # the SHORT text ("Permissions"); without fillw the long variant
+                       # clips back to the same glyphs and the two renders are
+                       # byte-identical (caught by the md5 novelty census).
+                       "t01": {"fillw": 1}},
 }
 
 VARIANTS = {
