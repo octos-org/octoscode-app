@@ -265,7 +265,39 @@ pub fn lower_slot(
     }
 
     let prepared = octoscript_makepad::l0::prepare(&card_src, &data, &kit_dir(card)?)?;
-    octoscript_makepad::design::to_makepad_ui(&prepared.tree)
+
+    // EVERY card names its nodes from its own ledger (`page`, `t01`,
+    // `thread_1`, …), so five cards in ONE isolate collide: the second
+    // `set_text` re-binds `page`/`t01` and most of its subtree never lays out.
+    // `inspectable` renames each node to a positional path, and the accepted
+    // Gate-B render did exactly this before lowering
+    // (`octoscript-makepad/apps/kit-host/src/beauty.rs:90,121` — the ordered
+    // `elements` + `beauty_0_3_1` ids in `conversation-01-snap-v4.json`).
+    // We use the SLOT as the prefix so all five cards coexist.
+    let mut tree = prepared.tree;
+    octoscript_makepad::l0::inspectable(&mut tree);
+    let ui = octoscript_makepad::design::to_makepad_ui(&tree)?;
+    let prefix = slot_prefix(slot);
+    let ui = ui.replace("beauty_0", prefix);
+    // The card's ledger is a FIXED 406x776 artboard (`page := DesignSurface {
+    // width: 406 height: 776 ...`) whose children sit at MEASURED `abs_pos`.
+    // That is the size the Gate-B render captured, so the slot must give the
+    // card its own 406x776 box — a smaller box clips the absolutely-positioned
+    // children (measured: a 384x109 slot left 20 of 23 nodes at zero geometry).
+    // Left at its natural size, each slot is the card exactly as Gate-B drew it.
+    Ok(ui)
+}
+
+/// The id prefix a slot's nodes get, so several cards can share one isolate
+/// without re-binding each other's ids.
+pub fn slot_prefix(slot: cards::Slot) -> &'static str {
+    match slot {
+        cards::Slot::ThreadList => "c01",
+        cards::Slot::Conversation => "c03",
+        cards::Slot::ToolCells => "c04",
+        cards::Slot::Composer => "c08",
+        cards::Slot::CompletedAnswer => "c09",
+    }
 }
 
 /// The full Splash body for one slot: the lowered card, wrapped the way
@@ -275,7 +307,11 @@ pub fn slot_body(
     slot: cards::Slot,
     values: &dyn Fn(&str) -> Option<serde_json::Value>,
 ) -> Result<String, String> {
-    lower_slot(slot, values).map(|ui| format!("width:Fill height:Fill flow:Overlay {ui}"))
+    // card-host fills the whole window (`height:Fill`, its `host.rs:133`) because
+    // there the card IS the window. Here the card shares a tile, so it keeps its
+    // own height and the slot scrolls: `height:Fit` lets the wrapper take the
+    // artboard's 776 rather than the viewport's height.
+    lower_slot(slot, values).map(|ui| format!("width:Fill height:Fit flow:Overlay {ui}"))
 }
 
 /// The binding ids a mounted card's copy rewrite can consume (the audit the

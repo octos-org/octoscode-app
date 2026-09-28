@@ -173,13 +173,19 @@ fn the_thread_list_slot_lists_the_opened_session() {
     );
     // It is a RENDER, not a text dump: the DSL the L0 runtime draws, with the
     // card's own node ids and the design kit's widget names.
+    // A RENDER, not a text dump: the design kit's own widgets, with one
+    // button per thread row.
     assert!(
-        body.contains("thread_1") && body.contains("DesignNativeButton"),
-        "the thread-list slot is the lowered card DSL; got {body:?}"
+        body.contains("KitButton") && body.contains("DesignNativeButton"),
+        "the thread-list slot is the lowered card DSL, built from the kit; got {body:?}"
+    );
+    assert!(
+        body.matches("DesignNativeButton").count() >= 5,
+        "one control per thread row (5 rows + new chat); got {body:?}"
     );
     // The live row reaches the card. The fixture's session has no title (the
-    // trace holds no `session/list` reply), so the card falls back to the
-    // session id — which is what makes the row identifiable.
+    // trace holds no `session/list` reply), so the card shows the session id,
+    // which is what makes the row identifiable.
     assert!(
         body.contains(SESSION),
         "the live row reaches the card (its id when untitled); got {body:?}"
@@ -214,19 +220,17 @@ fn the_conversation_slot_puts_the_user_entry_before_its_replies() {
     // The answer prose the card shows is the live one, and it is not empty
     // (card #14 defect 2's "no (nearly) empty answer row", now stated as what
     // it is: the assistant text must carry real content).
-    let answer_start = body
-        .find("assistant_md := ")
-        .unwrap_or_else(|| panic!("the card has an assistant prose region; got {body:?}"));
-    // Bound the check to THIS node: take the `assistant_md` node's own `text:`.
-    let after = &body[answer_start..];
-    let node_end = after[1..].find("\n").map(|i| i + 1).unwrap_or(after.len());
-    let first_text_at = after.find("text: \"").expect("the node carries text");
-    let value_at = first_text_at + "text: \"".len();
-    let value_end = after[value_at..].find('"').map(|i| value_at + i).expect("closed text");
-    let shown = &after[value_at..value_end];
+    // The answer region carries the live answer, and that text is longer than a
+    // stray marker (card #14 defect 2). The prose node is the one holding the
+    // trace's answer, so assert on the content itself rather than a node name
+    // (the renderer names nodes positionally).
     assert!(
-        shown.trim().len() > 8 && shown.trim() != ".",
-        "the answer node must carry real content; got {shown:?} (node {node_end} bytes)"
+        body.contains("`main.rs` prints a single line"),
+        "the answer prose reaches the card; got {body:?}"
+    );
+    assert!(
+        body.contains("DesignSurface"),
+        "the conversation slot is built from the design kit; got {body:?}"
     );
 }
 
@@ -239,6 +243,10 @@ fn the_completed_answer_slot_shows_worked_for_and_the_answer() {
     assert!(
         body.contains("Worked for"),
         "the completed-answer card shows the `Worked for` row; got {body:?}"
+    );
+    assert!(
+        body.contains("KitButton") && body.contains("DesignNativeButton"),
+        "the `Worked for` row is the card's own kit button; got {body:?}"
     );
     assert!(
         body.contains("`main.rs` prints a single line"),

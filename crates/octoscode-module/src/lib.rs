@@ -57,46 +57,52 @@ script_mod! {
             refresh := Button { text: "session/list" }
             new_chat := Button { text: "New chat" }
         }
-        // Card #15 (D12): the HOST lays out the desktop columns — thread list on
-        // the left, the conversation in the middle with the composer docked at
-        // its bottom. Each card fills its slot. Every `*_card` label below is
-        // mounted from `design/cards/index.json` BY SLOT; the `*_label` beside
-        // it is that slot's fallback, which shows (and logs) when the card's
-        // artefacts are missing or unreadable. Every value either renders comes
-        // from a binding id — the view never sees a Rust type.
-        columns := View {
+        // Card #15b (D12): the HOST lays out the desktop and shows ONE card at
+        // a time. Every card is a 406x776 artboard whose children sit at
+        // MEASURED `abs_pos` — the box Gate-B captured — so the slot gives it
+        // exactly that box. A squeezed box clips every absolute child
+        // (measured: a 384x109 slot left 20 of 23 nodes at zero geometry).
+        // All five stay MOUNTED (the binding layer drives every one); the
+        // selector picks the visible one and the area scrolls, because the
+        // tile is shorter than the artboard.
+        tabs := View {
+            width: Fill height: Fit
+            flow: Right spacing: 6
+            tab_0 := Button { text: "01 threads" }
+            tab_1 := Button { text: "03 turn" }
+            tab_2 := Button { text: "04 tools" }
+            tab_3 := Button { text: "09 answer" }
+            tab_4 := Button { text: "08 composer" }
+        }
+        card_area := ScrollYView {
             width: Fill height: Fill
-            flow: Right spacing: 12
-            thread_col := View {
-                width: 220 height: Fill
-                flow: Down spacing: 6
-                // Each slot is a `Splash`: the L0 runtime's own host widget. The
-                // lowered card DSL is set into it (card-host's pattern,
-                // `card-host/src/host.rs:301-304`), so the card renders as real
-                // widgets, not text.
-                thread_card := Splash { width: Fill height: Fill }
-                threads_label := Label { width: Fill height: Fill draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "threads: (none)" }
+            // The canonical makepad scroll pattern: a `Fit`-height column INSIDE
+            // the scroll view. A direct child of `ScrollYView` is constrained to
+            // the viewport (measured: a 776-tall slot came out 471), so the card
+            // is clipped; the `Fit` column takes the artboard's full height and
+            // the view scrolls it.
+            cards_col := View {
+            width: Fill height: Fit
+            flow: Down
+            thread_card := Splash { width: 406 height: 776 }
+            threads_label := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 12 text: "threads: (none)" }
+            timeline_card := Splash { width: 406 height: 776 }
+            timeline_label := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 12 text: "(no timeline)" }
+            tools_card := Splash { width: 406 height: 776 }
+            tools_label := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 12 text: "tools: (none)" }
+            answer_card := Splash { width: 406 height: 776 }
+            answer_label := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 12 text: "" }
+            composer_card := Splash { width: 406 height: 776 }
+            // The composer card IS the composer: its `composer_input` is a real
+            // `TextInput`. `composer_row` is the plain fallback, up only while
+            // the composer card is BROKEN — one composer.
+            composer_row := View {
+                width: Fill height: Fit
+                flow: Right spacing: 8
+                draft := TextInput { width: Fill height: Fit empty_text: "Ask Octos anything" }
+                send := Button { text: "Send" }
+                stop := Button { text: "Stop" }
             }
-            convo_col := View {
-                width: Fill height: Fill
-                flow: Down spacing: 6
-                // Only the timeline takes the slack; every other row is Fit, so
-                // the composer dock stays on screen (two Fill children in a
-                // Down flow overflow and push it out of the window).
-                timeline_card := Splash { width: Fill height: Fill }
-                timeline_label := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "(no timeline)" }
-                tools_card := Splash { width: Fill height: Fit }
-                tools_label := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "tools: (none)" }
-                answer_card := Splash { width: Fill height: Fit }
-                answer_label := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "" }
-                composer_card := Splash { width: Fill height: Fit }
-                composer_row := View {
-                    width: Fill height: Fit
-                    flow: Right spacing: 8
-                    draft := TextInput { width: Fill height: Fit empty_text: "Ask Octos anything" }
-                    send := Button { text: "Send" }
-                    stop := Button { text: "Stop" }
-                }
             }
         }
     }
@@ -136,10 +142,21 @@ pub struct OctoscodeView {
     runtime: Option<tokio::runtime::Runtime>,
     #[rust]
     started: bool,
+    /// Which card the host shows (index into [`cards::Slot::ALL`]). Every card
+    /// stays MOUNTED (the binding layer drives each one); the 406x776 artboards
+    /// cannot share one tile, so the host shows one. `OCTOSCODE_ACTIVE_SLOT` =
+    /// a slot name picks the initial one, so a capture run needs no click.
+    #[rust]
+    active_slot: usize,
 }
 
 impl OctoscodeView {
     fn start(&mut self) {
+        self.active_slot = std::env::var("OCTOSCODE_ACTIVE_SLOT")
+            .ok()
+            .and_then(|name| cards::Slot::from_name(&name))
+            .and_then(|slot| cards::Slot::ALL.iter().position(|x| *x == slot))
+            .unwrap_or(0);
         let base =
             std::env::var("OCTOS_BASE_URL").unwrap_or_else(|_| "http://127.0.0.1:50082".to_string());
         let bearer = std::env::var("OCTOS_BEARER").unwrap_or_default();
@@ -296,47 +313,90 @@ impl OctoscodeView {
         // independent: a slot whose card is missing or fails to lower keeps its
         // plain fallback widget visible and is logged by name, so the screen
         // always renders. (`ids!` per arm: makepad's id macros want literals.)
+        let active = self.active_slot.min(cards::Slot::ALL.len() - 1);
         let mut card_shown = Vec::new();
         macro_rules! mount {
-            ($slot:expr, $card:ident, $fb:ident, $name:literal) => {
-                match l0_host::slot_body($slot, &resolver) {
+            ($idx:expr, $slot:expr, $card:ident, $fb:ident, $name:literal) => {
+                // Every card is lowered with the LIVE bindings; the selector
+                // only decides which one the host shows (the artboards cannot
+                // share one tile).
+                // Only the ACTIVE slot carries a body: an empty `Splash` body
+                // tears the instance down (`Splash::reapply_text` docs) and the
+                // `height: Fit` slot then takes no space, so exactly one card is
+                // on screen at its natural 406x776 — which is what makes each
+                // slot comparable to its Gate-B render.
+                let body = if $idx == active {
+                    l0_host::slot_body($slot, &resolver)
+                } else {
+                    // Still exercise the path off-screen? No: skip the work.
+                    Ok(String::new())
+                };
+                match body {
                     Ok(body) => {
                         self.view.splash(cx, ids!($card)).set_text(cx, &body);
-                        self.view.widget(cx, ids!($card)).set_visible(cx, true);
                         self.view.widget(cx, ids!($fb)).set_visible(cx, false);
-                        card_shown.push($name);
+                        if $idx == active {
+                            card_shown.push($name);
+                        }
                     }
                     Err(e) => {
                         ::log::warn!(
                             "octoscode: card slot `{}` fell back to the plain widget: {e}",
                             $name
                         );
-                        self.view.widget(cx, ids!($card)).set_visible(cx, false);
-                        self.view.widget(cx, ids!($fb)).set_visible(cx, true);
+                        self.view.splash(cx, ids!($card)).set_text(cx, "");
+                        self.view
+                            .widget(cx, ids!($fb))
+                            .set_visible(cx, $idx == active);
                     }
                 }
             };
         }
-        mount!(cards::Slot::ThreadList, thread_card, threads_label, "thread_list");
-        mount!(cards::Slot::Conversation, timeline_card, timeline_label, "conversation");
-        mount!(cards::Slot::ToolCells, tools_card, tools_label, "tool_cells");
-        mount!(cards::Slot::CompletedAnswer, answer_card, answer_label, "completed_answer");
-        // The composer slot renders its card too — and it IS the composer: the
-        // card lowers `composer_input := DesignInput` (a real `TextInput`), so
-        // ONE composer shows. The module's own `composer_row` is the fallback
-        // and hides while the card is up (the entry: "remove the fallback
-        // composer when the composer card mounts").
-        match l0_host::slot_body(cards::Slot::Composer, &resolver) {
+        mount!(0, cards::Slot::ThreadList, thread_card, threads_label, "thread_list");
+        mount!(1, cards::Slot::Conversation, timeline_card, timeline_label, "conversation");
+        mount!(2, cards::Slot::ToolCells, tools_card, tools_label, "tool_cells");
+        mount!(3, cards::Slot::CompletedAnswer, answer_card, answer_label, "completed_answer");
+        // The composer card IS the composer: its `composer_input` is a real
+        // `TextInput`, so ONE composer shows. `composer_row` is the plain
+        // fallback and is up only while the composer card is BROKEN (entry #2).
+        let composer_body = if active == 4 {
+            l0_host::slot_body(cards::Slot::Composer, &resolver)
+        } else {
+            Ok(String::new())
+        };
+        match composer_body {
             Ok(body) => {
                 self.view.splash(cx, ids!(composer_card)).set_text(cx, &body);
-                self.view.widget(cx, ids!(composer_card)).set_visible(cx, true);
                 self.view.widget(cx, ids!(composer_row)).set_visible(cx, false);
-                card_shown.push("composer");
+                if active == 4 {
+                    card_shown.push("composer");
+                }
             }
             Err(e) => {
                 ::log::warn!("octoscode: card slot `composer` fell back to the plain composer: {e}");
-                self.view.widget(cx, ids!(composer_card)).set_visible(cx, false);
-                self.view.widget(cx, ids!(composer_row)).set_visible(cx, true);
+                self.view.splash(cx, ids!(composer_card)).set_text(cx, "");
+                self.view
+                    .widget(cx, ids!(composer_row))
+                    .set_visible(cx, active == 4);
+            }
+        }
+        // The selector's own state (idempotent: setting the same text each pass
+        // would otherwise grow the label).
+        let tab_names = ["01 threads", "03 turn", "04 tools", "09 answer", "08 composer"];
+        for (idx, tab) in [
+            (0usize, ids!(tab_0)),
+            (1, ids!(tab_1)),
+            (2, ids!(tab_2)),
+            (3, ids!(tab_3)),
+            (4, ids!(tab_4)),
+        ] {
+            let label = if idx == active {
+                format!("[{}]", tab_names[idx])
+            } else {
+                tab_names[idx].to_owned()
+            };
+            if self.view.button(cx, tab).text() != label {
+                self.view.button(cx, tab).set_text(cx, &label);
             }
         }
         // The fallback renderer still fills its own widgets; the ones a card
@@ -362,6 +422,23 @@ impl Widget for OctoscodeView {
         match event {
             Event::Signal => self.sync_labels(cx),
             Event::Actions(actions) => {
+                // The card selector (D12: the host chooses what it shows).
+                let mut picked = None;
+                for (idx, tab) in [
+                    (0usize, ids!(tab_0)),
+                    (1, ids!(tab_1)),
+                    (2, ids!(tab_2)),
+                    (3, ids!(tab_3)),
+                    (4, ids!(tab_4)),
+                ] {
+                    if self.view.button(cx, tab).clicked(actions) {
+                        picked = Some(idx);
+                    }
+                }
+                if let Some(idx) = picked {
+                    self.active_slot = idx;
+                    self.sync_labels(cx);
+                }
                 // The composer draft is the input's `changed` value — how the
                 // web binds `composer.draft` (`bindings.json` composer.draft
                 // note: behavior.event='changed' updates it).
