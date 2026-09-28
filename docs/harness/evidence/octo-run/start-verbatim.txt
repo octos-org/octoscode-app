@@ -1,0 +1,4 @@
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 /Users/yuechen/home/oa.noindex/native/OctoSense-App-Hub/target/release/card-host --bundle harness/ui-smoke/fixtures/notes/bundle --app-data /Users/yuechen/home/oa.noindex/p0-harness/tmp/peer-tmp/octos-headless/app-data-8301 --allow-unsigned --remote 8301
+[makepad-remote] listening on 127.0.0.1:8301 pid=82391 app=card-host grabs=/Users/yuechen/home/oa.noindex/p0-harness/tmp/peer-tmp/makepad-remote/card-host-82391
+[headless] up: pid 82391  port 8301  log /Users/yuechen/home/oa.noindex/p0-harness/tmp/peer-tmp/octos-headless/port-8301.log
+[headless] drive it:  curl -s http://127.0.0.1:8301/snap?q=Button   |   harness/headless.sh shot 8301 out.png

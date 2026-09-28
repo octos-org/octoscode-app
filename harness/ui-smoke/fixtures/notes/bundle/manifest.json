@@ -1,0 +1,12 @@
+{
+  "capabilities": [
+    "storage"
+  ],
+  "id": "harness.notes",
+  "integrity": {
+    "bundle_blake3": "e0be201fdcac7993888936c99d24a488d35655336fb802ee008b116dffc37fd0"
+  },
+  "name": "Harness Notes",
+  "schema": 1,
+  "version": "0.1.0"
+}

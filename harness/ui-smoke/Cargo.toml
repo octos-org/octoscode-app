@@ -1,0 +1,13 @@
+[package]
+name = "harness-ui-smoke"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Scripted hidden-window UI smoke tests for the shared native harness (card #5)"
+
+# The pinned makepad_test harness, from the shared native workspace that
+# `python3 tools/setup-native.py` prepares. This path is relative to THIS crate
+# (harness/ui-smoke): ../../../native/makepad/libs/makepad_test.
+# Override the whole workspace with OCTOSENSE_NATIVE_ROOT (read in tests/ui.rs).
+[dev-dependencies]
+makepad-test = { path = "../../../native/makepad/libs/makepad_test" }
