@@ -92,357 +92,33 @@
       "size": 18.7
     },
     {
-      "source_id": "t02",
+      "source_id": "answer_md",
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "text",
-      "component": "Text34719e7a9327",
+      "component": "Textf8b245030bdc",
       "semantic_role": "text",
       "bounds": [
-        27.51,
-        110.5,
-        323.0,
-        24.0
+        27.0,
+        106.0,
+        356.0,
+        492.0
       ],
-      "text": "Queued steers now survive a reconnect.",
+      "text": "Queued steers now survive a reconnect.\n\n\u2022 Fixed loss of queued steers when reconnecting after a drop in steer_dropped handling.\n\n\u2022 Updated ui_protocol_transport.rs to persist queued steers to the session ledger.\n\n\u2022 All tests pass: 12 passed.\n\n\u2022 Changes included in commit a6ea8505.",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 16.65
-    },
-    {
-      "source_id": "t03",
-      "native_id": "beauty_0_2",
-      "parent": "page",
-      "kind": "text",
-      "component": "Textc5635a016399",
-      "semantic_role": "text",
-      "bounds": [
-        27.29,
-        171.0,
-        301.0,
-        29.0
-      ],
-      "text": "\u2022 Fixed loss of queued steers when",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 17.71
-    },
-    {
-      "source_id": "t04",
-      "native_id": "beauty_0_3",
-      "parent": "page",
-      "kind": "text",
-      "component": "Textbefb00360b59",
-      "semantic_role": "text",
-      "bounds": [
-        51.65,
-        210.0,
-        234.5,
-        28.5
-      ],
-      "text": "reconnecting after a drop in",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 17.49
-    },
-    {
-      "source_id": "t05c",
-      "native_id": "beauty_0_4",
-      "parent": "page",
-      "kind": "stack",
-      "component": "Surface3c6092dec80c",
-      "semantic_role": "layout",
-      "bounds": [
-        53.0,
-        247.0,
-        133.0,
-        37.0
-      ],
-      "text": null,
-      "enabled": null,
-      "font": null,
-      "size": null
-    },
-    {
-      "source_id": "t05c_t",
-      "native_id": "beauty_0_4_0",
-      "parent": "t05c",
-      "kind": "text",
-      "component": "Textb435e2b1d087",
-      "semantic_role": "text",
-      "bounds": [
-        56.5,
-        248.0,
-        125.5,
-        26.0
-      ],
-      "text": "steer_dropped",
-      "enabled": null,
-      "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 14
-    },
-    {
-      "source_id": "t05b",
-      "native_id": "beauty_0_5",
-      "parent": "page",
-      "kind": "text",
-      "component": "Textdb72dc7adc9c",
-      "semantic_role": "text",
-      "bounds": [
-        182.0,
-        252.0,
-        91.89,
-        32.53
-      ],
-      "text": " handling.",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14
-    },
-    {
-      "source_id": "t06a",
-      "native_id": "beauty_0_6",
-      "parent": "page",
-      "kind": "text",
-      "component": "Textb110224038d3",
-      "semantic_role": "text",
-      "bounds": [
-        22.56,
-        320.0,
-        113.94,
-        32.5
-      ],
-      "text": "\u2022 Updated ",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14
-    },
-    {
-      "source_id": "t06c",
-      "native_id": "beauty_0_7",
-      "parent": "page",
-      "kind": "stack",
-      "component": "Surface8838ec1ed02b",
-      "semantic_role": "layout",
-      "bounds": [
-        132.0,
-        315.0,
-        240.0,
-        38.0
-      ],
-      "text": null,
-      "enabled": null,
-      "font": null,
-      "size": null
-    },
-    {
-      "source_id": "t06c_t",
-      "native_id": "beauty_0_7_0",
-      "parent": "t06c",
-      "kind": "text",
-      "component": "Text705e7c4af484",
-      "semantic_role": "text",
-      "bounds": [
-        27.41,
-        319.0,
-        336.5,
-        29.5
-      ],
-      "text": "ui_protocol_transport.rs",
-      "enabled": null,
-      "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 23.09
-    },
-    {
-      "source_id": "t07",
-      "native_id": "beauty_0_8",
-      "parent": "page",
-      "kind": "text",
-      "component": "Text936bd1426313",
-      "semantic_role": "text",
-      "bounds": [
-        51.83,
-        362.5,
-        257.5,
-        28.5
-      ],
-      "text": "to persist queued steers to the",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 17.54
-    },
-    {
-      "source_id": "t08",
-      "native_id": "beauty_0_9",
-      "parent": "page",
-      "kind": "text",
-      "component": "Text7513975cab47",
-      "semantic_role": "text",
-      "bounds": [
-        51.61,
-        403.5,
-        125.5,
-        28.5
-      ],
-      "text": "session ledger.",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 16.93
-    },
-    {
-      "source_id": "t09a",
-      "native_id": "beauty_0_10",
-      "parent": "page",
-      "kind": "text",
-      "component": "Text3bdb1b9357c4",
-      "semantic_role": "text",
-      "bounds": [
-        25.94,
-        469.0,
-        152.06,
-        26.15
-      ],
-      "text": "\u2022 All tests pass: ",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14
-    },
-    {
-      "source_id": "t09c",
-      "native_id": "beauty_0_11",
-      "parent": "page",
-      "kind": "stack",
-      "component": "Surfacee8f8c29d7fa6",
-      "semantic_role": "layout",
-      "bounds": [
-        175.0,
-        461.0,
-        96.0,
-        37.0
-      ],
-      "text": null,
-      "enabled": null,
-      "font": null,
-      "size": null
-    },
-    {
-      "source_id": "t09c_t",
-      "native_id": "beauty_0_11_0",
-      "parent": "t09c",
-      "kind": "text",
-      "component": "Textfb67d13e1eb2",
-      "semantic_role": "text",
-      "bounds": [
-        178.0,
-        466.0,
-        89.0,
-        24.0
-      ],
-      "text": "12 passed",
-      "enabled": null,
-      "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 14
-    },
-    {
-      "source_id": "t09b",
-      "native_id": "beauty_0_12",
-      "parent": "page",
-      "kind": "text",
-      "component": "Text3bdb1b9357c4",
-      "semantic_role": "text",
-      "bounds": [
-        267.0,
-        469.0,
-        14.94,
-        26.15
-      ],
-      "text": ".",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14
-    },
-    {
-      "source_id": "t10a",
-      "native_id": "beauty_0_13",
-      "parent": "page",
-      "kind": "text",
-      "component": "Text711a709a517f",
-      "semantic_role": "text",
-      "bounds": [
-        26.48,
-        533.0,
-        355.5,
-        29.26
-      ],
-      "text": "\u2022 Changes included in commit ",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 24.18
-    },
-    {
-      "source_id": "t10c",
-      "native_id": "beauty_0_14",
-      "parent": "page",
-      "kind": "stack",
-      "component": "Surface7168ae9bf478",
-      "semantic_role": "layout",
-      "bounds": [
-        287.0,
-        526.0,
-        89.0,
-        38.0
-      ],
-      "text": null,
-      "enabled": null,
-      "font": null,
-      "size": null
-    },
-    {
-      "source_id": "t10c_t",
-      "native_id": "beauty_0_14_0",
-      "parent": "t10c",
-      "kind": "text",
-      "component": "Textb435e2b1d087",
-      "semantic_role": "text",
-      "bounds": [
-        290.5,
-        530.0,
-        81.0,
-        26.0
-      ],
-      "text": "a6ea8505",
-      "enabled": null,
-      "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 14
-    },
-    {
-      "source_id": "t10b",
-      "native_id": "beauty_0_15",
-      "parent": "page",
-      "kind": "text",
-      "component": "Textb110224038d3",
-      "semantic_role": "text",
-      "bounds": [
-        371.5,
-        533.5,
-        15.17,
-        32.5
-      ],
-      "text": ".",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14
+      "size": 17.5
     },
     {
       "source_id": "icon_copy",
-      "native_id": "beauty_0_16",
+      "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
         24.0,
-        640.0,
+        662.0,
         20.0,
         20.0
       ],
@@ -453,14 +129,14 @@
     },
     {
       "source_id": "icon_thumbs",
-      "native_id": "beauty_0_17",
+      "native_id": "beauty_0_3",
       "parent": "page",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
         52.0,
-        640.0,
+        662.0,
         20.0,
         20.0
       ],
@@ -471,14 +147,14 @@
     },
     {
       "source_id": "icon_share",
-      "native_id": "beauty_0_18",
+      "native_id": "beauty_0_4",
       "parent": "page",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
         80.0,
-        640.0,
+        662.0,
         20.0,
         20.0
       ],
@@ -489,7 +165,7 @@
     },
     {
       "source_id": "t11",
-      "native_id": "beauty_0_19",
+      "native_id": "beauty_0_5",
       "parent": "page",
       "kind": "text",
       "component": "Texta0abe1806ac3",
@@ -508,9 +184,8 @@
   ],
   "fonts": {
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
-    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
-    "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045"
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "715483a074b72e929dc90f38b4f381344dae3f660c7168b8bce0ed98e9fa4e16",
+  "contract_sha256": "656f2336e5e2dce2dcf127c2c853801270ee79104140a2aa5e3890b43ec205bc",
   "mapping_basis": "mapped.json"
 }

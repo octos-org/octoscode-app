@@ -106,7 +106,7 @@
         }
       },
       "tool_3": {
-        "component": "Surfaceb0b2108a6233",
+        "component": "Surfacec46731a5743a",
         "layout": {
           "x": 18.0,
           "y": 307.0,
@@ -171,12 +171,12 @@
         }
       },
       "t08": {
-        "component": "Textb6022daaf7d8",
+        "component": "Text571d65a91df7",
         "layout": {
-          "x": 145.89,
-          "y": 489.0,
-          "w": 14.0,
-          "h": 10.76
+          "x": 46.0,
+          "y": 484.23,
+          "w": 112.0,
+          "h": 17.55
         }
       },
       "t09": {

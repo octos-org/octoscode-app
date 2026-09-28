@@ -231,19 +231,19 @@
               {
                 "t": "text",
                 "id": "t08",
-                "text": "\u2022\u2022",
-                "x": 145.89,
-                "y": 489.0,
-                "w": 14.0,
-                "h": 10.76,
-                "size": 8.89,
-                "line_height": 10.76,
-                "weight": 400,
-                "color": 4285558896,
+                "text": "\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7",
+                "x": 46.0,
+                "y": 484.23,
+                "w": 112.0,
+                "h": 17.55,
+                "size": 13,
+                "line_height": 17.55,
+                "weight": 700,
+                "color": 4280098079,
                 "variant": "single_line",
                 "alignx": 0,
-                "font_src": "self:resources/ux/Inter-400.ttf",
-                "tracking": 0.0
+                "tracking": 4.0,
+                "font_src": "self:resources/ux/Inter-700.ttf"
               },
               {
                 "t": "text",
@@ -286,7 +286,7 @@
           }
         ],
         "variant": "surface",
-        "bg": 4294309367,
+        "bg": 4294967295,
         "radius": 12.47,
         "border": 1,
         "bordercolor": 4293256679
@@ -381,12 +381,6 @@
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.23780226934523804
-    },
-    {
-      "id": "t08",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": 0.017857142857142953
     },
     {
       "id": "t09",

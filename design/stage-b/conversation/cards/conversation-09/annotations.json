@@ -95,62 +95,10 @@
       "reviewed": false
     },
     {
-      "id": "t05c",
-      "bounds": [
-        53.0,
-        247.0,
-        133.0,
-        37.0
-      ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294177780,
-      "radius": 6.94
-    },
-    {
-      "id": "t06c",
-      "bounds": [
-        132.0,
-        315.0,
-        240.0,
-        38.0
-      ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294177780,
-      "radius": 7.12
-    },
-    {
-      "id": "t09c",
-      "bounds": [
-        175.0,
-        461.0,
-        96.0,
-        37.0
-      ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294243574,
-      "radius": 7.4
-    },
-    {
-      "id": "t10c",
-      "bounds": [
-        287.0,
-        526.0,
-        89.0,
-        38.0
-      ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294177781,
-      "radius": 7.12
-    },
-    {
       "id": "icon_copy",
       "bounds": [
         24.0,
-        640.0,
+        662.0,
         20.0,
         20.0
       ],
@@ -161,7 +109,7 @@
       "id": "icon_thumbs",
       "bounds": [
         52.0,
-        640.0,
+        662.0,
         20.0,
         20.0
       ],
@@ -172,7 +120,7 @@
       "id": "icon_share",
       "bounds": [
         80.0,
-        640.0,
+        662.0,
         20.0,
         20.0
       ],

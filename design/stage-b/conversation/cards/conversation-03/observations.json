@@ -105,132 +105,15 @@
       ]
     },
     {
-      "id": "t04",
-      "expected_text": "I'm tracing how queued steers are",
+      "id": "assistant_md",
+      "expected_text": "I'm tracing how queued steers are handled across reconnects\u2026\n\nI'll run tests to confirm the fix and update the affected code\u2026",
       "requested_bounds": [
-        21.43,
-        256.0,
-        275.18,
-        25.01
+        21.0,
+        248.0,
+        358.0,
+        176.0
       ],
-      "status": "observed",
-      "ocr_text": "I'm tracing how queued steers are",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        25.0,
-        258.0,
-        270.0,
-        22.0
-      ],
-      "ink_color": [
-        35,
-        35,
-        35
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        21.42778202121096,
-        256.00000005935874,
-        275.1777648925781,
-        25.000000000000085
-      ]
-    },
-    {
-      "id": "t05",
-      "expected_text": "handled across reconnects\u2026",
-      "requested_bounds": [
-        23.55,
-        292.75,
-        229.21,
-        20.95
-      ],
-      "status": "observed",
-      "ocr_text": "handled across reconnects...",
-      "confidence": 1,
-      "text_similarity": 0.9259259259259259,
-      "ink_bounds": [
-        24.5,
-        293.5,
-        225.5,
-        17.0
-      ],
-      "ink_color": [
-        26,
-        26,
-        27
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        23.553448546679533,
-        292.74574419115237,
-        229.2105865478516,
-        20.946590423583988
-      ]
-    },
-    {
-      "id": "t06",
-      "expected_text": "I'll run tests to confirm the fix",
-      "requested_bounds": [
-        21.43,
-        349.5,
-        251.49,
-        20.5
-      ],
-      "status": "observed",
-      "ocr_text": "l'Il run tests to confirm the fix",
-      "confidence": 1,
-      "text_similarity": 0.9393939393939394,
-      "ink_bounds": [
-        25.0,
-        350.5,
-        243.0,
-        18.0
-      ],
-      "ink_color": [
-        21,
-        21,
-        21
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        21.427777654100083,
-        349.50000016349105,
-        251.4944458007812,
-        20.500000000000014
-      ]
-    },
-    {
-      "id": "t07",
-      "expected_text": "and update the affected code\u2026",
-      "requested_bounds": [
-        22.56,
-        381.5,
-        280.33,
-        29.13
-      ],
-      "status": "observed",
-      "ocr_text": "and update the affected code... |",
-      "confidence": 1,
-      "text_similarity": 0.9032258064516129,
-      "ink_bounds": [
-        24.0,
-        382.5,
-        271.5,
-        27.0
-      ],
-      "ink_color": [
-        37,
-        36,
-        37
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        22.555569970674014,
-        381.4999998328914,
-        280.33331298828125,
-        29.13333225250252
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
       "id": "t08",
@@ -565,6 +448,46 @@
     }
   ],
   "unmapped_ocr": [
+    {
+      "bounds": [
+        42.85556404242192,
+        512.0000001187175,
+        550.3555297851562,
+        50.00000000000017
+      ],
+      "confidence": 1,
+      "text": "I'm tracing how queued steers are"
+    },
+    {
+      "bounds": [
+        47.106897093359066,
+        585.4914883823047,
+        458.4211730957032,
+        41.893180847167976
+      ],
+      "confidence": 1,
+      "text": "handled across reconnects..."
+    },
+    {
+      "bounds": [
+        42.85555530820017,
+        699.0000003269821,
+        502.9888916015624,
+        41.00000000000003
+      ],
+      "confidence": 1,
+      "text": "l'Il run tests to confirm the fix"
+    },
+    {
+      "bounds": [
+        45.11113994134803,
+        762.9999996657828,
+        560.6666259765625,
+        58.26666450500504
+      ],
+      "confidence": 1,
+      "text": "and update the affected code... |"
+    },
     {
       "bounds": [
         58.64445304310373,

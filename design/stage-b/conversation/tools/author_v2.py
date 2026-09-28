@@ -130,10 +130,16 @@ def flow_text(id, s, x, y, w, h, *, size=14, weight=400, color="ink", font=None,
             "weight": weight, "color": C[color], "alignx": 0,
             "font_src": font or FONT.get(weight, FONT[400])}
 
-def dots(id, x, y, w, h, *, n=15, size=12, color="ink", track=3.1):
-    """A dotted progress line: n round dots, pitch set by tracking."""
-    return {"t": "text", "id": id, "text": "·" * n, "x": r(x), "y": r(y), "w": r(w),
-            "h": r(h), "size": size, "line_height": r(max(h, size)), "weight": 700,
+def dots(id, x, y, w, h, *, n=15, size=13, color="ink", track=4.0):
+    """A dotted progress line: n round dots, pitch set by tracking.
+
+    `semantics.py:327-331` rejects a text box shorter than its own line box as
+    clipping, so `h` is widened to the line box here rather than trusted from the
+    caller (the atlas dot ink is only ~4px tall, but the glyph needs a full line).
+    """
+    lh = max(h, size * 1.35)
+    return {"t": "text", "id": id, "text": "·" * n, "x": r(x), "y": r(y - (lh - h) / 2),
+            "w": r(w), "h": r(lh), "size": size, "line_height": r(lh), "weight": 700,
             "color": C[color], "variant": "single_line", "alignx": 0,
             "tracking": track, "font_src": FONT[700]}
 
@@ -359,11 +365,17 @@ def chip_row(sc, id, row_i, *, pad=10, bg="white"):
                     border=1, bordercolor="hair",
                     kids=[text(id + "_t", sc.t(row_i), x, y, w, h, size=13, color="muted")])]
 
+# The atlas renders this as a LOOSE list: a paragraph gap between bullets
+# (measured pitch 60.5 / 38.5 / 44 / 65.5 / 43 / 41 / 65.0 / 64.5), so each item
+# is separated by a blank line rather than packed tight.
 ANSWER_MD = ("Queued steers now survive a reconnect.\n"
              "\n"
              "• Fixed loss of queued steers when reconnecting after a drop in steer_dropped handling.\n"
+             "\n"
              "• Updated ui_protocol_transport.rs to persist queued steers to the session ledger.\n"
+             "\n"
              "• All tests pass: 12 passed.\n"
+             "\n"
              "• Changes included in commit a6ea8505.")
 
 def build_09(sc):
@@ -375,11 +387,11 @@ def build_09(sc):
     rx, ry, rw, rh = sc.rows[0][1:]
     sc.add_control("worked_row", 16, 32, 374, 44, 0, bg="panel", radius=10, weight=500,
                    color="muted", lx=rx, ly=ry, lw=rw, lh=rh, event="turn.expand")
-    sc.put(flow_text("answer_md", ANSWER_MD, 27, 106, 356, 464, size=17.5, line_height=38))
-    sc.flows["answer_md"] = ("answer.markdown", 27, 106, 356, 464)
-    sc.add_icon("icon_copy", "copy", 24, 578, 20, 20, color="muted")
-    sc.add_icon("icon_thumbs", "thumbs", 52, 578, 20, 20, color="muted")
-    sc.add_icon("icon_share", "share", 80, 578, 20, 20, color="muted")
+    sc.put(flow_text("answer_md", ANSWER_MD, 27, 106, 356, 492, size=17.5, line_height=38))
+    sc.flows["answer_md"] = ("answer.markdown", 27, 106, 356, 492)
+    sc.add_icon("icon_copy", "copy", 24, 662, 20, 20, color="muted")
+    sc.add_icon("icon_thumbs", "thumbs", 52, 662, 20, 20, color="muted")
+    sc.add_icon("icon_share", "share", 80, 662, 20, 20, color="muted")
     sc.add_text("t11", 10, color="muted", size=13)
 
 MUTED = {"• 412 lines", "• 7 matches", "Working • 12s", "Ask for approval", "running 12 tests",

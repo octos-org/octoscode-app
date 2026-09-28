@@ -110,80 +110,26 @@
       "size": 17.94
     },
     {
-      "source_id": "t04",
+      "source_id": "assistant_md",
       "native_id": "beauty_0_3",
       "parent": "page",
       "kind": "text",
-      "component": "Text96bfc50030bc",
+      "component": "Text1f98af367ebb",
       "semantic_role": "text",
       "bounds": [
-        23.53,
-        256.0,
-        274.0,
-        26.0
+        21.0,
+        248.0,
+        358.0,
+        176.0
       ],
-      "text": "I'm tracing how queued steers are",
+      "text": "I'm tracing how queued steers are handled across reconnects\u2026\n\nI'll run tests to confirm the fix and update the affected code\u2026",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 16.71
-    },
-    {
-      "source_id": "t05",
-      "native_id": "beauty_0_4",
-      "parent": "page",
-      "kind": "text",
-      "component": "Text43505911a78b",
-      "semantic_role": "text",
-      "bounds": [
-        23.23,
-        291.5,
-        229.5,
-        21.0
-      ],
-      "text": "handled across reconnects\u2026",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 16.45
-    },
-    {
-      "source_id": "t06",
-      "native_id": "beauty_0_5",
-      "parent": "page",
-      "kind": "text",
-      "component": "Text067f1c5fe6b5",
-      "semantic_role": "text",
-      "bounds": [
-        23.45,
-        348.5,
-        247.0,
-        22.0
-      ],
-      "text": "I'll run tests to confirm the fix",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 17.6
-    },
-    {
-      "source_id": "t07",
-      "native_id": "beauty_0_6",
-      "parent": "page",
-      "kind": "text",
-      "component": "Text77fb604d4ac4",
-      "semantic_role": "text",
-      "bounds": [
-        23.2,
-        380.5,
-        275.5,
-        31.0
-      ],
-      "text": "and update the affected code\u2026",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 18.24
+      "size": 17.5
     },
     {
       "source_id": "chips",
-      "native_id": "beauty_0_7",
+      "native_id": "beauty_0_4",
       "parent": "page",
       "kind": "stack",
       "component": "Group3d2637879433",
@@ -201,7 +147,7 @@
     },
     {
       "source_id": "chip_ws",
-      "native_id": "beauty_0_7_0",
+      "native_id": "beauty_0_4_0",
       "parent": "chips",
       "kind": "stack",
       "component": "Surfacee231cd44f879",
@@ -219,7 +165,7 @@
     },
     {
       "source_id": "t08",
-      "native_id": "beauty_0_7_0_0",
+      "native_id": "beauty_0_4_0_0",
       "parent": "chip_ws",
       "kind": "text",
       "component": "Text1f017ba89bfc",
@@ -237,7 +183,7 @@
     },
     {
       "source_id": "chip_mode",
-      "native_id": "beauty_0_7_1",
+      "native_id": "beauty_0_4_1",
       "parent": "chips",
       "kind": "stack",
       "component": "Surfacee231cd44f879",
@@ -255,7 +201,7 @@
     },
     {
       "source_id": "t09",
-      "native_id": "beauty_0_7_1_0",
+      "native_id": "beauty_0_4_1_0",
       "parent": "chip_mode",
       "kind": "text",
       "component": "Textb103f85eb43d",
@@ -273,7 +219,7 @@
     },
     {
       "source_id": "chip_branch",
-      "native_id": "beauty_0_7_2",
+      "native_id": "beauty_0_4_2",
       "parent": "chips",
       "kind": "stack",
       "component": "Surfacee231cd44f879",
@@ -291,7 +237,7 @@
     },
     {
       "source_id": "t10",
-      "native_id": "beauty_0_7_2_0",
+      "native_id": "beauty_0_4_2_0",
       "parent": "chip_branch",
       "kind": "text",
       "component": "Textd2ad79182009",
@@ -309,7 +255,7 @@
     },
     {
       "source_id": "composer",
-      "native_id": "beauty_0_8",
+      "native_id": "beauty_0_5",
       "parent": "page",
       "kind": "stack",
       "component": "Surface95f1042eb7db",
@@ -327,7 +273,7 @@
     },
     {
       "source_id": "composer_input",
-      "native_id": "beauty_0_8_0",
+      "native_id": "beauty_0_5_0",
       "parent": "composer",
       "kind": "input",
       "component": "Input9ca276b5cc2e",
@@ -345,7 +291,7 @@
     },
     {
       "source_id": "icon_plus",
-      "native_id": "beauty_0_8_1",
+      "native_id": "beauty_0_5_1",
       "parent": "composer",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -363,7 +309,7 @@
     },
     {
       "source_id": "approval_pill",
-      "native_id": "beauty_0_8_2",
+      "native_id": "beauty_0_5_2",
       "parent": "composer",
       "kind": "stack",
       "component": "Surfacee231cd44f879",
@@ -381,7 +327,7 @@
     },
     {
       "source_id": "t13",
-      "native_id": "beauty_0_8_2_0",
+      "native_id": "beauty_0_5_2_0",
       "parent": "approval_pill",
       "kind": "text",
       "component": "Text0cd152d08913",
@@ -399,7 +345,7 @@
     },
     {
       "source_id": "icon_mic",
-      "native_id": "beauty_0_8_3",
+      "native_id": "beauty_0_5_3",
       "parent": "composer",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -417,7 +363,7 @@
     },
     {
       "source_id": "t14",
-      "native_id": "beauty_0_8_4",
+      "native_id": "beauty_0_5_4",
       "parent": "composer",
       "kind": "text",
       "component": "Text401b1cb300a9",
@@ -435,7 +381,7 @@
     },
     {
       "source_id": "stop_btn",
-      "native_id": "beauty_0_8_5",
+      "native_id": "beauty_0_5_5",
       "parent": "composer",
       "kind": "stack",
       "component": "Surface8f38f76c9144",
@@ -453,7 +399,7 @@
     },
     {
       "source_id": "icon_stop",
-      "native_id": "beauty_0_8_5_0",
+      "native_id": "beauty_0_5_5_0",
       "parent": "stop_btn",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -474,6 +420,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "23234caafaccd1fd2621bc22283d508606f465f67aa84b09a3861e7cfd99fe4e",
+  "contract_sha256": "86e5b674ff5c59835eab68c72f9db2ebaf07409b863f810227f5476c44e24139",
   "mapping_basis": "mapped.json"
 }

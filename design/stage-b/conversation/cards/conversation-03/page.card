@@ -6,10 +6,7 @@ theme light
 copy t01_text { class: user-copy, en: "Fix the steer queue so queued" }
 copy t02_text { class: user-copy, en: "steers survive a reconnect" }
 copy t03_text { class: user-copy, en: "Working • 12s" }
-copy t04_text { class: user-copy, en: "I'm tracing how queued steers are" }
-copy t05_text { class: user-copy, en: "handled across reconnects…" }
-copy t06_text { class: user-copy, en: "I'll run tests to confirm the fix" }
-copy t07_text { class: user-copy, en: "and update the affected code…" }
+copy assistant_md_text { class: user-copy, en: "I'm tracing how queued steers are handled across reconnects…\n\nI'll run tests to confirm the fix and update the affected code…" }
 copy t08_text { class: user-copy, en: "octos" }
 copy t09_text { class: user-copy, en: "Local" }
 copy t10_text { class: user-copy, en: "feat/steer-queue" }
@@ -36,17 +33,8 @@ component Vectore0a378fde04f(instance: text) {
 component Texta0a4e959ef2b(instance: text, text: text) {
   view Kit(component: "Texta0a4e959ef2b", instance: instance, text: text)
 }
-component Text96bfc50030bc(instance: text, text: text) {
-  view Kit(component: "Text96bfc50030bc", instance: instance, text: text)
-}
-component Text43505911a78b(instance: text, text: text) {
-  view Kit(component: "Text43505911a78b", instance: instance, text: text)
-}
-component Text067f1c5fe6b5(instance: text, text: text) {
-  view Kit(component: "Text067f1c5fe6b5", instance: instance, text: text)
-}
-component Text77fb604d4ac4(instance: text, text: text) {
-  view Kit(component: "Text77fb604d4ac4", instance: instance, text: text)
+component Text1f98af367ebb(instance: text, text: text) {
+  view Kit(component: "Text1f98af367ebb", instance: instance, text: text)
 }
 component Group3d2637879433(instance: text) {
   view Kit(component: "Group3d2637879433", instance: instance) { slot }
@@ -86,10 +74,7 @@ view root Surface16fae9a63e16(instance: "page") {
   }
   Vectore0a378fde04f(instance: "icon_spinner")
   Texta0a4e959ef2b(instance: "t03", text: copy.t03_text)
-  Text96bfc50030bc(instance: "t04", text: copy.t04_text)
-  Text43505911a78b(instance: "t05", text: copy.t05_text)
-  Text067f1c5fe6b5(instance: "t06", text: copy.t06_text)
-  Text77fb604d4ac4(instance: "t07", text: copy.t07_text)
+  Text1f98af367ebb(instance: "assistant_md", text: copy.assistant_md_text)
   Group3d2637879433(instance: "chips") {
     Surfacee231cd44f879(instance: "chip_ws") {
       Text1f017ba89bfc(instance: "t08", text: copy.t08_text)

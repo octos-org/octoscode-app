@@ -86,8 +86,8 @@
       "value": 4281150766,
       "property": "color"
     },
-    "bg_64cbc58b730f": {
-      "value": 4294309367,
+    "bg_f807212b6748": {
+      "value": 4294967295,
       "property": "bg"
     },
     "radius_b8ddfe6e3ec1": {
@@ -138,17 +138,29 @@
       "value": 4281216815,
       "property": "color"
     },
-    "size_1e1504cbc592": {
-      "value": 8.89,
+    "size_3fdba35f04dc": {
+      "value": 13,
       "property": "size"
     },
-    "line_height_f9a639a05343": {
-      "value": 10.76,
+    "line_height_7941f29618f5": {
+      "value": 17.55,
       "property": "line_height"
     },
-    "color_3b9b3d6be59b": {
-      "value": 4285558896,
+    "weight_99ee50221221": {
+      "value": 700,
+      "property": "weight"
+    },
+    "color_e0ccdd36059a": {
+      "value": 4280098079,
       "property": "color"
+    },
+    "tracking_fbd04e1aae9c": {
+      "value": 4.0,
+      "property": "tracking"
+    },
+    "font_src_37b1248eceeb": {
+      "value": "self:resources/ux/Inter-700.ttf",
+      "property": "font_src"
     },
     "size_85dc2821bd4c": {
       "value": 13.35,
@@ -342,12 +354,12 @@
       },
       "slot": false
     },
-    "Surfaceb0b2108a6233": {
+    "Surfacec46731a5743a": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_64cbc58b730f"
+          "$token": "bg_f807212b6748"
         },
         "radius": {
           "$token": "radius_b8ddfe6e3ec1"
@@ -459,28 +471,28 @@
       },
       "slot": false
     },
-    "Textb6022daaf7d8": {
+    "Text571d65a91df7": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_1e1504cbc592"
+          "$token": "size_3fdba35f04dc"
         },
         "line_height": {
-          "$token": "line_height_f9a639a05343"
+          "$token": "line_height_7941f29618f5"
         },
         "weight": {
-          "$token": "weight_26d228663f13"
+          "$token": "weight_99ee50221221"
         },
         "color": {
-          "$token": "color_3b9b3d6be59b"
+          "$token": "color_e0ccdd36059a"
         },
         "variant": "single_line",
         "alignx": 0,
-        "font_src": {
-          "$token": "font_src_86ab34a300f7"
-        },
         "tracking": {
-          "$token": "tracking_8aed642bf511"
+          "$token": "tracking_fbd04e1aae9c"
+        },
+        "font_src": {
+          "$token": "font_src_37b1248eceeb"
         }
       },
       "props": {

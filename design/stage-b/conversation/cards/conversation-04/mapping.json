@@ -204,7 +204,7 @@
       "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "stack",
-      "component": "Surfaceb0b2108a6233",
+      "component": "Surfacec46731a5743a",
       "semantic_role": "layout",
       "bounds": [
         18.0,
@@ -330,18 +330,18 @@
       "native_id": "beauty_0_2_4_1",
       "parent": "tool_3_output",
       "kind": "text",
-      "component": "Textb6022daaf7d8",
+      "component": "Text571d65a91df7",
       "semantic_role": "text",
       "bounds": [
-        145.89,
-        489.0,
-        14.0,
-        10.76
+        46.0,
+        484.23,
+        112.0,
+        17.55
       ],
-      "text": "\u2022\u2022",
+      "text": "\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7\u00b7",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 8.89
+      "font": "self:resources/ux/Inter-700.ttf",
+      "size": 13
     },
     {
       "source_id": "t09",
@@ -382,8 +382,9 @@
   ],
   "fonts": {
     "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
-    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
+    "self:resources/ux/Inter-700.ttf": "b6e29575c0d0aff9c4c8f89763994876000a09fa9d0d1da32133aea5fdbfe0e5"
   },
-  "contract_sha256": "aeed03e51e718b77f7ed945601746e22e62b685604f853ba70e8c5625a369cb6",
+  "contract_sha256": "e5ba965a6320555d1900ac83b6938c19c3e2f380fc077c99777b99c18a1ca823",
   "mapping_basis": "mapped.json"
 }

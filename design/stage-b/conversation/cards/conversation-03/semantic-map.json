@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "23234caafaccd1fd2621bc22283d508606f465f67aa84b09a3861e7cfd99fe4e",
+  "contract_sha256": "86e5b674ff5c59835eab68c72f9db2ebaf07409b863f810227f5476c44e24139",
   "reference_sha256": "20c93ab2acc37e0b32815a730cd218b3103dfabd3ca56626adb4ac5ea52edd7b",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -57,28 +57,7 @@
       "decision": "declared"
     },
     {
-      "id": "t04",
-      "role": "text",
-      "basis": "authored text node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "t05",
-      "role": "text",
-      "basis": "authored text node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "t06",
-      "role": "text",
-      "basis": "authored text node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "t07",
+      "id": "assistant_md",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,

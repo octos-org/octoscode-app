@@ -102,62 +102,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t04",
-    "x": 21.43,
-    "y": 256.0,
-    "w": 275.18,
-    "h": 25.01,
-    "text": "I'm tracing how queued steers are",
+    "id": "assistant_md",
+    "x": 21.0,
+    "y": 248.0,
+    "w": 358.0,
+    "h": 176.0,
+    "text": "I'm tracing how queued steers are handled across reconnects\u2026\n\nI'll run tests to confirm the fix and update the affected code\u2026",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.67,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t05",
-    "x": 23.55,
-    "y": 292.75,
-    "w": 229.21,
-    "h": 20.95,
-    "text": "handled across reconnects\u2026",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 13.96,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t06",
-    "x": 21.43,
-    "y": 349.5,
-    "w": 251.49,
-    "h": 20.5,
-    "text": "I'll run tests to confirm the fix",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 13.67,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t07",
-    "x": 22.56,
-    "y": 381.5,
-    "w": 280.33,
-    "h": 29.13,
-    "text": "and update the affected code\u2026",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 19.42,
+    "size": 17.5,
     "weight": 400,
     "role": "text",
     "native_candidates": [

@@ -84,71 +84,18 @@
       },
       {
         "t": "text",
-        "id": "t04",
-        "text": "I'm tracing how queued steers are",
-        "x": 23.53,
-        "y": 256.0,
-        "w": 274.0,
-        "h": 26.0,
-        "size": 16.71,
-        "line_height": 20.21,
+        "id": "assistant_md",
+        "text": "I'm tracing how queued steers are handled across reconnects\u2026\n\nI'll run tests to confirm the fix and update the affected code\u2026",
+        "x": 21.0,
+        "y": 248.0,
+        "w": 358.0,
+        "h": 176.0,
+        "size": 17.5,
+        "line_height": 35.0,
         "weight": 400,
-        "color": 4280492835,
-        "variant": "single_line",
+        "color": 4280098079,
         "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t05",
-        "text": "handled across reconnects\u2026",
-        "x": 23.23,
-        "y": 291.5,
-        "w": 229.5,
-        "h": 21.0,
-        "size": 16.45,
-        "line_height": 19.91,
-        "weight": 400,
-        "color": 4279900699,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t06",
-        "text": "I'll run tests to confirm the fix",
-        "x": 23.45,
-        "y": 348.5,
-        "w": 247.0,
-        "h": 22.0,
-        "size": 17.6,
-        "line_height": 21.3,
-        "weight": 400,
-        "color": 4279571733,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t07",
-        "text": "and update the affected code\u2026",
-        "x": 23.2,
-        "y": 380.5,
-        "w": 275.5,
-        "h": 31.0,
-        "size": 18.24,
-        "line_height": 22.07,
-        "weight": 400,
-        "color": 4280624165,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
+        "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {
         "t": "stack",
@@ -457,30 +404,6 @@
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.16947189031862744
-    },
-    {
-      "id": "t04",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.12981761585582388
-    },
-    {
-      "id": "t05",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.14927159926470585
-    },
-    {
-      "id": "t06",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.10136413574218751
-    },
-    {
-      "id": "t07",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.18049161396329366
     },
     {
       "id": "t08",

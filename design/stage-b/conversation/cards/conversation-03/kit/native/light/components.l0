@@ -16,17 +16,8 @@ component Vectore0a378fde04f(instance: text) {
 component Texta0a4e959ef2b(instance: text, text: text) {
   view Kit(component: "Texta0a4e959ef2b", instance: instance, text: text)
 }
-component Text96bfc50030bc(instance: text, text: text) {
-  view Kit(component: "Text96bfc50030bc", instance: instance, text: text)
-}
-component Text43505911a78b(instance: text, text: text) {
-  view Kit(component: "Text43505911a78b", instance: instance, text: text)
-}
-component Text067f1c5fe6b5(instance: text, text: text) {
-  view Kit(component: "Text067f1c5fe6b5", instance: instance, text: text)
-}
-component Text77fb604d4ac4(instance: text, text: text) {
-  view Kit(component: "Text77fb604d4ac4", instance: instance, text: text)
+component Text1f98af367ebb(instance: text, text: text) {
+  view Kit(component: "Text1f98af367ebb", instance: instance, text: text)
 }
 component Group3d2637879433(instance: text) {
   view Kit(component: "Group3d2637879433", instance: instance) { slot }

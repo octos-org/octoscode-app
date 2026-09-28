@@ -41,314 +41,13 @@
       ]
     },
     {
-      "id": "t02",
-      "expected_text": "Queued steers now survive a reconnect.",
+      "id": "answer_md",
+      "expected_text": "Queued steers now survive a reconnect.\n\n\u2022 Fixed loss of queued steers when reconnecting after a drop in steer_dropped handling.\n\n\u2022 Updated ui_protocol_transport.rs to persist queued steers to the session ledger.\n\n\u2022 All tests pass: 12 passed.\n\n\u2022 Changes included in commit a6ea8505.",
       "requested_bounds": [
-        28.04,
-        111.25,
-        322.88,
-        25.28
-      ],
-      "status": "observed",
-      "ocr_text": "Queued steers now survive a reconnect.",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        28.5,
-        112.5,
-        319.0,
-        20.0
-      ],
-      "ink_color": [
-        24,
-        23,
-        24
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        28.036065173031233,
-        111.25377664139029,
-        322.8832092285157,
-        25.27999210357673
-      ]
-    },
-    {
-      "id": "t03",
-      "expected_text": "\u2022 Fixed loss of queued steers when",
-      "requested_bounds": [
-        19.33,
-        171.37,
-        312.56,
-        32.33
-      ],
-      "status": "observed",
-      "ocr_text": "\u2022 Fixed loss of queuedsteers when",
-      "confidence": 1,
-      "text_similarity": 0.9850746268656716,
-      "ink_bounds": [
-        29.5,
-        173.0,
-        297.0,
-        25.0
-      ],
-      "ink_color": [
-        46,
-        46,
-        46
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        19.333336208073007,
-        171.3666673832829,
-        312.5555419921875,
-        32.33333206176762
-      ]
-    },
-    {
-      "id": "t04",
-      "expected_text": "reconnecting after a drop in",
-      "requested_bounds": [
-        45.11,
-        210.0,
-        241.67,
-        32.5
-      ],
-      "status": "observed",
-      "ocr_text": "reconnecting after a drop in",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        53.0,
-        212.0,
-        230.5,
-        24.5
-      ],
-      "ink_color": [
-        33,
-        32,
-        33
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        45.11111317654087,
-        209.9999994450505,
-        241.6666564941406,
-        32.49999999999997
-      ]
-    },
-    {
-      "id": "t05c_t",
-      "expected_text": "steer_dropped",
-      "requested_bounds": [
-        56.5,
-        248.0,
-        125.5,
-        26.0
-      ],
-      "status": "missing_or_ocr_unresolved"
-    },
-    {
-      "id": "t05b",
-      "expected_text": " handling.",
-      "requested_bounds": [
-        182.0,
-        252.0,
-        91.89,
-        32.53
-      ],
-      "status": "missing_or_ocr_unresolved"
-    },
-    {
-      "id": "t06a",
-      "expected_text": "\u2022 Updated ",
-      "requested_bounds": [
-        22.56,
-        320.0,
-        113.94,
-        32.5
-      ],
-      "status": "missing_or_ocr_unresolved"
-    },
-    {
-      "id": "t06c_t",
-      "expected_text": "ui_protocol_transport.rs",
-      "requested_bounds": [
-        136.5,
-        318.0,
-        230.5,
-        26.0
-      ],
-      "status": "observed",
-      "ocr_text": "\u2022 Updated ui_protocol_transport.rs",
-      "confidence": 1,
-      "text_similarity": 0.8275862068965517,
-      "ink_bounds": [
-        29.5,
-        321.0,
-        332.5,
-        25.5
-      ],
-      "ink_color": [
-        48,
-        48,
-        49
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        22.55556129001738,
-        320.0000006584798,
-        341.5555419921875,
-        32.50000000000006
-      ]
-    },
-    {
-      "id": "t07",
-      "expected_text": "to persist queued steers to the",
-      "requested_bounds": [
-        49.62,
-        364.31,
-        258.26,
-        24.81
-      ],
-      "status": "observed",
-      "ocr_text": "to persist queued steers to the",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        52.0,
-        364.5,
-        253.5,
-        24.5
-      ],
-      "ink_color": [
-        12,
-        12,
-        13
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        49.62222616117009,
-        364.31395348761276,
-        258.2611083984375,
-        24.813953399658182
-      ]
-    },
-    {
-      "id": "t08",
-      "expected_text": "session ledger.",
-      "requested_bounds": [
-        50.61,
-        404.21,
-        127.71,
-        26.24
-      ],
-      "status": "observed",
-      "ocr_text": "session ledger.",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        52.5,
-        405.5,
-        121.5,
-        24.5
-      ],
-      "ink_color": [
-        17,
-        17,
-        17
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        50.61489538651256,
-        404.20509970138806,
-        127.70909881591797,
-        26.24096298217771
-      ]
-    },
-    {
-      "id": "t09a",
-      "expected_text": "\u2022 All tests pass: ",
-      "requested_bounds": [
-        25.94,
-        469.0,
-        152.06,
-        26.15
-      ],
-      "status": "missing_or_ocr_unresolved"
-    },
-    {
-      "id": "t09c_t",
-      "expected_text": "12 passed",
-      "requested_bounds": [
-        178.0,
-        466.0,
-        89.0,
-        24.0
-      ],
-      "status": "missing_or_ocr_unresolved"
-    },
-    {
-      "id": "t09b",
-      "expected_text": ".",
-      "requested_bounds": [
-        267.0,
-        469.0,
-        14.94,
-        26.15
-      ],
-      "status": "missing_or_ocr_unresolved"
-    },
-    {
-      "id": "t10a",
-      "expected_text": "\u2022 Changes included in commit ",
-      "requested_bounds": [
-        22.56,
-        533.5,
-        267.94,
-        32.5
-      ],
-      "status": "observed",
-      "ocr_text": "\u2022 Changes included in commit a6ea8505 .",
-      "confidence": 1,
-      "text_similarity": 0.835820895522388,
-      "ink_bounds": [
-        29.5,
-        535.0,
-        351.5,
-        25.0
-      ],
-      "ink_color": [
-        41,
-        41,
-        41
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        22.555557501245573,
-        533.5000005711162,
-        364.1111145019531,
-        32.49999999999997
-      ]
-    },
-    {
-      "id": "t10c_t",
-      "expected_text": "a6ea8505",
-      "requested_bounds": [
-        290.5,
-        530.0,
-        81.0,
-        26.0
-      ],
-      "status": "missing_or_ocr_unresolved"
-    },
-    {
-      "id": "t10b",
-      "expected_text": ".",
-      "requested_bounds": [
-        371.5,
-        533.5,
-        15.17,
-        32.5
+        27.0,
+        106.0,
+        356.0,
+        492.0
       ],
       "status": "missing_or_ocr_unresolved"
     },
@@ -434,62 +133,10 @@
       "reviewed": false
     },
     {
-      "id": "t05c",
-      "bounds": [
-        53.0,
-        247.0,
-        133.0,
-        37.0
-      ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294177780,
-      "radius": 6.94
-    },
-    {
-      "id": "t06c",
-      "bounds": [
-        132.0,
-        315.0,
-        240.0,
-        38.0
-      ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294177780,
-      "radius": 7.12
-    },
-    {
-      "id": "t09c",
-      "bounds": [
-        175.0,
-        461.0,
-        96.0,
-        37.0
-      ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294243574,
-      "radius": 7.4
-    },
-    {
-      "id": "t10c",
-      "bounds": [
-        287.0,
-        526.0,
-        89.0,
-        38.0
-      ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294177781,
-      "radius": 7.12
-    },
-    {
       "id": "icon_copy",
       "bounds": [
         24.0,
-        640.0,
+        662.0,
         20.0,
         20.0
       ],
@@ -500,7 +147,7 @@
       "id": "icon_thumbs",
       "bounds": [
         52.0,
-        640.0,
+        662.0,
         20.0,
         20.0
       ],
@@ -511,7 +158,7 @@
       "id": "icon_share",
       "bounds": [
         80.0,
-        640.0,
+        662.0,
         20.0,
         20.0
       ],
@@ -520,6 +167,36 @@
     }
   ],
   "unmapped_ocr": [
+    {
+      "bounds": [
+        56.072130346062465,
+        222.50755328278058,
+        645.7664184570314,
+        50.55998420715346
+      ],
+      "confidence": 1,
+      "text": "Queued steers now survive a reconnect."
+    },
+    {
+      "bounds": [
+        38.666672416146014,
+        342.7333347665658,
+        625.111083984375,
+        64.66666412353524
+      ],
+      "confidence": 1,
+      "text": "\u2022 Fixed loss of queuedsteers when"
+    },
+    {
+      "bounds": [
+        90.22222635308174,
+        419.999998890101,
+        483.3333129882812,
+        64.99999999999994
+      ],
+      "confidence": 1,
+      "text": "reconnecting after a drop in"
+    },
     {
       "bounds": [
         109.55554851286178,
@@ -532,6 +209,36 @@
     },
     {
       "bounds": [
+        45.11112258003476,
+        640.0000013169596,
+        683.111083984375,
+        65.00000000000011
+      ],
+      "confidence": 1,
+      "text": "\u2022 Updated ui_protocol_transport.rs"
+    },
+    {
+      "bounds": [
+        99.24445232234018,
+        728.6279069752255,
+        516.522216796875,
+        49.627906799316364
+      ],
+      "confidence": 1,
+      "text": "to persist queued steers to the"
+    },
+    {
+      "bounds": [
+        101.22979077302512,
+        808.4101994027761,
+        255.41819763183594,
+        52.48192596435542
+      ],
+      "confidence": 1,
+      "text": "session ledger."
+    },
+    {
+      "bounds": [
         51.87777518689245,
         938.0000005013726,
         512.0111083984375,
@@ -539,6 +246,16 @@
       ],
       "confidence": 1,
       "text": "\u2022 All tests pass: 12 passed ."
+    },
+    {
+      "bounds": [
+        45.11111500249115,
+        1067.0000011422323,
+        728.2222290039062,
+        64.99999999999994
+      ],
+      "confidence": 1,
+      "text": "\u2022 Changes included in commit a6ea8505 ."
     }
   ],
   "non_text_ocr": [],

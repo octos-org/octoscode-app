@@ -12,8 +12,11 @@ PY=/Users/yuechen/miniconda3/bin/python3
 #    so the face must be present before beauty-host is (re)built. makepad already
 #    ships LiberationMono-Regular.ttf; we copy it rather than add a new dependency.
 mkdir -p "$WS/octoscript-makepad/apps/kit-host/resources/ux"
-cp -n "$WS/makepad/widgets/resources/LiberationMono-Regular.ttf" \
-      "$WS/octoscript-makepad/apps/kit-host/resources/ux/LiberationMono-Regular.ttf"
+# `cp -n` exits 1 when it skips an existing file, which `set -e` would treat as
+# fatal — copy only when absent instead.
+[ -f "$WS/octoscript-makepad/apps/kit-host/resources/ux/LiberationMono-Regular.ttf" ] || \
+  cp "$WS/makepad/widgets/resources/LiberationMono-Regular.ttf" \
+     "$WS/octoscript-makepad/apps/kit-host/resources/ux/LiberationMono-Regular.ttf"
 
 # 2) Build beauty-host from the clone (it bakes the resource set above).
 TARGET="$PWD/tmp/beauty-clone-target"
@@ -39,6 +42,10 @@ for n in 01 02 03 04 05 06 07 08 09 10 11 12; do
 done
 bash "$CLONE/tools/image-to-appcard-flow.sh" run --project "$PROJ" --manifest "$PROJ/image-to-appcard-flow.json" --stages observe,measure,map
 $PY design/stage-b/conversation/tools/fix_metrics.py
+# `measure` records a surface fill as one whole-interior median, which a large
+# differently-coloured child contaminates (card #11e: tool_3's white card went
+# grey because its console box covers 61% of it). Restore the authored fill there.
+$PY design/stage-b/conversation/tools/fix_surfaces.py
 $PY design/stage-b/conversation/tools/finalize_semantics.py
 bash "$CLONE/tools/image-to-appcard-flow.sh" run --project "$PROJ" --manifest "$PROJ/image-to-appcard-flow.json" --stages semantic,compile
 echo "REBUILD_OK"
