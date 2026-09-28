@@ -1,0 +1,216 @@
+From ca62dfab360b52e6355681fd17348ad33afd8de2 Mon Sep 17 00:00:00 2001
+From: octos <octos@local>
+Date: Sun, 27 Sep 2026 22:40:32 -0700
+Subject: [PATCH] feat(transport): generic JSON-RPC Request command
+
+Add OutboundCommand::Request { method, params, reply } so callers can issue
+any UI-Protocol method, not only the typed ones (~79 methods have no typed
+command; the web client has one generic request). It rides the same
+serialize_request + RpcRegistry path as every typed command: the reply
+oneshot gets the raw result Value or the server RpcError.
+
+PendingRequest.method is now an owned String (the method name is runtime for
+a generic request). Two unit tests cover frame shape + reply delivery, and
+error delivery.
+---
+ .../app/crates/octos-app-transport/src/lib.rs |  11 ++
+ .../crates/octos-app-transport/src/proto.rs   | 101 +++++++++++++++++-
+ 2 files changed, 108 insertions(+), 4 deletions(-)
+
+diff --git a/apps/appcard/app/crates/octos-app-transport/src/lib.rs b/apps/appcard/app/crates/octos-app-transport/src/lib.rs
+index 014a81e..c95394e 100644
+--- a/apps/appcard/app/crates/octos-app-transport/src/lib.rs
++++ b/apps/appcard/app/crates/octos-app-transport/src/lib.rs
+@@ -160,6 +160,17 @@ pub enum OutboundCommand {
+         params: TaskOutputReadParams,
+         reply: oneshot::Sender<Result<TaskOutputReadResult, RpcError>>,
+     },
++    /// A generic JSON-RPC request: any `method` with any `params`, answered
++    /// with the raw `result` value (typed decode is the caller's job). Serves
++    /// the ~79 UI-Protocol methods that have no typed command, mirroring the
++    /// web client's one generic `request` (`packages/client/src/client.ts`).
++    /// Routed through the same `serialize_request` + `RpcRegistry` path as
++    /// every typed command — no separate wire handling.
++    Request {
++        method: String,
++        params: serde_json::Value,
++        reply: oneshot::Sender<Result<serde_json::Value, RpcError>>,
++    },
+     /// Voluntary disconnect — the task drains and exits.
+     Disconnect,
+ }
+diff --git a/apps/appcard/app/crates/octos-app-transport/src/proto.rs b/apps/appcard/app/crates/octos-app-transport/src/proto.rs
+index 1e1837c..c075791 100644
+--- a/apps/appcard/app/crates/octos-app-transport/src/proto.rs
++++ b/apps/appcard/app/crates/octos-app-transport/src/proto.rs
+@@ -28,7 +28,8 @@ use crate::{ConnectionState, LifecycleResult, OutboundCommand, TransportEvent};
+ pub const CHANNEL_BUFFER: usize = 64;
+ 
+ pub(crate) struct PendingRequest {
+-    pub(crate) method: &'static str,
++    /// The method name, owned: generic `Request` carries a runtime string.
++    pub(crate) method: String,
+     pub(crate) reply: PendingReply,
+ }
+ 
+@@ -42,6 +43,10 @@ pub(crate) enum PendingReply {
+     /// `session/hydrate` — result re-emitted as
+     /// `TransportEvent::SessionHydrated` tagged with the session key.
+     SessionHydrate { session_id: String },
++    /// A generic JSON-RPC request (`OutboundCommand::Request`): the raw
++    /// `result` value or the server's `RpcError` goes straight back on the
++    /// caller's oneshot. No event is emitted.
++    Generic(oneshot::Sender<Result<Value, RpcError>>),
+     /// A `session/open` the transport re-sent itself after the shell's kernel
+     /// restarted (see `kernel`): it brings the connection back to `Live`,
+     /// and the app, which already holds the session, hears nothing else.
+@@ -105,6 +110,29 @@ fn to_value<T: serde::Serialize>(v: &T) -> Value {
+ /// the `PendingReply` to record when it is sent. Consumes a fresh id from the
+ /// registry. Transport-agnostic: the caller owns the actual write.
+ pub(crate) fn build_outbound(cmd: OutboundCommand, shared: &mut SharedState) -> Outbound {
++    // A generic JSON-RPC request carries a runtime method name and wants the
++    // raw `result`. It rides the SAME `serialize_request` + `RpcRegistry` path
++    // as the typed commands below; only the method string is dynamic.
++    let cmd = match cmd {
++        OutboundCommand::Request { method, params, reply } => {
++            let id = shared.registry.next_id();
++            return match serialize_request(&id, &method, &params) {
++                Ok(frame) => Outbound::Send {
++                    id,
++                    frame,
++                    pending: Some(PendingRequest {
++                        method,
++                        reply: PendingReply::Generic(reply),
++                    }),
++                },
++                Err(e) => {
++                    log::warn!("transport: serialize {method}: {e}");
++                    Outbound::Skip
++                }
++            };
++        }
++        other => other,
++    };
+     let id = shared.registry.next_id();
+     let (method, body, pending): (&'static str, Value, Option<PendingReply>) = match cmd {
+         OutboundCommand::OpenSession(mut params) => {
+@@ -162,13 +190,15 @@ pub(crate) fn build_outbound(cmd: OutboundCommand, shared: &mut SharedState) ->
+             Some(PendingReply::SessionHydrate { session_id }),
+         ),
+         OutboundCommand::Disconnect => return Outbound::Disconnect,
++        // Handled by the early return above; unreachable here.
++        OutboundCommand::Request { .. } => unreachable!("Request is routed before this match"),
+     };
+ 
+     match serialize_request(&id, method, &body) {
+         Ok(frame) => Outbound::Send {
+             id,
+             frame,
+-            pending: pending.map(|reply| PendingRequest { method, reply }),
++            pending: pending.map(|reply| PendingRequest { method: method.to_string(), reply }),
+         },
+         Err(e) => {
+             log::warn!("transport: serialize {method}: {e}");
+@@ -187,7 +217,7 @@ pub(crate) fn build_reopens(shared: &mut SharedState) -> Vec<(JsonRpcId, String,
+         params.after = shared.cursors.get(&params.session_id).cloned();
+         let id = shared.registry.next_id();
+         match serialize_request(&id, methods::SESSION_OPEN, &to_value(&params)) {
+-            Ok(frame) => out.push((id, frame, PendingRequest { method: methods::SESSION_OPEN, reply: PendingReply::Reopen })),
++            Ok(frame) => out.push((id, frame, PendingRequest { method: methods::SESSION_OPEN.to_string(), reply: PendingReply::Reopen })),
+             Err(e) => log::warn!("transport: serialize session/open (reopen): {e}"),
+         }
+     }
+@@ -312,7 +342,7 @@ fn handle_response(
+             None
+         }
+         PendingReply::Lifecycle => {
+-            match UiRpcResult::from_method_and_result(method, result_value.clone()) {
++            match UiRpcResult::from_method_and_result(&method, result_value.clone()) {
+                 Ok(UiRpcResult::SessionOpen(open)) => {
+                     let caps = Capabilities::parse(&result_value);
+                     try_emit(events, TransportEvent::CapabilityNegotiated(caps));
+@@ -376,6 +406,11 @@ fn handle_response(
+             try_emit(events, TransportEvent::SessionHydrated { session_id, result: result_value });
+             None
+         }
++        PendingReply::Generic(reply) => {
++            // Raw pass-through: the caller decodes the method's result type.
++            let _ = reply.send(Ok(result_value));
++            None
++        }
+     }
+ }
+ 
+@@ -402,6 +437,9 @@ fn fail_pending(pending: PendingRequest, err: RpcError) {
+         PendingReply::Reopen => {
+             log::warn!("transport: re-opening a session on the restarted kernel failed: {err:?}");
+         }
++        PendingReply::Generic(reply) => {
++            let _ = reply.send(Err(err));
++        }
+     }
+ }
+ 
+@@ -481,4 +519,59 @@ mod tests {
+         producer.await.unwrap();
+         assert_eq!(text, "<card>東京</card>");
+     }
++
++    /// A generic `Request` rides the same serialize path as the typed
++    /// commands: the frame is well-formed JSON-RPC 2.0 with the caller's
++    /// method + params, and its reply oneshot is recorded under the frame's id.
++    #[test]
++    fn generic_request_builds_a_jsonrpc_frame_and_registers_its_reply() {
++        let mut shared = SharedState::new(None, None);
++        let (tx, mut rx) = oneshot::channel::<Result<Value, RpcError>>();
++        let out = build_outbound(
++            OutboundCommand::Request {
++                method: "tool/status/list".to_owned(),
++                params: serde_json::json!({"session_id": "_main:test", "profile_id": "p"}),
++                reply: tx,
++            },
++            &mut shared,
++        );
++        let Outbound::Send { id, frame, pending } = out else {
++            panic!("expected Outbound::Send");
++        };
++        let parsed: Value = serde_json::from_str(&frame).expect("frame is JSON");
++        assert_eq!(parsed["jsonrpc"], "2.0");
++        assert_eq!(parsed["id"], id.as_str());
++        assert_eq!(parsed["method"], "tool/status/list");
++        assert_eq!(parsed["params"]["session_id"], "_main:test");
++        let pending = pending.expect("a generic request records a pending reply");
++        assert_eq!(pending.method, "tool/status/list");
++
++        // Delivery: a server result reaches the caller's oneshot verbatim.
++        let value = serde_json::json!({"tools": []});
++        let _ = handle_response(pending, value.clone(), &mpsc::channel(1).0, &mut ConnectionState::Live);
++        assert_eq!(rx.try_recv().expect("reply sent").expect("ok"), value);
++    }
++
++    /// An RPC error on a generic request reaches the caller's oneshot as an
++    /// `Err`, not as an event.
++    #[test]
++    fn generic_request_error_reaches_the_caller() {
++        let mut shared = SharedState::new(None, None);
++        let (tx, mut rx) = oneshot::channel::<Result<Value, RpcError>>();
++        let out = build_outbound(
++            OutboundCommand::Request {
++                method: "does/not/exist".to_owned(),
++                params: Value::Null,
++                reply: tx,
++            },
++            &mut shared,
++        );
++        let Outbound::Send { pending, .. } = out else {
++            panic!("expected Outbound::Send");
++        };
++        let err = RpcError { code: -32601, message: "method not found".to_owned(), data: None };
++        fail_pending(pending.expect("pending"), err.clone());
++        let got = rx.try_recv().expect("reply sent");
++        assert_eq!(got.expect_err("an error reply").message, "method not found");
++    }
+ }
+-- 
+2.49.0
+

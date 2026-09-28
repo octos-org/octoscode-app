@@ -1,0 +1,13 @@
+## live integration: octos serve a6ea8505, --solo, port 50082
+$ ctest -p octoscode-client --test live_serve -- --ignored --nocapture
+
+running 1 test
+profile/local/create -> profile_id=octoscode63054
+session/open -> session_id=octoscode63054:main
+session/list -> 0 sessions
+config/capabilities/list -> 75 methods, 51 notifications
+tool/status/list -> 36 tools
+test core_methods_round_trip_against_a_live_serve ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+## serve-side log lines for the calls above

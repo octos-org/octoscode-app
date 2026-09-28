@@ -1,0 +1,50 @@
+# octoscode-app — the native Makepad/Octoscript client for octos, at parity
+# with the TypeScript web client. Phase 1: the core (client + store + module).
+#
+# Dependency route (D10): the OctoSense crates come from a **git dep at the
+# pinned rev** (proved to build standalone in docs/baseline.md §4). The one
+# crate we must modify — `octos-app-transport`, for the generic
+# `OutboundCommand::Request` — is redirected by the `[patch]` below to the
+# local fork branch; `tools/prepare-octosense-fork.sh` recreates that fork
+# from this same rev + `patches/octosense/0001-transport-generic-request.patch`.
+[workspace]
+resolver = "2"
+members = [
+    "crates/octoscode-client",
+    "crates/octoscode-store",
+    "crates/octoscode-module",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+publish = false
+
+[workspace.dependencies]
+# Protocol types (RpcError, Capabilities, the method-name constants, the
+# `*Params`/`*Result` shapes). The octos revision is OctoSense's own pin.
+octos-core = { git = "https://github.com/octos-org/octos.git", rev = "a6ea8505170735f191a12bb47629a6728415d417" }
+# The octos-app client crates (transport + store), re-homed by us (D9/D10).
+octos-app-transport = { git = "https://github.com/OctoSense-org/OctoSense", rev = "6e9bfd4077cf8181878ac005ad586f908084a4bf" }
+octos-app-store = { git = "https://github.com/OctoSense-org/OctoSense", rev = "6e9bfd4077cf8181878ac005ad586f908084a4bf" }
+# Our crates.
+octoscode-client = { path = "crates/octoscode-client" }
+octoscode-store = { path = "crates/octoscode-store" }
+octoscode-module = { path = "crates/octoscode-module" }
+# Makepad, for the AppModule (shape (i)). Same rev OctoSense pins.
+makepad-widgets = { git = "https://github.com/OctoSense-org/makepad.git", rev = "6cf03859630761f5cb99ce7fcdfd8c30475d9ab8" }
+makepad-app-module = { git = "https://github.com/OctoSense-org/makepad.git", rev = "6cf03859630761f5cb99ce7fcdfd8c30475d9ab8" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread"] }
+log = "0.4"
+
+# Remove when the upstream PR lands (docs/upstream/octosense-generic-request-PR.md).
+# Our fork branch = the pinned rev + the generic `OutboundCommand::Request`.
+# BOTH crates are patched: the fork's `octos-app-transport` resolves its deps
+# from the FORK's workspace (a path into the fork tree), so patching only the
+# transport would put two copies of `octos-app-store` in the graph.
+[patch."https://github.com/OctoSense-org/OctoSense"]
+octos-app-transport = { path = "/Users/yuechen/home/oa.noindex/octosense-fork/apps/appcard/app/crates/octos-app-transport" }
+octos-app-store = { path = "/Users/yuechen/home/oa.noindex/octosense-fork/apps/appcard/app/crates/octos-app-store" }
