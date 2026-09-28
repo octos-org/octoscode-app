@@ -31,6 +31,7 @@ use std::sync::{Arc, Mutex};
 use octoscode_store::Store;
 
 pub mod bindings;
+pub mod cards;
 pub mod fallback;
 pub mod flow;
 
@@ -42,29 +43,53 @@ script_mod! {
         ..mod.widgets.RectView
         width: Fill height: Fill
         draw_bg.color: theme.color_bg_app
-        flow: Down padding: 24 spacing: 14
-        heading := Label {
-            text: "OctosCode"
-            draw_text.text_style.font_size: 20
-        }
-        status := Label { width: Fill draw_text.wrap: Words text: "conn: (connecting…)" }
-        sessions := Label { width: Fill text: "sessions: 0" }
-        refresh := Button { text: "session/list" }
-        new_chat := Button { text: "New chat" }
-        // Card #12 §4: the plain FALLBACK conversation view (binding-only),
-        // replaced by the mounted L0 cards (#11b) later. Every id below is a
-        // binding id (`threads`, `timeline.entries`, `tools`,
-        // `answer.worked_for`, `composer.*`); the view never sees a Rust type.
-        threads_label := Label { width: Fill draw_text.text_style.font_size: 13 text: "threads: (none)" }
-        timeline_label := Label { width: Fill height: Fill draw_text.wrap: Words text: "(no timeline)" }
-        tools_label := Label { width: Fill draw_text.text_style.font_size: 13 text: "tools: (none)" }
-        answer_label := Label { width: Fill draw_text.text_style.font_size: 13 text: "" }
-        composer_row := View {
+        flow: Down padding: 16 spacing: 10
+        header := View {
             width: Fill height: Fit
-            flow: Right spacing: 8
-            draft := TextInput { width: Fill empty_text: "Ask Octos anything" }
-            send := Button { text: "Send" }
-            stop := Button { text: "Stop" }
+            flow: Right spacing: 10
+            heading := Label {
+                text: "OctosCode"
+                draw_text.text_style.font_size: 20
+            }
+            status := Label { width: Fill draw_text.wrap: Words text: "conn: (connecting…)" }
+            sessions := Label { width: Fit text: "sessions: 0" }
+            refresh := Button { text: "session/list" }
+            new_chat := Button { text: "New chat" }
+        }
+        // Card #15 (D12): the HOST lays out the desktop columns — thread list on
+        // the left, the conversation in the middle with the composer docked at
+        // its bottom. Each card fills its slot. Every `*_card` label below is
+        // mounted from `design/cards/index.json` BY SLOT; the `*_label` beside
+        // it is that slot's fallback, which shows (and logs) when the card's
+        // artefacts are missing or unreadable. Every value either renders comes
+        // from a binding id — the view never sees a Rust type.
+        columns := View {
+            width: Fill height: Fill
+            flow: Right spacing: 12
+            thread_col := View {
+                width: 220 height: Fill
+                flow: Down spacing: 6
+                thread_card := Label { width: Fill height: Fill draw_text.wrap: Words text: "" }
+                threads_label := Label { width: Fill height: Fill draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "threads: (none)" }
+            }
+            convo_col := View {
+                width: Fill height: Fill
+                flow: Down spacing: 6
+                timeline_card := Label { width: Fill height: Fill draw_text.wrap: Words text: "" }
+                timeline_label := Label { width: Fill height: Fill draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "(no timeline)" }
+                tools_card := Label { width: Fill height: Fit draw_text.wrap: Words text: "" }
+                tools_label := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "tools: (none)" }
+                answer_card := Label { width: Fill height: Fit draw_text.wrap: Words text: "" }
+                answer_label := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "" }
+                composer_card := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 12 text: "" }
+                composer_row := View {
+                    width: Fill height: Fit
+                    flow: Right spacing: 8
+                    draft := TextInput { width: Fill empty_text: "Ask Octos anything" }
+                    send := Button { text: "Send" }
+                    stop := Button { text: "Stop" }
+                }
+            }
         }
     }
 }
@@ -255,6 +280,70 @@ impl OctoscodeView {
                 .position(|i| *i == id)
                 .and_then(|i| values.get(i).cloned().flatten())
         };
+        // Card #15: mount the cards by SLOT. Each slot renders independently;
+        // a slot whose card is missing or unreadable keeps its fallback widget
+        // visible and is logged by name, so the screen always renders.
+        // (`ids!` per arm: makepad's id macros need literal paths.)
+        match cards::render_slot(cards::Slot::ThreadList, &resolver) {
+            Ok(body) => {
+                self.view.label(cx, ids!(thread_card)).set_text(cx, &body);
+                self.view.widget(cx, ids!(thread_card)).set_visible(cx, true);
+                self.view.widget(cx, ids!(threads_label)).set_visible(cx, false);
+            }
+            Err(e) => {
+                ::log::warn!("octoscode: card slot `thread_list` fell back to the plain widget: {e}");
+                self.view.widget(cx, ids!(thread_card)).set_visible(cx, false);
+                self.view.widget(cx, ids!(threads_label)).set_visible(cx, true);
+            }
+        }
+        match cards::render_slot(cards::Slot::Conversation, &resolver) {
+            Ok(body) => {
+                self.view.label(cx, ids!(timeline_card)).set_text(cx, &body);
+                self.view.widget(cx, ids!(timeline_card)).set_visible(cx, true);
+                self.view.widget(cx, ids!(timeline_label)).set_visible(cx, false);
+            }
+            Err(e) => {
+                ::log::warn!("octoscode: card slot `conversation` fell back to the plain widget: {e}");
+                self.view.widget(cx, ids!(timeline_card)).set_visible(cx, false);
+                self.view.widget(cx, ids!(timeline_label)).set_visible(cx, true);
+            }
+        }
+        match cards::render_slot(cards::Slot::ToolCells, &resolver) {
+            Ok(body) => {
+                self.view.label(cx, ids!(tools_card)).set_text(cx, &body);
+                self.view.widget(cx, ids!(tools_card)).set_visible(cx, true);
+                self.view.widget(cx, ids!(tools_label)).set_visible(cx, false);
+            }
+            Err(e) => {
+                ::log::warn!("octoscode: card slot `tool_cells` fell back to the plain widget: {e}");
+                self.view.widget(cx, ids!(tools_card)).set_visible(cx, false);
+                self.view.widget(cx, ids!(tools_label)).set_visible(cx, true);
+            }
+        }
+        match cards::render_slot(cards::Slot::CompletedAnswer, &resolver) {
+            Ok(body) => {
+                self.view.label(cx, ids!(answer_card)).set_text(cx, &body);
+                self.view.widget(cx, ids!(answer_card)).set_visible(cx, true);
+                self.view.widget(cx, ids!(answer_label)).set_visible(cx, false);
+            }
+            Err(e) => {
+                ::log::warn!("octoscode: card slot `completed_answer` fell back to the plain widget: {e}");
+                self.view.widget(cx, ids!(answer_card)).set_visible(cx, false);
+                self.view.widget(cx, ids!(answer_label)).set_visible(cx, true);
+            }
+        }
+        // The composer slot: its card supplies the hint row above the input;
+        // the input row itself is always live (a composer that vanished on a
+        // bad card would strand the person).
+        match cards::render_slot(cards::Slot::Composer, &resolver) {
+            Ok(body) => self.view.label(cx, ids!(composer_card)).set_text(cx, &body),
+            Err(e) => {
+                ::log::warn!("octoscode: card slot `composer` fell back to the plain widget: {e}");
+                self.view.label(cx, ids!(composer_card)).set_text(cx, "");
+            }
+        }
+        // The fallback renderer still fills its own widgets; the ones a card
+        // covered are hidden above, so what shows is the card.
         fallback::render(&self.view, cx, &resolver);
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
     }
