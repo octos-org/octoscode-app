@@ -158,9 +158,15 @@ VARIANTS = {
         "short": {"text": {"t01": "Retry the build"}, "drop": ["t02"],
                   # 15.72 padding + ~103 text + 15.72 padding, rounded to the atlas pitch
                   "flags": {"user_bubble": {"w": 135.0, "h": 50.2}}},
-        "long": {"text": {"t01": "Fix the steer queue so queued",
-                          "t02": "steers survive a reconnect"},
-                 "flags": {"user_bubble": {"h": 85.09}}},
+        # Card #16e: the atlas bubble is ONE wrapped paragraph, so the fixture is
+        # one wrapping Text node (not two pre-placed single lines). Its line_height
+        # is the ATLAS's measured paragraph pitch (the two lines sit 38px apart),
+        # which is what the renderer's 1.4x wrap rule then clamps.
+        "long": {"text": {"t01": "Fix the steer queue so queued steers survive a reconnect"},
+                 "drop": ["t02"],
+                 "flags": {"user_bubble": {"h": 85.09},
+                           "t01": {"variant": "wrap", "w": 252.6, "h": 63.0,
+                                   "line_height": 38.0}}},
     },
     "working-row": {"short": {"text": {"t03": "Working \u2022 3s"}},
                     "long": {"text": {"t03": "Working \u2022 12s"}}},
