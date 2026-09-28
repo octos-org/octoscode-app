@@ -24,10 +24,10 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "text",
-      "component": "Text3da4d6f2fff3",
+      "component": "Text3a321d4c403b",
       "semantic_role": "text",
       "bounds": [
-        79.47190656565657,
+        79.91,
         81.5,
         247.0,
         27.5
@@ -35,17 +35,17 @@
       "text": "Octos needs a decision",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 30.383838383838384
+      "size": 21.6
     },
     {
       "source_id": "t02",
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "text",
-      "component": "Textd9dbaf3ab81a",
+      "component": "Texte0286096d45a",
       "semantic_role": "text",
       "bounds": [
-        36.80503144654088,
+        37.02,
         153.5,
         259.0,
         29.5
@@ -53,17 +53,17 @@
       "text": "Where should queued steers",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 27.371069182389938
+      "size": 18.71
     },
     {
       "source_id": "t03",
       "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "text",
-      "component": "Text43aa78ee2426",
+      "component": "Text6572631f4c32",
       "semantic_role": "text",
       "bounds": [
-        36.44123658661216,
+        37.09,
         192.5,
         120.5,
         29.5
@@ -71,17 +71,17 @@
       "text": "be persisted?",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 26.685743484925908
+      "size": 18.26
     },
     {
       "source_id": "t04",
       "native_id": "beauty_0_3",
       "parent": "page",
       "kind": "text",
-      "component": "Text84ade24e85ae",
+      "component": "Text4854ff39de94",
       "semantic_role": "text",
       "bounds": [
-        80.773851590106,
+        81.47,
         257.5,
         174.5,
         28.5
@@ -89,17 +89,17 @@
       "text": "In the session ledger",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 25.328621908127207
+      "size": 17.37
     },
     {
       "source_id": "t05",
       "native_id": "beauty_0_4",
       "parent": "page",
       "kind": "text",
-      "component": "Text2e2e7a8059c3",
+      "component": "Texte417d444380e",
       "semantic_role": "text",
       "bounds": [
-        79.80430107526881,
+        80.67,
         292.0,
         134.5,
         27.0
@@ -107,17 +107,17 @@
       "text": "(recommended)",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 25.3247311827957
+      "size": 17.19
     },
     {
       "source_id": "t06",
       "native_id": "beauty_0_5",
       "parent": "page",
       "kind": "text",
-      "component": "Text4217c9f66dc7",
+      "component": "Text5e310874fe95",
       "semantic_role": "text",
       "bounds": [
-        80.60438413361169,
+        81.43,
         352.5,
         134.5,
         29.5
@@ -125,17 +125,17 @@
       "text": "In memory only",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 27.25678496868476
+      "size": 17.9
     },
     {
       "source_id": "t07",
       "native_id": "beauty_0_6",
       "parent": "page",
       "kind": "text",
-      "component": "Texta5d0834ca7a1",
+      "component": "Text5a6b3a90fb2a",
       "semantic_role": "text",
       "bounds": [
-        81.36869009584665,
+        81.54,
         414.5,
         123.5,
         23.0
@@ -143,17 +143,17 @@
       "text": "Ask each time",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 24.863897763578276
+      "size": 17.93
     },
     {
       "source_id": "t08",
       "native_id": "beauty_0_7",
       "parent": "page",
       "kind": "text",
-      "component": "Text9127233a0664",
+      "component": "Text11deca7fe166",
       "semantic_role": "text",
       "bounds": [
-        40.8311345646438,
+        41.06,
         492.5,
         92.5,
         23.5
@@ -161,17 +161,17 @@
       "text": "Add a note",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 26.34300791556728
+      "size": 17.22
     },
     {
       "source_id": "t09",
       "native_id": "beauty_0_8",
       "parent": "page",
       "kind": "text",
-      "component": "Text1c4f3701b4d7",
+      "component": "Text629aa5a12167",
       "semantic_role": "text",
       "bounds": [
-        134.53578274760383,
+        135.39,
         587.5,
         141.5,
         30.5
@@ -179,17 +179,17 @@
       "text": "Submit answer",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 34.678594249201275
+      "size": 19.56
     },
     {
       "source_id": "t10",
       "native_id": "beauty_0_9",
       "parent": "page",
       "kind": "text",
-      "component": "Text4788a5d08fa8",
+      "component": "Text5d47e359c8cc",
       "semantic_role": "text",
       "bounds": [
-        180.3995912110373,
+        180.92,
         672.5,
         43.0,
         31.0
@@ -197,7 +197,7 @@
       "text": "Skip",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 28.255493101686255
+      "size": 19.07
     }
   ],
   "fonts": {

@@ -24,18 +24,18 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "text",
-      "component": "Text2dec426b364e",
+      "component": "Text50ebf376856a",
       "semantic_role": "text",
       "bounds": [
-        23.479973591549296,
+        23.34,
         46.5,
-        154.4536531690141,
-        26.5
+        150.0,
+        27.9
       ],
       "text": "OctosCode \u25be",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 20.281690140845072
+      "size": 23.06
     },
     {
       "source_id": "icon_bell",
@@ -132,10 +132,10 @@
       "native_id": "beauty_0_3_2",
       "parent": "new_chat",
       "kind": "text",
-      "component": "Texte501bf8b5923",
+      "component": "Text0cb52ec5325c",
       "semantic_role": "text",
       "bounds": [
-        36.43069306930693,
+        37.04,
         136.0,
         86.0,
         23.0
@@ -143,7 +143,7 @@
       "text": "New chat",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 25.684488448844885
+      "size": 18.12
     },
     {
       "source_id": "icon_compose",
@@ -222,10 +222,10 @@
       "native_id": "beauty_0_5_2",
       "parent": "thread_1",
       "kind": "text",
-      "component": "Text07acfc15fdf4",
+      "component": "Text68bd508108d5",
       "semantic_role": "text",
       "bounds": [
-        36.48780487804878,
+        37.04,
         231.0,
         302.0,
         28.0
@@ -233,7 +233,7 @@
       "text": "Fix steer queue drop on reconnect",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 24.975609756097562
+      "size": 18.1
     },
     {
       "source_id": "thread_2",
@@ -294,10 +294,10 @@
       "native_id": "beauty_0_6_2",
       "parent": "thread_2",
       "kind": "text",
-      "component": "Textf877b5725cc3",
+      "component": "Textaa698d2fd403",
       "semantic_role": "text",
       "bounds": [
-        36.39267676767677,
+        36.55,
         312.0,
         145.5,
         22.5
@@ -305,7 +305,7 @@
       "text": "Add session fork",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 23.91919191919192
+      "size": 17.75
     },
     {
       "source_id": "thread_3",
@@ -366,10 +366,10 @@
       "native_id": "beauty_0_7_2",
       "parent": "thread_3",
       "kind": "text",
-      "component": "Text794302f84e15",
+      "component": "Textfa82cc3abc92",
       "semantic_role": "text",
       "bounds": [
-        35.81190019193858,
+        36.47,
         395.5,
         149.5,
         23.0
@@ -377,7 +377,7 @@
       "text": "Review PR #2566",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 24.89571337172105
+      "size": 17.42
     },
     {
       "source_id": "thread_4",
@@ -438,10 +438,10 @@
       "native_id": "beauty_0_8_2",
       "parent": "thread_4",
       "kind": "text",
-      "component": "Text6c25d3b6d21d",
+      "component": "Text209fc50dee4a",
       "semantic_role": "text",
       "bounds": [
-        35.71265560165975,
+        36.46,
         480.5,
         258.5,
         28.5
@@ -449,7 +449,7 @@
       "text": "Bump octos-core to a6ea8505",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 26.024896265560166
+      "size": 17.57
     },
     {
       "source_id": "thread_5",
@@ -510,10 +510,10 @@
       "native_id": "beauty_0_9_2",
       "parent": "thread_5",
       "kind": "text",
-      "component": "Text3bcc9ac8d090",
+      "component": "Textbe1a2af7f457",
       "semantic_role": "text",
       "bounds": [
-        35.864885496183206,
+        36.06,
         564.5,
         179.5,
         28.0
@@ -521,7 +521,7 @@
       "text": "Why is hydrate slow?",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 25.013740458015267
+      "size": 17.44
     },
     {
       "source_id": "icon_fork",

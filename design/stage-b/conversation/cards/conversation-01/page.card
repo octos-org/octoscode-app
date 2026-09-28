@@ -19,8 +19,8 @@ state thread_5_control_enabled { shape: bool, initial: true }
 component Surface16fae9a63e16(instance: text) {
   view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
 }
-component Text2dec426b364e(instance: text, text: text) {
-  view Kit(component: "Text2dec426b364e", instance: instance, text: text)
+component Text50ebf376856a(instance: text, text: text) {
+  view Kit(component: "Text50ebf376856a", instance: instance, text: text)
 }
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
@@ -34,36 +34,36 @@ component Surface27633031c859(instance: text) {
 component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
   view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
 }
-component Texte501bf8b5923(instance: text, text: text) {
-  view Kit(component: "Texte501bf8b5923", instance: instance, text: text)
+component Text0cb52ec5325c(instance: text, text: text) {
+  view Kit(component: "Text0cb52ec5325c", instance: instance, text: text)
 }
 component Surface8f954c9fd892(instance: text) {
   view Kit(component: "Surface8f954c9fd892", instance: instance) { slot }
 }
-component Text07acfc15fdf4(instance: text, text: text) {
-  view Kit(component: "Text07acfc15fdf4", instance: instance, text: text)
+component Text68bd508108d5(instance: text, text: text) {
+  view Kit(component: "Text68bd508108d5", instance: instance, text: text)
 }
 component Surface5e06c9b428ce(instance: text) {
   view Kit(component: "Surface5e06c9b428ce", instance: instance) { slot }
 }
-component Textf877b5725cc3(instance: text, text: text) {
-  view Kit(component: "Textf877b5725cc3", instance: instance, text: text)
+component Textaa698d2fd403(instance: text, text: text) {
+  view Kit(component: "Textaa698d2fd403", instance: instance, text: text)
 }
 component Surface716f7b9e59a5(instance: text) {
   view Kit(component: "Surface716f7b9e59a5", instance: instance) { slot }
 }
-component Text794302f84e15(instance: text, text: text) {
-  view Kit(component: "Text794302f84e15", instance: instance, text: text)
+component Textfa82cc3abc92(instance: text, text: text) {
+  view Kit(component: "Textfa82cc3abc92", instance: instance, text: text)
 }
-component Text6c25d3b6d21d(instance: text, text: text) {
-  view Kit(component: "Text6c25d3b6d21d", instance: instance, text: text)
+component Text209fc50dee4a(instance: text, text: text) {
+  view Kit(component: "Text209fc50dee4a", instance: instance, text: text)
 }
-component Text3bcc9ac8d090(instance: text, text: text) {
-  view Kit(component: "Text3bcc9ac8d090", instance: instance, text: text)
+component Textbe1a2af7f457(instance: text, text: text) {
+  view Kit(component: "Textbe1a2af7f457", instance: instance, text: text)
 }
 
 view root Surface16fae9a63e16(instance: "page") {
-  Text2dec426b364e(instance: "t01", text: copy.t01_text)
+  Text50ebf376856a(instance: "t01", text: copy.t01_text)
   Vectore0a378fde04f(instance: "icon_bell")
   Vectore0a378fde04f(instance: "icon_search")
   KitButton2c6804b990a5(instance: "new_chat") {
@@ -71,7 +71,7 @@ view root Surface16fae9a63e16(instance: "page") {
 
     }
     NativeButton02f1d1bd99b4(instance: "new_chat_control", enabled: new_chat_control_enabled)
-    Texte501bf8b5923(instance: "new_chat_label", text: copy.new_chat_label_text)
+    Text0cb52ec5325c(instance: "new_chat_label", text: copy.new_chat_label_text)
   }
   Vectore0a378fde04f(instance: "icon_compose")
   KitButton2c6804b990a5(instance: "thread_1") {
@@ -79,35 +79,35 @@ view root Surface16fae9a63e16(instance: "page") {
 
     }
     NativeButton02f1d1bd99b4(instance: "thread_1_control", enabled: thread_1_control_enabled)
-    Text07acfc15fdf4(instance: "thread_1_label", text: copy.thread_1_label_text)
+    Text68bd508108d5(instance: "thread_1_label", text: copy.thread_1_label_text)
   }
   KitButton2c6804b990a5(instance: "thread_2") {
     Surface5e06c9b428ce(instance: "thread_2_surface") {
 
     }
     NativeButton02f1d1bd99b4(instance: "thread_2_control", enabled: thread_2_control_enabled)
-    Textf877b5725cc3(instance: "thread_2_label", text: copy.thread_2_label_text)
+    Textaa698d2fd403(instance: "thread_2_label", text: copy.thread_2_label_text)
   }
   KitButton2c6804b990a5(instance: "thread_3") {
     Surface716f7b9e59a5(instance: "thread_3_surface") {
 
     }
     NativeButton02f1d1bd99b4(instance: "thread_3_control", enabled: thread_3_control_enabled)
-    Text794302f84e15(instance: "thread_3_label", text: copy.thread_3_label_text)
+    Textfa82cc3abc92(instance: "thread_3_label", text: copy.thread_3_label_text)
   }
   KitButton2c6804b990a5(instance: "thread_4") {
     Surface5e06c9b428ce(instance: "thread_4_surface") {
 
     }
     NativeButton02f1d1bd99b4(instance: "thread_4_control", enabled: thread_4_control_enabled)
-    Text6c25d3b6d21d(instance: "thread_4_label", text: copy.thread_4_label_text)
+    Text209fc50dee4a(instance: "thread_4_label", text: copy.thread_4_label_text)
   }
   KitButton2c6804b990a5(instance: "thread_5") {
     Surface5e06c9b428ce(instance: "thread_5_surface") {
 
     }
     NativeButton02f1d1bd99b4(instance: "thread_5_control", enabled: thread_5_control_enabled)
-    Text3bcc9ac8d090(instance: "thread_5_label", text: copy.thread_5_label_text)
+    Textbe1a2af7f457(instance: "thread_5_label", text: copy.thread_5_label_text)
   }
   Vectore0a378fde04f(instance: "icon_fork")
 }

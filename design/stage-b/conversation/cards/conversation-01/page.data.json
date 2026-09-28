@@ -12,12 +12,12 @@
         }
       },
       "t01": {
-        "component": "Text2dec426b364e",
+        "component": "Text50ebf376856a",
         "layout": {
-          "x": 23.479973591549296,
+          "x": 23.34,
           "y": 46.5,
-          "w": 154.4536531690141,
-          "h": 26.5
+          "w": 150.0,
+          "h": 27.9
         }
       },
       "icon_bell": {
@@ -68,9 +68,9 @@
         }
       },
       "new_chat_label": {
-        "component": "Texte501bf8b5923",
+        "component": "Text0cb52ec5325c",
         "layout": {
-          "x": 36.43069306930693,
+          "x": 37.04,
           "y": 136.0,
           "w": 86.0,
           "h": 23.0
@@ -114,9 +114,9 @@
         }
       },
       "thread_1_label": {
-        "component": "Text07acfc15fdf4",
+        "component": "Text68bd508108d5",
         "layout": {
-          "x": 36.48780487804878,
+          "x": 37.04,
           "y": 231.0,
           "w": 302.0,
           "h": 28.0
@@ -150,9 +150,9 @@
         }
       },
       "thread_2_label": {
-        "component": "Textf877b5725cc3",
+        "component": "Textaa698d2fd403",
         "layout": {
-          "x": 36.39267676767677,
+          "x": 36.55,
           "y": 312.0,
           "w": 145.5,
           "h": 22.5
@@ -186,9 +186,9 @@
         }
       },
       "thread_3_label": {
-        "component": "Text794302f84e15",
+        "component": "Textfa82cc3abc92",
         "layout": {
-          "x": 35.81190019193858,
+          "x": 36.47,
           "y": 395.5,
           "w": 149.5,
           "h": 23.0
@@ -222,9 +222,9 @@
         }
       },
       "thread_4_label": {
-        "component": "Text6c25d3b6d21d",
+        "component": "Text209fc50dee4a",
         "layout": {
-          "x": 35.71265560165975,
+          "x": 36.46,
           "y": 480.5,
           "w": 258.5,
           "h": 28.5
@@ -258,9 +258,9 @@
         }
       },
       "thread_5_label": {
-        "component": "Text3bcc9ac8d090",
+        "component": "Textbe1a2af7f457",
         "layout": {
-          "x": 35.864885496183206,
+          "x": 36.06,
           "y": 564.5,
           "w": 179.5,
           "h": 28.0

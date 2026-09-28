@@ -78,10 +78,10 @@
       "native_id": "beauty_0_0_2",
       "parent": "composer_idle",
       "kind": "text",
-      "component": "Text8d9bb6c4e4e4",
+      "component": "Text78e146733ffe",
       "semantic_role": "text",
       "bounds": [
-        78.0005055611729,
+        78.18,
         265.5,
         101.5,
         23.0
@@ -89,25 +89,25 @@
       "text": "Ask for approval",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 19.672396359959556
+      "size": 12.49
     },
     {
       "source_id": "t04",
       "native_id": "beauty_0_0_3",
       "parent": "composer_idle",
       "kind": "text",
-      "component": "Text4617df8fb031",
+      "component": "Text4c1a70e63ea9",
       "semantic_role": "text",
       "bounds": [
-        215.6456866197183,
+        215.69,
         268.5,
-        73.18165590766823,
+        73.0,
         21.5
       ],
       "text": "v4-flash \u25be",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 15.774647887323944
+      "size": 13.92
     },
     {
       "source_id": "send1",
@@ -168,18 +168,18 @@
       "native_id": "beauty_0_1_0",
       "parent": "queued_row",
       "kind": "text",
-      "component": "Text718d22b14134",
+      "component": "Text8323c17aece8",
       "semantic_role": "text",
       "bounds": [
-        32.01824978012313,
+        32.17,
         425.5,
-        209.91605483537916,
+        209.0,
         27.5
       ],
       "text": "1 queued \u00b7 Steer now \u00b7 \u2715",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 21.164467897977133
+      "size": 17.87
     },
     {
       "source_id": "composer_active",
@@ -204,10 +204,10 @@
       "native_id": "beauty_0_2_0",
       "parent": "composer_active",
       "kind": "text",
-      "component": "Textf961f14f188a",
+      "component": "Textf4b374ecac80",
       "semantic_role": "text",
       "bounds": [
-        31.365069356872635,
+        31.75,
         506.0,
         236.0,
         24.0
@@ -215,7 +215,7 @@
       "text": "also add a test for reconnect",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 25.825977301387137
+      "size": 17.07
     },
     {
       "source_id": "icon_plus2",
@@ -240,10 +240,10 @@
       "native_id": "beauty_0_2_2",
       "parent": "composer_active",
       "kind": "text",
-      "component": "Text2186a64ff5b3",
+      "component": "Textf5dec8faacc2",
       "semantic_role": "text",
       "bounds": [
-        78.0005055611729,
+        78.18,
         601.0,
         102.0,
         23.0
@@ -251,25 +251,25 @@
       "text": "Ask for approval",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 19.672396359959556
+      "size": 12.56
     },
     {
       "source_id": "t09",
       "native_id": "beauty_0_2_3",
       "parent": "composer_active",
       "kind": "text",
-      "component": "Texta2a09da26164",
+      "component": "Textb02dacb12d54",
       "semantic_role": "text",
       "bounds": [
-        215.6456866197183,
+        215.68,
         603.0,
-        74.29276701877934,
+        74.0,
         21.5
       ],
       "text": "v4-flash \u25be",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 15.774647887323944
+      "size": 14.13
     },
     {
       "source_id": "stop2",

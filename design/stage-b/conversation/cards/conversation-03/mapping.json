@@ -42,10 +42,10 @@
       "native_id": "beauty_0_0_0",
       "parent": "user_bubble",
       "kind": "text",
-      "component": "Textc25a1ff84c70",
+      "component": "Textc1ebd2fa9447",
       "semantic_role": "text",
       "bounds": [
-        106.0297256097561,
+        106.6,
         60.0,
         255.5,
         27.5
@@ -53,17 +53,17 @@
       "text": "Fix the steer queue so queued",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 24.45528455284553
+      "size": 17.4
     },
     {
       "source_id": "t02",
       "native_id": "beauty_0_0_1",
       "parent": "user_bubble",
       "kind": "text",
-      "component": "Text1bbdd114596b",
+      "component": "Text9434d668ed74",
       "semantic_role": "text",
       "bounds": [
-        106.31777777777778,
+        106.67,
         97.5,
         224.5,
         23.0
@@ -71,7 +71,7 @@
       "text": "steers survive a reconnect",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 24.706031746031748
+      "size": 17.33
     },
     {
       "source_id": "icon_spinner",
@@ -96,10 +96,10 @@
       "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "text",
-      "component": "Text11473006f849",
+      "component": "Texta0a4e959ef2b",
       "semantic_role": "text",
       "bounds": [
-        65.84713855421687,
+        66.05,
         193.0,
         123.5,
         29.5
@@ -107,17 +107,17 @@
       "text": "Working \u2022 12s",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 26.216867469879517
+      "size": 17.94
     },
     {
       "source_id": "t04",
       "native_id": "beauty_0_3",
       "parent": "page",
       "kind": "text",
-      "component": "Text368678afc108",
+      "component": "Text96bfc50030bc",
       "semantic_role": "text",
       "bounds": [
-        23.001009591115597,
+        23.53,
         256.0,
         274.0,
         26.0
@@ -125,17 +125,17 @@
       "text": "I'm tracing how queued steers are",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 22.74406865219586
+      "size": 16.71
     },
     {
       "source_id": "t05",
       "native_id": "beauty_0_4",
       "parent": "page",
       "kind": "text",
-      "component": "Text3d454f01cbee",
+      "component": "Text43505911a78b",
       "semantic_role": "text",
       "bounds": [
-        22.728232189973614,
+        23.23,
         291.5,
         229.5,
         21.0
@@ -143,17 +143,17 @@
       "text": "handled across reconnects\u2026",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 22.965699208443272
+      "size": 16.45
     },
     {
       "source_id": "t06",
       "native_id": "beauty_0_5",
       "parent": "page",
       "kind": "text",
-      "component": "Textcc777ad92575",
+      "component": "Text067f1c5fe6b5",
       "semantic_role": "text",
       "bounds": [
-        22.954545454545453,
+        23.45,
         348.5,
         247.0,
         22.0
@@ -161,17 +161,17 @@
       "text": "I'll run tests to confirm the fix",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 23.272727272727273
+      "size": 17.6
     },
     {
       "source_id": "t07",
       "native_id": "beauty_0_6",
       "parent": "page",
       "kind": "text",
-      "component": "Textc4c03c26d7d1",
+      "component": "Text77fb604d4ac4",
       "semantic_role": "text",
       "bounds": [
-        22.77148634984833,
+        23.2,
         380.5,
         275.5,
         31.0
@@ -179,7 +179,7 @@
       "text": "and update the affected code\u2026",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 27.955510616784633
+      "size": 18.24
     },
     {
       "source_id": "chips",
@@ -222,10 +222,10 @@
       "native_id": "beauty_0_7_0_0",
       "parent": "chip_ws",
       "kind": "text",
-      "component": "Textaa5b4d36062a",
+      "component": "Text1f017ba89bfc",
       "semantic_role": "text",
       "bounds": [
-        40.04477611940298,
+        40.35,
         509.5,
         41.0,
         18.0
@@ -233,7 +233,7 @@
       "text": "octos",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 20.378109452736318
+      "size": 13.89
     },
     {
       "source_id": "chip_mode",
@@ -258,10 +258,10 @@
       "native_id": "beauty_0_7_1_0",
       "parent": "chip_mode",
       "kind": "text",
-      "component": "Textfd1f1f4b4b43",
+      "component": "Textb103f85eb43d",
       "semantic_role": "text",
       "bounds": [
-        132.75742574257427,
+        133.39,
         507.5,
         39.5,
         20.0
@@ -269,7 +269,7 @@
       "text": "Local",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 21.62904290429043
+      "size": 13.83
     },
     {
       "source_id": "chip_branch",
@@ -294,10 +294,10 @@
       "native_id": "beauty_0_7_2_0",
       "parent": "chip_branch",
       "kind": "text",
-      "component": "Text54ce25190ddf",
+      "component": "Textd2ad79182009",
       "semantic_role": "text",
       "bounds": [
-        231.79271991911023,
+        231.86,
         508.0,
         120.5,
         24.5
@@ -305,7 +305,7 @@
       "text": "feat/steer-queue",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 21.22548028311426
+      "size": 14.31
     },
     {
       "source_id": "composer",
@@ -366,10 +366,10 @@
       "native_id": "beauty_0_8_2",
       "parent": "composer",
       "kind": "text",
-      "component": "Textb7974e131ed2",
+      "component": "Text0cd152d08913",
       "semantic_role": "text",
       "bounds": [
-        74.01365015166836,
+        74.18,
         687.5,
         103.0,
         22.5
@@ -377,25 +377,25 @@
       "text": "Ask for approval",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 19.154701718907987
+      "size": 12.69
     },
     {
       "source_id": "t14",
       "native_id": "beauty_0_8_3",
       "parent": "composer",
       "kind": "text",
-      "component": "Textb0cd8221f843",
+      "component": "Text401b1cb300a9",
       "semantic_role": "text",
       "bounds": [
-        216.67605633802816,
+        216.68,
         690.5,
-        74.76291079812206,
+        74.0,
         20.0
       ],
       "text": "v4-flash \u25be",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14.422535211267606
+      "size": 14.13
     },
     {
       "source_id": "stop_btn",

@@ -60,10 +60,10 @@
       "native_id": "beauty_0_0_1",
       "parent": "tool_1",
       "kind": "text",
-      "component": "Text5950df96c432",
+      "component": "Text6f36a75ec021",
       "semantic_role": "text",
       "bounds": [
-        87.86509146341463,
+        88.2,
         76.0,
         231.5,
         23.5
@@ -71,17 +71,17 @@
       "text": "Read ui_protocol_transport.rs",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 20.29268292682927
+      "size": 16.17
     },
     {
       "source_id": "t02",
       "native_id": "beauty_0_0_2",
       "parent": "tool_1",
       "kind": "text",
-      "component": "Text405297c01224",
+      "component": "Textbed76d0b7729",
       "semantic_role": "text",
       "bounds": [
-        87.46129238643634,
+        88.15,
         104.0,
         77.5,
         19.5
@@ -89,7 +89,7 @@
       "text": "\u2022 412 lines",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 20.309660908509276
+      "size": 14.78
     },
     {
       "source_id": "icon_check1",
@@ -150,10 +150,10 @@
       "native_id": "beauty_0_1_1",
       "parent": "tool_2",
       "kind": "text",
-      "component": "Text06dd039ac514",
+      "component": "Text2ce035285bb0",
       "semantic_role": "text",
       "bounds": [
-        87.92790456431536,
+        88.2,
         206.5,
         177.0,
         23.5
@@ -161,17 +161,17 @@
       "text": "Search 'steer_dropped'",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 20.713692946058092
+      "size": 15.43
     },
     {
       "source_id": "t04",
       "native_id": "beauty_0_1_2",
       "parent": "tool_2",
       "kind": "text",
-      "component": "Textd089a2b386c7",
+      "component": "Text163954f783be",
       "semantic_role": "text",
       "bounds": [
-        87.3825857519789,
+        88.19,
         234.5,
         87.0,
         19.5
@@ -179,7 +179,7 @@
       "text": "\u2022 7 matches",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 20.939313984168866
+      "size": 14.49
     },
     {
       "source_id": "icon_check2",
@@ -240,10 +240,10 @@
       "native_id": "beauty_0_2_1",
       "parent": "tool_3",
       "kind": "text",
-      "component": "Text6e8a24079d08",
+      "component": "Text80eff114dc4f",
       "semantic_role": "text",
       "bounds": [
-        37.43674698795181,
+        38.45,
         335.0,
         267.0,
         31.0
@@ -251,17 +251,17 @@
       "text": ">_ Ran cargo test -p octos-cli",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 27.759036144578314
+      "size": 18.61
     },
     {
       "source_id": "t06",
       "native_id": "beauty_0_2_2",
       "parent": "tool_3",
       "kind": "text",
-      "component": "Texte56f37cf8706",
+      "component": "Text7d947d854acf",
       "semantic_role": "text",
       "bounds": [
-        88.5754716981132,
+        88.81,
         369.0,
         89.5,
         21.0
@@ -269,7 +269,7 @@
       "text": "steer_queue",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 19.32075471698113
+      "size": 14.49
     },
     {
       "source_id": "icon_check3",
@@ -312,10 +312,10 @@
       "native_id": "beauty_0_3_0",
       "parent": "tool_3_output",
       "kind": "text",
-      "component": "Text954d962bd3ea",
+      "component": "Textad9627347544",
       "semantic_role": "text",
       "bounds": [
-        44.82508833922262,
+        45.14,
         441.5,
         135.5,
         25.0
@@ -323,17 +323,17 @@
       "text": "running 12 tests",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 21.710247349823323
+      "size": 17.61
     },
     {
       "source_id": "t08",
       "native_id": "beauty_0_3_1",
       "parent": "tool_3_output",
       "kind": "text",
-      "component": "Text65096c7115c3",
+      "component": "Text4e03298c6bb4",
       "semantic_role": "text",
       "bounds": [
-        41.79035639412998,
+        41.83,
         514.0,
         300.5,
         24.0
@@ -341,17 +341,17 @@
       "text": "test steer_queue::reconnect_ok ... ok",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 21.467505241090148
+      "size": 17.03
     },
     {
       "source_id": "t09",
       "native_id": "beauty_0_3_2",
       "parent": "tool_3_output",
       "kind": "text",
-      "component": "Textf3341b801117",
+      "component": "Text4ce4b2c4e81f",
       "semantic_role": "text",
       "bounds": [
-        44.28766430738119,
+        44.32,
         567.0,
         304.0,
         25.0
@@ -359,7 +359,7 @@
       "text": "test result: ok. 12 passed; 0 failed",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 21.743174924165825
+      "size": 18.75
     }
   ],
   "fonts": {
