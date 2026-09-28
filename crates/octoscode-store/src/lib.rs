@@ -2,62 +2,46 @@
 //!
 //! **The public API here is ours.** It wraps `octos-app-store`'s session
 //! concepts behind octoscode's own types so a fan-out lane can add state
-//! without reaching into a dependency's internals. The store is a plain
-//! struct with interior mutability ([`Store`]), shared as an `Arc` between
-//! the UI thread (which renders from it) and the notification handlers (which
-//! mutate it). Notifications reach it **only through the registry**
-//! ([`crate::domains`]): no other code path writes to it.
+//! without reaching into a dependency's internals.
 //!
-//! ## What it holds
-//! - **connection state** — the transport's `ConnectionState`, as a display
-//!   string (`"Live"`, `"Reconnecting{attempt:2}"`) plus a boolean "live".
-//! - **sessions** — the `session/list` rows, and which one is active.
-//! - **per-session timeline** — append-only entries (a `message/delta`
-//!   appends text; a turn boundary appends a marker).
-//! - **capabilities** — the accepted capability ids from the handshake.
-use std::collections::HashMap;
-use std::sync::Mutex;
+//! ## Fan-out-safe by construction (card #10)
+//!
+//! The store was one file with one shared `TimelineEntry` enum; eight domain
+//! lanes would all have edited it. It is now **one file per domain**
+//! ([`domains`]), exactly like `octoscode-client`. A lane that adds state
+//! edits its own domain file and (at most) one field in [`domains::State`].
+//!
+//! - [`Store`] holds the [`domains::State`] plus the two things no domain owns:
+//!   [`connection::ConnectionState`] and [`diagnostics::Diagnostics`].
+//! - The transcript lives in [`timeline`]: entries carry an open
+//!   [`timeline::EntryKind`] **tag** (not a shared enum) with the parity
+//!   matrix's twelve kinds declared, so a domain can declare a new kind in its
+//!   own file — see that module's docs for why.
+//!
+//! Notifications reach this store **only through the client's registry**:
+//! no other code path writes to it.
+pub mod connection;
+pub mod diagnostics;
+pub mod domains;
+pub mod timeline;
 
-/// One session row from `session/list`.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Session {
-    pub id: String,
-    pub title: Option<String>,
-    pub message_count: usize,
-    pub updated_at: Option<String>,
-    pub last_prompt: Option<String>,
-    /// Whether a turn is live in this session (from `SessionInfo.active_turn`).
-    pub active_turn: bool,
-}
+pub use connection::ConnectionState;
+pub use diagnostics::Diagnostics;
+pub use domains::session::Session;
+pub use timeline::{EntryKind, TimelineEntry};
 
-/// One entry in a session's timeline.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum TimelineEntry {
-    /// Streamed assistant/reasoning text (`message/delta`).
-    TextDelta { turn_id: String, text: String },
-    /// A turn began.
-    TurnStarted { turn_id: String },
-    /// A turn ended (`completed` / `error`).
-    TurnEnded { turn_id: String, error: Option<String> },
-}
-
-/// The store's mutable state. Private: callers go through [`Store`]'s methods.
-#[derive(Debug, Default)]
-struct Inner {
-    connection: String,
-    live: bool,
-    capabilities: Vec<String>,
-    sessions: Vec<Session>,
-    active: Option<String>,
-    timelines: HashMap<String, Vec<TimelineEntry>>,
-    /// Notifications seen, by method — a cheap activity/diagnostic counter.
-    seen: HashMap<String, usize>,
-}
-
-/// The session store. Cheap to clone-share: wrap in an `Arc`.
+/// The session store. Cheap to share: wrap in an `Arc`.
+///
+/// Each domain is independently locked, so a lane's hot path (a `message/delta`
+/// fold into the transcript) does not serialise against an unrelated read.
 #[derive(Debug, Default)]
 pub struct Store {
-    inner: Mutex<Inner>,
+    /// The protocol domains, one struct each.
+    pub domains: domains::State,
+    /// The transport's connection state.
+    pub connection: ConnectionState,
+    /// What has been seen, by method.
+    pub diagnostics: Diagnostics,
 }
 
 impl Store {
@@ -65,127 +49,80 @@ impl Store {
         Self::default()
     }
 
-    // ---- connection state -------------------------------------------------
+    // ---- connection (moved from the old flat API) --------------------------
 
-    /// Set from the transport's `ConnectionState`. Stores a display string
-    /// (the exact `format!("{state:?}")` the caller passes) plus liveness.
+    /// Record a connection transition (display text + liveness).
     pub fn set_connection(&self, display: String, live: bool) {
-        let mut i = self.inner.lock().unwrap();
-        i.connection = display;
-        i.live = live;
+        self.connection.set(display, live);
     }
 
     /// The connection state as display text (e.g. `"Live"`).
     pub fn connection(&self) -> String {
-        self.inner.lock().unwrap().connection.clone()
+        self.connection.display()
     }
 
     /// Whether the connection is `Live`.
     pub fn is_live(&self) -> bool {
-        self.inner.lock().unwrap().live
+        self.connection.is_live()
     }
 
-    // ---- capabilities -----------------------------------------------------
+    // ---- capabilities (config domain) -------------------------------------
 
     pub fn set_capabilities(&self, accepted: Vec<String>) {
-        self.inner.lock().unwrap().capabilities = accepted;
+        self.domains.config.set_capabilities(accepted);
     }
 
     pub fn capabilities(&self) -> Vec<String> {
-        self.inner.lock().unwrap().capabilities.clone()
+        self.domains.config.capabilities()
     }
 
-    // ---- sessions ---------------------------------------------------------
+    // ---- sessions (session domain) ---------------------------------------
 
-    /// Replace the session list (from `session/list`). Keeps the active id if
-    /// it still exists, else clears it.
     pub fn set_sessions(&self, sessions: Vec<Session>) {
-        let mut i = self.inner.lock().unwrap();
-        if let Some(active) = &i.active {
-            if !sessions.iter().any(|s| &s.id == active) {
-                i.active = None;
-            }
-        }
-        i.sessions = sessions;
+        self.domains.session.set_list(sessions);
     }
 
     pub fn sessions(&self) -> Vec<Session> {
-        self.inner.lock().unwrap().sessions.clone()
+        self.domains.session.list()
     }
 
     /// The session count — what the module tile shows.
     pub fn session_count(&self) -> usize {
-        self.inner.lock().unwrap().sessions.len()
+        self.domains.session.count()
     }
 
     pub fn set_active(&self, id: Option<String>) {
-        self.inner.lock().unwrap().active = id;
+        self.domains.session.set_active(id);
     }
 
     pub fn active_session(&self) -> Option<String> {
-        self.inner.lock().unwrap().active.clone()
+        self.domains.session.active()
     }
 
-    // ---- per-session timeline --------------------------------------------
+    // ---- transcript (timeline) -------------------------------------------
 
-    /// Append an entry to `session`'s timeline.
-    pub fn push_timeline(&self, session: &str, entry: TimelineEntry) {
-        self.inner
-            .lock()
-            .unwrap()
-            .timelines
-            .entry(session.to_owned())
-            .or_default()
-            .push(entry);
-    }
-
-    pub fn timeline(&self, session: &str) -> Vec<TimelineEntry> {
-        self.inner
-            .lock()
-            .unwrap()
-            .timelines
-            .get(session)
-            .cloned()
-            .unwrap_or_default()
-    }
-
-    /// The concatenated `message/delta` text for a session — the live reply.
+    /// The concatenated assistant text for a session — the live reply.
     pub fn live_text(&self, session: &str) -> String {
-        self.timeline(session)
-            .into_iter()
-            .filter_map(|e| match e {
-                TimelineEntry::TextDelta { text, .. } => Some(text),
-                _ => None,
-            })
-            .collect()
+        self.domains.session.timeline.assistant_text(session)
     }
 
     // ---- diagnostics ------------------------------------------------------
 
     /// Record that a notification method was seen (any handler).
     pub fn note_seen(&self, method: &str) {
-        *self
-            .inner
-            .lock()
-            .unwrap()
-            .seen
-            .entry(method.to_owned())
-            .or_insert(0) += 1;
+        self.diagnostics.note(method);
     }
 
     pub fn seen_count(&self, method: &str) -> usize {
-        self.inner
-            .lock()
-            .unwrap()
-            .seen
-            .get(method)
-            .copied()
-            .unwrap_or(0)
+        self.diagnostics.count(method)
     }
 
     /// A one-line summary for a tile: connection + session count.
     pub fn summary(&self) -> String {
-        let i = self.inner.lock().unwrap();
-        format!("conn: {}   sessions: {}", i.connection, i.sessions.len())
+        format!(
+            "conn: {}   sessions: {}",
+            self.connection(),
+            self.session_count()
+        )
     }
 }

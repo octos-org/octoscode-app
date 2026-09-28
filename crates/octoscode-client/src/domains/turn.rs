@@ -5,11 +5,16 @@
 //! request methods (`turn/start`, `turn/steer`, `turn/interrupt`,
 //! `turn/state/get`) stay on the transport's typed commands for now
 //! (`StartTurn`/`InterruptTurn`), and are listed here for the fan-out lane.
+//!
+//! **The new store shape (card #10):** a handler writes through its own
+//! domain (`store.domains.turn`) and appends to the transcript with an
+//! [`EntryKind`] tag — never a shared enum. `message/delta` uses
+//! `append_delta`, which folds streamed text into ONE assistant entry.
 use std::sync::Arc;
 
 use octos_core::app_ui::AppUiBackendEvent as UiNotification;
 use octos_core::ui_protocol::methods;
-use octoscode_store::{Store, TimelineEntry};
+use octoscode_store::{EntryKind, Store};
 
 use crate::registry::{NotificationHandler, Registry};
 
@@ -24,9 +29,13 @@ impl NotificationHandler for TurnStartedHandler {
         if let UiNotification::TurnStarted(started) = notification {
             self.store.note_seen(Self::METHOD);
             let session = started.session_id.0.clone();
-            self.store.push_timeline(
+            let turn_id = started.turn_id.0.to_string();
+            self.store.domains.turn.started(&turn_id);
+            self.store.domains.session.timeline.append(
                 &session,
-                TimelineEntry::TurnStarted { turn_id: started.turn_id.0.to_string() },
+                Some(turn_id),
+                EntryKind::ASSISTANT_TEXT,
+                String::new(),
             );
         }
     }
@@ -43,10 +52,12 @@ impl NotificationHandler for TurnCompletedHandler {
         if let UiNotification::TurnCompleted(completed) = notification {
             self.store.note_seen(Self::METHOD);
             let session = completed.session_id.0.clone();
-            self.store.push_timeline(
-                &session,
-                TimelineEntry::TurnEnded { turn_id: completed.turn_id.0.to_string(), error: None },
-            );
+            let turn_id = completed.turn_id.0.to_string();
+            self.store.domains.turn.ended(&turn_id);
+            // A turn boundary closes the assistant entry it belongs to, so
+            // later deltas start a new block instead of appending to a
+            // finished one.
+            self.store.domains.session.timeline.close_turn(&session, &turn_id);
         }
     }
 }
@@ -62,12 +73,16 @@ impl NotificationHandler for TurnErrorHandler {
         if let UiNotification::TurnError(error) = notification {
             self.store.note_seen(Self::METHOD);
             let session = error.session_id.0.clone();
-            self.store.push_timeline(
+            let turn_id = error.turn_id.0.to_string();
+            self.store.domains.turn.ended(&turn_id);
+            self.store.domains.session.timeline.close_turn(&session, &turn_id);
+            // A readable system notice: a deterministic kind, the error text.
+            self.store.domains.session.timeline.append_data(
                 &session,
-                TimelineEntry::TurnEnded {
-                    turn_id: error.turn_id.0.to_string(),
-                    error: Some(format!("{}: {}", error.code, error.message)),
-                },
+                Some(turn_id),
+                EntryKind::SYSTEM_NOTICE,
+                format!("{}: {}", error.code, error.message),
+                serde_json::json!({"code": error.code, "message": error.message}),
             );
         }
     }
@@ -84,12 +99,13 @@ impl NotificationHandler for MessageDeltaHandler {
         if let UiNotification::MessageDelta(delta) = notification {
             self.store.note_seen(Self::METHOD);
             let session = delta.session_id.0.clone();
-            self.store.push_timeline(
+            let turn_id = delta.turn_id.0.to_string();
+            // Folds into the open assistant entry for this turn (or starts one).
+            self.store.domains.session.timeline.append_delta(
                 &session,
-                TimelineEntry::TextDelta {
-                    turn_id: delta.turn_id.0.to_string(),
-                    text: delta.text.clone(),
-                },
+                Some(&turn_id),
+                EntryKind::ASSISTANT_TEXT,
+                &delta.text,
             );
         }
     }
