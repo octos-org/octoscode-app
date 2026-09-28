@@ -1,0 +1,58 @@
+diff --git a/crates/card-host/src/args.rs b/crates/card-host/src/args.rs
+index e6eba1a..bb49bfd 100644
+--- a/crates/card-host/src/args.rs
++++ b/crates/card-host/src/args.rs
+@@ -30,6 +30,9 @@ Options:
+                            system ceilings. An empty digest is filled in memory.
+   --static <prefix>=<dir>  Serve <dir>'s files at <prefix>/... from memory.
+                            Repeatable.
++  --grant-host <host:port> Add an extra isolate allowlist entry (repeatable).
++                           D9/OUP SPIKE ONLY: lets a dev run point a
++                           contained app at a loopback octos serve.
+   --size <w>x<h>           The window's inner size in layout points, e.g.
+                            390x844. Default: 412x892. card-studio renders a
+                            card at several sizes with it.
+@@ -54,6 +57,10 @@ pub struct Args {
+     pub statics: Vec<(String, PathBuf)>,
+     /// `--size`: the window's inner size in layout points.
+     pub size: Option<(f64, f64)>,
++    /// `--grant-host <host:port>`: extra isolate allowlist entries pushed
++    /// next to the asset origin. D9/OUP SPIKE ONLY — a dev flag so a
++    /// contained app can reach a loopback octos serve. Repeatable.
++    pub granted_hosts: Vec<String>,
+ }
+ 
+ /// Parse `<w>x<h>` (layout points, both positive and finite).
+@@ -99,6 +106,7 @@ pub fn parse<I: IntoIterator<Item = String>>(argv: I) -> Result<Args, ArgsError>
+         system: false,
+         statics: Vec::new(),
+         size: None,
++        granted_hosts: Vec::new(),
+     };
+     let mut argv = argv.into_iter().peekable();
+     while let Some(arg) = argv.next() {
+@@ -133,6 +141,7 @@ pub fn parse<I: IntoIterator<Item = String>>(argv: I) -> Result<Args, ArgsError>
+             "--allow-unsigned" | "--stamp" | "--system" if inline.is_some() => {
+                 return Err(ArgsError::Invalid(format!("{flag} takes no value")));
+             }
++            "--grant-host" => args.granted_hosts.push(value("--grant-host")?),
+             "--allow-unsigned" => args.allow_unsigned = true,
+             "--stamp" => args.stamp = true,
+             "--system" => args.system = true,
+diff --git a/crates/card-host/src/host.rs b/crates/card-host/src/host.rs
+index 73c0406..19b8495 100644
+--- a/crates/card-host/src/host.rs
++++ b/crates/card-host/src/host.rs
+@@ -273,6 +273,12 @@ impl App {
+             }
+         };
+         settings.hosts.push(server.allowlist_entry());
++        // D9/OUP SPIKE ONLY: `--grant-host` entries (e.g. a loopback octos
++        // serve), pushed alongside the asset origin the host owns.
++        for host in &args.granted_hosts {
++            settings.hosts.push(host.clone());
++            log!("card-host: --grant-host pushed isolate allowlist entry {host}");
++        }
+         let origin = server.origin().to_string();
+         self.assets = Some(server);
+         let splash = self.ui.splash(cx, ids!(card));

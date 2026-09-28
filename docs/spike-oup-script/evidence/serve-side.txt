@@ -1,0 +1,8 @@
+## serve-side: no session/open from the app (it could not send)
+-n appui session-open lines for profile 'oup': 
+0
+0
+(0 = the app's session/open never reached the server: the frame was built but had no socket to send on)
+
+# What the server DOES log for a real WS session/open (from #6, for contrast):
+DEBUG appui context manager loaded for session open session=octoscode:logprobe ledger_status=Loaded

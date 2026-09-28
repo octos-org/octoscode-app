@@ -1,0 +1,209 @@
+// Spike #7 — pure-OctoScript OUP client (no Rust), over net.web_socket.
+//
+// PART 1 (OUP client): JSON-RPC id counter, pending map (id -> callback),
+// request(), notification dispatch by method, reconnect with backoff.
+// It is COMPLETE except for one missing runtime primitive: there is no way
+// to SEND a frame on a client `net.web_socket` (see REPORT.md §crux). So
+// request() builds the exact wire frame and then cannot put it on the socket.
+//
+// PART 2 (push test): a live per-method counter of notifications RECEIVED.
+// The receive path works, so this is real evidence.
+//
+// PART 3 (scale test): appends synthetic `message/delta` rows through the
+// SAME dispatch() code, at 50 Hz to 2,000 rows, then one 5,000-line diff.
+//
+// Splash note: dot-access to a MISSING key is a hard error; bracket indexing
+// (`o["k"]`) is nil-safe. All possibly-missing access below uses brackets.
+//
+// Throwaway evidence, not product.
+
+let rpc_id = 0
+let pending = {}          // id -> callback
+let notified = {}         // method -> count
+let total_notifications = 0
+let conn_up = false
+let booted = false
+let backoff = 0.25
+
+// ------------------------------------------------------------- OUP client
+
+// The exact JSON-RPC 2.0 frame the web client sends.
+fn frame_for(method, params){
+    return {jsonrpc: "2.0" id: rpc_id.to_string() method: method params: params}.to_json()
+}
+
+fn send_frame(frame){
+    // BLOCKED: net.web_socket returns an id with NO send method, and
+    // socket_stream (which CAN write) is refused for a policed isolate.
+    // The frame below is complete and correct; there is nowhere to put it.
+    log("BLOCKED-SEND: " + frame)
+    return false
+}
+
+fn request(method, params, cb){
+    rpc_id = rpc_id + 1
+    pending[rpc_id.to_string()] = cb
+    return send_frame(frame_for(method, params))
+}
+
+// Dispatch one inbound JSON-RPC text. Replies (`id`) go to the pending
+// callback; notifications (`method`) bump the per-method counter.
+fn dispatch(text){
+    let msg = text.parse_json()
+    if msg["method"] != nil {
+        total_notifications = total_notifications + 1
+        let m = msg["method"]
+        if notified[m] == nil { notified[m] = 0 }
+        notified[m] = notified[m] + 1
+        note("pushed " + m + " x" + notified[m].to_string())
+        return
+    }
+    if msg["id"] != nil {
+        let cb = pending[msg["id"]]
+        if cb != nil { cb(msg) }
+    }
+}
+
+fn on_ws_closed(){
+    conn_up = false
+    note("ws closed; retry in " + backoff.to_string() + "s")
+    let d = backoff
+    backoff = backoff * 2.0
+    start_timeout(d, || connect())
+}
+
+// Token hand-off: the host writes <jail>/octos.json before launch; the app
+// reads it with fs.read. The socket URL (with ?token=) is built from that.
+fn read_endpoint(){
+    let raw = fs.read("octos.json")
+    let cfg = raw.parse_json()
+    return cfg
+}
+
+fn connect(){
+    let cfg = read_endpoint()
+    let url = cfg["url"] + "?token=" + cfg["token"]
+    note("dialing " + url)
+    let ws = net.web_socket(url net.WebSocketEvents{
+        on_opened: || {
+            conn_up = true
+            note("connected; OUP session/open…")
+            request("profile/local/create", {requested_id: "oup" name: "OUP" username: "oup"}, |r| { note("created") })
+            request("session/open", {session_id: "oup:main" profile_id: "oup"}, |r| { note("opened") })
+            request("session/list", {}, |r| { note("listed") })
+        }
+        on_string: |s| { dispatch(s) }
+        on_closed: || { on_ws_closed() }
+        on_error: |e| { conn_up = false note("ws err: " + e) }
+    })
+    return ws
+}
+
+// -------------------------------------------------------------- scale test
+
+let rows = []
+let row_count = 0
+let streaming = false
+let t_start = 0.0
+let ms_first_100 = 0.0
+let ms_total = 0.0
+let frames = 0
+let huge_diff = ""
+let building_diff = false
+let diff_lines = 0
+let diff_buf = ""
+let t_diff = 0.0
+
+fn note(s){ log("OUP: " + s) ui.status.set_text(s) }
+
+// One 20 ms tick (50 Hz). Each frame appends a 25-row burst of deltas; 80
+// frames = 2,000 rows. Timestamps come from sys.simsecs (monotonic seconds).
+fn tick(){
+    if building_diff { diff_chunk() return }
+    if !streaming { return }
+    let burst = 25
+    let i = 0
+    while i < burst && row_count < 2000 {
+        rows.push("delta " + row_count.to_string() + " @f" + frames.to_string())
+        row_count = row_count + 1
+        i = i + 1
+    }
+    frames = frames + 1
+    if ms_first_100 == 0.0 && row_count >= 100 {
+        ms_first_100 = (sys.simsecs(0.0) - t_start) * 1000.0
+    }
+    if row_count >= 2000 {
+        streaming = false
+        ms_total = (sys.simsecs(0.0) - t_start) * 1000.0
+        note("DONE rows=" + row_count.to_string() + " frames=" + frames.to_string()
+             + " first100=" + ms_first_100.to_string() + "ms"
+             + " total=" + ms_total.to_string() + "ms")
+    }
+    ui.timeline.render()
+}
+
+fn start_stream(){
+    if streaming { return }
+    rows = [] row_count = 0 frames = 0 ms_first_100 = 0.0 ms_total = 0.0
+    t_start = sys.simsecs(0.0)
+    streaming = true
+    note("streaming 50Hz x25 -> 2000 rows…")
+}
+
+fn build_diff(){
+    if huge_diff.len() > 0 || building_diff { return }
+    building_diff = true
+    diff_lines = 0
+    diff_buf = ""
+    t_diff = sys.simsecs(0.0)
+    note("diff: building 5000 lines in 500-line chunks…")
+}
+
+// One 500-line chunk per tick. A MONOLITHIC 5000-line string in one run
+// exceeds the hard script time budget (uncatchable bail) — see REPORT.md.
+fn diff_chunk(){
+    if !building_diff { return }
+    let s = diff_buf
+    let i = 0
+    while i < 500 && diff_lines < 5000 {
+        if diff_lines % 7 == 0 { s = s + "- old line " + diff_lines.to_string() + "\n" }
+        else { s = s + "+ new line " + diff_lines.to_string() + "\n" }
+        diff_lines = diff_lines + 1
+        i = i + 1
+    }
+    diff_buf = s
+    if diff_lines >= 5000 {
+        building_diff = false
+        huge_diff = diff_buf
+        ui.diff.set_text(huge_diff)
+        let ms = (sys.simsecs(0.0) - t_diff) * 1000.0
+        note("diff done: " + huge_diff.len().to_string() + " bytes, 5000 lines in " + ms.to_string() + "ms")
+    }
+}
+
+fn boot(){
+    if booted { return }
+    booted = true
+    connect()
+    start_interval(0.02, || tick())
+}
+start_timeout(0.05, || boot())
+
+HostedView{width: Fill height: Fill
+    full: View{width: Fill height: Fill flow: Down show_bg: true draw_bg.color: #xf2f2f7
+        main := View{width: Fill height: Fill flow: Down padding: 14 spacing: 8
+            Label{text: "OUP pure-Splash spike" draw_text.color: #x1c1c1e}
+            status := Label{width: Fill text: "(booting)" draw_text.color: #x8e8e93}
+            bar := View{width: Fill height: Fit flow: Right spacing: 8
+                ButtonFlat{text: "stream" on_click: || start_stream() draw_text.color: #xe0245e}
+                ButtonFlat{text: "diff" on_click: || build_diff() draw_text.color: #xe0245e}
+            }
+            timeline := ScrollYView{width: Fill height: Fill flow: Down spacing: 2
+                on_render: || {
+                    for r in rows { Label{width: Fill text: r draw_text.color: #x1c1c1e draw_text.text_style.font_size: 11} }
+                }
+            }
+            diff := Label{width: Fill height: 160 text: "" draw_text.color: #x3a3a3c draw_text.text_style.font_size: 9}
+        }
+    }
+}

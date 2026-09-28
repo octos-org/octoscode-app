@@ -1,0 +1,8 @@
+## host + build
+$ uname -a:        Darwin Mac 25.5.0 Darwin Kernel Version 25.5.0: Mon Apr 27 20:39:42 PDT 2026; root:xnu-12377.121.6~2/RELEASE_ARM64_T6031 arm64
+$ rustc -V:        rustc 1.95.0 (59807616e 2026-04-14)
+$ cargo -V:        cargo 1.95.0 (f2d3ce0bd 2026-03-21)
+$ card-host --help | grep grant-host:
+  --grant-host <host:port> Add an extra isolate allowlist entry (repeatable).
+                           D9/OUP SPIKE ONLY: lets a dev run point a
+                           contained app at a loopback octos serve.

@@ -1,0 +1,30 @@
+// syntax probe: how does Splash handle a MISSING object key?
+let out = []
+fn note(s){ log("SYN: " + s) out.push(s) ui.status.set_text(out.len().to_string()) }
+
+fn attempt(){
+    let o = {"a": 1}
+    note("built o")
+    // Bracket index for a missing key
+    let b = o["missing"]
+    note("bracket missing -> " + b.to_string())
+    // Comparison form
+    if o["missing2"] == nil { note("missing2 == nil true") } else { note("missing2 not nil") }
+    // parse_json of a notification, then index
+    let msg = "{\"jsonrpc\":\"2.0\",\"method\":\"message/delta\",\"params\":{}}".parse_json()
+    note("parsed")
+    let m = msg["method"]
+    note("method = " + m.to_string())
+    let i = msg["id"]
+    note("id = " + i.to_string())
+}
+start_timeout(0.05, || attempt())
+
+HostedView{width: Fill height: Fill
+    full: View{width: Fill height: Fill flow: Down show_bg: true draw_bg.color: #xf2f2f7
+        main := View{width: Fill height: Fill flow: Down padding: 20 spacing: 10
+            Label{text: "syntax probe" draw_text.color: #x1c1c1e}
+            status := Label{width: Fill text: "" draw_text.color: #x8e8e93}
+        }
+    }
+}

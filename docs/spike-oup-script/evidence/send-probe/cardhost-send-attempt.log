@@ -1,0 +1,16 @@
+[I] /Users/yuechen/home/oa.noindex/p0-build/tmp/makepad/platform/src/web_socket.rs:321:13 - studio websocket disabled: empty studio_http
+[makepad-remote] listening on 127.0.0.1:8390 pid=37686 app=card-host grabs=/Users/yuechen/home/oa.noindex/p0-build/tmp/peer-tmp/makepad-remote/card-host-37686
+[I] /Users/yuechen/home/oa.noindex/p0-build/tmp/makepad/platform/src/remote.rs:547:9 - [makepad-remote] listening on 127.0.0.1:8390 pid=37686 app=card-host grabs=/Users/yuechen/home/oa.noindex/p0-build/tmp/peer-tmp/makepad-remote/card-host-37686
+[I] /Users/yuechen/home/oa.noindex/p0-build/tmp/makepad/platform/src/os/apple/metal.rs:3100:9 - retained-upload budgets: recommended_working_set_bytes=115448725504 physical_memory_bytes=137438953472 unified=true allocation_limit=17179869184 fraction=1/4 pool_fraction=1/16 residency_high_fraction=3/4 residency_low_fraction=5/8 source=physicalMemory/2
+[I] /Users/yuechen/home/oa.noindex/p0-build/tmp/makepad/platform/src/cx.rs:686:9 - memory budget: 65536 MiB (ProcessInfo.processInfo.physicalMemory)
+[I] /Users/yuechen/home/oa.noindex/p0-build/tmp/makepad/platform/src/thread.rs:928:9 - UI thread priority UserInteractive: Applied
+[I] crates/card-host/src/host.rs:248:9 - card-host: os.oup-probe 1.0.0 admitted — capabilities {"net", "storage"}, hosts {"example.org"}, storage 67108864 bytes, agent none
+[I] crates/card-host/src/host.rs:280:13 - card-host: --grant-host pushed isolate allowlist entry 127.0.0.1:8765
+[I] crates/card-host/src/host.rs:286:9 - card-host: isolate jailed at /Users/yuechen/home/oa.noindex/p0-build/tmp/oup-probe/appdata/os.oup-probe with 67108864 bytes, 2 capability(ies), 3 host(s), 4000000000 instructions, 134217728 bytes of heap, prompts false — all enforced
+[I] /Users/yuechen/home/oa.noindex/p0-build/tmp/makepad/widgets/src/splash.rs:404:9 - [SPLASH] eval: 1032 bytes preserve=false view=true animating=false tick=false epoch=0
+[I] splash:50849579008:7:17 - string:"PROBE: returned 0000000000000002"
+[I] splash:50849579008:7:17 - string:"PROBE: on_opened"
+[E] splash:50849579008:13:37 - method write_string not found on id (/Users/yuechen/home/oa.noindex/p0-build/tmp/makepad/platform/script/src/opcodes_calls.rs:253)
+[I] /Users/yuechen/home/oa.noindex/p0-build/tmp/makepad/platform/src/thread.rs:1363:13 - pool: 12 workers (2 light-only, 12 started), 1 jobs, peak queue light 0 / heavy 1; light 0: wait avg 0.00 ms max 0.00 ms, run avg 0.0 ms max 0.0 ms; heavy 1: wait avg 0.01 ms max 0.01 ms, run avg 0.1 ms max 0.1 ms; priority applied 12/12 (light UserInitiated / heavy Utility); light >2ms 0 offenders=[] overflow=0; heavy >250ms offenders=[]
+[makepad-remote] remote quit
+[I] /Users/yuechen/home/oa.noindex/p0-build/tmp/makepad/platform/src/thread.rs:942:13 - pool: 12 workers (2 light-only, 12 started), 1 jobs, peak queue light 0 / heavy 1; light 0: wait avg 0.00 ms max 0.00 ms, run avg 0.0 ms max 0.0 ms; heavy 1: wait avg 0.01 ms max 0.01 ms, run avg 0.1 ms max 0.1 ms; priority applied 12/12 (light UserInitiated / heavy Utility); light >2ms 0 offenders=[] overflow=0; heavy >250ms offenders=[]
