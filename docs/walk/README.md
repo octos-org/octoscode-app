@@ -30,9 +30,11 @@ python3 tools/walk/run.py --port 8371
 ```
 
 The runner prints each check's result and a summary, then writes
-`docs/walk/results.csv`. Exit code is 0 iff no row is `fail` and none is
-`not-run`; **2** means a documented prerequisite is missing (the message names
-the command to run).
+`docs/walk/results.csv` (one verdict per row) **and**
+`docs/walk/results-checks.csv` (one row per check that ran for a row). Exit code
+is 0 iff no row is `fail` and none is `not-run`; **1** when a check failed, a row
+was not run, or a *selected* row was blocked by a start failure; **2** when a
+documented prerequisite is missing (the message names the command to run).
 
 ---
 
@@ -135,11 +137,32 @@ the one the app actually requested in `session/open`, across every served frame
 
 | status | meaning |
 |---|---|
-| `pass` | every strict check of the row's area passed |
-| `fail` | ≥1 check failed; `/g` + `/snap` evidence is recorded |
+| `pass` | every check **mapped to this row** passed (≥1 ran) |
+| `fail` | ≥1 mapped check failed; `/g` + `/snap` evidence is recorded |
 | `not-yet-implemented` | the native capability is missing; `reason` names it (from `docs/parity-matrix.csv`) |
 | `blocked` | the 3 `real-turn` rows — need an outer-loop live model run |
 | `skipped` | the 31 web-only rows — operator-confirmation-pending |
+
+### Per-check results (`docs/walk/results-checks.csv`)
+
+Each check declares the rows it covers via `@check(..., rows=…)`: `run.ALL`, or
+lowercase substrings matched against the row's `case` + `protocol_methods`. A row
+is `pass` iff **every check mapped to it** passed, so one broken check fails only
+the rows that actually use it — not its whole area (card #19c item 3). The
+per-check CSV has columns `row_id, area, spec, case, check, status, evidence,
+reason`; per-row check counts currently range 1–7.
+
+## The composer input checks are deterministic (card #19c)
+
+makepad `/t` sends `Input::Text { replace_last: false }`
+(`native/makepad/platform/src/remote.rs:1328-1332`) — it **inserts at the caret**,
+it never replaces the field, and a click on a *populated* field may place the
+caret or select according to position. Asserting exact equality after typing into
+a non-empty field is therefore non-deterministic. The composer checks instead:
+`focus_composer()` clicks the field's **right edge** (caret → end), then
+`clear_composer()` backspaces it empty and **waits** for the empty/placeholder
+state, then `type_into_composer()` types and **waits** until the draft equals the
+text. Waiting is always on the observable `/snap` condition — never a fixed sleep.
 
 ### Which areas are scripted, and why `approval` is not
 
