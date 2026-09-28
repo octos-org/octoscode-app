@@ -479,7 +479,18 @@ impl Conversation {
     /// way the web does (`session-defaults.ts:5-7`). Sends the transport's
     /// typed `OpenSession` (it owns the replay-cursor bracket).
     pub async fn open_workspace(&self, cwd: Option<String>) -> Result<String, String> {
-        let session_id = octos_core::SessionKey::new(&self.profile, "main");
+        let id = self.session_id.clone();
+        self.open_workspace_as(&id, cwd).await
+    }
+
+    /// The id-taking open: `session/open` for `id` (card #14 defect 4, so a
+    /// fresh chat and a resume share ONE path).
+    pub async fn open_workspace_as(
+        &self,
+        id: &str,
+        cwd: Option<String>,
+    ) -> Result<String, String> {
+        let session_id = octos_core::SessionKey(id.to_owned());
         // Record the outbound frame BEFORE `cwd` moves into the params.
         self.frames.out(
             "session/open",
@@ -575,6 +586,32 @@ impl Conversation {
                 serde_json::json!({"session_id": self.session_id, "turn_id": turn_id}),
             )
             .await
+    }
+
+    /// Mint the id for a **new chat** (card #14 defect 4).
+    ///
+    /// Every gate run reused `dsflash:main`, so context leaked between runs.
+    /// The web mints a fresh, profile-neutral id per new session
+    /// (`src-web/apps/web/src/features/session/session-identity.ts:10`
+    /// `freshWebSessionId`, then `:23` `bindWebSessionIdToProfile` → the
+    /// resolved profile is embedded exactly once). Resume stays possible: an
+    /// existing id is simply passed to [`Conversation::open_session`].
+    pub fn fresh_session_id(&self) -> String {
+        Self::fresh_session_id_for(&self.profile)
+    }
+
+    /// The id-minting rule, as a pure function so it is testable without a
+    /// transport.
+    ///
+    /// STUB (current behaviour): reuse the one fixed session — the defect.
+    pub fn fresh_session_id_for(profile: &str) -> String {
+        format!("{profile}:main")
+    }
+
+    /// Open a specific session id — the resume path (an id the server listed),
+    /// or a freshly minted one from [`Conversation::fresh_session_id`].
+    pub async fn open_session(&self, id: &str, cwd: Option<String>) -> Result<String, String> {
+        self.open_workspace_as(id, cwd).await
     }
 
     /// `session/list` — re-ask for the session rows and fold them into the
@@ -928,5 +965,25 @@ fn trace_method(evt: &TransportEvent) -> String {
         TransportEvent::SessionHydrated { .. } => "session/hydrate".to_owned(),
         TransportEvent::DurableNotification { payload, .. }
         | TransportEvent::EphemeralNotification { payload } => payload.method().to_owned(),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Card #14 defect 4: a new chat gets a FRESH id (never the reused
+    /// `<profile>:main`), profile-scoped like the web's
+    /// `bindWebSessionIdToProfile` (`session-identity.ts:23`).
+    #[test]
+    fn defect4_a_new_chat_mints_a_fresh_profile_scoped_id() {
+        let a = Conversation::fresh_session_id_for("dsflash");
+        let b = Conversation::fresh_session_id_for("dsflash");
+        assert_ne!(a, b, "two new chats must not share an id");
+        assert_ne!(a, "dsflash:main", "a new chat must not reuse the fixed session");
+        assert!(
+            a.starts_with("dsflash:"),
+            "the id is profile-scoped, like the web's bindWebSessionIdToProfile; got {a:?}"
+        );
     }
 }
