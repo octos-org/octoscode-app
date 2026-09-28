@@ -2,16 +2,16 @@
   "schema_version": 1,
   "stage": "B",
   "source_repo": "p0-harness",
-  "source_branch": "task/11",
-  "source_commit": "7c2117303ab480776d4b32ff51b14c9b281f53d2",
+  "source_branch": "task/11f",
+  "source_commit": "2117a1abb06b29043e27875a17b8fb70732fcc2c",
   "mount": "native",
-  "note": "Card #15: a card is DATA (id + declared binding ids + kit tokens). The module mounts each card into its slot by id; swapping an id in this manifest changes the screen with no code change. Dynamic content renders through native flow widgets (RULES 8.10), not the atlas's measured coordinates.",
+  "note": "Card #15b: a card is DATA (id + declared binding ids + kit tokens + its authored ledger). The module mounts each card into its slot BY ID through the L0 runtime (`cards.rs` + `l0_host.rs`), the same renderer the Gate-B `*-native.png` renders used. Source: p0-harness task/11f (the revision behind the accepted v4 renders, #11d/#11e).",
   "cards": [
     {
       "id": "conversation-01",
       "slot": "thread_list",
       "title": "THREAD LIST",
-      "source_commit": "7c2117303ab480776d4b32ff51b14c9b281f53d2",
+      "source_commit": "2117a1abb06b29043e27875a17b8fb70732fcc2c",
       "gate_b_score": 9.0,
       "bindings": [
         "threads",
@@ -22,17 +22,18 @@
       "artifacts": {
         "card": "conversation-01/page.card",
         "data": "conversation-01/page.data.json",
-        "kit_tokens": "conversation-01/kit/kit.json",
-        "kit_components": "conversation-01/kit/components.l0",
+        "kit_tokens": "conversation-01/kit/native/light/kit.json",
+        "kit_components": "conversation-01/kit/native/light/components.l0",
         "semantic_map": "conversation-01/semantic-map.json",
-        "mapped": "conversation-01/mapped.json"
+        "mapped": "conversation-01/mapped.json",
+        "kit_dir": "conversation-01/kit"
       }
     },
     {
       "id": "conversation-03",
       "slot": "conversation",
       "title": "STREAMING TURN",
-      "source_commit": "7c2117303ab480776d4b32ff51b14c9b281f53d2",
+      "source_commit": "2117a1abb06b29043e27875a17b8fb70732fcc2c",
       "gate_b_score": 9.0,
       "bindings": [
         "composer.draft",
@@ -47,17 +48,18 @@
       "artifacts": {
         "card": "conversation-03/page.card",
         "data": "conversation-03/page.data.json",
-        "kit_tokens": "conversation-03/kit/kit.json",
-        "kit_components": "conversation-03/kit/components.l0",
+        "kit_tokens": "conversation-03/kit/native/light/kit.json",
+        "kit_components": "conversation-03/kit/native/light/components.l0",
         "semantic_map": "conversation-03/semantic-map.json",
-        "mapped": "conversation-03/mapped.json"
+        "mapped": "conversation-03/mapped.json",
+        "kit_dir": "conversation-03/kit"
       }
     },
     {
       "id": "conversation-08",
       "slot": "composer",
       "title": "COMPOSER STATES",
-      "source_commit": "7c2117303ab480776d4b32ff51b14c9b281f53d2",
+      "source_commit": "2117a1abb06b29043e27875a17b8fb70732fcc2c",
       "gate_b_score": 9.0,
       "bindings": [
         "composer.draft",
@@ -70,17 +72,18 @@
       "artifacts": {
         "card": "conversation-08/page.card",
         "data": "conversation-08/page.data.json",
-        "kit_tokens": "conversation-08/kit/kit.json",
-        "kit_components": "conversation-08/kit/components.l0",
+        "kit_tokens": "conversation-08/kit/native/light/kit.json",
+        "kit_components": "conversation-08/kit/native/light/components.l0",
         "semantic_map": "conversation-08/semantic-map.json",
-        "mapped": "conversation-08/mapped.json"
+        "mapped": "conversation-08/mapped.json",
+        "kit_dir": "conversation-08/kit"
       }
     },
     {
       "id": "conversation-04",
       "slot": "tool_cells",
       "title": "TOOL CELLS",
-      "source_commit": "7c2117303ab480776d4b32ff51b14c9b281f53d2",
+      "source_commit": "2117a1abb06b29043e27875a17b8fb70732fcc2c",
       "gate_b_score": 8.5,
       "bindings": [
         "tool.output",
@@ -92,17 +95,18 @@
       "artifacts": {
         "card": "conversation-04/page.card",
         "data": "conversation-04/page.data.json",
-        "kit_tokens": "conversation-04/kit/kit.json",
-        "kit_components": "conversation-04/kit/components.l0",
+        "kit_tokens": "conversation-04/kit/native/light/kit.json",
+        "kit_components": "conversation-04/kit/native/light/components.l0",
         "semantic_map": "conversation-04/semantic-map.json",
-        "mapped": "conversation-04/mapped.json"
+        "mapped": "conversation-04/mapped.json",
+        "kit_dir": "conversation-04/kit"
       }
     },
     {
       "id": "conversation-09",
       "slot": "completed_answer",
       "title": "COMPLETED ANSWER",
-      "source_commit": "7c2117303ab480776d4b32ff51b14c9b281f53d2",
+      "source_commit": "2117a1abb06b29043e27875a17b8fb70732fcc2c",
       "gate_b_score": 8.5,
       "bindings": [
         "answer.expand",
@@ -114,10 +118,11 @@
       "artifacts": {
         "card": "conversation-09/page.card",
         "data": "conversation-09/page.data.json",
-        "kit_tokens": "conversation-09/kit/kit.json",
-        "kit_components": "conversation-09/kit/components.l0",
+        "kit_tokens": "conversation-09/kit/native/light/kit.json",
+        "kit_components": "conversation-09/kit/native/light/components.l0",
         "semantic_map": "conversation-09/semantic-map.json",
-        "mapped": "conversation-09/mapped.json"
+        "mapped": "conversation-09/mapped.json",
+        "kit_dir": "conversation-09/kit"
       }
     }
   ]

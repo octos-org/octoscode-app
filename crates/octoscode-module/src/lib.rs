@@ -33,6 +33,7 @@ use octoscode_store::Store;
 pub mod bindings;
 pub mod cards;
 pub mod fallback;
+pub mod l0_host;
 pub mod flow;
 
 use flow::{Conversation, FlowUi};
@@ -69,7 +70,11 @@ script_mod! {
             thread_col := View {
                 width: 220 height: Fill
                 flow: Down spacing: 6
-                thread_card := Label { width: Fill height: Fill draw_text.wrap: Words text: "" }
+                // Each slot is a `Splash`: the L0 runtime's own host widget. The
+                // lowered card DSL is set into it (card-host's pattern,
+                // `card-host/src/host.rs:301-304`), so the card renders as real
+                // widgets, not text.
+                thread_card := Splash { width: Fill height: Fill }
                 threads_label := Label { width: Fill height: Fill draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "threads: (none)" }
             }
             convo_col := View {
@@ -78,13 +83,13 @@ script_mod! {
                 // Only the timeline takes the slack; every other row is Fit, so
                 // the composer dock stays on screen (two Fill children in a
                 // Down flow overflow and push it out of the window).
-                timeline_card := Label { width: Fill height: Fill draw_text.wrap: Words text: "" }
+                timeline_card := Splash { width: Fill height: Fill }
                 timeline_label := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "(no timeline)" }
-                tools_card := Label { width: Fill height: Fit draw_text.wrap: Words text: "" }
+                tools_card := Splash { width: Fill height: Fit }
                 tools_label := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "tools: (none)" }
-                answer_card := Label { width: Fill height: Fit draw_text.wrap: Words text: "" }
+                answer_card := Splash { width: Fill height: Fit }
                 answer_label := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "" }
-                composer_card := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 12 text: "" }
+                composer_card := Splash { width: Fill height: Fit }
                 composer_row := View {
                     width: Fill height: Fit
                     flow: Right spacing: 8
@@ -283,71 +288,61 @@ impl OctoscodeView {
                 .position(|i| *i == id)
                 .and_then(|i| values.get(i).cloned().flatten())
         };
-        // Card #15: mount the cards by SLOT. Each slot renders independently;
-        // a slot whose card is missing or unreadable keeps its fallback widget
-        // visible and is logged by name, so the screen always renders.
-        // (`ids!` per arm: makepad's id macros need literal paths.)
-        match cards::render_slot(cards::Slot::ThreadList, &resolver) {
-            Ok(body) => {
-                self.view.label(cx, ids!(thread_card)).set_text(cx, &body);
-                self.view.widget(cx, ids!(thread_card)).set_visible(cx, true);
-                self.view.widget(cx, ids!(threads_label)).set_visible(cx, false);
-            }
-            Err(e) => {
-                ::log::warn!("octoscode: card slot `thread_list` fell back to the plain widget: {e}");
-                self.view.widget(cx, ids!(thread_card)).set_visible(cx, false);
-                self.view.widget(cx, ids!(threads_label)).set_visible(cx, true);
-            }
+        // Card #15b: mount each card through the **L0 runtime** — the same
+        // renderer that produced the Gate-B `*-native.png` renders
+        // (`card-host/src/host.rs:144-154`): the card is realized + lowered to
+        // Splash DSL with the live binding values injected, and that DSL is set
+        // into the slot's `Splash` widget (`host.rs:301-304`). Each slot is
+        // independent: a slot whose card is missing or fails to lower keeps its
+        // plain fallback widget visible and is logged by name, so the screen
+        // always renders. (`ids!` per arm: makepad's id macros want literals.)
+        let mut card_shown = Vec::new();
+        macro_rules! mount {
+            ($slot:expr, $card:ident, $fb:ident, $name:literal) => {
+                match l0_host::slot_body($slot, &resolver) {
+                    Ok(body) => {
+                        self.view.splash(cx, ids!($card)).set_text(cx, &body);
+                        self.view.widget(cx, ids!($card)).set_visible(cx, true);
+                        self.view.widget(cx, ids!($fb)).set_visible(cx, false);
+                        card_shown.push($name);
+                    }
+                    Err(e) => {
+                        ::log::warn!(
+                            "octoscode: card slot `{}` fell back to the plain widget: {e}",
+                            $name
+                        );
+                        self.view.widget(cx, ids!($card)).set_visible(cx, false);
+                        self.view.widget(cx, ids!($fb)).set_visible(cx, true);
+                    }
+                }
+            };
         }
-        match cards::render_slot(cards::Slot::Conversation, &resolver) {
+        mount!(cards::Slot::ThreadList, thread_card, threads_label, "thread_list");
+        mount!(cards::Slot::Conversation, timeline_card, timeline_label, "conversation");
+        mount!(cards::Slot::ToolCells, tools_card, tools_label, "tool_cells");
+        mount!(cards::Slot::CompletedAnswer, answer_card, answer_label, "completed_answer");
+        // The composer slot renders its card too — and it IS the composer: the
+        // card lowers `composer_input := DesignInput` (a real `TextInput`), so
+        // ONE composer shows. The module's own `composer_row` is the fallback
+        // and hides while the card is up (the entry: "remove the fallback
+        // composer when the composer card mounts").
+        match l0_host::slot_body(cards::Slot::Composer, &resolver) {
             Ok(body) => {
-                self.view.label(cx, ids!(timeline_card)).set_text(cx, &body);
-                self.view.widget(cx, ids!(timeline_card)).set_visible(cx, true);
-                self.view.widget(cx, ids!(timeline_label)).set_visible(cx, false);
+                self.view.splash(cx, ids!(composer_card)).set_text(cx, &body);
+                self.view.widget(cx, ids!(composer_card)).set_visible(cx, true);
+                self.view.widget(cx, ids!(composer_row)).set_visible(cx, false);
+                card_shown.push("composer");
             }
             Err(e) => {
-                ::log::warn!("octoscode: card slot `conversation` fell back to the plain widget: {e}");
-                self.view.widget(cx, ids!(timeline_card)).set_visible(cx, false);
-                self.view.widget(cx, ids!(timeline_label)).set_visible(cx, true);
-            }
-        }
-        match cards::render_slot(cards::Slot::ToolCells, &resolver) {
-            Ok(body) => {
-                self.view.label(cx, ids!(tools_card)).set_text(cx, &body);
-                self.view.widget(cx, ids!(tools_card)).set_visible(cx, true);
-                self.view.widget(cx, ids!(tools_label)).set_visible(cx, false);
-            }
-            Err(e) => {
-                ::log::warn!("octoscode: card slot `tool_cells` fell back to the plain widget: {e}");
-                self.view.widget(cx, ids!(tools_card)).set_visible(cx, false);
-                self.view.widget(cx, ids!(tools_label)).set_visible(cx, true);
-            }
-        }
-        match cards::render_slot(cards::Slot::CompletedAnswer, &resolver) {
-            Ok(body) => {
-                self.view.label(cx, ids!(answer_card)).set_text(cx, &body);
-                self.view.widget(cx, ids!(answer_card)).set_visible(cx, true);
-                self.view.widget(cx, ids!(answer_label)).set_visible(cx, false);
-            }
-            Err(e) => {
-                ::log::warn!("octoscode: card slot `completed_answer` fell back to the plain widget: {e}");
-                self.view.widget(cx, ids!(answer_card)).set_visible(cx, false);
-                self.view.widget(cx, ids!(answer_label)).set_visible(cx, true);
-            }
-        }
-        // The composer slot: its card supplies the hint row above the input;
-        // the input row itself is always live (a composer that vanished on a
-        // bad card would strand the person).
-        match cards::render_slot(cards::Slot::Composer, &resolver) {
-            Ok(body) => self.view.label(cx, ids!(composer_card)).set_text(cx, &body),
-            Err(e) => {
-                ::log::warn!("octoscode: card slot `composer` fell back to the plain widget: {e}");
-                self.view.label(cx, ids!(composer_card)).set_text(cx, "");
+                ::log::warn!("octoscode: card slot `composer` fell back to the plain composer: {e}");
+                self.view.widget(cx, ids!(composer_card)).set_visible(cx, false);
+                self.view.widget(cx, ids!(composer_row)).set_visible(cx, true);
             }
         }
         // The fallback renderer still fills its own widgets; the ones a card
         // covered are hidden above, so what shows is the card.
         fallback::render(&self.view, cx, &resolver);
+        ::log::info!("[octoscode] cards mounted: {}", card_shown.join(", "));
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
     }
 }
@@ -426,6 +421,10 @@ impl AppModule for OctoscodeModule {
     }
     fn register(&self, vm: &mut ScriptVm) {
         script_mod(vm);
+        // Card #15b: the L0 vocabulary every lowered card names
+        // (`DesignSurface`, `DesignNativeButton`, …). Process-wide, exactly as
+        // card-host registers it (`host.rs:206-215`).
+        l0_host::register_vocabulary();
     }
     fn open_schema(&self) -> OpenSchema {
         OpenSchema::new(1)
