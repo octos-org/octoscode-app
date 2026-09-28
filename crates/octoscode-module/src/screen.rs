@@ -104,14 +104,10 @@ pub fn timeline_rows(store: &Arc<Store>, live: bool) -> Vec<Row> {
         {
             out.push(Row { kind: ItemKind::AssistantProse, index: *i });
         }
-        // tool-cell × N: the turn's tool calls, in order (index = tool order).
-        for (k, (i, kind, _)) in group
-            .iter()
-            .filter(|(_, k, _)| *k == EntryKind::TOOL_CALL)
-            .enumerate()
-        {
-            let _ = i;
-            let _ = k;
+        // tool-cell × N: the turn's tool calls, in order. The `index` is the
+        // tool's ordinal within the turn (the `tools[]` binding's own index).
+        let tool_calls = group.iter().filter(|(_, k, _)| *k == EntryKind::TOOL_CALL).count();
+        for k in 0..tool_calls {
             out.push(Row { kind: ItemKind::ToolCell, index: k });
         }
         // tail: a live last turn shows the activity row; a settled turn shows
@@ -178,4 +174,156 @@ impl Cache {
 /// The flow's UI state (so a test can build a store + UI and drive the rows).
 pub fn flow_ui() -> Arc<Mutex<FlowUi>> {
     Arc::new(Mutex::new(FlowUi::default()))
+}
+
+#[cfg(test)]
+mod tests {
+    //! The row model + the lowering cache: pure, no window, no transport.
+    use super::*;
+    use octoscode_store::Session;
+
+    /// A store with one active session and `n` timeline entries.
+    fn store_with(n: usize) -> Arc<Store> {
+        let store = Arc::new(Store::new());
+        store.set_active(Some("s1".into()));
+        store.set_sessions(vec![Session {
+            id: "s1".into(),
+            title: Some("T".into()),
+            message_count: 0,
+            updated_at: None,
+            last_prompt: None,
+            active_turn: false,
+        }]);
+        let tl = &store.domains.session.timeline;
+        for i in 0..n {
+            tl.append(
+                "s1",
+                Some("t1".into()),
+                octoscode_store::EntryKind::TOOL_CALL,
+                format!("tool {i}"),
+            );
+        }
+        store
+    }
+
+    /// A `Bridge` (the widget's own holder) over a store — reachable here because
+    /// this is the same crate.
+    fn bridge(store: Arc<Store>) -> Arc<Mutex<crate::Bridge>> {
+        Arc::new(Mutex::new(crate::Bridge {
+            conv: None,
+            store,
+            ui: flow_ui(),
+        }))
+    }
+
+    #[test]
+    fn thread_rows_are_the_session_list_with_the_active_flag() {
+        let store = store_with(0);
+        let rows = thread_rows(&store);
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].title, "T");
+        assert_eq!(rows[0].meta, "0 messages");
+        assert!(rows[0].active);
+    }
+
+    #[test]
+    fn display_order_is_user_first_reasoning_folded_answer_then_tools() {
+        let store = store_with(0);
+        let tl = &store.domains.session.timeline;
+        // Arrival order is deliberately hostile: a delta arrives BEFORE the
+        // canonical user message (the real server sends it at seq 154, behind
+        // 153 delta frames) — display order must still put the user first.
+        tl.append_delta("s1", Some("t1"), octoscode_store::EntryKind::ASSISTANT_TEXT, "par");
+        tl.append_delta("s1", Some("t1"), octoscode_store::EntryKind::REASONING, "thinking…");
+        tl.append_delta("s1", Some("t1"), octoscode_store::EntryKind::ASSISTANT_TEXT, "tial answer");
+        tl.append_data(
+            "s1",
+            Some("t1".into()),
+            octoscode_store::EntryKind::TOOL_CALL,
+            "read_file".into(),
+            serde_json::json!({}),
+        );
+        tl.upsert_user_message("s1", "t1", "why 5?", serde_json::json!({}));
+
+        let rows = timeline_rows(&store, false);
+        let kinds: Vec<ItemKind> = rows.iter().map(|r| r.kind).collect();
+        assert_eq!(
+            kinds,
+            vec![
+                ItemKind::UserBubble,      // user FIRST (not its arrival slot)
+                ItemKind::AssistantProse,  // the folded answer
+                ItemKind::ToolCell,        // the tool call
+                ItemKind::WorkedFor,       // settled tail
+                ItemKind::AnswerActions,
+            ],
+            "reasoning is folded (no row); user first; answer before tools"
+        );
+        // The user row projects the folded user entry.
+        let entries = store.domains.session.timeline.entries("s1");
+        let user_idx = rows[0].index;
+        assert_eq!(entries[user_idx].text, "why 5?");
+    }
+
+    #[test]
+    fn a_live_last_turn_shows_the_working_row_instead_of_worked_for() {
+        let store = store_with(0);
+        store
+            .domains
+            .session
+            .timeline
+            .upsert_user_message("s1", "t1", "hi", serde_json::json!({}));
+        let rows = timeline_rows(&store, true);
+        assert!(
+            rows.iter().any(|r| r.kind == ItemKind::WorkingRow),
+            "a live turn shows the activity row"
+        );
+        assert!(!rows.iter().any(|r| r.kind == ItemKind::WorkedFor));
+    }
+
+    #[test]
+    fn a_2000_entry_timeline_builds_2000_rows_quickly() {
+        // The row model itself must be cheap: the virtualization (only the
+        // visible ~20 items lower) is the `PortalList`'s job, proven by
+        // `examples/pl_probe.rs` (40 items -> 4 `Splash` rows).
+        let store = store_with(2000);
+        let t = std::time::Instant::now();
+        let rows = timeline_rows(&store, false);
+        let elapsed = t.elapsed();
+        assert_eq!(rows.len(), 2002, "2000 tool rows + worked-for + answer-actions");
+        assert!(
+            elapsed < std::time::Duration::from_secs(2),
+            "row model took {elapsed:?} for 2000 entries"
+        );
+        // Only rows that need a component are `ToolCell` — 2000 of them.
+        assert_eq!(
+            rows.iter().filter(|r| r.kind == ItemKind::ToolCell).count(),
+            2000
+        );
+    }
+
+    #[test]
+    fn the_cache_lowers_once_per_distinct_item() {
+        let store = store_with(3);
+        let b = bridge(store);
+        // Give the 3 tool rows DISTINCT names, so the cache sees 3 distinct items
+        // (identical items share one entry — which is the point of keying on the
+        // values, not the index).
+        {
+            let mut bb = b.lock().unwrap();
+            let mut ui = bb.ui.lock().unwrap();
+            for i in 0..3 {
+                ui.note_tool_started_for_test(&format!("c{i}"), &format!("tool{i}"));
+            }
+        }
+        let mut cache = Cache::default();
+        for i in 0..3 {
+            assert!(cache.lower(&b, ItemKind::ToolCell, i).is_ok());
+        }
+        let after_first = cache.len();
+        assert_eq!(after_first, 3, "one entry per distinct item");
+        for i in 0..3 {
+            assert!(cache.lower(&b, ItemKind::ToolCell, i).is_ok());
+        }
+        assert_eq!(cache.len(), after_first, "a redraw is a cache hit");
+    }
 }

@@ -137,16 +137,31 @@ pub(crate) struct Bridge {
     pub(crate) ui: Arc<Mutex<FlowUi>>,
 }
 
-impl Bridge {
-    /// The binding table's two inputs (`store` + the flow's UI state).
-    fn ctx(&self) -> (&Arc<Store>, &Mutex<FlowUi>) {
-        (&self.store, &self.ui)
-    }
-
-    /// Resolve one binding id through the table.
-    fn value(&self, id: &str) -> Option<serde_json::Value> {
-        let (store, ui) = self.ctx();
-        bindings::query(&bindings::Ctx::new(store, ui), id)
+/// Seed a store with `n` synthetic timeline rows and one session, for the
+/// virtualization proof (`OCTOSCODE_SYNTHETIC_TIMELINE`). No transport: the
+/// window draws the virtualized list on its own.
+fn seed_synthetic(store: &Arc<Store>, n: usize) {
+    use octoscode_store::timeline::EntryKind;
+    use octoscode_store::Session;
+    store.set_connection("Live".into(), false);
+    store.set_sessions(vec![Session {
+        id: "synthetic:main".into(),
+        title: Some("Synthetic 2000".into()),
+        message_count: n,
+        updated_at: None,
+        last_prompt: None,
+        active_turn: false,
+    }]);
+    store.set_active(Some("synthetic:main".into()));
+    let tl = &store.domains.session.timeline;
+    tl.upsert_user_message("synthetic:main", "t0", "synthetic timeline", serde_json::json!({}));
+    for i in 0..n {
+        tl.append(
+            "synthetic:main",
+            Some("t0".into()),
+            EntryKind::TOOL_CALL,
+            format!("tool call #{i}"),
+        );
     }
 }
 
@@ -175,6 +190,19 @@ pub struct OctoscodeView {
 
 impl OctoscodeView {
     fn start(&mut self) {
+        // The 2,000-entry synthetic timeline (the virtualization proof): no
+        // transport at all — a store with 2,000 rows and a session, so the
+        // window draws the virtualized list on its own (`/g` then shows the
+        // timeline drawing ~20 items with a scroll range over 2,000).
+        if let Ok(n) = std::env::var("OCTOSCODE_SYNTHETIC_TIMELINE") {
+            let n: usize = n.parse().unwrap_or(2000);
+            {
+                let b = self.bridge.lock().unwrap();
+                seed_synthetic(&b.store, n);
+            }
+            ::log::info!("[octoscode] synthetic timeline: {n} entries (no transport)");
+            return;
+        }
         let base =
             std::env::var("OCTOS_BASE_URL").unwrap_or_else(|_| "http://127.0.0.1:50082".to_string());
         let bearer = std::env::var("OCTOS_BEARER").unwrap_or_default();
@@ -313,31 +341,6 @@ impl OctoscodeView {
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
     }
 
-    /// The lowered body for one thread row (a cache hit after the first draw).
-    fn thread_body(&mut self, index: usize) -> String {
-        match self.cache.lower(&self.bridge, components::ItemKind::ThreadRow, index) {
-            Ok(dsl) => dsl,
-            Err(e) => {
-                ::log::warn!("octoscode: thread row {index} fell back: {e}");
-                String::new()
-            }
-        }
-    }
-
-    /// The lowered body for one timeline row.
-    fn timeline_body(&mut self, row: &screen::Row) -> String {
-        match self.cache.lower(&self.bridge, row.kind, row.index) {
-            Ok(dsl) => dsl,
-            Err(e) => {
-                ::log::warn!(
-                    "octoscode: timeline item {}[{}] fell back: {e}",
-                    row.kind.id(),
-                    row.index
-                );
-                String::new()
-            }
-        }
-    }
 }
 
 impl Widget for OctoscodeView {
