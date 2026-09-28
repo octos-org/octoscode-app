@@ -71,6 +71,9 @@ ICONS = {
                 '<circle cx="17" cy="5" r="2" fill="#CF222E" stroke="none"/>',
     "mic": '<rect x="9" y="2.6" width="6" height="11" rx="3"/>'
            '<path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/><path d="M8.5 21h7"/>',
+    "undo": '<path d="M9 7h6a5 5 0 0 1 0 10h-6"/><path d="M12 4L9 7l3 3"/>',
+    "chevron_down": '<path d="M6 9l6 6 6-6"/>',
+    "chevron_right": '<path d="M9 6l6 6-6 6"/>',
 }
 
 def r(v):
@@ -429,7 +432,206 @@ def build_generic(sc):
                     weight=600 if i == 1 else 400,
                     color="muted" if s in MUTED else "ink"))
 
-BUILDERS = {1: build_01, 3: build_03, 4: build_04, 8: build_08, 9: build_09}
+def build_05(sc):
+    """INLINE APPROVAL. Card (hairline) with a shield icon and title
+    "Run this command?", the command in a mono box, the reason as a flowing grey
+    region, then three FULL-WIDTH stacked actions (black "Approve once", outlined
+    "Approve for session", plain "Deny") and the key hint. Measured boxes:
+    command box grey fill 19.5,160 366x83; action pills 18,366 368x67 and
+    18,450 368x69; hint at 153,653."""
+    # ref: shield at the card's LEFT gutter (black fill x25.5 y85 31.5×48), title
+    # at its own OCR x=78 — v1 placed the shield at x92, overlapping the title.
+    sc.add_icon("icon_shield", "shield", 25, 85, 30, 34)
+    sc.add_text("t01", 0, weight=600, size=17)
+    sc.put(surface("cmd_box", 20, 160, 366, 66, bg="box", radius=8, kids=[
+        code("t02", sc.t(1), 29, 185, 340, 30, weight=500, size=15)]))
+    # the reason is runtime copy → a flowing region bound to one data id.
+    # Rendered at 14 (ref ink h≈22 → size ~15) so it wraps to the reference's two
+    # lines inside a 300-wide region, instead of fitting one line.
+    reason = sc.t(2) + " " + sc.t(3)
+    sc.put(flow_text("reason_text", reason, 21, 268, 258, 52, size=14, color="muted"))
+    sc.flows["reason_text"] = ("approval.reason", 21, 268, 258, 52)
+    sc.add_control("approve_once", 18, 364, 368, 70, 4, bg="black", radius=999, weight=500,
+                   color="white", lx=136, ly=390, lw=200, lh=30, event="approval.approve")
+    sc.add_control("approve_session", 18, 448, 368, 70, 5, bg="white", radius=999, weight=500,
+                   border=1, bordercolor="hair", lx=109, ly=472, lw=240, lh=32,
+                   event="approval.approve_session")
+    sc.add_control("deny", 18, 532, 368, 58, 6, bg="white", radius=999, weight=400,
+                   lx=170, ly=553, lw=80, lh=28, event="approval.deny")
+    sc.add_text("t_hint", 7, color="muted", size=12)
+
+def build_06(sc):
+    """USER QUESTION. Card with title "Octos needs a decision", the question as a
+    flowing region (2 measured lines), three radio options (first "recommended"),
+    an optional one-line note input, a black "Submit answer" pill and grey "Skip"."""
+    sc.add_icon("icon_decision", "shield", 92, 78, 24, 26)
+    sc.add_text("t01", 0, weight=600, size=19)
+    q = sc.t(1) + " " + sc.t(2)
+    sc.put(flow_text("question_text", q, 37, 150, 336, 56, size=15, color="ink"))
+    sc.flows["question_text"] = ("question.prompt", 37, 150, 336, 56)
+    # three radio rows (a small circle + the option label)
+    for i, (row_i, cid, event) in enumerate([(3, "opt_ledger", "question.select.ledger"),
+                                             (5, "opt_memory", "question.select.memory"),
+                                             (6, "opt_ask", "question.select.ask")]):
+        _, x, y, w, h = sc.rows[row_i]
+        cyc = surface(cid + "_ring", 38, y + 2, 18, 18, bg="white", radius=999,
+                      border=1, bordercolor="hair")
+        sc.put(stack(cid, 34, y - 6, 340, h + 12, [cyc,
+               text(cid + "_label", sc.t(row_i), x, y, w, h, size=14,
+                    weight=500 if i == 0 else 400)], event=event))
+        sc.controls[cid] = (event, [int(34), int(y - 6), int(340), int(h + 12)], True)
+    # the "(recommended)" suffix stays beside the first option
+    _, rx, ry, rw, rh = sc.rows[4]
+    sc.put(text("t_reco", sc.t(4), rx, ry, rw, rh, size=13, color="muted"))
+    # note input
+    sc.put(input_node("note_input", 38, 486, 330, 34, sc.t(7), size=14))
+    sc.inputs["note_input"] = ("question.note", [38, 486, 330, 34])
+    sc.add_control("submit_answer", 24, 566, 362, 72, 8, bg="black", radius=999, weight=500,
+                   color="white", lx=138, ly=591, lw=220, lh=30, event="question.submit")
+    sc.add_control("skip", 24, 650, 362, 60, 9, bg="white", radius=999, weight=400,
+                   color="muted", lx=180, ly=673, lw=80, lh=30, event="question.skip")
+
+def build_07(sc):
+    """EDITED FILES. Header "Edited 3 files" with totals "+62 −5", top-right plain
+    "Undo" + outlined "Review" pill, three file rows (grey dir path, black filename,
+    +/− at right), and a "Show diff" chevron. File rows are a list of rows."""
+    sc.add_text("t01", 0, weight=600, size=19)
+    sc.add_text("t02", 1, weight=500, size=14, color="green")
+    sc.add_icon("icon_undo", "undo", 231, 86, 18, 20, color="ink")
+    sc.add_text("t_undo", 2, weight=500, size=14)
+    sc.add_control("review", 316, 78, 74, 40, 3, bg="white", radius=999, weight=500,
+                   border=1, bordercolor="hair", lx=319, ly=88, lw=80, lh=24,
+                   event="files.review")
+    rows = [(4, 5, 6, "file_1"), (7, 8, 9, "file_2"), (10, 11, 12, "file_3")]
+    for dir_i, name_i, stat_i, cid in rows:
+        _, dx, dy, dw, dh = sc.rows[dir_i]
+        _, nx, ny, nw, nh = sc.rows[name_i]
+        _, sx, sy, sw, sh = sc.rows[stat_i]
+        cy = dy - 14
+        sc.put(surface(cid, 16, cy, 374, 96, bg="white", radius=12, border=1,
+                       bordercolor="hair", kids=[
+            icon(cid + "_icon", "file", 32, cy + 16, 20, 22, color="muted"),
+            text(cid + "_dir", sc.t(dir_i), dx + 36, dy, dw, dh, size=12, color="muted"),
+            text(cid + "_name", sc.t(name_i), nx + 36, ny, nw, nh, size=15, weight=500),
+            text(cid + "_stat", sc.t(stat_i), sx, sy, sw, sh, size=14, weight=500, color="green")]))
+        sc.controls[cid] = (f"files.open.{cid}", [int(16), int(cy), int(374), 96], True)
+    sc.add_icon("icon_show", "chevron_right", 33, 605, 16, 18, color="muted")
+    sc.add_text("t_show", 13, weight=500, size=14)
+
+def build_10(sc):
+    """GOAL AND PLAN. A slim goal strip ("Goal · … · 18m") with pause/stop icons,
+    above a plan card "Plan · 3 of 5" whose steps are a LIST of rows: 3 done
+    (check), 1 in-progress (spinner), 1 pending (empty ring)."""
+    _, gx, gy, gw, gh = sc.rows[0]
+    sc.put(surface("goal_strip", 16, 28, 374, 40, bg="box", radius=10, kids=[
+        text("t01", sc.t(0), gx, gy, gw, gh, weight=500),
+        icon("icon_pause", "pause", 330, 32, 16, 18, color="muted")]))
+    sc.controls["goal_pause"] = ("goal.pause", [330, 32, 16, 18], True)
+    sc.add_text("t02", 1, weight=600)
+    steps = [(2, "done"), (3, "done"), (4, "done"), (5, "active"), (6, "pending")]
+    kids = []
+    for i, (row_i, state) in enumerate(steps):
+        _, x, y, w, h = sc.rows[row_i]
+        kids.append(text(f"step_{i}_label", sc.t(row_i), x, y, w, h,
+                         weight=500 if state == "active" else 400,
+                         color="ink" if state != "pending" else "muted"))
+    sc.put(stack("plan_steps", 24, 200, 368, 420, kids))
+    sc.flows["plan_steps"] = ("plan.steps", 24, 200, 368, 420)
+    # step markers (check / spinner / ring) at the measured left gutter
+    # (ref: green checks x41-66 y226-433 for steps 1-3; blue spinner on step 4).
+    marks = [(2, 228, "check"), (3, 314, "check"), (4, 400, "check"),
+             (5, 486, "spinner"), (6, 572, None)]
+    for i, (row_i, my, glyph) in enumerate(marks):
+        if glyph == "check":
+            sc.add_icon(f"icon_step{i}", "check", 42, my, 24, 24, color="green")
+        elif glyph == "spinner":
+            sc.add_icon(f"icon_step{i}", "spinner", 42, my, 24, 24, color="blue")
+        else:
+            sc.put(surface(f"icon_step{i}", 42, my, 24, 24, bg="white", radius=999,
+                           border=1, bordercolor="hair"))
+
+def build_11(sc):
+    """REVIEW DIFF. Header "Review" + scope pill "Last turn ▾" + totals; one file
+    header "ui_protocol_transport.rs  +31 −4"; the unified diff is a FLOW/LIST of
+    rows (not measured boxes): a line-number gutter, 2 red removed, 4 green added,
+    then a grey folded row ":412 unmodified lines"."""
+    sc.add_text("t01", 0, weight=600, size=19)
+    sc.add_control("scope_pill", 196, 30, 96, 34, 1, bg="white", radius=999, weight=500,
+                   border=1, bordercolor="hair", lx=205, ly=38, lw=100, lh=22,
+                   icon_name="chevron_down", event="diff.scope")
+    sc.add_text("t03", 2, weight=500, size=14, color="green")
+    # file header
+    _, fx, fy, fw, fh = sc.rows[3]
+    sc.put(surface("file_header", 20, fy - 8, 366, 40, bg="white", radius=10, kids=[
+        code("t_file", sc.t(3), fx, fy, fw, fh, size=13, weight=500)]))
+    # the diff rows (a list of rows; the outer loop reads the flow binding).
+    # Row pitch and the first row's y are the MEASURED ref bands
+    # (207,256,304,357,407,457,508,558 → pitch ~50.2, start 199 for the row box).
+    diff_lines = [
+        ("198", "fn handle_disconnect(&mut self) {", "ctx"),
+        ("199", "- self.queue.clear();", "del"),
+        ("200", "- self.state = State::Disconnected;", "del"),
+        ("201", "+ self.persist_queue()?;", "add"),
+        ("202", "+ self.queue.mark_pending();", "add"),
+        ("203", "+ self.metrics.reconnects += 1;", "add"),
+        ("204", "+ self.state = State::Disconnected;", "add"),
+        ("205", "", "ctx"),
+    ]
+    rows = []
+    for i, (num, line, kind) in enumerate(diff_lines):
+        y = 199 + i * 50
+        color = {"del": "red", "add": "green", "ctx": "ink"}[kind]
+        gutter = code(f"ln_{i}", num, 30, y, 30, 22, color="muted")
+        body = code(f"dl_{i}", line, 72, y, 320, 24, color=color)
+        if kind == "del":
+            # the reference tints removed rows with a soft red band (measured
+            # pink rows at logical y 238-338), added rows with a soft green band.
+            rows.append(surface(f"row_{i}", 24, y - 8, 358, 44, bg="redbg", radius=6,
+                                kids=[gutter, body]))
+        elif kind == "add":
+            rows.append(surface(f"row_{i}", 24, y - 8, 358, 44, bg="greenbg", radius=6,
+                                kids=[gutter, body]))
+        else:
+            rows.append(gutter)
+            rows.append(body)
+    sc.put(stack("diff_rows", 20, 180, 366, 420, rows))
+    sc.flows["diff_rows"] = ("diff.rows", 20, 180, 366, 420)
+    _, ux, uy, uw, uh = sc.rows[19]
+    sc.put(surface("folded", 24, uy - 8, 358, 34, bg="box", radius=8, kids=[
+        text("t_fold", sc.t(19), ux, uy, uw, uh, size=12, color="muted")]))
+
+def build_12(sc):
+    """SETTINGS CARD. Section title "Permissions" + a grouped card with 2 rows
+    (title, grey description, blue toggle at right); below, section "Model" with a
+    row "Default model" and a picker "deepseek-v4-flash ▾"."""
+    sc.add_text("t01", 0, weight=600, size=19)
+    card_kids = [
+        text("t_r1", sc.t(1), *sc.rows[1][1:], size=15, weight=500),
+        text("t_d1", sc.t(2) + " " + sc.t(3), 45, 164, 280, 44, size=12, color="muted"),
+        text("t_r2", sc.t(4), *sc.rows[4][1:], size=15, weight=500),
+        text("t_d2", sc.t(5) + " " + sc.t(6), 45, 316, 280, 44, size=12, color="muted"),
+        # toggles: track + knob (first ON = blue, second OFF = grey)
+        surface("toggle1", 320, 128, 44, 26, bg="blue", radius=999,
+                kids=[surface("toggle1_knob", 342, 131, 20, 20, bg="white", radius=999)]),
+        surface("toggle2", 320, 280, 44, 26, bg="hair", radius=999,
+                kids=[surface("toggle2_knob", 323, 283, 20, 20, bg="white", radius=999)]),
+    ]
+    # ref: grouped card y97..~370 covering BOTH rows (labels at y129 / y281,
+    # descriptions to y353), so h≈273 — not the too-short 232 v1 drew.
+    sc.put(surface("perm_card", 28, 99, 350, 272, bg="white", radius=12, border=1,
+                   bordercolor="hair", kids=card_kids))
+    sc.controls["toggle_default"] = ("settings.permissions.default", [320, 128, 44, 26], True)
+    sc.controls["toggle_full"] = ("settings.permissions.full", [320, 280, 44, 26], True)
+    sc.add_text("t_sec2", 7, weight=600, size=17)
+    _, mx, my, mw, mh = sc.rows[8]
+    sc.put(surface("model_card", 28, 540, 348, 72, bg="white", radius=12, border=1,
+                   bordercolor="hair", kids=[
+        text("t_model", sc.t(8), mx, my, mw, mh, size=15, weight=500),
+        text("t_pick", fix(sc.t(9)), 205, my, 160, mh, size=14, weight=500, color="muted")]))
+    sc.controls["model_picker"] = ("settings.model.select", [205, 550, 160, 32], True)
+
+BUILDERS = {1: build_01, 3: build_03, 4: build_04, 5: build_05, 6: build_06, 7: build_07,
+            8: build_08, 9: build_09, 10: build_10, 11: build_11, 12: build_12}
 SOURCE = {1: "thread-list", 2: "new-chat", 3: "streaming-turn", 4: "tool-cells",
           5: "inline-approval", 6: "user-question", 7: "edited-files", 8: "composer-states",
           9: "completed-answer", 10: "goal-plan", 11: "review-diff", 12: "settings"}

@@ -34,14 +34,23 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "icon_decision",
+    "x": 92.0,
+    "y": 78.0,
+    "w": 24.0,
+    "h": 26.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
     "id": "t01",
     "x": 78.94,
     "y": 82.34,
     "w": 246.98,
-    "h": 27.16,
+    "h": 28.5,
     "text": "Octos needs a decision",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 18.11,
+    "size": 19,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -50,14 +59,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t02",
-    "x": 37.22,
-    "y": 154.5,
-    "w": 257.13,
-    "h": 28.22,
-    "text": "Where should queued steers",
+    "id": "question_text",
+    "x": 37.0,
+    "y": 150.0,
+    "w": 336.0,
+    "h": 56.0,
+    "text": "Where should queued steers be persisted?",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 18.81,
+    "size": 15,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -66,31 +75,37 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t03",
-    "x": 36.09,
-    "y": 192.87,
-    "w": 121.8,
-    "h": 28.2,
-    "text": "be persisted?",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 18.8,
-    "weight": 400,
-    "role": "text",
+    "id": "opt_ledger",
+    "x": 34.0,
+    "y": 248.59,
+    "w": 340.0,
+    "h": 43.71,
+    "role": "layout",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "View"
     ]
   },
   {
-    "id": "t04",
+    "id": "opt_ledger_ring",
+    "x": 38.0,
+    "y": 256.59,
+    "w": 18.0,
+    "h": 18.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "opt_ledger_label",
     "x": 75.1,
     "y": 254.59,
     "w": 181.49,
     "h": 31.71,
     "text": "In the session ledger",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 21.14,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -98,30 +113,36 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t05",
-    "x": 76.61,
-    "y": 293.91,
-    "w": 140.01,
-    "h": 25.77,
-    "text": "(recommended)",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 17.18,
-    "weight": 400,
-    "role": "text",
+    "id": "opt_memory",
+    "x": 34.0,
+    "y": 349.12,
+    "w": 340.0,
+    "h": 38.28,
+    "role": "layout",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "View"
     ]
   },
   {
-    "id": "t06",
+    "id": "opt_memory_ring",
+    "x": 38.0,
+    "y": 357.12,
+    "w": 18.0,
+    "h": 18.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "opt_memory_label",
     "x": 76.66,
     "y": 355.12,
     "w": 138.78,
     "h": 26.28,
     "text": "In memory only",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 17.52,
+    "size": 14,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -130,14 +151,36 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t07",
+    "id": "opt_ask",
+    "x": 34.0,
+    "y": 409.52,
+    "w": 340.0,
+    "h": 34.78,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "opt_ask_ring",
+    "x": 38.0,
+    "y": 417.52,
+    "w": 18.0,
+    "h": 18.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "opt_ask_label",
     "x": 79.96,
     "y": 415.52,
     "w": 124.28,
-    "h": 22.79,
+    "h": 22.78,
     "text": "Ask each time",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.19,
+    "size": 14,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -146,14 +189,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t08",
-    "x": 39.26,
-    "y": 493.14,
-    "w": 92.89,
-    "h": 24.33,
-    "text": "Add a note",
+    "id": "t_reco",
+    "x": 76.61,
+    "y": 293.91,
+    "w": 140.01,
+    "h": 25.76,
+    "text": "(recommended)",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.22,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -162,15 +205,66 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t09",
-    "x": 137.55,
-    "y": 590.77,
-    "w": 135.42,
-    "h": 24.2,
+    "id": "note_input",
+    "x": 38.0,
+    "y": 486.0,
+    "w": 330.0,
+    "h": 34.0,
+    "text": "",
+    "font_src": "self:resources/ux/Inter-400.ttf",
+    "size": 14,
+    "weight": 400,
+    "role": "input",
+    "native_candidates": [
+      "TextInput",
+      "KitFormField"
+    ]
+  },
+  {
+    "id": "submit_answer",
+    "x": 24.0,
+    "y": 566.0,
+    "w": 362.0,
+    "h": 72.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "submit_answer_surface",
+    "x": 24.0,
+    "y": 566.0,
+    "w": 362.0,
+    "h": 72.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "submit_answer_control",
+    "x": 24.0,
+    "y": 566.0,
+    "w": 362.0,
+    "h": 72.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "submit_answer_label",
+    "x": 138.0,
+    "y": 591.0,
+    "w": 220.0,
+    "h": 30.0,
     "text": "Submit answer",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.13,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 20.0,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -178,14 +272,49 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t10",
-    "x": 180.44,
-    "y": 673.36,
-    "w": 42.86,
-    "h": 29.33,
+    "id": "skip",
+    "x": 24.0,
+    "y": 650.0,
+    "w": 362.0,
+    "h": 60.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "skip_surface",
+    "x": 24.0,
+    "y": 650.0,
+    "w": 362.0,
+    "h": 60.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "skip_control",
+    "x": 24.0,
+    "y": 650.0,
+    "w": 362.0,
+    "h": 60.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "skip_label",
+    "x": 180.0,
+    "y": 673.0,
+    "w": 80.0,
+    "h": 30.0,
     "text": "Skip",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 19.55,
+    "size": 20.0,
     "weight": 400,
     "role": "text",
     "native_candidates": [

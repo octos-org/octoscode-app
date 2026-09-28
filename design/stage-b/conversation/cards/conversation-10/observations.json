@@ -73,7 +73,7 @@
       ]
     },
     {
-      "id": "t03",
+      "id": "step_0_label",
       "expected_text": "Reproduce reconnect drop",
       "requested_bounds": [
         82.33,
@@ -105,7 +105,7 @@
       ]
     },
     {
-      "id": "t04",
+      "id": "step_1_label",
       "expected_text": "Trace steer queue lifecycle",
       "requested_bounds": [
         85.71,
@@ -137,7 +137,7 @@
       ]
     },
     {
-      "id": "t05",
+      "id": "step_2_label",
       "expected_text": "Write failing test",
       "requested_bounds": [
         85.71,
@@ -169,7 +169,7 @@
       ]
     },
     {
-      "id": "t06",
+      "id": "step_3_label",
       "expected_text": "Implement durable queue",
       "requested_bounds": [
         77.82,
@@ -201,7 +201,7 @@
       ]
     },
     {
-      "id": "t07",
+      "id": "step_4_label",
       "expected_text": "Run full suite and push",
       "requested_bounds": [
         87.97,
@@ -245,6 +245,98 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4293981682
+    },
+    {
+      "id": "goal_strip",
+      "bounds": [
+        16.0,
+        28.0,
+        374.0,
+        40.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.0
+    },
+    {
+      "id": "icon_pause",
+      "bounds": [
+        330.0,
+        32.0,
+        16.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "plan_steps",
+      "bounds": [
+        24.0,
+        200.0,
+        368.0,
+        420.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "icon_step0",
+      "bounds": [
+        42.0,
+        228.0,
+        24.0,
+        24.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_step1",
+      "bounds": [
+        42.0,
+        314.0,
+        24.0,
+        24.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_step2",
+      "bounds": [
+        42.0,
+        400.0,
+        24.0,
+        24.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_step3",
+      "bounds": [
+        42.0,
+        486.0,
+        24.0,
+        24.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_step4",
+      "bounds": [
+        42.0,
+        572.0,
+        24.0,
+        24.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.0
     }
   ],
   "unmapped_ocr": [],

@@ -1,5 +1,36 @@
 {
   "frame_id": 12,
-  "controls": {},
+  "controls": {
+    "toggle_default": {
+      "event": "settings.permissions.default",
+      "source_bounds": [
+        320,
+        128,
+        44,
+        26
+      ],
+      "enabled": true
+    },
+    "toggle_full": {
+      "event": "settings.permissions.full",
+      "source_bounds": [
+        320,
+        280,
+        44,
+        26
+      ],
+      "enabled": true
+    },
+    "model_picker": {
+      "event": "settings.model.select",
+      "source_bounds": [
+        205,
+        550,
+        160,
+        32
+      ],
+      "enabled": true
+    }
+  },
   "source": "settings"
 }

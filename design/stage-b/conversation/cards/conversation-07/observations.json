@@ -15,7 +15,7 @@
         19.97,
         78.23,
         129.23,
-        28.52
+        28.51
       ],
       "status": "observed",
       "ocr_text": "Edited 3 files",
@@ -73,7 +73,7 @@
       ]
     },
     {
-      "id": "t03",
+      "id": "t_undo",
       "expected_text": "Undo 9",
       "requested_bounds": [
         231.19,
@@ -105,13 +105,13 @@
       ]
     },
     {
-      "id": "t04",
+      "id": "review_label",
       "expected_text": "Review",
       "requested_bounds": [
-        319.05,
-        87.67,
-        57.75,
-        22.05
+        319.0,
+        88.0,
+        80.0,
+        24.0
       ],
       "status": "observed",
       "ocr_text": "Review",
@@ -137,10 +137,10 @@
       ]
     },
     {
-      "id": "t05",
+      "id": "file_1_dir",
       "expected_text": "crates/octos-cli/src/",
       "requested_bounds": [
-        37.22,
+        73.22,
         215.43,
         146.61,
         19.17
@@ -169,13 +169,13 @@
       ]
     },
     {
-      "id": "t06",
+      "id": "file_1_name",
       "expected_text": "api/ui_protocol_transport.rs",
       "requested_bounds": [
-        36.09,
+        72.09,
         250.4,
         206.38,
-        27.08
+        27.07
       ],
       "status": "observed",
       "ocr_text": "api/ui_protocol_transport.rs",
@@ -201,7 +201,7 @@
       ]
     },
     {
-      "id": "t07",
+      "id": "file_1_stat",
       "expected_text": "+31 -4",
       "requested_bounds": [
         299.99,
@@ -233,10 +233,10 @@
       ]
     },
     {
-      "id": "t08",
+      "id": "file_2_dir",
       "expected_text": "crates/octos-core/src/",
       "requested_bounds": [
-        37.22,
+        73.22,
         345.14,
         163.53,
         19.17
@@ -265,10 +265,10 @@
       ]
     },
     {
-      "id": "t09",
+      "id": "file_2_name",
       "expected_text": "ui_protocol.rs",
       "requested_bounds": [
-        37.16,
+        73.16,
         379.87,
         102.74,
         24.16
@@ -297,7 +297,7 @@
       ]
     },
     {
-      "id": "t10",
+      "id": "file_2_stat",
       "expected_text": "+9 - 1",
       "requested_bounds": [
         305.63,
@@ -329,10 +329,10 @@
       ]
     },
     {
-      "id": "t11",
+      "id": "file_3_dir",
       "expected_text": "crates/octos-cli/tests/",
       "requested_bounds": [
-        36.09,
+        72.09,
         472.59,
         161.27,
         20.3
@@ -361,10 +361,10 @@
       ]
     },
     {
-      "id": "t12",
+      "id": "file_3_name",
       "expected_text": "steer_queue.rs",
       "requested_bounds": [
-        35.84,
+        71.84,
         510.36,
         112.06,
         25.12
@@ -393,13 +393,13 @@
       ]
     },
     {
-      "id": "t13",
+      "id": "file_3_stat",
       "expected_text": "+22 -0",
       "requested_bounds": [
         290.97,
         490.5,
         75.56,
-        25.01
+        25.0
       ],
       "status": "observed",
       "ocr_text": "+22 -0",
@@ -425,7 +425,7 @@
       ]
     },
     {
-      "id": "t14",
+      "id": "t_show",
       "expected_text": "Show diff",
       "requested_bounds": [
         32.62,
@@ -469,6 +469,135 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4294901502
+    },
+    {
+      "id": "icon_undo",
+      "bounds": [
+        231.0,
+        86.0,
+        18.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "review",
+      "bounds": [
+        309.0,
+        75.0,
+        79.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "review_surface",
+      "bounds": [
+        309.0,
+        75.0,
+        79.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294704123,
+      "radius": 23.0
+    },
+    {
+      "id": "review_control",
+      "bounds": [
+        309.0,
+        75.0,
+        79.0,
+        46.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "file_1",
+      "bounds": [
+        17.0,
+        180.0,
+        374.0,
+        129.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901245,
+      "radius": 16.12
+    },
+    {
+      "id": "file_1_icon",
+      "bounds": [
+        33.0,
+        201.5,
+        20.0,
+        29.562
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "file_2",
+      "bounds": [
+        16.0,
+        331.14,
+        374.0,
+        96.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.0
+    },
+    {
+      "id": "file_2_icon",
+      "bounds": [
+        32.0,
+        347.14,
+        20.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "file_3",
+      "bounds": [
+        17.0,
+        439.0,
+        373.0,
+        126.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 15.75
+    },
+    {
+      "id": "file_3_icon",
+      "bounds": [
+        32.957,
+        460.0,
+        19.947,
+        28.875
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_show",
+      "bounds": [
+        33.0,
+        605.0,
+        16.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     }
   ],
   "unmapped_ocr": [],

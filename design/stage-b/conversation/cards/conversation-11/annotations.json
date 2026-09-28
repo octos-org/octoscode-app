@@ -58,6 +58,167 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4293981682
+    },
+    {
+      "id": "scope_pill",
+      "bounds": [
+        196.0,
+        23.0,
+        103.0,
+        45.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "scope_pill_surface",
+      "bounds": [
+        196.0,
+        23.0,
+        103.0,
+        45.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835453,
+      "radius": 22.5
+    },
+    {
+      "id": "scope_pill_control",
+      "bounds": [
+        196.0,
+        23.0,
+        103.0,
+        45.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "scope_pill_icon",
+      "bounds": [
+        206.729,
+        33.588,
+        19.312,
+        23.824
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "file_header",
+      "bounds": [
+        26.0,
+        99.0,
+        354.0,
+        81.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 20.25
+    },
+    {
+      "id": "diff_rows",
+      "bounds": [
+        20.0,
+        180.0,
+        366.0,
+        420.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "row_1",
+      "bounds": [
+        24.0,
+        241.0,
+        358.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294830828,
+      "radius": 6.0
+    },
+    {
+      "id": "row_2",
+      "bounds": [
+        24.0,
+        291.0,
+        358.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294831085,
+      "radius": 6.0
+    },
+    {
+      "id": "row_3",
+      "bounds": [
+        24.0,
+        341.0,
+        358.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293851889,
+      "radius": 6.0
+    },
+    {
+      "id": "row_4",
+      "bounds": [
+        24.0,
+        391.0,
+        358.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293851889,
+      "radius": 6.0
+    },
+    {
+      "id": "row_5",
+      "bounds": [
+        24.0,
+        441.0,
+        358.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293851889,
+      "radius": 6.0
+    },
+    {
+      "id": "row_6",
+      "bounds": [
+        24.0,
+        491.0,
+        358.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293851889,
+      "radius": 6.0
+    },
+    {
+      "id": "folded",
+      "bounds": [
+        24.0,
+        612.35,
+        358.0,
+        34.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294177780,
+      "radius": 8.0
     }
   ]
 }

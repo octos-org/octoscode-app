@@ -20,45 +20,99 @@
       "size": null
     },
     {
-      "source_id": "t01",
+      "source_id": "goal_strip",
       "native_id": "beauty_0_0",
       "parent": "page",
+      "kind": "stack",
+      "component": "Surface5e06c9b428ce",
+      "semantic_role": "layout",
+      "bounds": [
+        16.0,
+        28.0,
+        374.0,
+        40.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_0_0",
+      "parent": "goal_strip",
       "kind": "text",
-      "component": "Text137eead2583a",
+      "component": "Textfaa232946c99",
       "semantic_role": "text",
       "bounds": [
-        33.87,
+        33.81,
         33.5,
         256.5,
         25.0
       ],
       "text": "Goal \u2022 Fix steer queue on reconnect \u2022 18m",
       "enabled": null,
-      "font": "self:resources/ux/Inter-600.ttf",
-      "size": 12.46
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 12.5
+    },
+    {
+      "source_id": "icon_pause",
+      "native_id": "beauty_0_0_1",
+      "parent": "goal_strip",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        330.0,
+        32.0,
+        16.0,
+        18.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
     },
     {
       "source_id": "t02",
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "text",
-      "component": "Texte862ba55a85d",
+      "component": "Text6d7683639e3a",
       "semantic_role": "text",
       "bounds": [
-        34.51,
+        34.75,
         151.0,
         104.0,
         24.0
       ],
       "text": "Plan \u2022 3 of 5",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 16.95
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 17.09
     },
     {
-      "source_id": "t03",
+      "source_id": "plan_steps",
       "native_id": "beauty_0_2",
       "parent": "page",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        24.0,
+        200.0,
+        368.0,
+        420.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "step_0_label",
+      "native_id": "beauty_0_2_0",
+      "parent": "plan_steps",
       "kind": "text",
       "component": "Text10450de85f33",
       "semantic_role": "text",
@@ -74,9 +128,9 @@
       "size": 14.97
     },
     {
-      "source_id": "t04",
-      "native_id": "beauty_0_3",
-      "parent": "page",
+      "source_id": "step_1_label",
+      "native_id": "beauty_0_2_1",
+      "parent": "plan_steps",
       "kind": "text",
       "component": "Textee1e7e5ed697",
       "semantic_role": "text",
@@ -92,9 +146,9 @@
       "size": 14.76
     },
     {
-      "source_id": "t05",
-      "native_id": "beauty_0_4",
-      "parent": "page",
+      "source_id": "step_2_label",
+      "native_id": "beauty_0_2_2",
+      "parent": "plan_steps",
       "kind": "text",
       "component": "Textfcb7eee893cc",
       "semantic_role": "text",
@@ -110,27 +164,27 @@
       "size": 15.58
     },
     {
-      "source_id": "t06",
-      "native_id": "beauty_0_5",
-      "parent": "page",
+      "source_id": "step_3_label",
+      "native_id": "beauty_0_2_3",
+      "parent": "plan_steps",
       "kind": "text",
-      "component": "Text77009da7de2b",
+      "component": "Textc378303468e9",
       "semantic_role": "text",
       "bounds": [
-        87.16,
+        87.28,
         492.5,
         188.0,
         26.0
       ],
       "text": "Implement durable queue",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 15.26
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 15.09
     },
     {
-      "source_id": "t07",
-      "native_id": "beauty_0_6",
-      "parent": "page",
+      "source_id": "step_4_label",
+      "native_id": "beauty_0_2_4",
+      "parent": "plan_steps",
       "kind": "text",
       "component": "Text378d81a8d7fe",
       "semantic_role": "text",
@@ -144,12 +198,103 @@
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
       "size": 15.11
+    },
+    {
+      "source_id": "icon_step0",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        42.0,
+        228.0,
+        24.0,
+        24.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_step1",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        42.0,
+        314.0,
+        24.0,
+        24.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_step2",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        42.0,
+        400.0,
+        24.0,
+        24.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_step3",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        42.0,
+        486.0,
+        24.0,
+        24.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_step4",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfaceb4ab38079b26",
+      "semantic_role": "layout",
+      "bounds": [
+        42.0,
+        572.0,
+        24.0,
+        24.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
     }
   ],
   "fonts": {
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "6c693f0a7431e1f7b324f782793061a863ed7d352d8985884c5d1ed42e13de9d",
+  "contract_sha256": "634bc7028b8a03f2d7d0b180db30b7682fcfd224171db4ffb9f5d15e97e65d95",
   "mapping_basis": "mapped.json"
 }

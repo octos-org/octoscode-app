@@ -27,165 +27,233 @@
         "tracking": 0.0
       },
       {
-        "t": "text",
-        "id": "t02",
-        "text": "Default permissions",
-        "x": 46.57,
-        "y": 128.0,
-        "w": 157.0,
-        "h": 27.5,
-        "size": 16.3,
-        "line_height": 19.73,
-        "weight": 400,
-        "color": 4279242769,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
+        "t": "stack",
+        "id": "perm_card",
+        "x": 25.0,
+        "y": 96.0,
+        "w": 355.0,
+        "h": 305.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t_r1",
+            "text": "Default permissions",
+            "x": 46.71,
+            "y": 128.0,
+            "w": 157.0,
+            "h": 27.5,
+            "size": 16.07,
+            "line_height": 19.44,
+            "weight": 500,
+            "color": 4279242769,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "t_d1",
+            "text": "Ask before running commands that modify your system.",
+            "x": 45.0,
+            "y": 164.0,
+            "w": 280.0,
+            "h": 44.0,
+            "size": 12,
+            "line_height": 44.0,
+            "weight": 400,
+            "color": 4285427315,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "text",
+            "id": "t_r2",
+            "text": "Full access",
+            "x": 46.73,
+            "y": 279.5,
+            "w": 88.0,
+            "h": 22.5,
+            "size": 15.71,
+            "line_height": 19.0,
+            "weight": 500,
+            "color": 4279242768,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "t_d2",
+            "text": "Allow Octos to run any command without asking.",
+            "x": 45.0,
+            "y": 316.0,
+            "w": 280.0,
+            "h": 44.0,
+            "size": 12,
+            "line_height": 44.0,
+            "weight": 400,
+            "color": 4285427315,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "stack",
+            "id": "toggle1",
+            "x": 309.0,
+            "y": 132.0,
+            "w": 55.0,
+            "h": 46.0,
+            "c": [
+              {
+                "t": "stack",
+                "id": "toggle1_knob",
+                "x": 336.5,
+                "y": 137.308,
+                "w": 25.0,
+                "h": 35.385,
+                "c": [],
+                "variant": "surface",
+                "bg": 4294769917,
+                "radius": 12.5
+              }
+            ],
+            "variant": "surface",
+            "bg": 4281298923,
+            "radius": 23.0
+          },
+          {
+            "t": "stack",
+            "id": "toggle2",
+            "x": 310.0,
+            "y": 284.0,
+            "w": 54.0,
+            "h": 47.0,
+            "c": [
+              {
+                "t": "stack",
+                "id": "toggle2_knob",
+                "x": 313.682,
+                "y": 289.423,
+                "w": 24.545,
+                "h": 36.154,
+                "c": [],
+                "variant": "surface",
+                "bg": 4294835709,
+                "radius": 12.27
+              }
+            ],
+            "variant": "surface",
+            "bg": 4293059300,
+            "radius": 23.5
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901246,
+        "radius": 13.46,
+        "border": 1,
+        "bordercolor": 4293256679
       },
       {
         "t": "text",
-        "id": "t03",
-        "text": "Ask before running commands",
-        "x": 46.16,
-        "y": 167.0,
-        "w": 200.5,
-        "h": 24.5,
-        "size": 13.51,
-        "line_height": 16.35,
-        "weight": 400,
-        "color": 4287006602,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t04",
-        "text": "that modify your system.",
-        "x": 46.37,
-        "y": 199.0,
-        "w": 159.5,
-        "h": 25.0,
-        "size": 13.25,
-        "line_height": 16.03,
-        "weight": 400,
-        "color": 4287335310,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t05",
-        "text": "Full access",
-        "x": 46.6,
-        "y": 279.5,
-        "w": 88.0,
-        "h": 22.5,
-        "size": 15.88,
-        "line_height": 19.21,
-        "weight": 400,
-        "color": 4279242768,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t06",
-        "text": "Allow Octos to run any command",
-        "x": 46.16,
-        "y": 318.0,
-        "w": 212.5,
-        "h": 25.0,
-        "size": 13.3,
-        "line_height": 16.09,
-        "weight": 400,
-        "color": 4287927704,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t07",
-        "text": "without asking.",
-        "x": 46.05,
-        "y": 351.0,
-        "w": 98.0,
-        "h": 24.5,
-        "size": 13.15,
-        "line_height": 15.91,
-        "weight": 400,
-        "color": 4287730325,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t08",
+        "id": "t_sec2",
         "text": "Model",
-        "x": 31.4,
+        "x": 31.7,
         "y": 469.0,
         "w": 57.5,
         "h": 24.5,
-        "size": 18.19,
-        "line_height": 22.01,
-        "weight": 400,
+        "size": 17.78,
+        "line_height": 21.52,
+        "weight": 600,
         "color": 4278453252,
         "variant": "single_line",
         "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
+        "font_src": "self:resources/ux/Inter-600.ttf",
         "tracking": 0.0
       },
       {
-        "t": "text",
-        "id": "t09",
-        "text": "Default model",
-        "x": 44.63,
-        "y": 560.0,
-        "w": 107.0,
-        "h": 22.5,
-        "size": 15.63,
-        "line_height": 18.91,
-        "weight": 400,
-        "color": 4279440147,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t10",
-        "text": "deepseek-v4-flash v",
-        "x": 206.76,
-        "y": 561.0,
-        "w": 149.0,
-        "h": 26.5,
-        "size": 14.65,
-        "line_height": 17.73,
-        "weight": 400,
-        "color": 4281414194,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
+        "t": "stack",
+        "id": "model_card",
+        "x": 28.0,
+        "y": 521.0,
+        "w": 348.0,
+        "h": 104.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t_model",
+            "text": "Default model",
+            "x": 44.76,
+            "y": 560.0,
+            "w": 107.0,
+            "h": 22.5,
+            "size": 15.45,
+            "line_height": 18.69,
+            "weight": 500,
+            "color": 4279440147,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "t_pick",
+            "text": "deepseek-v4-flash v",
+            "x": 206.82,
+            "y": 561.0,
+            "w": 149.0,
+            "h": 26.5,
+            "size": 14.47,
+            "line_height": 17.51,
+            "weight": 500,
+            "color": 4281414194,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 17.33,
+        "border": 1,
+        "bordercolor": 4293256679
       }
     ],
     "variant": "surface",
-    "bg": 4293981682
+    "bg": 4294967295
   },
   "changes": [
     {
       "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "perm_card",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "toggle1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "toggle1_knob",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "toggle2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "toggle2_knob",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "model_card",
       "source": "observed non-text annotation"
     },
     {
@@ -195,58 +263,34 @@
       "tracking_em": -0.19995814732142853
     },
     {
-      "id": "t02",
+      "id": "t_r1",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.164359739768026
+      "tracking_em": -0.17268764775413709
     },
     {
-      "id": "t03",
+      "id": "t_r2",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.19617821441135083
+      "tracking_em": -0.18633208403716214
     },
     {
-      "id": "t04",
+      "id": "t_sec2",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.1941691333462733
+      "tracking_em": -0.2349168730945122
     },
     {
-      "id": "t05",
+      "id": "t_model",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.1791279560810811
+      "tracking_em": -0.1837323163006757
     },
     {
-      "id": "t06",
+      "id": "t_pick",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.21338371690270938
-    },
-    {
-      "id": "t07",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.18594413518074915
-    },
-    {
-      "id": "t08",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.21152701028963417
-    },
-    {
-      "id": "t09",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.17622224275056309
-    },
-    {
-      "id": "t10",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.19978539737654322
+      "tracking_em": -0.20700110918209882
     }
   ],
   "limits": [

@@ -30,221 +30,345 @@
         "t": "text",
         "id": "t02",
         "text": "+62 -5",
-        "x": 20.59,
+        "x": 20.61,
         "y": 124.5,
         "w": 35.0,
         "h": 24.5,
-        "size": 9.61,
-        "line_height": 11.63,
-        "weight": 400,
+        "size": 9.55,
+        "line_height": 11.56,
+        "weight": 500,
         "color": 4282220353,
         "variant": "single_line",
         "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
+        "font_src": "self:resources/ux/Inter-500.ttf",
         "tracking": 0.0
       },
       {
+        "t": "svg",
+        "id": "icon_undo",
+        "x": 231.0,
+        "y": 86.0,
+        "w": 18.0,
+        "h": 20.0,
+        "src": ""
+      },
+      {
         "t": "text",
-        "id": "t03",
+        "id": "t_undo",
         "text": "Undo 9",
-        "x": 231.93,
+        "x": 232.07,
         "y": 85.0,
         "w": 65.5,
         "h": 24.5,
-        "size": 17.84,
-        "line_height": 21.58,
-        "weight": 400,
+        "size": 17.77,
+        "line_height": 21.5,
+        "weight": 500,
         "color": 4278979596,
         "variant": "single_line",
         "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
+        "font_src": "self:resources/ux/Inter-500.ttf",
         "tracking": 0.0
       },
       {
-        "t": "text",
-        "id": "t04",
-        "text": "Review",
-        "x": 321.14,
-        "y": 86.5,
-        "w": 57.0,
-        "h": 23.0,
-        "size": 15.44,
-        "line_height": 18.68,
-        "weight": 400,
-        "color": 4279703320,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
+        "t": "stack",
+        "id": "review",
+        "x": 309.0,
+        "y": 75.0,
+        "w": 79.0,
+        "h": 46.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "review_surface",
+            "x": 309.0,
+            "y": 75.0,
+            "w": 79.0,
+            "h": 46.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294704123,
+            "radius": 23.0,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "button",
+            "id": "review_control",
+            "x": 309.0,
+            "y": 75.0,
+            "w": 79.0,
+            "h": 46.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "review_label",
+            "text": "Review",
+            "x": 321.27,
+            "y": 86.5,
+            "w": 57.0,
+            "h": 23.0,
+            "size": 15.24,
+            "line_height": 18.44,
+            "weight": 500,
+            "color": 4279703320,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      {
+        "t": "stack",
+        "id": "file_1",
+        "x": 17.0,
+        "y": 180.0,
+        "w": 374.0,
+        "h": 129.0,
+        "c": [
+          {
+            "t": "svg",
+            "id": "file_1_icon",
+            "x": 33.0,
+            "y": 201.5,
+            "w": 20.0,
+            "h": 29.562,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "file_1_dir",
+            "text": "crates/octos-cli/src/",
+            "x": 38.75,
+            "y": 214.0,
+            "w": 145.5,
+            "h": 21.0,
+            "size": 14.67,
+            "line_height": 17.75,
+            "weight": 400,
+            "color": 4280098077,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "file_1_name",
+            "text": "api/ui_protocol_transport.rs",
+            "x": 38.38,
+            "y": 249.0,
+            "w": 206.0,
+            "h": 26.0,
+            "size": 15.32,
+            "line_height": 18.54,
+            "weight": 500,
+            "color": 4280822057,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "file_1_stat",
+            "text": "+31 -4",
+            "x": 304.19,
+            "y": 232.5,
+            "w": 31.0,
+            "h": 25.0,
+            "size": 8.72,
+            "line_height": 10.56,
+            "weight": 500,
+            "color": 4283075663,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901245,
+        "radius": 16.12,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "stack",
+        "id": "file_2",
+        "x": 16.0,
+        "y": 331.14,
+        "w": 374.0,
+        "h": 96.0,
+        "c": [
+          {
+            "t": "svg",
+            "id": "file_2_icon",
+            "x": 32.0,
+            "y": 347.14,
+            "w": 20.0,
+            "h": 22.0,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "file_2_dir",
+            "text": "crates/octos-core/src/",
+            "x": 38.75,
+            "y": 343.0,
+            "w": 163.0,
+            "h": 21.5,
+            "size": 14.83,
+            "line_height": 17.95,
+            "weight": 400,
+            "color": 4281216558,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "file_2_name",
+            "text": "ui_protocol.rs",
+            "x": 38.42,
+            "y": 378.5,
+            "w": 101.5,
+            "h": 25.5,
+            "size": 14.93,
+            "line_height": 18.06,
+            "weight": 500,
+            "color": 4281545524,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "file_2_stat",
+            "text": "+9 - 1",
+            "x": 308.83,
+            "y": 361.0,
+            "w": 23.5,
+            "h": 25.0,
+            "size": 7.2,
+            "line_height": 8.71,
+            "weight": 500,
+            "color": 4283076176,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294835709,
+        "radius": 12.0,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "stack",
+        "id": "file_3",
+        "x": 17.0,
+        "y": 439.0,
+        "w": 373.0,
+        "h": 126.0,
+        "c": [
+          {
+            "t": "svg",
+            "id": "file_3_icon",
+            "x": 32.957,
+            "y": 460.0,
+            "w": 19.947,
+            "h": 28.875,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "file_3_dir",
+            "text": "crates/octos-cli/tests/",
+            "x": 38.74,
+            "y": 471.0,
+            "w": 160.0,
+            "h": 21.0,
+            "size": 14.91,
+            "line_height": 18.04,
+            "weight": 400,
+            "color": 4280163870,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "file_3_name",
+            "text": "steer_queue.rs",
+            "x": 38.79,
+            "y": 508.0,
+            "w": 110.0,
+            "h": 24.0,
+            "size": 14.87,
+            "line_height": 17.99,
+            "weight": 500,
+            "color": 4281084973,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "file_3_stat",
+            "text": "+22 -0",
+            "x": 296.65,
+            "y": 489.5,
+            "w": 34.0,
+            "h": 24.5,
+            "size": 9.16,
+            "line_height": 11.09,
+            "weight": 500,
+            "color": 4282747211,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901246,
+        "radius": 15.75,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "svg",
+        "id": "icon_show",
+        "x": 33.0,
+        "y": 605.0,
+        "w": 16.0,
+        "h": 18.0,
+        "src": ""
       },
       {
         "t": "text",
-        "id": "t05",
-        "text": "crates/octos-cli/src/",
-        "x": 38.75,
-        "y": 214.0,
-        "w": 145.5,
-        "h": 21.0,
-        "size": 14.67,
-        "line_height": 17.75,
-        "weight": 400,
-        "color": 4280098077,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t06",
-        "text": "api/ui_protocol_transport.rs",
-        "x": 38.31,
-        "y": 249.0,
-        "w": 206.0,
-        "h": 26.0,
-        "size": 15.61,
-        "line_height": 18.89,
-        "weight": 400,
-        "color": 4280822057,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t07",
-        "text": "+31 -4",
-        "x": 304.16,
-        "y": 232.5,
-        "w": 31.0,
-        "h": 25.0,
-        "size": 8.79,
-        "line_height": 10.63,
-        "weight": 400,
-        "color": 4283075663,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t08",
-        "text": "crates/octos-core/src/",
-        "x": 38.75,
-        "y": 343.0,
-        "w": 163.0,
-        "h": 21.5,
-        "size": 14.83,
-        "line_height": 17.95,
-        "weight": 400,
-        "color": 4281216558,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t09",
-        "text": "ui_protocol.rs",
-        "x": 38.33,
-        "y": 378.5,
-        "w": 101.5,
-        "h": 25.5,
-        "size": 15.21,
-        "line_height": 18.4,
-        "weight": 400,
-        "color": 4281545524,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t10",
-        "text": "+9 - 1",
-        "x": 308.82,
-        "y": 361.0,
-        "w": 23.5,
-        "h": 25.0,
-        "size": 7.19,
-        "line_height": 8.7,
-        "weight": 400,
-        "color": 4283076176,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t11",
-        "text": "crates/octos-cli/tests/",
-        "x": 38.74,
-        "y": 471.0,
-        "w": 160.0,
-        "h": 21.0,
-        "size": 14.91,
-        "line_height": 18.04,
-        "weight": 400,
-        "color": 4280163870,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t12",
-        "text": "steer_queue.rs",
-        "x": 38.7,
-        "y": 508.0,
-        "w": 110.0,
-        "h": 24.0,
-        "size": 15.13,
-        "line_height": 18.3,
-        "weight": 400,
-        "color": 4281084973,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t13",
-        "text": "+22 -0",
-        "x": 296.62,
-        "y": 489.5,
-        "w": 34.0,
-        "h": 24.5,
-        "size": 9.22,
-        "line_height": 11.16,
-        "weight": 400,
-        "color": 4282747211,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t14",
+        "id": "t_show",
         "text": "Show diff",
-        "x": 34.53,
+        "x": 34.62,
         "y": 604.0,
         "w": 81.5,
         "h": 23.5,
-        "size": 17.12,
-        "line_height": 20.71,
-        "weight": 400,
+        "size": 16.94,
+        "line_height": 20.49,
+        "weight": 500,
         "color": 4279571733,
         "variant": "single_line",
         "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
+        "font_src": "self:resources/ux/Inter-500.ttf",
         "tracking": 0.0
       }
     ],
@@ -257,6 +381,50 @@
       "source": "observed non-text annotation"
     },
     {
+      "id": "icon_undo",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "review",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "review_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "review_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "file_1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "file_1_icon",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "file_2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "file_2_icon",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "file_3",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "file_3_icon",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_show",
+      "source": "observed non-text annotation"
+    },
+    {
       "id": "t01",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
@@ -266,79 +434,79 @@
       "id": "t02",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.38831459603658536
+      "tracking_em": -0.39349037728658537
     },
     {
-      "id": "t03",
+      "id": "t_undo",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.2107047872340426
+      "tracking_em": -0.21560813848920865
     },
     {
-      "id": "t04",
+      "id": "review_label",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.2362356085526316
+      "tracking_em": -0.24552323190789474
     },
     {
-      "id": "t05",
+      "id": "file_1_dir",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.11606014476102942
     },
     {
-      "id": "t06",
+      "id": "file_1_name",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.14741326020622894
+      "tracking_em": -0.15674485742845112
     },
     {
-      "id": "t07",
+      "id": "file_1_stat",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.39197823660714287
+      "tracking_em": -0.39744698660714284
     },
     {
-      "id": "t08",
+      "id": "file_2_dir",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.13009406887755107
     },
     {
-      "id": "t09",
+      "id": "file_2_name",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.14998619884838996
+      "tracking_em": -0.15814110716681576
     },
     {
-      "id": "t10",
+      "id": "file_2_stat",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.366813200512918
+      "tracking_em": -0.3679077273895169
     },
     {
-      "id": "t11",
+      "id": "file_3_dir",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.1088906354445187
     },
     {
-      "id": "t12",
+      "id": "file_3_name",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.17237830528846154
+      "tracking_em": -0.18240685096153847
     },
     {
-      "id": "t13",
+      "id": "file_3_stat",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.4010718368902439
+      "tracking_em": -0.4065405868902438
     },
     {
-      "id": "t14",
+      "id": "t_show",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.17209879557291669
+      "tracking_em": -0.17936041416266024
     }
   ],
   "limits": [

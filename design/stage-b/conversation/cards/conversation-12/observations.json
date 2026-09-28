@@ -15,7 +15,7 @@
         31.53,
         48.27,
         108.37,
-        24.15
+        28.5
       ],
       "status": "observed",
       "ocr_text": "Permissions",
@@ -41,7 +41,7 @@
       ]
     },
     {
-      "id": "t02",
+      "id": "t_r1",
       "expected_text": "Default permissions",
       "requested_bounds": [
         45.0,
@@ -73,77 +73,24 @@
       ]
     },
     {
-      "id": "t03",
-      "expected_text": "Ask before running commands",
+      "id": "t_d1",
+      "expected_text": "Ask before running commands that modify your system.",
       "requested_bounds": [
-        45.11,
-        168.0,
-        199.62,
-        22.62
+        45.0,
+        164.0,
+        280.0,
+        44.0
       ],
-      "status": "observed",
-      "ocr_text": "Ask before running commands",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        46.5,
-        169.0,
-        196.5,
-        20.5
-      ],
-      "ink_color": [
-        134,
-        135,
-        138
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        45.11111055624738,
-        167.99999982636888,
-        199.61666870117188,
-        22.616279602050817
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
-      "id": "t04",
-      "expected_text": "that modify your system.",
-      "requested_bounds": [
-        45.11,
-        200.77,
-        160.14,
-        21.43
-      ],
-      "status": "observed",
-      "ocr_text": "that modify your system.",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        46.5,
-        201.0,
-        155.5,
-        21.0
-      ],
-      "ink_color": [
-        139,
-        139,
-        142
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        45.11111320275609,
-        200.7674414600952,
-        160.14443969726562,
-        21.43023300170892
-      ]
-    },
-    {
-      "id": "t05",
+      "id": "t_r2",
       "expected_text": "Full access",
       "requested_bounds": [
         46.2,
         280.67,
         88.05,
-        20.66
+        22.5
       ],
       "status": "observed",
       "ocr_text": "Full access",
@@ -169,77 +116,24 @@
       ]
     },
     {
-      "id": "t06",
-      "expected_text": "Allow Octos to run any command",
+      "id": "t_d2",
+      "expected_text": "Allow Octos to run any command without asking.",
       "requested_bounds": [
-        46.24,
-        319.0,
-        210.89,
-        21.63
+        45.0,
+        316.0,
+        280.0,
+        44.0
       ],
-      "status": "observed",
-      "ocr_text": "Allow Octos to run any command",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        46.5,
-        320.0,
-        208.5,
-        21.0
-      ],
-      "ink_color": [
-        148,
-        149,
-        152
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        46.23889176292968,
-        318.99999957947716,
-        210.89443969726568,
-        21.627907752990666
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
-      "id": "t07",
-      "expected_text": "without asking.",
-      "requested_bounds": [
-        45.11,
-        353.0,
-        98.12,
-        21.5
-      ],
-      "status": "observed",
-      "ocr_text": "without asking.",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        46.5,
-        353.0,
-        94.0,
-        20.5
-      ],
-      "ink_color": [
-        145,
-        146,
-        149
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        45.11111081751591,
-        353.00000017858525,
-        98.11666870117188,
-        21.500000000000096
-      ]
-    },
-    {
-      "id": "t08",
+      "id": "t_sec2",
       "expected_text": "Model",
       "requested_bounds": [
         30.45,
         469.21,
         60.9,
-        24.81
+        25.5
       ],
       "status": "observed",
       "ocr_text": "Model",
@@ -265,13 +159,13 @@
       ]
     },
     {
-      "id": "t09",
+      "id": "t_model",
       "expected_text": "Default model",
       "requested_bounds": [
         42.86,
         561.5,
         110.52,
-        21.63
+        22.5
       ],
       "status": "observed",
       "ocr_text": "Default model",
@@ -297,13 +191,13 @@
       ]
     },
     {
-      "id": "t10",
+      "id": "t_pick",
       "expected_text": "deepseek-v4-flash v",
       "requested_bounds": [
-        205.21,
-        561.43,
-        150.08,
-        24.22
+        205.0,
+        561.5,
+        160.0,
+        21.63
       ],
       "status": "observed",
       "ocr_text": "deepseek-v4-flash v",
@@ -341,9 +235,128 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4293981682
+    },
+    {
+      "id": "perm_card",
+      "bounds": [
+        25.0,
+        96.0,
+        355.0,
+        305.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 13.46
+    },
+    {
+      "id": "toggle1",
+      "bounds": [
+        309.0,
+        132.0,
+        55.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4281757396,
+      "radius": 23.0
+    },
+    {
+      "id": "toggle1_knob",
+      "bounds": [
+        336.5,
+        137.308,
+        25.0,
+        35.385
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294769917,
+      "radius": 12.5
+    },
+    {
+      "id": "toggle2",
+      "bounds": [
+        310.0,
+        284.0,
+        54.0,
+        47.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293059300,
+      "radius": 23.5
+    },
+    {
+      "id": "toggle2_knob",
+      "bounds": [
+        313.682,
+        289.423,
+        24.545,
+        36.154
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.27
+    },
+    {
+      "id": "model_card",
+      "bounds": [
+        28.0,
+        521.0,
+        348.0,
+        104.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 17.33
     }
   ],
-  "unmapped_ocr": [],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        90.22222111249476,
+        335.99999965273776,
+        399.23333740234375,
+        45.232559204101634
+      ],
+      "confidence": 1,
+      "text": "Ask before running commands"
+    },
+    {
+      "bounds": [
+        90.22222640551217,
+        401.5348829201904,
+        320.28887939453125,
+        42.86046600341784
+      ],
+      "confidence": 1,
+      "text": "that modify your system."
+    },
+    {
+      "bounds": [
+        92.47778352585937,
+        637.9999991589543,
+        421.78887939453136,
+        43.25581550598133
+      ],
+      "confidence": 1,
+      "text": "Allow Octos to run any command"
+    },
+    {
+      "bounds": [
+        90.22222163503181,
+        706.0000003571705,
+        196.23333740234375,
+        43.00000000000019
+      ],
+      "confidence": 1,
+      "text": "without asking."
+    }
+  ],
   "non_text_ocr": [],
   "limits": [
     "OCR cannot prove font family, hierarchy or control behavior.",

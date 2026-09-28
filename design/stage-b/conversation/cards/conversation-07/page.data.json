@@ -21,33 +21,89 @@
         }
       },
       "t02": {
-        "component": "Textc44b6dbaba54",
+        "component": "Text7f73852ce1ef",
         "layout": {
-          "x": 20.59,
+          "x": 20.61,
           "y": 124.5,
           "w": 35.0,
           "h": 24.5
         }
       },
-      "t03": {
-        "component": "Text6ce21eea01d1",
+      "icon_undo": {
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 231.93,
+          "x": 231.0,
+          "y": 86.0,
+          "w": 18.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-07/assets/icon_undo-21d394caf9e6.svg"
+        }
+      },
+      "t_undo": {
+        "component": "Text1ac3c462ef0a",
+        "layout": {
+          "x": 232.07,
           "y": 85.0,
           "w": 65.5,
           "h": 24.5
         }
       },
-      "t04": {
-        "component": "Textc917208d6f8f",
+      "review": {
+        "component": "KitButton2c6804b990a5",
         "layout": {
-          "x": 321.14,
+          "x": 309.0,
+          "y": 75.0,
+          "w": 79.0,
+          "h": 46.0
+        }
+      },
+      "review_surface": {
+        "component": "Surface03c877f6732d",
+        "layout": {
+          "x": 309.0,
+          "y": 75.0,
+          "w": 79.0,
+          "h": 46.0
+        }
+      },
+      "review_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 309.0,
+          "y": 75.0,
+          "w": 79.0,
+          "h": 46.0
+        }
+      },
+      "review_label": {
+        "component": "Text7d74dc026487",
+        "layout": {
+          "x": 321.27,
           "y": 86.5,
           "w": 57.0,
           "h": 23.0
         }
       },
-      "t05": {
+      "file_1": {
+        "component": "Surface0f467e6c4470",
+        "layout": {
+          "x": 17.0,
+          "y": 180.0,
+          "w": 374.0,
+          "h": 129.0
+        }
+      },
+      "file_1_icon": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 33.0,
+          "y": 201.5,
+          "w": 20.0,
+          "h": 29.562,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-07/assets/file_1_icon-6f966f5e3626.svg"
+        }
+      },
+      "file_1_dir": {
         "component": "Textae2640d69bbf",
         "layout": {
           "x": 38.75,
@@ -56,25 +112,44 @@
           "h": 21.0
         }
       },
-      "t06": {
-        "component": "Text02968943951d",
+      "file_1_name": {
+        "component": "Text249cf0aff4ea",
         "layout": {
-          "x": 38.31,
+          "x": 38.38,
           "y": 249.0,
           "w": 206.0,
           "h": 26.0
         }
       },
-      "t07": {
-        "component": "Textdc9c18fa772b",
+      "file_1_stat": {
+        "component": "Text4598b1ed59fa",
         "layout": {
-          "x": 304.16,
+          "x": 304.19,
           "y": 232.5,
           "w": 31.0,
           "h": 25.0
         }
       },
-      "t08": {
+      "file_2": {
+        "component": "Surfaceb4ab38079b26",
+        "layout": {
+          "x": 16.0,
+          "y": 331.14,
+          "w": 374.0,
+          "h": 96.0
+        }
+      },
+      "file_2_icon": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 32.0,
+          "y": 347.14,
+          "w": 20.0,
+          "h": 22.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-07/assets/file_2_icon-6f966f5e3626.svg"
+        }
+      },
+      "file_2_dir": {
         "component": "Text9016802f4a87",
         "layout": {
           "x": 38.75,
@@ -83,25 +158,44 @@
           "h": 21.5
         }
       },
-      "t09": {
-        "component": "Text6f1db48d48a6",
+      "file_2_name": {
+        "component": "Textf5f9fca378aa",
         "layout": {
-          "x": 38.33,
+          "x": 38.42,
           "y": 378.5,
           "w": 101.5,
           "h": 25.5
         }
       },
-      "t10": {
-        "component": "Textb0b9223e4853",
+      "file_2_stat": {
+        "component": "Texte807d0f5e956",
         "layout": {
-          "x": 308.82,
+          "x": 308.83,
           "y": 361.0,
           "w": 23.5,
           "h": 25.0
         }
       },
-      "t11": {
+      "file_3": {
+        "component": "Surfacee32dcbeca0bc",
+        "layout": {
+          "x": 17.0,
+          "y": 439.0,
+          "w": 373.0,
+          "h": 126.0
+        }
+      },
+      "file_3_icon": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 32.957,
+          "y": 460.0,
+          "w": 19.947,
+          "h": 28.875,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-07/assets/file_3_icon-6f966f5e3626.svg"
+        }
+      },
+      "file_3_dir": {
         "component": "Textc53cee50c43a",
         "layout": {
           "x": 38.74,
@@ -110,28 +204,38 @@
           "h": 21.0
         }
       },
-      "t12": {
-        "component": "Text568b6a0dc5ba",
+      "file_3_name": {
+        "component": "Text88f3798c882f",
         "layout": {
-          "x": 38.7,
+          "x": 38.79,
           "y": 508.0,
           "w": 110.0,
           "h": 24.0
         }
       },
-      "t13": {
-        "component": "Texta1b347f8cbae",
+      "file_3_stat": {
+        "component": "Text7aa237361cca",
         "layout": {
-          "x": 296.62,
+          "x": 296.65,
           "y": 489.5,
           "w": 34.0,
           "h": 24.5
         }
       },
-      "t14": {
-        "component": "Texta0d9e419a67b",
+      "icon_show": {
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 34.53,
+          "x": 33.0,
+          "y": 605.0,
+          "w": 16.0,
+          "h": 18.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-07/assets/icon_show-23070b5e0c3a.svg"
+        }
+      },
+      "t_show": {
+        "component": "Textaae9674944b4",
+        "layout": {
+          "x": 34.62,
           "y": 604.0,
           "w": 81.5,
           "h": 23.5

@@ -58,6 +58,84 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4293981682
+    },
+    {
+      "id": "perm_card",
+      "bounds": [
+        25.0,
+        96.0,
+        355.0,
+        305.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 13.46
+    },
+    {
+      "id": "toggle1",
+      "bounds": [
+        309.0,
+        132.0,
+        55.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4281757396,
+      "radius": 23.0
+    },
+    {
+      "id": "toggle1_knob",
+      "bounds": [
+        336.5,
+        137.308,
+        25.0,
+        35.385
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294769917,
+      "radius": 12.5
+    },
+    {
+      "id": "toggle2",
+      "bounds": [
+        310.0,
+        284.0,
+        54.0,
+        47.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293059300,
+      "radius": 23.5
+    },
+    {
+      "id": "toggle2_knob",
+      "bounds": [
+        313.682,
+        289.423,
+        24.545,
+        36.154
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.27
+    },
+    {
+      "id": "model_card",
+      "bounds": [
+        28.0,
+        521.0,
+        348.0,
+        104.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 17.33
     }
   ]
 }

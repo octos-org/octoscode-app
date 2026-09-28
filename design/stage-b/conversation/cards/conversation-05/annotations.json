@@ -46,6 +46,135 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4294901502
+    },
+    {
+      "id": "icon_shield",
+      "bounds": [
+        25.0,
+        85.0,
+        30.0,
+        34.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "cmd_box",
+      "bounds": [
+        19.0,
+        159.0,
+        368.0,
+        86.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294506745,
+      "radius": 10.42
+    },
+    {
+      "id": "approve_once",
+      "bounds": [
+        18.0,
+        366.0,
+        369.0,
+        68.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "approve_once_surface",
+      "bounds": [
+        18.0,
+        366.0,
+        369.0,
+        68.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4278255616,
+      "radius": 34.0
+    },
+    {
+      "id": "approve_once_control",
+      "bounds": [
+        18.0,
+        366.0,
+        369.0,
+        68.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "approve_session",
+      "bounds": [
+        17.0,
+        449.0,
+        371.0,
+        72.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "approve_session_surface",
+      "bounds": [
+        17.0,
+        449.0,
+        371.0,
+        72.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 36.0
+    },
+    {
+      "id": "approve_session_control",
+      "bounds": [
+        17.0,
+        449.0,
+        371.0,
+        72.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "deny",
+      "bounds": [
+        18.0,
+        532.0,
+        368.0,
+        58.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "deny_surface",
+      "bounds": [
+        18.0,
+        532.0,
+        368.0,
+        58.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 29.0
+    },
+    {
+      "id": "deny_control",
+      "bounds": [
+        18.0,
+        532.0,
+        368.0,
+        58.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
     }
   ]
 }
