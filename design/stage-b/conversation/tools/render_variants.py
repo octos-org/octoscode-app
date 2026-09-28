@@ -127,7 +127,23 @@ RESPONSIVE = {   'thread-row': {   'thread_1': {'fillw': 1, 'fith': 1},
                              'div_2': {'fillw': 1},
                              'review': {'fillw': 1},
                              'review_surface': {'fillw': 1},
-                             'review_control': {'fillw': 1, 'fillh': 1}},
+                             'review_control': {'fillw': 1, 'fillh': 1},
+                             # Card #18d (外环补充): the trailing cluster pins to
+                             # the slot's right edge with the #16c `alignx`
+                             # mechanism: the per-file +N/-N stats, the disclosure
+                             # chevron, and the Undo/Review group.
+                             # The per-file +N (green) / -N (red) stats are TWO
+                             # adjacent TEXT runs. Right-anchoring them is not
+                             # expressible here: design.rs's #16c wrapper is
+                             # `alignx==1 && kind != Text`, so on a text node
+                             # `alignx` only sets the run's alignment INSIDE its box,
+                             # and adding `fillw` makes each run a full-width label
+                             # (measured: both boxes 0..540, so +31 and -4 overlapped).
+                             # Keep the measured pair, which matches the atlas at 360.
+                             # atlas: chevron 333..340.5 in a 374 root -> inset ~20.5
+                             'icon_show': {'alignx': 1, 'x': 337.5},
+                             'undo_group': {'alignx': 1},
+                             'review': {'fillw': 1, 'alignx': 1}},
     'plan-card': {'plan_card': {'fillw': 1, 'fith': 1}, 'plan_steps': {'fillw': 1}},
     'goal-strip': {'goal_strip': {'fillw': 1, 'fith': 1, 'variant': 'row'}, 't01': {'fillw': 1}},
     'diff-view': {   'diff_view': {'fillw': 1, 'fith': 1},
@@ -144,8 +160,23 @@ RESPONSIVE = {   'thread-row': {   'thread_1': {'fillw': 1, 'fith': 1},
                      'folded': {'fillw': 1}},
     'settings-group': {   'settings_group': {'fillw': 1, 'fith': 1},
                           'perm_card': {'fillw': 1},
+                          # NOTE (#18d): `variant:"row"` here emits NOTHING (the
+                          # measured parent is an Overlay), so the card stays an
+                          # overlay and only the chevron is right-anchored.
                           'model_card': {'fillw': 1},
                           'perm_divider': {'fillw': 1},
+                          # Card #18d (外环补充): pin the trailing controls to the
+                          # slot's right edge with the #16c `alignx` mechanism.
+                          'toggle1': {'alignx': 1},
+                          'toggle2': {'alignx': 1},
+                          # t_pick is a TEXT run: `alignx` here is the run's own
+                          # alignment inside a FILLED label, which overlays its
+                          # trailing chevron (measured: chevron squeezed to 4px).
+                          # Keep the value measured; anchor the chevron instead.
+                          't_pick': {},
+                          # the chevron rides inside `model_row` (ROW_WRAP below),
+                          # so it no longer needs its own anchor.
+                          'pick_chev': {},
                           't01': {'w': 340}}}
 
 # The expanded tool-cell console, from scene 04's third card (`tool_3_output`).
@@ -189,6 +220,27 @@ QUEUED = {"t": "stack", "id": "queued_row", "x": 10, "y": 10, "w": 240, "h": 50,
               {"t": "text", "id": "q1", "x": 16, "y": 13, "w": 208, "h": 24, "size": 15,
                "weight": 500, "font_src": INTER5, "line_height": 18, "color": 4280953387,
                "variant": "single_line", "text": "1 queued \u00b7 Steer now \u00b7 \u2715"}]}
+
+# Card #18d (外环补充): the two per-file stats (+N green / -N red) are adjacent
+# TEXT runs. `alignx` on a text node only aligns the run INSIDE its own box and
+# `fillw` makes each box full-width, so two of them overlapped (measured 0..540).
+# The #16c wrapper (`alignx==1 && kind != Text`) does not apply to text either.
+# The mechanism that DOES render text side by side is a flow ROW (goal-strip), so
+# group the pair into a fill-width row with a leading fill-spacer that pushes them
+# to the right edge, and a small trailing spacer holding the atlas inset.
+ROW_WRAP = {
+    "edited-files-card": [
+        ("files_card", "stats_1", ["file_1_add", "file_1_del"], 13.5),
+        ("files_card", "stats_2", ["file_2_add", "file_2_del"], 13.5),
+        ("files_card", "stats_3", ["file_3_add", "file_3_del"], 13.5),
+    ],
+    # the model value + its disclosure chevron as one right-anchored cluster
+    # (atlas: value 191..321, chevron 329..336.5 in the 348 card).
+    "settings-group": [
+        ("model_card", "model_row", ["t_pick", "pick_chev"], 15.0),
+    ],
+}
+
 
 VARIANTS = {   'thread-row': {   'short': {   'text': {'thread_1_label': 'Add session fork'},
                                    'flags': {'thread_1_surface': {'bg': 4294835709}}},
@@ -508,6 +560,49 @@ def apply_variant(tree, comp, variant):
                 c["x"] = round(c["x"] + dx, 2)
             if c.get("y") is not None:
                 c["y"] = round(c["y"] + dy, 2)
+    # Card #18d (外环补充): the #16c right-anchor wrapper emits
+    # `margin: Inset{top: a.y}`, where `a.y` must be PARENT-relative. The measure
+    # stage writes window-absolute y, so a right-anchored node nested under a
+    # parent at y>0 double-counts (the settings toggles inside `perm_card` at y=66
+    # landed at 168 = 66+102). Rebase each `alignx` node's y on its parent's y; a
+    # node whose parent is the root (y=0) is unchanged.
+    def _rebase(node):
+        for c in node.get("c", []) or []:
+            if c.get("alignx") == 1 and c.get("y") is not None:
+                # y feeds the #16c wrapper's `margin: top`, x feeds the child's
+                # right inset (`gap = parent_w - x - w`). Both must be
+                # PARENT-relative, but the measure stage writes them absolute, so
+                # a node nested under a parent at (px, py) lands at y+py and its
+                # gap is short by px (settings toggles: gap 7 -> flush at 540).
+                if c.get("t") not in ("text", "input"):
+                    c["y"] = round(c["y"] - (node.get("y") or 0.0), 2)
+                if c.get("x") is not None:
+                    c["x"] = round(c["x"] - (node.get("x") or 0.0), 2)
+            _rebase(c)
+    _rebase(tree)
+    # Card #18d: group the flagged adjacent text leaves into one fill-width flow
+    # row; a leading fill-spacer pushes the pair to the right, a trailing spacer
+    # holds the atlas inset.
+    for parent_id, row_id, kid_ids, inset in ROW_WRAP.get(comp, []):
+        parent = next((n for n in walk(tree) if n["id"] == parent_id), None)
+        kids = [n for n in walk(tree) if n["id"] in kid_ids]
+        if parent is None or len(kids) != len(kid_ids):
+            continue
+        y0 = min(k["y"] for k in kids)
+        h = max(k["h"] for k in kids)
+        row = {"t": "stack", "id": row_id, "x": 0.0, "y": y0, "w": parent.get("w", 0.0),
+               "h": h, "fillw": 1, "variant": "row", "c": []}
+        row["c"].append({"t": "stack", "id": row_id + "_spacer", "x": 0.0,
+                         "y": 0.0, "w": 8.0, "h": h, "fillw": 1})
+        for k in kids:
+            k["x"] = 0.0
+            k["y"] = 0.0
+            row["c"].append(k)
+        if inset:
+            row["c"].append({"t": "stack", "id": row_id + "_pad", "x": 0.0,
+                             "y": 0.0, "w": inset, "h": h})
+        parent["c"] = [c for c in parent.get("c", []) if c["id"] not in kid_ids]
+        parent.setdefault("c", []).append(row)
     if drops:
         def prune(node):
             node["c"] = [c for c in node.get("c", []) if c["id"] not in drops]
@@ -550,6 +645,16 @@ def build_workspace(comp, variant):
     # A dropped node must leave the semantic map too, or preflight reports it as
     # "absent from the composition".
     semantic["elements"] = [e for e in semantic["elements"] if e["id"] not in drops]
+    # Card #18d: register the row + its spacers so preflight stays green.
+    for _pid, row_id, _kids, _inset in ROW_WRAP.get(comp, []):
+        for rid in (row_id, row_id + "_spacer", row_id + "_pad"):
+            if rid in known:
+                continue
+            semantic["elements"].append({
+                "id": rid, "role": "layout",
+                "basis": "authored stack/text node (card #18d right-anchor row)",
+                "confidence": 1.0, "decision": "declared"})
+            known.add(rid)
     for parent_id, node in inserts:
         for n in walk(node):
             if n["id"] in known:
