@@ -257,14 +257,19 @@ impl NotificationHandler for ProjectionEnvelopeHandler {
 
         let timeline = &self.store.domains.session.timeline;
         match &env.payload {
-            // The user's own prompt becomes a `user.message` entry (card #13
-            // §4), which is also what the web does (`model.ts:340-350`).
+            // The user's own prompt becomes a `user.message` entry.
+            //
+            // Card #14 defect 1: the real server sends this at `seq 154`,
+            // BEHIND 153 delta frames (`trace.jsonl`), so arrival order puts it
+            // last. The web splices the canonical row in before its turn's
+            // first reply and dedups an optimistic row
+            // (`timeline/model.ts:1019-1043`, `upsertUser`), which
+            // [`Timeline::upsert_user_message`] reproduces.
             PayloadV2::UserMessage { text, files } => {
-                timeline.append_data(
+                timeline.upsert_user_message(
                     &session,
-                    Some(turn_id.clone()),
-                    EntryKind::USER_MESSAGE,
-                    text.clone(),
+                    &turn_id,
+                    text,
                     serde_json::json!({"files": files}),
                 );
             }
