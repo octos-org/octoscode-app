@@ -73,7 +73,7 @@ fn read(card: &cards::Card, rel: &str) -> Result<String, String> {
 /// `copy t03_text { class: user-copy, en: "Fix steer queue drop on reconnect" }`
 /// — only the quoted `en:` payload is replaced, so the card's authored
 /// structure, classes and kit are untouched.
-fn set_copy(card_src: &str, copy_id: &str, value: &str) -> Option<String> {
+pub(crate) fn set_copy(card_src: &str, copy_id: &str, value: &str) -> Option<String> {
     let needle = format!("copy {copy_id} {{");
     let start = card_src.find(&needle)?;
     let rest = &card_src[start..];

@@ -32,6 +32,7 @@ use octoscode_store::Store;
 
 pub mod bindings;
 pub mod cards;
+pub mod components;
 pub mod fallback;
 pub mod l0_host;
 pub mod flow;
