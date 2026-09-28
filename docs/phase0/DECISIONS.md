@@ -54,13 +54,23 @@ a native card can claim them (list in `parity-matrix.md`).
 234 walk rows from 49 Playwright specs. 226 need only a fixture server, 5 none, and **3 need a real model turn**
 (`dsflash`). 31 are web-only (browser mechanics) with reasons, to be reviewed rather than silently dropped.
 
-## D9. App shape: OPEN (spike #6 running)
-Two ways to ship inside OctoSense, both with cited recipes in `baseline.md` §5:
-- **(i) native `AppModule`** like appcard: Rust owns UI + protocol. It mounts design-flow L0 cards.
-- **(ii) contained OctoScript app + Rust host service** like Mail: the script app is the design-flow output
-  (App Hub isolate, manifest capabilities), and the host service owns the octos client and session store.
-Open question the spike answers: can a host service **stream** protocol notifications (`message/delta` etc.) into a
-contained script app? If not, (ii) can't carry a live timeline without new App Hub work.
+## D9. App shape: RECOMMENDED, needs operator decision (evidence: `docs/spike-d9/REPORT.md`, card #6 10/10)
+Both shapes were built as minimal apps, registered in the OctoSense desktop shell, connected to a local `octos serve`
+@ `a6ea8505` (`profile/local/create` → `session/open`), and driven headlessly (evidence + screenshots in `docs/spike-d9/evidence/`).
+
+| | (i) native `AppModule` | (ii) contained script app + host service |
+|---|---|---|
+| Streaming protocol → UI | **direct** (module owns the transport receiver) | **none today**: the isolate's `host` object has only `request` / `has` / `capabilities` (`makepad/widgets/src/splash_host.rs:243-335`, outer-verified). Needs a new `host.subscribe` upstream, or polling via `start_interval` as a stopgap |
+| Capability | none needed | `octoscode` isn't in App Hub's **closed** `KNOWN_CAPABILITIES` (`app-policy/src/manifest.rs:18`), so an upstream policy change is needed (News waits on the same, App-Hub#18) |
+| Design flow | via **L0 cards mounted by the host** (appcard's `l0_card.rs`/`l0_widgets.rs`/`l0_page_recipes.rs`; §8.5 Stage C "Rust host mounts the L0 cards (AppShell pattern)") | native target of `flows/script-app` + `tools/octo` |
+| Size of the spike | 283 LOC, 5 files outside the app dir | 336 LOC, 3 files outside |
+
+**Outer-loop recommendation: (i) native `AppModule` that mounts design-flow L0 cards**, which is exactly §8.5 Stage C.
+Reasons: octoscode is push-driven (streaming `message/delta`, tool progress, approvals, goal/loop/agent updates:
+~49 notification kinds), and (ii) can't carry any of that without two upstream App Hub changes (a push channel +
+a capability family). Every screen still goes image → ≥ 9/10 → L0 mapping. Only the host is Rust. Revisit (ii) when
+App Hub gains `host.subscribe` (it would suit read-mostly panels, e.g. settings, as separate bundles).
+The lane recommended (ii). Its premise that the design flow can't feed shape (i) overlooks the L0-card path above.
 
 ## D10. Dependency route: DECIDED (evidence: `baseline.md` §4)
 Depend on `octos-app-transport` / `octos-app-store` by **git + pinned rev** of `OctoSense-org/OctoSense`. Proved to
