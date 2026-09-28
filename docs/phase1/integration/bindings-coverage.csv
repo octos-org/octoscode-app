@@ -1,0 +1,25 @@
+id,type,used_by,store_query_or_action,native_status,native_impl,test
+threads,list,conversation-01,Store::sessions(),exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+threads[].title,text,conversation-01,Store::sessions()[i].title,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+threads[].active,bool,conversation-01,Store::active_session() == sessions[i].id,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+threads.active,text,conversation-01,Store::active_session(),exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+turn.steer,action,"conversation-03,conversation-08",turn/steer,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+turn.interrupt,action,"conversation-03,conversation-08",turn/interrupt,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+turn.active,bool,"conversation-03,conversation-08",Store::sessions()[active].active_turn,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+timeline.entries,list,"conversation-03,conversation-09",Store::timeline(active),exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+timeline.entries[].text,text,"conversation-03,conversation-09",Store::timeline(active)[i].text,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+timeline.entries[].kind,text,conversation-03,Store::timeline(active)[i].kind,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+turn.activity,text,conversation-03,Store::live_text(active) + elapsed,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+composer.draft,text,"conversation-03,conversation-08",store session draft,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+composer.submit,action,conversation-08,turn/start,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+composer.placeholder,text,conversation-08,static copy,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+tools,list,conversation-04,Store::seen / tool/* notifications,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+tools[].summary,text,conversation-04,tool summary text,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+tools[].status,text,conversation-04,tool/completed vs tool/progress,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+tools[].expanded,bool,conversation-04,UI-local toggle,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+tool.output,list,conversation-04,tool output lines,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+answer.worked_for,text,conversation-09,turn duration,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+answer.timestamp,text,conversation-09,turn.completed at,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+answer.expand,action,conversation-09,UI-local expand,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+approval.pending,bool,conversation-05,approval/requested seen,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
+question.pending,bool,conversation-06,user_question/requested seen,exists,crates/octoscode-module/src/bindings.rs,crates/octoscode-module/src/bindings.rs::tests
