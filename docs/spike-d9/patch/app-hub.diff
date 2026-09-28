@@ -1,0 +1,14 @@
+diff --git a/crates/app-policy/src/manifest.rs b/crates/app-policy/src/manifest.rs
+index 849a492..4f24b3f 100644
+--- a/crates/app-policy/src/manifest.rs
++++ b/crates/app-policy/src/manifest.rs
+@@ -43,6 +43,9 @@ pub const KNOWN_CAPABILITIES: &[&str] = &[
+     // person signs in to on the host's own sheet. The app never holds the
+     // password or the connection.
+     "mail",
++    // D9 SPIKE ONLY: the `octoscode` host service family. Added in a local
++    // copy of App Hub to prove the contained-app shape; NOT a real capability.
++    "octoscode",
+     // See and arrange the assistant's LLM providers through the host's llm
+     // service. Keys are typed, shown as a QR and scanned only on the host's
+     // own sheets; the app sees masked status, never a key.

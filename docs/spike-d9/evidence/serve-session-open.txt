@@ -1,0 +1,2 @@
+2026-09-28T03:31:21.961921Z DEBUG appui context manager loaded for session open session=octoscode:logprobe ledger_status=Loaded
+2026-09-28T03:31:21.962509Z DEBUG bootstrap snapshot written after full replay target="octos::ledger" session_id=octoscode:logprobe
