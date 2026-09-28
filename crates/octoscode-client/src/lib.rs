@@ -18,6 +18,7 @@
 //! falls through to the built-in tolerated-unknown arm (logged, never fatal).
 mod method;
 pub mod domains;
+pub mod features;
 pub mod registry;
 
 pub use method::Method;

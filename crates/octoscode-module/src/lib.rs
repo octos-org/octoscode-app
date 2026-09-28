@@ -28,6 +28,7 @@ use octoscode_store::Store;
 use url::Url;
 
 pub mod bindings;
+pub mod flow;
 
 script_mod! {
     use mod.prelude.widgets.*
