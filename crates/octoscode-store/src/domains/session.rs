@@ -44,6 +44,10 @@ pub struct BridgedEvent {
     pub payload: serde_json::Value,
 }
 
+/// **Not wired (2026-09-28):** `session/goal/*` is owned by the autonomy domain
+/// (`store.domains.autonomy`); this projection stays only for its unit tests
+/// and will be removed. Bind the UI to autonomy's goal state.
+///
 /// The persisted goal projection, plus the #1959 generation gate.
 ///
 /// `SessionGoalUpdatedEvent`/`SessionGoalClearedEvent` (`ui_protocol.rs:5936`

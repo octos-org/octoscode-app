@@ -10,7 +10,7 @@
 //! `session/rollback`, `session/status/read`, `session/compact`,
 //! `session/compact/mode/set` (the last two are AppUI extensions), and the
 //! notifications `session/event`, `session/orchestration`,
-//! `session/goal/updated`, `session/goal/cleared`.
+//! (`session/goal/*` is owned by the autonomy domain.)
 //!
 //! **The new store shape (card #10):** the handler writes through its own
 //! domain (`store.domains.session`); the store's flat convenience methods
@@ -326,51 +326,10 @@ impl NotificationHandler for SessionOrchestrationHandler {
     }
 }
 
-/// `session/goal/updated` — the persisted goal changed
-/// (`SessionGoalUpdatedEvent`, `ui_protocol.rs:5936`). The generation gate is
-/// applied in the store (a stale update never resurrects a cleared goal).
-pub struct SessionGoalUpdatedHandler {
-    pub store: Arc<Store>,
-}
-
-impl NotificationHandler for SessionGoalUpdatedHandler {
-    const METHOD: &'static str = methods::SESSION_GOAL_UPDATED;
-    fn handle(&self, notification: &UiNotification) {
-        if let UiNotification::SessionGoalUpdated(event) = notification {
-            self.store.note_seen(Self::METHOD);
-            self.store.domains.session.apply_goal_update(
-                &event.session_id.0,
-                event.generation,
-                Some(serde_json::to_value(&event.goal).unwrap_or(serde_json::Value::Null)),
-            );
-        }
-    }
-}
-
-/// `session/goal/cleared` — the persisted goal was cleared
-/// (`SessionGoalClearedEvent`, `ui_protocol.rs:5953`).
-pub struct SessionGoalClearedHandler {
-    pub store: Arc<Store>,
-}
-
-impl NotificationHandler for SessionGoalClearedHandler {
-    const METHOD: &'static str = methods::SESSION_GOAL_CLEARED;
-    fn handle(&self, notification: &UiNotification) {
-        if let UiNotification::SessionGoalCleared(event) = notification {
-            self.store.note_seen(Self::METHOD);
-            self.store
-                .domains
-                .session
-                .apply_goal_clear(&event.session_id.0, event.generation);
-        }
-    }
-}
 
 /// Register this domain's notification handlers.
 pub fn register(reg: &mut Registry, store: Arc<Store>) {
     reg.register(SessionOpenedHandler { store: store.clone() });
     reg.register(SessionEventBridgedHandler { store: store.clone() });
     reg.register(SessionOrchestrationHandler { store: store.clone() });
-    reg.register(SessionGoalUpdatedHandler { store: store.clone() });
-    reg.register(SessionGoalClearedHandler { store });
 }

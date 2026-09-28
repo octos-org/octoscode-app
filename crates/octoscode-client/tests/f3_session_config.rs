@@ -429,37 +429,6 @@ fn session_orchestration_notification_reaches_the_store() {
 }
 
 #[test]
-fn session_goal_updated_and_cleared_notifications_carry_the_generation_gate() {
-    let (mut reg, store) = wired();
-    let goal = serde_json::json!({
-        "goal_id": "g1", "objective": "ship F3", "status": "active",
-        "token_budget": 0, "tokens_used": 0, "time_used_seconds": 0,
-        "created_at_ms": 0, "updated_at_ms": 0
-    });
-    // generation 5 update applies.
-    assert!(reg.dispatch(&notification(
-        "session/goal/updated",
-        serde_json::json!({"session_id": "c:c1", "goal": goal, "generation": 5, "transition_actor": "model"}),
-    )));
-    assert_eq!(store.domains.session.goal("c:c1").unwrap()["goal_id"], "g1");
-
-    // generation 4 update is stale -> dropped, goal unchanged.
-    assert!(reg.dispatch(&notification(
-        "session/goal/updated",
-        serde_json::json!({"session_id": "c:c1", "goal": goal, "generation": 4, "transition_actor": "model"}),
-    )));
-    assert_eq!(store.domains.session.goal_generation("c:c1"), 5);
-
-    // generation 6 clear applies -> goal gone.
-    assert!(reg.dispatch(&notification(
-        "session/goal/cleared",
-        serde_json::json!({"session_id": "c:c1", "generation": 6, "transition_actor": "operator"}),
-    )));
-    assert!(store.domains.session.goal("c:c1").is_none());
-    assert_eq!(store.domains.session.goal_generation("c:c1"), 6);
-}
-
-#[test]
 fn replay_lossy_notification_reaches_the_store() {
     let (mut reg, store) = wired();
     let n = notification(
@@ -493,8 +462,11 @@ fn warning_notification_reaches_the_store() {
 #[test]
 fn a_deliberately_unstored_notification_still_reaches_the_tolerated_arm() {
     // 8.8 condition 7: anything this lane does not store must still be logged
-    // by name, never silently dropped. `agent/updated` belongs to another lane.
-    let (mut reg, _store) = wired();
+    // by name, never silently dropped. The SESSION domain alone must not claim
+    // another domain's notification (`agent/updated` is owned by autonomy).
+    let store = Arc::new(Store::new());
+    let mut reg = octoscode_client::Registry::new();
+    octoscode_client::domains::session::register(&mut reg, store);
     let n = notification(
         "agent/updated",
         serde_json::json!({
@@ -507,6 +479,6 @@ fn a_deliberately_unstored_notification_still_reaches_the_tolerated_arm() {
             }
         }),
     );
-    assert!(!reg.dispatch(&n), "no handler claims it -> tolerated-unknown");
+    assert!(!reg.dispatch(&n), "the session domain does not claim it -> tolerated-unknown");
     assert_eq!(reg.unknown_methods(), &["agent/updated".to_string()]);
 }
