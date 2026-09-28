@@ -1,0 +1,245 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "worked_row",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "button",
+      "component": "NativeButton939d519a17bf",
+      "semantic_role": "button",
+      "bounds": [
+        17.94,
+        34.86,
+        196.44,
+        38.64
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_0_0",
+      "parent": "worked_row",
+      "kind": "text",
+      "component": "Textb3c7b3552785",
+      "semantic_role": "text",
+      "bounds": [
+        26.368288060644346,
+        41.5,
+        178.0,
+        24.0
+      ],
+      "text": "Worked for 3m 4s \u203a",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 25.87492103600758
+    },
+    {
+      "source_id": "t02",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text36d364e24c7e",
+      "semantic_role": "text",
+      "bounds": [
+        27.046754020250148,
+        110.5,
+        323.0,
+        24.0
+      ],
+      "text": "Queued steers now survive a reconnect.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 24.39547349612865
+    },
+    {
+      "source_id": "t03",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textdf1a5af79db9",
+      "semantic_role": "text",
+      "bounds": [
+        26.264408493427705,
+        171.0,
+        301.0,
+        29.0
+      ],
+      "text": "\u2022 Fixed loss of queuedsteers when",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 25.88473205257836
+    },
+    {
+      "source_id": "t04",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textad17ce310e92",
+      "semantic_role": "text",
+      "bounds": [
+        51.06643356643357,
+        210.0,
+        234.5,
+        28.5
+      ],
+      "text": "reconnecting after a drop in",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 25.062937062937063
+    },
+    {
+      "source_id": "t05",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text41f0641eda64",
+      "semantic_role": "text",
+      "bounds": [
+        60.191569914184754,
+        254.0,
+        217.0,
+        28.0
+      ],
+      "text": "steer_dropped handling.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 24.81171125694094
+    },
+    {
+      "source_id": "t06",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text16dbd377bf97",
+      "semantic_role": "text",
+      "bounds": [
+        26.16428206438426,
+        319.0,
+        336.5,
+        29.5
+      ],
+      "text": "\u2022 Updated ui_protocol_transport.rs",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 26.685743484925908
+    },
+    {
+      "source_id": "t07",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texta87908f3c033",
+      "semantic_role": "text",
+      "bounds": [
+        51.74961676034747,
+        362.5,
+        257.5,
+        28.5
+      ],
+      "text": "to persist queued steers to the",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 25.63924374041901
+    },
+    {
+      "source_id": "t08",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text207aca9a7fbc",
+      "semantic_role": "text",
+      "bounds": [
+        51.1643109540636,
+        403.5,
+        125.5,
+        28.5
+      ],
+      "text": "session ledger.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 25.328621908127207
+    },
+    {
+      "source_id": "t09",
+      "native_id": "beauty_0_8",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textb33e49d69b37",
+      "semantic_role": "text",
+      "bounds": [
+        26.180497925311204,
+        468.0,
+        253.18392486662714,
+        29.0
+      ],
+      "text": "\u2022 All tests pass: 12 passed .",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 26.556016597510375
+    },
+    {
+      "source_id": "t10",
+      "native_id": "beauty_0_9",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textc5e8a9e6f0ae",
+      "semantic_role": "text",
+      "bounds": [
+        26.269308430085815,
+        533.0,
+        355.5,
+        29.0
+      ],
+      "text": "\u2022 Changes included in commit a6ea8505 .",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 25.84553255931348
+    },
+    {
+      "source_id": "t11",
+      "native_id": "beauty_0_10",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text7d50eb9afbf6",
+      "semantic_role": "text",
+      "bounds": [
+        267.056112202335,
+        663.5,
+        121.5,
+        28.0
+      ],
+      "text": "Sep 28, 9:41 PM",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 25.49208801394805
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "3a45caeaae0cdedc086e21519a5703e3f1585447edfbb5ce97c6594a122d4e27",
+  "mapping_basis": "mapped.json"
+}

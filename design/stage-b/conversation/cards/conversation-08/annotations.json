@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "829a53ebc3854b7200c2a4e0d713ebf76586f802deee43ca535060f28068b3d9",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      66.0,
+      586.0,
+      122.0,
+      47.0
+    ],
+    [
+      64.0,
+      584.0,
+      126.0,
+      51.0
+    ],
+    [
+      16.0,
+      476.0,
+      374.0,
+      180.0
+    ],
+    [
+      13.0,
+      474.0,
+      379.0,
+      185.0
+    ],
+    [
+      15.0,
+      409.0,
+      240.0,
+      55.0
+    ],
+    [
+      66.0,
+      251.0,
+      122.0,
+      46.0
+    ],
+    [
+      64.0,
+      248.0,
+      126.0,
+      52.0
+    ],
+    [
+      17.0,
+      130.0,
+      374.0,
+      190.0
+    ],
+    [
+      14.0,
+      127.0,
+      380.0,
+      196.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "composer_input",
+      "bounds": [
+        22.22,
+        158.56,
+        200.0,
+        46.07
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ]
+}

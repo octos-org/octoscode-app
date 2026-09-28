@@ -1,0 +1,118 @@
+{
+  "provider": "openai",
+  "model": "gpt-image-2",
+  "requested_size": [
+    2048,
+    3072
+  ],
+  "quality": "high",
+  "actual_size": [
+    2048,
+    3072
+  ],
+  "requested_size_matches_actual": true,
+  "atlas_count": 1,
+  "performed_by_intake": false,
+  "provenance": "Provider/model/requested settings are caller declarations; dimensions and hashes are measured from the supplied bytes",
+  "image_sha256": "1661408367b8813229c284deac770d9dfa5d5c9c93f47a234b08e94bfc8170bf",
+  "atlas_sha256": "4d40773906ee473000ab204d83b1e5f137f167515366124164f67a4322d8cb13",
+  "prompt_sha256": "f8b61ed21c5f4ea6f5add89edff35d3149f501c63453d46c706bcef43c94495c",
+  "source_manifest_sha256": "51ca03030911cb5c8797a1cf8778cf4b3ab8756c645cc0dabe70580615719c5c",
+  "source_crop": [
+    529,
+    80,
+    466,
+    874
+  ],
+  "normalization": {
+    "coordinate_convention": "continuous top-left pixel-boundary coordinates; affine arrays are [a,b,c,d,e,f]",
+    "method": "uniform affine contain",
+    "resampler": "Pillow BICUBIC",
+    "source_crop_pixels": [
+      529,
+      80,
+      466,
+      874
+    ],
+    "source_crop_size": [
+      466,
+      874
+    ],
+    "artboard": [
+      406,
+      776
+    ],
+    "pixel_ratio": 2,
+    "reference_size": [
+      812,
+      1552
+    ],
+    "uniform_scale": 1.742489270386266,
+    "offset_pixels": [
+      0.0,
+      14.532188841201787
+    ],
+    "content_bounds_pixels": [
+      0.0,
+      14.532188841201787,
+      812.0,
+      1522.9356223175964
+    ],
+    "crop_to_reference_pixels": [
+      1.742489270386266,
+      0,
+      0.0,
+      0,
+      1.742489270386266,
+      14.532188841201787
+    ],
+    "reference_pixels_to_crop": [
+      0.5738916256157636,
+      0,
+      -0.0,
+      0,
+      0.5738916256157636,
+      -8.339901477832553
+    ],
+    "atlas_to_reference_pixels": [
+      1.742489270386266,
+      0,
+      -921.7768240343347,
+      0,
+      1.742489270386266,
+      -124.8669527896995
+    ],
+    "reference_pixels_to_atlas": [
+      0.5738916256157636,
+      0,
+      529.0,
+      0,
+      0.5738916256157636,
+      71.66009852216744
+    ],
+    "atlas_to_logical": [
+      0.871244635193133,
+      0,
+      -460.88841201716735,
+      0,
+      0.871244635193133,
+      -62.43347639484975
+    ],
+    "logical_to_atlas": [
+      1.1477832512315271,
+      0,
+      529.0,
+      0,
+      1.1477832512315271,
+      71.66009852216744
+    ],
+    "matte_rgb": [
+      240,
+      245,
+      242
+    ],
+    "stretched": false,
+    "reference_resampled": true
+  },
+  "note": "Derived reference from one atlas; no independent screen generation"
+}

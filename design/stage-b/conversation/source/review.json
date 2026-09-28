@@ -1,0 +1,6 @@
+{"version":"v3","reviewer":"outer loop (Claude, vision)","against":"outer/codex-refs 00-06 (private Codex window captures)","score":8.5,
+ "decision":"operator sign-off requested (below the 9/10 bar on typography only)",
+ "per_screen":{"1":9,"2":9,"3":9,"4":8.5,"5":9,"6":9.5,"7":9,"8":9,"9":8.5,"10":8.5,"11":9,"12":9},
+ "fixed_since_v2":["approval: full-width stacked buttons","composer states keep the model picker"],
+ "remaining":["condensed letterforms in every screen, persistent across 3 prompts naming SF Pro/Inter explicitly: an image-model bias. The flow rebuilds all text as native Labels in the bundled font, so Gate B (native render vs this image) is where typography is truly judged."],
+ "generations":[{"v":1,"size":"1024x1536","output_image_tokens":5488},{"v":2,"size":"2048x3072","output_image_tokens":12736},{"v":3,"size":"2048x3072","output_image_tokens":12736}]}

@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "fe2a07008abd5030ea7578123a3a20b4540bb1f7b61ddc0df0f3c1c66d7401b6",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t01",
+      "expected_text": "Goal \u2022 Fix steer queue on reconnect \u2022 18m",
+      "requested_bounds": [
+        33.83,
+        36.0,
+        254.88,
+        23.25
+      ],
+      "status": "observed",
+      "ocr_text": "Goal \u2022 Fix steer queue on reconnect \u2022 18m",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        34.5,
+        35.5,
+        252.5,
+        21.0
+      ],
+      "ink_color": [
+        97,
+        97,
+        98
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        33.83333346297309,
+        35.99999988693141,
+        254.87777709960938,
+        21.52325630187987
+      ]
+    },
+    {
+      "id": "t02",
+      "expected_text": "Plan \u2022 3 of 5",
+      "requested_bounds": [
+        33.73,
+        151.77,
+        103.95,
+        24.21
+      ],
+      "status": "observed",
+      "ocr_text": "Plan \u2022 3 of 5",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        36.0,
+        153.0,
+        100.0,
+        20.0
+      ],
+      "ink_color": [
+        44,
+        45,
+        45
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        33.733765791665206,
+        151.77462071267155,
+        103.95468902587889,
+        22.415874481201115
+      ]
+    },
+    {
+      "id": "t03",
+      "expected_text": "Reproduce reconnect drop",
+      "requested_bounds": [
+        82.33,
+        235.5,
+        198.49,
+        25.92
+      ],
+      "status": "observed",
+      "ocr_text": "Reproduce reconnect drop",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        88.0,
+        236.5,
+        190.5,
+        22.0
+      ],
+      "ink_color": [
+        21,
+        21,
+        22
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        82.32777807551503,
+        235.49999989174685,
+        198.4888916015625,
+        24.0
+      ]
+    },
+    {
+      "id": "t04",
+      "expected_text": "Trace steer queue lifecycle",
+      "requested_bounds": [
+        85.71,
+        321.45,
+        192.85,
+        25.58
+      ],
+      "status": "observed",
+      "ocr_text": "Trace steer queue lifecycle",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        86.5,
+        322.0,
+        190.5,
+        22.5
+      ],
+      "ink_color": [
+        21,
+        21,
+        21
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        85.71111566458114,
+        321.45348849692215,
+        192.84999084472656,
+        23.686046600341733
+      ]
+    },
+    {
+      "id": "t05",
+      "expected_text": "Write failing test",
+      "requested_bounds": [
+        85.71,
+        407.0,
+        124.06,
+        27.0
+      ],
+      "status": "observed",
+      "ocr_text": "Write failing test",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        87.0,
+        408.0,
+        120.0,
+        22.5
+      ],
+      "ink_color": [
+        40,
+        40,
+        41
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        85.71111057667221,
+        407.0000003374615,
+        124.05555725097658,
+        25.000000000000085
+      ]
+    },
+    {
+      "id": "t06",
+      "expected_text": "Implement durable queue",
+      "requested_bounds": [
+        77.82,
+        494.0,
+        197.36,
+        25.61
+      ],
+      "status": "observed",
+      "ocr_text": "Implement durable queue",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        88.5,
+        494.5,
+        184.0,
+        22.0
+      ],
+      "ink_color": [
+        33,
+        32,
+        33
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        77.81666332656977,
+        493.99999953351124,
+        197.36111450195312,
+        23.709302902221765
+      ]
+    },
+    {
+      "id": "t07",
+      "expected_text": "Run full suite and push",
+      "requested_bounds": [
+        87.97,
+        579.5,
+        166.91,
+        24.84
+      ],
+      "status": "observed",
+      "ocr_text": "Run full suite and push",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        90.0,
+        580.0,
+        162.5,
+        22.5
+      ],
+      "ink_color": [
+        41,
+        41,
+        41
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        87.96667179371963,
+        579.499999653062,
+        166.91110229492188,
+        23.000000000000004
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4293981682
+    }
+  ],
+  "unmapped_ocr": [],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

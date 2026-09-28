@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "composer_input",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "input",
+      "component": "Inputedacf1c2a927",
+      "semantic_role": "input",
+      "bounds": [
+        22.22,
+        158.56,
+        200.0,
+        46.07
+      ],
+      "text": "",
+      "enabled": 1,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 21.65
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_0_0",
+      "parent": "composer_input",
+      "kind": "text",
+      "component": "Text83df3ff13072",
+      "semantic_role": "text",
+      "bounds": [
+        31.850973539690465,
+        165.5,
+        163.5,
+        30.0
+      ],
+      "text": "Ask Octos anything",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 26.58412381427858
+    },
+    {
+      "source_id": "t02",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texta654002a6f5a",
+      "semantic_role": "text",
+      "bounds": [
+        14.021739130434783,
+        254.0,
+        53.95652173913044,
+        46.0
+      ],
+      "text": "+",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 89.04347826086956
+    },
+    {
+      "source_id": "t03",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text8d9bb6c4e4e4",
+      "semantic_role": "text",
+      "bounds": [
+        78.0005055611729,
+        265.5,
+        101.5,
+        23.0
+      ],
+      "text": "Ask for approval",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 19.672396359959556
+    },
+    {
+      "source_id": "t04",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textc2e2836f4b52",
+      "semantic_role": "text",
+      "bounds": [
+        215.58406690140845,
+        268.5,
+        73.35025430359937,
+        21.5
+      ],
+      "text": "v4-flash \u25be",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15.774647887323944
+    },
+    {
+      "source_id": "t05",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text109c7ab1b72a",
+      "semantic_role": "text",
+      "bounds": [
+        32.007915567282325,
+        425.5,
+        209.97671217161866,
+        27.5
+      ],
+      "text": "1 queued \u00b7 Steer now \u00b7 \u2715",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 21.164467897977133
+    },
+    {
+      "source_id": "t06",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textf961f14f188a",
+      "semantic_role": "text",
+      "bounds": [
+        31.365069356872635,
+        506.0,
+        236.0,
+        24.0
+      ],
+      "text": "also add a test for reconnect",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 25.825977301387137
+    },
+    {
+      "source_id": "t07",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texte77a361e1713",
+      "semantic_role": "text",
+      "bounds": [
+        27.15527950310559,
+        597.5,
+        27.689440993788818,
+        28.0
+      ],
+      "text": "+",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 50.88198757763975
+    },
+    {
+      "source_id": "t08",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text2186a64ff5b3",
+      "semantic_role": "text",
+      "bounds": [
+        78.0005055611729,
+        601.0,
+        102.0,
+        23.0
+      ],
+      "text": "Ask for approval",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 19.672396359959556
+    },
+    {
+      "source_id": "t09",
+      "native_id": "beauty_0_8",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text103b0e17e31a",
+      "semantic_role": "text",
+      "bounds": [
+        215.58406690140845,
+        603.0,
+        74.46136541471049,
+        21.5
+      ],
+      "text": "v4-flash \u25be",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15.774647887323944
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242"
+  },
+  "contract_sha256": "dc10c09f61d8dbc84dae2ef931f5226561b5f8a1a7f4fd6b2619671fbfa41b7a",
+  "mapping_basis": "mapped.json"
+}

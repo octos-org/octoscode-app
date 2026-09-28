@@ -1,0 +1,134 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "t01": {
+        "component": "Text4a3ecddb8000",
+        "layout": {
+          "x": 22.98825831702544,
+          "y": 46.5,
+          "w": 150.0,
+          "h": 26.5
+        }
+      },
+      "new_chat": {
+        "component": "NativeButton939d519a17bf",
+        "layout": {
+          "x": 27.95,
+          "y": 129.02,
+          "w": 103.12,
+          "h": 38.6
+        }
+      },
+      "t02": {
+        "component": "Text272e9dc0441e",
+        "layout": {
+          "x": 36.24406332453826,
+          "y": 136.0,
+          "w": 86.0,
+          "h": 23.0
+        }
+      },
+      "thread_1": {
+        "component": "NativeButton939d519a17bf",
+        "layout": {
+          "x": 24.22,
+          "y": 221.5,
+          "w": 325.33,
+          "h": 48.5
+        }
+      },
+      "t03": {
+        "component": "Text9914a6d576d0",
+        "layout": {
+          "x": 36.29253960143076,
+          "y": 231.0,
+          "w": 302.0,
+          "h": 28.0
+        }
+      },
+      "thread_2": {
+        "component": "NativeButton939d519a17bf",
+        "layout": {
+          "x": 26.96,
+          "y": 305.5,
+          "w": 161.48,
+          "h": 37.5
+        }
+      },
+      "t04": {
+        "component": "Textf877b5725cc3",
+        "layout": {
+          "x": 36.39267676767677,
+          "y": 312.0,
+          "w": 145.5,
+          "h": 22.5
+        }
+      },
+      "thread_3": {
+        "component": "NativeButton939d519a17bf",
+        "layout": {
+          "x": 28.09,
+          "y": 386.77,
+          "w": 164.87,
+          "h": 40.81
+        }
+      },
+      "t05": {
+        "component": "Text794302f84e15",
+        "layout": {
+          "x": 35.81190019193858,
+          "y": 395.5,
+          "w": 149.5,
+          "h": 23.0
+        }
+      },
+      "thread_4": {
+        "component": "NativeButton939d519a17bf",
+        "layout": {
+          "x": 28.09,
+          "y": 473.5,
+          "w": 274.26,
+          "h": 42.06
+        }
+      },
+      "t06": {
+        "component": "Text6c25d3b6d21d",
+        "layout": {
+          "x": 35.71265560165975,
+          "y": 480.5,
+          "w": 258.5,
+          "h": 28.5
+        }
+      },
+      "thread_5": {
+        "component": "NativeButton939d519a17bf",
+        "layout": {
+          "x": 26.96,
+          "y": 557.0,
+          "w": 195.32,
+          "h": 43.15
+        }
+      },
+      "t07": {
+        "component": "Text3bcc9ac8d090",
+        "layout": {
+          "x": 35.864885496183206,
+          "y": 564.5,
+          "w": 179.5,
+          "h": 28.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

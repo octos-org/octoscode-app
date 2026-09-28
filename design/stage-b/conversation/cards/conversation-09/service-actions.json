@@ -1,0 +1,16 @@
+{
+  "frame_id": 9,
+  "controls": {
+    "worked_row": {
+      "event": "turn.expand",
+      "source_bounds": [
+        17,
+        34,
+        196,
+        38
+      ],
+      "enabled": true
+    }
+  },
+  "source": "completed-answer"
+}

@@ -1,0 +1,395 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "8d49354eb55c0b9134e6b27998b0cae234706a2744bc34be68baa2b106735383",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t01",
+      "expected_text": "Worked for 3m 4s \u203a",
+      "requested_bounds": [
+        25.93889069521046,
+        42.860464842219876,
+        180.44,
+        24.45
+      ],
+      "status": "observed",
+      "ocr_text": "Worked for 3m 4s \u203a",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        27.0,
+        43.5,
+        174.0,
+        20.0
+      ],
+      "ink_color": [
+        43,
+        43,
+        44
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        25.93889069521046,
+        42.860464842219876,
+        180.44444274902347,
+        22.639534950256305
+      ]
+    },
+    {
+      "id": "t02",
+      "expected_text": "Queued steers now survive a reconnect.",
+      "requested_bounds": [
+        28.04,
+        111.25,
+        322.88,
+        27.3
+      ],
+      "status": "observed",
+      "ocr_text": "Queued steers now survive a reconnect.",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        28.5,
+        112.5,
+        319.0,
+        20.0
+      ],
+      "ink_color": [
+        24,
+        23,
+        24
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        28.036065173031233,
+        111.25377664139029,
+        322.8832092285157,
+        25.27999210357673
+      ]
+    },
+    {
+      "id": "t03",
+      "expected_text": "\u2022 Fixed loss of queuedsteers when",
+      "requested_bounds": [
+        19.33,
+        171.37,
+        312.56,
+        33.0
+      ],
+      "status": "observed",
+      "ocr_text": "\u2022 Fixed loss of queuedsteers when",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        29.5,
+        173.0,
+        297.0,
+        25.0
+      ],
+      "ink_color": [
+        46,
+        46,
+        46
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        19.333336208073007,
+        171.3666673832829,
+        312.5555419921875,
+        32.33333206176762
+      ]
+    },
+    {
+      "id": "t04",
+      "expected_text": "reconnecting after a drop in",
+      "requested_bounds": [
+        45.11,
+        210.0,
+        241.67,
+        33.0
+      ],
+      "status": "observed",
+      "ocr_text": "reconnecting after a drop in",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        53.0,
+        212.0,
+        230.5,
+        24.5
+      ],
+      "ink_color": [
+        33,
+        32,
+        33
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        45.11111317654087,
+        209.9999994450505,
+        241.6666564941406,
+        32.49999999999997
+      ]
+    },
+    {
+      "id": "t05",
+      "expected_text": "steer_dropped handling.",
+      "requested_bounds": [
+        54.78,
+        252.0,
+        219.11,
+        33.0
+      ],
+      "status": "observed",
+      "ocr_text": "steer_dropped handling.",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        61.5,
+        256.0,
+        213.0,
+        24.0
+      ],
+      "ink_color": [
+        42,
+        42,
+        43
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        54.77777425643089,
+        252.00000003451004,
+        219.11111450195318,
+        32.53333282470701
+      ]
+    },
+    {
+      "id": "t06",
+      "expected_text": "\u2022 Updated ui_protocol_transport.rs",
+      "requested_bounds": [
+        22.56,
+        320.0,
+        341.56,
+        33.0
+      ],
+      "status": "observed",
+      "ocr_text": "\u2022 Updated ui_protocol_transport.rs",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        29.5,
+        321.0,
+        332.5,
+        25.5
+      ],
+      "ink_color": [
+        48,
+        48,
+        49
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        22.55556129001738,
+        320.0000006584798,
+        341.5555419921875,
+        32.50000000000006
+      ]
+    },
+    {
+      "id": "t07",
+      "expected_text": "to persist queued steers to the",
+      "requested_bounds": [
+        49.62,
+        364.31,
+        258.26,
+        26.8
+      ],
+      "status": "observed",
+      "ocr_text": "to persist queued steers to the",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        52.0,
+        364.5,
+        253.5,
+        24.5
+      ],
+      "ink_color": [
+        12,
+        12,
+        13
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        49.62222616117009,
+        364.31395348761276,
+        258.2611083984375,
+        24.813953399658182
+      ]
+    },
+    {
+      "id": "t08",
+      "expected_text": "session ledger.",
+      "requested_bounds": [
+        50.61,
+        404.21,
+        127.71,
+        28.34
+      ],
+      "status": "observed",
+      "ocr_text": "session ledger.",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        52.5,
+        405.5,
+        121.5,
+        24.5
+      ],
+      "ink_color": [
+        17,
+        17,
+        17
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        50.61489538651256,
+        404.20509970138806,
+        127.70909881591797,
+        26.24096298217771
+      ]
+    },
+    {
+      "id": "t09",
+      "expected_text": "\u2022 All tests pass: 12 passed .",
+      "requested_bounds": [
+        25.94,
+        469.0,
+        256.01,
+        28.24
+      ],
+      "status": "observed",
+      "ocr_text": "\u2022 All tests pass: 12 passed .",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        29.5,
+        470.0,
+        249.0,
+        25.0
+      ],
+      "ink_color": [
+        42,
+        43,
+        43
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        25.938887593446225,
+        469.0000002506863,
+        256.00555419921875,
+        26.15116214752202
+      ]
+    },
+    {
+      "id": "t10",
+      "expected_text": "\u2022 Changes included in commit a6ea8505 .",
+      "requested_bounds": [
+        22.56,
+        533.5,
+        364.11,
+        33.0
+      ],
+      "status": "observed",
+      "ocr_text": "\u2022 Changes included in commit a6ea8505 .",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        29.5,
+        535.0,
+        351.5,
+        25.0
+      ],
+      "ink_color": [
+        41,
+        41,
+        41
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        22.555557501245573,
+        533.5000005711162,
+        364.1111145019531,
+        32.49999999999997
+      ]
+    },
+    {
+      "id": "t11",
+      "expected_text": "Sep 28, 9:41 PM",
+      "requested_bounds": [
+        266.0,
+        664.69,
+        122.11,
+        28.47
+      ],
+      "status": "observed",
+      "ocr_text": "Sep 28,9:41 PM",
+      "confidence": 1,
+      "text_similarity": 0.9655172413793104,
+      "ink_bounds": [
+        268.5,
+        665.5,
+        117.5,
+        24.0
+      ],
+      "ink_color": [
+        162,
+        162,
+        166
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        266.00263883735096,
+        664.6915194849121,
+        122.10583496093751,
+        26.36114692687982
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "worked_row",
+      "bounds": [
+        17.94,
+        34.86,
+        196.44,
+        38.64
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

@@ -1,0 +1,56 @@
+# ledger conversation-02@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t01_text { class: user-copy, en: "What should we" }
+copy t02_text { class: user-copy, en: "build in octos?" }
+copy t03_text { class: user-copy, en: "octos" }
+copy t04_text { class: user-copy, en: "Local" }
+copy t05_text { class: user-copy, en: "feat/steer-queue" }
+copy t06_text { class: user-copy, en: "Ask Octos anything" }
+copy t07_text { class: user-copy, en: "+" }
+copy t08_text { class: user-copy, en: "Ask for approval" }
+copy t09_text { class: user-copy, en: "v4-flash ▾" }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Text1311248550f9(instance: text, text: text) {
+  view Kit(component: "Text1311248550f9", instance: instance, text: text)
+}
+component Text7a134461b4d5(instance: text, text: text) {
+  view Kit(component: "Text7a134461b4d5", instance: instance, text: text)
+}
+component Texte78867f8f40f(instance: text, text: text) {
+  view Kit(component: "Texte78867f8f40f", instance: instance, text: text)
+}
+component Text7ac1c8a8a770(instance: text, text: text) {
+  view Kit(component: "Text7ac1c8a8a770", instance: instance, text: text)
+}
+component Text88ed4d6447f9(instance: text, text: text) {
+  view Kit(component: "Text88ed4d6447f9", instance: instance, text: text)
+}
+component Text22049ebf1464(instance: text, text: text) {
+  view Kit(component: "Text22049ebf1464", instance: instance, text: text)
+}
+component Text7e48d2fe2007(instance: text, text: text) {
+  view Kit(component: "Text7e48d2fe2007", instance: instance, text: text)
+}
+component Text3089c0db85de(instance: text, text: text) {
+  view Kit(component: "Text3089c0db85de", instance: instance, text: text)
+}
+component Textb2b7aefe6a92(instance: text, text: text) {
+  view Kit(component: "Textb2b7aefe6a92", instance: instance, text: text)
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Text1311248550f9(instance: "t01", text: copy.t01_text)
+  Text7a134461b4d5(instance: "t02", text: copy.t02_text)
+  Texte78867f8f40f(instance: "t03", text: copy.t03_text)
+  Text7ac1c8a8a770(instance: "t04", text: copy.t04_text)
+  Text88ed4d6447f9(instance: "t05", text: copy.t05_text)
+  Text22049ebf1464(instance: "t06", text: copy.t06_text)
+  Text7e48d2fe2007(instance: "t07", text: copy.t07_text)
+  Text3089c0db85de(instance: "t08", text: copy.t08_text)
+  Textb2b7aefe6a92(instance: "t09", text: copy.t09_text)
+}

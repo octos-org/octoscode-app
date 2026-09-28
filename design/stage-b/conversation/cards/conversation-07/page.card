@@ -1,0 +1,90 @@
+# ledger conversation-07@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t01_text { class: user-copy, en: "Edited 3 files" }
+copy t02_text { class: user-copy, en: "+62 -5" }
+copy t03_text { class: user-copy, en: "Undo 9" }
+copy t04_text { class: user-copy, en: "Review" }
+copy t05_text { class: user-copy, en: "crates/octos-cli/src/" }
+copy t06_text { class: user-copy, en: "api/ui_protocol_transport.rs" }
+copy t07_text { class: user-copy, en: "+31 -4" }
+copy t08_text { class: user-copy, en: "crates/octos-core/src/" }
+copy t09_text { class: user-copy, en: "ui_protocol.rs" }
+copy t10_text { class: user-copy, en: "+9 - 1" }
+copy t11_text { class: user-copy, en: "crates/octos-cli/tests/" }
+copy t12_text { class: user-copy, en: "steer_queue.rs" }
+copy t13_text { class: user-copy, en: "+22 -0" }
+copy t14_text { class: user-copy, en: "Show diff" }
+state undo_enabled { shape: bool, initial: true }
+state review_enabled { shape: bool, initial: true }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Text47853eea08ee(instance: text, text: text) {
+  view Kit(component: "Text47853eea08ee", instance: instance, text: text)
+}
+component Textd4348d6d02f2(instance: text, text: text) {
+  view Kit(component: "Textd4348d6d02f2", instance: instance, text: text)
+}
+component NativeButton939d519a17bf(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton939d519a17bf", instance: instance, enabled: enabled) { slot }
+}
+component Text6b5175996e72(instance: text, text: text) {
+  view Kit(component: "Text6b5175996e72", instance: instance, text: text)
+}
+component Text78ee3839a0d5(instance: text, text: text) {
+  view Kit(component: "Text78ee3839a0d5", instance: instance, text: text)
+}
+component Text67c89389bec3(instance: text, text: text) {
+  view Kit(component: "Text67c89389bec3", instance: instance, text: text)
+}
+component Text55b1a103a699(instance: text, text: text) {
+  view Kit(component: "Text55b1a103a699", instance: instance, text: text)
+}
+component Text59fabea31ee5(instance: text, text: text) {
+  view Kit(component: "Text59fabea31ee5", instance: instance, text: text)
+}
+component Text3e0092f3203c(instance: text, text: text) {
+  view Kit(component: "Text3e0092f3203c", instance: instance, text: text)
+}
+component Text5082d4aac92c(instance: text, text: text) {
+  view Kit(component: "Text5082d4aac92c", instance: instance, text: text)
+}
+component Texta3c79dd01225(instance: text, text: text) {
+  view Kit(component: "Texta3c79dd01225", instance: instance, text: text)
+}
+component Text7ed2f09dfeba(instance: text, text: text) {
+  view Kit(component: "Text7ed2f09dfeba", instance: instance, text: text)
+}
+component Text7828c64ddc45(instance: text, text: text) {
+  view Kit(component: "Text7828c64ddc45", instance: instance, text: text)
+}
+component Text7dc2df4a3369(instance: text, text: text) {
+  view Kit(component: "Text7dc2df4a3369", instance: instance, text: text)
+}
+component Textbcdcb74e9376(instance: text, text: text) {
+  view Kit(component: "Textbcdcb74e9376", instance: instance, text: text)
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Text47853eea08ee(instance: "t01", text: copy.t01_text)
+  Textd4348d6d02f2(instance: "t02", text: copy.t02_text)
+  NativeButton939d519a17bf(instance: "undo", enabled: undo_enabled) {
+    Text6b5175996e72(instance: "t03", text: copy.t03_text)
+  }
+  NativeButton939d519a17bf(instance: "review", enabled: review_enabled) {
+    Text78ee3839a0d5(instance: "t04", text: copy.t04_text)
+  }
+  Text67c89389bec3(instance: "t05", text: copy.t05_text)
+  Text55b1a103a699(instance: "t06", text: copy.t06_text)
+  Text59fabea31ee5(instance: "t07", text: copy.t07_text)
+  Text3e0092f3203c(instance: "t08", text: copy.t08_text)
+  Text5082d4aac92c(instance: "t09", text: copy.t09_text)
+  Texta3c79dd01225(instance: "t10", text: copy.t10_text)
+  Text7ed2f09dfeba(instance: "t11", text: copy.t11_text)
+  Text7828c64ddc45(instance: "t12", text: copy.t12_text)
+  Text7dc2df4a3369(instance: "t13", text: copy.t13_text)
+  Textbcdcb74e9376(instance: "t14", text: copy.t14_text)
+}

@@ -1,0 +1,64 @@
+# ledger conversation-08@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy composer_input_placeholder { class: user-copy, en: "Ask Octos anything" }
+copy composer_input_text { class: user-copy, en: "" }
+copy t01_text { class: user-copy, en: "Ask Octos anything" }
+copy t02_text { class: user-copy, en: "+" }
+copy t03_text { class: user-copy, en: "Ask for approval" }
+copy t04_text { class: user-copy, en: "v4-flash ▾" }
+copy t05_text { class: user-copy, en: "1 queued · Steer now · ✕" }
+copy t06_text { class: user-copy, en: "also add a test for reconnect" }
+copy t07_text { class: user-copy, en: "+" }
+copy t08_text { class: user-copy, en: "Ask for approval" }
+copy t09_text { class: user-copy, en: "v4-flash ▾" }
+state composer_input_enabled { shape: bool, initial: true }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Inputedacf1c2a927(instance: text, enabled: bool, placeholder: text, text: text) {
+  view Kit(component: "Inputedacf1c2a927", instance: instance, enabled: enabled, placeholder: placeholder, text: text) { slot }
+}
+component Text83df3ff13072(instance: text, text: text) {
+  view Kit(component: "Text83df3ff13072", instance: instance, text: text)
+}
+component Texta654002a6f5a(instance: text, text: text) {
+  view Kit(component: "Texta654002a6f5a", instance: instance, text: text)
+}
+component Text8d9bb6c4e4e4(instance: text, text: text) {
+  view Kit(component: "Text8d9bb6c4e4e4", instance: instance, text: text)
+}
+component Textc2e2836f4b52(instance: text, text: text) {
+  view Kit(component: "Textc2e2836f4b52", instance: instance, text: text)
+}
+component Text109c7ab1b72a(instance: text, text: text) {
+  view Kit(component: "Text109c7ab1b72a", instance: instance, text: text)
+}
+component Textf961f14f188a(instance: text, text: text) {
+  view Kit(component: "Textf961f14f188a", instance: instance, text: text)
+}
+component Texte77a361e1713(instance: text, text: text) {
+  view Kit(component: "Texte77a361e1713", instance: instance, text: text)
+}
+component Text2186a64ff5b3(instance: text, text: text) {
+  view Kit(component: "Text2186a64ff5b3", instance: instance, text: text)
+}
+component Text103b0e17e31a(instance: text, text: text) {
+  view Kit(component: "Text103b0e17e31a", instance: instance, text: text)
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Inputedacf1c2a927(instance: "composer_input", enabled: composer_input_enabled, placeholder: copy.composer_input_placeholder, text: copy.composer_input_text) {
+    Text83df3ff13072(instance: "t01", text: copy.t01_text)
+  }
+  Texta654002a6f5a(instance: "t02", text: copy.t02_text)
+  Text8d9bb6c4e4e4(instance: "t03", text: copy.t03_text)
+  Textc2e2836f4b52(instance: "t04", text: copy.t04_text)
+  Text109c7ab1b72a(instance: "t05", text: copy.t05_text)
+  Textf961f14f188a(instance: "t06", text: copy.t06_text)
+  Texte77a361e1713(instance: "t07", text: copy.t07_text)
+  Text2186a64ff5b3(instance: "t08", text: copy.t08_text)
+  Text103b0e17e31a(instance: "t09", text: copy.t09_text)
+}

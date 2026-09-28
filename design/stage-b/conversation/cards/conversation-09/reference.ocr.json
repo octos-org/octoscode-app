@@ -1,0 +1,118 @@
+{
+  "height": 1552,
+  "observations": [
+    {
+      "bounds": [
+        51.87778139042092,
+        85.72092968443975,
+        360.88888549804693,
+        45.27906990051261
+      ],
+      "confidence": 1,
+      "text": "Worked for 3m 4s \u203a"
+    },
+    {
+      "bounds": [
+        56.072130346062465,
+        222.50755328278058,
+        645.7664184570314,
+        50.55998420715346
+      ],
+      "confidence": 1,
+      "text": "Queued steers now survive a reconnect."
+    },
+    {
+      "bounds": [
+        38.666672416146014,
+        342.7333347665658,
+        625.111083984375,
+        64.66666412353524
+      ],
+      "confidence": 1,
+      "text": "\u2022 Fixed loss of queuedsteers when"
+    },
+    {
+      "bounds": [
+        90.22222635308174,
+        419.999998890101,
+        483.3333129882812,
+        64.99999999999994
+      ],
+      "confidence": 1,
+      "text": "reconnecting after a drop in"
+    },
+    {
+      "bounds": [
+        109.55554851286178,
+        504.0000000690201,
+        438.22222900390636,
+        65.06666564941402
+      ],
+      "confidence": 1,
+      "text": "steer_dropped handling."
+    },
+    {
+      "bounds": [
+        45.11112258003476,
+        640.0000013169596,
+        683.111083984375,
+        65.00000000000011
+      ],
+      "confidence": 1,
+      "text": "\u2022 Updated ui_protocol_transport.rs"
+    },
+    {
+      "bounds": [
+        99.24445232234018,
+        728.6279069752255,
+        516.522216796875,
+        49.627906799316364
+      ],
+      "confidence": 1,
+      "text": "to persist queued steers to the"
+    },
+    {
+      "bounds": [
+        101.22979077302512,
+        808.4101994027761,
+        255.41819763183594,
+        52.48192596435542
+      ],
+      "confidence": 1,
+      "text": "session ledger."
+    },
+    {
+      "bounds": [
+        51.87777518689245,
+        938.0000005013726,
+        512.0111083984375,
+        52.30232429504404
+      ],
+      "confidence": 1,
+      "text": "\u2022 All tests pass: 12 passed ."
+    },
+    {
+      "bounds": [
+        45.11111500249115,
+        1067.0000011422323,
+        728.2222290039062,
+        64.99999999999994
+      ],
+      "confidence": 1,
+      "text": "\u2022 Changes included in commit a6ea8505 ."
+    },
+    {
+      "bounds": [
+        532.0052776747019,
+        1329.3830389698242,
+        244.21166992187503,
+        52.72229385375964
+      ],
+      "confidence": 1,
+      "text": "Sep 28,9:41 PM"
+    }
+  ],
+  "width": 812,
+  "image_sha256": "8d49354eb55c0b9134e6b27998b0cae234706a2744bc34be68baa2b106735383",
+  "engine": "Apple Vision VNRecognizeTextRequest accurate, en-US"
+}

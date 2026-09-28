@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "f0c5063d5ef28d36e17bc1b77314478d4493a9a04897fbb6c050db5a10d7f874",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t01",
+      "expected_text": "Run this command?",
+      "requested_bounds": [
+        77.82,
+        98.0,
+        210.89,
+        29.37
+      ],
+      "status": "observed",
+      "ocr_text": "Run this command?",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        80.0,
+        97.5,
+        205.5,
+        23.0
+      ],
+      "ink_color": [
+        0,
+        0,
+        0
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        77.8166704822005,
+        97.99999963889367,
+        210.89443969726562,
+        27.197674751281735
+      ]
+    },
+    {
+      "id": "t02",
+      "expected_text": "git push origin feat/steer-queue",
+      "requested_bounds": [
+        29.0,
+        187.5,
+        328.67,
+        33.0
+      ],
+      "status": "observed",
+      "ocr_text": "git push origin feat/steer-queue",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        36.0,
+        190.0,
+        318.0,
+        25.0
+      ],
+      "ink_color": [
+        15,
+        15,
+        16
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        29.000008372929642,
+        187.4999991077272,
+        328.6666564941406,
+        32.49999999999997
+      ]
+    },
+    {
+      "id": "t03",
+      "expected_text": "Reason: Push the fix branch so Cl",
+      "requested_bounds": [
+        21.43,
+        276.34,
+        297.73,
+        23.4
+      ],
+      "status": "observed",
+      "ocr_text": "Reason: Push the fix branch so Cl",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        22.0,
+        276.5,
+        293.0,
+        19.5
+      ],
+      "ink_color": [
+        145,
+        145,
+        149
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        21.427778224383616,
+        276.3372089959478,
+        297.73333740234375,
+        21.662791252136337
+      ]
+    },
+    {
+      "id": "t04",
+      "expected_text": "can run",
+      "requested_bounds": [
+        19.14,
+        317.93,
+        66.6,
+        17.36
+      ],
+      "status": "observed",
+      "ocr_text": "can run",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        21.0,
+        319.0,
+        62.5,
+        13.5
+      ],
+      "ink_color": [
+        140,
+        140,
+        143
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        19.139545792825785,
+        317.9309528744846,
+        66.60424041748047,
+        16.068326950073235
+      ]
+    },
+    {
+      "id": "t05",
+      "expected_text": "Approve once",
+      "requested_bounds": [
+        136.3124928412235,
+        389.55116308171085,
+        125.48,
+        30.75
+      ],
+      "status": "observed",
+      "ocr_text": "Approve once",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        135.0,
+        388.5,
+        128.0,
+        31.0
+      ],
+      "ink_color": [
+        2,
+        2,
+        1
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        136.3124928412235,
+        389.55116308171085,
+        125.4805679321289,
+        28.479068756103487
+      ]
+    },
+    {
+      "id": "t06",
+      "expected_text": "Approve for session",
+      "requested_bounds": [
+        109.48380345210495,
+        471.664193697788,
+        180.59,
+        33.14
+      ],
+      "status": "observed",
+      "ocr_text": "Approve for session",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        114.0,
+        474.5,
+        171.5,
+        25.0
+      ],
+      "ink_color": [
+        7,
+        7,
+        7
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        109.48380345210495,
+        471.664193697788,
+        180.58795166015625,
+        33.13827896118165
+      ]
+    },
+    {
+      "id": "t07",
+      "expected_text": "Deny",
+      "requested_bounds": [
+        170.29444560238767,
+        552.6744189956219,
+        47.37,
+        29.23
+      ],
+      "status": "observed",
+      "ocr_text": "Deny",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        172.5,
+        553.5,
+        44.0,
+        25.0
+      ],
+      "ink_color": [
+        7,
+        6,
+        7
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        170.29444560238767,
+        552.6744189956219,
+        47.3666648864746,
+        27.069766998290994
+      ]
+    },
+    {
+      "id": "t08",
+      "expected_text": "Y /S / N",
+      "requested_bounds": [
+        153.38,
+        653.0,
+        78.94,
+        23.22
+      ],
+      "status": "observed",
+      "ocr_text": "Y /S / N",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        155.5,
+        653.0,
+        75.0,
+        20.5
+      ],
+      "ink_color": [
+        156,
+        155,
+        161
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        153.37777911889106,
+        653.0000004023032,
+        78.94444274902342,
+        21.50000000000001
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "approve_once",
+      "bounds": [
+        128.31,
+        381.55,
+        141.48,
+        44.48
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "approve_session",
+      "bounds": [
+        101.48,
+        463.66,
+        196.59,
+        49.14
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "deny",
+      "bounds": [
+        162.29,
+        544.67,
+        63.37,
+        43.07
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "height": 1552,
+  "observations": [
+    {
+      "bounds": [
+        67.66666692594617,
+        71.99999977386283,
+        509.75555419921875,
+        43.04651260375974
+      ],
+      "confidence": 1,
+      "text": "Goal \u2022 Fix steer queue on reconnect \u2022 18m"
+    },
+    {
+      "bounds": [
+        67.46753158333041,
+        303.5492414253431,
+        207.90937805175778,
+        44.83174896240223
+      ],
+      "confidence": 1,
+      "text": "Plan \u2022 3 of 5"
+    },
+    {
+      "bounds": [
+        164.65555615103005,
+        470.9999997834937,
+        396.977783203125,
+        48
+      ],
+      "confidence": 1,
+      "text": "Reproduce reconnect drop"
+    },
+    {
+      "bounds": [
+        171.4222313291623,
+        642.9069769938443,
+        385.6999816894531,
+        47.372093200683466
+      ],
+      "confidence": 1,
+      "text": "Trace steer queue lifecycle"
+    },
+    {
+      "bounds": [
+        171.42222115334442,
+        814.000000674923,
+        248.11111450195315,
+        50.00000000000017
+      ],
+      "confidence": 1,
+      "text": "Write failing test"
+    },
+    {
+      "bounds": [
+        155.63332665313953,
+        987.9999990670225,
+        394.72222900390625,
+        47.41860580444353
+      ],
+      "confidence": 1,
+      "text": "Implement durable queue"
+    },
+    {
+      "bounds": [
+        175.93334358743925,
+        1158.999999306124,
+        333.82220458984375,
+        46.00000000000001
+      ],
+      "confidence": 1,
+      "text": "Run full suite and push"
+    }
+  ],
+  "width": 812,
+  "image_sha256": "fe2a07008abd5030ea7578123a3a20b4540bb1f7b61ddc0df0f3c1c66d7401b6",
+  "engine": "Apple Vision VNRecognizeTextRequest accurate, en-US"
+}

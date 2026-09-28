@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "id": "conversation-05",
+  "app": "octoscode",
+  "number": 5,
+  "title": "Inline approval",
+  "structure": "Native component reconstructed from the approved conversation atlas",
+  "artboard": [
+    406,
+    776
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "text",
+        "id": "t01",
+        "text": "Run this command?",
+        "x": 77.82,
+        "y": 98.0,
+        "w": 210.89,
+        "h": 29.37,
+        "size": 19.58,
+        "line_height": 29.37,
+        "weight": 600,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t02",
+        "text": "git push origin feat/steer-queue",
+        "x": 29.0,
+        "y": 187.5,
+        "w": 328.67,
+        "h": 33.0,
+        "size": 22,
+        "line_height": 33.0,
+        "weight": 400,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t03",
+        "text": "Reason: Push the fix branch so Cl",
+        "x": 21.43,
+        "y": 276.34,
+        "w": 297.73,
+        "h": 23.4,
+        "size": 15.6,
+        "line_height": 23.4,
+        "weight": 400,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t04",
+        "text": "can run",
+        "x": 19.14,
+        "y": 317.93,
+        "w": 66.6,
+        "h": 17.36,
+        "size": 11.57,
+        "line_height": 17.36,
+        "weight": 400,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "button",
+        "id": "approve_once",
+        "x": 128.31,
+        "y": 381.55,
+        "w": 141.48,
+        "h": 44.48,
+        "c": [
+          {
+            "t": "text",
+            "id": "t05",
+            "text": "Approve once",
+            "x": 136.3124928412235,
+            "y": 389.55116308171085,
+            "w": 125.48,
+            "h": 30.75,
+            "size": 20.5,
+            "line_height": 30.75,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          }
+        ],
+        "enabled": 1
+      },
+      {
+        "t": "button",
+        "id": "approve_session",
+        "x": 101.48,
+        "y": 463.66,
+        "w": 196.59,
+        "h": 49.14,
+        "c": [
+          {
+            "t": "text",
+            "id": "t06",
+            "text": "Approve for session",
+            "x": 109.48380345210495,
+            "y": 471.664193697788,
+            "w": 180.59,
+            "h": 33.14,
+            "size": 22,
+            "line_height": 33.14,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          }
+        ],
+        "enabled": 1
+      },
+      {
+        "t": "button",
+        "id": "deny",
+        "x": 162.29,
+        "y": 544.67,
+        "w": 63.37,
+        "h": 43.07,
+        "c": [
+          {
+            "t": "text",
+            "id": "t07",
+            "text": "Deny",
+            "x": 170.29444560238767,
+            "y": 552.6744189956219,
+            "w": 47.37,
+            "h": 29.23,
+            "size": 19.49,
+            "line_height": 29.23,
+            "weight": 400,
+            "color": 4285427315,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          }
+        ],
+        "enabled": 1
+      },
+      {
+        "t": "text",
+        "id": "t08",
+        "text": "Y /S / N",
+        "x": 153.38,
+        "y": 653.0,
+        "w": 78.94,
+        "h": 23.22,
+        "size": 15.48,
+        "line_height": 23.22,
+        "weight": 400,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294967295
+  }
+}

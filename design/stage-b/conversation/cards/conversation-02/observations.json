@@ -1,0 +1,320 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "1661408367b8813229c284deac770d9dfa5d5c9c93f47a234b08e94bfc8170bf",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t01",
+      "expected_text": "What should we",
+      "requested_bounds": [
+        87.97,
+        272.95,
+        223.3,
+        33.0
+      ],
+      "status": "observed",
+      "ocr_text": "What should we",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        90.0,
+        274.0,
+        218.5,
+        28.5
+      ],
+      "ink_color": [
+        0,
+        0,
+        0
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        87.96666499981558,
+        272.95348883301403,
+        223.30000305175784,
+        32.709300994873075
+      ]
+    },
+    {
+      "id": "t02",
+      "expected_text": "build in octos?",
+      "requested_bounds": [
+        100.21,
+        326.07,
+        202.19,
+        34.75
+      ],
+      "status": "observed",
+      "ocr_text": "build in octos?",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        103.0,
+        328.5,
+        196.5,
+        29.0
+      ],
+      "ink_color": [
+        0,
+        0,
+        0
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        100.21201347356237,
+        326.07350577636055,
+        202.19264221191406,
+        34.74833488464352
+      ]
+    },
+    {
+      "id": "t03",
+      "expected_text": "octos",
+      "requested_bounds": [
+        34.93,
+        506.36,
+        41.79,
+        18.43
+      ],
+      "status": "observed",
+      "ocr_text": "octos",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        37.0,
+        507.5,
+        37.0,
+        14.0
+      ],
+      "ink_color": [
+        23,
+        23,
+        25
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        34.931260253191624,
+        506.3563573667735,
+        41.787479400634766,
+        17.066354751586864
+      ]
+    },
+    {
+      "id": "t04",
+      "expected_text": "Local",
+      "requested_bounds": [
+        127.44,
+        503.05,
+        42.86,
+        23.14
+      ],
+      "status": "observed",
+      "ocr_text": "Local",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        130.5,
+        505.5,
+        36.5,
+        16.0
+      ],
+      "ink_color": [
+        56,
+        56,
+        56
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        127.43888859987032,
+        503.0465112530492,
+        42.855556488037124,
+        21.430233001709006
+      ]
+    },
+    {
+      "id": "t05",
+      "expected_text": "feat/steer-queue",
+      "requested_bounds": [
+        236.58,
+        504.28,
+        125.66,
+        22.83
+      ],
+      "status": "observed",
+      "ocr_text": "feat/steer-queue",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        239.0,
+        505.5,
+        121.0,
+        21.0
+      ],
+      "ink_color": [
+        28,
+        29,
+        30
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        236.57880734556164,
+        504.28318556093086,
+        125.66030883789062,
+        21.143369674682667
+      ]
+    },
+    {
+      "id": "t06",
+      "expected_text": "Ask Octos anything",
+      "requested_bounds": [
+        30.37,
+        596.13,
+        164.82,
+        29.17
+      ],
+      "status": "observed",
+      "ocr_text": "Ask Octos anything",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        32.0,
+        597.5,
+        161.5,
+        23.5
+      ],
+      "ink_color": [
+        169,
+        169,
+        173
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        30.367338705551557,
+        596.1274761051905,
+        164.82087707519534,
+        27.012489318847617
+      ]
+    },
+    {
+      "id": "t07",
+      "expected_text": "+",
+      "requested_bounds": [
+        21.43,
+        671.1,
+        36.09,
+        43.99
+      ],
+      "status": "observed",
+      "ocr_text": "+",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        30.5,
+        680.0,
+        20.5,
+        32.5
+      ],
+      "ink_color": [
+        249,
+        249,
+        249
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        21.42777723564305,
+        671.1046510078822,
+        36.088890075683594,
+        43.988372802734375
+      ]
+    },
+    {
+      "id": "t08",
+      "expected_text": "Ask for approval",
+      "requested_bounds": [
+        75.45,
+        682.92,
+        103.98,
+        23.21
+      ],
+      "status": "observed",
+      "ocr_text": "Ask for approval",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        77.0,
+        685.0,
+        98.5,
+        18.5
+      ],
+      "ink_color": [
+        66,
+        67,
+        66
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        75.44891731643347,
+        682.9218838084001,
+        103.97994232177734,
+        21.481813430786204
+      ]
+    },
+    {
+      "id": "t09",
+      "expected_text": "v4-flash \u25be",
+      "requested_bounds": [
+        214.28,
+        686.9,
+        69.92,
+        19.56
+      ],
+      "status": "observed",
+      "ocr_text": "v4-flash v",
+      "confidence": 1,
+      "text_similarity": 0.9,
+      "ink_bounds": [
+        216.0,
+        688.5,
+        67.0,
+        16.0
+      ],
+      "ink_color": [
+        63,
+        63,
+        63
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        214.27777952075266,
+        686.8953491525697,
+        69.92221832275392,
+        18.10465049743653
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    }
+  ],
+  "unmapped_ocr": [],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}
