@@ -339,8 +339,17 @@ pub fn item_copies(
         }
         let value = match b.binding {
             // ---- thread list ------------------------------------------------
-            "threads[].title" => text(&row("threads")?.get("title").cloned().unwrap_or(Value::Null)),
-            // A synthetic/seeded row may carry no title; fall back to its id.
+            // A session may carry no title (the opened one often doesn't); fall
+            // back to its id, the same way the row model does (`screen::thread_rows`).
+            "threads[].title" => {
+                let r = row("threads")?;
+                let title = text(&r.get("title").cloned().unwrap_or(Value::Null));
+                if title.is_empty() {
+                    text(&r.get("id").cloned().unwrap_or(Value::Null))
+                } else {
+                    title
+                }
+            }
             "threads[].id" => text(&row("threads")?.get("id").cloned().unwrap_or(Value::Null)),
             // ---- timeline ---------------------------------------------------
             "timeline.entries[].text" => {
