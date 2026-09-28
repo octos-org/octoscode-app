@@ -74,7 +74,10 @@ RESPONSIVE = {
     # bubble take its content width, `alignx: 1` wraps it in a Fill/align-right
     # box (design.rs); the labels keep their measured widths so they define the
     # hug instead of stretching it.
-    "user-bubble": {"user_bubble": {"fitw": 1, "alignx": 1},
+    # Card #16d: keep the MEASURED bubble width (it already includes the atlas's
+    # horizontal padding on both sides); `fitw` hugged to the widest label, which
+    # left the text flush against the bubble's right edge.
+    "user-bubble": {"user_bubble": {"alignx": 1},
                     "t01": {}, "t02": {}},
     "working-row": {"working_row": {"fillw": 1, "fith": 1}, "t03": {"fillw": 1}},
     "assistant-prose": {"answer_prose": {"fillw": 1, "fith": 1},
@@ -94,6 +97,7 @@ RESPONSIVE = {
 
 # The expanded tool-cell console, from scene 04's third card (`tool_3_output`).
 OUTPUT_BOX = {"t": "stack", "id": "tool_1_output", "x": 10, "y": 84, "w": 351, "h": 116,
+              "fillw": 1,
               "variant": "surface", "bg": MONOBG, "radius": 8, "c": [
                   {"t": "text", "id": "o1", "x": 18, "y": 10, "w": 316, "h": 17, "size": 13.4,
                    "weight": 400, "font_src": MONO, "line_height": 16.6, "color": 4281216815,
@@ -116,7 +120,7 @@ FAILED_X = {"t": "text", "id": "status_x", "x": 336, "y": 25, "w": 20, "h": 23, 
 # Card #16c: the compose (pencil) glyph lives at the new-chat row's right edge in
 # scene 01, as a SIBLING of `new_chat` — so extraction (which takes only the root
 # subtree) dropped it. Re-attach it, parent-relative (scene x347-16=331, y130-120=10).
-COMPOSE_ICON = {"t": "svg", "id": "icon_compose", "x": 347, "y": 10, "w": 24, "h": 28,
+COMPOSE_ICON = {"t": "svg", "id": "icon_compose", "x": 332, "y": 24.5, "w": 24, "h": 28,
                 "alignx": 1, "src": ""}
 # Card #16c: a command cell ("Ran cargo test") carries the terminal `>_` glyph, not
 # the file glyph (which is for Read/Edit). Same measured box as `icon_file`.
@@ -152,7 +156,8 @@ VARIANTS = {
         # label's bottom edge and cut the lower padding entirely. Labels keep the
         # atlas line pitch (their measured y, ~37.5 apart).
         "short": {"text": {"t01": "Retry the build"}, "drop": ["t02"],
-                  "flags": {"user_bubble": {"h": 50.2}}},
+                  # 15.72 padding + ~103 text + 15.72 padding, rounded to the atlas pitch
+                  "flags": {"user_bubble": {"w": 135.0, "h": 50.2}}},
         "long": {"text": {"t01": "Fix the steer queue so queued",
                           "t02": "steers survive a reconnect"},
                  "flags": {"user_bubble": {"h": 85.09}}},
@@ -181,7 +186,7 @@ VARIANTS = {
         # Card #16c: a command cell uses the terminal glyph, so swap the file icon
         # out for `icon_term` (the atlas's ">_ " is that icon, not OCR text).
         "long": {"text": {"t01": "Ran cargo test -p octos-cli", "t02": "\u2022 12 passed"},
-                 "flags": {"tool_1": {"h": 210}}, "drop": ["icon_file"],
+                 "flags": {"tool_1": {"h": 210, "fith": 0}}, "drop": ["icon_file"],
                  "insert": [("tool_1", TERM_ICON), ("tool_1", OUTPUT_BOX)]},
         # Card #16c: this is also a COMMAND cell, so it takes the terminal glyph.
         "failed": {"text": {"t01": "Ran cargo test -p octos-cli",
@@ -197,7 +202,7 @@ VARIANTS = {
         "long": {"text": {"composer_idle_input": "also add a test for reconnect"},
                  # Every child (grandchildren too — a shifted parent does NOT
                  # move an `abs_pos` child) moves down by the chip's 58px.
-                 "flags": {"composer_idle": {"h": 250},
+                 "flags": {"composer_idle": {"h": 250, "fith": 0},
                            "composer_idle_input": {"y": 68.556},
                            "icon_plus1": {"y": 186.778}, "pill1": {"y": 179.0},
                            "pill1_t": {"y": 193.5},
