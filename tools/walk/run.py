@@ -58,7 +58,7 @@ PARITY = ROOT / "docs" / "parity-matrix.csv"
 
 DEFAULT_APP_BIN = "/Users/yuechen/home/oa.noindex/p0-build/tmp/octosense-target/debug/octosense"
 BIN = pathlib.Path(os.environ.get("OCTOSCODE_APP_BIN", DEFAULT_APP_BIN))
-REPLAY = ROOT / "target" / "debug" / "examples" / "replay_serve"
+REPLAY = pathlib.Path(os.environ.get("CARGO_TARGET_DIR") or (ROOT / "target")) / "debug" / "examples" / "replay_serve"  # honour CARGO_TARGET_DIR like cargo does
 HEADLESS = ROOT / "harness" / "headless.sh"
 
 # The desktop `octosense` binary is EXTERNAL to this repo (built from the
