@@ -274,7 +274,28 @@ impl Widget for OctoscodeView {
                     self.perform_action("session.refresh");
                 }
                 if self.view.button(cx, ids!(send)).clicked(actions) {
+                    // Card #13 §4: the draft clears on send. The flow clears
+                    // it in the STORE (`start_turn`), but the widget keeps its
+                    // own text, so clear the widget too — otherwise the sent
+                    // prompt stays visible in the composer.
+                    let len = self
+                        .bridge
+                        .lock()
+                        .unwrap()
+                        .ui
+                        .lock()
+                        .unwrap()
+                        .draft()
+                        .len();
                     self.perform_action(bindings::ACTION_SUBMIT);
+                    if len > 0 {
+                        let _ = self.view.text_input(cx, ids!(draft)).replace_range(
+                            cx,
+                            0..len,
+                            "",
+                            makepad_widgets::text_input::UndoGroup::New,
+                        );
+                    }
                 }
                 if self.view.button(cx, ids!(stop)).clicked(actions) {
                     self.perform_action(bindings::ACTION_INTERRUPT);
