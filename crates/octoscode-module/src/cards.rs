@@ -113,6 +113,10 @@ pub struct Artifacts {
     pub kit_components: String,
     pub semantic_map: String,
     pub mapped: String,
+    /// The kit directory (`…/kit`), the parent of `native/<mood>/` — what
+    /// `octoscript_makepad::l0::prepare` wants as its `dir`.
+    #[serde(default)]
+    pub kit_dir: Option<String>,
 }
 
 /// One node of the authored tree (`mapped.json`). Geometry is deliberately

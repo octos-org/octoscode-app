@@ -1,0 +1,550 @@
+{
+  "schema_version": 1,
+  "theme": "light",
+  "tokens": {
+    "bg_07cf9621f5e0": {
+      "value": 4294901502,
+      "property": "bg"
+    },
+    "bg_4fdf73b708e7": {
+      "value": 4278387458,
+      "property": "bg"
+    },
+    "radius_98e2b77c28c7": {
+      "value": 19.37,
+      "property": "radius"
+    },
+    "size_c6893771323e": {
+      "value": 17.4,
+      "property": "size"
+    },
+    "line_height_87861fbdc6cc": {
+      "value": 21.05,
+      "property": "line_height"
+    },
+    "weight_0604cd3138fe": {
+      "value": 500,
+      "property": "weight"
+    },
+    "color_42ad2ad34b80": {
+      "value": 4294638587,
+      "property": "color"
+    },
+    "font_src_cb352dc03af3": {
+      "value": "self:resources/ux/Inter-500.ttf",
+      "property": "font_src"
+    },
+    "tracking_8aed642bf511": {
+      "value": 0.0,
+      "property": "tracking"
+    },
+    "size_dbb95e45b6fc": {
+      "value": 17.33,
+      "property": "size"
+    },
+    "line_height_0c4f90e6b3c9": {
+      "value": 20.97,
+      "property": "line_height"
+    },
+    "color_40fe55fff4f6": {
+      "value": 4294835709,
+      "property": "color"
+    },
+    "size_2adbfc52f2da": {
+      "value": 17.94,
+      "property": "size"
+    },
+    "line_height_adfc8056b40f": {
+      "value": 21.7,
+      "property": "line_height"
+    },
+    "color_30003d7f6f04": {
+      "value": 4287730325,
+      "property": "color"
+    },
+    "size_9dab82380f61": {
+      "value": 17.5,
+      "property": "size"
+    },
+    "line_height_72e72b41e403": {
+      "value": 35.0,
+      "property": "line_height"
+    },
+    "weight_26d228663f13": {
+      "value": 400,
+      "property": "weight"
+    },
+    "color_e0ccdd36059a": {
+      "value": 4280098079,
+      "property": "color"
+    },
+    "font_src_86ab34a300f7": {
+      "value": "self:resources/ux/Inter-400.ttf",
+      "property": "font_src"
+    },
+    "bg_40fe55fff4f6": {
+      "value": 4294835709,
+      "property": "bg"
+    },
+    "radius_cb30211d8e99": {
+      "value": 22.0,
+      "property": "radius"
+    },
+    "size_6121e8baae38": {
+      "value": 13.89,
+      "property": "size"
+    },
+    "line_height_3cf20e77ac28": {
+      "value": 16.8,
+      "property": "line_height"
+    },
+    "color_742284623861": {
+      "value": 4279966491,
+      "property": "color"
+    },
+    "size_1408173a131d": {
+      "value": 13.83,
+      "property": "size"
+    },
+    "line_height_ee66b6ed063a": {
+      "value": 16.74,
+      "property": "line_height"
+    },
+    "color_4c0df3590cd4": {
+      "value": 4281677109,
+      "property": "color"
+    },
+    "size_e4f15319ddc2": {
+      "value": 14.31,
+      "property": "size"
+    },
+    "line_height_951bf2580a58": {
+      "value": 17.31,
+      "property": "line_height"
+    },
+    "color_c762a74b46cd": {
+      "value": 4280887594,
+      "property": "color"
+    },
+    "radius_ee4b5812a3ca": {
+      "value": 13.68,
+      "property": "radius"
+    },
+    "size_e629fa6598d7": {
+      "value": 15,
+      "property": "size"
+    },
+    "line_height_e15274dcfe2d": {
+      "value": 40.0,
+      "property": "line_height"
+    },
+    "color_5e6b06fd707a": {
+      "value": 4285427315,
+      "property": "color"
+    },
+    "size_ebacdcdb2323": {
+      "value": 12.69,
+      "property": "size"
+    },
+    "line_height_b580344a99a4": {
+      "value": 15.35,
+      "property": "line_height"
+    },
+    "color_73ddc36416a3": {
+      "value": 4281808952,
+      "property": "color"
+    },
+    "size_d64694792980": {
+      "value": 14.13,
+      "property": "size"
+    },
+    "line_height_484e976fbc4f": {
+      "value": 17.09,
+      "property": "line_height"
+    },
+    "color_b091b07023f7": {
+      "value": 4281413937,
+      "property": "color"
+    },
+    "bg_15c1cb3c3726": {
+      "value": 4278519045,
+      "property": "bg"
+    },
+    "radius_a2ae44fce854": {
+      "value": 18.14,
+      "property": "radius"
+    }
+  },
+  "components": {
+    "Surface16fae9a63e16": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_07cf9621f5e0"
+        }
+      },
+      "props": {},
+      "slot": true
+    },
+    "Surface3fb7e191a9be": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_4fdf73b708e7"
+        },
+        "radius": {
+          "$token": "radius_98e2b77c28c7"
+        }
+      },
+      "props": {},
+      "slot": true
+    },
+    "Textc1ebd2fa9447": {
+      "style": {
+        "t": "text",
+        "size": {
+          "$token": "size_c6893771323e"
+        },
+        "line_height": {
+          "$token": "line_height_87861fbdc6cc"
+        },
+        "weight": {
+          "$token": "weight_0604cd3138fe"
+        },
+        "color": {
+          "$token": "color_42ad2ad34b80"
+        },
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_cb352dc03af3"
+        },
+        "tracking": {
+          "$token": "tracking_8aed642bf511"
+        }
+      },
+      "props": {
+        "text": "text"
+      },
+      "slot": false
+    },
+    "Text9434d668ed74": {
+      "style": {
+        "t": "text",
+        "size": {
+          "$token": "size_dbb95e45b6fc"
+        },
+        "line_height": {
+          "$token": "line_height_0c4f90e6b3c9"
+        },
+        "weight": {
+          "$token": "weight_0604cd3138fe"
+        },
+        "color": {
+          "$token": "color_40fe55fff4f6"
+        },
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_cb352dc03af3"
+        },
+        "tracking": {
+          "$token": "tracking_8aed642bf511"
+        }
+      },
+      "props": {
+        "text": "text"
+      },
+      "slot": false
+    },
+    "Vectore0a378fde04f": {
+      "style": {
+        "t": "svg"
+      },
+      "props": {},
+      "slot": false
+    },
+    "Texta0a4e959ef2b": {
+      "style": {
+        "t": "text",
+        "size": {
+          "$token": "size_2adbfc52f2da"
+        },
+        "line_height": {
+          "$token": "line_height_adfc8056b40f"
+        },
+        "weight": {
+          "$token": "weight_0604cd3138fe"
+        },
+        "color": {
+          "$token": "color_30003d7f6f04"
+        },
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_cb352dc03af3"
+        },
+        "tracking": {
+          "$token": "tracking_8aed642bf511"
+        }
+      },
+      "props": {
+        "text": "text"
+      },
+      "slot": false
+    },
+    "Text1f98af367ebb": {
+      "style": {
+        "t": "text",
+        "size": {
+          "$token": "size_9dab82380f61"
+        },
+        "line_height": {
+          "$token": "line_height_72e72b41e403"
+        },
+        "weight": {
+          "$token": "weight_26d228663f13"
+        },
+        "color": {
+          "$token": "color_e0ccdd36059a"
+        },
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_86ab34a300f7"
+        }
+      },
+      "props": {
+        "text": "text"
+      },
+      "slot": false
+    },
+    "Group3d2637879433": {
+      "style": {
+        "t": "stack"
+      },
+      "props": {},
+      "slot": true
+    },
+    "Surfacee231cd44f879": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_40fe55fff4f6"
+        },
+        "radius": {
+          "$token": "radius_cb30211d8e99"
+        },
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      "props": {},
+      "slot": true
+    },
+    "Text1f017ba89bfc": {
+      "style": {
+        "t": "text",
+        "size": {
+          "$token": "size_6121e8baae38"
+        },
+        "line_height": {
+          "$token": "line_height_3cf20e77ac28"
+        },
+        "weight": {
+          "$token": "weight_0604cd3138fe"
+        },
+        "color": {
+          "$token": "color_742284623861"
+        },
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_cb352dc03af3"
+        },
+        "tracking": {
+          "$token": "tracking_8aed642bf511"
+        }
+      },
+      "props": {
+        "text": "text"
+      },
+      "slot": false
+    },
+    "Textb103f85eb43d": {
+      "style": {
+        "t": "text",
+        "size": {
+          "$token": "size_1408173a131d"
+        },
+        "line_height": {
+          "$token": "line_height_ee66b6ed063a"
+        },
+        "weight": {
+          "$token": "weight_0604cd3138fe"
+        },
+        "color": {
+          "$token": "color_4c0df3590cd4"
+        },
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_cb352dc03af3"
+        },
+        "tracking": {
+          "$token": "tracking_8aed642bf511"
+        }
+      },
+      "props": {
+        "text": "text"
+      },
+      "slot": false
+    },
+    "Textd2ad79182009": {
+      "style": {
+        "t": "text",
+        "size": {
+          "$token": "size_e4f15319ddc2"
+        },
+        "line_height": {
+          "$token": "line_height_951bf2580a58"
+        },
+        "weight": {
+          "$token": "weight_0604cd3138fe"
+        },
+        "color": {
+          "$token": "color_c762a74b46cd"
+        },
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_cb352dc03af3"
+        },
+        "tracking": {
+          "$token": "tracking_8aed642bf511"
+        }
+      },
+      "props": {
+        "text": "text"
+      },
+      "slot": false
+    },
+    "Surface95f1042eb7db": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_07cf9621f5e0"
+        },
+        "radius": {
+          "$token": "radius_ee4b5812a3ca"
+        },
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      "props": {},
+      "slot": true
+    },
+    "Input9ca276b5cc2e": {
+      "style": {
+        "t": "input",
+        "size": {
+          "$token": "size_e629fa6598d7"
+        },
+        "line_height": {
+          "$token": "line_height_e15274dcfe2d"
+        },
+        "weight": {
+          "$token": "weight_26d228663f13"
+        },
+        "color": {
+          "$token": "color_5e6b06fd707a"
+        },
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_86ab34a300f7"
+        }
+      },
+      "props": {
+        "text": "text",
+        "placeholder": "placeholder",
+        "enabled": "enabled"
+      },
+      "slot": true
+    },
+    "Text0cd152d08913": {
+      "style": {
+        "t": "text",
+        "size": {
+          "$token": "size_ebacdcdb2323"
+        },
+        "line_height": {
+          "$token": "line_height_b580344a99a4"
+        },
+        "weight": {
+          "$token": "weight_26d228663f13"
+        },
+        "color": {
+          "$token": "color_73ddc36416a3"
+        },
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_86ab34a300f7"
+        },
+        "tracking": {
+          "$token": "tracking_8aed642bf511"
+        }
+      },
+      "props": {
+        "text": "text"
+      },
+      "slot": false
+    },
+    "Text401b1cb300a9": {
+      "style": {
+        "t": "text",
+        "size": {
+          "$token": "size_d64694792980"
+        },
+        "line_height": {
+          "$token": "line_height_484e976fbc4f"
+        },
+        "weight": {
+          "$token": "weight_0604cd3138fe"
+        },
+        "color": {
+          "$token": "color_b091b07023f7"
+        },
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_cb352dc03af3"
+        },
+        "tracking": {
+          "$token": "tracking_8aed642bf511"
+        }
+      },
+      "props": {
+        "text": "text"
+      },
+      "slot": false
+    },
+    "Surface8f38f76c9144": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_15c1cb3c3726"
+        },
+        "radius": {
+          "$token": "radius_a2ae44fce854"
+        }
+      },
+      "props": {},
+      "slot": true
+    }
+  }
+}

@@ -11,107 +11,203 @@
           "h": 776
         }
       },
-      "composer_input": {
-        "component": "Inputedacf1c2a927",
+      "composer_idle": {
+        "component": "Surface07eaedee1d73",
         "layout": {
-          "x": 22.22,
-          "y": 158.56,
-          "w": 200.0,
-          "h": 46.07
+          "x": 17.0,
+          "y": 130.0,
+          "w": 374.0,
+          "h": 190.0
         }
       },
-      "t01": {
-        "component": "Text83df3ff13072",
+      "composer_idle_input": {
+        "component": "Input9ca276b5cc2e",
         "layout": {
-          "x": 31.850973539690465,
-          "y": 165.5,
-          "w": 163.5,
-          "h": 30.0
+          "x": 31.0,
+          "y": 140.556,
+          "w": 300.0,
+          "h": 42.222
         }
       },
-      "t02": {
-        "component": "Texta654002a6f5a",
+      "icon_plus1": {
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 14.021739130434783,
-          "y": 254.0,
-          "w": 53.95652173913044,
+          "x": 31.0,
+          "y": 258.778,
+          "w": 18.0,
+          "h": 25.333,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_plus1-e726c53afe21.svg"
+        }
+      },
+      "pill1": {
+        "component": "Surface595642fcfba0",
+        "layout": {
+          "x": 66.0,
+          "y": 251.0,
+          "w": 122.0,
           "h": 46.0
         }
       },
-      "t03": {
-        "component": "Text8d9bb6c4e4e4",
+      "pill1_t": {
+        "component": "Text78e146733ffe",
         "layout": {
-          "x": 78.0005055611729,
+          "x": 78.18,
           "y": 265.5,
           "w": 101.5,
           "h": 23.0
         }
       },
-      "t04": {
-        "component": "Textc2e2836f4b52",
+      "icon_mic1": {
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 215.58406690140845,
+          "x": 307.0,
+          "y": 255.611,
+          "w": 16.0,
+          "h": 28.5,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_mic1-e21b462810d1.svg"
+        }
+      },
+      "t04": {
+        "component": "Text4c1a70e63ea9",
+        "layout": {
+          "x": 215.69,
           "y": 268.5,
-          "w": 73.35025430359937,
+          "w": 73.0,
           "h": 21.5
         }
       },
-      "t05": {
-        "component": "Text109c7ab1b72a",
+      "send1": {
+        "component": "Surface989cca714cb6",
         "layout": {
-          "x": 32.007915567282325,
+          "x": 345.0,
+          "y": 248.222,
+          "w": 36.0,
+          "h": 38.0
+        }
+      },
+      "icon_send": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 355.0,
+          "y": 258.778,
+          "w": 16.0,
+          "h": 16.889,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_send-3fe1783d764e.svg"
+        }
+      },
+      "queued_row": {
+        "component": "Surface43e7445f8879",
+        "layout": {
+          "x": 15.0,
+          "y": 409.0,
+          "w": 240.0,
+          "h": 55.0
+        }
+      },
+      "t05": {
+        "component": "Text8323c17aece8",
+        "layout": {
+          "x": 32.17,
           "y": 425.5,
-          "w": 209.97671217161866,
+          "w": 209.0,
           "h": 27.5
         }
       },
-      "t06": {
-        "component": "Textf961f14f188a",
+      "composer_active": {
+        "component": "Surfacea1bc812a6658",
         "layout": {
-          "x": 31.365069356872635,
+          "x": 16.0,
+          "y": 476.0,
+          "w": 374.0,
+          "h": 180.0
+        }
+      },
+      "t06": {
+        "component": "Textf4b374ecac80",
+        "layout": {
+          "x": 31.75,
           "y": 506.0,
           "w": 236.0,
           "h": 24.0
         }
       },
-      "t07": {
-        "component": "Texte77a361e1713",
+      "icon_plus2": {
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 27.15527950310559,
-          "y": 597.5,
-          "w": 27.689440993788818,
-          "h": 28.0
+          "x": 28.0,
+          "y": 600.773,
+          "w": 18.0,
+          "h": 24.545,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_plus2-e726c53afe21.svg"
         }
       },
-      "t08": {
-        "component": "Text2186a64ff5b3",
+      "pill2": {
+        "component": "Surfacef4a36566f5dc",
         "layout": {
-          "x": 78.0005055611729,
+          "x": 66.0,
+          "y": 586.0,
+          "w": 122.0,
+          "h": 47.0
+        }
+      },
+      "pill2_t": {
+        "component": "Textf5dec8faacc2",
+        "layout": {
+          "x": 78.18,
           "y": 601.0,
           "w": 102.0,
           "h": 23.0
         }
       },
-      "t09": {
-        "component": "Text103b0e17e31a",
+      "icon_mic2": {
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 215.58406690140845,
+          "x": 306.0,
+          "y": 600.773,
+          "w": 16.0,
+          "h": 26.591,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_mic2-e21b462810d1.svg"
+        }
+      },
+      "t09": {
+        "component": "Textb02dacb12d54",
+        "layout": {
+          "x": 215.68,
           "y": 603.0,
-          "w": 74.46136541471049,
+          "w": 74.0,
           "h": 21.5
+        }
+      },
+      "stop2": {
+        "component": "Surfacef59992fb050f",
+        "layout": {
+          "x": 346.0,
+          "y": 592.591,
+          "w": 36.0,
+          "h": 36.818
+        }
+      },
+      "icon_stop2": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 356.0,
+          "y": 602.818,
+          "w": 16.0,
+          "h": 16.364,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_stop2-6a28cc1098c8.svg"
         }
       }
     },
     "bindings": [
       {
-        "id": "composer_input",
+        "id": "composer_idle_input",
         "role": "input",
         "basis": "authored input node",
         "confidence": 1.0,
         "decision": "declared",
         "behavior": {
           "event": "changed",
-          "target": "composer_input",
+          "target": "composer_idle_input",
           "property": "text"
         }
       }

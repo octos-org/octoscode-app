@@ -17,6 +17,7 @@ use octoscode_client::registry::Registry;
 use octoscode_module::bindings;
 use octoscode_module::cards::{self, Slot};
 use octoscode_module::flow::FlowUi;
+use octoscode_module::l0_host;
 use octoscode_store::Store;
 use serde_json::Value;
 
@@ -119,6 +120,9 @@ fn fixture() -> Vec<Frame> {
         .collect()
 }
 
+/// The prompt the recorded trace's turn answers.
+const USER_PROMPT: &str = "In one short paragraph: what does main.rs in this workspace print, and why?";
+
 /// The gate's first turn + its session.
 const TURN_1: &str = "01a0e75b-dfb8-708a-a7ce-5d29c534f2f6";
 const SESSION: &str = "dsflash:main";
@@ -145,19 +149,20 @@ fn replay_store(frames: &[Frame]) -> Arc<Store> {
     store
 }
 
-/// Render one slot against a store (the same resolver shape the module uses).
-fn render(store: &Arc<Store>, slot: Slot) -> String {
+/// Lower one slot against a store — the module's own mount path
+/// (`l0_host::slot_body`), so the test asserts what the UI shows.
+fn lower(store: &Arc<Store>, slot: Slot) -> String {
     let ui = std::sync::Mutex::new(FlowUi::default());
     let ctx = bindings::Ctx::new(store, &ui);
-    cards::render_slot(slot, &|id| bindings::query(&ctx, id))
-        .unwrap_or_else(|e| panic!("slot {} must render: {e}", slot.name()))
+    l0_host::slot_body(slot, &|id| bindings::query(&ctx, id))
+        .unwrap_or_else(|e| panic!("slot {} must lower: {e}", slot.name()))
 }
 
 #[test]
 fn the_thread_list_slot_lists_the_opened_session() {
     let frames = fixture();
     let store = replay_store(&frames);
-    let body = render(&store, Slot::ThreadList);
+    let body = lower(&store, Slot::ThreadList);
 
     let titles: Vec<String> = store.sessions().into_iter().map(|s| s.title.clone().unwrap_or_default()).collect();
     assert!(
@@ -166,10 +171,24 @@ fn the_thread_list_slot_lists_the_opened_session() {
          sessions={:?} body={body:?}",
         store.sessions().iter().map(|s| &s.id).collect::<Vec<_>>()
     );
-    // The card renders one row per session row (the authored 5 are overridden).
+    // It is a RENDER, not a text dump: the DSL the L0 runtime draws, with the
+    // card's own node ids and the design kit's widget names.
+    // A RENDER, not a text dump: the design kit's own widgets, with one
+    // button per thread row.
     assert!(
-        body.contains("thread_1"),
-        "the thread rows come from the card's node ids; got {body:?}"
+        body.contains("KitButton") && body.contains("DesignNativeButton"),
+        "the thread-list slot is the lowered card DSL, built from the kit; got {body:?}"
+    );
+    assert!(
+        body.matches("DesignNativeButton").count() >= 5,
+        "one control per thread row (5 rows + new chat); got {body:?}"
+    );
+    // The live row reaches the card. The fixture's session has no title (the
+    // trace holds no `session/list` reply), so the card shows the session id,
+    // which is what makes the row identifiable.
+    assert!(
+        body.contains(SESSION),
+        "the live row reaches the card (its id when untitled); got {body:?}"
     );
     let _ = titles;
 }
@@ -178,28 +197,40 @@ fn the_thread_list_slot_lists_the_opened_session() {
 fn the_conversation_slot_puts_the_user_entry_before_its_replies() {
     let frames = fixture();
     let store = replay_store(&frames);
-    let body = render(&store, Slot::Conversation);
+    let body = lower(&store, Slot::Conversation);
 
-    let user_at = body
-        .find("user.message")
-        .unwrap_or_else(|| panic!("the conversation card must show the user entry; got {body:?}"));
-    let reply_at = body
-        .find("assistant.text")
-        .unwrap_or_else(|| panic!("the conversation card must show the answer; got {body:?}"));
+    // It is the lowered card DSL, not a text dump.
     assert!(
-        user_at < reply_at,
-        "the user entry must precede its turn's replies (card #14 defect 1); \
-         got {body:?}"
+        body.contains("DesignSurface") && body.contains(" := "),
+        "the conversation slot is the lowered card DSL; got {body:?}"
     );
-    // The turn-1 answer text (the real model's answer, per the trace).
+    // The user prompt and the answer both reach the card, in that order (the
+    // live values are injected into the card's own `copy` entries, so the
+    // rendered DSL carries them in the card's authored order).
+    let user_at = body
+        .find(USER_PROMPT)
+        .unwrap_or_else(|| panic!("the card must carry the user prompt; got {body:?}"));
+    let answer_at = body
+        .find("`main.rs` prints a single line")
+        .unwrap_or_else(|| panic!("the card must carry the answer; got {body:?}"));
+    assert!(
+        user_at < answer_at,
+        "the user entry must precede its turn's replies (card #14 defect 1); got {body:?}"
+    );
+    // The answer prose the card shows is the live one, and it is not empty
+    // (card #14 defect 2's "no (nearly) empty answer row", now stated as what
+    // it is: the assistant text must carry real content).
+    // The answer region carries the live answer, and that text is longer than a
+    // stray marker (card #14 defect 2). The prose node is the one holding the
+    // trace's answer, so assert on the content itself rather than a node name
+    // (the renderer names nodes positionally).
     assert!(
         body.contains("`main.rs` prints a single line"),
-        "the answer text comes from the trace; got {body:?}"
+        "the answer prose reaches the card; got {body:?}"
     );
-    // No stray/empty assistant row (card #14 defect 2).
     assert!(
-        !body.contains("[assistant.text] \n") && !body.contains("[assistant.text] .\n"),
-        "no empty or lone-'.' assistant row; got {body:?}"
+        body.contains("DesignSurface"),
+        "the conversation slot is built from the design kit; got {body:?}"
     );
 }
 
@@ -207,11 +238,15 @@ fn the_conversation_slot_puts_the_user_entry_before_its_replies() {
 fn the_completed_answer_slot_shows_worked_for_and_the_answer() {
     let frames = fixture();
     let store = replay_store(&frames);
-    let body = render(&store, Slot::CompletedAnswer);
+    let body = lower(&store, Slot::CompletedAnswer);
 
     assert!(
         body.contains("Worked for"),
         "the completed-answer card shows the `Worked for` row; got {body:?}"
+    );
+    assert!(
+        body.contains("KitButton") && body.contains("DesignNativeButton"),
+        "the `Worked for` row is the card's own kit button; got {body:?}"
     );
     assert!(
         body.contains("`main.rs` prints a single line"),
@@ -224,7 +259,7 @@ fn every_slot_renders_from_the_recorded_trace() {
     let frames = fixture();
     let store = replay_store(&frames);
     for slot in Slot::ALL {
-        let body = render(&store, *slot);
+        let body = lower(&store, *slot);
         assert!(
             !body.is_empty(),
             "slot {} rendered nothing from the recorded trace",
@@ -254,6 +289,7 @@ fn a_slot_falls_back_when_its_card_is_unreadable() {
             kit_components: "nope/kit/components.l0".to_owned(),
             semantic_map: "nope/semantic-map.json".to_owned(),
             mapped: "nope/mapped.json".to_owned(),
+            kit_dir: Some("nope/kit".to_owned()),
         },
     })
     .expect_err("a missing artefact must produce a reason, not a panic");

@@ -555,6 +555,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "blake3"
+version = "1.8.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6d9e454fc11f76977dc803893aff6304ed33d6a26efae8696573bea74baa27ae"
+dependencies = [
+ "arrayvec 0.7.8",
+ "cc",
+ "cfg-if 1.0.5",
+ "constant_time_eq 0.4.2",
+ "cpufeatures 0.3.1",
+]
+
+[[package]]
 name = "block-buffer"
 version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1024,6 +1037,12 @@ name = "constant_time_eq"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c74b8349d32d297c9134b8c88677813a227df8f779daa29bfc29c183fe3dca6"
+
+[[package]]
+name = "constant_time_eq"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d52eff69cd5e647efe296129160853a42795992097e8af39800e1060caeea9b"
 
 [[package]]
 name = "convert_case"
@@ -4116,7 +4135,7 @@ dependencies = [
  "makepad-draw",
  "makepad-html",
  "makepad-latex-math",
- "octoscript-node",
+ "octoscript-node 0.1.0 (git+https://github.com/OctoSense-org/Octoscript-Makepad.git?rev=78f90f6e9e5e3b9fe4b5f5b0618fa4e93db30860)",
  "pulldown-cmark",
  "serde_json",
  "ttf-parser",
@@ -4849,7 +4868,7 @@ dependencies = [
  "clap_complete",
  "color-eyre",
  "colored",
- "constant_time_eq",
+ "constant_time_eq 0.3.1",
  "dirs",
  "dunce",
  "eyre",
@@ -5094,7 +5113,7 @@ source = "git+https://github.com/octos-org/octos.git?rev=a6ea8505170735f191a12bb
 dependencies = [
  "base64 0.22.1",
  "chrono",
- "constant_time_eq",
+ "constant_time_eq 0.3.1",
  "eyre",
  "getrandom 0.2.17",
  "octos-core",
@@ -5168,6 +5187,9 @@ dependencies = [
  "octos-core",
  "octoscode-client",
  "octoscode-store",
+ "octoscript-makepad",
+ "octoscript-ui-l0",
+ "octoscript-widgets",
  "serde",
  "serde_json",
  "tokio",
@@ -5186,9 +5208,52 @@ dependencies = [
 ]
 
 [[package]]
+name = "octoscript-makepad"
+version = "0.1.0"
+source = "git+https://github.com/OctoSense-org/Octoscript-Makepad.git?rev=6881fb6c3c3220e407633b0ba5211c3d42c7e625#6881fb6c3c3220e407633b0ba5211c3d42c7e625"
+dependencies = [
+ "octoscript-render",
+ "octoscript-ui-l0",
+ "serde_json",
+]
+
+[[package]]
+name = "octoscript-node"
+version = "0.1.0"
+source = "git+https://github.com/OctoSense-org/Octoscript-Makepad.git?rev=6881fb6c3c3220e407633b0ba5211c3d42c7e625#6881fb6c3c3220e407633b0ba5211c3d42c7e625"
+
+[[package]]
 name = "octoscript-node"
 version = "0.1.0"
 source = "git+https://github.com/OctoSense-org/Octoscript-Makepad.git?rev=78f90f6e9e5e3b9fe4b5f5b0618fa4e93db30860#78f90f6e9e5e3b9fe4b5f5b0618fa4e93db30860"
+
+[[package]]
+name = "octoscript-render"
+version = "0.1.0"
+source = "git+https://github.com/OctoSense-org/Octoscript-Makepad.git?rev=6881fb6c3c3220e407633b0ba5211c3d42c7e625#6881fb6c3c3220e407633b0ba5211c3d42c7e625"
+dependencies = [
+ "makepad-script",
+ "octoscript-node 0.1.0 (git+https://github.com/OctoSense-org/Octoscript-Makepad.git?rev=6881fb6c3c3220e407633b0ba5211c3d42c7e625)",
+ "serde_json",
+]
+
+[[package]]
+name = "octoscript-ui-l0"
+version = "0.1.0"
+source = "git+https://github.com/OctoSense-org/Octoscript.git?rev=68f6a9df55692b5d8ef8873a12721e279a3f40d6#68f6a9df55692b5d8ef8873a12721e279a3f40d6"
+dependencies = [
+ "blake3",
+ "serde_json",
+]
+
+[[package]]
+name = "octoscript-widgets"
+version = "0.1.0"
+source = "git+https://github.com/OctoSense-org/Octoscript-Makepad.git?rev=6881fb6c3c3220e407633b0ba5211c3d42c7e625#6881fb6c3c3220e407633b0ba5211c3d42c7e625"
+dependencies = [
+ "makepad-widgets",
+ "serde_json",
+]
 
 [[package]]
 name = "octosense-kernel"
@@ -8894,7 +8959,7 @@ dependencies = [
  "aes",
  "arbitrary",
  "bzip2",
- "constant_time_eq",
+ "constant_time_eq 0.3.1",
  "crc32fast",
  "crossbeam-utils",
  "deflate64",

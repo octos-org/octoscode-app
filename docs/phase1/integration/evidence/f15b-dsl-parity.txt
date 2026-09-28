@@ -1,0 +1,5 @@
+conversation-01: widgets mine=51 ref=51 | same_widget_sequence=True | same_geometry=True
+conversation-03: widgets mine=53 ref=53 | same_widget_sequence=True | same_geometry=True
+conversation-04: widgets mine=51 ref=51 | same_widget_sequence=True | same_geometry=True
+conversation-08: widgets mine=42 ref=42 | same_widget_sequence=True | same_geometry=True
+conversation-09: widgets mine=19 ref=19 | same_widget_sequence=True | same_geometry=True
