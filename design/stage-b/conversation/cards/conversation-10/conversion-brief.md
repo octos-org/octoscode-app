@@ -62,10 +62,19 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_pause",
-    "x": 330.0,
-    "y": 32.0,
-    "w": 16.0,
-    "h": 18.0,
+    "x": 308.0,
+    "y": 33.0,
+    "w": 14.0,
+    "h": 16.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "icon_stop",
+    "x": 346.0,
+    "y": 33.0,
+    "w": 14.0,
+    "h": 16.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -189,50 +198,48 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_step0",
-    "x": 42.0,
-    "y": 228.0,
-    "w": 24.0,
-    "h": 24.0,
+    "x": 40.0,
+    "y": 226.0,
+    "w": 26.0,
+    "h": 26.0,
     "role": "unknown",
     "native_candidates": []
   },
   {
     "id": "icon_step1",
-    "x": 42.0,
-    "y": 314.0,
-    "w": 24.0,
-    "h": 24.0,
+    "x": 40.0,
+    "y": 311.0,
+    "w": 26.0,
+    "h": 26.0,
     "role": "unknown",
     "native_candidates": []
   },
   {
     "id": "icon_step2",
-    "x": 42.0,
-    "y": 400.0,
-    "w": 24.0,
-    "h": 24.0,
+    "x": 40.0,
+    "y": 397.0,
+    "w": 26.0,
+    "h": 26.0,
     "role": "unknown",
     "native_candidates": []
   },
   {
     "id": "icon_step3",
-    "x": 42.0,
-    "y": 486.0,
-    "w": 24.0,
-    "h": 24.0,
+    "x": 40.0,
+    "y": 482.0,
+    "w": 26.0,
+    "h": 26.0,
     "role": "unknown",
     "native_candidates": []
   },
   {
     "id": "icon_step4",
-    "x": 42.0,
-    "y": 572.0,
-    "w": 24.0,
-    "h": 24.0,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
+    "x": 40.0,
+    "y": 570.0,
+    "w": 26.0,
+    "h": 26.0,
+    "role": "unknown",
+    "native_candidates": []
   }
 ]
 ```

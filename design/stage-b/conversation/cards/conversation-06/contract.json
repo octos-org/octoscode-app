@@ -39,10 +39,10 @@
           {
             "t": "svg",
             "id": "icon_decision",
-            "x": 92.0,
-            "y": 78.0,
-            "w": 24.0,
-            "h": 26.0,
+            "x": 24.0,
+            "y": 80.0,
+            "w": 26.0,
+            "h": 28.0,
             "src": ""
           },
           {
@@ -67,10 +67,10 @@
             "text": "Where should queued steers be persisted?",
             "x": 37.0,
             "y": 150.0,
-            "w": 336.0,
-            "h": 56.0,
-            "size": 15,
-            "line_height": 21.75,
+            "w": 290.0,
+            "h": 62.0,
+            "size": 17,
+            "line_height": 24.65,
             "weight": 400,
             "color": 4280098079,
             "alignx": 0,
@@ -85,18 +85,13 @@
             "h": 43.71,
             "c": [
               {
-                "t": "stack",
-                "id": "opt_ledger_ring",
+                "t": "svg",
+                "id": "opt_ledger_radio",
                 "x": 38.0,
                 "y": 256.59,
-                "w": 18.0,
-                "h": 18.0,
-                "c": [],
-                "variant": "surface",
-                "bg": 4294967295,
-                "radius": 999,
-                "border": 1,
-                "bordercolor": 4293256679
+                "w": 20.0,
+                "h": 20.0,
+                "src": ""
               },
               {
                 "t": "text",
@@ -126,18 +121,13 @@
             "h": 38.28,
             "c": [
               {
-                "t": "stack",
-                "id": "opt_memory_ring",
+                "t": "svg",
+                "id": "opt_memory_radio",
                 "x": 38.0,
                 "y": 357.12,
-                "w": 18.0,
-                "h": 18.0,
-                "c": [],
-                "variant": "surface",
-                "bg": 4294967295,
-                "radius": 999,
-                "border": 1,
-                "bordercolor": 4293256679
+                "w": 20.0,
+                "h": 20.0,
+                "src": ""
               },
               {
                 "t": "text",
@@ -167,18 +157,13 @@
             "h": 34.78,
             "c": [
               {
-                "t": "stack",
-                "id": "opt_ask_ring",
+                "t": "svg",
+                "id": "opt_ask_radio",
                 "x": 38.0,
                 "y": 417.52,
-                "w": 18.0,
-                "h": 18.0,
-                "c": [],
-                "variant": "surface",
-                "bg": 4294967295,
-                "radius": 999,
-                "border": 1,
-                "bordercolor": 4293256679
+                "w": 20.0,
+                "h": 20.0,
+                "src": ""
               },
               {
                 "t": "text",
@@ -216,23 +201,38 @@
             "font_src": "self:resources/ux/Inter-400.ttf"
           },
           {
-            "t": "input",
-            "id": "note_input",
-            "text": "",
-            "placeholder": "Add a note",
-            "x": 38.0,
-            "y": 486.0,
-            "w": 330.0,
-            "h": 34.0,
-            "size": 14,
-            "line_height": 34.0,
-            "weight": 400,
-            "color": 4285427315,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-400.ttf",
-            "enabled": 1,
-            "c": []
+            "t": "stack",
+            "id": "note_box",
+            "x": 34.0,
+            "y": 478.0,
+            "w": 338.0,
+            "h": 50.0,
+            "c": [
+              {
+                "t": "input",
+                "id": "note_input",
+                "text": "",
+                "placeholder": "Add a note",
+                "x": 48.0,
+                "y": 488.0,
+                "w": 310.0,
+                "h": 30.0,
+                "size": 14,
+                "line_height": 30.0,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "enabled": 1,
+                "c": []
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 10,
+            "border": 1,
+            "bordercolor": 4293256679
           },
           {
             "t": "stack",

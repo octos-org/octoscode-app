@@ -74,17 +74,17 @@
     },
     {
       "id": "t_undo",
-      "expected_text": "Undo 9",
+      "expected_text": "Undo",
       "requested_bounds": [
         231.19,
         86.85,
-        64.28,
+        62.0,
         22.65
       ],
       "status": "observed",
       "ocr_text": "Undo 9",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.8,
       "ink_bounds": [
         233.5,
         87.0,
@@ -140,7 +140,7 @@
       "id": "file_1_dir",
       "expected_text": "crates/octos-cli/src/",
       "requested_bounds": [
-        73.22,
+        37.22,
         215.43,
         146.61,
         19.17
@@ -172,7 +172,7 @@
       "id": "file_1_name",
       "expected_text": "api/ui_protocol_transport.rs",
       "requested_bounds": [
-        72.09,
+        37.22,
         250.4,
         206.38,
         27.07
@@ -201,42 +201,32 @@
       ]
     },
     {
-      "id": "file_1_stat",
-      "expected_text": "+31 -4",
+      "id": "file_1_add",
+      "expected_text": "+31",
       "requested_bounds": [
-        299.99,
+        270.53,
         234.5,
-        66.54,
+        56.0,
         24.0
       ],
-      "status": "observed",
-      "ocr_text": "+31 -4",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        305.0,
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "file_1_del",
+      "expected_text": "-4",
+      "requested_bounds": [
+        330.53,
         234.5,
-        27.0,
-        21.0
-      ],
-      "ink_color": [
-        74,
-        140,
-        79
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        299.9888895189209,
-        234.49999972371828,
-        66.5388870239258,
+        40.0,
         24.0
-      ]
+      ],
+      "status": "missing_or_ocr_unresolved"
     },
     {
       "id": "file_2_dir",
       "expected_text": "crates/octos-core/src/",
       "requested_bounds": [
-        73.22,
+        37.22,
         345.14,
         163.53,
         19.17
@@ -268,7 +258,7 @@
       "id": "file_2_name",
       "expected_text": "ui_protocol.rs",
       "requested_bounds": [
-        73.16,
+        37.22,
         379.87,
         102.74,
         24.16
@@ -297,42 +287,32 @@
       ]
     },
     {
-      "id": "file_2_stat",
-      "expected_text": "+9 - 1",
+      "id": "file_2_add",
+      "expected_text": "+9",
       "requested_bounds": [
-        305.63,
+        270.53,
         363.0,
-        60.9,
-        21.62
+        56.0,
+        22.5
       ],
-      "status": "observed",
-      "ocr_text": "+9 - 1",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        309.5,
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "file_2_del",
+      "expected_text": "- 1",
+      "requested_bounds": [
+        330.53,
         363.0,
-        19.5,
-        21.0
+        40.0,
+        22.5
       ],
-      "ink_color": [
-        74,
-        142,
-        80
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        305.6277786684369,
-        362.99999975059643,
-        60.899997711181626,
-        21.616279602050735
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
       "id": "file_3_dir",
       "expected_text": "crates/octos-cli/tests/",
       "requested_bounds": [
-        72.09,
+        36.09,
         472.59,
         161.27,
         20.3
@@ -364,7 +344,7 @@
       "id": "file_3_name",
       "expected_text": "steer_queue.rs",
       "requested_bounds": [
-        71.84,
+        36.09,
         510.36,
         112.06,
         25.12
@@ -393,36 +373,26 @@
       ]
     },
     {
-      "id": "file_3_stat",
-      "expected_text": "+22 -0",
+      "id": "file_3_add",
+      "expected_text": "+22",
       "requested_bounds": [
-        290.97,
+        270.53,
         490.5,
-        75.56,
+        56.0,
         25.0
       ],
-      "status": "observed",
-      "ocr_text": "+22 -0",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        297.5,
-        491.5,
-        30.0,
-        20.5
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "file_3_del",
+      "expected_text": "-0",
+      "requested_bounds": [
+        330.53,
+        490.5,
+        40.0,
+        25.0
       ],
-      "ink_color": [
-        69,
-        137,
-        75
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        290.96666633735606,
-        490.49999977103863,
-        75.56111145019528,
-        24.999999999999996
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
       "id": "t_show",
@@ -484,10 +454,10 @@
     {
       "id": "icon_undo",
       "bounds": [
-        231.0,
-        86.0,
+        295.19,
+        88.85,
         18.0,
-        20.0
+        18.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -528,90 +498,84 @@
       "reviewed": false
     },
     {
-      "id": "file_1",
+      "id": "files_card",
       "bounds": [
-        17.0,
-        180.0,
-        374.0,
-        129.0
-      ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294901245,
-      "radius": 16.12
-    },
-    {
-      "id": "file_1_icon",
-      "bounds": [
-        33.0,
-        201.5,
-        20.0,
-        29.562
-      ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
-      "reviewed": false
-    },
-    {
-      "id": "file_2",
-      "bounds": [
-        16.0,
-        331.14,
-        374.0,
-        96.0
-      ],
-      "method": "surface contour unresolved; requested geometry retained",
-      "reviewed": false,
-      "bg": 4294835709,
-      "radius": 12.0
-    },
-    {
-      "id": "file_2_icon",
-      "bounds": [
-        32.0,
-        347.14,
-        20.0,
-        22.0
-      ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
-      "reviewed": false
-    },
-    {
-      "id": "file_3",
-      "bounds": [
-        17.0,
-        439.0,
-        373.0,
-        126.0
+        15.0,
+        178.0,
+        378.0,
+        389.0
       ],
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4294901246,
-      "radius": 15.75
+      "radius": 12.13
     },
     {
-      "id": "file_3_icon",
+      "id": "div_1",
       "bounds": [
-        32.957,
-        460.0,
-        19.947,
-        28.875
+        29.15,
+        308.003,
+        349.701,
+        1.008
       ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "div_2",
+      "bounds": [
+        29.15,
+        438.005,
+        349.701,
+        1.008
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false
     },
     {
       "id": "icon_show",
       "bounds": [
-        33.0,
-        605.0,
+        121.12,
+        608.37,
         16.0,
-        18.0
+        16.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
     }
   ],
-  "unmapped_ocr": [],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        599.9777790378419,
+        468.99999944743655,
+        133.0777740478516,
+        48
+      ],
+      "confidence": 1,
+      "text": "+31 -4"
+    },
+    {
+      "bounds": [
+        611.2555573368738,
+        725.9999995011929,
+        121.79999542236325,
+        43.23255920410147
+      ],
+      "confidence": 1,
+      "text": "+9 - 1"
+    },
+    {
+      "bounds": [
+        581.9333326747121,
+        980.9999995420773,
+        151.12222290039057,
+        49.99999999999999
+      ],
+      "confidence": 1,
+      "text": "+22 -0"
+    }
+  ],
   "non_text_ocr": [],
   "limits": [
     "OCR cannot prove font family, hierarchy or control behavior.",

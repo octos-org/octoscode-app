@@ -63,10 +63,28 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        330.0,
-        32.0,
-        16.0,
-        18.0
+        308.0,
+        33.0,
+        14.0,
+        16.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_stop",
+      "native_id": "beauty_0_0_2",
+      "parent": "goal_strip",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        346.0,
+        33.0,
+        14.0,
+        16.0
       ],
       "text": null,
       "enabled": null,
@@ -225,10 +243,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        42.0,
-        228.0,
-        24.0,
-        24.0
+        40.0,
+        226.0,
+        26.0,
+        26.0
       ],
       "text": null,
       "enabled": null,
@@ -243,10 +261,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        42.0,
-        314.0,
-        24.0,
-        24.0
+        40.0,
+        311.0,
+        26.0,
+        26.0
       ],
       "text": null,
       "enabled": null,
@@ -261,10 +279,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        42.0,
-        400.0,
-        24.0,
-        24.0
+        40.0,
+        397.0,
+        26.0,
+        26.0
       ],
       "text": null,
       "enabled": null,
@@ -279,10 +297,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        42.0,
-        486.0,
-        24.0,
-        24.0
+        40.0,
+        482.0,
+        26.0,
+        26.0
       ],
       "text": null,
       "enabled": null,
@@ -293,14 +311,14 @@
       "source_id": "icon_step4",
       "native_id": "beauty_0_1_6",
       "parent": "plan_card",
-      "kind": "stack",
-      "component": "Surfaceb4ab38079b26",
-      "semantic_role": "layout",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
       "bounds": [
-        42.0,
-        572.0,
-        24.0,
-        24.0
+        40.0,
+        570.0,
+        26.0,
+        26.0
       ],
       "text": null,
       "enabled": null,
@@ -313,6 +331,6 @@
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "99dd4bab495866605bc66626554f25b3b77c915e7ae84a38d4f775cee4aaf1e0",
+  "contract_sha256": "2602d3024eb0186f46c7148005cc8954b3280737f8de3630b0013523c836a8dd",
   "mapping_basis": "mapped.json"
 }

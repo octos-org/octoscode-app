@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "e2d4d73e9b5632fdc9d8717180260bc612a7acfcd1219c8a4501f7ee5e2df342",
+  "contract_sha256": "e94683813c651624aa5439e616bc4442e87f4e8f5c520dbe8dfd9e3d44267a99",
   "reference_sha256": "ef2f2ac97a797eb760e5c8952a643b4412a4b00f7c7b6dee7cac51215e8a7513",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -84,6 +84,13 @@
     },
     {
       "id": "toggle2_knob",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "perm_divider",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,

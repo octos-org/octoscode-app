@@ -91,11 +91,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "id": "t_d1",
     "x": 45.0,
     "y": 164.0,
-    "w": 280.0,
+    "w": 210.0,
     "h": 44.0,
     "text": "Ask before running commands that modify your system.",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 12,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -123,11 +123,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "id": "t_d2",
     "x": 45.0,
     "y": 316.0,
-    "w": 280.0,
+    "w": 210.0,
     "h": 44.0,
     "text": "Allow Octos to run any command without asking.",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 12,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -137,10 +137,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "toggle1",
-    "x": 320.0,
-    "y": 128.0,
-    "w": 44.0,
-    "h": 26.0,
+    "x": 312.0,
+    "y": 130.0,
+    "w": 50.0,
+    "h": 30.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -148,10 +148,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "toggle1_knob",
-    "x": 342.0,
-    "y": 131.0,
-    "w": 20.0,
-    "h": 20.0,
+    "x": 336.0,
+    "y": 133.0,
+    "w": 24.0,
+    "h": 24.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -159,10 +159,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "toggle2",
-    "x": 320.0,
-    "y": 280.0,
-    "w": 44.0,
-    "h": 26.0,
+    "x": 312.0,
+    "y": 282.0,
+    "w": 50.0,
+    "h": 30.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -170,10 +170,21 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "toggle2_knob",
-    "x": 323.0,
-    "y": 283.0,
-    "w": 20.0,
-    "h": 20.0,
+    "x": 315.0,
+    "y": 285.0,
+    "w": 24.0,
+    "h": 24.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "perm_divider",
+    "x": 30.0,
+    "y": 248.0,
+    "w": 346.0,
+    "h": 1.0,
     "role": "layout",
     "native_candidates": [
       "View"

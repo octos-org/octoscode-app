@@ -91,9 +91,31 @@ def fix_scene(d, scene_no):
     ink = {r["id"]: r.get("ink_bounds") for r in obs["text"]
            if r.get("status") == "observed" and r.get("ink_bounds")}
     doc = json.loads(mapped_path.read_text())
+    # Card #18: the authored contract, so a FLOW region (dynamic runtime text) can
+    # be restored to the box its author chose. The `map`/`observe` stage ink-fits
+    # any node whose text matches one OCR row, which collapses a wrapping region to
+    # a single line box (05 reason h 66 -> 23.5) — and `design.rs:338` then pins it
+    # to the non-wrapping `flow: Right`. Frame text keeps that fitting.
+    authored = {}
+    if (d / "contract.json").exists():
+        authored = {n["id"]: n for n in walk(json.loads((d / "contract.json").read_text())["tree"])
+                    if n.get("t") == "text"}
     changed = 0
     for n in walk(doc["tree"]):
         if n["t"] != "text" or n["id"] not in ink:
+            continue
+        if n.get("variant") != "single_line":
+            # a flow region: keep the author's box (width + multi-line height), and
+            # drop the `map` stage's width-solved `tracking` — it was fitted to the
+            # squashed size, so at the authored size it overlaps the glyphs.
+            a = authored.get(n["id"])
+            if a and a.get("h"):
+                n["w"] = a["w"]
+                n["h"] = a["h"]
+                n["size"] = a.get("size", n.get("size"))
+                n["line_height"] = a.get("line_height", n.get("line_height"))
+                n["tracking"] = 0.0
+                changed += 1
             continue
         fp = font_path(n["font_src"])
         if not fp.is_file():

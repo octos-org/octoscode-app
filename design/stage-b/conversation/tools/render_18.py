@@ -23,7 +23,7 @@ PUBLISHED = CLONE / "flows/image-lib/published"
 BEAUTY = ROOT / "tmp/beauty-clone-target/release/beauty-host"
 EVIDENCE = HERE / "evidence/gate-b"
 WORK = ROOT / "tmp/stage-b/render-18"
-ART_PORT = 8179
+ART_PORT = 8180
 SCENES = [("05", 8340), ("06", 8341), ("07", 8342), ("10", 8343), ("11", 8344), ("12", 8345)]
 
 

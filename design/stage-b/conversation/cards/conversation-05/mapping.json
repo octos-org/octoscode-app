@@ -45,10 +45,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        25.0,
+        26.0,
         85.0,
         30.0,
-        34.0
+        42.0
       ],
       "text": null,
       "enabled": null,
@@ -78,7 +78,7 @@
       "native_id": "beauty_0_0_2",
       "parent": "approval_card",
       "kind": "stack",
-      "component": "Surface1f1c4c84b15b",
+      "component": "Surfaced4520a0efa8e",
       "semantic_role": "layout",
       "bounds": [
         19.0,
@@ -114,18 +114,18 @@
       "native_id": "beauty_0_0_3",
       "parent": "approval_card",
       "kind": "text",
-      "component": "Text5767bb516ca2",
+      "component": "Text776e18c492bd",
       "semantic_role": "text",
       "bounds": [
-        20.7,
+        19.78688524590164,
         274.5,
-        297.0,
-        23.5
+        302.0,
+        66.0
       ],
       "text": "Reason: Push the fix branch so Cl can run",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14.84
+      "size": 21
     },
     {
       "source_id": "approve_once",
@@ -368,6 +368,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "907d36d9ee471c9802ff7b3e4576d2d8c5d55b55bfee11561cc79ebb1f0b6b4a",
+  "contract_sha256": "8a9c56aa6284c5eb46477e5494dd2f2fe9f805119b9866d9901878212f2dc17c",
   "mapping_basis": "mapped.json"
 }

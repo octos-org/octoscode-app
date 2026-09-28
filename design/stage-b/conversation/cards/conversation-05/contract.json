@@ -39,10 +39,10 @@
           {
             "t": "svg",
             "id": "icon_shield",
-            "x": 25.0,
+            "x": 26.0,
             "y": 85.0,
             "w": 30.0,
-            "h": 34.0,
+            "h": 42.0,
             "src": ""
           },
           {
@@ -65,9 +65,9 @@
             "t": "stack",
             "id": "cmd_box",
             "x": 20.0,
-            "y": 160.0,
+            "y": 158.0,
             "w": 366.0,
-            "h": 66.0,
+            "h": 70.0,
             "c": [
               {
                 "t": "text",
@@ -87,19 +87,21 @@
               }
             ],
             "variant": "surface",
-            "bg": 4294243573,
-            "radius": 8
+            "bg": 4294967295,
+            "radius": 12,
+            "border": 1,
+            "bordercolor": 4293256679
           },
           {
             "t": "text",
             "id": "reason_text",
             "text": "Reason: Push the fix branch so Cl can run",
             "x": 21.0,
-            "y": 268.0,
-            "w": 258.0,
-            "h": 52.0,
-            "size": 14,
-            "line_height": 20.3,
+            "y": 266.0,
+            "w": 302.0,
+            "h": 66.0,
+            "size": 21,
+            "line_height": 30.45,
             "weight": 400,
             "color": 4285427315,
             "alignx": 0,

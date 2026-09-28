@@ -45,10 +45,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        92.0,
-        78.0,
         24.0,
-        26.0
+        80.0,
+        26.0,
+        28.0
       ],
       "text": null,
       "enabled": null,
@@ -78,18 +78,18 @@
       "native_id": "beauty_0_0_2",
       "parent": "question_card",
       "kind": "text",
-      "component": "Text974d2475b0aa",
+      "component": "Text15ed7064d520",
       "semantic_role": "text",
       "bounds": [
         37.0,
         150.0,
-        336.0,
-        56.0
+        290.0,
+        62.0
       ],
       "text": "Where should queued steers be persisted?",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 15
+      "size": 17
     },
     {
       "source_id": "opt_ledger",
@@ -110,17 +110,17 @@
       "size": null
     },
     {
-      "source_id": "opt_ledger_ring",
+      "source_id": "opt_ledger_radio",
       "native_id": "beauty_0_0_3_0",
       "parent": "opt_ledger",
-      "kind": "stack",
-      "component": "Surface0b71cfcd2704",
-      "semantic_role": "layout",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
       "bounds": [
         38.0,
         256.59,
-        18.0,
-        18.0
+        20.0,
+        20.0
       ],
       "text": null,
       "enabled": null,
@@ -164,17 +164,17 @@
       "size": null
     },
     {
-      "source_id": "opt_memory_ring",
+      "source_id": "opt_memory_radio",
       "native_id": "beauty_0_0_4_0",
       "parent": "opt_memory",
-      "kind": "stack",
-      "component": "Surface01dd50e9e876",
-      "semantic_role": "layout",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
       "bounds": [
         38.0,
         357.12,
-        18.0,
-        18.0
+        20.0,
+        20.0
       ],
       "text": null,
       "enabled": null,
@@ -218,17 +218,17 @@
       "size": null
     },
     {
-      "source_id": "opt_ask_ring",
+      "source_id": "opt_ask_radio",
       "native_id": "beauty_0_0_5_0",
       "parent": "opt_ask",
-      "kind": "stack",
-      "component": "Surface829b0eb31acc",
-      "semantic_role": "layout",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
       "bounds": [
         38.0,
         417.52,
-        18.0,
-        18.0
+        20.0,
+        20.0
       ],
       "text": null,
       "enabled": null,
@@ -272,17 +272,35 @@
       "size": 17.19
     },
     {
-      "source_id": "note_input",
+      "source_id": "note_box",
       "native_id": "beauty_0_0_7",
       "parent": "question_card",
+      "kind": "stack",
+      "component": "Surfaceb8dcba023741",
+      "semantic_role": "layout",
+      "bounds": [
+        23.0,
+        474.0,
+        358.0,
+        69.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "note_input",
+      "native_id": "beauty_0_0_7_0",
+      "parent": "note_box",
       "kind": "input",
-      "component": "Inputd4c45cbb8a67",
+      "component": "Inputc2483154ab8c",
       "semantic_role": "input",
       "bounds": [
-        38.0,
-        486.0,
-        330.0,
-        34.0
+        37.828,
+        487.8,
+        328.343,
+        41.4
       ],
       "text": "",
       "enabled": 1,
@@ -439,6 +457,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "6d4edb1e03bd53af6b96081e7a4971d3405df387ab6f851cbea90ebd404ab464",
+  "contract_sha256": "c0f6f3b1ecc9a858af78bd76783ebdd1b3d913ad5731fb70ce21387dd53e10cd",
   "mapping_basis": "mapped.json"
 }

@@ -125,10 +125,6 @@
     "color_496bc8a96d27": {
       "value": 4280887593,
       "property": "color"
-    },
-    "radius_77c52f3feed5": {
-      "value": 12.0,
-      "property": "radius"
     }
   },
   "components": {
@@ -373,22 +369,6 @@
         "text": "text"
       },
       "slot": false
-    },
-    "Surfaceb4ab38079b26": {
-      "style": {
-        "t": "stack",
-        "variant": "surface",
-        "bg": {
-          "$token": "bg_40fe55fff4f6"
-        },
-        "radius": {
-          "$token": "radius_77c52f3feed5"
-        },
-        "border": 1,
-        "bordercolor": 4293256679
-      },
-      "props": {},
-      "slot": true
     }
   }
 }

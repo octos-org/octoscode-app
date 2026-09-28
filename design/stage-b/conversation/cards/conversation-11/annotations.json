@@ -62,27 +62,18 @@
     {
       "id": "diff_view",
       "bounds": [
-        16.0,
         20.0,
-        374.0,
-        640.0
+        92.0,
+        362.0,
+        566.0
       ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294703860,
+      "radius": 12.0
     },
     {
       "id": "scope_pill",
-      "bounds": [
-        196.0,
-        23.0,
-        103.0,
-        45.0
-      ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false
-    },
-    {
-      "id": "scope_pill_surface",
       "bounds": [
         196.0,
         23.0,
@@ -95,23 +86,12 @@
       "radius": 22.5
     },
     {
-      "id": "scope_pill_control",
+      "id": "scope_chev",
       "bounds": [
-        196.0,
-        23.0,
-        103.0,
-        45.0
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "scope_pill_icon",
-      "bounds": [
-        206.729,
-        33.588,
-        19.312,
-        23.824
+        271.104,
+        36.235,
+        17.167,
+        21.176
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -127,7 +107,7 @@
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4294901246,
-      "radius": 20.25
+      "radius": 19.29
     },
     {
       "id": "diff_rows",

@@ -4,9 +4,12 @@
 # Static design fixture, runtime native Kit composition.
 theme light
 copy t01_text { class: user-copy, en: "Review" }
-copy scope_pill_label_text { class: user-copy, en: "Last turn v" }
-copy t03_text { class: user-copy, en: "+62 -5" }
-copy t_file_text { class: user-copy, en: "ui_protocol_transport.rs +31 -4" }
+copy scope_label_text { class: user-copy, en: "Last turn v" }
+copy t_add_text { class: user-copy, en: "+62" }
+copy t_del_text { class: user-copy, en: "-5" }
+copy t_file_text { class: user-copy, en: "ui_protocol_transport.rs" }
+copy t_fadd_text { class: user-copy, en: "+31" }
+copy t_fdel_text { class: user-copy, en: "-4" }
 copy ln_0_text { class: user-copy, en: "198" }
 copy dl_0_text { class: user-copy, en: "fn handle_disconnect(&mut self) {" }
 copy ln_1_text { class: user-copy, en: "199" }
@@ -24,39 +27,44 @@ copy dl_6_text { class: user-copy, en: "+ self.state = State::Disconnected;" }
 copy ln_7_text { class: user-copy, en: "205" }
 copy dl_7_text { class: user-copy, en: "" }
 copy t_fold_text { class: user-copy, en: ":412 unmodified lines" }
-state scope_pill_control_enabled { shape: bool, initial: true }
-component Surface991755d1cfb2(instance: text) {
-  view Kit(component: "Surface991755d1cfb2", instance: instance) { slot }
+component Surface156d085f4ff5(instance: text) {
+  view Kit(component: "Surface156d085f4ff5", instance: instance) { slot }
 }
-component Group3d2637879433(instance: text) {
-  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+component Surface075259015c99(instance: text) {
+  view Kit(component: "Surface075259015c99", instance: instance) { slot }
 }
 component Text9834725221d0(instance: text, text: text) {
   view Kit(component: "Text9834725221d0", instance: instance, text: text)
 }
-component KitButton3ea7d97692cf(instance: text) {
-  view Kit(component: "KitButton3ea7d97692cf", instance: instance) { slot }
-}
 component Surfacea5608e1e058c(instance: text) {
   view Kit(component: "Surfacea5608e1e058c", instance: instance) { slot }
-}
-component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
-  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
-}
-component Vectore0a378fde04f(instance: text) {
-  view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
 component Text48b00185d34b(instance: text, text: text) {
   view Kit(component: "Text48b00185d34b", instance: instance, text: text)
 }
-component Text47a505168e6b(instance: text, text: text) {
-  view Kit(component: "Text47a505168e6b", instance: instance, text: text)
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
-component Surfaceb1730749f362(instance: text) {
-  view Kit(component: "Surfaceb1730749f362", instance: instance) { slot }
+component Text98953305a681(instance: text, text: text) {
+  view Kit(component: "Text98953305a681", instance: instance, text: text)
 }
-component Text6d7583a6c3db(instance: text, text: text) {
-  view Kit(component: "Text6d7583a6c3db", instance: instance, text: text)
+component Text5abfe3ea15d7(instance: text, text: text) {
+  view Kit(component: "Text5abfe3ea15d7", instance: instance, text: text)
+}
+component Surface66974e630766(instance: text) {
+  view Kit(component: "Surface66974e630766", instance: instance) { slot }
+}
+component Textd1dcd4e3c06f(instance: text, text: text) {
+  view Kit(component: "Textd1dcd4e3c06f", instance: instance, text: text)
+}
+component Texte6180efdd7f5(instance: text, text: text) {
+  view Kit(component: "Texte6180efdd7f5", instance: instance, text: text)
+}
+component Textf25a9206847b(instance: text, text: text) {
+  view Kit(component: "Textf25a9206847b", instance: instance, text: text)
+}
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
 }
 component Texta0da122baa92(instance: text, text: text) {
   view Kit(component: "Texta0da122baa92", instance: instance, text: text)
@@ -122,20 +130,19 @@ component Text4bbbe223ad3f(instance: text, text: text) {
   view Kit(component: "Text4bbbe223ad3f", instance: instance, text: text)
 }
 
-view root Surface991755d1cfb2(instance: "page") {
-  Group3d2637879433(instance: "diff_view") {
+view root Surface156d085f4ff5(instance: "page") {
+  Surface075259015c99(instance: "diff_view") {
     Text9834725221d0(instance: "t01", text: copy.t01_text)
-    KitButton3ea7d97692cf(instance: "scope_pill") {
-      Surfacea5608e1e058c(instance: "scope_pill_surface") {
-
-      }
-      NativeButton02f1d1bd99b4(instance: "scope_pill_control", enabled: scope_pill_control_enabled)
-      Vectore0a378fde04f(instance: "scope_pill_icon")
-      Text48b00185d34b(instance: "scope_pill_label", text: copy.scope_pill_label_text)
+    Surfacea5608e1e058c(instance: "scope_pill") {
+      Text48b00185d34b(instance: "scope_label", text: copy.scope_label_text)
+      Vectore0a378fde04f(instance: "scope_chev")
     }
-    Text47a505168e6b(instance: "t03", text: copy.t03_text)
-    Surfaceb1730749f362(instance: "file_header") {
-      Text6d7583a6c3db(instance: "t_file", text: copy.t_file_text)
+    Text98953305a681(instance: "t_add", text: copy.t_add_text)
+    Text5abfe3ea15d7(instance: "t_del", text: copy.t_del_text)
+    Surface66974e630766(instance: "file_header") {
+      Textd1dcd4e3c06f(instance: "t_file", text: copy.t_file_text)
+      Texte6180efdd7f5(instance: "t_fadd", text: copy.t_fadd_text)
+      Textf25a9206847b(instance: "t_fdel", text: copy.t_fdel_text)
     }
     Group3d2637879433(instance: "diff_rows") {
       Texta0da122baa92(instance: "ln_0", text: copy.ln_0_text)

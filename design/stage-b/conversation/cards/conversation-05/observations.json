@@ -77,9 +77,9 @@
       "expected_text": "Reason: Push the fix branch so Cl can run",
       "requested_bounds": [
         21.0,
-        268.0,
-        258.0,
-        52.0
+        266.0,
+        302.0,
+        66.0
       ],
       "status": "observed",
       "ocr_text": "Reason: Push the fix branch so Cl",
@@ -260,10 +260,10 @@
     {
       "id": "icon_shield",
       "bounds": [
-        25.0,
+        26.0,
         85.0,
         30.0,
-        34.0
+        42.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -279,7 +279,7 @@
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4294506745,
-      "radius": 10.42
+      "radius": 14.74
     },
     {
       "id": "approve_once",

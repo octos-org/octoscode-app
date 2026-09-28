@@ -96,18 +96,18 @@
       "native_id": "beauty_0_0_1_1",
       "parent": "perm_card",
       "kind": "text",
-      "component": "Text601320deb0cd",
+      "component": "Text61968c0f7a49",
       "semantic_role": "text",
       "bounds": [
         45.0,
         164.0,
-        280.0,
+        210.0,
         44.0
       ],
       "text": "Ask before running commands that modify your system.",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 12
+      "size": 13
     },
     {
       "source_id": "t_r2",
@@ -132,18 +132,18 @@
       "native_id": "beauty_0_0_1_3",
       "parent": "perm_card",
       "kind": "text",
-      "component": "Text601320deb0cd",
+      "component": "Text61968c0f7a49",
       "semantic_role": "text",
       "bounds": [
         45.0,
         316.0,
-        280.0,
+        210.0,
         44.0
       ],
       "text": "Allow Octos to run any command without asking.",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 12
+      "size": 13
     },
     {
       "source_id": "toggle1",
@@ -168,13 +168,13 @@
       "native_id": "beauty_0_0_1_4_0",
       "parent": "toggle1",
       "kind": "stack",
-      "component": "Surface6143ba49aec0",
+      "component": "Surfaceb4c66cb17ca9",
       "semantic_role": "layout",
       "bounds": [
-        336.5,
-        137.308,
-        25.0,
-        35.385
+        335.4,
+        136.6,
+        26.4,
+        36.8
       ],
       "text": null,
       "enabled": null,
@@ -204,13 +204,31 @@
       "native_id": "beauty_0_0_1_5_0",
       "parent": "toggle2",
       "kind": "stack",
-      "component": "Surfacea57520e99c15",
+      "component": "Surface053060c5a689",
       "semantic_role": "layout",
       "bounds": [
-        313.682,
-        289.423,
-        24.545,
-        36.154
+        313.24,
+        288.7,
+        25.92,
+        37.6
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "perm_divider",
+      "native_id": "beauty_0_0_2",
+      "parent": "settings_group",
+      "kind": "stack",
+      "component": "Surfacec4c38149242a",
+      "semantic_role": "layout",
+      "bounds": [
+        30.0,
+        248.0,
+        346.0,
+        1.0
       ],
       "text": null,
       "enabled": null,
@@ -219,7 +237,7 @@
     },
     {
       "source_id": "t_sec2",
-      "native_id": "beauty_0_0_2",
+      "native_id": "beauty_0_0_3",
       "parent": "settings_group",
       "kind": "text",
       "component": "Text10fc92947883",
@@ -237,7 +255,7 @@
     },
     {
       "source_id": "model_card",
-      "native_id": "beauty_0_0_3",
+      "native_id": "beauty_0_0_4",
       "parent": "settings_group",
       "kind": "stack",
       "component": "Surfacef73992c5f8a4",
@@ -255,7 +273,7 @@
     },
     {
       "source_id": "t_model",
-      "native_id": "beauty_0_0_3_0",
+      "native_id": "beauty_0_0_4_0",
       "parent": "model_card",
       "kind": "text",
       "component": "Texta445ee2dd47b",
@@ -273,7 +291,7 @@
     },
     {
       "source_id": "t_pick",
-      "native_id": "beauty_0_0_3_1",
+      "native_id": "beauty_0_0_4_1",
       "parent": "model_card",
       "kind": "text",
       "component": "Textc59130a9c7f8",
@@ -295,6 +313,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "e2d4d73e9b5632fdc9d8717180260bc612a7acfcd1219c8a4501f7ee5e2df342",
+  "contract_sha256": "e94683813c651624aa5439e616bc4442e87f4e8f5c520dbe8dfd9e3d44267a99",
   "mapping_basis": "mapped.json"
 }

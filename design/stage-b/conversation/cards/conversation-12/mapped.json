@@ -65,13 +65,12 @@
                 "text": "Ask before running commands that modify your system.",
                 "x": 45.0,
                 "y": 164.0,
-                "w": 280.0,
+                "w": 210.0,
                 "h": 44.0,
-                "size": 12,
-                "line_height": 44.0,
+                "size": 13,
+                "line_height": 18.85,
                 "weight": 400,
                 "color": 4285427315,
-                "variant": "single_line",
                 "alignx": 0,
                 "font_src": "self:resources/ux/Inter-400.ttf"
               },
@@ -98,13 +97,12 @@
                 "text": "Allow Octos to run any command without asking.",
                 "x": 45.0,
                 "y": 316.0,
-                "w": 280.0,
+                "w": 210.0,
                 "h": 44.0,
-                "size": 12,
-                "line_height": 44.0,
+                "size": 13,
+                "line_height": 18.85,
                 "weight": 400,
                 "color": 4285427315,
-                "variant": "single_line",
                 "alignx": 0,
                 "font_src": "self:resources/ux/Inter-400.ttf"
               },
@@ -119,14 +117,14 @@
                   {
                     "t": "stack",
                     "id": "toggle1_knob",
-                    "x": 336.5,
-                    "y": 137.308,
-                    "w": 25.0,
-                    "h": 35.385,
+                    "x": 335.4,
+                    "y": 136.6,
+                    "w": 26.4,
+                    "h": 36.8,
                     "c": [],
                     "variant": "surface",
                     "bg": 4294769917,
-                    "radius": 12.5
+                    "radius": 13.2
                   }
                 ],
                 "variant": "surface",
@@ -144,14 +142,14 @@
                   {
                     "t": "stack",
                     "id": "toggle2_knob",
-                    "x": 313.682,
-                    "y": 289.423,
-                    "w": 24.545,
-                    "h": 36.154,
+                    "x": 313.24,
+                    "y": 288.7,
+                    "w": 25.92,
+                    "h": 37.6,
                     "c": [],
                     "variant": "surface",
                     "bg": 4294835709,
-                    "radius": 12.27
+                    "radius": 12.96
                   }
                 ],
                 "variant": "surface",
@@ -164,6 +162,18 @@
             "radius": 13.46,
             "border": 1,
             "bordercolor": 4293256679
+          },
+          {
+            "t": "stack",
+            "id": "perm_divider",
+            "x": 30.0,
+            "y": 248.0,
+            "w": 346.0,
+            "h": 1.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4293256679,
+            "radius": 0
           },
           {
             "t": "text",
@@ -264,6 +274,10 @@
     },
     {
       "id": "toggle2_knob",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "perm_divider",
       "source": "observed non-text annotation"
     },
     {

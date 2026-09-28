@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "66a12a41b41bbb35cbd2af1416a29f80e5466acafcda1a8dba4e301c5b8d2646",
+  "manifest_sha256": "acbc2d7dfbf450f75f7009a0fc25d8f6bd7cb4049038964153b34d85edad0658",
   "reference_sha256": "d64d89d4555db79774edd25128866286bcdbac7ef5f8f4df412e792eab09b655",
   "id": "conversation-11",
   "round": null,
@@ -47,18 +47,6 @@
     },
     {
       "id": "scope_pill",
-      "role": "button",
-      "basis": "authored KitButton composition",
-      "expected_widgets": [
-        "Button",
-        "KitButton"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use a native control and verify its declared action."
-    },
-    {
-      "id": "scope_pill_surface",
       "role": "layout",
       "basis": "authored stack node",
       "expected_widgets": [
@@ -69,19 +57,19 @@
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
-      "id": "scope_pill_control",
-      "role": "button",
-      "basis": "authored button node",
+      "id": "scope_label",
+      "role": "text",
+      "basis": "authored text node",
       "expected_widgets": [
-        "Button",
-        "KitButton"
+        "Label",
+        "TextFlow"
       ],
       "actual_widget": null,
       "issues": [],
-      "repair": "Use a native control and verify its declared action."
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "scope_pill_icon",
+      "id": "scope_chev",
       "role": "icon",
       "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
       "expected_widgets": [
@@ -94,7 +82,7 @@
       "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
     },
     {
-      "id": "scope_pill_label",
+      "id": "t_add",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -106,7 +94,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t03",
+      "id": "t_del",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -130,6 +118,30 @@
     },
     {
       "id": "t_file",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "t_fadd",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "t_fdel",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [

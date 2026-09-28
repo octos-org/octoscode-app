@@ -26,8 +26,8 @@ component Surface40a6adb74bc2(instance: text) {
 component Texta09488cf4ea1(instance: text, text: text) {
   view Kit(component: "Texta09488cf4ea1", instance: instance, text: text)
 }
-component Text601320deb0cd(instance: text, text: text) {
-  view Kit(component: "Text601320deb0cd", instance: instance, text: text)
+component Text61968c0f7a49(instance: text, text: text) {
+  view Kit(component: "Text61968c0f7a49", instance: instance, text: text)
 }
 component Text383523ce1bc1(instance: text, text: text) {
   view Kit(component: "Text383523ce1bc1", instance: instance, text: text)
@@ -35,14 +35,17 @@ component Text383523ce1bc1(instance: text, text: text) {
 component Surface420bbc664d64(instance: text) {
   view Kit(component: "Surface420bbc664d64", instance: instance) { slot }
 }
-component Surface6143ba49aec0(instance: text) {
-  view Kit(component: "Surface6143ba49aec0", instance: instance) { slot }
+component Surfaceb4c66cb17ca9(instance: text) {
+  view Kit(component: "Surfaceb4c66cb17ca9", instance: instance) { slot }
 }
 component Surface7b8eda49274c(instance: text) {
   view Kit(component: "Surface7b8eda49274c", instance: instance) { slot }
 }
-component Surfacea57520e99c15(instance: text) {
-  view Kit(component: "Surfacea57520e99c15", instance: instance) { slot }
+component Surface053060c5a689(instance: text) {
+  view Kit(component: "Surface053060c5a689", instance: instance) { slot }
+}
+component Surfacec4c38149242a(instance: text) {
+  view Kit(component: "Surfacec4c38149242a", instance: instance) { slot }
 }
 component Text10fc92947883(instance: text, text: text) {
   view Kit(component: "Text10fc92947883", instance: instance, text: text)
@@ -62,19 +65,22 @@ view root Surface156d085f4ff5(instance: "page") {
     Texte6662bb38e5f(instance: "t01", text: copy.t01_text)
     Surface40a6adb74bc2(instance: "perm_card") {
       Texta09488cf4ea1(instance: "t_r1", text: copy.t_r1_text)
-      Text601320deb0cd(instance: "t_d1", text: copy.t_d1_text)
+      Text61968c0f7a49(instance: "t_d1", text: copy.t_d1_text)
       Text383523ce1bc1(instance: "t_r2", text: copy.t_r2_text)
-      Text601320deb0cd(instance: "t_d2", text: copy.t_d2_text)
+      Text61968c0f7a49(instance: "t_d2", text: copy.t_d2_text)
       Surface420bbc664d64(instance: "toggle1") {
-        Surface6143ba49aec0(instance: "toggle1_knob") {
+        Surfaceb4c66cb17ca9(instance: "toggle1_knob") {
 
         }
       }
       Surface7b8eda49274c(instance: "toggle2") {
-        Surfacea57520e99c15(instance: "toggle2_knob") {
+        Surface053060c5a689(instance: "toggle2_knob") {
 
         }
       }
+    }
+    Surfacec4c38149242a(instance: "perm_divider") {
+
     }
     Text10fc92947883(instance: "t_sec2", text: copy.t_sec2_text)
     Surfacef73992c5f8a4(instance: "model_card") {

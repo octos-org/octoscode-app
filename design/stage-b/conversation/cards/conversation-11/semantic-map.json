@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "0e7828a8bad7edbc2a0bbcf4d47ffbb7933f10e2d521538886d85f2341e78394",
+  "contract_sha256": "bfba76c6f5f33bc0e8a3dad1576a9593c8e5084452d3263ade41d533b6813f0a",
   "reference_sha256": "d64d89d4555db79774edd25128866286bcdbac7ef5f8f4df412e792eab09b655",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -28,34 +28,27 @@
     },
     {
       "id": "scope_pill",
-      "role": "button",
-      "basis": "authored KitButton composition",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "scope_pill_surface",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "scope_pill_control",
-      "role": "button",
-      "basis": "authored button node",
+      "id": "scope_label",
+      "role": "text",
+      "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "scope_pill_icon",
+      "id": "scope_chev",
       "role": "icon",
       "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
       "confidence": 1.0,
       "decision": "reviewed",
       "asset": {
-        "path": "assets/scope_pill_icon.svg",
-        "sha256": "70eecacd8dd0e5674a018acc34c47cb8a7fe56b8e922269692f571e9d43d1581",
+        "path": "assets/scope_chev.svg",
+        "sha256": "a742d013f8749957ad814680e16e2b20f48758592c8865be385020b662bbab72",
         "method": "reference_svg",
         "reference_sha256": "d64d89d4555db79774edd25128866286bcdbac7ef5f8f4df412e792eab09b655",
         "fit": "stretch",
@@ -64,14 +57,14 @@
       }
     },
     {
-      "id": "scope_pill_label",
+      "id": "t_add",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t03",
+      "id": "t_del",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
@@ -86,6 +79,20 @@
     },
     {
       "id": "t_file",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_fadd",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_fdel",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,

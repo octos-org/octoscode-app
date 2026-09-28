@@ -65,6 +65,26 @@ ICONS = {
     "thumbs": '<path d="M7 11v9H4v-9z"/><path d="M7 11l4-8a2 2 0 0 1 2 2v5h5a2 2 0 0 1 2 2l-1.6 6H7"/>',
     "share": '<path d="M12 16V4"/><path d="M8 8l4-4 4 4"/><path d="M5 14v5h14v-5"/>',
     "shield": '<path d="M12 3l7 3v6c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V6z"/>',
+    # Card #18 (after view_image): the approval header shield carries a CHECK
+    # inside its outline; the plan's done steps are a BLUE FILLED disc with a
+    # white check; in-progress is a dotted ring; pending is a plain outline ring.
+    "shield_check": '<path d="M12 3l7 3v6c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V6z"/>'
+                    '<path d="M9 11.5l2.2 2.2L15 9.5"/>',
+    "check_circle": '<circle cx="12" cy="12" r="8.5" fill="#2F6FEB" stroke="none"/>'
+                    '<path d="M8.3 12.3l2.4 2.4L15.7 9.7" stroke="#FFFFFF" stroke-width="1.9" '
+                    'fill="none"/>',
+    "ring_dotted": '<circle cx="12" cy="12" r="8.0" fill="none" stroke-dasharray="1.6 3"/>',
+    "ring": '<circle cx="12" cy="12" r="8.0" fill="none"/>',
+    "stop_filled": '<rect x="6.5" y="6.5" width="11" height="11" rx="1.5" '
+                   'fill="#6E6E73" stroke="none"/>',
+    # 06 header icon is a "?" in a CIRCLE (ref-06-hdr), and its options are
+    # radios: a ring with a filled dot when chosen, a bare ring when not.
+    "question_circle": '<circle cx="12" cy="12" r="9"/>'
+                       '<path d="M9.4 9.2a2.7 2.7 0 1 1 3.3 2.9c-.6.2-.9.7-.9 1.3v.6"/>'
+                       '<circle cx="11.8" cy="17" r="0.9" fill="#1D1D1F" stroke="none"/>',
+    "radio_on": '<circle cx="12" cy="12" r="8.2" fill="none" stroke="#2F6FEB" stroke-width="1.8"/>'
+                '<circle cx="12" cy="12" r="3.7" fill="#2F6FEB" stroke="none"/>',
+    "radio_off": '<circle cx="12" cy="12" r="8.2" fill="none" stroke="#C7C7CC" stroke-width="1.6"/>',
     "chevron": '<path d="M9 6l6 6-6 6"/>',
     "pause": '<rect x="8" y="6" width="3" height="12" rx="1"/><rect x="13" y="6" width="3" height="12" rx="1"/>',
     "bell_dot": '<path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/>'
@@ -249,6 +269,14 @@ class Scene:
         kids = self.kids
         self.kids = []
         self.put(stack(id, x, y, w, h, kids))
+
+    def wrap_card(self, id, x, y, w, h, *, radius=12):
+        """Like `wrap`, but the root is a bordered white SURFACE — the enclosing
+        card the reference draws around some groups (e.g. 11's diff)."""
+        kids = self.kids
+        self.kids = []
+        self.put(surface(id, x, y, w, h, bg="white", radius=radius, border=1,
+                         bordercolor="hair", kids=kids))
 
 def load_ocr(num):
     d = json.loads((OCR / f"conversation-{num:02d}.ocr.json").read_text())
@@ -450,16 +478,22 @@ def build_05(sc):
     18,450 368x69; hint at 153,653."""
     # ref: shield at the card's LEFT gutter (black fill x25.5 y85 31.5×48), title
     # at its own OCR x=78 — v1 placed the shield at x92, overlapping the title.
-    sc.add_icon("icon_shield", "shield", 25, 85, 30, 34)
+    # ref-05-cmd-big / z-05-head: the header shield is OUTLINED WITH A CHECK inside
+    # (icon `shield_check`), and the command box is NEAR-WHITE with a hairline border
+    # — not the grey `box` token v6 used (pixel probe: interior #F9F9FA, page #FCFCFC).
+    sc.add_icon("icon_shield", "shield_check", 26, 85, 30, 42)
     sc.add_text("t01", 0, weight=600, size=17)
-    sc.put(surface("cmd_box", 20, 160, 366, 66, bg="box", radius=8, kids=[
+    sc.put(surface("cmd_box", 20, 158, 366, 70, bg="white", radius=12, border=1,
+                   bordercolor="hair", kids=[
         code("t02", sc.t(1), 29, 185, 340, 30, weight=500, size=15)]))
-    # the reason is runtime copy → a flowing region bound to one data id.
-    # Rendered at 14 (ref ink h≈22 → size ~15) so it wraps to the reference's two
-    # lines inside a 300-wide region, instead of fitting one line.
+    # the reason is runtime copy → a flowing region bound to one data id. The
+    # reference wraps it to TWO lines ("…so Cl" / "can run"), so the region is
+    # 300 wide at size 15 (ref ink h≈22).
     reason = sc.t(2) + " " + sc.t(3)
-    sc.put(flow_text("reason_text", reason, 21, 268, 258, 52, size=14, color="muted"))
-    sc.flows["reason_text"] = ("approval.reason", 21, 268, 258, 52)
+    # ref: two lines with the FIRST ending at x≈319 — so the font is larger than
+    # the v8 size 17 (which fit the whole string in 289px). 21 wraps it in ~300.
+    sc.put(flow_text("reason_text", reason, 21, 266, 302, 66, size=21, color="muted"))
+    sc.flows["reason_text"] = ("approval.reason", 21, 266, 302, 66)
     sc.add_control("approve_once", 18, 364, 368, 70, 4, bg="black", radius=999, weight=500,
                    color="white", lx=136, ly=390, lw=200, lh=30, event="approval.approve")
     sc.add_control("approve_session", 18, 448, 368, 70, 5, bg="white", radius=999, weight=500,
@@ -475,28 +509,34 @@ def build_06(sc):
     """USER QUESTION. Card with title "Octos needs a decision", the question as a
     flowing region (2 measured lines), three radio options (first "recommended"),
     an optional one-line note input, a black "Submit answer" pill and grey "Skip"."""
-    sc.add_icon("icon_decision", "shield", 92, 78, 24, 26)
+    # ref-06-hdr: the header icon is a "?" in a CIRCLE at the left gutter (x24..46),
+    # and the title starts at its own OCR x=79 — v6 put a shield at x92, overlapping.
+    sc.add_icon("icon_decision", "question_circle", 24, 80, 26, 28, color="muted")
     sc.add_text("t01", 0, weight=600, size=19)
     q = sc.t(1) + " " + sc.t(2)
-    sc.put(flow_text("question_text", q, 37, 150, 336, 56, size=15, color="ink"))
-    sc.flows["question_text"] = ("question.prompt", 37, 150, 336, 56)
-    # three radio rows (a small circle + the option label)
-    for i, (row_i, cid, event) in enumerate([(3, "opt_ledger", "question.select.ledger"),
-                                             (5, "opt_memory", "question.select.memory"),
-                                             (6, "opt_ask", "question.select.ask")]):
+    sc.put(flow_text("question_text", q, 37, 150, 290, 62, size=17, color="ink"))
+    sc.flows["question_text"] = ("question.prompt", 37, 150, 290, 62)
+    # three radio rows: a ring with a filled blue dot when chosen (option 1), a
+    # bare grey ring otherwise — the reference's radio marks, not solid blobs.
+    for i, (row_i, cid, event, glyph) in enumerate([
+            (3, "opt_ledger", "question.select.ledger", "radio_on"),
+            (5, "opt_memory", "question.select.memory", "radio_off"),
+            (6, "opt_ask", "question.select.ask", "radio_off")]):
         _, x, y, w, h = sc.rows[row_i]
-        cyc = surface(cid + "_ring", 38, y + 2, 18, 18, bg="white", radius=999,
-                      border=1, bordercolor="hair")
-        sc.put(stack(cid, 34, y - 6, 340, h + 12, [cyc,
-               text(cid + "_label", sc.t(row_i), x, y, w, h, size=14,
-                    weight=500 if i == 0 else 400)], event=event))
+        sc.put(stack(cid, 34, y - 6, 340, h + 12, [
+            icon(cid + "_radio", glyph, 38, y + 2, 20, 20, color="ink"),
+            text(cid + "_label", sc.t(row_i), x, y, w, h, size=14,
+                 weight=500 if i == 0 else 400)], event=event))
         sc.controls[cid] = (event, [int(34), int(y - 6), int(340), int(h + 12)], True)
     # the "(recommended)" suffix stays beside the first option
     _, rx, ry, rw, rh = sc.rows[4]
     sc.put(text("t_reco", sc.t(4), rx, ry, rw, rh, size=13, color="muted"))
-    # note input
-    sc.put(input_node("note_input", 38, 486, 330, 34, sc.t(7), size=14))
-    sc.inputs["note_input"] = ("question.note", [38, 486, 330, 34])
+    # note input: the reference draws a bordered rounded box around it
+    # (z6 view), not bare text.
+    sc.put(surface("note_box", 34, 478, 338, 50, bg="white", radius=10, border=1,
+                   bordercolor="hair", kids=[
+        input_node("note_input", 48, 488, 310, 30, sc.t(7), size=14)]))
+    sc.inputs["note_input"] = ("question.note", [48, 488, 310, 30])
     sc.add_control("submit_answer", 24, 566, 362, 72, 8, bg="black", radius=999, weight=500,
                    color="white", lx=138, ly=591, lw=220, lh=30, event="question.submit")
     sc.add_control("skip", 24, 650, 362, 60, 9, bg="white", radius=999, weight=400,
@@ -508,27 +548,48 @@ def build_07(sc):
     "Undo" + outlined "Review" pill, three file rows (grey dir path, black filename,
     +/− at right), and a "Show diff" chevron. File rows are a list of rows."""
     sc.add_text("t01", 0, weight=600, size=19)
-    sc.add_text("t02", 1, weight=500, size=14, color="green")
-    sc.add_icon("icon_undo", "undo", 231, 86, 18, 20, color="ink")
-    sc.add_text("t_undo", 2, weight=500, size=14)
+    # ref-07-row1: the header totals read "+62" in green and "−5" in red (two runs,
+    # not one green string); the stat columns are large and RIGHT-aligned, and the
+    # file rows carry NO leading icon (v6 drew a file glyph over the dir path).
+    sc.add_text("t02", 1, weight=500, size=15, color="green")
+    # ref z7-07-undorev: "Undo" is the LABEL and the ↺ glyph sits to its RIGHT
+    # (OCR "Undo 9" merged the glyph). v7 drew the icon at x231, over the label.
+    _, ux, uy, uw, uh = sc.rows[2]
+    sc.put(text("t_undo", "Undo", ux, uy, 62, uh, weight=500, size=14))
+    sc.add_icon("icon_undo", "undo", ux + 64, uy + 2, 18, 18, color="ink")
     sc.add_control("review", 316, 78, 74, 40, 3, bg="white", radius=999, weight=500,
                    border=1, bordercolor="hair", lx=319, ly=88, lw=80, lh=24,
                    event="files.review")
     rows = [(4, 5, 6, "file_1"), (7, 8, 9, "file_2"), (10, 11, 12, "file_3")]
+    # ref z7-07: the three file rows are ONE card (measured hairlines at its top
+    # y178 and bottom y564) with a divider between rows (y308 / y437) — not three
+    # separate rounded cards, which v8 drew.
+    file_kids = []
     for dir_i, name_i, stat_i, cid in rows:
         _, dx, dy, dw, dh = sc.rows[dir_i]
         _, nx, ny, nw, nh = sc.rows[name_i]
         _, sx, sy, sw, sh = sc.rows[stat_i]
-        cy = dy - 14
-        sc.put(surface(cid, 16, cy, 374, 96, bg="white", radius=12, border=1,
-                       bordercolor="hair", kids=[
-            icon(cid + "_icon", "file", 32, cy + 16, 20, 22, color="muted"),
-            text(cid + "_dir", sc.t(dir_i), dx + 36, dy, dw, dh, size=12, color="muted"),
-            text(cid + "_name", sc.t(name_i), nx + 36, ny, nw, nh, size=15, weight=500),
-            text(cid + "_stat", sc.t(stat_i), sx, sy, sw, sh, size=14, weight=500, color="green")]))
-        sc.controls[cid] = (f"files.open.{cid}", [int(16), int(cy), int(374), 96], True)
-    sc.add_icon("icon_show", "chevron_right", 33, 605, 16, 18, color="muted")
-    sc.add_text("t_show", 13, weight=500, size=14)
+        # split the measured "+31 -4" into a green add-run and a red del-run, both
+        # right-aligned in the stat column (ref-07-row1).
+        stat = sc.t(stat_i).replace("−", "-")
+        add, _, dele = stat.partition(" ")
+        stat_x = sx + sw - 96
+        file_kids.append(text(cid + "_dir", sc.t(dir_i), dx, dy, dw, dh, size=12, color="muted"))
+        file_kids.append(text(cid + "_name", sc.t(name_i), dx, ny, nw, nh, size=15, weight=500))
+        file_kids.append(text(cid + "_add", add, stat_x, sy, 56, sh, size=15, weight=500,
+                              color="green"))
+        file_kids.append(text(cid + "_del", dele, stat_x + 60, sy, 40, sh, size=15, weight=500,
+                              color="red"))
+        sc.controls[cid] = (f"files.open.{cid}", [16, int(dy) - 14, 374, 96], True)
+    # two dividers between the three rows (measured y308 / y437)
+    file_kids.append(surface("div_1", 30, 307, 346, 1, bg="hair", radius=0))
+    file_kids.append(surface("div_2", 30, 436, 346, 1, bg="hair", radius=0))
+    sc.put(surface("files_card", 16, 178, 374, 386, bg="white", radius=12, border=1,
+                   bordercolor="hair", kids=file_kids))
+    # ref z7-07-showdiff: the chevron is at the row's RIGHT edge next to "Show diff".
+    _, sx2, sy2, sw2, sh2 = sc.rows[13]
+    sc.put(text("t_show", sc.t(13), sx2, sy2, sw2, sh2, weight=500, size=14))
+    sc.add_icon("icon_show", "chevron_right", sx2 + sw2 + 6, sy2 + 3, 16, 16, color="muted")
     sc.wrap("edited_files_card", 16, 60, 374, 580)
 
 def build_10(sc):
@@ -538,8 +599,12 @@ def build_10(sc):
     _, gx, gy, gw, gh = sc.rows[0]
     sc.put(surface("goal_strip", 16, 28, 374, 40, bg="box", radius=10, kids=[
         text("t01", sc.t(0), gx, gy, gw, gh, weight=500),
-        icon("icon_pause", "pause", 330, 32, 16, 18, color="muted")]))
-    sc.controls["goal_pause"] = ("goal.pause", [330, 32, 16, 18], True)
+        # ref z7-10-goal: TWO controls at the strip's right — pause ‖ (x309..319)
+        # and a filled stop ■ (x347..358). v7 drew only a thin pause.
+        icon("icon_pause", "pause", 308, 33, 14, 16, color="muted"),
+        icon("icon_stop", "stop_filled", 346, 33, 14, 16, color="muted")]))
+    sc.controls["goal_pause"] = ("goal.pause", [308, 33, 14, 16], True)
+    sc.controls["goal_stop"] = ("goal.stop", [346, 33, 14, 16], True)
     sc.add_text("t02", 1, weight=600)
     steps = [(2, "done"), (3, "done"), (4, "done"), (5, "active"), (6, "pending")]
     kids = []
@@ -550,18 +615,14 @@ def build_10(sc):
                          color="ink" if state != "pending" else "muted"))
     sc.put(stack("plan_steps", 24, 200, 368, 420, kids))
     sc.flows["plan_steps"] = ("plan.steps", 24, 200, 368, 420)
-    # step markers (check / spinner / ring) at the measured left gutter
-    # (ref: green checks x41-66 y226-433 for steps 1-3; blue spinner on step 4).
-    marks = [(2, 228, "check"), (3, 314, "check"), (4, 400, "check"),
-             (5, 486, "spinner"), (6, 572, None)]
+    # step markers (z-10-marks): done steps are BLUE FILLED discs with a white check
+    # (x40..66, r≈13); the active step is a dotted blue ring; the pending step is a
+    # plain grey outline ring. v6 drew green outline checks instead.
+    marks = [(2, 226, "check_circle"), (3, 311, "check_circle"), (4, 397, "check_circle"),
+             (5, 482, "ring_dotted"), (6, 570, "ring")]
     for i, (row_i, my, glyph) in enumerate(marks):
-        if glyph == "check":
-            sc.add_icon(f"icon_step{i}", "check", 42, my, 24, 24, color="green")
-        elif glyph == "spinner":
-            sc.add_icon(f"icon_step{i}", "spinner", 42, my, 24, 24, color="blue")
-        else:
-            sc.put(surface(f"icon_step{i}", 42, my, 24, 24, bg="white", radius=999,
-                           border=1, bordercolor="hair"))
+        sc.add_icon(f"icon_step{i}", glyph, 40, my, 26, 26,
+                    color="blue" if glyph != "ring" else "muted")
     # wrap the plan parts as `plan-card` (card #18); the goal strip was already
     # placed above and stays its own component (`goal-strip`).
     # NOTE: goal_strip was put first, so re-parent it out before wrapping.
@@ -576,14 +637,25 @@ def build_11(sc):
     rows (not measured boxes): a line-number gutter, 2 red removed, 4 green added,
     then a grey folded row ":412 unmodified lines"."""
     sc.add_text("t01", 0, weight=600, size=19)
-    sc.add_control("scope_pill", 196, 30, 96, 34, 1, bg="white", radius=999, weight=500,
-                   border=1, bordercolor="hair", lx=205, ly=38, lw=100, lh=22,
-                   icon_name="chevron_down", event="diff.scope")
-    sc.add_text("t03", 2, weight=500, size=14, color="green")
-    # file header
+    # ref-11-head: the scope pill's chevron sits at the pill's RIGHT edge, not at
+    # x+10 (which landed on the "Last turn" label); and the totals are "+62" green
+    # followed by "-5" red, not one small green string.
+    sc.put(surface("scope_pill", 196, 30, 96, 34, bg="white", radius=999, border=1,
+                   bordercolor="hair", kids=[
+        text("scope_label", sc.t(1), 205, 38, 74, 22, size=14, weight=500),
+        icon("scope_chev", "chevron_down", 266, 40, 16, 16, color="muted")]))
+    sc.controls["scope_pill"] = ("diff.scope", [196, 30, 96, 34], True)
+    # totals: "+62" green then "-5" red, split at the measured "+62 -5" row.
+    _, tx, ty, tw, th = sc.rows[2]
+    sc.put(text("t_add", "+62", tx, ty, 46, th, weight=500, size=15, color="green"))
+    sc.put(text("t_del", "-5", tx + 48, ty, 40, th, weight=500, size=15, color="red"))
+    # file header: a flat bordered row, filename in mono, +31 green / -4 red.
     _, fx, fy, fw, fh = sc.rows[3]
-    sc.put(surface("file_header", 20, fy - 8, 366, 40, bg="white", radius=10, kids=[
-        code("t_file", sc.t(3), fx, fy, fw, fh, size=13, weight=500)]))
+    sc.put(surface("file_header", 20, fy - 10, 366, 42, bg="white", radius=10, border=1,
+                   bordercolor="hair", kids=[
+        code("t_file", "ui_protocol_transport.rs", fx, fy, 220, fh, size=14, weight=500),
+        text("t_fadd", "+31", 268, fy, 40, fh, size=14, weight=500, color="green"),
+        text("t_fdel", "-4", 312, fy, 30, fh, size=14, weight=500, color="red")]))
     # the diff rows (a list of rows; the outer loop reads the flow binding).
     # Row pitch and the first row's y are the MEASURED ref bands
     # (207,256,304,357,407,457,508,558 → pitch ~50.2, start 199 for the row box).
@@ -619,8 +691,10 @@ def build_11(sc):
     _, ux, uy, uw, uh = sc.rows[19]
     sc.put(surface("folded", 24, uy - 8, 358, 34, bg="box", radius=8, kids=[
         text("t_fold", sc.t(19), ux, uy, uw, uh, size=12, color="muted")]))
-    # one composition root so the subtree extracts as `diff-view` (card #18)
-    sc.wrap("diff_view", 16, 20, 374, 640)
+    # one composition root so the subtree extracts as `diff-view` (card #18), and
+    # the reference encloses the whole diff in a bordered white card (measured
+    # vertical hairlines at logical x25/26 and x380/381, y100..700).
+    sc.wrap_card("diff_view", 20, 92, 362, 566)
 
 def build_12(sc):
     """SETTINGS CARD. Section title "Permissions" + a grouped card with 2 rows
@@ -629,19 +703,27 @@ def build_12(sc):
     sc.add_text("t01", 0, weight=600, size=19)
     card_kids = [
         text("t_r1", sc.t(1), *sc.rows[1][1:], size=15, weight=500),
-        text("t_d1", sc.t(2) + " " + sc.t(3), 45, 164, 280, 44, size=12, color="muted"),
+        # ref-12: each row's description WRAPS to two lines ("Ask before running
+        # commands" / "that modify your system.") in a ~200-wide region; v6 used a
+        # single_line `text` at width 280, which clipped it to one line.
+        flow_text("t_d1", sc.t(2) + " " + sc.t(3), 45, 164, 210, 44, size=13,
+                  color="muted"),
         text("t_r2", sc.t(4), *sc.rows[4][1:], size=15, weight=500),
-        text("t_d2", sc.t(5) + " " + sc.t(6), 45, 316, 280, 44, size=12, color="muted"),
+        flow_text("t_d2", sc.t(5) + " " + sc.t(6), 45, 316, 210, 44, size=13,
+                  color="muted"),
         # toggles: track + knob (first ON = blue, second OFF = grey)
-        surface("toggle1", 320, 128, 44, 26, bg="blue", radius=999,
-                kids=[surface("toggle1_knob", 342, 131, 20, 20, bg="white", radius=999)]),
-        surface("toggle2", 320, 280, 44, 26, bg="hair", radius=999,
-                kids=[surface("toggle2_knob", 323, 283, 20, 20, bg="white", radius=999)]),
+        surface("toggle1", 312, 130, 50, 30, bg="blue", radius=999,
+                kids=[surface("toggle1_knob", 336, 133, 24, 24, bg="white", radius=999)]),
+        surface("toggle2", 312, 282, 50, 30, bg="hair", radius=999,
+                kids=[surface("toggle2_knob", 315, 285, 24, 24, bg="white", radius=999)]),
     ]
     # ref: grouped card y97..~370 covering BOTH rows (labels at y129 / y281,
     # descriptions to y353), so h≈273 — not the too-short 232 v1 drew.
     sc.put(surface("perm_card", 28, 99, 350, 272, bg="white", radius=12, border=1,
                    bordercolor="hair", kids=card_kids))
+    # ref z7-12-divider: a full-width hairline between the two permission rows
+    # (measured grey row at logical y249), inside the card.
+    sc.put(surface("perm_divider", 30, 248, 346, 1, bg="hair", radius=0))
     sc.controls["toggle_default"] = ("settings.permissions.default", [320, 128, 44, 26], True)
     sc.controls["toggle_full"] = ("settings.permissions.full", [320, 280, 44, 26], True)
     sc.add_text("t_sec2", 7, weight=600, size=17)

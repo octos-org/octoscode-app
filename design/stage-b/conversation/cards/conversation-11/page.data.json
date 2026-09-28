@@ -3,7 +3,7 @@
     "theme": "light",
     "placements": {
       "page": {
-        "component": "Surface991755d1cfb2",
+        "component": "Surface156d085f4ff5",
         "layout": {
           "x": 0,
           "y": 0,
@@ -12,12 +12,12 @@
         }
       },
       "diff_view": {
-        "component": "Group3d2637879433",
+        "component": "Surface075259015c99",
         "layout": {
-          "x": 16.0,
-          "y": 20.0,
-          "w": 374.0,
-          "h": 640.0
+          "x": 20.0,
+          "y": 92.0,
+          "w": 362.0,
+          "h": 566.0
         }
       },
       "t01": {
@@ -30,15 +30,6 @@
         }
       },
       "scope_pill": {
-        "component": "KitButton3ea7d97692cf",
-        "layout": {
-          "x": 196.0,
-          "y": 23.0,
-          "w": 103.0,
-          "h": 45.0
-        }
-      },
-      "scope_pill_surface": {
         "component": "Surfacea5608e1e058c",
         "layout": {
           "x": 196.0,
@@ -47,26 +38,7 @@
           "h": 45.0
         }
       },
-      "scope_pill_control": {
-        "component": "NativeButton02f1d1bd99b4",
-        "layout": {
-          "x": 196.0,
-          "y": 23.0,
-          "w": 103.0,
-          "h": 45.0
-        }
-      },
-      "scope_pill_icon": {
-        "component": "Vectore0a378fde04f",
-        "layout": {
-          "x": 206.729,
-          "y": 33.588,
-          "w": 19.312,
-          "h": 23.824,
-          "src": "http://127.0.0.1:8170/ux-images/conversation-11/assets/scope_pill_icon-70eecacd8dd0.svg"
-        }
-      },
-      "scope_pill_label": {
+      "scope_label": {
         "component": "Text48b00185d34b",
         "layout": {
           "x": 207.27,
@@ -75,17 +47,36 @@
           "h": 21.5
         }
       },
-      "t03": {
-        "component": "Text47a505168e6b",
+      "scope_chev": {
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 314.22,
-          "y": 35.0,
-          "w": 31.0,
+          "x": 271.104,
+          "y": 36.235,
+          "w": 17.167,
+          "h": 21.176,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-11/assets/scope_chev-a742d013f874.svg"
+        }
+      },
+      "t_add": {
+        "component": "Text98953305a681",
+        "layout": {
+          "x": 309.01,
+          "y": 37.0,
+          "w": 46.0,
+          "h": 22.5
+        }
+      },
+      "t_del": {
+        "component": "Text5abfe3ea15d7",
+        "layout": {
+          "x": 357.01,
+          "y": 37.0,
+          "w": 40.0,
           "h": 22.5
         }
       },
       "file_header": {
-        "component": "Surfaceb1730749f362",
+        "component": "Surface66974e630766",
         "layout": {
           "x": 26.0,
           "y": 99.0,
@@ -94,12 +85,30 @@
         }
       },
       "t_file": {
-        "component": "Text6d7583a6c3db",
+        "component": "Textd1dcd4e3c06f",
         "layout": {
-          "x": 43.5,
+          "x": 43.21,
           "y": 130.5,
           "w": 210.0,
           "h": 25.5
+        }
+      },
+      "t_fadd": {
+        "component": "Texte6180efdd7f5",
+        "layout": {
+          "x": 268.0,
+          "y": 131.97,
+          "w": 40.0,
+          "h": 23.69
+        }
+      },
+      "t_fdel": {
+        "component": "Textf25a9206847b",
+        "layout": {
+          "x": 312.0,
+          "y": 131.97,
+          "w": 30.0,
+          "h": 23.69
         }
       },
       "diff_rows": {

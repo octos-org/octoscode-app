@@ -20,10 +20,10 @@
           {
             "t": "svg",
             "id": "icon_shield",
-            "x": 25.0,
+            "x": 26.0,
             "y": 85.0,
             "w": 30.0,
-            "h": 34.0,
+            "h": 42.0,
             "src": ""
           },
           {
@@ -71,23 +71,27 @@
             ],
             "variant": "surface",
             "bg": 4294506745,
-            "radius": 10.42
+            "radius": 14.74,
+            "border": 1,
+            "bordercolor": 4293256679
           },
           {
             "t": "text",
             "id": "reason_text",
             "text": "Reason: Push the fix branch so Cl can run",
-            "x": 20.7,
+            "x": 19.78688524590164,
             "y": 274.5,
-            "w": 297.0,
-            "h": 23.5,
-            "size": 14.84,
-            "line_height": 17.96,
+            "w": 302.0,
+            "h": 66.0,
+            "size": 21,
+            "line_height": 30.45,
             "weight": 400,
             "color": 4287730069,
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-400.ttf",
-            "tracking": 0.0
+            "tracking": 0.0,
+            "font_asc": -0.12760416666666663,
+            "font_desc": 0.14908854166666663
           },
           {
             "t": "stack",

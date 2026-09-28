@@ -34,8 +34,8 @@
       "value": 4294506745,
       "property": "bg"
     },
-    "radius_fe8500cb61cd": {
-      "value": 10.42,
+    "radius_4c71d69c486a": {
+      "value": 14.74,
       "property": "radius"
     },
     "size_edd3f0c482b3": {
@@ -58,12 +58,12 @@
       "value": "self:resources/ux/LiberationMono-Regular.ttf",
       "property": "font_src"
     },
-    "size_69319d52f075": {
-      "value": 14.84,
+    "size_6f4b6612125f": {
+      "value": 21,
       "property": "size"
     },
-    "line_height_85e64e605fd5": {
-      "value": 17.96,
+    "line_height_cf145fc3cac0": {
+      "value": 30.45,
       "property": "line_height"
     },
     "weight_26d228663f13": {
@@ -77,6 +77,14 @@
     "font_src_86ab34a300f7": {
       "value": "self:resources/ux/Inter-400.ttf",
       "property": "font_src"
+    },
+    "font_asc_fb739220b8a0": {
+      "value": -0.12760416666666663,
+      "property": "font_asc"
+    },
+    "font_desc_0bae117af4ba": {
+      "value": 0.14908854166666663,
+      "property": "font_desc"
     },
     "bg_f073f8a3fabb": {
       "value": 4278255616,
@@ -206,7 +214,7 @@
       },
       "slot": false
     },
-    "Surface1f1c4c84b15b": {
+    "Surfaced4520a0efa8e": {
       "style": {
         "t": "stack",
         "variant": "surface",
@@ -214,8 +222,10 @@
           "$token": "bg_4aab52185f5c"
         },
         "radius": {
-          "$token": "radius_fe8500cb61cd"
-        }
+          "$token": "radius_4c71d69c486a"
+        },
+        "border": 1,
+        "bordercolor": 4293256679
       },
       "props": {},
       "slot": true
@@ -249,14 +259,14 @@
       },
       "slot": false
     },
-    "Text5767bb516ca2": {
+    "Text776e18c492bd": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_69319d52f075"
+          "$token": "size_6f4b6612125f"
         },
         "line_height": {
-          "$token": "line_height_85e64e605fd5"
+          "$token": "line_height_cf145fc3cac0"
         },
         "weight": {
           "$token": "weight_26d228663f13"
@@ -270,6 +280,12 @@
         },
         "tracking": {
           "$token": "tracking_8aed642bf511"
+        },
+        "font_asc": {
+          "$token": "font_asc_fb739220b8a0"
+        },
+        "font_desc": {
+          "$token": "font_desc_0bae117af4ba"
         }
       },
       "props": {

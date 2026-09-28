@@ -52,30 +52,30 @@
             "tracking": 0.0
           },
           {
-            "t": "svg",
-            "id": "icon_undo",
-            "x": 231.0,
-            "y": 86.0,
-            "w": 18.0,
-            "h": 20.0,
-            "src": ""
-          },
-          {
             "t": "text",
             "id": "t_undo",
-            "text": "Undo 9",
-            "x": 232.07,
+            "text": "Undo",
+            "x": 231.57,
             "y": 85.0,
             "w": 65.5,
-            "h": 24.5,
-            "size": 17.77,
-            "line_height": 21.5,
+            "h": 29.02,
+            "size": 23.99,
+            "line_height": 29.02,
             "weight": 500,
             "color": 4278979596,
             "variant": "single_line",
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-500.ttf",
             "tracking": 0.0
+          },
+          {
+            "t": "svg",
+            "id": "icon_undo",
+            "x": 295.19,
+            "y": 88.85,
+            "w": 18.0,
+            "h": 18.0,
+            "src": ""
           },
           {
             "t": "stack",
@@ -130,21 +130,12 @@
           },
           {
             "t": "stack",
-            "id": "file_1",
-            "x": 17.0,
-            "y": 180.0,
-            "w": 374.0,
-            "h": 129.0,
+            "id": "files_card",
+            "x": 15.0,
+            "y": 178.0,
+            "w": 378.0,
+            "h": 389.0,
             "c": [
-              {
-                "t": "svg",
-                "id": "file_1_icon",
-                "x": 33.0,
-                "y": 201.5,
-                "w": 20.0,
-                "h": 29.562,
-                "src": ""
-              },
               {
                 "t": "text",
                 "id": "file_1_dir",
@@ -181,44 +172,35 @@
               },
               {
                 "t": "text",
-                "id": "file_1_stat",
-                "text": "+31 -4",
-                "x": 304.19,
-                "y": 232.5,
-                "w": 31.0,
-                "h": 25.0,
-                "size": 8.72,
-                "line_height": 10.56,
+                "id": "file_1_add",
+                "text": "+31",
+                "x": 270.53,
+                "y": 234.5,
+                "w": 56.0,
+                "h": 24.0,
+                "size": 15,
+                "line_height": 24.0,
                 "weight": 500,
-                "color": 4283075663,
+                "color": 4280256573,
                 "variant": "single_line",
                 "alignx": 0,
-                "font_src": "self:resources/ux/Inter-500.ttf",
-                "tracking": 0.0
-              }
-            ],
-            "variant": "surface",
-            "bg": 4294901245,
-            "radius": 16.12,
-            "border": 1,
-            "bordercolor": 4293256679
-          },
-          {
-            "t": "stack",
-            "id": "file_2",
-            "x": 16.0,
-            "y": 331.14,
-            "w": 374.0,
-            "h": 96.0,
-            "c": [
+                "font_src": "self:resources/ux/Inter-500.ttf"
+              },
               {
-                "t": "svg",
-                "id": "file_2_icon",
-                "x": 32.0,
-                "y": 347.14,
-                "w": 20.0,
-                "h": 22.0,
-                "src": ""
+                "t": "text",
+                "id": "file_1_del",
+                "text": "-4",
+                "x": 330.53,
+                "y": 234.5,
+                "w": 40.0,
+                "h": 24.0,
+                "size": 15,
+                "line_height": 24.0,
+                "weight": 500,
+                "color": 4291764782,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf"
               },
               {
                 "t": "text",
@@ -256,44 +238,35 @@
               },
               {
                 "t": "text",
-                "id": "file_2_stat",
-                "text": "+9 - 1",
-                "x": 308.83,
-                "y": 361.0,
-                "w": 23.5,
-                "h": 25.0,
-                "size": 7.2,
-                "line_height": 8.71,
+                "id": "file_2_add",
+                "text": "+9",
+                "x": 270.53,
+                "y": 363.0,
+                "w": 56.0,
+                "h": 22.5,
+                "size": 15,
+                "line_height": 22.5,
                 "weight": 500,
-                "color": 4283076176,
+                "color": 4280256573,
                 "variant": "single_line",
                 "alignx": 0,
-                "font_src": "self:resources/ux/Inter-500.ttf",
-                "tracking": 0.0
-              }
-            ],
-            "variant": "surface",
-            "bg": 4294835709,
-            "radius": 12.0,
-            "border": 1,
-            "bordercolor": 4293256679
-          },
-          {
-            "t": "stack",
-            "id": "file_3",
-            "x": 17.0,
-            "y": 439.0,
-            "w": 373.0,
-            "h": 126.0,
-            "c": [
+                "font_src": "self:resources/ux/Inter-500.ttf"
+              },
               {
-                "t": "svg",
-                "id": "file_3_icon",
-                "x": 32.957,
-                "y": 460.0,
-                "w": 19.947,
-                "h": 28.875,
-                "src": ""
+                "t": "text",
+                "id": "file_2_del",
+                "text": "- 1",
+                "x": 330.53,
+                "y": 363.0,
+                "w": 40.0,
+                "h": 22.5,
+                "size": 15,
+                "line_height": 22.5,
+                "weight": 500,
+                "color": 4291764782,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf"
               },
               {
                 "t": "text",
@@ -331,36 +304,66 @@
               },
               {
                 "t": "text",
-                "id": "file_3_stat",
-                "text": "+22 -0",
-                "x": 296.65,
-                "y": 489.5,
-                "w": 34.0,
-                "h": 24.5,
-                "size": 9.16,
-                "line_height": 11.09,
+                "id": "file_3_add",
+                "text": "+22",
+                "x": 270.53,
+                "y": 490.5,
+                "w": 56.0,
+                "h": 25.0,
+                "size": 15,
+                "line_height": 25.0,
                 "weight": 500,
-                "color": 4282747211,
+                "color": 4280256573,
                 "variant": "single_line",
                 "alignx": 0,
-                "font_src": "self:resources/ux/Inter-500.ttf",
-                "tracking": 0.0
+                "font_src": "self:resources/ux/Inter-500.ttf"
+              },
+              {
+                "t": "text",
+                "id": "file_3_del",
+                "text": "-0",
+                "x": 330.53,
+                "y": 490.5,
+                "w": 40.0,
+                "h": 25.0,
+                "size": 15,
+                "line_height": 25.0,
+                "weight": 500,
+                "color": 4291764782,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf"
+              },
+              {
+                "t": "stack",
+                "id": "div_1",
+                "x": 29.15,
+                "y": 308.003,
+                "w": 349.701,
+                "h": 1.008,
+                "c": [],
+                "variant": "surface",
+                "bg": 4293256679,
+                "radius": 0
+              },
+              {
+                "t": "stack",
+                "id": "div_2",
+                "x": 29.15,
+                "y": 438.005,
+                "w": 349.701,
+                "h": 1.008,
+                "c": [],
+                "variant": "surface",
+                "bg": 4293256679,
+                "radius": 0
               }
             ],
             "variant": "surface",
             "bg": 4294901246,
-            "radius": 15.75,
+            "radius": 12.13,
             "border": 1,
             "bordercolor": 4293256679
-          },
-          {
-            "t": "svg",
-            "id": "icon_show",
-            "x": 33.0,
-            "y": 605.0,
-            "w": 16.0,
-            "h": 18.0,
-            "src": ""
           },
           {
             "t": "text",
@@ -378,6 +381,15 @@
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-500.ttf",
             "tracking": 0.0
+          },
+          {
+            "t": "svg",
+            "id": "icon_show",
+            "x": 121.12,
+            "y": 608.37,
+            "w": 16.0,
+            "h": 16.0,
+            "src": ""
           }
         ]
       }
@@ -411,27 +423,15 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "file_1",
+      "id": "files_card",
       "source": "observed non-text annotation"
     },
     {
-      "id": "file_1_icon",
+      "id": "div_1",
       "source": "observed non-text annotation"
     },
     {
-      "id": "file_2",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "file_2_icon",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "file_3",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "file_3_icon",
+      "id": "div_2",
       "source": "observed non-text annotation"
     },
     {
@@ -454,7 +454,7 @@
       "id": "t_undo",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.21560813848920865
+      "tracking_em": -0.07340494791666671
     },
     {
       "id": "review_label",
@@ -475,12 +475,6 @@
       "tracking_em": -0.15674485742845112
     },
     {
-      "id": "file_1_stat",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.39744698660714284
-    },
-    {
       "id": "file_2_dir",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
@@ -493,12 +487,6 @@
       "tracking_em": -0.15814110716681576
     },
     {
-      "id": "file_2_stat",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.3679077273895169
-    },
-    {
       "id": "file_3_dir",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
@@ -509,12 +497,6 @@
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.18240685096153847
-    },
-    {
-      "id": "file_3_stat",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.4065405868902438
     },
     {
       "id": "t_show",

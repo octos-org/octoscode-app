@@ -61,10 +61,10 @@
     {
       "id": "icon_shield",
       "bounds": [
-        25.0,
+        26.0,
         85.0,
         30.0,
-        34.0
+        42.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -80,7 +80,7 @@
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4294506745,
-      "radius": 10.42
+      "radius": 14.74
     },
     {
       "id": "approve_once",

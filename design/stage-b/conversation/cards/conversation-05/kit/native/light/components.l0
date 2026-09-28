@@ -10,14 +10,14 @@ component Vectore0a378fde04f(instance: text) {
 component Text8cb1e9073ec4(instance: text, text: text) {
   view Kit(component: "Text8cb1e9073ec4", instance: instance, text: text)
 }
-component Surface1f1c4c84b15b(instance: text) {
-  view Kit(component: "Surface1f1c4c84b15b", instance: instance) { slot }
+component Surfaced4520a0efa8e(instance: text) {
+  view Kit(component: "Surfaced4520a0efa8e", instance: instance) { slot }
 }
 component Textd0578af30f19(instance: text, text: text) {
   view Kit(component: "Textd0578af30f19", instance: instance, text: text)
 }
-component Text5767bb516ca2(instance: text, text: text) {
-  view Kit(component: "Text5767bb516ca2", instance: instance, text: text)
+component Text776e18c492bd(instance: text, text: text) {
+  view Kit(component: "Text776e18c492bd", instance: instance, text: text)
 }
 component KitButton2c6804b990a5(instance: text) {
   view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }

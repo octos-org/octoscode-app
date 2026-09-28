@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "99dd4bab495866605bc66626554f25b3b77c915e7ae84a38d4f775cee4aaf1e0",
+  "contract_sha256": "2602d3024eb0186f46c7148005cc8954b3280737f8de3630b0013523c836a8dd",
   "reference_sha256": "fe2a07008abd5030ea7578123a3a20b4540bb1f7b61ddc0df0f3c1c66d7401b6",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -35,6 +35,22 @@
       "asset": {
         "path": "assets/icon_pause.svg",
         "sha256": "2511dd231bde5eea2eba48ef1eb28e435dd8483c3b86819dab26944ddcd4449a",
+        "method": "reference_svg",
+        "reference_sha256": "fe2a07008abd5030ea7578123a3a20b4540bb1f7b61ddc0df0f3c1c66d7401b6",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "icon_stop",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_stop.svg",
+        "sha256": "c1588916c331a7b20227609542114b4691c5dd9e6c3a4905d12e0b42b09af4c6",
         "method": "reference_svg",
         "reference_sha256": "fe2a07008abd5030ea7578123a3a20b4540bb1f7b61ddc0df0f3c1c66d7401b6",
         "fit": "stretch",
@@ -106,7 +122,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/icon_step0.svg",
-        "sha256": "4b2ffeb0c612b6ac5d6eab283e75e2e6fa93faeb288385b664af75f20d257415",
+        "sha256": "b824e233c4340c92d61bdfca25a459df13424f457afb9cb6d318ee882615b817",
         "method": "reference_svg",
         "reference_sha256": "fe2a07008abd5030ea7578123a3a20b4540bb1f7b61ddc0df0f3c1c66d7401b6",
         "fit": "stretch",
@@ -122,7 +138,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/icon_step1.svg",
-        "sha256": "4b2ffeb0c612b6ac5d6eab283e75e2e6fa93faeb288385b664af75f20d257415",
+        "sha256": "b824e233c4340c92d61bdfca25a459df13424f457afb9cb6d318ee882615b817",
         "method": "reference_svg",
         "reference_sha256": "fe2a07008abd5030ea7578123a3a20b4540bb1f7b61ddc0df0f3c1c66d7401b6",
         "fit": "stretch",
@@ -138,7 +154,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/icon_step2.svg",
-        "sha256": "4b2ffeb0c612b6ac5d6eab283e75e2e6fa93faeb288385b664af75f20d257415",
+        "sha256": "b824e233c4340c92d61bdfca25a459df13424f457afb9cb6d318ee882615b817",
         "method": "reference_svg",
         "reference_sha256": "fe2a07008abd5030ea7578123a3a20b4540bb1f7b61ddc0df0f3c1c66d7401b6",
         "fit": "stretch",
@@ -154,7 +170,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/icon_step3.svg",
-        "sha256": "cd5dfff5e94a77d90d5b7038fdf99acd6664e53e839b65a17584a63c64be1688",
+        "sha256": "ba063c2873aad3af769a9d158a6cfe42f909cc43e8ffe3e9b9d2ec9648576157",
         "method": "reference_svg",
         "reference_sha256": "fe2a07008abd5030ea7578123a3a20b4540bb1f7b61ddc0df0f3c1c66d7401b6",
         "fit": "stretch",
@@ -164,10 +180,19 @@
     },
     {
       "id": "icon_step4",
-      "role": "layout",
-      "basis": "authored stack node",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
       "confidence": 1.0,
-      "decision": "declared"
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_step4.svg",
+        "sha256": "642d248796076c3b11765a98fd05c41def6dd5c1198516706a340ef0c826cd90",
+        "method": "reference_svg",
+        "reference_sha256": "fe2a07008abd5030ea7578123a3a20b4540bb1f7b61ddc0df0f3c1c66d7401b6",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
     }
   ]
 }

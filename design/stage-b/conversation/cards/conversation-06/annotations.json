@@ -49,10 +49,10 @@
     {
       "id": "icon_decision",
       "bounds": [
-        92.0,
-        78.0,
         24.0,
-        26.0
+        80.0,
+        26.0,
+        28.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -69,17 +69,15 @@
       "reviewed": false
     },
     {
-      "id": "opt_ledger_ring",
+      "id": "opt_ledger_radio",
       "bounds": [
         38.0,
         256.59,
-        18.0,
-        18.0
+        20.0,
+        20.0
       ],
-      "method": "surface contour unresolved; requested geometry retained",
-      "reviewed": false,
-      "bg": 4286621410,
-      "radius": 9.0
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     },
     {
       "id": "opt_memory",
@@ -93,17 +91,15 @@
       "reviewed": false
     },
     {
-      "id": "opt_memory_ring",
+      "id": "opt_memory_radio",
       "bounds": [
         38.0,
         357.12,
-        18.0,
-        18.0
+        20.0,
+        20.0
       ],
-      "method": "surface contour unresolved; requested geometry retained",
-      "reviewed": false,
-      "bg": 4294835709,
-      "radius": 9.0
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     },
     {
       "id": "opt_ask",
@@ -117,25 +113,36 @@
       "reviewed": false
     },
     {
-      "id": "opt_ask_ring",
+      "id": "opt_ask_radio",
       "bounds": [
         38.0,
         417.52,
-        18.0,
-        18.0
+        20.0,
+        20.0
       ],
-      "method": "surface contour unresolved; requested geometry retained",
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "note_box",
+      "bounds": [
+        23.0,
+        474.0,
+        358.0,
+        69.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
-      "bg": 4294769916,
-      "radius": 9.0
+      "bg": 4294901502,
+      "radius": 13.8
     },
     {
       "id": "note_input",
       "bounds": [
-        38.0,
-        486.0,
-        330.0,
-        34.0
+        37.828,
+        487.8,
+        328.343,
+        41.4
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false

@@ -46,10 +46,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_shield",
-    "x": 25.0,
+    "x": 26.0,
     "y": 85.0,
     "w": 30.0,
-    "h": 34.0,
+    "h": 42.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -72,9 +72,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "cmd_box",
     "x": 20.0,
-    "y": 160.0,
+    "y": 158.0,
     "w": 366.0,
-    "h": 66.0,
+    "h": 70.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -99,12 +99,12 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "reason_text",
     "x": 21.0,
-    "y": 268.0,
-    "w": 258.0,
-    "h": 52.0,
+    "y": 266.0,
+    "w": 302.0,
+    "h": 66.0,
     "text": "Reason: Push the fix branch so Cl can run",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 21,
     "weight": 400,
     "role": "text",
     "native_candidates": [

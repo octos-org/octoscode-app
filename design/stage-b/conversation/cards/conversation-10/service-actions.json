@@ -4,10 +4,20 @@
     "goal_pause": {
       "event": "goal.pause",
       "source_bounds": [
-        330,
-        32,
-        16,
-        18
+        308,
+        33,
+        14,
+        16
+      ],
+      "enabled": true
+    },
+    "goal_stop": {
+      "event": "goal.stop",
+      "source_bounds": [
+        346,
+        33,
+        14,
+        16
       ],
       "enabled": true
     }

@@ -23,11 +23,11 @@
       "icon_decision": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 92.0,
-          "y": 78.0,
-          "w": 24.0,
-          "h": 26.0,
-          "src": "http://127.0.0.1:8170/ux-images/conversation-06/assets/icon_decision-543f1ddf9968.svg"
+          "x": 24.0,
+          "y": 80.0,
+          "w": 26.0,
+          "h": 28.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-06/assets/icon_decision-79c4499823a8.svg"
         }
       },
       "t01": {
@@ -40,12 +40,12 @@
         }
       },
       "question_text": {
-        "component": "Text974d2475b0aa",
+        "component": "Text15ed7064d520",
         "layout": {
           "x": 37.0,
           "y": 150.0,
-          "w": 336.0,
-          "h": 56.0
+          "w": 290.0,
+          "h": 62.0
         }
       },
       "opt_ledger": {
@@ -57,13 +57,14 @@
           "h": 43.71
         }
       },
-      "opt_ledger_ring": {
-        "component": "Surface0b71cfcd2704",
+      "opt_ledger_radio": {
+        "component": "Vectore0a378fde04f",
         "layout": {
           "x": 38.0,
           "y": 256.59,
-          "w": 18.0,
-          "h": 18.0
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-06/assets/opt_ledger_radio-def80ed3f9f0.svg"
         }
       },
       "opt_ledger_label": {
@@ -84,13 +85,14 @@
           "h": 38.28
         }
       },
-      "opt_memory_ring": {
-        "component": "Surface01dd50e9e876",
+      "opt_memory_radio": {
+        "component": "Vectore0a378fde04f",
         "layout": {
           "x": 38.0,
           "y": 357.12,
-          "w": 18.0,
-          "h": 18.0
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-06/assets/opt_memory_radio-c5fdf81a4628.svg"
         }
       },
       "opt_memory_label": {
@@ -111,13 +113,14 @@
           "h": 34.78
         }
       },
-      "opt_ask_ring": {
-        "component": "Surface829b0eb31acc",
+      "opt_ask_radio": {
+        "component": "Vectore0a378fde04f",
         "layout": {
           "x": 38.0,
           "y": 417.52,
-          "w": 18.0,
-          "h": 18.0
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-06/assets/opt_ask_radio-c5fdf81a4628.svg"
         }
       },
       "opt_ask_label": {
@@ -138,13 +141,22 @@
           "h": 27.0
         }
       },
-      "note_input": {
-        "component": "Inputd4c45cbb8a67",
+      "note_box": {
+        "component": "Surfaceb8dcba023741",
         "layout": {
-          "x": 38.0,
-          "y": 486.0,
-          "w": 330.0,
-          "h": 34.0
+          "x": 23.0,
+          "y": 474.0,
+          "w": 358.0,
+          "h": 69.0
+        }
+      },
+      "note_input": {
+        "component": "Inputc2483154ab8c",
+        "layout": {
+          "x": 37.828,
+          "y": 487.8,
+          "w": 328.343,
+          "h": 41.4
         }
       },
       "submit_answer": {

@@ -68,6 +68,22 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 23.69,
     "text": "+62 -5",
     "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 15,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_undo",
+    "x": 231.19,
+    "y": 86.85,
+    "w": 62.0,
+    "h": 22.65,
+    "text": "Undo",
+    "font_src": "self:resources/ux/Inter-500.ttf",
     "size": 14,
     "weight": 500,
     "role": "text",
@@ -78,28 +94,12 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_undo",
-    "x": 231.0,
-    "y": 86.0,
+    "x": 295.19,
+    "y": 88.85,
     "w": 18.0,
-    "h": 20.0,
+    "h": 18.0,
     "role": "unknown",
     "native_candidates": []
-  },
-  {
-    "id": "t_undo",
-    "x": 231.19,
-    "y": 86.85,
-    "w": 64.28,
-    "h": 22.65,
-    "text": "Undo 9",
-    "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 14,
-    "weight": 500,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
   },
   {
     "id": "review",
@@ -153,28 +153,19 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "file_1",
+    "id": "files_card",
     "x": 16.0,
-    "y": 201.43,
+    "y": 178.0,
     "w": 374.0,
-    "h": 96.0,
+    "h": 386.0,
     "role": "layout",
     "native_candidates": [
       "View"
     ]
   },
   {
-    "id": "file_1_icon",
-    "x": 32.0,
-    "y": 217.43,
-    "w": 20.0,
-    "h": 22.0,
-    "role": "unknown",
-    "native_candidates": []
-  },
-  {
     "id": "file_1_dir",
-    "x": 73.22,
+    "x": 37.22,
     "y": 215.43,
     "w": 146.61,
     "h": 19.17,
@@ -190,7 +181,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "file_1_name",
-    "x": 72.09,
+    "x": 37.22,
     "y": 250.4,
     "w": 206.38,
     "h": 27.07,
@@ -205,14 +196,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "file_1_stat",
-    "x": 299.99,
+    "id": "file_1_add",
+    "x": 270.53,
     "y": 234.5,
-    "w": 66.54,
+    "w": 56.0,
     "h": 24.0,
-    "text": "+31 -4",
+    "text": "+31",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 14,
+    "size": 15,
     "weight": 500,
     "role": "text",
     "native_candidates": [
@@ -221,28 +212,24 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "file_2",
-    "x": 16.0,
-    "y": 331.14,
-    "w": 374.0,
-    "h": 96.0,
-    "role": "layout",
+    "id": "file_1_del",
+    "x": 330.53,
+    "y": 234.5,
+    "w": 40.0,
+    "h": 24.0,
+    "text": "-4",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 15,
+    "weight": 500,
+    "role": "text",
     "native_candidates": [
-      "View"
+      "Label",
+      "TextFlow"
     ]
   },
   {
-    "id": "file_2_icon",
-    "x": 32.0,
-    "y": 347.14,
-    "w": 20.0,
-    "h": 22.0,
-    "role": "unknown",
-    "native_candidates": []
-  },
-  {
     "id": "file_2_dir",
-    "x": 73.22,
+    "x": 37.22,
     "y": 345.14,
     "w": 163.53,
     "h": 19.17,
@@ -258,7 +245,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "file_2_name",
-    "x": 73.16,
+    "x": 37.22,
     "y": 379.87,
     "w": 102.74,
     "h": 24.16,
@@ -273,14 +260,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "file_2_stat",
-    "x": 305.63,
+    "id": "file_2_add",
+    "x": 270.53,
     "y": 363.0,
-    "w": 60.9,
-    "h": 21.62,
-    "text": "+9 - 1",
+    "w": 56.0,
+    "h": 22.5,
+    "text": "+9",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 14,
+    "size": 15,
     "weight": 500,
     "role": "text",
     "native_candidates": [
@@ -289,28 +276,24 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "file_3",
-    "x": 16.0,
-    "y": 458.59,
-    "w": 374.0,
-    "h": 96.0,
-    "role": "layout",
+    "id": "file_2_del",
+    "x": 330.53,
+    "y": 363.0,
+    "w": 40.0,
+    "h": 22.5,
+    "text": "- 1",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 15,
+    "weight": 500,
+    "role": "text",
     "native_candidates": [
-      "View"
+      "Label",
+      "TextFlow"
     ]
   },
   {
-    "id": "file_3_icon",
-    "x": 32.0,
-    "y": 474.59,
-    "w": 20.0,
-    "h": 22.0,
-    "role": "unknown",
-    "native_candidates": []
-  },
-  {
     "id": "file_3_dir",
-    "x": 72.09,
+    "x": 36.09,
     "y": 472.59,
     "w": 161.27,
     "h": 20.3,
@@ -326,7 +309,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "file_3_name",
-    "x": 71.84,
+    "x": 36.09,
     "y": 510.36,
     "w": 112.06,
     "h": 25.12,
@@ -341,14 +324,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "file_3_stat",
-    "x": 290.97,
+    "id": "file_3_add",
+    "x": 270.53,
     "y": 490.5,
-    "w": 75.56,
+    "w": 56.0,
     "h": 25.0,
-    "text": "+22 -0",
+    "text": "+22",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 14,
+    "size": 15,
     "weight": 500,
     "role": "text",
     "native_candidates": [
@@ -357,13 +340,42 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "icon_show",
-    "x": 33.0,
-    "y": 605.0,
-    "w": 16.0,
-    "h": 18.0,
-    "role": "unknown",
-    "native_candidates": []
+    "id": "file_3_del",
+    "x": 330.53,
+    "y": 490.5,
+    "w": 40.0,
+    "h": 25.0,
+    "text": "-0",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 15,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "div_1",
+    "x": 30.0,
+    "y": 307.0,
+    "w": 346.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "div_2",
+    "x": 30.0,
+    "y": 436.0,
+    "w": 346.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
   },
   {
     "id": "t_show",
@@ -380,6 +392,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
       "Label",
       "TextFlow"
     ]
+  },
+  {
+    "id": "icon_show",
+    "x": 121.12,
+    "y": 608.37,
+    "w": 16.0,
+    "h": 16.0,
+    "role": "unknown",
+    "native_candidates": []
   }
 ]
 ```

@@ -61,10 +61,10 @@
     {
       "id": "icon_undo",
       "bounds": [
-        231.0,
-        86.0,
+        295.19,
+        88.85,
         18.0,
-        20.0
+        18.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -105,84 +105,47 @@
       "reviewed": false
     },
     {
-      "id": "file_1",
+      "id": "files_card",
       "bounds": [
-        17.0,
-        180.0,
-        374.0,
-        129.0
-      ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294901245,
-      "radius": 16.12
-    },
-    {
-      "id": "file_1_icon",
-      "bounds": [
-        33.0,
-        201.5,
-        20.0,
-        29.562
-      ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
-      "reviewed": false
-    },
-    {
-      "id": "file_2",
-      "bounds": [
-        16.0,
-        331.14,
-        374.0,
-        96.0
-      ],
-      "method": "surface contour unresolved; requested geometry retained",
-      "reviewed": false,
-      "bg": 4294835709,
-      "radius": 12.0
-    },
-    {
-      "id": "file_2_icon",
-      "bounds": [
-        32.0,
-        347.14,
-        20.0,
-        22.0
-      ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
-      "reviewed": false
-    },
-    {
-      "id": "file_3",
-      "bounds": [
-        17.0,
-        439.0,
-        373.0,
-        126.0
+        15.0,
+        178.0,
+        378.0,
+        389.0
       ],
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4294901246,
-      "radius": 15.75
+      "radius": 12.13
     },
     {
-      "id": "file_3_icon",
+      "id": "div_1",
       "bounds": [
-        32.957,
-        460.0,
-        19.947,
-        28.875
+        29.15,
+        308.003,
+        349.701,
+        1.008
       ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "div_2",
+      "bounds": [
+        29.15,
+        438.005,
+        349.701,
+        1.008
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false
     },
     {
       "id": "icon_show",
       "bounds": [
-        33.0,
-        605.0,
+        121.12,
+        608.37,
         16.0,
-        18.0
+        16.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false

@@ -32,11 +32,21 @@
       "icon_pause": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 330.0,
-          "y": 32.0,
-          "w": 16.0,
-          "h": 18.0,
+          "x": 308.0,
+          "y": 33.0,
+          "w": 14.0,
+          "h": 16.0,
           "src": "http://127.0.0.1:8170/ux-images/conversation-10/assets/icon_pause-2511dd231bde.svg"
+        }
+      },
+      "icon_stop": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 346.0,
+          "y": 33.0,
+          "w": 14.0,
+          "h": 16.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-10/assets/icon_stop-c1588916c331.svg"
         }
       },
       "plan_card": {
@@ -114,50 +124,51 @@
       "icon_step0": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 42.0,
-          "y": 228.0,
-          "w": 24.0,
-          "h": 24.0,
-          "src": "http://127.0.0.1:8170/ux-images/conversation-10/assets/icon_step0-4b2ffeb0c612.svg"
+          "x": 40.0,
+          "y": 226.0,
+          "w": 26.0,
+          "h": 26.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-10/assets/icon_step0-b824e233c434.svg"
         }
       },
       "icon_step1": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 42.0,
-          "y": 314.0,
-          "w": 24.0,
-          "h": 24.0,
-          "src": "http://127.0.0.1:8170/ux-images/conversation-10/assets/icon_step1-4b2ffeb0c612.svg"
+          "x": 40.0,
+          "y": 311.0,
+          "w": 26.0,
+          "h": 26.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-10/assets/icon_step1-b824e233c434.svg"
         }
       },
       "icon_step2": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 42.0,
-          "y": 400.0,
-          "w": 24.0,
-          "h": 24.0,
-          "src": "http://127.0.0.1:8170/ux-images/conversation-10/assets/icon_step2-4b2ffeb0c612.svg"
+          "x": 40.0,
+          "y": 397.0,
+          "w": 26.0,
+          "h": 26.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-10/assets/icon_step2-b824e233c434.svg"
         }
       },
       "icon_step3": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 42.0,
-          "y": 486.0,
-          "w": 24.0,
-          "h": 24.0,
-          "src": "http://127.0.0.1:8170/ux-images/conversation-10/assets/icon_step3-cd5dfff5e94a.svg"
+          "x": 40.0,
+          "y": 482.0,
+          "w": 26.0,
+          "h": 26.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-10/assets/icon_step3-ba063c2873aa.svg"
         }
       },
       "icon_step4": {
-        "component": "Surfaceb4ab38079b26",
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 42.0,
-          "y": 572.0,
-          "w": 24.0,
-          "h": 24.0
+          "x": 40.0,
+          "y": 570.0,
+          "w": 26.0,
+          "h": 26.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-10/assets/icon_step4-642d24879607.svg"
         }
       }
     },

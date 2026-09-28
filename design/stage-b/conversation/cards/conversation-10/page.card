@@ -43,14 +43,12 @@ component Textc378303468e9(instance: text, text: text) {
 component Text378d81a8d7fe(instance: text, text: text) {
   view Kit(component: "Text378d81a8d7fe", instance: instance, text: text)
 }
-component Surfaceb4ab38079b26(instance: text) {
-  view Kit(component: "Surfaceb4ab38079b26", instance: instance) { slot }
-}
 
 view root Surface991755d1cfb2(instance: "page") {
   Surface5e06c9b428ce(instance: "goal_strip") {
     Textfaa232946c99(instance: "t01", text: copy.t01_text)
     Vectore0a378fde04f(instance: "icon_pause")
+    Vectore0a378fde04f(instance: "icon_stop")
   }
   Group3d2637879433(instance: "plan_card") {
     Text6d7683639e3a(instance: "t02", text: copy.t02_text)
@@ -65,8 +63,6 @@ view root Surface991755d1cfb2(instance: "page") {
     Vectore0a378fde04f(instance: "icon_step1")
     Vectore0a378fde04f(instance: "icon_step2")
     Vectore0a378fde04f(instance: "icon_step3")
-    Surfaceb4ab38079b26(instance: "icon_step4") {
-
-    }
+    Vectore0a378fde04f(instance: "icon_step4")
   }
 }

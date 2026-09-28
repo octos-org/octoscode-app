@@ -54,10 +54,10 @@
     "note_input": {
       "event": "question.note",
       "source_bounds": [
-        38,
-        486,
-        330,
-        34
+        48,
+        488,
+        310,
+        30
       ],
       "enabled": true
     }

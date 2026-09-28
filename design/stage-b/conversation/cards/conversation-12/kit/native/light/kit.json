@@ -58,12 +58,12 @@
       "value": "self:resources/ux/Inter-500.ttf",
       "property": "font_src"
     },
-    "size_6b51d431df5d": {
-      "value": 12,
+    "size_3fdba35f04dc": {
+      "value": 13,
       "property": "size"
     },
-    "line_height_ef200d24a60e": {
-      "value": 44.0,
+    "line_height_a0d353def137": {
+      "value": 18.85,
       "property": "line_height"
     },
     "weight_26d228663f13": {
@@ -102,8 +102,8 @@
       "value": 4294769917,
       "property": "bg"
     },
-    "radius_b902cc455083": {
-      "value": 12.5,
+    "radius_71ad96eaaf70": {
+      "value": 13.2,
       "property": "radius"
     },
     "bg_834e726874f1": {
@@ -118,8 +118,16 @@
       "value": 4294835709,
       "property": "bg"
     },
-    "radius_b7cc15790f83": {
-      "value": 12.27,
+    "radius_93eb53815152": {
+      "value": 12.96,
+      "property": "radius"
+    },
+    "bg_642da6636bd0": {
+      "value": 4293256679,
+      "property": "bg"
+    },
+    "radius_5feceb66ffc8": {
+      "value": 0,
       "property": "radius"
     },
     "size_c5dc95cb84ee": {
@@ -260,14 +268,14 @@
       },
       "slot": false
     },
-    "Text601320deb0cd": {
+    "Text61968c0f7a49": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_6b51d431df5d"
+          "$token": "size_3fdba35f04dc"
         },
         "line_height": {
-          "$token": "line_height_ef200d24a60e"
+          "$token": "line_height_a0d353def137"
         },
         "weight": {
           "$token": "weight_26d228663f13"
@@ -275,7 +283,6 @@
         "color": {
           "$token": "color_5e6b06fd707a"
         },
-        "variant": "single_line",
         "alignx": 0,
         "font_src": {
           "$token": "font_src_86ab34a300f7"
@@ -329,7 +336,7 @@
       "props": {},
       "slot": true
     },
-    "Surface6143ba49aec0": {
+    "Surfaceb4c66cb17ca9": {
       "style": {
         "t": "stack",
         "variant": "surface",
@@ -337,7 +344,7 @@
           "$token": "bg_39ea726e5bf5"
         },
         "radius": {
-          "$token": "radius_b902cc455083"
+          "$token": "radius_71ad96eaaf70"
         }
       },
       "props": {},
@@ -357,7 +364,7 @@
       "props": {},
       "slot": true
     },
-    "Surfacea57520e99c15": {
+    "Surface053060c5a689": {
       "style": {
         "t": "stack",
         "variant": "surface",
@@ -365,7 +372,21 @@
           "$token": "bg_40fe55fff4f6"
         },
         "radius": {
-          "$token": "radius_b7cc15790f83"
+          "$token": "radius_93eb53815152"
+        }
+      },
+      "props": {},
+      "slot": true
+    },
+    "Surfacec4c38149242a": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_642da6636bd0"
+        },
+        "radius": {
+          "$token": "radius_5feceb66ffc8"
         }
       },
       "props": {},

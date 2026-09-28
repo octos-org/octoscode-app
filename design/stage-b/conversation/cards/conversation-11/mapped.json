@@ -12,10 +12,10 @@
       {
         "t": "stack",
         "id": "diff_view",
-        "x": 16.0,
-        "y": 20.0,
-        "w": 374.0,
-        "h": 640.0,
+        "x": 20.0,
+        "y": 92.0,
+        "w": 362.0,
+        "h": 566.0,
         "c": [
           {
             "t": "text",
@@ -43,40 +43,8 @@
             "h": 45.0,
             "c": [
               {
-                "t": "stack",
-                "id": "scope_pill_surface",
-                "x": 196.0,
-                "y": 23.0,
-                "w": 103.0,
-                "h": 45.0,
-                "c": [],
-                "variant": "surface",
-                "bg": 4294835453,
-                "radius": 22.5,
-                "border": 1,
-                "bordercolor": 4293256679
-              },
-              {
-                "t": "button",
-                "id": "scope_pill_control",
-                "x": 196.0,
-                "y": 23.0,
-                "w": 103.0,
-                "h": 45.0,
-                "enabled": 1
-              },
-              {
-                "t": "svg",
-                "id": "scope_pill_icon",
-                "x": 206.729,
-                "y": 33.588,
-                "w": 19.312,
-                "h": 23.824,
-                "src": ""
-              },
-              {
                 "t": "text",
-                "id": "scope_pill_label",
+                "id": "scope_label",
                 "text": "Last turn v",
                 "x": 207.27,
                 "y": 35.5,
@@ -90,26 +58,54 @@
                 "alignx": 0,
                 "font_src": "self:resources/ux/Inter-500.ttf",
                 "tracking": 0.0
+              },
+              {
+                "t": "svg",
+                "id": "scope_chev",
+                "x": 271.104,
+                "y": 36.235,
+                "w": 17.167,
+                "h": 21.176,
+                "src": ""
               }
             ],
-            "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [3]}}"
+            "variant": "surface",
+            "bg": 4294835453,
+            "radius": 22.5,
+            "border": 1,
+            "bordercolor": 4293256679
           },
           {
             "t": "text",
-            "id": "t03",
-            "text": "+62 -5",
-            "x": 314.22,
-            "y": 35.0,
-            "w": 31.0,
+            "id": "t_add",
+            "text": "+62",
+            "x": 309.01,
+            "y": 37.0,
+            "w": 46.0,
             "h": 22.5,
-            "size": 8.32,
-            "line_height": 10.07,
+            "size": 15,
+            "line_height": 22.5,
             "weight": 500,
-            "color": 4283469909,
+            "color": 4280256573,
             "variant": "single_line",
             "alignx": 0,
-            "font_src": "self:resources/ux/Inter-500.ttf",
-            "tracking": 0.0
+            "font_src": "self:resources/ux/Inter-500.ttf"
+          },
+          {
+            "t": "text",
+            "id": "t_del",
+            "text": "-5",
+            "x": 357.01,
+            "y": 37.0,
+            "w": 40.0,
+            "h": 22.5,
+            "size": 15,
+            "line_height": 22.5,
+            "weight": 500,
+            "color": 4291764782,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf"
           },
           {
             "t": "stack",
@@ -122,24 +118,58 @@
               {
                 "t": "text",
                 "id": "t_file",
-                "text": "ui_protocol_transport.rs +31 -4",
-                "x": 43.5,
+                "text": "ui_protocol_transport.rs",
+                "x": 43.21,
                 "y": 130.5,
                 "w": 210.0,
                 "h": 25.5,
-                "size": 11.07,
-                "line_height": 13.4,
+                "size": 14.3,
+                "line_height": 17.31,
                 "weight": 500,
                 "color": 4281612085,
                 "variant": "single_line",
                 "alignx": 0,
                 "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
                 "tracking": 0.0
+              },
+              {
+                "t": "text",
+                "id": "t_fadd",
+                "text": "+31",
+                "x": 268.0,
+                "y": 131.97,
+                "w": 40.0,
+                "h": 23.69,
+                "size": 14,
+                "line_height": 23.69,
+                "weight": 500,
+                "color": 4280256573,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf"
+              },
+              {
+                "t": "text",
+                "id": "t_fdel",
+                "text": "-4",
+                "x": 312.0,
+                "y": 131.97,
+                "w": 30.0,
+                "h": 23.69,
+                "size": 14,
+                "line_height": 23.69,
+                "weight": 500,
+                "color": 4291764782,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf"
               }
             ],
             "variant": "surface",
             "bg": 4294901246,
-            "radius": 20.25
+            "radius": 19.29,
+            "border": 1,
+            "bordercolor": 4293256679
           },
           {
             "t": "stack",
@@ -530,11 +560,16 @@
             "bg": 4294177780,
             "radius": 8.0
           }
-        ]
+        ],
+        "variant": "surface",
+        "bg": 4294703860,
+        "radius": 12.0,
+        "border": 1,
+        "bordercolor": 4293256679
       }
     ],
     "variant": "surface",
-    "bg": 4293981682
+    "bg": 4294967295
   },
   "changes": [
     {
@@ -550,15 +585,7 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "scope_pill_surface",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "scope_pill_control",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "scope_pill_icon",
+      "id": "scope_chev",
       "source": "observed non-text annotation"
     },
     {
@@ -604,22 +631,16 @@
       "tracking_em": -0.2289481026785714
     },
     {
-      "id": "scope_pill_label",
+      "id": "scope_label",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.169189453125
     },
     {
-      "id": "t03",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.40136982685810807
-    },
-    {
       "id": "t_file",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.3176939498546512
+      "tracking_em": -0.2303650704625885
     },
     {
       "id": "ln_0",

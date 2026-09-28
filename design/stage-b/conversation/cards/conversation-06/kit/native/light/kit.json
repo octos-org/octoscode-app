@@ -30,12 +30,12 @@
       "value": 0.0,
       "property": "tracking"
     },
-    "size_e629fa6598d7": {
-      "value": 15,
+    "size_4523540f1504": {
+      "value": 17,
       "property": "size"
     },
-    "line_height_81cc8ca00598": {
-      "value": 21.75,
+    "line_height_2b8039276cf7": {
+      "value": 24.65,
       "property": "line_height"
     },
     "weight_26d228663f13": {
@@ -49,14 +49,6 @@
     "font_src_86ab34a300f7": {
       "value": "self:resources/ux/Inter-400.ttf",
       "property": "font_src"
-    },
-    "bg_dc41076ce66f": {
-      "value": 4286621410,
-      "property": "bg"
-    },
-    "radius_b7edbb1d306a": {
-      "value": 9.0,
-      "property": "radius"
     },
     "size_45727b293bf7": {
       "value": 17.2,
@@ -78,10 +70,6 @@
       "value": "self:resources/ux/Inter-500.ttf",
       "property": "font_src"
     },
-    "bg_40fe55fff4f6": {
-      "value": 4294835709,
-      "property": "bg"
-    },
     "size_937c934f90f2": {
       "value": 17.9,
       "property": "size"
@@ -93,10 +81,6 @@
     "color_93c088026b80": {
       "value": 4279374354,
       "property": "color"
-    },
-    "bg_4e0ce3550cb9": {
-      "value": 4294769916,
-      "property": "bg"
     },
     "size_4bda0ea757bd": {
       "value": 17.93,
@@ -122,12 +106,16 @@
       "value": 4279505940,
       "property": "color"
     },
+    "radius_e99956ed2f9a": {
+      "value": 13.8,
+      "property": "radius"
+    },
     "size_8527a891e224": {
       "value": 14,
       "property": "size"
     },
-    "line_height_1436c71c3bc1": {
-      "value": 34.0,
+    "line_height_26c9a96ce053": {
+      "value": 30.0,
       "property": "line_height"
     },
     "color_5e6b06fd707a": {
@@ -226,14 +214,14 @@
       },
       "slot": false
     },
-    "Text974d2475b0aa": {
+    "Text15ed7064d520": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_e629fa6598d7"
+          "$token": "size_4523540f1504"
         },
         "line_height": {
-          "$token": "line_height_81cc8ca00598"
+          "$token": "line_height_2b8039276cf7"
         },
         "weight": {
           "$token": "weight_26d228663f13"
@@ -255,22 +243,6 @@
       "style": {
         "t": "stack",
         "event": "question.select.ledger"
-      },
-      "props": {},
-      "slot": true
-    },
-    "Surface0b71cfcd2704": {
-      "style": {
-        "t": "stack",
-        "variant": "surface",
-        "bg": {
-          "$token": "bg_dc41076ce66f"
-        },
-        "radius": {
-          "$token": "radius_b7edbb1d306a"
-        },
-        "border": 1,
-        "bordercolor": 4293256679
       },
       "props": {},
       "slot": true
@@ -312,22 +284,6 @@
       "props": {},
       "slot": true
     },
-    "Surface01dd50e9e876": {
-      "style": {
-        "t": "stack",
-        "variant": "surface",
-        "bg": {
-          "$token": "bg_40fe55fff4f6"
-        },
-        "radius": {
-          "$token": "radius_b7edbb1d306a"
-        },
-        "border": 1,
-        "bordercolor": 4293256679
-      },
-      "props": {},
-      "slot": true
-    },
     "Text5e310874fe95": {
       "style": {
         "t": "text",
@@ -361,22 +317,6 @@
       "style": {
         "t": "stack",
         "event": "question.select.ask"
-      },
-      "props": {},
-      "slot": true
-    },
-    "Surface829b0eb31acc": {
-      "style": {
-        "t": "stack",
-        "variant": "surface",
-        "bg": {
-          "$token": "bg_4e0ce3550cb9"
-        },
-        "radius": {
-          "$token": "radius_b7edbb1d306a"
-        },
-        "border": 1,
-        "bordercolor": 4293256679
       },
       "props": {},
       "slot": true
@@ -439,14 +379,30 @@
       },
       "slot": false
     },
-    "Inputd4c45cbb8a67": {
+    "Surfaceb8dcba023741": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_07cf9621f5e0"
+        },
+        "radius": {
+          "$token": "radius_e99956ed2f9a"
+        },
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      "props": {},
+      "slot": true
+    },
+    "Inputc2483154ab8c": {
       "style": {
         "t": "input",
         "size": {
           "$token": "size_8527a891e224"
         },
         "line_height": {
-          "$token": "line_height_1436c71c3bc1"
+          "$token": "line_height_26c9a96ce053"
         },
         "weight": {
           "$token": "weight_26d228663f13"

@@ -262,10 +262,21 @@
     {
       "id": "icon_pause",
       "bounds": [
-        330.0,
-        32.0,
-        16.0,
-        18.0
+        308.0,
+        33.0,
+        14.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_stop",
+      "bounds": [
+        346.0,
+        33.0,
+        14.0,
+        16.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -295,10 +306,10 @@
     {
       "id": "icon_step0",
       "bounds": [
-        42.0,
-        228.0,
-        24.0,
-        24.0
+        40.0,
+        226.0,
+        26.0,
+        26.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -306,10 +317,10 @@
     {
       "id": "icon_step1",
       "bounds": [
-        42.0,
-        314.0,
-        24.0,
-        24.0
+        40.0,
+        311.0,
+        26.0,
+        26.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -317,10 +328,10 @@
     {
       "id": "icon_step2",
       "bounds": [
-        42.0,
-        400.0,
-        24.0,
-        24.0
+        40.0,
+        397.0,
+        26.0,
+        26.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -328,10 +339,10 @@
     {
       "id": "icon_step3",
       "bounds": [
-        42.0,
-        486.0,
-        24.0,
-        24.0
+        40.0,
+        482.0,
+        26.0,
+        26.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -339,15 +350,13 @@
     {
       "id": "icon_step4",
       "bounds": [
-        42.0,
-        572.0,
-        24.0,
-        24.0
+        40.0,
+        570.0,
+        26.0,
+        26.0
       ],
-      "method": "surface contour unresolved; requested geometry retained",
-      "reviewed": false,
-      "bg": 4294835709,
-      "radius": 12.0
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     }
   ],
   "unmapped_ocr": [],

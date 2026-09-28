@@ -35,10 +35,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "diff_view",
-    "x": 16.0,
-    "y": 20.0,
-    "w": 374.0,
-    "h": 640.0,
+    "x": 20.0,
+    "y": 92.0,
+    "w": 362.0,
+    "h": 566.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -66,67 +66,18 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 30.0,
     "w": 96.0,
     "h": 34.0,
-    "role": "button",
-    "native_candidates": [
-      "Button",
-      "KitButton"
-    ]
-  },
-  {
-    "id": "scope_pill_surface",
-    "x": 196.0,
-    "y": 30.0,
-    "w": 96.0,
-    "h": 34.0,
     "role": "layout",
     "native_candidates": [
       "View"
     ]
   },
   {
-    "id": "scope_pill_control",
-    "x": 196.0,
-    "y": 30.0,
-    "w": 96.0,
-    "h": 34.0,
-    "role": "button",
-    "native_candidates": [
-      "Button",
-      "KitButton"
-    ]
-  },
-  {
-    "id": "scope_pill_icon",
-    "x": 206.0,
-    "y": 38.0,
-    "w": 18.0,
-    "h": 18.0,
-    "role": "unknown",
-    "native_candidates": []
-  },
-  {
-    "id": "scope_pill_label",
+    "id": "scope_label",
     "x": 205.0,
     "y": 38.0,
-    "w": 100.0,
+    "w": 74.0,
     "h": 22.0,
     "text": "Last turn v",
-    "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 14.67,
-    "weight": 500,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t03",
-    "x": 309.01,
-    "y": 37.0,
-    "w": 64.28,
-    "h": 21.65,
-    "text": "+62 -5",
     "font_src": "self:resources/ux/Inter-500.ttf",
     "size": 14,
     "weight": 500,
@@ -137,11 +88,52 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "scope_chev",
+    "x": 266.0,
+    "y": 40.0,
+    "w": 16.0,
+    "h": 16.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "t_add",
+    "x": 309.01,
+    "y": 37.0,
+    "w": 46.0,
+    "h": 22.5,
+    "text": "+62",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 15,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_del",
+    "x": 357.01,
+    "y": 37.0,
+    "w": 40.0,
+    "h": 22.5,
+    "text": "-5",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 15,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
     "id": "file_header",
     "x": 20.0,
-    "y": 123.97,
+    "y": 121.97,
     "w": 366.0,
-    "h": 40.0,
+    "h": 42.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -151,11 +143,43 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "id": "t_file",
     "x": 42.86,
     "y": 131.97,
-    "w": 239.09,
+    "w": 220.0,
     "h": 23.69,
-    "text": "ui_protocol_transport.rs +31 -4",
+    "text": "ui_protocol_transport.rs",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 13,
+    "size": 14,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_fadd",
+    "x": 268.0,
+    "y": 131.97,
+    "w": 40.0,
+    "h": 23.69,
+    "text": "+31",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_fdel",
+    "x": 312.0,
+    "y": 131.97,
+    "w": 30.0,
+    "h": 23.69,
+    "text": "-4",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
     "weight": 500,
     "role": "text",
     "native_candidates": [

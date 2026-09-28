@@ -23,11 +23,11 @@
       "icon_shield": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 25.0,
+          "x": 26.0,
           "y": 85.0,
           "w": 30.0,
-          "h": 34.0,
-          "src": "http://127.0.0.1:8170/ux-images/conversation-05/assets/icon_shield-543f1ddf9968.svg"
+          "h": 42.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-05/assets/icon_shield-b2103847b0ca.svg"
         }
       },
       "t01": {
@@ -40,7 +40,7 @@
         }
       },
       "cmd_box": {
-        "component": "Surface1f1c4c84b15b",
+        "component": "Surfaced4520a0efa8e",
         "layout": {
           "x": 19.0,
           "y": 159.0,
@@ -58,12 +58,12 @@
         }
       },
       "reason_text": {
-        "component": "Text5767bb516ca2",
+        "component": "Text776e18c492bd",
         "layout": {
-          "x": 20.7,
+          "x": 19.78688524590164,
           "y": 274.5,
-          "w": 297.0,
-          "h": 23.5
+          "w": 302.0,
+          "h": 66.0
         }
       },
       "approve_once": {

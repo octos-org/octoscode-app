@@ -25,14 +25,14 @@ component Vectore0a378fde04f(instance: text) {
 component Text8cb1e9073ec4(instance: text, text: text) {
   view Kit(component: "Text8cb1e9073ec4", instance: instance, text: text)
 }
-component Surface1f1c4c84b15b(instance: text) {
-  view Kit(component: "Surface1f1c4c84b15b", instance: instance) { slot }
+component Surfaced4520a0efa8e(instance: text) {
+  view Kit(component: "Surfaced4520a0efa8e", instance: instance) { slot }
 }
 component Textd0578af30f19(instance: text, text: text) {
   view Kit(component: "Textd0578af30f19", instance: instance, text: text)
 }
-component Text5767bb516ca2(instance: text, text: text) {
-  view Kit(component: "Text5767bb516ca2", instance: instance, text: text)
+component Text776e18c492bd(instance: text, text: text) {
+  view Kit(component: "Text776e18c492bd", instance: instance, text: text)
 }
 component KitButton2c6804b990a5(instance: text) {
   view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
@@ -66,10 +66,10 @@ view root Surface16fae9a63e16(instance: "page") {
   Group3d2637879433(instance: "approval_card") {
     Vectore0a378fde04f(instance: "icon_shield")
     Text8cb1e9073ec4(instance: "t01", text: copy.t01_text)
-    Surface1f1c4c84b15b(instance: "cmd_box") {
+    Surfaced4520a0efa8e(instance: "cmd_box") {
       Textd0578af30f19(instance: "t02", text: copy.t02_text)
     }
-    Text5767bb516ca2(instance: "reason_text", text: copy.reason_text_text)
+    Text776e18c492bd(instance: "reason_text", text: copy.reason_text_text)
     KitButton2c6804b990a5(instance: "approve_once") {
       Surfaceb09388d9616a(instance: "approve_once_surface") {
 

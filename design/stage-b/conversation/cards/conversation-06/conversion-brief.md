@@ -46,10 +46,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_decision",
-    "x": 92.0,
-    "y": 78.0,
-    "w": 24.0,
-    "h": 26.0,
+    "x": 24.0,
+    "y": 80.0,
+    "w": 26.0,
+    "h": 28.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -73,11 +73,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "id": "question_text",
     "x": 37.0,
     "y": 150.0,
-    "w": 336.0,
-    "h": 56.0,
+    "w": 290.0,
+    "h": 62.0,
     "text": "Where should queued steers be persisted?",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15,
+    "size": 17,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -97,15 +97,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "opt_ledger_ring",
+    "id": "opt_ledger_radio",
     "x": 38.0,
     "y": 256.59,
-    "w": 18.0,
-    "h": 18.0,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
+    "w": 20.0,
+    "h": 20.0,
+    "role": "unknown",
+    "native_candidates": []
   },
   {
     "id": "opt_ledger_label",
@@ -135,15 +133,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "opt_memory_ring",
+    "id": "opt_memory_radio",
     "x": 38.0,
     "y": 357.12,
-    "w": 18.0,
-    "h": 18.0,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
+    "w": 20.0,
+    "h": 20.0,
+    "role": "unknown",
+    "native_candidates": []
   },
   {
     "id": "opt_memory_label",
@@ -173,15 +169,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "opt_ask_ring",
+    "id": "opt_ask_radio",
     "x": 38.0,
     "y": 417.52,
-    "w": 18.0,
-    "h": 18.0,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
+    "w": 20.0,
+    "h": 20.0,
+    "role": "unknown",
+    "native_candidates": []
   },
   {
     "id": "opt_ask_label",
@@ -216,11 +210,22 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "note_box",
+    "x": 34.0,
+    "y": 478.0,
+    "w": 338.0,
+    "h": 50.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "note_input",
-    "x": 38.0,
-    "y": 486.0,
-    "w": 330.0,
-    "h": 34.0,
+    "x": 48.0,
+    "y": 488.0,
+    "w": 310.0,
+    "h": 30.0,
     "text": "",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 14,
