@@ -14,10 +14,12 @@ instrument.
 
 ```sh
 source .peer/env.sh
-# build the two pieces the runner needs (once)
-cargo build -p octoscode-module --example replay_serve
 
-# run the first 30 scripted rows (all named areas)
+# 1) the native desktop app binary (see Prerequisites — external to this repo)
+export OCTOSCODE_APP_BIN=<fork>/tmp/octosense-target/debug/octosense
+
+# 2) run the first 30 scripted rows (all named areas)
+#    the scenario server is built for you on first run.
 python3 tools/walk/run.py
 
 # one area only, a smaller batch
@@ -29,13 +31,52 @@ python3 tools/walk/run.py --port 8371
 
 The runner prints each check's result and a summary, then writes
 `docs/walk/results.csv`. Exit code is 0 iff no row is `fail` and none is
-`not-run`.
+`not-run`; **2** means a documented prerequisite is missing (the message names
+the command to run).
+
+---
+
+## Prerequisites
+
+The runner needs two things. It **builds the first itself** and **checks the
+second once, failing fast** with an explicit recipe if it is absent — so a run
+never fails with a mystery `0 pass` result.
+
+1. **The scenario server** — ours, and built automatically on first run when
+   `target/debug/examples/replay_serve` is missing:
+
+   ```sh
+   cargo build -p octoscode-module --example replay_serve
+   ```
+
+   Pass `--no-build` to skip the auto-build and be told to run that yourself.
+
+2. **The native desktop `octosense` binary** — **external to this repo.** It is
+   the OctoSense desktop shell with the `octoscode` module linked, built from the
+   OctoSense fork (this repo's `[patch]` already points `octos-app-transport` /
+   `octos-app-store` at that fork). Point `OCTOSCODE_APP_BIN` at an existing
+   build, or make one:
+
+   ```sh
+   tools/prepare-octosense-fork.sh            # recreate the [patch] fork (idempotent)
+   cd <fork> && python3 tools/setup.py        # framework sources (`.sources/`)
+   cd <fork> && CARGO_TARGET_DIR=$PWD/tmp/octosense-target \
+       cargo build --features app-appcard -p octosense
+   export OCTOSCODE_APP_BIN=<fork>/tmp/octosense-target/debug/octosense
+   ```
+
+   A prebuilt copy may already exist read-only at
+   `/Users/yuechen/home/oa.noindex/p0-build/tmp/octosense-target/debug/octosense`
+   (set `OCTOSCODE_APP_BIN` to that instead of rebuilding). The desktop *crate*
+   directory (`<fork>/desktop`) is derived from the binary's path; override it
+   with `OCTOSCODE_SHELL_CWD` if your layout differs. Building it takes ~12 min.
 
 Environment knobs:
 
 | var | meaning | default |
 |---|---|---|
-| `OCTOSCODE_APP_BIN` | the native shell binary to launch | `p0-build/tmp/octosense-target/debug/octosense` |
+| `OCTOSCODE_APP_BIN` | the native desktop binary to launch (required) | `p0-build/tmp/octosense-target/debug/octosense` |
+| `OCTOSCODE_SHELL_CWD` | the desktop crate dir the app runs from | derived from `OCTOSCODE_APP_BIN` |
 
 ---
 

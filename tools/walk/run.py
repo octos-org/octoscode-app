@@ -61,20 +61,90 @@ WALK = ROOT / "docs" / "walk"
 EVIDENCE = WALK / "evidence"
 WALK_ROWS = ROOT / "docs" / "walk-rows.csv"
 PARITY = ROOT / "docs" / "parity-matrix.csv"
-BIN = pathlib.Path(
-    os.environ.get(
-        "OCTOSCODE_APP_BIN",
-        "/Users/yuechen/home/oa.noindex/p0-build/tmp/octosense-target/debug/octosense",
-    )
-)
-SHELL_CWD = pathlib.Path(
-    os.environ.get(
-        "OCTOSCODE_SHELL_CWD",
-        "/Users/yuechen/home/oa.noindex/p0-build/tmp/octosense/desktop",
-    )
-)
+DEFAULT_APP_BIN = "/Users/yuechen/home/oa.noindex/p0-build/tmp/octosense-target/debug/octosense"
+BIN = pathlib.Path(os.environ.get("OCTOSCODE_APP_BIN", DEFAULT_APP_BIN))
 REPLAY = ROOT / "target" / "debug" / "examples" / "replay_serve"
 HEADLESS = ROOT / "harness" / "headless.sh"
+
+# The desktop `octosense` binary is EXTERNAL to this repo (built from the
+# OctoSense fork, ~12 min), so the runner never builds it silently — it checks
+# once and fails fast with this recipe (card #19b, defect 2).
+APP_BIN_HELP = f"""\
+the native desktop app binary is missing: {BIN}
+
+tools/walk drives the real desktop shell, which is built from the OctoSense fork
+(not from this repo). Point OCTOSCODE_APP_BIN at an existing build, or make one:
+
+  tools/prepare-octosense-fork.sh                 # create the [patch] fork (idempotent)
+  cd <fork> && python3 tools/setup.py             # framework sources (.sources/)
+  cd <fork> && CARGO_TARGET_DIR=$PWD/tmp/octosense-target \\
+      cargo build --features app-appcard -p octosense
+
+  export OCTOSCODE_APP_BIN=<fork>/tmp/octosense-target/debug/octosense
+
+(A prebuilt copy may exist read-only at {DEFAULT_APP_BIN}; set that instead.)
+"""
+
+
+class PrereqError(RuntimeError):
+    """A documented prerequisite is missing; the message says exactly what to do."""
+
+
+def default_shell_cwd(bin_path: pathlib.Path) -> pathlib.Path:
+    """The desktop crate dir for a built binary (makepad resolves resources
+    relative to it).
+
+    Two layouts occur, and both are supported:
+
+    * baseline/fork build — crate `<fork>/desktop`, target `<fork>/tmp/octosense-target`
+      (`CARGO_TARGET_DIR=$PWD/tmp/octosense-target`), so walking up finds
+      `<fork>/desktop`.
+    * p0-build lane build — target `<base>/octosense-target`, crate
+      `<base>/octosense/desktop` (a **sibling** of the target dir).
+
+    At each ancestor `p` we therefore probe both `p/desktop` and
+    `p/octosense/desktop`; the first that has a `Cargo.toml` wins. If nothing
+    matches, fall back to the binary's own directory (never raises).
+    """
+    p = bin_path.resolve()
+    for parent in p.parents:
+        for cand in (parent / "desktop", parent / "octosense" / "desktop"):
+            if (cand / "Cargo.toml").is_file():
+                return cand
+    return p.parent
+
+
+def ensure_replay_server(build: bool = True) -> pathlib.Path:
+    """The scenario server is ours: build it when missing (cached after the first)."""
+    if REPLAY.is_file():
+        return REPLAY
+    if not build:
+        raise PrereqError(
+            f"missing {REPLAY}; run: cargo build -p octoscode-module --example replay_serve"
+        )
+    print("[walk] building the replay server "
+          "(cargo build -p octoscode-module --example replay_serve)…", flush=True)
+    r = subprocess.run(
+        ["cargo", "build", "-p", "octoscode-module", "--example", "replay_serve"],
+        cwd=str(ROOT), capture_output=True, text=True,
+    )
+    if r.returncode != 0 or not REPLAY.is_file():
+        raise PrereqError(
+            "could not build the replay server "
+            "(cargo build -p octoscode-module --example replay_serve):\n"
+            + (r.stderr or r.stdout)[-2000:]
+        )
+    return REPLAY
+
+
+def check_prereqs(build_replay: bool = True) -> tuple[pathlib.Path, pathlib.Path]:
+    """Fail fast with an explicit message; return (replay_server, app_binary)."""
+    replay = ensure_replay_server(build=build_replay)
+    if not HEADLESS.is_file():
+        raise PrereqError(f"missing the headless harness at {HEADLESS}")
+    if not (BIN.is_file() and os.access(BIN, os.X_OK)):
+        raise PrereqError(APP_BIN_HELP)
+    return replay, BIN
 
 APP_PORT = 8370
 SCENARIO_PORTS = {"conversation": 8380, "approval": 8381, "task": 8382,
@@ -149,10 +219,17 @@ class App:
 
 
 class Procs:
-    def __init__(self, app_port: int):
+    def __init__(self, app_port: int, shell_cwd: pathlib.Path | None = None):
         self.servers: dict[str, subprocess.Popen] = {}
         self.app_port = app_port
         self.app = None
+        # The desktop crate dir the app runs from; derived from the binary when
+        # not given (card #19b, defect 2 — no hard-coded p0-build path).
+        self.shell_cwd = shell_cwd or (
+            pathlib.Path(os.environ["OCTOSCODE_SHELL_CWD"])
+            if os.environ.get("OCTOSCODE_SHELL_CWD")
+            else None
+        )
 
     def start_server(self, scenario: str):
         if scenario in self.servers:
@@ -160,13 +237,19 @@ class Procs:
         port = SCENARIO_PORTS[scenario]
         log = WALK / f"server-{scenario}.log"
         f = open(log, "w")
-        self.servers[scenario] = subprocess.Popen(
+        proc = subprocess.Popen(
             [str(REPLAY), str(port), "--scenario", scenario], stdout=f, stderr=f)
+        self.servers[scenario] = proc
         for _ in range(75):
             if "listening" in log.read_text():
                 return
+            if proc.poll() is not None:  # exited — surface its own error
+                raise PrereqError(
+                    f"replay server '{scenario}' exited immediately "
+                    f"(rc={proc.returncode}); see {log}")
             time.sleep(0.2)
-        raise RuntimeError(f"replay server '{scenario}' never listened")
+        raise PrereqError(
+            f"replay server '{scenario}' never listened on {port}; see {log}")
 
     def start_app(self, scenario: str):
         self.stop_app()
@@ -181,8 +264,18 @@ class Procs:
             "HEADLESS_ARGS": "--module octoscode",
             "HEADLESS_STATE": str(state),
         })
-        subprocess.run(["bash", str(HEADLESS), "start", str(BIN), str(self.app_port)],
-                       env=env, cwd=str(SHELL_CWD), capture_output=True, text=True, timeout=120)
+        cwd = self.shell_cwd or default_shell_cwd(BIN)
+        if not (cwd / "Cargo.toml").is_file():
+            raise PrereqError(
+                f"the desktop crate dir does not look right: {cwd}\n"
+                "set OCTOSCODE_SHELL_CWD to the fork's `desktop/` directory "
+                "(next to the built octosense binary).")
+        r = subprocess.run(["bash", str(HEADLESS), "start", str(BIN), str(self.app_port)],
+                           env=env, cwd=str(cwd), capture_output=True, text=True, timeout=120)
+        if r.returncode != 0:
+            raise PrereqError(
+                f"the app did not start on port {self.app_port}:\n"
+                + (r.stdout or "")[-800:] + (r.stderr or "")[-800:])
         self.app = self.app_port
         time.sleep(4)
 
@@ -409,12 +502,52 @@ def missing_capability(spec: str) -> str:
     return "native capability not yet built (see docs/parity-matrix.csv)"
 
 
+def area_verdict(run: list) -> str:
+    """`pass` only when there is at least one check and every check passed.
+
+    An **empty** run can never be `pass`: "0 checks, all pass" was the #19b
+    defect that turned a start failure into a green row (card #19b, defect 1).
+    """
+    if not run:
+        return "fail"
+    return "pass" if all(c["status"] == "pass" for c in run) else "fail"
+
+
+def row_reason(area: str, res: dict) -> str:
+    """The human reason for a scripted row.
+
+    A blocked/unstarted area **keeps its own start-failure reason** — it must
+    never be overwritten by the "all checks pass" text on an empty check list
+    (card #19b, defect 1).
+    """
+    if res["status"] == "blocked":
+        return res.get("reason") or f"area '{area}' did not start"
+    if not res["run"]:
+        # Defensive: no area may ever read as "all pass" on an empty check list,
+        # even if a caller hands one a non-blocked empty result.
+        return res.get("reason") or f"area '{area}': no checks ran"
+    failed = [c["check"] for c in res["run"] if c["status"] != "pass"]
+    if failed:
+        return f"area '{area}' failing: {'; '.join(failed)}"
+    return f"area '{area}': {len(res['run'])} checks, all pass"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=30)
     ap.add_argument("--only", default=None)
     ap.add_argument("--port", type=int, default=APP_PORT)
+    ap.add_argument("--no-build", action="store_true",
+                    help="do not build the replay server if it is missing; just report it")
     args = ap.parse_args()
+
+    # Fail fast on the documented prerequisites, with a message that says exactly
+    # what to run (card #19b, defect 2). Building the replay server is cached.
+    try:
+        check_prereqs(build_replay=not args.no_build)
+    except PrereqError as e:
+        print(f"tools/walk: {e}", file=sys.stderr)
+        return 2
 
     WALK.mkdir(parents=True, exist_ok=True)
     EVIDENCE.mkdir(parents=True, exist_ok=True)
@@ -456,7 +589,7 @@ def main():
                 except Exception:  # noqa: BLE001
                     pass
             print(f"  [{area}] {status:5} {name[:62]:62} :: {reason[:60]}")
-        overall = "pass" if all(c["status"] == "pass" for c in run) else "fail"
+        overall = area_verdict(run)
         area_result[area] = {"status": overall, "run": run, "evidence": evidence}
 
     procs.stop_all()
@@ -473,9 +606,7 @@ def main():
                 status, reason, ev = "not-run", "area not selected", ""
             else:
                 status = res["status"]
-                failed = [c["check"] for c in res["run"] if c["status"] != "pass"]
-                reason = (f"area '{area}': {len(res['run'])} checks, all pass"
-                          if not failed else f"area '{area}' failing: {'; '.join(failed)}")
+                reason = row_reason(area, res)
                 ev = res["evidence"]
             out.append({"row_id": i, "area": area, "spec": spec, "case": case,
                         "status": status, "evidence": ev, "reason": reason})
