@@ -1,8 +1,8 @@
 component Surface156d085f4ff5(instance: text) {
   view Kit(component: "Surface156d085f4ff5", instance: instance) { slot }
 }
-component Group3d2637879433(instance: text) {
-  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+component Surfaceb4206391250d(instance: text) {
+  view Kit(component: "Surfaceb4206391250d", instance: instance) { slot }
 }
 component Texte6662bb38e5f(instance: text, text: text) {
   view Kit(component: "Texte6662bb38e5f", instance: instance, text: text)

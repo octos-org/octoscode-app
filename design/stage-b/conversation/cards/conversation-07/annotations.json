@@ -55,8 +55,9 @@
         374.0,
         580.0
       ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901246
     },
     {
       "id": "icon_undo",

@@ -269,7 +269,10 @@
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-400.ttf"
           }
-        ]
+        ],
+        "variant": "surface",
+        "bg": 4294967295,
+        "radius": 0
       }
     ],
     "variant": "surface",

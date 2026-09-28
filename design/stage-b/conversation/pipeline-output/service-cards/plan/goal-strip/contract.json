@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "id": "goal-strip",
+  "app": "octoscode",
+  "number": 10,
+  "title": "Goal and plan",
+  "structure": "Native component reconstructed from the approved conversation atlas",
+  "artboard": [
+    374.0,
+    40.0
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "goal_strip",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 374.0,
+    "h": 40.0,
+    "c": [
+      {
+        "t": "text",
+        "id": "t01",
+        "text": "Goal • Fix steer queue on reconnect • 18m",
+        "x": 17.810000000000002,
+        "y": 5.5,
+        "w": 256.5,
+        "h": 25.0,
+        "size": 12.5,
+        "line_height": 15.12,
+        "weight": 500,
+        "color": 4284572002,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "svg",
+        "id": "icon_pause",
+        "x": 292.0,
+        "y": 5.0,
+        "w": 14.0,
+        "h": 16.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "icon_stop",
+        "x": 330.0,
+        "y": 5.0,
+        "w": 14.0,
+        "h": 16.0,
+        "src": ""
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294835709,
+    "radius": 10.0
+  },
+  "standalone_service_card": true
+}

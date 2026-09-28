@@ -1,0 +1,244 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "edited_files_card": {
+        "component": "Surface13b18c6e4e55",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 374.0,
+          "h": 580.0
+        }
+      },
+      "t01": {
+        "component": "Text5113f491f005",
+        "layout": {
+          "x": 5.050000000000001,
+          "y": 18.5,
+          "w": 128.0,
+          "h": 26.0
+        }
+      },
+      "t02": {
+        "component": "Text7f73852ce1ef",
+        "layout": {
+          "x": 4.609999999999999,
+          "y": 64.5,
+          "w": 35.0,
+          "h": 24.5
+        }
+      },
+      "t_undo": {
+        "component": "Textd49c578a33e9",
+        "layout": {
+          "x": 215.57,
+          "y": 25.0,
+          "w": 65.5,
+          "h": 29.02
+        }
+      },
+      "icon_undo": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 279.19,
+          "y": 28.849999999999994,
+          "w": 18.0,
+          "h": 18.0,
+          "src": "http://127.0.0.1:8170/ux-images/edited-files-card/assets/icon_undo-21d394caf9e6.svg"
+        }
+      },
+      "review": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 293.0,
+          "y": 15.0,
+          "w": 79.0,
+          "h": 46.0
+        }
+      },
+      "review_surface": {
+        "component": "Surface03c877f6732d",
+        "layout": {
+          "x": 293.0,
+          "y": 15.0,
+          "w": 79.0,
+          "h": 46.0
+        }
+      },
+      "review_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 293.0,
+          "y": 15.0,
+          "w": 79.0,
+          "h": 46.0
+        }
+      },
+      "review_label": {
+        "component": "Text7d74dc026487",
+        "layout": {
+          "x": 305.27,
+          "y": 26.5,
+          "w": 57.0,
+          "h": 23.0
+        }
+      },
+      "files_card": {
+        "component": "Surface42018ac4028a",
+        "layout": {
+          "x": -1.0,
+          "y": 118.0,
+          "w": 378.0,
+          "h": 389.0
+        }
+      },
+      "file_1_dir": {
+        "component": "Textae2640d69bbf",
+        "layout": {
+          "x": 22.75,
+          "y": 154.0,
+          "w": 145.5,
+          "h": 21.0
+        }
+      },
+      "file_1_name": {
+        "component": "Text249cf0aff4ea",
+        "layout": {
+          "x": 22.380000000000003,
+          "y": 189.0,
+          "w": 206.0,
+          "h": 26.0
+        }
+      },
+      "file_1_add": {
+        "component": "Text72083545bf65",
+        "layout": {
+          "x": 254.52999999999997,
+          "y": 174.5,
+          "w": 56.0,
+          "h": 24.0
+        }
+      },
+      "file_1_del": {
+        "component": "Text701f8c816d8f",
+        "layout": {
+          "x": 314.53,
+          "y": 174.5,
+          "w": 40.0,
+          "h": 24.0
+        }
+      },
+      "file_2_dir": {
+        "component": "Text9016802f4a87",
+        "layout": {
+          "x": 22.75,
+          "y": 283.0,
+          "w": 163.0,
+          "h": 21.5
+        }
+      },
+      "file_2_name": {
+        "component": "Textf5f9fca378aa",
+        "layout": {
+          "x": 22.42,
+          "y": 318.5,
+          "w": 101.5,
+          "h": 25.5
+        }
+      },
+      "file_2_add": {
+        "component": "Text98953305a681",
+        "layout": {
+          "x": 254.52999999999997,
+          "y": 303.0,
+          "w": 56.0,
+          "h": 22.5
+        }
+      },
+      "file_2_del": {
+        "component": "Text5abfe3ea15d7",
+        "layout": {
+          "x": 314.53,
+          "y": 303.0,
+          "w": 40.0,
+          "h": 22.5
+        }
+      },
+      "file_3_dir": {
+        "component": "Textc53cee50c43a",
+        "layout": {
+          "x": 22.740000000000002,
+          "y": 411.0,
+          "w": 160.0,
+          "h": 21.0
+        }
+      },
+      "file_3_name": {
+        "component": "Text88f3798c882f",
+        "layout": {
+          "x": 22.79,
+          "y": 448.0,
+          "w": 110.0,
+          "h": 24.0
+        }
+      },
+      "file_3_add": {
+        "component": "Text344e9e45d692",
+        "layout": {
+          "x": 254.52999999999997,
+          "y": 430.5,
+          "w": 56.0,
+          "h": 25.0
+        }
+      },
+      "file_3_del": {
+        "component": "Text72fbd35abf74",
+        "layout": {
+          "x": 314.53,
+          "y": 430.5,
+          "w": 40.0,
+          "h": 25.0
+        }
+      },
+      "div_1": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 13.149999999999999,
+          "y": 248.003,
+          "w": 349.701,
+          "h": 1.008
+        }
+      },
+      "div_2": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 13.149999999999999,
+          "y": 378.005,
+          "w": 349.701,
+          "h": 1.008
+        }
+      },
+      "t_show": {
+        "component": "Textaae9674944b4",
+        "layout": {
+          "x": 18.619999999999997,
+          "y": 544.0,
+          "w": 81.5,
+          "h": 23.5
+        }
+      },
+      "icon_show": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 105.12,
+          "y": 548.37,
+          "w": 16.0,
+          "h": 16.0,
+          "src": "http://127.0.0.1:8170/ux-images/edited-files-card/assets/icon_show-23070b5e0c3a.svg"
+        }
+      }
+    },
+    "bindings": []
+  }
+}

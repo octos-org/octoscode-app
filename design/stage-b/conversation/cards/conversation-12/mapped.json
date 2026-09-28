@@ -241,7 +241,10 @@
             "border": 1,
             "bordercolor": 4293256679
           }
-        ]
+        ],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 0
       }
     ],
     "variant": "surface",

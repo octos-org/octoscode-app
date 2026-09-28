@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "kind": "native-service-appcards",
+  "cards": [
+    {
+      "id": "approval-card",
+      "scene": "5",
+      "root": "approval_card",
+      "owner": "approval",
+      "folder": "approval/approval-card",
+      "artboard": [
+        374.0,
+        622.0
+      ],
+      "nodes": 19,
+      "native_controls": 3,
+      "components": 15
+    },
+    {
+      "id": "question-card",
+      "scene": "6",
+      "root": "question_card",
+      "owner": "question",
+      "folder": "question/question-card",
+      "artboard": [
+        374.0,
+        660.0
+      ],
+      "nodes": 24,
+      "native_controls": 2,
+      "components": 19
+    },
+    {
+      "id": "edited-files-card",
+      "scene": "7",
+      "root": "edited_files_card",
+      "owner": "files",
+      "folder": "files/edited-files-card",
+      "artboard": [
+        374.0,
+        580.0
+      ],
+      "nodes": 26,
+      "native_controls": 1,
+      "components": 24
+    },
+    {
+      "id": "plan-card",
+      "scene": "10",
+      "root": "plan_card",
+      "owner": "plan",
+      "folder": "plan/plan-card",
+      "artboard": [
+        374.0,
+        500.0
+      ],
+      "nodes": 13,
+      "native_controls": 0,
+      "components": 9
+    },
+    {
+      "id": "goal-strip",
+      "scene": "10",
+      "root": "goal_strip",
+      "owner": "plan",
+      "folder": "plan/goal-strip",
+      "artboard": [
+        374.0,
+        40.0
+      ],
+      "nodes": 4,
+      "native_controls": 0,
+      "components": 3
+    },
+    {
+      "id": "diff-view",
+      "scene": "11",
+      "root": "diff_view",
+      "owner": "review",
+      "folder": "review/diff-view",
+      "artboard": [
+        362.0,
+        566.0
+      ],
+      "nodes": 36,
+      "native_controls": 0,
+      "components": 33
+    },
+    {
+      "id": "settings-group",
+      "scene": "12",
+      "root": "settings_group",
+      "owner": "settings",
+      "folder": "settings/settings-group",
+      "artboard": [
+        374.0,
+        620.0
+      ],
+      "nodes": 16,
+      "native_controls": 0,
+      "components": 15
+    }
+  ],
+  "validation": "Compiled native subtrees; independent Studio input/layout and visual review remain required"
+}

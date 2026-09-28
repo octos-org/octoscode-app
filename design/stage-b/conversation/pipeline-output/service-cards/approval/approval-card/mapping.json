@@ -1,0 +1,355 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "approval_card",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface5a7573e113ac",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        374.0,
+        622.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_shield",
+      "native_id": "beauty_0_0",
+      "parent": "approval_card",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        10.0,
+        11.0,
+        30.0,
+        42.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_1",
+      "parent": "approval_card",
+      "kind": "text",
+      "component": "Text8cb1e9073ec4",
+      "semantic_role": "text",
+      "bounds": [
+        62.42,
+        21.5,
+        209.5,
+        27.0
+      ],
+      "text": "Run this command?",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 21.63
+    },
+    {
+      "source_id": "cmd_box",
+      "native_id": "beauty_0_2",
+      "parent": "approval_card",
+      "kind": "stack",
+      "component": "Surfaced4520a0efa8e",
+      "semantic_role": "layout",
+      "bounds": [
+        3.0,
+        85.0,
+        368.0,
+        86.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t02",
+      "native_id": "beauty_0_2_0",
+      "parent": "cmd_box",
+      "kind": "text",
+      "component": "Textd0578af30f19",
+      "semantic_role": "text",
+      "bounds": [
+        18.840000000000003,
+        114.0,
+        322.0,
+        29.0
+      ],
+      "text": "git push origin feat/steer-queue",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 16.56
+    },
+    {
+      "source_id": "reason_text",
+      "native_id": "beauty_0_3",
+      "parent": "approval_card",
+      "kind": "text",
+      "component": "Text776e18c492bd",
+      "semantic_role": "text",
+      "bounds": [
+        3.78688524590164,
+        200.5,
+        302.0,
+        66.0
+      ],
+      "text": "Reason: Push the fix branch so Cl can run",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 21
+    },
+    {
+      "source_id": "approve_once",
+      "native_id": "beauty_0_4",
+      "parent": "approval_card",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        2.0,
+        292.0,
+        369.0,
+        68.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "approve_once_surface",
+      "native_id": "beauty_0_4_0",
+      "parent": "approve_once",
+      "kind": "stack",
+      "component": "Surfaceb09388d9616a",
+      "semantic_role": "layout",
+      "bounds": [
+        2.0,
+        292.0,
+        369.0,
+        68.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "approve_once_control",
+      "native_id": "beauty_0_4_1",
+      "parent": "approve_once",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        2.0,
+        292.0,
+        369.0,
+        68.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "approve_once_label",
+      "native_id": "beauty_0_4_2",
+      "parent": "approve_once",
+      "kind": "text",
+      "component": "Text1203da972db2",
+      "semantic_role": "text",
+      "bounds": [
+        122.55000000000001,
+        315.5,
+        124.5,
+        29.0
+      ],
+      "text": "Approve once",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 17.89
+    },
+    {
+      "source_id": "approve_session",
+      "native_id": "beauty_0_5",
+      "parent": "approval_card",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        1.0,
+        375.0,
+        371.0,
+        72.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "approve_session_surface",
+      "native_id": "beauty_0_5_0",
+      "parent": "approve_session",
+      "kind": "stack",
+      "component": "Surfacecf419a0f4c2f",
+      "semantic_role": "layout",
+      "bounds": [
+        1.0,
+        375.0,
+        371.0,
+        72.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "approve_session_control",
+      "native_id": "beauty_0_5_1",
+      "parent": "approve_session",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        1.0,
+        375.0,
+        371.0,
+        72.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "approve_session_label",
+      "native_id": "beauty_0_5_2",
+      "parent": "approve_session",
+      "kind": "text",
+      "component": "Textb89d74582783",
+      "semantic_role": "text",
+      "bounds": [
+        97.56,
+        398.5,
+        175.5,
+        29.0
+      ],
+      "text": "Approve for session",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 17.75
+    },
+    {
+      "source_id": "deny",
+      "native_id": "beauty_0_6",
+      "parent": "approval_card",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        2.0,
+        458.0,
+        368.0,
+        58.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "deny_surface",
+      "native_id": "beauty_0_6_0",
+      "parent": "deny",
+      "kind": "stack",
+      "component": "Surface9eeb0502ed91",
+      "semantic_role": "layout",
+      "bounds": [
+        2.0,
+        458.0,
+        368.0,
+        58.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "deny_control",
+      "native_id": "beauty_0_6_1",
+      "parent": "deny",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        2.0,
+        458.0,
+        368.0,
+        58.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "deny_label",
+      "native_id": "beauty_0_6_2",
+      "parent": "deny",
+      "kind": "text",
+      "component": "Textd69d397afce1",
+      "semantic_role": "text",
+      "bounds": [
+        154.93,
+        477.5,
+        48.0,
+        29.0
+      ],
+      "text": "Deny",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 17.9
+    },
+    {
+      "source_id": "t_hint",
+      "native_id": "beauty_0_7",
+      "parent": "approval_card",
+      "kind": "text",
+      "component": "Text67f5fdec256d",
+      "semantic_role": "text",
+      "bounds": [
+        138.98,
+        577.0,
+        79.0,
+        24.94
+      ],
+      "text": "Y /S / N",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 20.61
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
+  },
+  "contract_sha256": "5570b811e4c104dabc42355a7e56e4c3f1d295479c0eb25840ee5c98e778471a",
+  "mapping_basis": "mapped.json"
+}

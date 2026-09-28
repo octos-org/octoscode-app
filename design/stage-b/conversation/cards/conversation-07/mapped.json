@@ -391,7 +391,10 @@
             "h": 16.0,
             "src": ""
           }
-        ]
+        ],
+        "variant": "surface",
+        "bg": 4294901246,
+        "radius": 0
       }
     ],
     "variant": "surface",

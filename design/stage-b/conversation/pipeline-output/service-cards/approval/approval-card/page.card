@@ -1,0 +1,91 @@
+# ledger approval-card@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t01_text { class: user-copy, en: "Run this command?" }
+copy t02_text { class: user-copy, en: "git push origin feat/steer-queue" }
+copy reason_text_text { class: user-copy, en: "Reason: Push the fix branch so Cl can run" }
+copy approve_once_label_text { class: user-copy, en: "Approve once" }
+copy approve_session_label_text { class: user-copy, en: "Approve for session" }
+copy deny_label_text { class: user-copy, en: "Deny" }
+copy t_hint_text { class: user-copy, en: "Y /S / N" }
+state approve_once_control_enabled { shape: bool, initial: true }
+state approve_session_control_enabled { shape: bool, initial: true }
+state deny_control_enabled { shape: bool, initial: true }
+component Surface5a7573e113ac(instance: text) {
+  view Kit(component: "Surface5a7573e113ac", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Text8cb1e9073ec4(instance: text, text: text) {
+  view Kit(component: "Text8cb1e9073ec4", instance: instance, text: text)
+}
+component Surfaced4520a0efa8e(instance: text) {
+  view Kit(component: "Surfaced4520a0efa8e", instance: instance) { slot }
+}
+component Textd0578af30f19(instance: text, text: text) {
+  view Kit(component: "Textd0578af30f19", instance: instance, text: text)
+}
+component Text776e18c492bd(instance: text, text: text) {
+  view Kit(component: "Text776e18c492bd", instance: instance, text: text)
+}
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surfaceb09388d9616a(instance: text) {
+  view Kit(component: "Surfaceb09388d9616a", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Text1203da972db2(instance: text, text: text) {
+  view Kit(component: "Text1203da972db2", instance: instance, text: text)
+}
+component Surfacecf419a0f4c2f(instance: text) {
+  view Kit(component: "Surfacecf419a0f4c2f", instance: instance) { slot }
+}
+component Textb89d74582783(instance: text, text: text) {
+  view Kit(component: "Textb89d74582783", instance: instance, text: text)
+}
+component Surface9eeb0502ed91(instance: text) {
+  view Kit(component: "Surface9eeb0502ed91", instance: instance) { slot }
+}
+component Textd69d397afce1(instance: text, text: text) {
+  view Kit(component: "Textd69d397afce1", instance: instance, text: text)
+}
+component Text67f5fdec256d(instance: text, text: text) {
+  view Kit(component: "Text67f5fdec256d", instance: instance, text: text)
+}
+
+view root Surface5a7573e113ac(instance: "approval_card") {
+  Vectore0a378fde04f(instance: "icon_shield")
+  Text8cb1e9073ec4(instance: "t01", text: copy.t01_text)
+  Surfaced4520a0efa8e(instance: "cmd_box") {
+    Textd0578af30f19(instance: "t02", text: copy.t02_text)
+  }
+  Text776e18c492bd(instance: "reason_text", text: copy.reason_text_text)
+  KitButton2c6804b990a5(instance: "approve_once") {
+    Surfaceb09388d9616a(instance: "approve_once_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "approve_once_control", enabled: approve_once_control_enabled)
+    Text1203da972db2(instance: "approve_once_label", text: copy.approve_once_label_text)
+  }
+  KitButton2c6804b990a5(instance: "approve_session") {
+    Surfacecf419a0f4c2f(instance: "approve_session_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "approve_session_control", enabled: approve_session_control_enabled)
+    Textb89d74582783(instance: "approve_session_label", text: copy.approve_session_label_text)
+  }
+  KitButton2c6804b990a5(instance: "deny") {
+    Surface9eeb0502ed91(instance: "deny_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "deny_control", enabled: deny_control_enabled)
+    Textd69d397afce1(instance: "deny_label", text: copy.deny_label_text)
+  }
+  Text67f5fdec256d(instance: "t_hint", text: copy.t_hint_text)
+}

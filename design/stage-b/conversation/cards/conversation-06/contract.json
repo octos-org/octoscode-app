@@ -330,7 +330,10 @@
             ],
             "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
           }
-        ]
+        ],
+        "variant": "surface",
+        "bg": 4294967295,
+        "radius": 0
       }
     ],
     "variant": "surface",

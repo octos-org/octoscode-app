@@ -222,11 +222,14 @@
             "h": 26.0,
             "src": ""
           }
-        ]
+        ],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 0
       }
     ],
     "variant": "surface",
-    "bg": 4293981682
+    "bg": 4294967295
   },
   "changes": [
     {

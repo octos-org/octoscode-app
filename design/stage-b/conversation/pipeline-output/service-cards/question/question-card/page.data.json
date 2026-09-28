@@ -1,0 +1,241 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "question_card": {
+        "component": "Surface5a7573e113ac",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 374.0,
+          "h": 660.0
+        }
+      },
+      "icon_decision": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 8.0,
+          "y": 20.0,
+          "w": 26.0,
+          "h": 28.0,
+          "src": "http://127.0.0.1:8170/ux-images/question-card/assets/icon_decision-79c4499823a8.svg"
+        }
+      },
+      "t01": {
+        "component": "Text3a321d4c403b",
+        "layout": {
+          "x": 63.91,
+          "y": 21.5,
+          "w": 247.0,
+          "h": 27.5
+        }
+      },
+      "question_text": {
+        "component": "Text15ed7064d520",
+        "layout": {
+          "x": 21.0,
+          "y": 90.0,
+          "w": 290.0,
+          "h": 62.0
+        }
+      },
+      "opt_ledger": {
+        "component": "Groupfe37d7063bc0",
+        "layout": {
+          "x": 18.0,
+          "y": 188.59,
+          "w": 340.0,
+          "h": 43.71
+        }
+      },
+      "opt_ledger_radio": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 22.0,
+          "y": 196.58999999999997,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/question-card/assets/opt_ledger_radio-def80ed3f9f0.svg"
+        }
+      },
+      "opt_ledger_label": {
+        "component": "Text4a39fec9983e",
+        "layout": {
+          "x": 65.61,
+          "y": 197.5,
+          "w": 174.5,
+          "h": 28.5
+        }
+      },
+      "opt_memory": {
+        "component": "Group797ca8139faf",
+        "layout": {
+          "x": 18.0,
+          "y": 289.12,
+          "w": 340.0,
+          "h": 38.28
+        }
+      },
+      "opt_memory_radio": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 22.0,
+          "y": 297.12,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/question-card/assets/opt_memory_radio-c5fdf81a4628.svg"
+        }
+      },
+      "opt_memory_label": {
+        "component": "Text5e310874fe95",
+        "layout": {
+          "x": 65.43,
+          "y": 292.5,
+          "w": 134.5,
+          "h": 29.5
+        }
+      },
+      "opt_ask": {
+        "component": "Group4fe983c4793c",
+        "layout": {
+          "x": 18.0,
+          "y": 349.52,
+          "w": 340.0,
+          "h": 34.78
+        }
+      },
+      "opt_ask_radio": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 22.0,
+          "y": 357.52,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/question-card/assets/opt_ask_radio-c5fdf81a4628.svg"
+        }
+      },
+      "opt_ask_label": {
+        "component": "Text5a6b3a90fb2a",
+        "layout": {
+          "x": 65.54,
+          "y": 354.5,
+          "w": 123.5,
+          "h": 23.0
+        }
+      },
+      "t_reco": {
+        "component": "Texte417d444380e",
+        "layout": {
+          "x": 64.67,
+          "y": 232.0,
+          "w": 134.5,
+          "h": 27.0
+        }
+      },
+      "note_box": {
+        "component": "Surfaceb8dcba023741",
+        "layout": {
+          "x": 7.0,
+          "y": 414.0,
+          "w": 358.0,
+          "h": 69.0
+        }
+      },
+      "note_input": {
+        "component": "Inputc2483154ab8c",
+        "layout": {
+          "x": 21.828000000000003,
+          "y": 427.8,
+          "w": 328.343,
+          "h": 41.4
+        }
+      },
+      "submit_answer": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 6.0,
+          "y": 507.0,
+          "w": 360.0,
+          "h": 71.0
+        }
+      },
+      "submit_answer_surface": {
+        "component": "Surface85e47be2cb0b",
+        "layout": {
+          "x": 6.0,
+          "y": 507.0,
+          "w": 360.0,
+          "h": 71.0
+        }
+      },
+      "submit_answer_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 6.0,
+          "y": 507.0,
+          "w": 360.0,
+          "h": 71.0
+        }
+      },
+      "submit_answer_label": {
+        "component": "Text7a4adc61e226",
+        "layout": {
+          "x": 124.06,
+          "y": 530.5,
+          "w": 133.5,
+          "h": 24.5
+        }
+      },
+      "skip": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 8.0,
+          "y": 590.0,
+          "w": 362.0,
+          "h": 60.0
+        }
+      },
+      "skip_surface": {
+        "component": "Surface90bffad792f0",
+        "layout": {
+          "x": 8.0,
+          "y": 590.0,
+          "w": 362.0,
+          "h": 60.0
+        }
+      },
+      "skip_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 8.0,
+          "y": 590.0,
+          "w": 362.0,
+          "h": 60.0
+        }
+      },
+      "skip_label": {
+        "component": "Text5d47e359c8cc",
+        "layout": {
+          "x": 164.92,
+          "y": 612.5,
+          "w": 43.0,
+          "h": 31.0
+        }
+      }
+    },
+    "bindings": [
+      {
+        "id": "note_input",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "note_input",
+          "property": "text"
+        }
+      }
+    ]
+  }
+}

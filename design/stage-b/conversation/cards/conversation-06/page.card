@@ -19,8 +19,8 @@ state skip_control_enabled { shape: bool, initial: true }
 component Surface16fae9a63e16(instance: text) {
   view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
 }
-component Group3d2637879433(instance: text) {
-  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+component Surface5a7573e113ac(instance: text) {
+  view Kit(component: "Surface5a7573e113ac", instance: instance) { slot }
 }
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
@@ -78,7 +78,7 @@ component Text5d47e359c8cc(instance: text, text: text) {
 }
 
 view root Surface16fae9a63e16(instance: "page") {
-  Group3d2637879433(instance: "question_card") {
+  Surface5a7573e113ac(instance: "question_card") {
     Vectore0a378fde04f(instance: "icon_decision")
     Text3a321d4c403b(instance: "t01", text: copy.t01_text)
     Text15ed7064d520(instance: "question_text", text: copy.question_text_text)

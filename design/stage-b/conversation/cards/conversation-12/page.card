@@ -14,8 +14,8 @@ copy t_pick_text { class: user-copy, en: "deepseek-v4-flash v" }
 component Surface156d085f4ff5(instance: text) {
   view Kit(component: "Surface156d085f4ff5", instance: instance) { slot }
 }
-component Group3d2637879433(instance: text) {
-  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+component Surfaceb4206391250d(instance: text) {
+  view Kit(component: "Surfaceb4206391250d", instance: instance) { slot }
 }
 component Texte6662bb38e5f(instance: text, text: text) {
   view Kit(component: "Texte6662bb38e5f", instance: instance, text: text)
@@ -61,7 +61,7 @@ component Textc59130a9c7f8(instance: text, text: text) {
 }
 
 view root Surface156d085f4ff5(instance: "page") {
-  Group3d2637879433(instance: "settings_group") {
+  Surfaceb4206391250d(instance: "settings_group") {
     Texte6662bb38e5f(instance: "t01", text: copy.t01_text)
     Surface40a6adb74bc2(instance: "perm_card") {
       Texta09488cf4ea1(instance: "t_r1", text: copy.t_r1_text)

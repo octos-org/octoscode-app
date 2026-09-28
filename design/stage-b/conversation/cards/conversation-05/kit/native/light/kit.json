@@ -6,6 +6,14 @@
       "value": 4294901502,
       "property": "bg"
     },
+    "bg_40fe55fff4f6": {
+      "value": 4294835709,
+      "property": "bg"
+    },
+    "radius_5feceb66ffc8": {
+      "value": 0,
+      "property": "radius"
+    },
     "size_e75fd2236717": {
       "value": 21.63,
       "property": "size"
@@ -110,10 +118,6 @@
       "value": "self:resources/ux/Inter-500.ttf",
       "property": "font_src"
     },
-    "bg_40fe55fff4f6": {
-      "value": 4294835709,
-      "property": "bg"
-    },
     "radius_f85f0b0b2025": {
       "value": 36.0,
       "property": "radius"
@@ -171,9 +175,16 @@
       "props": {},
       "slot": true
     },
-    "Group3d2637879433": {
+    "Surface5a7573e113ac": {
       "style": {
-        "t": "stack"
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_40fe55fff4f6"
+        },
+        "radius": {
+          "$token": "radius_5feceb66ffc8"
+        }
       },
       "props": {},
       "slot": true

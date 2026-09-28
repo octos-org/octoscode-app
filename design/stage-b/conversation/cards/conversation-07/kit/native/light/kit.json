@@ -6,6 +6,14 @@
       "value": 4294901502,
       "property": "bg"
     },
+    "bg_96b9880d1b2b": {
+      "value": 4294901246,
+      "property": "bg"
+    },
+    "radius_5feceb66ffc8": {
+      "value": 0,
+      "property": "radius"
+    },
     "size_7c230b8fe581": {
       "value": 19.83,
       "property": "size"
@@ -81,10 +89,6 @@
     "color_2ed7ba8829b1": {
       "value": 4279703320,
       "property": "color"
-    },
-    "bg_96b9880d1b2b": {
-      "value": 4294901246,
-      "property": "bg"
     },
     "radius_b00504649c47": {
       "value": 12.13,
@@ -194,10 +198,6 @@
       "value": 4293256679,
       "property": "bg"
     },
-    "radius_5feceb66ffc8": {
-      "value": 0,
-      "property": "radius"
-    },
     "size_3083d24c379b": {
       "value": 16.94,
       "property": "size"
@@ -223,9 +223,16 @@
       "props": {},
       "slot": true
     },
-    "Group3d2637879433": {
+    "Surface13b18c6e4e55": {
       "style": {
-        "t": "stack"
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_96b9880d1b2b"
+        },
+        "radius": {
+          "$token": "radius_5feceb66ffc8"
+        }
       },
       "props": {},
       "slot": true

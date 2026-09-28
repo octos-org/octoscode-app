@@ -1,0 +1,444 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "question_card",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface5a7573e113ac",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        374.0,
+        660.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_decision",
+      "native_id": "beauty_0_0",
+      "parent": "question_card",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        8.0,
+        20.0,
+        26.0,
+        28.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_1",
+      "parent": "question_card",
+      "kind": "text",
+      "component": "Text3a321d4c403b",
+      "semantic_role": "text",
+      "bounds": [
+        63.91,
+        21.5,
+        247.0,
+        27.5
+      ],
+      "text": "Octos needs a decision",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 21.6
+    },
+    {
+      "source_id": "question_text",
+      "native_id": "beauty_0_2",
+      "parent": "question_card",
+      "kind": "text",
+      "component": "Text15ed7064d520",
+      "semantic_role": "text",
+      "bounds": [
+        21.0,
+        90.0,
+        290.0,
+        62.0
+      ],
+      "text": "Where should queued steers be persisted?",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 17
+    },
+    {
+      "source_id": "opt_ledger",
+      "native_id": "beauty_0_3",
+      "parent": "question_card",
+      "kind": "stack",
+      "component": "Groupfe37d7063bc0",
+      "semantic_role": "layout",
+      "bounds": [
+        18.0,
+        188.59,
+        340.0,
+        43.71
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "opt_ledger_radio",
+      "native_id": "beauty_0_3_0",
+      "parent": "opt_ledger",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        22.0,
+        196.58999999999997,
+        20.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "opt_ledger_label",
+      "native_id": "beauty_0_3_1",
+      "parent": "opt_ledger",
+      "kind": "text",
+      "component": "Text4a39fec9983e",
+      "semantic_role": "text",
+      "bounds": [
+        65.61,
+        197.5,
+        174.5,
+        28.5
+      ],
+      "text": "In the session ledger",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 17.2
+    },
+    {
+      "source_id": "opt_memory",
+      "native_id": "beauty_0_4",
+      "parent": "question_card",
+      "kind": "stack",
+      "component": "Group797ca8139faf",
+      "semantic_role": "layout",
+      "bounds": [
+        18.0,
+        289.12,
+        340.0,
+        38.28
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "opt_memory_radio",
+      "native_id": "beauty_0_4_0",
+      "parent": "opt_memory",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        22.0,
+        297.12,
+        20.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "opt_memory_label",
+      "native_id": "beauty_0_4_1",
+      "parent": "opt_memory",
+      "kind": "text",
+      "component": "Text5e310874fe95",
+      "semantic_role": "text",
+      "bounds": [
+        65.43,
+        292.5,
+        134.5,
+        29.5
+      ],
+      "text": "In memory only",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 17.9
+    },
+    {
+      "source_id": "opt_ask",
+      "native_id": "beauty_0_5",
+      "parent": "question_card",
+      "kind": "stack",
+      "component": "Group4fe983c4793c",
+      "semantic_role": "layout",
+      "bounds": [
+        18.0,
+        349.52,
+        340.0,
+        34.78
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "opt_ask_radio",
+      "native_id": "beauty_0_5_0",
+      "parent": "opt_ask",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        22.0,
+        357.52,
+        20.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "opt_ask_label",
+      "native_id": "beauty_0_5_1",
+      "parent": "opt_ask",
+      "kind": "text",
+      "component": "Text5a6b3a90fb2a",
+      "semantic_role": "text",
+      "bounds": [
+        65.54,
+        354.5,
+        123.5,
+        23.0
+      ],
+      "text": "Ask each time",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 17.93
+    },
+    {
+      "source_id": "t_reco",
+      "native_id": "beauty_0_6",
+      "parent": "question_card",
+      "kind": "text",
+      "component": "Texte417d444380e",
+      "semantic_role": "text",
+      "bounds": [
+        64.67,
+        232.0,
+        134.5,
+        27.0
+      ],
+      "text": "(recommended)",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 17.19
+    },
+    {
+      "source_id": "note_box",
+      "native_id": "beauty_0_7",
+      "parent": "question_card",
+      "kind": "stack",
+      "component": "Surfaceb8dcba023741",
+      "semantic_role": "layout",
+      "bounds": [
+        7.0,
+        414.0,
+        358.0,
+        69.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "note_input",
+      "native_id": "beauty_0_7_0",
+      "parent": "note_box",
+      "kind": "input",
+      "component": "Inputc2483154ab8c",
+      "semantic_role": "input",
+      "bounds": [
+        21.828000000000003,
+        427.8,
+        328.343,
+        41.4
+      ],
+      "text": "",
+      "enabled": 1,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "submit_answer",
+      "native_id": "beauty_0_8",
+      "parent": "question_card",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        6.0,
+        507.0,
+        360.0,
+        71.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "submit_answer_surface",
+      "native_id": "beauty_0_8_0",
+      "parent": "submit_answer",
+      "kind": "stack",
+      "component": "Surface85e47be2cb0b",
+      "semantic_role": "layout",
+      "bounds": [
+        6.0,
+        507.0,
+        360.0,
+        71.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "submit_answer_control",
+      "native_id": "beauty_0_8_1",
+      "parent": "submit_answer",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        6.0,
+        507.0,
+        360.0,
+        71.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "submit_answer_label",
+      "native_id": "beauty_0_8_2",
+      "parent": "submit_answer",
+      "kind": "text",
+      "component": "Text7a4adc61e226",
+      "semantic_role": "text",
+      "bounds": [
+        124.06,
+        530.5,
+        133.5,
+        24.5
+      ],
+      "text": "Submit answer",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 18.18
+    },
+    {
+      "source_id": "skip",
+      "native_id": "beauty_0_9",
+      "parent": "question_card",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        8.0,
+        590.0,
+        362.0,
+        60.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "skip_surface",
+      "native_id": "beauty_0_9_0",
+      "parent": "skip",
+      "kind": "stack",
+      "component": "Surface90bffad792f0",
+      "semantic_role": "layout",
+      "bounds": [
+        8.0,
+        590.0,
+        362.0,
+        60.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "skip_control",
+      "native_id": "beauty_0_9_1",
+      "parent": "skip",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        8.0,
+        590.0,
+        362.0,
+        60.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "skip_label",
+      "native_id": "beauty_0_9_2",
+      "parent": "skip",
+      "kind": "text",
+      "component": "Text5d47e359c8cc",
+      "semantic_role": "text",
+      "bounds": [
+        164.92,
+        612.5,
+        43.0,
+        31.0
+      ],
+      "text": "Skip",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 19.07
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
+  },
+  "contract_sha256": "3facabf1d1211416ca34f91da41f1ee9c8494ad99e296e34a6be48f01b7d0201",
+  "mapping_basis": "mapped.json"
+}

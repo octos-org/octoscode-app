@@ -194,7 +194,50 @@
     "wizard/render.mjs",
     "wizard/wizard.mjs"
   ],
-  "cards": [],
+  "cards": [
+    {
+      "id": "approval-card",
+      "scene": "5",
+      "root": "approval_card",
+      "owner": "approval"
+    },
+    {
+      "id": "question-card",
+      "scene": "6",
+      "root": "question_card",
+      "owner": "question"
+    },
+    {
+      "id": "edited-files-card",
+      "scene": "7",
+      "root": "edited_files_card",
+      "owner": "files"
+    },
+    {
+      "id": "plan-card",
+      "scene": "10",
+      "root": "plan_card",
+      "owner": "plan"
+    },
+    {
+      "id": "goal-strip",
+      "scene": "10",
+      "root": "goal_strip",
+      "owner": "plan"
+    },
+    {
+      "id": "diff-view",
+      "scene": "11",
+      "root": "diff_view",
+      "owner": "review"
+    },
+    {
+      "id": "settings-group",
+      "scene": "12",
+      "root": "settings_group",
+      "owner": "settings"
+    }
+  ],
   "checks": {
     "service-test": [
       {

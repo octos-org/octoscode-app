@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "policy_version": "1.1.0",
+  "contract_sha256": "4c5e8a48dee6c809861df5c0d013065d1d1ad96af748d1bb5d6113183a1da1c8",
+  "reference_sha256": "3785246a75f5c03cb0530fad6dc962babcb12e91a622573d4b3a2315b733923b",
+  "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
+  "elements": [
+    {
+      "id": "goal_strip",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t01",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "icon_pause",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_pause.svg",
+        "sha256": "2511dd231bde5eea2eba48ef1eb28e435dd8483c3b86819dab26944ddcd4449a",
+        "method": "reference_svg",
+        "reference_sha256": "3785246a75f5c03cb0530fad6dc962babcb12e91a622573d4b3a2315b733923b",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "icon_stop",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_stop.svg",
+        "sha256": "c1588916c331a7b20227609542114b4691c5dd9e6c3a4905d12e0b42b09af4c6",
+        "method": "reference_svg",
+        "reference_sha256": "3785246a75f5c03cb0530fad6dc962babcb12e91a622573d4b3a2315b733923b",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    }
+  ]
+}

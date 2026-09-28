@@ -264,11 +264,17 @@ class Scene:
     def wrap(self, id, x, y, w, h):
         """Reparent every node placed so far into ONE `stack` root — the design
         flow's "native composition root" (card #16) — so the subtree can be
-        extracted as a reusable component. A fill-less plain stack is
-        appearance-inert: makepad `abs_pos` is window-absolute (design.rs:200)."""
+        extracted as a reusable component.
+
+        The root carries a WHITE fill (card #18): in-scene it is appearance-inert
+        (makepad `abs_pos` is window-absolute, design.rs:200, and the page behind it
+        is already white), but as a STANDALONE component the host has no page to
+        paint the ground, so a fill-less root renders on the host's dark default
+        (#4c4c4c). `wrap_card` is the variant that also draws a border.
+        """
         kids = self.kids
         self.kids = []
-        self.put(stack(id, x, y, w, h, kids))
+        self.put(surface(id, x, y, w, h, bg="white", radius=0, kids=kids))
 
     def wrap_card(self, id, x, y, w, h, *, radius=12):
         """Like `wrap`, but the root is a bordered white SURFACE — the enclosing

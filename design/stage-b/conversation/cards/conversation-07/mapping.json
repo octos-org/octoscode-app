@@ -24,7 +24,7 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "stack",
-      "component": "Group3d2637879433",
+      "component": "Surface13b18c6e4e55",
       "semantic_role": "layout",
       "bounds": [
         16.0,
@@ -493,6 +493,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "2bb76dc554e3612f63d5e119013ae80fa443c849154e4eece19aac06838ec0b9",
+  "contract_sha256": "8a7854bd8960f48ef8756fd6c113759bfc458d4af9c4b6cf4ebb19a1abc42455",
   "mapping_basis": "mapped.json"
 }

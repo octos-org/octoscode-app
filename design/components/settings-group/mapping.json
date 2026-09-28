@@ -1,0 +1,300 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "settings_group",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surfaceb4206391250d",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        374.0,
+        620.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_0",
+      "parent": "settings_group",
+      "kind": "text",
+      "component": "Texte6662bb38e5f",
+      "semantic_role": "text",
+      "bounds": [
+        16.72,
+        17.0,
+        107.5,
+        25.0
+      ],
+      "text": "Permissions",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 17.47
+    },
+    {
+      "source_id": "perm_card",
+      "native_id": "beauty_0_1",
+      "parent": "settings_group",
+      "kind": "stack",
+      "component": "Surface40a6adb74bc2",
+      "semantic_role": "layout",
+      "bounds": [
+        9.0,
+        66.0,
+        355.0,
+        305.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_r1",
+      "native_id": "beauty_0_1_0",
+      "parent": "perm_card",
+      "kind": "text",
+      "component": "Texta09488cf4ea1",
+      "semantic_role": "text",
+      "bounds": [
+        30.71,
+        98.0,
+        157.0,
+        27.5
+      ],
+      "text": "Default permissions",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 16.07
+    },
+    {
+      "source_id": "t_d1",
+      "native_id": "beauty_0_1_1",
+      "parent": "perm_card",
+      "kind": "text",
+      "component": "Text61968c0f7a49",
+      "semantic_role": "text",
+      "bounds": [
+        29.0,
+        134.0,
+        210.0,
+        44.0
+      ],
+      "text": "Ask before running commands that modify your system.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13
+    },
+    {
+      "source_id": "t_r2",
+      "native_id": "beauty_0_1_2",
+      "parent": "perm_card",
+      "kind": "text",
+      "component": "Text383523ce1bc1",
+      "semantic_role": "text",
+      "bounds": [
+        30.729999999999997,
+        249.5,
+        88.0,
+        22.5
+      ],
+      "text": "Full access",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 15.71
+    },
+    {
+      "source_id": "t_d2",
+      "native_id": "beauty_0_1_3",
+      "parent": "perm_card",
+      "kind": "text",
+      "component": "Text61968c0f7a49",
+      "semantic_role": "text",
+      "bounds": [
+        29.0,
+        286.0,
+        210.0,
+        44.0
+      ],
+      "text": "Allow Octos to run any command without asking.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13
+    },
+    {
+      "source_id": "toggle1",
+      "native_id": "beauty_0_1_4",
+      "parent": "perm_card",
+      "kind": "stack",
+      "component": "Surface420bbc664d64",
+      "semantic_role": "layout",
+      "bounds": [
+        293.0,
+        102.0,
+        55.0,
+        46.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "toggle1_knob",
+      "native_id": "beauty_0_1_4_0",
+      "parent": "toggle1",
+      "kind": "stack",
+      "component": "Surfaceb4c66cb17ca9",
+      "semantic_role": "layout",
+      "bounds": [
+        319.4,
+        106.6,
+        26.4,
+        36.8
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "toggle2",
+      "native_id": "beauty_0_1_5",
+      "parent": "perm_card",
+      "kind": "stack",
+      "component": "Surface7b8eda49274c",
+      "semantic_role": "layout",
+      "bounds": [
+        294.0,
+        254.0,
+        54.0,
+        47.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "toggle2_knob",
+      "native_id": "beauty_0_1_5_0",
+      "parent": "toggle2",
+      "kind": "stack",
+      "component": "Surface053060c5a689",
+      "semantic_role": "layout",
+      "bounds": [
+        297.24,
+        258.7,
+        25.92,
+        37.6
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "perm_divider",
+      "native_id": "beauty_0_2",
+      "parent": "settings_group",
+      "kind": "stack",
+      "component": "Surfacec4c38149242a",
+      "semantic_role": "layout",
+      "bounds": [
+        14.0,
+        218.0,
+        346.0,
+        1.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_sec2",
+      "native_id": "beauty_0_3",
+      "parent": "settings_group",
+      "kind": "text",
+      "component": "Text10fc92947883",
+      "semantic_role": "text",
+      "bounds": [
+        15.7,
+        439.0,
+        57.5,
+        24.5
+      ],
+      "text": "Model",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 17.78
+    },
+    {
+      "source_id": "model_card",
+      "native_id": "beauty_0_4",
+      "parent": "settings_group",
+      "kind": "stack",
+      "component": "Surfacef73992c5f8a4",
+      "semantic_role": "layout",
+      "bounds": [
+        12.0,
+        491.0,
+        348.0,
+        104.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_model",
+      "native_id": "beauty_0_4_0",
+      "parent": "model_card",
+      "kind": "text",
+      "component": "Texta445ee2dd47b",
+      "semantic_role": "text",
+      "bounds": [
+        28.759999999999998,
+        530.0,
+        107.0,
+        22.5
+      ],
+      "text": "Default model",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 15.45
+    },
+    {
+      "source_id": "t_pick",
+      "native_id": "beauty_0_4_1",
+      "parent": "model_card",
+      "kind": "text",
+      "component": "Textc59130a9c7f8",
+      "semantic_role": "text",
+      "bounds": [
+        190.82,
+        531.0,
+        149.0,
+        26.5
+      ],
+      "text": "deepseek-v4-flash v",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 14.47
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "f753b047c61923e50be6a02515b9c4ec199bc5ae2f490d1d8e38903df633330c",
+  "mapping_basis": "mapped.json"
+}

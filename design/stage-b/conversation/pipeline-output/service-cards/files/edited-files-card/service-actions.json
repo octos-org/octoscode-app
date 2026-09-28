@@ -1,0 +1,17 @@
+{
+  "frame_id": 7,
+  "controls": {
+    "review": {
+      "event": "files.review",
+      "source_bounds": [
+        316,
+        78,
+        74,
+        40
+      ],
+      "enabled": true
+    }
+  },
+  "source": "edited-files",
+  "owner": "files"
+}

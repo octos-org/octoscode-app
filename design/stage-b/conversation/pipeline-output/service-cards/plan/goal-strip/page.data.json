@@ -1,0 +1,46 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "goal_strip": {
+        "component": "Surface5e06c9b428ce",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 374.0,
+          "h": 40.0
+        }
+      },
+      "t01": {
+        "component": "Textfaa232946c99",
+        "layout": {
+          "x": 17.810000000000002,
+          "y": 5.5,
+          "w": 256.5,
+          "h": 25.0
+        }
+      },
+      "icon_pause": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 292.0,
+          "y": 5.0,
+          "w": 14.0,
+          "h": 16.0,
+          "src": "http://127.0.0.1:8170/ux-images/goal-strip/assets/icon_pause-2511dd231bde.svg"
+        }
+      },
+      "icon_stop": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 330.0,
+          "y": 5.0,
+          "w": 14.0,
+          "h": 16.0,
+          "src": "http://127.0.0.1:8170/ux-images/goal-strip/assets/icon_stop-c1588916c331.svg"
+        }
+      }
+    },
+    "bindings": []
+  }
+}

@@ -6,7 +6,7 @@
       "native_id": "beauty_0",
       "parent": null,
       "kind": "stack",
-      "component": "Surface991755d1cfb2",
+      "component": "Surface156d085f4ff5",
       "semantic_role": "layout",
       "bounds": [
         0,
@@ -96,7 +96,7 @@
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "stack",
-      "component": "Group3d2637879433",
+      "component": "Surfaceb4206391250d",
       "semantic_role": "layout",
       "bounds": [
         16.0,
@@ -331,6 +331,6 @@
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "2602d3024eb0186f46c7148005cc8954b3280737f8de3630b0013523c836a8dd",
+  "contract_sha256": "651759f2a8122542c391dfd270ea3a709f73d8983eb209658166c4d3bd16761e",
   "mapping_basis": "mapped.json"
 }

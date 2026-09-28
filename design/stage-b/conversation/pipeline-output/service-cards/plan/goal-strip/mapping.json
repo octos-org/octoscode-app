@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "goal_strip",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface5e06c9b428ce",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        374.0,
+        40.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_0",
+      "parent": "goal_strip",
+      "kind": "text",
+      "component": "Textfaa232946c99",
+      "semantic_role": "text",
+      "bounds": [
+        17.810000000000002,
+        5.5,
+        256.5,
+        25.0
+      ],
+      "text": "Goal \u2022 Fix steer queue on reconnect \u2022 18m",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 12.5
+    },
+    {
+      "source_id": "icon_pause",
+      "native_id": "beauty_0_1",
+      "parent": "goal_strip",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        292.0,
+        5.0,
+        14.0,
+        16.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_stop",
+      "native_id": "beauty_0_2",
+      "parent": "goal_strip",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        330.0,
+        5.0,
+        14.0,
+        16.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
+  },
+  "contract_sha256": "4c5e8a48dee6c809861df5c0d013065d1d1ad96af748d1bb5d6113183a1da1c8",
+  "mapping_basis": "mapped.json"
+}
