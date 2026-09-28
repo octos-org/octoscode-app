@@ -54,7 +54,6 @@ script_mod! {
         // replaced by the mounted L0 cards (#11b) later. Every id below is a
         // binding id (`threads`, `timeline.entries`, `tools`,
         // `answer.worked_for`, `composer.*`); the view never sees a Rust type.
-        Divider {}
         threads_label := Label { width: Fill draw_text.text_style.font_size: 13 text: "threads: (none)" }
         timeline_label := Label { width: Fill height: Fill draw_text.wrap: Words text: "(no timeline)" }
         tools_label := Label { width: Fill draw_text.text_style.font_size: 13 text: "tools: (none)" }
