@@ -532,6 +532,21 @@ def row_reason(area: str, res: dict) -> str:
     return f"area '{area}': {len(res['run'])} checks, all pass"
 
 
+def exit_code(counts: dict, infra_blocked: int) -> int:
+    """The process exit code, so a failure can never look green (card #19b).
+
+    * `1` — a check failed, an area was not run, or a **selected** row is blocked
+      because its area could not start. (`infra_blocked` counts the latter: the
+      3 `real-turn` rows are never selected, so they never count here.)
+    * `0` — otherwise (every selected row passed).
+
+    A prerequisite failure is handled earlier and exits `2`.
+    """
+    if counts.get("fail", 0) or counts.get("not-run", 0) or infra_blocked:
+        return 1
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=30)
@@ -633,13 +648,22 @@ def main():
 
     from collections import Counter
     counts = Counter(r["status"] for r in out)
+    # A selected row blocked because its area could not start is an infra
+    # failure, not a pass (card #19b). The 3 real-turn rows are never selected,
+    # so they do not count here.
+    infra_blocked = sum(
+        1 for i, r in enumerate(out, start=1)
+        if i in target_by_row and r["status"] == "blocked"
+    )
     print("\n== walk-runner summary ==")
     for k in ("pass", "fail", "not-yet-implemented", "blocked", "skipped", "not-run"):
         if counts.get(k):
             print(f"   {k:20} {counts[k]}")
     print(f"   total                {len(out)}")
     print(f"   scripted rows        {len(targets)}  (areas: {areas})")
-    return 0 if counts.get("fail", 0) == 0 and counts.get("not-run", 0) == 0 else 1
+    if infra_blocked:
+        print(f"   NOTE: {infra_blocked} selected row(s) blocked by a start failure")
+    return exit_code(counts, infra_blocked)
 
 
 if __name__ == "__main__":

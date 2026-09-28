@@ -74,6 +74,23 @@ class RowReason(unittest.TestCase):
 
 
 class PrereqMessage(unittest.TestCase):
+    def test_exit_code_ignores_a_clean_run(self):
+        self.assertEqual(run.exit_code({"pass": 30, "skipped": 31}, 0), 0)
+
+    def test_exit_code_flags_a_failure(self):
+        self.assertEqual(run.exit_code({"pass": 29, "fail": 1}, 0), 1)
+
+    def test_exit_code_flags_a_not_run_area(self):
+        self.assertEqual(run.exit_code({"pass": 20, "not-run": 10}, 0), 1)
+
+    def test_exit_code_flags_an_infra_blocked_selected_row(self):
+        """A start failure that blocks a *selected* row must not exit 0."""
+        self.assertEqual(run.exit_code({"pass": 0, "blocked": 9}, 9), 1)
+
+    def test_exit_code_ignores_the_three_real_turn_blocked_rows(self):
+        """The 3 real-turn rows are never selected, so they never affect the code."""
+        self.assertEqual(run.exit_code({"pass": 30, "blocked": 3}, 0), 0)
+
     def test_app_bin_help_names_the_build_recipe(self):
         """The fail-fast message must tell an operator exactly what to run."""
         self.assertIn("OCTOSCODE_APP_BIN", run.APP_BIN_HELP)
