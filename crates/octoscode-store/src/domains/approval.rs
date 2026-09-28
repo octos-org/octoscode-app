@@ -38,6 +38,21 @@ struct Inner {
     pending: Vec<PendingApproval>,
     /// The last `approval/scopes/list` result.
     scopes: Vec<StoredScope>,
+    /// Card #13: the outstanding `user_question/requested`, if any
+    /// (UPCR-2026-023). One at a time — the server pauses the turn on it.
+    question: Option<PendingQuestion>,
+}
+
+/// One outstanding `user_question/requested` (card #13 §3).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PendingQuestion {
+    pub question_id: String,
+    pub session_id: String,
+    pub turn_id: String,
+    pub title: String,
+    pub body: String,
+    /// The structured questions, kept as JSON (the store needs no octos-core dep).
+    pub questions: serde_json::Value,
 }
 
 impl Approvals {
@@ -114,5 +129,21 @@ impl Approvals {
     /// The last scope list read (empty until one lands).
     pub fn scopes(&self) -> Vec<StoredScope> {
         self.inner.lock().unwrap().scopes.clone()
+    }
+
+    /// Record the outstanding `user_question/requested` (card #13 §3).
+    pub fn set_question(&self, question: PendingQuestion) {
+        self.inner.lock().unwrap().question = Some(question);
+    }
+
+    /// The outstanding question, if any.
+    pub fn question(&self) -> Option<PendingQuestion> {
+        self.inner.lock().unwrap().question.clone()
+    }
+
+    /// Clear the outstanding question (a `user_question/respond` was sent, or
+    /// the turn ended).
+    pub fn clear_question(&self) -> bool {
+        self.inner.lock().unwrap().question.take().is_some()
     }
 }

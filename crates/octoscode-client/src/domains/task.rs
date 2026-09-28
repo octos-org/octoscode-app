@@ -205,3 +205,17 @@ pub fn register(reg: &mut Registry, store: Arc<Store>) {
     reg.register(TaskOutputDeltaHandler { store: store.clone() });
     reg.register(PlanUpdatedHandler { store });
 }
+
+/// `task/output/read` — read a background task's output (card #13 §3).
+///
+/// The transport ALSO carries a typed `OutboundCommand::RequestTaskOutput`
+/// (`octos-app-transport/src/proto.rs:173`); this `Method` makes it reachable
+/// through the client's generic request path, like the web
+/// (`packages/client/src/tasks.ts`). Params/result are the octos-core types.
+pub struct TaskOutputRead;
+
+impl Method for TaskOutputRead {
+    const NAME: &'static str = methods::TASK_OUTPUT_READ;
+    type Params = octos_core::ui_protocol::TaskOutputReadParams;
+    type Result = octos_core::ui_protocol::TaskOutputReadResult;
+}

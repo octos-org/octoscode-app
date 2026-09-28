@@ -180,6 +180,36 @@ impl Timeline {
         id
     }
 
+    /// Fold a **finalized** assistant message (`assistant_persisted`): the
+    /// web's fold treats it as finalizing the same segment its deltas wrote
+    /// (`timeline/model.ts`), so when the turn's open assistant entry already
+    /// holds text we leave it (the deltas are the content) and only fill it
+    /// when the deltas never arrived. Either way the entry is then closed.
+    pub fn finalize_assistant(&self, session: &str, turn_id: &str, text: &str) {
+        let mut map = self.inner.lock().unwrap();
+        let entries = map.entry(session.to_owned()).or_default();
+        if let Some(last) = entries
+            .iter_mut()
+            .rev()
+            .find(|e| {
+                e.kind == EntryKind::ASSISTANT_TEXT
+                    && e.turn_id.as_deref() == Some(turn_id)
+                    && !e.closed
+            })
+        {
+            if last.text.is_empty() {
+                last.text = text.to_owned();
+            }
+            last.closed = true;
+            return;
+        }
+        let id = self.next_id.fetch_add(1, Ordering::Relaxed);
+        let mut e = TimelineEntry::new(id, Some(turn_id.to_owned()), EntryKind::ASSISTANT_TEXT);
+        e.text = text.to_owned();
+        e.closed = true;
+        entries.push(e);
+    }
+
     /// Close every open entry of a turn (a turn boundary stops folding).
     pub fn close_turn(&self, session: &str, turn_id: &str) {
         let mut map = self.inner.lock().unwrap();

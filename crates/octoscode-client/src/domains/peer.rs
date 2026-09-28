@@ -200,3 +200,36 @@ pub fn register(reg: &mut Registry, store: Arc<Store>) {
     reg.register(PeerStagedHandler { store: store.clone() });
     reg.register(PeerClosedHandler { store });
 }
+
+// ---------------------------------------------------------------------------
+// Card #13 §3: the external-driver pair (peer/control, peer/dispatch).
+//
+// These live in `protocol-ext-matrix.csv` (AppUI extensions, `native=absent`
+// before this card), and the web issues them through its ONE generic request
+// (`packages/client/src/external-driver-peer-control.ts:32-33` pins the wire
+// names; the caller/response validation lives at `:565+`). octos-core declares
+// NO types for them, and their request/response shapes are large and
+// caller-validated on the web side, so we mirror that: the `Params`/`Result`
+// stay `serde_json::Value` and the typed validation is the caller's job —
+// exactly the transport's `Client::request` contract. That is a real
+// production path (not a test-only stub): a caller can now issue either
+// method through `Client::call::<PeerDispatch>(...)`.
+// ---------------------------------------------------------------------------
+
+/// `peer/dispatch` — hand work to a staged peer (external-driver extension).
+pub struct PeerDispatch;
+
+impl Method for PeerDispatch {
+    const NAME: &'static str = "peer/dispatch";
+    type Params = serde_json::Value;
+    type Result = serde_json::Value;
+}
+
+/// `peer/control` — steer a running peer (external-driver extension).
+pub struct PeerControl;
+
+impl Method for PeerControl {
+    const NAME: &'static str = "peer/control";
+    type Params = serde_json::Value;
+    type Result = serde_json::Value;
+}

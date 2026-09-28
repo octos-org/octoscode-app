@@ -71,6 +71,29 @@ pub struct Tools {
 struct Inner {
     tools: Vec<RuntimeTool>,
     mcp: Option<McpStatus>,
+    /// Card #13: live tool calls from `tool_start` / `tool_progress` /
+    /// `tool_end` (bare notifications AND `projection/envelope` payloads).
+    /// Keyed by `tool_call_id`, in first-seen order.
+    calls: Vec<ToolCallRow>,
+}
+
+/// One live tool call, folded from the protocol (bare `tool/*` notifications
+/// or the equivalent `projection/envelope` payloads).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ToolCallRow {
+    pub tool_call_id: String,
+    pub name: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub arguments_preview: Option<String>,
+    /// The latest progress message, when the tool reported one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+    /// `running` until a terminal `tool_end` sets `done`/`failed`/`skipped`/`aborted`.
+    pub status: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub output_preview: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub duration_ms: Option<u64>,
 }
 
 impl Tools {
@@ -93,6 +116,77 @@ impl Tools {
 
     pub fn mcp(&self) -> Option<McpStatus> {
         self.inner.lock().unwrap().mcp.clone()
+    }
+
+    // ---- live tool calls (card #13) -------------------------------------
+
+    /// `tool_start`: begin (or restart) a call row.
+    pub fn call_started(&self, tool_call_id: &str, name: &str, arguments_preview: Option<&str>) {
+        let mut i = self.inner.lock().unwrap();
+        i.calls.retain(|c| c.tool_call_id != tool_call_id);
+        i.calls.push(ToolCallRow {
+            tool_call_id: tool_call_id.to_owned(),
+            name: name.to_owned(),
+            arguments_preview: arguments_preview.map(str::to_owned),
+            message: None,
+            status: "running".to_owned(),
+            output_preview: None,
+            duration_ms: None,
+        });
+    }
+
+    /// `tool_progress`: record the latest message on a running call.
+    pub fn call_progress(&self, tool_call_id: &str, message: &str) {
+        let mut i = self.inner.lock().unwrap();
+        if let Some(c) = i.calls.iter_mut().find(|c| c.tool_call_id == tool_call_id) {
+            c.message = Some(message.to_owned());
+        }
+    }
+
+    /// `tool_end`: terminal status + optional output preview / duration.
+    pub fn call_ended(
+        &self,
+        tool_call_id: &str,
+        status: &str,
+        output_preview: Option<&str>,
+        duration_ms: Option<u64>,
+    ) {
+        let mut i = self.inner.lock().unwrap();
+        let mapped = match status {
+            "complete" => "done",
+            "error" => "failed",
+            "skipped" => "skipped",
+            "aborted" => "aborted",
+            other => other,
+        };
+        if let Some(c) = i.calls.iter_mut().find(|c| c.tool_call_id == tool_call_id) {
+            c.status = mapped.to_owned();
+            if let Some(p) = output_preview {
+                c.output_preview = Some(p.to_owned());
+            }
+            c.duration_ms = duration_ms;
+        } else {
+            // An `end` with no `start` still yields a row (never lose it).
+            i.calls.push(ToolCallRow {
+                tool_call_id: tool_call_id.to_owned(),
+                name: tool_call_id.to_owned(),
+                arguments_preview: None,
+                message: None,
+                status: mapped.to_owned(),
+                output_preview: output_preview.map(str::to_owned),
+                duration_ms,
+            });
+        }
+    }
+
+    /// The live tool calls, in first-seen order.
+    pub fn calls(&self) -> Vec<ToolCallRow> {
+        self.inner.lock().unwrap().calls.clone()
+    }
+
+    /// Number of live tool calls.
+    pub fn call_count(&self) -> usize {
+        self.inner.lock().unwrap().calls.len()
     }
 
     /// Number of MCP servers in the last status (0 when none seen).

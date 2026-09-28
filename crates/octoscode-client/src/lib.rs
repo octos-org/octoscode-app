@@ -20,6 +20,7 @@ mod method;
 pub mod domains;
 pub mod features;
 pub mod registry;
+pub mod trace;
 
 pub use method::Method;
 pub use registry::{NotificationHandler, Registry};
@@ -63,11 +64,27 @@ impl std::error::Error for ClientError {}
 #[derive(Clone)]
 pub struct Client {
     commands: mpsc::Sender<OutboundCommand>,
+    /// Card #13: every outbound frame is recorded here when
+    /// `OCTOSCODE_TRACE_FILE` is set (disabled otherwise).
+    trace: crate::trace::FrameTrace,
 }
 
 impl Client {
     pub fn new(commands: mpsc::Sender<OutboundCommand>) -> Self {
-        Self { commands }
+        Self {
+            commands,
+            trace: crate::trace::FrameTrace::disabled(),
+        }
+    }
+
+    /// Like [`Client::new`], but records every outbound frame to `trace`.
+    pub fn with_trace(commands: mpsc::Sender<OutboundCommand>, trace: crate::trace::FrameTrace) -> Self {
+        Self { commands, trace }
+    }
+
+    /// The frame recorder (for a caller that wants to flush a sink into it).
+    pub fn trace(&self) -> &crate::trace::FrameTrace {
+        &self.trace
     }
 
     /// Issue `M` and decode its typed result.
@@ -77,6 +94,7 @@ impl Client {
             method: method.to_owned(),
             reason: format!("params do not serialize: {e}"),
         })?;
+        self.trace.out(method, &params);
         let value = self.request(method, params).await?;
         serde_json::from_value::<M::Result>(value).map_err(|e| ClientError::Decode {
             method: method.to_owned(),
@@ -88,6 +106,7 @@ impl Client {
     /// Mirrors the web client's one generic `request`
     /// (`packages/client/src/client.ts:426`).
     pub async fn request(&self, method: &str, params: Value) -> Result<Value, ClientError> {
+        self.trace.out(method, &params);
         let (reply, rx) = oneshot::channel();
         self.commands
             .send(OutboundCommand::Request {

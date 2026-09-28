@@ -330,6 +330,11 @@ pub enum FlowEvent {
 pub struct Conversation {
     pub store: Arc<Store>,
     pub trace: TraceSink,
+    /// Card #13: the JSONL frame recorder (`OCTOSCODE_TRACE_FILE`). Records
+    /// every inbound event here; the outbound half is recorded by `Client`.
+    frames: octoscode_client::trace::FrameTrace,
+    /// How many `TraceSink` entries `flush_trace` has already written.
+    flushed: Mutex<usize>,
     ui: Arc<Mutex<FlowUi>>,
     client: Client,
     cmd_tx: tokio::sync::mpsc::Sender<OutboundCommand>,
@@ -387,6 +392,10 @@ impl Conversation {
         let mut registry = Registry::new();
         octoscode_client::domains::register_all(&mut registry, store.clone());
         let trace = TraceSink::new();
+        let frames = octoscode_client::trace::FrameTrace::from_env();
+        if frames.is_enabled() {
+            ::log::info!("octoscode: frame trace -> {:?}", frames.path());
+        }
         trace.record(
             Instant::now(),
             Direction::Out,
@@ -398,8 +407,10 @@ impl Conversation {
             Self {
                 store,
                 trace,
+                frames: frames.clone(),
+                flushed: Mutex::new(0),
                 ui: Arc::new(Mutex::new(FlowUi::default())),
-                client: Client::new(cmd_tx.clone()),
+                client: Client::with_trace(cmd_tx.clone(), frames.clone()),
                 cmd_tx,
                 registry: Mutex::new(registry),
                 profile: profile.to_owned(),
@@ -469,6 +480,15 @@ impl Conversation {
     /// typed `OpenSession` (it owns the replay-cursor bracket).
     pub async fn open_workspace(&self, cwd: Option<String>) -> Result<String, String> {
         let session_id = octos_core::SessionKey::new(&self.profile, "main");
+        // Record the outbound frame BEFORE `cwd` moves into the params.
+        self.frames.out(
+            "session/open",
+            &serde_json::json!({
+                "session_id": session_id.0,
+                "profile_id": self.profile,
+                "cwd": cwd,
+            }),
+        );
         let params = SessionOpenParams {
             session_id: session_id.clone(),
             topic: None,
@@ -489,6 +509,13 @@ impl Conversation {
             .send(OutboundCommand::OpenSession(params))
             .await
             .map_err(|_| "transport channel closed".to_owned())?;
+        // Card #13 §4: refresh the session list after `session/open`, so the
+        // sidebar reflects the workspace the moment the session is live (the
+        // web's catalog read follows the open the same way).
+        if let Err(e) = self.refresh_sessions().await {
+            ::log::warn!("octoscode: session/list after open: {e}");
+        }
+        ::log::info!("octoscode: workspace open requested for {}", session_id.0);
         Ok(session_id.0)
     }
 
@@ -512,16 +539,29 @@ impl Conversation {
         // The turn is live from the moment we dispatch (the web does the same:
         // `acceptLocalDispatch(turn.turnId, "running")`, use-turn-controller
         // `:413`), so the composer shows STOP before the ACK lands.
-        self.ui
-            .lock()
-            .unwrap()
-            .begin_turn(&turn_id, self.started);
-        self.client.request("turn/start", params).await?;
-        Ok(turn_id)
+        {
+            let mut ui = self.ui.lock().unwrap();
+            ui.begin_turn(&turn_id, self.started);
+            // Card #13 §4: the draft clears on send, so the composer is empty
+            // for the next prompt (the web clears it when the turn is
+            // dispatched). The text is already captured in `params`.
+            ui.set_draft_inner(String::new());
+        }
+        match self.client.request("turn/start", params).await {
+            Ok(v) => {
+                ::log::info!("octoscode: turn started {turn_id}");
+                Ok(turn_id)
+            }
+            Err(e) => {
+                ::log::error!("octoscode: turn/start failed for {turn_id}: {e}");
+                Err(e)
+            }
+        }
     }
 
     /// `turn/interrupt` — `{session_id, turn_id}` (`ui_protocol.rs:2097`).
     pub async fn interrupt(&self, turn_id: &str) -> Result<serde_json::Value, ClientError> {
+        ::log::info!("octoscode: interrupting turn {turn_id}");
         self.trace.record(
             self.started,
             Direction::Out,
@@ -559,10 +599,60 @@ impl Conversation {
         self.start_turn(text).await
     }
 
+    /// Flush the in-memory [`TraceSink`] transitions into the frame file
+    /// (card #13 §1: the file also carries the flow's own transitions, so a
+    /// fixture is self-contained). Writes only entries not yet flushed, so
+    /// calling it repeatedly is safe.
+    /// Whether the JSONL frame recorder is on (`OCTOSCODE_TRACE_FILE` set).
+    pub fn trace_enabled(&self) -> bool {
+        self.frames.is_enabled()
+    }
+
+    pub fn flush_trace(&self) {
+        if !self.frames.is_enabled() {
+            return;
+        }
+        let entries = self.trace.entries();
+        let mut flushed = self.flushed.lock().unwrap();
+        for e in entries.iter().skip(*flushed) {
+            self.frames.raw_line(serde_json::json!({
+                "dir": "flow",
+                "method": e.method,
+                "at_ms": e.at_ms,
+                "note": e.note,
+            }));
+        }
+        *flushed = entries.len();
+    }
+
+    /// Log a flow transition at info (card #13 §4: connect, open, turn
+    /// start/complete/error, interrupt). One line per transition, named.
+    fn log_transition(&self, e: &FlowEvent) {
+        match e {
+            FlowEvent::Live => ::log::info!("octoscode: connection live"),
+            FlowEvent::WorkspaceOpened(id) => ::log::info!("octoscode: workspace opened {id}"),
+            FlowEvent::TurnStarted(id) => ::log::info!("octoscode: turn started {id}"),
+            FlowEvent::TurnEnded { turn_id, error: None } => {
+                ::log::info!("octoscode: turn completed {turn_id}")
+            }
+            FlowEvent::TurnEnded {
+                turn_id,
+                error: Some(err),
+            } => ::log::error!("octoscode: turn failed {turn_id}: {err}"),
+            FlowEvent::ApprovalPending => ::log::info!("octoscode: approval requested"),
+            FlowEvent::QuestionPending => ::log::info!("octoscode: user question requested"),
+            _ => {}
+        }
+    }
+
     /// Drain one transport event into the store, the flow's own UI state, and
     /// the trace. Returns what happened, for a test or a log.
     pub fn on_event(&self, evt: TransportEvent) -> FlowEvent {
+        // Card #13 §1: every inbound frame, one JSONL line, before dispatch.
+        self.frames
+            .inbound(&trace_method(&evt), &trace_params(&evt));
         let out = self.dispatch(&evt);
+        self.log_transition(&out);
         self.trace.record(
             self.started,
             Direction::In,
@@ -671,6 +761,51 @@ impl Conversation {
                     ok,
                 }
             }
+            UiNotification::EnvelopeV2(frame) => {
+                use octos_core::ui_protocol::{PayloadV2, TurnTerminalOutcome};
+                let turn_id = frame.envelope.turn_id.clone();
+                match &frame.envelope.payload {
+                    PayloadV2::AssistantDelta { text, .. } => {
+                        ui.touch_turn();
+                        FlowEvent::Delta { turn_id, bytes: text.len() }
+                    }
+                    PayloadV2::ToolStart { tool_call_id, name, .. } => {
+                        ui.note_tool_started(tool_call_id, name);
+                        FlowEvent::ToolStarted {
+                            tool_call_id: tool_call_id.clone(),
+                            name: name.clone(),
+                        }
+                    }
+                    PayloadV2::ToolEnd { tool_call_id, status, .. } => {
+                        let ok = matches!(
+                            status,
+                            octos_core::ui_protocol::EnvelopeToolEndStatus::Complete
+                        );
+                        ui.note_tool_completed(tool_call_id, tool_call_id, ok, None);
+                        FlowEvent::ToolCompleted { tool_call_id: tool_call_id.clone(), ok }
+                    }
+                    PayloadV2::TurnTerminal { outcome, error, .. } => match outcome {
+                        TurnTerminalOutcome::Completed => {
+                            ui.end_turn(true);
+                            FlowEvent::TurnEnded { turn_id, error: None }
+                        }
+                        other => {
+                            ui.end_turn(false);
+                            let label = format!("{other:?}");
+                            FlowEvent::TurnEnded {
+                                turn_id,
+                                error: Some(
+                                    error
+                                        .as_ref()
+                                        .map(|e| format!("{}: {}", e.code, e.message))
+                                        .unwrap_or(label),
+                                ),
+                            }
+                        }
+                    },
+                    other => FlowEvent::Other(format!("envelope:{other:?}").chars().take(48).collect()),
+                }
+            }
             UiNotification::ApprovalRequested(_) => {
                 ui.approval_pending = true;
                 FlowEvent::ApprovalPending
@@ -737,6 +872,47 @@ impl FlowUi {
         self.last_completed_at = Some(std::time::SystemTime::now());
         self.approval_pending = false;
         self.question_pending = false;
+    }
+}
+
+/// The params half of an inbound frame, for the JSONL trace. The transport
+/// hands us typed notifications, so we serialize the decoded payload —
+/// exactly the shape a replay test needs.
+fn trace_params(evt: &TransportEvent) -> serde_json::Value {
+    fn with_cursor(mut v: serde_json::Value, cursor: &Option<octos_core::ui_protocol::UiCursor>) -> serde_json::Value {
+        if let (Some(c), serde_json::Value::Object(m)) = (cursor, &mut v) {
+            m.insert(
+                "cursor".to_owned(),
+                serde_json::json!({"stream": c.stream, "seq": c.seq}),
+            );
+        }
+        v
+    }
+    match evt {
+        TransportEvent::DurableNotification { payload, cursor } => with_cursor(
+            octoscode_client::trace::wire_params(payload),
+            cursor,
+        ),
+        TransportEvent::EphemeralNotification { payload } => {
+            octoscode_client::trace::wire_params(payload)
+        }
+        TransportEvent::RpcResult(LifecycleResult::SessionOpen(r)) => serde_json::json!({
+            "session_id": r.opened.session_id.0,
+            "cursor": r.opened.cursor.as_ref().map(|c| serde_json::json!({"stream": c.stream, "seq": c.seq})),
+            "capabilities": r.opened.capabilities,
+        }),
+        TransportEvent::ConnectionState(s) => serde_json::json!({"state": format!("{s:?}")}),
+        TransportEvent::CapabilityNegotiated(caps) => {
+            serde_json::json!({"accepted": caps.raw.keys().cloned().collect::<Vec<_>>()})
+        }
+        TransportEvent::SessionsListed { sessions } => sessions.clone(),
+        TransportEvent::SessionHydrated { session_id, result } => {
+            serde_json::json!({"session_id": session_id, "result": result})
+        }
+        TransportEvent::RpcError { method, error, .. } => {
+            serde_json::json!({"method": method, "code": error.code, "message": error.message})
+        }
+        other => serde_json::json!({ "debug": format!("{other:?}") }),
     }
 }
 

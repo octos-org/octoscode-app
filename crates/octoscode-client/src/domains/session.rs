@@ -21,6 +21,7 @@ use serde::{Deserialize, Serialize};
 
 use octos_core::app_ui::AppUiBackendEvent as UiNotification;
 use octos_core::ui_protocol::methods;
+use octoscode_store::domains::session::ContextLifecycle;
 use octoscode_store::{Session, Store};
 
 use crate::method::Method;
@@ -327,9 +328,149 @@ impl NotificationHandler for SessionOrchestrationHandler {
 }
 
 
+/// `context/compaction_started` — a compaction pass began (UPCR-2026-026).
+///
+/// The web shows an in-progress bar from this and settles it on
+/// `context/compaction_completed` (`src-web/apps/web/src/features/...`,
+/// `context.lifecycle.v1`). Card #13 §3.
+pub struct ContextCompactionStartedHandler {
+    pub store: Arc<Store>,
+}
+
+impl NotificationHandler for ContextCompactionStartedHandler {
+    const METHOD: &'static str = methods::CONTEXT_COMPACTION_STARTED;
+    fn handle(&self, notification: &UiNotification) {
+        if let UiNotification::ContextCompactionStarted(e) = notification {
+            self.store.note_seen(Self::METHOD);
+            self.store.domains.session.set_context(
+                &e.session_id.0,
+                ContextLifecycle {
+                    kind: "compaction_started".to_owned(),
+                    state: serde_json::to_value(&e.context_state)
+                        .unwrap_or(serde_json::Value::Null),
+                    detail: Some(serde_json::json!({
+                        "trigger": e.trigger,
+                        "threshold_tokens": e.threshold_tokens,
+                    })),
+                },
+            );
+        }
+    }
+}
+
+/// `context/compaction_completed` — the compaction pass finished.
+pub struct ContextCompactionCompletedHandler {
+    pub store: Arc<Store>,
+}
+
+impl NotificationHandler for ContextCompactionCompletedHandler {
+    const METHOD: &'static str = methods::CONTEXT_COMPACTION_COMPLETED;
+    fn handle(&self, notification: &UiNotification) {
+        if let UiNotification::ContextCompactionCompleted(e) = notification {
+            self.store.note_seen(Self::METHOD);
+            self.store.domains.session.set_context(
+                &e.session_id.0,
+                ContextLifecycle {
+                    kind: "compaction_completed".to_owned(),
+                    state: serde_json::to_value(&e.context_state)
+                        .unwrap_or(serde_json::Value::Null),
+                    detail: serde_json::to_value(&e.compaction).ok(),
+                },
+            );
+        }
+    }
+}
+
+/// `context/normalization_reported` — a transcript normalization was reported.
+pub struct ContextNormalizationReportedHandler {
+    pub store: Arc<Store>,
+}
+
+impl NotificationHandler for ContextNormalizationReportedHandler {
+    const METHOD: &'static str = methods::CONTEXT_NORMALIZATION_REPORTED;
+    fn handle(&self, notification: &UiNotification) {
+        if let UiNotification::ContextNormalizationReported(e) = notification {
+            self.store.note_seen(Self::METHOD);
+            self.store.domains.session.set_context(
+                &e.session_id.0,
+                ContextLifecycle {
+                    kind: "normalization_reported".to_owned(),
+                    state: serde_json::to_value(&e.context_state)
+                        .unwrap_or(serde_json::Value::Null),
+                    detail: serde_json::to_value(&e.normalization).ok(),
+                },
+            );
+        }
+    }
+}
+
 /// Register this domain's notification handlers.
 pub fn register(reg: &mut Registry, store: Arc<Store>) {
     reg.register(SessionOpenedHandler { store: store.clone() });
     reg.register(SessionEventBridgedHandler { store: store.clone() });
     reg.register(SessionOrchestrationHandler { store: store.clone() });
+    // Card #13 §3: the context lifecycle trio (compaction + normalization).
+    reg.register(ContextCompactionStartedHandler { store: store.clone() });
+    reg.register(ContextCompactionCompletedHandler { store: store.clone() });
+    reg.register(ContextNormalizationReportedHandler { store });
+}
+
+// ---------------------------------------------------------------------------
+// Card #13 §3: the external-driver session trio + the wake pair.
+//
+// Five AppUI extensions from `protocol-ext-matrix.csv` (web call sites:
+// `packages/client/src/external-driver-meta.ts:7-14` pins the wire names;
+// `apps/web/src/features/session/driver-inventory-snapshot.ts` is the
+// production consumer of `session/driver/get`). octos-core declares no types
+// for them and the web validates the shapes itself, so `Params`/`Result` stay
+// `serde_json::Value` — the same contract the transport's generic
+// `Client::request` exposes, reachable now through `Client::call::<M>`.
+// ---------------------------------------------------------------------------
+
+/// `session/driver/get` — read the external-driver record for a session.
+pub struct SessionDriverGet;
+impl Method for SessionDriverGet {
+    const NAME: &'static str = "session/driver/get";
+    type Params = serde_json::Value;
+    type Result = serde_json::Value;
+}
+
+/// `session/driver/acquire` — take the driver seat for a session.
+pub struct SessionDriverAcquire;
+impl Method for SessionDriverAcquire {
+    const NAME: &'static str = "session/driver/acquire";
+    type Params = serde_json::Value;
+    type Result = serde_json::Value;
+}
+
+/// `session/driver/renew` — renew a held driver seat.
+pub struct SessionDriverRenew;
+impl Method for SessionDriverRenew {
+    const NAME: &'static str = "session/driver/renew";
+    type Params = serde_json::Value;
+    type Result = serde_json::Value;
+}
+
+/// `session/driver/release` — release a held driver seat.
+pub struct SessionDriverRelease;
+impl Method for SessionDriverRelease {
+    const NAME: &'static str = "session/driver/release";
+    type Params = serde_json::Value;
+    type Result = serde_json::Value;
+}
+
+/// `session/wake/claim` — claim a pending wake for a session.
+pub struct SessionWakeClaim;
+impl Method for SessionWakeClaim {
+    const NAME: &'static str = "session/wake/claim";
+    type Params = serde_json::Value;
+    type Result = serde_json::Value;
+}
+
+/// `session/wake/ack` — acknowledge a claimed wake.
+pub struct SessionWakeAck;
+impl Method for SessionWakeAck {
+    const NAME: &'static str = "session/wake/ack";
+    type Params = serde_json::Value;
+    type Result = serde_json::Value;
 }

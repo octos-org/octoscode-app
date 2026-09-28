@@ -10,6 +10,8 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 
+use serde::{Deserialize, Serialize};
+
 use crate::timeline::Timeline;
 
 /// One session row from `session/list`.
@@ -82,6 +84,25 @@ struct Inner {
     orchestration: HashMap<String, OrchestrationSnapshot>,
     /// Per-session goal + generation gate.
     goals: HashMap<String, GoalState>,
+    /// Per-session last context lifecycle event (card #13): the context state
+    /// plus the event kind that produced it (`compaction_started`,
+    /// `compaction_completed`, `normalization_reported`). The web renders the
+    /// compaction spinner/bar from exactly this
+    /// (`src-web/apps/web/src/features/.../context-*`).
+    context: HashMap<String, ContextLifecycle>,
+}
+
+/// One context lifecycle event, flattened from the `context/*` notifications
+/// (card #13 §3). `kind` names which event set it; `state` is the
+/// `UiContextState` JSON (so the store needs no octos-core dependency).
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ContextLifecycle {
+    pub kind: String,
+    /// `UiContextState` as JSON (session_id, generation, token_estimate, …).
+    pub state: serde_json::Value,
+    /// Present on `compaction_completed` / `normalization_reported`.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub detail: Option<serde_json::Value>,
 }
 
 impl Sessions {
@@ -144,6 +165,21 @@ impl Sessions {
     /// The orchestration snapshot for a session, if any.
     pub fn orchestration(&self, session: &str) -> Option<OrchestrationSnapshot> {
         self.inner.lock().unwrap().orchestration.get(session).cloned()
+    }
+
+    /// Record a context lifecycle event (`context/compaction_started`,
+    /// `context/compaction_completed`, `context/normalization_reported`).
+    pub fn set_context(&self, session: &str, event: ContextLifecycle) {
+        self.inner
+            .lock()
+            .unwrap()
+            .context
+            .insert(session.to_owned(), event);
+    }
+
+    /// The last context lifecycle event for a session, if any.
+    pub fn context(&self, session: &str) -> Option<ContextLifecycle> {
+        self.inner.lock().unwrap().context.get(session).cloned()
     }
 
     /// Apply a goal update under the #1959 generation gate. Returns whether it

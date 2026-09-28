@@ -59,3 +59,18 @@ impl Method for ReviewStart {
 
 /// This domain has no notifications.
 pub fn register(_reg: &mut Registry, _store: Arc<Store>) {}
+
+/// `diff/preview/get` — fetch one diff preview (card #13 §3).
+///
+/// The transport ALSO carries a typed `OutboundCommand::FetchDiffPreview`
+/// (`octos-app-transport/src/proto.rs:170`); this `Method` makes it reachable
+/// through the client's generic request path, like the web
+/// (`packages/client/src/medias.ts` / the review surface). Params/result are
+/// the octos-core types.
+pub struct DiffPreviewGet;
+
+impl Method for DiffPreviewGet {
+    const NAME: &'static str = methods::DIFF_PREVIEW_GET;
+    type Params = octos_core::ui_protocol::DiffPreviewGetParams;
+    type Result = octos_core::ui_protocol::DiffPreviewGetResult;
+}
