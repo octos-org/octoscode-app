@@ -88,3 +88,21 @@ prompt template forbids chat/approval UI. octoscode-app is a desktop, Codex-styl
 composer, thread list, settings cards, review header. Each becomes an L0 card, and the Rust host (D9) lays out the
 desktop columns (Codex's conversation column is ~540 pt, close to one component width). The atlas prompt is our own:
 it allows the coding-chat UI and keeps the flow's tooling (intake, measure, map, compile) unchanged.
+
+## D10a. Transport: one generic request: DECIDED (card #8; fork branch `feat/transport-generic-request`)
+`octos-app-transport` exposes ~11 typed `OutboundCommand`s, but the protocol has 125 core + 34 extension methods, and
+the web client has **one** generic `request(method, params)` (`packages/client/src/client.ts:426`) with a thin typed
+wrapper per domain. Adding the missing methods one enum variant at a time would be ~79 upstream patches to move one
+client. So we add **one** variant upstream and use it for everything:
+`OutboundCommand::Request { method: String, params: Value, reply: oneshot::Sender<Result<Value, RpcError>> }`, routed
+through the same `serialize_request` + `RpcRegistry` path as the typed commands. `octoscode-client::Client::call::<M>`
+(typed) and `Client::request(method, params)` (untyped) both sit on it; the typed lifecycle commands stay for
+`session/open` (cursor bracket), lifecycle replies and hydrate.
+
+- Patch: `patches/octosense/0001-transport-generic-request.patch` (fork commit `ca62dfa`; 108 insertions, 2 files).
+- Fork recreate: `tools/prepare-octosense-fork.sh` (idempotent; second run is a no-op).
+- PR text for the operator: `docs/upstream/octosense-generic-request-PR.md` (not opened by a lane).
+- Our root `Cargo.toml` carries `[patch."https://github.com/OctoSense-org/OctoSense"]` pointing `octos-app-transport`
+  **and** `octos-app-store` at the fork path (both, so the graph keeps one copy).
+- **Exit:** drop the `[patch]` and bump the git rev to the merged commit when the PR lands. Nothing else changes —
+  our `Client` sits on the variant, not on the fork.

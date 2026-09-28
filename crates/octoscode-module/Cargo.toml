@@ -1,0 +1,22 @@
+[package]
+name = "octoscode-module"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+description = "The octoscode AppModule: renders connection state + session count from the store, and the L0 binding table"
+
+[dependencies]
+# The Makepad AppModule surface (re-homed from the D9 shape-(i) spike).
+makepad-widgets = { workspace = true }
+makepad-app-module = { workspace = true }
+# Our crates.
+octoscode-client = { workspace = true }
+octoscode-store = { workspace = true }
+octos-core = { workspace = true }
+octos-app-transport = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+log = { workspace = true }
+url = "2"

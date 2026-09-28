@@ -1,0 +1,108 @@
+//! `turn/*` and the streaming text notifications.
+//!
+//! Implemented in this card: the notifications the store needs now —
+//! `turn/started`, `turn/completed`, `turn/error`, `message/delta`. The
+//! request methods (`turn/start`, `turn/steer`, `turn/interrupt`,
+//! `turn/state/get`) stay on the transport's typed commands for now
+//! (`StartTurn`/`InterruptTurn`), and are listed here for the fan-out lane.
+use std::sync::Arc;
+
+use octos_core::app_ui::AppUiBackendEvent as UiNotification;
+use octos_core::ui_protocol::methods;
+use octoscode_store::{Store, TimelineEntry};
+
+use crate::registry::{NotificationHandler, Registry};
+
+/// `turn/started` — a turn began in a session.
+pub struct TurnStartedHandler {
+    pub store: Arc<Store>,
+}
+
+impl NotificationHandler for TurnStartedHandler {
+    const METHOD: &'static str = methods::TURN_STARTED;
+    fn handle(&self, notification: &UiNotification) {
+        if let UiNotification::TurnStarted(started) = notification {
+            self.store.note_seen(Self::METHOD);
+            let session = started.session_id.0.clone();
+            self.store.push_timeline(
+                &session,
+                TimelineEntry::TurnStarted { turn_id: started.turn_id.0.to_string() },
+            );
+        }
+    }
+}
+
+/// `turn/completed` — a turn ended cleanly.
+pub struct TurnCompletedHandler {
+    pub store: Arc<Store>,
+}
+
+impl NotificationHandler for TurnCompletedHandler {
+    const METHOD: &'static str = methods::TURN_COMPLETED;
+    fn handle(&self, notification: &UiNotification) {
+        if let UiNotification::TurnCompleted(completed) = notification {
+            self.store.note_seen(Self::METHOD);
+            let session = completed.session_id.0.clone();
+            self.store.push_timeline(
+                &session,
+                TimelineEntry::TurnEnded { turn_id: completed.turn_id.0.to_string(), error: None },
+            );
+        }
+    }
+}
+
+/// `turn/error` — a turn ended with an error (carries code + message).
+pub struct TurnErrorHandler {
+    pub store: Arc<Store>,
+}
+
+impl NotificationHandler for TurnErrorHandler {
+    const METHOD: &'static str = methods::TURN_ERROR;
+    fn handle(&self, notification: &UiNotification) {
+        if let UiNotification::TurnError(error) = notification {
+            self.store.note_seen(Self::METHOD);
+            let session = error.session_id.0.clone();
+            self.store.push_timeline(
+                &session,
+                TimelineEntry::TurnEnded {
+                    turn_id: error.turn_id.0.to_string(),
+                    error: Some(format!("{}: {}", error.code, error.message)),
+                },
+            );
+        }
+    }
+}
+
+/// `message/delta` — streamed assistant text (the live reply).
+pub struct MessageDeltaHandler {
+    pub store: Arc<Store>,
+}
+
+impl NotificationHandler for MessageDeltaHandler {
+    const METHOD: &'static str = methods::MESSAGE_DELTA;
+    fn handle(&self, notification: &UiNotification) {
+        if let UiNotification::MessageDelta(delta) = notification {
+            self.store.note_seen(Self::METHOD);
+            let session = delta.session_id.0.clone();
+            self.store.push_timeline(
+                &session,
+                TimelineEntry::TextDelta {
+                    turn_id: delta.turn_id.0.to_string(),
+                    text: delta.text.clone(),
+                },
+            );
+        }
+    }
+}
+
+/// Request methods owned by this domain (stubs for the fan-out lane):
+/// `turn/start`, `turn/steer`, `turn/interrupt`, `turn/state/get`.
+/// Notifications: `turn/started`, `turn/completed`, `turn/error`,
+/// `turn/steer_dropped`, `turn/spawn_complete`, `message/delta`,
+/// `message/reasoning_delta`.
+pub fn register(reg: &mut Registry, store: Arc<Store>) {
+    reg.register(TurnStartedHandler { store: store.clone() });
+    reg.register(TurnCompletedHandler { store: store.clone() });
+    reg.register(TurnErrorHandler { store: store.clone() });
+    reg.register(MessageDeltaHandler { store });
+}

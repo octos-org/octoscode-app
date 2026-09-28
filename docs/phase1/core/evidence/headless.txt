@@ -1,0 +1,27 @@
+## headless proof — module in the OctoSense desktop shell (hidden)
+
+# launch: MAKEPAD_HIDE_WINDOWS=1 MAKEPAD_WM_TEST_APP=octoscode \
+#           OCTOS_BASE_URL=http://127.0.0.1:50082 OCTOS_BEARER=spike-dummy-token \
+#           OCTOS_PROFILE_ID=octoscode <bin> --module octoscode --remote 8390
+
+# listening line:
+[makepad-remote] listening on 127.0.0.1:8390 pid=5593 app=octosense
+
+# modules linked:
+wm: modules linked: ["rinx", "octoscode", "apphub", "card"]
+
+# /snap (Label texts) — the acceptance: conn: Live + the count from the store:
+  heading :: OctosCode
+  status :: conn: Live   sessions: 0
+  sessions :: sessions: 0
+  refresh :: session/list
+
+# real input: /click on 'refresh' (session/list), wait=1:
+  {"ok":1,"f":1596}   (rect [78,251,93,28]; snap unchanged: 0 sessions)
+
+# /g: docs/phase1/core/evidence/grab-module.png  (2800x1800)
+# /gq: (clean exit, below)
+
+## serve-side (50082) for the module's session/open:
+2026-09-28T06:30:41.806609Z  WARN no API port for requested profile profile="octoscode"
+2026-09-28T06:30:41.806807Z  WARN no API port for requested profile profile="octoscode"

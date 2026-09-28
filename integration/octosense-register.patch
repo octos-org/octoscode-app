@@ -1,0 +1,1575 @@
+diff --git a/Cargo.toml b/Cargo.toml
+index 575d1b7..bf64e4c 100644
+--- a/Cargo.toml
++++ b/Cargo.toml
+@@ -33,6 +33,9 @@ members = [
+     "apps/ai-providers/config",
+     "apps/ai-providers/host-service",
+     "apps/appcard/module",
++    "apps/octoscode/client",
++    "apps/octoscode/store",
++    "apps/octoscode/module",
+     "apps/appcard/app/app",
+     "apps/appcard/app/crates/octos-app-store",
+     "apps/appcard/app/crates/octos-app-transport",
+@@ -103,6 +106,12 @@ octosense-mail-service = { path = "apps/mail/host-service" }
+ octosense-news-service = { path = "apps/news/host-service" }
+ octosense-reference = { path = "apps/reference" }
+ octosense-appcard = { path = "apps/appcard/module" }
++# Phase-1 core: the octoscode client/store/module (vendored from the
++# octoscode-app repo into this tree so they resolve against the in-tree
++# octos-app-transport / -store below).
++octoscode-client = { path = "apps/octoscode/client" }
++octoscode-store = { path = "apps/octoscode/store" }
++octoscode-module = { path = "apps/octoscode/module" }
+ octosense-news = { path = "apps/news/native" }
+ octosense-photos = { path = "apps/photos/native" }
+ octosense-maps = { path = "apps/maps/native" }
+diff --git a/apps/octoscode/client/Cargo.toml b/apps/octoscode/client/Cargo.toml
+new file mode 100644
+index 0000000..cfd0197
+--- /dev/null
++++ b/apps/octoscode/client/Cargo.toml
+@@ -0,0 +1,20 @@
++[package]
++name = "octoscode-client"
++version.workspace = true
++edition.workspace = true
++license.workspace = true
++publish = false
++description = "Typed UI-Protocol client for octoscode-app: one Method per RPC, a domain registry, and unknown-method tolerance"
++
++[dependencies]
++octos-core = { workspace = true }
++octos-app-transport = { workspace = true }
++octoscode-store = { workspace = true }
++serde = { workspace = true }
++serde_json = { workspace = true }
++tokio = { workspace = true }
++log = { workspace = true }
++
++[dev-dependencies]
++tokio = { workspace = true, features = ["rt-multi-thread", "macros", "test-util", "time"] }
++url = "2"
+diff --git a/apps/octoscode/client/src/domains/approval.rs b/apps/octoscode/client/src/domains/approval.rs
+new file mode 100644
+index 0000000..193bf7b
+--- /dev/null
++++ b/apps/octoscode/client/src/domains/approval.rs
+@@ -0,0 +1,30 @@
++//! `approval/*` — the approval sheet (request, decide, cancel).
++//!
++//! Requests: `approval/respond`, `approval/scopes/list` (stub — the fan-out
++//! lane adds the typed [`crate::Method`] impls). Notifications:
++//! `approval/requested`, `approval/decided`, `approval/cancelled`,
++//! `approval/auto_resolved`.
++use std::sync::Arc;
++
++use octos_core::app_ui::AppUiBackendEvent as UiNotification;
++use octos_core::ui_protocol::methods;
++use octoscode_store::Store;
++
++use crate::registry::{NotificationHandler, Registry};
++
++/// `approval/requested` — the server is asking the person to decide.
++pub struct ApprovalRequestedHandler {
++    pub store: Arc<Store>,
++}
++impl NotificationHandler for ApprovalRequestedHandler {
++    const METHOD: &'static str = methods::APPROVAL_REQUESTED;
++    fn handle(&self, notification: &UiNotification) {
++        if matches!(notification, UiNotification::ApprovalRequested(_)) {
++            self.store.note_seen(Self::METHOD);
++        }
++    }
++}
++
++pub fn register(reg: &mut Registry, store: Arc<Store>) {
++    reg.register(ApprovalRequestedHandler { store });
++}
+diff --git a/apps/octoscode/client/src/domains/autonomy.rs b/apps/octoscode/client/src/domains/autonomy.rs
+new file mode 100644
+index 0000000..199bf54
+--- /dev/null
++++ b/apps/octoscode/client/src/domains/autonomy.rs
+@@ -0,0 +1,17 @@
++//! `agent/*` (autonomy) — the sub-agent list and their lifecycle.
++//!
++//! Requests: `agent/list`, `agent/interrupt`, `agent/close`,
++//! `agent/status/read`, `agent/output/read`, `agent/artifact/list`,
++//! `agent/artifact/read`. Notifications: `agent/updated`, `agent/output/delta`,
++//! `agent/artifact/updated`. Also `loop/*`, `monitor/*`, `session/goal/*`,
++//! `background/activity` (the M15 autonomy surface).
++//!
++//! Stub: the fan-out lane for autonomy owns this file. Its notifications land
++//! on the tolerated-unknown arm until then (logged by name, never fatal).
++use std::sync::Arc;
++
++use octoscode_store::Store;
++
++use crate::registry::Registry;
++
++pub fn register(_reg: &mut Registry, _store: Arc<Store>) {}
+diff --git a/apps/octoscode/client/src/domains/config.rs b/apps/octoscode/client/src/domains/config.rs
+new file mode 100644
+index 0000000..2b1ae55
+--- /dev/null
++++ b/apps/octoscode/client/src/domains/config.rs
+@@ -0,0 +1,56 @@
++//! `config/*` — server capabilities and configuration.
++//!
++//! Implemented in this card: `config/capabilities/list`.
++use std::sync::Arc;
++
++use serde::Deserialize;
++
++use octos_core::ui_protocol::methods;
++use octoscode_store::Store;
++
++use crate::method::Method;
++use crate::registry::Registry;
++
++/// `config/capabilities/list` — the server's advertised capability object.
++///
++/// The result is NOT a bare list: it is the full `UiProtocolCapabilities`
++/// object (`octos-core/src/ui_protocol.rs`), with `supported_methods` (73 on
++/// the pinned serve) and `supported_notifications` (51). Verified live.
++#[derive(Debug, Default, serde::Serialize)]
++pub struct CapabilitiesList {}
++
++#[derive(Debug, Deserialize)]
++pub struct CapabilitiesListResult {
++    #[serde(default)]
++    pub capabilities: ServerCapabilities,
++}
++
++#[derive(Debug, Default, Deserialize)]
++pub struct ServerCapabilities {
++    #[serde(default)]
++    pub capabilities_schema_version: u32,
++    #[serde(default)]
++    pub supported_methods: Vec<String>,
++    #[serde(default)]
++    pub supported_notifications: Vec<String>,
++    #[serde(default)]
++    pub supported_features: Vec<String>,
++}
++
++impl Method for CapabilitiesList {
++    const NAME: &'static str = methods::CONFIG_CAPABILITIES_LIST;
++    type Params = CapabilitiesListParams;
++    type Result = CapabilitiesListResult;
++}
++
++#[derive(Debug, Default, serde::Serialize)]
++pub struct CapabilitiesListParams {}
++
++/// Owned elsewhere: the misc singleton rows (the fan-out lanes take these):
++/// `background/activity`, `content/*`, `cron/*`, `diff/preview/get`,
++/// `file/attached`, `launch/resolve`, `memory/*`, `permission/profile/*`,
++/// `plan/updated`, `progress/updated`, `projection/envelope`,
++/// `protocol/replay_lossy`, `queue/state`, `router/*`, `server/shutdown`,
++/// `skill/action/job/updated`, `snapshot/*`, `system/status.get`,
++/// `thread/graph/get`, `user_question/*`, `warning`, `mcp/status/list`.
++pub fn register(_reg: &mut Registry, _store: Arc<Store>) {}
+diff --git a/apps/octoscode/client/src/domains/media.rs b/apps/octoscode/client/src/domains/media.rs
+new file mode 100644
+index 0000000..1e4b851
+--- /dev/null
++++ b/apps/octoscode/client/src/domains/media.rs
+@@ -0,0 +1,17 @@
++//! `visual/*`, `voice/*`, `content/*`, `file/attached`, `smart_home/*` — media.
++//!
++//! Requests: `content/list`, `content/delete`, `content/bulk_delete`,
++//! `smart_home/device.list`, `smart_home/device.command`,
++//! `smart_home/camera.stream_start`, `smart_home/camera.stream_stop`,
++//! `smart_home/status.get`. Notifications: `visual/generating`,
++//! `visual/succeeded`, `visual/failed`, `voice/audio_chunk`, `voice/exit`,
++//! `file/attached`.
++//!
++//! Stub: the fan-out lane for media owns this file.
++use std::sync::Arc;
++
++use octoscode_store::Store;
++
++use crate::registry::Registry;
++
++pub fn register(_reg: &mut Registry, _store: Arc<Store>) {}
+diff --git a/apps/octoscode/client/src/domains/mod.rs b/apps/octoscode/client/src/domains/mod.rs
+new file mode 100644
+index 0000000..fa5e9f2
+--- /dev/null
++++ b/apps/octoscode/client/src/domains/mod.rs
+@@ -0,0 +1,51 @@
++//! The protocol, one file per domain.
++//!
++//! [`register_all`] is the ONLY shared line per domain: it calls each
++//! domain's `register()` once, so a fan-out lane that owns one domain edits
++//! one file and (at most) one line here.
++//!
++//! ## Domains and the matrix rows they own
++//! | file | methods (from `docs/protocol-matrix.csv` + `-ext`) |
++//! | --- | --- |
++//! | `session.rs` | session/list, session/delete, session/fork, session/hydrate, session/snapshot, session/title.set, session/messages_page, session/tasks.list, session/files.list, session/workspace.get, session/compact, session/rollback, session/btw, session/status/read, session/event, session/orchestration, session/goal/* (8), session/driver/* (4), session/wake/* (2) |
++//! | `turn.rs` | turn/start, turn/steer, turn/interrupt, turn/state/get; notifications turn/started, turn/completed, turn/error, turn/steer_dropped, message/delta, message/reasoning_delta |
++//! | `tool.rs` | tool/status/list (ext); notifications tool/started, tool/progress, tool/completed |
++//! | `approval.rs` | approval/respond, approval/scopes/list; notifications approval/requested, approval/decided, approval/cancelled, approval/auto_resolved |
++//! | `review.rs` | review/start |
++//! | `task.rs` | task/list, task/cancel, task/restart_from_node, task/output/read, task/artifact/list, task/artifact/read; notifications task/updated, task/output/delta |
++//! | `autonomy.rs` | peer/agent autonomy: agent/list, agent/interrupt, agent/close, agent/status/read, agent/output/read, agent/artifact/list, agent/artifact/read; notifications agent/updated, agent/output/delta, agent/artifact/updated, agent/status/read |
++//! | `peer.rs` | peer/prepare, peer/gather, peer/dispatch, peer/control; notifications peer/staged, peer/closed |
++//! | `profile.rs` | profile/local/create, profile/llm/* (7), profile/skills/* (4), profile/sub_providers/* (3); onboarding/* (2) |
++//! | `media.rs` | visual/* (3), voice/* (2), content/* (3), file/attached, smart_home/* (5) |
++//! | `config.rs` | config/capabilities/list; plus the misc singletons (cron/*, diff/preview/get, launch/resolve, memory/*, permission/profile/*, plan/updated, progress/updated, projection/envelope, protocol/replay_lossy, queue/state, router/*, server/shutdown, skill/action/job/updated, snapshot/*, system/status.get, thread/graph/get, user_question/*, warning, background/activity, mcp/status/list) |
++pub mod approval;
++pub mod autonomy;
++pub mod config;
++pub mod media;
++pub mod peer;
++pub mod profile;
++pub mod review;
++pub mod session;
++pub mod task;
++pub mod tool;
++pub mod turn;
++
++use crate::registry::Registry;
++use std::sync::Arc;
++use octoscode_store::Store;
++
++/// Register every domain's notifications on `registry`, once, against the
++/// shared `store`. The fan-out lane for a domain adds its handler line here.
++pub fn register_all(registry: &mut Registry, store: Arc<Store>) {
++    session::register(registry, store.clone());
++    turn::register(registry, store.clone());
++    tool::register(registry, store.clone());
++    approval::register(registry, store.clone());
++    review::register(registry, store.clone());
++    task::register(registry, store.clone());
++    autonomy::register(registry, store.clone());
++    peer::register(registry, store.clone());
++    profile::register(registry, store.clone());
++    media::register(registry, store.clone());
++    config::register(registry, store);
++}
+diff --git a/apps/octoscode/client/src/domains/peer.rs b/apps/octoscode/client/src/domains/peer.rs
+new file mode 100644
+index 0000000..3c390b5
+--- /dev/null
++++ b/apps/octoscode/client/src/domains/peer.rs
+@@ -0,0 +1,13 @@
++//! `peer/*` — sovereign peer sessions.
++//!
++//! Requests: `peer/prepare`, `peer/gather`, `peer/dispatch`, `peer/control`.
++//! Notifications: `peer/staged`, `peer/closed`.
++//!
++//! Stub: the fan-out lane for peers owns this file.
++use std::sync::Arc;
++
++use octoscode_store::Store;
++
++use crate::registry::Registry;
++
++pub fn register(_reg: &mut Registry, _store: Arc<Store>) {}
+diff --git a/apps/octoscode/client/src/domains/profile.rs b/apps/octoscode/client/src/domains/profile.rs
+new file mode 100644
+index 0000000..049a3d0
+--- /dev/null
++++ b/apps/octoscode/client/src/domains/profile.rs
+@@ -0,0 +1,17 @@
++//! `profile/*` + `onboarding/*` — profiles, LLM providers, skills.
++//!
++//! Requests: `profile/local/create`, `profile/llm/catalog`, `profile/llm/list`,
++//! `profile/llm/select`, `profile/llm/upsert`, `profile/llm/delete`,
++//! `profile/llm/test`, `profile/llm/fetch_models`, `profile/skills/list`,
++//! `profile/skills/registry/search`, `profile/skills/install`,
++//! `profile/skills/remove`, `profile/sub_providers/list|upsert|remove`,
++//! `onboarding/workspace_list`, `onboarding/workspace_create`.
++//!
++//! Stub: the fan-out lane for profiles owns this file.
++use std::sync::Arc;
++
++use octoscode_store::Store;
++
++use crate::registry::Registry;
++
++pub fn register(_reg: &mut Registry, _store: Arc<Store>) {}
+diff --git a/apps/octoscode/client/src/domains/review.rs b/apps/octoscode/client/src/domains/review.rs
+new file mode 100644
+index 0000000..7e05038
+--- /dev/null
++++ b/apps/octoscode/client/src/domains/review.rs
+@@ -0,0 +1,9 @@
++//! `review/start` — the code-review start request. (fan-out lane)
++use std::sync::Arc;
++
++use octoscode_store::Store;
++
++use crate::registry::Registry;
++
++/// Request: `review/start`. No notifications.
++pub fn register(_reg: &mut Registry, _store: Arc<Store>) {}
+diff --git a/apps/octoscode/client/src/domains/session.rs b/apps/octoscode/client/src/domains/session.rs
+new file mode 100644
+index 0000000..2a3a0a8
+--- /dev/null
++++ b/apps/octoscode/client/src/domains/session.rs
+@@ -0,0 +1,98 @@
++//! `session/*` — the session list, open/close, and session-scoped state.
++//!
++//! Implemented in this card: `session/list`. `session/open` stays on the
++//! transport's typed `OutboundCommand::OpenSession` (it carries the replay
++//! cursor bracket), so it is deliberately NOT a [`Method`] here.
++use std::sync::Arc;
++
++use serde::{Deserialize, Serialize};
++
++use octos_core::app_ui::AppUiBackendEvent as UiNotification;
++use octos_core::ui_protocol::methods;
++use octoscode_store::{Session, Store};
++
++use crate::method::Method;
++use crate::registry::{NotificationHandler, Registry};
++
++/// `session/list` — the legacy per-profile listing (`cwd: None`).
++#[derive(Debug, Default, Serialize)]
++pub struct SessionList {
++    #[serde(skip_serializing_if = "Option::is_none")]
++    pub cwd: Option<String>,
++}
++
++/// One row of `session/list` (subset of the server's `SessionInfo` used here;
++/// serde ignores the rest).
++#[derive(Debug, Clone, Deserialize)]
++pub struct SessionListRow {
++    pub id: String,
++    #[serde(default)]
++    pub message_count: usize,
++    #[serde(default)]
++    pub title: Option<String>,
++    #[serde(default)]
++    pub updated_at: Option<String>,
++    #[serde(default)]
++    pub last_prompt: Option<String>,
++    #[serde(default)]
++    pub active_turn: bool,
++}
++
++#[derive(Debug, Deserialize)]
++pub struct SessionListResult {
++    #[serde(default)]
++    pub sessions: Vec<SessionListRow>,
++}
++
++impl Method for SessionList {
++    const NAME: &'static str = methods::SESSION_LIST;
++    type Params = SessionListParams;
++    type Result = SessionListResult;
++}
++
++/// The params actually sent: only `cwd` is ever meaningful, and we send none.
++#[derive(Debug, Default, Serialize)]
++pub struct SessionListParams {
++    #[serde(skip_serializing_if = "Option::is_none")]
++    pub cwd: Option<String>,
++}
++
++impl From<SessionListRow> for Session {
++    fn from(r: SessionListRow) -> Self {
++        Session {
++            id: r.id,
++            title: r.title,
++            message_count: r.message_count,
++            updated_at: r.updated_at,
++            last_prompt: r.last_prompt,
++            active_turn: r.active_turn,
++        }
++    }
++}
++
++impl SessionListResult {
++    /// Fold the server rows into the store's session list.
++    pub fn into_sessions(self) -> Vec<Session> {
++        self.sessions.into_iter().map(Session::from).collect()
++    }
++}
++
++/// `session/opened`-class: a session became active on this connection.
++pub struct SessionOpenedHandler {
++    pub store: Arc<Store>,
++}
++
++impl NotificationHandler for SessionOpenedHandler {
++    const METHOD: &'static str = methods::SESSION_OPEN;
++    fn handle(&self, notification: &UiNotification) {
++        if let UiNotification::SessionOpened(opened) = notification {
++            self.store.note_seen(Self::METHOD);
++            self.store.set_active(Some(opened.session_id.0.clone()));
++        }
++    }
++}
++
++/// Register this domain's notification handlers.
++pub fn register(reg: &mut Registry, store: Arc<Store>) {
++    reg.register(SessionOpenedHandler { store });
++}
+diff --git a/apps/octoscode/client/src/domains/task.rs b/apps/octoscode/client/src/domains/task.rs
+new file mode 100644
+index 0000000..e1c23df
+--- /dev/null
++++ b/apps/octoscode/client/src/domains/task.rs
+@@ -0,0 +1,43 @@
++//! `task/*` — the task list, per-task output, and task artifacts.
++//!
++//! Requests: `task/list`, `task/cancel`, `task/restart_from_node`,
++//! `task/output/read`, `task/artifact/list`, `task/artifact/read` (stubs).
++//! Notifications: `task/updated`, `task/output/delta` (recorded).
++use std::sync::Arc;
++
++use octos_core::app_ui::AppUiBackendEvent as UiNotification;
++use octos_core::ui_protocol::methods;
++use octoscode_store::Store;
++
++use crate::registry::{NotificationHandler, Registry};
++
++/// `task/updated` — a task transitioned.
++pub struct TaskUpdatedHandler {
++    pub store: Arc<Store>,
++}
++impl NotificationHandler for TaskUpdatedHandler {
++    const METHOD: &'static str = methods::TASK_UPDATED;
++    fn handle(&self, notification: &UiNotification) {
++        if matches!(notification, UiNotification::TaskUpdated(_)) {
++            self.store.note_seen(Self::METHOD);
++        }
++    }
++}
++
++/// `task/output/delta` — streamed task output.
++pub struct TaskOutputDeltaHandler {
++    pub store: Arc<Store>,
++}
++impl NotificationHandler for TaskOutputDeltaHandler {
++    const METHOD: &'static str = methods::TASK_OUTPUT_DELTA;
++    fn handle(&self, notification: &UiNotification) {
++        if matches!(notification, UiNotification::TaskOutputDelta(_)) {
++            self.store.note_seen(Self::METHOD);
++        }
++    }
++}
++
++pub fn register(reg: &mut Registry, store: Arc<Store>) {
++    reg.register(TaskUpdatedHandler { store: store.clone() });
++    reg.register(TaskOutputDeltaHandler { store });
++}
+diff --git a/apps/octoscode/client/src/domains/tool.rs b/apps/octoscode/client/src/domains/tool.rs
+new file mode 100644
+index 0000000..6b4b66b
+--- /dev/null
++++ b/apps/octoscode/client/src/domains/tool.rs
+@@ -0,0 +1,107 @@
++//! `tool/*` — the tool inventory and tool lifecycle notifications.
++//!
++//! Implemented in this card: `tool/status/list` (an AppUI extension method)
++//! and the `tool/started|progress|completed` notifications (recorded on the
++//! store's seen-counter; their full timeline treatment is the fan-out lane's).
++use std::sync::Arc;
++
++use serde::{Deserialize, Serialize};
++
++use octos_core::app_ui::AppUiBackendEvent as UiNotification;
++use octos_core::ui_protocol::methods;
++use octoscode_store::Store;
++
++use crate::method::Method;
++use crate::registry::{NotificationHandler, Registry};
++
++/// `tool/status/list` — the AppUI extension (`packages/client/src/inventory.ts:171`).
++/// Params mirror the web's `{session_id, profile_id, include_denied}`.
++#[derive(Debug, Clone, Serialize)]
++pub struct ToolStatusList {
++    pub session_id: String,
++    pub profile_id: String,
++    pub include_denied: bool,
++}
++
++impl Default for ToolStatusList {
++    fn default() -> Self {
++        Self {
++            session_id: String::new(),
++            profile_id: String::new(),
++            include_denied: true,
++        }
++    }
++}
++
++/// One tool row (`RuntimeTool` in `packages/client/src/inventory.ts:15`).
++/// Only the projected fields the web keeps; unknown server fields are ignored.
++#[derive(Debug, Clone, Deserialize)]
++pub struct RuntimeTool {
++    pub name: String,
++    #[serde(default)]
++    pub category: Option<String>,
++    #[serde(default)]
++    pub status: Option<String>,
++    #[serde(default)]
++    pub policy: Option<String>,
++    #[serde(default)]
++    pub aliases: Vec<String>,
++}
++
++/// The `tool/status/list` result (`RuntimeTools`).
++#[derive(Debug, Clone, Deserialize)]
++pub struct ToolStatusListResult {
++    #[serde(default)]
++    pub tools: Vec<RuntimeTool>,
++}
++
++impl Method for ToolStatusList {
++    const NAME: &'static str = "tool/status/list";
++    type Params = ToolStatusList;
++    type Result = ToolStatusListResult;
++}
++
++/// `tool/started` — a tool call began.
++pub struct ToolStartedHandler {
++    pub store: Arc<Store>,
++}
++impl NotificationHandler for ToolStartedHandler {
++    const METHOD: &'static str = methods::TOOL_STARTED;
++    fn handle(&self, notification: &UiNotification) {
++        if matches!(notification, UiNotification::ToolStarted(_)) {
++            self.store.note_seen(Self::METHOD);
++        }
++    }
++}
++
++/// `tool/progress` — a tool call reported progress.
++pub struct ToolProgressHandler {
++    pub store: Arc<Store>,
++}
++impl NotificationHandler for ToolProgressHandler {
++    const METHOD: &'static str = methods::TOOL_PROGRESS;
++    fn handle(&self, notification: &UiNotification) {
++        if matches!(notification, UiNotification::ToolProgress(_)) {
++            self.store.note_seen(Self::METHOD);
++        }
++    }
++}
++
++/// `tool/completed` — a tool call finished.
++pub struct ToolCompletedHandler {
++    pub store: Arc<Store>,
++}
++impl NotificationHandler for ToolCompletedHandler {
++    const METHOD: &'static str = methods::TOOL_COMPLETED;
++    fn handle(&self, notification: &UiNotification) {
++        if matches!(notification, UiNotification::ToolCompleted(_)) {
++            self.store.note_seen(Self::METHOD);
++        }
++    }
++}
++
++pub fn register(reg: &mut Registry, store: Arc<Store>) {
++    reg.register(ToolStartedHandler { store: store.clone() });
++    reg.register(ToolProgressHandler { store: store.clone() });
++    reg.register(ToolCompletedHandler { store });
++}
+diff --git a/apps/octoscode/client/src/domains/turn.rs b/apps/octoscode/client/src/domains/turn.rs
+new file mode 100644
+index 0000000..c44c73a
+--- /dev/null
++++ b/apps/octoscode/client/src/domains/turn.rs
+@@ -0,0 +1,108 @@
++//! `turn/*` and the streaming text notifications.
++//!
++//! Implemented in this card: the notifications the store needs now —
++//! `turn/started`, `turn/completed`, `turn/error`, `message/delta`. The
++//! request methods (`turn/start`, `turn/steer`, `turn/interrupt`,
++//! `turn/state/get`) stay on the transport's typed commands for now
++//! (`StartTurn`/`InterruptTurn`), and are listed here for the fan-out lane.
++use std::sync::Arc;
++
++use octos_core::app_ui::AppUiBackendEvent as UiNotification;
++use octos_core::ui_protocol::methods;
++use octoscode_store::{Store, TimelineEntry};
++
++use crate::registry::{NotificationHandler, Registry};
++
++/// `turn/started` — a turn began in a session.
++pub struct TurnStartedHandler {
++    pub store: Arc<Store>,
++}
++
++impl NotificationHandler for TurnStartedHandler {
++    const METHOD: &'static str = methods::TURN_STARTED;
++    fn handle(&self, notification: &UiNotification) {
++        if let UiNotification::TurnStarted(started) = notification {
++            self.store.note_seen(Self::METHOD);
++            let session = started.session_id.0.clone();
++            self.store.push_timeline(
++                &session,
++                TimelineEntry::TurnStarted { turn_id: started.turn_id.0.to_string() },
++            );
++        }
++    }
++}
++
++/// `turn/completed` — a turn ended cleanly.
++pub struct TurnCompletedHandler {
++    pub store: Arc<Store>,
++}
++
++impl NotificationHandler for TurnCompletedHandler {
++    const METHOD: &'static str = methods::TURN_COMPLETED;
++    fn handle(&self, notification: &UiNotification) {
++        if let UiNotification::TurnCompleted(completed) = notification {
++            self.store.note_seen(Self::METHOD);
++            let session = completed.session_id.0.clone();
++            self.store.push_timeline(
++                &session,
++                TimelineEntry::TurnEnded { turn_id: completed.turn_id.0.to_string(), error: None },
++            );
++        }
++    }
++}
++
++/// `turn/error` — a turn ended with an error (carries code + message).
++pub struct TurnErrorHandler {
++    pub store: Arc<Store>,
++}
++
++impl NotificationHandler for TurnErrorHandler {
++    const METHOD: &'static str = methods::TURN_ERROR;
++    fn handle(&self, notification: &UiNotification) {
++        if let UiNotification::TurnError(error) = notification {
++            self.store.note_seen(Self::METHOD);
++            let session = error.session_id.0.clone();
++            self.store.push_timeline(
++                &session,
++                TimelineEntry::TurnEnded {
++                    turn_id: error.turn_id.0.to_string(),
++                    error: Some(format!("{}: {}", error.code, error.message)),
++                },
++            );
++        }
++    }
++}
++
++/// `message/delta` — streamed assistant text (the live reply).
++pub struct MessageDeltaHandler {
++    pub store: Arc<Store>,
++}
++
++impl NotificationHandler for MessageDeltaHandler {
++    const METHOD: &'static str = methods::MESSAGE_DELTA;
++    fn handle(&self, notification: &UiNotification) {
++        if let UiNotification::MessageDelta(delta) = notification {
++            self.store.note_seen(Self::METHOD);
++            let session = delta.session_id.0.clone();
++            self.store.push_timeline(
++                &session,
++                TimelineEntry::TextDelta {
++                    turn_id: delta.turn_id.0.to_string(),
++                    text: delta.text.clone(),
++                },
++            );
++        }
++    }
++}
++
++/// Request methods owned by this domain (stubs for the fan-out lane):
++/// `turn/start`, `turn/steer`, `turn/interrupt`, `turn/state/get`.
++/// Notifications: `turn/started`, `turn/completed`, `turn/error`,
++/// `turn/steer_dropped`, `turn/spawn_complete`, `message/delta`,
++/// `message/reasoning_delta`.
++pub fn register(reg: &mut Registry, store: Arc<Store>) {
++    reg.register(TurnStartedHandler { store: store.clone() });
++    reg.register(TurnCompletedHandler { store: store.clone() });
++    reg.register(TurnErrorHandler { store: store.clone() });
++    reg.register(MessageDeltaHandler { store });
++}
+diff --git a/apps/octoscode/client/src/lib.rs b/apps/octoscode/client/src/lib.rs
+new file mode 100644
+index 0000000..271f4a6
+--- /dev/null
++++ b/apps/octoscode/client/src/lib.rs
+@@ -0,0 +1,119 @@
++//! octoscode-client — the typed UI-Protocol client for octoscode-app.
++//!
++//! One [`Method`] per RPC, in a file per domain under [`domains`], plus one
++//! [`Registry`] that routes inbound notifications to their domain handler.
++//! This is the shape every later fan-out lane follows: **one file per
++//! domain**, and the only shared lines are the domain's `register()` call in
++//! [`domains::register_all`] and its module declaration.
++//!
++//! ## How to add a method (the fan-out recipe)
++//! 1. Add a unit struct in your domain file implementing [`Method`]:
++//!    `NAME`, `Params`, `Result`.
++//! 2. Call it through [`Client::call`]. Nothing else changes.
++//!
++//! ## How to add a notification (the fan-out recipe)
++//! 1. Add a struct implementing [`NotificationHandler`] in your domain file.
++//! 2. Export it from that file's `register(reg: &mut Registry)`.
++//! The registry routes by the handler's `METHOD`; an unregistered method
++//! falls through to the built-in tolerated-unknown arm (logged, never fatal).
++mod method;
++pub mod domains;
++pub mod registry;
++
++pub use method::Method;
++pub use registry::{NotificationHandler, Registry};
++
++use octos_core::ui_protocol::RpcError;
++use octos_app_transport::OutboundCommand;
++use serde::Serialize;
++use serde_json::Value;
++use tokio::sync::{mpsc, oneshot};
++
++/// Why a [`Client::call`] did not produce its typed result.
++#[derive(Debug)]
++pub enum ClientError {
++    /// The server answered with a JSON-RPC error.
++    Rpc { method: String, error: RpcError },
++    /// The server's `result` did not match the method's `Result` type.
++    Decode { method: String, reason: String },
++    /// The transport channel is closed (connection gone).
++    Transport { method: String, reason: String },
++}
++
++impl std::fmt::Display for ClientError {
++    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
++        match self {
++            Self::Rpc { method, error } => {
++                write!(f, "{method}: rpc error {} ({})", error.code, error.message)
++            }
++            Self::Decode { method, reason } => write!(f, "{method}: bad result: {reason}"),
++            Self::Transport { method, reason } => write!(f, "{method}: transport: {reason}"),
++        }
++    }
++}
++
++impl std::error::Error for ClientError {}
++
++/// A typed client over the transport's outbound command channel.
++///
++/// Every call rides the transport's ONE generic `OutboundCommand::Request`
++/// (D10a): the same serialize + registry path the typed lifecycle commands
++/// use, so there is a single wire implementation.
++#[derive(Clone)]
++pub struct Client {
++    commands: mpsc::Sender<OutboundCommand>,
++}
++
++impl Client {
++    pub fn new(commands: mpsc::Sender<OutboundCommand>) -> Self {
++        Self { commands }
++    }
++
++    /// Issue `M` and decode its typed result.
++    pub async fn call<M: Method>(&self, params: M::Params) -> Result<M::Result, ClientError> {
++        let method = M::NAME;
++        let params = serde_json::to_value(&params).map_err(|e| ClientError::Decode {
++            method: method.to_owned(),
++            reason: format!("params do not serialize: {e}"),
++        })?;
++        let value = self.request(method, params).await?;
++        serde_json::from_value::<M::Result>(value).map_err(|e| ClientError::Decode {
++            method: method.to_owned(),
++            reason: e.to_string(),
++        })
++    }
++
++    /// The untyped half: any method, any params, the raw `result` value.
++    /// Mirrors the web client's one generic `request`
++    /// (`packages/client/src/client.ts:426`).
++    pub async fn request(&self, method: &str, params: Value) -> Result<Value, ClientError> {
++        let (reply, rx) = oneshot::channel();
++        self.commands
++            .send(OutboundCommand::Request {
++                method: method.to_owned(),
++                params,
++                reply,
++            })
++            .await
++            .map_err(|e| ClientError::Transport {
++                method: method.to_owned(),
++                reason: e.to_string(),
++            })?;
++        match rx.await {
++            Ok(Ok(value)) => Ok(value),
++            Ok(Err(error)) => Err(ClientError::Rpc {
++                method: method.to_owned(),
++                error,
++            }),
++            Err(_) => Err(ClientError::Transport {
++                method: method.to_owned(),
++                reason: "reply channel dropped".to_owned(),
++            }),
++        }
++    }
++}
++
++/// Serialize params for tests and callers that build a request by hand.
++pub fn to_params<T: Serialize>(params: &T) -> Value {
++    serde_json::to_value(params).unwrap_or(Value::Null)
++}
+diff --git a/apps/octoscode/client/src/method.rs b/apps/octoscode/client/src/method.rs
+new file mode 100644
+index 0000000..8c2871c
+--- /dev/null
++++ b/apps/octoscode/client/src/method.rs
+@@ -0,0 +1,14 @@
++//! One UI-Protocol method: its name, its params, its result.
++//!
++//! Mirrors the web client's typed wrappers over one generic `request`
++//! (`packages/client/src/client.ts:426`): the wire call is always the same,
++//! only the method name and the two types differ. A domain file implements
++//! this once per method; [`crate::Client::call`] does the rest.
++use serde::{de::DeserializeOwned, Serialize};
++
++pub trait Method {
++    /// The exact wire method name, e.g. `"session/list"`.
++    const NAME: &'static str;
++    type Params: Serialize;
++    type Result: DeserializeOwned;
++}
+diff --git a/apps/octoscode/client/src/registry.rs b/apps/octoscode/client/src/registry.rs
+new file mode 100644
+index 0000000..d8802bb
+--- /dev/null
++++ b/apps/octoscode/client/src/registry.rs
+@@ -0,0 +1,79 @@
++//! Inbound notification routing: one handler per `UiNotification` variant.
++//!
++//! The transport decodes wire frames into `TransportEvent`s (and already logs
++//! + ignores an unknown *wire* method). This registry is the second level:
++//! a **decoded** notification whose variant no domain has claimed yet goes to
++//! ONE explicit arm that logs `debug!` with the method name and moves on.
++//! Never fatal — the peer upgrades under us (RULES #6, 8.8 condition 7).
++//!
++//! Handlers are boxed as closures keyed by `H::METHOD`, so the trait keeps its
++//! `const METHOD` (the fan-out recipe's single line) while the table stays a
++//! plain `HashMap`.
++use std::collections::HashMap;
++
++use octos_core::app_ui::AppUiBackendEvent as UiNotification;
++
++/// One domain's handler for one notification method.
++pub trait NotificationHandler: Send + Sync {
++    /// The exact wire method, e.g. `"message/delta"` (`UiNotification::method`).
++    const METHOD: &'static str;
++    fn handle(&self, notification: &UiNotification);
++}
++
++/// Routes decoded notifications by method to the domain that owns them.
++#[derive(Default)]
++pub struct Registry {
++    handlers: HashMap<&'static str, Box<dyn Fn(&UiNotification) + Send + Sync>>,
++    /// Methods seen that no handler claimed — surfaced for tests and for a
++    /// "we are behind the peer" diagnostic. Never fatal.
++    unknown: Vec<String>,
++}
++
++impl Registry {
++    pub fn new() -> Self {
++        Self::default()
++    }
++
++    /// Register a handler for `H::METHOD`. Re-registering replaces.
++    pub fn register<H: NotificationHandler + 'static>(&mut self, handler: H) {
++        let method = H::METHOD;
++        self.handlers
++            .insert(method, Box::new(move |n: &UiNotification| handler.handle(n)));
++    }
++
++    /// Route one decoded notification. Returns whether a handler claimed it.
++    pub fn dispatch(&mut self, notification: &UiNotification) -> bool {
++        let method = notification.method();
++        match self.handlers.get(method) {
++            Some(handler) => {
++                handler(notification);
++                true
++            }
++            None => {
++                // The one tolerated-unknown arm: named, logged, ignored.
++                log::debug!(
++                    "octoscode: unhandled notification method '{method}' (decoded, ignored)"
++                );
++                self.unknown.push(method.to_owned());
++                false
++            }
++        }
++    }
++
++    /// Whether a handler is registered for `method`.
++    pub fn handles(&self, method: &str) -> bool {
++        self.handlers.contains_key(method)
++    }
++
++    /// The methods seen so far that no handler claimed, in arrival order.
++    pub fn unknown_methods(&self) -> &[String] {
++        &self.unknown
++    }
++
++    /// The methods that currently have a handler.
++    pub fn handled_methods(&self) -> Vec<&'static str> {
++        let mut v: Vec<_> = self.handlers.keys().copied().collect();
++        v.sort_unstable();
++        v
++    }
++}
+diff --git a/apps/octoscode/module/Cargo.toml b/apps/octoscode/module/Cargo.toml
+new file mode 100644
+index 0000000..613ea93
+--- /dev/null
++++ b/apps/octoscode/module/Cargo.toml
+@@ -0,0 +1,22 @@
++[package]
++name = "octoscode-module"
++version.workspace = true
++edition.workspace = true
++license.workspace = true
++publish = false
++description = "The octoscode AppModule: renders connection state + session count from the store, and the L0 binding table"
++
++[dependencies]
++# The Makepad AppModule surface (re-homed from the D9 shape-(i) spike).
++makepad-widgets = { workspace = true }
++makepad-app-module = { workspace = true }
++# Our crates.
++octoscode-client = { workspace = true }
++octoscode-store = { workspace = true }
++octos-core = { workspace = true }
++octos-app-transport = { workspace = true }
++serde = { workspace = true }
++serde_json = { workspace = true }
++tokio = { workspace = true }
++log = { workspace = true }
++url = "2"
+diff --git a/apps/octoscode/module/src/bindings.rs b/apps/octoscode/module/src/bindings.rs
+new file mode 100644
+index 0000000..52e9017
+--- /dev/null
++++ b/apps/octoscode/module/src/bindings.rs
+@@ -0,0 +1,60 @@
++//! The L0 binding table: the ONLY door between store data and cards.
++//!
++//! **Rule (8.8 condition 2):** cards never see Rust types. A card asks for a
++//! value by a **binding id** (a stable string) and gets JSON back; it sends an
++//! **action id** and the host performs it. This module owns the mapping, so a
++//! card's contract is a small, declared table — not a struct it must mirror.
++//!
++//! Add a binding: one arm in [`query`]. Add an action: one arm in [`action`].
++use std::sync::Arc;
++
++use octoscode_store::Store;
++use serde_json::{json, Value};
++
++/// The declared bindings, as `(id, description)` — the contract a card author
++/// reads. Kept in one place so the set is auditable.
++pub const BINDINGS: &[(&str, &str)] = &[
++    ("conn.state", "the connection state as display text, e.g. \"Live\""),
++    ("conn.live", "whether the connection is live (bool)"),
++    ("session.count", "the number of sessions in the list (int)"),
++    ("session.list", "the session rows: [{id,title,message_count,active_turn}]"),
++    ("session.active", "the active session id, or null"),
++    ("caps.count", "the number of accepted capabilities (int)"),
++    ("summary", "a one-line \"conn: … sessions: …\" summary"),
++];
++
++/// The declared actions, as `(id, description)`.
++pub const ACTIONS: &[(&str, &str)] = &[
++    ("session.refresh", "re-ask the server for the session list"),
++];
++
++/// Resolve a binding id against the store. `None` when the id is not declared.
++/// Always returns JSON — a card never receives a Rust type.
++pub fn query(store: &Arc<Store>, id: &str) -> Option<Value> {
++    Some(match id {
++        "conn.state" => json!(store.connection()),
++        "conn.live" => json!(store.is_live()),
++        "session.count" => json!(store.session_count()),
++        "session.list" => json!(store
++            .sessions()
++            .into_iter()
++            .map(|s| json!({
++                "id": s.id,
++                "title": s.title,
++                "message_count": s.message_count,
++                "active_turn": s.active_turn,
++            }))
++            .collect::<Vec<_>>()),
++        "session.active" => json!(store.active_session()),
++        "caps.count" => json!(store.capabilities().len()),
++        "summary" => json!(store.summary()),
++        _ => return None,
++    })
++}
++
++/// The action a card may request, as the id it will be handled under. `None`
++/// when the id is not declared. (The module calls the client for
++/// `session.refresh`; see `lib.rs`.)
++pub fn is_action(id: &str) -> bool {
++    ACTIONS.iter().any(|(a, _)| *a == id)
++}
+diff --git a/apps/octoscode/module/src/lib.rs b/apps/octoscode/module/src/lib.rs
+new file mode 100644
+index 0000000..f2ef867
+--- /dev/null
++++ b/apps/octoscode/module/src/lib.rs
+@@ -0,0 +1,278 @@
++//! octoscode-module — the `AppModule` (re-homed from the D9 shape-(i) spike).
++//!
++//! It owns a [`Store`] and a transport on a background tokio runtime, renders
++//! the connection state + session count **from the store**, and exposes store
++//! data to cards only through [`bindings`] (a card never sees a Rust type).
++//! L0 cards mount here later; this card ships no card.
++//!
++//! Threading rule (from the spike): the UI thread never blocks. The tokio
++//! runtime owns the transport; its event waker (`SignalToUI`) wakes the UI,
++//! which drains into the store and re-reads the store into labels.
++pub use makepad_widgets;
++
++use makepad_app_module::{
++    makepad_ai_services::wire::{ServiceCall, ServiceManifest, ToolResult},
++    AppModule, ExecOutcome, InstanceHandles, InstanceParts, OpenSchema, ServiceExecutor,
++    ValidatedOpen,
++};
++use makepad_widgets::*;
++use std::sync::{Arc, Mutex};
++
++use octos_app_transport::{
++    ws, Capabilities, ConnectionState, LifecycleResult, OutboundCommand, ProfileId, SecretString,
++    TransportConfig, TransportEvent,
++};
++use octos_core::ui_protocol::SessionOpenParams;
++use octoscode_client::{domains, registry::Registry, Client};
++use octoscode_store::Store;
++use url::Url;
++
++pub mod bindings;
++
++script_mod! {
++    use mod.prelude.widgets.*
++    mod.widgets.OctoscodeView = set_type_default() do #(OctoscodeView::register_widget(vm)) {
++        ..mod.widgets.RectView
++        width: Fill height: Fill
++        draw_bg.color: theme.color_bg_app
++        flow: Down padding: 24 spacing: 14
++        heading := Label {
++            text: "OctosCode"
++            draw_text.text_style.font_size: 20
++        }
++        status := Label { width: Fill draw_text.wrap: Words text: "conn: (connecting…)" }
++        sessions := Label { width: Fill text: "sessions: 0" }
++        refresh := Button { text: "session/list" }
++    }
++}
++
++/// What the UI thread needs to drive the transport, behind one lock.
++#[derive(Default)]
++struct Bridge {
++    store: Arc<Store>,
++    registry: Registry,
++    client: Option<Client>,
++    cmd_tx: Option<tokio::sync::mpsc::Sender<OutboundCommand>>,
++}
++
++#[derive(Script, ScriptHook, Widget)]
++pub struct OctoscodeView {
++    #[deref]
++    view: View,
++    #[rust]
++    bridge: Arc<Mutex<Bridge>>,
++    #[rust]
++    runtime: Option<tokio::runtime::Runtime>,
++    #[rust]
++    started: bool,
++}
++
++impl OctoscodeView {
++    fn start(&mut self) {
++        let base =
++            std::env::var("OCTOS_BASE_URL").unwrap_or_else(|_| "http://127.0.0.1:50082".to_string());
++        let bearer = std::env::var("OCTOS_BEARER").unwrap_or_default();
++        let profile =
++            std::env::var("OCTOS_PROFILE_ID").unwrap_or_else(|_| "octoscode".to_string());
++        let base_url =
++            Url::parse(&base).unwrap_or_else(|_| Url::parse("http://127.0.0.1:50082").unwrap());
++
++        let cfg = TransportConfig {
++            base_url,
++            bearer: SecretString::new(bearer),
++            profile_id: ProfileId::new(&profile),
++            cursor: None,
++            cursor_file: None,
++            requested_capabilities: Capabilities::requested(),
++            workspace_cwd: None,
++            local_kernel: false,
++        };
++
++        let runtime = match tokio::runtime::Builder::new_multi_thread()
++            .worker_threads(1)
++            .enable_all()
++            .build()
++        {
++            Ok(rt) => rt,
++            Err(e) => {
++                ::log::error!("octoscode: runtime: {e}");
++                return;
++            }
++        };
++
++        let (cmd_tx, mut evt_rx) = {
++            let _guard = runtime.enter();
++            ws::spawn_with_waker(cfg, Some(Arc::new(|| SignalToUI::set_ui_signal())))
++        };
++
++        {
++            let mut b = self.bridge.lock().unwrap();
++            b.cmd_tx = Some(cmd_tx.clone());
++            b.client = Some(Client::new(cmd_tx.clone()));
++            b.store
++                .set_connection(format!("{:?}", ConnectionState::Dialing), false);
++        }
++
++        let open = SessionOpenParams {
++            session_id: octos_core::SessionKey::new("octoscode", "main"),
++            topic: None,
++            profile_id: Some(profile),
++            cwd: None,
++            sandbox: None,
++            after: None,
++            client_commands: None,
++        };
++
++        let bridge = self.bridge.clone();
++        runtime.spawn(async move {
++            if cmd_tx.send(OutboundCommand::OpenSession(open)).await.is_err() {
++                ::log::error!("octoscode: transport channel closed");
++                SignalToUI::set_ui_signal();
++                return;
++            }
++            while let Some(evt) = evt_rx.recv().await {
++                let mut b = bridge.lock().unwrap();
++                match evt {
++                    TransportEvent::ConnectionState(s) => {
++                        let live = matches!(s, ConnectionState::Live);
++                        b.store.set_connection(format!("{s:?}"), live);
++                    }
++                    TransportEvent::CapabilityNegotiated(caps) => {
++                        let accepted: Vec<String> = caps.raw.keys().cloned().collect();
++                        b.store.set_capabilities(accepted);
++                    }
++                    TransportEvent::RpcResult(LifecycleResult::SessionOpen(r)) => {
++                        b.store.set_active(Some(r.opened.session_id.0.clone()));
++                    }
++                    TransportEvent::SessionsListed { sessions } => {
++                        // `SessionsListed` carries the rows ARRAY (the
++                        // transport already unwrapped `SessionListResult`).
++                        if let Ok(rows) = serde_json::from_value::<Vec<octoscode_client::domains::session::SessionListRow>>(sessions) {
++                            b.store
++                                .set_sessions(rows.into_iter().map(Into::into).collect());
++                        }
++                    }
++                    TransportEvent::DurableNotification { payload, .. }
++                    | TransportEvent::EphemeralNotification { payload } => {
++                        b.registry.dispatch(&payload);
++                    }
++                    TransportEvent::RpcError { method, error, .. } => {
++                        ::log::warn!("octoscode: rpc error {method}: {}", error.message);
++                    }
++                    _ => {}
++                }
++                SignalToUI::set_ui_signal();
++            }
++        });
++
++        self.runtime = Some(runtime);
++    }
++
++    fn refresh_sessions(&self) {
++        let b = self.bridge.lock().unwrap();
++        if let Some(tx) = &b.cmd_tx {
++            let _ = tx.try_send(OutboundCommand::ListSessions);
++        }
++    }
++
++    fn sync_labels(&mut self, cx: &mut Cx) {
++        let (status, sessions) = {
++            let b = self.bridge.lock().unwrap();
++            (b.store.summary(), b.store.session_count())
++        };
++        let text = format!("conn: {}", status.trim_start_matches("conn: "));
++        self.view.label(cx, ids!(status)).set_text(cx, &text);
++        self.view
++            .label(cx, ids!(sessions))
++            .set_text(cx, &format!("sessions: {sessions}"));
++        ::log::info!("[octoscode] {text} | sessions: {sessions}");
++    }
++}
++
++impl Widget for OctoscodeView {
++    fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
++        self.view.draw_walk(cx, scope, walk)
++    }
++
++    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
++        self.view.handle_event(cx, event, scope);
++        if !self.started {
++            self.started = true;
++            self.start();
++            self.sync_labels(cx);
++        }
++        match event {
++            Event::Signal => self.sync_labels(cx),
++            Event::Actions(actions) => {
++                if self.view.button(cx, ids!(refresh)).clicked(actions) {
++                    self.refresh_sessions();
++                }
++            }
++            _ => {}
++        }
++    }
++}
++
++pub struct OctoscodeModule;
++pub static OCTOSCODE_MODULE: OctoscodeModule = OctoscodeModule;
++
++impl AppModule for OctoscodeModule {
++    fn id(&self) -> &'static str {
++        "octoscode"
++    }
++    fn label(&self) -> &'static str {
++        "OctosCode"
++    }
++    fn register(&self, vm: &mut ScriptVm) {
++        script_mod(vm);
++    }
++    fn open_schema(&self) -> OpenSchema {
++        OpenSchema::new(1)
++    }
++    fn capabilities(&self) -> &'static [&'static str] {
++        &[]
++    }
++    fn create(
++        &self,
++        vm: &mut ScriptVm,
++        _open: ValidatedOpen,
++        _handles: InstanceHandles,
++    ) -> InstanceParts {
++        let store = Arc::new(Store::new());
++        let mut registry = Registry::new();
++        domains::register_all(&mut registry, store.clone());
++        let value = script_eval!(vm, {
++            use mod.widgets.*
++            OctoscodeView {}
++        });
++        let root = WidgetRef::script_from_value(vm, value);
++        // Inject the bridge into the widget's `#[rust]` field.
++        let bridge = Arc::new(Mutex::new(Bridge {
++            store,
++            registry,
++            client: None,
++            cmd_tx: None,
++        }));
++        if let Some(mut view) = root.borrow_mut::<OctoscodeView>() {
++            view.bridge = bridge;
++        }
++        InstanceParts {
++            root,
++            executor: Box::new(OctoscodeExecutor),
++            shutdown: Box::new(|_| {}),
++        }
++    }
++}
++
++struct OctoscodeExecutor;
++impl ServiceExecutor for OctoscodeExecutor {
++    fn manifest(&self) -> ServiceManifest {
++        ServiceManifest::new("octoscode", "OctosCode", "Native octoscode app (AppModule).")
++    }
++    fn execute(&mut self, _cx: &mut Cx, call: &ServiceCall) -> ExecOutcome {
++        ExecOutcome::Done(ToolResult::unavailable(
++            &call.call_id,
++            "OctosCode (native module) has no tools",
++        ))
++    }
++}
+diff --git a/apps/octoscode/store/Cargo.toml b/apps/octoscode/store/Cargo.toml
+new file mode 100644
+index 0000000..dcc7bcf
+--- /dev/null
++++ b/apps/octoscode/store/Cargo.toml
+@@ -0,0 +1,13 @@
++[package]
++name = "octoscode-store"
++version.workspace = true
++edition.workspace = true
++license.workspace = true
++publish = false
++description = "The octoscode session store: sessions, per-session timeline, connection state, capabilities"
++
++[dependencies]
++octos-app-transport = { workspace = true }
++serde = { workspace = true }
++serde_json = { workspace = true }
++log = { workspace = true }
+diff --git a/apps/octoscode/store/src/lib.rs b/apps/octoscode/store/src/lib.rs
+new file mode 100644
+index 0000000..50e123d
+--- /dev/null
++++ b/apps/octoscode/store/src/lib.rs
+@@ -0,0 +1,191 @@
++//! octoscode-store — the session store every later lane writes into.
++//!
++//! **The public API here is ours.** It wraps `octos-app-store`'s session
++//! concepts behind octoscode's own types so a fan-out lane can add state
++//! without reaching into a dependency's internals. The store is a plain
++//! struct with interior mutability ([`Store`]), shared as an `Arc` between
++//! the UI thread (which renders from it) and the notification handlers (which
++//! mutate it). Notifications reach it **only through the registry**
++//! ([`crate::domains`]): no other code path writes to it.
++//!
++//! ## What it holds
++//! - **connection state** — the transport's `ConnectionState`, as a display
++//!   string (`"Live"`, `"Reconnecting{attempt:2}"`) plus a boolean "live".
++//! - **sessions** — the `session/list` rows, and which one is active.
++//! - **per-session timeline** — append-only entries (a `message/delta`
++//!   appends text; a turn boundary appends a marker).
++//! - **capabilities** — the accepted capability ids from the handshake.
++use std::collections::HashMap;
++use std::sync::Mutex;
++
++/// One session row from `session/list`.
++#[derive(Debug, Clone, PartialEq, Eq)]
++pub struct Session {
++    pub id: String,
++    pub title: Option<String>,
++    pub message_count: usize,
++    pub updated_at: Option<String>,
++    pub last_prompt: Option<String>,
++    /// Whether a turn is live in this session (from `SessionInfo.active_turn`).
++    pub active_turn: bool,
++}
++
++/// One entry in a session's timeline.
++#[derive(Debug, Clone, PartialEq, Eq)]
++pub enum TimelineEntry {
++    /// Streamed assistant/reasoning text (`message/delta`).
++    TextDelta { turn_id: String, text: String },
++    /// A turn began.
++    TurnStarted { turn_id: String },
++    /// A turn ended (`completed` / `error`).
++    TurnEnded { turn_id: String, error: Option<String> },
++}
++
++/// The store's mutable state. Private: callers go through [`Store`]'s methods.
++#[derive(Debug, Default)]
++struct Inner {
++    connection: String,
++    live: bool,
++    capabilities: Vec<String>,
++    sessions: Vec<Session>,
++    active: Option<String>,
++    timelines: HashMap<String, Vec<TimelineEntry>>,
++    /// Notifications seen, by method — a cheap activity/diagnostic counter.
++    seen: HashMap<String, usize>,
++}
++
++/// The session store. Cheap to clone-share: wrap in an `Arc`.
++#[derive(Debug, Default)]
++pub struct Store {
++    inner: Mutex<Inner>,
++}
++
++impl Store {
++    pub fn new() -> Self {
++        Self::default()
++    }
++
++    // ---- connection state -------------------------------------------------
++
++    /// Set from the transport's `ConnectionState`. Stores a display string
++    /// (the exact `format!("{state:?}")` the caller passes) plus liveness.
++    pub fn set_connection(&self, display: String, live: bool) {
++        let mut i = self.inner.lock().unwrap();
++        i.connection = display;
++        i.live = live;
++    }
++
++    /// The connection state as display text (e.g. `"Live"`).
++    pub fn connection(&self) -> String {
++        self.inner.lock().unwrap().connection.clone()
++    }
++
++    /// Whether the connection is `Live`.
++    pub fn is_live(&self) -> bool {
++        self.inner.lock().unwrap().live
++    }
++
++    // ---- capabilities -----------------------------------------------------
++
++    pub fn set_capabilities(&self, accepted: Vec<String>) {
++        self.inner.lock().unwrap().capabilities = accepted;
++    }
++
++    pub fn capabilities(&self) -> Vec<String> {
++        self.inner.lock().unwrap().capabilities.clone()
++    }
++
++    // ---- sessions ---------------------------------------------------------
++
++    /// Replace the session list (from `session/list`). Keeps the active id if
++    /// it still exists, else clears it.
++    pub fn set_sessions(&self, sessions: Vec<Session>) {
++        let mut i = self.inner.lock().unwrap();
++        if let Some(active) = &i.active {
++            if !sessions.iter().any(|s| &s.id == active) {
++                i.active = None;
++            }
++        }
++        i.sessions = sessions;
++    }
++
++    pub fn sessions(&self) -> Vec<Session> {
++        self.inner.lock().unwrap().sessions.clone()
++    }
++
++    /// The session count — what the module tile shows.
++    pub fn session_count(&self) -> usize {
++        self.inner.lock().unwrap().sessions.len()
++    }
++
++    pub fn set_active(&self, id: Option<String>) {
++        self.inner.lock().unwrap().active = id;
++    }
++
++    pub fn active_session(&self) -> Option<String> {
++        self.inner.lock().unwrap().active.clone()
++    }
++
++    // ---- per-session timeline --------------------------------------------
++
++    /// Append an entry to `session`'s timeline.
++    pub fn push_timeline(&self, session: &str, entry: TimelineEntry) {
++        self.inner
++            .lock()
++            .unwrap()
++            .timelines
++            .entry(session.to_owned())
++            .or_default()
++            .push(entry);
++    }
++
++    pub fn timeline(&self, session: &str) -> Vec<TimelineEntry> {
++        self.inner
++            .lock()
++            .unwrap()
++            .timelines
++            .get(session)
++            .cloned()
++            .unwrap_or_default()
++    }
++
++    /// The concatenated `message/delta` text for a session — the live reply.
++    pub fn live_text(&self, session: &str) -> String {
++        self.timeline(session)
++            .into_iter()
++            .filter_map(|e| match e {
++                TimelineEntry::TextDelta { text, .. } => Some(text),
++                _ => None,
++            })
++            .collect()
++    }
++
++    // ---- diagnostics ------------------------------------------------------
++
++    /// Record that a notification method was seen (any handler).
++    pub fn note_seen(&self, method: &str) {
++        *self
++            .inner
++            .lock()
++            .unwrap()
++            .seen
++            .entry(method.to_owned())
++            .or_insert(0) += 1;
++    }
++
++    pub fn seen_count(&self, method: &str) -> usize {
++        self.inner
++            .lock()
++            .unwrap()
++            .seen
++            .get(method)
++            .copied()
++            .unwrap_or(0)
++    }
++
++    /// A one-line summary for a tile: connection + session count.
++    pub fn summary(&self) -> String {
++        let i = self.inner.lock().unwrap();
++        format!("conn: {}   sessions: {}", i.connection, i.sessions.len())
++    }
++}
+diff --git a/crates/shell/Cargo.toml b/crates/shell/Cargo.toml
+index 043e04b..a43f63e 100644
+--- a/crates/shell/Cargo.toml
++++ b/crates/shell/Cargo.toml
+@@ -51,6 +51,7 @@ octosense-news-service = { workspace = true, optional = true }
+ rinx = { workspace = true, features = ["octosense-module"], optional = true }
+ # Not shipped for now: strictly opt-in with `app-appcard`, on every target.
+ octosense-appcard = { workspace = true, optional = true }
++octoscode-module = { workspace = true, optional = true }
+ octosense-news = { workspace = true, optional = true }
+ # App Hub's shell integration (store, Card runner, system apps, icons); its
+ # build packs the system apps OCTOSENSE_SYSTEM_APPS names.
+@@ -90,5 +91,7 @@ app-news = ["dep:octosense-news"]
+ app-maps = ["dep:octosense-maps"]
+ # The AppCard module (the assistant in a tile), opt-in only (implies `octos-core`).
+ app-appcard = ["dep:octosense-appcard", "octos-core"]
++# Phase-1 core: the octoscode client module (implies the App Hub host).
++app-octoscode = ["dep:octoscode-module", "app-hub", "octos-core"]
+ # The aichat module, seated in the pane in-process.
+ app-aichat = ["dep:makepad-aichat"]
+diff --git a/crates/shell/src/apps.rs b/crates/shell/src/apps.rs
+index 7b31b67..eb7f84e 100644
+--- a/crates/shell/src/apps.rs
++++ b/crates/shell/src/apps.rs
+@@ -67,6 +67,10 @@ fn linked_modules() -> Vec<&'static dyn AppModule> {
+     // AppCard is opt-in on every target (not shipped by default for now).
+     #[cfg(feature = "app-appcard")]
+     out.push(&octosense_appcard::APPCARD_MODULE);
++    // Phase-1 core: the octoscode client module (opt-in). Its protocol
++    // client, dispatch registry and session store live under apps/octoscode/.
++    #[cfg(feature = "app-octoscode")]
++    out.push(&octoscode_module::OCTOSCODE_MODULE);
+     // The native News and OctosMap modules, for comparison with their
+     // system apps (`os.news`, `os.maps`).
+     #[cfg(feature = "app-news")]
+diff --git a/desktop/Cargo.toml b/desktop/Cargo.toml
+index fac87c5..8ab291f 100644
+--- a/desktop/Cargo.toml
++++ b/desktop/Cargo.toml
+@@ -64,6 +64,8 @@ app-news = ["octosense-shell/app-news"]
+ app-maps = ["octosense-shell/app-maps"]
+ # The AppCard module, opt-in only (implies `octos-core`).
+ app-appcard = ["octosense-shell/app-appcard"]
++# Phase-1 core: the octoscode client module.
++app-octoscode = ["octosense-shell/app-octoscode"]
+ app-aichat = ["octosense-shell/app-aichat"]
+ # Rinx as a module; its assistant is the shell's (implies `octos-core`).
+ app-rinx = ["octosense-shell/app-rinx"]
+diff --git a/desktop/system-apps.json b/desktop/system-apps.json
+index 36edab1..6e0ce6b 100644
+--- a/desktop/system-apps.json
++++ b/desktop/system-apps.json
+@@ -1,6 +1,6 @@
+ {
+   "schema": 1,
+   "source": "../apps",
+-  "apps": ["news", "photos", "maps", "camera", "mail", "ai-providers"],
++  "apps": ["news", "photos", "maps", "camera", "mail", "ai-providers", "octoscode"],
+   "assets": {}
+ }
