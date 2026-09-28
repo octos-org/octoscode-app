@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text302b6ef6aea4",
+      "semantic_role": "text",
+      "bounds": [
+        77.8219696969697,
+        95.5,
+        209.5,
+        27.0
+      ],
+      "text": "Run this command?",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 29.737373737373737
+    },
+    {
+      "source_id": "t02",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text14214d12b99a",
+      "semantic_role": "text",
+      "bounds": [
+        34.701298701298704,
+        188.0,
+        322.0,
+        29.0
+      ],
+      "text": "git push origin feat/steer-queue",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 25.574425574425575
+    },
+    {
+      "source_id": "t03",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textb81f047caaf8",
+      "semantic_role": "text",
+      "bounds": [
+        19.78688524590164,
+        274.5,
+        297.0,
+        23.5
+      ],
+      "text": "Reason: Push the fix branch so Cl",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 25.18032786885246
+    },
+    {
+      "source_id": "t04",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text8d94763719d8",
+      "semantic_role": "text",
+      "bounds": [
+        19.78965517241379,
+        317.0,
+        66.5,
+        17.5
+      ],
+      "text": "can run",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 23.83448275862069
+    },
+    {
+      "source_id": "approve_once",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "button",
+      "component": "NativeButton939d519a17bf",
+      "semantic_role": "button",
+      "bounds": [
+        128.31,
+        381.55,
+        141.48,
+        44.48
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t05",
+      "native_id": "beauty_0_4_0",
+      "parent": "approve_once",
+      "kind": "text",
+      "component": "Text287a999af11e",
+      "semantic_role": "text",
+      "bounds": [
+        134.15513626834382,
+        386.5,
+        132.0,
+        35.0
+      ],
+      "text": "Approve once",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 33.274633123689725
+    },
+    {
+      "source_id": "approve_session",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "button",
+      "component": "NativeButton939d519a17bf",
+      "semantic_role": "button",
+      "bounds": [
+        101.48,
+        463.66,
+        196.59,
+        49.14
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t06",
+      "native_id": "beauty_0_5_0",
+      "parent": "approve_session",
+      "kind": "text",
+      "component": "Text023a2761d3ab",
+      "semantic_role": "text",
+      "bounds": [
+        113.3427704752275,
+        472.5,
+        175.5,
+        29.0
+      ],
+      "text": "Approve for session",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 25.88473205257836
+    },
+    {
+      "source_id": "deny",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "button",
+      "component": "NativeButton939d519a17bf",
+      "semantic_role": "button",
+      "bounds": [
+        162.29,
+        544.67,
+        63.37,
+        43.07
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t07",
+      "native_id": "beauty_0_6_0",
+      "parent": "deny",
+      "kind": "text",
+      "component": "Text7655be70583a",
+      "semantic_role": "text",
+      "bounds": [
+        170.15135699373695,
+        551.5,
+        48.0,
+        29.0
+      ],
+      "text": "Deny",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 26.7223382045929
+    },
+    {
+      "source_id": "t08",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text19749189e0cf",
+      "semantic_role": "text",
+      "bounds": [
+        154.902466367713,
+        651.0,
+        79.0,
+        24.5
+      ],
+      "text": "Y /S / N",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 23.533632286995516
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "21f3d56b1c964214693ab357a3eb0b24e73f429538350d5c5ae35094c942605a",
+  "mapping_basis": "mapped.json"
+}

@@ -1,0 +1,405 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "76ac7c43df118ffd0a4be3321c653c4bcf817e59d4b50fe05cca4e5f1fb5b1aa",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "text",
+        "id": "t01",
+        "text": "Edited 3 files",
+        "x": 20.416666666666668,
+        "y": 78.5,
+        "w": 128.0,
+        "h": 26.0,
+        "size": 28.444444444444443,
+        "line_height": 26.0,
+        "weight": 600,
+        "color": 4278190080,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": -3.8920940170940153,
+        "font_asc": -0.13623046875,
+        "font_desc": 0.15966796874999994
+      },
+      {
+        "t": "text",
+        "id": "t02",
+        "text": "+62 -5",
+        "x": 18.887254901960784,
+        "y": 124.5,
+        "w": 35.0,
+        "h": 24.5,
+        "size": 27.440522875816992,
+        "line_height": 24.5,
+        "weight": 400,
+        "color": 4282220353,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -10.655555555555555,
+        "font_asc": -0.15856040396341464,
+        "font_desc": 0.15856040396341453
+      },
+      {
+        "t": "button",
+        "id": "undo",
+        "x": 223.19,
+        "y": 78.85,
+        "w": 80.28,
+        "h": 38.65,
+        "c": [
+          {
+            "t": "text",
+            "id": "t03",
+            "text": "Undo 9",
+            "x": 231.0947242871408,
+            "y": 85.0,
+            "w": 65.5,
+            "h": 24.5,
+            "size": 27.36669255519805,
+            "line_height": 24.5,
+            "weight": 400,
+            "color": 4278979596,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": -5.766293132142462,
+            "font_asc": -0.15830144006227298,
+            "font_desc": 0.15641064883886877
+          }
+        ],
+        "enabled": 1
+      },
+      {
+        "t": "button",
+        "id": "review",
+        "x": 311.05,
+        "y": 79.67,
+        "w": 73.75,
+        "h": 38.05,
+        "c": [
+          {
+            "t": "text",
+            "id": "t04",
+            "text": "Review",
+            "x": 320.3119001919386,
+            "y": 86.5,
+            "w": 57.0,
+            "h": 23.0,
+            "size": 24.89571337172105,
+            "line_height": 23.0,
+            "weight": 400,
+            "color": 4279703320,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": -5.88125399872041,
+            "font_asc": -0.13695004111842102,
+            "font_desc": 0.14915707236842107
+          }
+        ],
+        "enabled": 1
+      },
+      {
+        "t": "text",
+        "id": "t05",
+        "text": "crates/octos-cli/src/",
+        "x": 38.50896860986547,
+        "y": 214.0,
+        "w": 145.5,
+        "h": 21.0,
+        "size": 19.515695067264573,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4280098077,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -2.2649943946188342,
+        "font_asc": -0.10454963235294112,
+        "font_desc": 0.029354319852941096
+      },
+      {
+        "t": "text",
+        "id": "t06",
+        "text": "api/ui_protocol_transport.rs",
+        "x": 37.9989888776542,
+        "y": 249.0,
+        "w": 206.0,
+        "h": 26.0,
+        "size": 22.778564206268957,
+        "line_height": 26.0,
+        "weight": 400,
+        "color": 4280822057,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -3.3578624124630188,
+        "font_asc": -0.11922940340909094,
+        "font_desc": -0.05069247159090923
+      },
+      {
+        "t": "text",
+        "id": "t07",
+        "text": "+31 -4",
+        "x": 302.3235294117647,
+        "y": 232.5,
+        "w": 31.0,
+        "h": 25.0,
+        "size": 28.109803921568627,
+        "line_height": 25.0,
+        "weight": 400,
+        "color": 4283075663,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -11.01843137254902,
+        "font_asc": -0.1602957589285714,
+        "font_desc": 0.16029575892857145
+      },
+      {
+        "t": "text",
+        "id": "t08",
+        "text": "crates/octos-core/src/",
+        "x": 38.47982062780269,
+        "y": 343.0,
+        "w": 163.0,
+        "h": 21.5,
+        "size": 20.08968609865471,
+        "line_height": 21.5,
+        "weight": 400,
+        "color": 4281216558,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -2.6135490070467657,
+        "font_asc": -0.10747767857142854,
+        "font_desc": 0.03228236607142859
+      },
+      {
+        "t": "text",
+        "id": "t09",
+        "text": "ui_protocol.rs",
+        "x": 37.76417986714359,
+        "y": 378.5,
+        "w": 101.5,
+        "h": 25.5,
+        "size": 22.499744506898313,
+        "line_height": 25.5,
+        "weight": 400,
+        "color": 4281545524,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -3.3746511536496198,
+        "font_asc": -0.12839525799418605,
+        "font_desc": -0.051780523255814004
+      },
+      {
+        "t": "text",
+        "id": "t10",
+        "text": "+9 - 1",
+        "x": 306.82375271149675,
+        "y": 361.0,
+        "w": 23.5,
+        "h": 25.0,
+        "size": 28.10745870181879,
+        "line_height": 25.0,
+        "weight": 400,
+        "color": 4283076176,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -10.310186884698817,
+        "font_asc": -0.1602274886018238,
+        "font_desc": 0.16028982237841943
+      },
+      {
+        "t": "text",
+        "id": "t11",
+        "text": "crates/octos-cli/tests/",
+        "x": 38.50896860986547,
+        "y": 471.0,
+        "w": 160.0,
+        "h": 21.0,
+        "size": 19.515695067264573,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4280163870,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -2.1250764370158985,
+        "font_asc": -0.10454963235294112,
+        "font_desc": 0.029354319852941096
+      },
+      {
+        "t": "text",
+        "id": "t12",
+        "text": "steer_queue.rs",
+        "x": 38.301331853496116,
+        "y": 508.0,
+        "w": 110.0,
+        "h": 24.0,
+        "size": 22.730299667036626,
+        "line_height": 24.0,
+        "weight": 400,
+        "color": 4281084973,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -3.9182105353026553,
+        "font_asc": -0.20498046874999998,
+        "font_desc": -0.05087890625000002
+      },
+      {
+        "t": "text",
+        "id": "t13",
+        "text": "+22 -0",
+        "x": 294.8872549019608,
+        "y": 489.5,
+        "w": 34.0,
+        "h": 24.5,
+        "size": 27.440522875816992,
+        "line_height": 24.5,
+        "weight": 400,
+        "color": 4282747211,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -11.00562091503268,
+        "font_asc": -0.15856040396341464,
+        "font_desc": 0.15856040396341453
+      },
+      {
+        "t": "text",
+        "id": "t14",
+        "text": "Show diff",
+        "x": 34.07377049180328,
+        "y": 604.0,
+        "w": 81.5,
+        "h": 23.5,
+        "size": 25.18032786885246,
+        "line_height": 23.5,
+        "weight": 400,
+        "color": 4279571733,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -4.333504098360656,
+        "font_asc": -0.12760416666666663,
+        "font_desc": 0.14908854166666663
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "undo",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "review",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t01",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.13683143028846148
+    },
+    {
+      "id": "t02",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.38831459603658536
+    },
+    {
+      "id": "t03",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2107047872340426
+    },
+    {
+      "id": "t04",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2362356085526316
+    },
+    {
+      "id": "t05",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.11606014476102942
+    },
+    {
+      "id": "t06",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.14741326020622894
+    },
+    {
+      "id": "t07",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.39197823660714287
+    },
+    {
+      "id": "t08",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.13009406887755107
+    },
+    {
+      "id": "t09",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.14998619884838996
+    },
+    {
+      "id": "t10",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.366813200512918
+    },
+    {
+      "id": "t11",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1088906354445187
+    },
+    {
+      "id": "t12",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.17237830528846154
+    },
+    {
+      "id": "t13",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.4010718368902439
+    },
+    {
+      "id": "t14",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.17209879557291669
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

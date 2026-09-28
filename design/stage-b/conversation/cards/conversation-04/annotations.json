@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "f61d0aa1a64c1cdbeb5840251845de53eb403702e794c8d571da8827b197b45b",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      29.0,
+      409.0,
+      348.0,
+      242.0
+    ],
+    [
+      18.0,
+      307.0,
+      371.0,
+      370.0
+    ],
+    [
+      15.0,
+      305.0,
+      377.0,
+      374.0
+    ],
+    [
+      18.0,
+      178.0,
+      371.0,
+      103.0
+    ],
+    [
+      15.0,
+      175.0,
+      376.0,
+      109.0
+    ],
+    [
+      18.0,
+      47.0,
+      371.0,
+      105.0
+    ],
+    [
+      15.0,
+      44.0,
+      376.0,
+      111.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "tool_1",
+      "bounds": [
+        79.97,
+        69.83,
+        247.19,
+        38.67
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "tool_2",
+      "bounds": [
+        79.97,
+        197.28,
+        193.06,
+        40.81
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "tool_3",
+      "bounds": [
+        27.44,
+        328.27,
+        286.67,
+        48.33
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ]
+}

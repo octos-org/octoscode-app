@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text4a3ecddb8000",
+      "semantic_role": "text",
+      "bounds": [
+        22.98825831702544,
+        46.5,
+        150.0,
+        26.5
+      ],
+      "text": "OctosCode v",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 30.058708414872797
+    },
+    {
+      "source_id": "new_chat",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "button",
+      "component": "NativeButton939d519a17bf",
+      "semantic_role": "button",
+      "bounds": [
+        27.95,
+        129.02,
+        103.12,
+        38.6
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t02",
+      "native_id": "beauty_0_1_0",
+      "parent": "new_chat",
+      "kind": "text",
+      "component": "Text272e9dc0441e",
+      "semantic_role": "text",
+      "bounds": [
+        36.24406332453826,
+        136.0,
+        86.0,
+        23.0
+      ],
+      "text": "New chat",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 25.66754617414248
+    },
+    {
+      "source_id": "thread_1",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "button",
+      "component": "NativeButton939d519a17bf",
+      "semantic_role": "button",
+      "bounds": [
+        24.22,
+        221.5,
+        325.33,
+        48.5
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t03",
+      "native_id": "beauty_0_2_0",
+      "parent": "thread_1",
+      "kind": "text",
+      "component": "Text9914a6d576d0",
+      "semantic_role": "text",
+      "bounds": [
+        36.29253960143076,
+        231.0,
+        302.0,
+        28.0
+      ],
+      "text": "Fix steer queue drop on reconnect",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 25.11599386816556
+    },
+    {
+      "source_id": "thread_2",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "button",
+      "component": "NativeButton939d519a17bf",
+      "semantic_role": "button",
+      "bounds": [
+        26.96,
+        305.5,
+        161.48,
+        37.5
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t04",
+      "native_id": "beauty_0_3_0",
+      "parent": "thread_2",
+      "kind": "text",
+      "component": "Textf877b5725cc3",
+      "semantic_role": "text",
+      "bounds": [
+        36.39267676767677,
+        312.0,
+        145.5,
+        22.5
+      ],
+      "text": "Add session fork",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 23.91919191919192
+    },
+    {
+      "source_id": "thread_3",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "button",
+      "component": "NativeButton939d519a17bf",
+      "semantic_role": "button",
+      "bounds": [
+        28.09,
+        386.77,
+        164.87,
+        40.81
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t05",
+      "native_id": "beauty_0_4_0",
+      "parent": "thread_3",
+      "kind": "text",
+      "component": "Text794302f84e15",
+      "semantic_role": "text",
+      "bounds": [
+        35.81190019193858,
+        395.5,
+        149.5,
+        23.0
+      ],
+      "text": "Review PR #2566",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 24.89571337172105
+    },
+    {
+      "source_id": "thread_4",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "button",
+      "component": "NativeButton939d519a17bf",
+      "semantic_role": "button",
+      "bounds": [
+        28.09,
+        473.5,
+        274.26,
+        42.06
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t06",
+      "native_id": "beauty_0_5_0",
+      "parent": "thread_4",
+      "kind": "text",
+      "component": "Text6c25d3b6d21d",
+      "semantic_role": "text",
+      "bounds": [
+        35.71265560165975,
+        480.5,
+        258.5,
+        28.5
+      ],
+      "text": "Bump octos-core to a6ea8505",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 26.024896265560166
+    },
+    {
+      "source_id": "thread_5",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "button",
+      "component": "NativeButton939d519a17bf",
+      "semantic_role": "button",
+      "bounds": [
+        26.96,
+        557.0,
+        195.32,
+        43.15
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t07",
+      "native_id": "beauty_0_6_0",
+      "parent": "thread_5",
+      "kind": "text",
+      "component": "Text3bcc9ac8d090",
+      "semantic_role": "text",
+      "bounds": [
+        35.864885496183206,
+        564.5,
+        179.5,
+        28.0
+      ],
+      "text": "Why is hydrate slow?",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 25.013740458015267
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "bce0597e02cf588384c7d8a6d922fd50ab638b09806b31740d212c9ea619a2f2",
+  "mapping_basis": "mapped.json"
+}

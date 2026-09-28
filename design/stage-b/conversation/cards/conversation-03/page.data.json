@@ -1,0 +1,165 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "t01": {
+        "component": "Text1b5a227eb6e1",
+        "layout": {
+          "x": 101.26402223345124,
+          "y": 57.5,
+          "w": 262.5,
+          "h": 33.5
+        }
+      },
+      "t02": {
+        "component": "Textf6bc31a165d6",
+        "layout": {
+          "x": 101.80926517571885,
+          "y": 97.0,
+          "w": 233.5,
+          "h": 28.5
+        }
+      },
+      "t03": {
+        "component": "Text19d09028362d",
+        "layout": {
+          "x": 65.8306410903584,
+          "y": 193.0,
+          "w": 123.5,
+          "h": 29.5
+        }
+      },
+      "t04": {
+        "component": "Text368678afc108",
+        "layout": {
+          "x": 23.001009591115597,
+          "y": 256.0,
+          "w": 274.0,
+          "h": 26.0
+        }
+      },
+      "t05": {
+        "component": "Text3d454f01cbee",
+        "layout": {
+          "x": 22.728232189973614,
+          "y": 291.5,
+          "w": 229.5,
+          "h": 21.0
+        }
+      },
+      "t06": {
+        "component": "Textcc777ad92575",
+        "layout": {
+          "x": 22.954545454545453,
+          "y": 348.5,
+          "w": 247.0,
+          "h": 22.0
+        }
+      },
+      "t07": {
+        "component": "Textc4c03c26d7d1",
+        "layout": {
+          "x": 22.77148634984833,
+          "y": 380.5,
+          "w": 275.5,
+          "h": 31.0
+        }
+      },
+      "t08": {
+        "component": "Textad85dae8a383",
+        "layout": {
+          "x": 39.96590909090909,
+          "y": 509.5,
+          "w": 41.0,
+          "h": 18.0
+        }
+      },
+      "t09": {
+        "component": "Text1c2e8a141b54",
+        "layout": {
+          "x": 132.60026385224273,
+          "y": 507.5,
+          "w": 39.5,
+          "h": 20.0
+        }
+      },
+      "t10": {
+        "component": "Text3db09ab5f421",
+        "layout": {
+          "x": 231.79271991911023,
+          "y": 508.0,
+          "w": 120.5,
+          "h": 24.5
+        }
+      },
+      "composer_input": {
+        "component": "Inputbccc3166f8d4",
+        "layout": {
+          "x": 21.32,
+          "y": 593.0,
+          "w": 200.0,
+          "h": 41.0
+        }
+      },
+      "t11": {
+        "component": "Textf5c56934716c",
+        "layout": {
+          "x": 30.370015143866734,
+          "y": 599.5,
+          "w": 163.5,
+          "h": 28.0
+        }
+      },
+      "t12": {
+        "component": "Text039d6d6cd0c6",
+        "layout": {
+          "x": 12.906832298136646,
+          "y": 670.0,
+          "w": 58.1863354037267,
+          "h": 54.0
+        }
+      },
+      "t13": {
+        "component": "Textb7974e131ed2",
+        "layout": {
+          "x": 74.01365015166836,
+          "y": 687.5,
+          "w": 103.0,
+          "h": 22.5
+        }
+      },
+      "t14": {
+        "component": "Text3d786d7a9c29",
+        "layout": {
+          "x": 216.61971830985917,
+          "y": 690.5,
+          "w": 74.91705790297338,
+          "h": 20.0
+        }
+      }
+    },
+    "bindings": [
+      {
+        "id": "composer_input",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "composer_input",
+          "property": "text"
+        }
+      }
+    ]
+  }
+}

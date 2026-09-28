@@ -1,0 +1,78 @@
+{
+  "height": 1552,
+  "observations": [
+    {
+      "bounds": [
+        44.914138163117286,
+        93.54425409056178,
+        309.40505981445307,
+        54.28358459472657
+      ],
+      "confidence": 1,
+      "text": "OctosCode v"
+    },
+    {
+      "bounds": [
+        71.89757109280015,
+        274.0442591172687,
+        174.23818969726562,
+        45.19055175781252
+      ],
+      "confidence": 1,
+      "text": "New chat"
+    },
+    {
+      "bounds": [
+        64.44446259838537,
+        459.00000013804043,
+        618.6666259765625,
+        64.99999999999994
+      ],
+      "confidence": 1,
+      "text": "Fix steer queue drop on reconnect"
+    },
+    {
+      "bounds": [
+        69.92221694085069,
+        626.9999991275388,
+        290.96667480468756,
+        43.00000000000002
+      ],
+      "confidence": 1,
+      "text": "Add session fork"
+    },
+    {
+      "bounds": [
+        72.17777612671702,
+        789.5348835615046,
+        297.7333374023438,
+        49.627906799316364
+      ],
+      "confidence": 1,
+      "text": "Review PR #2556"
+    },
+    {
+      "bounds": [
+        72.17777874866135,
+        962.999999489818,
+        516.522216796875,
+        52.11627960205071
+      ],
+      "confidence": 1,
+      "text": "Bump octos-core to abea8505"
+    },
+    {
+      "bounds": [
+        69.92222588975255,
+        1130.000000391619,
+        358.6333312988282,
+        54.30232429504386
+      ],
+      "confidence": 1,
+      "text": "Why is hydrate slow?"
+    }
+  ],
+  "width": 812,
+  "image_sha256": "021709d23fa93ac7352248edbbdbfab04e5304817caf2e2f989987a69aae17bf",
+  "engine": "Apple Vision VNRecognizeTextRequest accurate, en-US"
+}

@@ -1,0 +1,322 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "021709d23fa93ac7352248edbbdbfab04e5304817caf2e2f989987a69aae17bf",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t01",
+      "expected_text": "OctosCode v",
+      "requested_bounds": [
+        22.46,
+        46.77,
+        154.7,
+        29.31
+      ],
+      "status": "observed",
+      "ocr_text": "OctosCode v",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        24.5,
+        48.5,
+        146.0,
+        22.5
+      ],
+      "ink_color": [
+        0,
+        0,
+        0
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        22.457069081558643,
+        46.77212704528089,
+        154.70252990722653,
+        27.141792297363285
+      ]
+    },
+    {
+      "id": "t02",
+      "expected_text": "New chat",
+      "requested_bounds": [
+        35.948785546400075,
+        137.02212955863436,
+        87.12,
+        24.41
+      ],
+      "status": "observed",
+      "ocr_text": "New chat",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        38.5,
+        138.0,
+        82.0,
+        19.0
+      ],
+      "ink_color": [
+        7,
+        6,
+        6
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        35.948785546400075,
+        137.02212955863436,
+        87.11909484863281,
+        22.59527587890626
+      ]
+    },
+    {
+      "id": "t03",
+      "expected_text": "Fix steer queue drop on reconnect",
+      "requested_bounds": [
+        32.222231299192686,
+        229.50000006902022,
+        309.33,
+        33.0
+      ],
+      "status": "observed",
+      "ocr_text": "Fix steer queue drop on reconnect",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        38.5,
+        233.0,
+        298.0,
+        24.0
+      ],
+      "ink_color": [
+        13,
+        13,
+        14
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        32.222231299192686,
+        229.50000006902022,
+        309.33331298828125,
+        32.49999999999997
+      ]
+    },
+    {
+      "id": "t04",
+      "expected_text": "Add session fork",
+      "requested_bounds": [
+        34.961108470425344,
+        313.4999995637694,
+        145.48,
+        23.22
+      ],
+      "status": "observed",
+      "ocr_text": "Add session fork",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        37.0,
+        314.0,
+        141.5,
+        18.5
+      ],
+      "ink_color": [
+        16,
+        16,
+        16
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        34.961108470425344,
+        313.4999995637694,
+        145.48333740234378,
+        21.50000000000001
+      ]
+    },
+    {
+      "id": "t05",
+      "expected_text": "Review PR #2566",
+      "requested_bounds": [
+        36.08888806335851,
+        394.7674417807523,
+        148.87,
+        26.8
+      ],
+      "status": "observed",
+      "ocr_text": "Review PR #2556",
+      "confidence": 1,
+      "text_similarity": 0.9333333333333333,
+      "ink_bounds": [
+        38.0,
+        397.5,
+        145.5,
+        19.0
+      ],
+      "ink_color": [
+        17,
+        18,
+        18
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        36.08888806335851,
+        394.7674417807523,
+        148.8666687011719,
+        24.813953399658182
+      ]
+    },
+    {
+      "id": "t06",
+      "expected_text": "Bump octos-core to a6ea8505",
+      "requested_bounds": [
+        36.08888937433068,
+        481.499999744909,
+        258.26,
+        28.14
+      ],
+      "status": "observed",
+      "ocr_text": "Bump octos-core to abea8505",
+      "confidence": 1,
+      "text_similarity": 0.9629629629629629,
+      "ink_bounds": [
+        38.0,
+        482.5,
+        254.5,
+        24.5
+      ],
+      "ink_color": [
+        14,
+        14,
+        14
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        36.08888937433068,
+        481.499999744909,
+        258.2611083984375,
+        26.058139801025355
+      ]
+    },
+    {
+      "id": "t07",
+      "expected_text": "Why is hydrate slow?",
+      "requested_bounds": [
+        34.96111294487628,
+        565.0000001958095,
+        179.32,
+        29.33
+      ],
+      "status": "observed",
+      "ocr_text": "Why is hydrate slow?",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        36.5,
+        566.5,
+        175.5,
+        24.0
+      ],
+      "ink_color": [
+        16,
+        16,
+        16
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        34.96111294487628,
+        565.0000001958095,
+        179.3166656494141,
+        27.15116214752193
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "new_chat",
+      "bounds": [
+        27.95,
+        129.02,
+        103.12,
+        38.6
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thread_1",
+      "bounds": [
+        24.22,
+        221.5,
+        325.33,
+        48.5
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thread_2",
+      "bounds": [
+        26.96,
+        305.5,
+        161.48,
+        37.5
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thread_3",
+      "bounds": [
+        28.09,
+        386.77,
+        164.87,
+        40.81
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thread_4",
+      "bounds": [
+        28.09,
+        473.5,
+        274.26,
+        42.06
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thread_5",
+      "bounds": [
+        26.96,
+        557.0,
+        195.32,
+        43.15
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

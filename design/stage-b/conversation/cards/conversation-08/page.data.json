@@ -1,0 +1,120 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "composer_input": {
+        "component": "Inputbccc3166f8d4",
+        "layout": {
+          "x": 22.22,
+          "y": 158.56,
+          "w": 200.0,
+          "h": 46.07
+        }
+      },
+      "t01": {
+        "component": "Text83df3ff13072",
+        "layout": {
+          "x": 31.850973539690465,
+          "y": 165.5,
+          "w": 163.5,
+          "h": 30.0
+        }
+      },
+      "t02": {
+        "component": "Texta654002a6f5a",
+        "layout": {
+          "x": 14.021739130434783,
+          "y": 254.0,
+          "w": 53.95652173913044,
+          "h": 46.0
+        }
+      },
+      "t03": {
+        "component": "Text8d9bb6c4e4e4",
+        "layout": {
+          "x": 78.0005055611729,
+          "y": 265.5,
+          "w": 101.5,
+          "h": 23.0
+        }
+      },
+      "t04": {
+        "component": "Textc2e2836f4b52",
+        "layout": {
+          "x": 215.58406690140845,
+          "y": 268.5,
+          "w": 73.35025430359937,
+          "h": 21.5
+        }
+      },
+      "t05": {
+        "component": "Text109c7ab1b72a",
+        "layout": {
+          "x": 32.007915567282325,
+          "y": 425.5,
+          "w": 209.97671217161866,
+          "h": 27.5
+        }
+      },
+      "t06": {
+        "component": "Textf961f14f188a",
+        "layout": {
+          "x": 31.365069356872635,
+          "y": 506.0,
+          "w": 236.0,
+          "h": 24.0
+        }
+      },
+      "t07": {
+        "component": "Texte77a361e1713",
+        "layout": {
+          "x": 27.15527950310559,
+          "y": 597.5,
+          "w": 27.689440993788818,
+          "h": 28.0
+        }
+      },
+      "t08": {
+        "component": "Text2186a64ff5b3",
+        "layout": {
+          "x": 78.0005055611729,
+          "y": 601.0,
+          "w": 102.0,
+          "h": 23.0
+        }
+      },
+      "t09": {
+        "component": "Text103b0e17e31a",
+        "layout": {
+          "x": 215.58406690140845,
+          "y": 603.0,
+          "w": 74.46136541471049,
+          "h": 21.5
+        }
+      }
+    },
+    "bindings": [
+      {
+        "id": "composer_input",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "composer_input",
+          "property": "text"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "frame_id": 7,
+  "controls": {
+    "undo": {
+      "event": "diff.undo",
+      "source_bounds": [
+        223,
+        78,
+        80,
+        38
+      ],
+      "enabled": true
+    },
+    "review": {
+      "event": "diff.review",
+      "source_bounds": [
+        311,
+        79,
+        73,
+        38
+      ],
+      "enabled": true
+    }
+  },
+  "source": "edited-files"
+}

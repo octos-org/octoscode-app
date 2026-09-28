@@ -1,0 +1,147 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "t01": {
+        "component": "Text3da4d6f2fff3",
+        "layout": {
+          "x": 79.47190656565657,
+          "y": 81.5,
+          "w": 247.0,
+          "h": 27.5
+        }
+      },
+      "t02": {
+        "component": "Textd9dbaf3ab81a",
+        "layout": {
+          "x": 36.80503144654088,
+          "y": 153.5,
+          "w": 259.0,
+          "h": 29.5
+        }
+      },
+      "t03": {
+        "component": "Text43aa78ee2426",
+        "layout": {
+          "x": 36.44123658661216,
+          "y": 192.5,
+          "w": 120.5,
+          "h": 29.5
+        }
+      },
+      "t04": {
+        "component": "Text84ade24e85ae",
+        "layout": {
+          "x": 80.773851590106,
+          "y": 257.5,
+          "w": 174.5,
+          "h": 28.5
+        }
+      },
+      "t05": {
+        "component": "Text2e2e7a8059c3",
+        "layout": {
+          "x": 79.80430107526881,
+          "y": 292.0,
+          "w": 134.5,
+          "h": 27.0
+        }
+      },
+      "t06": {
+        "component": "Text4217c9f66dc7",
+        "layout": {
+          "x": 80.60438413361169,
+          "y": 352.5,
+          "w": 134.5,
+          "h": 29.5
+        }
+      },
+      "t07": {
+        "component": "Texta5d0834ca7a1",
+        "layout": {
+          "x": 81.36869009584665,
+          "y": 414.5,
+          "w": 123.5,
+          "h": 23.0
+        }
+      },
+      "note_input": {
+        "component": "Inputbccc3166f8d4",
+        "layout": {
+          "x": 31.26,
+          "y": 485.14,
+          "w": 200.0,
+          "h": 40.33
+        }
+      },
+      "t08": {
+        "component": "Text9127233a0664",
+        "layout": {
+          "x": 40.8311345646438,
+          "y": 492.5,
+          "w": 92.5,
+          "h": 23.5
+        }
+      },
+      "submit_answer": {
+        "component": "NativeButton939d519a17bf",
+        "layout": {
+          "x": 129.55,
+          "y": 582.77,
+          "w": 151.42,
+          "h": 40.19
+        }
+      },
+      "t09": {
+        "component": "Text1c4f3701b4d7",
+        "layout": {
+          "x": 134.53578274760383,
+          "y": 587.5,
+          "w": 141.5,
+          "h": 30.5
+        }
+      },
+      "skip": {
+        "component": "NativeButton939d519a17bf",
+        "layout": {
+          "x": 172.44,
+          "y": 665.36,
+          "w": 58.86,
+          "h": 45.33
+        }
+      },
+      "t10": {
+        "component": "Text4788a5d08fa8",
+        "layout": {
+          "x": 180.3995912110373,
+          "y": 672.5,
+          "w": 43.0,
+          "h": 31.0
+        }
+      }
+    },
+    "bindings": [
+      {
+        "id": "note_input",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "note_input",
+          "property": "text"
+        }
+      }
+    ]
+  }
+}

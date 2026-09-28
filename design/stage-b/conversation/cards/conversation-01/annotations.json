@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "021709d23fa93ac7352248edbbdbfab04e5304817caf2e2f989987a69aae17bf",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      14.0,
+      204.0,
+      379.0,
+      78.0
+    ],
+    [
+      16.0,
+      109.0,
+      374.0,
+      76.0
+    ],
+    [
+      14.0,
+      107.0,
+      379.0,
+      81.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "new_chat",
+      "bounds": [
+        27.95,
+        129.02,
+        103.12,
+        38.6
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thread_1",
+      "bounds": [
+        24.22,
+        221.5,
+        325.33,
+        48.5
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thread_2",
+      "bounds": [
+        26.96,
+        305.5,
+        161.48,
+        37.5
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thread_3",
+      "bounds": [
+        28.09,
+        386.77,
+        164.87,
+        40.81
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thread_4",
+      "bounds": [
+        28.09,
+        473.5,
+        274.26,
+        42.06
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thread_5",
+      "bounds": [
+        26.96,
+        557.0,
+        195.32,
+        43.15
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ]
+}

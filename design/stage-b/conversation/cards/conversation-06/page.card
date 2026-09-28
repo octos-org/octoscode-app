@@ -1,0 +1,77 @@
+# ledger conversation-06@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t01_text { class: user-copy, en: "Octos needs a decision" }
+copy t02_text { class: user-copy, en: "Where should queued steers" }
+copy t03_text { class: user-copy, en: "be persisted?" }
+copy t04_text { class: user-copy, en: "In the session ledger" }
+copy t05_text { class: user-copy, en: "(recommended)" }
+copy t06_text { class: user-copy, en: "In memory only" }
+copy t07_text { class: user-copy, en: "Ask each time" }
+copy note_input_placeholder { class: user-copy, en: "Add a note" }
+copy t08_text { class: user-copy, en: "Add a note" }
+copy t09_text { class: user-copy, en: "Submit answer" }
+copy t10_text { class: user-copy, en: "Skip" }
+state note_input_enabled { shape: bool, initial: true }
+state submit_answer_enabled { shape: bool, initial: true }
+state skip_enabled { shape: bool, initial: true }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Text3da4d6f2fff3(instance: text, text: text) {
+  view Kit(component: "Text3da4d6f2fff3", instance: instance, text: text)
+}
+component Textd9dbaf3ab81a(instance: text, text: text) {
+  view Kit(component: "Textd9dbaf3ab81a", instance: instance, text: text)
+}
+component Text43aa78ee2426(instance: text, text: text) {
+  view Kit(component: "Text43aa78ee2426", instance: instance, text: text)
+}
+component Text84ade24e85ae(instance: text, text: text) {
+  view Kit(component: "Text84ade24e85ae", instance: instance, text: text)
+}
+component Text2e2e7a8059c3(instance: text, text: text) {
+  view Kit(component: "Text2e2e7a8059c3", instance: instance, text: text)
+}
+component Text4217c9f66dc7(instance: text, text: text) {
+  view Kit(component: "Text4217c9f66dc7", instance: instance, text: text)
+}
+component Texta5d0834ca7a1(instance: text, text: text) {
+  view Kit(component: "Texta5d0834ca7a1", instance: instance, text: text)
+}
+component Inputbccc3166f8d4(instance: text, enabled: bool, placeholder: text) {
+  view Kit(component: "Inputbccc3166f8d4", instance: instance, enabled: enabled, placeholder: placeholder) { slot }
+}
+component Text9127233a0664(instance: text, text: text) {
+  view Kit(component: "Text9127233a0664", instance: instance, text: text)
+}
+component NativeButton939d519a17bf(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton939d519a17bf", instance: instance, enabled: enabled) { slot }
+}
+component Text1c4f3701b4d7(instance: text, text: text) {
+  view Kit(component: "Text1c4f3701b4d7", instance: instance, text: text)
+}
+component Text4788a5d08fa8(instance: text, text: text) {
+  view Kit(component: "Text4788a5d08fa8", instance: instance, text: text)
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Text3da4d6f2fff3(instance: "t01", text: copy.t01_text)
+  Textd9dbaf3ab81a(instance: "t02", text: copy.t02_text)
+  Text43aa78ee2426(instance: "t03", text: copy.t03_text)
+  Text84ade24e85ae(instance: "t04", text: copy.t04_text)
+  Text2e2e7a8059c3(instance: "t05", text: copy.t05_text)
+  Text4217c9f66dc7(instance: "t06", text: copy.t06_text)
+  Texta5d0834ca7a1(instance: "t07", text: copy.t07_text)
+  Inputbccc3166f8d4(instance: "note_input", enabled: note_input_enabled, placeholder: copy.note_input_placeholder) {
+    Text9127233a0664(instance: "t08", text: copy.t08_text)
+  }
+  NativeButton939d519a17bf(instance: "submit_answer", enabled: submit_answer_enabled) {
+    Text1c4f3701b4d7(instance: "t09", text: copy.t09_text)
+  }
+  NativeButton939d519a17bf(instance: "skip", enabled: skip_enabled) {
+    Text4788a5d08fa8(instance: "t10", text: copy.t10_text)
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "frame_id": 8,
+  "controls": {
+    "composer_input": {
+      "event": "composer.draft",
+      "source_bounds": [
+        22,
+        158,
+        200,
+        46
+      ],
+      "enabled": true
+    }
+  },
+  "source": "composer-states"
+}
