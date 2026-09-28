@@ -139,10 +139,10 @@ No `[patch]` and no `makepad`/octos pins are required in the consumer (verified 
 dependencies also work but require a sibling checkout and break reproducibility; copy-with-attribution
 duplicates code ADR 0001 says lives in one repository. Use **path** only for a local dev loop.
 
-Caveat: pin to a rev that is **pushed** to the public remote. The ref clone's HEAD `6e9bfd40` is
-currently ahead of public `refs/heads/main` (`git ls-remote … main` → `405139f8…`), but the object is
-fetchable by exact rev (proved: the git probe fetched it), so pin-by-rev is safe; `branch = "main"`
-would not be.
+Caveat: pin to a rev that is **reachable from the public remote**. (Outer-loop correction, 2026-09-28: the ref
+clone's HEAD `6e9bfd40` is an **ancestor** of public `main` `405139f8`, 7 commits behind, not ahead of it. `main`
+simply advanced after the clone. `git merge-base --is-ancestor 6e9bfd4 origin/main` → true.) Pin by `rev`, never
+`branch = "main"`, and bump the rev deliberately.
 
 ### Minimal working block (verbatim, from `tmp/probe/gitprobe/Cargo.toml`)
 
