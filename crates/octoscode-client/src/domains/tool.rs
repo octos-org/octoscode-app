@@ -1,14 +1,19 @@
-//! `tool/*` — the tool inventory and tool lifecycle notifications.
+//! `tool/*` — the tool inventory, MCP status, and tool lifecycle notifications.
 //!
-//! Implemented in this card: `tool/status/list` (an AppUI extension method)
-//! and the `tool/started|progress|completed` notifications (recorded on the
-//! store's seen-counter; their full timeline treatment is the fan-out lane's).
+//! [F4] adds `mcp/status/list` (an AppUI **extension** method: no octos-core
+//! type, so the params/result are documented serde structs). Server source:
+//! octos-cli `api/ui_protocol_transport.rs:273` (const), `:19399` (dispatch),
+//! `:11152` (`mcp_status_list_result` → `coding_tool_contract.rs:641`
+//! `mcp_status_list_payload`). Web call site:
+//! `src-web/packages/client/src/inventory.ts:182` (`{ session_id, profile_id,
+//! include_disabled: true }`) with the row shape `RuntimeMcp` (`inventory.ts:30`).
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
 
 use octos_core::app_ui::AppUiBackendEvent as UiNotification;
 use octos_core::ui_protocol::methods;
+use octoscode_store::domains::tool::{McpServer, McpStatus, McpSummary};
 use octoscode_store::Store;
 
 use crate::method::Method;
@@ -59,6 +64,61 @@ impl Method for ToolStatusList {
     const NAME: &'static str = "tool/status/list";
     type Params = ToolStatusList;
     type Result = ToolStatusListResult;
+}
+
+/// `mcp/status/list` — the AppUI extension (`packages/client/src/inventory-methods.ts:4`).
+/// Params mirror the web's `{session_id, profile_id, include_disabled: true}`
+/// (`inventory.ts:184`).
+#[derive(Debug, Clone, Serialize)]
+pub struct McpStatusListParams {
+    pub session_id: String,
+    pub profile_id: String,
+    pub include_disabled: bool,
+}
+
+impl Default for McpStatusListParams {
+    fn default() -> Self {
+        Self {
+            session_id: String::new(),
+            profile_id: String::new(),
+            include_disabled: true,
+        }
+    }
+}
+
+/// The `mcp/status/list` result (`RuntimeMcp`, `inventory.ts:30`). Reuses the
+/// store's projected types so a lane reads one shape everywhere.
+#[derive(Debug, Clone, Deserialize)]
+pub struct McpStatusListResult {
+    #[serde(default)]
+    pub session_id: String,
+    #[serde(default)]
+    pub profile_id: String,
+    #[serde(default)]
+    pub servers: Vec<McpServer>,
+    #[serde(default)]
+    pub summary: McpSummary,
+}
+
+impl McpStatusListResult {
+    /// Fold the result into the store's tool domain.
+    pub fn into_status(self) -> McpStatus {
+        McpStatus {
+            session_id: self.session_id,
+            profile_id: self.profile_id,
+            servers: self.servers,
+            summary: self.summary,
+        }
+    }
+}
+
+/// `mcp/status/list` — the method (params/result above).
+pub struct McpStatusList;
+
+impl Method for McpStatusList {
+    const NAME: &'static str = "mcp/status/list";
+    type Params = McpStatusListParams;
+    type Result = McpStatusListResult;
 }
 
 /// `tool/started` — a tool call began.
