@@ -3,6 +3,10 @@
 //! Implemented in this card: `session/list`. `session/open` stays on the
 //! transport's typed `OutboundCommand::OpenSession` (it carries the replay
 //! cursor bracket), so it is deliberately NOT a [`Method`] here.
+//!
+//! **The new store shape (card #10):** the handler writes through its own
+//! domain (`store.domains.session`); the store's flat convenience methods
+//! ([`Store::set_active`]) remain for callers that predate the split.
 use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
@@ -87,7 +91,13 @@ impl NotificationHandler for SessionOpenedHandler {
     fn handle(&self, notification: &UiNotification) {
         if let UiNotification::SessionOpened(opened) = notification {
             self.store.note_seen(Self::METHOD);
-            self.store.set_active(Some(opened.session_id.0.clone()));
+            self.store.domains.session.set_active(Some(opened.session_id.0.clone()));
+            self.store.domains.profile.set_current(
+                opened
+                    .active_profile_id
+                    .clone()
+                    .unwrap_or_else(|| opened.session_id.0.clone()),
+            );
         }
     }
 }

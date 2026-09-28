@@ -311,15 +311,19 @@ index 0000000..7e05038
 +pub fn register(_reg: &mut Registry, _store: Arc<Store>) {}
 diff --git a/apps/octoscode/client/src/domains/session.rs b/apps/octoscode/client/src/domains/session.rs
 new file mode 100644
-index 0000000..2a3a0a8
+index 0000000..91f3d94
 --- /dev/null
 +++ b/apps/octoscode/client/src/domains/session.rs
-@@ -0,0 +1,98 @@
+@@ -0,0 +1,108 @@
 +//! `session/*` — the session list, open/close, and session-scoped state.
 +//!
 +//! Implemented in this card: `session/list`. `session/open` stays on the
 +//! transport's typed `OutboundCommand::OpenSession` (it carries the replay
 +//! cursor bracket), so it is deliberately NOT a [`Method`] here.
++//!
++//! **The new store shape (card #10):** the handler writes through its own
++//! domain (`store.domains.session`); the store's flat convenience methods
++//! ([`Store::set_active`]) remain for callers that predate the split.
 +use std::sync::Arc;
 +
 +use serde::{Deserialize, Serialize};
@@ -404,7 +408,13 @@ index 0000000..2a3a0a8
 +    fn handle(&self, notification: &UiNotification) {
 +        if let UiNotification::SessionOpened(opened) = notification {
 +            self.store.note_seen(Self::METHOD);
-+            self.store.set_active(Some(opened.session_id.0.clone()));
++            self.store.domains.session.set_active(Some(opened.session_id.0.clone()));
++            self.store.domains.profile.set_current(
++                opened
++                    .active_profile_id
++                    .clone()
++                    .unwrap_or_else(|| opened.session_id.0.clone()),
++            );
 +        }
 +    }
 +}
@@ -577,10 +587,10 @@ index 0000000..6b4b66b
 +}
 diff --git a/apps/octoscode/client/src/domains/turn.rs b/apps/octoscode/client/src/domains/turn.rs
 new file mode 100644
-index 0000000..c44c73a
+index 0000000..e14cd52
 --- /dev/null
 +++ b/apps/octoscode/client/src/domains/turn.rs
-@@ -0,0 +1,108 @@
+@@ -0,0 +1,124 @@
 +//! `turn/*` and the streaming text notifications.
 +//!
 +//! Implemented in this card: the notifications the store needs now —
@@ -588,11 +598,16 @@ index 0000000..c44c73a
 +//! request methods (`turn/start`, `turn/steer`, `turn/interrupt`,
 +//! `turn/state/get`) stay on the transport's typed commands for now
 +//! (`StartTurn`/`InterruptTurn`), and are listed here for the fan-out lane.
++//!
++//! **The new store shape (card #10):** a handler writes through its own
++//! domain (`store.domains.turn`) and appends to the transcript with an
++//! [`EntryKind`] tag — never a shared enum. `message/delta` uses
++//! `append_delta`, which folds streamed text into ONE assistant entry.
 +use std::sync::Arc;
 +
 +use octos_core::app_ui::AppUiBackendEvent as UiNotification;
 +use octos_core::ui_protocol::methods;
-+use octoscode_store::{Store, TimelineEntry};
++use octoscode_store::{EntryKind, Store};
 +
 +use crate::registry::{NotificationHandler, Registry};
 +
@@ -607,9 +622,13 @@ index 0000000..c44c73a
 +        if let UiNotification::TurnStarted(started) = notification {
 +            self.store.note_seen(Self::METHOD);
 +            let session = started.session_id.0.clone();
-+            self.store.push_timeline(
++            let turn_id = started.turn_id.0.to_string();
++            self.store.domains.turn.started(&turn_id);
++            self.store.domains.session.timeline.append(
 +                &session,
-+                TimelineEntry::TurnStarted { turn_id: started.turn_id.0.to_string() },
++                Some(turn_id),
++                EntryKind::ASSISTANT_TEXT,
++                String::new(),
 +            );
 +        }
 +    }
@@ -626,10 +645,12 @@ index 0000000..c44c73a
 +        if let UiNotification::TurnCompleted(completed) = notification {
 +            self.store.note_seen(Self::METHOD);
 +            let session = completed.session_id.0.clone();
-+            self.store.push_timeline(
-+                &session,
-+                TimelineEntry::TurnEnded { turn_id: completed.turn_id.0.to_string(), error: None },
-+            );
++            let turn_id = completed.turn_id.0.to_string();
++            self.store.domains.turn.ended(&turn_id);
++            // A turn boundary closes the assistant entry it belongs to, so
++            // later deltas start a new block instead of appending to a
++            // finished one.
++            self.store.domains.session.timeline.close_turn(&session, &turn_id);
 +        }
 +    }
 +}
@@ -645,12 +666,16 @@ index 0000000..c44c73a
 +        if let UiNotification::TurnError(error) = notification {
 +            self.store.note_seen(Self::METHOD);
 +            let session = error.session_id.0.clone();
-+            self.store.push_timeline(
++            let turn_id = error.turn_id.0.to_string();
++            self.store.domains.turn.ended(&turn_id);
++            self.store.domains.session.timeline.close_turn(&session, &turn_id);
++            // A readable system notice: a deterministic kind, the error text.
++            self.store.domains.session.timeline.append_data(
 +                &session,
-+                TimelineEntry::TurnEnded {
-+                    turn_id: error.turn_id.0.to_string(),
-+                    error: Some(format!("{}: {}", error.code, error.message)),
-+                },
++                Some(turn_id),
++                EntryKind::SYSTEM_NOTICE,
++                format!("{}: {}", error.code, error.message),
++                serde_json::json!({"code": error.code, "message": error.message}),
 +            );
 +        }
 +    }
@@ -667,12 +692,13 @@ index 0000000..c44c73a
 +        if let UiNotification::MessageDelta(delta) = notification {
 +            self.store.note_seen(Self::METHOD);
 +            let session = delta.session_id.0.clone();
-+            self.store.push_timeline(
++            let turn_id = delta.turn_id.0.to_string();
++            // Folds into the open assistant entry for this turn (or starts one).
++            self.store.domains.session.timeline.append_delta(
 +                &session,
-+                TimelineEntry::TextDelta {
-+                    turn_id: delta.turn_id.0.to_string(),
-+                    text: delta.text.clone(),
-+                },
++                Some(&turn_id),
++                EntryKind::ASSISTANT_TEXT,
++                &delta.text,
 +            );
 +        }
 +    }
@@ -949,10 +975,10 @@ index 0000000..613ea93
 +url = "2"
 diff --git a/apps/octoscode/module/src/bindings.rs b/apps/octoscode/module/src/bindings.rs
 new file mode 100644
-index 0000000..52e9017
+index 0000000..00a9316
 --- /dev/null
 +++ b/apps/octoscode/module/src/bindings.rs
-@@ -0,0 +1,60 @@
+@@ -0,0 +1,146 @@
 +//! The L0 binding table: the ONLY door between store data and cards.
 +//!
 +//! **Rule (8.8 condition 2):** cards never see Rust types. A card asks for a
@@ -1012,6 +1038,92 @@ index 0000000..52e9017
 +/// `session.refresh`; see `lib.rs`.)
 +pub fn is_action(id: &str) -> bool {
 +    ACTIONS.iter().any(|(a, _)| *a == id)
++}
++
++#[cfg(test)]
++mod tests {
++    //! Bindings from a store fixture: no UI, no network, no transport —
++    //! the binding table is pure, so it is testable in isolation.
++    use super::*;
++    use octoscode_store::Session;
++
++    fn fixture() -> Arc<Store> {
++        let store = Arc::new(Store::new());
++        store.set_connection("Live".into(), true);
++        store.set_capabilities(vec!["auxiliary.rest_to_ws.v1".into(), "session.hydrate.v1".into()]);
++        store.set_sessions(vec![
++            Session {
++                id: "octoscode:main".into(),
++                title: Some("Main".into()),
++                message_count: 3,
++                updated_at: None,
++                last_prompt: None,
++                active_turn: true,
++            },
++            Session {
++                id: "octoscode:other".into(),
++                title: None,
++                message_count: 0,
++                updated_at: None,
++                last_prompt: None,
++                active_turn: false,
++            },
++        ]);
++        store.set_active(Some("octoscode:main".into()));
++        store
++    }
++
++    #[test]
++    fn every_declared_binding_resolves() {
++        let store = fixture();
++        for (id, _desc) in BINDINGS {
++            assert!(
++                query(&store, id).is_some(),
++                "declared binding {id:?} has no arm in query()"
++            );
++        }
++    }
++
++    #[test]
++    fn undefined_binding_is_none_not_a_panic() {
++        let store = fixture();
++        assert!(query(&store, "not.a.binding").is_none());
++        assert!(query(&store, "").is_none());
++    }
++
++    #[test]
++    fn connection_and_count_bindings_are_typed_json() {
++        let store = fixture();
++        assert_eq!(query(&store, "conn.state"), Some(json!("Live")));
++        assert_eq!(query(&store, "conn.live"), Some(json!(true)));
++        assert_eq!(query(&store, "session.count"), Some(json!(2)));
++        assert_eq!(query(&store, "caps.count"), Some(json!(2)));
++        assert_eq!(
++            query(&store, "summary"),
++            Some(json!("conn: Live   sessions: 2"))
++        );
++    }
++
++    #[test]
++    fn session_list_binding_is_a_json_array_of_rows() {
++        let store = fixture();
++        let v = query(&store, "session.list").expect("declared");
++        let rows = v.as_array().expect("an array, never a Rust type");
++        assert_eq!(rows.len(), 2);
++        assert_eq!(rows[0]["id"], "octoscode:main");
++        assert_eq!(rows[0]["message_count"], 3);
++        assert_eq!(rows[0]["active_turn"], true);
++        // A row with no title serializes as null, not a missing key.
++        assert_eq!(rows[1]["title"], serde_json::Value::Null);
++
++        assert_eq!(query(&store, "session.active"), Some(json!("octoscode:main")));
++    }
++
++    #[test]
++    fn declared_actions_are_recognized_and_unknown_ones_are_not() {
++        assert!(is_action("session.refresh"));
++        assert!(!is_action("session.delete"));
++    }
 +}
 diff --git a/apps/octoscode/module/src/lib.rs b/apps/octoscode/module/src/lib.rs
 new file mode 100644
@@ -1316,31 +1428,494 @@ index 0000000..dcc7bcf
 +serde = { workspace = true }
 +serde_json = { workspace = true }
 +log = { workspace = true }
-diff --git a/apps/octoscode/store/src/lib.rs b/apps/octoscode/store/src/lib.rs
+diff --git a/apps/octoscode/store/src/connection.rs b/apps/octoscode/store/src/connection.rs
 new file mode 100644
-index 0000000..50e123d
+index 0000000..bbf1af1
 --- /dev/null
-+++ b/apps/octoscode/store/src/lib.rs
-@@ -0,0 +1,191 @@
-+//! octoscode-store — the session store every later lane writes into.
++++ b/apps/octoscode/store/src/connection.rs
+@@ -0,0 +1,40 @@
++//! Connection state — the transport's `ConnectionState`, for the UI.
 +//!
-+//! **The public API here is ours.** It wraps `octos-app-store`'s session
-+//! concepts behind octoscode's own types so a fan-out lane can add state
-+//! without reaching into a dependency's internals. The store is a plain
-+//! struct with interior mutability ([`Store`]), shared as an `Arc` between
-+//! the UI thread (which renders from it) and the notification handlers (which
-+//! mutate it). Notifications reach it **only through the registry**
-+//! ([`crate::domains`]): no other code path writes to it.
++//! Not a protocol domain: every domain reads it, none owns it. Kept at the
++//! store root beside [`crate::diagnostics`] for that reason.
++use std::sync::Mutex;
++
++/// The connection, as display text plus a liveness flag.
++///
++/// The display string is whatever the caller passes (the module formats
++/// `ConnectionState` with `{:?}`, so `"Live"`, `"Reconnecting { attempt: 2 }"`).
++/// Keeping it a string means this crate never depends on the transport's enum.
++#[derive(Debug, Default)]
++pub struct ConnectionState {
++    inner: Mutex<Inner>,
++}
++
++#[derive(Debug, Default)]
++struct Inner {
++    display: String,
++    live: bool,
++}
++
++impl ConnectionState {
++    /// Record a state transition. `live` is true only for `ConnectionState::Live`.
++    pub fn set(&self, display: String, live: bool) {
++        let mut i = self.inner.lock().unwrap();
++        i.display = display;
++        i.live = live;
++    }
++
++    /// The state as display text (e.g. `"Live"`).
++    pub fn display(&self) -> String {
++        self.inner.lock().unwrap().display.clone()
++    }
++
++    /// Whether the connection is `Live`.
++    pub fn is_live(&self) -> bool {
++        self.inner.lock().unwrap().live
++    }
++}
+diff --git a/apps/octoscode/store/src/diagnostics.rs b/apps/octoscode/store/src/diagnostics.rs
+new file mode 100644
+index 0000000..efe6488
+--- /dev/null
++++ b/apps/octoscode/store/src/diagnostics.rs
+@@ -0,0 +1,37 @@
++//! Diagnostics — what the store has seen, by notification method.
 +//!
-+//! ## What it holds
-+//! - **connection state** — the transport's `ConnectionState`, as a display
-+//!   string (`"Live"`, `"Reconnecting{attempt:2}"`) plus a boolean "live".
-+//! - **sessions** — the `session/list` rows, and which one is active.
-+//! - **per-session timeline** — append-only entries (a `message/delta`
-+//!   appends text; a turn boundary appends a marker).
-+//! - **capabilities** — the accepted capability ids from the handshake.
++//! A cheap, shared activity counter: every domain's handler calls
++//! [`Diagnostics::note`] with its method name, so a tile or a test can ask
++//! "did anything arrive, and of what kind?" without each domain exposing its
++//! own counter. Not a protocol domain, so it lives at the store root.
 +use std::collections::HashMap;
 +use std::sync::Mutex;
++
++#[derive(Debug, Default)]
++pub struct Diagnostics {
++    seen: Mutex<HashMap<String, usize>>,
++}
++
++impl Diagnostics {
++    /// Record one arrival of `method`.
++    pub fn note(&self, method: &str) {
++        *self.seen.lock().unwrap().entry(method.to_owned()).or_insert(0) += 1;
++    }
++
++    /// How many times `method` has arrived.
++    pub fn count(&self, method: &str) -> usize {
++        self.seen.lock().unwrap().get(method).copied().unwrap_or(0)
++    }
++
++    /// The total across every method.
++    pub fn total(&self) -> usize {
++        self.seen.lock().unwrap().values().sum()
++    }
++
++    /// Every method seen so far, sorted (for a test or a debug tile).
++    pub fn methods(&self) -> Vec<String> {
++        let mut v: Vec<String> = self.seen.lock().unwrap().keys().cloned().collect();
++        v.sort_unstable();
++        v
++    }
++}
+diff --git a/apps/octoscode/store/src/domains/approval.rs b/apps/octoscode/store/src/domains/approval.rs
+new file mode 100644
+index 0000000..efdd3cd
+--- /dev/null
++++ b/apps/octoscode/store/src/domains/approval.rs
+@@ -0,0 +1,46 @@
++//! `approval` state: the pending approval the person must decide.
++//!
++//! Stub for the fan-out lane. The shape: an id, the tool/target it is about,
++//! and whether a decision has been recorded. Its lane fills this in.
++use std::sync::Mutex;
++
++/// One pending approval.
++#[derive(Debug, Clone, PartialEq, Eq)]
++pub struct PendingApproval {
++    pub id: String,
++    pub target: Option<String>,
++    pub decided: bool,
++}
++
++/// The approval domain.
++#[derive(Debug, Default)]
++pub struct Approvals {
++    inner: Mutex<Inner>,
++}
++
++#[derive(Debug, Default)]
++struct Inner {
++    pending: Vec<PendingApproval>,
++}
++
++impl Approvals {
++    pub fn push(&self, approval: PendingApproval) {
++        self.inner.lock().unwrap().pending.push(approval);
++    }
++
++    pub fn pending(&self) -> Vec<PendingApproval> {
++        self.inner.lock().unwrap().pending.clone()
++    }
++
++    /// Mark one decided by id; returns whether it was found.
++    pub fn decide(&self, id: &str) -> bool {
++        let mut i = self.inner.lock().unwrap();
++        match i.pending.iter_mut().find(|a| a.id == id) {
++            Some(a) => {
++                a.decided = true;
++                true
++            }
++            None => false,
++        }
++    }
++}
+diff --git a/apps/octoscode/store/src/domains/autonomy.rs b/apps/octoscode/store/src/domains/autonomy.rs
+new file mode 100644
+index 0000000..d2966c3
+--- /dev/null
++++ b/apps/octoscode/store/src/domains/autonomy.rs
+@@ -0,0 +1,51 @@
++//! `autonomy` state: sub-agents, loops, monitors, goals (M15).
++//!
++//! Stub for the fan-out lane. All of `agent/*`, `loop/*`, `monitor/*`,
++//! `session/goal/*` and `background/activity` land here.
++use std::collections::HashMap;
++use std::sync::Mutex;
++
++/// One autonomy entity (a sub-agent, a loop, a monitor, a goal), keyed by id.
++#[derive(Debug, Clone, PartialEq, Eq)]
++pub struct AutonomyEntity {
++    pub id: String,
++    pub kind: String,
++    pub detail: Option<String>,
++}
++
++/// The autonomy domain.
++#[derive(Debug, Default)]
++pub struct Autonomy {
++    inner: Mutex<Inner>,
++}
++
++#[derive(Debug, Default)]
++struct Inner {
++    entities: HashMap<(String, String), AutonomyEntity>,
++}
++
++impl Autonomy {
++    pub fn upsert(&self, entity: AutonomyEntity) {
++        self.inner
++            .lock()
++            .unwrap()
++            .entities
++            .insert((entity.kind.clone(), entity.id.clone()), entity);
++    }
++
++    pub fn of_kind(&self, kind: &str) -> Vec<AutonomyEntity> {
++        let i = self.inner.lock().unwrap();
++        let mut v: Vec<AutonomyEntity> = i
++            .entities
++            .values()
++            .filter(|e| e.kind == kind)
++            .cloned()
++            .collect();
++        v.sort_by(|a, b| a.id.cmp(&b.id));
++        v
++    }
++
++    pub fn count(&self) -> usize {
++        self.inner.lock().unwrap().entities.len()
++    }
++}
+diff --git a/apps/octoscode/store/src/domains/config.rs b/apps/octoscode/store/src/domains/config.rs
+new file mode 100644
+index 0000000..c43b982
+--- /dev/null
++++ b/apps/octoscode/store/src/domains/config.rs
+@@ -0,0 +1,43 @@
++//! `config` state: the server's advertised capabilities.
++//!
++//! Implemented in this card: the capability set from `config/capabilities/list`
++//! (and the handshake). The other config singletons (router, cron, memory,
++//! snapshot, …) are the fan-out lane's; they add fields here.
++use std::sync::Mutex;
++
++/// The config domain.
++#[derive(Debug, Default)]
++pub struct Config {
++    inner: Mutex<Inner>,
++}
++
++#[derive(Debug, Default)]
++struct Inner {
++    capabilities: Vec<String>,
++}
++
++impl Config {
++    /// Replace the advertised capability list.
++    pub fn set_capabilities(&self, capabilities: Vec<String>) {
++        self.inner.lock().unwrap().capabilities = capabilities;
++    }
++
++    pub fn capabilities(&self) -> Vec<String> {
++        self.inner.lock().unwrap().capabilities.clone()
++    }
++
++    pub fn count(&self) -> usize {
++        self.inner.lock().unwrap().capabilities.len()
++    }
++
++    /// Whether a capability id is advertised (case-insensitive, trimmed).
++    pub fn has_capability(&self, id: &str) -> bool {
++        let want = id.trim().to_ascii_lowercase();
++        self.inner
++            .lock()
++            .unwrap()
++            .capabilities
++            .iter()
++            .any(|c| c.trim().to_ascii_lowercase() == want)
++    }
++}
+diff --git a/apps/octoscode/store/src/domains/media.rs b/apps/octoscode/store/src/domains/media.rs
+new file mode 100644
+index 0000000..b84e935
+--- /dev/null
++++ b/apps/octoscode/store/src/domains/media.rs
+@@ -0,0 +1,43 @@
++//! `media` state: generated images, voice, content gallery, attachments.
++//!
++//! Stub for the fan-out lane (`visual/*`, `voice/*`, `content/*`,
++//! `file/attached`, `smart_home/*`).
++use std::collections::HashMap;
++use std::sync::Mutex;
++
++/// One media item (an image, a voice chunk reference, a gallery entry).
++#[derive(Debug, Clone, PartialEq, Eq)]
++pub struct MediaItem {
++    pub id: String,
++    pub kind: String,
++    /// A URL or a server path; the UI decides how to fetch it.
++    pub reference: Option<String>,
++}
++
++/// The media domain.
++#[derive(Debug, Default)]
++pub struct Media {
++    inner: Mutex<Inner>,
++}
++
++#[derive(Debug, Default)]
++struct Inner {
++    items: HashMap<String, MediaItem>,
++}
++
++impl Media {
++    pub fn upsert(&self, item: MediaItem) {
++        self.inner.lock().unwrap().items.insert(item.id.clone(), item);
++    }
++
++    pub fn list(&self) -> Vec<MediaItem> {
++        let i = self.inner.lock().unwrap();
++        let mut v: Vec<MediaItem> = i.items.values().cloned().collect();
++        v.sort_by(|a, b| a.id.cmp(&b.id));
++        v
++    }
++
++    pub fn count(&self) -> usize {
++        self.inner.lock().unwrap().items.len()
++    }
++}
+diff --git a/apps/octoscode/store/src/domains/mod.rs b/apps/octoscode/store/src/domains/mod.rs
+new file mode 100644
+index 0000000..0e0b8b2
+--- /dev/null
++++ b/apps/octoscode/store/src/domains/mod.rs
+@@ -0,0 +1,43 @@
++//! The store's state, one file per protocol domain — the same split the client
++//! uses, so a fan-out lane owns **one file** here too.
++//!
++//! [`State::new`] is the ONE place every domain is constructed. A lane adds
++//! its domain with one `pub mod` line above and one field in [`State`].
++pub mod approval;
++pub mod autonomy;
++pub mod config;
++pub mod media;
++pub mod peer;
++pub mod profile;
++pub mod review;
++pub mod session;
++pub mod task;
++pub mod tool;
++pub mod turn;
++
++/// Every domain's state, held together by [`crate::Store`].
++///
++/// Constructed once, in [`State::new`]. Each field is independently locked, so
++/// a `message/delta` fold (session timeline) never blocks a tool inventory
++/// write.
++#[derive(Debug, Default)]
++pub struct State {
++    pub session: session::Sessions,
++    pub turn: turn::Turns,
++    pub tool: tool::Tools,
++    pub approval: approval::Approvals,
++    pub review: review::Reviews,
++    pub task: task::Tasks,
++    pub autonomy: autonomy::Autonomy,
++    pub peer: peer::Peers,
++    pub profile: profile::Profiles,
++    pub media: media::Media,
++    pub config: config::Config,
++}
++
++impl State {
++    /// Construct every domain. The single construction site (card #10 step 1).
++    pub fn new() -> Self {
++        Self::default()
++    }
++}
+diff --git a/apps/octoscode/store/src/domains/peer.rs b/apps/octoscode/store/src/domains/peer.rs
+new file mode 100644
+index 0000000..463d1c0
+--- /dev/null
++++ b/apps/octoscode/store/src/domains/peer.rs
+@@ -0,0 +1,51 @@
++//! `peer` state: staged/closed peer sessions.
++//!
++//! Stub for the fan-out lane.
++use std::collections::HashMap;
++use std::sync::Mutex;
++
++/// One peer, as `peer/staged` / `peer/closed` describe it.
++#[derive(Debug, Clone, PartialEq, Eq)]
++pub struct Peer {
++    pub name: String,
++    pub closed: bool,
++}
++
++/// The peer domain.
++#[derive(Debug, Default)]
++pub struct Peers {
++    inner: Mutex<Inner>,
++}
++
++#[derive(Debug, Default)]
++struct Inner {
++    peers: HashMap<String, Peer>,
++}
++
++impl Peers {
++    pub fn stage(&self, name: String) {
++        self.inner
++            .lock()
++            .unwrap()
++            .peers
++            .insert(name.clone(), Peer { name, closed: false });
++    }
++
++    pub fn close(&self, name: &str) {
++        let mut i = self.inner.lock().unwrap();
++        if let Some(p) = i.peers.get_mut(name) {
++            p.closed = true;
++        }
++    }
++
++    pub fn list(&self) -> Vec<Peer> {
++        let i = self.inner.lock().unwrap();
++        let mut v: Vec<Peer> = i.peers.values().cloned().collect();
++        v.sort_by(|a, b| a.name.cmp(&b.name));
++        v
++    }
++
++    pub fn open_count(&self) -> usize {
++        self.inner.lock().unwrap().peers.values().filter(|p| !p.closed).count()
++    }
++}
+diff --git a/apps/octoscode/store/src/domains/profile.rs b/apps/octoscode/store/src/domains/profile.rs
+new file mode 100644
+index 0000000..da382b0
+--- /dev/null
++++ b/apps/octoscode/store/src/domains/profile.rs
+@@ -0,0 +1,37 @@
++//! `profile` state: profiles, LLM providers, skills.
++//!
++//! Stub for the fan-out lane (`profile/llm/*`, `profile/skills/*`,
++//! `profile/sub_providers/*`, `onboarding/*`).
++use std::sync::Mutex;
++
++/// The profile domain.
++#[derive(Debug, Default)]
++pub struct Profiles {
++    inner: Mutex<Inner>,
++}
++
++#[derive(Debug, Default)]
++struct Inner {
++    /// The profile the connection is using (from `session/open`).
++    current: Option<String>,
++    /// LLM provider ids the server listed.
++    providers: Vec<String>,
++}
++
++impl Profiles {
++    pub fn set_current(&self, profile_id: String) {
++        self.inner.lock().unwrap().current = Some(profile_id);
++    }
++
++    pub fn current(&self) -> Option<String> {
++        self.inner.lock().unwrap().current.clone()
++    }
++
++    pub fn set_providers(&self, providers: Vec<String>) {
++        self.inner.lock().unwrap().providers = providers;
++    }
++
++    pub fn providers(&self) -> Vec<String> {
++        self.inner.lock().unwrap().providers.clone()
++    }
++}
+diff --git a/apps/octoscode/store/src/domains/review.rs b/apps/octoscode/store/src/domains/review.rs
+new file mode 100644
+index 0000000..925a001
+--- /dev/null
++++ b/apps/octoscode/store/src/domains/review.rs
+@@ -0,0 +1,24 @@
++//! `review` state. Stub for the fan-out lane (`review/start`).
++use std::sync::Mutex;
++
++/// The review domain.
++#[derive(Debug, Default)]
++pub struct Reviews {
++    inner: Mutex<Inner>,
++}
++
++#[derive(Debug, Default)]
++struct Inner {
++    /// The last review id the server started, if any.
++    last_started: Option<String>,
++}
++
++impl Reviews {
++    pub fn note_started(&self, id: String) {
++        self.inner.lock().unwrap().last_started = Some(id);
++    }
++
++    pub fn last_started(&self) -> Option<String> {
++        self.inner.lock().unwrap().last_started.clone()
++    }
++}
+diff --git a/apps/octoscode/store/src/domains/session.rs b/apps/octoscode/store/src/domains/session.rs
+new file mode 100644
+index 0000000..44b9a62
+--- /dev/null
++++ b/apps/octoscode/store/src/domains/session.rs
+@@ -0,0 +1,65 @@
++//! `session` state: the session list, the active session, and its transcript.
++//!
++//! Owns the [`Timeline`] the transcript entries land in; a lane that adds
++//! session-scoped state adds it here and nowhere else.
++use std::sync::Mutex;
++
++use crate::timeline::Timeline;
 +
 +/// One session row from `session/list`.
 +#[derive(Debug, Clone, PartialEq, Eq)]
@@ -1354,76 +1929,25 @@ index 0000000..50e123d
 +    pub active_turn: bool,
 +}
 +
-+/// One entry in a session's timeline.
-+#[derive(Debug, Clone, PartialEq, Eq)]
-+pub enum TimelineEntry {
-+    /// Streamed assistant/reasoning text (`message/delta`).
-+    TextDelta { turn_id: String, text: String },
-+    /// A turn began.
-+    TurnStarted { turn_id: String },
-+    /// A turn ended (`completed` / `error`).
-+    TurnEnded { turn_id: String, error: Option<String> },
++/// The session domain: the list, the active id, and the transcript.
++#[derive(Debug, Default)]
++pub struct Sessions {
++    inner: Mutex<Inner>,
++    /// The transcript is its own lock: a `message/delta` fold must not block a
++    /// session-list read, and the fan-out writes the two independently.
++    pub timeline: Timeline,
 +}
 +
-+/// The store's mutable state. Private: callers go through [`Store`]'s methods.
 +#[derive(Debug, Default)]
 +struct Inner {
-+    connection: String,
-+    live: bool,
-+    capabilities: Vec<String>,
 +    sessions: Vec<Session>,
 +    active: Option<String>,
-+    timelines: HashMap<String, Vec<TimelineEntry>>,
-+    /// Notifications seen, by method — a cheap activity/diagnostic counter.
-+    seen: HashMap<String, usize>,
 +}
 +
-+/// The session store. Cheap to clone-share: wrap in an `Arc`.
-+#[derive(Debug, Default)]
-+pub struct Store {
-+    inner: Mutex<Inner>,
-+}
-+
-+impl Store {
-+    pub fn new() -> Self {
-+        Self::default()
-+    }
-+
-+    // ---- connection state -------------------------------------------------
-+
-+    /// Set from the transport's `ConnectionState`. Stores a display string
-+    /// (the exact `format!("{state:?}")` the caller passes) plus liveness.
-+    pub fn set_connection(&self, display: String, live: bool) {
-+        let mut i = self.inner.lock().unwrap();
-+        i.connection = display;
-+        i.live = live;
-+    }
-+
-+    /// The connection state as display text (e.g. `"Live"`).
-+    pub fn connection(&self) -> String {
-+        self.inner.lock().unwrap().connection.clone()
-+    }
-+
-+    /// Whether the connection is `Live`.
-+    pub fn is_live(&self) -> bool {
-+        self.inner.lock().unwrap().live
-+    }
-+
-+    // ---- capabilities -----------------------------------------------------
-+
-+    pub fn set_capabilities(&self, accepted: Vec<String>) {
-+        self.inner.lock().unwrap().capabilities = accepted;
-+    }
-+
-+    pub fn capabilities(&self) -> Vec<String> {
-+        self.inner.lock().unwrap().capabilities.clone()
-+    }
-+
-+    // ---- sessions ---------------------------------------------------------
-+
-+    /// Replace the session list (from `session/list`). Keeps the active id if
-+    /// it still exists, else clears it.
-+    pub fn set_sessions(&self, sessions: Vec<Session>) {
++impl Sessions {
++    /// Replace the list (from `session/list`). Keeps the active id if it still
++    /// exists, else clears it.
++    pub fn set_list(&self, sessions: Vec<Session>) {
 +        let mut i = self.inner.lock().unwrap();
 +        if let Some(active) = &i.active {
 +            if !sessions.iter().any(|s| &s.id == active) {
@@ -1433,12 +1957,12 @@ index 0000000..50e123d
 +        i.sessions = sessions;
 +    }
 +
-+    pub fn sessions(&self) -> Vec<Session> {
++    pub fn list(&self) -> Vec<Session> {
 +        self.inner.lock().unwrap().sessions.clone()
 +    }
 +
 +    /// The session count — what the module tile shows.
-+    pub fn session_count(&self) -> usize {
++    pub fn count(&self) -> usize {
 +        self.inner.lock().unwrap().sessions.len()
 +    }
 +
@@ -1446,71 +1970,521 @@ index 0000000..50e123d
 +        self.inner.lock().unwrap().active = id;
 +    }
 +
-+    pub fn active_session(&self) -> Option<String> {
++    pub fn active(&self) -> Option<String> {
 +        self.inner.lock().unwrap().active.clone()
 +    }
++}
+diff --git a/apps/octoscode/store/src/domains/task.rs b/apps/octoscode/store/src/domains/task.rs
+new file mode 100644
+index 0000000..03fa294
+--- /dev/null
++++ b/apps/octoscode/store/src/domains/task.rs
+@@ -0,0 +1,41 @@
++//! `task` state: background tasks and their output.
++//!
++//! Stub for the fan-out lane (`task/list`, `task/output/read`, `task/artifact/*`).
++use std::collections::HashMap;
++use std::sync::Mutex;
 +
-+    // ---- per-session timeline --------------------------------------------
++/// One background task, as the list/update rows describe it.
++#[derive(Debug, Clone, PartialEq, Eq)]
++pub struct Task {
++    pub id: String,
++    pub title: Option<String>,
++    pub state: Option<String>,
++}
 +
-+    /// Append an entry to `session`'s timeline.
-+    pub fn push_timeline(&self, session: &str, entry: TimelineEntry) {
-+        self.inner
-+            .lock()
-+            .unwrap()
-+            .timelines
-+            .entry(session.to_owned())
-+            .or_default()
-+            .push(entry);
++/// The task domain.
++#[derive(Debug, Default)]
++pub struct Tasks {
++    inner: Mutex<Inner>,
++}
++
++#[derive(Debug, Default)]
++struct Inner {
++    tasks: HashMap<String, Task>,
++}
++
++impl Tasks {
++    pub fn upsert(&self, task: Task) {
++        self.inner.lock().unwrap().tasks.insert(task.id.clone(), task);
 +    }
 +
-+    pub fn timeline(&self, session: &str) -> Vec<TimelineEntry> {
-+        self.inner
-+            .lock()
-+            .unwrap()
-+            .timelines
-+            .get(session)
-+            .cloned()
-+            .unwrap_or_default()
++    pub fn list(&self) -> Vec<Task> {
++        let i = self.inner.lock().unwrap();
++        let mut v: Vec<Task> = i.tasks.values().cloned().collect();
++        v.sort_by(|a, b| a.id.cmp(&b.id));
++        v
 +    }
 +
-+    /// The concatenated `message/delta` text for a session — the live reply.
++    pub fn count(&self) -> usize {
++        self.inner.lock().unwrap().tasks.len()
++    }
++}
+diff --git a/apps/octoscode/store/src/domains/tool.rs b/apps/octoscode/store/src/domains/tool.rs
+new file mode 100644
+index 0000000..5ee4bee
+--- /dev/null
++++ b/apps/octoscode/store/src/domains/tool.rs
+@@ -0,0 +1,45 @@
++//! `tool` state: the runtime tool inventory from `tool/status/list`.
++//!
++//! A lane that wants tool activity counters adds them here.
++use std::sync::Mutex;
++
++use serde::{Deserialize, Serialize};
++
++/// One tool row (`RuntimeTool` in the web client's `packages/client/src/inventory.ts:15`).
++#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
++pub struct RuntimeTool {
++    pub name: String,
++    #[serde(default)]
++    pub category: Option<String>,
++    #[serde(default)]
++    pub status: Option<String>,
++    #[serde(default)]
++    pub policy: Option<String>,
++    #[serde(default)]
++    pub aliases: Vec<String>,
++}
++
++/// The tool domain: the last inventory seen.
++#[derive(Debug, Default)]
++pub struct Tools {
++    inner: Mutex<Inner>,
++}
++
++#[derive(Debug, Default)]
++struct Inner {
++    tools: Vec<RuntimeTool>,
++}
++
++impl Tools {
++    pub fn set(&self, tools: Vec<RuntimeTool>) {
++        self.inner.lock().unwrap().tools = tools;
++    }
++
++    pub fn list(&self) -> Vec<RuntimeTool> {
++        self.inner.lock().unwrap().tools.clone()
++    }
++
++    pub fn count(&self) -> usize {
++        self.inner.lock().unwrap().tools.len()
++    }
++}
+diff --git a/apps/octoscode/store/src/domains/turn.rs b/apps/octoscode/store/src/domains/turn.rs
+new file mode 100644
+index 0000000..a3ed6dc
+--- /dev/null
++++ b/apps/octoscode/store/src/domains/turn.rs
+@@ -0,0 +1,48 @@
++//! `turn` state: which turns are in flight, and the transcript folding.
++//!
++//! The folding itself lives in [`crate::timeline`] (it is shared shape, not
++//! turn state); this domain owns *which* turn is current, so the notification
++//! handlers and the module can ask without re-deriving it.
++use std::collections::HashSet;
++use std::sync::Mutex;
++
++/// The turn domain: the turns this store has seen, per session.
++#[derive(Debug, Default)]
++pub struct Turns {
++    inner: Mutex<Inner>,
++}
++
++#[derive(Debug, Default)]
++struct Inner {
++    /// Turns that started and have not completed/errored.
++    in_flight: HashSet<String>,
++    /// Every turn id seen, in arrival order (for a debug tile or a test).
++    seen: Vec<String>,
++}
++
++impl Turns {
++    pub fn started(&self, turn_id: &str) {
++        let mut i = self.inner.lock().unwrap();
++        i.in_flight.insert(turn_id.to_owned());
++        i.seen.push(turn_id.to_owned());
++    }
++
++    pub fn ended(&self, turn_id: &str) {
++        self.inner.lock().unwrap().in_flight.remove(turn_id);
++    }
++
++    /// Whether a turn is currently in flight.
++    pub fn is_in_flight(&self, turn_id: &str) -> bool {
++        self.inner.lock().unwrap().in_flight.contains(turn_id)
++    }
++
++    /// How many turns are in flight (across all sessions).
++    pub fn in_flight_count(&self) -> usize {
++        self.inner.lock().unwrap().in_flight.len()
++    }
++
++    /// Every turn id seen, in order.
++    pub fn seen(&self) -> Vec<String> {
++        self.inner.lock().unwrap().seen.clone()
++    }
++}
+diff --git a/apps/octoscode/store/src/lib.rs b/apps/octoscode/store/src/lib.rs
+new file mode 100644
+index 0000000..2905343
+--- /dev/null
++++ b/apps/octoscode/store/src/lib.rs
+@@ -0,0 +1,128 @@
++//! octoscode-store — the session store every later lane writes into.
++//!
++//! **The public API here is ours.** It wraps `octos-app-store`'s session
++//! concepts behind octoscode's own types so a fan-out lane can add state
++//! without reaching into a dependency's internals.
++//!
++//! ## Fan-out-safe by construction (card #10)
++//!
++//! The store was one file with one shared `TimelineEntry` enum; eight domain
++//! lanes would all have edited it. It is now **one file per domain**
++//! ([`domains`]), exactly like `octoscode-client`. A lane that adds state
++//! edits its own domain file and (at most) one field in [`domains::State`].
++//!
++//! - [`Store`] holds the [`domains::State`] plus the two things no domain owns:
++//!   [`connection::ConnectionState`] and [`diagnostics::Diagnostics`].
++//! - The transcript lives in [`timeline`]: entries carry an open
++//!   [`timeline::EntryKind`] **tag** (not a shared enum) with the parity
++//!   matrix's twelve kinds declared, so a domain can declare a new kind in its
++//!   own file — see that module's docs for why.
++//!
++//! Notifications reach this store **only through the client's registry**:
++//! no other code path writes to it.
++pub mod connection;
++pub mod diagnostics;
++pub mod domains;
++pub mod timeline;
++
++pub use connection::ConnectionState;
++pub use diagnostics::Diagnostics;
++pub use domains::session::Session;
++pub use timeline::{EntryKind, TimelineEntry};
++
++/// The session store. Cheap to share: wrap in an `Arc`.
++///
++/// Each domain is independently locked, so a lane's hot path (a `message/delta`
++/// fold into the transcript) does not serialise against an unrelated read.
++#[derive(Debug, Default)]
++pub struct Store {
++    /// The protocol domains, one struct each.
++    pub domains: domains::State,
++    /// The transport's connection state.
++    pub connection: ConnectionState,
++    /// What has been seen, by method.
++    pub diagnostics: Diagnostics,
++}
++
++impl Store {
++    pub fn new() -> Self {
++        Self::default()
++    }
++
++    // ---- connection (moved from the old flat API) --------------------------
++
++    /// Record a connection transition (display text + liveness).
++    pub fn set_connection(&self, display: String, live: bool) {
++        self.connection.set(display, live);
++    }
++
++    /// The connection state as display text (e.g. `"Live"`).
++    pub fn connection(&self) -> String {
++        self.connection.display()
++    }
++
++    /// Whether the connection is `Live`.
++    pub fn is_live(&self) -> bool {
++        self.connection.is_live()
++    }
++
++    // ---- capabilities (config domain) -------------------------------------
++
++    pub fn set_capabilities(&self, accepted: Vec<String>) {
++        self.domains.config.set_capabilities(accepted);
++    }
++
++    pub fn capabilities(&self) -> Vec<String> {
++        self.domains.config.capabilities()
++    }
++
++    // ---- sessions (session domain) ---------------------------------------
++
++    pub fn set_sessions(&self, sessions: Vec<Session>) {
++        self.domains.session.set_list(sessions);
++    }
++
++    pub fn sessions(&self) -> Vec<Session> {
++        self.domains.session.list()
++    }
++
++    /// The session count — what the module tile shows.
++    pub fn session_count(&self) -> usize {
++        self.domains.session.count()
++    }
++
++    pub fn set_active(&self, id: Option<String>) {
++        self.domains.session.set_active(id);
++    }
++
++    pub fn active_session(&self) -> Option<String> {
++        self.domains.session.active()
++    }
++
++    // ---- transcript (timeline) -------------------------------------------
++
++    /// The concatenated assistant text for a session — the live reply.
 +    pub fn live_text(&self, session: &str) -> String {
-+        self.timeline(session)
-+            .into_iter()
-+            .filter_map(|e| match e {
-+                TimelineEntry::TextDelta { text, .. } => Some(text),
-+                _ => None,
-+            })
-+            .collect()
++        self.domains.session.timeline.assistant_text(session)
 +    }
 +
 +    // ---- diagnostics ------------------------------------------------------
 +
 +    /// Record that a notification method was seen (any handler).
 +    pub fn note_seen(&self, method: &str) {
-+        *self
-+            .inner
-+            .lock()
-+            .unwrap()
-+            .seen
-+            .entry(method.to_owned())
-+            .or_insert(0) += 1;
++        self.diagnostics.note(method);
 +    }
 +
 +    pub fn seen_count(&self, method: &str) -> usize {
-+        self.inner
-+            .lock()
-+            .unwrap()
-+            .seen
-+            .get(method)
-+            .copied()
-+            .unwrap_or(0)
++        self.diagnostics.count(method)
 +    }
 +
 +    /// A one-line summary for a tile: connection + session count.
 +    pub fn summary(&self) -> String {
-+        let i = self.inner.lock().unwrap();
-+        format!("conn: {}   sessions: {}", i.connection, i.sessions.len())
++        format!(
++            "conn: {}   sessions: {}",
++            self.connection(),
++            self.session_count()
++        )
++    }
++}
+diff --git a/apps/octoscode/store/src/timeline.rs b/apps/octoscode/store/src/timeline.rs
+new file mode 100644
+index 0000000..c7a552e
+--- /dev/null
++++ b/apps/octoscode/store/src/timeline.rs
+@@ -0,0 +1,221 @@
++//! The timeline: one append-only transcript per session.
++//!
++//! ## Why a `kind` tag and not an enum (the fan-out decision)
++//!
++//! Eight domain lanes will write timeline entries. The card's goal is that
++//! **no lane ever edits a shared file**. Two shapes could do that:
++//!
++//! 1. A shared `enum EntryKind { … }` with every kind pre-declared now.
++//!    Every kind exists from day one, so no lane edits it — *until* the
++//!    parity matrix grows a kind the enum does not name, and then a lane must
++//!    edit a shared enum after all.
++//! 2. A **newtype tag** ([`EntryKind`], a `&'static str`) with the twelve
++//!    parity-matrix kinds pre-declared as `const`s here, and room for a domain
++//!    to declare *its own* kind in *its own file*:
++//!    `pub const MY_KIND: EntryKind = EntryKind::new("my.kind");`
++//!
++//! We chose (2): the twelve known kinds are declared now (as the card asks),
++//! and a new kind is a one-line `const` in the owning domain's file, never an
++//! edit here. It is the same guarantee the client's per-domain files give,
++//! applied to the transcript.
++//!
++//! The entry also carries an open `data: serde_json::Value` slot, so a domain
++//! can attach structured detail (a tool's args, an approval's id) without
++//! changing the entry struct.
++use std::collections::HashMap;
++use std::sync::atomic::{AtomicU64, Ordering};
++use std::sync::Mutex;
++
++/// A timeline entry's kind. A stable tag, not an enum — see the module docs.
++#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
++pub struct EntryKind(&'static str);
++
++impl EntryKind {
++    /// Declare a kind. Use a dotted, lowercase tag, e.g. `"assistant.text"`.
++    pub const fn new(tag: &'static str) -> Self {
++        Self(tag)
++    }
++
++    /// The wire-ish tag.
++    pub const fn tag(self) -> &'static str {
++        self.0
++    }
++
++    // --- the twelve kinds the parity matrix names (declared once, now) ------
++    /// The person's message.
++    pub const USER_MESSAGE: EntryKind = EntryKind::new("user.message");
++    /// Streamed assistant text (`message/delta`) — folds into one entry.
++    pub const ASSISTANT_TEXT: EntryKind = EntryKind::new("assistant.text");
++    /// Assistant reasoning/thinking (`message/reasoning_delta`).
++    pub const REASONING: EntryKind = EntryKind::new("assistant.reasoning");
++    /// A tool call, rendered as a folded header.
++    pub const TOOL_CALL: EntryKind = EntryKind::new("tool.call");
++    /// An approval request/decision.
++    pub const APPROVAL: EntryKind = EntryKind::new("approval");
++    /// A question the server asks the person.
++    pub const USER_QUESTION: EntryKind = EntryKind::new("user_question");
++    /// Files a turn edited.
++    pub const EDITED_FILES: EntryKind = EntryKind::new("edited_files");
++    /// A system notice (deterministic id, readable error).
++    pub const SYSTEM_NOTICE: EntryKind = EntryKind::new("system.notice");
++    /// A plan update.
++    pub const PLAN: EntryKind = EntryKind::new("plan");
++    /// A goal update.
++    pub const GOAL: EntryKind = EntryKind::new("goal");
++    /// A reference to a diff (the body is fetched separately).
++    pub const DIFF_REF: EntryKind = EntryKind::new("diff.ref");
++    /// A delivered file / attachment.
++    pub const ATTACHMENT: EntryKind = EntryKind::new("attachment");
++
++    /// Every kind declared here, in the matrix's order — for the exhaustiveness
++    /// test that keeps this list honest.
++    pub const DECLARED: &'static [EntryKind] = &[
++        EntryKind::USER_MESSAGE,
++        EntryKind::ASSISTANT_TEXT,
++        EntryKind::REASONING,
++        EntryKind::TOOL_CALL,
++        EntryKind::APPROVAL,
++        EntryKind::USER_QUESTION,
++        EntryKind::EDITED_FILES,
++        EntryKind::SYSTEM_NOTICE,
++        EntryKind::PLAN,
++        EntryKind::GOAL,
++        EntryKind::DIFF_REF,
++        EntryKind::ATTACHMENT,
++    ];
++}
++
++/// One entry in a session's transcript.
++#[derive(Debug, Clone, PartialEq, Eq)]
++pub struct TimelineEntry {
++    /// Monotonic, per-store id — stable within a run.
++    pub id: u64,
++    /// The turn this belongs to, when it belongs to one.
++    pub turn_id: Option<String>,
++    pub kind: EntryKind,
++    /// The collectable/rendered text (`""` when the entry is not textual).
++    pub text: String,
++    /// Optional structured detail; a domain decides its own shape.
++    pub data: serde_json::Value,
++    /// A folded entry stops absorbing `append_delta` text once closed
++    /// (a turn boundary closes the assistant entry it belongs to).
++    pub closed: bool,
++}
++
++impl TimelineEntry {
++    fn new(id: u64, turn_id: Option<String>, kind: EntryKind) -> Self {
++        Self {
++            id,
++            turn_id,
++            kind,
++            text: String::new(),
++            data: serde_json::Value::Null,
++            closed: false,
++        }
++    }
++}
++
++/// The transcript store: `session id -> entries`, in arrival order.
++#[derive(Debug, Default)]
++pub struct Timeline {
++    inner: Mutex<HashMap<String, Vec<TimelineEntry>>>,
++    next_id: AtomicU64,
++}
++
++impl Timeline {
++    /// Append a new entry of `kind` and return its id.
++    pub fn append(&self, session: &str, turn_id: Option<String>, kind: EntryKind, text: String) -> u64 {
++        let id = self.next_id.fetch_add(1, Ordering::Relaxed);
++        let mut e = TimelineEntry::new(id, turn_id, kind);
++        e.text = text;
++        self.inner
++            .lock()
++            .unwrap()
++            .entry(session.to_owned())
++            .or_default()
++            .push(e);
++        id
++    }
++
++    /// Append with a structured payload.
++    pub fn append_data(
++        &self,
++        session: &str,
++        turn_id: Option<String>,
++        kind: EntryKind,
++        text: String,
++        data: serde_json::Value,
++    ) -> u64 {
++        let id = self.next_id.fetch_add(1, Ordering::Relaxed);
++        let mut e = TimelineEntry::new(id, turn_id, kind);
++        e.text = text;
++        e.data = data;
++        self.inner
++            .lock()
++            .unwrap()
++            .entry(session.to_owned())
++            .or_default()
++            .push(e);
++        id
++    }
++
++    /// Fold streamed `text` into the last OPEN entry of `(session, turn_id,
++    /// kind)`, appending one when there is none. This is how `message/delta`
++    /// becomes **one** assistant entry instead of thousands.
++    pub fn append_delta(&self, session: &str, turn_id: Option<&str>, kind: EntryKind, text: &str) -> u64 {
++        let mut map = self.inner.lock().unwrap();
++        let entries = map.entry(session.to_owned()).or_default();
++        if let Some(last) = entries
++            .iter_mut()
++            .rev()
++            .find(|e| e.kind == kind && e.turn_id.as_deref() == turn_id && !e.closed)
++        {
++            last.text.push_str(text);
++            return last.id;
++        }
++        let id = self.next_id.fetch_add(1, Ordering::Relaxed);
++        let mut e = TimelineEntry::new(id, turn_id.map(str::to_owned), kind);
++        e.text = text.to_owned();
++        entries.push(e);
++        id
++    }
++
++    /// Close every open entry of a turn (a turn boundary stops folding).
++    pub fn close_turn(&self, session: &str, turn_id: &str) {
++        let mut map = self.inner.lock().unwrap();
++        if let Some(entries) = map.get_mut(session) {
++            for e in entries.iter_mut().filter(|e| e.turn_id.as_deref() == Some(turn_id)) {
++                e.closed = true;
++            }
++        }
++    }
++
++    /// A copy of a session's entries, in arrival order.
++    pub fn entries(&self, session: &str) -> Vec<TimelineEntry> {
++        self.inner
++            .lock()
++            .unwrap()
++            .get(session)
++            .cloned()
++            .unwrap_or_default()
++    }
++
++    /// How many entries a session has.
++    pub fn len(&self, session: &str) -> usize {
++        self.inner.lock().unwrap().get(session).map(Vec::len).unwrap_or(0)
++    }
++
++    /// The concatenated assistant text — the live reply.
++    pub fn assistant_text(&self, session: &str) -> String {
++        self.entries(session)
++            .into_iter()
++            .filter(|e| e.kind == EntryKind::ASSISTANT_TEXT)
++            .map(|e| e.text)
++            .collect()
++    }
++
++    /// The entries of one kind, in order.
++    pub fn of_kind(&self, session: &str, kind: EntryKind) -> Vec<TimelineEntry> {
++        self.entries(session).into_iter().filter(|e| e.kind == kind).collect()
 +    }
 +}
 diff --git a/crates/shell/Cargo.toml b/crates/shell/Cargo.toml
@@ -1561,15 +2535,3 @@ index fac87c5..8ab291f 100644
  app-aichat = ["octosense-shell/app-aichat"]
  # Rinx as a module; its assistant is the shell's (implies `octos-core`).
  app-rinx = ["octosense-shell/app-rinx"]
-diff --git a/desktop/system-apps.json b/desktop/system-apps.json
-index 36edab1..6e0ce6b 100644
---- a/desktop/system-apps.json
-+++ b/desktop/system-apps.json
-@@ -1,6 +1,6 @@
- {
-   "schema": 1,
-   "source": "../apps",
--  "apps": ["news", "photos", "maps", "camera", "mail", "ai-providers"],
-+  "apps": ["news", "photos", "maps", "camera", "mail", "ai-providers", "octoscode"],
-   "assets": {}
- }

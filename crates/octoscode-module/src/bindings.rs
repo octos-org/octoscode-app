@@ -58,3 +58,89 @@ pub fn query(store: &Arc<Store>, id: &str) -> Option<Value> {
 pub fn is_action(id: &str) -> bool {
     ACTIONS.iter().any(|(a, _)| *a == id)
 }
+
+#[cfg(test)]
+mod tests {
+    //! Bindings from a store fixture: no UI, no network, no transport —
+    //! the binding table is pure, so it is testable in isolation.
+    use super::*;
+    use octoscode_store::Session;
+
+    fn fixture() -> Arc<Store> {
+        let store = Arc::new(Store::new());
+        store.set_connection("Live".into(), true);
+        store.set_capabilities(vec!["auxiliary.rest_to_ws.v1".into(), "session.hydrate.v1".into()]);
+        store.set_sessions(vec![
+            Session {
+                id: "octoscode:main".into(),
+                title: Some("Main".into()),
+                message_count: 3,
+                updated_at: None,
+                last_prompt: None,
+                active_turn: true,
+            },
+            Session {
+                id: "octoscode:other".into(),
+                title: None,
+                message_count: 0,
+                updated_at: None,
+                last_prompt: None,
+                active_turn: false,
+            },
+        ]);
+        store.set_active(Some("octoscode:main".into()));
+        store
+    }
+
+    #[test]
+    fn every_declared_binding_resolves() {
+        let store = fixture();
+        for (id, _desc) in BINDINGS {
+            assert!(
+                query(&store, id).is_some(),
+                "declared binding {id:?} has no arm in query()"
+            );
+        }
+    }
+
+    #[test]
+    fn undefined_binding_is_none_not_a_panic() {
+        let store = fixture();
+        assert!(query(&store, "not.a.binding").is_none());
+        assert!(query(&store, "").is_none());
+    }
+
+    #[test]
+    fn connection_and_count_bindings_are_typed_json() {
+        let store = fixture();
+        assert_eq!(query(&store, "conn.state"), Some(json!("Live")));
+        assert_eq!(query(&store, "conn.live"), Some(json!(true)));
+        assert_eq!(query(&store, "session.count"), Some(json!(2)));
+        assert_eq!(query(&store, "caps.count"), Some(json!(2)));
+        assert_eq!(
+            query(&store, "summary"),
+            Some(json!("conn: Live   sessions: 2"))
+        );
+    }
+
+    #[test]
+    fn session_list_binding_is_a_json_array_of_rows() {
+        let store = fixture();
+        let v = query(&store, "session.list").expect("declared");
+        let rows = v.as_array().expect("an array, never a Rust type");
+        assert_eq!(rows.len(), 2);
+        assert_eq!(rows[0]["id"], "octoscode:main");
+        assert_eq!(rows[0]["message_count"], 3);
+        assert_eq!(rows[0]["active_turn"], true);
+        // A row with no title serializes as null, not a missing key.
+        assert_eq!(rows[1]["title"], serde_json::Value::Null);
+
+        assert_eq!(query(&store, "session.active"), Some(json!("octoscode:main")));
+    }
+
+    #[test]
+    fn declared_actions_are_recognized_and_unknown_ones_are_not() {
+        assert!(is_action("session.refresh"));
+        assert!(!is_action("session.delete"));
+    }
+}

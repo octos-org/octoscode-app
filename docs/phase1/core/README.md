@@ -64,6 +64,30 @@ An unregistered method is not an error: `Registry::dispatch` logs
 8.8 condition 7). Unknown **requests** from the server get a JSON-RPC "method
 not found" reply and the connection continues (transport-side).
 
+## How to add state in your domain (≤ 10 lines — the store recipe)
+
+The store is split the same way the client is (**card #10**): one file per
+domain, so a lane owns one file here too.
+
+1. Add fields/methods to **your** domain in
+   `crates/octoscode-store/src/domains/<domain>.rs` (each is its own struct with
+   its own `Mutex`, constructed by `Default`):
+   ```rust
+   impl MyDomain {
+       pub fn set_thing(&self, v: String) { self.inner.lock().unwrap().thing = v; }
+       pub fn thing(&self) -> Option<String> { self.inner.lock().unwrap().thing.clone() }
+   }
+   ```
+2. Read/write it from **your** client domain's handler as
+   `store.domains.<domain>.<method>(…)`.
+3. A new transcript kind is a `const` in **your** file — never an edit to a
+   shared enum:
+   `const MY_KIND: EntryKind = EntryKind::new("my.domain.thing");`
+   then `store.domains.session.timeline.append(session, turn, MY_KIND, text)`.
+
+A new domain is `pub mod` + one field in `domains::State` (the single
+construction site). No lane edits another lane's file.
+
 ## Implemented in this card
 
 | Method | Where | Note |
