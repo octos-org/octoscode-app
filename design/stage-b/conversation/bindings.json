@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "stage": "B",
+  "batch": "first",
+  "scope": "the 5 live-gate components (scenes 1 THREAD LIST, 3 STREAMING TURN, 4 TOOL CELLS, 8 COMPOSER STATES, 9 COMPLETED ANSWER)",
+  "rule": "8.8 condition 2: a card binds only to declared data ids and action ids; it never sees a Rust type. Card #12 wires these in crates/octoscode-module/src/bindings.rs.",
+  "grounding": {
+    "existing_bindings": ["conn.state", "conn.live", "session.count", "session.list", "session.active", "caps.count", "summary"],
+    "existing_actions": ["session.refresh"],
+    "protocol_methods": ["session/list", "session/open", "session/fork", "session/messages_page", "turn/start", "turn/interrupt", "turn/steer", "approval/respond", "user_question/respond", "queue/state", "plan/updated", "tool/status/list", "profile/llm/list", "profile/llm/select", "review/start"],
+    "store_accessors": ["Store::sessions", "Store::session_count", "Store::active_session", "Store::timeline", "Store::live_text", "Store::connection", "Store::is_live", "Store::capabilities", "Store::summary"]
+  },
+  "bindings": [
+    {"id": "threads", "type": "list", "used_by": ["conversation-01"], "card_source": "thread_list", "store_query": "Store::sessions()", "row_keys": ["id", "title", "message_count", "active_turn"], "note": "5 rows in the reference; the store's session list is the same shape as session/list's SessionInfo."},
+    {"id": "threads[].title", "type": "text", "used_by": ["conversation-01"], "card_source": "thread_1_title..thread_5_title", "store_query": "Store::sessions()[i].title", "note": "Reference copy: 'Fix steer queue drop on reconnect', 'Add session fork', 'Review PR #2566', 'Bump octos-core to a6ea8505', 'Why is hydrate slow?'."},
+    {"id": "threads[].active", "type": "bool", "used_by": ["conversation-01"], "card_source": "thread_1 (selected highlight)", "store_query": "Store::active_session() == sessions[i].id", "note": "Drives the selected/highlight state of the first row."},
+    {"id": "threads.active", "type": "text", "used_by": ["conversation-01"], "card_source": "thread_1 highlight", "store_query": "Store::active_session()"},
+
+    {"id": "turn.steer", "type": "action", "used_by": ["conversation-03", "conversation-08"], "card_source": "composer_stop / queued_row", "client_action": "turn/steer", "params": {"session": "threads.active", "text": "composer.draft"}, "note": "The queued-steer chip ('1 queued · Steer now') sends turn/steer; the feature flag is event.turn_steer_dropped.v1."},
+    {"id": "turn.interrupt", "type": "action", "used_by": ["conversation-03", "conversation-08"], "card_source": "composer_stop (black round STOP)", "client_action": "turn/interrupt", "params": {"session": "threads.active"}},
+    {"id": "turn.active", "type": "bool", "used_by": ["conversation-03", "conversation-08"], "card_source": "composer_stop vs send", "store_query": "Store::sessions()[active].active_turn", "note": "STOP button when a turn is live; send button otherwise."},
+    {"id": "timeline.entries", "type": "list", "used_by": ["conversation-03", "conversation-09"], "card_source": "user_bubble + assistant_* + tool rows", "store_query": "Store::timeline(active)", "row_keys": ["kind", "text", "turn_id"], "note": "TimelineEntry: TextDelta | TurnStarted | TurnEnded."},
+    {"id": "timeline.entries[].text", "type": "text", "used_by": ["conversation-03", "conversation-09"], "card_source": "assistant_1..4 / answer_lead / bullet_*", "store_query": "Store::timeline(active)[i].text"},
+    {"id": "timeline.entries[].kind", "type": "text", "used_by": ["conversation-03"], "card_source": "activity row vs user bubble vs tool row", "store_query": "Store::timeline(active)[i].kind"},
+    {"id": "turn.activity", "type": "text", "used_by": ["conversation-03"], "card_source": "activity ('Working · 12s')", "store_query": "Store::live_text(active) + elapsed", "note": "The '12s' is elapsed turn time, not a store field."},
+    {"id": "composer.draft", "type": "text", "used_by": ["conversation-03", "conversation-08"], "card_source": "composer_input / active_draft", "store_query": "store session draft", "note": "Bound to the TextInput's value; the input's behavior.event='changed' updates it."},
+    {"id": "composer.submit", "type": "action", "used_by": ["conversation-08"], "card_source": "idle send button", "client_action": "turn/start", "params": {"session": "threads.active", "text": "composer.draft"}},
+    {"id": "composer.placeholder", "type": "text", "used_by": ["conversation-08"], "card_source": "idle_placeholder ('Ask Octos anything')", "store_query": "static copy", "note": "Empty-state copy, not store data."},
+
+    {"id": "tools", "type": "list", "used_by": ["conversation-04"], "card_source": "tool_rows (tool_1..tool_3)", "store_query": "Store::seen / tool/* notifications", "row_keys": ["name", "summary", "status"], "note": "tool/started, tool/progress, tool/completed drive each row's status."},
+    {"id": "tools[].summary", "type": "text", "used_by": ["conversation-04"], "card_source": "tool_1_summary etc.", "store_query": "tool summary text"},
+    {"id": "tools[].status", "type": "text", "used_by": ["conversation-04"], "card_source": "right-hand ✓ / spinner", "store_query": "tool/completed vs tool/progress"},
+    {"id": "tools[].expanded", "type": "bool", "used_by": ["conversation-04"], "card_source": "tool_3 expanded output box", "store_query": "UI-local toggle", "note": "The expanded row is a disclosure, not store data."},
+    {"id": "tool.output", "type": "list", "used_by": ["conversation-04"], "card_source": "out_running / out_test / out_result", "store_query": "tool output lines"},
+
+    {"id": "answer.worked_for", "type": "text", "used_by": ["conversation-09"], "card_source": "worked_label ('Worked for 3m 4s ›')", "store_query": "turn duration", "note": "Duration from turn/started -> turn/completed."},
+    {"id": "answer.timestamp", "type": "text", "used_by": ["conversation-09"], "card_source": "answer_timestamp ('Sep 28, 9:41 PM')", "store_query": "turn.completed at"},
+    {"id": "answer.expand", "type": "action", "used_by": ["conversation-09"], "card_source": "worked_row", "client_action": "UI-local expand", "note": "Local disclosure; no protocol method."},
+
+    {"id": "approval.pending", "type": "bool", "used_by": ["conversation-05"], "card_source": "inline approval card", "store_query": "approval/requested seen", "note": "Declared here for completeness; scene 5 is NOT in this batch's 5 mapped components."},
+    {"id": "question.pending", "type": "bool", "used_by": ["conversation-06"], "card_source": "user-question card", "store_query": "user_question/requested seen", "note": "Declared for completeness; scene 6 is not in this batch."}
+  ],
+  "actions": [
+    {"id": "thread.open", "client_action": "session/open", "params": {"session_id": "row.id"}, "used_by": ["conversation-01"]},
+    {"id": "thread.new", "client_action": "session/open", "params": {"new": true}, "used_by": ["conversation-01"]},
+    {"id": "turn.interrupt", "client_action": "turn/interrupt", "params": {"session": "threads.active"}, "used_by": ["conversation-03", "conversation-08"]},
+    {"id": "composer.submit", "client_action": "turn/start", "params": {"session": "threads.active", "text": "composer.draft"}, "used_by": ["conversation-08"]},
+    {"id": "composer.steer", "client_action": "turn/steer", "params": {"session": "threads.active", "text": "composer.draft"}, "used_by": ["conversation-08"]},
+    {"id": "tool.toggle", "client_action": "UI-local expand", "params": {}, "used_by": ["conversation-04"]},
+    {"id": "turn.expand", "client_action": "UI-local expand", "params": {}, "used_by": ["conversation-09"]},
+    {"id": "session.refresh", "client_action": "session/list", "params": {}, "used_by": ["conversation-01"], "note": "Already declared in bindings.rs."}
+  ],
+  "wiring_note": "Card #12 adds one `query` arm per binding id (JSON out) and one `action` arm per action id in crates/octoscode-module/src/bindings.rs. No card sees a Rust type; ids marked UI-local need no store arm.",
+  "unverified": [
+    "The exact JSON row shape for tools is inferred from tool/* notifications, not read from a live store call.",
+    "Elapsed time fields ('12s', '3m 4s') are derived from turn/started -> turn/completed timestamps, not a single store field."
+  ]
+}
