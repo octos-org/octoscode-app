@@ -6,8 +6,8 @@
       "value": 4294901502,
       "property": "bg"
     },
-    "radius_711f1c7a2023": {
-      "value": 14.25,
+    "radius_12eb0f13ce5c": {
+      "value": 12.67,
       "property": "radius"
     },
     "size_e629fa6598d7": {
@@ -74,8 +74,8 @@
       "value": "self:resources/ux/Inter-500.ttf",
       "property": "font_src"
     },
-    "bg_3474979c4807": {
-      "value": 4278518788,
+    "bg_9eeef378d4af": {
+      "value": 4278452995,
       "property": "bg"
     },
     "radius_566afbb607a8": {
@@ -106,8 +106,8 @@
       "value": 4294901246,
       "property": "bg"
     },
-    "radius_6491d08415a8": {
-      "value": 12.71,
+    "radius_b7cc15790f83": {
+      "value": 12.27,
       "property": "radius"
     },
     "size_2e884e7b15e8": {
@@ -167,7 +167,7 @@
       "props": {},
       "slot": true
     },
-    "Surfacebf3195b7a107": {
+    "Surface07eaedee1d73": {
       "style": {
         "t": "stack",
         "variant": "surface",
@@ -175,7 +175,7 @@
           "$token": "bg_07cf9621f5e0"
         },
         "radius": {
-          "$token": "radius_711f1c7a2023"
+          "$token": "radius_12eb0f13ce5c"
         },
         "border": 1,
         "bordercolor": 4293256679
@@ -292,12 +292,12 @@
       },
       "slot": false
     },
-    "Surface7e4e2610b615": {
+    "Surface989cca714cb6": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_3474979c4807"
+          "$token": "bg_9eeef378d4af"
         },
         "radius": {
           "$token": "radius_566afbb607a8"
@@ -349,7 +349,7 @@
       },
       "slot": false
     },
-    "Surface2cbaaf5b6624": {
+    "Surfacea1bc812a6658": {
       "style": {
         "t": "stack",
         "variant": "surface",
@@ -357,7 +357,7 @@
           "$token": "bg_96b9880d1b2b"
         },
         "radius": {
-          "$token": "radius_6491d08415a8"
+          "$token": "radius_b7cc15790f83"
         },
         "border": 1,
         "bordercolor": 4293256679

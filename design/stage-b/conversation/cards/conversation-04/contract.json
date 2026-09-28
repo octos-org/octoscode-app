@@ -32,17 +32,17 @@
         "t": "stack",
         "id": "tool_1",
         "x": 16.0,
-        "y": 65.83,
+        "y": 54.0,
         "w": 374.0,
-        "h": 56.0,
+        "h": 92.0,
         "c": [
           {
             "t": "svg",
             "id": "icon_file",
-            "x": 26.0,
-            "y": 75.83,
-            "w": 18.0,
-            "h": 18.0,
+            "x": 42.0,
+            "y": 78.0,
+            "w": 24.0,
+            "h": 26.0,
             "src": ""
           },
           {
@@ -59,7 +59,7 @@
             "color": 4280098079,
             "variant": "single_line",
             "alignx": 0,
-            "font_src": "self:resources/ux/Inter-500.ttf"
+            "font_src": "self:resources/ux/LiberationMono-Regular.ttf"
           },
           {
             "t": "text",
@@ -82,30 +82,32 @@
             "id": "icon_check1",
             "x": 356.0,
             "y": 75.83,
-            "w": 18.0,
-            "h": 18.0,
+            "w": 20.0,
+            "h": 20.0,
             "src": ""
           }
         ],
         "variant": "surface",
         "bg": 4294440952,
-        "radius": 10
+        "radius": 12,
+        "border": 1,
+        "bordercolor": 4293256679
       },
       {
         "t": "stack",
         "id": "tool_2",
         "x": 16.0,
-        "y": 193.28,
+        "y": 184.0,
         "w": 374.0,
-        "h": 56.0,
+        "h": 92.0,
         "c": [
           {
             "t": "svg",
             "id": "icon_search2",
-            "x": 26.0,
-            "y": 203.28,
-            "w": 18.0,
-            "h": 18.0,
+            "x": 40.0,
+            "y": 206.0,
+            "w": 24.0,
+            "h": 24.0,
             "src": ""
           },
           {
@@ -122,7 +124,7 @@
             "color": 4280098079,
             "variant": "single_line",
             "alignx": 0,
-            "font_src": "self:resources/ux/Inter-500.ttf"
+            "font_src": "self:resources/ux/LiberationMono-Regular.ttf"
           },
           {
             "t": "text",
@@ -145,37 +147,39 @@
             "id": "icon_check2",
             "x": 356.0,
             "y": 203.28,
-            "w": 18.0,
-            "h": 18.0,
+            "w": 20.0,
+            "h": 20.0,
             "src": ""
           }
         ],
         "variant": "surface",
         "bg": 4294440952,
-        "radius": 10
+        "radius": 12,
+        "border": 1,
+        "bordercolor": 4293256679
       },
       {
         "t": "stack",
         "id": "tool_3",
         "x": 16.0,
-        "y": 324.27,
+        "y": 314.0,
         "w": 374.0,
-        "h": 62.0,
+        "h": 356.0,
         "c": [
           {
             "t": "svg",
             "id": "icon_term",
-            "x": 26.0,
-            "y": 338.27,
-            "w": 18.0,
-            "h": 18.0,
+            "x": 40.0,
+            "y": 338.0,
+            "w": 22.0,
+            "h": 22.0,
             "src": ""
           },
           {
             "t": "text",
             "id": "t05",
-            "text": ">_ Ran cargo test -p octos-cli",
-            "x": 35.44,
+            "text": "Ran cargo test -p octos-cli",
+            "x": 87.5,
             "y": 336.27,
             "w": 270.67,
             "h": 32.33,
@@ -185,7 +189,7 @@
             "color": 4280098079,
             "variant": "single_line",
             "alignx": 0,
-            "font_src": "self:resources/ux/Inter-500.ttf"
+            "font_src": "self:resources/ux/LiberationMono-Regular.ttf"
           },
           {
             "t": "text",
@@ -201,82 +205,100 @@
             "color": 4280098079,
             "variant": "single_line",
             "alignx": 0,
-            "font_src": "self:resources/ux/Inter-500.ttf"
+            "font_src": "self:resources/ux/LiberationMono-Regular.ttf"
           },
           {
             "t": "svg",
             "id": "icon_check3",
             "x": 356.0,
             "y": 334.27,
-            "w": 18.0,
-            "h": 18.0,
+            "w": 20.0,
+            "h": 20.0,
             "src": ""
+          },
+          {
+            "t": "stack",
+            "id": "tool_3_output",
+            "x": 24.0,
+            "y": 398.0,
+            "w": 358.0,
+            "h": 250.0,
+            "c": [
+              {
+                "t": "text",
+                "id": "t07",
+                "text": "running 12 tests",
+                "x": 45.05,
+                "y": 442.86,
+                "w": 135.46,
+                "h": 22.25,
+                "size": 13,
+                "line_height": 22.25,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/LiberationMono-Regular.ttf"
+              },
+              {
+                "t": "text",
+                "id": "t08",
+                "text": "••",
+                "x": 143.23,
+                "y": 488.38,
+                "w": 15.79,
+                "h": 19.5,
+                "size": 13,
+                "line_height": 19.5,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf"
+              },
+              {
+                "t": "text",
+                "id": "t09",
+                "text": "test steer_queue::reconnect_ok ... ok",
+                "x": 39.47,
+                "y": 515.45,
+                "w": 302.24,
+                "h": 23.69,
+                "size": 13,
+                "line_height": 23.69,
+                "weight": 400,
+                "color": 4280098079,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/LiberationMono-Regular.ttf"
+              },
+              {
+                "t": "text",
+                "id": "t10",
+                "text": "test result: ok. 12 passed; 0 failed",
+                "x": 42.86,
+                "y": 568.47,
+                "w": 303.37,
+                "h": 23.69,
+                "size": 13,
+                "line_height": 23.69,
+                "weight": 500,
+                "color": 4280256573,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/LiberationMono-Regular.ttf"
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294375159,
+            "radius": 8
           }
         ],
         "variant": "surface",
         "bg": 4294440952,
-        "radius": 10
-      },
-      {
-        "t": "stack",
-        "id": "tool_3_output",
-        "x": 16.0,
-        "y": 424.0,
-        "w": 374.0,
-        "h": 180.0,
-        "c": [
-          {
-            "t": "text",
-            "id": "t07",
-            "text": "running 12 tests",
-            "x": 45.05,
-            "y": 442.86,
-            "w": 135.46,
-            "h": 22.25,
-            "size": 13,
-            "line_height": 22.25,
-            "weight": 400,
-            "color": 4285427315,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-400.ttf"
-          },
-          {
-            "t": "text",
-            "id": "t08",
-            "text": "test steer_queue::reconnect_ok ... ok",
-            "x": 39.47,
-            "y": 515.45,
-            "w": 302.24,
-            "h": 23.69,
-            "size": 13,
-            "line_height": 23.69,
-            "weight": 400,
-            "color": 4280098079,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-400.ttf"
-          },
-          {
-            "t": "text",
-            "id": "t09",
-            "text": "test result: ok. 12 passed; 0 failed",
-            "x": 42.86,
-            "y": 568.47,
-            "w": 303.37,
-            "h": 23.69,
-            "size": 13,
-            "line_height": 23.69,
-            "weight": 500,
-            "color": 4280256573,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-500.ttf"
-          }
-        ],
-        "variant": "surface",
-        "bg": 4294375159,
-        "radius": 10
+        "radius": 12,
+        "border": 1,
+        "bordercolor": 4293256679
       }
     ],
     "variant": "surface",

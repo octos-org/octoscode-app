@@ -35,8 +35,18 @@ from fontTools.ttLib import TTFont
 
 ROOT = Path(__file__).resolve().parents[1] / "cards"
 
-# the flow's own metric routine, inlined so this script has no hidden dependency
-FONT_ROOT = Path("/Users/yuechen/home/oa.noindex/native/octoscript-makepad/apps/kit-host")
+# Rows whose OCR text begins with a glyph that is authored as a separate icon.
+# Keyed by (scene number, node id): node ids repeat across scenes, so a global
+# key would shift an unrelated scene's node (it did: conversation-11/t05).
+# Value = the measured logical x where the copy itself starts.
+X_OVERRIDE = {(4, "t05"): 87.5}   # conversation-04 tool_3: ">_ " is the terminal icon
+
+# Fonts must be resolved from the SAME tree compile.py validates against: the flow's
+# repository('splash-makepad') = <native workspace>/octoscript-makepad. The mono face
+# (ux/LiberationMono-Regular.ttf) is bundled in THIS clone, not in the read-only
+# /native tree, so resolving there silently skips every mono row.
+REPO = Path(__file__).resolve().parents[4]
+FONT_ROOT = REPO / "tmp/stage-b/native-ws/octoscript-makepad/apps/kit-host"
 _CACHE = {}
 
 
@@ -72,7 +82,7 @@ def font_path(src):
     return FONT_ROOT / src.removeprefix("self:")
 
 
-def fix_scene(d):
+def fix_scene(d, scene_no):
     obs_path = d / "observations.json"
     mapped_path = d / "mapped.json"
     if not obs_path.exists() or not mapped_path.exists():
@@ -85,13 +95,20 @@ def fix_scene(d):
     for n in walk(doc["tree"]):
         if n["t"] != "text" or n["id"] not in ink:
             continue
-        try:
-            (x0, _y0, _x1, _y1), advance = metrics(str(font_path(n["font_src"])), n["text"])
-        except Exception:
-            continue
+        fp = font_path(n["font_src"])
+        if not fp.is_file():
+            raise SystemExit(f"fix_metrics: font not found for {n['id']}: {fp}")
+        (x0, _y0, _x1, _y1), advance = metrics(str(fp), n["text"])
         if advance <= 0:
-            continue
+            raise SystemExit(f"fix_metrics: non-positive advance for {n['id']}: {n['text']!r}")
         ix, iy, iw, ih = ink[n["id"]]
+        # apple Vision reads the tool row's terminal ICON as a leading ">_ " glyph, so the
+        # measured ink starts at the icon, not the copy. The icon is a separate SVG here;
+        # shift the label to the measured text start and keep the measured right edge.
+        if (scene_no, n["id"]) in X_OVERRIDE:
+            new_x = X_OVERRIDE[(scene_no, n["id"])]
+            iw = (ix + iw) - new_x
+            ix = new_x
         size = iw / advance                      # width-fit => tracking 0
         line_box = size * 2478 / 2048            # Inter's natural line box
         n["x"] = round(ix - x0 * size, 2)        # keep the glyph left-bearing offset
@@ -114,7 +131,7 @@ def fix_scene(d):
 if __name__ == "__main__":
     total = 0
     for d in sorted(ROOT.glob("conversation-*")):
-        c = fix_scene(d)
+        c = fix_scene(d, int(d.name.split("-")[1]))
         total += c
         print(f"{d.name}: corrected {c} text metrics")
     print(f"total {total}")

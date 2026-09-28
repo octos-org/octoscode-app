@@ -23,9 +23,9 @@
             "text": "",
             "placeholder": "Ask Octos anything",
             "x": 31.0,
-            "y": 141.875,
+            "y": 140.556,
             "w": 300.0,
-            "h": 47.5,
+            "h": 42.222,
             "size": 15,
             "line_height": 40.0,
             "weight": 400,
@@ -40,14 +40,14 @@
             "t": "svg",
             "id": "icon_plus1",
             "x": 31.0,
-            "y": 274.875,
+            "y": 258.778,
             "w": 18.0,
-            "h": 28.5,
+            "h": 25.333,
             "src": ""
           },
           {
             "t": "stack",
-            "id": "approval_pill1",
+            "id": "pill1",
             "x": 66.0,
             "y": 251.0,
             "w": 122.0,
@@ -55,7 +55,7 @@
             "c": [
               {
                 "t": "text",
-                "id": "t03",
+                "id": "pill1_t",
                 "text": "Ask for approval",
                 "x": 78.18,
                 "y": 265.5,
@@ -81,9 +81,9 @@
             "t": "svg",
             "id": "icon_mic1",
             "x": 307.0,
-            "y": 271.312,
+            "y": 255.611,
             "w": 16.0,
-            "h": 32.062,
+            "h": 28.5,
             "src": ""
           },
           {
@@ -107,28 +107,28 @@
             "t": "stack",
             "id": "send1",
             "x": 345.0,
-            "y": 263.0,
+            "y": 248.222,
             "w": 36.0,
-            "h": 42.75,
+            "h": 38.0,
             "c": [
               {
                 "t": "svg",
                 "id": "icon_send",
                 "x": 355.0,
-                "y": 274.875,
+                "y": 258.778,
                 "w": 16.0,
-                "h": 19.0,
+                "h": 16.889,
                 "src": ""
               }
             ],
             "variant": "surface",
-            "bg": 4278518788,
+            "bg": 4278452995,
             "radius": 18.0
           }
         ],
         "variant": "surface",
         "bg": 4294901502,
-        "radius": 14.25,
+        "radius": 12.67,
         "border": 1,
         "bordercolor": 4293256679
       },
@@ -191,14 +191,14 @@
             "t": "svg",
             "id": "icon_plus2",
             "x": 28.0,
-            "y": 600.941,
+            "y": 600.773,
             "w": 18.0,
-            "h": 25.412,
+            "h": 24.545,
             "src": ""
           },
           {
             "t": "stack",
-            "id": "approval_pill2",
+            "id": "pill2",
             "x": 66.0,
             "y": 586.0,
             "w": 122.0,
@@ -206,7 +206,7 @@
             "c": [
               {
                 "t": "text",
-                "id": "t08",
+                "id": "pill2_t",
                 "text": "Ask for approval",
                 "x": 78.18,
                 "y": 601.0,
@@ -232,9 +232,9 @@
             "t": "svg",
             "id": "icon_mic2",
             "x": 306.0,
-            "y": 600.941,
+            "y": 600.773,
             "w": 16.0,
-            "h": 27.529,
+            "h": 26.591,
             "src": ""
           },
           {
@@ -258,17 +258,17 @@
             "t": "stack",
             "id": "stop2",
             "x": 346.0,
-            "y": 592.471,
+            "y": 592.591,
             "w": 36.0,
-            "h": 38.118,
+            "h": 36.818,
             "c": [
               {
                 "t": "svg",
                 "id": "icon_stop2",
                 "x": 356.0,
-                "y": 603.059,
+                "y": 602.818,
                 "w": 16.0,
-                "h": 16.941,
+                "h": 16.364,
                 "src": ""
               }
             ],
@@ -279,7 +279,7 @@
         ],
         "variant": "surface",
         "bg": 4294901246,
-        "radius": 12.71,
+        "radius": 12.27,
         "border": 1,
         "bordercolor": 4293256679
       }
@@ -305,7 +305,7 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "approval_pill1",
+      "id": "pill1",
       "source": "observed non-text annotation"
     },
     {
@@ -333,7 +333,7 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "approval_pill2",
+      "id": "pill2",
       "source": "observed non-text annotation"
     },
     {
@@ -349,7 +349,7 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "t03",
+      "id": "pill1_t",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.18296669407894736
@@ -373,7 +373,7 @@
       "tracking_em": -0.16223842075892858
     },
     {
-      "id": "t08",
+      "id": "pill2_t",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.18127227247807015

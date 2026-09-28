@@ -14,7 +14,7 @@
       "requested_bounds": [
         25.94,
         42.86,
-        280.0,
+        180.44,
         22.64
       ],
       "status": "observed",
@@ -137,50 +137,51 @@
       ]
     },
     {
-      "id": "t05",
-      "expected_text": "steer_dropped handling.",
+      "id": "t05c_t",
+      "expected_text": "steer_dropped",
       "requested_bounds": [
-        54.78,
-        252.0,
-        219.11,
-        32.53
+        56.5,
+        248.0,
+        125.5,
+        26.0
       ],
-      "status": "observed",
-      "ocr_text": "steer_dropped handling.",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        61.5,
-        256.0,
-        213.0,
-        24.0
-      ],
-      "ink_color": [
-        42,
-        42,
-        43
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        54.77777425643089,
-        252.00000003451004,
-        219.11111450195318,
-        32.53333282470701
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
-      "id": "t06",
-      "expected_text": "\u2022 Updated ui_protocol_transport.rs",
+      "id": "t05b",
+      "expected_text": " handling.",
+      "requested_bounds": [
+        182.0,
+        252.0,
+        91.89,
+        32.53
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t06a",
+      "expected_text": "\u2022 Updated ",
       "requested_bounds": [
         22.56,
         320.0,
-        341.56,
+        113.94,
         32.5
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t06c_t",
+      "expected_text": "ui_protocol_transport.rs",
+      "requested_bounds": [
+        136.5,
+        318.0,
+        230.5,
+        26.0
       ],
       "status": "observed",
       "ocr_text": "\u2022 Updated ui_protocol_transport.rs",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.8275862068965517,
       "ink_bounds": [
         29.5,
         321.0,
@@ -265,50 +266,51 @@
       ]
     },
     {
-      "id": "t09",
-      "expected_text": "\u2022 All tests pass: 12 passed.",
+      "id": "t09a",
+      "expected_text": "\u2022 All tests pass: ",
       "requested_bounds": [
         25.94,
         469.0,
-        256.01,
+        152.06,
         26.15
       ],
-      "status": "observed",
-      "ocr_text": "\u2022 All tests pass: 12 passed .",
-      "confidence": 1,
-      "text_similarity": 0.9824561403508771,
-      "ink_bounds": [
-        29.5,
-        470.0,
-        249.0,
-        25.0
-      ],
-      "ink_color": [
-        42,
-        43,
-        43
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        25.938887593446225,
-        469.0000002506863,
-        256.00555419921875,
-        26.15116214752202
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
-      "id": "t10",
-      "expected_text": "\u2022 Changes included in commit a6ea8505.",
+      "id": "t09c_t",
+      "expected_text": "12 passed",
+      "requested_bounds": [
+        178.0,
+        466.0,
+        89.0,
+        24.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t09b",
+      "expected_text": ".",
+      "requested_bounds": [
+        267.0,
+        469.0,
+        14.94,
+        26.15
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t10a",
+      "expected_text": "\u2022 Changes included in commit ",
       "requested_bounds": [
         22.56,
         533.5,
-        364.11,
+        267.94,
         32.5
       ],
       "status": "observed",
       "ocr_text": "\u2022 Changes included in commit a6ea8505 .",
       "confidence": 1,
-      "text_similarity": 0.987012987012987,
+      "text_similarity": 0.835820895522388,
       "ink_bounds": [
         29.5,
         535.0,
@@ -327,6 +329,28 @@
         364.1111145019531,
         32.49999999999997
       ]
+    },
+    {
+      "id": "t10c_t",
+      "expected_text": "a6ea8505",
+      "requested_bounds": [
+        290.5,
+        530.0,
+        81.0,
+        26.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t10b",
+      "expected_text": ".",
+      "requested_bounds": [
+        371.5,
+        533.5,
+        15.17,
+        32.5
+      ],
+      "status": "missing_or_ocr_unresolved"
     },
     {
       "id": "t11",
@@ -410,15 +434,56 @@
       "reviewed": false
     },
     {
-      "id": "worked_row_icon",
+      "id": "t05c",
       "bounds": [
-        26.0,
-        45.0,
-        18.0,
-        18.0
+        53.0,
+        247.0,
+        133.0,
+        37.0
       ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
-      "reviewed": false
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294177780,
+      "radius": 6.94
+    },
+    {
+      "id": "t06c",
+      "bounds": [
+        132.0,
+        315.0,
+        240.0,
+        38.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294177780,
+      "radius": 7.12
+    },
+    {
+      "id": "t09c",
+      "bounds": [
+        175.0,
+        461.0,
+        96.0,
+        37.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294243574,
+      "radius": 7.4
+    },
+    {
+      "id": "t10c",
+      "bounds": [
+        287.0,
+        526.0,
+        89.0,
+        38.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294177781,
+      "radius": 7.12
     },
     {
       "id": "icon_copy",
@@ -454,7 +519,28 @@
       "reviewed": false
     }
   ],
-  "unmapped_ocr": [],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        109.55554851286178,
+        504.0000000690201,
+        438.22222900390636,
+        65.06666564941402
+      ],
+      "confidence": 1,
+      "text": "steer_dropped handling."
+    },
+    {
+      "bounds": [
+        51.87777518689245,
+        938.0000005013726,
+        512.0111083984375,
+        52.30232429504404
+      ],
+      "confidence": 1,
+      "text": "\u2022 All tests pass: 12 passed ."
+    }
+  ],
   "non_text_ocr": [],
   "limits": [
     "OCR cannot prove font family, hierarchy or control behavior.",

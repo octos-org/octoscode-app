@@ -24,7 +24,7 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "stack",
-      "component": "Surfacebf3195b7a107",
+      "component": "Surface07eaedee1d73",
       "semantic_role": "layout",
       "bounds": [
         17.0,
@@ -46,9 +46,9 @@
       "semantic_role": "input",
       "bounds": [
         31.0,
-        141.875,
+        140.556,
         300.0,
-        47.5
+        42.222
       ],
       "text": "",
       "enabled": 1,
@@ -64,9 +64,9 @@
       "semantic_role": "icon",
       "bounds": [
         31.0,
-        274.875,
+        258.778,
         18.0,
-        28.5
+        25.333
       ],
       "text": null,
       "enabled": null,
@@ -74,7 +74,7 @@
       "size": null
     },
     {
-      "source_id": "approval_pill1",
+      "source_id": "pill1",
       "native_id": "beauty_0_0_2",
       "parent": "composer_idle",
       "kind": "stack",
@@ -92,9 +92,9 @@
       "size": null
     },
     {
-      "source_id": "t03",
+      "source_id": "pill1_t",
       "native_id": "beauty_0_0_2_0",
-      "parent": "approval_pill1",
+      "parent": "pill1",
       "kind": "text",
       "component": "Text78e146733ffe",
       "semantic_role": "text",
@@ -118,9 +118,9 @@
       "semantic_role": "icon",
       "bounds": [
         307.0,
-        271.312,
+        255.611,
         16.0,
-        32.062
+        28.5
       ],
       "text": null,
       "enabled": null,
@@ -150,13 +150,13 @@
       "native_id": "beauty_0_0_5",
       "parent": "composer_idle",
       "kind": "stack",
-      "component": "Surface7e4e2610b615",
+      "component": "Surface989cca714cb6",
       "semantic_role": "layout",
       "bounds": [
         345.0,
-        263.0,
+        248.222,
         36.0,
-        42.75
+        38.0
       ],
       "text": null,
       "enabled": null,
@@ -172,9 +172,9 @@
       "semantic_role": "icon",
       "bounds": [
         355.0,
-        274.875,
+        258.778,
         16.0,
-        19.0
+        16.889
       ],
       "text": null,
       "enabled": null,
@@ -222,7 +222,7 @@
       "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "stack",
-      "component": "Surface2cbaaf5b6624",
+      "component": "Surfacea1bc812a6658",
       "semantic_role": "layout",
       "bounds": [
         16.0,
@@ -262,9 +262,9 @@
       "semantic_role": "icon",
       "bounds": [
         28.0,
-        600.941,
+        600.773,
         18.0,
-        25.412
+        24.545
       ],
       "text": null,
       "enabled": null,
@@ -272,7 +272,7 @@
       "size": null
     },
     {
-      "source_id": "approval_pill2",
+      "source_id": "pill2",
       "native_id": "beauty_0_2_2",
       "parent": "composer_active",
       "kind": "stack",
@@ -290,9 +290,9 @@
       "size": null
     },
     {
-      "source_id": "t08",
+      "source_id": "pill2_t",
       "native_id": "beauty_0_2_2_0",
-      "parent": "approval_pill2",
+      "parent": "pill2",
       "kind": "text",
       "component": "Textf5dec8faacc2",
       "semantic_role": "text",
@@ -316,9 +316,9 @@
       "semantic_role": "icon",
       "bounds": [
         306.0,
-        600.941,
+        600.773,
         16.0,
-        27.529
+        26.591
       ],
       "text": null,
       "enabled": null,
@@ -352,9 +352,9 @@
       "semantic_role": "layout",
       "bounds": [
         346.0,
-        592.471,
+        592.591,
         36.0,
-        38.118
+        36.818
       ],
       "text": null,
       "enabled": null,
@@ -370,9 +370,9 @@
       "semantic_role": "icon",
       "bounds": [
         356.0,
-        603.059,
+        602.818,
         16.0,
-        16.941
+        16.364
       ],
       "text": null,
       "enabled": null,
@@ -384,6 +384,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "9f432c2ebf1f407249a2a0e65a93c3308750f1c6aee39194fabd090bfe4a96ed",
+  "contract_sha256": "848caefb6f7e58ea96a9bf15c9e63078dfecb22a60f331cd1fc7a038b9987492",
   "mapping_basis": "mapped.json"
 }

@@ -36,9 +36,12 @@ C_HEX = {"white": "#FFFFFF", "panel": "#F7F7F8", "hair": "#E5E5E7", "ink": "#1D1
          "mono": "#F6F6F7"}
 FONT = {400: "self:resources/ux/Inter-400.ttf", 500: "self:resources/ux/Inter-500.ttf",
         600: "self:resources/ux/Inter-600.ttf", 700: "self:resources/ux/Inter-700.ttf"}
-# No monospace face ships in the host's resource set (verified: only Inter/Roboto/
-# Montserrat/DMSans/NotoSansSC/Poppins/PlusJakarta). Code-ish copy uses Inter-400.
-MONO = FONT[400]
+# Card #11d: the host now bundles a monospace face. `apps/kit-host/resources/ux/
+# LiberationMono-Regular.ttf` is copied from the pinned makepad tree
+# (makepad/widgets/resources/LiberationMono-Regular.ttf) and beauty-host is rebuilt
+# from that clone, so `self:resources/ux/LiberationMono-Regular.ttf` resolves
+# (verified: 0 "not available in this build" warnings). See tools/rebuild.sh.
+MONO = "self:resources/ux/LiberationMono-Regular.ttf"
 
 TITLES = {1: "Thread list", 2: "New chat", 3: "Streaming turn", 4: "Tool cells",
           5: "Inline approval", 6: "User question", 7: "Edited files",
@@ -104,6 +107,32 @@ ICON_REG = {}   # id -> (name, color); populated by icon() so NO svg can be miss
 def icon(id, name, x, y, w, h, *, color="ink"):
     ICON_REG[id] = (name, color)
     return {"t": "svg", "id": id, "x": r(x), "y": r(y), "w": r(w), "h": r(h), "src": ""}
+
+def code(id, s, x, y, w, h, *, weight=400, color="ink", size=None):
+    """A code/path/command line: the bundled monospace face."""
+    return text(id, s, x, y, w, h, weight=weight, color=color, size=size, font=MONO)
+
+def chip(id, s, x, y, w, h, *, color="ink", size=None, weight=400, radius=6, padx=4, pady=3):
+    """An inline code chip: a grey rounded surface wrapping a mono token."""
+    size = size or r(max(h / 1.5, 9.0))
+    inner = text(id + "_t", s, x, y, w, h, weight=weight, color=color, size=size, font=MONO)
+    return surface(id, x - padx, y - pady, w + 2 * padx, h + 2 * pady,
+                   bg="mono", radius=radius, kids=[inner])
+
+def row_with_chip(id, s, box, chip_box, token, *, size=13, color="ink"):
+    """Split a measured OCR line into prefix / code chip / suffix at the token."""
+    x, y, w, h = box
+    cx, cy, cw, ch = chip_box
+    pre, sep, post = s.partition(token)
+    out = []
+    if pre:
+        out.append(text(id + "a", pre, x, y, max(cx - x, 8), h, size=size, color=color))
+    if sep:
+        out.append(chip(id + "c", token, cx, cy, cw, ch, size=size, color=color))
+    if post:
+        out.append(text(id + "b", post, cx + cw, y, max((x + w) - (cx + cw), 8), h,
+                        size=size, color=color))
+    return out
 
 def input_node(id, x, y, w, h, placeholder, *, size=15, color="muted"):
     return {"t": "input", "id": id, "text": "", "placeholder": placeholder,
@@ -235,67 +264,89 @@ def build_03(sc):
     sc.inputs["composer_input"] = ("composer.draft", [30, 594, 300, 40])
 
 def build_04(sc):
+    """Three tool cells. Atlas (measured): each row is a bordered card;
+    tool_3's card CONTAINS its output box. Code/paths/commands use the mono face."""
     _, x0, y0, w0, h0 = sc.rows[0]
-    sc.put(surface("tool_1", 16, y0 - 12, 374, 56, bg="panel", radius=10, kids=[
-        icon("icon_file", "file", 26, y0 - 2, 18, 18),
-        text("t01", sc.t(0), x0, y0, w0, h0, weight=500, size=14),
+    sc.put(surface("tool_1", 16, 54, 374, 92, bg="panel", radius=12, border=1,
+                   bordercolor="hair", kids=[
+        icon("icon_file", "file", 42, 78, 24, 26),
+        code("t01", sc.t(0), x0, y0, w0, h0, weight=500, size=14),
         text("t02", sc.t(1), *sc.rows[1][1:], size=13, color="muted"),
-        icon("icon_check1", "check", 356, y0 - 2, 18, 18, color="green")]))
+        icon("icon_check1", "check", 356, y0 - 2, 20, 20, color="green")]))
     _, x2, y2, w2, h2 = sc.rows[2]
-    sc.put(surface("tool_2", 16, y2 - 12, 374, 56, bg="panel", radius=10, kids=[
-        icon("icon_search2", "search", 26, y2 - 2, 18, 18),
-        text("t03", sc.t(2), x2, y2, w2, h2, weight=500, size=14),
+    sc.put(surface("tool_2", 16, 184, 374, 92, bg="panel", radius=12, border=1,
+                   bordercolor="hair", kids=[
+        icon("icon_search2", "search", 40, 206, 24, 24),
+        code("t03", sc.t(2), x2, y2, w2, h2, weight=500, size=14),
         text("t04", sc.t(3), *sc.rows[3][1:], size=13, color="muted"),
-        icon("icon_check2", "check", 356, y2 - 2, 18, 18, color="green")]))
+        icon("icon_check2", "check", 356, y2 - 2, 20, 20, color="green")]))
     _, x4, y4, w4, h4 = sc.rows[4]
-    sc.put(surface("tool_3", 16, y4 - 12, 374, 62, bg="panel", radius=10, kids=[
-        icon("icon_term", "terminal", 26, y4 + 2, 18, 18),
-        text("t05", sc.t(4), x4, y4, w4, h4, weight=500, size=14),
-        text("t06", sc.t(5), *sc.rows[5][1:], size=14, weight=500),
-        icon("icon_check3", "check", 356, y4 - 2, 18, 18, color="green")]))
-    sc.put(surface("tool_3_output", 16, 424, 374, 180, bg="mono", radius=10, kids=[
-        text("t07", sc.t(6), *sc.rows[6][1:], size=13, color="muted"),
-        text("t08", sc.t(8), *sc.rows[8][1:], size=13),
-        text("t09", sc.t(9), *sc.rows[9][1:], size=13, weight=500, color="green")]))
+    output = surface("tool_3_output", 24, 398, 358, 250, bg="mono", radius=8, kids=[
+        code("t07", sc.t(6), *sc.rows[6][1:], size=13, color="muted"),
+        text("t08", sc.t(7), *sc.rows[7][1:], size=13, color="muted"),   # the dotted progress row
+        code("t09", sc.t(8), *sc.rows[8][1:], size=13),
+        code("t10", sc.t(9), *sc.rows[9][1:], size=13, weight=500, color="green")])
+    # the terminal glyph is the icon; the ">_ " the OCR read is that icon itself
+    sc.put(surface("tool_3", 16, 314, 374, 356, bg="panel", radius=12, border=1,
+                   bordercolor="hair", kids=[
+        icon("icon_term", "terminal", 40, 338, 22, 22),
+        # the OCR row's x included the ">_ " icon glyph; the label starts AFTER the icon
+        code("t05", "Ran cargo test -p octos-cli", 87.5, y4, w4, h4, weight=500, size=14),
+        code("t06", sc.t(5), *sc.rows[5][1:], size=14, weight=500),
+        icon("icon_check3", "check", 356, y4 - 2, 20, 20, color="green"),
+        output]))
 
 def build_08(sc):
-    _, px, py, pw, ph = sc.rows[0]
-    ax0, ay0, aw0, ah0 = sc.rows[2][1:]
-    sc.put(surface("composer_idle", 16, 140, 374, 160, bg="panel", radius=12, border=1,
+    """Two composer states, each a bordered card whose edges read as the divider
+    (atlas: full-width rules at y=320.5 and y=475.5). The send arrow is white on black."""
+    sc.put(surface("composer_idle", 16, 140, 374, 180, bg="panel", radius=12, border=1,
                    bordercolor="hair", kids=[
         input_node("composer_idle_input", 30, 150, 300, 40, sc.t(0)),
         icon("icon_plus1", "plus", 30, 262, 18, 24, color="muted"),
-        surface("approval_pill1", ax0 - 10, ay0 - 6, aw0 + 20, ah0 + 13, bg="white",
-                radius=999, border=1, bordercolor="hair",
-                kids=[text("t03", sc.t(2), ax0, ay0, aw0, ah0, size=13, color="muted")]),
+        *chip_row(sc, "pill1", 2, pad=10, bg="white"),
         icon("icon_mic1", "mic", 306, 259, 16, 27, color="muted"),
         text("t04", fix(sc.t(3)), *sc.rows[3][1:], size=13, weight=500),
         surface("send1", 344, 252, 36, 36, bg="black", radius=999,
-                kids=[icon("icon_send", "send", 354, 262, 16, 16)])]))
+                kids=[icon("icon_send", "send", 354, 262, 16, 16, color="white")])]))
     sc.inputs["composer_idle_input"] = ("composer.draft", [30, 150, 300, 40])
     _, qx, qy, qw, qh = sc.rows[4]
     sc.put(surface("queued_row", 16, qy - 10, qw + 28, qh + 20, bg="panel", radius=10,
                    kids=[text("t05", fix(sc.t(4)), qx, qy, qw, qh, size=13, weight=500)]))
-    ax1, ay1, aw1, ah1 = sc.rows[7][1:]
-    sc.put(surface("composer_active", 16, 480, 374, 170, bg="panel", radius=12, border=1,
+    sc.put(surface("composer_active", 16, 476, 374, 176, bg="panel", radius=12, border=1,
                    bordercolor="hair", kids=[
         text("t06", sc.t(5), *sc.rows[5][1:], size=15),
         icon("icon_plus2", "plus", 28, 598, 18, 24, color="muted"),
-        surface("approval_pill2", ax1 - 10, ay1 - 6, aw1 + 20, ah1 + 13, bg="white",
-                radius=999, border=1, bordercolor="hair",
-                kids=[text("t08", sc.t(7), ax1, ay1, aw1, ah1, size=13, color="muted")]),
+        *chip_row(sc, "pill2", 7, pad=10, bg="white"),
         icon("icon_mic2", "mic", 306, 598, 16, 26, color="muted"),
         text("t09", fix(sc.t(8)), *sc.rows[8][1:], size=13, weight=500),
         surface("stop2", 346, 590, 36, 36, bg="black", radius=999,
                 kids=[icon("icon_stop2", "stop", 356, 600, 16, 16)])]))
 
+def chip_row(sc, id, row_i, *, pad=10, bg="white"):
+    """The 'Ask for approval' pill: a bordered surface wrapping measured copy."""
+    x, y, w, h = sc.rows[row_i][1:]
+    return [surface(id, x - pad, y - 6, w + 2 * pad, h + 13, bg=bg, radius=999,
+                    border=1, bordercolor="hair",
+                    kids=[text(id + "_t", sc.t(row_i), x, y, w, h, size=13, color="muted")])]
+
 def build_09(sc):
+    """Completed answer: regular heading, four inline code chips, no stray chevron
+    (the '‹›' in the atlas is part of the row's own copy, not an overlay)."""
+    rx, ry, rw, rh = sc.rows[0][1:]
     sc.add_control("worked_row", 16, 32, 374, 44, 0, bg="panel", radius=10, weight=500,
-                   color="muted", icon_name="chevron",
-                   lx=sc.rows[0][1], ly=sc.rows[0][2], lw=280, lh=sc.rows[0][4], event="turn.expand")
-    sc.add_text("t02", 1, weight=600, size=16)
+                   color="muted", lx=rx, ly=ry, lw=rw, lh=rh, event="turn.expand")
+    sc.add_text("t02", 1, weight=400, size=16)
+    CHIPS = {4: ("steer_dropped", (56.5, 248, 125.5, 26)),
+             5: ("ui_protocol_transport.rs", (136.5, 318, 230.5, 26)),
+             8: ("12 passed", (178.0, 466, 89.0, 24)),
+             9: ("a6ea8505", (290.5, 530, 81.0, 26))}
     for i in range(2, 10):
-        sc.add_text(f"t{i+1:02d}", i, size=14)
+        if i in CHIPS:
+            tok, box = CHIPS[i]
+            for n in row_with_chip(f"t{i+1:02d}", sc.t(i), sc.rows[i][1:], box, tok, size=14):
+                sc.put(n)
+        else:
+            sc.add_text(f"t{i+1:02d}", i, size=14)
     sc.add_icon("icon_copy", "copy", 24, 640, 20, 20, color="muted")
     sc.add_icon("icon_thumbs", "thumbs", 52, 640, 20, 20, color="muted")
     sc.add_icon("icon_share", "share", 80, 640, 20, 20, color="muted")

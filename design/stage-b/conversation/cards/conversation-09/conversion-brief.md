@@ -69,19 +69,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "worked_row_icon",
-    "x": 26.0,
-    "y": 45.0,
-    "w": 18.0,
-    "h": 18.0,
-    "role": "unknown",
-    "native_candidates": []
-  },
-  {
     "id": "worked_row_label",
     "x": 25.94,
     "y": 42.86,
-    "w": 280.0,
+    "w": 180.44,
     "h": 22.64,
     "text": "Worked for 3m 4s \u203a",
     "font_src": "self:resources/ux/Inter-500.ttf",
@@ -100,9 +91,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "w": 322.88,
     "h": 25.28,
     "text": "Queued steers now survive a reconnect.",
-    "font_src": "self:resources/ux/Inter-600.ttf",
+    "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 16,
-    "weight": 600,
+    "weight": 400,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -142,12 +133,39 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t05",
-    "x": 54.78,
+    "id": "t05c",
+    "x": 52.5,
+    "y": 245.0,
+    "w": 133.5,
+    "h": 32.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t05c_t",
+    "x": 56.5,
+    "y": 248.0,
+    "w": 125.5,
+    "h": 26.0,
+    "text": "steer_dropped",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 14,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t05b",
+    "x": 182.0,
     "y": 252.0,
-    "w": 219.11,
+    "w": 91.89,
     "h": 32.53,
-    "text": "steer_dropped handling.",
+    "text": " handling.",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 14,
     "weight": 400,
@@ -158,13 +176,40 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t06",
+    "id": "t06a",
     "x": 22.56,
     "y": 320.0,
-    "w": 341.56,
+    "w": 113.94,
     "h": 32.5,
-    "text": "\u2022 Updated ui_protocol_transport.rs",
+    "text": "\u2022 Updated ",
     "font_src": "self:resources/ux/Inter-400.ttf",
+    "size": 14,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t06c",
+    "x": 132.5,
+    "y": 315.0,
+    "w": 238.5,
+    "h": 32.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t06c_t",
+    "x": 136.5,
+    "y": 318.0,
+    "w": 230.5,
+    "h": 26.0,
+    "text": "ui_protocol_transport.rs",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
     "size": 14,
     "weight": 400,
     "role": "text",
@@ -206,12 +251,12 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t09",
+    "id": "t09a",
     "x": 25.94,
     "y": 469.0,
-    "w": 256.01,
+    "w": 152.06,
     "h": 26.15,
-    "text": "\u2022 All tests pass: 12 passed.",
+    "text": "\u2022 All tests pass: ",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 14,
     "weight": 400,
@@ -222,12 +267,98 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t10",
+    "id": "t09c",
+    "x": 174.0,
+    "y": 463.0,
+    "w": 97.0,
+    "h": 30.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t09c_t",
+    "x": 178.0,
+    "y": 466.0,
+    "w": 89.0,
+    "h": 24.0,
+    "text": "12 passed",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 14,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t09b",
+    "x": 267.0,
+    "y": 469.0,
+    "w": 14.94,
+    "h": 26.15,
+    "text": ".",
+    "font_src": "self:resources/ux/Inter-400.ttf",
+    "size": 14,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t10a",
     "x": 22.56,
     "y": 533.5,
-    "w": 364.11,
+    "w": 267.94,
     "h": 32.5,
-    "text": "\u2022 Changes included in commit a6ea8505.",
+    "text": "\u2022 Changes included in commit ",
+    "font_src": "self:resources/ux/Inter-400.ttf",
+    "size": 14,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t10c",
+    "x": 286.5,
+    "y": 527.0,
+    "w": 89.0,
+    "h": 32.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t10c_t",
+    "x": 290.5,
+    "y": 530.0,
+    "w": 81.0,
+    "h": 26.0,
+    "text": "a6ea8505",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 14,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t10b",
+    "x": 371.5,
+    "y": 533.5,
+    "w": 15.17,
+    "h": 32.5,
+    "text": ".",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 14,
     "weight": 400,

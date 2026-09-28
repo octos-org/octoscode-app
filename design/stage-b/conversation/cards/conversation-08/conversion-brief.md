@@ -38,7 +38,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 16.0,
     "y": 140.0,
     "w": 374.0,
-    "h": 160.0,
+    "h": 180.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -70,7 +70,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "native_candidates": []
   },
   {
-    "id": "approval_pill1",
+    "id": "pill1",
     "x": 66.67,
     "y": 260.09,
     "w": 122.67,
@@ -81,7 +81,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t03",
+    "id": "pill1_t",
     "x": 76.67,
     "y": 266.09,
     "w": 102.67,
@@ -171,9 +171,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "composer_active",
     "x": 16.0,
-    "y": 480.0,
+    "y": 476.0,
     "w": 374.0,
-    "h": 170.0,
+    "h": 176.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -205,7 +205,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "native_candidates": []
   },
   {
-    "id": "approval_pill2",
+    "id": "pill2",
     "x": 66.63,
     "y": 596.02,
     "w": 122.74,
@@ -216,7 +216,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t08",
+    "id": "pill2_t",
     "x": 76.63,
     "y": 602.02,
     "w": 102.74,

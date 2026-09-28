@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "9f432c2ebf1f407249a2a0e65a93c3308750f1c6aee39194fabd090bfe4a96ed",
+  "contract_sha256": "848caefb6f7e58ea96a9bf15c9e63078dfecb22a60f331cd1fc7a038b9987492",
   "reference_sha256": "829a53ebc3854b7200c2a4e0d713ebf76586f802deee43ca535060f28068b3d9",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -48,14 +48,14 @@
       }
     },
     {
-      "id": "approval_pill1",
+      "id": "pill1",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t03",
+      "id": "pill1_t",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
@@ -99,7 +99,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/icon_send.svg",
-        "sha256": "868293c3426ffd3f782fb891bb9b81c83565a8c7467a9166dd989fd05378c836",
+        "sha256": "3fe1783d764e9fc45946b981d0f1916002bee25cd4f372339740edc4d6dd47c9",
         "method": "reference_svg",
         "reference_sha256": "829a53ebc3854b7200c2a4e0d713ebf76586f802deee43ca535060f28068b3d9",
         "fit": "stretch",
@@ -152,14 +152,14 @@
       }
     },
     {
-      "id": "approval_pill2",
+      "id": "pill2",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t08",
+      "id": "pill2_t",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,

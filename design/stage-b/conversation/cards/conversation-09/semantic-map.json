@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "8ee287cfc596dbc686194a972c2ea502a26d4a5f1e066782380654a1db834ab2",
+  "contract_sha256": "715483a074b72e929dc90f38b4f381344dae3f660c7168b8bce0ed98e9fa4e16",
   "reference_sha256": "8d49354eb55c0b9134e6b27998b0cae234706a2744bc34be68baa2b106735383",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -34,22 +34,6 @@
       "decision": "declared"
     },
     {
-      "id": "worked_row_icon",
-      "role": "icon",
-      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
-      "confidence": 1.0,
-      "decision": "reviewed",
-      "asset": {
-        "path": "assets/worked_row_icon.svg",
-        "sha256": "c8e4d035abf3a9e6ab60da41854ace308078568ff9f87fd2fd5239a852e5a270",
-        "method": "reference_svg",
-        "reference_sha256": "8d49354eb55c0b9134e6b27998b0cae234706a2744bc34be68baa2b106735383",
-        "fit": "stretch",
-        "clip": true,
-        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
-      }
-    },
-    {
       "id": "worked_row_label",
       "role": "text",
       "basis": "authored text node",
@@ -78,14 +62,42 @@
       "decision": "declared"
     },
     {
-      "id": "t05",
+      "id": "t05c",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t05c_t",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t06",
+      "id": "t05b",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t06a",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t06c",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t06c_t",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
@@ -106,14 +118,56 @@
       "decision": "declared"
     },
     {
-      "id": "t09",
+      "id": "t09a",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t10",
+      "id": "t09c",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t09c_t",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t09b",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t10a",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t10c",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t10c_t",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t10b",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,

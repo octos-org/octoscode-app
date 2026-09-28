@@ -24,7 +24,7 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "stack",
-      "component": "Surface9cadffcb1f72",
+      "component": "Surface2d72cf7029d3",
       "semantic_role": "layout",
       "bounds": [
         18.0,
@@ -45,10 +45,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        27.92,
-        65.75,
-        17.856,
-        33.75
+        43.791,
+        74.391,
+        23.807,
+        29.674
       ],
       "text": null,
       "enabled": null,
@@ -60,18 +60,18 @@
       "native_id": "beauty_0_0_1",
       "parent": "tool_1",
       "kind": "text",
-      "component": "Text6f36a75ec021",
+      "component": "Text3990198d8404",
       "semantic_role": "text",
       "bounds": [
-        88.2,
+        88.47,
         76.0,
         231.5,
         23.5
       ],
       "text": "Read ui_protocol_transport.rs",
       "enabled": null,
-      "font": "self:resources/ux/Inter-500.ttf",
-      "size": 16.17
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 13.07
     },
     {
       "source_id": "t02",
@@ -100,9 +100,9 @@
       "semantic_role": "icon",
       "bounds": [
         355.273,
-        65.75,
-        17.856,
-        33.75
+        71.915,
+        19.84,
+        22.826
       ],
       "text": null,
       "enabled": null,
@@ -114,7 +114,7 @@
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "stack",
-      "component": "Surfaced8788237672f",
+      "component": "Surfaceb060bdad908b",
       "semantic_role": "layout",
       "bounds": [
         18.0,
@@ -135,10 +135,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        27.92,
-        196.393,
-        17.856,
-        33.107
+        41.807,
+        202.63,
+        23.807,
+        26.87
       ],
       "text": null,
       "enabled": null,
@@ -150,18 +150,18 @@
       "native_id": "beauty_0_1_1",
       "parent": "tool_2",
       "kind": "text",
-      "component": "Text2ce035285bb0",
+      "component": "Textf22af036f1c2",
       "semantic_role": "text",
       "bounds": [
-        88.2,
+        88.49,
         206.5,
         177.0,
         23.5
       ],
       "text": "Search 'steer_dropped'",
       "enabled": null,
-      "font": "self:resources/ux/Inter-500.ttf",
-      "size": 15.43
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 13.1
     },
     {
       "source_id": "t04",
@@ -190,9 +190,9 @@
       "semantic_role": "icon",
       "bounds": [
         355.273,
-        196.393,
-        17.856,
-        33.107
+        199.585,
+        19.84,
+        22.391
       ],
       "text": null,
       "enabled": null,
@@ -204,13 +204,13 @@
       "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "stack",
-      "component": "Surface5e06c9b428ce",
+      "component": "Surfaceb0b2108a6233",
       "semantic_role": "layout",
       "bounds": [
-        16.0,
-        324.27,
-        374.0,
-        62.0
+        18.0,
+        307.0,
+        371.0,
+        370.0
       ],
       "text": null,
       "enabled": null,
@@ -225,10 +225,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        26.0,
-        338.27,
-        18.0,
-        18.0
+        41.807,
+        331.944,
+        21.824,
+        22.865
       ],
       "text": null,
       "enabled": null,
@@ -240,36 +240,36 @@
       "native_id": "beauty_0_2_1",
       "parent": "tool_3",
       "kind": "text",
-      "component": "Text80eff114dc4f",
+      "component": "Text0ce5e47c7875",
       "semantic_role": "text",
       "bounds": [
-        38.45,
+        86.45,
         335.0,
-        267.0,
+        220.0,
         31.0
       ],
-      "text": ">_ Ran cargo test -p octos-cli",
+      "text": "Ran cargo test -p octos-cli",
       "enabled": null,
-      "font": "self:resources/ux/Inter-500.ttf",
-      "size": 18.61
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 13.33
     },
     {
       "source_id": "t06",
       "native_id": "beauty_0_2_2",
       "parent": "tool_3",
       "kind": "text",
-      "component": "Text7d947d854acf",
+      "component": "Text594e36cc2912",
       "semantic_role": "text",
       "bounds": [
-        88.81,
+        88.44,
         369.0,
         89.5,
         21.0
       ],
       "text": "steer_queue",
       "enabled": null,
-      "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14.49
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 12.95
     },
     {
       "source_id": "icon_check3",
@@ -279,10 +279,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        356.0,
-        334.27,
-        18.0,
-        18.0
+        355.273,
+        328.067,
+        19.84,
+        20.787
       ],
       "text": null,
       "enabled": null,
@@ -291,10 +291,10 @@
     },
     {
       "source_id": "tool_3_output",
-      "native_id": "beauty_0_3",
-      "parent": "page",
+      "native_id": "beauty_0_2_4",
+      "parent": "tool_3",
       "kind": "stack",
-      "component": "Surfaceac74e05f3513",
+      "component": "Surface152385e55336",
       "semantic_role": "layout",
       "bounds": [
         29.0,
@@ -309,63 +309,81 @@
     },
     {
       "source_id": "t07",
-      "native_id": "beauty_0_3_0",
+      "native_id": "beauty_0_2_4_0",
       "parent": "tool_3_output",
       "kind": "text",
-      "component": "Textad9627347544",
+      "component": "Text6e49ffedd215",
       "semantic_role": "text",
       "bounds": [
-        45.14,
+        44.88,
         441.5,
         135.5,
         25.0
       ],
       "text": "running 12 tests",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 17.61
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 13.7
     },
     {
       "source_id": "t08",
-      "native_id": "beauty_0_3_1",
+      "native_id": "beauty_0_2_4_1",
       "parent": "tool_3_output",
       "kind": "text",
-      "component": "Text4e03298c6bb4",
+      "component": "Textb6022daaf7d8",
       "semantic_role": "text",
       "bounds": [
-        41.83,
+        145.89,
+        489.0,
+        14.0,
+        10.76
+      ],
+      "text": "\u2022\u2022",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 8.89
+    },
+    {
+      "source_id": "t09",
+      "native_id": "beauty_0_2_4_2",
+      "parent": "tool_3_output",
+      "kind": "text",
+      "component": "Textc9bc3027d67c",
+      "semantic_role": "text",
+      "bounds": [
+        40.76,
         514.0,
         300.5,
         24.0
       ],
       "text": "test steer_queue::reconnect_ok ... ok",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 17.03
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 13.35
     },
     {
-      "source_id": "t09",
-      "native_id": "beauty_0_3_2",
+      "source_id": "t10",
+      "native_id": "beauty_0_2_4_3",
       "parent": "tool_3_output",
       "kind": "text",
-      "component": "Text4ce4b2c4e81f",
+      "component": "Text488694eb2f0a",
       "semantic_role": "text",
       "bounds": [
-        44.32,
+        43.21,
         567.0,
         304.0,
         25.0
       ],
       "text": "test result: ok. 12 passed; 0 failed",
       "enabled": null,
-      "font": "self:resources/ux/Inter-500.ttf",
-      "size": 18.75
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 13.89
     }
   ],
   "fonts": {
-    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "295a89947ad90bfbbec9c37224fff2eeb1ac8706e4e9fce4fd5876bcc29fa8ed",
+  "contract_sha256": "aeed03e51e718b77f7ed945601746e22e62b685604f853ba70e8c5625a369cb6",
   "mapping_basis": "mapped.json"
 }

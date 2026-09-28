@@ -12,7 +12,7 @@
         }
       },
       "composer_idle": {
-        "component": "Surfacebf3195b7a107",
+        "component": "Surface07eaedee1d73",
         "layout": {
           "x": 17.0,
           "y": 130.0,
@@ -24,22 +24,22 @@
         "component": "Input9ca276b5cc2e",
         "layout": {
           "x": 31.0,
-          "y": 141.875,
+          "y": 140.556,
           "w": 300.0,
-          "h": 47.5
+          "h": 42.222
         }
       },
       "icon_plus1": {
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 31.0,
-          "y": 274.875,
+          "y": 258.778,
           "w": 18.0,
-          "h": 28.5,
+          "h": 25.333,
           "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_plus1-e726c53afe21.svg"
         }
       },
-      "approval_pill1": {
+      "pill1": {
         "component": "Surface595642fcfba0",
         "layout": {
           "x": 66.0,
@@ -48,7 +48,7 @@
           "h": 46.0
         }
       },
-      "t03": {
+      "pill1_t": {
         "component": "Text78e146733ffe",
         "layout": {
           "x": 78.18,
@@ -61,9 +61,9 @@
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 307.0,
-          "y": 271.312,
+          "y": 255.611,
           "w": 16.0,
-          "h": 32.062,
+          "h": 28.5,
           "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_mic1-e21b462810d1.svg"
         }
       },
@@ -77,22 +77,22 @@
         }
       },
       "send1": {
-        "component": "Surface7e4e2610b615",
+        "component": "Surface989cca714cb6",
         "layout": {
           "x": 345.0,
-          "y": 263.0,
+          "y": 248.222,
           "w": 36.0,
-          "h": 42.75
+          "h": 38.0
         }
       },
       "icon_send": {
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 355.0,
-          "y": 274.875,
+          "y": 258.778,
           "w": 16.0,
-          "h": 19.0,
-          "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_send-868293c3426f.svg"
+          "h": 16.889,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_send-3fe1783d764e.svg"
         }
       },
       "queued_row": {
@@ -114,7 +114,7 @@
         }
       },
       "composer_active": {
-        "component": "Surface2cbaaf5b6624",
+        "component": "Surfacea1bc812a6658",
         "layout": {
           "x": 16.0,
           "y": 476.0,
@@ -135,13 +135,13 @@
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 28.0,
-          "y": 600.941,
+          "y": 600.773,
           "w": 18.0,
-          "h": 25.412,
+          "h": 24.545,
           "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_plus2-e726c53afe21.svg"
         }
       },
-      "approval_pill2": {
+      "pill2": {
         "component": "Surfacef4a36566f5dc",
         "layout": {
           "x": 66.0,
@@ -150,7 +150,7 @@
           "h": 47.0
         }
       },
-      "t08": {
+      "pill2_t": {
         "component": "Textf5dec8faacc2",
         "layout": {
           "x": 78.18,
@@ -163,9 +163,9 @@
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 306.0,
-          "y": 600.941,
+          "y": 600.773,
           "w": 16.0,
-          "h": 27.529,
+          "h": 26.591,
           "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_mic2-e21b462810d1.svg"
         }
       },
@@ -182,18 +182,18 @@
         "component": "Surfacef59992fb050f",
         "layout": {
           "x": 346.0,
-          "y": 592.471,
+          "y": 592.591,
           "w": 36.0,
-          "h": 38.118
+          "h": 36.818
         }
       },
       "icon_stop2": {
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 356.0,
-          "y": 603.059,
+          "y": 602.818,
           "w": 16.0,
-          "h": 16.941,
+          "h": 16.364,
           "src": "http://127.0.0.1:8170/ux-images/conversation-08/assets/icon_stop2-6a28cc1098c8.svg"
         }
       }

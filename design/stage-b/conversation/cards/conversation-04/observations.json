@@ -138,9 +138,9 @@
     },
     {
       "id": "t05",
-      "expected_text": ">_ Ran cargo test -p octos-cli",
+      "expected_text": "Ran cargo test -p octos-cli",
       "requested_bounds": [
-        35.44,
+        87.5,
         336.27,
         270.67,
         32.33
@@ -148,7 +148,7 @@
       "status": "observed",
       "ocr_text": ">_ Ran cargo test -p octos-cli",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9473684210526315,
       "ink_bounds": [
         40.5,
         337.0,
@@ -234,6 +234,38 @@
     },
     {
       "id": "t08",
+      "expected_text": "\u2022\u2022",
+      "requested_bounds": [
+        143.23,
+        488.38,
+        15.79,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "\u2022\u2022",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        147.0,
+        491.0,
+        10.0,
+        3.5
+      ],
+      "ink_color": [
+        112,
+        112,
+        112
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        143.22777834619995,
+        488.38372094280356,
+        15.788887977600117,
+        7.895348548889091
+      ]
+    },
+    {
+      "id": "t09",
       "expected_text": "test steer_queue::reconnect_ok ... ok",
       "requested_bounds": [
         39.47,
@@ -265,7 +297,7 @@
       ]
     },
     {
-      "id": "t09",
+      "id": "t10",
       "expected_text": "test result: ok. 12 passed; 0 failed",
       "requested_bounds": [
         42.86,
@@ -321,15 +353,15 @@
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4294901246,
-      "radius": 18.75
+      "radius": 13.7
     },
     {
       "id": "icon_file",
       "bounds": [
-        27.92,
-        65.75,
-        17.856,
-        33.75
+        43.791,
+        74.391,
+        23.807,
+        29.674
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -338,9 +370,9 @@
       "id": "icon_check1",
       "bounds": [
         355.273,
-        65.75,
-        17.856,
-        33.75
+        71.915,
+        19.84,
+        22.826
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -356,15 +388,15 @@
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4294901502,
-      "radius": 18.39
+      "radius": 13.43
     },
     {
       "id": "icon_search2",
       "bounds": [
-        27.92,
-        196.393,
-        17.856,
-        33.107
+        41.807,
+        202.63,
+        23.807,
+        26.87
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -373,9 +405,9 @@
       "id": "icon_check2",
       "bounds": [
         355.273,
-        196.393,
-        17.856,
-        33.107
+        199.585,
+        19.84,
+        22.391
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -383,23 +415,23 @@
     {
       "id": "tool_3",
       "bounds": [
-        16.0,
-        324.27,
-        374.0,
-        62.0
+        18.0,
+        307.0,
+        371.0,
+        370.0
       ],
-      "method": "surface contour unresolved; requested geometry retained",
+      "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
-      "bg": 4294835709,
-      "radius": 10.0
+      "bg": 4294309367,
+      "radius": 12.47
     },
     {
       "id": "icon_term",
       "bounds": [
-        26.0,
-        338.27,
-        18.0,
-        18.0
+        41.807,
+        331.944,
+        21.824,
+        22.865
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -407,10 +439,10 @@
     {
       "id": "icon_check3",
       "bounds": [
-        356.0,
-        334.27,
-        18.0,
-        18.0
+        355.273,
+        328.067,
+        19.84,
+        20.787
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -426,21 +458,10 @@
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4294243574,
-      "radius": 13.44
+      "radius": 7.74
     }
   ],
-  "unmapped_ocr": [
-    {
-      "bounds": [
-        286.4555566923999,
-        976.7674418856071,
-        31.577775955200234,
-        15.790697097778182
-      ],
-      "confidence": 1,
-      "text": "\u2022\u2022"
-    }
-  ],
+  "unmapped_ocr": [],
   "non_text_ocr": [],
   "limits": [
     "OCR cannot prove font family, hierarchy or control behavior.",

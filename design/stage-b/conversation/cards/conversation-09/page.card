@@ -7,19 +7,25 @@ copy worked_row_label_text { class: user-copy, en: "Worked for 3m 4s ›" }
 copy t02_text { class: user-copy, en: "Queued steers now survive a reconnect." }
 copy t03_text { class: user-copy, en: "• Fixed loss of queued steers when" }
 copy t04_text { class: user-copy, en: "reconnecting after a drop in" }
-copy t05_text { class: user-copy, en: "steer_dropped handling." }
-copy t06_text { class: user-copy, en: "• Updated ui_protocol_transport.rs" }
+copy t05c_t_text { class: user-copy, en: "steer_dropped" }
+copy t05b_text { class: user-copy, en: " handling." }
+copy t06a_text { class: user-copy, en: "• Updated " }
+copy t06c_t_text { class: user-copy, en: "ui_protocol_transport.rs" }
 copy t07_text { class: user-copy, en: "to persist queued steers to the" }
 copy t08_text { class: user-copy, en: "session ledger." }
-copy t09_text { class: user-copy, en: "• All tests pass: 12 passed." }
-copy t10_text { class: user-copy, en: "• Changes included in commit a6ea8505." }
+copy t09a_text { class: user-copy, en: "• All tests pass: " }
+copy t09c_t_text { class: user-copy, en: "12 passed" }
+copy t09b_text { class: user-copy, en: "." }
+copy t10a_text { class: user-copy, en: "• Changes included in commit " }
+copy t10c_t_text { class: user-copy, en: "a6ea8505" }
+copy t10b_text { class: user-copy, en: "." }
 copy t11_text { class: user-copy, en: "Sep 28, 9:41 PM" }
 state worked_row_control_enabled { shape: bool, initial: true }
 component Surface16fae9a63e16(instance: text) {
   view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
 }
-component KitButton3ea7d97692cf(instance: text) {
-  view Kit(component: "KitButton3ea7d97692cf", instance: instance) { slot }
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
 }
 component Surface5e06c9b428ce(instance: text) {
   view Kit(component: "Surface5e06c9b428ce", instance: instance) { slot }
@@ -27,14 +33,11 @@ component Surface5e06c9b428ce(instance: text) {
 component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
   view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
 }
-component Vectore0a378fde04f(instance: text) {
-  view Kit(component: "Vectore0a378fde04f", instance: instance)
-}
 component Textf545a5164562(instance: text, text: text) {
   view Kit(component: "Textf545a5164562", instance: instance, text: text)
 }
-component Text0a22071e59a0(instance: text, text: text) {
-  view Kit(component: "Text0a22071e59a0", instance: instance, text: text)
+component Text34719e7a9327(instance: text, text: text) {
+  view Kit(component: "Text34719e7a9327", instance: instance, text: text)
 }
 component Textc5635a016399(instance: text, text: text) {
   view Kit(component: "Textc5635a016399", instance: instance, text: text)
@@ -42,11 +45,23 @@ component Textc5635a016399(instance: text, text: text) {
 component Textbefb00360b59(instance: text, text: text) {
   view Kit(component: "Textbefb00360b59", instance: instance, text: text)
 }
-component Texta6878b4c1646(instance: text, text: text) {
-  view Kit(component: "Texta6878b4c1646", instance: instance, text: text)
+component Surface3c6092dec80c(instance: text) {
+  view Kit(component: "Surface3c6092dec80c", instance: instance) { slot }
 }
-component Textdcca9a0a984c(instance: text, text: text) {
-  view Kit(component: "Textdcca9a0a984c", instance: instance, text: text)
+component Textb435e2b1d087(instance: text, text: text) {
+  view Kit(component: "Textb435e2b1d087", instance: instance, text: text)
+}
+component Textdb72dc7adc9c(instance: text, text: text) {
+  view Kit(component: "Textdb72dc7adc9c", instance: instance, text: text)
+}
+component Textb110224038d3(instance: text, text: text) {
+  view Kit(component: "Textb110224038d3", instance: instance, text: text)
+}
+component Surface8838ec1ed02b(instance: text) {
+  view Kit(component: "Surface8838ec1ed02b", instance: instance) { slot }
+}
+component Text705e7c4af484(instance: text, text: text) {
+  view Kit(component: "Text705e7c4af484", instance: instance, text: text)
 }
 component Text936bd1426313(instance: text, text: text) {
   view Kit(component: "Text936bd1426313", instance: instance, text: text)
@@ -54,34 +69,59 @@ component Text936bd1426313(instance: text, text: text) {
 component Text7513975cab47(instance: text, text: text) {
   view Kit(component: "Text7513975cab47", instance: instance, text: text)
 }
-component Text7a8e828115cc(instance: text, text: text) {
-  view Kit(component: "Text7a8e828115cc", instance: instance, text: text)
+component Text3bdb1b9357c4(instance: text, text: text) {
+  view Kit(component: "Text3bdb1b9357c4", instance: instance, text: text)
 }
-component Text155958993211(instance: text, text: text) {
-  view Kit(component: "Text155958993211", instance: instance, text: text)
+component Surfacee8f8c29d7fa6(instance: text) {
+  view Kit(component: "Surfacee8f8c29d7fa6", instance: instance) { slot }
+}
+component Textfb67d13e1eb2(instance: text, text: text) {
+  view Kit(component: "Textfb67d13e1eb2", instance: instance, text: text)
+}
+component Text711a709a517f(instance: text, text: text) {
+  view Kit(component: "Text711a709a517f", instance: instance, text: text)
+}
+component Surface7168ae9bf478(instance: text) {
+  view Kit(component: "Surface7168ae9bf478", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
 component Texta0abe1806ac3(instance: text, text: text) {
   view Kit(component: "Texta0abe1806ac3", instance: instance, text: text)
 }
 
 view root Surface16fae9a63e16(instance: "page") {
-  KitButton3ea7d97692cf(instance: "worked_row") {
+  KitButton2c6804b990a5(instance: "worked_row") {
     Surface5e06c9b428ce(instance: "worked_row_surface") {
 
     }
     NativeButton02f1d1bd99b4(instance: "worked_row_control", enabled: worked_row_control_enabled)
-    Vectore0a378fde04f(instance: "worked_row_icon")
     Textf545a5164562(instance: "worked_row_label", text: copy.worked_row_label_text)
   }
-  Text0a22071e59a0(instance: "t02", text: copy.t02_text)
+  Text34719e7a9327(instance: "t02", text: copy.t02_text)
   Textc5635a016399(instance: "t03", text: copy.t03_text)
   Textbefb00360b59(instance: "t04", text: copy.t04_text)
-  Texta6878b4c1646(instance: "t05", text: copy.t05_text)
-  Textdcca9a0a984c(instance: "t06", text: copy.t06_text)
+  Surface3c6092dec80c(instance: "t05c") {
+    Textb435e2b1d087(instance: "t05c_t", text: copy.t05c_t_text)
+  }
+  Textdb72dc7adc9c(instance: "t05b", text: copy.t05b_text)
+  Textb110224038d3(instance: "t06a", text: copy.t06a_text)
+  Surface8838ec1ed02b(instance: "t06c") {
+    Text705e7c4af484(instance: "t06c_t", text: copy.t06c_t_text)
+  }
   Text936bd1426313(instance: "t07", text: copy.t07_text)
   Text7513975cab47(instance: "t08", text: copy.t08_text)
-  Text7a8e828115cc(instance: "t09", text: copy.t09_text)
-  Text155958993211(instance: "t10", text: copy.t10_text)
+  Text3bdb1b9357c4(instance: "t09a", text: copy.t09a_text)
+  Surfacee8f8c29d7fa6(instance: "t09c") {
+    Textfb67d13e1eb2(instance: "t09c_t", text: copy.t09c_t_text)
+  }
+  Text3bdb1b9357c4(instance: "t09b", text: copy.t09b_text)
+  Text711a709a517f(instance: "t10a", text: copy.t10a_text)
+  Surface7168ae9bf478(instance: "t10c") {
+    Textb435e2b1d087(instance: "t10c_t", text: copy.t10c_t_text)
+  }
+  Textb110224038d3(instance: "t10b", text: copy.t10b_text)
   Vectore0a378fde04f(instance: "icon_copy")
   Vectore0a378fde04f(instance: "icon_thumbs")
   Vectore0a378fde04f(instance: "icon_share")
