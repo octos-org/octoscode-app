@@ -1,0 +1,5 @@
+render,snap,scenario,requested_window,actual_window,timeline_row_kinds,what_it_shows,exists
+tmp/f21-evidence/g-1280x800.png,tmp/f21-evidence/snap-1280x800.json,conversation,1280x800,"[0, 0, 1280, 800]",worked-for|assistant-prose|user-bubble|answer-actions,"timeline: user-bubble, assistant-prose, worked-for, answer-actions; thread list with the opened row",yes
+tmp/f21-evidence/g-1280x800-tool.png,tmp/f21-evidence/snap-approval.json,approval,1280x800,"[0, 0, 1280, 800]",tool-cell|worked-for|answer-actions,"timeline: tool-cell (collapsed), worked-for, answer-actions",yes
+tmp/f21-evidence/g-1280x800-composer-idle.png,tmp/f21-evidence/snap-composer-idle2.json,approval,1280x800,"[0, 0, 1280, 800]",,"composer component mounted in the dock (190px artboard), idle input + placeholder",yes
+tmp/f21-evidence/g-900x800.png,tmp/f21-evidence/snap-900x800.json,conversation,900x800,"[0, 0, 900, 800]",worked-for|user-bubble|assistant-prose|answer-actions,"narrow columns: timeline user-bubble, assistant-prose, worked-for, answer-actions",yes
