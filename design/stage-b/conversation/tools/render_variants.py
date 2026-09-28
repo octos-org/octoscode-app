@@ -42,38 +42,66 @@ ART_PORT = 8180                                     # 8179 is another lane's art
 PORTS = [8346, 8347, 8348, 8349]                    # this card's block (8340-8349)
 WIDTHS = (360, 540)
 
-# Responsive flags (card #18: fill the slot width, height from content).
+def _btn(*ids):
+    """A KitButton is a `stack` wrapping `_surface` (the rounded pill), `_control`
+    (the hit area) and `_label`. `#18b`: the pill stayed at its measured width
+    inside a slot-filling button, so the fill stopped short at 540 and the pill
+    clipped at 360. The container + surface + control fill the slot.
+
+    The LABEL deliberately keeps its measured box: bisected on this renderer, a
+    free-standing `text` node carrying ANY responsive flag (`fillw`/`fitw`/`fith`)
+    paints nothing (deny label ink 301 -> 0), so filling the label would erase it.
+    At the reference width the label's measured x is already exact."""
+    d = {}
+    for i in ids:
+        d[i] = {"fillw": 1}
+        d[i + "_surface"] = {"fillw": 1}
+        d[i + "_control"] = {"fillw": 1, "fillh": 1}
+    return d
+
+
+# Responsive flags (card #18/#18b: fill the slot width).
+# RULE (bisected, not guessed): `fillw` is set on CONTAINERS and on a KitButton's
+# `_surface`/`_control`/`_label`. It is NOT set on a free-standing `text` node: a
+# responsive text emitted with `margin` + `width: Fill` inside an Overlay parent
+# paints nothing on this renderer, whereas a non-fillw text keeps `abs_pos` and
+# paints. Free text therefore keeps its authored box and its natural wrapping.
 RESPONSIVE = {
     "approval-card": {"approval_card": {"fillw": 1, "fith": 1},
-                      "reason_text": {"fillw": 1},
-                      "cmd_box": {"fillw": 1}, "t02": {"fillw": 1},
-                      "approve_once": {"fillw": 1}, "approve_session": {"fillw": 1},
-                      "deny": {"fillw": 1}},
+                      "cmd_box": {"fillw": 1},
+                      **_btn("approve_once", "approve_session", "deny")},
     "question-card": {"question_card": {"fillw": 1, "fith": 1},
-                      "question_text": {"fillw": 1}, "note_box": {"fillw": 1},
-                      "note_input": {"fillw": 1},
+                      "note_box": {"fillw": 1}, "note_input": {"fillw": 1},
                       "opt_ledger": {"fillw": 1}, "opt_memory": {"fillw": 1},
                       "opt_ask": {"fillw": 1},
-                      "submit_answer": {"fillw": 1}, "skip": {"fillw": 1}},
+                      **_btn("submit_answer", "skip")},
     "edited-files-card": {"edited_files_card": {"fillw": 1, "fith": 1},
                           "files_card": {"fillw": 1},
-                          "review": {"fillw": 1}},
+                          "div_1": {"fillw": 1}, "div_2": {"fillw": 1},
+                          **_btn("review")},
     "plan-card": {"plan_card": {"fillw": 1, "fith": 1},
-                  "plan_steps": {"fillw": 1},
-                  "step_0_label": {"fillw": 1}, "step_1_label": {"fillw": 1},
-                  "step_2_label": {"fillw": 1}, "step_3_label": {"fillw": 1},
-                  "step_4_label": {"fillw": 1}},
-    "goal-strip": {"goal_strip": {"fillw": 1, "fith": 1}, "t01": {"fillw": 1}},
+                  "plan_steps": {"fillw": 1}},
+    # The strip is a ROW: the goal text fills and the two trailing controls are
+    # pushed to the slot's right edge (they were pinned at their measured x, so at
+    # 540 they sat in the middle). In a flow container the children are emitted
+    # `in_flow` (no `abs_pos`/`margin`), so a fillw text paints here.
+    "goal-strip": {"goal_strip": {"fillw": 1, "fith": 1, "variant": "row"},
+                   "t01": {"fillw": 1}},
     "diff-view": {"diff_view": {"fillw": 1, "fith": 1},
                   "diff_rows": {"fillw": 1},
-                  "file_header": {"fillw": 1}, "scope_pill": {"fillw": 1}},
+                  "file_header": {"fillw": 1}, "scope_pill": {"fillw": 1},
+                  "row_1": {"fillw": 1}, "row_2": {"fillw": 1},
+                  "row_3": {"fillw": 1}, "row_4": {"fillw": 1},
+                  "row_5": {"fillw": 1}, "row_6": {"fillw": 1},
+                  "folded": {"fillw": 1}},
     "settings-group": {"settings_group": {"fillw": 1, "fith": 1},
                        "perm_card": {"fillw": 1}, "model_card": {"fillw": 1},
                        "perm_divider": {"fillw": 1},
-                       # t01 is a single-line label whose authored width was fitted to
-                       # the SHORT text ("Permissions"); without fillw the long variant
-                       # clips back to the same glyphs and the two renders are
-                       # byte-identical (caught by the md5 novelty census).
+                       # t01 is a single-line section title whose authored width was
+                       # fitted to the SHORT text ("Permissions"); filling it lets the
+                       # long variant ("Permissions and defaults") draw fully. Safe
+                       # once `design.rs` emits `abs_pos` for a responsive node — with
+                       # the earlier `margin` variant any filled text painted nothing.
                        "t01": {"fillw": 1}},
 }
 
@@ -170,6 +198,7 @@ def apply_variant(tree, comp, variant):
     for parent_id, node in inserts:
         parent = next(n for n in walk(tree) if n["id"] == parent_id)
         parent.setdefault("c", []).append(json.loads(json.dumps(node)))
+
     return tree, inserts, drops
 
 

@@ -61,12 +61,28 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t02",
+    "id": "t02_add",
     "x": 16.92,
     "y": 126.33,
-    "w": 69.92,
+    "w": 44.0,
     "h": 23.69,
-    "text": "+62 -5",
+    "text": "+62",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 15,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t02_del",
+    "x": 62.92,
+    "y": 126.33,
+    "w": 40.0,
+    "h": 23.69,
+    "text": "-5",
     "font_src": "self:resources/ux/Inter-500.ttf",
     "size": 15,
     "weight": 500,

@@ -41,36 +41,26 @@
       ]
     },
     {
-      "id": "t02",
-      "expected_text": "+62 -5",
+      "id": "t02_add",
+      "expected_text": "+62",
       "requested_bounds": [
         16.92,
         126.33,
-        69.92,
+        44.0,
         23.69
       ],
-      "status": "observed",
-      "ocr_text": "+62 -5",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        21.5,
-        126.5,
-        31.0,
-        20.5
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t02_del",
+      "expected_text": "-5",
+      "requested_bounds": [
+        62.92,
+        126.33,
+        40.0,
+        23.69
       ],
-      "ink_color": [
-        61,
-        127,
-        65
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        16.916668294178606,
-        126.32558152017796,
-        69.9222183227539,
-        23.686046600341818
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
       "id": "t_undo",
@@ -546,6 +536,16 @@
     }
   ],
   "unmapped_ocr": [
+    {
+      "bounds": [
+        33.83333658835721,
+        252.65116304035593,
+        139.8444366455078,
+        47.372093200683636
+      ],
+      "confidence": 1,
+      "text": "+62 -5"
+    },
     {
       "bounds": [
         599.9777790378419,

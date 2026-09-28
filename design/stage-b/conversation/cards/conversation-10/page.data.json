@@ -32,20 +32,20 @@
       "icon_pause": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 308.0,
-          "y": 33.0,
-          "w": 14.0,
-          "h": 16.0,
-          "src": "http://127.0.0.1:8170/ux-images/conversation-10/assets/icon_pause-2511dd231bde.svg"
+          "x": 306.0,
+          "y": 31.0,
+          "w": 18.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-10/assets/icon_pause-a8eaf0e4c2cc.svg"
         }
       },
       "icon_stop": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 346.0,
-          "y": 33.0,
-          "w": 14.0,
-          "h": 16.0,
+          "x": 342.0,
+          "y": 32.0,
+          "w": 18.0,
+          "h": 18.0,
           "src": "http://127.0.0.1:8170/ux-images/conversation-10/assets/icon_stop-c1588916c331.svg"
         }
       },

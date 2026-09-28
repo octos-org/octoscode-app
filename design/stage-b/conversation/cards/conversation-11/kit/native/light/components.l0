@@ -97,6 +97,6 @@ component Text6292c61548c3(instance: text, text: text) {
 component Surface3f4294893b55(instance: text) {
   view Kit(component: "Surface3f4294893b55", instance: instance) { slot }
 }
-component Text4bbbe223ad3f(instance: text, text: text) {
-  view Kit(component: "Text4bbbe223ad3f", instance: instance, text: text)
+component Text76b2bc3a3ce4(instance: text, text: text) {
+  view Kit(component: "Text76b2bc3a3ce4", instance: instance, text: text)
 }

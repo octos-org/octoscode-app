@@ -174,7 +174,7 @@
   "changes": [
     {
       "source": "cards/conversation-10/mapped.json",
-      "source_sha256": "14f92ff3143aec4314301e11cd0d466869d52cde31517dcd27d65a1a3f7a3df6",
+      "source_sha256": "931ecbea1de82f169b41bd967ee76fd85c6f0c6a83f4e242882f8ec15d3fcbfb",
       "operation": "Extract native subtree and translate origin",
       "source_root": "plan_card",
       "translation": [

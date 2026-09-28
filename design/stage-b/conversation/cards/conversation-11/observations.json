@@ -630,7 +630,7 @@
     },
     {
       "id": "dl_7",
-      "expected_text": "",
+      "expected_text": "}",
       "requested_bounds": [
         72.0,
         549.0,
@@ -641,7 +641,7 @@
     },
     {
       "id": "t_fold",
-      "expected_text": ":412 unmodified lines",
+      "expected_text": "\u22ee 412 unmodified lines \u22ee",
       "requested_bounds": [
         100.37,
         620.35,
@@ -651,7 +651,7 @@
       "status": "observed",
       "ocr_text": ":412 unmodified lines",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.8888888888888888,
       "ink_bounds": [
         104.5,
         620.5,

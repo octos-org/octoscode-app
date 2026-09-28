@@ -507,7 +507,7 @@
           {
             "t": "text",
             "id": "dl_7",
-            "text": "",
+            "text": "}",
             "x": 52.0,
             "y": 457.0,
             "w": 320.0,
@@ -533,13 +533,13 @@
           {
             "t": "text",
             "id": "t_fold",
-            "text": ":412 unmodified lines",
-            "x": 83.14,
+            "text": "⋮ 412 unmodified lines ⋮",
+            "x": 82.09,
             "y": 526.5,
             "w": 178.5,
             "h": 23.5,
-            "size": 17.42,
-            "line_height": 21.07,
+            "size": 15.04,
+            "line_height": 18.19,
             "weight": 400,
             "color": 4280032284,
             "variant": "single_line",
@@ -562,7 +562,7 @@
   "changes": [
     {
       "source": "cards/conversation-11/mapped.json",
-      "source_sha256": "9306daa33e9f02c5087641e903166c24ebacb8c91ed3c3d4455e47631bccfd51",
+      "source_sha256": "056e77f673bcb9e0422f006c2847e88f0e47107271a91d88a5f4955541092256",
       "operation": "Extract native subtree and translate origin",
       "source_root": "diff_view",
       "translation": [

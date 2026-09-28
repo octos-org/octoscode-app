@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "20ba7188e1bb4cb7338615fc3f2be3019915fca38dcdc8a791f9892aaf072d57",
+  "manifest_sha256": "7f42e3164c4ea7fbc4b462359dc1f8507828f9c4b6a5c7ebff145880552fc282",
   "reference_sha256": "76ac7c43df118ffd0a4be3321c653c4bcf817e59d4b50fe05cca4e5f1fb5b1aa",
   "id": "conversation-07",
   "round": null,
@@ -46,7 +46,19 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t02",
+      "id": "t02_add",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "t02_del",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [

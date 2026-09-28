@@ -41,6 +41,15 @@ ROOT = Path(__file__).resolve().parents[1] / "cards"
 # Value = the measured logical x where the copy itself starts.
 X_OVERRIDE = {(4, "t05"): 87.5}   # conversation-04 tool_3: ">_ " is the terminal icon
 
+# Nodes whose OCR row MERGED several visual runs, so the ink-width fit mis-sizes
+# them and the authored size must stand (card #18b):
+#   07 t02  — the green "+62" and the red "−5" arrive as ONE row ("+62 -5"), and
+#             fitting 6 glyphs into the merged 31px ink box shrank them to 9.5pt
+#             (the atlas draws both runs large). Authored as two explicit nodes.
+#   07 t_undo — "Undo 9" merged the ↺ glyph into the label; fitting "Undo" into
+#             the run's 61.5px ink box pushed it to 24pt (the atlas is ~14pt).
+SIZE_KEEP = {(7, "t_undo")}
+
 # Fonts must be resolved from the SAME tree compile.py validates against: the flow's
 # repository('splash-makepad') = <native workspace>/octoscript-makepad. The mono face
 # (ux/LiberationMono-Regular.ttf) is bundled in THIS clone, not in the read-only
@@ -131,6 +140,21 @@ def fix_scene(d, scene_no):
             new_x = X_OVERRIDE[(scene_no, n["id"])]
             iw = (ix + iw) - new_x
             ix = new_x
+        if (scene_no, n["id"]) in SIZE_KEEP:
+            # The OCR row merged a glyph into the text, so the ink-width fit is
+            # wrong for this node: restore the AUTHORED size/box instead of leaving
+            # the `map` stage's over-sized value (07 t_undo went to 27.75pt).
+            a = authored.get(n["id"])
+            if a:
+                n["x"] = a["x"]
+                n["y"] = a["y"]
+                n["w"] = a["w"]
+                n["h"] = a["h"]
+                n["size"] = a["size"]
+                n["line_height"] = a.get("line_height", n.get("line_height"))
+                n["tracking"] = a.get("tracking", 0.0)
+                changed += 1
+            continue
         size = iw / advance                      # width-fit => tracking 0
         line_box = size * 2478 / 2048            # Inter's natural line box
         n["x"] = round(ix - x0 * size, 2)        # keep the glyph left-bearing offset

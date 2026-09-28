@@ -516,7 +516,7 @@
               {
                 "t": "text",
                 "id": "dl_7",
-                "text": "",
+                "text": "}",
                 "x": 72.0,
                 "y": 549.0,
                 "w": 320.0,
@@ -542,12 +542,12 @@
               {
                 "t": "text",
                 "id": "t_fold",
-                "text": ":412 unmodified lines",
+                "text": "⋮ 412 unmodified lines ⋮",
                 "x": 100.37,
                 "y": 620.35,
                 "w": 182.7,
                 "h": 20.3,
-                "size": 12,
+                "size": 13,
                 "line_height": 20.3,
                 "weight": 400,
                 "color": 4285427315,

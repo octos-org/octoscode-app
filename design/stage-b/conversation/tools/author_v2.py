@@ -86,7 +86,11 @@ ICONS = {
                 '<circle cx="12" cy="12" r="3.7" fill="#2F6FEB" stroke="none"/>',
     "radio_off": '<circle cx="12" cy="12" r="8.2" fill="none" stroke="#C7C7CC" stroke-width="1.6"/>',
     "chevron": '<path d="M9 6l6 6-6 6"/>',
-    "pause": '<rect x="8" y="6" width="3" height="12" rx="1"/><rect x="13" y="6" width="3" height="12" rx="1"/>',
+    # Card #18b: the atlas draws the pause as two FILLED bars (the first pass used
+    # stroke-only rects, which rendered as two thin outlines).
+    "pause": '<rect x="7.2" y="5.6" width="3.7" height="12.8" rx="1.1" fill="#6E6E73" '
+             'stroke="none"/><rect x="13.1" y="5.6" width="3.7" height="12.8" rx="1.1" '
+             'fill="#6E6E73" stroke="none"/>',
     "bell_dot": '<path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6"/>'
                 '<circle cx="17" cy="5" r="2" fill="#CF222E" stroke="none"/>',
     "mic": '<rect x="9" y="2.6" width="6" height="11" rx="3"/>'
@@ -554,10 +558,13 @@ def build_07(sc):
     "Undo" + outlined "Review" pill, three file rows (grey dir path, black filename,
     +/− at right), and a "Show diff" chevron. File rows are a list of rows."""
     sc.add_text("t01", 0, weight=600, size=19)
-    # ref-07-row1: the header totals read "+62" in green and "−5" in red (two runs,
-    # not one green string); the stat columns are large and RIGHT-aligned, and the
-    # file rows carry NO leading icon (v6 drew a file glyph over the dir path).
-    sc.add_text("t02", 1, weight=500, size=15, color="green")
+    # Card #18b: the atlas draws the header totals LARGE and in two colours
+    # (measured green "+62" x21..52, red "−5" x64..85, ink h≈21 => ~15pt). OCR
+    # merged the two runs into ONE row ("+62 -5"), so a single width-fitted node
+    # shrank to 9.5pt; author the two runs explicitly like the file rows.
+    _, ttx, tty, ttw, tth = sc.rows[1]
+    sc.put(text("t02_add", "+62", ttx, tty, 44, tth, weight=500, size=15, color="green"))
+    sc.put(text("t02_del", "-5", ttx + 46, tty, 40, tth, weight=500, size=15, color="red"))
     # ref z7-07-undorev: "Undo" is the LABEL and the ↺ glyph sits to its RIGHT
     # (OCR "Undo 9" merged the glyph). v7 drew the icon at x231, over the label.
     _, ux, uy, uw, uh = sc.rows[2]
@@ -603,14 +610,14 @@ def build_10(sc):
     above a plan card "Plan · 3 of 5" whose steps are a LIST of rows: 3 done
     (check), 1 in-progress (spinner), 1 pending (empty ring)."""
     _, gx, gy, gw, gh = sc.rows[0]
+    # Card #18b: the atlas icons are ~18-20px (measured ink x315..341 / x354..371,
+    # y37..55), not the 14x16 first pass; and the pause is filled (see ICONS).
     sc.put(surface("goal_strip", 16, 28, 374, 40, bg="box", radius=10, kids=[
-        text("t01", sc.t(0), gx, gy, gw, gh, weight=500),
-        # ref z7-10-goal: TWO controls at the strip's right — pause ‖ (x309..319)
-        # and a filled stop ■ (x347..358). v7 drew only a thin pause.
-        icon("icon_pause", "pause", 308, 33, 14, 16, color="muted"),
-        icon("icon_stop", "stop_filled", 346, 33, 14, 16, color="muted")]))
-    sc.controls["goal_pause"] = ("goal.pause", [308, 33, 14, 16], True)
-    sc.controls["goal_stop"] = ("goal.stop", [346, 33, 14, 16], True)
+        text("t01", sc.t(0), gx, gy, gw, gh, weight=500, size=15),
+        icon("icon_pause", "pause", 306, 31, 18, 20, color="muted"),
+        icon("icon_stop", "stop_filled", 342, 32, 18, 18, color="muted")]))
+    sc.controls["goal_pause"] = ("goal.pause", [306, 31, 18, 20], True)
+    sc.controls["goal_stop"] = ("goal.stop", [342, 32, 18, 18], True)
     sc.add_text("t02", 1, weight=600)
     steps = [(2, "done"), (3, "done"), (4, "done"), (5, "active"), (6, "pending")]
     kids = []
@@ -673,7 +680,9 @@ def build_11(sc):
         ("202", "+ self.queue.mark_pending();", "add"),
         ("203", "+ self.metrics.reconnects += 1;", "add"),
         ("204", "+ self.state = State::Disconnected;", "add"),
-        ("205", "", "ctx"),
+        # Card #18b: the atlas line 205 carries a closing brace; the first pass
+        # dropped it (an empty body string), so the row rendered blank.
+        ("205", "}", "ctx"),
     ]
     rows = []
     for i, (num, line, kind) in enumerate(diff_lines):
@@ -694,9 +703,13 @@ def build_11(sc):
             rows.append(body)
     sc.put(stack("diff_rows", 20, 180, 366, 420, rows))
     sc.flows["diff_rows"] = ("diff.rows", 20, 180, 366, 420)
+    # Card #18b: the atlas folded row is "⋮ 412 unmodified lines ⋮" — OCR read the
+    # leading vertical-ellipsis as a ":" (measured dots x104..106 AND x277..278
+    # around the text x120..260). Author both marks explicitly.
     _, ux, uy, uw, uh = sc.rows[19]
     sc.put(surface("folded", 24, uy - 8, 358, 34, bg="box", radius=8, kids=[
-        text("t_fold", sc.t(19), ux, uy, uw, uh, size=12, color="muted")]))
+        text("t_fold", "\u22ee 412 unmodified lines \u22ee", ux, uy, uw, uh,
+             size=13, color="muted")]))
     # one composition root so the subtree extracts as `diff-view` (card #18), and
     # the reference encloses the whole diff in a bordered white card (measured
     # vertical hairlines at logical x25/26 and x380/381, y100..700).

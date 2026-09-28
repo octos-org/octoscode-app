@@ -1,0 +1,222 @@
+diff --git a/apps/kit-host/src/beauty.rs b/apps/kit-host/src/beauty.rs
+index 6ca42d7..0238ed2 100644
+--- a/apps/kit-host/src/beauty.rs
++++ b/apps/kit-host/src/beauty.rs
+@@ -17,6 +17,11 @@ script_mod! {
+             main_window := Window {
+                 show_caption_bar: false
+                 window.inner_size: vec2(393, 852)
++                // Card #16b: the lab's approved preview ground is white. Without
++                // an explicit clear the window clears to the platform default
++                // (#4c4c4c), which made every extracted component render on grey.
++                // `card-host` states the same thing (crates/card-host/src/host.rs:23).
++                pass +: { clear_color: #fff }
+                 body +: {
+                     flow: Overlay
+                     host := Splash { width: Fill height: Fill }
+diff --git a/crates/octoscript-makepad/src/design.rs b/crates/octoscript-makepad/src/design.rs
+index d144d32..81f03a8 100644
+--- a/crates/octoscript-makepad/src/design.rs
++++ b/crates/octoscript-makepad/src/design.rs
+@@ -108,12 +108,36 @@ pub fn prepare(source: &str) -> Result<UiNode, String> {
+ }
+ 
+ pub fn to_makepad_ui(tree: &UiNode) -> Result<String, String> {
+-    fn emit(n: &UiNode, out: &mut String, flow_origin: Option<(f64, f64)>) -> Result<(), String> {
++    // `in_flow` is set by a flowing parent (Row/Column): this node's position is
++    // the parent's job, so it emits neither `abs_pos` nor a positioning wrapper.
++    // Card #16b.
++    fn emit(
++        n: &UiNode,
++        out: &mut String,
++        flow_origin: Option<(f64, f64)>,
++        in_flow: bool,
++    ) -> Result<(), String> {
+         let a = &n.attrs;
+         let scroll_y = n.kind == NodeKind::Stack && a.variant.as_deref() == Some("scroll_y");
++        // Card #16b: a responsive container lays its children along an axis
++        // (makepad places them) instead of pinning each at the atlas's measured
++        // coordinate. The image-to-card semantic policy only admits kind `stack`
++        // for the `layout` role (`semantics.py:207`), so a component opts in with
++        // `variant: row` / `variant: col` on a `stack`. The DSL's own Row/Column
++        // nodes are honoured too, but are not reachable from a compiled card.
++        let flow_dir = match n.kind {
++            NodeKind::Row => Some("Right"),
++            NodeKind::Column => Some("Down"),
++            NodeKind::Stack => match a.variant.as_deref() {
++                Some("row") => Some("Right"),
++                Some("col") => Some("Down"),
++                _ => None,
++            },
++            _ => None,
++        };
+         // Leaf widgets may reuse their Walk for internal text layout. Keep the
+         // positioning margin on a wrapper so it cannot be applied twice.
+-        let wrapped = flow_origin.is_some() && n.kind != NodeKind::Stack;
++        let wrapped = flow_origin.is_some() && !in_flow && n.kind != NodeKind::Stack;
+         if wrapped {
+             let (x, y) = flow_origin.unwrap();
+             writeln!(out, "View {{width: {} height: {} margin: Inset{{left: {} top: {} right: 0 bottom: 0}} flow: Overlay padding: 0 clip_x: false clip_y: false",
+@@ -135,9 +159,14 @@ pub fn to_makepad_ui(tree: &UiNode) -> Result<String, String> {
+             // artboard into the overlay and leave the backdrop scene empty.
+             NodeKind::Stack if a.variant.as_deref() == Some("glass_group") => "DesignOverlay",
+             NodeKind::Stack if a.variant.as_deref()==Some("text_shadow") => "DesignTextShadow",
++            // Card #16b: a responsive container. The image-to-card policy only
++            // admits `stack` for the `layout` role, so a component opts into a
++            // flow with `variant: row|col` (not a `Row`/`Column` kind).
++            NodeKind::Stack if matches!(a.variant.as_deref(),Some("row" | "col")) => "View",
+             NodeKind::Stack if matches!(a.variant.as_deref(),Some("surface" | "ellipse")) => "DesignSurface",
+             NodeKind::Stack if a.bg.is_some() => "DesignSurface",
+             NodeKind::Stack => "View",
++            NodeKind::Row | NodeKind::Column => "View",
+             NodeKind::Text if a.rotation.is_some() => "DesignRotatedLabel",
+             // Card #11f: a flowing prose region whose inline code must draw as
+             // the kit's grey rounded chip. makepad's `Markdown` is the only
+@@ -181,21 +210,51 @@ pub fn to_makepad_ui(tree: &UiNode) -> Result<String, String> {
+         if let Some(config)=&contract {
+             writeln!(out,"contract: {:?} glass: {}",config.to_string(),a.variant.as_deref()==Some("glass_group")).unwrap();
+         }
+-        writeln!(
+-            out,
+-            "width: {} height: {}",
+-            a.w.ok_or("design width required")?,
+-            a.h.ok_or("design height required")?
+-        )
+-        .unwrap();
++        // Card #16b: a reusable component must fill the slot width and take its
++        // height from content. The four flags are the *same* ones the L0 text
++        // backend already honours (`lib.rs:631-679`); the measured design backend
++        // hard-coded `w`/`h` and ignored them, so every extracted component kept
++        // its atlas artboard. Absent a flag the measured value is still emitted,
++        // which keeps fixed chrome exact.
++        let width = if a.fillw == Some(1) {
++            "Fill".to_string()
++        } else if a.fitw == Some(1) {
++            "Fit".to_string()
++        } else {
++            a.w.ok_or("design width required")?.to_string()
++        };
++        let height = if a.fith == Some(1) {
++            "Fit".to_string()
++        } else if a.fillh == Some(1) {
++            "Fill".to_string()
++        } else {
++            a.h.ok_or("design height required")?.to_string()
++        };
++        writeln!(out, "width: {width} height: {height}").unwrap();
+         // Source frames stay window-local. Inside a scroll viewport, convert
+         // them to parent-relative overlay margins so native layout applies the
+         // scroll offset and measures the complete content extent.
+-        if wrapped {
++        // Card #16b: a responsive node must not pin itself with `abs_pos`.
++        // `abs_pos` combined with a `Fill` extent inside a `Fit`-height Overlay
++        // parent resolves to 0x0 — the child renders nothing at all (probe E1/E4;
++        // the same child given a `margin` renders, probe P2). A measured inset
++        // keeps the atlas padding while letting the parent size the node.
++        let responsive = a.fillw == Some(1)
++            || a.fitw == Some(1)
++            || a.fillh == Some(1)
++            || a.fith == Some(1);
++        if in_flow {
++            // The flowing parent decides this node's position. Emitting the
++            // source frame here is exactly what pinned every component to its
++            // atlas artboard, so it is deliberately omitted. Card #16b.
++        } else if wrapped {
+             writeln!(out, "margin: 0").unwrap();
+         } else if let Some((x, y)) = flow_origin {
+             writeln!(out, "margin: Inset{{left: {} top: {} right: 0 bottom: 0}}",
+                 a.x.unwrap_or(0.) - x, a.y.unwrap_or(0.) - y).unwrap();
++        } else if responsive {
++            writeln!(out, "margin: Inset{{left: {} top: {}}}",
++                a.x.unwrap_or(0.), a.y.unwrap_or(0.)).unwrap();
+         } else {
+             writeln!(out, "abs_pos: vec2({}, {})", a.x.unwrap_or(0.), a.y.unwrap_or(0.)).unwrap();
+         }
+@@ -289,19 +348,69 @@ pub fn to_makepad_ui(tree: &UiNode) -> Result<String, String> {
+                     )
+                     .unwrap();
+                 }
+-                let clip=scroll_y || a.variant.as_deref()==Some("clip");
+-                writeln!(out, "flow: Overlay padding: 0 clip_x: {clip} clip_y: {clip}").unwrap();
++                if flow_dir.is_some() {
++                    // Card #16b: a responsive container places its children along
++                    // an axis. They are emitted `in_flow`, so no measured frame is
++                    // pinned and the container fills/hugs as its flags say.
++                    let dir = flow_dir.unwrap();
++                    let px = a.padx.or(a.pad).unwrap_or(0.);
++                    let py = a.pady.or(a.pad).unwrap_or(0.);
++                    writeln!(out,
++                        "flow: {dir} padding: Inset{{left: {px} top: {py} right: {px} bottom: {py}}}"
++                    ).unwrap();
++                    if let Some(sp) = a.spacing {
++                        writeln!(out, "spacing: {sp}").unwrap();
++                    }
++                    if let Some(bg) = a.bg {
++                        // A responsive container that also carries the card's
++                        // fill keeps its rounded surface (the `variant: surface`
++                        // arm would otherwise be shadowed by the flow variant).
++                        writeln!(out,
++                            "show_bg: true draw_bg.color: {} draw_bg.radius: {}",
++                            super::hex_rgba(bg), a.radius.unwrap_or(0.)
++                        ).unwrap();
++                    }
++                    if let Some(selected) = a.selected {
++                        writeln!(out, "selected: {}", selected != 0).unwrap();
++                    }
++                    for c in &n.children {
++                        emit(c, out, None, true)?;
++                    }
++                } else {
++                    let clip=scroll_y || a.variant.as_deref()==Some("clip");
++                    writeln!(out, "flow: Overlay padding: 0 clip_x: {clip} clip_y: {clip}").unwrap();
++                    if let Some(bg) = a.bg {
++                        writeln!(out, "show_bg: true draw_bg.color: {}", super::hex_rgba(bg)).unwrap();
++                    }
++                    if let Some(selected) = a.selected {
++                        writeln!(out, "selected: {}", selected != 0).unwrap();
++                    }
++                    for c in &n.children {
++                        let origin = if scroll_y || flow_origin.is_some() {
++                            Some((a.x.unwrap_or(0.), a.y.unwrap_or(0.)))
++                        } else { None };
++                        emit(c, out, origin, false)?;
++                    }
++                }
++            }
++            NodeKind::Row | NodeKind::Column => {
++                // Card #16b: a flowing container. `flow: Right` is a row,
++                // `flow: Down` a column; children are placed by makepad, so
++                // they are emitted `in_flow` (no `abs_pos`).
++                let dir = flow_dir.unwrap();
++                let pad = a.padx.or(a.pad).unwrap_or(0.);
++                let pad_y = a.pady.or(a.pad).unwrap_or(0.);
++                writeln!(out,
++                    "flow: {dir} padding: Inset{{left: {pad} top: {pad_y} right: {pad} bottom: {pad_y}}}"
++                ).unwrap();
++                if let Some(sp) = a.spacing {
++                    writeln!(out, "spacing: {sp}").unwrap();
++                }
+                 if let Some(bg) = a.bg {
+                     writeln!(out, "show_bg: true draw_bg.color: {}", super::hex_rgba(bg)).unwrap();
+                 }
+-                if let Some(selected) = a.selected {
+-                    writeln!(out, "selected: {}", selected != 0).unwrap();
+-                }
+                 for c in &n.children {
+-                    let origin = if scroll_y || flow_origin.is_some() {
+-                        Some((a.x.unwrap_or(0.), a.y.unwrap_or(0.)))
+-                    } else { None };
+-                    emit(c, out, origin)?;
++                    emit(c, out, None, true)?;
+                 }
+             }
+             NodeKind::Text | NodeKind::Input => {
+@@ -516,7 +625,7 @@ pub fn to_makepad_ui(tree: &UiNode) -> Result<String, String> {
+         Ok(())
+     }
+     let mut out = String::new();
+-    emit(tree, &mut out, None)?;
++    emit(tree, &mut out, None, false)?;
+     Ok(out)
+ }
+ 

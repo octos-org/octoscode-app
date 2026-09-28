@@ -25,8 +25,8 @@ copy dl_5_text { class: user-copy, en: "+ self.metrics.reconnects += 1;" }
 copy ln_6_text { class: user-copy, en: "204" }
 copy dl_6_text { class: user-copy, en: "+ self.state = State::Disconnected;" }
 copy ln_7_text { class: user-copy, en: "205" }
-copy dl_7_text { class: user-copy, en: "" }
-copy t_fold_text { class: user-copy, en: ":412 unmodified lines" }
+copy dl_7_text { class: user-copy, en: "}" }
+copy t_fold_text { class: user-copy, en: "⋮ 412 unmodified lines ⋮" }
 component Surface156d085f4ff5(instance: text) {
   view Kit(component: "Surface156d085f4ff5", instance: instance) { slot }
 }
@@ -126,8 +126,8 @@ component Text6292c61548c3(instance: text, text: text) {
 component Surface3f4294893b55(instance: text) {
   view Kit(component: "Surface3f4294893b55", instance: instance) { slot }
 }
-component Text4bbbe223ad3f(instance: text, text: text) {
-  view Kit(component: "Text4bbbe223ad3f", instance: instance, text: text)
+component Text76b2bc3a3ce4(instance: text, text: text) {
+  view Kit(component: "Text76b2bc3a3ce4", instance: instance, text: text)
 }
 
 view root Surface156d085f4ff5(instance: "page") {
@@ -175,7 +175,7 @@ view root Surface156d085f4ff5(instance: "page") {
       Text6292c61548c3(instance: "dl_7", text: copy.dl_7_text)
     }
     Surface3f4294893b55(instance: "folded") {
-      Text4bbbe223ad3f(instance: "t_fold", text: copy.t_fold_text)
+      Text76b2bc3a3ce4(instance: "t_fold", text: copy.t_fold_text)
     }
   }
 }

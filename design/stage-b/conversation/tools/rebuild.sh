@@ -23,11 +23,28 @@ mkdir -p "$WS/octoscript-makepad/apps/kit-host/resources/ux"
 #    prose node carrying inline `code` could not reach the widget's inline-code
 #    draw hook (`widgets/src/markdown.rs:118-176`). The patch adds the arm; it is
 #    idempotently applied to the clone (a no-op once present).
+# Guards are MARKER-based, not `apply --reverse --check`: the clone may carry a
+# hand-corrected variant of the same region (card #18b fixed the responsive
+# patch's `margin` back to `abs_pos`), which makes a stale patch fail to apply in
+# EITHER direction. A marker grep is idempotent and drift-tolerant.
+DESIGN_RS="$WS/octoscript-makepad/crates/octoscript-makepad/src/design.rs"
 PATCH="$PWD/design/stage-b/conversation/tools/renderer-inline-code.patch"
-if [ -f "$PATCH" ] && ! git -C "$WS/octoscript-makepad" apply --reverse --check "$PATCH" >/dev/null 2>&1; then
+if [ -f "$PATCH" ] && ! grep -q 'Some("markdown") => "Markdown"' "$DESIGN_RS"; then
   git -C "$WS/octoscript-makepad" apply "$PATCH"
   echo "applied renderer-inline-code.patch"
   # The patched renderer changes the host, so force a rebuild of that binary.
+  rm -f "$PWD/tmp/beauty-clone-target/release/beauty-host"
+fi
+
+# 2b) Apply the RESPONSIVE patch (card #18b). Without it `design.rs` has no
+#     `fillw`/`fith`/`alignx` handling at all, so a component that opts into
+#     width-fill emits `abs_pos` at its atlas coordinate and CLIPS at 360 /
+#     stops short at 540 — the systemic defect #18b names. It also sets the
+#     preview ground to white (`beauty.rs`), the standalone-card fix.
+PATCH="$PWD/design/stage-b/conversation/tools/renderer-responsive.patch"
+if [ -f "$PATCH" ] && ! grep -q 'let responsive = a.fillw' "$DESIGN_RS"; then
+  git -C "$WS/octoscript-makepad" apply "$PATCH"
+  echo "applied renderer-responsive.patch"
   rm -f "$PWD/tmp/beauty-clone-target/release/beauty-host"
 fi
 

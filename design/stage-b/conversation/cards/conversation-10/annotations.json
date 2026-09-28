@@ -32,10 +32,10 @@
     {
       "id": "icon_pause",
       "bounds": [
-        308.0,
-        33.0,
-        14.0,
-        16.0
+        306.0,
+        31.0,
+        18.0,
+        20.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -43,10 +43,10 @@
     {
       "id": "icon_stop",
       "bounds": [
-        346.0,
-        33.0,
-        14.0,
-        16.0
+        342.0,
+        32.0,
+        18.0,
+        18.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false

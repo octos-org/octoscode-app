@@ -515,7 +515,7 @@
               {
                 "t": "text",
                 "id": "dl_7",
-                "text": "",
+                "text": "}",
                 "x": 72.0,
                 "y": 549.0,
                 "w": 320.0,
@@ -541,13 +541,13 @@
               {
                 "t": "text",
                 "id": "t_fold",
-                "text": ":412 unmodified lines",
-                "x": 103.14,
+                "text": "\u22ee 412 unmodified lines \u22ee",
+                "x": 102.09,
                 "y": 618.5,
                 "w": 178.5,
                 "h": 23.5,
-                "size": 17.42,
-                "line_height": 21.07,
+                "size": 15.04,
+                "line_height": 18.19,
                 "weight": 400,
                 "color": 4280032284,
                 "variant": "single_line",
@@ -736,7 +736,7 @@
       "id": "t_fold",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.1484919621394231
+      "tracking_em": -0.05905045899526205
     }
   ],
   "limits": [

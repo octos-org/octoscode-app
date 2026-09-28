@@ -608,7 +608,7 @@
         320.0,
         24.0
       ],
-      "text": "",
+      "text": "}",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
       "size": 16.0
@@ -636,18 +636,18 @@
       "native_id": "beauty_0_6_0",
       "parent": "folded",
       "kind": "text",
-      "component": "Text4bbbe223ad3f",
+      "component": "Text76b2bc3a3ce4",
       "semantic_role": "text",
       "bounds": [
-        83.14,
+        82.09,
         526.5,
         178.5,
         23.5
       ],
-      "text": ":412 unmodified lines",
+      "text": "\u22ee 412 unmodified lines \u22ee",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 17.42
+      "size": 15.04
     }
   ],
   "fonts": {
@@ -656,6 +656,6 @@
     "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "72b4025e13283370f728fc18fd3a35c13c74cefaed4c05a32a86051f775c1ae2",
+  "contract_sha256": "74d160968aa36a26b32b01308bbb3ec01e6fc3f82733841da0a8691bbdd76f36",
   "mapping_basis": "mapped.json"
 }
