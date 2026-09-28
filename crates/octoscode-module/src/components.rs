@@ -257,6 +257,45 @@ pub fn components_dir() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../design/components")
 }
 
+/// The recorded asset-server base card #16's `page.data.json` files name
+/// (`http://127.0.0.1:8170/ux-images/<id>/assets/<file>`).
+pub const RECORDED_ASSET_BASE: &str = "http://127.0.0.1:8170/ux-images";
+
+/// Rebase every SVG `src` in a component's data onto the asset server we
+/// actually run (card #21 §4).
+///
+/// #16's committed data names the design-lab's ad-hoc asset port (`:8170`),
+/// which is not ours to run during a headless capture. `OCTOSCODE_ASSET_BASE`
+/// (e.g. `http://127.0.0.1:8180/ux-images`) repoints them without editing #16's
+/// committed files — the JSON is rewritten in memory, before lowering.
+fn rebase_assets(data: &mut Value) {
+    let Ok(base) = std::env::var("OCTOSCODE_ASSET_BASE") else {
+        return;
+    };
+    let base = base.trim_end_matches('/').to_owned();
+    fn visit(n: &mut Value, from: &str, to: &str) {
+        match n {
+            Value::Object(map) => {
+                if let Some(Value::String(src)) = map.get_mut("src") {
+                    if let Some(rest) = src.strip_prefix(from) {
+                        *src = format!("{to}{rest}");
+                    }
+                }
+                for (_, v) in map.iter_mut() {
+                    visit(v, from, to);
+                }
+            }
+            Value::Array(items) => {
+                for v in items.iter_mut() {
+                    visit(v, from, to);
+                }
+            }
+            _ => {}
+        }
+    }
+    visit(data, RECORDED_ASSET_BASE, &base);
+}
+
 /// Resolve the component for `kind`, preferring card #16's on-disk component
 /// over the placeholder. The bool reports whether the on-disk one was used.
 ///
@@ -283,6 +322,8 @@ pub fn resolve(kind: ItemKind) -> (Component, bool) {
             .and_then(|p| std::fs::read_to_string(p).ok())
             .and_then(|s| serde_json::from_str::<Value>(&s).ok())
             .unwrap_or_else(|| json!({}));
+        let mut data = data;
+        rebase_assets(&mut data);
         // A component that ships its own kit pack lowers against that pack.
         // #16 writes it at `<id>/kit/native/<mood>/kit.json` (the kit's parent
         // is the dir `l0::prepare` appends `native/<mood>/kit.json` to); a flat

@@ -131,16 +131,19 @@ script_mod! {
                     }
                 }
                 // The composer docked at the center column's bottom. The #16
-                // `composer` component is the LOOK; these are the host controls
-                // that emit the declared action ids (`composer.submit`,
-                // `turn.steer`, `turn.interrupt`).
+                // `composer` component IS the look (idle: input + pills + send);
+                // the host controls beside it emit the declared action ids
+                // (`composer.submit`, `turn.steer`, `turn.interrupt`).
                 composer_row := View {
-                    width: Fill height: Fit
-                    flow: Right spacing: 8
-                    draft := TextInput { width: Fill height: Fit empty_text: "Ask Octos anything" }
-                    steer := Button { text: "Steer now" }
-                    send := Button { text: "Send" }
-                    stop := Button { text: "×" }
+                    width: Fill height: Fit flow: Down spacing: 4
+                    composer_splash := Splash { width: Fill height: 190 }
+                    composer_controls := View {
+                        width: Fill height: Fit flow: Right spacing: 8
+                        draft := TextInput { width: Fill height: Fit empty_text: "Ask Octos anything" }
+                        steer := Button { text: "Steer now" }
+                        send := Button { text: "Send" }
+                        stop := Button { text: "×" }
+                    }
                 }
             }
 
@@ -400,6 +403,18 @@ impl OctoscodeView {
         self.view
             .label(cx, ids!(sessions))
             .set_text(cx, &format!("sessions: {sessions}"));
+        // The #16 `composer` component is the dock's look. It is NOT virtualized
+        // (one instance), so it is lowered here rather than in `draw_walk`; its
+        // two live slots are the draft and the idle placeholder.
+        let bridge = self.bridge.clone();
+        let mut cache = std::mem::take(&mut self.cache);
+        let composer = cache
+            .lower(&bridge, components::ItemKind::Composer, 0)
+            .unwrap_or_default();
+        self.cache = cache;
+        self.view
+            .splash(cx, ids!(composer_splash))
+            .set_text(cx, &composer);
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
     }
 
