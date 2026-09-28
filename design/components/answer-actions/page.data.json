@@ -1,0 +1,56 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "answer_actions": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 364.11,
+          "h": 29.05
+        }
+      },
+      "icon_copy": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/answer-actions/assets/icon_copy-e71cb744fd09.svg"
+        }
+      },
+      "icon_thumbs": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 28.0,
+          "y": 0.0,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/answer-actions/assets/icon_thumbs-348cb6a4c084.svg"
+        }
+      },
+      "icon_share": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 56.0,
+          "y": 0.0,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/answer-actions/assets/icon_share-b9aa1c6b91b9.svg"
+        }
+      },
+      "t11": {
+        "component": "Texta0abe1806ac3",
+        "layout": {
+          "x": 243.64,
+          "y": 1.5,
+          "w": 121.5,
+          "h": 28.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

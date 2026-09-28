@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "theme": "light",
+  "tokens": {
+    "size_9dab82380f61": {
+      "value": 17.5,
+      "property": "size"
+    },
+    "line_height_cc179cc6804e": {
+      "value": 38.0,
+      "property": "line_height"
+    },
+    "weight_26d228663f13": {
+      "value": 400,
+      "property": "weight"
+    },
+    "color_e0ccdd36059a": {
+      "value": 4280098079,
+      "property": "color"
+    },
+    "bg_20ab133515d1": {
+      "value": 4294243573,
+      "property": "bg"
+    },
+    "font_src_86ab34a300f7": {
+      "value": "self:resources/ux/Inter-400.ttf",
+      "property": "font_src"
+    }
+  },
+  "components": {
+    "Group3d2637879433": {
+      "style": {
+        "t": "stack"
+      },
+      "props": {},
+      "slot": true
+    },
+    "Textf628ddef93a6": {
+      "style": {
+        "t": "text",
+        "size": {
+          "$token": "size_9dab82380f61"
+        },
+        "line_height": {
+          "$token": "line_height_cc179cc6804e"
+        },
+        "weight": {
+          "$token": "weight_26d228663f13"
+        },
+        "color": {
+          "$token": "color_e0ccdd36059a"
+        },
+        "bg": {
+          "$token": "bg_20ab133515d1"
+        },
+        "alignx": 0,
+        "variant": "markdown",
+        "font_src": {
+          "$token": "font_src_86ab34a300f7"
+        }
+      },
+      "props": {
+        "text": "text"
+      },
+      "slot": false
+    }
+  }
+}

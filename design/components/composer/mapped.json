@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "aeec07254f1eb8a34faf360b7a07f73a1a6d3bc1d0b7ec7e4dc787022669de82",
+  "tree": {
+    "t": "stack",
+    "id": "composer_idle",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 374.0,
+    "h": 190.0,
+    "c": [
+      {
+        "t": "input",
+        "id": "composer_idle_input",
+        "text": "",
+        "placeholder": "Ask Octos anything",
+        "x": 14.0,
+        "y": 10.556000000000012,
+        "w": 300.0,
+        "h": 42.222,
+        "size": 15,
+        "line_height": 40.0,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "enabled": 1,
+        "c": []
+      },
+      {
+        "t": "svg",
+        "id": "icon_plus1",
+        "x": 14.0,
+        "y": 128.77800000000002,
+        "w": 18.0,
+        "h": 25.333,
+        "src": ""
+      },
+      {
+        "t": "stack",
+        "id": "pill1",
+        "x": 49.0,
+        "y": 121.0,
+        "w": 122.0,
+        "h": 46.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "pill1_t",
+            "text": "Ask for approval",
+            "x": 61.18000000000001,
+            "y": 135.5,
+            "w": 101.5,
+            "h": 23.0,
+            "size": 12.49,
+            "line_height": 15.12,
+            "weight": 400,
+            "color": 4282598211,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": 0.0
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294835709,
+        "radius": 23.0,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "svg",
+        "id": "icon_mic1",
+        "x": 290.0,
+        "y": 125.61099999999999,
+        "w": 16.0,
+        "h": 28.5,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t04",
+        "text": "v4-flash ▾",
+        "x": 198.69,
+        "y": 138.5,
+        "w": 73.0,
+        "h": 21.5,
+        "size": 13.92,
+        "line_height": 16.85,
+        "weight": 500,
+        "color": 4280624421,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "send1",
+        "x": 328.0,
+        "y": 118.22200000000001,
+        "w": 36.0,
+        "h": 38.0,
+        "c": [
+          {
+            "t": "svg",
+            "id": "icon_send",
+            "x": 338.0,
+            "y": 128.77800000000002,
+            "w": 16.0,
+            "h": 16.889,
+            "src": ""
+          }
+        ],
+        "variant": "surface",
+        "bg": 4278452995,
+        "radius": 18.0
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502,
+    "radius": 12.67,
+    "border": 1,
+    "bordercolor": 4293256679
+  },
+  "changes": [
+    {
+      "source": "cards/conversation-08/mapped.json",
+      "source_sha256": "f6ebcc56b83ef8b73d893eba356b261ba3b6014ac2608f07956d233a8aa00c25",
+      "operation": "Extract native subtree and translate origin",
+      "source_root": "composer_idle",
+      "translation": [
+        -17.0,
+        -130.0
+      ]
+    }
+  ]
+}

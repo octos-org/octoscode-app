@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "cb926505c637457ad9eec5acd12cc5792370ee0fee546702ba912361a4900791",
+  "tree": {
+    "t": "stack",
+    "id": "working_row",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 145.55,
+    "h": 29.5,
+    "c": [
+      {
+        "t": "svg",
+        "id": "icon_spinner",
+        "x": 0.0,
+        "y": 5.0,
+        "w": 18.0,
+        "h": 18.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t03",
+        "text": "Working • 12s",
+        "x": 22.049999999999997,
+        "y": 0.0,
+        "w": 123.5,
+        "h": 29.5,
+        "size": 17.94,
+        "line_height": 21.7,
+        "weight": 500,
+        "color": 4287730325,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      }
+    ]
+  },
+  "changes": [
+    {
+      "source": "cards/conversation-03/mapped.json",
+      "source_sha256": "56c25209a1f541fd5e98ec08305423edc74da45dcbf8d60c7d9be7dde7f1bc69",
+      "operation": "Extract native subtree and translate origin",
+      "source_root": "working_row",
+      "translation": [
+        -44.0,
+        -193.0
+      ]
+    }
+  ]
+}

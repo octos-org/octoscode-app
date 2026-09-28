@@ -47,6 +47,15 @@
           "h": 24.0
         }
       },
+      "answer_prose": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 27.0,
+          "y": 106.0,
+          "w": 356.0,
+          "h": 492.0
+        }
+      },
       "answer_md": {
         "component": "Textf628ddef93a6",
         "layout": {
@@ -54,6 +63,15 @@
           "y": 106.0,
           "w": 356.0,
           "h": 492.0
+        }
+      },
+      "answer_actions": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 24.0,
+          "y": 662.0,
+          "w": 364.11,
+          "h": 29.05
         }
       },
       "icon_copy": {

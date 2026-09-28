@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "id": "working-row",
+  "app": "octoscode",
+  "number": 3,
+  "title": "Streaming turn",
+  "structure": "Native component reconstructed from the approved conversation atlas",
+  "artboard": [
+    145.55,
+    29.5
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "working_row",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 145.55,
+    "h": 29.5,
+    "c": [
+      {
+        "t": "svg",
+        "id": "icon_spinner",
+        "x": 0.0,
+        "y": 5.0,
+        "w": 18.0,
+        "h": 18.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t03",
+        "text": "Working • 12s",
+        "x": 22.049999999999997,
+        "y": 0.0,
+        "w": 123.5,
+        "h": 29.5,
+        "size": 17.94,
+        "line_height": 21.7,
+        "weight": 500,
+        "color": 4287730325,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      }
+    ]
+  },
+  "standalone_service_card": true
+}

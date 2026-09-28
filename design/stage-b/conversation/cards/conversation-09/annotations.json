@@ -95,6 +95,28 @@
       "reviewed": false
     },
     {
+      "id": "answer_prose",
+      "bounds": [
+        27.0,
+        106.0,
+        356.0,
+        492.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "answer_actions",
+      "bounds": [
+        24.0,
+        662.0,
+        364.11,
+        29.05
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
       "id": "icon_copy",
       "bounds": [
         24.0,

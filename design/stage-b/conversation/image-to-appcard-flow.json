@@ -194,7 +194,17 @@
     "wizard/render.mjs",
     "wizard/wizard.mjs"
   ],
-  "cards": [],
+  "cards": [
+    {"id": "thread-row", "scene": "1", "root": "thread_1", "owner": "threads"},
+    {"id": "new-chat", "scene": "1", "root": "new_chat", "owner": "threads"},
+    {"id": "user-bubble", "scene": "3", "root": "user_bubble", "owner": "timeline"},
+    {"id": "working-row", "scene": "3", "root": "working_row", "owner": "timeline"},
+    {"id": "assistant-prose", "scene": "9", "root": "answer_prose", "owner": "timeline"},
+    {"id": "worked-for", "scene": "9", "root": "worked_row", "owner": "timeline"},
+    {"id": "answer-actions", "scene": "9", "root": "answer_actions", "owner": "timeline"},
+    {"id": "tool-cell", "scene": "4", "root": "tool_1", "owner": "tools"},
+    {"id": "composer", "scene": "8", "root": "composer_idle", "owner": "composer"}
+  ],
   "checks": {
     "service-test": [
       {

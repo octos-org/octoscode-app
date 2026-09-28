@@ -1,0 +1,16 @@
+# ledger assistant-prose@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy answer_md_text { class: user-copy, en: "Queued steers now survive a reconnect.\n\n• Fixed loss of queued steers when reconnecting after a drop in `steer_dropped` handling.\n\n• Updated `ui_protocol_transport.rs` to persist queued steers to the session ledger.\n\n• All tests pass: `12 passed`.\n\n• Changes included in commit `a6ea8505`." }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Textf628ddef93a6(instance: text, text: text) {
+  view Kit(component: "Textf628ddef93a6", instance: instance, text: text)
+}
+
+view root Group3d2637879433(instance: "answer_prose") {
+  Textf628ddef93a6(instance: "answer_md", text: copy.answer_md_text)
+}

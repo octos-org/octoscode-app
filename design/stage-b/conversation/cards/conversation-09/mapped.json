@@ -59,65 +59,85 @@
         "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
       },
       {
-        "t": "text",
-        "id": "answer_md",
-        "text": "Queued steers now survive a reconnect.\n\n\u2022 Fixed loss of queued steers when reconnecting after a drop in `steer_dropped` handling.\n\n\u2022 Updated `ui_protocol_transport.rs` to persist queued steers to the session ledger.\n\n\u2022 All tests pass: `12 passed`.\n\n\u2022 Changes included in commit `a6ea8505`.",
+        "t": "stack",
+        "id": "answer_prose",
         "x": 27.0,
         "y": 106.0,
         "w": 356.0,
         "h": 492.0,
-        "size": 17.5,
-        "line_height": 38.0,
-        "weight": 400,
-        "color": 4280098079,
-        "bg": 4294243573,
-        "alignx": 0,
-        "variant": "markdown",
-        "font_src": "self:resources/ux/Inter-400.ttf"
+        "c": [
+          {
+            "t": "text",
+            "id": "answer_md",
+            "text": "Queued steers now survive a reconnect.\n\n\u2022 Fixed loss of queued steers when reconnecting after a drop in `steer_dropped` handling.\n\n\u2022 Updated `ui_protocol_transport.rs` to persist queued steers to the session ledger.\n\n\u2022 All tests pass: `12 passed`.\n\n\u2022 Changes included in commit `a6ea8505`.",
+            "x": 27.0,
+            "y": 106.0,
+            "w": 356.0,
+            "h": 492.0,
+            "size": 17.5,
+            "line_height": 38.0,
+            "weight": 400,
+            "color": 4280098079,
+            "bg": 4294243573,
+            "alignx": 0,
+            "variant": "markdown",
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          }
+        ]
       },
       {
-        "t": "svg",
-        "id": "icon_copy",
+        "t": "stack",
+        "id": "answer_actions",
         "x": 24.0,
         "y": 662.0,
-        "w": 20.0,
-        "h": 20.0,
-        "src": ""
-      },
-      {
-        "t": "svg",
-        "id": "icon_thumbs",
-        "x": 52.0,
-        "y": 662.0,
-        "w": 20.0,
-        "h": 20.0,
-        "src": ""
-      },
-      {
-        "t": "svg",
-        "id": "icon_share",
-        "x": 80.0,
-        "y": 662.0,
-        "w": 20.0,
-        "h": 20.0,
-        "src": ""
-      },
-      {
-        "t": "text",
-        "id": "t11",
-        "text": "Sep 28, 9:41 PM",
-        "x": 267.64,
-        "y": 663.5,
-        "w": 121.5,
-        "h": 28.0,
-        "size": 15.26,
-        "line_height": 18.46,
-        "weight": 400,
-        "color": 4288848550,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
+        "w": 364.11,
+        "h": 29.05,
+        "c": [
+          {
+            "t": "svg",
+            "id": "icon_copy",
+            "x": 24.0,
+            "y": 662.0,
+            "w": 20.0,
+            "h": 20.0,
+            "src": ""
+          },
+          {
+            "t": "svg",
+            "id": "icon_thumbs",
+            "x": 52.0,
+            "y": 662.0,
+            "w": 20.0,
+            "h": 20.0,
+            "src": ""
+          },
+          {
+            "t": "svg",
+            "id": "icon_share",
+            "x": 80.0,
+            "y": 662.0,
+            "w": 20.0,
+            "h": 20.0,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "t11",
+            "text": "Sep 28, 9:41 PM",
+            "x": 267.64,
+            "y": 663.5,
+            "w": 121.5,
+            "h": 28.0,
+            "size": 15.26,
+            "line_height": 18.46,
+            "weight": 400,
+            "color": 4288848550,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": 0.0
+          }
+        ]
       }
     ],
     "variant": "surface",
@@ -138,6 +158,14 @@
     },
     {
       "id": "worked_row_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "answer_prose",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "answer_actions",
       "source": "observed non-text annotation"
     },
     {

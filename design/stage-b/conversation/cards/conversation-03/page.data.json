@@ -38,6 +38,15 @@
           "h": 23.0
         }
       },
+      "working_row": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 44.0,
+          "y": 193.0,
+          "w": 145.55,
+          "h": 29.5
+        }
+      },
       "icon_spinner": {
         "component": "Vectore0a378fde04f",
         "layout": {
