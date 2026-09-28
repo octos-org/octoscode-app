@@ -75,8 +75,11 @@ script_mod! {
             convo_col := View {
                 width: Fill height: Fill
                 flow: Down spacing: 6
+                // Only the timeline takes the slack; every other row is Fit, so
+                // the composer dock stays on screen (two Fill children in a
+                // Down flow overflow and push it out of the window).
                 timeline_card := Label { width: Fill height: Fill draw_text.wrap: Words text: "" }
-                timeline_label := Label { width: Fill height: Fill draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "(no timeline)" }
+                timeline_label := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "(no timeline)" }
                 tools_card := Label { width: Fill height: Fit draw_text.wrap: Words text: "" }
                 tools_label := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "tools: (none)" }
                 answer_card := Label { width: Fill height: Fit draw_text.wrap: Words text: "" }
@@ -85,7 +88,7 @@ script_mod! {
                 composer_row := View {
                     width: Fill height: Fit
                     flow: Right spacing: 8
-                    draft := TextInput { width: Fill empty_text: "Ask Octos anything" }
+                    draft := TextInput { width: Fill height: Fit empty_text: "Ask Octos anything" }
                     send := Button { text: "Send" }
                     stop := Button { text: "Stop" }
                 }

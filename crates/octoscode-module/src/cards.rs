@@ -373,19 +373,26 @@ pub fn render_slot(
                 }
             }
         }
-        // The composer dock: the input's placeholder + the live draft.
+        // The composer dock: binding-first and COMPACT (8.8 condition 2 — the
+        // card's live truth is the placeholder, the draft and whether a turn is
+        // live; the design's other authored rows illustrate exactly those same
+        // bindings). A dock that grew to the design's full illustrated height
+        // would push the input row out of the column.
         Slot::Composer => {
-            for row in &rows {
-                let text = match row.id.as_str() {
-                    "composer_input" => as_text("composer.placeholder")
-                        .filter(|s| !s.is_empty())
-                        .unwrap_or_else(|| row.text.clone()),
-                    _ => row.text.clone(),
-                };
-                out.push_str(&format!("{}\n", format_row(row, &text, false)));
-            }
+            let placeholder = as_text("composer.placeholder")
+                .filter(|s| !s.is_empty())
+                .or_else(|| {
+                    rows.iter()
+                        .find(|r| r.id == "composer_input")
+                        .map(|r| r.text.clone())
+                })
+                .unwrap_or_else(|| "Ask Octos anything".to_owned());
+            out.push_str(&format!("[input composer_input] {placeholder}\n"));
             let draft = as_text("composer.draft").unwrap_or_default();
             out.push_str(&format!("[draft] {draft}\n"));
+            // STOP when a turn is live, else send (`turn.active`).
+            let live = values("turn.active").and_then(|v| v.as_bool()).unwrap_or(false);
+            out.push_str(if live { "[stop] Stop\n" } else { "[send] Send\n" });
         }
         // The tool cells: the authored rows, overridden by the `tools`
         // binding when the turn has called any.
@@ -430,16 +437,30 @@ pub fn render_slot(
                 })
                 .unwrap_or_default();
             if !answer.is_empty() {
-                out.push_str(&answer);
+                out.push_str(&truncate_lines(&answer, 4));
                 out.push('\n');
             } else {
-                for row in rows.iter().filter(|r| r.id != "worked_row") {
-                    out.push_str(&format!("{}\n", row.text));
-                }
+                // The design's own illustrated answer, bounded so the dock
+                // keeps the composer on screen after it.
+                let authored: String = rows
+                    .iter()
+                    .filter(|r| r.id != "worked_row")
+                    .map(|r| r.text.clone())
+                    .collect::<Vec<_>>()
+                    .join(" ");
+                out.push_str(&truncate_lines(&authored, 4));
+                out.push('\n');
             }
         }
     }
     Ok(out.trim_end().to_owned())
+}
+
+/// The first `max` lines of `text` (keeps a docked card on screen while the
+/// timeline slot still shows the full text).
+fn truncate_lines(text: &str, max: usize) -> String {
+    let lines: Vec<&str> = text.lines().take(max).collect();
+    lines.join("\n")
 }
 
 /// One row as slot text: `[button] New chat`, with a selection mark.
