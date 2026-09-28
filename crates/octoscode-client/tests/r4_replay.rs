@@ -60,6 +60,40 @@ fn scrub(v: Value) -> Value {
     }
 }
 
+/// The workspace root this crate is built in — `…/crates/octoscode-client` → the
+/// repo root two levels up. **Recorder-only** (`env!` is compile-time, not a
+/// runtime environment read), mirroring R2's `machine_path_prefixes`.
+fn workspace_root() -> Option<String> {
+    std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .and_then(|p| p.parent())
+        .map(|p| p.to_string_lossy().to_string())
+}
+
+/// Replace machine-specific absolute paths in `text` with placeholders so the
+/// committed fixture stays **hermetic** (R2 lesson, `.peer/LESSONS.md` §"Replay
+/// tests must be hermetic"): a recorded serve writes its workspace root into
+/// `session/open`'s `readable_roots`/`writable_roots`, which differs on every
+/// clone. `<WORKSPACE>` (the repo root) is the only prefix this recording needs;
+/// `<TMP>`/`<HOME>` cover a serve whose data dir is under the system temp dir.
+/// **Recorder-only** — a replay test never reads the environment.
+fn scrub_machine_paths(text: &str) -> String {
+    let mut out = text.to_owned();
+    if let Some(ws) = workspace_root() {
+        out = out.replace(&ws, "<WORKSPACE>");
+    }
+    // Longest/most-specific first: the system temp dir may sit inside `$HOME`.
+    let home = std::env::var("HOME").unwrap_or_default();
+    let tmp = std::env::temp_dir().to_string_lossy().to_string();
+    if !tmp.is_empty() {
+        out = out.replace(&tmp, "<TMP>");
+    }
+    if !home.is_empty() {
+        out = out.replace(&home, "<HOME>");
+    }
+    out
+}
+
 /// Record an inbound event into the trace as a `dir:"in"` line.
 fn record_inbound(trace: &FrameTrace, evt: &TransportEvent) {
     match evt {
@@ -186,6 +220,17 @@ async fn capture_r4_frames() {
     // Drain the fixture turn's notifications.
     tokio::time::sleep(std::time::Duration::from_secs(3)).await;
     drop(client);
+
+    // Hermetic (R2 lesson): the serve writes its own workspace root into
+    // `session/open`'s `readable_roots`/`writable_roots`, which differs on every
+    // clone. Rewrite the recorded file with machine paths as placeholders so the
+    // committed fixture decodes and asserts identically anywhere. This is the
+    // only place the recorder touches the environment; replay tests read the
+    // placeholders.
+    if let Ok(text) = std::fs::read_to_string(&path) {
+        let scrubbed = scrub_machine_paths(&text);
+        std::fs::write(&path, &scrubbed).expect("rewrite the scrubbed fixture");
+    }
     eprintln!("capture: wrote {}", path.display());
 }
 
