@@ -118,7 +118,7 @@
           },
           {
             "t": "stack",
-            "id": "progress_card",
+            "id": "run_status_card",
             "x": 18.0,
             "y": 157.48,
             "w": 370.0,
@@ -126,7 +126,7 @@
             "c": [
               {
                 "t": "text",
-                "id": "t_progress",
+                "id": "t_status",
                 "text": "Reviewing 3 files · 2 specialists",
                 "x": 80.18,
                 "y": 173.48,
@@ -142,7 +142,7 @@
               },
               {
                 "t": "text",
-                "id": "t_progress_sub",
+                "id": "t_status_sub",
                 "text": "Analyzing changes and code quality...",
                 "x": 80.18,
                 "y": 210.65,

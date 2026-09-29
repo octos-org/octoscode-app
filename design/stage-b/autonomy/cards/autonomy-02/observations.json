@@ -1,0 +1,517 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "065d17c8a2484d93dbc746890fe961cb1b30f964b00d23acbc99b5fc498af9db",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0930252013995857,
+  "text": [
+    {
+      "id": "t01",
+      "expected_text": "OctosCode",
+      "requested_bounds": [
+        23.77,
+        19.68,
+        100.86,
+        28.5
+      ],
+      "status": "observed",
+      "ocr_text": "OctosCode",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        26.496842105263156,
+        20.93106893106893,
+        94.02105263157894,
+        17.054945054945055
+      ],
+      "ink_color": [
+        8,
+        8,
+        8
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        23.773715368494354,
+        19.678138236867795,
+        100.86433522841509,
+        21.050909030937163
+      ]
+    },
+    {
+      "id": "t_title",
+      "expected_text": "Code review",
+      "requested_bounds": [
+        23.83,
+        86.53,
+        114.4,
+        28.5
+      ],
+      "status": "observed",
+      "ocr_text": "Code review",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        25.642105263157895,
+        88.37562437562437,
+        109.40631578947368,
+        18.605394605394604
+      ],
+      "ink_color": [
+        7,
+        7,
+        7
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        23.830741513884814,
+        86.52738728012602,
+        114.39733841839956,
+        23.65580382508906
+      ]
+    },
+    {
+      "id": "start_review_label",
+      "expected_text": "Start review",
+      "requested_bounds": [
+        276.23,
+        86.3,
+        90.66,
+        22.56
+      ],
+      "status": "observed",
+      "ocr_text": "Start review",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        279.49894736842106,
+        89.15084915084914,
+        84.61894736842105,
+        15.504495504495504
+      ],
+      "ink_color": [
+        248,
+        248,
+        248
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        276.2283763735155,
+        86.30215541748846,
+        90.66089495490577,
+        22.557365371795438
+      ]
+    },
+    {
+      "id": "t_status",
+      "expected_text": "Reviewing 3 files \u00b7 2 specialists",
+      "requested_bounds": [
+        80.18,
+        173.48,
+        223.47,
+        21.68
+      ],
+      "status": "observed",
+      "ocr_text": "Reviewing 3 files \u2022 2 specialists",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        82.90947368421052,
+        173.65034965034965,
+        218.81263157894736,
+        20.155844155844154
+      ],
+      "ink_color": [
+        32,
+        32,
+        32
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        80.1764678801471,
+        173.47704563712577,
+        223.4705882352941,
+        21.684630738522923
+      ]
+    },
+    {
+      "id": "t_status_sub",
+      "expected_text": "Analyzing changes and code quality...",
+      "requested_bounds": [
+        80.18,
+        210.65,
+        254.18,
+        20.14
+      ],
+      "status": "observed",
+      "ocr_text": "Analyzing changes and code quality...",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        81.19999999999999,
+        210.08591408591408,
+        250.43789473684208,
+        19.38061938061938
+      ],
+      "ink_color": [
+        115,
+        116,
+        122
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        80.17647270637252,
+        210.65069861570194,
+        254.1764705882353,
+        20.135728542914187
+      ]
+    },
+    {
+      "id": "finding_high_badge_label",
+      "expected_text": "High",
+      "requested_bounds": [
+        40.94,
+        314.43,
+        35.82,
+        21.68
+      ],
+      "status": "observed",
+      "ocr_text": "High",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        42.73684210526316,
+        315.5164835164835,
+        29.91578947368421,
+        18.605394605394604
+      ],
+      "ink_color": [
+        177,
+        20,
+        22
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        40.94117658999999,
+        314.4271459254292,
+        35.8235294117647,
+        21.684630738522834
+      ]
+    },
+    {
+      "id": "finding_high_path",
+      "expected_text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
+      "requested_bounds": [
+        32.41,
+        359.35,
+        339.47,
+        23.23
+      ],
+      "status": "observed",
+      "ocr_text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        35.89894736842105,
+        361.2547452547452,
+        329.92842105263156,
+        18.605394605394604
+      ],
+      "ink_color": [
+        29,
+        30,
+        30
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        32.41176810058819,
+        359.3453093037924,
+        339.47058823529414,
+        23.233532934131745
+      ]
+    },
+    {
+      "id": "finding_high_text",
+      "expected_text": "Potential message loss when reconnecting: pending queue was dropped.",
+      "requested_bounds": [
+        32.41,
+        399.62,
+        327.53,
+        50.02
+      ],
+      "status": "observed",
+      "ocr_text": "Potential message loss when reconnecting: pending",
+      "confidence": 1,
+      "text_similarity": 0.8376068376068376,
+      "ink_bounds": [
+        35.89894736842105,
+        400.015984015984,
+        322.2357894736842,
+        18.605394605394604
+      ],
+      "ink_color": [
+        97,
+        98,
+        104
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        32.41176236638656,
+        399.6167665223837,
+        327.52941176470586,
+        20.135728542914187
+      ]
+    },
+    {
+      "id": "finding_low_badge_label",
+      "expected_text": "Low",
+      "requested_bounds": [
+        37.53,
+        532.82,
+        34.12,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "Low",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        42.73684210526316,
+        531.8041958041957,
+        27.35157894736842,
+        15.504495504495504
+      ],
+      "ink_color": [
+        48,
+        48,
+        48
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        37.52941142352942,
+        532.822355076447,
+        34.11764705882352,
+        17.037924151696625
+      ]
+    },
+    {
+      "id": "finding_low_path",
+      "expected_text": "crates/octos-core/src/ui_protocol.rs",
+      "requested_bounds": [
+        32.41,
+        579.29,
+        257.59,
+        20.14
+      ],
+      "status": "observed",
+      "ocr_text": "crates/octos-core/src/ui_protocol.rs",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        35.04421052631579,
+        578.3176823176823,
+        253.0021052631579,
+        19.38061938061938
+      ],
+      "ink_color": [
+        29,
+        29,
+        29
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        32.411765951176434,
+        579.2894213590419,
+        257.5882352941176,
+        20.135728542914098
+      ]
+    },
+    {
+      "id": "finding_low_text",
+      "expected_text": "Missing documentation for new preserve_pending behavior.",
+      "requested_bounds": [
+        32.41,
+        618.01,
+        313.88,
+        50.0
+      ],
+      "status": "observed",
+      "ocr_text": "Missing documentation for new preserve_pending",
+      "confidence": 1,
+      "text_similarity": 0.9019607843137255,
+      "ink_bounds": [
+        35.04421052631579,
+        618.6293706293706,
+        310.2694736842105,
+        19.38061938061938
+      ],
+      "ink_color": [
+        103,
+        103,
+        108
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        32.411764535294125,
+        618.0119757574851,
+        313.88235294117646,
+        23.23353293413166
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "review_run",
+      "bounds": [
+        0.0,
+        0.0,
+        406.0,
+        775.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "start_review",
+      "bounds": [
+        260.0,
+        76.0,
+        123.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "start_review_surface",
+      "bounds": [
+        260.0,
+        76.0,
+        123.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4278848528,
+      "radius": 22.0
+    },
+    {
+      "id": "start_review_control",
+      "bounds": [
+        260.0,
+        76.0,
+        123.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "run_status_card",
+      "bounds": [
+        18.0,
+        144.0,
+        367.0,
+        114.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 15.32
+    },
+    {
+      "id": "finding_high",
+      "bounds": [
+        18.0,
+        282.0,
+        367.0,
+        193.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.85
+    },
+    {
+      "id": "finding_high_badge",
+      "bounds": [
+        29.0,
+        301.0,
+        57.0,
+        43.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294829797,
+      "radius": 21.5
+    },
+    {
+      "id": "finding_low",
+      "bounds": [
+        18.0,
+        499.0,
+        367.0,
+        194.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.92
+    },
+    {
+      "id": "finding_low_badge",
+      "bounds": [
+        29.0,
+        518.0,
+        54.0,
+        43.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294309367,
+      "radius": 21.5
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        37.82003070628344,
+        552.8556679909747,
+        149.88515116587405,
+        27.156927438077318
+      ],
+      "confidence": 1,
+      "text": "queue was dropped."
+    },
+    {
+      "bounds": [
+        37.744021838733104,
+        838.6038822976054,
+        68.20943616017573,
+        23.093632471537603
+      ],
+      "confidence": 1,
+      "text": "behavior."
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

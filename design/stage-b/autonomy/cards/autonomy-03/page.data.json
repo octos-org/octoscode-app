@@ -1,0 +1,242 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "goal_screen": {
+        "component": "Surfaceb4206391250d",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 406.0,
+          "h": 776.0
+        }
+      },
+      "t01": {
+        "component": "Text1438d9267bfc",
+        "layout": {
+          "x": 21.76492148209666,
+          "y": 19.727999999999998,
+          "w": 103.8961625282167,
+          "h": 21.072
+        }
+      },
+      "t_title": {
+        "component": "Text2c1703fcb88f",
+        "layout": {
+          "x": 33.47058953732704,
+          "y": 133.79999999999998,
+          "w": 49.82392776523702,
+          "h": 24.176
+        }
+      },
+      "goal_card": {
+        "component": "Surfaceebeaffab57cc",
+        "layout": {
+          "x": 14.0,
+          "y": 107.0,
+          "w": 374.0,
+          "h": 617.0
+        }
+      },
+      "t_goal": {
+        "component": "Text85d9d0a0b997",
+        "layout": {
+          "x": 34.0957712870011,
+          "y": 199.76,
+          "w": 240.45146726862305,
+          "h": 25.727999999999998
+        }
+      },
+      "goal_badge": {
+        "component": "Surface061d79961e7a",
+        "layout": {
+          "x": 32.0,
+          "y": 244.0,
+          "w": 72.0,
+          "h": 42.0
+        }
+      },
+      "goal_badge_label": {
+        "component": "Text071ecfcd8b8e",
+        "layout": {
+          "x": 45.358523724832985,
+          "y": 255.632,
+          "w": 48.90744920993228,
+          "h": 18.744
+        }
+      },
+      "t_budget": {
+        "component": "Text690a65426df8",
+        "layout": {
+          "x": 32.846923937579746,
+          "y": 351.856,
+          "w": 107.56207674943568,
+          "h": 24.951999999999998
+        }
+      },
+      "t_budget_val": {
+        "component": "Textf2c138f489db",
+        "layout": {
+          "x": 273.7700075263558,
+          "y": 349.52799999999996,
+          "w": 95.64785553047405,
+          "h": 20.296
+        }
+      },
+      "bar_track": {
+        "component": "Surface2fe27683340f",
+        "layout": {
+          "x": 29.09,
+          "y": 396.364,
+          "w": 330.0,
+          "h": 10.986
+        }
+      },
+      "bar_fill": {
+        "component": "Surface04156896cc6b",
+        "layout": {
+          "x": 29.09,
+          "y": 396.364,
+          "w": 135.3,
+          "h": 10.986
+        }
+      },
+      "t_elapsed": {
+        "component": "Textb53355e00b4a",
+        "layout": {
+          "x": 32.77637378082542,
+          "y": 461.272,
+          "w": 62.65462753950339,
+          "h": 25.727999999999998
+        }
+      },
+      "t_elapsed_val": {
+        "component": "Textadad902d51e0",
+        "layout": {
+          "x": 335.3357866595848,
+          "y": 460.496,
+          "w": 34.24379232505643,
+          "h": 20.296
+        }
+      },
+      "pause_btn": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 34.0,
+          "y": 559.0,
+          "w": 149.0,
+          "h": 55.0
+        }
+      },
+      "pause_btn_surface": {
+        "component": "Surfacefe6068fabd7e",
+        "layout": {
+          "x": 34.0,
+          "y": 559.0,
+          "w": 149.0,
+          "h": 55.0
+        }
+      },
+      "pause_btn_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 34.0,
+          "y": 559.0,
+          "w": 149.0,
+          "h": 55.0
+        }
+      },
+      "pause_btn_label": {
+        "component": "Textc0a1bf3f4dab",
+        "layout": {
+          "x": 77.19483721964197,
+          "y": 571.4639999999999,
+          "w": 61.738148984198645,
+          "h": 29.607999999999997
+        }
+      },
+      "stop_btn": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 209.0,
+          "y": 559.0,
+          "w": 149.0,
+          "h": 55.0
+        }
+      },
+      "stop_btn_surface": {
+        "component": "Surfaceff776c252975",
+        "layout": {
+          "x": 209.0,
+          "y": 559.0,
+          "w": 149.0,
+          "h": 55.0
+        }
+      },
+      "stop_btn_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 209.0,
+          "y": 559.0,
+          "w": 149.0,
+          "h": 55.0
+        }
+      },
+      "stop_btn_label": {
+        "component": "Text21389b959cf0",
+        "layout": {
+          "x": 262.83696500660346,
+          "y": 575.3439999999999,
+          "w": 40.65914221218962,
+          "h": 26.503999999999998
+        }
+      },
+      "clear_goal": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 136.06,
+          "y": 648.75,
+          "w": 111.93,
+          "h": 37.21
+        }
+      },
+      "clear_goal_surface": {
+        "component": "Surfacec768d4b60097",
+        "layout": {
+          "x": 136.06,
+          "y": 648.75,
+          "w": 111.93,
+          "h": 37.21
+        }
+      },
+      "clear_goal_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 136.06,
+          "y": 648.75,
+          "w": 111.93,
+          "h": 37.21
+        }
+      },
+      "clear_goal_label": {
+        "component": "Text824982adf4b2",
+        "layout": {
+          "x": 148.99974126669875,
+          "y": 653.7199999999999,
+          "w": 83.73363431151242,
+          "h": 26.503999999999998
+        }
+      }
+    },
+    "bindings": []
+  }
+}

@@ -1,0 +1,524 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "stack",
+        "id": "loops_screen",
+        "x": 1.0,
+        "y": 1.0,
+        "w": 405.0,
+        "h": 775.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t01",
+            "text": "OctosCode",
+            "x": 22.83048144873807,
+            "y": 18.93106893106893,
+            "w": 91.11417322834646,
+            "h": 21.054945054945055,
+            "size": 22.78442757503423,
+            "line_height": 21.054945054945055,
+            "weight": 600,
+            "color": 4278716424,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf",
+            "tracking": -4.295247675790112,
+            "font_asc": -0.1436660609294459,
+            "font_desc": 0.14220121717944595
+          },
+          {
+            "t": "text",
+            "id": "t_title",
+            "text": "Loops",
+            "x": 22.026126945901122,
+            "y": 87.92607392607393,
+            "w": 56.74803149606299,
+            "h": 28.807192807192806,
+            "size": 26.627427080257267,
+            "line_height": 28.807192807192806,
+            "weight": 600,
+            "color": 4278584838,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf",
+            "tracking": -5.733677310820379,
+            "font_asc": -0.16610041352891436,
+            "font_desc": -0.03800114897108575
+          },
+          {
+            "t": "stack",
+            "id": "new_loop",
+            "x": 272.091,
+            "y": 84.233,
+            "w": 119.475,
+            "h": 39.209,
+            "c": [
+              {
+                "t": "stack",
+                "id": "new_loop_surface",
+                "x": 272.091,
+                "y": 84.233,
+                "w": 119.475,
+                "h": 39.209,
+                "c": [],
+                "variant": "surface",
+                "bg": 4294835710,
+                "radius": 7.99
+              },
+              {
+                "t": "button",
+                "id": "new_loop_control",
+                "x": 272.091,
+                "y": 84.233,
+                "w": 119.475,
+                "h": 39.209,
+                "enabled": 1
+              },
+              {
+                "t": "svg",
+                "id": "new_loop_icon",
+                "x": 282.066,
+                "y": 94.849,
+                "w": 17.956,
+                "h": 17.977,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "new_loop_label",
+                "text": "+ New loop",
+                "x": 287.1875618232772,
+                "y": 90.25174825174824,
+                "w": 89.51574803149606,
+                "h": 25.706293706293707,
+                "size": 23.298998695225112,
+                "line_height": 25.706293706293707,
+                "weight": 600,
+                "color": 4281233128,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-600.ttf",
+                "tracking": -4.311805868756299,
+                "font_asc": -0.1553703386759021,
+                "font_desc": -0.04873122382409789
+              }
+            ],
+            "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [3]}}"
+          },
+          {
+            "t": "stack",
+            "id": "loop_1",
+            "x": 12.0,
+            "y": 143.0,
+            "w": 381.0,
+            "h": 121.0,
+            "c": [
+              {
+                "t": "svg",
+                "id": "loop_1_dot",
+                "x": 204.028,
+                "y": 154.919,
+                "w": 20.374,
+                "h": 25.825,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "loop_1_name",
+                "text": "Run CI smoke",
+                "x": 29.250192824572228,
+                "y": 170.09990009990008,
+                "w": 103.1023622047244,
+                "h": 21.83016983016983,
+                "size": 23.82008337389942,
+                "line_height": 21.83016983016983,
+                "weight": 500,
+                "color": 4279176975,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf",
+                "tracking": -4.939315610493853,
+                "font_asc": -0.14748255012816558,
+                "font_desc": 0.14601770637816563
+              },
+              {
+                "t": "text",
+                "id": "loop_1_cad",
+                "text": "every 15 min",
+                "x": 30.14354863345066,
+                "y": 213.5124875124875,
+                "w": 83.12204724409449,
+                "h": 23.38061938061938,
+                "size": 20.19924096259974,
+                "line_height": 23.38061938061938,
+                "weight": 400,
+                "color": 4287006606,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": -3.4760660270804675,
+                "font_asc": -0.11827153471327323,
+                "font_desc": -0.06581049653672688
+              },
+              {
+                "t": "svg",
+                "id": "loop_1_pause",
+                "x": 257.714,
+                "y": 238.175,
+                "w": 18.337,
+                "h": 19.865,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "loop_1_play",
+                "x": 308.345,
+                "y": 238.175,
+                "w": 18.337,
+                "h": 19.865,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "loop_1_trash",
+                "x": 358.567,
+                "y": 238.175,
+                "w": 18.337,
+                "h": 19.865,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294901502,
+            "radius": 11.92,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "stack",
+            "id": "loop_2",
+            "x": 12.0,
+            "y": 266.0,
+            "w": 381.0,
+            "h": 120.0,
+            "c": [
+              {
+                "t": "svg",
+                "id": "loop_2_dot",
+                "x": 204.028,
+                "y": 277.895,
+                "w": 20.374,
+                "h": 25.772,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "loop_2_name",
+                "text": "Sync main",
+                "x": 29.16408635197886,
+                "y": 292.5854145854146,
+                "w": 79.9251968503937,
+                "h": 26.48151848151848,
+                "size": 23.300683122545472,
+                "line_height": 26.48151848151848,
+                "weight": 500,
+                "color": 4279374611,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf",
+                "tracking": -4.641362612251468,
+                "font_asc": -0.1260796691699253,
+                "font_desc": -0.05263126833007464
+              },
+              {
+                "t": "text",
+                "id": "loop_2_cad",
+                "text": "every 30 min",
+                "x": 30.18457834165594,
+                "y": 335.998001998002,
+                "w": 84.72047244094487,
+                "h": 22.605394605394604,
+                "size": 19.39127132409575,
+                "line_height": 22.605394605394604,
+                "weight": 400,
+                "color": 4286019967,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": -3.3421238916159877,
+                "font_asc": -0.11414596714924286,
+                "font_desc": -0.06993606410075709
+              },
+              {
+                "t": "svg",
+                "id": "loop_2_pause",
+                "x": 257.714,
+                "y": 360.228,
+                "w": 18.337,
+                "h": 19.825,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "loop_2_play",
+                "x": 308.345,
+                "y": 360.228,
+                "w": 18.337,
+                "h": 19.825,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "loop_2_trash",
+                "x": 358.567,
+                "y": 360.228,
+                "w": 18.337,
+                "h": 19.825,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294901502,
+            "radius": 11.89,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "stack",
+            "id": "loop_3",
+            "x": 12.0,
+            "y": 388.0,
+            "w": 382.0,
+            "h": 120.0,
+            "c": [
+              {
+                "t": "svg",
+                "id": "loop_3_dot",
+                "x": 204.532,
+                "y": 399.873,
+                "w": 20.428,
+                "h": 25.726,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "loop_3_name",
+                "text": "Nightly review",
+                "x": 29.30711736797497,
+                "y": 415.8461538461538,
+                "w": 110.29527559055119,
+                "h": 26.48151848151848,
+                "size": 23.113529041239886,
+                "line_height": 26.48151848151848,
+                "weight": 500,
+                "color": 4279571990,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf",
+                "tracking": -3.8646305360782893,
+                "font_asc": -0.12538465383931752,
+                "font_desc": -0.06113878366068243
+              },
+              {
+                "t": "text",
+                "id": "loop_3_cad",
+                "text": "every day \u00b7 01:00",
+                "x": 30.128183685904776,
+                "y": 458.48351648351644,
+                "w": 111.89370078740157,
+                "h": 23.38061938061938,
+                "size": 20.501812237349426,
+                "line_height": 23.38061938061938,
+                "weight": 400,
+                "color": 4285690746,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": -3.5219401295652357,
+                "font_asc": -0.1338929606958763,
+                "font_desc": -0.06434922680412358
+              },
+              {
+                "t": "svg",
+                "id": "loop_3_play",
+                "x": 309.122,
+                "y": 482.274,
+                "w": 18.385,
+                "h": 19.789,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "loop_3_trash",
+                "x": 359.477,
+                "y": 482.274,
+                "w": 18.385,
+                "h": 19.789,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294901502,
+            "radius": 11.87,
+            "border": 1,
+            "bordercolor": 4293256679
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 0
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loops_screen",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "new_loop",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "new_loop_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "new_loop_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "new_loop_icon",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_1_dot",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_1_pause",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_1_play",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_1_trash",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_2_dot",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_2_pause",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_2_play",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_2_trash",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_3",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_3_dot",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_3_play",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_3_trash",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t01",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.18851681314550905
+    },
+    {
+      "id": "t_title",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.21532975354842215
+    },
+    {
+      "id": "new_loop_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.18506399889365024
+    },
+    {
+      "id": "loop_1_name",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.20735929144169377
+    },
+    {
+      "id": "loop_1_cad",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1720889430210095
+    },
+    {
+      "id": "loop_2_name",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.19919427202374765
+    },
+    {
+      "id": "loop_2_cad",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.17235197402776978
+    },
+    {
+      "id": "loop_3_name",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.16720209748943546
+    },
+    {
+      "id": "loop_3_cad",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.17178677127620448
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

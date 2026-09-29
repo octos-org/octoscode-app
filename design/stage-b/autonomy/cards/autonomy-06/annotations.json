@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "e6870a9defd294295b03acbb4b23e729bf7cca8bafd2460a132e26f41e5e3802",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      28.0,
+      510.0,
+      69.0,
+      52.0
+    ],
+    [
+      14.0,
+      476.0,
+      377.0,
+      127.0
+    ],
+    [
+      28.0,
+      384.0,
+      85.0,
+      52.0
+    ],
+    [
+      14.0,
+      350.0,
+      377.0,
+      125.0
+    ],
+    [
+      28.0,
+      255.0,
+      86.0,
+      52.0
+    ],
+    [
+      14.0,
+      220.0,
+      377.0,
+      128.0
+    ],
+    [
+      11.0,
+      217.0,
+      383.0,
+      389.0
+    ],
+    [
+      1.0,
+      67.0,
+      404.0,
+      708.0
+    ],
+    [
+      0.0,
+      1.0,
+      406.0,
+      775.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "fleet_screen",
+      "bounds": [
+        0.0,
+        1.0,
+        406.0,
+        775.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "fleet_goal",
+      "bounds": [
+        16.0,
+        165.288,
+        374.0,
+        49.107
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "fleet_goal_icon",
+      "bounds": [
+        23.32,
+        178.271,
+        18.0,
+        17.977
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "peer_1",
+      "bounds": [
+        14.0,
+        220.0,
+        377.0,
+        128.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 18.77
+    },
+    {
+      "id": "peer_2",
+      "bounds": [
+        14.0,
+        350.0,
+        377.0,
+        125.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 18.28
+    },
+    {
+      "id": "peer_3",
+      "bounds": [
+        14.0,
+        476.0,
+        377.0,
+        127.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 18.59
+    }
+  ]
+}

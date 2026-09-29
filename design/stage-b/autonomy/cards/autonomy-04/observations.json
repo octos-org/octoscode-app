@@ -1,0 +1,559 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.030014320654714766,
+  "text": [
+    {
+      "id": "t01",
+      "expected_text": "OctosCode",
+      "requested_bounds": [
+        22.31,
+        18.3,
+        92.85,
+        28.5
+      ],
+      "status": "observed",
+      "ocr_text": "OctosCode",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        23.976377952755904,
+        20.93106893106893,
+        87.11417322834646,
+        17.054945054945055
+      ],
+      "ink_color": [
+        8,
+        8,
+        8
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        22.307708599413658,
+        18.301272689776575,
+        92.84914800688978,
+        22.25573760925412
+      ]
+    },
+    {
+      "id": "t_title",
+      "expected_text": "Loops",
+      "requested_bounds": [
+        18.49,
+        87.18,
+        63.71,
+        31.75
+      ],
+      "status": "observed",
+      "ocr_text": "Loops",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        23.976377952755904,
+        89.92607392607393,
+        52.74803149606299,
+        24.807192807192806
+      ],
+      "ink_color": [
+        6,
+        6,
+        6
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        18.49008040287812,
+        87.17816818429499,
+        63.70666840320497,
+        31.749112340504514
+      ]
+    },
+    {
+      "id": "new_loop_label",
+      "expected_text": "+ New loop",
+      "requested_bounds": [
+        283.76,
+        89.34,
+        95.77,
+        27.27
+      ],
+      "status": "observed",
+      "ocr_text": "+ New loop",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        289.31496062992125,
+        92.25174825174824,
+        85.51574803149606,
+        21.706293706293707
+      ],
+      "ink_color": [
+        46,
+        110,
+        232
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        283.75625041007885,
+        89.33768484849494,
+        95.77267759428247,
+        27.264292338175196
+      ]
+    },
+    {
+      "id": "loop_1_name",
+      "expected_text": "Run CI smoke",
+      "requested_bounds": [
+        23.85,
+        171.24,
+        110.55,
+        22.5
+      ],
+      "status": "observed",
+      "ocr_text": "Run Cl smoke",
+      "confidence": 1,
+      "text_similarity": 0.9166666666666666,
+      "ink_bounds": [
+        31.169291338582678,
+        172.09990009990008,
+        99.1023622047244,
+        17.83016983016983
+      ],
+      "ink_color": [
+        15,
+        15,
+        15
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        23.8467926040466,
+        171.23884732029455,
+        110.55050707238865,
+        21.51432145474671
+      ]
+    },
+    {
+      "id": "loop_1_cad",
+      "expected_text": "every 15 min",
+      "requested_bounds": [
+        28.75,
+        215.22,
+        83.16,
+        21.83
+      ],
+      "status": "observed",
+      "ocr_text": "every 15 min",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        31.169291338582678,
+        215.5124875124875,
+        79.12204724409449,
+        19.38061938061938
+      ],
+      "ink_color": [
+        134,
+        135,
+        142
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        28.75104075741819,
+        215.222965313854,
+        83.15933548934815,
+        21.833511771318218
+      ]
+    },
+    {
+      "id": "loop_2_name",
+      "expected_text": "Sync main",
+      "requested_bounds": [
+        22.38,
+        294.29,
+        87.91,
+        23.23
+      ],
+      "status": "observed",
+      "ocr_text": "Sync main",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        30.37007874015748,
+        294.5854145854146,
+        75.9251968503937,
+        22.48151848151848
+      ],
+      "ink_color": [
+        18,
+        19,
+        19
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        22.377952156496075,
+        294.2914169720559,
+        87.91338582677166,
+        23.233532934131745
+      ]
+    },
+    {
+      "id": "loop_2_cad",
+      "expected_text": "every 30 min",
+      "requested_bounds": [
+        22.38,
+        336.11,
+        94.31,
+        23.23
+      ],
+      "status": "observed",
+      "ocr_text": "every 30 min",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        31.169291338582678,
+        337.998001998002,
+        80.72047244094487,
+        18.605394605394604
+      ],
+      "ink_color": [
+        119,
+        121,
+        127
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        22.377952931732274,
+        336.1117762147704,
+        94.30708661417324,
+        23.23353293413183
+      ]
+    },
+    {
+      "id": "loop_3_name",
+      "expected_text": "Nightly review",
+      "requested_bounds": [
+        22.33,
+        416.43,
+        118.38,
+        25.23
+      ],
+      "status": "observed",
+      "ocr_text": "Nightly review",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        31.169291338582678,
+        417.8461538461538,
+        106.29527559055119,
+        22.48151848151848
+      ],
+      "ink_color": [
+        21,
+        22,
+        22
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        22.328837984600696,
+        416.43268401721076,
+        118.38169542447788,
+        25.226448165680353
+      ]
+    },
+    {
+      "id": "loop_3_cad",
+      "expected_text": "every day \u00b7 01:00",
+      "requested_bounds": [
+        22.38,
+        460.02,
+        118.28,
+        21.68
+      ],
+      "status": "observed",
+      "ocr_text": "every day \u2022 01:00",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        31.169291338582678,
+        460.48351648351644,
+        107.89370078740157,
+        19.38061938061938
+      ],
+      "ink_color": [
+        114,
+        115,
+        122
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        22.37795294771653,
+        460.0239523126547,
+        118.28346456692913,
+        21.684630738522923
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "loops_screen",
+      "bounds": [
+        1.0,
+        1.0,
+        405.0,
+        775.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "new_loop",
+      "bounds": [
+        272.091,
+        84.233,
+        119.475,
+        39.209
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "new_loop_surface",
+      "bounds": [
+        272.091,
+        84.233,
+        119.475,
+        39.209
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835710,
+      "radius": 7.99
+    },
+    {
+      "id": "new_loop_control",
+      "bounds": [
+        272.091,
+        84.233,
+        119.475,
+        39.209
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "new_loop_icon",
+      "bounds": [
+        282.066,
+        94.849,
+        17.956,
+        17.977
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_1",
+      "bounds": [
+        12.0,
+        143.0,
+        381.0,
+        121.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.92
+    },
+    {
+      "id": "loop_1_dot",
+      "bounds": [
+        204.028,
+        154.919,
+        20.374,
+        25.825
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_1_pause",
+      "bounds": [
+        257.714,
+        238.175,
+        18.337,
+        19.865
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_1_play",
+      "bounds": [
+        308.345,
+        238.175,
+        18.337,
+        19.865
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_1_trash",
+      "bounds": [
+        358.567,
+        238.175,
+        18.337,
+        19.865
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_2",
+      "bounds": [
+        12.0,
+        266.0,
+        381.0,
+        120.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.89
+    },
+    {
+      "id": "loop_2_dot",
+      "bounds": [
+        204.028,
+        277.895,
+        20.374,
+        25.772
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_2_pause",
+      "bounds": [
+        257.714,
+        360.228,
+        18.337,
+        19.825
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_2_play",
+      "bounds": [
+        308.345,
+        360.228,
+        18.337,
+        19.825
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_2_trash",
+      "bounds": [
+        358.567,
+        360.228,
+        18.337,
+        19.825
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_3",
+      "bounds": [
+        12.0,
+        388.0,
+        382.0,
+        120.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.87
+    },
+    {
+      "id": "loop_3_dot",
+      "bounds": [
+        204.532,
+        399.873,
+        20.428,
+        25.726
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_3_play",
+      "bounds": [
+        309.122,
+        482.274,
+        18.385,
+        19.789
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_3_trash",
+      "bounds": [
+        359.477,
+        482.274,
+        18.385,
+        19.789
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        255.9999999142857,
+        245.7544907896207,
+        24.000000000000014,
+        31.968063872255556
+      ],
+      "confidence": 1,
+      "text": "\u2022"
+    },
+    {
+      "bounds": [
+        256.00000009999997,
+        405.5948106289919,
+        24.000000000000014,
+        29.970059880239646
+      ],
+      "confidence": 1,
+      "text": "\u2022"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

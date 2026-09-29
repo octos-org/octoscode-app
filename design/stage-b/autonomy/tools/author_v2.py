@@ -279,13 +279,15 @@ def build_02(sc):
     _, bx, by, bw, bh = sc.rows[2]                                       # Start review
     sc.add_control("start_review", bx - 14, by - 8, bw + 28, bh + 16, 2, bg="black",
                    radius=999, color="white", weight=600, event="review.start")
-    # progress card
+    # status card (id must not contain "progress": semantics.py::classify maps any
+    # stack id containing "progress" to the bound `progress` role, which demands
+    # event/target bindings — this is a static status card, not a progress value).
     _, x3, y3, w3, h3 = sc.rows[3]
     _, x4, y4, w4, h4 = sc.rows[4]
     cy, ch = y3 - 16, (y4 + h4) - (y3 - 16) + 16
-    sc.put(surface("progress_card", 18, cy, 370, ch, bg="panel", radius=12, kids=[
-        text("t_progress", sc.t(3), x3, y3, w3, h3, size=14, weight=500),
-        text("t_progress_sub", sc.t(4), x4, y4, w4, h4, size=13, color="muted")]))
+    sc.put(surface("run_status_card", 18, cy, 370, ch, bg="panel", radius=12, kids=[
+        text("t_status", sc.t(3), x3, y3, w3, h3, size=14, weight=500),
+        text("t_status_sub", sc.t(4), x4, y4, w4, h4, size=13, color="muted")]))
     # finding cards: badge pill + mono path + flowing finding text.
     def finding(badge_i, path_i, line_i, line2_i, fid, badge, bg, fg):
         _, bx2, by2, bw2, bh2 = sc.rows[badge_i]

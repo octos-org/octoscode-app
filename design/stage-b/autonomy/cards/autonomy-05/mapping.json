@@ -1,0 +1,390 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "monitors_screen",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfaceb4206391250d",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        406.0,
+        776.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_0_0",
+      "parent": "monitors_screen",
+      "kind": "text",
+      "component": "Textfe7cadcba5f5",
+      "semantic_role": "text",
+      "bounds": [
+        18.326486552232684,
+        21.792452830188683,
+        92.70588235294119,
+        23.216981132075475
+      ],
+      "text": "OctosCode",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 25.672783665029726
+    },
+    {
+      "source_id": "t_title",
+      "native_id": "beauty_0_0_1",
+      "parent": "monitors_screen",
+      "kind": "text",
+      "component": "Textcecd63fb3e11",
+      "semantic_role": "text",
+      "bounds": [
+        18.477485033464504,
+        95.00000000000001,
+        81.61764705882354,
+        25.047169811320757
+      ],
+      "text": "Monitors",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 27.212502382313705
+    },
+    {
+      "source_id": "mon_1",
+      "native_id": "beauty_0_0_2",
+      "parent": "monitors_screen",
+      "kind": "stack",
+      "component": "Surfacee69029f3071c",
+      "semantic_role": "layout",
+      "bounds": [
+        12.0,
+        156.0,
+        378.0,
+        151.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "mon_1_cmd",
+      "native_id": "beauty_0_0_2_0",
+      "parent": "mon_1",
+      "kind": "text",
+      "component": "Text9ceffaf9dfd5",
+      "semantic_role": "text",
+      "bounds": [
+        29.24295903750196,
+        191.0849056603774,
+        114.88235294117648,
+        24.132075471698116
+      ],
+      "text": "cargo test -q",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 23.046668846303934
+    },
+    {
+      "source_id": "mon_1_state",
+      "native_id": "beauty_0_0_2_1",
+      "parent": "mon_1",
+      "kind": "text",
+      "component": "Text1a52b7767b86",
+      "semantic_role": "text",
+      "bounds": [
+        29.610302525813072,
+        238.66981132075475,
+        59.44117647058824,
+        23.216981132075475
+      ],
+      "text": "fired 3\u00d7",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 24.846197827329906
+    },
+    {
+      "source_id": "mon_1_clock",
+      "native_id": "beauty_0_0_2_2",
+      "parent": "mon_1",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        188.811,
+        243.511,
+        18.193,
+        25.48
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "mon_1_int",
+      "native_id": "beauty_0_0_2_3",
+      "parent": "mon_1",
+      "kind": "text",
+      "component": "Textcc7303e3c8ad",
+      "semantic_role": "text",
+      "bounds": [
+        219.34584381832732,
+        238.66981132075475,
+        28.73529411764706,
+        23.216981132075475
+      ],
+      "text": "30s",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 25.656047821701808
+    },
+    {
+      "source_id": "mon_1_pause",
+      "native_id": "beauty_0_0_2_4",
+      "parent": "mon_1",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        294.995,
+        238.712,
+        18.193,
+        28.312
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "mon_1_trash",
+      "native_id": "beauty_0_0_2_5",
+      "parent": "mon_1",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        348.258,
+        238.712,
+        18.193,
+        28.312
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "mon_2",
+      "native_id": "beauty_0_0_3",
+      "parent": "monitors_screen",
+      "kind": "stack",
+      "component": "Surfacee26805a602b5",
+      "semantic_role": "layout",
+      "bounds": [
+        12.0,
+        328.0,
+        378.0,
+        149.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "mon_2_cmd",
+      "native_id": "beauty_0_0_3_0",
+      "parent": "mon_2",
+      "kind": "text",
+      "component": "Text974688bf9bf9",
+      "semantic_role": "text",
+      "bounds": [
+        28.611088081515852,
+        363.122641509434,
+        157.52941176470588,
+        25.047169811320757
+      ],
+      "text": "tail -n 50 app.log",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 22.579677199363495
+    },
+    {
+      "source_id": "mon_2_state",
+      "native_id": "beauty_0_0_3_1",
+      "parent": "mon_2",
+      "kind": "text",
+      "component": "Text161b87f9ce0c",
+      "semantic_role": "text",
+      "bounds": [
+        28.685285845265096,
+        408.87735849056605,
+        75.64705882352942,
+        28.707547169811324
+      ],
+      "text": "no change",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 26.191023086839333
+    },
+    {
+      "source_id": "mon_2_clock",
+      "native_id": "beauty_0_0_3_2",
+      "parent": "mon_2",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        190.539,
+        413.734,
+        18.193,
+        25.403
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "mon_2_int",
+      "native_id": "beauty_0_0_3_3",
+      "parent": "mon_2",
+      "kind": "text",
+      "component": "Text943cbfad5d58",
+      "semantic_role": "text",
+      "bounds": [
+        219.34584381832732,
+        408.87735849056605,
+        28.73529411764706,
+        23.216981132075475
+      ],
+      "text": "30s",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 25.656047821701808
+    },
+    {
+      "source_id": "mon_2_pause",
+      "native_id": "beauty_0_0_3_4",
+      "parent": "mon_2",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        294.995,
+        411.447,
+        18.193,
+        28.225
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "mon_2_trash",
+      "native_id": "beauty_0_0_3_5",
+      "parent": "mon_2",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        348.258,
+        411.447,
+        18.193,
+        28.225
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "monitors_footer",
+      "native_id": "beauty_0_0_4",
+      "parent": "monitors_screen",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        16.0,
+        506.68,
+        374.0,
+        50.62
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "monitors_footer_icon",
+      "native_id": "beauty_0_0_4_0",
+      "parent": "monitors_footer",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        29.66,
+        516.68,
+        20.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "monitors_footer_label",
+      "native_id": "beauty_0_0_4_1",
+      "parent": "monitors_footer",
+      "kind": "text",
+      "component": "Text380f4ab8814c",
+      "semantic_role": "text",
+      "bounds": [
+        57.566700779797344,
+        518.6886792452831,
+        268.4117647058824,
+        27.792452830188683
+      ],
+      "text": "Monitors fire when the output changes",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 24.339132565547665
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "d71d95b8050d8ae10897347736af40483f086cfae6bd3dd8f1610adfe75294f9",
+  "mapping_basis": "mapped.json"
+}

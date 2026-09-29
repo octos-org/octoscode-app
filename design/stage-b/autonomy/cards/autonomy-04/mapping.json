@@ -1,0 +1,534 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "loops_screen",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfaceb4206391250d",
+      "semantic_role": "layout",
+      "bounds": [
+        1.0,
+        1.0,
+        405.0,
+        775.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_0_0",
+      "parent": "loops_screen",
+      "kind": "text",
+      "component": "Text050a687b31b0",
+      "semantic_role": "text",
+      "bounds": [
+        22.83048144873807,
+        18.93106893106893,
+        91.11417322834646,
+        21.054945054945055
+      ],
+      "text": "OctosCode",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 22.78442757503423
+    },
+    {
+      "source_id": "t_title",
+      "native_id": "beauty_0_0_1",
+      "parent": "loops_screen",
+      "kind": "text",
+      "component": "Text8437225c1f09",
+      "semantic_role": "text",
+      "bounds": [
+        22.026126945901122,
+        87.92607392607393,
+        56.74803149606299,
+        28.807192807192806
+      ],
+      "text": "Loops",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 26.627427080257267
+    },
+    {
+      "source_id": "new_loop",
+      "native_id": "beauty_0_0_2",
+      "parent": "loops_screen",
+      "kind": "stack",
+      "component": "KitButton3ea7d97692cf",
+      "semantic_role": "button",
+      "bounds": [
+        272.091,
+        84.233,
+        119.475,
+        39.209
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "new_loop_surface",
+      "native_id": "beauty_0_0_2_0",
+      "parent": "new_loop",
+      "kind": "stack",
+      "component": "Surfacecbeea5da301d",
+      "semantic_role": "layout",
+      "bounds": [
+        272.091,
+        84.233,
+        119.475,
+        39.209
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "new_loop_control",
+      "native_id": "beauty_0_0_2_1",
+      "parent": "new_loop",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        272.091,
+        84.233,
+        119.475,
+        39.209
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "new_loop_icon",
+      "native_id": "beauty_0_0_2_2",
+      "parent": "new_loop",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        282.066,
+        94.849,
+        17.956,
+        17.977
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "new_loop_label",
+      "native_id": "beauty_0_0_2_3",
+      "parent": "new_loop",
+      "kind": "text",
+      "component": "Textbae2622866d7",
+      "semantic_role": "text",
+      "bounds": [
+        287.1875618232772,
+        90.25174825174824,
+        89.51574803149606,
+        25.706293706293707
+      ],
+      "text": "+ New loop",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 23.298998695225112
+    },
+    {
+      "source_id": "loop_1",
+      "native_id": "beauty_0_0_3",
+      "parent": "loops_screen",
+      "kind": "stack",
+      "component": "Surfacef048cb7f7bbf",
+      "semantic_role": "layout",
+      "bounds": [
+        12.0,
+        143.0,
+        381.0,
+        121.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "loop_1_dot",
+      "native_id": "beauty_0_0_3_0",
+      "parent": "loop_1",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        204.028,
+        154.919,
+        20.374,
+        25.825
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "loop_1_name",
+      "native_id": "beauty_0_0_3_1",
+      "parent": "loop_1",
+      "kind": "text",
+      "component": "Text17dbf5b4a3e0",
+      "semantic_role": "text",
+      "bounds": [
+        29.250192824572228,
+        170.09990009990008,
+        103.1023622047244,
+        21.83016983016983
+      ],
+      "text": "Run CI smoke",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 23.82008337389942
+    },
+    {
+      "source_id": "loop_1_cad",
+      "native_id": "beauty_0_0_3_2",
+      "parent": "loop_1",
+      "kind": "text",
+      "component": "Text1f72b398750a",
+      "semantic_role": "text",
+      "bounds": [
+        30.14354863345066,
+        213.5124875124875,
+        83.12204724409449,
+        23.38061938061938
+      ],
+      "text": "every 15 min",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 20.19924096259974
+    },
+    {
+      "source_id": "loop_1_pause",
+      "native_id": "beauty_0_0_3_3",
+      "parent": "loop_1",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        257.714,
+        238.175,
+        18.337,
+        19.865
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "loop_1_play",
+      "native_id": "beauty_0_0_3_4",
+      "parent": "loop_1",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        308.345,
+        238.175,
+        18.337,
+        19.865
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "loop_1_trash",
+      "native_id": "beauty_0_0_3_5",
+      "parent": "loop_1",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        358.567,
+        238.175,
+        18.337,
+        19.865
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "loop_2",
+      "native_id": "beauty_0_0_4",
+      "parent": "loops_screen",
+      "kind": "stack",
+      "component": "Surfaceb45c5a1f6470",
+      "semantic_role": "layout",
+      "bounds": [
+        12.0,
+        266.0,
+        381.0,
+        120.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "loop_2_dot",
+      "native_id": "beauty_0_0_4_0",
+      "parent": "loop_2",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        204.028,
+        277.895,
+        20.374,
+        25.772
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "loop_2_name",
+      "native_id": "beauty_0_0_4_1",
+      "parent": "loop_2",
+      "kind": "text",
+      "component": "Text8cf0a77a78b8",
+      "semantic_role": "text",
+      "bounds": [
+        29.16408635197886,
+        292.5854145854146,
+        79.9251968503937,
+        26.48151848151848
+      ],
+      "text": "Sync main",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 23.300683122545472
+    },
+    {
+      "source_id": "loop_2_cad",
+      "native_id": "beauty_0_0_4_2",
+      "parent": "loop_2",
+      "kind": "text",
+      "component": "Text425fa141c805",
+      "semantic_role": "text",
+      "bounds": [
+        30.18457834165594,
+        335.998001998002,
+        84.72047244094487,
+        22.605394605394604
+      ],
+      "text": "every 30 min",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 19.39127132409575
+    },
+    {
+      "source_id": "loop_2_pause",
+      "native_id": "beauty_0_0_4_3",
+      "parent": "loop_2",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        257.714,
+        360.228,
+        18.337,
+        19.825
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "loop_2_play",
+      "native_id": "beauty_0_0_4_4",
+      "parent": "loop_2",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        308.345,
+        360.228,
+        18.337,
+        19.825
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "loop_2_trash",
+      "native_id": "beauty_0_0_4_5",
+      "parent": "loop_2",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        358.567,
+        360.228,
+        18.337,
+        19.825
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "loop_3",
+      "native_id": "beauty_0_0_5",
+      "parent": "loops_screen",
+      "kind": "stack",
+      "component": "Surfacec13f4ad941fd",
+      "semantic_role": "layout",
+      "bounds": [
+        12.0,
+        388.0,
+        382.0,
+        120.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "loop_3_dot",
+      "native_id": "beauty_0_0_5_0",
+      "parent": "loop_3",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        204.532,
+        399.873,
+        20.428,
+        25.726
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "loop_3_name",
+      "native_id": "beauty_0_0_5_1",
+      "parent": "loop_3",
+      "kind": "text",
+      "component": "Text5d5af5e97195",
+      "semantic_role": "text",
+      "bounds": [
+        29.30711736797497,
+        415.8461538461538,
+        110.29527559055119,
+        26.48151848151848
+      ],
+      "text": "Nightly review",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 23.113529041239886
+    },
+    {
+      "source_id": "loop_3_cad",
+      "native_id": "beauty_0_0_5_2",
+      "parent": "loop_3",
+      "kind": "text",
+      "component": "Text3dfdb5a2546e",
+      "semantic_role": "text",
+      "bounds": [
+        30.128183685904776,
+        458.48351648351644,
+        111.89370078740157,
+        23.38061938061938
+      ],
+      "text": "every day \u00b7 01:00",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 20.501812237349426
+    },
+    {
+      "source_id": "loop_3_play",
+      "native_id": "beauty_0_0_5_3",
+      "parent": "loop_3",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        309.122,
+        482.274,
+        18.385,
+        19.789
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "loop_3_trash",
+      "native_id": "beauty_0_0_5_4",
+      "parent": "loop_3",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        359.477,
+        482.274,
+        18.385,
+        19.789
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "6b3053d3ed3b25ba1b0d5f5f22da5596c363e2f3d47f172ef40932c1a8f4afc4",
+  "mapping_basis": "mapped.json"
+}

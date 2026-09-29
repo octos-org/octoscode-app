@@ -1,0 +1,320 @@
+{
+  "schema_version": 1,
+  "policy_version": "1.1.0",
+  "contract_sha256": "6b3053d3ed3b25ba1b0d5f5f22da5596c363e2f3d47f172ef40932c1a8f4afc4",
+  "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
+  "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
+  "elements": [
+    {
+      "id": "page",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "loops_screen",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t01",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_title",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "new_loop",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "new_loop_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "new_loop_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "new_loop_icon",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/new_loop_icon.svg",
+        "sha256": "0b6f5be6fb3502916c7c2b7954a5d005c2e9feb094c6953d5c642497c8632b55",
+        "method": "reference_svg",
+        "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "new_loop_label",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "loop_1",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "loop_1_dot",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/loop_1_dot.svg",
+        "sha256": "47612be73ffbb71115d9e831d9a5e209e84ecb76c6540ca3c0b777265d3fd3bb",
+        "method": "reference_svg",
+        "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "loop_1_name",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "loop_1_cad",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "loop_1_pause",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/loop_1_pause.svg",
+        "sha256": "a8eaf0e4c2cc2207c04459887b8028af7a982fe229dfd7b2abf892375d314efe",
+        "method": "reference_svg",
+        "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "loop_1_play",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/loop_1_play.svg",
+        "sha256": "c9c0b42d273d22a018809b6529d63558297b2374944a538f48e9e40609bd0ee9",
+        "method": "reference_svg",
+        "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "loop_1_trash",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/loop_1_trash.svg",
+        "sha256": "931b997682712e1f61af47676d449049be849f9779b624b227a074924504690d",
+        "method": "reference_svg",
+        "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "loop_2",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "loop_2_dot",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/loop_2_dot.svg",
+        "sha256": "47612be73ffbb71115d9e831d9a5e209e84ecb76c6540ca3c0b777265d3fd3bb",
+        "method": "reference_svg",
+        "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "loop_2_name",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "loop_2_cad",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "loop_2_pause",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/loop_2_pause.svg",
+        "sha256": "a8eaf0e4c2cc2207c04459887b8028af7a982fe229dfd7b2abf892375d314efe",
+        "method": "reference_svg",
+        "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "loop_2_play",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/loop_2_play.svg",
+        "sha256": "c9c0b42d273d22a018809b6529d63558297b2374944a538f48e9e40609bd0ee9",
+        "method": "reference_svg",
+        "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "loop_2_trash",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/loop_2_trash.svg",
+        "sha256": "931b997682712e1f61af47676d449049be849f9779b624b227a074924504690d",
+        "method": "reference_svg",
+        "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "loop_3",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "loop_3_dot",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/loop_3_dot.svg",
+        "sha256": "e51db8e14b1f071ad2937f7c5d4529f91563d57019c8b3b2a8b1a1d47a4a7f83",
+        "method": "reference_svg",
+        "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "loop_3_name",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "loop_3_cad",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "loop_3_play",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/loop_3_play.svg",
+        "sha256": "c9c0b42d273d22a018809b6529d63558297b2374944a538f48e9e40609bd0ee9",
+        "method": "reference_svg",
+        "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "loop_3_trash",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/loop_3_trash.svg",
+        "sha256": "931b997682712e1f61af47676d449049be849f9779b624b227a074924504690d",
+        "method": "reference_svg",
+        "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    }
+  ]
+}

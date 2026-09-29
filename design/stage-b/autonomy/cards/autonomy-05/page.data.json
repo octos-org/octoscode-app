@@ -1,0 +1,204 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "monitors_screen": {
+        "component": "Surfaceb4206391250d",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 406.0,
+          "h": 776.0
+        }
+      },
+      "t01": {
+        "component": "Textfe7cadcba5f5",
+        "layout": {
+          "x": 18.326486552232684,
+          "y": 21.792452830188683,
+          "w": 92.70588235294119,
+          "h": 23.216981132075475
+        }
+      },
+      "t_title": {
+        "component": "Textcecd63fb3e11",
+        "layout": {
+          "x": 18.477485033464504,
+          "y": 95.00000000000001,
+          "w": 81.61764705882354,
+          "h": 25.047169811320757
+        }
+      },
+      "mon_1": {
+        "component": "Surfacee69029f3071c",
+        "layout": {
+          "x": 12.0,
+          "y": 156.0,
+          "w": 378.0,
+          "h": 151.0
+        }
+      },
+      "mon_1_cmd": {
+        "component": "Text9ceffaf9dfd5",
+        "layout": {
+          "x": 29.24295903750196,
+          "y": 191.0849056603774,
+          "w": 114.88235294117648,
+          "h": 24.132075471698116
+        }
+      },
+      "mon_1_state": {
+        "component": "Text1a52b7767b86",
+        "layout": {
+          "x": 29.610302525813072,
+          "y": 238.66981132075475,
+          "w": 59.44117647058824,
+          "h": 23.216981132075475
+        }
+      },
+      "mon_1_clock": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 188.811,
+          "y": 243.511,
+          "w": 18.193,
+          "h": 25.48,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-05/assets/mon_1_clock-b64e6a5bf721.svg"
+        }
+      },
+      "mon_1_int": {
+        "component": "Textcc7303e3c8ad",
+        "layout": {
+          "x": 219.34584381832732,
+          "y": 238.66981132075475,
+          "w": 28.73529411764706,
+          "h": 23.216981132075475
+        }
+      },
+      "mon_1_pause": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 294.995,
+          "y": 238.712,
+          "w": 18.193,
+          "h": 28.312,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-05/assets/mon_1_pause-a8eaf0e4c2cc.svg"
+        }
+      },
+      "mon_1_trash": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 348.258,
+          "y": 238.712,
+          "w": 18.193,
+          "h": 28.312,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-05/assets/mon_1_trash-931b99768271.svg"
+        }
+      },
+      "mon_2": {
+        "component": "Surfacee26805a602b5",
+        "layout": {
+          "x": 12.0,
+          "y": 328.0,
+          "w": 378.0,
+          "h": 149.0
+        }
+      },
+      "mon_2_cmd": {
+        "component": "Text974688bf9bf9",
+        "layout": {
+          "x": 28.611088081515852,
+          "y": 363.122641509434,
+          "w": 157.52941176470588,
+          "h": 25.047169811320757
+        }
+      },
+      "mon_2_state": {
+        "component": "Text161b87f9ce0c",
+        "layout": {
+          "x": 28.685285845265096,
+          "y": 408.87735849056605,
+          "w": 75.64705882352942,
+          "h": 28.707547169811324
+        }
+      },
+      "mon_2_clock": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 190.539,
+          "y": 413.734,
+          "w": 18.193,
+          "h": 25.403,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-05/assets/mon_2_clock-b64e6a5bf721.svg"
+        }
+      },
+      "mon_2_int": {
+        "component": "Text943cbfad5d58",
+        "layout": {
+          "x": 219.34584381832732,
+          "y": 408.87735849056605,
+          "w": 28.73529411764706,
+          "h": 23.216981132075475
+        }
+      },
+      "mon_2_pause": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 294.995,
+          "y": 411.447,
+          "w": 18.193,
+          "h": 28.225,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-05/assets/mon_2_pause-a8eaf0e4c2cc.svg"
+        }
+      },
+      "mon_2_trash": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 348.258,
+          "y": 411.447,
+          "w": 18.193,
+          "h": 28.225,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-05/assets/mon_2_trash-931b99768271.svg"
+        }
+      },
+      "monitors_footer": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 16.0,
+          "y": 506.68,
+          "w": 374.0,
+          "h": 50.62
+        }
+      },
+      "monitors_footer_icon": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 29.66,
+          "y": 516.68,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-05/assets/monitors_footer_icon-b64e6a5bf721.svg"
+        }
+      },
+      "monitors_footer_label": {
+        "component": "Text380f4ab8814c",
+        "layout": {
+          "x": 57.566700779797344,
+          "y": 518.6886792452831,
+          "w": 268.4117647058824,
+          "h": 27.792452830188683
+        }
+      }
+    },
+    "bindings": []
+  }
+}

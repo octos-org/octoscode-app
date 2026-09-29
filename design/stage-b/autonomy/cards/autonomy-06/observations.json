@@ -1,0 +1,585 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "e6870a9defd294295b03acbb4b23e729bf7cca8bafd2460a132e26f41e5e3802",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.06610744492982601,
+  "text": [
+    {
+      "id": "t01",
+      "expected_text": "OctosCode",
+      "requested_bounds": [
+        18.8,
+        25.43,
+        101.16,
+        28.5
+      ],
+      "status": "observed",
+      "ocr_text": "OctosCode",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        21.45877378435518,
+        27.452830188679247,
+        94.4186046511628,
+        20.132075471698116
+      ],
+      "ink_color": [
+        7,
+        6,
+        7
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        18.801950153282544,
+        25.432520861314178,
+        101.15559210153572,
+        26.002882993446242
+      ]
+    },
+    {
+      "id": "t_title",
+      "expected_text": "Fleet \u00b7 3 peers",
+      "requested_bounds": [
+        21.96,
+        95.99,
+        149.82,
+        31.48
+      ],
+      "status": "observed",
+      "ocr_text": "Fleet \u2022 3 peers",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        27.467230443974632,
+        97.00000000000001,
+        140.76955602536998,
+        30.198113207547173
+      ],
+      "ink_color": [
+        6,
+        6,
+        7
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        21.957842448884755,
+        95.99277302069693,
+        149.8174031575521,
+        31.47966557628705
+      ]
+    },
+    {
+      "id": "fleet_goal_label",
+      "expected_text": "Fix steer queue",
+      "requested_bounds": [
+        49.32,
+        176.5,
+        112.06,
+        25.17
+      ],
+      "status": "observed",
+      "ocr_text": "Fix steer queue",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        30.042283298097253,
+        174.78301886792454,
+        105.57716701902748,
+        24.707547169811324
+      ],
+      "ink_color": [
+        89,
+        90,
+        93
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        25.321866946367553,
+        176.50220595307945,
+        112.06097090193995,
+        25.168943828007002
+      ]
+    },
+    {
+      "id": "peer_1_status",
+      "expected_text": "Running",
+      "requested_bounds": [
+        40.96,
+        272.27,
+        58.54,
+        24.64
+      ],
+      "status": "observed",
+      "ocr_text": "Running",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        42.91754756871036,
+        271.78301886792457,
+        54.934460887949264,
+        22.87735849056604
+      ],
+      "ink_color": [
+        45,
+        129,
+        62
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        40.96472343804304,
+        272.27475436727553,
+        58.5431280659221,
+        24.639170970556822
+      ]
+    },
+    {
+      "id": "peer_1_name",
+      "expected_text": "tests",
+      "requested_bounds": [
+        143.69,
+        255.71,
+        46.68,
+        23.0
+      ],
+      "status": "observed",
+      "ocr_text": "tests",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        147.63636363636365,
+        258.0566037735849,
+        38.625792811839325,
+        18.301886792452834
+      ],
+      "ink_color": [
+        20,
+        23,
+        24
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        143.6875574404951,
+        255.7089081632157,
+        46.67551726329175,
+        22.99727821350098
+      ]
+    },
+    {
+      "id": "peer_1_meta",
+      "expected_text": "18m \u00b7 41k tokens",
+      "requested_bounds": [
+        143.9,
+        301.98,
+        116.49,
+        20.13
+      ],
+      "status": "observed",
+      "ocr_text": "18m \u2022 41k tokens",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        147.63636363636365,
+        301.0660377358491,
+        110.72727272727273,
+        17.38679245283019
+      ],
+      "ink_color": [
+        122,
+        123,
+        126
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        143.89873320646979,
+        301.98113215172964,
+        116.4894514767933,
+        20.13207547169809
+      ]
+    },
+    {
+      "id": "peer_1_steer",
+      "expected_text": "Steer",
+      "requested_bounds": [
+        327.2,
+        274.53,
+        46.25,
+        23.79
+      ],
+      "status": "observed",
+      "ocr_text": "Steer",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        330.4651162790698,
+        276.35849056603774,
+        38.625792811839325,
+        20.132075471698116
+      ],
+      "ink_color": [
+        47,
+        112,
+        234
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        327.19831177375534,
+        274.52830194169815,
+        46.253164556962005,
+        23.792452830188697
+      ]
+    },
+    {
+      "id": "peer_2_status",
+      "expected_text": "Blocked",
+      "requested_bounds": [
+        41.11,
+        398.98,
+        58.24,
+        23.79
+      ],
+      "status": "observed",
+      "ocr_text": "Blocked",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        42.91754756871036,
+        400.81132075471703,
+        53.217758985200845,
+        18.301886792452834
+      ],
+      "ink_color": [
+        177,
+        109,
+        27
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        41.11392380794656,
+        398.98113215935535,
+        58.24472573839664,
+        23.792452830188697
+      ]
+    },
+    {
+      "id": "peer_2_name",
+      "expected_text": "docs",
+      "requested_bounds": [
+        145.61,
+        382.51,
+        42.83,
+        23.79
+      ],
+      "status": "observed",
+      "ocr_text": "docs",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        147.63636363636365,
+        383.4245283018868,
+        36.909090909090914,
+        20.132075471698116
+      ],
+      "ink_color": [
+        47,
+        48,
+        47
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        145.61181406455697,
+        382.50943379231813,
+        42.827004219409304,
+        23.792452830188697
+      ]
+    },
+    {
+      "id": "peer_2_meta",
+      "expected_text": "7m \u00b7 12k tokens",
+      "requested_bounds": [
+        143.8,
+        427.62,
+        108.13,
+        21.41
+      ],
+      "status": "observed",
+      "ocr_text": "7m \u2022 12k tokens",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        146.77801268498942,
+        428.26415094339626,
+        102.14376321353066,
+        17.38679245283019
+      ],
+      "ink_color": [
+        115,
+        116,
+        120
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        143.7974247980206,
+        427.62449873358025,
+        108.12667119150925,
+        21.411379760166426
+      ]
+    },
+    {
+      "id": "peer_2_steer",
+      "expected_text": "Steer",
+      "requested_bounds": [
+        327.06,
+        400.52,
+        46.53,
+        26.2
+      ],
+      "status": "observed",
+      "ocr_text": "Steer",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        331.323467230444,
+        402.6415094339623,
+        37.76744186046512,
+        20.132075471698116
+      ],
+      "ink_color": [
+        39,
+        109,
+        232
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        327.0604429893505,
+        400.52489847404615,
+        46.52890391289435,
+        26.195486572553556
+      ]
+    },
+    {
+      "id": "peer_3_status",
+      "expected_text": "Done",
+      "requested_bounds": [
+        40.84,
+        526.53,
+        39.94,
+        23.09
+      ],
+      "status": "observed",
+      "ocr_text": "Done",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        42.91754756871036,
+        527.0943396226415,
+        36.0507399577167,
+        18.301886792452834
+      ],
+      "ink_color": [
+        31,
+        122,
+        50
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        40.84269825093626,
+        526.5281783212491,
+        39.94329465391264,
+        23.094586228424692
+      ]
+    },
+    {
+      "id": "peer_3_name",
+      "expected_text": "review",
+      "requested_bounds": [
+        145.56,
+        510.48,
+        54.93,
+        24.08
+      ],
+      "status": "observed",
+      "ocr_text": "review",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        148.49471458773786,
+        511.5377358490567,
+        48.0676532769556,
+        19.216981132075475
+      ],
+      "ink_color": [
+        24,
+        25,
+        25
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        145.55754205035552,
+        510.4791892084796,
+        54.927109794777664,
+        24.079357093235185
+      ]
+    },
+    {
+      "id": "peer_3_meta",
+      "expected_text": "24m \u00b7 28k tokens",
+      "requested_bounds": [
+        143.9,
+        556.38,
+        128.48,
+        20.13
+      ],
+      "status": "observed",
+      "ocr_text": "24m \u2022 28k tokens",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        147.63636363636365,
+        555.4622641509435,
+        122.74418604651163,
+        18.301886792452834
+      ],
+      "ink_color": [
+        98,
+        98,
+        104
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        143.89873257120257,
+        556.3773585591981,
+        128.48101265822785,
+        20.13207547169809
+      ]
+    },
+    {
+      "id": "peer_3_steer",
+      "expected_text": "Steer",
+      "requested_bounds": [
+        327.2,
+        528.92,
+        44.54,
+        21.96
+      ],
+      "status": "observed",
+      "ocr_text": "Steer",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        330.4651162790698,
+        528.9245283018869,
+        38.625792811839325,
+        19.216981132075475
+      ],
+      "ink_color": [
+        37,
+        105,
+        235
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        327.1983116795359,
+        528.9245283476415,
+        44.540084388185655,
+        21.96226415094339
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "fleet_screen",
+      "bounds": [
+        0.0,
+        1.0,
+        406.0,
+        775.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "fleet_goal",
+      "bounds": [
+        16.0,
+        165.288,
+        374.0,
+        49.107
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "fleet_goal_icon",
+      "bounds": [
+        23.32,
+        178.271,
+        18.0,
+        17.977
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "peer_1",
+      "bounds": [
+        14.0,
+        220.0,
+        377.0,
+        128.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 18.77
+    },
+    {
+      "id": "peer_2",
+      "bounds": [
+        14.0,
+        350.0,
+        377.0,
+        125.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 18.28
+    },
+    {
+      "id": "peer_3",
+      "bounds": [
+        14.0,
+        476.0,
+        377.0,
+        127.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 18.59
+    }
+  ],
+  "unmapped_ocr": [],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

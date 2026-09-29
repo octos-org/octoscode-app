@@ -1,0 +1,197 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "review_run": {
+        "component": "Surfaceb4206391250d",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 406.0,
+          "h": 775.0
+        }
+      },
+      "t01": {
+        "component": "Text115ff560ecd8",
+        "layout": {
+          "x": 25.35094560124532,
+          "y": 18.93106893106893,
+          "w": 98.02105263157894,
+          "h": 21.054945054945055
+        }
+      },
+      "t_title": {
+        "component": "Textad803f8e3052",
+        "layout": {
+          "x": 24.43228478061014,
+          "y": 86.37562437562437,
+          "w": 113.40631578947368,
+          "h": 22.605394605394604
+        }
+      },
+      "start_review": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 260.0,
+          "y": 76.0,
+          "w": 123.0,
+          "h": 44.0
+        }
+      },
+      "start_review_surface": {
+        "component": "Surface90b469db90ab",
+        "layout": {
+          "x": 260.0,
+          "y": 76.0,
+          "w": 123.0,
+          "h": 44.0
+        }
+      },
+      "start_review_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 260.0,
+          "y": 76.0,
+          "w": 123.0,
+          "h": 44.0
+        }
+      },
+      "start_review_label": {
+        "component": "Text52ab96086215",
+        "layout": {
+          "x": 278.56906916581556,
+          "y": 87.15084915084914,
+          "w": 88.61894736842105,
+          "h": 19.5044955044955
+        }
+      },
+      "run_status_card": {
+        "component": "Surfaced85ef54a18d5",
+        "layout": {
+          "x": 18.0,
+          "y": 144.0,
+          "w": 367.0,
+          "h": 114.0
+        }
+      },
+      "t_status": {
+        "component": "Text9efd2f92617d",
+        "layout": {
+          "x": 81.2482777373003,
+          "y": 171.65034965034965,
+          "w": 222.81263157894736,
+          "h": 24.155844155844154
+        }
+      },
+      "t_status_sub": {
+        "component": "Text14786ea05c5b",
+        "layout": {
+          "x": 80.69127097032194,
+          "y": 208.08591408591408,
+          "w": 254.43789473684208,
+          "h": 23.38061938061938
+        }
+      },
+      "finding_high": {
+        "component": "Surface3c28f63bd9cb",
+        "layout": {
+          "x": 18.0,
+          "y": 282.0,
+          "w": 367.0,
+          "h": 193.0
+        }
+      },
+      "finding_high_badge": {
+        "component": "Surface07bfcd994a43",
+        "layout": {
+          "x": 29.0,
+          "y": 301.0,
+          "w": 57.0,
+          "h": 43.0
+        }
+      },
+      "finding_high_badge_label": {
+        "component": "Text752d7665fe3e",
+        "layout": {
+          "x": 41.343527481793764,
+          "y": 313.5164835164835,
+          "w": 33.915789473684214,
+          "h": 22.605394605394604
+        }
+      },
+      "finding_high_path": {
+        "component": "Text870568b57142",
+        "layout": {
+          "x": 34.631948259619946,
+          "y": 359.2547452547452,
+          "w": 333.92842105263156,
+          "h": 22.605394605394604
+        }
+      },
+      "finding_high_text": {
+        "component": "Textca302e6e9e86",
+        "layout": {
+          "x": 34.20840166979862,
+          "y": 398.015984015984,
+          "w": 326.2357894736842,
+          "h": 22.605394605394604
+        }
+      },
+      "finding_low": {
+        "component": "Surface3e704917e596",
+        "layout": {
+          "x": 18.0,
+          "y": 499.0,
+          "w": 367.0,
+          "h": 194.0
+        }
+      },
+      "finding_low_badge": {
+        "component": "Surfacecd525e141ac3",
+        "layout": {
+          "x": 29.0,
+          "y": 518.0,
+          "w": 54.0,
+          "h": 43.0
+        }
+      },
+      "finding_low_badge_label": {
+        "component": "Text4c4014b5ed6a",
+        "layout": {
+          "x": 41.19971432887563,
+          "y": 529.8041958041957,
+          "w": 31.35157894736842,
+          "h": 19.5044955044955
+        }
+      },
+      "finding_low_path": {
+        "component": "Text85744e325b6d",
+        "layout": {
+          "x": 33.72441978798131,
+          "y": 576.3176823176823,
+          "w": 257.0021052631579,
+          "h": 23.38061938061938
+        }
+      },
+      "finding_low_text": {
+        "component": "Text6de56fbf753a",
+        "layout": {
+          "x": 33.30169729529107,
+          "y": 616.6293706293706,
+          "w": 314.2694736842105,
+          "h": 23.38061938061938
+        }
+      }
+    },
+    "bindings": []
+  }
+}

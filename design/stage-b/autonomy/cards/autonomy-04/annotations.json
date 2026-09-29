@@ -1,0 +1,281 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      12.0,
+      388.0,
+      382.0,
+      120.0
+    ],
+    [
+      12.0,
+      266.0,
+      381.0,
+      120.0
+    ],
+    [
+      12.0,
+      143.0,
+      381.0,
+      121.0
+    ],
+    [
+      10.0,
+      141.0,
+      386.0,
+      370.0
+    ],
+    [
+      1.0,
+      58.0,
+      404.0,
+      717.0
+    ],
+    [
+      1.0,
+      1.0,
+      404.0,
+      56.0
+    ],
+    [
+      1.0,
+      1.0,
+      405.0,
+      775.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "loops_screen",
+      "bounds": [
+        1.0,
+        1.0,
+        405.0,
+        775.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "new_loop",
+      "bounds": [
+        272.091,
+        84.233,
+        119.475,
+        39.209
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "new_loop_surface",
+      "bounds": [
+        272.091,
+        84.233,
+        119.475,
+        39.209
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835710,
+      "radius": 7.99
+    },
+    {
+      "id": "new_loop_control",
+      "bounds": [
+        272.091,
+        84.233,
+        119.475,
+        39.209
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "new_loop_icon",
+      "bounds": [
+        282.066,
+        94.849,
+        17.956,
+        17.977
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_1",
+      "bounds": [
+        12.0,
+        143.0,
+        381.0,
+        121.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.92
+    },
+    {
+      "id": "loop_1_dot",
+      "bounds": [
+        204.028,
+        154.919,
+        20.374,
+        25.825
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_1_pause",
+      "bounds": [
+        257.714,
+        238.175,
+        18.337,
+        19.865
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_1_play",
+      "bounds": [
+        308.345,
+        238.175,
+        18.337,
+        19.865
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_1_trash",
+      "bounds": [
+        358.567,
+        238.175,
+        18.337,
+        19.865
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_2",
+      "bounds": [
+        12.0,
+        266.0,
+        381.0,
+        120.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.89
+    },
+    {
+      "id": "loop_2_dot",
+      "bounds": [
+        204.028,
+        277.895,
+        20.374,
+        25.772
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_2_pause",
+      "bounds": [
+        257.714,
+        360.228,
+        18.337,
+        19.825
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_2_play",
+      "bounds": [
+        308.345,
+        360.228,
+        18.337,
+        19.825
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_2_trash",
+      "bounds": [
+        358.567,
+        360.228,
+        18.337,
+        19.825
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_3",
+      "bounds": [
+        12.0,
+        388.0,
+        382.0,
+        120.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.87
+    },
+    {
+      "id": "loop_3_dot",
+      "bounds": [
+        204.532,
+        399.873,
+        20.428,
+        25.726
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_3_play",
+      "bounds": [
+        309.122,
+        482.274,
+        18.385,
+        19.789
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "loop_3_trash",
+      "bounds": [
+        359.477,
+        482.274,
+        18.385,
+        19.789
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    }
+  ]
+}

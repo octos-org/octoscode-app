@@ -1,0 +1,107 @@
+# ledger autonomy-04@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t01_text { class: user-copy, en: "OctosCode" }
+copy t_title_text { class: user-copy, en: "Loops" }
+copy new_loop_label_text { class: user-copy, en: "+ New loop" }
+copy loop_1_name_text { class: user-copy, en: "Run CI smoke" }
+copy loop_1_cad_text { class: user-copy, en: "every 15 min" }
+copy loop_2_name_text { class: user-copy, en: "Sync main" }
+copy loop_2_cad_text { class: user-copy, en: "every 30 min" }
+copy loop_3_name_text { class: user-copy, en: "Nightly review" }
+copy loop_3_cad_text { class: user-copy, en: "every day · 01:00" }
+state new_loop_control_enabled { shape: bool, initial: true }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Surfaceb4206391250d(instance: text) {
+  view Kit(component: "Surfaceb4206391250d", instance: instance) { slot }
+}
+component Text050a687b31b0(instance: text, text: text) {
+  view Kit(component: "Text050a687b31b0", instance: instance, text: text)
+}
+component Text8437225c1f09(instance: text, text: text) {
+  view Kit(component: "Text8437225c1f09", instance: instance, text: text)
+}
+component KitButton3ea7d97692cf(instance: text) {
+  view Kit(component: "KitButton3ea7d97692cf", instance: instance) { slot }
+}
+component Surfacecbeea5da301d(instance: text) {
+  view Kit(component: "Surfacecbeea5da301d", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Textbae2622866d7(instance: text, text: text) {
+  view Kit(component: "Textbae2622866d7", instance: instance, text: text)
+}
+component Surfacef048cb7f7bbf(instance: text) {
+  view Kit(component: "Surfacef048cb7f7bbf", instance: instance) { slot }
+}
+component Text17dbf5b4a3e0(instance: text, text: text) {
+  view Kit(component: "Text17dbf5b4a3e0", instance: instance, text: text)
+}
+component Text1f72b398750a(instance: text, text: text) {
+  view Kit(component: "Text1f72b398750a", instance: instance, text: text)
+}
+component Surfaceb45c5a1f6470(instance: text) {
+  view Kit(component: "Surfaceb45c5a1f6470", instance: instance) { slot }
+}
+component Text8cf0a77a78b8(instance: text, text: text) {
+  view Kit(component: "Text8cf0a77a78b8", instance: instance, text: text)
+}
+component Text425fa141c805(instance: text, text: text) {
+  view Kit(component: "Text425fa141c805", instance: instance, text: text)
+}
+component Surfacec13f4ad941fd(instance: text) {
+  view Kit(component: "Surfacec13f4ad941fd", instance: instance) { slot }
+}
+component Text5d5af5e97195(instance: text, text: text) {
+  view Kit(component: "Text5d5af5e97195", instance: instance, text: text)
+}
+component Text3dfdb5a2546e(instance: text, text: text) {
+  view Kit(component: "Text3dfdb5a2546e", instance: instance, text: text)
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Surfaceb4206391250d(instance: "loops_screen") {
+    Text050a687b31b0(instance: "t01", text: copy.t01_text)
+    Text8437225c1f09(instance: "t_title", text: copy.t_title_text)
+    KitButton3ea7d97692cf(instance: "new_loop") {
+      Surfacecbeea5da301d(instance: "new_loop_surface") {
+
+      }
+      NativeButton02f1d1bd99b4(instance: "new_loop_control", enabled: new_loop_control_enabled)
+      Vectore0a378fde04f(instance: "new_loop_icon")
+      Textbae2622866d7(instance: "new_loop_label", text: copy.new_loop_label_text)
+    }
+    Surfacef048cb7f7bbf(instance: "loop_1") {
+      Vectore0a378fde04f(instance: "loop_1_dot")
+      Text17dbf5b4a3e0(instance: "loop_1_name", text: copy.loop_1_name_text)
+      Text1f72b398750a(instance: "loop_1_cad", text: copy.loop_1_cad_text)
+      Vectore0a378fde04f(instance: "loop_1_pause")
+      Vectore0a378fde04f(instance: "loop_1_play")
+      Vectore0a378fde04f(instance: "loop_1_trash")
+    }
+    Surfaceb45c5a1f6470(instance: "loop_2") {
+      Vectore0a378fde04f(instance: "loop_2_dot")
+      Text8cf0a77a78b8(instance: "loop_2_name", text: copy.loop_2_name_text)
+      Text425fa141c805(instance: "loop_2_cad", text: copy.loop_2_cad_text)
+      Vectore0a378fde04f(instance: "loop_2_pause")
+      Vectore0a378fde04f(instance: "loop_2_play")
+      Vectore0a378fde04f(instance: "loop_2_trash")
+    }
+    Surfacec13f4ad941fd(instance: "loop_3") {
+      Vectore0a378fde04f(instance: "loop_3_dot")
+      Text5d5af5e97195(instance: "loop_3_name", text: copy.loop_3_name_text)
+      Text3dfdb5a2546e(instance: "loop_3_cad", text: copy.loop_3_cad_text)
+      Vectore0a378fde04f(instance: "loop_3_play")
+      Vectore0a378fde04f(instance: "loop_3_trash")
+    }
+  }
+}

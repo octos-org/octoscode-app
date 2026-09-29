@@ -1,0 +1,391 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "review_run",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfaceb4206391250d",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        406.0,
+        775.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_0_0",
+      "parent": "review_run",
+      "kind": "text",
+      "component": "Text115ff560ecd8",
+      "semantic_role": "text",
+      "bounds": [
+        25.35094560124532,
+        18.93106893106893,
+        98.02105263157894,
+        21.054945054945055
+      ],
+      "text": "OctosCode",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 22.78442757503423
+    },
+    {
+      "source_id": "t_title",
+      "native_id": "beauty_0_0_1",
+      "parent": "review_run",
+      "kind": "text",
+      "component": "Textad803f8e3052",
+      "semantic_role": "text",
+      "bounds": [
+        24.43228478061014,
+        86.37562437562437,
+        113.40631578947368,
+        22.605394605394604
+      ],
+      "text": "Code review",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 24.055459691823327
+    },
+    {
+      "source_id": "start_review",
+      "native_id": "beauty_0_0_2",
+      "parent": "review_run",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        260.0,
+        76.0,
+        123.0,
+        44.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "start_review_surface",
+      "native_id": "beauty_0_0_2_0",
+      "parent": "start_review",
+      "kind": "stack",
+      "component": "Surface90b469db90ab",
+      "semantic_role": "layout",
+      "bounds": [
+        260.0,
+        76.0,
+        123.0,
+        44.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "start_review_control",
+      "native_id": "beauty_0_0_2_1",
+      "parent": "start_review",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        260.0,
+        76.0,
+        123.0,
+        44.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "start_review_label",
+      "native_id": "beauty_0_0_2_2",
+      "parent": "start_review",
+      "kind": "text",
+      "component": "Text52ab96086215",
+      "semantic_role": "text",
+      "bounds": [
+        278.56906916581556,
+        87.15084915084914,
+        88.61894736842105,
+        19.5044955044955
+      ],
+      "text": "Start review",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 20.04621640985277
+    },
+    {
+      "source_id": "run_status_card",
+      "native_id": "beauty_0_0_3",
+      "parent": "review_run",
+      "kind": "stack",
+      "component": "Surfaced85ef54a18d5",
+      "semantic_role": "layout",
+      "bounds": [
+        18.0,
+        144.0,
+        367.0,
+        114.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_status",
+      "native_id": "beauty_0_0_3_0",
+      "parent": "run_status_card",
+      "kind": "text",
+      "component": "Text9efd2f92617d",
+      "semantic_role": "text",
+      "bounds": [
+        81.2482777373003,
+        171.65034965034965,
+        222.81263157894736,
+        24.155844155844154
+      ],
+      "text": "Reviewing 3 files \u00b7 2 specialists",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 20.61896545013428
+    },
+    {
+      "source_id": "t_status_sub",
+      "native_id": "beauty_0_0_3_1",
+      "parent": "run_status_card",
+      "kind": "text",
+      "component": "Text14786ea05c5b",
+      "semantic_role": "text",
+      "bounds": [
+        80.69127097032194,
+        208.08591408591408,
+        254.43789473684208,
+        23.38061938061938
+      ],
+      "text": "Analyzing changes and code quality...",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 20.036097168858397
+    },
+    {
+      "source_id": "finding_high",
+      "native_id": "beauty_0_0_4",
+      "parent": "review_run",
+      "kind": "stack",
+      "component": "Surface3c28f63bd9cb",
+      "semantic_role": "layout",
+      "bounds": [
+        18.0,
+        282.0,
+        367.0,
+        193.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "finding_high_badge",
+      "native_id": "beauty_0_0_4_0",
+      "parent": "finding_high",
+      "kind": "stack",
+      "component": "Surface07bfcd994a43",
+      "semantic_role": "layout",
+      "bounds": [
+        29.0,
+        301.0,
+        57.0,
+        43.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "finding_high_badge_label",
+      "native_id": "beauty_0_0_4_0_0",
+      "parent": "finding_high_badge",
+      "kind": "text",
+      "component": "Text752d7665fe3e",
+      "semantic_role": "text",
+      "bounds": [
+        41.343527481793764,
+        313.5164835164835,
+        33.915789473684214,
+        22.605394605394604
+      ],
+      "text": "High",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 19.02338899243542
+    },
+    {
+      "source_id": "finding_high_path",
+      "native_id": "beauty_0_0_4_1",
+      "parent": "finding_high",
+      "kind": "text",
+      "component": "Text870568b57142",
+      "semantic_role": "text",
+      "bounds": [
+        34.631948259619946,
+        359.2547452547452,
+        333.92842105263156,
+        22.605394605394604
+      ],
+      "text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 19.9601090371127
+    },
+    {
+      "source_id": "finding_high_text",
+      "native_id": "beauty_0_0_4_2",
+      "parent": "finding_high",
+      "kind": "text",
+      "component": "Textca302e6e9e86",
+      "semantic_role": "text",
+      "bounds": [
+        34.20840166979862,
+        398.015984015984,
+        326.2357894736842,
+        22.605394605394604
+      ],
+      "text": "Potential message loss when reconnecting: pending queue was dropped.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 19.234653282104063
+    },
+    {
+      "source_id": "finding_low",
+      "native_id": "beauty_0_0_5",
+      "parent": "review_run",
+      "kind": "stack",
+      "component": "Surface3e704917e596",
+      "semantic_role": "layout",
+      "bounds": [
+        18.0,
+        499.0,
+        367.0,
+        194.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "finding_low_badge",
+      "native_id": "beauty_0_0_5_0",
+      "parent": "finding_low",
+      "kind": "stack",
+      "component": "Surfacecd525e141ac3",
+      "semantic_role": "layout",
+      "bounds": [
+        29.0,
+        518.0,
+        54.0,
+        43.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "finding_low_badge_label",
+      "native_id": "beauty_0_0_5_0_0",
+      "parent": "finding_low_badge",
+      "kind": "text",
+      "component": "Text4c4014b5ed6a",
+      "semantic_role": "text",
+      "bounds": [
+        41.19971432887563,
+        529.8041958041957,
+        31.35157894736842,
+        19.5044955044955
+      ],
+      "text": "Low",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 20.986917906944342
+    },
+    {
+      "source_id": "finding_low_path",
+      "native_id": "beauty_0_0_5_1",
+      "parent": "finding_low",
+      "kind": "text",
+      "component": "Text85744e325b6d",
+      "semantic_role": "text",
+      "bounds": [
+        33.72441978798131,
+        576.3176823176823,
+        257.0021052631579,
+        23.38061938061938
+      ],
+      "text": "crates/octos-core/src/ui_protocol.rs",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 20.7917802469924
+    },
+    {
+      "source_id": "finding_low_text",
+      "native_id": "beauty_0_0_5_2",
+      "parent": "finding_low",
+      "kind": "text",
+      "component": "Text6de56fbf753a",
+      "semantic_role": "text",
+      "bounds": [
+        33.30169729529107,
+        616.6293706293706,
+        314.2694736842105,
+        23.38061938061938
+      ],
+      "text": "Missing documentation for new preserve_pending behavior.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 19.82592831743681
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
+    "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045"
+  },
+  "contract_sha256": "5685958c0e83b23fe775450f8d55d9ae532f3c7655137c4614afe0c299ce7ff4",
+  "mapping_basis": "mapped.json"
+}

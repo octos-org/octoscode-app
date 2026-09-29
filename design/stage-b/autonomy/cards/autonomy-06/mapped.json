@@ -1,0 +1,501 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "e6870a9defd294295b03acbb4b23e729bf7cca8bafd2460a132e26f41e5e3802",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "stack",
+        "id": "fleet_screen",
+        "x": 0.0,
+        "y": 1.0,
+        "w": 406.0,
+        "h": 775.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t01",
+            "text": "OctosCode",
+            "x": 20.106129444117148,
+            "y": 25.452830188679247,
+            "w": 98.4186046511628,
+            "h": 24.132075471698116,
+            "size": 26.895297172888284,
+            "line_height": 24.132075471698116,
+            "weight": 600,
+            "color": 4278650375,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf",
+            "tracking": -6.1218534854239355,
+            "font_asc": -0.1570828696110591,
+            "font_desc": 0.15561802586105902
+          },
+          {
+            "t": "text",
+            "id": "t_title",
+            "text": "Fleet \u00b7 3 peers",
+            "x": 25.1177921757526,
+            "y": 95.00000000000001,
+            "w": 144.76955602536998,
+            "h": 34.19811320754717,
+            "size": 32.0776638221248,
+            "line_height": 34.19811320754717,
+            "weight": 600,
+            "color": 4278584839,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf",
+            "tracking": -5.376366014181419,
+            "font_asc": -0.16909663240003125,
+            "font_desc": -0.0252393050999688
+          },
+          {
+            "t": "stack",
+            "id": "fleet_goal",
+            "x": 16.0,
+            "y": 165.288,
+            "w": 374.0,
+            "h": 49.107,
+            "c": [
+              {
+                "t": "svg",
+                "id": "fleet_goal_icon",
+                "x": 23.32,
+                "y": 178.271,
+                "w": 18.0,
+                "h": 17.977,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "fleet_goal_label",
+                "text": "Fix steer queue",
+                "x": 27.970766385994168,
+                "y": 172.78301886792454,
+                "w": 109.57716701902748,
+                "h": 28.707547169811324,
+                "size": 25.711919005982516,
+                "line_height": 28.707547169811324,
+                "weight": 500,
+                "color": 4284045917,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf",
+                "tracking": -5.759526529079395,
+                "font_asc": -0.13412912550114553,
+                "font_desc": -0.04067556199885458
+              }
+            ]
+          },
+          {
+            "t": "stack",
+            "id": "peer_1",
+            "x": 14.0,
+            "y": 220.0,
+            "w": 377.0,
+            "h": 128.0,
+            "c": [
+              {
+                "t": "text",
+                "id": "peer_1_status",
+                "text": "Running",
+                "x": 41.20431552997601,
+                "y": 269.78301886792457,
+                "w": 58.934460887949264,
+                "h": 26.87735849056604,
+                "size": 23.391328102186343,
+                "line_height": 26.87735849056604,
+                "weight": 600,
+                "color": 4281172286,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-600.ttf",
+                "tracking": -5.840747631063144,
+                "font_asc": -0.12104119684278347,
+                "font_desc": -0.060111146907216584
+              },
+              {
+                "t": "text",
+                "id": "peer_1_name",
+                "text": "tests",
+                "x": 147.37620888451642,
+                "y": 256.0566037735849,
+                "w": 42.625792811839325,
+                "h": 22.301886792452834,
+                "size": 26.639846589156647,
+                "line_height": 22.301886792452834,
+                "weight": 500,
+                "color": 4279506712,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf",
+                "tracking": -5.595124124084197,
+                "font_asc": -0.21789324259020626,
+                "font_desc": 0.15490496134020626
+              },
+              {
+                "t": "text",
+                "id": "peer_1_meta",
+                "text": "18m \u00b7 41k tokens",
+                "x": 146.54827232249684,
+                "y": 299.0660377358491,
+                "w": 114.72727272727273,
+                "h": 21.38679245283019,
+                "size": 23.21261469582544,
+                "line_height": 21.38679245283019,
+                "weight": 400,
+                "color": 4286217086,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": -4.557717130966251,
+                "font_asc": -0.14528526434481825,
+                "font_desc": 0.14333213934481814
+              },
+              {
+                "t": "text",
+                "id": "peer_1_steer",
+                "text": "Steer",
+                "x": 329.2175316934133,
+                "y": 274.35849056603774,
+                "w": 42.625792811839325,
+                "h": 24.132075471698116,
+                "size": 26.895297172888284,
+                "line_height": 24.132075471698116,
+                "weight": 600,
+                "color": 4281299178,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-600.ttf",
+                "tracking": -7.268021636668967,
+                "font_asc": -0.1570828696110591,
+                "font_desc": 0.15561802586105902
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294901502,
+            "radius": 18.77,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "stack",
+            "id": "peer_2",
+            "x": 14.0,
+            "y": 350.0,
+            "w": 377.0,
+            "h": 125.0,
+            "c": [
+              {
+                "t": "text",
+                "id": "peer_2_status",
+                "text": "Blocked",
+                "x": 41.103084238328385,
+                "y": 398.81132075471703,
+                "w": 57.217758985200845,
+                "h": 22.301886792452834,
+                "size": 24.773472670815202,
+                "line_height": 22.301886792452834,
+                "weight": 600,
+                "color": 4289817883,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-600.ttf",
+                "tracking": -6.642018906865303,
+                "font_asc": -0.1604794217139175,
+                "font_desc": 0.1492489529639175
+              },
+              {
+                "t": "text",
+                "id": "peer_2_name",
+                "text": "docs",
+                "x": 146.35898145177475,
+                "y": 381.4245283018868,
+                "w": 40.909090909090914,
+                "h": 24.132075471698116,
+                "size": 27.250819937896722,
+                "line_height": 24.132075471698116,
+                "weight": 500,
+                "color": 4281282607,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf",
+                "tracking": -8.095166457123833,
+                "font_asc": -0.16781865042174315,
+                "font_desc": 0.1565881816717432
+              },
+              {
+                "t": "text",
+                "id": "peer_2_meta",
+                "text": "7m \u00b7 12k tokens",
+                "x": 145.6672528020837,
+                "y": 426.26415094339626,
+                "w": 106.14376321353066,
+                "h": 21.38679245283019,
+                "size": 23.21261469582544,
+                "line_height": 21.38679245283019,
+                "weight": 400,
+                "color": 4285756536,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": -4.673021365854232,
+                "font_asc": -0.14528526434481825,
+                "font_desc": 0.14333213934481814
+              },
+              {
+                "t": "text",
+                "id": "peer_2_steer",
+                "text": "Steer",
+                "x": 330.07588264478755,
+                "y": 400.6415094339623,
+                "w": 41.76744186046512,
+                "h": 24.132075471698116,
+                "size": 26.895297172888284,
+                "line_height": 24.132075471698116,
+                "weight": 600,
+                "color": 4280774120,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-600.ttf",
+                "tracking": -7.482609374512519,
+                "font_asc": -0.1570828696110591,
+                "font_desc": 0.15561802586105902
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294901502,
+            "radius": 18.28,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "stack",
+            "id": "peer_3",
+            "x": 14.0,
+            "y": 476.0,
+            "w": 377.0,
+            "h": 127.0,
+            "c": [
+              {
+                "t": "text",
+                "id": "peer_3_status",
+                "text": "Done",
+                "x": 41.103084238328385,
+                "y": 525.0943396226415,
+                "w": 40.0507399577167,
+                "h": 22.301886792452834,
+                "size": 24.773472670815202,
+                "line_height": 22.301886792452834,
+                "weight": 600,
+                "color": 4280252978,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-600.ttf",
+                "tracking": -7.962344018633712,
+                "font_asc": -0.1604794217139175,
+                "font_desc": 0.1492489529639175
+              },
+              {
+                "t": "text",
+                "id": "peer_3_name",
+                "text": "review",
+                "x": 146.68663244689415,
+                "y": 509.5377358490567,
+                "w": 52.0676532769556,
+                "h": 23.216981132075475,
+                "size": 25.01994746248606,
+                "line_height": 23.216981132075475,
+                "weight": 500,
+                "color": 4279769369,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf",
+                "tracking": -5.98484284075253,
+                "font_asc": -0.13197784348919983,
+                "font_desc": 0.15004424973919978
+              },
+              {
+                "t": "text",
+                "id": "peer_3_meta",
+                "text": "24m \u00b7 28k tokens",
+                "x": 145.7990164616324,
+                "y": 553.4622641509435,
+                "w": 126.74418604651163,
+                "h": 22.301886792452834,
+                "size": 24.434331258763628,
+                "line_height": 22.301886792452834,
+                "weight": 400,
+                "color": 4284637800,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": -5.000616783553103,
+                "font_asc": -0.14959326675257734,
+                "font_desc": 0.14764014175257742
+              },
+              {
+                "t": "text",
+                "id": "peer_3_steer",
+                "text": "Steer",
+                "x": 329.27424008367046,
+                "y": 526.9245283018869,
+                "w": 42.625792811839325,
+                "h": 23.216981132075475,
+                "size": 25.672783665029726,
+                "line_height": 23.216981132075475,
+                "weight": 600,
+                "color": 4280642027,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-600.ttf",
+                "tracking": -6.498727553049475,
+                "font_asc": -0.15354180090206182,
+                "font_desc": 0.15207695715206188
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294901502,
+            "radius": 18.59,
+            "border": 1,
+            "bordercolor": 4293256679
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 0
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "fleet_screen",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "fleet_goal",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "fleet_goal_icon",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "peer_1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "peer_2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "peer_3",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t01",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.22761799009215075
+    },
+    {
+      "id": "t_title",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.16760466235927068
+    },
+    {
+      "id": "fleet_goal_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.22400220410383598
+    },
+    {
+      "id": "peer_1_status",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.24969713585938802
+    },
+    {
+      "id": "peer_1_name",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.21002839131819961
+    },
+    {
+      "id": "peer_1_meta",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.19634656374087456
+    },
+    {
+      "id": "peer_1_steer",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2702339219361916
+    },
+    {
+      "id": "peer_2_status",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2681101271155272
+    },
+    {
+      "id": "peer_2_name",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2970613902837536
+    },
+    {
+      "id": "peer_2_meta",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.20131387295609696
+    },
+    {
+      "id": "peer_2_steer",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.27821255613622065
+    },
+    {
+      "id": "peer_3_status",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.3214060509172734
+    },
+    {
+      "id": "peer_3_name",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2392028540318069
+    },
+    {
+      "id": "peer_3_meta",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.20465535686635908
+    },
+    {
+      "id": "peer_3_steer",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.25313684865041497
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}
