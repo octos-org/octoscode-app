@@ -531,7 +531,11 @@ mod tests {
             worked.as_str().unwrap().starts_with("Worked for "),
             "got {worked}"
         );
-        assert!(q(&store, &ui, "answer.timestamp").as_str().unwrap().starts_with("t="));
+        let ts = q(&store, &ui, "answer.timestamp");
+        let ts = ts.as_str().unwrap();
+        // Card #21d item 4: a just-ended turn reads `now`, never `t=<epoch>`
+        // (the atlas label shape is `Sep 28, 9:41 PM`; `relative-time.ts`).
+        assert_eq!(ts, "now", "a fresh turn is 'now', not the raw epoch");
     }
 
     #[test]

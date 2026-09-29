@@ -223,16 +223,17 @@ impl FlowUi {
         }
     }
 
-    /// `answer.timestamp` — the last turn's completion, as a compact label.
+    /// `answer.timestamp` — the last turn's completion, as a display label.
+    ///
+    /// Card #21d item 4: the app showed the raw epoch (`t=1790660000`). The
+    /// atlas (`design/components/answer-actions/page.card:6`) writes
+    /// `Sep 28, 9:41 PM`, and the web's `formatRelativeTime`
+    /// (`features/shell/relative-time.ts:1-18`) returns `now` / `5m` / `3h` /
+    /// `2d` for anything under a week, else a `Mon D` date. Mirror both: a fresh
+    /// turn reads `now`, an older one the atlas-shaped `Sep 28, 9:41 PM`.
     pub fn answer_timestamp(&self) -> String {
         self.last_completed_at
-            .map(|t| {
-                let secs = t
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .map(|d| d.as_secs())
-                    .unwrap_or(0);
-                format!("t={secs}")
-            })
+            .map(|t| format_completed_at(t, std::time::SystemTime::now()))
             .unwrap_or_default()
     }
 
@@ -1033,9 +1034,90 @@ fn trace_method(evt: &TransportEvent) -> String {
     }
 }
 
+/// Format a completed-turn instant the way the atlas labels it
+/// (`design/components/answer-actions/page.card:6` → `Sep 28, 9:41 PM`), with
+/// `now` for a just-finished turn — the web's `formatRelativeTime` rule
+/// (`features/shell/relative-time.ts:1-18`: `< 60s` → `now`).
+///
+/// Pure std (no date crate in this crate's dependency set): the UTC civil date
+/// comes from Howard Hinnant's `civil_from_days`. A local-clock offset is out
+/// of scope for this design label; a fresh turn renders `now` either way.
+fn format_completed_at(at: std::time::SystemTime, now: std::time::SystemTime) -> String {
+    let secs = at
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    let now_secs = now
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or(0);
+    if now_secs.saturating_sub(secs) < 60 {
+        return "now".to_owned();
+    }
+    const MONTHS: [&str; 12] = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
+    // days since 1970-01-01 (floored), then Hinnant's civil-from-days.
+    let z = (secs / 86_400) as i64 + 719_468;
+    let era = if z >= 0 { z } else { z - 146_096 } / 146_097;
+    let doe = z - era * 146_097;
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+    let y = yoe + era * 400;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let d = doy - (153 * mp + 2) / 5 + 1;
+    let m = if mp < 10 { mp + 3 } else { mp - 9 };
+    let _ = y;
+    let tod = secs % 86_400;
+    let (h24, min) = (tod / 3600, (tod % 3600) / 60);
+    let (h12, ampm) = match h24 {
+        0 => (12, "AM"),
+        1..=11 => (h24, "AM"),
+        12 => (12, "PM"),
+        _ => (h24 - 12, "PM"),
+    };
+    format!(
+        "{} {}, {}:{:02} {}",
+        MONTHS[(m - 1) as usize], d, h12, min, ampm
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Card #21d item 4: the label must be the atlas's `Sep 28, 9:41 PM`
+    /// (`design/components/answer-actions/page.card:6`), and a just-finished
+    /// turn reads `now` (the web's `relative-time.ts:1-18` rule, `< 60s`).
+    #[test]
+    fn answer_timestamp_is_a_display_label_not_the_raw_epoch() {
+        use std::time::{Duration, UNIX_EPOCH};
+        // 2025-09-28T21:41:00Z
+        let at = UNIX_EPOCH + Duration::from_secs(1_759_095_660);
+        assert_eq!(
+            format_completed_at(at, at + Duration::from_secs(5)),
+            "now",
+            "a fresh turn is 'now', like the web"
+        );
+        assert_eq!(
+            format_completed_at(at, at + Duration::from_secs(3600)),
+            "Sep 28, 9:41 PM",
+            "an older turn matches the atlas label"
+        );
+        // midnight and noon render 12-hour, not 0/24
+        let midnight = UNIX_EPOCH + Duration::from_secs(1_767_139_500); // 2025-12-31T00:05Z
+        assert_eq!(
+            format_completed_at(midnight, midnight + Duration::from_secs(3600)),
+            "Dec 31, 12:05 AM"
+        );
+        let noon = UNIX_EPOCH + Duration::from_secs(1_735_732_800); // 2025-01-01T12:00Z
+        assert_eq!(
+            format_completed_at(noon, noon + Duration::from_secs(3600)),
+            // day is `numeric` (unpadded), like the web's
+            // `Intl.DateTimeFormat({month:"short", day:"numeric"})`
+            "Jan 1, 12:00 PM"
+        );
+    }
 
     /// Card #14 defect 4: a new chat gets a FRESH id (never the reused
     /// `<profile>:main`), profile-scoped like the web's
