@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "policy_version": "1.1.0",
+  "contract_sha256": "33f6670c360f30aa7472e73a74cfdb39fb65bfd3fb296b7c09ef93a080f75528",
+  "reference_sha256": "f3147c5be010b1f2cdae06e21c9bd649cb93f60e7ee450e326aadd65384949c8",
+  "classification_scope": "Authored component subtree; no automatic recognition.",
+  "elements": [
+    {
+      "id": "usage-bar",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_usage",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_pct",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "bar_track",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "bar_fill",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    }
+  ]
+}

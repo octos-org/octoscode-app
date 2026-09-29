@@ -1,0 +1,27 @@
+# ledger skeleton-list@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+
+component Surfacef468f03a0025(instance: text) {
+  view Kit(component: "Surfacef468f03a0025", instance: instance) { slot }
+}
+component Surfaceb1747ab6b098(instance: text) {
+  view Kit(component: "Surfaceb1747ab6b098", instance: instance) { slot }
+}
+
+view root Surfacef468f03a0025(instance: "skeleton-list") {
+  Surfaceb1747ab6b098(instance: "skel0") {
+
+  }
+  Surfaceb1747ab6b098(instance: "skel1") {
+
+  }
+  Surfaceb1747ab6b098(instance: "skel2") {
+
+  }
+  Surfaceb1747ab6b098(instance: "skel3") {
+
+  }
+}

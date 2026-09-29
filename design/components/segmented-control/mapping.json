@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "segmented-control",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surfacef468f03a0025",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        207.5,
+        58.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "seg_box",
+      "native_id": "beauty_0_0",
+      "parent": "segmented-control",
+      "kind": "stack",
+      "component": "Surface9c33ea9ef48a",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        207.5,
+        58.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "seg_div",
+      "native_id": "beauty_0_1",
+      "parent": "segmented-control",
+      "kind": "stack",
+      "component": "Surface04d980ce2c9b",
+      "semantic_role": "layout",
+      "bounds": [
+        105.5,
+        6.0,
+        1.5,
+        46.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_llm",
+      "native_id": "beauty_0_2",
+      "parent": "segmented-control",
+      "kind": "text",
+      "component": "Text404646513d4f",
+      "semantic_role": "text",
+      "bounds": [
+        30.1,
+        21.7,
+        90.0,
+        21.0
+      ],
+      "text": "LLM",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t_heur",
+      "native_id": "beauty_0_3",
+      "parent": "segmented-control",
+      "kind": "text",
+      "component": "Textc6cd0ea2df1a",
+      "semantic_role": "text",
+      "bounds": [
+        122.5,
+        21.6,
+        70.0,
+        21.0
+      ],
+      "text": "Heuristic",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "2ce339ceaefe3760c4cb4a52f931077e1f035f3ce057093e9d67b175f21bc2ef",
+  "mapping_basis": "mapped.json"
+}

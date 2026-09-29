@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "policy_version": "1.1.0",
+  "contract_sha256": "1244389f32e3473985f70fb5fa6431051d60ea148aa7ae5b3ba575dac5fc265c",
+  "reference_sha256": "8835506576ac7b79666c14edfcc1082c5b1c1fd864c9e53b24243aafc8374064",
+  "classification_scope": "Authored component subtree; no automatic recognition.",
+  "elements": [
+    {
+      "id": "skeleton-list",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "skel0",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "skel1",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "skel2",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "skel3",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    }
+  ]
+}

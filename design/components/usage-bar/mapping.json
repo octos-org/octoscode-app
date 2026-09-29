@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "usage-bar",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surfacef468f03a0025",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        360.0,
+        80.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_usage",
+      "native_id": "beauty_0_0",
+      "parent": "usage-bar",
+      "kind": "text",
+      "component": "Text840a7f555cd2",
+      "semantic_role": "text",
+      "bounds": [
+        12.9,
+        9.3,
+        200.0,
+        21.0
+      ],
+      "text": "124k of 200k tokens",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t_pct",
+      "native_id": "beauty_0_1",
+      "parent": "usage-bar",
+      "kind": "text",
+      "component": "Text3ccc8c684a1d",
+      "semantic_role": "text",
+      "bounds": [
+        294.8,
+        9.3,
+        40.0,
+        20.0
+      ],
+      "text": "62%",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13
+    },
+    {
+      "source_id": "bar_track",
+      "native_id": "beauty_0_2",
+      "parent": "usage-bar",
+      "kind": "stack",
+      "component": "Surface17544640ea84",
+      "semantic_role": "layout",
+      "bounds": [
+        15.0,
+        52.5,
+        317.0,
+        15.5
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "bar_fill",
+      "native_id": "beauty_0_3",
+      "parent": "usage-bar",
+      "kind": "stack",
+      "component": "Surface260f5fd1c16f",
+      "semantic_role": "layout",
+      "bounds": [
+        15.0,
+        52.5,
+        205.0,
+        15.5
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "33f6670c360f30aa7472e73a74cfdb39fb65bfd3fb296b7c09ef93a080f75528",
+  "mapping_basis": "mapped.json"
+}
