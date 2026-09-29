@@ -1,6 +1,6 @@
 scene,reference,live_capture,outer_score,notes
-01 threads,design/stage-b/conversation/evidence/gate-b/conversation-01-*.png,live-gate/evidence/g3-completed.png,9,"New chat card + compose icon, thread row selected bg, ellipsis; minor: New chat card right edge runs to the column edge"
-03 user bubble,…conversation-03-*.png,g3-completed.png,9,"flat black, right-aligned, hugs + wraps, tight padding"
-04 worked-for + actions,…conversation-04-*.png,g3-completed.png / g4-interrupted.png,8.5,"'Worked for 1s ›' and 'Interrupted' present; label is larger/darker than the atlas's small grey; icons + 'now' right-aligned"
-08 composer (idle/running),…conversation-08-*.png,g3b-turn2-running.png / g3-completed.png,9,"one composer; flat black send; white stop square while running; Working · 2s spinner row without overlap"
-09 answer prose,…conversation-09-*.png,g4-interrupted.png,9,"Inter prose, bold, headings, inline code chips, grey mono code block without soft-wrap; minor: long code lines clip without a scroll affordance"
+01 threads,design/stage-b/conversation/evidence/gate-b/conversation-01-*.png,live-gate/evidence/g3-completed.png,9,"New chat card with a whole compose icon, inset like the thread rows; selected thread row"
+03 user bubble,…conversation-03-*.png,g3-completed.png / g5-scrolled-top.png,9,"flat black, right-aligned, hugs and wraps; the interrupted turn 2 keeps its prompt (optimistic row, #26)"
+04 worked-for + actions,…conversation-04-*.png + codex-refs/03-worked.png,g5-scrolled-top.png / g4-interrupted.png,9,"small secondary grey label per turn: turn 1 'Worked for 1s ›', turn 2 'Interrupted' (#21j); icons plus a right-aligned 'now'"
+08 composer idle/running,…conversation-08-*.png,g3b-turn2-running.png / g3-completed.png,9,"flat black send, white stop square while running, 'Working · 1s' spinner row"
+09 answer prose,…conversation-09-*.png,g3-completed.png / g4-interrupted.png,9,"Inter prose, bold, headings, inline code chips; code blocks visibly wrap (supervisor-allowed option); full paragraph after #21i"
