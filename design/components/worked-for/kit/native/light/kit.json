@@ -11,23 +11,23 @@
       "property": "radius"
     },
     "size_216b3570203f": {
-      "value": 18.7,
+      "value": 14.875,
       "property": "size"
     },
     "line_height_1e5e1d62e2a6": {
-      "value": 22.63,
+      "value": 18.0,
       "property": "line_height"
     },
     "weight_0604cd3138fe": {
-      "value": 500,
+      "value": 400,
       "property": "weight"
     },
     "color_8e8b5cf8919a": {
-      "value": 4281019180,
+      "value": 4285229931,
       "property": "color"
     },
     "font_src_cb352dc03af3": {
-      "value": "self:resources/ux/Inter-500.ttf",
+      "value": "self:resources/ux/Inter-400.ttf",
       "property": "font_src"
     },
     "tracking_8aed642bf511": {

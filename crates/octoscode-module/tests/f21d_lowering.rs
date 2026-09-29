@@ -125,6 +125,66 @@ fn item3_the_timestamp_clears_the_scrollbar() {
     );
 }
 
+/// Card #21g item 1 — the worked-for row is a small secondary-grey label over a
+/// hairline rule.
+///
+/// The component's own kit tokens carry the size/weight/colour (≈0.85× the
+/// prose body, weight 400, `#6b6b6b`); the lowering must also append the 1px
+/// light rule the #16 ledger does not draw (`outer/codex-refs/03-worked.png`).
+#[test]
+fn item1_the_worked_for_row_is_small_grey_over_a_rule() {
+    let dsl = components::lower(ItemKind::WorkedFor, "0", &copies(ItemKind::WorkedFor, "Worked for 3s ›"))
+        .expect("the worked-for row lowers");
+    // 0.85 × the 17.5px body token = 14.875 kit px = 11.15625 app px.
+    assert!(
+        dsl.contains("font_size: 11.15625"),
+        "the label must use the small (0.85×) size token; got:\n{dsl}"
+    );
+    assert!(
+        dsl.contains("draw_text.color: #6b6b6bff"),
+        "the label must be secondary grey #6b6b6b; got:\n{dsl}"
+    );
+    assert!(
+        dsl.contains("weight: 400"),
+        "the label must be weight 400, not 500; got:\n{dsl}"
+    );
+    assert!(
+        dsl.contains("height: 1") && dsl.contains("draw_bg.color: #ecececff"),
+        "the row must carry the 1px divider under it; got:\n{dsl}"
+    );
+}
+
+/// Card #21g item 2 — a code block must not HARD-CLIP an over-long line.
+///
+/// The #21e pin ran `code_layout` non-wrapping, so a long line was cut at the
+/// block's right edge (`g4-interrupted.png`: `let y = x + 10; // panic in
+/// debug,…`). The board's accepted alternative to horizontal scroll is a
+/// visible soft-wrap, so the theme's wrapping code layout must survive.
+#[test]
+fn item2_a_long_code_line_is_reachable_not_clipped() {
+    // The board's fixture ("let y = x + 10; // panic in debug,…") widened past
+    // 120 columns.
+    let line = format!("let y = x + 10; // {}", "panic in debug ".repeat(10));
+    assert!(
+        line.chars().count() > 120,
+        "the fixture line must exceed 120 columns"
+    );
+    let dsl = components::lower(
+        ItemKind::AssistantProse,
+        "0",
+        &copies(ItemKind::AssistantProse, &line),
+    )
+    .expect("the prose lowers");
+    assert!(
+        !dsl.contains("code_layout: Layout{flow: Right}"),
+        "the non-wrapping #21e pin must be gone (it hard-clips long lines); got:\n{dsl}"
+    );
+    assert!(
+        dsl.contains(&line),
+        "the full >120-column line must survive into the markdown body; got:\n{dsl}"
+    );
+}
+
 /// Card #21f item 2 — the cleared second bubble line must not reserve a line box.
 ///
 /// The component's `t02` is bound to `@clear` (the whole message rides the
