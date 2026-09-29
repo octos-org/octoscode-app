@@ -42,36 +42,36 @@
       "native_id": "beauty_0_0_0",
       "parent": "loops_screen",
       "kind": "text",
-      "component": "Text050a687b31b0",
+      "component": "Textda8d60967e0e",
       "semantic_role": "text",
       "bounds": [
-        22.83048144873807,
-        18.93106893106893,
-        91.11417322834646,
-        21.054945054945055
+        23.17,
+        18.93,
+        91.11,
+        21.05
       ],
       "text": "OctosCode",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 22.78442757503423
+      "size": 16.06
     },
     {
       "source_id": "t_title",
       "native_id": "beauty_0_0_1",
       "parent": "loops_screen",
       "kind": "text",
-      "component": "Text8437225c1f09",
+      "component": "Textea62f42f8d83",
       "semantic_role": "text",
       "bounds": [
-        22.026126945901122,
-        87.92607392607393,
-        56.74803149606299,
-        28.807192807192806
+        22.67,
+        87.93,
+        56.75,
+        28.81
       ],
       "text": "Loops",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 26.627427080257267
+      "size": 17.84
     },
     {
       "source_id": "new_loop",
@@ -150,18 +150,18 @@
       "native_id": "beauty_0_0_2_3",
       "parent": "new_loop",
       "kind": "text",
-      "component": "Textbae2622866d7",
+      "component": "Textcab5ef52407e",
       "semantic_role": "text",
       "bounds": [
-        287.1875618232772,
-        90.25174825174824,
-        89.51574803149606,
-        25.706293706293707
+        287.89,
+        90.25,
+        89.52,
+        25.71
       ],
       "text": "+ New loop",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 23.298998695225112
+      "size": 15.63
     },
     {
       "source_id": "loop_1",
@@ -204,36 +204,36 @@
       "native_id": "beauty_0_0_3_1",
       "parent": "loop_1",
       "kind": "text",
-      "component": "Text17dbf5b4a3e0",
+      "component": "Textf6e73b6022fa",
       "semantic_role": "text",
       "bounds": [
-        29.250192824572228,
-        170.09990009990008,
-        103.1023622047244,
-        21.83016983016983
+        29.95,
+        170.1,
+        103.1,
+        21.83
       ],
       "text": "Run CI smoke",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 23.82008337389942
+      "size": 15.09
     },
     {
       "source_id": "loop_1_cad",
       "native_id": "beauty_0_0_3_2",
       "parent": "loop_1",
       "kind": "text",
-      "component": "Text1f72b398750a",
+      "component": "Texte06a7986aeb3",
       "semantic_role": "text",
       "bounds": [
-        30.14354863345066,
-        213.5124875124875,
-        83.12204724409449,
-        23.38061938061938
+        30.49,
+        213.51,
+        83.12,
+        23.38
       ],
       "text": "every 15 min",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 20.19924096259974
+      "size": 13.32
     },
     {
       "source_id": "loop_1_pause",
@@ -330,36 +330,36 @@
       "native_id": "beauty_0_0_4_1",
       "parent": "loop_2",
       "kind": "text",
-      "component": "Text8cf0a77a78b8",
+      "component": "Text868d676e5c7e",
       "semantic_role": "text",
       "bounds": [
-        29.16408635197886,
-        292.5854145854146,
-        79.9251968503937,
-        26.48151848151848
+        29.58,
+        292.59,
+        79.93,
+        26.48
       ],
       "text": "Sync main",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 23.300683122545472
+      "size": 15.26
     },
     {
       "source_id": "loop_2_cad",
       "native_id": "beauty_0_0_4_2",
       "parent": "loop_2",
       "kind": "text",
-      "component": "Text425fa141c805",
+      "component": "Text13cbcfb2da49",
       "semantic_role": "text",
       "bounds": [
-        30.18457834165594,
-        335.998001998002,
-        84.72047244094487,
-        22.605394605394604
+        30.51,
+        336.0,
+        84.72,
+        22.61
       ],
       "text": "every 30 min",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 19.39127132409575
+      "size": 13.05
     },
     {
       "source_id": "loop_2_pause",
@@ -456,36 +456,36 @@
       "native_id": "beauty_0_0_5_1",
       "parent": "loop_3",
       "kind": "text",
-      "component": "Text5d5af5e97195",
+      "component": "Textc1510682d715",
       "semantic_role": "text",
       "bounds": [
-        29.30711736797497,
-        415.8461538461538,
-        110.29527559055119,
-        26.48151848151848
+        29.92,
+        415.85,
+        110.3,
+        26.48
       ],
       "text": "Nightly review",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 23.113529041239886
+      "size": 15.45
     },
     {
       "source_id": "loop_3_cad",
       "native_id": "beauty_0_0_5_2",
       "parent": "loop_3",
       "kind": "text",
-      "component": "Text3dfdb5a2546e",
+      "component": "Text12a70321f4ca",
       "semantic_role": "text",
       "bounds": [
-        30.128183685904776,
-        458.48351648351644,
-        111.89370078740157,
-        23.38061938061938
+        30.49,
+        458.48,
+        111.89,
+        23.38
       ],
       "text": "every day \u00b7 01:00",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 20.501812237349426
+      "size": 13.28
     },
     {
       "source_id": "loop_3_play",

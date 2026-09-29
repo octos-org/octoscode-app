@@ -42,36 +42,36 @@
       "native_id": "beauty_0_0_0",
       "parent": "review_run",
       "kind": "text",
-      "component": "Text115ff560ecd8",
+      "component": "Textc5ee49a1048a",
       "semantic_role": "text",
       "bounds": [
-        25.35094560124532,
-        18.93106893106893,
-        98.02105263157894,
-        21.054945054945055
+        25.62,
+        18.93,
+        98.02,
+        21.05
       ],
       "text": "OctosCode",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 22.78442757503423
+      "size": 17.34
     },
     {
       "source_id": "t_title",
       "native_id": "beauty_0_0_1",
       "parent": "review_run",
       "kind": "text",
-      "component": "Textad803f8e3052",
+      "component": "Text17d36e66429f",
       "semantic_role": "text",
       "bounds": [
-        24.43228478061014,
-        86.37562437562437,
-        113.40631578947368,
-        22.605394605394604
+        24.74,
+        86.38,
+        113.41,
+        22.61
       ],
       "text": "Code review",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 24.055459691823327
+      "size": 17.99
     },
     {
       "source_id": "start_review",
@@ -132,18 +132,18 @@
       "native_id": "beauty_0_0_2_2",
       "parent": "start_review",
       "kind": "text",
-      "component": "Text52ab96086215",
+      "component": "Text2579fcd137a7",
       "semantic_role": "text",
       "bounds": [
-        278.56906916581556,
-        87.15084915084914,
-        88.61894736842105,
-        19.5044955044955
+        278.83,
+        87.15,
+        88.62,
+        19.5
       ],
       "text": "Start review",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 20.04621640985277
+      "size": 14.47
     },
     {
       "source_id": "run_status_card",
@@ -168,36 +168,36 @@
       "native_id": "beauty_0_0_3_0",
       "parent": "run_status_card",
       "kind": "text",
-      "component": "Text9efd2f92617d",
+      "component": "Text35832fe48287",
       "semantic_role": "text",
       "bounds": [
-        81.2482777373003,
-        171.65034965034965,
-        222.81263157894736,
-        24.155844155844154
+        81.73,
+        171.65,
+        222.81,
+        24.16
       ],
       "text": "Reviewing 3 files \u00b7 2 specialists",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 20.61896545013428
+      "size": 14.68
     },
     {
       "source_id": "t_status_sub",
       "native_id": "beauty_0_0_3_1",
       "parent": "run_status_card",
       "kind": "text",
-      "component": "Text14786ea05c5b",
+      "component": "Text565da94791fb",
       "semantic_role": "text",
       "bounds": [
-        80.69127097032194,
-        208.08591408591408,
-        254.43789473684208,
-        23.38061938061938
+        80.85,
+        208.09,
+        254.44,
+        23.38
       ],
       "text": "Analyzing changes and code quality...",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 20.036097168858397
+      "size": 13.96
     },
     {
       "source_id": "finding_high",
@@ -240,54 +240,54 @@
       "native_id": "beauty_0_0_4_0_0",
       "parent": "finding_high_badge",
       "kind": "text",
-      "component": "Text752d7665fe3e",
+      "component": "Textc17fad1468b3",
       "semantic_role": "text",
       "bounds": [
-        41.343527481793764,
-        313.5164835164835,
-        33.915789473684214,
-        22.605394605394604
+        41.76,
+        313.52,
+        33.92,
+        22.61
       ],
       "text": "High",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 19.02338899243542
+      "size": 13.32
     },
     {
       "source_id": "finding_high_path",
       "native_id": "beauty_0_0_4_1",
       "parent": "finding_high",
       "kind": "text",
-      "component": "Text870568b57142",
+      "component": "Texta68767947f29",
       "semantic_role": "text",
       "bounds": [
-        34.631948259619946,
-        359.2547452547452,
-        333.92842105263156,
-        22.605394605394604
+        35.19,
+        359.25,
+        333.93,
+        22.61
       ],
       "text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 19.9601090371127
+      "size": 11.22
     },
     {
       "source_id": "finding_high_text",
       "native_id": "beauty_0_0_4_2",
       "parent": "finding_high",
       "kind": "text",
-      "component": "Textca302e6e9e86",
+      "component": "Text8720892a9a35",
       "semantic_role": "text",
       "bounds": [
         34.20840166979862,
         398.015984015984,
-        326.2357894736842,
-        22.605394605394604
+        327.53,
+        50.02
       ],
       "text": "Potential message loss when reconnecting: pending queue was dropped.",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 19.234653282104063
+      "size": 14
     },
     {
       "source_id": "finding_low",
@@ -330,54 +330,54 @@
       "native_id": "beauty_0_0_5_0_0",
       "parent": "finding_low_badge",
       "kind": "text",
-      "component": "Text4c4014b5ed6a",
+      "component": "Textd563e48aa973",
       "semantic_role": "text",
       "bounds": [
-        41.19971432887563,
-        529.8041958041957,
-        31.35157894736842,
-        19.5044955044955
+        41.74,
+        529.8,
+        31.35,
+        19.5
       ],
       "text": "Low",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 20.986917906944342
+      "size": 13.58
     },
     {
       "source_id": "finding_low_path",
       "native_id": "beauty_0_0_5_1",
       "parent": "finding_low",
       "kind": "text",
-      "component": "Text85744e325b6d",
+      "component": "Textde1538f45dd6",
       "semantic_role": "text",
       "bounds": [
-        33.72441978798131,
-        576.3176823176823,
-        257.0021052631579,
-        23.38061938061938
+        34.3,
+        576.32,
+        257.0,
+        23.38
       ],
       "text": "crates/octos-core/src/ui_protocol.rs",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 20.7917802469924
+      "size": 11.71
     },
     {
       "source_id": "finding_low_text",
       "native_id": "beauty_0_0_5_2",
       "parent": "finding_low",
       "kind": "text",
-      "component": "Text6de56fbf753a",
+      "component": "Texte9eae90b87dd",
       "semantic_role": "text",
       "bounds": [
         33.30169729529107,
         616.6293706293706,
-        314.2694736842105,
-        23.38061938061938
+        313.88,
+        50.0
       ],
       "text": "Missing documentation for new preserve_pending behavior.",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 19.82592831743681
+      "size": 14
     }
   ],
   "fonts": {

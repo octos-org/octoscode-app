@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "f168d9f1018c42ef5f4c42f70af2d8f2363ba55deb4d901604207ef3825e807a",
+  "manifest_sha256": "2f87d5315b9fe15406d85cee6c6bafa822392d46b113d1800e0e704e59c1fceb",
   "reference_sha256": "f1d385b756812379d4d1537b2668f37824e3cca12123b02399a555ab3c102add",
   "id": "autonomy-01",
   "round": null,
@@ -393,17 +393,6 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "row_2",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
       "id": "ln_2",
       "role": "text",
       "basis": "authored text node",
@@ -438,17 +427,6 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "row_3",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
       "id": "ln_3",
@@ -487,17 +465,6 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "row_4",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
       "id": "ln_4",
       "role": "text",
       "basis": "authored text node",
@@ -532,17 +499,6 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "row_5",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
       "id": "ln_5",
@@ -582,6 +538,18 @@
     },
     {
       "id": "ln_6",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "mk_6",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [

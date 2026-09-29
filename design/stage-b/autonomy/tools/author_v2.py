@@ -236,7 +236,7 @@ def build_01(sc):
         ("131", "- metrics.steer_dropped += 1;", "del"),
         ("132", "+ queue.preserve_pending();", "add"),
         ("133", "+ metrics.steer_preserved += 1;", "add"),
-        ("134", "reconnect().await?;", "ctx"),
+        ("134", "+ reconnect().await?;", "add"),
         ("135", "}", "ctx"),
     ]
     _, gx, gy, _, _ = sc.rows[10]                                        # first gutter '128'
@@ -253,14 +253,10 @@ def build_01(sc):
             body_text = line[2:]
         body = code(f"dl_{i}", body_text, gx + 66, y, 280, rowh - 4, color=color)
         row_kids = [gutter] + ([marker] if marker else []) + [body]
-        if kind == "del":
-            rows.append(surface(f"row_{i}", gx - 8, y - 4, 366, rowh + 2, bg="redbg",
-                                radius=6, kids=row_kids))
-        elif kind == "add":
-            rows.append(surface(f"row_{i}", gx - 8, y - 4, 366, rowh + 2, bg="greenbg",
-                                radius=6, kids=row_kids))
-        else:
-            rows.extend(row_kids)
+        # This atlas draws diff rows on WHITE (measured #fefefe over the full row
+        # band) with only the marker/code text coloured red/green — no band fill,
+        # unlike conversation board 1. Emit flat rows.
+        rows.extend(row_kids)
     sc.put(stack("diff_rows", 20, gy - 10, 366, rowh * 8 + 20, rows))
     sc.flows["diff_rows"] = ("diff.rows", 20, gy - 10, 366, rowh * 8 + 20)
     # folded row: '⋮ 412 unmodified lines ⋮' on the grey band.

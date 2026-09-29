@@ -47,6 +47,18 @@ def stage(name, d):
         out = subprocess.run([sys.executable, str(ROOT / "tools/finalize_semantics.py")],
                              capture_output=True, text=True)
         return {"finalize_semantics": out.stdout.strip(), "rc": out.returncode}
+    if name == "fix_map":
+        out = subprocess.run([sys.executable, str(ROOT / "tools/fix_map.py")],
+                             capture_output=True, text=True)
+        return {"fix_map": out.stdout.strip().splitlines()[-1] if out.stdout else "", "rc": out.returncode}
+    if name == "fix_metrics":
+        out = subprocess.run([sys.executable, str(ROOT / "tools/fix_metrics.py")],
+                             capture_output=True, text=True)
+        return {"fix_metrics": out.stdout.strip().splitlines()[-1] if out.stdout else "", "rc": out.returncode}
+    if name == "fix_surfaces":
+        out = subprocess.run([sys.executable, str(ROOT / "tools/fix_surfaces.py")],
+                             capture_output=True, text=True)
+        return {"fix_surfaces": out.stdout.strip().splitlines()[-1] if out.stdout else "", "rc": out.returncode}
     if name == "semantic":
         from semantics import preflight
         res = preflight(d)
@@ -62,7 +74,8 @@ def stage(name, d):
 def main():
     stages = sys.argv[1:] or ["all"]
     if stages == ["all"]:
-        stages = ["observe", "measure", "map", "finalize", "semantic", "compile"]
+        stages = ["observe", "measure", "map", "fix_map", "fix_metrics", "fix_surfaces",
+                  "finalize", "semantic", "compile"]
     for s in stages:
         for d in SCENES:
             if s == "finalize" and d != SCENES[0]:

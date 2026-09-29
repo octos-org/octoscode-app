@@ -208,58 +208,6 @@
       "reviewed": false
     },
     {
-      "id": "row_2",
-      "bounds": [
-        10.76,
-        479.48,
-        366.0,
-        36.96
-      ],
-      "method": "surface contour unresolved; requested geometry retained",
-      "reviewed": false,
-      "bg": 4294901245,
-      "radius": 6.0
-    },
-    {
-      "id": "row_3",
-      "bounds": [
-        10.76,
-        514.44,
-        366.0,
-        36.96
-      ],
-      "method": "surface contour unresolved; requested geometry retained",
-      "reviewed": false,
-      "bg": 4294835709,
-      "radius": 6.0
-    },
-    {
-      "id": "row_4",
-      "bounds": [
-        10.76,
-        549.4,
-        366.0,
-        36.96
-      ],
-      "method": "surface contour unresolved; requested geometry retained",
-      "reviewed": false,
-      "bg": 4294835709,
-      "radius": 6.0
-    },
-    {
-      "id": "row_5",
-      "bounds": [
-        10.76,
-        584.36,
-        366.0,
-        36.96
-      ],
-      "method": "surface contour unresolved; requested geometry retained",
-      "reviewed": false,
-      "bg": 4294835709,
-      "radius": 6.0
-    },
-    {
       "id": "folded",
       "bounds": [
         1.0,

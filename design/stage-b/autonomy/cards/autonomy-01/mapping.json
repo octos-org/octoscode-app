@@ -42,36 +42,36 @@
       "native_id": "beauty_0_0_0",
       "parent": "review_panel",
       "kind": "text",
-      "component": "Textaf650f84639d",
+      "component": "Text7ba6423a99a5",
       "semantic_role": "text",
       "bounds": [
-        20.229719112474957,
-        18.93106893106893,
-        98.6764705882353,
-        20.27972027972028
+        20.45,
+        18.93,
+        98.68,
+        21.12
       ],
       "text": "OctosCode",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 21.748771776169036
+      "size": 17.46
     },
     {
       "source_id": "t_title",
       "native_id": "beauty_0_0_1",
       "parent": "review_panel",
       "kind": "text",
-      "component": "Text2171b9f5cd06",
+      "component": "Text19ef13797c2c",
       "semantic_role": "text",
       "bounds": [
-        21.973655577933652,
-        78.62337662337661,
-        70.52941176470588,
-        24.155844155844154
+        22.5,
+        78.62,
+        70.53,
+        24.16
       ],
       "text": "Review",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 26.060081332808604
+      "size": 18.88
     },
     {
       "source_id": "scope_pill",
@@ -96,18 +96,18 @@
       "native_id": "beauty_0_0_2_0",
       "parent": "scope_pill",
       "kind": "text",
-      "component": "Textf8419adc88e1",
+      "component": "Texta1bf1faac5d2",
       "semantic_role": "text",
       "bounds": [
-        207.0479597039249,
-        84.04995004995004,
-        84.08153323478511,
-        18.72927072927073
+        206.9,
+        84.05,
+        81.62,
+        18.73
       ],
       "text": "Last turn \u25be",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 13.277089108075023
+      "size": 15.12
     },
     {
       "source_id": "scope_chev",
@@ -204,18 +204,18 @@
       "native_id": "beauty_0_0_5_1",
       "parent": "file_1",
       "kind": "text",
-      "component": "Textab8d2f1b3c7f",
+      "component": "Text7d1272ffa85c",
       "semantic_role": "text",
       "bounds": [
-        22.99317034304555,
-        153.04495504495503,
-        301.6764705882353,
-        29.58241758241758
+        24.09,
+        153.04,
+        301.68,
+        29.58
       ],
       "text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 27.445149926029966
+      "size": 10.12
     },
     {
       "source_id": "file_1_add",
@@ -294,18 +294,18 @@
       "native_id": "beauty_0_0_6_1",
       "parent": "file_2",
       "kind": "text",
-      "component": "Texta53268f50f28",
+      "component": "Text18cd779ff035",
       "semantic_role": "text",
       "bounds": [
-        22.08743753704158,
-        214.28771228771228,
-        240.26470588235296,
-        30.357642357642355
+        23.19,
+        214.29,
+        240.26,
+        30.36
       ],
       "text": "crates/octos-core/src/ui_protocol.rs",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 28.27682113590966
+      "size": 10.94
     },
     {
       "source_id": "file_2_add",
@@ -384,18 +384,18 @@
       "native_id": "beauty_0_0_7_1",
       "parent": "file_3",
       "kind": "text",
-      "component": "Textbbba69200134",
+      "component": "Text336abae66b1b",
       "semantic_role": "text",
       "bounds": [
-        51.82652035050889,
-        284.05794205794206,
-        213.82352941176472,
-        19.5044955044955
+        52.28,
+        284.06,
+        213.82,
+        19.5
       ],
       "text": "crates/octos-cli/tests/steer_queue.rs",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 16.633424197593918
+      "size": 9.45
     },
     {
       "source_id": "file_3_add",
@@ -474,18 +474,18 @@
       "native_id": "beauty_0_0_8_1",
       "parent": "diff_file_header",
       "kind": "text",
-      "component": "Texte6629fda5be2",
+      "component": "Text51f4880bbc35",
       "semantic_role": "text",
       "bounds": [
-        20.109321932496986,
-        357.7042957042957,
-        304.2352941176471,
-        21.83016983016983
+        20.68,
+        357.7,
+        304.24,
+        21.83
       ],
       "text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 19.128437827233007
+      "size": 10.21
     },
     {
       "source_id": "diff_rows",
@@ -510,432 +510,378 @@
       "native_id": "beauty_0_0_9_0",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Text91df6ae7aacb",
+      "component": "Textd6b85f1bbf60",
       "semantic_role": "text",
       "bounds": [
-        20.855799892025033,
-        411.97002997002994,
-        24.47058823529412,
-        16.403596403596403
+        21.35,
+        411.97,
+        24.47,
+        16.4
       ],
       "text": "128",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 18.275226931342036
+      "size": 11.37
     },
     {
       "source_id": "dl_0",
       "native_id": "beauty_0_0_9_1",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Textfda138c08169",
+      "component": "Textbd31eef74fbf",
       "semantic_role": "text",
       "bounds": [
-        90.12197014768425,
-        411.19480519480516,
-        248.0707092772641,
-        20.27972027972028
+        90.43,
+        411.19,
+        247.94,
+        20.28
       ],
       "text": "let msg = read_message().await?;",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 17.465095407473616
+      "size": 12.7
     },
     {
       "source_id": "ln_1",
       "native_id": "beauty_0_0_9_2",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Textd64f0fcc78a7",
+      "component": "Text7eb2b65d944f",
       "semantic_role": "text",
       "bounds": [
-        20.085400634067582,
-        448.4055944055944,
-        24.47058823529412,
-        15.628371628371628
+        20.5,
+        448.41,
+        24.47,
+        15.63
       ],
       "text": "129",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 17.133025248133162
+      "size": 11.37
     },
     {
       "source_id": "dl_1",
       "native_id": "beauty_0_0_9_3",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Textf0a9cfc5063a",
+      "component": "Text98b7147f8843",
       "semantic_role": "text",
       "bounds": [
-        90.16136082510532,
-        446.85514485514483,
-        120.8529411764706,
-        18.72927072927073
+        90.36,
+        446.86,
+        120.85,
+        18.73
       ],
       "text": "if !connected {",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 15.801752987714224
-    },
-    {
-      "source_id": "row_2",
-      "native_id": "beauty_0_0_9_4",
-      "parent": "diff_rows",
-      "kind": "stack",
-      "component": "Surface029b0735bd62",
-      "semantic_role": "layout",
-      "bounds": [
-        10.76,
-        479.48,
-        366.0,
-        36.96
-      ],
-      "text": null,
-      "enabled": null,
-      "font": null,
-      "size": null
+      "size": 12.98
     },
     {
       "source_id": "ln_2",
-      "native_id": "beauty_0_0_9_4_0",
-      "parent": "row_2",
+      "native_id": "beauty_0_0_9_4",
+      "parent": "diff_rows",
       "kind": "text",
-      "component": "Textb84fb99a912f",
+      "component": "Textb2b9ceda7216",
       "semantic_role": "text",
       "bounds": [
-        20.085400634067582,
-        483.2907092907093,
-        25.323529411764707,
-        15.628371628371628
+        20.47,
+        483.29,
+        25.32,
+        15.63
       ],
       "text": "130",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 17.133025248133162
+      "size": 11.84
     },
     {
       "source_id": "mk_2",
-      "native_id": "beauty_0_0_9_4_1",
-      "parent": "row_2",
+      "native_id": "beauty_0_0_9_5",
+      "parent": "diff_rows",
       "kind": "text",
-      "component": "Textfa720fcc3952",
+      "component": "Text7bfee83f9e4f",
       "semantic_role": "text",
       "bounds": [
-        41.75264735264736,
-        484.065934065934,
-        74.67499853088088,
-        18.72927072927073
+        70.05,
+        484.07,
+        15.09,
+        18.73
       ],
       "text": "-",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 188.53466533466533
+      "size": 15.0
     },
     {
       "source_id": "dl_2",
-      "native_id": "beauty_0_0_9_4_2",
-      "parent": "row_2",
+      "native_id": "beauty_0_0_9_6",
+      "parent": "diff_rows",
       "kind": "text",
-      "component": "Text8230f2315292",
+      "component": "Textec4a6dbeaecf",
       "semantic_role": "text",
       "bounds": [
-        131.82593593507838,
-        481.7402597402597,
-        166.0830928277343,
-        21.054945054945055
+        132.19,
+        481.74,
+        166.06,
+        21.05
       ],
       "text": "queue.drop_pending();",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 18.296766617353313
-    },
-    {
-      "source_id": "row_3",
-      "native_id": "beauty_0_0_9_5",
-      "parent": "diff_rows",
-      "kind": "stack",
-      "component": "Surfaceb9defe6488dc",
-      "semantic_role": "layout",
-      "bounds": [
-        10.76,
-        514.44,
-        366.0,
-        36.96
-      ],
-      "text": null,
-      "enabled": null,
-      "font": null,
-      "size": null
+      "size": 12.86
     },
     {
       "source_id": "ln_3",
-      "native_id": "beauty_0_0_9_5_0",
-      "parent": "row_3",
+      "native_id": "beauty_0_0_9_7",
+      "parent": "diff_rows",
       "kind": "text",
-      "component": "Textf8c93816e7bd",
+      "component": "Texte2ebfd0e0c07",
       "semantic_role": "text",
       "bounds": [
-        20.085400634067582,
-        517.4005994005994,
-        25.323529411764707,
-        15.628371628371628
+        20.47,
+        517.4,
+        25.32,
+        15.63
       ],
       "text": "131",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 17.133025248133162
+      "size": 11.84
     },
     {
       "source_id": "mk_3",
-      "native_id": "beauty_0_0_9_5_1",
-      "parent": "row_3",
+      "native_id": "beauty_0_0_9_8",
+      "parent": "diff_rows",
       "kind": "text",
-      "component": "Texte6f6a8d35953",
+      "component": "Text7bfee83f9e4f",
       "semantic_role": "text",
       "bounds": [
-        52.315278838808254,
-        521.2767232767233,
-        58.63831168831169,
-        14.077922077922077
+        70.91,
+        521.28,
+        18.5,
+        18.15
       ],
       "text": "-",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 128.99740259740258
+      "size": 15.0
     },
     {
       "source_id": "dl_3",
-      "native_id": "beauty_0_0_9_5_2",
-      "parent": "row_3",
+      "native_id": "beauty_0_0_9_9",
+      "parent": "diff_rows",
       "kind": "text",
-      "component": "Text28a2c087c0fa",
+      "component": "Text8ed951d9ace2",
       "semantic_role": "text",
       "bounds": [
-        131.36162236986507,
-        516.6253746253745,
-        217.35266618119337,
-        20.27972027972028
+        131.57,
+        516.63,
+        217.24,
+        20.28
       ],
       "text": "metrics.steer_dropped += 1;",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 17.465095407473616
-    },
-    {
-      "source_id": "row_4",
-      "native_id": "beauty_0_0_9_6",
-      "parent": "diff_rows",
-      "kind": "stack",
-      "component": "Surfaceb9defe6488dc",
-      "semantic_role": "layout",
-      "bounds": [
-        10.76,
-        549.4,
-        366.0,
-        36.96
-      ],
-      "text": null,
-      "enabled": null,
-      "font": null,
-      "size": null
+      "size": 13.16
     },
     {
       "source_id": "ln_4",
-      "native_id": "beauty_0_0_9_6_0",
-      "parent": "row_4",
+      "native_id": "beauty_0_0_9_10",
+      "parent": "diff_rows",
       "kind": "text",
-      "component": "Textb37d80f8886d",
+      "component": "Text7783c7d5f51c",
       "semantic_role": "text",
       "bounds": [
-        20.085400634067582,
-        551.5104895104895,
-        24.47058823529412,
-        15.628371628371628
+        20.5,
+        551.51,
+        24.47,
+        15.63
       ],
       "text": "132",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 17.133025248133162
+      "size": 11.37
     },
     {
       "source_id": "mk_4",
-      "native_id": "beauty_0_0_9_6_1",
-      "parent": "row_4",
+      "native_id": "beauty_0_0_9_11",
+      "parent": "diff_rows",
       "kind": "text",
-      "component": "Text08dcb26ee2aa",
+      "component": "Text4149e8f1504a",
       "semantic_role": "text",
       "bounds": [
-        70.30086011206124,
-        553.0609390609391,
-        17.50972539260669,
-        15.628371628371628
+        70.8,
+        553.06,
+        16.79,
+        18.15
       ],
       "text": "+",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 23.7673703541967
+      "size": 15.0
     },
     {
       "source_id": "dl_4",
-      "native_id": "beauty_0_0_9_6_2",
-      "parent": "row_4",
+      "native_id": "beauty_0_0_9_12",
+      "parent": "diff_rows",
       "kind": "text",
-      "component": "Text830df45015ab",
+      "component": "Textf5c1d2cc6c9c",
       "semantic_role": "text",
       "bounds": [
-        131.82593593507838,
-        549.9600399600399,
-        200.3200617455347,
-        21.054945054945055
+        132.18,
+        549.96,
+        200.18,
+        21.05
       ],
       "text": "queue.preserve_pending();",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 18.296766617353313
-    },
-    {
-      "source_id": "row_5",
-      "native_id": "beauty_0_0_9_7",
-      "parent": "diff_rows",
-      "kind": "stack",
-      "component": "Surfaceb9defe6488dc",
-      "semantic_role": "layout",
-      "bounds": [
-        10.76,
-        584.36,
-        366.0,
-        36.96
-      ],
-      "text": null,
-      "enabled": null,
-      "font": null,
-      "size": null
+      "size": 13.08
     },
     {
       "source_id": "ln_5",
-      "native_id": "beauty_0_0_9_7_0",
-      "parent": "row_5",
+      "native_id": "beauty_0_0_9_13",
+      "parent": "diff_rows",
       "kind": "text",
-      "component": "Textd3d16dd840e6",
+      "component": "Text3dc6577ffa6c",
       "semantic_role": "text",
       "bounds": [
-        20.002858715554442,
-        585.6203796203796,
-        24.47058823529412,
-        16.403596403596403
+        20.5,
+        585.62,
+        24.47,
+        16.4
       ],
       "text": "133",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 18.275226931342036
+      "size": 11.37
     },
     {
       "source_id": "mk_5",
-      "native_id": "beauty_0_0_9_7_1",
-      "parent": "row_5",
+      "native_id": "beauty_0_0_9_14",
+      "parent": "diff_rows",
       "kind": "text",
-      "component": "Textd39c42ba7888",
+      "component": "Text4149e8f1504a",
       "semantic_role": "text",
       "bounds": [
-        69.22390114288672,
-        584.8451548451548,
-        24.799858647868515,
-        24.93106893106893
+        70.8,
+        584.85,
+        21.91,
+        24.93
       ],
       "text": "+",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 42.781266637554054
+      "size": 15.0
     },
     {
       "source_id": "dl_5",
-      "native_id": "beauty_0_0_9_7_2",
-      "parent": "row_5",
+      "native_id": "beauty_0_0_9_15",
+      "parent": "diff_rows",
       "kind": "text",
-      "component": "Textcdf412bbc250",
+      "component": "Text13b84f8b066a",
       "semantic_role": "text",
       "bounds": [
-        131.36162236986507,
-        585.6203796203796,
-        230.91740391460758,
-        20.27972027972028
+        131.58,
+        585.62,
+        230.88,
+        20.28
       ],
       "text": "metrics.steer_preserved += 1;",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 17.465095407473616
+      "size": 13.04
     },
     {
       "source_id": "ln_6",
-      "native_id": "beauty_0_0_9_8",
+      "native_id": "beauty_0_0_9_16",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Textbca0b698ac22",
+      "component": "Text5d53723f5006",
       "semantic_role": "text",
       "bounds": [
-        20.085400634067582,
-        621.2807192807193,
-        25.323529411764707,
-        15.628371628371628
+        20.47,
+        621.28,
+        25.32,
+        15.63
       ],
       "text": "134",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 17.133025248133162
+      "size": 11.84
+    },
+    {
+      "source_id": "mk_6",
+      "native_id": "beauty_0_0_9_17",
+      "parent": "diff_rows",
+      "kind": "text",
+      "component": "Text1713c86d885a",
+      "semantic_role": "text",
+      "bounds": [
+        64.76,
+        623.32,
+        12.0,
+        30.96
+      ],
+      "text": "+",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 20.64
     },
     {
       "source_id": "dl_6",
-      "native_id": "beauty_0_0_9_9",
+      "native_id": "beauty_0_0_9_18",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Text01fdec9dcddd",
+      "component": "Text0d791da9c590",
       "semantic_role": "text",
       "bounds": [
-        132.70095925705579,
-        619.7302697302697,
-        150.15865814530036,
-        20.27972027972028
+        133.26,
+        619.73,
+        149.0,
+        20.28
       ],
       "text": "reconnect().await?;",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 17.465095407473616
+      "size": 12.72
     },
     {
       "source_id": "ln_7",
-      "native_id": "beauty_0_0_9_10",
+      "native_id": "beauty_0_0_9_19",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Textd375adc80579",
+      "component": "Text708e0b3c3880",
       "semantic_role": "text",
       "bounds": [
-        20.002858715554442,
-        656.1658341658341,
-        24.47058823529412,
-        16.403596403596403
+        20.5,
+        656.17,
+        24.47,
+        16.4
       ],
       "text": "135",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 18.275226931342036
+      "size": 11.37
     },
     {
       "source_id": "dl_7",
-      "native_id": "beauty_0_0_9_11",
+      "native_id": "beauty_0_0_9_20",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Text37a0c53e59fc",
+      "component": "Text0f6e5644fb1b",
       "semantic_role": "text",
       "bounds": [
-        88.98760897685497,
-        654.6153846153845,
-        11.339100288981655,
-        20.27972027972028
+        89.6,
+        654.62,
+        9.97,
+        20.28
       ],
       "text": "}",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 17.465095407473616
+      "size": 9.95
     },
     {
       "source_id": "folded",
@@ -960,18 +906,18 @@
       "native_id": "beauty_0_0_10_0",
       "parent": "folded",
       "kind": "text",
-      "component": "Text8b648b6efa49",
+      "component": "Text2d89da387558",
       "semantic_role": "text",
       "bounds": [
-        91.13753934549295,
-        717.4085914085914,
-        195.83840531789096,
-        22.605394605394604
+        91.22,
+        717.41,
+        192.5,
+        22.61
       ],
       "text": "\u22ee 412 unmodified lines \u22ee",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 16.7710599259895
+      "size": 16.24
     }
   ],
   "fonts": {
@@ -980,6 +926,6 @@
     "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "360eb17a1f9ed0846d969e480afa06a41a44a15d88ab7a18733b25ce050dd578",
+  "contract_sha256": "091bba1a9c4f08586a5c51aacc0029b4f59d4f2f3aed41704ea7dd25e2ba8c4a",
   "mapping_basis": "mapped.json"
 }
