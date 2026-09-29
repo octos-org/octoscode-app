@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "29299254d1516704da64e6d1f4cfd10059beb0b24955c992f91f7b327780b9df",
+  "manifest_sha256": "8b539e4fd7a294e59d132a55f9ace6c348a62b71ab25aced69c420d717f62c7c",
   "reference_sha256": "8926c7de16902db13e8eb1b0f167c7276a86ad39e900fd1a779d49d5297673cc",
   "id": "autonomy-12",
   "round": null,
@@ -94,6 +94,19 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
+      "id": "chev_ws",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
       "id": "t_prof",
       "role": "text",
       "basis": "authored text node",
@@ -118,6 +131,53 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
+      "id": "chev_prof",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "t_notif",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "toggle_notif",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "toggle_notif_knob",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
       "id": "div_1",
       "role": "layout",
       "basis": "authored stack node",
@@ -140,16 +200,26 @@
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
-      "id": "t_notif",
-      "role": "text",
-      "basis": "authored text node",
+      "id": "div_3",
+      "role": "layout",
+      "basis": "authored stack node",
       "expected_widgets": [
-        "Label",
-        "TextFlow"
+        "View"
       ],
       "actual_widget": null,
       "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "copy_row",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
       "id": "t_diag",
@@ -164,7 +234,20 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "toggle1",
+      "id": "icon_copy",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "disconnect_card",
       "role": "layout",
       "basis": "authored stack node",
       "expected_widgets": [
@@ -175,37 +258,17 @@
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
-      "id": "toggle1_knob",
-      "role": "layout",
-      "basis": "authored stack node",
+      "id": "icon_power",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
       "expected_widgets": [
-        "View"
+        "Svg",
+        "Icon",
+        "Image"
       ],
       "actual_widget": null,
       "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "toggle2",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "toggle2_knob",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
     },
     {
       "id": "t_disconnect",

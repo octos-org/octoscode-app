@@ -25,8 +25,8 @@ component Text430ac9625de5(instance: text, text: text) {
 component Textedf0d082ced9(instance: text, text: text) {
   view Kit(component: "Textedf0d082ced9", instance: instance, text: text)
 }
-component Group3d2637879433(instance: text) {
-  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+component Surfacebdb4a7f0da35(instance: text) {
+  view Kit(component: "Surfacebdb4a7f0da35", instance: instance) { slot }
 }
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
@@ -46,8 +46,8 @@ component Text83acff2ac648(instance: text, text: text) {
 component Text1b37d8bcae21(instance: text, text: text) {
   view Kit(component: "Text1b37d8bcae21", instance: instance, text: text)
 }
-component Text974d2475b0aa(instance: text, text: text) {
-  view Kit(component: "Text974d2475b0aa", instance: instance, text: text)
+component Text15ed7064d520(instance: text, text: text) {
+  view Kit(component: "Text15ed7064d520", instance: instance, text: text)
 }
 component Surfaceebeaffab57cc(instance: text) {
   view Kit(component: "Surfaceebeaffab57cc", instance: instance) { slot }
@@ -73,18 +73,18 @@ view root Surface16fae9a63e16(instance: "page") {
     Text430ac9625de5(instance: "t_q1", text: copy.t_q1_text)
     Textedf0d082ced9(instance: "t_q2", text: copy.t_q2_text)
   }
-  Group3d2637879433(instance: "tool_row") {
+  Surfacebdb4a7f0da35(instance: "tool_card") {
     Vectore0a378fde04f(instance: "icon_tool")
-    Vectore0a378fde04f(instance: "icon_tool_done")
     Text012b54cc7942(instance: "t_tool", text: copy.t_tool_text)
+    Vectore0a378fde04f(instance: "icon_tool_done")
   }
   Surface8938b292c8f9(instance: "aside_card") {
     Text3cbbf758384b(instance: "t_aside", text: copy.t_aside_text)
-    Vectore0a378fde04f(instance: "icon_dismiss")
     Text83acff2ac648(instance: "t_dismiss", text: copy.t_dismiss_text)
+    Vectore0a378fde04f(instance: "icon_dismiss")
     Text1b37d8bcae21(instance: "t_qtitle", text: copy.t_qtitle_text)
   }
-  Text974d2475b0aa(instance: "aside_answer", text: copy.aside_answer_text)
+  Text15ed7064d520(instance: "aside_answer", text: copy.aside_answer_text)
   Surfaceebeaffab57cc(instance: "composer") {
     Input51499e46eddf(instance: "composer_input", placeholder: copy.composer_input_placeholder)
     Vectore0a378fde04f(instance: "icon_plus")

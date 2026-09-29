@@ -61,23 +61,25 @@
       "radius": 18.45
     },
     {
-      "id": "tool_row",
+      "id": "tool_card",
       "bounds": [
         14.0,
-        258.2,
-        320.0,
-        49.88
+        256.2,
+        374.0,
+        53.88
       ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294440952,
+      "radius": 10.0
     },
     {
       "id": "icon_tool",
       "bounds": [
-        14.0,
+        24.0,
         266.2,
-        20.0,
-        20.0
+        18.0,
+        18.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -85,8 +87,8 @@
     {
       "id": "icon_tool_done",
       "bounds": [
-        330.0,
-        268.2,
+        356.0,
+        267.2,
         16.0,
         16.0
       ],
@@ -109,8 +111,8 @@
     {
       "id": "icon_dismiss",
       "bounds": [
-        285.652,
-        355.728,
+        402.747,
+        354.684,
         14.524,
         14.616
       ],

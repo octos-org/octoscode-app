@@ -75,35 +75,26 @@
       },
       {
         "t": "stack",
-        "id": "tool_row",
+        "id": "tool_card",
         "x": 14.0,
-        "y": 258.2,
-        "w": 320.0,
-        "h": 49.88,
+        "y": 256.2,
+        "w": 374.0,
+        "h": 53.88,
         "c": [
           {
             "t": "svg",
             "id": "icon_tool",
-            "x": 14.0,
+            "x": 24.0,
             "y": 266.2,
-            "w": 20.0,
-            "h": 20.0,
-            "src": ""
-          },
-          {
-            "t": "svg",
-            "id": "icon_tool_done",
-            "x": 330.0,
-            "y": 268.2,
-            "w": 16.0,
-            "h": 16.0,
+            "w": 18.0,
+            "h": 18.0,
             "src": ""
           },
           {
             "t": "text",
             "id": "t_tool",
             "text": "Read crates/octos-core/src/ui_protocol.rs",
-            "x": 42.0,
+            "x": 52.0,
             "y": 266.2,
             "w": 280.0,
             "h": 33.88,
@@ -114,8 +105,22 @@
             "variant": "single_line",
             "alignx": 0,
             "font_src": "self:resources/ux/LiberationMono-Regular.ttf"
+          },
+          {
+            "t": "svg",
+            "id": "icon_tool_done",
+            "x": 356.0,
+            "y": 267.2,
+            "w": 16.0,
+            "h": 16.0,
+            "src": ""
           }
-        ]
+        ],
+        "variant": "surface",
+        "bg": 4294440952,
+        "radius": 10,
+        "border": 1,
+        "bordercolor": 4293256679
       },
       {
         "t": "stack",
@@ -142,15 +147,6 @@
             "font_src": "self:resources/ux/Inter-600.ttf"
           },
           {
-            "t": "svg",
-            "id": "icon_dismiss",
-            "x": 277.85,
-            "y": 361.77,
-            "w": 14.0,
-            "h": 14.0,
-            "src": ""
-          },
-          {
             "t": "text",
             "id": "t_dismiss",
             "text": "Dismiss aside",
@@ -165,6 +161,15 @@
             "variant": "single_line",
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "svg",
+            "id": "icon_dismiss",
+            "x": 390.72,
+            "y": 360.77,
+            "w": 14.0,
+            "h": 14.0,
+            "src": ""
           },
           {
             "t": "text",
@@ -196,9 +201,9 @@
         "x": 26.0,
         "y": 452.0,
         "w": 330.0,
-        "h": 130.0,
-        "size": 15,
-        "line_height": 21.75,
+        "h": 138.0,
+        "size": 17,
+        "line_height": 24.65,
         "weight": 400,
         "color": 4280098079,
         "alignx": 0,

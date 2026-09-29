@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "8af3b71bd4b112db011fecdfb42368b757f68776c987a6e5fbc9fcd08d09f3f2",
+  "contract_sha256": "9afd37b92379fd68c61cf2a599ceae5792531b94058134ff8bea641c852f99d1",
   "reference_sha256": "8926c7de16902db13e8eb1b0f167c7276a86ad39e900fd1a779d49d5297673cc",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -55,6 +55,22 @@
       "decision": "declared"
     },
     {
+      "id": "chev_ws",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/chev_ws.svg",
+        "sha256": "12902545cdb5c746857806ac07206d1ccac15aaf351b0b6efc78eee29a1e8c3e",
+        "method": "reference_svg",
+        "reference_sha256": "8926c7de16902db13e8eb1b0f167c7276a86ad39e900fd1a779d49d5297673cc",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
       "id": "t_prof",
       "role": "text",
       "basis": "authored text node",
@@ -65,6 +81,43 @@
       "id": "t_profval",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "chev_prof",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/chev_prof.svg",
+        "sha256": "12902545cdb5c746857806ac07206d1ccac15aaf351b0b6efc78eee29a1e8c3e",
+        "method": "reference_svg",
+        "reference_sha256": "8926c7de16902db13e8eb1b0f167c7276a86ad39e900fd1a779d49d5297673cc",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "t_notif",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "toggle_notif",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "toggle_notif_knob",
+      "role": "layout",
+      "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -83,9 +136,16 @@
       "decision": "declared"
     },
     {
-      "id": "t_notif",
-      "role": "text",
-      "basis": "authored text node",
+      "id": "div_3",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "copy_row",
+      "role": "layout",
+      "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -97,32 +157,43 @@
       "decision": "declared"
     },
     {
-      "id": "toggle1",
+      "id": "icon_copy",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_copy.svg",
+        "sha256": "28449e45a742786052ed54abbeca351776d43c31eda62fc3c58767b303a2fa26",
+        "method": "reference_svg",
+        "reference_sha256": "8926c7de16902db13e8eb1b0f167c7276a86ad39e900fd1a779d49d5297673cc",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "disconnect_card",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "toggle1_knob",
-      "role": "layout",
-      "basis": "authored stack node",
+      "id": "icon_power",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
       "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "toggle2",
-      "role": "layout",
-      "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "toggle2_knob",
-      "role": "layout",
-      "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_power.svg",
+        "sha256": "8d4d0bb1b7fd6704be370600e5baa630e6ecbb27639d62d2bc328fce054b4beb",
+        "method": "reference_svg",
+        "reference_sha256": "8926c7de16902db13e8eb1b0f167c7276a86ad39e900fd1a779d49d5297673cc",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
     },
     {
       "id": "t_disconnect",

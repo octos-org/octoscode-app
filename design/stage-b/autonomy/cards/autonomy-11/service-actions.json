@@ -5,9 +5,9 @@
       "event": "composer.draft",
       "source_bounds": [
         30,
-        626,
+        624,
         300,
-        40
+        36
       ],
       "enabled": true
     }

@@ -49,14 +49,14 @@
       "radius": 12.0
     },
     {
-      "id": "att_1_img",
+      "id": "att_1_thumb",
       "bounds": [
-        88.0,
-        274.75,
-        24.0,
-        23.4
+        15.0,
+        190.9,
+        170.0,
+        175.5
       ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "method": "inferred semantic extent from observed parent",
       "reviewed": false
     },
     {
@@ -97,14 +97,14 @@
       "radius": 12.07
     },
     {
-      "id": "att_2_img",
+      "id": "att_2_thumb",
       "bounds": [
-        281.433,
-        274.75,
-        24.135,
-        23.4
+        208.022,
+        190.9,
+        170.955,
+        175.5
       ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "method": "inferred semantic extent from observed parent",
       "reviewed": false
     },
     {
@@ -134,8 +134,8 @@
     {
       "id": "att2_ring",
       "bounds": [
-        266.348,
-        276.7,
+        267.354,
+        235.75,
         52.292,
         50.7
       ],
@@ -148,7 +148,7 @@
         16.0,
         616.0,
         374.0,
-        130.0
+        146.0
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
@@ -159,9 +159,9 @@
       "id": "composer_input",
       "bounds": [
         28.0,
-        626.0,
+        624.0,
         300.0,
-        40.0
+        36.0
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -169,8 +169,8 @@
     {
       "id": "icon_plus",
       "bounds": [
-        26.0,
-        726.0,
+        28.0,
+        676.0,
         18.0,
         24.0
       ],
@@ -193,8 +193,8 @@
     {
       "id": "icon_mic",
       "bounds": [
-        306.0,
-        726.0,
+        304.0,
+        676.0,
         16.0,
         26.0
       ],
@@ -204,21 +204,21 @@
     {
       "id": "send_btn",
       "bounds": [
-        344.0,
-        724.0,
+        338.0,
+        670.0,
         36.0,
         36.0
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
-      "bg": 4278848528,
+      "bg": 4294901502,
       "radius": 18.0
     },
     {
       "id": "icon_send",
       "bounds": [
-        354.0,
-        734.0,
+        348.0,
+        680.0,
         16.0,
         16.0
       ],

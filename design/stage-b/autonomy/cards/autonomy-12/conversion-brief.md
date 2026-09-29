@@ -54,7 +54,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 20.0,
     "y": 250.0,
     "w": 350.0,
-    "h": 260.0,
+    "h": 305.48,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -125,6 +125,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "chev_ws",
+    "x": 356.0,
+    "y": 346.38,
+    "w": 16.0,
+    "h": 16.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
     "id": "t_prof",
     "x": 20.56,
     "y": 418.59,
@@ -157,6 +166,53 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "chev_prof",
+    "x": 356.0,
+    "y": 420.59,
+    "w": 16.0,
+    "h": 16.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "t_notif",
+    "x": 20.52,
+    "y": 505.33,
+    "w": 152.54,
+    "h": 26.15,
+    "text": "Desktop notifications",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 15,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "toggle_notif",
+    "x": 320.0,
+    "y": 502.33,
+    "w": 50.0,
+    "h": 30.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "toggle_notif_knob",
+    "x": 344.0,
+    "y": 505.33,
+    "w": 24.0,
+    "h": 24.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "div_1",
     "x": 24.0,
     "y": 330.0,
@@ -179,19 +235,25 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t_notif",
-    "x": 20.52,
-    "y": 505.33,
-    "w": 152.54,
-    "h": 26.15,
-    "text": "Desktop notifications",
-    "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 15,
-    "weight": 500,
-    "role": "text",
+    "id": "div_3",
+    "x": 24.0,
+    "y": 478.0,
+    "w": 342.0,
+    "h": 1.0,
+    "role": "layout",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "View"
+    ]
+  },
+  {
+    "id": "copy_row",
+    "x": 20.0,
+    "y": 565.74,
+    "w": 350.0,
+    "h": 48.62,
+    "role": "layout",
+    "native_candidates": [
+      "View"
     ]
   },
   {
@@ -211,52 +273,37 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "toggle1",
-    "x": 320.0,
-    "y": 498.0,
-    "w": 50.0,
-    "h": 30.0,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
-  },
-  {
-    "id": "toggle1_knob",
+    "id": "icon_copy",
     "x": 344.0,
-    "y": 501.0,
-    "w": 24.0,
-    "h": 24.0,
+    "y": 579.74,
+    "w": 20.0,
+    "h": 20.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "disconnect_card",
+    "x": 20.0,
+    "y": 652.28,
+    "w": 350.0,
+    "h": 49.42,
     "role": "layout",
     "native_candidates": [
       "View"
     ]
   },
   {
-    "id": "toggle2",
-    "x": 320.0,
-    "y": 570.0,
-    "w": 50.0,
-    "h": 30.0,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
-  },
-  {
-    "id": "toggle2_knob",
-    "x": 323.0,
-    "y": 573.0,
-    "w": 24.0,
-    "h": 24.0,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
+    "id": "icon_power",
+    "x": 20.49,
+    "y": 666.28,
+    "w": 20.0,
+    "h": 20.0,
+    "role": "unknown",
+    "native_candidates": []
   },
   {
     "id": "t_disconnect",
-    "x": 20.49,
+    "x": 50.49,
     "y": 666.28,
     "w": 89.21,
     "h": 22.5,

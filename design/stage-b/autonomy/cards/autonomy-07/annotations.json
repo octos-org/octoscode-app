@@ -97,6 +97,17 @@
       "radius": 12.0
     },
     {
+      "id": "icon_tasks",
+      "bounds": [
+        5.36,
+        207.15,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
       "id": "run_card",
       "bounds": [
         24.0,

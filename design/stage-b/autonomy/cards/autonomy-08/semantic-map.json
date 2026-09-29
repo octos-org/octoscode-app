@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "f327fd9e5908b92d10c1b09f17805a8a1c3a3b43b2dbdb42815c2a8f1a531cd0",
+  "contract_sha256": "d99b4d132216ed12689389f95687d9b63bd6bfb61b69eb99ac074472ad66020f",
   "reference_sha256": "b4ac0a60a73ed57dfc9f18eca3e5bf3123bf3cf1215669b9610dbfde4ed72732",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -9,13 +9,6 @@
       "id": "page",
       "role": "layout",
       "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "t01",
-      "role": "text",
-      "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -41,7 +34,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/row_1_radio.svg",
-        "sha256": "def80ed3f9f00a196b876687e175a212f6ae9db9d2529fba180f65e6f90768d8",
+        "sha256": "f803e7534cd2b18adfda763d9c5220e9d48ce960dd925ee069be62c5bcc1f6bd",
         "method": "reference_svg",
         "reference_sha256": "b4ac0a60a73ed57dfc9f18eca3e5bf3123bf3cf1215669b9610dbfde4ed72732",
         "fit": "stretch",
@@ -169,6 +162,41 @@
     },
     {
       "id": "row_4_meta",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "confirm_strip",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_confirm",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "resume_pill",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_resume",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_cancel2",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,

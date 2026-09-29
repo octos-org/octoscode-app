@@ -10,23 +10,6 @@
     "h": 776,
     "c": [
       {
-        "t": "text",
-        "id": "t01",
-        "text": "OctosCode",
-        "x": 34.94,
-        "y": 114.84,
-        "w": 88.51,
-        "h": 21.73,
-        "size": 15.58,
-        "line_height": 18.85,
-        "weight": 600,
-        "color": 4294638330,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-600.ttf",
-        "tracking": 0.0
-      },
-      {
         "t": "stack",
         "id": "user_bubble",
         "x": 73.02,
@@ -74,21 +57,54 @@
         "radius": 16.0
       },
       {
-        "t": "text",
-        "id": "t_tool",
-        "text": "\u270e Edit crates/octos-cli/tests/steer_queue.rs",
-        "x": 34.2,
-        "y": 280.04,
-        "w": 282.8,
-        "h": 27.37,
-        "size": 10.56,
-        "line_height": 12.78,
-        "weight": 400,
-        "color": 4292796384,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-        "tracking": 0.0
+        "t": "stack",
+        "id": "tool_card",
+        "x": 25.0,
+        "y": 268.0,
+        "w": 355.0,
+        "h": 53.0,
+        "c": [
+          {
+            "t": "svg",
+            "id": "icon_tool",
+            "x": 34.492,
+            "y": 279.291,
+            "w": 17.086,
+            "h": 20.324,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "t_tool",
+            "text": "Edit crates/octos-cli/tests/steer_queue.rs",
+            "x": 33.97,
+            "y": 280.04,
+            "w": 282.8,
+            "h": 27.37,
+            "size": 11.06,
+            "line_height": 13.38,
+            "weight": 400,
+            "color": 4292796384,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "svg",
+            "id": "icon_tool_done",
+            "x": 349.626,
+            "y": 280.42,
+            "w": 15.187,
+            "h": 18.066,
+            "src": ""
+          }
+        ],
+        "variant": "surface",
+        "bg": 4280098595,
+        "radius": 11.29,
+        "border": 1,
+        "bordercolor": 4282006076
       },
       {
         "t": "stack",
@@ -101,7 +117,7 @@
           {
             "t": "text",
             "id": "answer_md",
-            "text": "I added a test that simulates a reconnect and verifies pending messages are preserved. The test asserts metrics.steer_preserved increments and metrics.steer_dropped remains unchanged.",
+            "text": "I added a test that simulates a reconnect and verifies pending messages are preserved. The test asserts `metrics.steer_preserved` increments and `metrics.steer_dropped` remains unchanged.",
             "x": 30.0,
             "y": 352.0,
             "w": 340.0,
@@ -110,7 +126,7 @@
             "line_height": 36.0,
             "weight": 400,
             "color": 4294111991,
-            "bg": 4280558630,
+            "bg": 4282006076,
             "alignx": 0,
             "variant": "markdown",
             "font_src": "self:resources/ux/Inter-400.ttf"
@@ -119,6 +135,34 @@
         "variant": "surface",
         "bg": 4279638301,
         "radius": 8.0
+      },
+      {
+        "t": "stack",
+        "id": "answer_actions",
+        "x": 30.0,
+        "y": 546.0,
+        "w": 120.0,
+        "h": 28.0,
+        "c": [
+          {
+            "t": "svg",
+            "id": "icon_up",
+            "x": 30.0,
+            "y": 548.0,
+            "w": 20.0,
+            "h": 20.0,
+            "src": ""
+          },
+          {
+            "t": "svg",
+            "id": "icon_down",
+            "x": 62.0,
+            "y": 548.0,
+            "w": 20.0,
+            "h": 20.0,
+            "src": ""
+          }
+        ]
       },
       {
         "t": "stack",
@@ -132,9 +176,9 @@
             "t": "input",
             "id": "composer_input",
             "x": 39.701,
-            "y": 621.692,
+            "y": 618.616,
             "w": 293.583,
-            "h": 42.769,
+            "h": 34.274,
             "placeholder": "Ask Octos anything",
             "size": 15,
             "color": 4288190621,
@@ -144,18 +188,18 @@
             "t": "svg",
             "id": "icon_plus",
             "x": 39.701,
-            "y": 696.538,
+            "y": 668.123,
             "w": 17.615,
-            "h": 25.662,
+            "h": 22.849,
             "src": ""
           },
           {
             "t": "stack",
             "id": "approval_pill",
-            "x": 79.0,
-            "y": 692.0,
-            "w": 119.0,
-            "h": 41.0,
+            "x": 76.0,
+            "y": 689.0,
+            "w": 124.0,
+            "h": 46.0,
             "c": [
               {
                 "t": "text",
@@ -176,8 +220,8 @@
               }
             ],
             "variant": "surface",
-            "bg": 4279572508,
-            "radius": 20.5,
+            "bg": 4279572507,
+            "radius": 23.0,
             "border": 1,
             "bordercolor": 4282006076
           },
@@ -199,31 +243,40 @@
             "tracking": 0.0
           },
           {
+            "t": "svg",
+            "id": "icon_mic",
+            "x": 307.84,
+            "y": 668.123,
+            "w": 15.658,
+            "h": 24.753,
+            "src": ""
+          },
+          {
             "t": "stack",
             "id": "send_btn",
-            "x": 346.984,
-            "y": 690.123,
+            "x": 341.112,
+            "y": 662.411,
             "w": 35.23,
-            "h": 38.492,
+            "h": 34.274,
             "c": [
               {
                 "t": "svg",
                 "id": "icon_send",
-                "x": 356.77,
-                "y": 700.815,
+                "x": 350.898,
+                "y": 671.932,
                 "w": 15.658,
-                "h": 17.108,
+                "h": 15.233,
                 "src": ""
               }
             ],
             "variant": "surface",
-            "bg": 4282006076,
-            "radius": 17.61
+            "bg": 4279572251,
+            "radius": 17.14
           }
         ],
         "variant": "surface",
         "bg": 4279572507,
-        "radius": 12.83,
+        "radius": 11.42,
         "border": 1,
         "bordercolor": 4282006076
       }
@@ -241,7 +294,31 @@
       "source": "observed non-text annotation"
     },
     {
+      "id": "tool_card",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_tool",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_tool_done",
+      "source": "observed non-text annotation"
+    },
+    {
       "id": "answer_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "answer_actions",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_up",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_down",
       "source": "observed non-text annotation"
     },
     {
@@ -261,18 +338,16 @@
       "source": "observed non-text annotation"
     },
     {
+      "id": "icon_mic",
+      "source": "observed non-text annotation"
+    },
+    {
       "id": "send_btn",
       "source": "observed non-text annotation"
     },
     {
       "id": "icon_send",
       "source": "observed non-text annotation"
-    },
-    {
-      "id": "t01",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.22040066847427256
     },
     {
       "id": "t_q1",
@@ -290,7 +365,7 @@
       "id": "t_tool",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.3520709874016431
+      "tracking_em": -0.33955530004928425
     },
     {
       "id": "t_approval",

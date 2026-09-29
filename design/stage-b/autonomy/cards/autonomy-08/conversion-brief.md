@@ -34,22 +34,6 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t01",
-    "x": 6.78,
-    "y": 133.01,
-    "w": 102.45,
-    "h": 28.5,
-    "text": "OctosCode",
-    "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 19,
-    "weight": 600,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
     "id": "t02",
     "x": 8.53,
     "y": 207.72,
@@ -119,9 +103,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "div_0",
-    "x": 44.0,
+    "x": 16.0,
     "y": 372.65,
-    "w": 346.0,
+    "w": 374.0,
     "h": 1.0,
     "role": "layout",
     "native_candidates": [
@@ -171,9 +155,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "div_1",
-    "x": 44.0,
+    "x": 16.0,
     "y": 490.22,
-    "w": 346.0,
+    "w": 374.0,
     "h": 1.0,
     "role": "layout",
     "native_candidates": [
@@ -223,9 +207,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "div_2",
-    "x": 44.0,
+    "x": 16.0,
     "y": 607.8,
-    "w": 346.0,
+    "w": 374.0,
     "h": 1.0,
     "role": "layout",
     "native_candidates": [
@@ -267,6 +251,76 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 13,
     "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "confirm_strip",
+    "x": 16.0,
+    "y": 725.37,
+    "w": 374.0,
+    "h": 52.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t_confirm",
+    "x": 30.0,
+    "y": 739.37,
+    "w": 190.0,
+    "h": 24.0,
+    "text": "Resume \"Add session fork\"?",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "resume_pill",
+    "x": 226.0,
+    "y": 734.37,
+    "w": 74.0,
+    "h": 34.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t_resume",
+    "x": 240.0,
+    "y": 741.37,
+    "w": 54.0,
+    "h": 22.0,
+    "text": "Resume",
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 14,
+    "weight": 600,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_cancel2",
+    "x": 314.0,
+    "y": 741.37,
+    "w": 52.0,
+    "h": 22.0,
+    "text": "Cancel",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",

@@ -48,7 +48,7 @@
         20.0,
         250.0,
         350.0,
-        260.0
+        305.48
       ],
       "text": null,
       "enabled": null,
@@ -128,8 +128,26 @@
       "size": 13.5
     },
     {
-      "source_id": "t_prof",
+      "source_id": "chev_ws",
       "native_id": "beauty_0_1_4",
+      "parent": "settings_card",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        356.0,
+        346.38,
+        16.0,
+        16.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_prof",
+      "native_id": "beauty_0_1_5",
       "parent": "settings_card",
       "kind": "text",
       "component": "Textdf050818beb5",
@@ -147,7 +165,7 @@
     },
     {
       "source_id": "t_profval",
-      "native_id": "beauty_0_1_5",
+      "native_id": "beauty_0_1_6",
       "parent": "settings_card",
       "kind": "text",
       "component": "Text7ca184431fa8",
@@ -162,6 +180,78 @@
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
       "size": 14.14
+    },
+    {
+      "source_id": "chev_prof",
+      "native_id": "beauty_0_1_7",
+      "parent": "settings_card",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        356.0,
+        420.59,
+        16.0,
+        16.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_notif",
+      "native_id": "beauty_0_1_8",
+      "parent": "settings_card",
+      "kind": "text",
+      "component": "Textc95132dba0b1",
+      "semantic_role": "text",
+      "bounds": [
+        21.97,
+        505.14,
+        149.61,
+        25.73
+      ],
+      "text": "Desktop notifications",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 14.35
+    },
+    {
+      "source_id": "toggle_notif",
+      "native_id": "beauty_0_1_9",
+      "parent": "settings_card",
+      "kind": "stack",
+      "component": "Surfacec366cb079903",
+      "semantic_role": "layout",
+      "bounds": [
+        320.0,
+        502.33,
+        50.0,
+        30.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "toggle_notif_knob",
+      "native_id": "beauty_0_1_9_0",
+      "parent": "toggle_notif",
+      "kind": "stack",
+      "component": "Surfacefe28e35abdae",
+      "semantic_role": "layout",
+      "bounds": [
+        344.0,
+        505.33,
+        24.0,
+        24.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
     },
     {
       "source_id": "div_1",
@@ -200,27 +290,45 @@
       "size": null
     },
     {
-      "source_id": "t_notif",
+      "source_id": "div_3",
       "native_id": "beauty_0_4",
       "parent": "page",
-      "kind": "text",
-      "component": "Textc95132dba0b1",
-      "semantic_role": "text",
+      "kind": "stack",
+      "component": "Surfacecb0bd28db118",
+      "semantic_role": "layout",
       "bounds": [
-        21.97,
-        505.14,
-        149.61,
-        25.73
+        24.0,
+        478.0,
+        342.0,
+        1.0
       ],
-      "text": "Desktop notifications",
+      "text": null,
       "enabled": null,
-      "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14.35
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "copy_row",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        20.0,
+        565.74,
+        350.0,
+        48.62
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
     },
     {
       "source_id": "t_diag",
-      "native_id": "beauty_0_5",
-      "parent": "page",
+      "native_id": "beauty_0_5_0",
+      "parent": "copy_row",
       "kind": "text",
       "component": "Textef7151973db2",
       "semantic_role": "text",
@@ -236,17 +344,35 @@
       "size": 14.23
     },
     {
-      "source_id": "toggle1",
+      "source_id": "icon_copy",
+      "native_id": "beauty_0_5_1",
+      "parent": "copy_row",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        344.0,
+        579.74,
+        20.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "disconnect_card",
       "native_id": "beauty_0_6",
       "parent": "page",
       "kind": "stack",
-      "component": "Surfacec366cb079903",
+      "component": "Surface10516703507f",
       "semantic_role": "layout",
       "bounds": [
-        320.0,
-        498.0,
-        50.0,
-        30.0
+        20.0,
+        652.28,
+        350.0,
+        49.42
       ],
       "text": null,
       "enabled": null,
@@ -254,53 +380,17 @@
       "size": null
     },
     {
-      "source_id": "toggle1_knob",
+      "source_id": "icon_power",
       "native_id": "beauty_0_6_0",
-      "parent": "toggle1",
-      "kind": "stack",
-      "component": "Surfaceacf19aface21",
-      "semantic_role": "layout",
+      "parent": "disconnect_card",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
       "bounds": [
-        344.0,
-        501.0,
-        24.0,
-        24.0
-      ],
-      "text": null,
-      "enabled": null,
-      "font": null,
-      "size": null
-    },
-    {
-      "source_id": "toggle2",
-      "native_id": "beauty_0_7",
-      "parent": "page",
-      "kind": "stack",
-      "component": "Surface7ad7b3d91dd6",
-      "semantic_role": "layout",
-      "bounds": [
-        320.0,
-        570.0,
-        50.0,
-        30.0
-      ],
-      "text": null,
-      "enabled": null,
-      "font": null,
-      "size": null
-    },
-    {
-      "source_id": "toggle2_knob",
-      "native_id": "beauty_0_7_0",
-      "parent": "toggle2",
-      "kind": "stack",
-      "component": "Surface92fd86e0d67b",
-      "semantic_role": "layout",
-      "bounds": [
-        323.0,
-        573.0,
-        24.0,
-        24.0
+        20.49,
+        666.28,
+        20.0,
+        20.0
       ],
       "text": null,
       "enabled": null,
@@ -309,8 +399,8 @@
     },
     {
       "source_id": "t_disconnect",
-      "native_id": "beauty_0_8",
-      "parent": "page",
+      "native_id": "beauty_0_6_1",
+      "parent": "disconnect_card",
       "kind": "text",
       "component": "Text7877f20e84d0",
       "semantic_role": "text",
@@ -330,6 +420,6 @@
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "8af3b71bd4b112db011fecdfb42368b757f68776c987a6e5fbc9fcd08d09f3f2",
+  "contract_sha256": "9afd37b92379fd68c61cf2a599ceae5792531b94058134ff8bea641c852f99d1",
   "mapping_basis": "mapped.json"
 }

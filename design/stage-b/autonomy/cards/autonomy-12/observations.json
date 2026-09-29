@@ -279,7 +279,7 @@
       "id": "t_disconnect",
       "expected_text": "Disconnect",
       "requested_bounds": [
-        20.49,
+        50.49,
         666.28,
         89.21,
         22.5
@@ -327,11 +327,59 @@
         20.0,
         250.0,
         350.0,
-        260.0
+        305.48
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
       "bg": 4280098595,
+      "radius": 12.0
+    },
+    {
+      "id": "chev_ws",
+      "bounds": [
+        356.0,
+        346.38,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "chev_prof",
+      "bounds": [
+        356.0,
+        420.59,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "toggle_notif",
+      "bounds": [
+        320.0,
+        502.33,
+        50.0,
+        30.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280098596,
+      "radius": 15.0
+    },
+    {
+      "id": "toggle_notif_knob",
+      "bounds": [
+        344.0,
+        505.33,
+        24.0,
+        24.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4281430000,
       "radius": 12.0
     },
     {
@@ -357,56 +405,61 @@
       "reviewed": false
     },
     {
-      "id": "toggle1",
+      "id": "div_3",
       "bounds": [
-        320.0,
-        498.0,
-        50.0,
-        30.0
+        24.0,
+        478.0,
+        342.0,
+        1.0
       ],
       "method": "surface contour unresolved; requested geometry retained",
-      "reviewed": false,
-      "bg": 4280098595,
-      "radius": 15.0
+      "reviewed": false
     },
     {
-      "id": "toggle1_knob",
+      "id": "copy_row",
+      "bounds": [
+        20.0,
+        565.74,
+        350.0,
+        48.62
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "icon_copy",
       "bounds": [
         344.0,
-        501.0,
-        24.0,
-        24.0
+        579.74,
+        20.0,
+        20.0
       ],
-      "method": "surface contour unresolved; requested geometry retained",
-      "reviewed": false,
-      "bg": 4281495536,
-      "radius": 12.0
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     },
     {
-      "id": "toggle2",
+      "id": "disconnect_card",
       "bounds": [
-        320.0,
-        570.0,
-        50.0,
-        30.0
-      ],
-      "method": "surface contour unresolved; requested geometry retained",
-      "reviewed": false,
-      "bg": 4280033058,
-      "radius": 15.0
-    },
-    {
-      "id": "toggle2_knob",
-      "bounds": [
-        323.0,
-        573.0,
-        24.0,
-        24.0
+        20.0,
+        652.28,
+        350.0,
+        49.42
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
       "bg": 4280033058,
       "radius": 12.0
+    },
+    {
+      "id": "icon_power",
+      "bounds": [
+        20.49,
+        666.28,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     }
   ],
   "unmapped_ocr": [

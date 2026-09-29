@@ -150,8 +150,8 @@
       "value": 4281019950,
       "property": "color"
     },
-    "bg_7001bceda7dd": {
-      "value": 4278848528,
+    "bg_33c64e1da9ef": {
+      "value": 4278190080,
       "property": "bg"
     },
     "radius_566afbb607a8": {
@@ -187,9 +187,9 @@
       "props": {},
       "slot": true
     },
-    "Vectore0a378fde04f": {
+    "Imageec6f4cac3824": {
       "style": {
-        "t": "svg"
+        "t": "image"
       },
       "props": {},
       "slot": false
@@ -207,6 +207,13 @@
       },
       "props": {},
       "slot": true
+    },
+    "Vectore0a378fde04f": {
+      "style": {
+        "t": "svg"
+      },
+      "props": {},
+      "slot": false
     },
     "Surfacec86a8f690fbd": {
       "style": {
@@ -462,12 +469,12 @@
       },
       "slot": false
     },
-    "Surface623923efdef0": {
+    "Surface2ef0543e59b4": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_7001bceda7dd"
+          "$token": "bg_33c64e1da9ef"
         },
         "radius": {
           "$token": "radius_566afbb607a8"

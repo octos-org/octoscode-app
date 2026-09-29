@@ -9,38 +9,6 @@
   "aspect_error": 0.12076730505221178,
   "text": [
     {
-      "id": "t01",
-      "expected_text": "OctosCode",
-      "requested_bounds": [
-        32.87,
-        131.75,
-        96.31,
-        28.5
-      ],
-      "status": "observed",
-      "ocr_text": "OctosCode",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        34.924731182795696,
-        134.06305170239597,
-        89.93118279569893,
-        20.549810844892814
-      ],
-      "ink_color": [
-        8,
-        9,
-        9
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        32.872246404969815,
-        131.75053428982085,
-        96.30701053603013,
-        27.743263821157452
-      ]
-    },
-    {
       "id": "t02",
       "expected_text": "Tasks",
       "requested_bounds": [
@@ -149,105 +117,42 @@
     },
     {
       "id": "t_log0",
-      "expected_text": "Compiling octos-cli v0.24.1 (/workspace/crates/octos-cli)",
+      "expected_text": "Compiling octos-cli v0.24.1 (/work\u2026",
       "requested_bounds": [
-        41.82,
+        40.0,
         381.16,
-        322.36,
+        304.0,
         21.5
       ],
-      "status": "observed",
-      "ocr_text": "Compiling octos-cli v0.24.1 (/workspace/crates/octos-cli)",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        45.40215053763441,
-        381.6393442622951,
-        316.94193548387096,
-        17.6141235813367
-      ],
-      "ink_color": [
-        88,
-        88,
-        88
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        41.81973845976405,
-        381.1586902496223,
-        322.36051502145926,
-        21.501259445843814
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
       "id": "t_log1",
-      "expected_text": "Finished test [unoptimized + debuginfo] target(s) in 1.23s",
+      "expected_text": "Finished test [unoptimized + debugi\u2026",
       "requested_bounds": [
-        43.56,
+        40.0,
         422.21,
-        322.36,
+        304.0,
         21.5
       ],
-      "status": "observed",
-      "ocr_text": "Finished test [unoptimized + debuginfo] target(s) in 1.23s",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        46.2752688172043,
-        422.7389659520807,
-        316.94193548387096,
-        17.6141235813367
-      ],
-      "ink_color": [
-        87,
-        87,
-        88
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        43.56223444599425,
-        422.20654903694384,
-        322.36051502145926,
-        21.501259445843814
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
       "id": "t_log2",
-      "expected_text": "Running unittests src/lib.rs (target/debug/deps/octos_cli\u2026)",
+      "expected_text": "Running unittests src/lib.rs (targe\u2026",
       "requested_bounds": [
-        41.82,
+        40.0,
         463.25,
-        324.1,
+        304.0,
         23.46
       ],
-      "status": "observed",
-      "ocr_text": "Ronsing unittests src/lib.rs (target/debug/deps/octos_cli..)",
-      "confidence": 1,
-      "text_similarity": 0.9411764705882353,
-      "ink_bounds": [
-        46.2752688172043,
-        463.83858764186635,
-        317.81505376344086,
-        16.635561160151326
-      ],
-      "ink_color": [
-        105,
-        105,
-        107
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        41.819744638340445,
-        463.2544082559194,
-        324.1030042918455,
-        23.45591939546604
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
       "id": "t_log3",
       "expected_text": "running 12 tests \u2026",
       "requested_bounds": [
-        43.48,
+        40.0,
         501.81,
         118.65,
         24.53
@@ -431,6 +336,17 @@
       "radius": 12.0
     },
     {
+      "id": "icon_tasks",
+      "bounds": [
+        5.36,
+        207.15,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
       "id": "run_card",
       "bounds": [
         24.0,
@@ -528,6 +444,46 @@
       ],
       "confidence": 1,
       "text": "7. Tasks"
+    },
+    {
+      "bounds": [
+        37.64924772982996,
+        134.6368217678195,
+        110.30236428387687,
+        28.351041507961156
+      ],
+      "confidence": 1,
+      "text": "OctosCode"
+    },
+    {
+      "bounds": [
+        47.896991093079514,
+        389.5088161958124,
+        369.206008583691,
+        21.972292191435752
+      ],
+      "confidence": 1,
+      "text": "Compiling octos-cli v0.24.1 (/workspace/crates/octos-cli)"
+    },
+    {
+      "bounds": [
+        49.892706939377646,
+        431.45591931223765,
+        369.206008583691,
+        21.972292191435752
+      ],
+      "confidence": 1,
+      "text": "Finished test [unoptimized + debuginfo] target(s) in 1.23s"
+    },
+    {
+      "bounds": [
+        47.89699816952785,
+        473.4030228697732,
+        371.20171673819743,
+        23.969773299748155
+      ],
+      "confidence": 1,
+      "text": "Ronsing unittests src/lib.rs (target/debug/deps/octos_cli..)"
     }
   ],
   "non_text_ocr": [],

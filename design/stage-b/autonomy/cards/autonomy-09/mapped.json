@@ -18,13 +18,13 @@
         "h": 234.0,
         "c": [
           {
-            "t": "svg",
-            "id": "att_1_img",
-            "x": 88.0,
-            "y": 274.75,
-            "w": 24.0,
-            "h": 23.4,
-            "src": ""
+            "t": "image",
+            "id": "att_1_thumb",
+            "x": 15.0,
+            "y": 190.9,
+            "w": 170.0,
+            "h": 175.5,
+            "src": "assets/thumb_code.png"
           },
           {
             "t": "stack",
@@ -64,13 +64,13 @@
         "h": 234.0,
         "c": [
           {
-            "t": "svg",
-            "id": "att_2_img",
-            "x": 281.433,
-            "y": 274.75,
-            "w": 24.135,
-            "h": 23.4,
-            "src": ""
+            "t": "image",
+            "id": "att_2_thumb",
+            "x": 208.022,
+            "y": 190.9,
+            "w": 170.955,
+            "h": 175.5,
+            "src": "assets/thumb_code.png"
           },
           {
             "t": "stack",
@@ -97,8 +97,8 @@
           {
             "t": "svg",
             "id": "att2_ring",
-            "x": 266.348,
-            "y": 276.7,
+            "x": 267.354,
+            "y": 235.75,
             "w": 52.292,
             "h": 50.7,
             "src": ""
@@ -184,15 +184,15 @@
         "x": 16.0,
         "y": 616.0,
         "w": 374.0,
-        "h": 130.0,
+        "h": 146.0,
         "c": [
           {
             "t": "input",
             "id": "composer_input",
             "x": 28.0,
-            "y": 626.0,
+            "y": 624.0,
             "w": 300.0,
-            "h": 40.0,
+            "h": 36.0,
             "placeholder": "Ask Octos anything",
             "size": 15,
             "color": 4285427315,
@@ -201,8 +201,8 @@
           {
             "t": "svg",
             "id": "icon_plus",
-            "x": 26.0,
-            "y": 726.0,
+            "x": 28.0,
+            "y": 676.0,
             "w": 18.0,
             "h": 24.0,
             "src": ""
@@ -259,8 +259,8 @@
           {
             "t": "svg",
             "id": "icon_mic",
-            "x": 306.0,
-            "y": 726.0,
+            "x": 304.0,
+            "y": 676.0,
             "w": 16.0,
             "h": 26.0,
             "src": ""
@@ -268,23 +268,23 @@
           {
             "t": "stack",
             "id": "send_btn",
-            "x": 344.0,
-            "y": 724.0,
+            "x": 338.0,
+            "y": 670.0,
             "w": 36.0,
             "h": 36.0,
             "c": [
               {
                 "t": "svg",
                 "id": "icon_send",
-                "x": 354.0,
-                "y": 734.0,
+                "x": 348.0,
+                "y": 680.0,
                 "w": 16.0,
                 "h": 16.0,
                 "src": ""
               }
             ],
             "variant": "surface",
-            "bg": 4278848528,
+            "bg": 4278190080,
             "radius": 18.0
           }
         ],
@@ -308,7 +308,7 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "att_1_img",
+      "id": "att_1_thumb",
       "source": "observed non-text annotation"
     },
     {
@@ -324,7 +324,7 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "att_2_img",
+      "id": "att_2_thumb",
       "source": "observed non-text annotation"
     },
     {

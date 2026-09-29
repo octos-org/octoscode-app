@@ -15,19 +15,19 @@
       "event": "settings.notifications",
       "source_bounds": [
         320,
-        498,
+        502,
         50,
         30
       ],
       "enabled": true
     },
-    "toggle_diag": {
-      "event": "settings.diagnostics",
+    "copy_diag": {
+      "event": "settings.copy_diagnostics",
       "source_bounds": [
-        320,
-        570,
-        50,
-        30
+        20,
+        565,
+        350,
+        48
       ],
       "enabled": true
     },
@@ -35,9 +35,9 @@
       "event": "settings.disconnect",
       "source_bounds": [
         20,
-        660,
-        120,
-        30
+        652,
+        350,
+        49
       ],
       "enabled": true
     }

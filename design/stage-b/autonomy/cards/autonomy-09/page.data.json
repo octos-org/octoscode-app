@@ -20,14 +20,14 @@
           "h": 234.0
         }
       },
-      "att_1_img": {
-        "component": "Vectore0a378fde04f",
+      "att_1_thumb": {
+        "component": "Imageec6f4cac3824",
         "layout": {
-          "x": 88.0,
-          "y": 274.75,
-          "w": 24.0,
-          "h": 23.4,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/att_1_img-837d9108b5e1.svg"
+          "x": 15.0,
+          "y": 190.9,
+          "w": 170.0,
+          "h": 175.5,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/att_1_thumb-f187c53eac2c.png"
         }
       },
       "att_1_close_bg": {
@@ -58,14 +58,14 @@
           "h": 234.0
         }
       },
-      "att_2_img": {
-        "component": "Vectore0a378fde04f",
+      "att_2_thumb": {
+        "component": "Imageec6f4cac3824",
         "layout": {
-          "x": 281.433,
-          "y": 274.75,
-          "w": 24.135,
-          "h": 23.4,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/att_2_img-837d9108b5e1.svg"
+          "x": 208.022,
+          "y": 190.9,
+          "w": 170.955,
+          "h": 175.5,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/att_2_thumb-f187c53eac2c.png"
         }
       },
       "att_2_close_bg": {
@@ -90,8 +90,8 @@
       "att2_ring": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 266.348,
-          "y": 276.7,
+          "x": 267.354,
+          "y": 235.75,
           "w": 52.292,
           "h": 50.7,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/att2_ring-43ab5de16f05.svg"
@@ -139,23 +139,23 @@
           "x": 16.0,
           "y": 616.0,
           "w": 374.0,
-          "h": 130.0
+          "h": 146.0
         }
       },
       "composer_input": {
         "component": "Input51499e46eddf",
         "layout": {
           "x": 28.0,
-          "y": 626.0,
+          "y": 624.0,
           "w": 300.0,
-          "h": 40.0
+          "h": 36.0
         }
       },
       "icon_plus": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 26.0,
-          "y": 726.0,
+          "x": 28.0,
+          "y": 676.0,
           "w": 18.0,
           "h": 24.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/icon_plus-e726c53afe21.svg"
@@ -191,18 +191,18 @@
       "icon_mic": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 306.0,
-          "y": 726.0,
+          "x": 304.0,
+          "y": 676.0,
           "w": 16.0,
           "h": 26.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/icon_mic-94bc5db4a153.svg"
         }
       },
       "send_btn": {
-        "component": "Surface623923efdef0",
+        "component": "Surface2ef0543e59b4",
         "layout": {
-          "x": 344.0,
-          "y": 724.0,
+          "x": 338.0,
+          "y": 670.0,
           "w": 36.0,
           "h": 36.0
         }
@@ -210,8 +210,8 @@
       "icon_send": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 354.0,
-          "y": 734.0,
+          "x": 348.0,
+          "y": 680.0,
           "w": 16.0,
           "h": 16.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/icon_send-3fe1783d764e.svg"

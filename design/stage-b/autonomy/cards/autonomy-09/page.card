@@ -16,11 +16,14 @@ component Surface16fae9a63e16(instance: text) {
 component Surfaceea6370641130(instance: text) {
   view Kit(component: "Surfaceea6370641130", instance: instance) { slot }
 }
-component Vectore0a378fde04f(instance: text) {
-  view Kit(component: "Vectore0a378fde04f", instance: instance)
+component Imageec6f4cac3824(instance: text) {
+  view Kit(component: "Imageec6f4cac3824", instance: instance)
 }
 component Surface84061080c8dc(instance: text) {
   view Kit(component: "Surface84061080c8dc", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
 component Surfacec86a8f690fbd(instance: text) {
   view Kit(component: "Surfacec86a8f690fbd", instance: instance) { slot }
@@ -55,19 +58,19 @@ component Texta5589c5e8789(instance: text, text: text) {
 component Text163d4dbc805c(instance: text, text: text) {
   view Kit(component: "Text163d4dbc805c", instance: instance, text: text)
 }
-component Surface623923efdef0(instance: text) {
-  view Kit(component: "Surface623923efdef0", instance: instance) { slot }
+component Surface2ef0543e59b4(instance: text) {
+  view Kit(component: "Surface2ef0543e59b4", instance: instance) { slot }
 }
 
 view root Surface16fae9a63e16(instance: "page") {
   Surfaceea6370641130(instance: "att_1") {
-    Vectore0a378fde04f(instance: "att_1_img")
+    Imageec6f4cac3824(instance: "att_1_thumb")
     Surface84061080c8dc(instance: "att_1_close_bg") {
       Vectore0a378fde04f(instance: "att_1_close")
     }
   }
   Surfacec86a8f690fbd(instance: "att_2") {
-    Vectore0a378fde04f(instance: "att_2_img")
+    Imageec6f4cac3824(instance: "att_2_thumb")
     Surfacebd12216ed43c(instance: "att_2_close_bg") {
       Vectore0a378fde04f(instance: "att_2_close")
     }
@@ -85,7 +88,7 @@ view root Surface16fae9a63e16(instance: "page") {
     }
     Text163d4dbc805c(instance: "t_model", text: copy.t_model_text)
     Vectore0a378fde04f(instance: "icon_mic")
-    Surface623923efdef0(instance: "send_btn") {
+    Surface2ef0543e59b4(instance: "send_btn") {
       Vectore0a378fde04f(instance: "icon_send")
     }
   }

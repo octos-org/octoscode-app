@@ -11,15 +11,6 @@
           "h": 776
         }
       },
-      "t01": {
-        "component": "Textfcb2eb7dbf93",
-        "layout": {
-          "x": 8.5,
-          "y": 132.4,
-          "w": 99.53,
-          "h": 26.56
-        }
-      },
       "t02": {
         "component": "Text41023ffaefeb",
         "layout": {
@@ -45,7 +36,7 @@
           "y": 285.68,
           "w": 18.0,
           "h": 18.0,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-08/assets/row_1_radio-def80ed3f9f0.svg"
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-08/assets/row_1_radio-f803e7534cd2.svg"
         }
       },
       "row_1_title": {
@@ -69,9 +60,9 @@
       "div_0": {
         "component": "Surfacec4c38149242a",
         "layout": {
-          "x": 44.0,
+          "x": 16.0,
           "y": 372.65,
-          "w": 346.0,
+          "w": 374.0,
           "h": 1.0
         }
       },
@@ -106,9 +97,9 @@
       "div_1": {
         "component": "Surfacec4c38149242a",
         "layout": {
-          "x": 44.0,
+          "x": 16.0,
           "y": 490.22,
-          "w": 346.0,
+          "w": 374.0,
           "h": 1.0
         }
       },
@@ -143,9 +134,9 @@
       "div_2": {
         "component": "Surfacec4c38149242a",
         "layout": {
-          "x": 44.0,
+          "x": 16.0,
           "y": 607.8,
-          "w": 346.0,
+          "w": 374.0,
           "h": 1.0
         }
       },
@@ -175,6 +166,51 @@
           "y": 681.78,
           "w": 157.53,
           "h": 27.54
+        }
+      },
+      "confirm_strip": {
+        "component": "Surfaceebeaffab57cc",
+        "layout": {
+          "x": 16.0,
+          "y": 725.37,
+          "w": 374.0,
+          "h": 52.0
+        }
+      },
+      "t_confirm": {
+        "component": "Text1a789bc844b3",
+        "layout": {
+          "x": 30.0,
+          "y": 739.37,
+          "w": 190.0,
+          "h": 24.0
+        }
+      },
+      "resume_pill": {
+        "component": "Surface32645d09434a",
+        "layout": {
+          "x": 226.0,
+          "y": 734.37,
+          "w": 74.0,
+          "h": 34.0
+        }
+      },
+      "t_resume": {
+        "component": "Text2e3d885623cb",
+        "layout": {
+          "x": 240.0,
+          "y": 741.37,
+          "w": 54.0,
+          "h": 22.0
+        }
+      },
+      "t_cancel2": {
+        "component": "Text8ea8e82f94f8",
+        "layout": {
+          "x": 314.0,
+          "y": 741.37,
+          "w": 52.0,
+          "h": 22.0
         }
       }
     },

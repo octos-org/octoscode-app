@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "bf627f81f5bc4954d732bcc04e0addc9ec788075e2ae9824cdea216ba832263c",
+  "manifest_sha256": "343638e9e4231b029de5dec98ba89af61bf48ee79277136747cbd70c7960d235",
   "reference_sha256": "a8361d691033b222d61a8cb803d8ab4a0fa0faa3a33b356d0677de5c5c72ae18",
   "id": "autonomy-09",
   "round": null,
@@ -34,17 +34,15 @@
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
-      "id": "att_1_img",
-      "role": "icon",
-      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "id": "att_1_thumb",
+      "role": "photo",
+      "basis": "Raster thumbnail: real code screenshot cropped from the repo's own evidence renders (conversation-11 diff view), reused as the attachment image fill per the outer loop's #28b2 item.",
       "expected_widgets": [
-        "Svg",
-        "Icon",
         "Image"
       ],
       "actual_widget": null,
       "issues": [],
-      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+      "repair": "Use an original or separately generated image asset with documented crop, fit and clipping."
     },
     {
       "id": "att_1_close_bg",
@@ -82,17 +80,15 @@
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
-      "id": "att_2_img",
-      "role": "icon",
-      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "id": "att_2_thumb",
+      "role": "photo",
+      "basis": "Raster thumbnail: real code screenshot cropped from the repo's own evidence renders (conversation-11 diff view), reused as the attachment image fill per the outer loop's #28b2 item.",
       "expected_widgets": [
-        "Svg",
-        "Icon",
         "Image"
       ],
       "actual_widget": null,
       "issues": [],
-      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+      "repair": "Use an original or separately generated image asset with documented crop, fit and clipping."
     },
     {
       "id": "att_2_close_bg",

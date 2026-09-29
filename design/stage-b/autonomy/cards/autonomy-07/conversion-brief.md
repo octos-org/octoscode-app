@@ -45,20 +45,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t01",
-    "x": 32.87,
-    "y": 131.75,
-    "w": 96.31,
-    "h": 28.5,
-    "text": "OctosCode",
-    "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 19,
-    "weight": 600,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
+    "id": "icon_tasks",
+    "x": 5.36,
+    "y": 207.15,
+    "w": 20.0,
+    "h": 20.0,
+    "role": "unknown",
+    "native_candidates": []
   },
   {
     "id": "t02",
@@ -159,13 +152,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "t_log0",
-    "x": 41.82,
+    "x": 40.0,
     "y": 381.16,
-    "w": 322.36,
+    "w": 304.0,
     "h": 21.5,
-    "text": "Compiling octos-cli v0.24.1 (/workspace/crates/octos-cli)",
+    "text": "Compiling octos-cli v0.24.1 (/work\u2026",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 12,
+    "size": 14,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -175,13 +168,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "t_log1",
-    "x": 43.56,
+    "x": 40.0,
     "y": 422.21,
-    "w": 322.36,
+    "w": 304.0,
     "h": 21.5,
-    "text": "Finished test [unoptimized + debuginfo] target(s) in 1.23s",
+    "text": "Finished test [unoptimized + debugi\u2026",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 12,
+    "size": 14,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -191,13 +184,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "t_log2",
-    "x": 41.82,
+    "x": 40.0,
     "y": 463.25,
-    "w": 324.1,
+    "w": 304.0,
     "h": 23.46,
-    "text": "Running unittests src/lib.rs (target/debug/deps/octos_cli\u2026)",
+    "text": "Running unittests src/lib.rs (targe\u2026",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 12,
+    "size": 14,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -207,13 +200,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "t_log3",
-    "x": 43.48,
+    "x": 40.0,
     "y": 501.81,
     "w": 118.65,
     "h": 24.53,
     "text": "running 12 tests \u2026",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 12,
+    "size": 14,
     "weight": 400,
     "role": "text",
     "native_candidates": [

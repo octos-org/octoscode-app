@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "4c40d2c88c950268e337dacb3cb8ba8456a6c53cee875f47b82176c7edd94b5c",
+  "contract_sha256": "1cda346161797ba9e00e2a51616a872824b40cf1368cd988f0c3511c60262fd9",
   "reference_sha256": "85fcd1e6e9f1ab1539c417cde61932e4342ef8a4fee8a21d44d2b567e2b2728c",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -34,7 +34,7 @@
       "decision": "declared"
     },
     {
-      "id": "tool_row",
+      "id": "tool_card",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
@@ -48,13 +48,20 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/icon_tool.svg",
-        "sha256": "07240371c8909c395629ef38c02b3c3b2e9852e385c32bbe99030406074d7d27",
+        "sha256": "40eda8f649906b595b5dbcc44f212b20f095fa244580e0d917c31cf197646088",
         "method": "reference_svg",
         "reference_sha256": "85fcd1e6e9f1ab1539c417cde61932e4342ef8a4fee8a21d44d2b567e2b2728c",
         "fit": "stretch",
         "clip": true,
         "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
       }
+    },
+    {
+      "id": "t_tool",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
     },
     {
       "id": "icon_tool_done",
@@ -73,13 +80,6 @@
       }
     },
     {
-      "id": "t_tool",
-      "role": "text",
-      "basis": "authored text node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
       "id": "aside_card",
       "role": "layout",
       "basis": "authored stack node",
@@ -88,6 +88,13 @@
     },
     {
       "id": "t_aside",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_dismiss",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
@@ -108,13 +115,6 @@
         "clip": true,
         "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
       }
-    },
-    {
-      "id": "t_dismiss",
-      "role": "text",
-      "basis": "authored text node",
-      "confidence": 1.0,
-      "decision": "declared"
     },
     {
       "id": "t_qtitle",

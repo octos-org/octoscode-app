@@ -40,6 +40,26 @@
         96
       ],
       "enabled": true
+    },
+    "confirm_resume": {
+      "event": "session.resume.confirm",
+      "source_bounds": [
+        226,
+        734,
+        74,
+        34
+      ],
+      "enabled": true
+    },
+    "confirm_cancel": {
+      "event": "session.resume.cancel",
+      "source_bounds": [
+        314,
+        739,
+        52,
+        32
+      ],
+      "enabled": true
     }
   },
   "source": "resume"

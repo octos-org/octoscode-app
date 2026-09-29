@@ -58,28 +58,19 @@
       },
       {
         "t": "stack",
-        "id": "tool_row",
+        "id": "tool_card",
         "x": 14.0,
-        "y": 258.2,
-        "w": 320.0,
-        "h": 49.88,
+        "y": 256.2,
+        "w": 374.0,
+        "h": 53.88,
         "c": [
           {
             "t": "svg",
             "id": "icon_tool",
-            "x": 14.0,
+            "x": 24.0,
             "y": 266.2,
-            "w": 20.0,
-            "h": 20.0,
-            "src": ""
-          },
-          {
-            "t": "svg",
-            "id": "icon_tool_done",
-            "x": 330.0,
-            "y": 268.2,
-            "w": 16.0,
-            "h": 16.0,
+            "w": 18.0,
+            "h": 18.0,
             "src": ""
           },
           {
@@ -98,8 +89,22 @@
             "alignx": 0,
             "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
             "tracking": 0.0
+          },
+          {
+            "t": "svg",
+            "id": "icon_tool_done",
+            "x": 356.0,
+            "y": 267.2,
+            "w": 16.0,
+            "h": 16.0,
+            "src": ""
           }
-        ]
+        ],
+        "variant": "surface",
+        "bg": 4294440952,
+        "radius": 10.0,
+        "border": 1,
+        "bordercolor": 4293256679
       },
       {
         "t": "stack",
@@ -127,15 +132,6 @@
             "tracking": 0.0
           },
           {
-            "t": "svg",
-            "id": "icon_dismiss",
-            "x": 285.652,
-            "y": 355.728,
-            "w": 14.524,
-            "h": 14.616,
-            "src": ""
-          },
-          {
             "t": "text",
             "id": "t_dismiss",
             "text": "Dismiss aside",
@@ -151,6 +147,15 @@
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-400.ttf",
             "tracking": 0.0
+          },
+          {
+            "t": "svg",
+            "id": "icon_dismiss",
+            "x": 402.747,
+            "y": 354.684,
+            "w": 14.524,
+            "h": 14.616,
+            "src": ""
           },
           {
             "t": "text",
@@ -183,9 +188,9 @@
         "x": 26.0,
         "y": 452.0,
         "w": 330.0,
-        "h": 130.0,
-        "size": 15,
-        "line_height": 21.75,
+        "h": 138.0,
+        "size": 17,
+        "line_height": 24.65,
         "weight": 400,
         "color": 4280098079,
         "alignx": 0,
@@ -312,7 +317,7 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "tool_row",
+      "id": "tool_card",
       "source": "observed non-text annotation"
     },
     {

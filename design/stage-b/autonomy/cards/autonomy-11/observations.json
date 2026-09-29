@@ -9,38 +9,6 @@
   "aspect_error": 0.07509885466701449,
   "text": [
     {
-      "id": "t01",
-      "expected_text": "OctosCode",
-      "requested_bounds": [
-        33.01,
-        115.55,
-        90.8,
-        28.5
-      ],
-      "status": "observed",
-      "ocr_text": "OctosCode",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        35.72103004291846,
-        116.84319833852544,
-        84.5107296137339,
-        17.727933541017652
-      ],
-      "ink_color": [
-        250,
-        250,
-        250
-      ],
-      "light_foreground": true,
-      "ocr_bounds": [
-        33.01023498705058,
-        115.55232692664542,
-        90.80356306477165,
-        21.658831774446487
-      ]
-    },
-    {
       "id": "t_q1",
       "expected_text": "Can we add a test for preserve_pending",
       "requested_bounds": [
@@ -106,17 +74,17 @@
     },
     {
       "id": "t_tool",
-      "expected_text": "\u270e Edit crates/octos-cli/tests/steer_queue.rs",
+      "expected_text": "Edit crates/octos-cli/tests/steer_queue.rs",
       "requested_bounds": [
-        34.52,
+        54.0,
         281.49,
-        282.94,
+        270.0,
         26.94
       ],
       "status": "observed",
       "ocr_text": "*Edit crates/octos-cli/tests/steer_queue.rs",
       "confidence": 1,
-      "text_similarity": 0.9655172413793104,
+      "text_similarity": 0.9882352941176471,
       "ink_bounds": [
         34.84978540772532,
         282.03530633437174,
@@ -138,7 +106,7 @@
     },
     {
       "id": "answer_md",
-      "expected_text": "I added a test that simulates a reconnect and verifies pending messages are preserved. The test asserts metrics.steer_preserved increments and metrics.steer_dropped remains unchanged.",
+      "expected_text": "I added a test that simulates a reconnect and verifies pending messages are preserved. The test asserts `metrics.steer_preserved` increments and `metrics.steer_dropped` remains unchanged.",
       "requested_bounds": [
         30.0,
         352.0,
@@ -184,7 +152,7 @@
       "expected_text": "v4-flash \u25be",
       "requested_bounds": [
         216.07,
-        705.16,
+        682.0,
         69.7,
         19.5
       ],
@@ -239,6 +207,41 @@
       "radius": 16.0
     },
     {
+      "id": "tool_card",
+      "bounds": [
+        25.0,
+        268.0,
+        355.0,
+        53.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4280098595,
+      "radius": 11.29
+    },
+    {
+      "id": "icon_tool",
+      "bounds": [
+        34.492,
+        279.291,
+        17.086,
+        20.324
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_tool_done",
+      "bounds": [
+        349.626,
+        280.42,
+        15.187,
+        18.066
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
       "id": "answer_surface",
       "bounds": [
         20.0,
@@ -252,6 +255,39 @@
       "radius": 8.0
     },
     {
+      "id": "answer_actions",
+      "bounds": [
+        30.0,
+        546.0,
+        120.0,
+        28.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "icon_up",
+      "bounds": [
+        30.0,
+        548.0,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_down",
+      "bounds": [
+        62.0,
+        548.0,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
       "id": "composer",
       "bounds": [
         26.0,
@@ -262,15 +298,15 @@
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4279572507,
-      "radius": 12.83
+      "radius": 11.42
     },
     {
       "id": "composer_input",
       "bounds": [
         39.701,
-        621.692,
+        618.616,
         293.583,
-        42.769
+        34.274
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -279,9 +315,9 @@
       "id": "icon_plus",
       "bounds": [
         39.701,
-        696.538,
+        668.123,
         17.615,
-        25.662
+        22.849
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -289,36 +325,47 @@
     {
       "id": "approval_pill",
       "bounds": [
-        79.0,
-        692.0,
-        119.0,
-        41.0
+        76.0,
+        689.0,
+        124.0,
+        46.0
       ],
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
-      "bg": 4279572508,
-      "radius": 20.5
+      "bg": 4279572507,
+      "radius": 23.0
+    },
+    {
+      "id": "icon_mic",
+      "bounds": [
+        307.84,
+        668.123,
+        15.658,
+        24.753
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     },
     {
       "id": "send_btn",
       "bounds": [
-        346.984,
-        690.123,
+        341.112,
+        662.411,
         35.23,
-        38.492
+        34.274
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
-      "bg": 4294638330,
-      "radius": 17.61
+      "bg": 4279572251,
+      "radius": 17.14
     },
     {
       "id": "icon_send",
       "bounds": [
-        356.77,
-        700.815,
+        350.898,
+        671.932,
         15.658,
-        17.108
+        15.233
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -334,6 +381,16 @@
       ],
       "confidence": 1,
       "text": "11. Dark mode conversation"
+    },
+    {
+      "bounds": [
+        37.88859483735362,
+        143.3980551937623,
+        104.22280883789062,
+        26.87816365823707
+      ],
+      "confidence": 1,
+      "text": "OctosCode"
     },
     {
       "bounds": [

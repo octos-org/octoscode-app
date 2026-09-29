@@ -20,13 +20,14 @@
           "h": 648.0
         }
       },
-      "t01": {
-        "component": "Text4c7fc3a19a09",
+      "icon_tasks": {
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 34.09,
-          "y": 132.06,
-          "w": 93.93,
-          "h": 24.55
+          "x": 5.36,
+          "y": 207.15,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-07/assets/icon_tasks-5e4ab2add346.svg"
         }
       },
       "t02": {
@@ -93,39 +94,39 @@
         }
       },
       "t_log0": {
-        "component": "Textce2d17e95a24",
+        "component": "Text7b2dcbb74615",
         "layout": {
-          "x": 44.89,
-          "y": 379.64,
-          "w": 320.94,
-          "h": 21.61
+          "x": 40.0,
+          "y": 381.16,
+          "w": 304.0,
+          "h": 21.5
         }
       },
       "t_log1": {
-        "component": "Textd88f1a0ef5f8",
+        "component": "Text7b2dcbb74615",
         "layout": {
-          "x": 45.41,
-          "y": 420.74,
-          "w": 320.94,
-          "h": 21.61
+          "x": 40.0,
+          "y": 422.21,
+          "w": 304.0,
+          "h": 21.5
         }
       },
       "t_log2": {
-        "component": "Textc641b90cbae2",
+        "component": "Textc392af01d103",
         "layout": {
-          "x": 45.57,
-          "y": 461.84,
-          "w": 321.82,
-          "h": 20.64
+          "x": 40.0,
+          "y": 463.25,
+          "w": 304.0,
+          "h": 23.46
         }
       },
       "t_log3": {
-        "component": "Text5ea49b9c7968",
+        "component": "Text7e7258ff9424",
         "layout": {
-          "x": 45.04,
-          "y": 499.02,
-          "w": 116.63,
-          "h": 27.49
+          "x": 40.0,
+          "y": 501.81,
+          "w": 118.65,
+          "h": 24.53
         }
       },
       "cancel_row": {

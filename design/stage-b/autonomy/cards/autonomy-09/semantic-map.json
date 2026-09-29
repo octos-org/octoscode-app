@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "4530c71cb2b30dd9fea10f4dba9fcb75de3d117721096c6c6557bdf269b95b0a",
+  "contract_sha256": "85b6aeab13d59eda2aaec3634d2811ffa07ecf6bb1ac6dad734e160941109662",
   "reference_sha256": "a8361d691033b222d61a8cb803d8ab4a0fa0faa3a33b356d0677de5c5c72ae18",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -20,19 +20,19 @@
       "decision": "declared"
     },
     {
-      "id": "att_1_img",
-      "role": "icon",
-      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "id": "att_1_thumb",
+      "role": "photo",
+      "basis": "Raster thumbnail: real code screenshot cropped from the repo's own evidence renders (conversation-11 diff view), reused as the attachment image fill per the outer loop's #28b2 item.",
       "confidence": 1.0,
       "decision": "reviewed",
       "asset": {
-        "path": "assets/att_1_img.svg",
-        "sha256": "837d9108b5e18eb8daa4360b11c551359aca5dec5558c710564f10fc902bfff7",
-        "method": "reference_svg",
-        "reference_sha256": "a8361d691033b222d61a8cb803d8ab4a0fa0faa3a33b356d0677de5c5c72ae18",
+        "path": "assets/thumb_code.png",
+        "sha256": "f187c53eac2c9d8f33c53290fe4bbb7da9488529544429d4da46a4f77e58d5ae",
+        "method": "original_asset",
+        "source": "repo evidence render conversation-11-native-v12.png, diff-rows crop [40,360,772,840] (design/stage-b/conversation/evidence/gate-b/), reused per #28b2 outer-loop item",
         "fit": "stretch",
         "clip": true,
-        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+        "notes": "Repo-evidence code screenshot; no UI text or icons"
       }
     },
     {
@@ -66,19 +66,19 @@
       "decision": "declared"
     },
     {
-      "id": "att_2_img",
-      "role": "icon",
-      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "id": "att_2_thumb",
+      "role": "photo",
+      "basis": "Raster thumbnail: real code screenshot cropped from the repo's own evidence renders (conversation-11 diff view), reused as the attachment image fill per the outer loop's #28b2 item.",
       "confidence": 1.0,
       "decision": "reviewed",
       "asset": {
-        "path": "assets/att_2_img.svg",
-        "sha256": "837d9108b5e18eb8daa4360b11c551359aca5dec5558c710564f10fc902bfff7",
-        "method": "reference_svg",
-        "reference_sha256": "a8361d691033b222d61a8cb803d8ab4a0fa0faa3a33b356d0677de5c5c72ae18",
+        "path": "assets/thumb_code.png",
+        "sha256": "f187c53eac2c9d8f33c53290fe4bbb7da9488529544429d4da46a4f77e58d5ae",
+        "method": "original_asset",
+        "source": "repo evidence render conversation-11-native-v12.png, diff-rows crop [40,360,772,840] (design/stage-b/conversation/evidence/gate-b/), reused per #28b2 outer-loop item",
         "fit": "stretch",
         "clip": true,
-        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+        "notes": "Repo-evidence code screenshot; no UI text or icons"
       }
     },
     {

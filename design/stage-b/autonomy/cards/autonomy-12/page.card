@@ -34,32 +34,35 @@ component Text1a8be12bc3a5(instance: text, text: text) {
 component Text52b015715674(instance: text, text: text) {
   view Kit(component: "Text52b015715674", instance: instance, text: text)
 }
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
 component Textdf050818beb5(instance: text, text: text) {
   view Kit(component: "Textdf050818beb5", instance: instance, text: text)
 }
 component Text7ca184431fa8(instance: text, text: text) {
   view Kit(component: "Text7ca184431fa8", instance: instance, text: text)
 }
-component Surfacecb0bd28db118(instance: text) {
-  view Kit(component: "Surfacecb0bd28db118", instance: instance) { slot }
-}
 component Textc95132dba0b1(instance: text, text: text) {
   view Kit(component: "Textc95132dba0b1", instance: instance, text: text)
-}
-component Textef7151973db2(instance: text, text: text) {
-  view Kit(component: "Textef7151973db2", instance: instance, text: text)
 }
 component Surfacec366cb079903(instance: text) {
   view Kit(component: "Surfacec366cb079903", instance: instance) { slot }
 }
-component Surfaceacf19aface21(instance: text) {
-  view Kit(component: "Surfaceacf19aface21", instance: instance) { slot }
+component Surfacefe28e35abdae(instance: text) {
+  view Kit(component: "Surfacefe28e35abdae", instance: instance) { slot }
 }
-component Surface7ad7b3d91dd6(instance: text) {
-  view Kit(component: "Surface7ad7b3d91dd6", instance: instance) { slot }
+component Surfacecb0bd28db118(instance: text) {
+  view Kit(component: "Surfacecb0bd28db118", instance: instance) { slot }
 }
-component Surface92fd86e0d67b(instance: text) {
-  view Kit(component: "Surface92fd86e0d67b", instance: instance) { slot }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Textef7151973db2(instance: text, text: text) {
+  view Kit(component: "Textef7151973db2", instance: instance, text: text)
+}
+component Surface10516703507f(instance: text) {
+  view Kit(component: "Surface10516703507f", instance: instance) { slot }
 }
 component Text7877f20e84d0(instance: text, text: text) {
   view Kit(component: "Text7877f20e84d0", instance: instance, text: text)
@@ -72,8 +75,16 @@ view root Surfaceca778635ab8e(instance: "page") {
     Text8839aec3fb92(instance: "t_live", text: copy.t_live_text)
     Text1a8be12bc3a5(instance: "t_ws", text: copy.t_ws_text)
     Text52b015715674(instance: "t_wsval", text: copy.t_wsval_text)
+    Vectore0a378fde04f(instance: "chev_ws")
     Textdf050818beb5(instance: "t_prof", text: copy.t_prof_text)
     Text7ca184431fa8(instance: "t_profval", text: copy.t_profval_text)
+    Vectore0a378fde04f(instance: "chev_prof")
+    Textc95132dba0b1(instance: "t_notif", text: copy.t_notif_text)
+    Surfacec366cb079903(instance: "toggle_notif") {
+      Surfacefe28e35abdae(instance: "toggle_notif_knob") {
+
+      }
+    }
   }
   Surfacecb0bd28db118(instance: "div_1") {
 
@@ -81,17 +92,15 @@ view root Surfaceca778635ab8e(instance: "page") {
   Surfacecb0bd28db118(instance: "div_2") {
 
   }
-  Textc95132dba0b1(instance: "t_notif", text: copy.t_notif_text)
-  Textef7151973db2(instance: "t_diag", text: copy.t_diag_text)
-  Surfacec366cb079903(instance: "toggle1") {
-    Surfaceacf19aface21(instance: "toggle1_knob") {
+  Surfacecb0bd28db118(instance: "div_3") {
 
-    }
   }
-  Surface7ad7b3d91dd6(instance: "toggle2") {
-    Surface92fd86e0d67b(instance: "toggle2_knob") {
-
-    }
+  Group3d2637879433(instance: "copy_row") {
+    Textef7151973db2(instance: "t_diag", text: copy.t_diag_text)
+    Vectore0a378fde04f(instance: "icon_copy")
   }
-  Text7877f20e84d0(instance: "t_disconnect", text: copy.t_disconnect_text)
+  Surface10516703507f(instance: "disconnect_card") {
+    Vectore0a378fde04f(instance: "icon_power")
+    Text7877f20e84d0(instance: "t_disconnect", text: copy.t_disconnect_text)
+  }
 }

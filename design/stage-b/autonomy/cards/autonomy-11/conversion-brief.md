@@ -34,22 +34,6 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t01",
-    "x": 33.01,
-    "y": 115.55,
-    "w": 90.8,
-    "h": 28.5,
-    "text": "OctosCode",
-    "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 19,
-    "weight": 600,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
     "id": "user_bubble",
     "x": 73.02,
     "y": 173.54,
@@ -93,12 +77,32 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t_tool",
-    "x": 34.52,
+    "id": "tool_card",
+    "x": 16.0,
+    "y": 271.49,
+    "w": 374.0,
+    "h": 46.94,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "icon_tool",
+    "x": 26.0,
     "y": 281.49,
-    "w": 282.94,
+    "w": 18.0,
+    "h": 18.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "t_tool",
+    "x": 54.0,
+    "y": 281.49,
+    "w": 270.0,
     "h": 26.94,
-    "text": "\u270e Edit crates/octos-cli/tests/steer_queue.rs",
+    "text": "Edit crates/octos-cli/tests/steer_queue.rs",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
     "size": 13,
     "weight": 400,
@@ -107,6 +111,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
       "Label",
       "TextFlow"
     ]
+  },
+  {
+    "id": "icon_tool_done",
+    "x": 358.0,
+    "y": 282.49,
+    "w": 16.0,
+    "h": 16.0,
+    "role": "unknown",
+    "native_candidates": []
   },
   {
     "id": "answer_surface",
@@ -125,7 +138,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 352.0,
     "w": 340.0,
     "h": 170.0,
-    "text": "I added a test that simulates a reconnect and verifies pending messages are preserved. The test asserts metrics.steer_preserved increments and metrics.steer_dropped remains unchanged.",
+    "text": "I added a test that simulates a reconnect and verifies pending messages are preserved. The test asserts `metrics.steer_preserved` increments and `metrics.steer_dropped` remains unchanged.",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 16,
     "weight": 400,
@@ -136,11 +149,40 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "answer_actions",
+    "x": 30.0,
+    "y": 546.0,
+    "w": 120.0,
+    "h": 28.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "icon_up",
+    "x": 30.0,
+    "y": 548.0,
+    "w": 20.0,
+    "h": 20.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "icon_down",
+    "x": 62.0,
+    "y": 548.0,
+    "w": 20.0,
+    "h": 20.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
     "id": "composer",
     "x": 16.0,
     "y": 616.0,
     "w": 374.0,
-    "h": 130.0,
+    "h": 146.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -149,9 +191,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "composer_input",
     "x": 30.0,
-    "y": 626.0,
+    "y": 624.0,
     "w": 300.0,
-    "h": 40.0,
+    "h": 36.0,
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 15,
     "role": "input",
@@ -163,7 +205,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "icon_plus",
     "x": 30.0,
-    "y": 696.0,
+    "y": 676.0,
     "w": 18.0,
     "h": 24.0,
     "role": "unknown",
@@ -172,7 +214,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "approval_pill",
     "x": 76.0,
-    "y": 700.0,
+    "y": 678.0,
     "w": 121.45,
     "h": 33.45,
     "role": "layout",
@@ -199,7 +241,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "t_model",
     "x": 216.07,
-    "y": 705.16,
+    "y": 682.0,
     "w": 69.7,
     "h": 19.5,
     "text": "v4-flash \u25be",
@@ -213,9 +255,18 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "icon_mic",
+    "x": 304.0,
+    "y": 676.0,
+    "w": 16.0,
+    "h": 26.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
     "id": "send_btn",
-    "x": 344.0,
-    "y": 690.0,
+    "x": 338.0,
+    "y": 670.0,
     "w": 36.0,
     "h": 36.0,
     "role": "layout",
@@ -225,8 +276,8 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_send",
-    "x": 354.0,
-    "y": 700.0,
+    "x": 348.0,
+    "y": 680.0,
     "w": 16.0,
     "h": 16.0,
     "role": "unknown",

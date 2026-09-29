@@ -9,38 +9,6 @@
   "aspect_error": 0.15018091459959027,
   "text": [
     {
-      "id": "t01",
-      "expected_text": "OctosCode",
-      "requested_bounds": [
-        6.78,
-        133.01,
-        102.45,
-        28.5
-      ],
-      "status": "observed",
-      "ocr_text": "OctosCode",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        9.382352941176471,
-        134.40202275600507,
-        95.52941176470588,
-        22.56384323640961
-      ],
-      "ink_color": [
-        9,
-        9,
-        9
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        6.775456542728807,
-        133.01388389454476,
-        102.44908837711111,
-        27.911626045149955
-      ]
-    },
-    {
       "id": "t02",
       "expected_text": "Resume a session",
       "requested_bounds": [
@@ -327,6 +295,60 @@
         158.64705882352942,
         23.515151515151494
       ]
+    },
+    {
+      "id": "t_confirm",
+      "expected_text": "Resume \"Add session fork\"?",
+      "requested_bounds": [
+        30.0,
+        739.37,
+        190.0,
+        24.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_resume",
+      "expected_text": "Resume",
+      "requested_bounds": [
+        240.0,
+        741.37,
+        54.0,
+        22.0
+      ],
+      "status": "observed",
+      "ocr_text": ". Resume",
+      "confidence": 1,
+      "text_similarity": 0.8571428571428571,
+      "ink_bounds": [
+        0.0,
+        59.843236409608096,
+        93.82352941176471,
+        32.37420986093553
+      ],
+      "ink_color": [
+        252,
+        252,
+        252
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        -4.549019499389782e-07,
+        62.707070478451165,
+        92.11764705882354,
+        27.434343434343443
+      ]
+    },
+    {
+      "id": "t_cancel2",
+      "expected_text": "Cancel",
+      "requested_bounds": [
+        314.0,
+        741.37,
+        52.0,
+        22.0
+      ],
+      "status": "missing_or_ocr_unresolved"
     }
   ],
   "non_text": [
@@ -369,9 +391,9 @@
     {
       "id": "div_0",
       "bounds": [
-        44.0,
+        16.0,
         372.65,
-        346.0,
+        374.0,
         1.0
       ],
       "method": "surface contour unresolved; requested geometry retained",
@@ -391,9 +413,9 @@
     {
       "id": "div_1",
       "bounds": [
-        44.0,
+        16.0,
         490.22,
-        346.0,
+        374.0,
         1.0
       ],
       "method": "surface contour unresolved; requested geometry retained",
@@ -413,9 +435,9 @@
     {
       "id": "div_2",
       "bounds": [
-        44.0,
+        16.0,
         607.8,
-        346.0,
+        374.0,
         1.0
       ],
       "method": "surface contour unresolved; requested geometry retained",
@@ -431,18 +453,44 @@
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
+    },
+    {
+      "id": "confirm_strip",
+      "bounds": [
+        16.0,
+        725.37,
+        374.0,
+        52.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 12.0
+    },
+    {
+      "id": "resume_pill",
+      "bounds": [
+        226.0,
+        734.37,
+        74.0,
+        34.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 17.0
     }
   ],
   "unmapped_ocr": [
     {
       "bounds": [
-        -5.333333206181123e-07,
-        63.919191686153184,
-        108,
-        27.96464646464647
+        7.943638705268256,
+        135.58502855745476,
+        120.11272430419922,
+        28.45115489911548
       ],
       "confidence": 1,
-      "text": ". Resume"
+      "text": "OctosCode"
     }
   ],
   "non_text_ocr": [],

@@ -30,22 +30,6 @@
     "c": [
       {
         "t": "text",
-        "id": "t01",
-        "text": "OctosCode",
-        "x": 6.78,
-        "y": 133.01,
-        "w": 102.45,
-        "h": 28.5,
-        "size": 19,
-        "line_height": 28.5,
-        "weight": 600,
-        "color": 4280098079,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-600.ttf"
-      },
-      {
-        "t": "text",
         "id": "t02",
         "text": "Resume a session",
         "x": 8.53,
@@ -116,9 +100,9 @@
       {
         "t": "stack",
         "id": "div_0",
-        "x": 44.0,
+        "x": 16.0,
         "y": 372.65,
-        "w": 346.0,
+        "w": 374.0,
         "h": 1.0,
         "c": [],
         "variant": "surface",
@@ -169,9 +153,9 @@
       {
         "t": "stack",
         "id": "div_1",
-        "x": 44.0,
+        "x": 16.0,
         "y": 490.22,
-        "w": 346.0,
+        "w": 374.0,
         "h": 1.0,
         "c": [],
         "variant": "surface",
@@ -222,9 +206,9 @@
       {
         "t": "stack",
         "id": "div_2",
-        "x": 44.0,
+        "x": 16.0,
         "y": 607.8,
-        "w": 346.0,
+        "w": 374.0,
         "h": 1.0,
         "c": [],
         "variant": "surface",
@@ -271,6 +255,82 @@
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "stack",
+        "id": "confirm_strip",
+        "x": 16.0,
+        "y": 725.37,
+        "w": 374.0,
+        "h": 52.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t_confirm",
+            "text": "Resume \"Add session fork\"?",
+            "x": 30.0,
+            "y": 739.37,
+            "w": 190.0,
+            "h": 24.0,
+            "size": 14,
+            "line_height": 24.0,
+            "weight": 500,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf"
+          },
+          {
+            "t": "stack",
+            "id": "resume_pill",
+            "x": 226.0,
+            "y": 734.37,
+            "w": 74.0,
+            "h": 34.0,
+            "c": [
+              {
+                "t": "text",
+                "id": "t_resume",
+                "text": "Resume",
+                "x": 240.0,
+                "y": 741.37,
+                "w": 54.0,
+                "h": 22.0,
+                "size": 14,
+                "line_height": 22.0,
+                "weight": 600,
+                "color": 4294967295,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-600.ttf"
+              }
+            ],
+            "variant": "surface",
+            "bg": 4281298923,
+            "radius": 999
+          },
+          {
+            "t": "text",
+            "id": "t_cancel2",
+            "text": "Cancel",
+            "x": 314.0,
+            "y": 741.37,
+            "w": 52.0,
+            "h": 22.0,
+            "size": 14,
+            "line_height": 22.0,
+            "weight": 500,
+            "color": 4285427315,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf"
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294440952,
+        "radius": 12,
+        "border": 1,
+        "bordercolor": 4293256679
       }
     ],
     "variant": "surface",

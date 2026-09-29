@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "654c4bd49d4069d7662644a27ef42440d5865492218a9f36971a471368418698",
+  "contract_sha256": "18034de4b0819839b6897d8f83b436ecb90c62d03b96eb76b158e4b71738dcc2",
   "reference_sha256": "f3e6bb77e8933fe4ebe6658ca11d11aaa3bf0b23847e7a6f563d250482146c6b",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -20,11 +20,20 @@
       "decision": "declared"
     },
     {
-      "id": "t01",
-      "role": "text",
-      "basis": "authored text node",
+      "id": "icon_tasks",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
       "confidence": 1.0,
-      "decision": "declared"
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_tasks.svg",
+        "sha256": "5e4ab2add3467156aa82f1b0335f095909030d67e5c6396a7c521c0849b5a8bb",
+        "method": "reference_svg",
+        "reference_sha256": "f3e6bb77e8933fe4ebe6658ca11d11aaa3bf0b23847e7a6f563d250482146c6b",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
     },
     {
       "id": "t02",

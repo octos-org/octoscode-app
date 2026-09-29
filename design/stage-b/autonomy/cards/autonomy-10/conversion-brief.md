@@ -77,11 +77,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "tool_row",
+    "id": "tool_card",
     "x": 14.0,
-    "y": 258.2,
-    "w": 320.0,
-    "h": 49.88,
+    "y": 256.2,
+    "w": 374.0,
+    "h": 53.88,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -89,25 +89,16 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_tool",
-    "x": 14.0,
+    "x": 24.0,
     "y": 266.2,
-    "w": 20.0,
-    "h": 20.0,
-    "role": "unknown",
-    "native_candidates": []
-  },
-  {
-    "id": "icon_tool_done",
-    "x": 330.0,
-    "y": 268.2,
-    "w": 16.0,
-    "h": 16.0,
+    "w": 18.0,
+    "h": 18.0,
     "role": "unknown",
     "native_candidates": []
   },
   {
     "id": "t_tool",
-    "x": 42.0,
+    "x": 52.0,
     "y": 266.2,
     "w": 280.0,
     "h": 33.88,
@@ -120,6 +111,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
       "Label",
       "TextFlow"
     ]
+  },
+  {
+    "id": "icon_tool_done",
+    "x": 356.0,
+    "y": 267.2,
+    "w": 16.0,
+    "h": 16.0,
+    "role": "unknown",
+    "native_candidates": []
   },
   {
     "id": "aside_card",
@@ -149,15 +149,6 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "icon_dismiss",
-    "x": 277.85,
-    "y": 361.77,
-    "w": 14.0,
-    "h": 14.0,
-    "role": "unknown",
-    "native_candidates": []
-  },
-  {
     "id": "t_dismiss",
     "x": 297.85,
     "y": 359.77,
@@ -172,6 +163,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
       "Label",
       "TextFlow"
     ]
+  },
+  {
+    "id": "icon_dismiss",
+    "x": 390.72,
+    "y": 360.77,
+    "w": 14.0,
+    "h": 14.0,
+    "role": "unknown",
+    "native_candidates": []
   },
   {
     "id": "t_qtitle",
@@ -194,10 +194,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 26.0,
     "y": 452.0,
     "w": 330.0,
-    "h": 130.0,
+    "h": 138.0,
     "text": "It's a metric that increments when messages are dropped from the steer queue due to a reconnect or protocol error. It helps track message loss.",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15,
+    "size": 17,
     "weight": 400,
     "role": "text",
     "native_candidates": [

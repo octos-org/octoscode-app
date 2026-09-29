@@ -48,7 +48,8 @@ X_OVERRIDE = {(4, "t05"): 87.5}   # conversation-04 tool_3: ">_ " is the termina
 #             (the atlas draws both runs large). Authored as two explicit nodes.
 #   07 t_undo — "Undo 9" merged the ↺ glyph into the label; fitting "Undo" into
 #             the run's 61.5px ink box pushed it to 24pt (the atlas is ~14pt).
-SIZE_KEEP = {(7, "t_undo")}
+SIZE_KEEP = {(7, "t_undo"), (7, "t_log0"), (7, "t_log1"), (7, "t_log2"), (7, "t_log3"),
+             (8, "t_resume"), (8, "t_confirm"), (8, "t_cancel2")}
 
 # Card #18d item 4: the OCR row MERGED the trailing chevron GLYPH into the label,
 # so the ink-width fit ran the text under the icon ("Last turn v" fitted across
@@ -165,6 +166,8 @@ def fix_scene(d, scene_no):
             # The OCR row merged a glyph into the text, so the ink-width fit is
             # wrong for this node: restore the AUTHORED size/box instead of leaving
             # the `map` stage's over-sized value (07 t_undo went to 27.75pt).
+            # Card #28b2: also restore authored color + width — map re-fits the
+            # console lines to grey (measured surface median) and shrinks them.
             a = authored.get(n["id"])
             if a:
                 n["x"] = a["x"]
@@ -174,6 +177,8 @@ def fix_scene(d, scene_no):
                 n["size"] = a["size"]
                 n["line_height"] = a.get("line_height", n.get("line_height"))
                 n["tracking"] = a.get("tracking", 0.0)
+                if "color" in a:
+                    n["color"] = a["color"]
                 changed += 1
             continue
         size = iw / advance                      # width-fit => tracking 0

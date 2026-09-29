@@ -43,9 +43,9 @@
     {
       "id": "div_0",
       "bounds": [
-        44.0,
+        16.0,
         372.65,
-        346.0,
+        374.0,
         1.0
       ],
       "method": "surface contour unresolved; requested geometry retained",
@@ -65,9 +65,9 @@
     {
       "id": "div_1",
       "bounds": [
-        44.0,
+        16.0,
         490.22,
-        346.0,
+        374.0,
         1.0
       ],
       "method": "surface contour unresolved; requested geometry retained",
@@ -87,9 +87,9 @@
     {
       "id": "div_2",
       "bounds": [
-        44.0,
+        16.0,
         607.8,
-        346.0,
+        374.0,
         1.0
       ],
       "method": "surface contour unresolved; requested geometry retained",
@@ -105,6 +105,32 @@
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
+    },
+    {
+      "id": "confirm_strip",
+      "bounds": [
+        16.0,
+        725.37,
+        374.0,
+        52.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 12.0
+    },
+    {
+      "id": "resume_pill",
+      "bounds": [
+        226.0,
+        734.37,
+        74.0,
+        34.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 17.0
     }
   ]
 }

@@ -18,21 +18,13 @@
         "h": 648.0,
         "c": [
           {
-            "t": "text",
-            "id": "t01",
-            "text": "OctosCode",
-            "x": 34.09,
-            "y": 132.06,
-            "w": 93.93,
-            "h": 24.55,
-            "size": 16.58,
-            "line_height": 20.06,
-            "weight": 600,
-            "color": 4278716681,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-600.ttf",
-            "tracking": 0.0
+            "t": "svg",
+            "id": "icon_tasks",
+            "x": 5.36,
+            "y": 207.15,
+            "w": 20.0,
+            "h": 20.0,
+            "src": ""
           },
           {
             "t": "text",
@@ -133,15 +125,15 @@
                   {
                     "t": "text",
                     "id": "t_log0",
-                    "text": "Compiling octos-cli v0.24.1 (/workspace/crates/octos-cli)",
-                    "x": 44.89,
-                    "y": 379.64,
-                    "w": 320.94,
-                    "h": 21.61,
-                    "size": 9.27,
-                    "line_height": 11.21,
+                    "text": "Compiling octos-cli v0.24.1 (/work\u2026",
+                    "x": 40.0,
+                    "y": 381.16,
+                    "w": 304.0,
+                    "h": 21.5,
+                    "size": 14,
+                    "line_height": 21.5,
                     "weight": 400,
-                    "color": 4283979864,
+                    "color": 4280098079,
                     "variant": "single_line",
                     "alignx": 0,
                     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
@@ -150,15 +142,15 @@
                   {
                     "t": "text",
                     "id": "t_log1",
-                    "text": "Finished test [unoptimized + debuginfo] target(s) in 1.23s",
-                    "x": 45.41,
-                    "y": 420.74,
-                    "w": 320.94,
-                    "h": 21.61,
-                    "size": 9.11,
-                    "line_height": 11.02,
+                    "text": "Finished test [unoptimized + debugi\u2026",
+                    "x": 40.0,
+                    "y": 422.21,
+                    "w": 304.0,
+                    "h": 21.5,
+                    "size": 14,
+                    "line_height": 21.5,
                     "weight": 400,
-                    "color": 4283914072,
+                    "color": 4280098079,
                     "variant": "single_line",
                     "alignx": 0,
                     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
@@ -167,15 +159,15 @@
                   {
                     "t": "text",
                     "id": "t_log2",
-                    "text": "Running unittests src/lib.rs (target/debug/deps/octos_cli\u2026)",
-                    "x": 45.57,
-                    "y": 461.84,
-                    "w": 321.82,
-                    "h": 20.64,
-                    "size": 8.98,
-                    "line_height": 10.86,
+                    "text": "Running unittests src/lib.rs (targe\u2026",
+                    "x": 40.0,
+                    "y": 463.25,
+                    "w": 304.0,
+                    "h": 23.46,
+                    "size": 14,
+                    "line_height": 23.46,
                     "weight": 400,
-                    "color": 4285098347,
+                    "color": 4280098079,
                     "variant": "single_line",
                     "alignx": 0,
                     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
@@ -185,18 +177,20 @@
                     "t": "text",
                     "id": "t_log3",
                     "text": "running 12 tests \u2026",
-                    "x": 45.04,
-                    "y": 499.02,
-                    "w": 116.63,
-                    "h": 27.49,
-                    "size": 10.43,
-                    "line_height": 12.62,
+                    "x": 40.0,
+                    "y": 501.81,
+                    "w": 118.65,
+                    "h": 24.53,
+                    "size": 14,
+                    "line_height": 24.53,
                     "weight": 400,
-                    "color": 4283321935,
+                    "color": 4280098079,
                     "variant": "single_line",
                     "alignx": 0,
                     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-                    "tracking": 0.0
+                    "tracking": 0.0,
+                    "font_asc": -0.028572633094394284,
+                    "font_desc": 0.01392419559439434
                   }
                 ],
                 "variant": "surface",
@@ -345,6 +339,10 @@
       "source": "observed non-text annotation"
     },
     {
+      "id": "icon_tasks",
+      "source": "observed non-text annotation"
+    },
+    {
       "id": "run_card",
       "source": "observed non-text annotation"
     },
@@ -373,12 +371,6 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "t01",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.2569704161291838
-    },
-    {
       "id": "t02",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
@@ -395,24 +387,6 @@
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.28168546070453665
-    },
-    {
-      "id": "t_log0",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.3073222112197784
-    },
-    {
-      "id": "t_log1",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.31326385828171216
-    },
-    {
-      "id": "t_log2",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.29915138022127996
     },
     {
       "id": "t_log3",

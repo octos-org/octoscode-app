@@ -3,7 +3,6 @@
 # profile: ui/l0
 # Static design fixture, runtime native Kit composition.
 theme light
-copy t01_text { class: user-copy, en: "OctosCode" }
 copy t02_text { class: user-copy, en: "Resume a session" }
 copy row_1_title_text { class: user-copy, en: "Add session fork" }
 copy row_1_meta_text { class: user-copy, en: "octos • 2h ago • 14 turns" }
@@ -13,11 +12,11 @@ copy row_3_title_text { class: user-copy, en: "Review PR #2566" }
 copy row_3_meta_text { class: user-copy, en: "octos • 3d ago • 17 turns" }
 copy row_4_title_text { class: user-copy, en: "Why is hydrate slow?" }
 copy row_4_meta_text { class: user-copy, en: "octos • 4d ago • 9 turns" }
+copy t_confirm_text { class: user-copy, en: "Resume \"Add session fork\"?" }
+copy t_resume_text { class: user-copy, en: "Resume" }
+copy t_cancel2_text { class: user-copy, en: "Cancel" }
 component Surface16fae9a63e16(instance: text) {
   view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
-}
-component Textfcb2eb7dbf93(instance: text, text: text) {
-  view Kit(component: "Textfcb2eb7dbf93", instance: instance, text: text)
 }
 component Text41023ffaefeb(instance: text, text: text) {
   view Kit(component: "Text41023ffaefeb", instance: instance, text: text)
@@ -55,9 +54,23 @@ component Text36925dab64ae(instance: text, text: text) {
 component Texteedb438bd616(instance: text, text: text) {
   view Kit(component: "Texteedb438bd616", instance: instance, text: text)
 }
+component Surfaceebeaffab57cc(instance: text) {
+  view Kit(component: "Surfaceebeaffab57cc", instance: instance) { slot }
+}
+component Text1a789bc844b3(instance: text, text: text) {
+  view Kit(component: "Text1a789bc844b3", instance: instance, text: text)
+}
+component Surface32645d09434a(instance: text) {
+  view Kit(component: "Surface32645d09434a", instance: instance) { slot }
+}
+component Text2e3d885623cb(instance: text, text: text) {
+  view Kit(component: "Text2e3d885623cb", instance: instance, text: text)
+}
+component Text8ea8e82f94f8(instance: text, text: text) {
+  view Kit(component: "Text8ea8e82f94f8", instance: instance, text: text)
+}
 
 view root Surface16fae9a63e16(instance: "page") {
-  Textfcb2eb7dbf93(instance: "t01", text: copy.t01_text)
   Text41023ffaefeb(instance: "t02", text: copy.t02_text)
   Surface4f9736f8906e(instance: "row_1_sel") {
 
@@ -83,4 +96,11 @@ view root Surface16fae9a63e16(instance: "page") {
   Vectore0a378fde04f(instance: "row_4_radio")
   Text36925dab64ae(instance: "row_4_title", text: copy.row_4_title_text)
   Texteedb438bd616(instance: "row_4_meta", text: copy.row_4_meta_text)
+  Surfaceebeaffab57cc(instance: "confirm_strip") {
+    Text1a789bc844b3(instance: "t_confirm", text: copy.t_confirm_text)
+    Surface32645d09434a(instance: "resume_pill") {
+      Text2e3d885623cb(instance: "t_resume", text: copy.t_resume_text)
+    }
+    Text8ea8e82f94f8(instance: "t_cancel2", text: copy.t_cancel2_text)
+  }
 }
