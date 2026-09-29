@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "46c19d4f5e04161120a74be51d2814daf77b431da734b51e4276912bd0b57f6b",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      38.0,
+      186.0,
+      333.0,
+      67.0
+    ],
+    [
+      40.0,
+      111.0,
+      329.0,
+      57.0
+    ],
+    [
+      37.0,
+      109.0,
+      335.0,
+      62.0
+    ],
+    [
+      21.0,
+      92.0,
+      365.0,
+      572.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4292796385
+    },
+    {
+      "id": "scrim",
+      "bounds": [
+        21.0,
+        92.0,
+        365.0,
+        572.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709
+    },
+    {
+      "id": "modal",
+      "bounds": [
+        40.0,
+        112.0,
+        326.0,
+        546.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.0
+    },
+    {
+      "id": "icon_close",
+      "bounds": [
+        336.08,
+        130.84,
+        19.17,
+        20.3
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "row_sel",
+      "bounds": [
+        38.0,
+        186.0,
+        333.0,
+        67.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293520884,
+      "radius": 10.29
+    }
+  ]
+}

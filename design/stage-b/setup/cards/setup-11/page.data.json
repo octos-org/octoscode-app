@@ -1,0 +1,144 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "icon_warning": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 188.0,
+          "y": 110.0,
+          "w": 30.0,
+          "h": 26.0,
+          "src": "http://127.0.0.1:8170/ux-images/setup-11/assets/icon_warning-a852908599b0.svg"
+        }
+      },
+      "t_title": {
+        "component": "Textd9958b4d0346",
+        "layout": {
+          "x": 29.600848726909636,
+          "y": 187.0,
+          "w": 291.5,
+          "h": 33.5
+        }
+      },
+      "t_msg1": {
+        "component": "Text22cf77777e43",
+        "layout": {
+          "x": 41.06617271333674,
+          "y": 248.5,
+          "w": 261.5,
+          "h": 27.0
+        }
+      },
+      "t_msg2": {
+        "component": "Textb46b87403476",
+        "layout": {
+          "x": 50.31967213114754,
+          "y": 282.0,
+          "w": 243.0,
+          "h": 22.0
+        }
+      },
+      "t_msg3": {
+        "component": "Textc30d4b0f4fdb",
+        "layout": {
+          "x": 110.26354029062087,
+          "y": 317.0,
+          "w": 119.0,
+          "h": 22.0
+        }
+      },
+      "btn_reload": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 131.0,
+          "y": 396.0,
+          "w": 88.0,
+          "h": 46.0
+        }
+      },
+      "btn_reload_surface": {
+        "component": "Surface372b9a076207",
+        "layout": {
+          "x": 131.0,
+          "y": 396.0,
+          "w": 88.0,
+          "h": 46.0
+        }
+      },
+      "btn_reload_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 131.0,
+          "y": 396.0,
+          "w": 88.0,
+          "h": 46.0
+        }
+      },
+      "btn_reload_label": {
+        "component": "Textbda33531fa72",
+        "layout": {
+          "x": 142.56675479180436,
+          "y": 409.0,
+          "w": 66.0,
+          "h": 23.5
+        }
+      },
+      "btn_diag": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 28.0,
+          "y": 475.0,
+          "w": 300.0,
+          "h": 59.0
+        }
+      },
+      "btn_diag_surface": {
+        "component": "Surface9aec1630eae3",
+        "layout": {
+          "x": 28.0,
+          "y": 475.0,
+          "w": 300.0,
+          "h": 59.0
+        }
+      },
+      "btn_diag_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 28.0,
+          "y": 475.0,
+          "w": 300.0,
+          "h": 59.0
+        }
+      },
+      "btn_diag_label": {
+        "component": "Text730c2d7c91d9",
+        "layout": {
+          "x": 92.63855421686748,
+          "y": 494.0,
+          "w": 158.5,
+          "h": 28.0
+        }
+      },
+      "t_report": {
+        "component": "Text5ec08d7eedc7",
+        "layout": {
+          "x": 119.48780487804878,
+          "y": 570.5,
+          "w": 111.0,
+          "h": 28.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

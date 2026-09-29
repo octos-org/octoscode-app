@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "eea4879ae6d0cd6b624faf40165083cab6a008b8fc393afd6670a5c88fe6f3f5",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      21.0,
+      565.0,
+      322.0,
+      96.0
+    ],
+    [
+      18.0,
+      563.0,
+      328.0,
+      101.0
+    ],
+    [
+      21.0,
+      442.0,
+      322.0,
+      97.0
+    ],
+    [
+      19.0,
+      439.0,
+      327.0,
+      102.0
+    ],
+    [
+      193.0,
+      356.0,
+      136.0,
+      44.0
+    ],
+    [
+      36.0,
+      356.0,
+      138.0,
+      44.0
+    ],
+    [
+      191.0,
+      353.0,
+      141.0,
+      50.0
+    ],
+    [
+      34.0,
+      353.0,
+      142.0,
+      50.0
+    ],
+    [
+      36.0,
+      277.0,
+      294.0,
+      59.0
+    ],
+    [
+      35.0,
+      216.0,
+      295.0,
+      60.0
+    ],
+    [
+      33.0,
+      213.0,
+      307.0,
+      143.0
+    ],
+    [
+      21.0,
+      111.0,
+      323.0,
+      306.0
+    ],
+    [
+      19.0,
+      108.0,
+      327.0,
+      312.0
+    ],
+    [
+      1.0,
+      30.0,
+      363.0,
+      716.0
+    ],
+    [
+      33.0,
+      213.0,
+      300.0,
+      126.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "card_deepseek",
+      "bounds": [
+        21.0,
+        111.0,
+        323.0,
+        306.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.58
+    },
+    {
+      "id": "card_kimi",
+      "bounds": [
+        19.0,
+        439.0,
+        327.0,
+        102.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 12.24
+    },
+    {
+      "id": "card_glm",
+      "bounds": [
+        18.0,
+        563.0,
+        328.0,
+        101.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.43
+    },
+    {
+      "id": "row_flash",
+      "bounds": [
+        35.0,
+        216.0,
+        295.0,
+        60.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.43
+    },
+    {
+      "id": "btn_test",
+      "bounds": [
+        36.0,
+        356.0,
+        138.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "btn_test_surface",
+      "bounds": [
+        36.0,
+        356.0,
+        138.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294769916,
+      "radius": 22.0
+    },
+    {
+      "id": "btn_test_control",
+      "bounds": [
+        36.0,
+        356.0,
+        138.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_discover",
+      "bounds": [
+        193.0,
+        356.0,
+        136.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "btn_discover_surface",
+      "bounds": [
+        193.0,
+        356.0,
+        136.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294704123,
+      "radius": 22.0
+    },
+    {
+      "id": "btn_discover_control",
+      "bounds": [
+        193.0,
+        356.0,
+        136.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "dot_glm",
+      "bounds": [
+        280.0,
+        601.0,
+        11.0,
+        11.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280526672,
+      "radius": 5.5
+    }
+  ]
+}

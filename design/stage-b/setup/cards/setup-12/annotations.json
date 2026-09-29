@@ -1,0 +1,118 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "fb936b73852b6bdf407c8d75e674be0574aff1963fcd512b488ce59aca61a713",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      81.0,
+      275.0,
+      195.0,
+      44.0
+    ],
+    [
+      81.0,
+      183.0,
+      275.0,
+      54.0
+    ],
+    [
+      81.0,
+      104.0,
+      275.0,
+      44.0
+    ],
+    [
+      12.0,
+      68.0,
+      382.0,
+      706.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4293981682
+    },
+    {
+      "id": "banner",
+      "bounds": [
+        81.0,
+        104.0,
+        275.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293980658
+    },
+    {
+      "id": "skel0",
+      "bounds": [
+        81.0,
+        183.0,
+        275.0,
+        54.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293980658,
+      "radius": 9.19
+    },
+    {
+      "id": "skel1",
+      "bounds": [
+        46.0,
+        181.0,
+        314.0,
+        46.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293980659,
+      "radius": 8.0
+    },
+    {
+      "id": "skel2",
+      "bounds": [
+        81.0,
+        275.0,
+        195.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293980402,
+      "radius": 7.18
+    },
+    {
+      "id": "divider",
+      "bounds": [
+        24.0,
+        470.0,
+        358.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "icon_spin",
+      "bounds": [
+        88.0,
+        508.0,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    }
+  ]
+}

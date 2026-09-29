@@ -1,0 +1,172 @@
+# ledger setup-10@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Skills" }
+copy t_search_text { class: user-copy, en: "Search registry" }
+copy t_inst_head_text { class: user-copy, en: "Installed" }
+copy t_name3_text { class: user-copy, en: "rust-review" }
+copy t_ver6_text { class: user-copy, en: "1.2.0" }
+copy btn_0_remove_label_text { class: user-copy, en: "Remove" }
+copy t_name4_text { class: user-copy, en: "git-helper" }
+copy t_ver7_text { class: user-copy, en: "0.9.1" }
+copy btn_1_remove_label_text { class: user-copy, en: "Remove" }
+copy t_name5_text { class: user-copy, en: "docs-writer" }
+copy t_ver8_text { class: user-copy, en: "2.0.0" }
+copy btn_2_remove_label_text { class: user-copy, en: "Remove" }
+copy t_reg_head_text { class: user-copy, en: "Registry" }
+copy t_name10_text { class: user-copy, en: "code-linter" }
+copy t_ver11_text { class: user-copy, en: "1.1.0" }
+copy btn_3_install_label_text { class: user-copy, en: "Install" }
+copy t_name12_text { class: user-copy, en: "api-client" }
+copy t_ver13_text { class: user-copy, en: "0.4.2" }
+copy btn_4_install_label_text { class: user-copy, en: "Install" }
+state btn_0_remove_control_enabled { shape: bool, initial: true }
+state btn_1_remove_control_enabled { shape: bool, initial: true }
+state btn_2_remove_control_enabled { shape: bool, initial: true }
+state btn_3_install_control_enabled { shape: bool, initial: true }
+state btn_4_install_control_enabled { shape: bool, initial: true }
+component Surface991755d1cfb2(instance: text) {
+  view Kit(component: "Surface991755d1cfb2", instance: instance) { slot }
+}
+component Textab5983aad083(instance: text, text: text) {
+  view Kit(component: "Textab5983aad083", instance: instance, text: text)
+}
+component Surface03a832580022(instance: text) {
+  view Kit(component: "Surface03a832580022", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Texte4c9474f1a4a(instance: text, text: text) {
+  view Kit(component: "Texte4c9474f1a4a", instance: instance, text: text)
+}
+component Text4cedad408315(instance: text, text: text) {
+  view Kit(component: "Text4cedad408315", instance: instance, text: text)
+}
+component Text2a9a267717e6(instance: text, text: text) {
+  view Kit(component: "Text2a9a267717e6", instance: instance, text: text)
+}
+component Text31d2a75d8dae(instance: text, text: text) {
+  view Kit(component: "Text31d2a75d8dae", instance: instance, text: text)
+}
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surface34526559ca9e(instance: text) {
+  view Kit(component: "Surface34526559ca9e", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Text8aad8986762c(instance: text, text: text) {
+  view Kit(component: "Text8aad8986762c", instance: instance, text: text)
+}
+component Texte8bbe812e475(instance: text, text: text) {
+  view Kit(component: "Texte8bbe812e475", instance: instance, text: text)
+}
+component Textee2b9be8e014(instance: text, text: text) {
+  view Kit(component: "Textee2b9be8e014", instance: instance, text: text)
+}
+component Surfaceea1fe5ffded5(instance: text) {
+  view Kit(component: "Surfaceea1fe5ffded5", instance: instance) { slot }
+}
+component Text0f8cb8cd4266(instance: text, text: text) {
+  view Kit(component: "Text0f8cb8cd4266", instance: instance, text: text)
+}
+component Text0b9618542569(instance: text, text: text) {
+  view Kit(component: "Text0b9618542569", instance: instance, text: text)
+}
+component Textd335c6bf0314(instance: text, text: text) {
+  view Kit(component: "Textd335c6bf0314", instance: instance, text: text)
+}
+component Surface2bc4d528bfa2(instance: text) {
+  view Kit(component: "Surface2bc4d528bfa2", instance: instance) { slot }
+}
+component Textd70395f7cf74(instance: text, text: text) {
+  view Kit(component: "Textd70395f7cf74", instance: instance, text: text)
+}
+component Textae0ce134e3f9(instance: text, text: text) {
+  view Kit(component: "Textae0ce134e3f9", instance: instance, text: text)
+}
+component Text6199bcc6163d(instance: text, text: text) {
+  view Kit(component: "Text6199bcc6163d", instance: instance, text: text)
+}
+component Textabde592c8b2f(instance: text, text: text) {
+  view Kit(component: "Textabde592c8b2f", instance: instance, text: text)
+}
+component Surface3e47e6c925f8(instance: text) {
+  view Kit(component: "Surface3e47e6c925f8", instance: instance) { slot }
+}
+component Textd1d590742311(instance: text, text: text) {
+  view Kit(component: "Textd1d590742311", instance: instance, text: text)
+}
+component Text12ed43c360d9(instance: text, text: text) {
+  view Kit(component: "Text12ed43c360d9", instance: instance, text: text)
+}
+component Text0a658265ce2e(instance: text, text: text) {
+  view Kit(component: "Text0a658265ce2e", instance: instance, text: text)
+}
+component Surfaceec597bfbd543(instance: text) {
+  view Kit(component: "Surfaceec597bfbd543", instance: instance) { slot }
+}
+component Textbdacc2625818(instance: text, text: text) {
+  view Kit(component: "Textbdacc2625818", instance: instance, text: text)
+}
+
+view root Surface991755d1cfb2(instance: "page") {
+  Textab5983aad083(instance: "t_title", text: copy.t_title_text)
+  Surface03a832580022(instance: "search_box") {
+
+  }
+  Vectore0a378fde04f(instance: "icon_search")
+  Texte4c9474f1a4a(instance: "t_search", text: copy.t_search_text)
+  Text4cedad408315(instance: "t_inst_head", text: copy.t_inst_head_text)
+  Text2a9a267717e6(instance: "t_name3", text: copy.t_name3_text)
+  Text31d2a75d8dae(instance: "t_ver6", text: copy.t_ver6_text)
+  KitButton2c6804b990a5(instance: "btn_0_remove") {
+    Surface34526559ca9e(instance: "btn_0_remove_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "btn_0_remove_control", enabled: btn_0_remove_control_enabled)
+    Text8aad8986762c(instance: "btn_0_remove_label", text: copy.btn_0_remove_label_text)
+  }
+  Texte8bbe812e475(instance: "t_name4", text: copy.t_name4_text)
+  Textee2b9be8e014(instance: "t_ver7", text: copy.t_ver7_text)
+  KitButton2c6804b990a5(instance: "btn_1_remove") {
+    Surfaceea1fe5ffded5(instance: "btn_1_remove_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "btn_1_remove_control", enabled: btn_1_remove_control_enabled)
+    Text0f8cb8cd4266(instance: "btn_1_remove_label", text: copy.btn_1_remove_label_text)
+  }
+  Text0b9618542569(instance: "t_name5", text: copy.t_name5_text)
+  Textd335c6bf0314(instance: "t_ver8", text: copy.t_ver8_text)
+  KitButton2c6804b990a5(instance: "btn_2_remove") {
+    Surface2bc4d528bfa2(instance: "btn_2_remove_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "btn_2_remove_control", enabled: btn_2_remove_control_enabled)
+    Textd70395f7cf74(instance: "btn_2_remove_label", text: copy.btn_2_remove_label_text)
+  }
+  Textae0ce134e3f9(instance: "t_reg_head", text: copy.t_reg_head_text)
+  Text6199bcc6163d(instance: "t_name10", text: copy.t_name10_text)
+  Textabde592c8b2f(instance: "t_ver11", text: copy.t_ver11_text)
+  KitButton2c6804b990a5(instance: "btn_3_install") {
+    Surface3e47e6c925f8(instance: "btn_3_install_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "btn_3_install_control", enabled: btn_3_install_control_enabled)
+    Textd1d590742311(instance: "btn_3_install_label", text: copy.btn_3_install_label_text)
+  }
+  Text12ed43c360d9(instance: "t_name12", text: copy.t_name12_text)
+  Text0a658265ce2e(instance: "t_ver13", text: copy.t_ver13_text)
+  KitButton2c6804b990a5(instance: "btn_4_install") {
+    Surfaceec597bfbd543(instance: "btn_4_install_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "btn_4_install_control", enabled: btn_4_install_control_enabled)
+    Textbdacc2625818(instance: "btn_4_install_label", text: copy.btn_4_install_label_text)
+  }
+}

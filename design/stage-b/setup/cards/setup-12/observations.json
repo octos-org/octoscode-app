@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "fb936b73852b6bdf407c8d75e674be0574aff1963fcd512b488ce59aca61a713",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t_banner",
+      "expected_text": "Reconnecting\u2026 attempt 2 \u00b7 Retry now",
+      "requested_bounds": [
+        46.24,
+        29.33,
+        307.88,
+        21.67
+      ],
+      "status": "observed",
+      "ocr_text": "Reconnecting... attempt 2 \u2022 Retry now",
+      "confidence": 1,
+      "text_similarity": 0.9444444444444444,
+      "ink_bounds": [
+        47.5,
+        29.0,
+        216.5,
+        21.5
+      ],
+      "ink_color": [
+        141,
+        89,
+        43
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        46.238891830412285,
+        29.325581124218143,
+        307.8833312988281,
+        21.674418449401895
+      ]
+    },
+    {
+      "id": "t_loading",
+      "expected_text": "Loading session...",
+      "requested_bounds": [
+        112.78,
+        510.94,
+        160.14,
+        25.06
+      ],
+      "status": "observed",
+      "ocr_text": "Loading session...",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        118.0,
+        512.0,
+        147.5,
+        22.5
+      ],
+      "ink_color": [
+        12,
+        13,
+        12
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        112.77777952303387,
+        510.9418603322307,
+        160.14443969726562,
+        25.05813980102536
+      ]
+    },
+    {
+      "id": "t_cancel",
+      "expected_text": "Cancel",
+      "requested_bounds": [
+        163.53,
+        571.85,
+        57.52,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "Cancel",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        164.0,
+        572.5,
+        54.0,
+        18.0
+      ],
+      "ink_color": [
+        130,
+        130,
+        132
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        163.52777784972022,
+        571.8488367901165,
+        57.5166664123535,
+        19.174419403076193
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4293981682
+    },
+    {
+      "id": "banner",
+      "bounds": [
+        81.0,
+        104.0,
+        275.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293980658
+    },
+    {
+      "id": "skel0",
+      "bounds": [
+        81.0,
+        183.0,
+        275.0,
+        54.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293980658,
+      "radius": 9.19
+    },
+    {
+      "id": "skel1",
+      "bounds": [
+        46.0,
+        181.0,
+        314.0,
+        46.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293980659,
+      "radius": 8.0
+    },
+    {
+      "id": "skel2",
+      "bounds": [
+        81.0,
+        275.0,
+        195.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293980402,
+      "radius": 7.18
+    },
+    {
+      "id": "divider",
+      "bounds": [
+        24.0,
+        470.0,
+        358.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "icon_spin",
+      "bounds": [
+        88.0,
+        508.0,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

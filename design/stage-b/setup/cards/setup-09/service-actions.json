@@ -1,0 +1,16 @@
+{
+  "frame_id": 9,
+  "controls": {
+    "btn_compact": {
+      "event": "context.compact_now",
+      "source_bounds": [
+        103,
+        522,
+        200,
+        46
+      ],
+      "enabled": true
+    }
+  },
+  "source": "authored from the approved stage-a board-2 atlas (Gate A 2026-09-29) + Apple Vision OCR"
+}

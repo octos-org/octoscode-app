@@ -1,0 +1,215 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "card_deepseek": {
+        "component": "Surface355061c60f4b",
+        "layout": {
+          "x": 21.0,
+          "y": 111.0,
+          "w": 323.0,
+          "h": 306.0
+        }
+      },
+      "card_kimi": {
+        "component": "Surface426fa1bbc3d5",
+        "layout": {
+          "x": 19.0,
+          "y": 439.0,
+          "w": 327.0,
+          "h": 102.0
+        }
+      },
+      "card_glm": {
+        "component": "Surface6df01ea6b2de",
+        "layout": {
+          "x": 18.0,
+          "y": 563.0,
+          "w": 328.0,
+          "h": 101.0
+        }
+      },
+      "t_title": {
+        "component": "Textc0c832165bb2",
+        "layout": {
+          "x": 25.517184401850628,
+          "y": 61.0,
+          "w": 77.5,
+          "h": 24.0
+        }
+      },
+      "t_ds_head": {
+        "component": "Text56b8d95a6358",
+        "layout": {
+          "x": 36.33249115715007,
+          "y": 137.5,
+          "w": 200.0,
+          "h": 26.0
+        }
+      },
+      "t_ds_count": {
+        "component": "Textc0a30e1b36e4",
+        "layout": {
+          "x": 35.77770534550196,
+          "y": 173.5,
+          "w": 72.0,
+          "h": 19.0
+        }
+      },
+      "row_flash": {
+        "component": "Surface4107ff515d0e",
+        "layout": {
+          "x": 35.0,
+          "y": 216.0,
+          "w": 295.0,
+          "h": 60.0
+        }
+      },
+      "t_flash": {
+        "component": "Text3c19e7253269",
+        "layout": {
+          "x": 47.06353176588294,
+          "y": 236.0,
+          "w": 200.5,
+          "h": 23.5
+        }
+      },
+      "t_pro": {
+        "component": "Textb39bf423108a",
+        "layout": {
+          "x": 46.9643605870021,
+          "y": 297.5,
+          "w": 127.0,
+          "h": 23.0
+        }
+      },
+      "btn_test": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 36.0,
+          "y": 356.0,
+          "w": 138.0,
+          "h": 44.0
+        }
+      },
+      "btn_test_surface": {
+        "component": "Surface7147a3f30697",
+        "layout": {
+          "x": 36.0,
+          "y": 356.0,
+          "w": 138.0,
+          "h": 44.0
+        }
+      },
+      "btn_test_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 36.0,
+          "y": 356.0,
+          "w": 138.0,
+          "h": 44.0
+        }
+      },
+      "btn_test_label": {
+        "component": "Text6974c8c47687",
+        "layout": {
+          "x": 66.10773298083278,
+          "y": 369.0,
+          "w": 75.5,
+          "h": 19.0
+        }
+      },
+      "btn_discover": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 193.0,
+          "y": 356.0,
+          "w": 136.0,
+          "h": 44.0
+        }
+      },
+      "btn_discover_surface": {
+        "component": "Surface4980432eed01",
+        "layout": {
+          "x": 193.0,
+          "y": 356.0,
+          "w": 136.0,
+          "h": 44.0
+        }
+      },
+      "btn_discover_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 193.0,
+          "y": 356.0,
+          "w": 136.0,
+          "h": 44.0
+        }
+      },
+      "btn_discover_label": {
+        "component": "Text640a558f42a4",
+        "layout": {
+          "x": 208.92657342657344,
+          "y": 369.0,
+          "w": 110.5,
+          "h": 19.0
+        }
+      },
+      "t_kimi_head": {
+        "component": "Text9825033a2804",
+        "layout": {
+          "x": 36.38991512730904,
+          "y": 465.0,
+          "w": 141.0,
+          "h": 25.5
+        }
+      },
+      "t_kimi_count": {
+        "component": "Text2a53963ed782",
+        "layout": {
+          "x": 35.27770534550196,
+          "y": 499.0,
+          "w": 69.0,
+          "h": 19.0
+        }
+      },
+      "t_glm_head": {
+        "component": "Texta783150858a4",
+        "layout": {
+          "x": 35.89440838741887,
+          "y": 587.5,
+          "w": 144.0,
+          "h": 25.5
+        }
+      },
+      "t_glm_count": {
+        "component": "Textb41415e2a853",
+        "layout": {
+          "x": 35.27770534550196,
+          "y": 623.5,
+          "w": 69.0,
+          "h": 19.0
+        }
+      },
+      "dot_glm": {
+        "component": "Surfacedc07632c2b28",
+        "layout": {
+          "x": 280.0,
+          "y": 601.0,
+          "w": 11.0,
+          "h": 11.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

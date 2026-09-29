@@ -1,0 +1,99 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface991755d1cfb2",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "banner": {
+        "component": "Surfacef5593553d0af",
+        "layout": {
+          "x": 81.0,
+          "y": 104.0,
+          "w": 275.0,
+          "h": 44.0
+        }
+      },
+      "t_banner": {
+        "component": "Text96384fa82e4c",
+        "layout": {
+          "x": 45.7191265060241,
+          "y": 27.0,
+          "w": 220.5,
+          "h": 25.5
+        }
+      },
+      "skel0": {
+        "component": "Surface6c0f4a617ac3",
+        "layout": {
+          "x": 81.0,
+          "y": 183.0,
+          "w": 275.0,
+          "h": 54.0
+        }
+      },
+      "skel1": {
+        "component": "Surface353451978e49",
+        "layout": {
+          "x": 46.0,
+          "y": 181.0,
+          "w": 314.0,
+          "h": 46.0
+        }
+      },
+      "skel2": {
+        "component": "Surfaced74bcb07b7ca",
+        "layout": {
+          "x": 81.0,
+          "y": 275.0,
+          "w": 195.0,
+          "h": 44.0
+        }
+      },
+      "divider": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 24.0,
+          "y": 470.0,
+          "w": 358.0,
+          "h": 1.0
+        }
+      },
+      "icon_spin": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 88.0,
+          "y": 508.0,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/setup-12/assets/icon_spin-68949e64fa67.svg"
+        }
+      },
+      "t_loading": {
+        "component": "Textf2d5ba748cf4",
+        "layout": {
+          "x": 116.1362951807229,
+          "y": 510.0,
+          "w": 151.5,
+          "h": 26.5
+        }
+      },
+      "t_cancel": {
+        "component": "Text77148ca60e36",
+        "layout": {
+          "x": 162.67491856677523,
+          "y": 570.5,
+          "w": 58.0,
+          "h": 22.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

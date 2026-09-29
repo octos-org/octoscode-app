@@ -1,0 +1,56 @@
+{
+  "frame_id": 10,
+  "controls": {
+    "btn_0_remove": {
+      "event": "skills.remove_0",
+      "source_bounds": [
+        287,
+        219,
+        84,
+        34
+      ],
+      "enabled": true
+    },
+    "btn_1_remove": {
+      "event": "skills.remove_1",
+      "source_bounds": [
+        287,
+        283,
+        84,
+        34
+      ],
+      "enabled": true
+    },
+    "btn_2_remove": {
+      "event": "skills.remove_2",
+      "source_bounds": [
+        287,
+        347,
+        84,
+        34
+      ],
+      "enabled": true
+    },
+    "btn_3_install": {
+      "event": "skills.install_3",
+      "source_bounds": [
+        280,
+        481,
+        92,
+        34
+      ],
+      "enabled": true
+    },
+    "btn_4_install": {
+      "event": "skills.install_4",
+      "source_bounds": [
+        280,
+        551,
+        92,
+        34
+      ],
+      "enabled": true
+    }
+  },
+  "source": "authored from the approved stage-a board-2 atlas (Gate A 2026-09-29) + Apple Vision OCR"
+}

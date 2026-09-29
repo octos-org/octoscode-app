@@ -1,0 +1,103 @@
+# ledger setup-08@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_query_text { class: user-copy, en: "/ mo" }
+copy t_cmd0_text { class: user-copy, en: "/ model" }
+copy t_desc0_text { class: user-copy, en: "Switch model" }
+copy t_cmd1_text { class: user-copy, en: "/monitor" }
+copy t_desc1_text { class: user-copy, en: "Add a monitor" }
+copy t_cmd2_text { class: user-copy, en: "/ mode" }
+copy t_desc2_text { class: user-copy, en: "Change permissions" }
+copy t_cmd3_text { class: user-copy, en: "/ compact" }
+copy t_desc3_text { class: user-copy, en: "Compact context" }
+copy t_cmd4_text { class: user-copy, en: "/ btw" }
+copy t_desc4_text { class: user-copy, en: "Ask a side question" }
+copy t_cmd5_text { class: user-copy, en: "/ resume" }
+copy t_desc5_text { class: user-copy, en: "Resume a session" }
+copy t_hints_text { class: user-copy, en: "↑↓ to move · ↵ to run · esc" }
+component Surfacea2266e9d57a5(instance: text) {
+  view Kit(component: "Surfacea2266e9d57a5", instance: instance) { slot }
+}
+component Surface5a7573e113ac(instance: text) {
+  view Kit(component: "Surface5a7573e113ac", instance: instance) { slot }
+}
+component Surface03c9bd7cb6ef(instance: text) {
+  view Kit(component: "Surface03c9bd7cb6ef", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Textff19bd56c74d(instance: text, text: text) {
+  view Kit(component: "Textff19bd56c74d", instance: instance, text: text)
+}
+component Surfacec794427d62ea(instance: text) {
+  view Kit(component: "Surfacec794427d62ea", instance: instance) { slot }
+}
+component Text9906748bc262(instance: text, text: text) {
+  view Kit(component: "Text9906748bc262", instance: instance, text: text)
+}
+component Textc1a8c2263c45(instance: text, text: text) {
+  view Kit(component: "Textc1a8c2263c45", instance: instance, text: text)
+}
+component Text49b7a0cfc112(instance: text, text: text) {
+  view Kit(component: "Text49b7a0cfc112", instance: instance, text: text)
+}
+component Text4413da4fdcfc(instance: text, text: text) {
+  view Kit(component: "Text4413da4fdcfc", instance: instance, text: text)
+}
+component Texteb217ceef8dc(instance: text, text: text) {
+  view Kit(component: "Texteb217ceef8dc", instance: instance, text: text)
+}
+component Text96a05bd0ee52(instance: text, text: text) {
+  view Kit(component: "Text96a05bd0ee52", instance: instance, text: text)
+}
+component Textdf3bd7f84447(instance: text, text: text) {
+  view Kit(component: "Textdf3bd7f84447", instance: instance, text: text)
+}
+component Textc0c536bb8844(instance: text, text: text) {
+  view Kit(component: "Textc0c536bb8844", instance: instance, text: text)
+}
+component Text84914cdb6689(instance: text, text: text) {
+  view Kit(component: "Text84914cdb6689", instance: instance, text: text)
+}
+component Text0cb7401de5ae(instance: text, text: text) {
+  view Kit(component: "Text0cb7401de5ae", instance: instance, text: text)
+}
+component Text83624af82b80(instance: text, text: text) {
+  view Kit(component: "Text83624af82b80", instance: instance, text: text)
+}
+component Text67c8e29fc600(instance: text, text: text) {
+  view Kit(component: "Text67c8e29fc600", instance: instance, text: text)
+}
+component Text6163d873f603(instance: text, text: text) {
+  view Kit(component: "Text6163d873f603", instance: instance, text: text)
+}
+
+view root Surfacea2266e9d57a5(instance: "page") {
+  Surface5a7573e113ac(instance: "scrim") {
+
+  }
+  Surface03c9bd7cb6ef(instance: "modal") {
+
+  }
+  Vectore0a378fde04f(instance: "icon_close")
+  Textff19bd56c74d(instance: "t_query", text: copy.t_query_text)
+  Surfacec794427d62ea(instance: "row_sel") {
+
+  }
+  Text9906748bc262(instance: "t_cmd0", text: copy.t_cmd0_text)
+  Textc1a8c2263c45(instance: "t_desc0", text: copy.t_desc0_text)
+  Text49b7a0cfc112(instance: "t_cmd1", text: copy.t_cmd1_text)
+  Text4413da4fdcfc(instance: "t_desc1", text: copy.t_desc1_text)
+  Texteb217ceef8dc(instance: "t_cmd2", text: copy.t_cmd2_text)
+  Text96a05bd0ee52(instance: "t_desc2", text: copy.t_desc2_text)
+  Textdf3bd7f84447(instance: "t_cmd3", text: copy.t_cmd3_text)
+  Textc0c536bb8844(instance: "t_desc3", text: copy.t_desc3_text)
+  Text84914cdb6689(instance: "t_cmd4", text: copy.t_cmd4_text)
+  Text0cb7401de5ae(instance: "t_desc4", text: copy.t_desc4_text)
+  Text83624af82b80(instance: "t_cmd5", text: copy.t_cmd5_text)
+  Text67c8e29fc600(instance: "t_desc5", text: copy.t_desc5_text)
+  Text6163d873f603(instance: "t_hints", text: copy.t_hints_text)
+}

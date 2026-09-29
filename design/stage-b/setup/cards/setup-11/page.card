@@ -1,0 +1,76 @@
+# ledger setup-11@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Something went wrong" }
+copy t_msg1_text { class: user-copy, en: "OctosCode hit an unexpected" }
+copy t_msg2_text { class: user-copy, en: "error. Your sessions are safe" }
+copy t_msg3_text { class: user-copy, en: "on the server." }
+copy btn_reload_label_text { class: user-copy, en: "Reload" }
+copy btn_diag_label_text { class: user-copy, en: "Copy diagnostics" }
+copy t_report_text { class: user-copy, en: "Report issue" }
+state btn_reload_control_enabled { shape: bool, initial: true }
+state btn_diag_control_enabled { shape: bool, initial: true }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Textd9958b4d0346(instance: text, text: text) {
+  view Kit(component: "Textd9958b4d0346", instance: instance, text: text)
+}
+component Text22cf77777e43(instance: text, text: text) {
+  view Kit(component: "Text22cf77777e43", instance: instance, text: text)
+}
+component Textb46b87403476(instance: text, text: text) {
+  view Kit(component: "Textb46b87403476", instance: instance, text: text)
+}
+component Textc30d4b0f4fdb(instance: text, text: text) {
+  view Kit(component: "Textc30d4b0f4fdb", instance: instance, text: text)
+}
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surface372b9a076207(instance: text) {
+  view Kit(component: "Surface372b9a076207", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Textbda33531fa72(instance: text, text: text) {
+  view Kit(component: "Textbda33531fa72", instance: instance, text: text)
+}
+component Surface9aec1630eae3(instance: text) {
+  view Kit(component: "Surface9aec1630eae3", instance: instance) { slot }
+}
+component Text730c2d7c91d9(instance: text, text: text) {
+  view Kit(component: "Text730c2d7c91d9", instance: instance, text: text)
+}
+component Text5ec08d7eedc7(instance: text, text: text) {
+  view Kit(component: "Text5ec08d7eedc7", instance: instance, text: text)
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Vectore0a378fde04f(instance: "icon_warning")
+  Textd9958b4d0346(instance: "t_title", text: copy.t_title_text)
+  Text22cf77777e43(instance: "t_msg1", text: copy.t_msg1_text)
+  Textb46b87403476(instance: "t_msg2", text: copy.t_msg2_text)
+  Textc30d4b0f4fdb(instance: "t_msg3", text: copy.t_msg3_text)
+  KitButton2c6804b990a5(instance: "btn_reload") {
+    Surface372b9a076207(instance: "btn_reload_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "btn_reload_control", enabled: btn_reload_control_enabled)
+    Textbda33531fa72(instance: "btn_reload_label", text: copy.btn_reload_label_text)
+  }
+  KitButton2c6804b990a5(instance: "btn_diag") {
+    Surface9aec1630eae3(instance: "btn_diag_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "btn_diag_control", enabled: btn_diag_control_enabled)
+    Text730c2d7c91d9(instance: "btn_diag_label", text: copy.btn_diag_label_text)
+  }
+  Text5ec08d7eedc7(instance: "t_report", text: copy.t_report_text)
+}

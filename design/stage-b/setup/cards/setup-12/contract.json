@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "id": "setup-12",
+  "app": "octoscode",
+  "number": 12,
+  "title": "Loading and reconnecting",
+  "structure": "Native component reconstructed from the approved stage-a board-2 atlas",
+  "artboard": [
+    406,
+    776
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a board-2 atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
+    "c": [
+      {
+        "t": "stack",
+        "id": "banner",
+        "x": 0.0,
+        "y": 0.0,
+        "w": 406.0,
+        "h": 58.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294898398,
+        "radius": 0
+      },
+      {
+        "t": "text",
+        "id": "t_banner",
+        "text": "Reconnecting… attempt 2 · Retry now",
+        "x": 46.24,
+        "y": 29.33,
+        "w": 307.88,
+        "h": 21.67,
+        "size": 14,
+        "line_height": 21.67,
+        "weight": 500,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf"
+      },
+      {
+        "t": "stack",
+        "id": "skel0",
+        "x": 46.0,
+        "y": 100.0,
+        "w": 314.0,
+        "h": 47.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293914867,
+        "radius": 8
+      },
+      {
+        "t": "stack",
+        "id": "skel1",
+        "x": 46.0,
+        "y": 181.0,
+        "w": 314.0,
+        "h": 46.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293914867,
+        "radius": 8
+      },
+      {
+        "t": "stack",
+        "id": "skel2",
+        "x": 46.0,
+        "y": 270.0,
+        "w": 314.0,
+        "h": 49.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293914867,
+        "radius": 8
+      },
+      {
+        "t": "stack",
+        "id": "divider",
+        "x": 24.0,
+        "y": 470.0,
+        "w": 358.0,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 0
+      },
+      {
+        "t": "svg",
+        "id": "icon_spin",
+        "x": 88.0,
+        "y": 508.0,
+        "w": 20.0,
+        "h": 20.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t_loading",
+        "text": "Loading session...",
+        "x": 112.78,
+        "y": 510.94,
+        "w": 160.14,
+        "h": 25.06,
+        "size": 15,
+        "line_height": 25.06,
+        "weight": 500,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t_cancel",
+        "text": "Cancel",
+        "x": 163.53,
+        "y": 571.85,
+        "w": 57.52,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 500,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf"
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294967295
+  }
+}

@@ -1,0 +1,749 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "4f6487df5abf26921604ebb014617c33d9034590363270f350b0a035054c69d3",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "text",
+        "id": "t_title",
+        "text": "Skills",
+        "x": 39.71054292929293,
+        "y": 36.0,
+        "w": 62.5,
+        "h": 25.5,
+        "size": 27.7979797979798,
+        "line_height": 25.5,
+        "weight": 600,
+        "color": 4278190080,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": -2.0143939393939405,
+        "font_asc": -0.1345952943313954,
+        "font_desc": 0.1580327943313954
+      },
+      {
+        "t": "stack",
+        "id": "search_box",
+        "x": 33.0,
+        "y": 79.0,
+        "w": 338.0,
+        "h": 63.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 12.6
+      },
+      {
+        "t": "svg",
+        "id": "icon_search",
+        "x": 42.0,
+        "y": 100.0,
+        "w": 20.0,
+        "h": 20.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t_search",
+        "text": "Search registry",
+        "x": 88.21176173649673,
+        "y": 99.5,
+        "w": 124.0,
+        "h": 26.0,
+        "size": 22.74406865219586,
+        "line_height": 26.0,
+        "weight": 400,
+        "color": 4285624947,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -3.014783298478402,
+        "font_asc": -0.12935014204545459,
+        "font_desc": -0.06254438920454541
+      },
+      {
+        "t": "text",
+        "id": "t_inst_head",
+        "text": "Installed",
+        "x": 36.4137475214805,
+        "y": 169.5,
+        "w": 68.5,
+        "h": 20.0,
+        "size": 21.657633840052874,
+        "line_height": 20.0,
+        "weight": 600,
+        "color": 4279769369,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": -2.668498017184401,
+        "font_asc": -0.14886474609375,
+        "font_desc": 0.13763427734374994
+      },
+      {
+        "t": "text",
+        "id": "t_name3",
+        "text": "rust-review",
+        "x": 50.400508582326765,
+        "y": 225.5,
+        "w": 99.5,
+        "h": 21.0,
+        "size": 22.13350286077559,
+        "line_height": 21.0,
+        "weight": 500,
+        "color": 4278781960,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": -2.505626191989829,
+        "font_asc": -0.12155330882352944,
+        "font_desc": 0.13961971507352938
+      },
+      {
+        "t": "text",
+        "id": "t_ver6",
+        "text": "1.2.0",
+        "x": 195.93333333333334,
+        "y": 225.0,
+        "w": 41.0,
+        "h": 21.0,
+        "size": 22.755555555555556,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4283190605,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -2.7944444444444443,
+        "font_asc": -0.1435546875,
+        "font_desc": 0.14355468750000006
+      },
+      {
+        "t": "stack",
+        "id": "btn_0_remove",
+        "x": 287.0,
+        "y": 219.5,
+        "w": 84.0,
+        "h": 34.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "btn_0_remove_surface",
+            "x": 287.0,
+            "y": 219.5,
+            "w": 84.0,
+            "h": 34.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294769918,
+            "radius": 17.0
+          },
+          {
+            "t": "button",
+            "id": "btn_0_remove_control",
+            "x": 287.0,
+            "y": 219.5,
+            "w": 84.0,
+            "h": 34.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "btn_0_remove_label",
+            "text": "Remove",
+            "x": 295.80964970257764,
+            "y": 226.5,
+            "w": 59.5,
+            "h": 19.5,
+            "size": 20.98083278255122,
+            "line_height": 19.5,
+            "weight": 500,
+            "color": 4281098737,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": -4.692994051553205,
+            "font_asc": -0.14588583669354838,
+            "font_desc": 0.13465536794354838
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      {
+        "t": "text",
+        "id": "t_name4",
+        "text": "git-helper",
+        "x": 50.43975903614458,
+        "y": 288.5,
+        "w": 86.0,
+        "h": 26.0,
+        "size": 22.61847389558233,
+        "line_height": 26.0,
+        "weight": 500,
+        "color": 4278848010,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": -2.5490852298081217,
+        "font_asc": -0.12349076704545459,
+        "font_desc": -0.06303267045454541
+      },
+      {
+        "t": "text",
+        "id": "t_ver7",
+        "text": "0.9.1",
+        "x": 195.64455753935147,
+        "y": 288.5,
+        "w": 39.5,
+        "h": 21.0,
+        "size": 22.753657044329497,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4284111452,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -2.993454168752434,
+        "font_asc": -0.14348502033792243,
+        "font_desc": 0.14354735411451813
+      },
+      {
+        "t": "stack",
+        "id": "btn_1_remove",
+        "x": 287.0,
+        "y": 283.0,
+        "w": 84.0,
+        "h": 34.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "btn_1_remove_surface",
+            "x": 287.0,
+            "y": 283.0,
+            "w": 84.0,
+            "h": 34.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294770174,
+            "radius": 17.0
+          },
+          {
+            "t": "button",
+            "id": "btn_1_remove_control",
+            "x": 287.0,
+            "y": 283.0,
+            "w": 84.0,
+            "h": 34.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "btn_1_remove_label",
+            "text": "Remove",
+            "x": 295.80964970257764,
+            "y": 290.0,
+            "w": 59.5,
+            "h": 19.5,
+            "size": 20.98083278255122,
+            "line_height": 19.5,
+            "weight": 500,
+            "color": 4280902387,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": -4.692994051553205,
+            "font_asc": -0.14588583669354838,
+            "font_desc": 0.13465536794354838
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      {
+        "t": "text",
+        "id": "t_name5",
+        "text": "docs-writer",
+        "x": 50.96249205340114,
+        "y": 353.0,
+        "w": 100.0,
+        "h": 21.0,
+        "size": 22.13350286077559,
+        "line_height": 21.0,
+        "weight": 500,
+        "color": 4279045389,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": -2.605848696757788,
+        "font_asc": -0.12155330882352944,
+        "font_desc": 0.13961971507352938
+      },
+      {
+        "t": "text",
+        "id": "t_ver8",
+        "text": "2.0.0",
+        "x": 194.73856209150327,
+        "y": 352.5,
+        "w": 43.0,
+        "h": 21.5,
+        "size": 23.424836601307188,
+        "line_height": 21.5,
+        "weight": 400,
+        "color": 4283848534,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -3.7953431372549016,
+        "font_asc": -0.1460658482142857,
+        "font_desc": 0.1460658482142856
+      },
+      {
+        "t": "stack",
+        "id": "btn_2_remove",
+        "x": 287.0,
+        "y": 347.09,
+        "w": 84.0,
+        "h": 34.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "btn_2_remove_surface",
+            "x": 287.0,
+            "y": 347.09,
+            "w": 84.0,
+            "h": 34.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294835710,
+            "radius": 17.0
+          },
+          {
+            "t": "button",
+            "id": "btn_2_remove_control",
+            "x": 287.0,
+            "y": 347.09,
+            "w": 84.0,
+            "h": 34.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "btn_2_remove_label",
+            "text": "Remove",
+            "x": 295.80964970257764,
+            "y": 354.5,
+            "w": 59.5,
+            "h": 19.5,
+            "size": 20.98083278255122,
+            "line_height": 19.5,
+            "weight": 500,
+            "color": 4281295857,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": -4.692994051553205,
+            "font_asc": -0.14588583669354838,
+            "font_desc": 0.13465536794354838
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      {
+        "t": "text",
+        "id": "t_reg_head",
+        "text": "Registry",
+        "x": 35.38991512730904,
+        "y": 426.0,
+        "w": 69.5,
+        "h": 25.5,
+        "size": 21.98302546180729,
+        "line_height": 25.5,
+        "weight": 600,
+        "color": 4278913803,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": -2.973040439340989,
+        "font_asc": -0.11556368095930236,
+        "font_desc": -0.06558866279069758
+      },
+      {
+        "t": "text",
+        "id": "t_name10",
+        "text": "code-linter",
+        "x": 50.49300699300699,
+        "y": 487.0,
+        "w": 93.5,
+        "h": 20.5,
+        "size": 21.482517482517483,
+        "line_height": 20.5,
+        "weight": 500,
+        "color": 4279045389,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": -2.2234265734265732,
+        "font_asc": -0.11881510416666663,
+        "font_desc": 0.13688151041666674
+      },
+      {
+        "t": "text",
+        "id": "t_ver11",
+        "text": "1.1.0",
+        "x": 193.40196078431373,
+        "y": 485.5,
+        "w": 40.0,
+        "h": 21.5,
+        "size": 23.424836601307188,
+        "line_height": 21.5,
+        "weight": 400,
+        "color": 4284703587,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -2.209150326797385,
+        "font_asc": -0.1460658482142857,
+        "font_desc": 0.1460658482142856
+      },
+      {
+        "t": "stack",
+        "id": "btn_3_install",
+        "x": 269.0,
+        "y": 476.0,
+        "w": 88.0,
+        "h": 41.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "btn_3_install_surface",
+            "x": 269.0,
+            "y": 476.0,
+            "w": 88.0,
+            "h": 41.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294704123,
+            "radius": 20.5
+          },
+          {
+            "t": "button",
+            "id": "btn_3_install_control",
+            "x": 269.0,
+            "y": 476.0,
+            "w": 88.0,
+            "h": 41.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "btn_3_install_label",
+            "text": "Install",
+            "x": 282.65841584158414,
+            "y": 486.5,
+            "w": 59.5,
+            "h": 25.5,
+            "size": 29.064026402640263,
+            "line_height": 25.5,
+            "weight": 500,
+            "color": 4294704380,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": -3.692574257425742,
+            "font_asc": -0.17239734738372092,
+            "font_desc": 0.16019031613372087
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      {
+        "t": "text",
+        "id": "t_name12",
+        "text": "api-client",
+        "x": 50.5932418699187,
+        "y": 555.5,
+        "w": 81.0,
+        "h": 25.5,
+        "size": 22.3739837398374,
+        "line_height": 25.5,
+        "weight": 500,
+        "color": 4278979596,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": -2.508835817524842,
+        "font_asc": -0.12252452761627908,
+        "font_desc": -0.05228015988372092
+      },
+      {
+        "t": "text",
+        "id": "t_ver13",
+        "text": "0.4.2",
+        "x": 190.14444444444445,
+        "y": 555.5,
+        "w": 45.5,
+        "h": 21.0,
+        "size": 22.755555555555556,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4283650900,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -2.8916666666666675,
+        "font_asc": -0.1435546875,
+        "font_desc": 0.14355468750000006
+      },
+      {
+        "t": "stack",
+        "id": "btn_4_install",
+        "x": 269.0,
+        "y": 546.0,
+        "w": 88.0,
+        "h": 41.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "btn_4_install_surface",
+            "x": 269.0,
+            "y": 546.0,
+            "w": 88.0,
+            "h": 41.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294638330,
+            "radius": 20.5
+          },
+          {
+            "t": "button",
+            "id": "btn_4_install_control",
+            "x": 269.0,
+            "y": 546.0,
+            "w": 88.0,
+            "h": 41.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "btn_4_install_label",
+            "text": "Install",
+            "x": 285.26732673267327,
+            "y": 556.0,
+            "w": 56.0,
+            "h": 24.5,
+            "size": 27.71221122112211,
+            "line_height": 24.5,
+            "weight": 500,
+            "color": 4294704123,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": -3.673927392739273,
+            "font_asc": -0.16904058689024393,
+            "font_desc": 0.1568335556402439
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      }
+    ],
+    "variant": "surface",
+    "bg": 4293981682
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "search_box",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_search",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_0_remove",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_0_remove_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_0_remove_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_1_remove",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_1_remove_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_1_remove_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_2_remove",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_2_remove_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_2_remove_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_3_install",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_3_install_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_3_install_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_4_install",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_4_install_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_4_install_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t_title",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.07246547965116283
+    },
+    {
+      "id": "t_search",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.13255250608766234
+    },
+    {
+      "id": "t_inst_head",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12321281433105466
+    },
+    {
+      "id": "t_name3",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.11320513556985295
+    },
+    {
+      "id": "t_ver6",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12280273437499999
+    },
+    {
+      "id": "btn_0_remove_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.22368006552419353
+    },
+    {
+      "id": "t_name4",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.11269925820707072
+    },
+    {
+      "id": "t_ver7",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1315592549769243
+    },
+    {
+      "id": "btn_1_remove_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.22368006552419353
+    },
+    {
+      "id": "t_name5",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.11773322610294118
+    },
+    {
+      "id": "t_ver8",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.16202218191964285
+    },
+    {
+      "id": "btn_2_remove_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.22368006552419353
+    },
+    {
+      "id": "t_reg_head",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.13524255087209303
+    },
+    {
+      "id": "t_name10",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.10349934895833332
+    },
+    {
+      "id": "t_ver11",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.09430803571428568
+    },
+    {
+      "id": "btn_3_install_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12704964571220928
+    },
+    {
+      "id": "t_name12",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.11213183341408269
+    },
+    {
+      "id": "t_ver13",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12707519531250003
+    },
+    {
+      "id": "btn_4_install_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1325743140243902
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}
