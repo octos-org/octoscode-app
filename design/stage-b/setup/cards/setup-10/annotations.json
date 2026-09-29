@@ -108,147 +108,7 @@
       "bg": 4293981682
     },
     {
-      "id": "search_box",
-      "bounds": [
-        33.0,
-        79.0,
-        338.0,
-        63.0
-      ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294901502,
-      "radius": 12.6
-    },
-    {
-      "id": "icon_search",
-      "bounds": [
-        42.0,
-        100.0,
-        20.0,
-        20.0
-      ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
-      "reviewed": false
-    },
-    {
-      "id": "btn_0_remove",
-      "bounds": [
-        287.0,
-        219.5,
-        84.0,
-        34.0
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "btn_0_remove_surface",
-      "bounds": [
-        287.0,
-        219.5,
-        84.0,
-        34.0
-      ],
-      "method": "surface contour unresolved; requested geometry retained",
-      "reviewed": false,
-      "bg": 4294769918,
-      "radius": 17.0
-    },
-    {
-      "id": "btn_0_remove_control",
-      "bounds": [
-        287.0,
-        219.5,
-        84.0,
-        34.0
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "btn_1_remove",
-      "bounds": [
-        287.0,
-        283.0,
-        84.0,
-        34.0
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "btn_1_remove_surface",
-      "bounds": [
-        287.0,
-        283.0,
-        84.0,
-        34.0
-      ],
-      "method": "surface contour unresolved; requested geometry retained",
-      "reviewed": false,
-      "bg": 4294770174,
-      "radius": 17.0
-    },
-    {
-      "id": "btn_1_remove_control",
-      "bounds": [
-        287.0,
-        283.0,
-        84.0,
-        34.0
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "btn_2_remove",
-      "bounds": [
-        287.0,
-        347.09,
-        84.0,
-        34.0
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "btn_2_remove_surface",
-      "bounds": [
-        287.0,
-        347.09,
-        84.0,
-        34.0
-      ],
-      "method": "surface contour unresolved; requested geometry retained",
-      "reviewed": false,
-      "bg": 4294835710,
-      "radius": 17.0
-    },
-    {
-      "id": "btn_2_remove_control",
-      "bounds": [
-        287.0,
-        347.09,
-        84.0,
-        34.0
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "btn_3_install",
-      "bounds": [
-        269.0,
-        476.0,
-        88.0,
-        41.0
-      ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false
-    },
-    {
-      "id": "btn_3_install_surface",
+      "id": "search_pill",
       "bounds": [
         269.0,
         476.0,
@@ -261,12 +121,174 @@
       "radius": 20.5
     },
     {
+      "id": "hair_installed",
+      "bounds": [
+        0.0,
+        204.0,
+        406.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "hair_registry",
+      "bounds": [
+        0.0,
+        602.0,
+        406.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "icon_search",
+      "bounds": [
+        60.0,
+        102.0,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "btn_0_remove",
+      "bounds": [
+        295.0,
+        225.5,
+        76.0,
+        30.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_0_remove_surface",
+      "bounds": [
+        295.0,
+        225.5,
+        76.0,
+        30.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294769917,
+      "radius": 15.0
+    },
+    {
+      "id": "btn_0_remove_control",
+      "bounds": [
+        295.0,
+        225.5,
+        76.0,
+        30.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_1_remove",
+      "bounds": [
+        295.0,
+        289.0,
+        76.0,
+        30.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_1_remove_surface",
+      "bounds": [
+        295.0,
+        289.0,
+        76.0,
+        30.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294704382,
+      "radius": 15.0
+    },
+    {
+      "id": "btn_1_remove_control",
+      "bounds": [
+        295.0,
+        289.0,
+        76.0,
+        30.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_2_remove",
+      "bounds": [
+        295.0,
+        353.09,
+        76.0,
+        30.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_2_remove_surface",
+      "bounds": [
+        295.0,
+        353.09,
+        76.0,
+        30.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294770173,
+      "radius": 15.0
+    },
+    {
+      "id": "btn_2_remove_control",
+      "bounds": [
+        295.0,
+        353.09,
+        76.0,
+        30.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_3_install",
+      "bounds": [
+        267.0,
+        474.0,
+        93.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "btn_3_install_surface",
+      "bounds": [
+        267.0,
+        474.0,
+        93.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294704123,
+      "radius": 23.0
+    },
+    {
       "id": "btn_3_install_control",
       "bounds": [
-        269.0,
-        476.0,
-        88.0,
-        41.0
+        267.0,
+        474.0,
+        93.0,
+        46.0
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -274,10 +296,10 @@
     {
       "id": "btn_4_install",
       "bounds": [
-        269.0,
-        546.0,
-        88.0,
-        41.0
+        267.0,
+        544.0,
+        93.0,
+        46.0
       ],
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false
@@ -285,23 +307,23 @@
     {
       "id": "btn_4_install_surface",
       "bounds": [
-        269.0,
-        546.0,
-        88.0,
-        41.0
+        267.0,
+        544.0,
+        93.0,
+        46.0
       ],
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
-      "bg": 4294638330,
-      "radius": 20.5
+      "bg": 4294704123,
+      "radius": 23.0
     },
     {
       "id": "btn_4_install_control",
       "bounds": [
-        269.0,
-        546.0,
-        88.0,
-        41.0
+        267.0,
+        544.0,
+        93.0,
+        46.0
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false

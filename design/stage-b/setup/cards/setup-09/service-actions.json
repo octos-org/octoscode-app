@@ -4,10 +4,10 @@
     "btn_compact": {
       "event": "context.compact_now",
       "source_bounds": [
-        103,
-        522,
-        200,
-        46
+        60,
+        513,
+        290,
+        44
       ],
       "enabled": true
     }

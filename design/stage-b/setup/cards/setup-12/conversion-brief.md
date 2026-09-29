@@ -46,11 +46,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "t_banner",
-    "x": 46.24,
-    "y": 29.33,
-    "w": 307.88,
-    "h": 21.67,
-    "text": "Reconnecting\u2026 attempt 2 \u00b7 Retry now",
+    "x": 46.2,
+    "y": 29.3,
+    "w": 222.0,
+    "h": 25.5,
+    "text": "Reconnecting\u2026 attempt 2 \u00b7",
     "font_src": "self:resources/ux/Inter-500.ttf",
     "size": 14,
     "weight": 500,
@@ -61,11 +61,27 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "t_retry",
+    "x": 276.5,
+    "y": 29.0,
+    "w": 77.0,
+    "h": 25.0,
+    "text": "Retry now",
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 14,
+    "weight": 600,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
     "id": "skel0",
-    "x": 46.0,
-    "y": 100.0,
-    "w": 314.0,
-    "h": 47.0,
+    "x": 30.0,
+    "y": 98.0,
+    "w": 70.0,
+    "h": 50.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -73,10 +89,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "skel1",
-    "x": 46.0,
-    "y": 181.0,
-    "w": 314.0,
-    "h": 46.0,
+    "x": 100.0,
+    "y": 104.0,
+    "w": 255.0,
+    "h": 44.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -84,10 +100,43 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "skel2",
-    "x": 46.0,
+    "x": 30.0,
+    "y": 180.0,
+    "w": 70.0,
+    "h": 56.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "skel3",
+    "x": 100.0,
+    "y": 184.0,
+    "w": 255.0,
+    "h": 52.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "skel4",
+    "x": 30.0,
     "y": 270.0,
-    "w": 314.0,
+    "w": 70.0,
     "h": 49.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "skel5",
+    "x": 100.0,
+    "y": 275.0,
+    "w": 176.0,
+    "h": 44.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -96,9 +145,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "divider",
     "x": 24.0,
-    "y": 470.0,
+    "y": 392.0,
     "w": 358.0,
-    "h": 1.0,
+    "h": 2.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -106,10 +155,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_spin",
-    "x": 88.0,
-    "y": 508.0,
-    "w": 20.0,
-    "h": 20.0,
+    "x": 178.0,
+    "y": 441.0,
+    "w": 30.0,
+    "h": 36.0,
     "role": "unknown",
     "native_candidates": []
   },

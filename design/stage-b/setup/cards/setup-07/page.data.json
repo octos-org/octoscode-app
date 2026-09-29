@@ -39,54 +39,112 @@
         }
       },
       "t_title": {
-        "component": "Textc0c832165bb2",
+        "component": "Textefc81a410676",
         "layout": {
-          "x": 25.517184401850628,
+          "x": 25.99,
           "y": 61.0,
           "w": 77.5,
-          "h": 24.0
+          "h": 25.0
         }
       },
       "t_ds_head": {
-        "component": "Text56b8d95a6358",
+        "component": "Text9d99f2224598",
         "layout": {
-          "x": 36.33249115715007,
+          "x": 36.73,
           "y": 137.5,
           "w": 200.0,
           "h": 26.0
         }
       },
       "t_ds_count": {
-        "component": "Textc0a30e1b36e4",
+        "component": "Textd2de94ec13a5",
         "layout": {
-          "x": 35.77770534550196,
+          "x": 36.04,
           "y": 173.5,
           "w": 72.0,
           "h": 19.0
         }
       },
-      "row_flash": {
-        "component": "Surface4107ff515d0e",
+      "chev_chip": {
+        "component": "Surface885d219686b4",
         "layout": {
-          "x": 35.0,
-          "y": 216.0,
-          "w": 295.0,
-          "h": 60.0
+          "x": 328.0,
+          "y": 228.0,
+          "w": 40.0,
+          "h": 40.0
+        }
+      },
+      "icon_chev": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 342.0,
+          "y": 240.0,
+          "w": 14.0,
+          "h": 22.0,
+          "src": "http://127.0.0.1:8170/ux-images/setup-07/assets/icon_chev-23070b5e0c3a.svg"
+        }
+      },
+      "icon_check": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 299.0,
+          "y": 240.0,
+          "w": 16.0,
+          "h": 16.0,
+          "src": "http://127.0.0.1:8170/ux-images/setup-07/assets/icon_check-742796b61b58.svg"
+        }
+      },
+      "dot_ds": {
+        "component": "Surface5f03e3e8e65e",
+        "layout": {
+          "x": 280.0,
+          "y": 288.0,
+          "w": 11.0,
+          "h": 11.0
+        }
+      },
+      "icon_chev_ds": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 346.0,
+          "y": 283.0,
+          "w": 18.0,
+          "h": 24.0,
+          "src": "http://127.0.0.1:8170/ux-images/setup-07/assets/icon_chev_ds-a742d013f874.svg"
+        }
+      },
+      "dot_kimi": {
+        "component": "Surface5f03e3e8e65e",
+        "layout": {
+          "x": 280.0,
+          "y": 503.0,
+          "w": 11.0,
+          "h": 11.0
+        }
+      },
+      "icon_chev_kimi": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 346.0,
+          "y": 498.0,
+          "w": 18.0,
+          "h": 24.0,
+          "src": "http://127.0.0.1:8170/ux-images/setup-07/assets/icon_chev_kimi-a742d013f874.svg"
         }
       },
       "t_flash": {
-        "component": "Text3c19e7253269",
+        "component": "Textecbf6c315357",
         "layout": {
-          "x": 47.06353176588294,
+          "x": 47.32,
           "y": 236.0,
           "w": 200.5,
           "h": 23.5
         }
       },
       "t_pro": {
-        "component": "Textb39bf423108a",
+        "component": "Text947ba4ca257a",
         "layout": {
-          "x": 46.9643605870021,
+          "x": 47.25,
           "y": 297.5,
           "w": 127.0,
           "h": 23.0
@@ -102,7 +160,7 @@
         }
       },
       "btn_test_surface": {
-        "component": "Surface7147a3f30697",
+        "component": "Surface26d3b1b7b376",
         "layout": {
           "x": 36.0,
           "y": 356.0,
@@ -120,9 +178,9 @@
         }
       },
       "btn_test_label": {
-        "component": "Text6974c8c47687",
+        "component": "Text23d6ea84e7c8",
         "layout": {
-          "x": 66.10773298083278,
+          "x": 66.36,
           "y": 369.0,
           "w": 75.5,
           "h": 19.0
@@ -138,7 +196,7 @@
         }
       },
       "btn_discover_surface": {
-        "component": "Surface4980432eed01",
+        "component": "Surfacea8acf25b8347",
         "layout": {
           "x": 193.0,
           "y": 356.0,
@@ -156,45 +214,45 @@
         }
       },
       "btn_discover_label": {
-        "component": "Text640a558f42a4",
+        "component": "Text6b0ef02921d8",
         "layout": {
-          "x": 208.92657342657344,
+          "x": 209.43,
           "y": 369.0,
           "w": 110.5,
           "h": 19.0
         }
       },
       "t_kimi_head": {
-        "component": "Text9825033a2804",
+        "component": "Textaa1186c45b59",
         "layout": {
-          "x": 36.38991512730904,
+          "x": 36.78,
           "y": 465.0,
           "w": 141.0,
           "h": 25.5
         }
       },
       "t_kimi_count": {
-        "component": "Text2a53963ed782",
+        "component": "Texta813d34bcd90",
         "layout": {
-          "x": 35.27770534550196,
+          "x": 35.59,
           "y": 499.0,
           "w": 69.0,
           "h": 19.0
         }
       },
       "t_glm_head": {
-        "component": "Texta783150858a4",
+        "component": "Textf4212b9678a4",
         "layout": {
-          "x": 35.89440838741887,
+          "x": 36.15,
           "y": 587.5,
           "w": 144.0,
           "h": 25.5
         }
       },
       "t_glm_count": {
-        "component": "Textb41415e2a853",
+        "component": "Texta3258eaad970",
         "layout": {
-          "x": 35.27770534550196,
+          "x": 35.59,
           "y": 623.5,
           "w": 69.0,
           "h": 19.0

@@ -4,50 +4,50 @@
     "btn_0_remove": {
       "event": "skills.remove_0",
       "source_bounds": [
-        287,
-        219,
-        84,
-        34
+        295,
+        225,
+        76,
+        30
       ],
       "enabled": true
     },
     "btn_1_remove": {
       "event": "skills.remove_1",
       "source_bounds": [
-        287,
-        283,
-        84,
-        34
+        295,
+        289,
+        76,
+        30
       ],
       "enabled": true
     },
     "btn_2_remove": {
       "event": "skills.remove_2",
       "source_bounds": [
-        287,
-        347,
-        84,
-        34
+        295,
+        353,
+        76,
+        30
       ],
       "enabled": true
     },
     "btn_3_install": {
       "event": "skills.install_3",
       "source_bounds": [
-        280,
-        481,
-        92,
-        34
+        268,
+        474,
+        90,
+        44
       ],
       "enabled": true
     },
     "btn_4_install": {
       "event": "skills.install_4",
       "source_bounds": [
-        280,
-        551,
-        92,
-        34
+        268,
+        544,
+        90,
+        44
       ],
       "enabled": true
     }

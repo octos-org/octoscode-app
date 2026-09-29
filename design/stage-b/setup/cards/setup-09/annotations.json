@@ -62,33 +62,35 @@
     {
       "id": "bar_track",
       "bounds": [
-        42.0,
-        128.0,
-        322.0,
-        8.0
+        45.0,
+        142.5,
+        317.0,
+        15.5
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
-      "radius": 4.0
+      "bg": 4280970734,
+      "radius": 7.75
     },
     {
       "id": "bar_fill",
       "bounds": [
-        42.0,
-        128.0,
-        200.0,
-        8.0
+        45.0,
+        142.5,
+        205.0,
+        15.5
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
-      "radius": 4.0
+      "bg": 4280708079,
+      "radius": 7.75
     },
     {
-      "id": "seg_pill",
+      "id": "seg_box",
       "bounds": [
         159.0,
         410.0,
-        107.0,
+        210.0,
         55.0
       ],
       "method": "reference edge contour with contained OCR text anchors",

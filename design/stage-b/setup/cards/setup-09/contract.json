@@ -79,26 +79,26 @@
       {
         "t": "stack",
         "id": "bar_track",
-        "x": 42.0,
-        "y": 128.0,
-        "w": 322.0,
-        "h": 8.0,
+        "x": 45.0,
+        "y": 142.5,
+        "w": 317.0,
+        "h": 15.5,
         "c": [],
         "variant": "surface",
-        "bg": 4294900990,
-        "radius": 4
+        "bg": 4293453802,
+        "radius": 8
       },
       {
         "t": "stack",
         "id": "bar_fill",
-        "x": 42.0,
-        "y": 128.0,
-        "w": 200.0,
-        "h": 8.0,
+        "x": 45.0,
+        "y": 142.5,
+        "w": 205.0,
+        "h": 15.5,
         "c": [],
         "variant": "surface",
-        "bg": 4294704123,
-        "radius": 4
+        "bg": 4280904943,
+        "radius": 8
       },
       {
         "t": "text",
@@ -214,15 +214,17 @@
       },
       {
         "t": "stack",
-        "id": "seg_pill",
-        "x": 182.0,
-        "y": 419.0,
-        "w": 84.0,
-        "h": 32.0,
+        "id": "seg_box",
+        "x": 160.5,
+        "y": 408.0,
+        "w": 207.5,
+        "h": 58.0,
         "c": [],
         "variant": "surface",
-        "bg": 4294835453,
-        "radius": 16
+        "bg": 4294967295,
+        "radius": 29,
+        "border": 1,
+        "bordercolor": 4292401625
       },
       {
         "t": "text",
@@ -259,30 +261,32 @@
       {
         "t": "stack",
         "id": "btn_compact",
-        "x": 103.0,
-        "y": 522.0,
-        "w": 200.0,
-        "h": 46.0,
+        "x": 60.0,
+        "y": 513.0,
+        "w": 290.0,
+        "h": 44.0,
         "c": [
           {
             "t": "stack",
             "id": "btn_compact_surface",
-            "x": 103.0,
-            "y": 522.0,
-            "w": 200.0,
-            "h": 46.0,
+            "x": 60.0,
+            "y": 513.0,
+            "w": 290.0,
+            "h": 44.0,
             "c": [],
             "variant": "surface",
-            "bg": 4294901244,
-            "radius": 23
+            "bg": 4294967295,
+            "radius": 22,
+            "border": 1,
+            "bordercolor": 4282861383
           },
           {
             "t": "button",
             "id": "btn_compact_control",
-            "x": 103.0,
-            "y": 522.0,
-            "w": 200.0,
-            "h": 46.0,
+            "x": 60.0,
+            "y": 513.0,
+            "w": 290.0,
+            "h": 44.0,
             "enabled": 1
           },
           {
@@ -296,7 +300,7 @@
             "size": 16.67,
             "line_height": 25.01,
             "weight": 600,
-            "color": 4294967295,
+            "color": 4280098079,
             "variant": "single_line",
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-600.ttf"

@@ -3,7 +3,7 @@
     "theme": "light",
     "placements": {
       "page": {
-        "component": "Surface991755d1cfb2",
+        "component": "Surface156d085f4ff5",
         "layout": {
           "x": 0,
           "y": 0,
@@ -12,64 +12,82 @@
         }
       },
       "t_title": {
-        "component": "Textab5983aad083",
+        "component": "Textf50e441e85dc",
         "layout": {
-          "x": 39.71054292929293,
+          "x": 39.94,
           "y": 36.0,
           "w": 62.5,
-          "h": 25.5
+          "h": 27.71
         }
       },
-      "search_box": {
-        "component": "Surface03a832580022",
+      "search_pill": {
+        "component": "Surfacec24999f0c4a5",
         "layout": {
-          "x": 33.0,
-          "y": 79.0,
-          "w": 338.0,
-          "h": 63.0
+          "x": 269.0,
+          "y": 476.0,
+          "w": 88.0,
+          "h": 41.0
+        }
+      },
+      "hair_installed": {
+        "component": "Surface88c878e5338b",
+        "layout": {
+          "x": 0.0,
+          "y": 204.0,
+          "w": 406.0,
+          "h": 1.0
+        }
+      },
+      "hair_registry": {
+        "component": "Surface88c878e5338b",
+        "layout": {
+          "x": 0.0,
+          "y": 602.0,
+          "w": 406.0,
+          "h": 1.0
         }
       },
       "icon_search": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 42.0,
-          "y": 100.0,
-          "w": 20.0,
-          "h": 20.0,
-          "src": "http://127.0.0.1:8170/ux-images/setup-10/assets/icon_search-1894e73b846a.svg"
+          "x": 60.0,
+          "y": 102.0,
+          "w": 16.0,
+          "h": 16.0,
+          "src": "http://127.0.0.1:8170/ux-images/setup-10/assets/icon_search-2ceefeccc2f3.svg"
         }
       },
       "t_search": {
-        "component": "Texte4c9474f1a4a",
+        "component": "Text9f86d4b7b170",
         "layout": {
-          "x": 88.21176173649673,
+          "x": 88.56,
           "y": 99.5,
           "w": 124.0,
           "h": 26.0
         }
       },
       "t_inst_head": {
-        "component": "Text4cedad408315",
+        "component": "Text265dc3539b60",
         "layout": {
-          "x": 36.4137475214805,
+          "x": 36.85,
           "y": 169.5,
           "w": 68.5,
           "h": 20.0
         }
       },
       "t_name3": {
-        "component": "Text2a9a267717e6",
+        "component": "Text2517c62d9c29",
         "layout": {
-          "x": 50.400508582326765,
+          "x": 50.76,
           "y": 225.5,
           "w": 99.5,
           "h": 21.0
         }
       },
       "t_ver6": {
-        "component": "Text31d2a75d8dae",
+        "component": "Textb9b7faf59306",
         "layout": {
-          "x": 195.93333333333334,
+          "x": 196.22,
           "y": 225.0,
           "w": 41.0,
           "h": 21.0
@@ -78,52 +96,52 @@
       "btn_0_remove": {
         "component": "KitButton2c6804b990a5",
         "layout": {
-          "x": 287.0,
-          "y": 219.5,
-          "w": 84.0,
-          "h": 34.0
+          "x": 295.0,
+          "y": 225.5,
+          "w": 76.0,
+          "h": 30.0
         }
       },
       "btn_0_remove_surface": {
-        "component": "Surface34526559ca9e",
+        "component": "Surface1ba78e247281",
         "layout": {
-          "x": 287.0,
-          "y": 219.5,
-          "w": 84.0,
-          "h": 34.0
+          "x": 295.0,
+          "y": 225.5,
+          "w": 76.0,
+          "h": 30.0
         }
       },
       "btn_0_remove_control": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 287.0,
-          "y": 219.5,
-          "w": 84.0,
-          "h": 34.0
+          "x": 295.0,
+          "y": 225.5,
+          "w": 76.0,
+          "h": 30.0
         }
       },
       "btn_0_remove_label": {
-        "component": "Text8aad8986762c",
+        "component": "Text66298368500a",
         "layout": {
-          "x": 295.80964970257764,
+          "x": 296.35,
           "y": 226.5,
           "w": 59.5,
           "h": 19.5
         }
       },
       "t_name4": {
-        "component": "Texte8bbe812e475",
+        "component": "Text0466b2c1bd55",
         "layout": {
-          "x": 50.43975903614458,
+          "x": 50.68,
           "y": 288.5,
           "w": 86.0,
           "h": 26.0
         }
       },
       "t_ver7": {
-        "component": "Textee2b9be8e014",
+        "component": "Textcac97e02c299",
         "layout": {
-          "x": 195.64455753935147,
+          "x": 196.05,
           "y": 288.5,
           "w": 39.5,
           "h": 21.0
@@ -132,52 +150,52 @@
       "btn_1_remove": {
         "component": "KitButton2c6804b990a5",
         "layout": {
-          "x": 287.0,
-          "y": 283.0,
-          "w": 84.0,
-          "h": 34.0
+          "x": 295.0,
+          "y": 289.0,
+          "w": 76.0,
+          "h": 30.0
         }
       },
       "btn_1_remove_surface": {
-        "component": "Surfaceea1fe5ffded5",
+        "component": "Surface1ba78e247281",
         "layout": {
-          "x": 287.0,
-          "y": 283.0,
-          "w": 84.0,
-          "h": 34.0
+          "x": 295.0,
+          "y": 289.0,
+          "w": 76.0,
+          "h": 30.0
         }
       },
       "btn_1_remove_control": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 287.0,
-          "y": 283.0,
-          "w": 84.0,
-          "h": 34.0
+          "x": 295.0,
+          "y": 289.0,
+          "w": 76.0,
+          "h": 30.0
         }
       },
       "btn_1_remove_label": {
-        "component": "Text0f8cb8cd4266",
+        "component": "Text89ecd1b2014d",
         "layout": {
-          "x": 295.80964970257764,
+          "x": 296.35,
           "y": 290.0,
           "w": 59.5,
           "h": 19.5
         }
       },
       "t_name5": {
-        "component": "Text0b9618542569",
+        "component": "Textab114ea8a5fc",
         "layout": {
-          "x": 50.96249205340114,
+          "x": 51.19,
           "y": 353.0,
           "w": 100.0,
           "h": 21.0
         }
       },
       "t_ver8": {
-        "component": "Textd335c6bf0314",
+        "component": "Text264d5cca3aa2",
         "layout": {
-          "x": 194.73856209150327,
+          "x": 195.3,
           "y": 352.5,
           "w": 43.0,
           "h": 21.5
@@ -186,115 +204,115 @@
       "btn_2_remove": {
         "component": "KitButton2c6804b990a5",
         "layout": {
-          "x": 287.0,
-          "y": 347.09,
-          "w": 84.0,
-          "h": 34.0
+          "x": 295.0,
+          "y": 353.09,
+          "w": 76.0,
+          "h": 30.0
         }
       },
       "btn_2_remove_surface": {
-        "component": "Surface2bc4d528bfa2",
+        "component": "Surface1ba78e247281",
         "layout": {
-          "x": 287.0,
-          "y": 347.09,
-          "w": 84.0,
-          "h": 34.0
+          "x": 295.0,
+          "y": 353.09,
+          "w": 76.0,
+          "h": 30.0
         }
       },
       "btn_2_remove_control": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 287.0,
-          "y": 347.09,
-          "w": 84.0,
-          "h": 34.0
+          "x": 295.0,
+          "y": 353.09,
+          "w": 76.0,
+          "h": 30.0
         }
       },
       "btn_2_remove_label": {
-        "component": "Textd70395f7cf74",
+        "component": "Text6ac612a6a475",
         "layout": {
-          "x": 295.80964970257764,
+          "x": 296.35,
           "y": 354.5,
           "w": 59.5,
           "h": 19.5
         }
       },
       "t_reg_head": {
-        "component": "Textae0ce134e3f9",
+        "component": "Text8ce2c314037d",
         "layout": {
-          "x": 35.38991512730904,
+          "x": 35.81,
           "y": 426.0,
           "w": 69.5,
           "h": 25.5
         }
       },
       "t_name10": {
-        "component": "Text6199bcc6163d",
+        "component": "Text3252e9f1cb2c",
         "layout": {
-          "x": 50.49300699300699,
+          "x": 50.7,
           "y": 487.0,
           "w": 93.5,
-          "h": 20.5
+          "h": 20.55
         }
       },
       "t_ver11": {
-        "component": "Textabde592c8b2f",
+        "component": "Textb5d42710e093",
         "layout": {
-          "x": 193.40196078431373,
+          "x": 193.66,
           "y": 485.5,
           "w": 40.0,
-          "h": 21.5
+          "h": 21.56
         }
       },
       "btn_3_install": {
         "component": "KitButton2c6804b990a5",
         "layout": {
-          "x": 269.0,
-          "y": 476.0,
-          "w": 88.0,
-          "h": 41.0
+          "x": 267.0,
+          "y": 474.0,
+          "w": 93.0,
+          "h": 46.0
         }
       },
       "btn_3_install_surface": {
-        "component": "Surface3e47e6c925f8",
+        "component": "Surface98e1d6fc2c2c",
         "layout": {
-          "x": 269.0,
-          "y": 476.0,
-          "w": 88.0,
-          "h": 41.0
+          "x": 267.0,
+          "y": 474.0,
+          "w": 93.0,
+          "h": 46.0
         }
       },
       "btn_3_install_control": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 269.0,
-          "y": 476.0,
-          "w": 88.0,
-          "h": 41.0
+          "x": 267.0,
+          "y": 474.0,
+          "w": 93.0,
+          "h": 46.0
         }
       },
       "btn_3_install_label": {
-        "component": "Textd1d590742311",
+        "component": "Text2d99b80970ca",
         "layout": {
-          "x": 282.65841584158414,
-          "y": 486.5,
-          "w": 59.5,
-          "h": 25.5
+          "x": 290.75,
+          "y": 488.0,
+          "w": 48.0,
+          "h": 19.5
         }
       },
       "t_name12": {
-        "component": "Text12ed43c360d9",
+        "component": "Textb5ecf5191c49",
         "layout": {
-          "x": 50.5932418699187,
+          "x": 50.81,
           "y": 555.5,
           "w": 81.0,
           "h": 25.5
         }
       },
       "t_ver13": {
-        "component": "Text0a658265ce2e",
+        "component": "Text9316a50df083",
         "layout": {
-          "x": 190.14444444444445,
+          "x": 190.5,
           "y": 555.5,
           "w": 45.5,
           "h": 21.0
@@ -303,37 +321,37 @@
       "btn_4_install": {
         "component": "KitButton2c6804b990a5",
         "layout": {
-          "x": 269.0,
-          "y": 546.0,
-          "w": 88.0,
-          "h": 41.0
+          "x": 267.0,
+          "y": 544.0,
+          "w": 93.0,
+          "h": 46.0
         }
       },
       "btn_4_install_surface": {
-        "component": "Surfaceec597bfbd543",
+        "component": "Surface98e1d6fc2c2c",
         "layout": {
-          "x": 269.0,
-          "y": 546.0,
-          "w": 88.0,
-          "h": 41.0
+          "x": 267.0,
+          "y": 544.0,
+          "w": 93.0,
+          "h": 46.0
         }
       },
       "btn_4_install_control": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 269.0,
-          "y": 546.0,
-          "w": 88.0,
-          "h": 41.0
+          "x": 267.0,
+          "y": 544.0,
+          "w": 93.0,
+          "h": 46.0
         }
       },
       "btn_4_install_label": {
-        "component": "Textbdacc2625818",
+        "component": "Text1247ac8f8149",
         "layout": {
-          "x": 285.26732673267327,
-          "y": 556.0,
-          "w": 56.0,
-          "h": 24.5
+          "x": 291.26,
+          "y": 558.0,
+          "w": 47.5,
+          "h": 20.0
         }
       }
     },

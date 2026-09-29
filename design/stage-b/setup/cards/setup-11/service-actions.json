@@ -4,20 +4,20 @@
     "btn_reload": {
       "event": "error.reload",
       "source_bounds": [
-        131,
-        396,
-        88,
-        46
+        26,
+        387,
+        303,
+        65
       ],
       "enabled": true
     },
     "btn_diag": {
       "event": "error.copy_diagnostics",
       "source_bounds": [
-        69,
-        480,
-        200,
-        50
+        26,
+        473,
+        303,
+        63
       ],
       "enabled": true
     }

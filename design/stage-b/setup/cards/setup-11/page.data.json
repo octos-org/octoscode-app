@@ -3,7 +3,7 @@
     "theme": "light",
     "placements": {
       "page": {
-        "component": "Surface16fae9a63e16",
+        "component": "Surfacee138f8831782",
         "layout": {
           "x": 0,
           "y": 0,
@@ -14,44 +14,44 @@
       "icon_warning": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 188.0,
-          "y": 110.0,
-          "w": 30.0,
-          "h": 26.0,
+          "x": 130.0,
+          "y": 80.0,
+          "w": 72.0,
+          "h": 77.0,
           "src": "http://127.0.0.1:8170/ux-images/setup-11/assets/icon_warning-a852908599b0.svg"
         }
       },
       "t_title": {
-        "component": "Textd9958b4d0346",
+        "component": "Texta5445c6e2aa8",
         "layout": {
-          "x": 29.600848726909636,
+          "x": 29.81,
           "y": 187.0,
           "w": 291.5,
           "h": 33.5
         }
       },
       "t_msg1": {
-        "component": "Text22cf77777e43",
+        "component": "Text209c8b4b11ac",
         "layout": {
-          "x": 41.06617271333674,
+          "x": 41.41,
           "y": 248.5,
           "w": 261.5,
           "h": 27.0
         }
       },
       "t_msg2": {
-        "component": "Textb46b87403476",
+        "component": "Text0ea29b87f985",
         "layout": {
-          "x": 50.31967213114754,
+          "x": 50.61,
           "y": 282.0,
           "w": 243.0,
           "h": 22.0
         }
       },
       "t_msg3": {
-        "component": "Textc30d4b0f4fdb",
+        "component": "Text69b0f8fd6511",
         "layout": {
-          "x": 110.26354029062087,
+          "x": 110.61,
           "y": 317.0,
           "w": 119.0,
           "h": 22.0
@@ -60,34 +60,34 @@
       "btn_reload": {
         "component": "KitButton2c6804b990a5",
         "layout": {
-          "x": 131.0,
-          "y": 396.0,
-          "w": 88.0,
-          "h": 46.0
+          "x": 26.0,
+          "y": 387.0,
+          "w": 304.0,
+          "h": 66.0
         }
       },
       "btn_reload_surface": {
-        "component": "Surface372b9a076207",
+        "component": "Surface881ca262529c",
         "layout": {
-          "x": 131.0,
-          "y": 396.0,
-          "w": 88.0,
-          "h": 46.0
+          "x": 26.0,
+          "y": 387.0,
+          "w": 304.0,
+          "h": 66.0
         }
       },
       "btn_reload_control": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 131.0,
-          "y": 396.0,
-          "w": 88.0,
-          "h": 46.0
+          "x": 26.0,
+          "y": 387.0,
+          "w": 304.0,
+          "h": 66.0
         }
       },
       "btn_reload_label": {
-        "component": "Textbda33531fa72",
+        "component": "Textef1f7f5a159c",
         "layout": {
-          "x": 142.56675479180436,
+          "x": 143.13,
           "y": 409.0,
           "w": 66.0,
           "h": 23.5
@@ -96,43 +96,43 @@
       "btn_diag": {
         "component": "KitButton2c6804b990a5",
         "layout": {
-          "x": 28.0,
-          "y": 475.0,
-          "w": 300.0,
-          "h": 59.0
+          "x": 25.0,
+          "y": 472.0,
+          "w": 306.0,
+          "h": 65.0
         }
       },
       "btn_diag_surface": {
-        "component": "Surface9aec1630eae3",
+        "component": "Surface29c8b9492b90",
         "layout": {
-          "x": 28.0,
-          "y": 475.0,
-          "w": 300.0,
-          "h": 59.0
+          "x": 25.0,
+          "y": 472.0,
+          "w": 306.0,
+          "h": 65.0
         }
       },
       "btn_diag_control": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 28.0,
-          "y": 475.0,
-          "w": 300.0,
-          "h": 59.0
+          "x": 25.0,
+          "y": 472.0,
+          "w": 306.0,
+          "h": 65.0
         }
       },
       "btn_diag_label": {
-        "component": "Text730c2d7c91d9",
+        "component": "Text1e282cb6b1b4",
         "layout": {
-          "x": 92.63855421686748,
+          "x": 92.97,
           "y": 494.0,
           "w": 158.5,
           "h": 28.0
         }
       },
       "t_report": {
-        "component": "Text5ec08d7eedc7",
+        "component": "Text1d5b7c8d06a0",
         "layout": {
-          "x": 119.48780487804878,
+          "x": 120.06,
           "y": 570.5,
           "w": 111.0,
           "h": 28.0

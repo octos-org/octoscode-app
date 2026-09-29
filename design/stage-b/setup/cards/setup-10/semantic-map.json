@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "b0b2272e679ee96d19bca5df619bc546bf56e303c6b0646e897c2481b65ec42e",
+  "contract_sha256": "48722fc98c43a61f3d7acdf950ff3f1b8efcfadfc157daa6249a7d567f13e424",
   "reference_sha256": "4f6487df5abf26921604ebb014617c33d9034590363270f350b0a035054c69d3",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -20,7 +20,21 @@
       "decision": "declared"
     },
     {
-      "id": "search_box",
+      "id": "search_pill",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "hair_installed",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "hair_registry",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
@@ -34,7 +48,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/icon_search.svg",
-        "sha256": "1894e73b846a62ab01d614ad0b19bbf496efd8a26687b1251a853be14894c9de",
+        "sha256": "2ceefeccc2f35c53511f027027419164ab011265d180b7a10100add5a1a49bd6",
         "method": "reference_svg",
         "reference_sha256": "4f6487df5abf26921604ebb014617c33d9034590363270f350b0a035054c69d3",
         "fit": "stretch",

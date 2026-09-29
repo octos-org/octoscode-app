@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "09f473a486d3436e3868b1d89ad1ef95c7d62d72794dd021ecf3f1d721d039dd",
+  "manifest_sha256": "75192856ae0c5ad965eafdf497ac38a2b52fb042d69c7e4929514e41f769877b",
   "reference_sha256": "5c08d9fc4a83f0e3a62d3a2098042c7651586fb065eef494aab64d625711f019",
   "id": "setup-09",
   "round": null,
@@ -165,7 +165,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "seg_pill",
+      "id": "seg_box",
       "role": "layout",
       "basis": "authored stack node",
       "expected_widgets": [

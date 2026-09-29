@@ -10,35 +10,25 @@
   "text": [
     {
       "id": "t_banner",
-      "expected_text": "Reconnecting\u2026 attempt 2 \u00b7 Retry now",
+      "expected_text": "Reconnecting\u2026 attempt 2 \u00b7",
       "requested_bounds": [
-        46.24,
-        29.33,
-        307.88,
-        21.67
+        46.2,
+        29.3,
+        222.0,
+        25.5
       ],
-      "status": "observed",
-      "ocr_text": "Reconnecting... attempt 2 \u2022 Retry now",
-      "confidence": 1,
-      "text_similarity": 0.9444444444444444,
-      "ink_bounds": [
-        47.5,
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_retry",
+      "expected_text": "Retry now",
+      "requested_bounds": [
+        276.5,
         29.0,
-        216.5,
-        21.5
+        77.0,
+        25.0
       ],
-      "ink_color": [
-        141,
-        89,
-        43
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        46.238891830412285,
-        29.325581124218143,
-        307.8833312988281,
-        21.674418449401895
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
       "id": "t_loading",
@@ -133,31 +123,18 @@
     {
       "id": "skel0",
       "bounds": [
-        81.0,
-        183.0,
-        275.0,
-        54.0
-      ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4293980658,
-      "radius": 9.19
-    },
-    {
-      "id": "skel1",
-      "bounds": [
-        46.0,
-        181.0,
-        314.0,
-        46.0
+        30.0,
+        98.0,
+        70.0,
+        50.0
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
-      "bg": 4293980659,
+      "bg": 4293783280,
       "radius": 8.0
     },
     {
-      "id": "skel2",
+      "id": "skel1",
       "bounds": [
         81.0,
         275.0,
@@ -167,15 +144,67 @@
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4293980402,
-      "radius": 7.18
+      "radius": 8.0
+    },
+    {
+      "id": "skel2",
+      "bounds": [
+        30.0,
+        180.0,
+        70.0,
+        56.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293914866,
+      "radius": 8.0
+    },
+    {
+      "id": "skel3",
+      "bounds": [
+        81.0,
+        183.0,
+        275.0,
+        54.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293980658,
+      "radius": 8.31
+    },
+    {
+      "id": "skel4",
+      "bounds": [
+        30.0,
+        270.0,
+        70.0,
+        49.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293783280,
+      "radius": 8.0
+    },
+    {
+      "id": "skel5",
+      "bounds": [
+        100.0,
+        275.0,
+        176.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293980402,
+      "radius": 8.0
     },
     {
       "id": "divider",
       "bounds": [
         24.0,
-        470.0,
+        392.0,
         358.0,
-        1.0
+        2.0
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false
@@ -183,16 +212,27 @@
     {
       "id": "icon_spin",
       "bounds": [
-        88.0,
-        508.0,
-        20.0,
-        20.0
+        178.0,
+        441.0,
+        30.0,
+        36.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
     }
   ],
-  "unmapped_ocr": [],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        92.47778366082457,
+        58.651162248436286,
+        615.7666625976562,
+        43.34883689880379
+      ],
+      "confidence": 1,
+      "text": "Reconnecting... attempt 2 \u2022 Retry now"
+    }
+  ],
   "non_text_ocr": [],
   "limits": [
     "OCR cannot prove font family, hierarchy or control behavior.",

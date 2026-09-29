@@ -35,10 +35,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_warning",
-    "x": 188.0,
-    "y": 110.0,
-    "w": 30.0,
-    "h": 26.0,
+    "x": 130.0,
+    "y": 80.0,
+    "w": 72.0,
+    "h": 77.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -108,10 +108,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_reload",
-    "x": 131.0,
-    "y": 396.0,
-    "w": 88.0,
-    "h": 46.0,
+    "x": 26.0,
+    "y": 387.0,
+    "w": 303.0,
+    "h": 65.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -120,10 +120,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_reload_surface",
-    "x": 131.0,
-    "y": 396.0,
-    "w": 88.0,
-    "h": 46.0,
+    "x": 26.0,
+    "y": 387.0,
+    "w": 303.0,
+    "h": 65.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -131,10 +131,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_reload_control",
-    "x": 131.0,
-    "y": 396.0,
-    "w": 88.0,
-    "h": 46.0,
+    "x": 26.0,
+    "y": 387.0,
+    "w": 303.0,
+    "h": 65.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -143,9 +143,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_reload_label",
-    "x": 140.0,
-    "y": 409.0,
-    "w": 69.0,
+    "x": 141.0,
+    "y": 410.0,
+    "w": 68.0,
     "h": 25.01,
     "text": "Reload",
     "font_src": "self:resources/ux/Inter-600.ttf",
@@ -159,10 +159,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_diag",
-    "x": 69.0,
-    "y": 480.0,
-    "w": 200.0,
-    "h": 50.0,
+    "x": 26.0,
+    "y": 473.0,
+    "w": 303.0,
+    "h": 63.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -171,10 +171,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_diag_surface",
-    "x": 69.0,
-    "y": 480.0,
-    "w": 200.0,
-    "h": 50.0,
+    "x": 26.0,
+    "y": 473.0,
+    "w": 303.0,
+    "h": 63.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -182,10 +182,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_diag_control",
-    "x": 69.0,
-    "y": 480.0,
-    "w": 200.0,
-    "h": 50.0,
+    "x": 26.0,
+    "y": 473.0,
+    "w": 303.0,
+    "h": 63.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -194,13 +194,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_diag_label",
-    "x": 86.0,
-    "y": 490.0,
-    "w": 165.0,
-    "h": 34.01,
+    "x": 87.0,
+    "y": 491.0,
+    "w": 164.0,
+    "h": 33.0,
     "text": "Copy diagnostics",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 22.67,
+    "size": 22.0,
     "weight": 500,
     "role": "text",
     "native_candidates": [

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "17e6ebae98f2a87636d6025a6fb810ccf93e61aa7e47a5e1f843130e4198584b",
+  "contract_sha256": "6c1cf188c26c8f6ccd83dec4d0c657afdb4ce37a840dfad0e34aa407f0d798e9",
   "reference_sha256": "5c08d9fc4a83f0e3a62d3a2098042c7651586fb065eef494aab64d625711f019",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -97,7 +97,7 @@
       "decision": "declared"
     },
     {
-      "id": "seg_pill",
+      "id": "seg_box",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,

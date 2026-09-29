@@ -147,17 +147,87 @@
       "radius": 11.43
     },
     {
-      "id": "row_flash",
+      "id": "chev_chip",
       "bounds": [
-        35.0,
-        216.0,
-        295.0,
-        60.0
+        328.0,
+        228.0,
+        40.0,
+        40.0
       ],
-      "method": "reference edge contour with contained OCR text anchors",
+      "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
-      "bg": 4294835709,
-      "radius": 10.43
+      "bg": 4294901502,
+      "radius": 20.0
+    },
+    {
+      "id": "icon_chev",
+      "bounds": [
+        342.0,
+        240.0,
+        14.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_check",
+      "bounds": [
+        299.0,
+        240.0,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "dot_ds",
+      "bounds": [
+        280.0,
+        288.0,
+        11.0,
+        11.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 5.5
+    },
+    {
+      "id": "icon_chev_ds",
+      "bounds": [
+        346.0,
+        283.0,
+        18.0,
+        24.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "dot_kimi",
+      "bounds": [
+        280.0,
+        503.0,
+        11.0,
+        11.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 5.5
+    },
+    {
+      "id": "icon_chev_kimi",
+      "bounds": [
+        346.0,
+        498.0,
+        18.0,
+        24.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     },
     {
       "id": "btn_test",

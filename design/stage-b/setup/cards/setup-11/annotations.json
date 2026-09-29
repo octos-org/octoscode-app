@@ -44,10 +44,10 @@
     {
       "id": "icon_warning",
       "bounds": [
-        188.0,
-        110.0,
-        30.0,
-        26.0
+        130.0,
+        80.0,
+        72.0,
+        77.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -55,34 +55,34 @@
     {
       "id": "btn_reload",
       "bounds": [
-        131.0,
-        396.0,
-        88.0,
-        46.0
+        26.0,
+        387.0,
+        304.0,
+        66.0
       ],
-      "method": "inferred semantic extent from observed parent",
+      "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false
     },
     {
       "id": "btn_reload_surface",
       "bounds": [
-        131.0,
-        396.0,
-        88.0,
-        46.0
+        26.0,
+        387.0,
+        304.0,
+        66.0
       ],
-      "method": "surface contour unresolved; requested geometry retained",
+      "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
-      "bg": 4279308819,
-      "radius": 23.0
+      "bg": 4279243026,
+      "radius": 32.49
     },
     {
       "id": "btn_reload_control",
       "bounds": [
-        131.0,
-        396.0,
-        88.0,
-        46.0
+        26.0,
+        387.0,
+        304.0,
+        66.0
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -90,10 +90,10 @@
     {
       "id": "btn_diag",
       "bounds": [
-        28.0,
-        475.0,
-        300.0,
-        59.0
+        25.0,
+        472.0,
+        306.0,
+        65.0
       ],
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false
@@ -101,23 +101,23 @@
     {
       "id": "btn_diag_surface",
       "bounds": [
-        28.0,
-        475.0,
-        300.0,
-        59.0
+        25.0,
+        472.0,
+        306.0,
+        65.0
       ],
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4294769916,
-      "radius": 29.5
+      "radius": 31.98
     },
     {
       "id": "btn_diag_control",
       "bounds": [
-        28.0,
-        475.0,
-        300.0,
-        59.0
+        25.0,
+        472.0,
+        306.0,
+        65.0
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false

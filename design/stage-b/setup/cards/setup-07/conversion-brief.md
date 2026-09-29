@@ -115,15 +115,73 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "row_flash",
-    "x": 24.0,
-    "y": 224.0,
-    "w": 358.0,
-    "h": 46.0,
+    "id": "chev_chip",
+    "x": 328.0,
+    "y": 228.0,
+    "w": 40.0,
+    "h": 40.0,
     "role": "layout",
     "native_candidates": [
       "View"
     ]
+  },
+  {
+    "id": "icon_chev",
+    "x": 342.0,
+    "y": 240.0,
+    "w": 14.0,
+    "h": 22.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "icon_check",
+    "x": 299.0,
+    "y": 240.0,
+    "w": 16.0,
+    "h": 16.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "dot_ds",
+    "x": 280.0,
+    "y": 288.0,
+    "w": 11.0,
+    "h": 11.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "icon_chev_ds",
+    "x": 346.0,
+    "y": 283.0,
+    "w": 18.0,
+    "h": 24.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "dot_kimi",
+    "x": 280.0,
+    "y": 503.0,
+    "w": 11.0,
+    "h": 11.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "icon_chev_kimi",
+    "x": 346.0,
+    "y": 498.0,
+    "w": 18.0,
+    "h": 24.0,
+    "role": "unknown",
+    "native_candidates": []
   },
   {
     "id": "t_flash",

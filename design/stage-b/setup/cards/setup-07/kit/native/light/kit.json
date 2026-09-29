@@ -22,12 +22,12 @@
       "value": 11.43,
       "property": "radius"
     },
-    "size_0d7c590b23ed": {
-      "value": 27.072042300066094,
+    "size_7513856ba4d9": {
+      "value": 20.66,
       "property": "size"
     },
-    "line_height_dce81cca4840": {
-      "value": 24.0,
+    "line_height_00c10b58d5c4": {
+      "value": 25.0,
       "property": "line_height"
     },
     "weight_284b7e6d788f": {
@@ -42,48 +42,28 @@
       "value": "self:resources/ux/Inter-600.ttf",
       "property": "font_src"
     },
-    "tracking_588d44844f6e": {
-      "value": -3.9437541308658295,
+    "tracking_8aed642bf511": {
+      "value": 0.0,
       "property": "tracking"
     },
-    "font_asc_499920005948": {
-      "value": -0.16733398437500002,
-      "property": "font_asc"
-    },
-    "font_desc_d6ea339ffc2b": {
-      "value": 0.15610351562500005,
-      "property": "font_desc"
-    },
-    "size_15c3a34210ce": {
-      "value": 22.767054067710966,
+    "size_618ce5f00305": {
+      "value": 17.3,
       "property": "size"
     },
-    "line_height_80a753d4a473": {
-      "value": 26.0,
+    "line_height_28c09c40f6ef": {
+      "value": 20.94,
       "property": "line_height"
     },
     "color_9638cee73ac3": {
       "value": 4278716168,
       "property": "color"
     },
-    "tracking_19870b3797da": {
-      "value": -2.661904543157701,
-      "property": "tracking"
-    },
-    "font_asc_272c9233f20f": {
-      "value": -0.11869673295454541,
-      "property": "font_asc"
-    },
-    "font_desc_63c25a663313": {
-      "value": -0.050736860795454586,
-      "property": "font_desc"
-    },
-    "size_440ecd1dbfe7": {
-      "value": 20.02607561929596,
+    "size_435a7218d27a": {
+      "value": 15.67,
       "property": "size"
     },
-    "line_height_dcccf7eb694b": {
-      "value": 19.0,
+    "line_height_326dba55eb3e": {
+      "value": 18.96,
       "property": "line_height"
     },
     "weight_26d228663f13": {
@@ -98,28 +78,24 @@
       "value": "self:resources/ux/Inter-400.ttf",
       "property": "font_src"
     },
-    "tracking_b0feb6c2e8c5": {
-      "value": -2.3843360029800715,
-      "property": "tracking"
+    "bg_ecfad3043f6c": {
+      "value": 4293519850,
+      "property": "bg"
     },
-    "font_asc_1596973e3931": {
-      "value": -0.13157552083333335,
-      "property": "font_asc"
-    },
-    "font_desc_bee03501e816": {
-      "value": 0.12962239583333335,
-      "property": "font_desc"
-    },
-    "radius_e74fa854d67b": {
-      "value": 10.43,
+    "radius_585348dbd288": {
+      "value": 20.0,
       "property": "radius"
     },
-    "size_e0f09ec265f9": {
-      "value": 19.97798899449725,
+    "radius_4819f5315cb4": {
+      "value": 5.5,
+      "property": "radius"
+    },
+    "size_6d6007e80053": {
+      "value": 14.52,
       "property": "size"
     },
-    "line_height_e378bdd3a01c": {
-      "value": 23.5,
+    "line_height_b0ec4a0753cc": {
+      "value": 17.57,
       "property": "line_height"
     },
     "weight_0604cd3138fe": {
@@ -134,41 +110,17 @@
       "value": "self:resources/ux/Inter-500.ttf",
       "property": "font_src"
     },
-    "tracking_4b8e774a4004": {
-      "value": -2.726574825874475,
-      "property": "tracking"
-    },
-    "font_asc_ccb139fadaae": {
-      "value": -0.09666716746794868,
-      "property": "font_asc"
-    },
-    "font_desc_4bd8699ddb28": {
-      "value": -0.06300080128205127,
-      "property": "font_desc"
-    },
-    "size_8cea79843d72": {
-      "value": 20.39412997903564,
+    "size_4801429e15a3": {
+      "value": 14.73,
       "property": "size"
     },
-    "line_height_c22cd1ea7268": {
-      "value": 23.0,
+    "line_height_6edcb48c89a5": {
+      "value": 17.82,
       "property": "line_height"
     },
     "color_76b0bd866618": {
       "value": 4279571732,
       "property": "color"
-    },
-    "tracking_ea37f9d076b1": {
-      "value": -3.2294100029949084,
-      "property": "tracking"
-    },
-    "font_asc_942d4b0d2c0f": {
-      "value": -0.14314350328947367,
-      "property": "font_asc"
-    },
-    "font_desc_8cd45f2a5741": {
-      "value": -0.060958059210526216,
-      "property": "font_desc"
     },
     "bg_4e0ce3550cb9": {
       "value": 4294769916,
@@ -178,89 +130,69 @@
       "value": 22.0,
       "property": "radius"
     },
-    "size_8837b58b31c5": {
-      "value": 20.30403172504957,
+    "size_cc4f4557d988": {
+      "value": 14.57,
       "property": "size"
+    },
+    "line_height_1e3dad3a1601": {
+      "value": 17.63,
+      "property": "line_height"
     },
     "color_7d5789777100": {
       "value": 4279440404,
       "property": "color"
     },
-    "tracking_510fc3132e5b": {
-      "value": -2.9213850334141145,
-      "property": "tracking"
-    },
-    "font_asc_1f2a24a6de3f": {
-      "value": -0.14270833333333333,
-      "property": "font_asc"
-    },
-    "font_desc_3300ca4cb97b": {
-      "value": 0.13147786458333321,
-      "property": "font_desc"
-    },
     "bg_75d672c0f74f": {
       "value": 4294704123,
       "property": "bg"
     },
-    "size_3599712179c6": {
-      "value": 19.529561347743165,
+    "size_35d325f917e6": {
+      "value": 13.32,
       "property": "size"
+    },
+    "line_height_8a1a6ad5cc38": {
+      "value": 16.11,
+      "property": "line_height"
     },
     "color_482ac2182436": {
       "value": 4279439891,
       "property": "color"
     },
-    "tracking_c619be1538a1": {
-      "value": -3.3727863046044866,
-      "property": "tracking"
-    },
-    "font_asc_c092db521186": {
-      "value": -0.10950520833333333,
-      "property": "font_asc"
-    },
-    "font_desc_7ee6dd057ded": {
-      "value": 0.12757161458333333,
-      "property": "font_desc"
-    },
-    "size_9f9d09af1cb2": {
-      "value": 21.98302546180729,
+    "size_a93147328cc6": {
+      "value": 16.72,
       "property": "size"
     },
-    "line_height_c2068c8abdd8": {
-      "value": 25.5,
+    "line_height_bc656b59a72d": {
+      "value": 20.23,
       "property": "line_height"
     },
     "color_5539f3fae1c4": {
       "value": 4278650631,
       "property": "color"
     },
-    "tracking_a704bf94207e": {
-      "value": -2.6667998002995508,
-      "property": "tracking"
+    "size_445e271d69ac": {
+      "value": 14.98,
+      "property": "size"
     },
-    "font_asc_2ddaee3f49b0": {
-      "value": -0.11556368095930236,
-      "property": "font_asc"
-    },
-    "font_desc_64b14be2041c": {
-      "value": -0.06558866279069758,
-      "property": "font_desc"
+    "line_height_5cf4350cfdc9": {
+      "value": 18.12,
+      "property": "line_height"
     },
     "color_d2c8efc3ef46": {
       "value": 4285492848,
       "property": "color"
     },
-    "tracking_bd093f3b2ff6": {
-      "value": -2.8129074315515004,
-      "property": "tracking"
+    "size_0ce821aa8a59": {
+      "value": 16.86,
+      "property": "size"
+    },
+    "line_height_404bb9abfbdd": {
+      "value": 20.4,
+      "property": "line_height"
     },
     "color_9d7f93efee0f": {
       "value": 4278782217,
       "property": "color"
-    },
-    "tracking_a48fe17f4f67": {
-      "value": -2.8515441124028262,
-      "property": "tracking"
     },
     "color_3cb9ece67535": {
       "value": 4285493360,
@@ -269,10 +201,6 @@
     "bg_4e53e8dd8697": {
       "value": 4280526672,
       "property": "bg"
-    },
-    "radius_4819f5315cb4": {
-      "value": 5.5,
-      "property": "radius"
     }
   },
   "components": {
@@ -331,14 +259,14 @@
       "props": {},
       "slot": true
     },
-    "Textc0c832165bb2": {
+    "Textefc81a410676": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_0d7c590b23ed"
+          "$token": "size_7513856ba4d9"
         },
         "line_height": {
-          "$token": "line_height_dce81cca4840"
+          "$token": "line_height_00c10b58d5c4"
         },
         "weight": {
           "$token": "weight_284b7e6d788f"
@@ -352,13 +280,7 @@
           "$token": "font_src_a9a389fb1fcc"
         },
         "tracking": {
-          "$token": "tracking_588d44844f6e"
-        },
-        "font_asc": {
-          "$token": "font_asc_499920005948"
-        },
-        "font_desc": {
-          "$token": "font_desc_d6ea339ffc2b"
+          "$token": "tracking_8aed642bf511"
         }
       },
       "props": {
@@ -366,14 +288,14 @@
       },
       "slot": false
     },
-    "Text56b8d95a6358": {
+    "Text9d99f2224598": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_15c3a34210ce"
+          "$token": "size_618ce5f00305"
         },
         "line_height": {
-          "$token": "line_height_80a753d4a473"
+          "$token": "line_height_28c09c40f6ef"
         },
         "weight": {
           "$token": "weight_284b7e6d788f"
@@ -387,13 +309,7 @@
           "$token": "font_src_a9a389fb1fcc"
         },
         "tracking": {
-          "$token": "tracking_19870b3797da"
-        },
-        "font_asc": {
-          "$token": "font_asc_272c9233f20f"
-        },
-        "font_desc": {
-          "$token": "font_desc_63c25a663313"
+          "$token": "tracking_8aed642bf511"
         }
       },
       "props": {
@@ -401,14 +317,14 @@
       },
       "slot": false
     },
-    "Textc0a30e1b36e4": {
+    "Textd2de94ec13a5": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_440ecd1dbfe7"
+          "$token": "size_435a7218d27a"
         },
         "line_height": {
-          "$token": "line_height_dcccf7eb694b"
+          "$token": "line_height_326dba55eb3e"
         },
         "weight": {
           "$token": "weight_26d228663f13"
@@ -422,13 +338,7 @@
           "$token": "font_src_86ab34a300f7"
         },
         "tracking": {
-          "$token": "tracking_b0feb6c2e8c5"
-        },
-        "font_asc": {
-          "$token": "font_asc_1596973e3931"
-        },
-        "font_desc": {
-          "$token": "font_desc_bee03501e816"
+          "$token": "tracking_8aed642bf511"
         }
       },
       "props": {
@@ -436,28 +346,49 @@
       },
       "slot": false
     },
-    "Surface4107ff515d0e": {
+    "Surface885d219686b4": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_40fe55fff4f6"
+          "$token": "bg_ecfad3043f6c"
         },
         "radius": {
-          "$token": "radius_e74fa854d67b"
+          "$token": "radius_585348dbd288"
         }
       },
       "props": {},
       "slot": true
     },
-    "Text3c19e7253269": {
+    "Vectore0a378fde04f": {
+      "style": {
+        "t": "svg"
+      },
+      "props": {},
+      "slot": false
+    },
+    "Surface5f03e3e8e65e": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_07cf9621f5e0"
+        },
+        "radius": {
+          "$token": "radius_4819f5315cb4"
+        }
+      },
+      "props": {},
+      "slot": true
+    },
+    "Textecbf6c315357": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_e0f09ec265f9"
+          "$token": "size_6d6007e80053"
         },
         "line_height": {
-          "$token": "line_height_e378bdd3a01c"
+          "$token": "line_height_b0ec4a0753cc"
         },
         "weight": {
           "$token": "weight_0604cd3138fe"
@@ -471,13 +402,7 @@
           "$token": "font_src_cb352dc03af3"
         },
         "tracking": {
-          "$token": "tracking_4b8e774a4004"
-        },
-        "font_asc": {
-          "$token": "font_asc_ccb139fadaae"
-        },
-        "font_desc": {
-          "$token": "font_desc_4bd8699ddb28"
+          "$token": "tracking_8aed642bf511"
         }
       },
       "props": {
@@ -485,14 +410,14 @@
       },
       "slot": false
     },
-    "Textb39bf423108a": {
+    "Text947ba4ca257a": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_8cea79843d72"
+          "$token": "size_4801429e15a3"
         },
         "line_height": {
-          "$token": "line_height_c22cd1ea7268"
+          "$token": "line_height_6edcb48c89a5"
         },
         "weight": {
           "$token": "weight_26d228663f13"
@@ -506,13 +431,7 @@
           "$token": "font_src_86ab34a300f7"
         },
         "tracking": {
-          "$token": "tracking_ea37f9d076b1"
-        },
-        "font_asc": {
-          "$token": "font_asc_942d4b0d2c0f"
-        },
-        "font_desc": {
-          "$token": "font_desc_8cd45f2a5741"
+          "$token": "tracking_8aed642bf511"
         }
       },
       "props": {
@@ -528,7 +447,7 @@
       "props": {},
       "slot": true
     },
-    "Surface7147a3f30697": {
+    "Surface26d3b1b7b376": {
       "style": {
         "t": "stack",
         "variant": "surface",
@@ -537,7 +456,9 @@
         },
         "radius": {
           "$token": "radius_cb30211d8e99"
-        }
+        },
+        "border": 1,
+        "bordercolor": 4280098079
       },
       "props": {},
       "slot": true
@@ -551,14 +472,14 @@
       },
       "slot": false
     },
-    "Text6974c8c47687": {
+    "Text23d6ea84e7c8": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_8837b58b31c5"
+          "$token": "size_cc4f4557d988"
         },
         "line_height": {
-          "$token": "line_height_dcccf7eb694b"
+          "$token": "line_height_1e3dad3a1601"
         },
         "weight": {
           "$token": "weight_0604cd3138fe"
@@ -572,13 +493,7 @@
           "$token": "font_src_cb352dc03af3"
         },
         "tracking": {
-          "$token": "tracking_510fc3132e5b"
-        },
-        "font_asc": {
-          "$token": "font_asc_1f2a24a6de3f"
-        },
-        "font_desc": {
-          "$token": "font_desc_3300ca4cb97b"
+          "$token": "tracking_8aed642bf511"
         }
       },
       "props": {
@@ -586,7 +501,7 @@
       },
       "slot": false
     },
-    "Surface4980432eed01": {
+    "Surfacea8acf25b8347": {
       "style": {
         "t": "stack",
         "variant": "surface",
@@ -595,19 +510,21 @@
         },
         "radius": {
           "$token": "radius_cb30211d8e99"
-        }
+        },
+        "border": 1,
+        "bordercolor": 4280098079
       },
       "props": {},
       "slot": true
     },
-    "Text640a558f42a4": {
+    "Text6b0ef02921d8": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_3599712179c6"
+          "$token": "size_35d325f917e6"
         },
         "line_height": {
-          "$token": "line_height_dcccf7eb694b"
+          "$token": "line_height_8a1a6ad5cc38"
         },
         "weight": {
           "$token": "weight_0604cd3138fe"
@@ -621,13 +538,7 @@
           "$token": "font_src_cb352dc03af3"
         },
         "tracking": {
-          "$token": "tracking_c619be1538a1"
-        },
-        "font_asc": {
-          "$token": "font_asc_c092db521186"
-        },
-        "font_desc": {
-          "$token": "font_desc_7ee6dd057ded"
+          "$token": "tracking_8aed642bf511"
         }
       },
       "props": {
@@ -635,14 +546,14 @@
       },
       "slot": false
     },
-    "Text9825033a2804": {
+    "Textaa1186c45b59": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_9f9d09af1cb2"
+          "$token": "size_a93147328cc6"
         },
         "line_height": {
-          "$token": "line_height_c2068c8abdd8"
+          "$token": "line_height_bc656b59a72d"
         },
         "weight": {
           "$token": "weight_284b7e6d788f"
@@ -656,13 +567,7 @@
           "$token": "font_src_a9a389fb1fcc"
         },
         "tracking": {
-          "$token": "tracking_a704bf94207e"
-        },
-        "font_asc": {
-          "$token": "font_asc_2ddaee3f49b0"
-        },
-        "font_desc": {
-          "$token": "font_desc_64b14be2041c"
+          "$token": "tracking_8aed642bf511"
         }
       },
       "props": {
@@ -670,14 +575,14 @@
       },
       "slot": false
     },
-    "Text2a53963ed782": {
+    "Texta813d34bcd90": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_440ecd1dbfe7"
+          "$token": "size_445e271d69ac"
         },
         "line_height": {
-          "$token": "line_height_dcccf7eb694b"
+          "$token": "line_height_5cf4350cfdc9"
         },
         "weight": {
           "$token": "weight_26d228663f13"
@@ -691,13 +596,7 @@
           "$token": "font_src_86ab34a300f7"
         },
         "tracking": {
-          "$token": "tracking_bd093f3b2ff6"
-        },
-        "font_asc": {
-          "$token": "font_asc_1596973e3931"
-        },
-        "font_desc": {
-          "$token": "font_desc_bee03501e816"
+          "$token": "tracking_8aed642bf511"
         }
       },
       "props": {
@@ -705,14 +604,14 @@
       },
       "slot": false
     },
-    "Texta783150858a4": {
+    "Textf4212b9678a4": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_9f9d09af1cb2"
+          "$token": "size_0ce821aa8a59"
         },
         "line_height": {
-          "$token": "line_height_c2068c8abdd8"
+          "$token": "line_height_404bb9abfbdd"
         },
         "weight": {
           "$token": "weight_284b7e6d788f"
@@ -726,13 +625,7 @@
           "$token": "font_src_a9a389fb1fcc"
         },
         "tracking": {
-          "$token": "tracking_a48fe17f4f67"
-        },
-        "font_asc": {
-          "$token": "font_asc_2ddaee3f49b0"
-        },
-        "font_desc": {
-          "$token": "font_desc_64b14be2041c"
+          "$token": "tracking_8aed642bf511"
         }
       },
       "props": {
@@ -740,14 +633,14 @@
       },
       "slot": false
     },
-    "Textb41415e2a853": {
+    "Texta3258eaad970": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_440ecd1dbfe7"
+          "$token": "size_445e271d69ac"
         },
         "line_height": {
-          "$token": "line_height_dcccf7eb694b"
+          "$token": "line_height_5cf4350cfdc9"
         },
         "weight": {
           "$token": "weight_26d228663f13"
@@ -761,13 +654,7 @@
           "$token": "font_src_86ab34a300f7"
         },
         "tracking": {
-          "$token": "tracking_bd093f3b2ff6"
-        },
-        "font_asc": {
-          "$token": "font_asc_1596973e3931"
-        },
-        "font_desc": {
-          "$token": "font_desc_bee03501e816"
+          "$token": "tracking_8aed642bf511"
         }
       },
       "props": {

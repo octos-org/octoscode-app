@@ -83,10 +83,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "bar_track",
-    "x": 42.0,
-    "y": 128.0,
-    "w": 322.0,
-    "h": 8.0,
+    "x": 45.0,
+    "y": 142.5,
+    "w": 317.0,
+    "h": 15.5,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -94,10 +94,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "bar_fill",
-    "x": 42.0,
-    "y": 128.0,
-    "w": 200.0,
-    "h": 8.0,
+    "x": 45.0,
+    "y": 142.5,
+    "w": 205.0,
+    "h": 15.5,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -216,11 +216,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "seg_pill",
-    "x": 182.0,
-    "y": 419.0,
-    "w": 84.0,
-    "h": 32.0,
+    "id": "seg_box",
+    "x": 160.5,
+    "y": 408.0,
+    "w": 207.5,
+    "h": 58.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -260,10 +260,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_compact",
-    "x": 103.0,
-    "y": 522.0,
-    "w": 200.0,
-    "h": 46.0,
+    "x": 60.0,
+    "y": 513.0,
+    "w": 290.0,
+    "h": 44.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -272,10 +272,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_compact_surface",
-    "x": 103.0,
-    "y": 522.0,
-    "w": 200.0,
-    "h": 46.0,
+    "x": 60.0,
+    "y": 513.0,
+    "w": 290.0,
+    "h": 44.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -283,10 +283,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_compact_control",
-    "x": 103.0,
-    "y": 522.0,
-    "w": 200.0,
-    "h": 46.0,
+    "x": 60.0,
+    "y": 513.0,
+    "w": 290.0,
+    "h": 44.0,
     "role": "button",
     "native_candidates": [
       "Button",

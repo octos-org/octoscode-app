@@ -50,11 +50,33 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "search_box",
-    "x": 24.0,
-    "y": 86.0,
-    "w": 358.0,
-    "h": 50.0,
+    "id": "search_pill",
+    "x": 51.0,
+    "y": 100.5,
+    "w": 158.0,
+    "h": 22.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "hair_installed",
+    "x": 0.0,
+    "y": 204.0,
+    "w": 406.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "hair_registry",
+    "x": 0.0,
+    "y": 602.0,
+    "w": 406.0,
+    "h": 1.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -62,22 +84,22 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_search",
-    "x": 42.0,
-    "y": 100.0,
-    "w": 20.0,
-    "h": 20.0,
+    "x": 60.0,
+    "y": 102.0,
+    "w": 16.0,
+    "h": 16.0,
     "role": "unknown",
     "native_candidates": []
   },
   {
     "id": "t_search",
-    "x": 83.41,
-    "y": 101.23,
-    "w": 127.54,
-    "h": 23.12,
+    "x": 83.0,
+    "y": 104.0,
+    "w": 128.0,
+    "h": 18.0,
     "text": "Search registry",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 12,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -135,10 +157,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_0_remove",
-    "x": 287.0,
-    "y": 219.5,
-    "w": 84.0,
-    "h": 34.0,
+    "x": 295.0,
+    "y": 225.5,
+    "w": 76.0,
+    "h": 30.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -147,10 +169,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_0_remove_surface",
-    "x": 287.0,
-    "y": 219.5,
-    "w": 84.0,
-    "h": 34.0,
+    "x": 295.0,
+    "y": 225.5,
+    "w": 76.0,
+    "h": 30.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -158,10 +180,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_0_remove_control",
-    "x": 287.0,
-    "y": 219.5,
-    "w": 84.0,
-    "h": 34.0,
+    "x": 295.0,
+    "y": 225.5,
+    "w": 76.0,
+    "h": 30.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -218,10 +240,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_1_remove",
-    "x": 287.0,
-    "y": 283.0,
-    "w": 84.0,
-    "h": 34.0,
+    "x": 295.0,
+    "y": 289.0,
+    "w": 76.0,
+    "h": 30.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -230,10 +252,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_1_remove_surface",
-    "x": 287.0,
-    "y": 283.0,
-    "w": 84.0,
-    "h": 34.0,
+    "x": 295.0,
+    "y": 289.0,
+    "w": 76.0,
+    "h": 30.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -241,10 +263,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_1_remove_control",
-    "x": 287.0,
-    "y": 283.0,
-    "w": 84.0,
-    "h": 34.0,
+    "x": 295.0,
+    "y": 289.0,
+    "w": 76.0,
+    "h": 30.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -301,10 +323,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_2_remove",
-    "x": 287.0,
-    "y": 347.09,
-    "w": 84.0,
-    "h": 34.0,
+    "x": 295.0,
+    "y": 353.09,
+    "w": 76.0,
+    "h": 30.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -313,10 +335,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_2_remove_surface",
-    "x": 287.0,
-    "y": 347.09,
-    "w": 84.0,
-    "h": 34.0,
+    "x": 295.0,
+    "y": 353.09,
+    "w": 76.0,
+    "h": 30.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -324,10 +346,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_2_remove_control",
-    "x": 287.0,
-    "y": 347.09,
-    "w": 84.0,
-    "h": 34.0,
+    "x": 295.0,
+    "y": 353.09,
+    "w": 76.0,
+    "h": 30.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -400,10 +422,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_3_install",
-    "x": 280.0,
-    "y": 481.51,
-    "w": 92.0,
-    "h": 34.0,
+    "x": 268.0,
+    "y": 474.51,
+    "w": 90.0,
+    "h": 44.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -412,10 +434,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_3_install_surface",
-    "x": 280.0,
-    "y": 481.51,
-    "w": 92.0,
-    "h": 34.0,
+    "x": 268.0,
+    "y": 474.51,
+    "w": 90.0,
+    "h": 44.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -423,10 +445,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_3_install_control",
-    "x": 280.0,
-    "y": 481.51,
-    "w": 92.0,
-    "h": 34.0,
+    "x": 268.0,
+    "y": 474.51,
+    "w": 90.0,
+    "h": 44.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -483,10 +505,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_4_install",
-    "x": 280.0,
-    "y": 551.44,
-    "w": 92.0,
-    "h": 34.0,
+    "x": 268.0,
+    "y": 544.44,
+    "w": 90.0,
+    "h": 44.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -495,10 +517,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_4_install_surface",
-    "x": 280.0,
-    "y": 551.44,
-    "w": 92.0,
-    "h": 34.0,
+    "x": 268.0,
+    "y": 544.44,
+    "w": 90.0,
+    "h": 44.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -506,10 +528,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_4_install_control",
-    "x": 280.0,
-    "y": 551.44,
-    "w": 92.0,
-    "h": 34.0,
+    "x": 268.0,
+    "y": 544.44,
+    "w": 90.0,
+    "h": 44.0,
     "role": "button",
     "native_candidates": [
       "Button",

@@ -486,9 +486,9 @@
       "id": "modal",
       "bounds": [
         40.0,
-        112.0,
+        93.0,
         326.0,
-        546.0
+        570.0
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,

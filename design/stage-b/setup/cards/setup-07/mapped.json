@@ -51,108 +51,158 @@
         "t": "text",
         "id": "t_title",
         "text": "Models",
-        "x": 25.517184401850628,
+        "x": 25.99,
         "y": 61.0,
         "w": 77.5,
-        "h": 24.0,
-        "size": 27.072042300066094,
-        "line_height": 24.0,
+        "h": 25.0,
+        "size": 20.66,
+        "line_height": 25.0,
         "weight": 600,
         "color": 4278190080,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-600.ttf",
-        "tracking": -3.9437541308658295,
-        "font_asc": -0.16733398437500002,
-        "font_desc": 0.15610351562500005
+        "tracking": 0.0
       },
       {
         "t": "text",
         "id": "t_ds_head",
         "text": "DeepSeek \u2022 Official API",
-        "x": 36.33249115715007,
+        "x": 36.73,
         "y": 137.5,
         "w": 200.0,
         "h": 26.0,
-        "size": 22.767054067710966,
-        "line_height": 26.0,
+        "size": 17.3,
+        "line_height": 20.94,
         "weight": 600,
         "color": 4278716168,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-600.ttf",
-        "tracking": -2.661904543157701,
-        "font_asc": -0.11869673295454541,
-        "font_desc": -0.050736860795454586
+        "tracking": 0.0
       },
       {
         "t": "text",
         "id": "t_ds_count",
         "text": "3 models",
-        "x": 35.77770534550196,
+        "x": 36.04,
         "y": 173.5,
         "w": 72.0,
         "h": 19.0,
-        "size": 20.02607561929596,
-        "line_height": 19.0,
+        "size": 15.67,
+        "line_height": 18.96,
         "weight": 400,
         "color": 4285427312,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -2.3843360029800715,
-        "font_asc": -0.13157552083333335,
-        "font_desc": 0.12962239583333335
+        "tracking": 0.0
       },
       {
         "t": "stack",
-        "id": "row_flash",
-        "x": 35.0,
-        "y": 216.0,
-        "w": 295.0,
-        "h": 60.0,
+        "id": "chev_chip",
+        "x": 328.0,
+        "y": 228.0,
+        "w": 40.0,
+        "h": 40.0,
         "c": [],
         "variant": "surface",
-        "bg": 4294835709,
-        "radius": 10.43
+        "bg": 4293519850,
+        "radius": 20.0
+      },
+      {
+        "t": "svg",
+        "id": "icon_chev",
+        "x": 342.0,
+        "y": 240.0,
+        "w": 14.0,
+        "h": 22.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "icon_check",
+        "x": 299.0,
+        "y": 240.0,
+        "w": 16.0,
+        "h": 16.0,
+        "src": ""
+      },
+      {
+        "t": "stack",
+        "id": "dot_ds",
+        "x": 280.0,
+        "y": 288.0,
+        "w": 11.0,
+        "h": 11.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 5.5
+      },
+      {
+        "t": "svg",
+        "id": "icon_chev_ds",
+        "x": 346.0,
+        "y": 283.0,
+        "w": 18.0,
+        "h": 24.0,
+        "src": ""
+      },
+      {
+        "t": "stack",
+        "id": "dot_kimi",
+        "x": 280.0,
+        "y": 503.0,
+        "w": 11.0,
+        "h": 11.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 5.5
+      },
+      {
+        "t": "svg",
+        "id": "icon_chev_kimi",
+        "x": 346.0,
+        "y": 498.0,
+        "w": 18.0,
+        "h": 24.0,
+        "src": ""
       },
       {
         "t": "text",
         "id": "t_flash",
         "text": "deepseek-v4-flash (default)",
-        "x": 47.06353176588294,
+        "x": 47.32,
         "y": 236.0,
         "w": 200.5,
         "h": 23.5,
-        "size": 19.97798899449725,
-        "line_height": 23.5,
+        "size": 14.52,
+        "line_height": 17.57,
         "weight": 500,
         "color": 4284440416,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-500.ttf",
-        "tracking": -2.726574825874475,
-        "font_asc": -0.09666716746794868,
-        "font_desc": -0.06300080128205127
+        "tracking": 0.0
       },
       {
         "t": "text",
         "id": "t_pro",
         "text": "deepseek-v4-pro",
-        "x": 46.9643605870021,
+        "x": 47.25,
         "y": 297.5,
         "w": 127.0,
         "h": 23.0,
-        "size": 20.39412997903564,
-        "line_height": 23.0,
+        "size": 14.73,
+        "line_height": 17.82,
         "weight": 400,
         "color": 4279571732,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -3.2294100029949084,
-        "font_asc": -0.14314350328947367,
-        "font_desc": -0.060958059210526216
+        "tracking": 0.0
       },
       {
         "t": "stack",
@@ -172,7 +222,9 @@
             "c": [],
             "variant": "surface",
             "bg": 4294769916,
-            "radius": 22.0
+            "radius": 22.0,
+            "border": 1,
+            "bordercolor": 4280098079
           },
           {
             "t": "button",
@@ -187,20 +239,18 @@
             "t": "text",
             "id": "btn_test_label",
             "text": "Test route",
-            "x": 66.10773298083278,
+            "x": 66.36,
             "y": 369.0,
             "w": 75.5,
             "h": 19.0,
-            "size": 20.30403172504957,
-            "line_height": 19.0,
+            "size": 14.57,
+            "line_height": 17.63,
             "weight": 500,
             "color": 4279440404,
             "variant": "single_line",
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-500.ttf",
-            "tracking": -2.9213850334141145,
-            "font_asc": -0.14270833333333333,
-            "font_desc": 0.13147786458333321
+            "tracking": 0.0
           }
         ],
         "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
@@ -223,7 +273,9 @@
             "c": [],
             "variant": "surface",
             "bg": 4294704123,
-            "radius": 22.0
+            "radius": 22.0,
+            "border": 1,
+            "bordercolor": 4280098079
           },
           {
             "t": "button",
@@ -238,20 +290,18 @@
             "t": "text",
             "id": "btn_discover_label",
             "text": "Discover models",
-            "x": 208.92657342657344,
+            "x": 209.43,
             "y": 369.0,
             "w": 110.5,
             "h": 19.0,
-            "size": 19.529561347743165,
-            "line_height": 19.0,
+            "size": 13.32,
+            "line_height": 16.11,
             "weight": 500,
             "color": 4279439891,
             "variant": "single_line",
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-500.ttf",
-            "tracking": -3.3727863046044866,
-            "font_asc": -0.10950520833333333,
-            "font_desc": 0.12757161458333333
+            "tracking": 0.0
           }
         ],
         "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
@@ -260,77 +310,69 @@
         "t": "text",
         "id": "t_kimi_head",
         "text": "Kimi Coding Plan",
-        "x": 36.38991512730904,
+        "x": 36.78,
         "y": 465.0,
         "w": 141.0,
         "h": 25.5,
-        "size": 21.98302546180729,
-        "line_height": 25.5,
+        "size": 16.72,
+        "line_height": 20.23,
         "weight": 600,
         "color": 4278650631,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-600.ttf",
-        "tracking": -2.6667998002995508,
-        "font_asc": -0.11556368095930236,
-        "font_desc": -0.06558866279069758
+        "tracking": 0.0
       },
       {
         "t": "text",
         "id": "t_kimi_count",
         "text": "3 models",
-        "x": 35.27770534550196,
+        "x": 35.59,
         "y": 499.0,
         "w": 69.0,
         "h": 19.0,
-        "size": 20.02607561929596,
-        "line_height": 19.0,
+        "size": 14.98,
+        "line_height": 18.12,
         "weight": 400,
         "color": 4285492848,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -2.8129074315515004,
-        "font_asc": -0.13157552083333335,
-        "font_desc": 0.12962239583333335
+        "tracking": 0.0
       },
       {
         "t": "text",
         "id": "t_glm_head",
         "text": "GLM Coding Plan",
-        "x": 35.89440838741887,
+        "x": 36.15,
         "y": 587.5,
         "w": 144.0,
         "h": 25.5,
-        "size": 21.98302546180729,
-        "line_height": 25.5,
+        "size": 16.86,
+        "line_height": 20.4,
         "weight": 600,
         "color": 4278782217,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-600.ttf",
-        "tracking": -2.8515441124028262,
-        "font_asc": -0.11556368095930236,
-        "font_desc": -0.06558866279069758
+        "tracking": 0.0
       },
       {
         "t": "text",
         "id": "t_glm_count",
         "text": "3 models",
-        "x": 35.27770534550196,
+        "x": 35.59,
         "y": 623.5,
         "w": 69.0,
         "h": 19.0,
-        "size": 20.02607561929596,
-        "line_height": 19.0,
+        "size": 14.98,
+        "line_height": 18.12,
         "weight": 400,
         "color": 4285493360,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": -2.8129074315515004,
-        "font_asc": -0.13157552083333335,
-        "font_desc": 0.12962239583333335
+        "tracking": 0.0
       },
       {
         "t": "stack",
@@ -366,7 +408,31 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "row_flash",
+      "id": "chev_chip",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_chev",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_check",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "dot_ds",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_chev_ds",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "dot_kimi",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_chev_kimi",
       "source": "observed non-text annotation"
     },
     {

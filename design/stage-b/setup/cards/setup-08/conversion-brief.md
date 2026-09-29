@@ -47,9 +47,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "modal",
     "x": 40.0,
-    "y": 112.0,
+    "y": 93.0,
     "w": 326.0,
-    "h": 546.0,
+    "h": 570.0,
     "role": "layout",
     "native_candidates": [
       "View"
