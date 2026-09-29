@@ -86,7 +86,11 @@ script_mod! {
                 // reports to the host (the `row_hit` pattern, below).
                 new_chat_row := View {
                     width: Fill height: Fit flow: Overlay
-                    new_chat_splash := Splash { width: Fill height: 44 }
+                    // Card #21e item 2: the #16 `new-chat` component's artboard is
+                    // 374x76 (scene-01 `mapped.json`); a fixed 44px slot clipped its
+                    // bottom edge flat under the label. `Fit` takes the component's
+                    // own measured height (the same idiom `thread_splash` uses).
+                    new_chat_splash := Splash { width: Fill height: Fit }
                     new_chat_hit := Button {
                         width: Fill height: Fill text: ""
                         draw_bg.color: #00000000
@@ -174,6 +178,22 @@ script_mod! {
                             draw_bg.color_2: #00000000
                             draw_bg.border_color: #00000000
                             draw_bg.border_color_2: #00000000
+                            draw_bg.color_hover: #00000000
+                            draw_bg.color_down: #00000000
+                            draw_bg.color_focus: #00000000
+                            draw_bg.color_disabled: #00000000
+                            draw_bg.color_2_hover: #00000000
+                            draw_bg.color_2_down: #00000000
+                            draw_bg.color_2_focus: #00000000
+                            draw_bg.color_2_disabled: #00000000
+                            draw_bg.border_color_hover: #00000000
+                            draw_bg.border_color_down: #00000000
+                            draw_bg.border_color_focus: #00000000
+                            draw_bg.border_color_disabled: #00000000
+                            draw_bg.border_color_2_hover: #00000000
+                            draw_bg.border_color_2_down: #00000000
+                            draw_bg.border_color_2_focus: #00000000
+                            draw_bg.border_color_2_disabled: #00000000
                         }
                         mic_hit := Button {
                             width: 36 height: 36 text: ""
@@ -185,6 +205,22 @@ script_mod! {
                             draw_bg.color_2: #00000000
                             draw_bg.border_color: #00000000
                             draw_bg.border_color_2: #00000000
+                            draw_bg.color_hover: #00000000
+                            draw_bg.color_down: #00000000
+                            draw_bg.color_focus: #00000000
+                            draw_bg.color_disabled: #00000000
+                            draw_bg.color_2_hover: #00000000
+                            draw_bg.color_2_down: #00000000
+                            draw_bg.color_2_focus: #00000000
+                            draw_bg.color_2_disabled: #00000000
+                            draw_bg.border_color_hover: #00000000
+                            draw_bg.border_color_down: #00000000
+                            draw_bg.border_color_focus: #00000000
+                            draw_bg.border_color_disabled: #00000000
+                            draw_bg.border_color_2_hover: #00000000
+                            draw_bg.border_color_2_down: #00000000
+                            draw_bg.border_color_2_focus: #00000000
+                            draw_bg.border_color_2_disabled: #00000000
                         }
                         send_hit := Button {
                             width: 44 height: 44 text: ""
@@ -196,6 +232,22 @@ script_mod! {
                             draw_bg.color_2: #00000000
                             draw_bg.border_color: #00000000
                             draw_bg.border_color_2: #00000000
+                            draw_bg.color_hover: #00000000
+                            draw_bg.color_down: #00000000
+                            draw_bg.color_focus: #00000000
+                            draw_bg.color_disabled: #00000000
+                            draw_bg.color_2_hover: #00000000
+                            draw_bg.color_2_down: #00000000
+                            draw_bg.color_2_focus: #00000000
+                            draw_bg.color_2_disabled: #00000000
+                            draw_bg.border_color_hover: #00000000
+                            draw_bg.border_color_down: #00000000
+                            draw_bg.border_color_focus: #00000000
+                            draw_bg.border_color_disabled: #00000000
+                            draw_bg.border_color_2_hover: #00000000
+                            draw_bg.border_color_2_down: #00000000
+                            draw_bg.border_color_2_focus: #00000000
+                            draw_bg.border_color_2_disabled: #00000000
                         }
                     }
                 }
@@ -469,6 +521,13 @@ impl OctoscodeView {
         // MOUNTED (evaluated in our VM + `mem::replace` + deep insert), not
         // `set_text` — the latter mints a standalone tree that never seats.
         let bridge = self.bridge.clone();
+        let composer_live = {
+            let b = self.bridge.lock().unwrap();
+            let ctx = bindings::Ctx::new(&b.store, &b.ui);
+            bindings::query(&ctx, "turn.active")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false)
+        };
         let composer = {
             let mut cache = std::mem::take(&mut self.cache);
             let c = cache
@@ -476,6 +535,20 @@ impl OctoscodeView {
                 .unwrap_or_default();
             self.cache = cache;
             c
+        };
+        // Card #21f item 1b: while a turn runs the SAME dock is the STOP control
+        // (atlas conversation-08 `stop2`, a white 12×12 rounded square on the flat
+        // black disc). The composer component carries one send glyph, so swap it
+        // for the stop asset — otherwise the arrow persists through the whole
+        // running turn (`g3b-turn2-running.png`). The mount cache compares the DSL
+        // string, so the swap also forces exactly one repaint when `turn.active`
+        // flips either way.
+        let composer = if composer_live {
+            composer
+                .replace("icon_send-3fe1783d764e.svg", "icon_stop.svg")
+                .replace("icon_send.svg", "icon_stop.svg")
+        } else {
+            composer
         };
         let composer_splash = self.view.splash(cx, ids!(composer_splash));
         if let Err(e) = self.mounts.mount(cx, &composer_splash, &composer) {

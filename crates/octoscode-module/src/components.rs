@@ -512,12 +512,16 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
         // its right edge (beauty-host renders it too: 446 ink px in the
         // component's own right 20%). The #16 ledger omits the node, so add it.
         ItemKind::NewChat => new_chat_with_compose_icon(&ui),
-        ItemKind::AssistantProse
-        | ItemKind::WorkedFor
-        | ItemKind::AnswerActions
-        | ItemKind::WorkingRow
-        | ItemKind::ToolCell => fit_heights(&ui),
-        _ => ui,
+        // Card #21e item 5: the timestamp sits at the artboard's own x=243.64 in a
+        // 364px row, which lands mid-column once mounted in a wider slot.
+        ItemKind::AnswerActions => right_align_timestamp(&ui),
+        // Card #21e item 6: fenced code must not soft-wrap.
+        ItemKind::AssistantProse => no_wrap_code(&fit_heights(&ui)),
+        // Card #21e item 3: the send control is a flat black disc.
+        ItemKind::Composer => flat_send_button(&ui),
+        // Card #21e item 8: the activity row's spinner keeps its 18px box.
+        ItemKind::WorkingRow => working_row_layout(&ui),
+        ItemKind::WorkedFor | ItemKind::ToolCell => fit_heights(&ui),
     };
     // Card #21d item 6: resolve every emitted `http_resource(…)` icon to the
     // component's own file on disk, so the app needs no dev asset server.
@@ -539,10 +543,131 @@ fn bubble_live_layout(ui: &str) -> String {
     // measured widths the artboard gave them (`Fill` under a `Fit` root collapses
     // to the minimum — measured: a 16px-wide bubble), and the labels WRAP.
     let s = fit_heights(ui);
+    // Card #21e item 7: symmetric vertical padding (the artboard's absolute tops
+    // leave the last wrapped line on the bottom edge).
+    let s = symmetric_bubble_padding(&s);
     let s = set_first_width_fit_capped(&s, "80%");
     let mut s = s.replace("flow: Right\n", "flow: Right{wrap: true}\n");
     s = s.replace("flow: Right ", "flow: Right{wrap: true} ");
     format!("user_align := View{{width:Fill height:Fit flow:Down align: Align{{x: 1.0}} {s}}}")
+}
+
+/// Card #21e item 8 — the activity row's spinner keeps its own 18px box.
+///
+/// The atlas's `working-row` is a 29.5px row whose spinner is 18×18 (scene-03
+/// `icon_spinner` at 198..216). `fit_heights` leaves the `Svg` at `height: Fit`,
+/// and its `preserve_aspect: false` then stretches the 24×24 viewBox to the
+/// label's 24px line box (measured live: the icon occupied y211..235 in a
+/// 206..235 row), so the glyph drew past its own box. Pin both the wrapper and
+/// the `Svg` to the measured 18px.
+fn working_row_layout(ui: &str) -> String {
+    let s = fit_heights(ui);
+    let s = s.replace(
+        "View {width: 18 height: Fit margin: Inset{left: 0 top: 5",
+        "View {width: 18 height: 18 margin: Inset{left: 0 top: 5",
+    );
+    s.replace("width: 18 height: Fit", "width: 18 height: 18")
+}
+
+/// Card #21e item 1 — a settled turn whose terminal was `interrupted` shows the
+/// marker (`answer.worked_for`); the `working-row` component itself is only ever
+/// the LIVE tail (`screen.rs:113-116`), so it keeps its spinner.
+///
+/// Card #21e item 5 — the answer-actions timestamp sits mid-column.
+///
+/// The artboard places the timestamp flush with its row's right edge
+/// (`answer-actions/mapped.json`: t11 x=267.64 w=121.5 → right 389.14, row right
+/// 388.11). The app's row is only 364px inside a 404px column, so even at its
+/// authored x the label stops ~40px short of the column edge, and a short
+/// timestamp (`now`) reads mid-column. Widen the row to its slot, seat the
+/// label's wrapper at the column's right (a 16px inset, matching the atlas's own
+/// gap), and right-align the run — an `align` on a child of an Overlay is a
+/// no-op (`design.rs:164-174`), the wrapper must be the filled, aligned one.
+fn right_align_timestamp(ui: &str) -> String {
+    let s = fit_heights(ui);
+    // 1. the row spans its slot (the artboard's 364px left a gutter).
+    let s = s.replace("width: 364.11", "width: Fill");
+    // 2. both the label wrapper and the label itself become Fill so the run can
+    //    reach the column edge. The wrapper keeps a right inset that clears the
+    //    PortalList's scrollbar: `ScrollBar { bar_size: 10, bar_side_margin: 3 }`
+    //    (scroll_bar.rs:25-27) draws a ~13px handle over the list's last pixels,
+    //    and the #21e flush-right push put `now`/`Sep 29, 8:17 AM` under it.
+    //    The emitted wrapper margin is the artboard's own `left: 243.64`
+    //    (NOT the `268` an earlier revision anchored on, which never matched) —
+    //    anchor on the real text.
+    let s = s.replace("width: 121.5", "width: Fill");
+    let s = s.replace(
+        "margin: Inset{left: 243.64 top: 1.5 right: 0 bottom: 0}",
+        "margin: Inset{left: 0 top: 1.5 right: 20 bottom: 0}",
+    );
+    // 3. right-align the label's own text run.
+    s.replace("align: Align{x: 0 y: 0.5}", "align: Align{x: 1.0 y: 0.5}")
+}
+
+/// Card #21e item 6 — a fenced code block must not soft-wrap its lines.
+///
+/// `Markdown` folds fenced code into the body text flow
+/// (`widgets/src/markdown.rs:219` `use_code_block_widget` defaults false), whose
+/// `code_layout.flow` is `Flow.Right{wrap: true}` (`text_flow.rs:192-196`) — so a
+/// code line breaks mid-token (`// 0` spilling onto a `—`-prefixed line). Pin the
+/// code block's flow non-wrapping; the block then clips long lines in its mono
+/// block like the atlas's grey code block.
+fn no_wrap_code(ui: &str) -> String {
+    // The DSL's flow vocabulary is bare (`flow: Overlay`, `flow: Right{wrap: true}`);
+    // `Flow.Right` is the Rust enum path, not a DSL value.
+    ui.replace(
+        " := Markdown {",
+        " := Markdown {\ncode_layout: Layout{flow: Right}",
+    )
+}
+
+/// Card #21e item 7 — the person's bubble needs symmetric vertical padding.
+///
+/// The lowered bubble is an `Overlay` whose `Fit` height is the tallest child's
+/// bottom edge; the two label wrappers carry the artboard's absolute tops
+/// (11.09 / 48.59), so once `t01` wraps past the second wrapper the last line
+/// lands exactly on the bottom edge (measured: label bottom == bubble bottom).
+/// Stack the wrappers in a `Down` flow inside symmetric padding instead.
+fn symmetric_bubble_padding(ui: &str) -> String {
+    let s = ui.replacen(
+        "flow: Overlay padding: 0 clip_x: false clip_y: false",
+        "flow: Down padding: Inset{left: 15.72 top: 12 right: 15.72 bottom: 12} clip_x: false clip_y: false",
+        1,
+    );
+    let s = s.replace(
+        "margin: Inset{left: 15.72 top: 11.090000000000003 right: 0 bottom: 0}",
+        "margin: 0",
+    );
+    // The cleared second line is bound to `@clear` for live data — the whole
+    // message rides `t01` (which wraps). An empty `Label` still reserves its
+    // line box, which read as ~29px of dead black under the last text line
+    // (`g3-completed.png`), so collapse the label and let its `Fit` wrapper
+    // shrink to zero with it.
+    s.replace(
+        "margin: Inset{left: 15.790000000000006 top: 48.59 right: 0 bottom: 0}",
+        "margin: 0",
+    )
+    .replace(
+        "i0_userbubble_1 := Label {\nwidth: 224.5 height: Fit",
+        "i0_userbubble_1 := Label {\nwidth: 224.5 height: 0",
+    )
+}
+
+/// Card #21e item 3 — the send control is a flat black disc, never a gloss.
+///
+/// The shell/kit surface skin fills with a second stop and a bevel on top of
+/// `color` (the #21d item-1 lesson), which reads as a glossy radial gradient
+/// around the white arrow. Force one flat black fill and no second stop/bevel.
+fn flat_send_button(ui: &str) -> String {
+    let s = ui.replace(
+        "draw_bg.radius: 18 draw_bg.ellipse: 0 draw_bg.border_width: 0 draw_bg.border_position: 0 draw_bg.border_color: #00000000",
+        "draw_bg.radius: 18 draw_bg.ellipse: 0 draw_bg.border_width: 0 draw_bg.border_position: 0 \
+         draw_bg.border_color: #00000000 draw_bg.color2: #00000000 draw_bg.gradient: 0.0",
+    );
+    s.replace(
+        "show_bg: true draw_bg.color: #040303ff",
+        "show_bg: true draw_bg.color: #000000ff",
+    )
 }
 
 /// Card #21d item 5 — scene 01's new-chat row carries a compose icon at its
