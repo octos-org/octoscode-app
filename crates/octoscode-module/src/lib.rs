@@ -435,11 +435,16 @@ script_mod! {
         // Card #28e item 5 (board 4 frame 3): the floating 560 px command
         // palette, near the top of the window. Cmd+K and "/" in an empty
         // composer open it; Esc closes. The search field + the command rows are
-        // native shell chrome (no #16 component yet).
+        // native shell chrome (no #16 component yet). CENTERED at any window
+        // width: the dock wrapper centers the card (the old abs_pos(440,120)
+        // was a 1440-only guess); the card's top margin keeps it near the top.
+        palette_dock := View {
+            width: Fill height: Fill
+            align: Align{x: 0.5 y: 0.0}
         palette := RoundedView {
             width: 560 height: Fit flow: Down spacing: 4
             visible: false
-            abs_pos: vec2(440.0, 120.0)
+            margin: Inset{top: 120}
             draw_bg +: {color: #FFFFFF border_radius: 12.0 border_size: 1.0 border_color: #E5E5E7}
             padding: Inset{left: 8 right: 8 top: 8 bottom: 8}
             palette_search := TextInput {
@@ -462,6 +467,7 @@ script_mod! {
                 draw_text.color: #6E6E73
             }
         } // palette
+        } // palette_dock
 
         // Card #28e item 6 (board 4 frame 4): the first-run screen. Before a
         // connection the window shows only a centered 480-wide card area (the
