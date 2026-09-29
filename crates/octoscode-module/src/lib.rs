@@ -86,6 +86,11 @@ script_mod! {
                 // reports to the host (the `row_hit` pattern, below).
                 new_chat_row := View {
                     width: Fill height: Fit flow: Overlay
+                    // Card #21g item 3: the #16 `new-chat` card ran flush to the
+                    // thread column's right edge, while the thread rows below it
+                    // stop short of that edge (the list reserves its scrollbar).
+                    // Give the card the same right inset so the two align.
+                    margin: Inset{left: 0 top: 0 right: 13 bottom: 0}
                     // Card #21e item 2: the #16 `new-chat` component's artboard is
                     // 374x76 (scene-01 `mapped.json`); a fixed 44px slot clipped its
                     // bottom edge flat under the label. `Fit` takes the component's
@@ -108,6 +113,10 @@ script_mod! {
                 // routes the click with the item id (`thread.open`).
                 thread_list := PortalList {
                     width: Fill height: Fill flow: Down drag_scrolling: true
+                    // Card #21g item 3: the rows must share the New chat card's
+                    // right inset so the two align (the atlas insets the card and
+                    // the selected row to one right edge).
+                    margin: Inset{left: 0 top: 0 right: 13 bottom: 0}
                     ThreadRowTpl := View {
                         width: Fill height: Fit flow: Overlay
                         thread_splash := Splash { width: Fill height: Fit }
