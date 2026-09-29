@@ -3,7 +3,6 @@
 # profile: ui/l0
 # Static design fixture, runtime native Kit composition.
 theme light
-copy t01_text { class: user-copy, en: "OctosCode" }
 copy t_goal_title_text { class: user-copy, en: "Goal" }
 copy t_goal_text { class: user-copy, en: "Fix steer queue on reconnect" }
 copy goal_badge_label_text { class: user-copy, en: "Active" }
@@ -13,18 +12,14 @@ copy t_elapsed_text { class: user-copy, en: "Elapsed" }
 copy t_elapsed_val_text { class: user-copy, en: "18m" }
 copy pause_btn_label_text { class: user-copy, en: "Pause" }
 copy stop_btn_label_text { class: user-copy, en: "Stop" }
-copy clear_goal_label_text { class: user-copy, en: "Clear goal" }
+copy clear_goal_text { class: user-copy, en: "Clear goal" }
 state pause_btn_control_enabled { shape: bool, initial: true }
 state stop_btn_control_enabled { shape: bool, initial: true }
-state clear_goal_control_enabled { shape: bool, initial: true }
 component Surface16fae9a63e16(instance: text) {
   view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
 }
 component Surfaceb4206391250d(instance: text) {
   view Kit(component: "Surfaceb4206391250d", instance: instance) { slot }
-}
-component Text5d61a731d99a(instance: text, text: text) {
-  view Kit(component: "Text5d61a731d99a", instance: instance, text: text)
 }
 component Surfaceebeaffab57cc(instance: text) {
   view Kit(component: "Surfaceebeaffab57cc", instance: instance) { slot }
@@ -32,8 +27,8 @@ component Surfaceebeaffab57cc(instance: text) {
 component Text340535f16f5a(instance: text, text: text) {
   view Kit(component: "Text340535f16f5a", instance: instance, text: text)
 }
-component Textbc84cf10033f(instance: text, text: text) {
-  view Kit(component: "Textbc84cf10033f", instance: instance, text: text)
+component Textfce030d8c465(instance: text, text: text) {
+  view Kit(component: "Textfce030d8c465", instance: instance, text: text)
 }
 component Surface061d79961e7a(instance: text) {
   view Kit(component: "Surface061d79961e7a", instance: instance) { slot }
@@ -62,8 +57,8 @@ component Textdb2041b71827(instance: text, text: text) {
 component KitButton2c6804b990a5(instance: text) {
   view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
 }
-component Surface8909d71dc5dd(instance: text) {
-  view Kit(component: "Surface8909d71dc5dd", instance: instance) { slot }
+component Surface1f0616179e77(instance: text) {
+  view Kit(component: "Surface1f0616179e77", instance: instance) { slot }
 }
 component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
   view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
@@ -71,14 +66,11 @@ component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
 component Text19dba5000243(instance: text, text: text) {
   view Kit(component: "Text19dba5000243", instance: instance, text: text)
 }
-component Surfaceff776c252975(instance: text) {
-  view Kit(component: "Surfaceff776c252975", instance: instance) { slot }
+component Surface611f07322ed9(instance: text) {
+  view Kit(component: "Surface611f07322ed9", instance: instance) { slot }
 }
 component Textafcbbfd1a4df(instance: text, text: text) {
   view Kit(component: "Textafcbbfd1a4df", instance: instance, text: text)
-}
-component Surfacec768d4b60097(instance: text) {
-  view Kit(component: "Surfacec768d4b60097", instance: instance) { slot }
 }
 component Text196673905202(instance: text, text: text) {
   view Kit(component: "Text196673905202", instance: instance, text: text)
@@ -86,10 +78,9 @@ component Text196673905202(instance: text, text: text) {
 
 view root Surface16fae9a63e16(instance: "page") {
   Surfaceb4206391250d(instance: "goal_screen") {
-    Text5d61a731d99a(instance: "t01", text: copy.t01_text)
     Surfaceebeaffab57cc(instance: "goal_card") {
       Text340535f16f5a(instance: "t_goal_title", text: copy.t_goal_title_text)
-      Textbc84cf10033f(instance: "t_goal", text: copy.t_goal_text)
+      Textfce030d8c465(instance: "t_goal", text: copy.t_goal_text)
       Surface061d79961e7a(instance: "goal_badge") {
         Textb7495c5c5d4f(instance: "goal_badge_label", text: copy.goal_badge_label_text)
       }
@@ -104,26 +95,20 @@ view root Surface16fae9a63e16(instance: "page") {
       Textbdc8ea81e9d3(instance: "t_elapsed", text: copy.t_elapsed_text)
       Textdb2041b71827(instance: "t_elapsed_val", text: copy.t_elapsed_val_text)
       KitButton2c6804b990a5(instance: "pause_btn") {
-        Surface8909d71dc5dd(instance: "pause_btn_surface") {
+        Surface1f0616179e77(instance: "pause_btn_surface") {
 
         }
         NativeButton02f1d1bd99b4(instance: "pause_btn_control", enabled: pause_btn_control_enabled)
         Text19dba5000243(instance: "pause_btn_label", text: copy.pause_btn_label_text)
       }
       KitButton2c6804b990a5(instance: "stop_btn") {
-        Surfaceff776c252975(instance: "stop_btn_surface") {
+        Surface611f07322ed9(instance: "stop_btn_surface") {
 
         }
         NativeButton02f1d1bd99b4(instance: "stop_btn_control", enabled: stop_btn_control_enabled)
         Textafcbbfd1a4df(instance: "stop_btn_label", text: copy.stop_btn_label_text)
       }
     }
-    KitButton2c6804b990a5(instance: "clear_goal") {
-      Surfacec768d4b60097(instance: "clear_goal_surface") {
-
-      }
-      NativeButton02f1d1bd99b4(instance: "clear_goal_control", enabled: clear_goal_control_enabled)
-      Text196673905202(instance: "clear_goal_label", text: copy.clear_goal_label_text)
-    }
+    Text196673905202(instance: "clear_goal", text: copy.clear_goal_text)
   }
 }

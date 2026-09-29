@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "88a36e1926ef7b1c258911a7fe012afa5dd4fcc889fece4e2406b0d3d2771256",
+  "contract_sha256": "c9815d0bd80099ac30e8a1a379d79ef23d88dec5a64ab6cf9167b4f09e15c43a",
   "reference_sha256": "29638e4fd903df503f18080c9d8ad5472e2620cae5f7e2c267a675a0a32e7287",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -16,13 +16,6 @@
       "id": "monitors_screen",
       "role": "layout",
       "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "t01",
-      "role": "text",
-      "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -55,22 +48,6 @@
       "decision": "declared"
     },
     {
-      "id": "mon_1_clock",
-      "role": "icon",
-      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
-      "confidence": 1.0,
-      "decision": "reviewed",
-      "asset": {
-        "path": "assets/mon_1_clock.svg",
-        "sha256": "b64e6a5bf72189b2b0ca7bbb17ee012e7b0becb1dee05be780c327dae82ee21c",
-        "method": "reference_svg",
-        "reference_sha256": "29638e4fd903df503f18080c9d8ad5472e2620cae5f7e2c267a675a0a32e7287",
-        "fit": "stretch",
-        "clip": true,
-        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
-      }
-    },
-    {
       "id": "mon_1_int",
       "role": "text",
       "basis": "authored text node",
@@ -85,7 +62,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/mon_1_pause.svg",
-        "sha256": "a8eaf0e4c2cc2207c04459887b8028af7a982fe229dfd7b2abf892375d314efe",
+        "sha256": "5880d2f68cc64f932c5260d5979d2f734cc637b2aee5c10f7f9f522aca981311",
         "method": "reference_svg",
         "reference_sha256": "29638e4fd903df503f18080c9d8ad5472e2620cae5f7e2c267a675a0a32e7287",
         "fit": "stretch",
@@ -131,22 +108,6 @@
       "decision": "declared"
     },
     {
-      "id": "mon_2_clock",
-      "role": "icon",
-      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
-      "confidence": 1.0,
-      "decision": "reviewed",
-      "asset": {
-        "path": "assets/mon_2_clock.svg",
-        "sha256": "b64e6a5bf72189b2b0ca7bbb17ee012e7b0becb1dee05be780c327dae82ee21c",
-        "method": "reference_svg",
-        "reference_sha256": "29638e4fd903df503f18080c9d8ad5472e2620cae5f7e2c267a675a0a32e7287",
-        "fit": "stretch",
-        "clip": true,
-        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
-      }
-    },
-    {
       "id": "mon_2_int",
       "role": "text",
       "basis": "authored text node",
@@ -161,7 +122,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/mon_2_pause.svg",
-        "sha256": "a8eaf0e4c2cc2207c04459887b8028af7a982fe229dfd7b2abf892375d314efe",
+        "sha256": "5880d2f68cc64f932c5260d5979d2f734cc637b2aee5c10f7f9f522aca981311",
         "method": "reference_svg",
         "reference_sha256": "29638e4fd903df503f18080c9d8ad5472e2620cae5f7e2c267a675a0a32e7287",
         "fit": "stretch",

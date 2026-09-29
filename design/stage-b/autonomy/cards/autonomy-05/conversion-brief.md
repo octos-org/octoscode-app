@@ -45,22 +45,6 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t01",
-    "x": 16.95,
-    "y": 21.48,
-    "w": 94.05,
-    "h": 28.5,
-    "text": "OctosCode",
-    "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 19,
-    "weight": 600,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
     "id": "t_title",
     "x": 18.62,
     "y": 94.66,
@@ -118,15 +102,6 @@ legacy Studio capture/gate adapters require their own evidence schema.
       "Label",
       "TextFlow"
     ]
-  },
-  {
-    "id": "mon_1_clock",
-    "x": 190.94,
-    "y": 236.92,
-    "w": 18.0,
-    "h": 18.0,
-    "role": "unknown",
-    "native_candidates": []
   },
   {
     "id": "mon_1_int",
@@ -204,15 +179,6 @@ legacy Studio capture/gate adapters require their own evidence schema.
       "Label",
       "TextFlow"
     ]
-  },
-  {
-    "id": "mon_2_clock",
-    "x": 192.65,
-    "y": 408.96,
-    "w": 18.0,
-    "h": 18.0,
-    "role": "unknown",
-    "native_candidates": []
   },
   {
     "id": "mon_2_int",

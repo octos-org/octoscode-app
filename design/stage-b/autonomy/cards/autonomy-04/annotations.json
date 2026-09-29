@@ -122,10 +122,10 @@
     {
       "id": "loop_1_dot",
       "bounds": [
-        210.225,
-        166.337,
-        14.449,
-        14.78
+        208.16,
+        164.226,
+        18.578,
+        19.003
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -177,10 +177,10 @@
     {
       "id": "loop_2_dot",
       "bounds": [
-        210.225,
-        296.244,
-        14.449,
-        14.78
+        208.16,
+        294.133,
+        18.578,
+        19.003
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -232,10 +232,10 @@
     {
       "id": "loop_3_dot",
       "bounds": [
-        210.225,
-        425.191,
-        14.449,
-        14.78
+        208.16,
+        423.079,
+        18.578,
+        19.003
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false

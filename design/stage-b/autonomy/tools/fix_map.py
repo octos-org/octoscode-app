@@ -31,9 +31,31 @@ COLOR_KEEP = {
         # the atlas draws it dark (#4f4d51 measured). Restore the authored ink.
         "dl_7"},
 }
-# node id -> extra logical-x shift. With fix_map running AFTER fix_metrics (the
-# ink-fit), the fitted x already clears the leading icon — no shift needed.
-X_SHIFT = {}
+# node id -> restore the AUTHORED geometry (x, y, w, h) from the contract.
+# Same disease as X_RESTORE but the map stage also re-anchors y/h on these
+# single-row icons (it fits them to the row's OCR ink box), so restore the full
+# authored box.
+X_RESTORE_FULL = {
+    6: {"peer_2_attn"},
+}
+# node id -> restore the AUTHORED geometry (x, w, size) from the contract.
+# fix_metrics' ink-fit resets the path x to the OCR ink start (which INCLUDES
+# the separately-authored file icon), so the path overlaps the icon, and it
+# re-fits the font from that fused ink width. Restore the authored placement
+# verbatim — self-healing, so re-running the stage never accumulates shifts
+# (the earlier += shift form double-applied when mapped.json was retained).
+X_RESTORE = {
+    1: {"file_1_path", "file_2_path", "file_3_path", "diff_file_path",
+        # the map stage re-anchors each icon to its row's OCR ink start; row 3's
+        # OCR box is indented, so its icon landed ON the path start (v-r2 crop).
+        # Icons are authored at the measured x[28,46] ref band on every row —
+        # restore that, not the per-row ink anchor.
+        "file_1_icon", "file_2_icon", "file_3_icon", "diff_file_icon"},
+}
+# node id -> max font size. The map stage's ink-fit over-sizes single-glyph
+# markers; fix_metrics clamps mk_2..mk_5 but the 134-row marker (mk_6) slips
+# through the map stage oversized. Clamp it here (fix_map runs after fix_metrics).
+SIZE_CLAMP = {1: {"mk_6": 15.0, "mk_2": 15.0, "mk_3": 15.0, "mk_4": 15.0, "mk_5": 15.0}}
 
 
 # node id -> restore the AUTHORED bg. `measure_surfaces` takes one interior
@@ -63,12 +85,27 @@ def fix_scene(d, scene_no):
         if nid in COLOR_KEEP.get(scene_no, set()) and nid in authored:
             n["color"] = authored[nid]["color"]
             changed += 1
+        if nid in SIZE_CLAMP.get(scene_no, {}):
+            if n.get("size", 0) > SIZE_CLAMP[scene_no][nid]:
+                n["size"] = SIZE_CLAMP[scene_no][nid]
+                n["line_height"] = round(n["size"] * 2478 / 2048, 2)
+                n["h"] = max(n["h"], n["line_height"])
+                changed += 1
         if nid in BG_KEEP.get(scene_no, set()) and nid in authored and "bg" in n:
             n["bg"] = authored[nid]["bg"]
             changed += 1
-        if nid in X_SHIFT.get(scene_no, {}):
-            n["x"] = round(n["x"] + X_SHIFT[scene_no][nid], 2)
-            n["w"] = round(max(n["w"] - X_SHIFT[scene_no][nid], 8), 2)
+        if nid in X_RESTORE.get(scene_no, set()) and nid in authored:
+            for k in ("x", "w", "size"):
+                if k in authored[nid]:
+                    n[k] = authored[nid][k]
+            if "size" in authored[nid]:
+                n["line_height"] = round(authored[nid]["size"] * 2478 / 2048, 2)
+                n["h"] = max(n.get("h", 0), n["line_height"])
+            changed += 1
+        if nid in X_RESTORE_FULL.get(scene_no, set()) and nid in authored:
+            for k in ("x", "y", "w", "h"):
+                if k in authored[nid]:
+                    n[k] = authored[nid][k]
             changed += 1
     if changed:
         mpath.write_text(json.dumps(doc, indent=2) + "\n")

@@ -19,23 +19,6 @@
         "c": [
           {
             "t": "text",
-            "id": "t01",
-            "text": "OctosCode",
-            "x": 25.62,
-            "y": 18.93,
-            "w": 98.02,
-            "h": 21.05,
-            "size": 17.34,
-            "line_height": 20.98,
-            "weight": 600,
-            "color": 4278716424,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-600.ttf",
-            "tracking": 0.0
-          },
-          {
-            "t": "text",
             "id": "t_title",
             "text": "Code review",
             "x": 24.74,
@@ -109,6 +92,15 @@
             "h": 114.0,
             "c": [
               {
+                "t": "svg",
+                "id": "status_spinner",
+                "x": 53.887,
+                "y": 165.7,
+                "w": 17.854,
+                "h": 22.976,
+                "src": ""
+              },
+              {
                 "t": "text",
                 "id": "t_status",
                 "text": "Reviewing 3 files \u00b7 2 specialists",
@@ -145,7 +137,9 @@
             ],
             "variant": "surface",
             "bg": 4294901502,
-            "radius": 15.32
+            "radius": 15.32,
+            "border": 1,
+            "bordercolor": 4293256679
           },
           {
             "t": "stack",
@@ -189,17 +183,17 @@
                 "t": "text",
                 "id": "finding_high_path",
                 "text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
-                "x": 35.19,
+                "x": 35.16,
                 "y": 359.25,
                 "w": 333.93,
                 "h": 22.61,
-                "size": 11.22,
-                "line_height": 13.58,
+                "size": 14.61,
+                "line_height": 17.67,
                 "weight": 400,
                 "color": 4280098334,
                 "variant": "single_line",
                 "alignx": 0,
-                "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+                "font_src": "self:resources/ux/Inter-400.ttf",
                 "tracking": 0.0
               },
               {
@@ -269,17 +263,17 @@
                 "t": "text",
                 "id": "finding_low_path",
                 "text": "crates/octos-core/src/ui_protocol.rs",
-                "x": 34.3,
+                "x": 34.29,
                 "y": 576.32,
                 "w": 257.0,
                 "h": 23.38,
-                "size": 11.71,
-                "line_height": 14.17,
+                "size": 14.77,
+                "line_height": 17.87,
                 "weight": 400,
                 "color": 4280098077,
                 "variant": "single_line",
                 "alignx": 0,
-                "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+                "font_src": "self:resources/ux/Inter-400.ttf",
                 "tracking": 0.0
               },
               {
@@ -342,6 +336,10 @@
       "source": "observed non-text annotation"
     },
     {
+      "id": "status_spinner",
+      "source": "observed non-text annotation"
+    },
+    {
       "id": "finding_high",
       "source": "observed non-text annotation"
     },
@@ -356,12 +354,6 @@
     {
       "id": "finding_low_badge",
       "source": "observed non-text annotation"
-    },
-    {
-      "id": "t01",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.15062426910152013
     },
     {
       "id": "t_title",
@@ -397,7 +389,7 @@
       "id": "finding_high_path",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.26519581971421785
+      "tracking_em": -0.11165605391071567
     },
     {
       "id": "finding_high_text",
@@ -415,7 +407,7 @@
       "id": "finding_low_path",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.2654042307403496
+      "tracking_em": -0.12631727899000075
     },
     {
       "id": "finding_low_text",

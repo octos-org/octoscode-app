@@ -9,38 +9,6 @@
   "aspect_error": 0.0728692257644763,
   "text": [
     {
-      "id": "t01",
-      "expected_text": "OctosCode",
-      "requested_bounds": [
-        16.95,
-        21.48,
-        94.05,
-        28.5
-      ],
-      "status": "observed",
-      "ocr_text": "OctosCode",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        19.617647058823533,
-        23.792452830188683,
-        88.70588235294119,
-        19.216981132075475
-      ],
-      "ink_color": [
-        6,
-        6,
-        6
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        16.945396330789855,
-        21.47550844086104,
-        94.05038474587833,
-        26.596152773443254
-      ]
-    },
-    {
       "id": "t_title",
       "expected_text": "Monitors",
       "requested_bounds": [
@@ -313,12 +281,12 @@
     {
       "id": "monitors_screen",
       "bounds": [
-        0.0,
-        0.0,
-        406.0,
-        776.0
+        1.0,
+        68.0,
+        404.0,
+        707.0
       ],
-      "method": "surface contour unresolved; requested geometry retained",
+      "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4294901502
     },
@@ -334,17 +302,6 @@
       "reviewed": false,
       "bg": 4294901502,
       "radius": 16.99
-    },
-    {
-      "id": "mon_1_clock",
-      "bounds": [
-        188.811,
-        243.511,
-        18.193,
-        25.48
-      ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
-      "reviewed": false
     },
     {
       "id": "mon_1_pause",
@@ -382,17 +339,6 @@
       "radius": 16.94
     },
     {
-      "id": "mon_2_clock",
-      "bounds": [
-        190.539,
-        413.734,
-        18.193,
-        25.403
-      ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
-      "reviewed": false
-    },
-    {
       "id": "mon_2_pause",
       "bounds": [
         294.995,
@@ -417,16 +363,27 @@
     {
       "id": "monitors_footer",
       "bounds": [
-        16.0,
-        506.68,
-        374.0,
-        50.62
+        16.921,
+        529.627,
+        372.158,
+        46.119
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
     }
   ],
-  "unmapped_ocr": [],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        19.867016387822588,
+        23.468081388982167,
+        110.26596832275389,
+        29.063837051391594
+      ],
+      "confidence": 1,
+      "text": "OctosCode"
+    }
+  ],
   "non_text_ocr": [],
   "limits": [
     "OCR cannot prove font family, hierarchy or control behavior.",

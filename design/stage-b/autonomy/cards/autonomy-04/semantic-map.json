@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "f6ee44ed25b4b7e7f7af79beceec31b330177e90b72a6d0b454ecf5b3b927a08",
+  "contract_sha256": "e236bb4c575ef843f9d896fc92c84e505b8ce5c186ae1d3b273c0f90c8dcee91",
   "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -16,13 +16,6 @@
       "id": "loops_screen",
       "role": "layout",
       "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "t01",
-      "role": "text",
-      "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -106,7 +99,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/loop_1_pause.svg",
-        "sha256": "a8eaf0e4c2cc2207c04459887b8028af7a982fe229dfd7b2abf892375d314efe",
+        "sha256": "5880d2f68cc64f932c5260d5979d2f734cc637b2aee5c10f7f9f522aca981311",
         "method": "reference_svg",
         "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
         "fit": "stretch",
@@ -122,7 +115,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/loop_1_play.svg",
-        "sha256": "c9c0b42d273d22a018809b6529d63558297b2374944a538f48e9e40609bd0ee9",
+        "sha256": "7d9f31b010d1d537dd673d81e5968982fdcd574f20ac26f54e4cf1ec029001d8",
         "method": "reference_svg",
         "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
         "fit": "stretch",
@@ -191,7 +184,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/loop_2_pause.svg",
-        "sha256": "a8eaf0e4c2cc2207c04459887b8028af7a982fe229dfd7b2abf892375d314efe",
+        "sha256": "5880d2f68cc64f932c5260d5979d2f734cc637b2aee5c10f7f9f522aca981311",
         "method": "reference_svg",
         "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
         "fit": "stretch",
@@ -207,7 +200,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/loop_2_play.svg",
-        "sha256": "c9c0b42d273d22a018809b6529d63558297b2374944a538f48e9e40609bd0ee9",
+        "sha256": "7d9f31b010d1d537dd673d81e5968982fdcd574f20ac26f54e4cf1ec029001d8",
         "method": "reference_svg",
         "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
         "fit": "stretch",
@@ -276,7 +269,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/loop_3_play.svg",
-        "sha256": "c9c0b42d273d22a018809b6529d63558297b2374944a538f48e9e40609bd0ee9",
+        "sha256": "7d9f31b010d1d537dd673d81e5968982fdcd574f20ac26f54e4cf1ec029001d8",
         "method": "reference_svg",
         "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
         "fit": "stretch",

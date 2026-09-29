@@ -9,38 +9,6 @@
   "aspect_error": 0.06610744492982601,
   "text": [
     {
-      "id": "t01",
-      "expected_text": "OctosCode",
-      "requested_bounds": [
-        18.8,
-        25.43,
-        101.16,
-        28.5
-      ],
-      "status": "observed",
-      "ocr_text": "OctosCode",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        21.45877378435518,
-        27.452830188679247,
-        94.4186046511628,
-        20.132075471698116
-      ],
-      "ink_color": [
-        7,
-        6,
-        7
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        18.801950153282544,
-        25.432520861314178,
-        101.15559210153572,
-        26.002882993446242
-      ]
-    },
-    {
       "id": "t_title",
       "expected_text": "Fleet \u00b7 3 peers",
       "requested_bounds": [
@@ -526,17 +494,28 @@
       "reviewed": false
     },
     {
-      "id": "peer_1",
+      "id": "fleet_card",
       "bounds": [
-        14.0,
-        220.0,
-        377.0,
-        128.0
+        11.0,
+        217.0,
+        383.0,
+        389.0
       ],
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4294901502,
-      "radius": 18.77
+      "radius": 12.9
+    },
+    {
+      "id": "peer_1",
+      "bounds": [
+        11.0,
+        227.92,
+        383.0,
+        89.366
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
     },
     {
       "id": "peer_1_badge",
@@ -552,17 +531,37 @@
       "radius": 26.0
     },
     {
+      "id": "peer_divider_1",
+      "bounds": [
+        19.193,
+        357.546,
+        366.615,
+        1.092
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
       "id": "peer_2",
       "bounds": [
-        14.0,
-        350.0,
-        377.0,
-        125.0
+        11.0,
+        366.282,
+        383.0,
+        89.606
       ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294901502,
-      "radius": 18.28
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "peer_2_attn",
+      "bounds": [
+        12.137,
+        384.845,
+        14.337,
+        15.287
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     },
     {
       "id": "peer_2_badge",
@@ -578,17 +577,26 @@
       "radius": 26.0
     },
     {
+      "id": "peer_divider_2",
+      "bounds": [
+        19.193,
+        496.826,
+        366.615,
+        1.092
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
       "id": "peer_3",
       "bounds": [
-        14.0,
-        476.0,
-        377.0,
-        127.0
+        11.0,
+        505.561,
+        383.0,
+        89.519
       ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294901502,
-      "radius": 18.59
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
     },
     {
       "id": "peer_3_badge",
@@ -604,7 +612,18 @@
       "radius": 26.0
     }
   ],
-  "unmapped_ocr": [],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        21.904735030794686,
+        27.79223929174539,
+        117.84875631533595,
+        28.415521621704137
+      ],
+      "confidence": 1,
+      "text": "OctosCode"
+    }
+  ],
   "non_text_ocr": [],
   "limits": [
     "OCR cannot prove font family, hierarchy or control behavior.",

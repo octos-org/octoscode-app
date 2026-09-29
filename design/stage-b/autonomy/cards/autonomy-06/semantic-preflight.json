@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "daaa5b71587d1cb84d21109799c87a79ef8ecb07c79431fb64c754a47d765b22",
+  "manifest_sha256": "50ee55de96bc3abd05973b43f41d82f9dc8ab4d913bafc4cd4ed9ba77f2508e0",
   "reference_sha256": "e6870a9defd294295b03acbb4b23e729bf7cca8bafd2460a132e26f41e5e3802",
   "id": "autonomy-06",
   "round": null,
@@ -32,18 +32,6 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "t01",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
       "id": "t_title",
@@ -79,6 +67,17 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "fleet_card",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
       "id": "peer_1",
@@ -151,6 +150,17 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
+      "id": "peer_divider_1",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
       "id": "peer_2",
       "role": "layout",
       "basis": "authored stack node",
@@ -160,6 +170,19 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "peer_2_attn",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
     },
     {
       "id": "peer_2_badge",
@@ -219,6 +242,17 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "peer_divider_2",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
       "id": "peer_3",

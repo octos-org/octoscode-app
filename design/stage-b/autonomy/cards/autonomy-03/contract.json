@@ -37,22 +37,6 @@
         "h": 776.0,
         "c": [
           {
-            "t": "text",
-            "id": "t01",
-            "text": "OctosCode",
-            "x": 20.12,
-            "y": 20.18,
-            "w": 106.07,
-            "h": 28.5,
-            "size": 19,
-            "line_height": 28.5,
-            "weight": 600,
-            "color": 4280098079,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-600.ttf"
-          },
-          {
             "t": "stack",
             "id": "goal_card",
             "x": 16.0,
@@ -86,11 +70,11 @@
                 "h": 24.83,
                 "size": 15,
                 "line_height": 24.83,
-                "weight": 600,
+                "weight": 400,
                 "color": 4280098079,
                 "variant": "single_line",
                 "alignx": 0,
-                "font_src": "self:resources/ux/Inter-600.ttf"
+                "font_src": "self:resources/ux/Inter-400.ttf"
               },
               {
                 "t": "stack",
@@ -229,7 +213,7 @@
                     "bg": 4294967295,
                     "radius": 999,
                     "border": 1,
-                    "bordercolor": 4293256679
+                    "bordercolor": 4280098079
                   },
                   {
                     "t": "button",
@@ -279,7 +263,7 @@
                     "bg": 4294967295,
                     "radius": 999,
                     "border": 1,
-                    "bordercolor": 4293256679
+                    "bordercolor": 4280098079
                   },
                   {
                     "t": "button",
@@ -317,52 +301,20 @@
             "bordercolor": 4293256679
           },
           {
-            "t": "stack",
+            "t": "text",
             "id": "clear_goal",
-            "x": 136.06,
-            "y": 648.75,
-            "w": 111.93,
-            "h": 37.21,
-            "c": [
-              {
-                "t": "stack",
-                "id": "clear_goal_surface",
-                "x": 136.06,
-                "y": 648.75,
-                "w": 111.93,
-                "h": 37.21,
-                "c": [],
-                "variant": "surface",
-                "bg": 4294967295,
-                "radius": 8
-              },
-              {
-                "t": "button",
-                "id": "clear_goal_control",
-                "x": 136.06,
-                "y": 648.75,
-                "w": 111.93,
-                "h": 37.21,
-                "enabled": 1
-              },
-              {
-                "t": "text",
-                "id": "clear_goal_label",
-                "text": "Clear goal",
-                "x": 148.06,
-                "y": 654.75,
-                "w": 87.93,
-                "h": 25.21,
-                "size": 16.81,
-                "line_height": 25.21,
-                "weight": 500,
-                "color": 4291764782,
-                "variant": "single_line",
-                "alignx": 0,
-                "font_src": "self:resources/ux/Inter-500.ttf"
-              }
-            ],
-            "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+            "text": "Clear goal",
+            "x": 148.06,
+            "y": 654.75,
+            "w": 87.93,
+            "h": 25.21,
+            "size": 14,
+            "line_height": 25.21,
+            "weight": 500,
+            "color": 4291764782,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf"
           }
         ],
         "variant": "surface",

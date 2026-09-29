@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "bceb7238596a9ecdd3f6455e9127b616bf071eba9be3d9aee1f70e2c69ffe1f9",
+  "manifest_sha256": "3c1db2148cfaa87c4be4527eb6fa786938ce56a6e32da67059d77ca763c6faed",
   "reference_sha256": "f1d385b756812379d4d1537b2668f37824e3cca12123b02399a555ab3c102add",
   "id": "autonomy-01",
   "round": null,
@@ -32,18 +32,6 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "t01",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
       "id": "t_title",
@@ -438,6 +426,17 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "chip_131",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
       "id": "ln_3",

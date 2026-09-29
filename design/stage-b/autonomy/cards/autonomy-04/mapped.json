@@ -19,23 +19,6 @@
         "c": [
           {
             "t": "text",
-            "id": "t01",
-            "text": "OctosCode",
-            "x": 23.17,
-            "y": 18.93,
-            "w": 91.11,
-            "h": 21.05,
-            "size": 16.06,
-            "line_height": 19.44,
-            "weight": 600,
-            "color": 4278716424,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-600.ttf",
-            "tracking": 0.0
-          },
-          {
-            "t": "text",
             "id": "t_title",
             "text": "Loops",
             "x": 22.67,
@@ -111,10 +94,10 @@
               {
                 "t": "svg",
                 "id": "loop_1_dot",
-                "x": 210.225,
-                "y": 166.337,
-                "w": 14.449,
-                "h": 14.78,
+                "x": 208.16,
+                "y": 164.226,
+                "w": 18.578,
+                "h": 19.003,
                 "src": ""
               },
               {
@@ -193,10 +176,10 @@
               {
                 "t": "svg",
                 "id": "loop_2_dot",
-                "x": 210.225,
-                "y": 296.244,
-                "w": 14.449,
-                "h": 14.78,
+                "x": 208.16,
+                "y": 294.133,
+                "w": 18.578,
+                "h": 19.003,
                 "src": ""
               },
               {
@@ -275,10 +258,10 @@
               {
                 "t": "svg",
                 "id": "loop_3_dot",
-                "x": 210.225,
-                "y": 425.191,
-                "w": 14.449,
-                "h": 14.78,
+                "x": 208.16,
+                "y": 423.079,
+                "w": 18.578,
+                "h": 19.003,
                 "src": ""
               },
               {
@@ -425,12 +408,6 @@
     {
       "id": "loop_3_trash",
       "source": "observed non-text annotation"
-    },
-    {
-      "id": "t01",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.18851681314550905
     },
     {
       "id": "t_title",

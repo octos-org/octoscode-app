@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "870dfd2e34ab499053ccfd3f37af277bbabffbf109f9ee00f64c750c130d65b0",
+  "contract_sha256": "06576d32277dcecd8f16290b2b9c1e75c43baa135ac8d5f2d5ac9034c95a890c",
   "reference_sha256": "e6870a9defd294295b03acbb4b23e729bf7cca8bafd2460a132e26f41e5e3802",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -16,13 +16,6 @@
       "id": "fleet_screen",
       "role": "layout",
       "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "t01",
-      "role": "text",
-      "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -44,6 +37,13 @@
       "id": "fleet_goal_label",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "fleet_card",
+      "role": "layout",
+      "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -90,11 +90,34 @@
       "decision": "declared"
     },
     {
+      "id": "peer_divider_1",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "peer_2",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
+    },
+    {
+      "id": "peer_2_attn",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/peer_2_attn.svg",
+        "sha256": "cc9b506013928a6fab89f1b354efc7a346da582a5a12554054a05ced12c9de2a",
+        "method": "reference_svg",
+        "reference_sha256": "e6870a9defd294295b03acbb4b23e729bf7cca8bafd2460a132e26f41e5e3802",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
     },
     {
       "id": "peer_2_badge",
@@ -128,6 +151,13 @@
       "id": "peer_2_steer",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "peer_divider_2",
+      "role": "layout",
+      "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },

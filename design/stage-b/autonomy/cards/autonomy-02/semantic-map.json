@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "5685958c0e83b23fe775450f8d55d9ae532f3c7655137c4614afe0c299ce7ff4",
+  "contract_sha256": "615037ea2256cc75805d004fb5068a5615d5390463b5899b24a71edc06870f4b",
   "reference_sha256": "065d17c8a2484d93dbc746890fe961cb1b30f964b00d23acbc99b5fc498af9db",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -16,13 +16,6 @@
       "id": "review_run",
       "role": "layout",
       "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "t01",
-      "role": "text",
-      "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -67,6 +60,22 @@
       "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
+    },
+    {
+      "id": "status_spinner",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/status_spinner.svg",
+        "sha256": "68949e64fa670803567974db86636a931b30bb85caa5059730fbfa7e95794889",
+        "method": "reference_svg",
+        "reference_sha256": "065d17c8a2484d93dbc746890fe961cb1b30f964b00d23acbc99b5fc498af9db",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
     },
     {
       "id": "t_status",

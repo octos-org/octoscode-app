@@ -38,22 +38,6 @@
         "c": [
           {
             "t": "text",
-            "id": "t01",
-            "text": "OctosCode",
-            "x": 16.95,
-            "y": 21.48,
-            "w": 94.05,
-            "h": 28.5,
-            "size": 19,
-            "line_height": 28.5,
-            "weight": 600,
-            "color": 4280098079,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-600.ttf"
-          },
-          {
-            "t": "text",
             "id": "t_title",
             "text": "Monitors",
             "x": 18.62,
@@ -107,15 +91,6 @@
                 "variant": "single_line",
                 "alignx": 0,
                 "font_src": "self:resources/ux/Inter-400.ttf"
-              },
-              {
-                "t": "svg",
-                "id": "mon_1_clock",
-                "x": 190.94,
-                "y": 236.92,
-                "w": 18.0,
-                "h": 18.0,
-                "src": ""
               },
               {
                 "t": "text",
@@ -197,15 +172,6 @@
                 "variant": "single_line",
                 "alignx": 0,
                 "font_src": "self:resources/ux/Inter-400.ttf"
-              },
-              {
-                "t": "svg",
-                "id": "mon_2_clock",
-                "x": 192.65,
-                "y": 408.96,
-                "w": 18.0,
-                "h": 18.0,
-                "src": ""
               },
               {
                 "t": "text",

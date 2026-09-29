@@ -9,38 +9,6 @@
   "aspect_error": 0.15328078817733992,
   "text": [
     {
-      "id": "t01",
-      "expected_text": "OctosCode",
-      "requested_bounds": [
-        20.12,
-        20.18,
-        106.07,
-        28.5
-      ],
-      "status": "observed",
-      "ocr_text": "OctosCode",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        22.91196388261851,
-        21.727999999999998,
-        99.8961625282167,
-        17.072
-      ],
-      "ink_color": [
-        8,
-        8,
-        8
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        20.117116454166677,
-        20.176000077600023,
-        106.07207207207207,
-        21.72800000000002
-      ]
-    },
-    {
       "id": "t_goal_title",
       "expected_text": "Goal",
       "requested_bounds": [
@@ -329,7 +297,7 @@
       ]
     },
     {
-      "id": "clear_goal_label",
+      "id": "clear_goal",
       "expected_text": "Clear goal",
       "requested_bounds": [
         148.06,
@@ -377,12 +345,12 @@
     {
       "id": "goal_screen",
       "bounds": [
-        0.0,
-        0.0,
-        406.0,
-        776.0
+        1.0,
+        59.0,
+        404.0,
+        716.0
       ],
-      "method": "surface contour unresolved; requested geometry retained",
+      "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4294901502
     },
@@ -507,44 +475,20 @@
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
-    },
-    {
-      "id": "clear_goal",
-      "bounds": [
-        136.06,
-        648.75,
-        111.93,
-        37.21
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "clear_goal_surface",
-      "bounds": [
-        136.06,
-        648.75,
-        111.93,
-        37.21
-      ],
-      "method": "surface contour unresolved; requested geometry retained",
-      "reviewed": false,
-      "bg": 4294769916,
-      "radius": 8.0
-    },
-    {
-      "id": "clear_goal_control",
-      "bounds": [
-        136.06,
-        648.75,
-        111.93,
-        37.21
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
     }
   ],
-  "unmapped_ocr": [],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        21.950449727083342,
+        26.00000010000003,
+        115.73873873873873,
+        28.000000000000025
+      ],
+      "confidence": 1,
+      "text": "OctosCode"
+    }
+  ],
   "non_text_ocr": [],
   "limits": [
     "OCR cannot prove font family, hierarchy or control behavior.",

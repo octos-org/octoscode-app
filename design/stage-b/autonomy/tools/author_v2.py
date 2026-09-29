@@ -41,14 +41,16 @@ TITLES = {1: "Review panel", 2: "Code review run", 3: "Goal",
 
 ICONS = {
     "chevron_down": '<path d="M6 9l6 6 6-6"/>',
-    "pause": '<rect x="7.2" y="5.6" width="3.7" height="12.8" rx="1.1" fill="#6E6E73" stroke="none"/>'
-             '<rect x="13.1" y="5.6" width="3.7" height="12.8" rx="1.1" fill="#6E6E73" stroke="none"/>',
-    "play": '<path d="M8 5.5v13l11-6.5z"/>',
+    "spinner": '<path d="M12 3a9 9 0 1 0 9 9"/>',
+    "pause": '<circle cx="12" cy="12" r="9"/><rect x="9" y="8" width="2.4" height="8" rx="0.8" fill="#6E6E73" stroke="none"/>'
+             '<rect x="12.6" y="8" width="2.4" height="8" rx="0.8" fill="#6E6E73" stroke="none"/>',
+    "play": '<circle cx="12" cy="12" r="9"/><path d="M10 8.2v7.6l6-3.8z"/>',
     "trash": '<path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6.5 7l1 13h9l1-13"/>',
     "clock": '<circle cx="12" cy="12" r="8"/><path d="M12 7v5l3.5 2"/>',
     "plus": '<path d="M12 5v14"/><path d="M5 12h14"/>',
     "file": '<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4"/>',
     "dot_green": '<circle cx="12" cy="12" r="5" fill="#1F883D" stroke="none"/>',
+    "dot_amber": '<circle cx="12" cy="12" r="5" fill="#E3A008" stroke="none"/>',
     "dot_grey": '<circle cx="12" cy="12" r="5" fill="#C7C7CC" stroke="none"/>',
     "alert": '<path d="M12 4l10 17H2z"/><path d="M12 10v5"/><circle cx="12" cy="18" r="0.6" fill="#CF222E"/>',
 }
@@ -180,8 +182,9 @@ FIX = {
 SOURCE = {n: "design/stage-a/autonomy/atlas.png" for n in range(1, 7)}
 
 def header(sc, title_i):
-    """Every screen: app title 'OctosCode ▾' 600, then the screen title."""
-    sc.add_text("t01", 0, weight=600, size=19)
+    """No-op (#28a2): the "OctosCode" strip is dropped from every scene — the app
+    shell provides the title. Kept so every build_* call site stays valid."""
+    return
 
 # ---------------------------------------------------------------- screen 1
 def build_01(sc):
@@ -205,31 +208,37 @@ def build_01(sc):
     sc.put(text("t_del", "-5", tx + 40, ty, 24, th, weight=500, size=15, color="red"))
     # file rows (OCR rows 4..8). Row 4's OCR is fused: "• <path> +31-4" (missing
     # the dot in '.rs'); split path from stats with the measured geometry.
+    # #28a2: paths are UI font (not mono), file 1 is the SELECTED row (panel
+    # highlight), and the icon must clear the path (left margin).
     _, fx4, fy4, fw4, fh4 = sc.rows[4]
-    sc.put(stack("file_1", 16, fy4 - 8, 374, fh4 + 16, [
-        icon("file_1_icon", "file", fx4 - 2, fy4 + 1, 16, 18, color="muted"),
-        code("file_1_path", "crates/octos-cli/src/api/ui_protocol_transport.rs",
-             fx4 + 20, fy4, fw4 - 96, fh4, size=13, weight=400),
-        text("file_1_add", "+31", fx4 + fw4 - 64, fy4, 34, fh4, size=13, weight=500, color="green"),
-        text("file_1_del", "-4", fx4 + fw4 - 26, fy4, 24, fh4, size=13, weight=500, color="red")]))
+    # Measured ref ink (numpy band scan y199-233/279-313/359-393): icon seg x[28,46],
+    # path starts x62 (logical 53) on ALL three rows, stats seg x~[396,447]
+    # (logical 338-381). Paths size 12 so the longest (49 chars) fits w=281.
+    sc.put(surface("file_1", 16, fy4 - 8, 374, fh4 + 16, bg="panel", radius=10, kids=[
+        icon("file_1_icon", "file", 28 / 1.172, fy4 + 1, 16, 18, color="muted"),
+        text("file_1_path", "crates/octos-cli/src/api/ui_protocol_transport.rs",
+             53.0, fy4, 281.0, fh4, size=12, weight=400),
+        text("file_1_add", "+31", 338.0, fy4, 30, fh4, size=12, weight=500, color="green"),
+        text("file_1_del", "-4", 371.0, fy4, 17, fh4, size=12, weight=500, color="red")]))
     file_rows = [(5, "file_2"), (7, "file_3")]
     stats = {5: (6, "+9", "-1"), 7: (8, "+22", "-0")}
     for i, fid in file_rows:
         s, x, y, w, h = sc.rows[i]
         path = s.lstrip("•📄L ").strip()
-        kids = [icon(fid + "_icon", "file", x - 2, y + 1, 16, 18, color="muted"),
-                code(fid + "_path", path, x + 20, y, w - 20, h, size=13, weight=400)]
+        kids = [icon(fid + "_icon", "file", 28 / 1.172, y + 1, 16, 18, color="muted"),
+                text(fid + "_path", path, 53.0, y, 280.0, h, size=12, weight=400)]
         if i in stats:
             si, a, dl = stats[i]
             _, sx2, sy2, sw2, sh2 = sc.rows[si]
             kids.append(text(fid + "_add", a, sx2, sy2, 30, sh2, size=13, weight=500, color="green"))
             kids.append(text(fid + "_del", dl, sx2 + 34, sy2, 24, sh2, size=13, weight=500, color="red"))
         sc.put(stack(fid, 16, y - 8, 374, h + 16, kids))
-    # diff card title row (OCR row 9): the file whose diff is shown below.
+    # diff card title row (OCR row 9): grey band behind the file header (#28a2).
     _, dx, dy, dw, dh = sc.rows[9]
-    sc.put(stack("diff_file_header", 20, dy - 8, 366, dh + 16, [
-        icon("diff_file_icon", "file", dx, dy + 1, 16, 18, color="muted"),
-        code("diff_file_path", sc.t(9), dx + 20, dy, dw, dh, size=13, weight=500)]))
+    sc.put(surface("diff_file_header", 20, dy - 8, 366, dh + 16, bg="panel",
+                   radius=8, kids=[
+        icon("diff_file_icon", "file", dx + 6, dy + 1, 16, 18, color="muted"),
+        text("diff_file_path", sc.t(9), dx + 26, dy, dw, dh, size=13, weight=500)]))
     # diff card for file 1 (OCR rows 9..29): gutter | marker | code, red/green bands.
     diff_lines = [
         ("128", "let msg = read_message().await?;", "ctx"),
@@ -253,18 +262,24 @@ def build_01(sc):
         if kind in ("del", "add"):
             marker = code(f"mk_{i}", line[:1], gx + 46, y, 12, rowh - 4, color=color)
             body_text = line[2:]
-        body = code(f"dl_{i}", body_text, gx + 66, y, 280, rowh - 4, color=color)
+        body = code(f"dl_{i}", body_text, gx + 66, y, 280, rowh - 4, color="ink")
         row_kids = [gutter] + ([marker] if marker else []) + [body]
         # This atlas draws diff rows on WHITE (measured #fefefe over the full row
         # band) with only the marker coloured red/green — no band fill, unlike
-        # conversation board 1. Emit flat rows. Rows 130/132 carry a token chip
-        # (pink behind `queue.drop_pending();`, green behind
-        # `queue.preserve_pending();`), measured on the reference.
+        # conversation board 1. Emit flat rows. Rows 130/131/132 carry a WORD chip
+        # behind the changed token only (pink/green band extents measured on the
+        # reference: 130 x[209,325], 131 x[286,351], 132 x[209,365] ref px;
+        # logical = /1.1722 (ref crop 476 px : artboard 406) → 130 [178.3,+99.0],
+        # 131 [244.0,+55.5], 132 [178.3,+133.1]). #28a2: earlier chips spanned
+        # the whole statement and 131 had none.
         if num == "130":
-            rows.append(surface("chip_130", gx + 108, y - 3, 170, rowh - 2,
+            rows.append(surface("chip_130", 178.3, y - 3, 99.0, rowh - 2,
+                                bg="redbg", radius=6, kids=row_kids))
+        elif num == "131":
+            rows.append(surface("chip_131", 244.0, y - 3, 55.5, rowh - 2,
                                 bg="redbg", radius=6, kids=row_kids))
         elif num == "132":
-            rows.append(surface("chip_132", gx + 108, y - 3, 196, rowh - 2,
+            rows.append(surface("chip_132", 178.3, y - 3, 133.1, rowh - 2,
                                 bg="greenbg", radius=6, kids=row_kids))
         else:
             rows.extend(row_kids)
@@ -292,7 +307,9 @@ def build_02(sc):
     _, x3, y3, w3, h3 = sc.rows[3]
     _, x4, y4, w4, h4 = sc.rows[4]
     cy, ch = y3 - 16, (y4 + h4) - (y3 - 16) + 16
-    sc.put(surface("run_status_card", 18, cy, 370, ch, bg="panel", radius=12, kids=[
+    sc.put(surface("run_status_card", 18, cy, 370, ch, bg="panel", radius=12,
+                   border=1, bordercolor="hair", kids=[
+        icon("status_spinner", "spinner", x3 - 26, y3 + 1, 18, 18, color="muted"),
         text("t_status", sc.t(3), x3, y3, w3, h3, size=14, weight=500),
         text("t_status_sub", sc.t(4), x4, y4, w4, h4, size=13, color="muted")]))
     # finding cards: badge pill + mono path + flowing finding text.
@@ -308,7 +325,7 @@ def build_02(sc):
                     radius=999, kids=[
                 text(fid + "_badge_label", badge, bx2, by2, bw2, bh2, size=13,
                      weight=600, color=fg)]),
-            code(fid + "_path", sc.t(path_i), pxx, pyy, pw2, ph2, size=12, color="muted"),
+            text(fid + "_path", sc.t(path_i), pxx, pyy, pw2, ph2, size=12, color="muted"),
             flow_text(fid + "_text", sc.t(line_i) + " " + sc.t(line2_i),
                       lx, ly, max(lw, l2w), (l2y + l2h) - ly, size=14)]))
     finding(5, 6, 7, 8, "finding_high", "High", "redbg", "red")
@@ -337,7 +354,7 @@ def build_03(sc):
     bar_h = 8
     kids = [
         text("t_goal_title", sc.t(1), tx0, ty0, tw0, th0, size=17, weight=600),
-        text("t_goal", sc.t(2), gx, gy, gw, gh, size=15, weight=600),
+        text("t_goal", sc.t(2), gx, gy, gw, gh, size=15, weight=400),
         surface("goal_badge", ax - 10, ay - 4, aw + 20, ah + 8, bg="greenbg",
                 radius=999, kids=[
             text("goal_badge_label", sc.t(3), ax, ay, aw, ah, size=13, weight=600,
@@ -355,14 +372,14 @@ def build_03(sc):
     band_y = r(py - 16)
     kids.append(stack("pause_btn", 30, band_y, 143, ph + 32, [
         surface("pause_btn_surface", 30, band_y, 143, ph + 32, bg="white", radius=999,
-                border=1, bordercolor="hair"),
+                border=1, bordercolor="ink"),
         {"t": "button", "id": "pause_btn_control", "x": 30.0, "y": band_y, "w": 143.0,
          "h": r(ph + 32), "enabled": 1},
         text("pause_btn_label", sc.t(8), px, py, pw, ph, size=14, weight=600, color="ink")],
         kit=json.dumps({"widget": "KitButton", "bindings": {"control": [1], "label": [2]}})))
     kids.append(stack("stop_btn", 193, band_y, 142, ph + 32, [
         surface("stop_btn_surface", 193, band_y, 142, ph + 32, bg="white", radius=999,
-                border=1, bordercolor="hair"),
+                border=1, bordercolor="ink"),
         {"t": "button", "id": "stop_btn_control", "x": 193.0, "y": band_y, "w": 142.0,
          "h": r(ph + 32), "enabled": 1},
         text("stop_btn_label", sc.t(9), sx2, sy2, sw2, sh2, size=14, weight=600, color="ink")],
@@ -375,8 +392,9 @@ def build_03(sc):
                    border=1, bordercolor="hair", kids=kids))
     sc.flows["goal_card"] = ("goal.card", 16, card_top, 374, card_h)
     _, cx, cy2, cw, ch2 = sc.rows[10]                                    # Clear goal
-    sc.add_control("clear_goal", cx - 12, cy2 - 6, cw + 24, ch2 + 12, 10, bg="white",
-                   radius=8, color="red", weight=500, event="goal.clear")
+    _, cx, cy2, cw, ch2 = sc.rows[10]
+    sc.put(text("clear_goal", sc.t(10), cx, cy2, cw, ch2, size=14, weight=500, color="red"))
+    sc.controls["clear_goal"] = ("goal.clear", [int(cx), int(cy2), int(cw), int(ch2)], True)
     sc.wrap("goal_screen", 0, 0, 406, 776)
 
 # ---------------------------------------------------------------- screen 4
@@ -410,7 +428,7 @@ def build_04(sc):
         if idx > 0:
             kids.append(surface(rid + "_divider", 24, r(y - 14), 358, 1,
                                 bg="hair", radius=0))
-        kids.append(icon(rid + "_dot", dot, 210.0, r(y + 2), 14, 14))
+        kids.append(icon(rid + "_dot", dot, 208.0, r(y), 18, 18))
         kids.append(text(rid + "_name", sc.t(name_i), x, y, w, h, size=15, weight=500))
         kids.append(text(rid + "_cad", sc.t(cad_i), cx2, cy2, cw2, ch2, size=13, color="muted"))
         if active:
@@ -438,7 +456,6 @@ def build_05(sc):
         _, ix, iy, iw, ih = sc.rows[int_i]
         kids = [code(cid + "_cmd", sc.t(cmd_i), x, y, w, h, size=14, weight=500),
                 text(cid + "_state", sc.t(state_i), sx2, sy2, sw2, sh2, size=13, color="muted"),
-                icon(cid + "_clock", "clock", ix - 24, iy - 1, 18, 18, color="muted"),
                 text(cid + "_int", sc.t(int_i), ix, iy, iw, ih, size=13, color="muted"),
                 icon(cid + "_pause", "pause", 296.0, sy2 - 6, 18, 20, color="muted"),
                 icon(cid + "_trash", "trash", 348.7, sy2 - 6, 18, 20, color="muted")]
@@ -474,17 +491,42 @@ def build_06(sc):
         _, tx, ty, tw, th = sc.rows[steer_i]
         top = r(sy2 - 16)
         bottom = r(my + mh + 16)
-        sc.put(surface(pid, 16, top, 374, bottom - top, bg="white", radius=12,
-                       border=1, bordercolor="hair", kids=[
+        row_kids = []
+        if pid == "peer_2":
+            # the Blocked row carries a yellow attention dot RIGHT of the badge
+            # (ref: badge pale bg x[33,130], dot x[134,152] y[438,457] → logical
+            # left 114.3, diameter 15.35). The dot_amber SVG disc fills 10/24 of
+            # the icon box (r=5 in a 24 viewBox), so the box is 36.8 logical and
+            # the disc's 7/24 inset puts its left edge at badge_right + 3.4.
+            # The earlier sx2-24 put it left of the badge — wrong side.
+            row_kids.append(icon(pid + "_attn", "dot_amber",
+                                 sx2 + sw2 + 1.65, sy2 + sh2 / 2 - 18.4, 36.8, 36.8))
+        row_kids += [
             surface(pid + "_badge", sx2 - 9, sy2 - 3, sw2 + 18, sh2 + 6, bg=stbg,
                     radius=999, kids=[
                 text(pid + "_status", sc.t(st_i), sx2, sy2, sw2, sh2, size=13,
                      weight=600, color=stc)]),
             text(pid + "_name", sc.t(name_i), nx, ny, nw, nh, size=14, weight=500),
             text(pid + "_meta", sc.t(meta_i), mx, my, mw, mh, size=12, color="muted"),
-            text(pid + "_steer", sc.t(steer_i), tx, ty, tw, th, size=14, weight=600, color="blue")]))
+            text(pid + "_steer", sc.t(steer_i), tx, ty, tw, th, size=14, weight=600, color="blue")]
+        sc.put(stack(pid, 16, top, 374, bottom - top, row_kids))
         sc.controls[pid + "_steer"] = ("peer.steer", [int(tx - 8), int(ty - 4),
                                        int(tw + 16), int(th + 8)], True)
+    # one grouped card with hairline dividers around the three peer rows (atlas:
+    # a single bordered card, not three separate cards).
+    peers_kids = sc.kids[2:]                       # skip t_title + fleet_goal
+    sc.kids = sc.kids[:2]
+    # insert dividers between rows at each row's top edge
+    grouped = []
+    for idx, node in enumerate(peers_kids):
+        if idx > 0 and node.get("id", "").startswith("peer_"):
+            grouped.append(surface(f"peer_divider_{idx}", 24, node["y"] - 8, 358, 1,
+                                   bg="hair", radius=0))
+        grouped.append(node)
+    top0 = peers_kids[0]["y"] - 10
+    bot0 = peers_kids[-1]["y"] + peers_kids[-1]["h"] + 10
+    sc.put(surface("fleet_card", 16, top0, 374, r(bot0 - top0), bg="white",
+                   radius=12, border=1, bordercolor="hair", kids=grouped))
     sc.wrap("fleet_screen", 0, 0, 406, 776)
 
 BUILDERS = {1: build_01, 2: build_02, 3: build_03, 4: build_04, 5: build_05, 6: build_06}

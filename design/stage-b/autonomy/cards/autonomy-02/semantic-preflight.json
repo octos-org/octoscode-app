@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "b640fd2568d6e0d444ba45405a3e612b7e19775470b1121db85bfdda837f743b",
+  "manifest_sha256": "10b2549e8046230d61d1a6d8031b2e81fcb6218eb57e5450f434cdd8759131c6",
   "reference_sha256": "065d17c8a2484d93dbc746890fe961cb1b30f964b00d23acbc99b5fc498af9db",
   "id": "autonomy-02",
   "round": null,
@@ -32,18 +32,6 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "t01",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
       "id": "t_title",
@@ -114,6 +102,19 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "status_spinner",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
     },
     {
       "id": "t_status",

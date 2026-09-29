@@ -38,22 +38,6 @@
         "c": [
           {
             "t": "text",
-            "id": "t01",
-            "text": "OctosCode",
-            "x": 23.77,
-            "y": 19.68,
-            "w": 100.86,
-            "h": 28.5,
-            "size": 19,
-            "line_height": 28.5,
-            "weight": 600,
-            "color": 4280098079,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-600.ttf"
-          },
-          {
-            "t": "text",
             "id": "t_title",
             "text": "Code review",
             "x": 23.83,
@@ -125,6 +109,15 @@
             "h": 89.31,
             "c": [
               {
+                "t": "svg",
+                "id": "status_spinner",
+                "x": 54.18,
+                "y": 174.48,
+                "w": 18.0,
+                "h": 18.0,
+                "src": ""
+              },
+              {
                 "t": "text",
                 "id": "t_status",
                 "text": "Reviewing 3 files · 2 specialists",
@@ -159,7 +152,9 @@
             ],
             "variant": "surface",
             "bg": 4294440952,
-            "radius": 12
+            "radius": 12,
+            "border": 1,
+            "bordercolor": 4293256679
           },
           {
             "t": "stack",
@@ -212,7 +207,7 @@
                 "color": 4285427315,
                 "variant": "single_line",
                 "alignx": 0,
-                "font_src": "self:resources/ux/LiberationMono-Regular.ttf"
+                "font_src": "self:resources/ux/Inter-400.ttf"
               },
               {
                 "t": "text",
@@ -287,7 +282,7 @@
                 "color": 4285427315,
                 "variant": "single_line",
                 "alignx": 0,
-                "font_src": "self:resources/ux/LiberationMono-Regular.ttf"
+                "font_src": "self:resources/ux/Inter-400.ttf"
               },
               {
                 "t": "text",

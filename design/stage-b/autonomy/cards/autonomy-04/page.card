@@ -3,7 +3,6 @@
 # profile: ui/l0
 # Static design fixture, runtime native Kit composition.
 theme light
-copy t01_text { class: user-copy, en: "OctosCode" }
 copy t_title_text { class: user-copy, en: "Loops" }
 copy new_loop_label_text { class: user-copy, en: "+ New loop" }
 copy loop_1_name_text { class: user-copy, en: "Run CI smoke" }
@@ -18,9 +17,6 @@ component Surface16fae9a63e16(instance: text) {
 }
 component Surfaceb4206391250d(instance: text) {
   view Kit(component: "Surfaceb4206391250d", instance: instance) { slot }
-}
-component Textda8d60967e0e(instance: text, text: text) {
-  view Kit(component: "Textda8d60967e0e", instance: instance, text: text)
 }
 component Textea62f42f8d83(instance: text, text: text) {
   view Kit(component: "Textea62f42f8d83", instance: instance, text: text)
@@ -67,7 +63,6 @@ component Text12a70321f4ca(instance: text, text: text) {
 
 view root Surface16fae9a63e16(instance: "page") {
   Surfaceb4206391250d(instance: "loops_screen") {
-    Textda8d60967e0e(instance: "t01", text: copy.t01_text)
     Textea62f42f8d83(instance: "t_title", text: copy.t_title_text)
     KitButton2c6804b990a5(instance: "new_loop") {
       Surfacecbeea5da301d(instance: "new_loop_surface") {

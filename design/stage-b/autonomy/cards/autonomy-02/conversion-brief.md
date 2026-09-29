@@ -45,22 +45,6 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t01",
-    "x": 23.77,
-    "y": 19.68,
-    "w": 100.86,
-    "h": 28.5,
-    "text": "OctosCode",
-    "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 19,
-    "weight": 600,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
     "id": "t_title",
     "x": 23.83,
     "y": 86.53,
@@ -139,6 +123,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "status_spinner",
+    "x": 54.18,
+    "y": 174.48,
+    "w": 18.0,
+    "h": 18.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
     "id": "t_status",
     "x": 80.18,
     "y": 173.48,
@@ -215,7 +208,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "w": 339.47,
     "h": 23.23,
     "text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
-    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 12,
     "weight": 400,
     "role": "text",
@@ -285,7 +278,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "w": 257.59,
     "h": 20.14,
     "text": "crates/octos-core/src/ui_protocol.rs",
-    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 12,
     "weight": 400,
     "role": "text",

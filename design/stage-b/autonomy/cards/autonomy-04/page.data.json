@@ -20,15 +20,6 @@
           "h": 775.0
         }
       },
-      "t01": {
-        "component": "Textda8d60967e0e",
-        "layout": {
-          "x": 23.17,
-          "y": 18.93,
-          "w": 91.11,
-          "h": 21.05
-        }
-      },
       "t_title": {
         "component": "Textea62f42f8d83",
         "layout": {
@@ -86,10 +77,10 @@
       "loop_1_dot": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 210.225,
-          "y": 166.337,
-          "w": 14.449,
-          "h": 14.78,
+          "x": 208.16,
+          "y": 164.226,
+          "w": 18.578,
+          "h": 19.003,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_1_dot-47612be73ffb.svg"
         }
       },
@@ -118,7 +109,7 @@
           "y": 163.17,
           "w": 18.578,
           "h": 21.115,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_1_pause-a8eaf0e4c2cc.svg"
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_1_pause-5880d2f68cc6.svg"
         }
       },
       "loop_1_play": {
@@ -128,7 +119,7 @@
           "y": 163.17,
           "w": 18.578,
           "h": 21.115,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_1_play-c9c0b42d273d.svg"
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_1_play-7d9f31b010d1.svg"
         }
       },
       "loop_1_trash": {
@@ -153,10 +144,10 @@
       "loop_2_dot": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 210.225,
-          "y": 296.244,
-          "w": 14.449,
-          "h": 14.78,
+          "x": 208.16,
+          "y": 294.133,
+          "w": 18.578,
+          "h": 19.003,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_2_dot-47612be73ffb.svg"
         }
       },
@@ -185,7 +176,7 @@
           "y": 293.077,
           "w": 18.578,
           "h": 21.115,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_2_pause-a8eaf0e4c2cc.svg"
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_2_pause-5880d2f68cc6.svg"
         }
       },
       "loop_2_play": {
@@ -195,7 +186,7 @@
           "y": 293.077,
           "w": 18.578,
           "h": 21.115,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_2_play-c9c0b42d273d.svg"
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_2_play-7d9f31b010d1.svg"
         }
       },
       "loop_2_trash": {
@@ -220,10 +211,10 @@
       "loop_3_dot": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 210.225,
-          "y": 425.191,
-          "w": 14.449,
-          "h": 14.78,
+          "x": 208.16,
+          "y": 423.079,
+          "w": 18.578,
+          "h": 19.003,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_3_dot-e51db8e14b1f.svg"
         }
       },
@@ -252,7 +243,7 @@
           "y": 422.023,
           "w": 18.578,
           "h": 21.115,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_3_play-c9c0b42d273d.svg"
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_3_play-7d9f31b010d1.svg"
         }
       },
       "loop_3_trash": {

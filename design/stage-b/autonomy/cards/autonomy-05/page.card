@@ -3,7 +3,6 @@
 # profile: ui/l0
 # Static design fixture, runtime native Kit composition.
 theme light
-copy t01_text { class: user-copy, en: "OctosCode" }
 copy t_title_text { class: user-copy, en: "Monitors" }
 copy mon_1_cmd_text { class: user-copy, en: "cargo test -q" }
 copy mon_1_state_text { class: user-copy, en: "fired 3×" }
@@ -18,9 +17,6 @@ component Surface16fae9a63e16(instance: text) {
 component Surfaceb4206391250d(instance: text) {
   view Kit(component: "Surfaceb4206391250d", instance: instance) { slot }
 }
-component Texta2ea3f871016(instance: text, text: text) {
-  view Kit(component: "Texta2ea3f871016", instance: instance, text: text)
-}
 component Textb3d75e5843e2(instance: text, text: text) {
   view Kit(component: "Textb3d75e5843e2", instance: instance, text: text)
 }
@@ -33,11 +29,11 @@ component Text670e937f3612(instance: text, text: text) {
 component Text6f9706a2ec32(instance: text, text: text) {
   view Kit(component: "Text6f9706a2ec32", instance: instance, text: text)
 }
-component Vectore0a378fde04f(instance: text) {
-  view Kit(component: "Vectore0a378fde04f", instance: instance)
-}
 component Text41c3bfc672d1(instance: text, text: text) {
   view Kit(component: "Text41c3bfc672d1", instance: instance, text: text)
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
 component Surfacee26805a602b5(instance: text) {
   view Kit(component: "Surfacee26805a602b5", instance: instance) { slot }
@@ -60,12 +56,10 @@ component Text57902c202dfd(instance: text, text: text) {
 
 view root Surface16fae9a63e16(instance: "page") {
   Surfaceb4206391250d(instance: "monitors_screen") {
-    Texta2ea3f871016(instance: "t01", text: copy.t01_text)
     Textb3d75e5843e2(instance: "t_title", text: copy.t_title_text)
     Surfacee69029f3071c(instance: "mon_1") {
       Text670e937f3612(instance: "mon_1_cmd", text: copy.mon_1_cmd_text)
       Text6f9706a2ec32(instance: "mon_1_state", text: copy.mon_1_state_text)
-      Vectore0a378fde04f(instance: "mon_1_clock")
       Text41c3bfc672d1(instance: "mon_1_int", text: copy.mon_1_int_text)
       Vectore0a378fde04f(instance: "mon_1_pause")
       Vectore0a378fde04f(instance: "mon_1_trash")
@@ -73,7 +67,6 @@ view root Surface16fae9a63e16(instance: "page") {
     Surfacee26805a602b5(instance: "mon_2") {
       Text23962a7cd7ff(instance: "mon_2_cmd", text: copy.mon_2_cmd_text)
       Text9a59c3190d6a(instance: "mon_2_state", text: copy.mon_2_state_text)
-      Vectore0a378fde04f(instance: "mon_2_clock")
       Text91c571e0ba0f(instance: "mon_2_int", text: copy.mon_2_int_text)
       Vectore0a378fde04f(instance: "mon_2_pause")
       Vectore0a378fde04f(instance: "mon_2_trash")

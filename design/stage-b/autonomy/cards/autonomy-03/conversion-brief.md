@@ -45,22 +45,6 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t01",
-    "x": 20.12,
-    "y": 20.18,
-    "w": 106.07,
-    "h": 28.5,
-    "text": "OctosCode",
-    "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 19,
-    "weight": 600,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
     "id": "goal_card",
     "x": 16.0,
     "y": 182.21,
@@ -94,9 +78,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "w": 245.06,
     "h": 24.83,
     "text": "Fix steer queue on reconnect",
-    "font_src": "self:resources/ux/Inter-600.ttf",
+    "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 15,
-    "weight": 600,
+    "weight": 400,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -320,48 +304,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "clear_goal",
-    "x": 136.06,
-    "y": 648.75,
-    "w": 111.93,
-    "h": 37.21,
-    "role": "button",
-    "native_candidates": [
-      "Button",
-      "KitButton"
-    ]
-  },
-  {
-    "id": "clear_goal_surface",
-    "x": 136.06,
-    "y": 648.75,
-    "w": 111.93,
-    "h": 37.21,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
-  },
-  {
-    "id": "clear_goal_control",
-    "x": 136.06,
-    "y": 648.75,
-    "w": 111.93,
-    "h": 37.21,
-    "role": "button",
-    "native_candidates": [
-      "Button",
-      "KitButton"
-    ]
-  },
-  {
-    "id": "clear_goal_label",
     "x": 148.06,
     "y": 654.75,
     "w": 87.93,
     "h": 25.21,
     "text": "Clear goal",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 16.81,
+    "size": 14,
     "weight": 500,
     "role": "text",
     "native_candidates": [

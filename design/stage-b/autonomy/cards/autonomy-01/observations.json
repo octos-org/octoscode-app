@@ -9,38 +9,6 @@
   "aspect_error": 0.09111578077095328,
   "text": [
     {
-      "id": "t01",
-      "expected_text": "OctosCode",
-      "requested_bounds": [
-        18.76,
-        20.14,
-        100.65,
-        28.5
-      ],
-      "status": "observed",
-      "ocr_text": "OctosCode",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        21.323529411764707,
-        20.93106893106893,
-        94.6764705882353,
-        16.27972027972028
-      ],
-      "ink_color": [
-        8,
-        7,
-        8
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        18.764705043627462,
-        20.1357286074518,
-        100.6470588235294,
-        20.135728542914098
-      ]
-    },
-    {
       "id": "t_title",
       "expected_text": "Review",
       "requested_bounds": [
@@ -130,9 +98,9 @@
       "id": "file_1_path",
       "expected_text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
       "requested_bounds": [
-        43.88,
+        53.0,
         154.89,
-        263.94,
+        281.0,
         24.78
       ],
       "status": "observed",
@@ -162,9 +130,9 @@
       "id": "file_1_add",
       "expected_text": "+31",
       "requested_bounds": [
-        319.82,
+        338.0,
         154.89,
-        34.0,
+        30.0,
         24.78
       ],
       "status": "missing_or_ocr_unresolved"
@@ -173,9 +141,9 @@
       "id": "file_1_del",
       "expected_text": "-4",
       "requested_bounds": [
-        357.82,
+        371.0,
         154.89,
-        24.0,
+        17.0,
         24.78
       ],
       "status": "missing_or_ocr_unresolved"
@@ -184,9 +152,9 @@
       "id": "file_2_path",
       "expected_text": "crates/octos-core/src/ui_protocol.rs",
       "requested_bounds": [
-        42.18,
+        53.0,
         218.4,
-        220.53,
+        280.0,
         24.78
       ],
       "status": "observed",
@@ -238,10 +206,10 @@
       "id": "file_3_path",
       "expected_text": "crates/octos-cli/tests/steer_queue.rs",
       "requested_bounds": [
-        69.47,
+        53.0,
         286.55,
-        194.94,
-        19.5
+        280.0,
+        18.59
       ],
       "status": "observed",
       "ocr_text": "crates/octos-cli/tests/steer_queue.rs",
@@ -292,7 +260,7 @@
       "id": "diff_file_path",
       "expected_text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
       "requested_bounds": [
-        38.76,
+        44.76,
         359.35,
         305.35,
         21.68
@@ -1057,21 +1025,23 @@
     {
       "id": "file_1",
       "bounds": [
-        16.0,
-        146.89,
-        374.0,
-        40.78
+        11.0,
+        136.0,
+        382.0,
+        60.0
       ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294440952,
+      "radius": 14.71
     },
     {
       "id": "file_1_icon",
       "bounds": [
-        21.88,
-        155.89,
-        16.0,
-        18.0
+        23.134,
+        149.242,
+        16.342,
+        26.484
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -1090,7 +1060,7 @@
     {
       "id": "file_2_icon",
       "bounds": [
-        20.18,
+        26.18,
         219.4,
         16.0,
         18.0
@@ -1112,7 +1082,7 @@
     {
       "id": "file_3_icon",
       "bounds": [
-        47.47,
+        53.47,
         287.55,
         16.0,
         18.0
@@ -1128,13 +1098,15 @@
         366.0,
         37.68
       ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294440952,
+      "radius": 8.0
     },
     {
       "id": "diff_file_icon",
       "bounds": [
-        18.76,
+        24.76,
         360.35,
         16.0,
         18.0
@@ -1154,6 +1126,32 @@
       "reviewed": false
     },
     {
+      "id": "chip_130",
+      "bounds": [
+        178.3,
+        480.48,
+        99.0,
+        32.96
+      ],
+      "method": "word chip behind the changed token only (ref x[209,325] /1.1722 logical); #28a2",
+      "reviewed": false,
+      "bg": 4294831340,
+      "radius": 6.0
+    },
+    {
+      "id": "chip_132",
+      "bounds": [
+        178.3,
+        550.4,
+        133.1,
+        32.96
+      ],
+      "method": "word chip behind the changed token only (ref x[209,365] /1.1722 logical); #28a2",
+      "reviewed": false,
+      "bg": 4293326058,
+      "radius": 6.0
+    },
+    {
       "id": "folded",
       "bounds": [
         1.0,
@@ -1168,6 +1166,16 @@
     }
   ],
   "unmapped_ocr": [
+    {
+      "bounds": [
+        21.999999016666678,
+        25.9740519794578,
+        117.99999999999999,
+        25.97405189620749
+      ],
+      "confidence": 1,
+      "text": "OctosCode"
+    },
     {
       "bounds": [
         382.00000045999997,

@@ -10,20 +10,20 @@
       "value": 0,
       "property": "radius"
     },
-    "size_46d5f3d0af1b": {
-      "value": 16.06,
+    "size_741cfd1c81fb": {
+      "value": 17.84,
       "property": "size"
     },
-    "line_height_48b6ebf52982": {
-      "value": 19.44,
+    "line_height_e8c7631cca7d": {
+      "value": 21.59,
       "property": "line_height"
     },
     "weight_284b7e6d788f": {
       "value": 600,
       "property": "weight"
     },
-    "color_ccacf0d1a46a": {
-      "value": 4278716424,
+    "color_14761090a4b7": {
+      "value": 4278584838,
       "property": "color"
     },
     "font_src_a9a389fb1fcc": {
@@ -33,18 +33,6 @@
     "tracking_8aed642bf511": {
       "value": 0.0,
       "property": "tracking"
-    },
-    "size_741cfd1c81fb": {
-      "value": 17.84,
-      "property": "size"
-    },
-    "line_height_e8c7631cca7d": {
-      "value": 21.59,
-      "property": "line_height"
-    },
-    "color_14761090a4b7": {
-      "value": 4278584838,
-      "property": "color"
     },
     "bg_db8349049b3c": {
       "value": 4294835710,
@@ -188,35 +176,6 @@
       },
       "props": {},
       "slot": true
-    },
-    "Textda8d60967e0e": {
-      "style": {
-        "t": "text",
-        "size": {
-          "$token": "size_46d5f3d0af1b"
-        },
-        "line_height": {
-          "$token": "line_height_48b6ebf52982"
-        },
-        "weight": {
-          "$token": "weight_284b7e6d788f"
-        },
-        "color": {
-          "$token": "color_ccacf0d1a46a"
-        },
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": {
-          "$token": "font_src_a9a389fb1fcc"
-        },
-        "tracking": {
-          "$token": "tracking_8aed642bf511"
-        }
-      },
-      "props": {
-        "text": "text"
-      },
-      "slot": false
     },
     "Textea62f42f8d83": {
       "style": {

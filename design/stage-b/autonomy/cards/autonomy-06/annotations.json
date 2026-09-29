@@ -95,17 +95,28 @@
       "reviewed": false
     },
     {
-      "id": "peer_1",
+      "id": "fleet_card",
       "bounds": [
-        14.0,
-        220.0,
-        377.0,
-        128.0
+        11.0,
+        217.0,
+        383.0,
+        389.0
       ],
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4294901502,
-      "radius": 18.77
+      "radius": 12.9
+    },
+    {
+      "id": "peer_1",
+      "bounds": [
+        11.0,
+        227.92,
+        383.0,
+        89.366
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
     },
     {
       "id": "peer_1_badge",
@@ -121,17 +132,37 @@
       "radius": 26.0
     },
     {
+      "id": "peer_divider_1",
+      "bounds": [
+        19.193,
+        357.546,
+        366.615,
+        1.092
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
       "id": "peer_2",
       "bounds": [
-        14.0,
-        350.0,
-        377.0,
-        125.0
+        11.0,
+        366.282,
+        383.0,
+        89.606
       ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294901502,
-      "radius": 18.28
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "peer_2_attn",
+      "bounds": [
+        12.137,
+        384.845,
+        14.337,
+        15.287
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     },
     {
       "id": "peer_2_badge",
@@ -147,17 +178,26 @@
       "radius": 26.0
     },
     {
+      "id": "peer_divider_2",
+      "bounds": [
+        19.193,
+        496.826,
+        366.615,
+        1.092
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
       "id": "peer_3",
       "bounds": [
-        14.0,
-        476.0,
-        377.0,
-        127.0
+        11.0,
+        505.561,
+        383.0,
+        89.519
       ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294901502,
-      "radius": 18.59
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
     },
     {
       "id": "peer_3_badge",

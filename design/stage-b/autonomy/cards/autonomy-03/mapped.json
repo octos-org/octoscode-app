@@ -12,28 +12,11 @@
       {
         "t": "stack",
         "id": "goal_screen",
-        "x": 0.0,
-        "y": 0.0,
-        "w": 406.0,
-        "h": 776.0,
+        "x": 1.0,
+        "y": 59.0,
+        "w": 404.0,
+        "h": 716.0,
         "c": [
-          {
-            "t": "text",
-            "id": "t01",
-            "text": "OctosCode",
-            "x": 21.99,
-            "y": 19.73,
-            "w": 103.9,
-            "h": 22.29,
-            "size": 18.42,
-            "line_height": 22.29,
-            "weight": 600,
-            "color": 4278716424,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-600.ttf",
-            "tracking": 0.0
-          },
           {
             "t": "stack",
             "id": "goal_card",
@@ -63,17 +46,17 @@
                 "t": "text",
                 "id": "t_goal",
                 "text": "Fix steer queue on reconnect",
-                "x": 34.51,
+                "x": 34.24,
                 "y": 199.76,
                 "w": 240.45,
                 "h": 25.73,
-                "size": 16.78,
-                "line_height": 20.3,
-                "weight": 600,
+                "size": 17.08,
+                "line_height": 20.66,
+                "weight": 400,
                 "color": 4279637526,
                 "variant": "single_line",
                 "alignx": 0,
-                "font_src": "self:resources/ux/Inter-600.ttf",
+                "font_src": "self:resources/ux/Inter-400.ttf",
                 "tracking": 0.0
               },
               {
@@ -218,7 +201,7 @@
                     "bg": 4294967295,
                     "radius": 27.5,
                     "border": 1,
-                    "bordercolor": 4293256679
+                    "bordercolor": 4280098079
                   },
                   {
                     "t": "button",
@@ -269,7 +252,7 @@
                     "bg": 4294835709,
                     "radius": 27.5,
                     "border": 1,
-                    "bordercolor": 4293256679
+                    "bordercolor": 4280098079
                   },
                   {
                     "t": "button",
@@ -308,53 +291,21 @@
             "bordercolor": 4293256679
           },
           {
-            "t": "stack",
+            "t": "text",
             "id": "clear_goal",
-            "x": 136.06,
-            "y": 648.75,
-            "w": 111.93,
-            "h": 37.21,
-            "c": [
-              {
-                "t": "stack",
-                "id": "clear_goal_surface",
-                "x": 136.06,
-                "y": 648.75,
-                "w": 111.93,
-                "h": 37.21,
-                "c": [],
-                "variant": "surface",
-                "bg": 4294769916,
-                "radius": 8.0
-              },
-              {
-                "t": "button",
-                "id": "clear_goal_control",
-                "x": 136.06,
-                "y": 648.75,
-                "w": 111.93,
-                "h": 37.21,
-                "enabled": 1
-              },
-              {
-                "t": "text",
-                "id": "clear_goal_label",
-                "text": "Clear goal",
-                "x": 149.39,
-                "y": 653.72,
-                "w": 83.73,
-                "h": 26.5,
-                "size": 16.48,
-                "line_height": 19.94,
-                "weight": 500,
-                "color": 4279045646,
-                "variant": "single_line",
-                "alignx": 0,
-                "font_src": "self:resources/ux/Inter-500.ttf",
-                "tracking": 0.0
-              }
-            ],
-            "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+            "text": "Clear goal",
+            "x": 149.39,
+            "y": 653.72,
+            "w": 83.73,
+            "h": 26.5,
+            "size": 16.48,
+            "line_height": 19.94,
+            "weight": 500,
+            "color": 4279045646,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
           }
         ],
         "variant": "surface",
@@ -415,24 +366,6 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "clear_goal",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "clear_goal_surface",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "clear_goal_control",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "t01",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.11893972539586684
-    },
-    {
       "id": "t_goal_title",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
@@ -442,7 +375,7 @@
       "id": "t_goal",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.12901205548657588
+      "tracking_em": -0.12366648733598967
     },
     {
       "id": "goal_badge_label",
@@ -487,7 +420,7 @@
       "tracking_em": -0.2044721983951869
     },
     {
-      "id": "clear_goal_label",
+      "id": "clear_goal",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.14810621684214026

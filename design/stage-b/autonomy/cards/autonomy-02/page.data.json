@@ -20,15 +20,6 @@
           "h": 775.0
         }
       },
-      "t01": {
-        "component": "Textc5ee49a1048a",
-        "layout": {
-          "x": 25.62,
-          "y": 18.93,
-          "w": 98.02,
-          "h": 21.05
-        }
-      },
       "t_title": {
         "component": "Text17d36e66429f",
         "layout": {
@@ -75,12 +66,22 @@
         }
       },
       "run_status_card": {
-        "component": "Surfaced85ef54a18d5",
+        "component": "Surface70f9b0c64b16",
         "layout": {
           "x": 18.0,
           "y": 144.0,
           "w": 367.0,
           "h": 114.0
+        }
+      },
+      "status_spinner": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 53.887,
+          "y": 165.7,
+          "w": 17.854,
+          "h": 22.976,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-02/assets/status_spinner-68949e64fa67.svg"
         }
       },
       "t_status": {
@@ -129,9 +130,9 @@
         }
       },
       "finding_high_path": {
-        "component": "Texta68767947f29",
+        "component": "Text62b7e087256c",
         "layout": {
-          "x": 35.19,
+          "x": 35.16,
           "y": 359.25,
           "w": 333.93,
           "h": 22.61
@@ -174,9 +175,9 @@
         }
       },
       "finding_low_path": {
-        "component": "Textde1538f45dd6",
+        "component": "Text8a147ee026b8",
         "layout": {
-          "x": 34.3,
+          "x": 34.29,
           "y": 576.32,
           "w": 257.0,
           "h": 23.38

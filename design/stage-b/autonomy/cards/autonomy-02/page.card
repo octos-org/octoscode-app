@@ -3,7 +3,6 @@
 # profile: ui/l0
 # Static design fixture, runtime native Kit composition.
 theme light
-copy t01_text { class: user-copy, en: "OctosCode" }
 copy t_title_text { class: user-copy, en: "Code review" }
 copy start_review_label_text { class: user-copy, en: "Start review" }
 copy t_status_text { class: user-copy, en: "Reviewing 3 files · 2 specialists" }
@@ -21,9 +20,6 @@ component Surface16fae9a63e16(instance: text) {
 component Surfaceb4206391250d(instance: text) {
   view Kit(component: "Surfaceb4206391250d", instance: instance) { slot }
 }
-component Textc5ee49a1048a(instance: text, text: text) {
-  view Kit(component: "Textc5ee49a1048a", instance: instance, text: text)
-}
 component Text17d36e66429f(instance: text, text: text) {
   view Kit(component: "Text17d36e66429f", instance: instance, text: text)
 }
@@ -39,8 +35,11 @@ component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
 component Text2579fcd137a7(instance: text, text: text) {
   view Kit(component: "Text2579fcd137a7", instance: instance, text: text)
 }
-component Surfaced85ef54a18d5(instance: text) {
-  view Kit(component: "Surfaced85ef54a18d5", instance: instance) { slot }
+component Surface70f9b0c64b16(instance: text) {
+  view Kit(component: "Surface70f9b0c64b16", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
 component Text35832fe48287(instance: text, text: text) {
   view Kit(component: "Text35832fe48287", instance: instance, text: text)
@@ -57,8 +56,8 @@ component Surface07bfcd994a43(instance: text) {
 component Textc17fad1468b3(instance: text, text: text) {
   view Kit(component: "Textc17fad1468b3", instance: instance, text: text)
 }
-component Texta68767947f29(instance: text, text: text) {
-  view Kit(component: "Texta68767947f29", instance: instance, text: text)
+component Text62b7e087256c(instance: text, text: text) {
+  view Kit(component: "Text62b7e087256c", instance: instance, text: text)
 }
 component Text8720892a9a35(instance: text, text: text) {
   view Kit(component: "Text8720892a9a35", instance: instance, text: text)
@@ -72,8 +71,8 @@ component Surfacecd525e141ac3(instance: text) {
 component Textd563e48aa973(instance: text, text: text) {
   view Kit(component: "Textd563e48aa973", instance: instance, text: text)
 }
-component Textde1538f45dd6(instance: text, text: text) {
-  view Kit(component: "Textde1538f45dd6", instance: instance, text: text)
+component Text8a147ee026b8(instance: text, text: text) {
+  view Kit(component: "Text8a147ee026b8", instance: instance, text: text)
 }
 component Texte9eae90b87dd(instance: text, text: text) {
   view Kit(component: "Texte9eae90b87dd", instance: instance, text: text)
@@ -81,7 +80,6 @@ component Texte9eae90b87dd(instance: text, text: text) {
 
 view root Surface16fae9a63e16(instance: "page") {
   Surfaceb4206391250d(instance: "review_run") {
-    Textc5ee49a1048a(instance: "t01", text: copy.t01_text)
     Text17d36e66429f(instance: "t_title", text: copy.t_title_text)
     KitButton2c6804b990a5(instance: "start_review") {
       Surfaceb5124380b3ee(instance: "start_review_surface") {
@@ -90,7 +88,8 @@ view root Surface16fae9a63e16(instance: "page") {
       NativeButton02f1d1bd99b4(instance: "start_review_control", enabled: start_review_control_enabled)
       Text2579fcd137a7(instance: "start_review_label", text: copy.start_review_label_text)
     }
-    Surfaced85ef54a18d5(instance: "run_status_card") {
+    Surface70f9b0c64b16(instance: "run_status_card") {
+      Vectore0a378fde04f(instance: "status_spinner")
       Text35832fe48287(instance: "t_status", text: copy.t_status_text)
       Text565da94791fb(instance: "t_status_sub", text: copy.t_status_sub_text)
     }
@@ -98,14 +97,14 @@ view root Surface16fae9a63e16(instance: "page") {
       Surface07bfcd994a43(instance: "finding_high_badge") {
         Textc17fad1468b3(instance: "finding_high_badge_label", text: copy.finding_high_badge_label_text)
       }
-      Texta68767947f29(instance: "finding_high_path", text: copy.finding_high_path_text)
+      Text62b7e087256c(instance: "finding_high_path", text: copy.finding_high_path_text)
       Text8720892a9a35(instance: "finding_high_text", text: copy.finding_high_text_text)
     }
     Surface3e704917e596(instance: "finding_low") {
       Surfacecd525e141ac3(instance: "finding_low_badge") {
         Textd563e48aa973(instance: "finding_low_badge_label", text: copy.finding_low_badge_label_text)
       }
-      Textde1538f45dd6(instance: "finding_low_path", text: copy.finding_low_path_text)
+      Text8a147ee026b8(instance: "finding_low_path", text: copy.finding_low_path_text)
       Texte9eae90b87dd(instance: "finding_low_text", text: copy.finding_low_text_text)
     }
   }

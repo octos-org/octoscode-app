@@ -45,22 +45,6 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t01",
-    "x": 22.31,
-    "y": 18.3,
-    "w": 92.85,
-    "h": 28.5,
-    "text": "OctosCode",
-    "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 19,
-    "weight": 600,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
     "id": "t_title",
     "x": 18.49,
     "y": 87.18,
@@ -140,10 +124,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "loop_1_dot",
-    "x": 210.0,
-    "y": 173.24,
-    "w": 14.0,
-    "h": 14.0,
+    "x": 208.0,
+    "y": 171.24,
+    "w": 18.0,
+    "h": 18.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -219,10 +203,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "loop_2_dot",
-    "x": 210.0,
-    "y": 296.29,
-    "w": 14.0,
-    "h": 14.0,
+    "x": 208.0,
+    "y": 294.29,
+    "w": 18.0,
+    "h": 18.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -298,10 +282,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "loop_3_dot",
-    "x": 210.0,
-    "y": 418.43,
-    "w": 14.0,
-    "h": 14.0,
+    "x": 208.0,
+    "y": 416.43,
+    "w": 18.0,
+    "h": 18.0,
     "role": "unknown",
     "native_candidates": []
   },

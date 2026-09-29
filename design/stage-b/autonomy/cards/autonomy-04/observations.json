@@ -9,38 +9,6 @@
   "aspect_error": 0.030014320654714766,
   "text": [
     {
-      "id": "t01",
-      "expected_text": "OctosCode",
-      "requested_bounds": [
-        22.31,
-        18.3,
-        92.85,
-        28.5
-      ],
-      "status": "observed",
-      "ocr_text": "OctosCode",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        23.976377952755904,
-        20.93106893106893,
-        87.11417322834646,
-        17.054945054945055
-      ],
-      "ink_color": [
-        8,
-        8,
-        8
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        22.307708599413658,
-        18.301272689776575,
-        92.84914800688978,
-        22.25573760925412
-      ]
-    },
-    {
       "id": "t_title",
       "expected_text": "Loops",
       "requested_bounds": [
@@ -373,10 +341,10 @@
     {
       "id": "loop_1_dot",
       "bounds": [
-        210.225,
-        166.337,
-        14.449,
-        14.78
+        208.16,
+        164.226,
+        18.578,
+        19.003
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -428,10 +396,10 @@
     {
       "id": "loop_2_dot",
       "bounds": [
-        210.225,
-        296.244,
-        14.449,
-        14.78
+        208.16,
+        294.133,
+        18.578,
+        19.003
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -483,10 +451,10 @@
     {
       "id": "loop_3_dot",
       "bounds": [
-        210.225,
-        425.191,
-        14.449,
-        14.78
+        208.16,
+        423.079,
+        18.578,
+        19.003
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -515,6 +483,16 @@
     }
   ],
   "unmapped_ocr": [
+    {
+      "bounds": [
+        27.912108296803297,
+        23.607698405240146,
+        116.17578125000001,
+        28.708754312968267
+      ],
+      "confidence": 1,
+      "text": "OctosCode"
+    },
     {
       "bounds": [
         255.9999999142857,

@@ -14,19 +14,10 @@
       "goal_screen": {
         "component": "Surfaceb4206391250d",
         "layout": {
-          "x": 0.0,
-          "y": 0.0,
-          "w": 406.0,
-          "h": 776.0
-        }
-      },
-      "t01": {
-        "component": "Text5d61a731d99a",
-        "layout": {
-          "x": 21.99,
-          "y": 19.73,
-          "w": 103.9,
-          "h": 22.29
+          "x": 1.0,
+          "y": 59.0,
+          "w": 404.0,
+          "h": 716.0
         }
       },
       "goal_card": {
@@ -48,9 +39,9 @@
         }
       },
       "t_goal": {
-        "component": "Textbc84cf10033f",
+        "component": "Textfce030d8c465",
         "layout": {
-          "x": 34.51,
+          "x": 34.24,
           "y": 199.76,
           "w": 240.45,
           "h": 25.73
@@ -138,7 +129,7 @@
         }
       },
       "pause_btn_surface": {
-        "component": "Surface8909d71dc5dd",
+        "component": "Surface1f0616179e77",
         "layout": {
           "x": 34.0,
           "y": 559.0,
@@ -174,7 +165,7 @@
         }
       },
       "stop_btn_surface": {
-        "component": "Surfaceff776c252975",
+        "component": "Surface611f07322ed9",
         "layout": {
           "x": 209.0,
           "y": 559.0,
@@ -201,33 +192,6 @@
         }
       },
       "clear_goal": {
-        "component": "KitButton2c6804b990a5",
-        "layout": {
-          "x": 136.06,
-          "y": 648.75,
-          "w": 111.93,
-          "h": 37.21
-        }
-      },
-      "clear_goal_surface": {
-        "component": "Surfacec768d4b60097",
-        "layout": {
-          "x": 136.06,
-          "y": 648.75,
-          "w": 111.93,
-          "h": 37.21
-        }
-      },
-      "clear_goal_control": {
-        "component": "NativeButton02f1d1bd99b4",
-        "layout": {
-          "x": 136.06,
-          "y": 648.75,
-          "w": 111.93,
-          "h": 37.21
-        }
-      },
-      "clear_goal_label": {
         "component": "Text196673905202",
         "layout": {
           "x": 149.39,

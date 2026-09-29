@@ -10,20 +10,20 @@
       "value": 0,
       "property": "radius"
     },
-    "size_fd7cac204d1f": {
-      "value": 16.36,
+    "size_566afbb607a8": {
+      "value": 18.0,
       "property": "size"
     },
-    "line_height_c05efe93db54": {
-      "value": 19.79,
+    "line_height_58117d0695b4": {
+      "value": 21.77,
       "property": "line_height"
     },
     "weight_284b7e6d788f": {
       "value": 600,
       "property": "weight"
     },
-    "color_14761090a4b7": {
-      "value": 4278584838,
+    "color_5539f3fae1c4": {
+      "value": 4278650631,
       "property": "color"
     },
     "font_src_a9a389fb1fcc": {
@@ -33,18 +33,6 @@
     "tracking_8aed642bf511": {
       "value": 0.0,
       "property": "tracking"
-    },
-    "size_566afbb607a8": {
-      "value": 18.0,
-      "property": "size"
-    },
-    "line_height_58117d0695b4": {
-      "value": 21.77,
-      "property": "line_height"
-    },
-    "color_5539f3fae1c4": {
-      "value": 4278650631,
-      "property": "color"
     },
     "radius_1194427dd171": {
       "value": 16.99,
@@ -165,35 +153,6 @@
       "props": {},
       "slot": true
     },
-    "Texta2ea3f871016": {
-      "style": {
-        "t": "text",
-        "size": {
-          "$token": "size_fd7cac204d1f"
-        },
-        "line_height": {
-          "$token": "line_height_c05efe93db54"
-        },
-        "weight": {
-          "$token": "weight_284b7e6d788f"
-        },
-        "color": {
-          "$token": "color_14761090a4b7"
-        },
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": {
-          "$token": "font_src_a9a389fb1fcc"
-        },
-        "tracking": {
-          "$token": "tracking_8aed642bf511"
-        }
-      },
-      "props": {
-        "text": "text"
-      },
-      "slot": false
-    },
     "Textb3d75e5843e2": {
       "style": {
         "t": "text",
@@ -297,13 +256,6 @@
       },
       "slot": false
     },
-    "Vectore0a378fde04f": {
-      "style": {
-        "t": "svg"
-      },
-      "props": {},
-      "slot": false
-    },
     "Text41c3bfc672d1": {
       "style": {
         "t": "text",
@@ -331,6 +283,13 @@
       "props": {
         "text": "text"
       },
+      "slot": false
+    },
+    "Vectore0a378fde04f": {
+      "style": {
+        "t": "svg"
+      },
+      "props": {},
       "slot": false
     },
     "Surfacee26805a602b5": {

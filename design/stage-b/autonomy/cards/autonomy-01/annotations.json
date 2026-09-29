@@ -111,21 +111,23 @@
     {
       "id": "file_1",
       "bounds": [
-        16.0,
-        146.89,
-        374.0,
-        40.78
+        11.0,
+        136.0,
+        382.0,
+        60.0
       ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294440952,
+      "radius": 14.71
     },
     {
       "id": "file_1_icon",
       "bounds": [
-        21.88,
-        155.89,
-        16.0,
-        18.0
+        23.134,
+        149.242,
+        16.342,
+        26.484
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -144,7 +146,7 @@
     {
       "id": "file_2_icon",
       "bounds": [
-        20.18,
+        26.18,
         219.4,
         16.0,
         18.0
@@ -166,7 +168,7 @@
     {
       "id": "file_3_icon",
       "bounds": [
-        47.47,
+        53.47,
         287.55,
         16.0,
         18.0
@@ -182,13 +184,15 @@
         366.0,
         37.68
       ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294440952,
+      "radius": 8.0
     },
     {
       "id": "diff_file_icon",
       "bounds": [
-        18.76,
+        24.76,
         360.35,
         16.0,
         18.0
@@ -206,6 +210,32 @@
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
+    },
+    {
+      "id": "chip_130",
+      "bounds": [
+        178.3,
+        480.48,
+        99.0,
+        32.96
+      ],
+      "method": "word chip behind the changed token only (ref x[209,325] /1.1722 logical); #28a2",
+      "reviewed": false,
+      "bg": 4294831340,
+      "radius": 6.0
+    },
+    {
+      "id": "chip_132",
+      "bounds": [
+        178.3,
+        550.4,
+        133.1,
+        32.96
+      ],
+      "method": "word chip behind the changed token only (ref x[209,365] /1.1722 logical); #28a2",
+      "reviewed": false,
+      "bg": 4293326058,
+      "radius": 6.0
     },
     {
       "id": "folded",

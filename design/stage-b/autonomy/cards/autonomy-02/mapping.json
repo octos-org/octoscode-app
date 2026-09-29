@@ -38,26 +38,8 @@
       "size": null
     },
     {
-      "source_id": "t01",
-      "native_id": "beauty_0_0_0",
-      "parent": "review_run",
-      "kind": "text",
-      "component": "Textc5ee49a1048a",
-      "semantic_role": "text",
-      "bounds": [
-        25.62,
-        18.93,
-        98.02,
-        21.05
-      ],
-      "text": "OctosCode",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-600.ttf",
-      "size": 17.34
-    },
-    {
       "source_id": "t_title",
-      "native_id": "beauty_0_0_1",
+      "native_id": "beauty_0_0_0",
       "parent": "review_run",
       "kind": "text",
       "component": "Text17d36e66429f",
@@ -75,7 +57,7 @@
     },
     {
       "source_id": "start_review",
-      "native_id": "beauty_0_0_2",
+      "native_id": "beauty_0_0_1",
       "parent": "review_run",
       "kind": "stack",
       "component": "KitButton2c6804b990a5",
@@ -93,7 +75,7 @@
     },
     {
       "source_id": "start_review_surface",
-      "native_id": "beauty_0_0_2_0",
+      "native_id": "beauty_0_0_1_0",
       "parent": "start_review",
       "kind": "stack",
       "component": "Surfaceb5124380b3ee",
@@ -111,7 +93,7 @@
     },
     {
       "source_id": "start_review_control",
-      "native_id": "beauty_0_0_2_1",
+      "native_id": "beauty_0_0_1_1",
       "parent": "start_review",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -129,7 +111,7 @@
     },
     {
       "source_id": "start_review_label",
-      "native_id": "beauty_0_0_2_2",
+      "native_id": "beauty_0_0_1_2",
       "parent": "start_review",
       "kind": "text",
       "component": "Text2579fcd137a7",
@@ -147,10 +129,10 @@
     },
     {
       "source_id": "run_status_card",
-      "native_id": "beauty_0_0_3",
+      "native_id": "beauty_0_0_2",
       "parent": "review_run",
       "kind": "stack",
-      "component": "Surfaced85ef54a18d5",
+      "component": "Surface70f9b0c64b16",
       "semantic_role": "layout",
       "bounds": [
         18.0,
@@ -164,8 +146,26 @@
       "size": null
     },
     {
+      "source_id": "status_spinner",
+      "native_id": "beauty_0_0_2_0",
+      "parent": "run_status_card",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        53.887,
+        165.7,
+        17.854,
+        22.976
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
       "source_id": "t_status",
-      "native_id": "beauty_0_0_3_0",
+      "native_id": "beauty_0_0_2_1",
       "parent": "run_status_card",
       "kind": "text",
       "component": "Text35832fe48287",
@@ -183,7 +183,7 @@
     },
     {
       "source_id": "t_status_sub",
-      "native_id": "beauty_0_0_3_1",
+      "native_id": "beauty_0_0_2_2",
       "parent": "run_status_card",
       "kind": "text",
       "component": "Text565da94791fb",
@@ -201,7 +201,7 @@
     },
     {
       "source_id": "finding_high",
-      "native_id": "beauty_0_0_4",
+      "native_id": "beauty_0_0_3",
       "parent": "review_run",
       "kind": "stack",
       "component": "Surface3c28f63bd9cb",
@@ -219,7 +219,7 @@
     },
     {
       "source_id": "finding_high_badge",
-      "native_id": "beauty_0_0_4_0",
+      "native_id": "beauty_0_0_3_0",
       "parent": "finding_high",
       "kind": "stack",
       "component": "Surface07bfcd994a43",
@@ -237,7 +237,7 @@
     },
     {
       "source_id": "finding_high_badge_label",
-      "native_id": "beauty_0_0_4_0_0",
+      "native_id": "beauty_0_0_3_0_0",
       "parent": "finding_high_badge",
       "kind": "text",
       "component": "Textc17fad1468b3",
@@ -255,25 +255,25 @@
     },
     {
       "source_id": "finding_high_path",
-      "native_id": "beauty_0_0_4_1",
+      "native_id": "beauty_0_0_3_1",
       "parent": "finding_high",
       "kind": "text",
-      "component": "Texta68767947f29",
+      "component": "Text62b7e087256c",
       "semantic_role": "text",
       "bounds": [
-        35.19,
+        35.16,
         359.25,
         333.93,
         22.61
       ],
       "text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
       "enabled": null,
-      "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 11.22
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14.61
     },
     {
       "source_id": "finding_high_text",
-      "native_id": "beauty_0_0_4_2",
+      "native_id": "beauty_0_0_3_2",
       "parent": "finding_high",
       "kind": "text",
       "component": "Text8720892a9a35",
@@ -291,7 +291,7 @@
     },
     {
       "source_id": "finding_low",
-      "native_id": "beauty_0_0_5",
+      "native_id": "beauty_0_0_4",
       "parent": "review_run",
       "kind": "stack",
       "component": "Surface3e704917e596",
@@ -309,7 +309,7 @@
     },
     {
       "source_id": "finding_low_badge",
-      "native_id": "beauty_0_0_5_0",
+      "native_id": "beauty_0_0_4_0",
       "parent": "finding_low",
       "kind": "stack",
       "component": "Surfacecd525e141ac3",
@@ -327,7 +327,7 @@
     },
     {
       "source_id": "finding_low_badge_label",
-      "native_id": "beauty_0_0_5_0_0",
+      "native_id": "beauty_0_0_4_0_0",
       "parent": "finding_low_badge",
       "kind": "text",
       "component": "Textd563e48aa973",
@@ -345,25 +345,25 @@
     },
     {
       "source_id": "finding_low_path",
-      "native_id": "beauty_0_0_5_1",
+      "native_id": "beauty_0_0_4_1",
       "parent": "finding_low",
       "kind": "text",
-      "component": "Textde1538f45dd6",
+      "component": "Text8a147ee026b8",
       "semantic_role": "text",
       "bounds": [
-        34.3,
+        34.29,
         576.32,
         257.0,
         23.38
       ],
       "text": "crates/octos-core/src/ui_protocol.rs",
       "enabled": null,
-      "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 11.71
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14.77
     },
     {
       "source_id": "finding_low_text",
-      "native_id": "beauty_0_0_5_2",
+      "native_id": "beauty_0_0_4_2",
       "parent": "finding_low",
       "kind": "text",
       "component": "Texte9eae90b87dd",
@@ -383,9 +383,8 @@
   "fonts": {
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
-    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
-    "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045"
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "5685958c0e83b23fe775450f8d55d9ae532f3c7655137c4614afe0c299ce7ff4",
+  "contract_sha256": "615037ea2256cc75805d004fb5068a5615d5390463b5899b24a71edc06870f4b",
   "mapping_basis": "mapped.json"
 }

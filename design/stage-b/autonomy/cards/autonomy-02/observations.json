@@ -9,38 +9,6 @@
   "aspect_error": 0.0930252013995857,
   "text": [
     {
-      "id": "t01",
-      "expected_text": "OctosCode",
-      "requested_bounds": [
-        23.77,
-        19.68,
-        100.86,
-        28.5
-      ],
-      "status": "observed",
-      "ocr_text": "OctosCode",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        26.496842105263156,
-        20.93106893106893,
-        94.02105263157894,
-        17.054945054945055
-      ],
-      "ink_color": [
-        8,
-        8,
-        8
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        23.773715368494354,
-        19.678138236867795,
-        100.86433522841509,
-        21.050909030937163
-      ]
-    },
-    {
       "id": "t_title",
       "expected_text": "Code review",
       "requested_bounds": [
@@ -435,6 +403,17 @@
       "radius": 15.32
     },
     {
+      "id": "status_spinner",
+      "bounds": [
+        53.887,
+        165.7,
+        17.854,
+        22.976
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
       "id": "finding_high",
       "bounds": [
         18.0,
@@ -488,6 +467,16 @@
     }
   ],
   "unmapped_ocr": [
+    {
+      "bounds": [
+        27.814075862154727,
+        25.383783988536937,
+        118.00630353078121,
+        27.154587551505283
+      ],
+      "confidence": 1,
+      "text": "OctosCode"
+    },
     {
       "bounds": [
         37.82003070628344,

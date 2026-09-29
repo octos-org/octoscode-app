@@ -45,22 +45,6 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t01",
-    "x": 18.8,
-    "y": 25.43,
-    "w": 101.16,
-    "h": 28.5,
-    "text": "OctosCode",
-    "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 19,
-    "weight": 600,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
     "id": "t_title",
     "x": 21.96,
     "y": 95.99,
@@ -101,6 +85,17 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "native_candidates": [
       "Label",
       "TextFlow"
+    ]
+  },
+  {
+    "id": "fleet_card",
+    "x": 16.0,
+    "y": 246.27,
+    "w": 374.0,
+    "h": 356.24,
+    "role": "layout",
+    "native_candidates": [
+      "View"
     ]
   },
   {
@@ -190,6 +185,17 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "peer_divider_1",
+    "x": 24.0,
+    "y": 374.98,
+    "w": 358.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "peer_2",
     "x": 16.0,
     "y": 382.98,
@@ -199,6 +205,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "native_candidates": [
       "View"
     ]
+  },
+  {
+    "id": "peer_2_attn",
+    "x": 101.01,
+    "y": 392.48,
+    "w": 36.8,
+    "h": 36.8,
+    "role": "unknown",
+    "native_candidates": []
   },
   {
     "id": "peer_2_badge",
@@ -273,6 +288,17 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "native_candidates": [
       "Label",
       "TextFlow"
+    ]
+  },
+  {
+    "id": "peer_divider_2",
+    "x": 24.0,
+    "y": 502.53,
+    "w": 358.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
     ]
   },
   {

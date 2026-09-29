@@ -12,28 +12,11 @@
       {
         "t": "stack",
         "id": "monitors_screen",
-        "x": 0.0,
-        "y": 0.0,
-        "w": 406.0,
-        "h": 776.0,
+        "x": 1.0,
+        "y": 68.0,
+        "w": 404.0,
+        "h": 707.0,
         "c": [
-          {
-            "t": "text",
-            "id": "t01",
-            "text": "OctosCode",
-            "x": 18.8,
-            "y": 21.79,
-            "w": 92.71,
-            "h": 23.22,
-            "size": 16.36,
-            "line_height": 19.79,
-            "weight": 600,
-            "color": 4278584838,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-600.ttf",
-            "tracking": 0.0
-          },
           {
             "t": "text",
             "id": "t_title",
@@ -92,15 +75,6 @@
                 "alignx": 0,
                 "font_src": "self:resources/ux/Inter-400.ttf",
                 "tracking": 0.0
-              },
-              {
-                "t": "svg",
-                "id": "mon_1_clock",
-                "x": 188.811,
-                "y": 243.511,
-                "w": 18.193,
-                "h": 25.48,
-                "src": ""
               },
               {
                 "t": "text",
@@ -187,15 +161,6 @@
                 "tracking": 0.0
               },
               {
-                "t": "svg",
-                "id": "mon_2_clock",
-                "x": 190.539,
-                "y": 413.734,
-                "w": 18.193,
-                "h": 25.403,
-                "src": ""
-              },
-              {
                 "t": "text",
                 "id": "mon_2_int",
                 "text": "30s",
@@ -240,10 +205,10 @@
           {
             "t": "stack",
             "id": "monitors_footer",
-            "x": 16.0,
-            "y": 506.68,
-            "w": 374.0,
-            "h": 50.62,
+            "x": 16.921,
+            "y": 529.627,
+            "w": 372.158,
+            "h": 46.119,
             "c": [
               {
                 "t": "text",
@@ -287,10 +252,6 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "mon_1_clock",
-      "source": "observed non-text annotation"
-    },
-    {
       "id": "mon_1_pause",
       "source": "observed non-text annotation"
     },
@@ -300,10 +261,6 @@
     },
     {
       "id": "mon_2",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "mon_2_clock",
       "source": "observed non-text annotation"
     },
     {
@@ -317,12 +274,6 @@
     {
       "id": "monitors_footer",
       "source": "observed non-text annotation"
-    },
-    {
-      "id": "t01",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.23453663767576943
     },
     {
       "id": "t_title",

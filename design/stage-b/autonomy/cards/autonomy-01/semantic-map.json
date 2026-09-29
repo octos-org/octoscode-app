@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "41377339f7f820b2cfc9bdba7b128827b2009ca7419d289b75a907a417d97b46",
+  "contract_sha256": "3c291f6c171805ca19e7eb3a4bced686118b405ed9a7d2e44279178af12fd56c",
   "reference_sha256": "f1d385b756812379d4d1537b2668f37824e3cca12123b02399a555ab3c102add",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -16,13 +16,6 @@
       "id": "review_panel",
       "role": "layout",
       "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "t01",
-      "role": "text",
-      "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -299,6 +292,13 @@
       "id": "dl_2",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "chip_131",
+      "role": "layout",
+      "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },

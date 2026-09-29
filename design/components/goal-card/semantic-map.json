@@ -6,27 +6,6 @@
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
     {
-      "id": "page",
-      "role": "layout",
-      "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "goal_screen",
-      "role": "layout",
-      "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "t01",
-      "role": "text",
-      "basis": "authored text node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
       "id": "goal_card",
       "role": "layout",
       "basis": "authored stack node",
@@ -154,34 +133,6 @@
     },
     {
       "id": "stop_btn_label",
-      "role": "text",
-      "basis": "authored text node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "clear_goal",
-      "role": "button",
-      "basis": "authored KitButton composition",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "clear_goal_surface",
-      "role": "layout",
-      "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "clear_goal_control",
-      "role": "button",
-      "basis": "authored button node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "clear_goal_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,

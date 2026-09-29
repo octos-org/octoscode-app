@@ -27,10 +27,10 @@
       "component": "Surfaceb4206391250d",
       "semantic_role": "layout",
       "bounds": [
-        0.0,
-        0.0,
-        406.0,
-        776.0
+        1.0,
+        68.0,
+        404.0,
+        707.0
       ],
       "text": null,
       "enabled": null,
@@ -38,26 +38,8 @@
       "size": null
     },
     {
-      "source_id": "t01",
-      "native_id": "beauty_0_0_0",
-      "parent": "monitors_screen",
-      "kind": "text",
-      "component": "Texta2ea3f871016",
-      "semantic_role": "text",
-      "bounds": [
-        18.8,
-        21.79,
-        92.71,
-        23.22
-      ],
-      "text": "OctosCode",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-600.ttf",
-      "size": 16.36
-    },
-    {
       "source_id": "t_title",
-      "native_id": "beauty_0_0_1",
+      "native_id": "beauty_0_0_0",
       "parent": "monitors_screen",
       "kind": "text",
       "component": "Textb3d75e5843e2",
@@ -75,7 +57,7 @@
     },
     {
       "source_id": "mon_1",
-      "native_id": "beauty_0_0_2",
+      "native_id": "beauty_0_0_1",
       "parent": "monitors_screen",
       "kind": "stack",
       "component": "Surfacee69029f3071c",
@@ -93,7 +75,7 @@
     },
     {
       "source_id": "mon_1_cmd",
-      "native_id": "beauty_0_0_2_0",
+      "native_id": "beauty_0_0_1_0",
       "parent": "mon_1",
       "kind": "text",
       "component": "Text670e937f3612",
@@ -111,7 +93,7 @@
     },
     {
       "source_id": "mon_1_state",
-      "native_id": "beauty_0_0_2_1",
+      "native_id": "beauty_0_0_1_1",
       "parent": "mon_1",
       "kind": "text",
       "component": "Text6f9706a2ec32",
@@ -128,26 +110,8 @@
       "size": 14.81
     },
     {
-      "source_id": "mon_1_clock",
-      "native_id": "beauty_0_0_2_2",
-      "parent": "mon_1",
-      "kind": "svg",
-      "component": "Vectore0a378fde04f",
-      "semantic_role": "icon",
-      "bounds": [
-        188.811,
-        243.511,
-        18.193,
-        25.48
-      ],
-      "text": null,
-      "enabled": null,
-      "font": null,
-      "size": null
-    },
-    {
       "source_id": "mon_1_int",
-      "native_id": "beauty_0_0_2_3",
+      "native_id": "beauty_0_0_1_2",
       "parent": "mon_1",
       "kind": "text",
       "component": "Text41c3bfc672d1",
@@ -165,7 +129,7 @@
     },
     {
       "source_id": "mon_1_pause",
-      "native_id": "beauty_0_0_2_4",
+      "native_id": "beauty_0_0_1_3",
       "parent": "mon_1",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -183,7 +147,7 @@
     },
     {
       "source_id": "mon_1_trash",
-      "native_id": "beauty_0_0_2_5",
+      "native_id": "beauty_0_0_1_4",
       "parent": "mon_1",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -201,7 +165,7 @@
     },
     {
       "source_id": "mon_2",
-      "native_id": "beauty_0_0_3",
+      "native_id": "beauty_0_0_2",
       "parent": "monitors_screen",
       "kind": "stack",
       "component": "Surfacee26805a602b5",
@@ -219,7 +183,7 @@
     },
     {
       "source_id": "mon_2_cmd",
-      "native_id": "beauty_0_0_3_0",
+      "native_id": "beauty_0_0_2_0",
       "parent": "mon_2",
       "kind": "text",
       "component": "Text23962a7cd7ff",
@@ -237,7 +201,7 @@
     },
     {
       "source_id": "mon_2_state",
-      "native_id": "beauty_0_0_3_1",
+      "native_id": "beauty_0_0_2_1",
       "parent": "mon_2",
       "kind": "text",
       "component": "Text9a59c3190d6a",
@@ -254,26 +218,8 @@
       "size": 14.38
     },
     {
-      "source_id": "mon_2_clock",
-      "native_id": "beauty_0_0_3_2",
-      "parent": "mon_2",
-      "kind": "svg",
-      "component": "Vectore0a378fde04f",
-      "semantic_role": "icon",
-      "bounds": [
-        190.539,
-        413.734,
-        18.193,
-        25.403
-      ],
-      "text": null,
-      "enabled": null,
-      "font": null,
-      "size": null
-    },
-    {
       "source_id": "mon_2_int",
-      "native_id": "beauty_0_0_3_3",
+      "native_id": "beauty_0_0_2_2",
       "parent": "mon_2",
       "kind": "text",
       "component": "Text91c571e0ba0f",
@@ -291,7 +237,7 @@
     },
     {
       "source_id": "mon_2_pause",
-      "native_id": "beauty_0_0_3_4",
+      "native_id": "beauty_0_0_2_3",
       "parent": "mon_2",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -309,7 +255,7 @@
     },
     {
       "source_id": "mon_2_trash",
-      "native_id": "beauty_0_0_3_5",
+      "native_id": "beauty_0_0_2_4",
       "parent": "mon_2",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -327,16 +273,16 @@
     },
     {
       "source_id": "monitors_footer",
-      "native_id": "beauty_0_0_4",
+      "native_id": "beauty_0_0_3",
       "parent": "monitors_screen",
       "kind": "stack",
       "component": "Group3d2637879433",
       "semantic_role": "layout",
       "bounds": [
-        16.0,
-        506.68,
-        374.0,
-        50.62
+        16.921,
+        529.627,
+        372.158,
+        46.119
       ],
       "text": null,
       "enabled": null,
@@ -345,7 +291,7 @@
     },
     {
       "source_id": "monitors_footer_label",
-      "native_id": "beauty_0_0_4_0",
+      "native_id": "beauty_0_0_3_0",
       "parent": "monitors_footer",
       "kind": "text",
       "component": "Text57902c202dfd",
@@ -367,6 +313,6 @@
     "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "88a36e1926ef7b1c258911a7fe012afa5dd4fcc889fece4e2406b0d3d2771256",
+  "contract_sha256": "c9815d0bd80099ac30e8a1a379d79ef23d88dec5a64ab6cf9167b4f09e15c43a",
   "mapping_basis": "mapped.json"
 }

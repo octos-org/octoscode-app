@@ -19,23 +19,6 @@
         "c": [
           {
             "t": "text",
-            "id": "t01",
-            "text": "OctosCode",
-            "x": 20.45,
-            "y": 18.93,
-            "w": 98.68,
-            "h": 21.12,
-            "size": 17.46,
-            "line_height": 21.12,
-            "weight": 600,
-            "color": 4278716168,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-600.ttf",
-            "tracking": 0.0
-          },
-          {
-            "t": "text",
             "id": "t_title",
             "text": "Review",
             "x": 22.5,
@@ -127,46 +110,46 @@
           {
             "t": "stack",
             "id": "file_1",
-            "x": 16.0,
-            "y": 146.89,
-            "w": 374.0,
-            "h": 40.78,
+            "x": 11.0,
+            "y": 136.0,
+            "w": 382.0,
+            "h": 60.0,
             "c": [
               {
                 "t": "svg",
                 "id": "file_1_icon",
-                "x": 21.88,
-                "y": 155.89,
+                "x": 23.89,
+                "y": 149.242,
                 "w": 16.0,
-                "h": 18.0,
+                "h": 26.484,
                 "src": ""
               },
               {
                 "t": "text",
                 "id": "file_1_path",
                 "text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
-                "x": 24.09,
+                "x": 53.0,
                 "y": 153.04,
-                "w": 301.68,
+                "w": 281.0,
                 "h": 29.58,
-                "size": 10.12,
-                "line_height": 12.25,
+                "size": 12,
+                "line_height": 14.52,
                 "weight": 400,
                 "color": 4283914071,
                 "variant": "single_line",
                 "alignx": 0,
-                "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+                "font_src": "self:resources/ux/Inter-400.ttf",
                 "tracking": 0.0
               },
               {
                 "t": "text",
                 "id": "file_1_add",
                 "text": "+31",
-                "x": 319.82,
+                "x": 338.0,
                 "y": 154.89,
-                "w": 34.0,
+                "w": 30.0,
                 "h": 24.78,
-                "size": 13,
+                "size": 12,
                 "line_height": 24.78,
                 "weight": 500,
                 "color": 4280256573,
@@ -178,11 +161,11 @@
                 "t": "text",
                 "id": "file_1_del",
                 "text": "-4",
-                "x": 357.82,
+                "x": 371.0,
                 "y": 154.89,
-                "w": 24.0,
+                "w": 17.0,
                 "h": 24.78,
-                "size": 13,
+                "size": 12,
                 "line_height": 24.78,
                 "weight": 500,
                 "color": 4291764782,
@@ -190,7 +173,10 @@
                 "alignx": 0,
                 "font_src": "self:resources/ux/Inter-500.ttf"
               }
-            ]
+            ],
+            "variant": "surface",
+            "bg": 4294440952,
+            "radius": 14.71
           },
           {
             "t": "stack",
@@ -203,7 +189,7 @@
               {
                 "t": "svg",
                 "id": "file_2_icon",
-                "x": 20.18,
+                "x": 23.89,
                 "y": 219.4,
                 "w": 16.0,
                 "h": 18.0,
@@ -213,17 +199,17 @@
                 "t": "text",
                 "id": "file_2_path",
                 "text": "crates/octos-core/src/ui_protocol.rs",
-                "x": 23.19,
+                "x": 53.0,
                 "y": 214.29,
-                "w": 240.26,
+                "w": 280.0,
                 "h": 30.36,
-                "size": 10.94,
-                "line_height": 13.23,
+                "size": 12,
+                "line_height": 14.52,
                 "weight": 400,
                 "color": 4282335039,
                 "variant": "single_line",
                 "alignx": 0,
-                "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+                "font_src": "self:resources/ux/Inter-400.ttf",
                 "tracking": 0.0
               },
               {
@@ -271,7 +257,7 @@
               {
                 "t": "svg",
                 "id": "file_3_icon",
-                "x": 47.47,
+                "x": 23.89,
                 "y": 287.55,
                 "w": 16.0,
                 "h": 18.0,
@@ -281,17 +267,17 @@
                 "t": "text",
                 "id": "file_3_path",
                 "text": "crates/octos-cli/tests/steer_queue.rs",
-                "x": 52.28,
+                "x": 53.0,
                 "y": 284.06,
-                "w": 213.82,
+                "w": 280.0,
                 "h": 19.5,
-                "size": 9.45,
-                "line_height": 11.43,
+                "size": 12,
+                "line_height": 14.52,
                 "weight": 400,
                 "color": 4283256142,
                 "variant": "single_line",
                 "alignx": 0,
-                "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+                "font_src": "self:resources/ux/Inter-400.ttf",
                 "tracking": 0.0
               },
               {
@@ -339,7 +325,7 @@
               {
                 "t": "svg",
                 "id": "diff_file_icon",
-                "x": 18.76,
+                "x": 24.76,
                 "y": 360.35,
                 "w": 16.0,
                 "h": 18.0,
@@ -349,20 +335,23 @@
                 "t": "text",
                 "id": "diff_file_path",
                 "text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
-                "x": 20.68,
+                "x": 44.76,
                 "y": 357.7,
-                "w": 304.24,
+                "w": 305.35,
                 "h": 21.83,
-                "size": 10.21,
-                "line_height": 12.35,
+                "size": 13,
+                "line_height": 15.73,
                 "weight": 500,
                 "color": 4280295712,
                 "variant": "single_line",
                 "alignx": 0,
-                "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+                "font_src": "self:resources/ux/Inter-500.ttf",
                 "tracking": 0.0
               }
-            ]
+            ],
+            "variant": "surface",
+            "bg": 4294440952,
+            "radius": 8.0
           },
           {
             "t": "stack",
@@ -443,9 +432,9 @@
               {
                 "t": "stack",
                 "id": "chip_130",
-                "x": 126.76,
+                "x": 178.3,
                 "y": 480.48,
-                "w": 170.0,
+                "w": 99.0,
                 "h": 32.96,
                 "c": [
                   {
@@ -502,65 +491,78 @@
                 ],
                 "variant": "surface",
                 "bg": 4294831340,
+                "radius": 6.0
+              },
+              {
+                "t": "stack",
+                "id": "chip_131",
+                "x": 244.0,
+                "y": 515.44,
+                "w": 55.5,
+                "h": 32.96,
+                "c": [
+                  {
+                    "t": "text",
+                    "id": "ln_3",
+                    "text": "131",
+                    "x": 20.47,
+                    "y": 517.4,
+                    "w": 25.32,
+                    "h": 15.63,
+                    "size": 11.84,
+                    "line_height": 14.33,
+                    "weight": 400,
+                    "color": 4282795846,
+                    "variant": "single_line",
+                    "alignx": 0,
+                    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+                    "tracking": 0.0
+                  },
+                  {
+                    "t": "text",
+                    "id": "mk_3",
+                    "text": "-",
+                    "x": 70.91,
+                    "y": 521.28,
+                    "w": 18.5,
+                    "h": 18.15,
+                    "size": 15.0,
+                    "line_height": 18.15,
+                    "weight": 400,
+                    "color": 4291764782,
+                    "variant": "single_line",
+                    "alignx": 0,
+                    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+                    "tracking": 0.0
+                  },
+                  {
+                    "t": "text",
+                    "id": "dl_3",
+                    "text": "metrics.steer_dropped += 1;",
+                    "x": 131.57,
+                    "y": 516.63,
+                    "w": 217.24,
+                    "h": 20.28,
+                    "size": 13.16,
+                    "line_height": 15.92,
+                    "weight": 400,
+                    "color": 4283582278,
+                    "variant": "single_line",
+                    "alignx": 0,
+                    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+                    "tracking": 0.0
+                  }
+                ],
+                "variant": "surface",
+                "bg": 4294831340,
                 "radius": 6
-              },
-              {
-                "t": "text",
-                "id": "ln_3",
-                "text": "131",
-                "x": 20.47,
-                "y": 517.4,
-                "w": 25.32,
-                "h": 15.63,
-                "size": 11.84,
-                "line_height": 14.33,
-                "weight": 400,
-                "color": 4282795846,
-                "variant": "single_line",
-                "alignx": 0,
-                "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-                "tracking": 0.0
-              },
-              {
-                "t": "text",
-                "id": "mk_3",
-                "text": "-",
-                "x": 70.91,
-                "y": 521.28,
-                "w": 18.5,
-                "h": 18.15,
-                "size": 15.0,
-                "line_height": 18.15,
-                "weight": 400,
-                "color": 4291764782,
-                "variant": "single_line",
-                "alignx": 0,
-                "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-                "tracking": 0.0
-              },
-              {
-                "t": "text",
-                "id": "dl_3",
-                "text": "metrics.steer_dropped += 1;",
-                "x": 131.57,
-                "y": 516.63,
-                "w": 217.24,
-                "h": 20.28,
-                "size": 13.16,
-                "line_height": 15.92,
-                "weight": 400,
-                "color": 4283582278,
-                "variant": "single_line",
-                "alignx": 0,
-                "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-                "tracking": 0.0
               },
               {
                 "t": "stack",
                 "id": "chip_132",
-                "x": 126.76,
+                "x": 178.3,
                 "y": 550.4,
-                "w": 196.0,
+                "w": 133.1,
                 "h": 32.96,
                 "c": [
                   {
@@ -617,7 +619,7 @@
                 ],
                 "variant": "surface",
                 "bg": 4293326058,
-                "radius": 6
+                "radius": 6.0
               },
               {
                 "t": "text",
@@ -695,8 +697,8 @@
                 "y": 623.32,
                 "w": 12.0,
                 "h": 30.96,
-                "size": 20.64,
-                "line_height": 30.96,
+                "size": 15.0,
+                "line_height": 18.15,
                 "weight": 400,
                 "color": 4280256573,
                 "variant": "single_line",
@@ -851,14 +853,16 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "folded",
+      "id": "chip_130",
       "source": "observed non-text annotation"
     },
     {
-      "id": "t01",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.12229449594288319
+      "id": "chip_132",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "folded",
+      "source": "observed non-text annotation"
     },
     {
       "id": "t_title",
@@ -876,25 +880,25 @@
       "id": "file_1_path",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.3835949333246952
+      "tracking_em": -0.23433465355530667
     },
     {
       "id": "file_2_path",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.3743457119802313
+      "tracking_em": -0.23919640413011917
     },
     {
       "id": "file_3_path",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.26230680698188885
+      "tracking_em": -0.11939255047596313
     },
     {
       "id": "diff_file_path",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.2825631873641853
+      "tracking_em": -0.13849108287101083
     },
     {
       "id": "ln_0",

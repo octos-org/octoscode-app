@@ -14,19 +14,10 @@
       "monitors_screen": {
         "component": "Surfaceb4206391250d",
         "layout": {
-          "x": 0.0,
-          "y": 0.0,
-          "w": 406.0,
-          "h": 776.0
-        }
-      },
-      "t01": {
-        "component": "Texta2ea3f871016",
-        "layout": {
-          "x": 18.8,
-          "y": 21.79,
-          "w": 92.71,
-          "h": 23.22
+          "x": 1.0,
+          "y": 68.0,
+          "w": 404.0,
+          "h": 707.0
         }
       },
       "t_title": {
@@ -65,16 +56,6 @@
           "h": 23.22
         }
       },
-      "mon_1_clock": {
-        "component": "Vectore0a378fde04f",
-        "layout": {
-          "x": 188.811,
-          "y": 243.511,
-          "w": 18.193,
-          "h": 25.48,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-05/assets/mon_1_clock-b64e6a5bf721.svg"
-        }
-      },
       "mon_1_int": {
         "component": "Text41c3bfc672d1",
         "layout": {
@@ -91,7 +72,7 @@
           "y": 238.712,
           "w": 18.193,
           "h": 28.312,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-05/assets/mon_1_pause-a8eaf0e4c2cc.svg"
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-05/assets/mon_1_pause-5880d2f68cc6.svg"
         }
       },
       "mon_1_trash": {
@@ -131,16 +112,6 @@
           "h": 28.71
         }
       },
-      "mon_2_clock": {
-        "component": "Vectore0a378fde04f",
-        "layout": {
-          "x": 190.539,
-          "y": 413.734,
-          "w": 18.193,
-          "h": 25.403,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-05/assets/mon_2_clock-b64e6a5bf721.svg"
-        }
-      },
       "mon_2_int": {
         "component": "Text91c571e0ba0f",
         "layout": {
@@ -157,7 +128,7 @@
           "y": 411.447,
           "w": 18.193,
           "h": 28.225,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-05/assets/mon_2_pause-a8eaf0e4c2cc.svg"
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-05/assets/mon_2_pause-5880d2f68cc6.svg"
         }
       },
       "mon_2_trash": {
@@ -173,10 +144,10 @@
       "monitors_footer": {
         "component": "Group3d2637879433",
         "layout": {
-          "x": 16.0,
-          "y": 506.68,
-          "w": 374.0,
-          "h": 50.62
+          "x": 16.921,
+          "y": 529.627,
+          "w": 372.158,
+          "h": 46.119
         }
       },
       "monitors_footer_label": {

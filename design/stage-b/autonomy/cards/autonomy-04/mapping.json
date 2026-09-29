@@ -38,26 +38,8 @@
       "size": null
     },
     {
-      "source_id": "t01",
-      "native_id": "beauty_0_0_0",
-      "parent": "loops_screen",
-      "kind": "text",
-      "component": "Textda8d60967e0e",
-      "semantic_role": "text",
-      "bounds": [
-        23.17,
-        18.93,
-        91.11,
-        21.05
-      ],
-      "text": "OctosCode",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-600.ttf",
-      "size": 16.06
-    },
-    {
       "source_id": "t_title",
-      "native_id": "beauty_0_0_1",
+      "native_id": "beauty_0_0_0",
       "parent": "loops_screen",
       "kind": "text",
       "component": "Textea62f42f8d83",
@@ -75,7 +57,7 @@
     },
     {
       "source_id": "new_loop",
-      "native_id": "beauty_0_0_2",
+      "native_id": "beauty_0_0_1",
       "parent": "loops_screen",
       "kind": "stack",
       "component": "KitButton2c6804b990a5",
@@ -93,7 +75,7 @@
     },
     {
       "source_id": "new_loop_surface",
-      "native_id": "beauty_0_0_2_0",
+      "native_id": "beauty_0_0_1_0",
       "parent": "new_loop",
       "kind": "stack",
       "component": "Surfacecbeea5da301d",
@@ -111,7 +93,7 @@
     },
     {
       "source_id": "new_loop_control",
-      "native_id": "beauty_0_0_2_1",
+      "native_id": "beauty_0_0_1_1",
       "parent": "new_loop",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -129,7 +111,7 @@
     },
     {
       "source_id": "new_loop_label",
-      "native_id": "beauty_0_0_2_2",
+      "native_id": "beauty_0_0_1_2",
       "parent": "new_loop",
       "kind": "text",
       "component": "Textcab5ef52407e",
@@ -147,7 +129,7 @@
     },
     {
       "source_id": "loops_card",
-      "native_id": "beauty_0_0_3",
+      "native_id": "beauty_0_0_2",
       "parent": "loops_screen",
       "kind": "stack",
       "component": "Surface07eaedee1d73",
@@ -165,16 +147,16 @@
     },
     {
       "source_id": "loop_1_dot",
-      "native_id": "beauty_0_0_3_0",
+      "native_id": "beauty_0_0_2_0",
       "parent": "loops_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        210.225,
-        166.337,
-        14.449,
-        14.78
+        208.16,
+        164.226,
+        18.578,
+        19.003
       ],
       "text": null,
       "enabled": null,
@@ -183,7 +165,7 @@
     },
     {
       "source_id": "loop_1_name",
-      "native_id": "beauty_0_0_3_1",
+      "native_id": "beauty_0_0_2_1",
       "parent": "loops_card",
       "kind": "text",
       "component": "Textf6e73b6022fa",
@@ -201,7 +183,7 @@
     },
     {
       "source_id": "loop_1_cad",
-      "native_id": "beauty_0_0_3_2",
+      "native_id": "beauty_0_0_2_2",
       "parent": "loops_card",
       "kind": "text",
       "component": "Texte06a7986aeb3",
@@ -219,7 +201,7 @@
     },
     {
       "source_id": "loop_1_pause",
-      "native_id": "beauty_0_0_3_3",
+      "native_id": "beauty_0_0_2_3",
       "parent": "loops_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -237,7 +219,7 @@
     },
     {
       "source_id": "loop_1_play",
-      "native_id": "beauty_0_0_3_4",
+      "native_id": "beauty_0_0_2_4",
       "parent": "loops_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -255,7 +237,7 @@
     },
     {
       "source_id": "loop_1_trash",
-      "native_id": "beauty_0_0_3_5",
+      "native_id": "beauty_0_0_2_5",
       "parent": "loops_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -273,7 +255,7 @@
     },
     {
       "source_id": "loop_2_divider",
-      "native_id": "beauty_0_0_3_6",
+      "native_id": "beauty_0_0_2_6",
       "parent": "loops_card",
       "kind": "stack",
       "component": "Surfacec4c38149242a",
@@ -291,16 +273,16 @@
     },
     {
       "source_id": "loop_2_dot",
-      "native_id": "beauty_0_0_3_7",
+      "native_id": "beauty_0_0_2_7",
       "parent": "loops_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        210.225,
-        296.244,
-        14.449,
-        14.78
+        208.16,
+        294.133,
+        18.578,
+        19.003
       ],
       "text": null,
       "enabled": null,
@@ -309,7 +291,7 @@
     },
     {
       "source_id": "loop_2_name",
-      "native_id": "beauty_0_0_3_8",
+      "native_id": "beauty_0_0_2_8",
       "parent": "loops_card",
       "kind": "text",
       "component": "Text868d676e5c7e",
@@ -327,7 +309,7 @@
     },
     {
       "source_id": "loop_2_cad",
-      "native_id": "beauty_0_0_3_9",
+      "native_id": "beauty_0_0_2_9",
       "parent": "loops_card",
       "kind": "text",
       "component": "Text13cbcfb2da49",
@@ -345,7 +327,7 @@
     },
     {
       "source_id": "loop_2_pause",
-      "native_id": "beauty_0_0_3_10",
+      "native_id": "beauty_0_0_2_10",
       "parent": "loops_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -363,7 +345,7 @@
     },
     {
       "source_id": "loop_2_play",
-      "native_id": "beauty_0_0_3_11",
+      "native_id": "beauty_0_0_2_11",
       "parent": "loops_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -381,7 +363,7 @@
     },
     {
       "source_id": "loop_2_trash",
-      "native_id": "beauty_0_0_3_12",
+      "native_id": "beauty_0_0_2_12",
       "parent": "loops_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -399,7 +381,7 @@
     },
     {
       "source_id": "loop_3_divider",
-      "native_id": "beauty_0_0_3_13",
+      "native_id": "beauty_0_0_2_13",
       "parent": "loops_card",
       "kind": "stack",
       "component": "Surfacec4c38149242a",
@@ -417,16 +399,16 @@
     },
     {
       "source_id": "loop_3_dot",
-      "native_id": "beauty_0_0_3_14",
+      "native_id": "beauty_0_0_2_14",
       "parent": "loops_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        210.225,
-        425.191,
-        14.449,
-        14.78
+        208.16,
+        423.079,
+        18.578,
+        19.003
       ],
       "text": null,
       "enabled": null,
@@ -435,7 +417,7 @@
     },
     {
       "source_id": "loop_3_name",
-      "native_id": "beauty_0_0_3_15",
+      "native_id": "beauty_0_0_2_15",
       "parent": "loops_card",
       "kind": "text",
       "component": "Textc1510682d715",
@@ -453,7 +435,7 @@
     },
     {
       "source_id": "loop_3_cad",
-      "native_id": "beauty_0_0_3_16",
+      "native_id": "beauty_0_0_2_16",
       "parent": "loops_card",
       "kind": "text",
       "component": "Text12a70321f4ca",
@@ -471,7 +453,7 @@
     },
     {
       "source_id": "loop_3_play",
-      "native_id": "beauty_0_0_3_17",
+      "native_id": "beauty_0_0_2_17",
       "parent": "loops_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -489,7 +471,7 @@
     },
     {
       "source_id": "loop_3_trash",
-      "native_id": "beauty_0_0_3_18",
+      "native_id": "beauty_0_0_2_18",
       "parent": "loops_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -511,6 +493,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "f6ee44ed25b4b7e7f7af79beceec31b330177e90b72a6d0b454ecf5b3b927a08",
+  "contract_sha256": "e236bb4c575ef843f9d896fc92c84e505b8ce5c186ae1d3b273c0f90c8dcee91",
   "mapping_basis": "mapped.json"
 }

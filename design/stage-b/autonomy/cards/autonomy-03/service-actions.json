@@ -24,10 +24,10 @@
     "clear_goal": {
       "event": "goal.clear",
       "source_bounds": [
-        136,
-        648,
-        111,
-        37
+        148,
+        654,
+        87,
+        25
       ],
       "enabled": true
     }

@@ -150,6 +150,17 @@
       "radius": 15.32
     },
     {
+      "id": "status_spinner",
+      "bounds": [
+        53.887,
+        165.7,
+        17.854,
+        22.976
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
       "id": "finding_high",
       "bounds": [
         18.0,
