@@ -565,13 +565,33 @@ impl Conversation {
 
     /// `turn/start` — the web's generic request (`client.ts:488`), not a typed
     /// command. Returns the turn id it generated (UUID v7, as the web's
-    /// `turn.turnId`).
+    /// `turn.turnId`). Delegates to [`Conversation::start_turn_with_id`] with a
+    /// freshly minted id.
     pub async fn start_turn(&self, text: impl Into<String>) -> Result<String, ClientError> {
         let turn_id = TurnId::new().0.to_string();
+        self.start_turn_with_id(text, turn_id).await
+    }
+
+    /// `turn/start` with an explicit `turn_id`.
+    ///
+    /// The web mints the turn id client-side and sends it in the request
+    /// (`packages/client/src/client.ts:488`; the composer's
+    /// `acceptLocalDispatch(turn.turnId, "running")`,
+    /// `src-web/apps/web/src/features/composer/use-turn-controller.ts:413`), so
+    /// the id is the caller's. Splitting it out lets a **replay** drive the flow
+    /// with the recorded turn id — the way the real session ran — so the
+    /// server's `user_message` envelope (which carries that same id) dedups into
+    /// the optimistic row.
+    pub async fn start_turn_with_id(
+        &self,
+        text: impl Into<String>,
+        turn_id: String,
+    ) -> Result<String, ClientError> {
+        let text: String = text.into();
         let params = serde_json::json!({
             "session_id": self.session_id(),
             "turn_id": turn_id,
-            "input": [{"kind": "text", "text": text.into()}],
+            "input": [{"kind": "text", "text": text}],
         });
         self.trace.record(
             self.started,
@@ -579,6 +599,21 @@ impl Conversation {
             "turn/start",
             None,
             Some(format!("turn={turn_id}")),
+        );
+        // Card #26 §1: insert the user's row NOW, keyed by the turn id, so the
+        // prompt shows immediately — and still shows for an INTERRUPTED turn,
+        // whose server `user_message` envelope never arrives (live-gate turn 2).
+        // The web does the same: an optimistic `user:${turnId}` row on dispatch
+        // (`use-turn-controller.ts:413` `acceptLocalDispatch`,
+        // `timeline/model.ts:997-1005` `user:${turnId}`), deduped when the
+        // canonical copy lands (`upsertUser`, `model.ts:1019-1043`). Our
+        // `upsert_user_message` is the same dedup: one row per turn id, so the
+        // later server copy updates this row in place rather than adding a second.
+        self.store.domains.session.timeline.upsert_user_message(
+            &self.session_id(),
+            &turn_id,
+            &text,
+            serde_json::json!({"optimistic": true}),
         );
         // The turn is live from the moment we dispatch (the web does the same:
         // `acceptLocalDispatch(turn.turnId, "running")`, use-turn-controller
@@ -634,6 +669,48 @@ impl Conversation {
                 serde_json::json!({"session_id": self.session_id(), "turn_id": turn_id}),
             )
             .await
+    }
+
+    /// Card #26 §2: if the current session owes a resync (a
+    /// `protocol/replay_lossy` marked it lossy — card #22 §1), consume that
+    /// flag and send `session/hydrate`.
+    ///
+    /// This is the production consumer of
+    /// [`octoscode_store::domains::config::Config::resync_pending`], the hook
+    /// card #22 left for whoever owns the transport. The web does the same from
+    /// its recovery path: on a lossy event the runtime calls
+    /// `#hydrate(authority, "recovery")`
+    /// (`src-web/apps/web/src/features/session/active-session-runtime.ts:1256`),
+    /// which issues `session/hydrate` (`packages/client/src/client.ts:480`). The
+    /// reply arrives as [`TransportEvent::SessionHydrated`] and
+    /// [`Conversation::dispatch`] folds it and calls
+    /// [`octoscode_store::domains::config::Config::mark_recovered`].
+    ///
+    /// `take_resync` makes this idempotent: a second call is a no-op until
+    /// another lossy event raises the flag.
+    pub fn maybe_resync(&self) -> bool {
+        let session = self.session_id();
+        if !self.store.domains.config.resync_pending(&session) {
+            return false;
+        }
+        if !self.store.domains.config.take_resync(&session) {
+            return false;
+        }
+        // Fire-and-forget on the transport's command channel (the same path
+        // `session/open` uses). Best-effort: a closed channel just logs.
+        match self
+            .cmd_tx
+            .try_send(OutboundCommand::HydrateSession { session_id: session.clone() })
+        {
+            Ok(()) => {
+                ::log::info!("octoscode: resync requested — session/hydrate {session}");
+                true
+            }
+            Err(e) => {
+                ::log::warn!("octoscode: resync session/hydrate send failed for {session}: {e}");
+                false
+            }
+        }
     }
 
     /// Mint the id for a **new chat** (card #14 defect 4).
@@ -697,8 +774,22 @@ impl Conversation {
 
     /// `composer.submit` — the composer's send button: `turn/start` with the
     /// current draft (`bindings.json` `composer.submit`).
+    ///
+    /// Card #26: an **empty draft starts no turn**. Found by the live proof — the
+    /// composer's send control also carries STOP while a turn is live, and a
+    /// stop-glyph click that lands just after the turn settled routed to
+    /// `composer.submit` with the (already cleared) draft, minting an optimistic
+    /// row with empty text and no server copy. The web refuses the same way at
+    /// its submit entry (`use-turn-controller.ts:631` `!text.trim()`, and
+    /// `:602` for a queued turn), so a whitespace-only prompt never becomes a
+    /// turn. Returns an empty id (no turn) rather than an error: refusing an
+    /// empty prompt is not a failure.
     pub async fn submit_draft(&self) -> Result<String, ClientError> {
         let text = self.ui.lock().unwrap().draft();
+        if text.trim().is_empty() {
+            ::log::debug!("octoscode: composer.submit ignored (empty draft)");
+            return Ok(String::new());
+        }
         self.start_turn(text).await
     }
 
@@ -801,7 +892,32 @@ impl Conversation {
             | TransportEvent::EphemeralNotification { payload } => {
                 let ev = self.note_notification(payload);
                 self.registry.lock().unwrap().dispatch(payload);
+                // Card #26 §2: a `protocol/replay_lossy` just marked the session
+                // lossy and raised a resync; issue the `session/hydrate` now.
+                // (Web: `active-session-runtime.ts:1256` `#hydrate(…, "recovery")`.)
+                self.maybe_resync();
                 ev
+            }
+            // Card #26 §2: the authoritative hydrate reply. Fold its
+            // continuation checkpoints and clear the lossy phase — the web's
+            // `commitHydrate` (`durable-session.ts:101-107`).
+            TransportEvent::SessionHydrated { session_id, result } => {
+                match serde_json::from_value::<octos_core::ui_protocol::SessionHydrateResult>(
+                    result.clone(),
+                ) {
+                    Ok(h) => {
+                        if let Some(seqs) = &h.projection_thread_sequences {
+                            self.store.domains.turn.fold_hydrate(seqs);
+                        }
+                        self.store.domains.config.mark_recovered(&session_id);
+                        ::log::info!("octoscode: session/hydrate folded for {session_id}");
+                        FlowEvent::Other("session/hydrate".to_owned())
+                    }
+                    Err(e) => {
+                        ::log::warn!("octoscode: session/hydrate decode: {e}");
+                        FlowEvent::Other("session/hydrate-decode-error".to_owned())
+                    }
+                }
             }
             TransportEvent::RpcError { method, error, .. } => {
                 ::log::warn!("octoscode: rpc error {method}: {}", error.message);

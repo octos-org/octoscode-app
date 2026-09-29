@@ -58,6 +58,27 @@ fn fixture() -> Vec<Frame> {
 
 /// A replay server that streams the recording's notifications and records every
 /// outbound request with its params (so a test can assert the `turn_id`).
+/// The first recorded turn id (from the recording's own frames).
+///
+/// Card #26 §1: the web mints the turn id client-side and sends it
+/// (`client.ts:488`), and the server's `user_message` carries that same id — so
+/// an optimistic row keyed by it dedups into the server copy. This fixture was
+/// recorded without `out` frames, so a replay must name the turn explicitly;
+/// otherwise a freshly minted id can never match the recorded copy and the row
+/// would double.
+fn first_recorded_turn_id(frames: &[Frame]) -> String {
+    frames
+        .iter()
+        .filter(|f| f.dir == "in")
+        .find_map(|f| {
+            f.body["turn_id"]
+                .as_str()
+                .or_else(|| f.body["payload"]["turn_id"].as_str())
+                .map(str::to_owned)
+        })
+        .expect("the recording names a turn")
+}
+
 struct ReplayServer {
     base_url: String,
     seen: Arc<Mutex<Vec<(String, serde_json::Value)>>>,
@@ -259,12 +280,19 @@ async fn the_stop_control_sends_turn_interrupt_with_the_running_turn_id() {
 
 #[tokio::test]
 async fn two_replayed_real_turns_render_as_two_bubbles_and_two_answers() {
-    let server = ReplayServer::start(fixture(), true).await;
+    let frames = fixture();
+    // Card #26 §1: this recording has no `out` frames, so name the first turn
+    // explicitly — the optimistic row then dedups into that turn's replayed
+    // `user_message` (two recorded turns → exactly two user rows).
+    let turn_id = first_recorded_turn_id(&frames);
+    let server = ReplayServer::start(frames, true).await;
     let (conv, mut events) = Conversation::connect(&server.base_url, "dummy", "dsflash", None, None)
         .expect("connect");
 
     conv.open_workspace(None).await.expect("session/open");
-    conv.start_turn("first prompt").await.expect("turn/start");
+    conv.start_turn_with_id("first prompt", turn_id)
+        .await
+        .expect("turn/start");
 
     let mut ended = 0;
     for _ in 0..6000 {

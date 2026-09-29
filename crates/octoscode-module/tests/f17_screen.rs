@@ -59,6 +59,17 @@ fn fixture_prompt(frames: &[Frame]) -> String {
         .expect("the fixture carries a user_message")
 }
 
+/// The recorded turn id the first `turn/start` was driven with (card #26 §1:
+/// drive with the server's own id, the way the web mints it — `client.ts:488` —
+/// so the optimistic user row dedups into the replayed `user_message` copy).
+fn fixture_turn_id(frames: &[Frame]) -> String {
+    frames
+        .iter()
+        .filter(|f| f.dir == "out" && f.method == "turn/start")
+        .find_map(|f| f.body["turn_id"].as_str().map(str::to_owned))
+        .expect("the fixture carries an out turn/start id")
+}
+
 struct ReplayServer {
     base_url: String,
 }
@@ -151,11 +162,16 @@ impl ReplayServer {
 async fn the_replayed_turn_lists_in_screen_order() {
     let frames = fixture();
     let prompt = fixture_prompt(&frames);
+    let turn_id = fixture_turn_id(&frames);
     let server = ReplayServer::start(frames).await;
     let (conv, mut events) = Conversation::connect(&server.base_url, "dummy", "dsflash", None, None)
         .expect("connect");
     conv.open_workspace(None).await.expect("session/open");
-    conv.start_turn(&prompt).await.expect("turn/start");
+    // Card #26 §1: drive with the RECORDED turn id so the optimistic user row
+    // dedups into the replayed `user_message` copy (exactly one user bubble).
+    conv.start_turn_with_id(&prompt, turn_id.clone())
+        .await
+        .expect("turn/start");
 
     // Drain until the turn settles (the fixture's `turn_terminal`).
     let mut ended = false;
