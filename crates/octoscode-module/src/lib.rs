@@ -92,6 +92,10 @@ script_mod! {
                         draw_bg.color: #00000000
                         draw_bg.color_hover: #00000010
                         draw_bg.color_down: #00000020
+                        draw_bg.border_size: 0.0
+                        draw_bg.color_2: #00000000
+                        draw_bg.border_color: #00000000
+                        draw_bg.border_color_2: #00000000
                     }
                 }
                 // Card #21c item 6: one #16 `thread-row` per session (selected
@@ -108,6 +112,10 @@ script_mod! {
                             draw_bg.color: #00000000
                             draw_bg.color_hover: #00000012
                             draw_bg.color_down: #00000022
+                            draw_bg.border_size: 0.0
+                            draw_bg.color_2: #00000000
+                            draw_bg.border_color: #00000000
+                            draw_bg.border_color_2: #00000000
                         }
                     }
                 }
@@ -137,6 +145,10 @@ script_mod! {
                             draw_bg.color: #00000000
                             draw_bg.color_hover: #00000010
                             draw_bg.color_down: #00000020
+                            draw_bg.border_size: 0.0
+                            draw_bg.color_2: #00000000
+                            draw_bg.border_color: #00000000
+                            draw_bg.border_color_2: #00000000
                         }
                     }
                 }
@@ -158,6 +170,10 @@ script_mod! {
                             draw_bg.color: #00000000
                             draw_bg.color_hover: #00000010
                             draw_bg.color_down: #00000020
+                            draw_bg.border_size: 0.0
+                            draw_bg.color_2: #00000000
+                            draw_bg.border_color: #00000000
+                            draw_bg.border_color_2: #00000000
                         }
                         mic_hit := Button {
                             width: 36 height: 36 text: ""
@@ -165,6 +181,10 @@ script_mod! {
                             draw_bg.color: #00000000
                             draw_bg.color_hover: #00000010
                             draw_bg.color_down: #00000020
+                            draw_bg.border_size: 0.0
+                            draw_bg.color_2: #00000000
+                            draw_bg.border_color: #00000000
+                            draw_bg.border_color_2: #00000000
                         }
                         send_hit := Button {
                             width: 44 height: 44 text: ""
@@ -172,6 +192,10 @@ script_mod! {
                             draw_bg.color: #00000000
                             draw_bg.color_hover: #00000010
                             draw_bg.color_down: #00000020
+                            draw_bg.border_size: 0.0
+                            draw_bg.color_2: #00000000
+                            draw_bg.border_color: #00000000
+                            draw_bg.border_color_2: #00000000
                         }
                     }
                 }
