@@ -6,3 +6,4 @@ loop,19,0,loop/create;loop/list;loop/pause;loop/resume;loop/fire_now;loop/delete
 goal,10,0,session/goal/set;session/goal/get;session/goal/clear;session/goal/updated(gen5);session/goal/cleared(gen6)
 peer,4,0,peer/prepare;peer/gather
 visual,0,0,none - dsflash profile advertises no image-generation binding
+"agent+task (REAL model turn, #24b)",176,2,"agent/updated(spawn_child_session,role=background_task,parent=master);task/updated(tool_call_id=spawn-subagent-0);agent/status/read;agent/output/read;task/output/read(-32602 session not found);agent/interrupt(interrupted=true);monitor/updated(x2,no fire);projection/envelope(x127;turn_terminal+tool_start/end). 2 parent turns spent: 1 discarded first pass (task-id key bug), 1 kept."
