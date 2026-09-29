@@ -522,7 +522,6 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
         // Card #21e item 8: the activity row's spinner keeps its 18px box.
         ItemKind::WorkingRow => working_row_layout(&ui),
         ItemKind::WorkedFor | ItemKind::ToolCell => fit_heights(&ui),
-        _ => ui,
     };
     // Card #21d item 6: resolve every emitted `http_resource(…)` icon to the
     // component's own file on disk, so the app needs no dev asset server.

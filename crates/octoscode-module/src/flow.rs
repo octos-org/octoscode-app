@@ -216,8 +216,14 @@ impl FlowUi {
     }
 
     /// Record the last turn's terminal outcome (card #21e item 1).
-    pub fn note_outcome(&mut self, outcome: &str) {
-        self.last_outcome = Some(outcome.to_owned());
+    ///
+    /// Gated on the *live* turn's own id, exactly like [`Self::end_turn`]: a
+    /// terminal for a different (already-settled) turn must not stamp its
+    /// outcome onto the tail row (the L1 gate's own lesson, `f21c_live.rs`).
+    pub fn note_outcome(&mut self, turn_id: &str, outcome: &str) {
+        if matches!(&self.active_turn, Some((id, _)) if id == turn_id) {
+            self.last_outcome = Some(outcome.to_owned());
+        }
     }
 
     /// `answer.worked_for` — "Worked for 3m 4s ›" for the last completed turn.
@@ -884,12 +890,15 @@ impl Conversation {
                     PayloadV2::TurnTerminal { outcome, error, .. } => {
                         // Card #21e item 1: record the outcome so the tail row can
                         // show an "Interrupted" marker instead of a bare duration.
-                        ui.note_outcome(match outcome {
-                            TurnTerminalOutcome::Completed => "completed",
-                            TurnTerminalOutcome::Errored => "errored",
-                            TurnTerminalOutcome::Interrupted => "interrupted",
-                            TurnTerminalOutcome::RateLimited => "rate_limited",
-                        });
+                        ui.note_outcome(
+                            &turn_id,
+                            match outcome {
+                                TurnTerminalOutcome::Completed => "completed",
+                                TurnTerminalOutcome::Errored => "errored",
+                                TurnTerminalOutcome::Interrupted => "interrupted",
+                                TurnTerminalOutcome::RateLimited => "rate_limited",
+                            },
+                        );
                         match outcome {
                             TurnTerminalOutcome::Completed => {
                                 ui.end_turn(&turn_id, true);
@@ -1118,6 +1127,22 @@ fn format_completed_at(at: std::time::SystemTime, now: std::time::SystemTime) ->
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// Card #21e item 1: the "Interrupted" marker comes from the LIVE turn's own
+    /// `turn_terminal` outcome, so its `note_outcome` is gated by turn id exactly
+    /// like `end_turn` (LESSONS 5 / the L1 gate). A terminal for a different,
+    /// already-settled turn must not stamp its outcome onto the tail row.
+    #[test]
+    fn the_interrupted_marker_ignores_a_terminal_for_another_turn() {
+        let mut ui = FlowUi::default();
+        ui.begin_turn_now("turn-B");
+        // A stale terminal for the settled turn-A must not set the marker.
+        ui.note_outcome("turn-A", "interrupted");
+        assert_eq!(ui.worked_for(), "", "turn-A's terminal must not mark turn-B");
+        // turn-B's own terminal does.
+        ui.note_outcome("turn-B", "interrupted");
+        assert_eq!(ui.worked_for(), "Interrupted");
+    }
 
     /// Card #21d item 4: the label must be the atlas's `Sep 28, 9:41 PM`
     /// (`design/components/answer-actions/page.card:6`), and a just-finished
