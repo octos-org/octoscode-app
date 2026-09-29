@@ -481,6 +481,21 @@ impl OctoscodeView {
         if let Err(e) = self.mounts.mount(cx, &composer_splash, &composer) {
             makepad_widgets::log!("[octoscode] composer mount: {e}");
         }
+        // Card #21d item 5: the `new-chat` component (#16) is the thread
+        // column's first row. The row existed but was never mounted, so it
+        // rendered as an empty pill (no label, no compose icon).
+        let new_chat = {
+            let mut cache = std::mem::take(&mut self.cache);
+            let c = cache
+                .lower(&bridge, components::ItemKind::NewChat, 0)
+                .unwrap_or_default();
+            self.cache = cache;
+            c
+        };
+        let new_chat_splash = self.view.splash(cx, ids!(new_chat_splash));
+        if let Err(e) = self.mounts.mount(cx, &new_chat_splash, &new_chat) {
+            makepad_widgets::log!("[octoscode] new-chat mount: {e}");
+        }
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
     }
 
