@@ -508,6 +508,10 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
         // Card #21d item 5: a session title is live and unbounded, so the row's
         // single-line label must ELLIPSIZE rather than hard-clip ("…print").
         ItemKind::ThreadRow => ellipsize_single_line(&ui),
+        // Card #21d item 5: scene 01's new-chat row carries a compose icon at
+        // its right edge (beauty-host renders it too: 446 ink px in the
+        // component's own right 20%). The #16 ledger omits the node, so add it.
+        ItemKind::NewChat => new_chat_with_compose_icon(&ui),
         ItemKind::AssistantProse
         | ItemKind::WorkedFor
         | ItemKind::AnswerActions
@@ -539,6 +543,30 @@ fn bubble_live_layout(ui: &str) -> String {
     let mut s = s.replace("flow: Right\n", "flow: Right{wrap: true}\n");
     s = s.replace("flow: Right ", "flow: Right{wrap: true} ");
     format!("user_align := View{{width:Fill height:Fit flow:Down align: Align{{x: 1.0}} {s}}}")
+}
+
+/// Card #21d item 5 — scene 01's new-chat row carries a compose icon at its
+/// right edge (beauty-host renders it too: 446 ink px in the component's own
+/// right 20%), but the #16 ledger ships no icon node. Add one, bound to the
+/// component's own `assets/icon_compose.svg` (no asset server).
+///
+/// Geometry is the scene's own measured chrome: the icon sits at x=331..355 of
+/// the 374px row (scene `icon_compose` 347,130,24,28 minus the row origin 16,109).
+fn new_chat_with_compose_icon(ui: &str) -> String {
+    let icon = components_dir().join("new-chat/assets/icon_compose.svg");
+    let icon = std::fs::canonicalize(&icon).unwrap_or(icon);
+    let node = format!(
+        "View {{width: 24 height: 28 margin: Inset{{left: 331 top: 21 right: 0 bottom: 0}} \
+         flow: Overlay padding: 0 clip_x: false clip_y: false\n\
+         i0_newchat_icon := Svg {{\nwidth: 24 height: 28\nmargin: 0\n\
+         animating: false draw_svg.svg: file_resource({:?}) \
+         draw_svg.preserve_viewbox: true draw_svg.preserve_aspect: false\n}}\n}}\n",
+        icon.to_string_lossy()
+    );
+    match ui.rfind('}') {
+        Some(at) => format!("{}{}{}", &ui[..at], node, &ui[at..]),
+        None => ui.to_owned(),
+    }
 }
 
 /// Card #21d item 5 — a thread row's title is live and unbounded, so its
