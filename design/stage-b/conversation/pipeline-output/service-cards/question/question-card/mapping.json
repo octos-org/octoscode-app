@@ -114,18 +114,18 @@
       "native_id": "beauty_0_3_1",
       "parent": "opt_ledger",
       "kind": "text",
-      "component": "Textac0df43466fb",
+      "component": "Text91ed8188339b",
       "semantic_role": "text",
       "bounds": [
         59.099999999999994,
         194.59,
-        331.49,
-        31.71
+        181.49,
+        43.32
       ],
       "text": "In the session ledger  (recommended)",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14
+      "size": 17.9
     },
     {
       "source_id": "opt_memory",
@@ -421,6 +421,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "94c650674d61573981bfbea1b78848dcfab645e29827645152fd8cedd2fbbf86",
+  "contract_sha256": "45a04f2b9ea214c50fb8701dc54c3f9bb538fa20aaeececd17d12347141af70b",
   "mapping_basis": "mapped.json"
 }

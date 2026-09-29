@@ -21,6 +21,7 @@ Run:  python3 tools/render_variants.py [component ...]
 """
 import hashlib
 import json
+from collections import Counter
 import os
 import shutil
 import socket
@@ -32,6 +33,7 @@ from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+import numpy as np
 from PIL import Image
 
 HERE = Path(__file__).resolve().parents[1]          # design/stage-b/conversation
@@ -44,6 +46,12 @@ WORK = ROOT / "tmp/stage-b/render-variants-18"
 ART_PORT = 8181                                     # 8179/8180 are other lanes' art servers
 PORTS = [8346, 8347, 8348, 8349]                    # this card's block (8340-8349)
 WIDTHS = (360, 540)
+# Card #18c/#18e: the atlas crop is card-tight, so the extracted root sits at
+# x=0 and a `Fill` root would run edge-to-edge with its right border/radius at
+# the window's last pixel. Give it the page gutter the atlas normalised away so
+# all four rounded corners are inside the render at every width.
+ROOT_GUTTER_X = 16
+ROOT_GUTTER_Y = 8
 
 INTER4 = "self:resources/ux/Inter-400.ttf"
 INTER5 = "self:resources/ux/Inter-500.ttf"
@@ -125,7 +133,6 @@ RESPONSIVE = {   'thread-row': {   'thread_1': {'fillw': 1, 'fith': 1},
                              'files_card': {'fillw': 1},
                              'div_1': {'fillw': 1},
                              'div_2': {'fillw': 1},
-                             'review': {'fillw': 1},
                              'review_surface': {'fillw': 1},
                              'review_control': {'fillw': 1, 'fillh': 1},
                              # Card #18d (外环补充): the trailing cluster pins to
@@ -143,7 +150,14 @@ RESPONSIVE = {   'thread-row': {   'thread_1': {'fillw': 1, 'fith': 1},
                              # atlas: chevron 333..340.5 in a 374 root -> inset ~20.5
                              'icon_show': {'alignx': 1, 'x': 337.5},
                              'undo_group': {'alignx': 1},
-                             'review': {'fillw': 1, 'alignx': 1}},
+                             # Card #18e: the Review pill must HUG its label and be
+                             # right-anchored (the #18c state). `fillw` made the
+                             # button span the slot, so it covered the title and the
+                             # Undo group (measured: the header band collapsed to
+                             # "E..."). `alignx` alone right-anchors the measured
+                             # 79px pill; `_btn` keeps its surface/control filling
+                             # that box.
+                             'review': {'alignx': 1}},
     'plan-card': {'plan_card': {'fillw': 1, 'fith': 1}, 'plan_steps': {'fillw': 1}},
     'goal-strip': {'goal_strip': {'fillw': 1, 'fith': 1, 'variant': 'row'}, 't01': {'fillw': 1}},
     'diff-view': {   'diff_view': {'fillw': 1, 'fith': 1},
@@ -532,6 +546,43 @@ def wait_port(port, timeout=40):
     return False
 
 
+def relativize(tree):
+    """Give every fill-width node the geometry a responsive parent needs.
+
+    `design.rs` emits a fill node's inset as a wrapper MARGIN, so `x`/`y` must be
+    the offset FROM the parent (a nested fill would otherwise apply the outer
+    offset twice) and the right inset is the node's authored right gap
+    (`parent_w - x - w`), which keeps its box at x .. x+authored_w at any parent
+    width. Card #18c/#18e.
+    """
+    def rec(n, ox, oy, pw):
+        for c in n.get("c", []) or []:
+            filled = any(c.get(k) == 1 for k in ("fillw", "fith", "fillh", "fitw"))
+            cx, cy, cw = c.get("x", 0), c.get("y", 0), c.get("w")
+            if filled:
+                c["x"] = round(cx - ox, 2)
+                c["y"] = round(cy - oy, 2)
+                if pw is not None and cw is not None:
+                    c["padright"] = round(pw - ((cx - ox) + cw), 2)
+                rec(c, cx, cy, cw)
+            else:
+                rec(c, ox, oy, pw)
+    rec(tree, 0, 0, None)
+    return tree
+
+
+def right_edge_ok(png_path):
+    """Card #18c acceptance check: the rightmost 4px column of a variant must be
+    background (near-white page ground, or the host's #4c4c4c), i.e. no card
+    border, radius or tint may be cut off at the render's right edge."""
+    a = np.asarray(Image.open(png_path).convert("RGB")).astype(int)
+    strip = a[:, -4:, :]
+    white = bool((strip.min(axis=2) > 238).all())
+    ground = bool((np.abs(strip - 76).max(axis=2) <= 8).all())
+    top = Counter(map(tuple, strip.reshape(-1, 3))).most_common(1)[0][0]
+    return white or ground, [int(v) for v in top]
+
+
 def apply_variant(tree, comp, variant):
     spec = VARIANTS[comp][variant]
     # Merge per NODE ID, not per top-level key: otherwise a variant flag like
@@ -578,11 +629,22 @@ def apply_variant(tree, comp, variant):
                 # PARENT-relative, but the measure stage writes them absolute, so
                 # a node nested under a parent at (px, py) lands at y+py and its
                 # gap is short by px (settings toggles: gap 7 -> flush at 540).
-                if c.get("t") not in ("text", "input"):
-                    c["y"] = round(c["y"] - (node.get("y") or 0.0), 2)
-                if c.get("x") is not None:
-                    c["x"] = round(c["x"] - (node.get("x") or 0.0), 2)
-            _rebase(c)
+                #
+                # Card #18e: `design.rs` measures a right-anchored node's CHILDREN
+                # from the node's own box, so the whole SUBTREE must move with it.
+                # Rebasing only the node left its knob at the old absolute
+                # coordinate, so design.rs emitted `margin: Inset{left: 35.4 top:
+                # 70.6}` inside a 55x46 toggle -> the knob resolved to 0x0 and the
+                # toggle rendered as a bare pill (settings-group, both cards).
+                dx = -(node.get("x") or 0.0)
+                dy = -(node.get("y") or 0.0)
+                for m in walk(c):
+                    if m.get("x") is not None:
+                        m["x"] = round(m["x"] + dx, 2)
+                    if m.get("y") is not None:
+                        m["y"] = round(m["y"] + dy, 2)
+            else:
+                _rebase(c)
     _rebase(tree)
     # Card #18d: group the flagged adjacent text leaves into one fill-width flow
     # row; a leading fill-spacer pushes the pair to the right, a trailing spacer
@@ -624,6 +686,16 @@ def apply_variant(tree, comp, variant):
         # (scene 04: nested `tool_3_output` at y=398, its line `t07` at 442.86).
         absolutize(node, parent.get("x", 0.0), parent.get("y", 0.0))
         parent.setdefault("c", []).append(node)
+    # Card #18e: restore the root gutter the #18 merge dropped. The atlas crop is
+    # card-tight, so the extracted root sits at x=0; a `Fill` root (every card
+    # here is `fillw`) then runs edge-to-edge and its right border/radius lands on
+    # the window's last pixel. Rebase the fill children on their parents, then
+    # give the root the page gutter the atlas normalised away so all four rounded
+    # corners stay inside the render at every width.
+    relativize(tree)
+    tree["x"] = round(tree.get("x", 0) + ROOT_GUTTER_X, 2)
+    tree["y"] = round(tree.get("y", 0) + ROOT_GUTTER_Y, 2)
+    tree["padright"] = float(ROOT_GUTTER_X)   # the root is gutted on BOTH sides
     return tree, inserts, drops
 
 
@@ -797,11 +869,21 @@ def main():
                 for w in WIDTHS:
                     p = vdir / f"{variant}-{w}.png"
                     panels.append(str(p))
-                ok = all(Path(p).is_file() for p in panels)
+                # Card #18e acceptance: the rightmost 4px of EVERY variant must be
+                # background (no border/radius/tint cut off at the render edge).
+                edge = {}
+                for w in WIDTHS:
+                    p = vdir / f"{variant}-{w}.png"
+                    if p.is_file():
+                        ok_e, col = right_edge_ok(p)
+                        edge[w] = {"ok": ok_e, "colour": col}
+                edge_ok = bool(edge) and all(v["ok"] for v in edge.values())
+                ok = all(Path(p).is_file() for p in panels) and edge_ok
                 review = str(assemble(comp, variant, panels)) if ok else None
                 summary[comp][variant] = {
                     "render": str(Path(review).relative_to(ROOT)) if review else None,
                     "widths": list(WIDTHS),
+                    "right_edge": edge,
                     "nodes": {f"w{r['w']}": r.get("nodes") for r in renders},
                     "font_warnings": sum(r.get("font_warnings", 0) for r in renders),
                 }

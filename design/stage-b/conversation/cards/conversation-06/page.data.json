@@ -68,12 +68,12 @@
         }
       },
       "opt_ledger_label": {
-        "component": "Textac0df43466fb",
+        "component": "Text91ed8188339b",
         "layout": {
           "x": 75.1,
           "y": 254.59,
-          "w": 331.49,
-          "h": 31.71
+          "w": 181.49,
+          "h": 43.32
         }
       },
       "opt_memory": {

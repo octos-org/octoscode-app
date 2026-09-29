@@ -1,0 +1,64 @@
+diff --git a/crates/octoscript-makepad/src/design.rs b/crates/octoscript-makepad/src/design.rs
+index db09962..5d85d66 100644
+--- a/crates/octoscript-makepad/src/design.rs
++++ b/crates/octoscript-makepad/src/design.rs
+@@ -179,12 +179,27 @@ pub fn to_makepad_ui(tree: &UiNode) -> Result<String, String> {
+                 // so it survives any slot width. An Align wrapper with a right
+                 // padding pins the child inside it (probe r1/P4); `align` on the
+                 // child alone is a no-op in an Overlay.
+-                writeln!(out, "View {{width: Fill height: {h} margin: Inset{{top: {}}} align: Align{{x: 1.0}}",
+-                    a.y.unwrap_or(0.)).unwrap();
++                // Card #18e: the wrapper spans the parent's full width, so a
++                // right-anchored ROOT (user-bubble) pinned its child flush to the
++                // window's last pixel and its radius/border was cut off. Respect
++                // the parent's right padding too when the source supplies one.
++                let pr = a.padright.unwrap_or(0.);
++                writeln!(out, "View {{width: Fill height: {h} margin: Inset{{top: {}{}}} align: Align{{x: 1.0}}",
++                    a.y.unwrap_or(0.),
++                    if pr != 0. { format!(" right: {pr}") } else { String::new() }).unwrap();
+             } else if is_fill_leaf {
+                 let h = if a.fith == Some(1) { "Fit".to_string() } else { a.h.unwrap_or(0.).to_string() };
+-                writeln!(out, "View {{width: Fill height: {h} margin: Inset{{left: {} top: {}}} flow: Overlay padding: 0 clip_x: false clip_y: false",
+-                    a.x.unwrap_or(0.), a.y.unwrap_or(0.)).unwrap();
++                // Card #18e: a Fill extent must respect the parent's padding on
++                // BOTH sides. With a left-only inset the wrapper runs to the
++                // window's last pixel and the card's right border/radius is cut
++                // off (the #18 root-gutter fix the merge dropped). The source's
++                // authored right gap rides in as `padright`; fall back to the
++                // node's own gap against `parent_w` when it is absent.
++                let pr = a.padright.unwrap_or_else(|| {
++                    (parent_w - a.x.unwrap_or(0.) - a.w.unwrap_or(0.) as f64).max(0.) as f32
++                });
++                writeln!(out, "View {{width: Fill height: {h} margin: Inset{{left: {} top: {} right: {}}} flow: Overlay padding: 0 clip_x: false clip_y: false",
++                    a.x.unwrap_or(0.), a.y.unwrap_or(0.), pr).unwrap();
+             } else {
+                 let (x, y) = flow_origin.unwrap();
+                 writeln!(out, "View {{width: {} height: {} margin: Inset{{left: {} top: {} right: 0 bottom: 0}} flow: Overlay padding: 0 clip_x: false clip_y: false",
+diff --git a/crates/octoscript-node/src/node.rs b/crates/octoscript-node/src/node.rs
+index 76d0577..0ba1c02 100644
+--- a/crates/octoscript-node/src/node.rs
++++ b/crates/octoscript-node/src/node.rs
+@@ -343,6 +343,11 @@ pub struct Attrs {
+     /// row below it and read as a layout bug rather than as a missing inset.
+     pub padtop: Option<f32>,
+     pub padbottom: Option<f32>,
++    /// Explicit trailing inset for source-measured native nodes. A `Fill`
++    /// extent with a left-only inset runs to the parent's right edge and cuts
++    /// the card's border/radius off the render; the source's authored right gap
++    /// rides here so a wrapper can inset both sides (card #18e).
++    pub padright: Option<f32>,
+     pub spacing: Option<f32>,
+     pub margin: Option<f32>,
+     /// Per-axis margin, overriding `margin` on its axis. Every section heading in
+diff --git a/crates/octoscript-render/src/eval.rs b/crates/octoscript-render/src/eval.rs
+index e090a11..fd26b10 100644
+--- a/crates/octoscript-render/src/eval.rs
++++ b/crates/octoscript-render/src/eval.rs
+@@ -139,6 +139,7 @@ fn walk_inner(
+         padleft: f32_prop(vm, value, id!(padleft)),
+         padtop: f32_prop(vm, value, id!(padtop)),
+         padbottom: f32_prop(vm, value, id!(padbottom)),
++        padright: f32_prop(vm, value, id!(padright)),
+         spacing: f32_prop(vm, value, id!(spacing)),
+         margin: f32_prop(vm, value, id!(margin)),
+         marginx: f32_prop(vm, value, id!(marginx)),

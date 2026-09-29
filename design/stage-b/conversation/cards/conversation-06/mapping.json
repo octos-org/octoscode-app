@@ -132,18 +132,18 @@
       "native_id": "beauty_0_0_3_1",
       "parent": "opt_ledger",
       "kind": "text",
-      "component": "Textac0df43466fb",
+      "component": "Text91ed8188339b",
       "semantic_role": "text",
       "bounds": [
         75.1,
         254.59,
-        331.49,
-        31.71
+        181.49,
+        43.32
       ],
       "text": "In the session ledger  (recommended)",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14
+      "size": 17.9
     },
     {
       "source_id": "opt_memory",

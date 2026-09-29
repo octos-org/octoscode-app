@@ -30,8 +30,8 @@ component Text15ed7064d520(instance: text, text: text) {
 component Groupfe37d7063bc0(instance: text) {
   view Kit(component: "Groupfe37d7063bc0", instance: instance) { slot }
 }
-component Textac0df43466fb(instance: text, text: text) {
-  view Kit(component: "Textac0df43466fb", instance: instance, text: text)
+component Text91ed8188339b(instance: text, text: text) {
+  view Kit(component: "Text91ed8188339b", instance: instance, text: text)
 }
 component Group797ca8139faf(instance: text) {
   view Kit(component: "Group797ca8139faf", instance: instance) { slot }
@@ -76,7 +76,7 @@ view root Surface5a7573e113ac(instance: "question_card") {
   Text15ed7064d520(instance: "question_text", text: copy.question_text_text)
   Groupfe37d7063bc0(instance: "opt_ledger") {
     Vectore0a378fde04f(instance: "opt_ledger_radio")
-    Textac0df43466fb(instance: "opt_ledger_label", text: copy.opt_ledger_label_text)
+    Text91ed8188339b(instance: "opt_ledger_label", text: copy.opt_ledger_label_text)
   }
   Group797ca8139faf(instance: "opt_memory") {
     Vectore0a378fde04f(instance: "opt_memory_radio")

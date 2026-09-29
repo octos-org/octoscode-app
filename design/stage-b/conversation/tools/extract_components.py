@@ -143,6 +143,19 @@ def main():
             if tmp.exists():
                 shutil.rmtree(tmp)
             shutil.copytree(keep, tmp)
+        # Card #18e: also preserve each component's committed `assets/` corner.
+        # `render_variants.py` re-attaches glyphs the extraction dropped (the
+        # compose pencil, the terminal icon) by reading an SVG that must ALREADY
+        # exist under `design/components/<id>/assets/`; the extract stage does not
+        # emit them, so a bare wipe deleted them and every later render of that
+        # component failed with `No such file`. Snapshot them and restore after.
+        assets_keep = OUT.parent / ".components-assets-keep"
+        if assets_keep.exists():
+            shutil.rmtree(assets_keep)
+        for d in OUT.iterdir():
+            a = d / "assets"
+            if d.is_dir() and a.is_dir():
+                shutil.copytree(a, assets_keep / d.name / "assets")
         shutil.rmtree(OUT)
         OUT.mkdir(parents=True)
         if tmp.exists():
@@ -150,6 +163,7 @@ def main():
             shutil.rmtree(tmp)
     else:
         OUT.mkdir(parents=True)
+        assets_keep = None
     index = {"schema_version": 1, "kind": "octoscode-l0-components",
              "note": "Reusable per-item components compiled from the approved conversation scenes "
                      "(card #18). Width-responsive: fill the slot width, height from content.",
@@ -160,6 +174,14 @@ def main():
         src = STAGE / card["folder"]
         dest = OUT / cid
         shutil.copytree(src, dest)
+        # Restore the preserved committed assets; STAGE's own files win (a fresh
+        # extraction is authoritative for anything it actually produced).
+        if assets_keep is not None and (assets_keep / cid / "assets").is_dir():
+            dst = dest / "assets"
+            dst.mkdir(exist_ok=True)
+            for f in (assets_keep / cid / "assets").iterdir():
+                if not (dst / f.name).exists():
+                    shutil.copy(f, dst / f.name)
         entry = {"id": cid, "source_scene": spec["source"],
                  "extracted_from": f"scene {card['scene']} root '{card['root']}'",
                  "owner": card["owner"], "bindings": spec["bindings"],
@@ -170,6 +192,9 @@ def main():
                  "render": [str((dest / "reference.png").relative_to(ROOT))]}
         index["components"].append(entry)
     (OUT / "index.json").write_text(json.dumps(index, indent=2) + "\n")
+    # The asset snapshot is scratch: drop it so it never lands in a commit.
+    if assets_keep is not None and assets_keep.exists():
+        shutil.rmtree(assets_keep)
     print(f"placed {len(index['components'])} components under {OUT.relative_to(ROOT)}/")
 
 

@@ -73,15 +73,16 @@
             "text": "In the session ledger  (recommended)",
             "x": 59.099999999999994,
             "y": 194.59,
-            "w": 331.49,
-            "h": 31.71,
-            "size": 14,
-            "line_height": 31.71,
+            "w": 181.49,
+            "h": 43.32,
+            "size": 17.9,
+            "line_height": 21.66,
             "weight": 500,
             "color": 4280098079,
-            "variant": "single_line",
+            "variant": null,
             "alignx": 0,
-            "font_src": "self:resources/ux/Inter-500.ttf"
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
           }
         ],
         "event": "question.select.ledger"
@@ -300,7 +301,7 @@
   "changes": [
     {
       "source": "cards/conversation-06/mapped.json",
-      "source_sha256": "7d1c725aacbaf0b744520c9bb8195b99a57d00b7c351db0f966a8c87afe043fe",
+      "source_sha256": "e73115dd6b76c88071e4f7c8aa581ac700a7b4253a0df1b6c182c1211b676c54",
       "operation": "Extract native subtree and translate origin",
       "source_root": "question_card",
       "translation": [

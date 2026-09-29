@@ -81,15 +81,16 @@
                 "text": "In the session ledger  (recommended)",
                 "x": 75.1,
                 "y": 254.59,
-                "w": 331.49,
-                "h": 31.71,
-                "size": 14,
-                "line_height": 31.71,
+                "w": 181.49,
+                "h": 43.32,
+                "size": 17.9,
+                "line_height": 21.66,
                 "weight": 500,
                 "color": 4280098079,
-                "variant": "single_line",
+                "variant": null,
                 "alignx": 0,
-                "font_src": "self:resources/ux/Inter-500.ttf"
+                "font_src": "self:resources/ux/Inter-500.ttf",
+                "tracking": 0.0
               }
             ],
             "event": "question.select.ledger"

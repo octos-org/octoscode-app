@@ -56,6 +56,18 @@ SIZE_KEEP = {(7, "t_undo")}
 # Value = the logical x the label's ink must stop at.
 X_RIGHT = {(11, "scope_label"): 268.0}
 
+# Card #18e item 4: option 1 of the question card ("In the session ledger
+# (recommended)") is ONE label whose OCR row is `missing_or_ocr_unresolved`, so it
+# is never width-fitted — it kept the authored 14pt size and a stale 2-line-tall
+# box (an empty gap under the single line) while its siblings fit to ~17.9pt. The
+# atlas draws it on TWO lines (line 1 "In the session ledger", 181.49 wide; line 2
+# "(recommended)"). Adopt a sibling's fitted size, wrap the label at the atlas's
+# line-1 width, and take the height from the wrapped content (no gap, no bleed).
+#   sibling = the already-fitted node whose size/line_height this node must match
+#   wrap_w  = the label's measured box width (forces the atlas's 2-line break)
+SIZE_FROM_SIBLING = {(6, "opt_ledger_label"): {"sibling": "opt_memory_label",
+                                               "wrap_w": 181.49, "lines": 2}}
+
 # Fonts must be resolved from the SAME tree compile.py validates against: the flow's
 # repository('splash-makepad') = <native workspace>/octoscript-makepad. The mono face
 # (ux/LiberationMono-Regular.ttf) is bundled in THIS clone, not in the read-only
@@ -178,6 +190,30 @@ def fix_scene(d, scene_no):
         n["alignx"] = 0
         n.pop("font_asc", None)                  # let design.rs apply its Inter default
         n.pop("font_desc", None)
+        changed += 1
+    # Card #18e item 4: a node whose OCR row is `missing_or_ocr_unresolved` is
+    # skipped above, so it keeps the authored size (14pt) and a stale 2-line-tall
+    # box even though the label renders on one line (an empty gap under it). Adopt
+    # a sibling's already-fitted size and take the height from one line box, so
+    # option 1 wraps at the atlas's line-1 width and takes height from content.
+    for (scene, nid), spec in SIZE_FROM_SIBLING.items():
+        if scene != scene_no:
+            continue
+        sib = next((n for n in walk(doc["tree"]) if n["id"] == spec["sibling"]), None)
+        tgt = next((n for n in walk(doc["tree"]) if n["id"] == nid), None)
+        if not sib or not tgt:
+            continue
+        tgt["size"] = sib["size"]
+        lh = sib.get("line_height", tgt.get("line_height"))
+        tgt["line_height"] = lh
+        tgt["tracking"] = 0.0
+        # Wrap rather than clip: drop `single_line` and clamp the box to the
+        # atlas's line-1 width so the label breaks at "(recommended)". Height is
+        # the content's OWN line count (2), not a stale authored 2-line box.
+        tgt["variant"] = None
+        tgt["w"] = round(float(spec["wrap_w"]), 2)
+        lines = spec["lines"]
+        tgt["h"] = round(lh * lines, 2)
         changed += 1
     mapped_path.write_text(json.dumps(doc, indent=2) + "\n")
     return changed
