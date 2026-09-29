@@ -505,6 +505,9 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
     // (buttons, the composer dock) keep their measured box.
     let ui = match kind {
         ItemKind::UserBubble => bubble_live_layout(&ui),
+        // Card #21d item 5: a session title is live and unbounded, so the row's
+        // single-line label must ELLIPSIZE rather than hard-clip ("…print").
+        ItemKind::ThreadRow => ellipsize_single_line(&ui),
         ItemKind::AssistantProse
         | ItemKind::WorkedFor
         | ItemKind::AnswerActions
@@ -536,6 +539,56 @@ fn bubble_live_layout(ui: &str) -> String {
     let mut s = s.replace("flow: Right\n", "flow: Right{wrap: true}\n");
     s = s.replace("flow: Right ", "flow: Right{wrap: true} ");
     format!("user_align := View{{width:Fill height:Fit flow:Down align: Align{{x: 1.0}} {s}}}")
+}
+
+/// Card #21d item 5 — a thread row's title is live and unbounded, so its
+/// single-line label must ELLIPSIZE rather than hard-clip ("…print").
+///
+/// The lowering emits a bare `flow: Right` for a measured single-line label
+/// (`design.rs:685`); the renderer only adds the ellipsis pair when the node
+/// fills its slot (`design.rs:683`, at `fillw == 1`). A `PortalList` row binds a
+/// title of any length into that measured box, so add the pair here.
+fn ellipsize_single_line(ui: &str) -> String {
+    // The component is authored for the 406px scene panel (row 379, label 302);
+    // the app's column is 220px. A `Fill` chain lets the label take the column's
+    // real width so the ellipsis fires, instead of laying out at 302 and being
+    // clipped by the parent. (Measured: label ink fills the whole 197px box.)
+    let ul = fill_widths(ui);
+    ul.replacen(
+        "flow: Right\n",
+        "flow: Right max_lines: 1 text_overflow: TextOverflow.Ellipsis\n",
+        1,
+    )
+}
+
+/// Rewrite every `width: <number>` to `width: Fill`, so a component authored for
+/// one panel width adopts the slot it is mounted in. Boundary-checked, so
+/// `max_width`/`min_width` are untouched, and a non-numeric value is kept.
+fn fill_widths(ui: &str) -> String {
+    const KEY: &str = "width: ";
+    let mut out = String::with_capacity(ui.len());
+    let bytes = ui.as_bytes();
+    let mut i = 0;
+    while i < ui.len() {
+        let prev_ok = i == 0 || !(bytes[i - 1].is_ascii_alphanumeric() || bytes[i - 1] == b'_');
+        if prev_ok && ui[i..].starts_with(KEY) {
+            let mut j = i + KEY.len();
+            let start = j;
+            while j < ui.len() && (bytes[j].is_ascii_digit() || bytes[j] == b'.') {
+                j += 1;
+            }
+            if j > start {
+                out.push_str(KEY);
+                out.push_str("Fill");
+                i = j;
+                continue;
+            }
+        }
+        let ch = ui[i..].chars().next().unwrap();
+        out.push(ch);
+        i += ch.len_utf8();
+    }
+    out
 }
 
 /// Rewrite only the FIRST `width: <number>` to `width: Fit max_width: "<cap>"`,
