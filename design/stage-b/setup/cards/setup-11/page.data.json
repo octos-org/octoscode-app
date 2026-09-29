@@ -1,0 +1,80 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface156d085f4ff5",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "t00": {
+        "component": "Textdff3c12dd0ad",
+        "layout": {
+          "x": 29.0,
+          "y": 187.5,
+          "w": 381.19,
+          "h": 35.6
+        }
+      },
+      "t01": {
+        "component": "Text5d9757a986bf",
+        "layout": {
+          "x": 43.98,
+          "y": 250.4,
+          "w": 335.74,
+          "h": 26.1
+        }
+      },
+      "t02": {
+        "component": "Texta83bd04cbcd7",
+        "layout": {
+          "x": 53.01,
+          "y": 284.0,
+          "w": 312.29,
+          "h": 23.0
+        }
+      },
+      "t03": {
+        "component": "Text106c4efc0f04",
+        "layout": {
+          "x": 111.52,
+          "y": 318.96,
+          "w": 155.99,
+          "h": 21.2
+        }
+      },
+      "t04": {
+        "component": "Text6cd50347b15b",
+        "layout": {
+          "x": 140.91,
+          "y": 410.36,
+          "w": 91.06,
+          "h": 22.95
+        }
+      },
+      "t05": {
+        "component": "Texta23d8baad481",
+        "layout": {
+          "x": 90.11,
+          "y": 490.87,
+          "w": 213.94,
+          "h": 33.53
+        }
+      },
+      "t06": {
+        "component": "Text28f528bc5db2",
+        "layout": {
+          "x": 122.93,
+          "y": 570.5,
+          "w": 142.21,
+          "h": 24.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

@@ -1,0 +1,12 @@
+component Surface156d085f4ff5(instance: text) {
+  view Kit(component: "Surface156d085f4ff5", instance: instance) { slot }
+}
+component Textfb1d54978e9d(instance: text, text: text) {
+  view Kit(component: "Textfb1d54978e9d", instance: instance, text: text)
+}
+component Text3b0c706d6edf(instance: text, text: text) {
+  view Kit(component: "Text3b0c706d6edf", instance: instance, text: text)
+}
+component Text23269b208f3f(instance: text, text: text) {
+  view Kit(component: "Text23269b208f3f", instance: instance, text: text)
+}

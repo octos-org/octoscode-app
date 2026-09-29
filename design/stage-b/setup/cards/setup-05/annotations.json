@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "d98822b963f51fdc9fd89328834d8f255a4e29d07a1b0a079117e8829024d440",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      43.0,
+      605.0,
+      326.0,
+      65.0
+    ],
+    [
+      41.0,
+      602.0,
+      330.0,
+      71.0
+    ],
+    [
+      156.0,
+      418.0,
+      213.0,
+      55.0
+    ],
+    [
+      43.0,
+      418.0,
+      112.0,
+      55.0
+    ],
+    [
+      43.0,
+      418.0,
+      326.0,
+      55.0
+    ],
+    [
+      41.0,
+      415.0,
+      330.0,
+      61.0
+    ],
+    [
+      43.0,
+      193.0,
+      326.0,
+      60.0
+    ],
+    [
+      41.0,
+      191.0,
+      331.0,
+      65.0
+    ],
+    [
+      13.0,
+      39.0,
+      379.0,
+      732.0
+    ],
+    [
+      11.0,
+      36.0,
+      384.0,
+      737.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4293981682
+    },
+    {
+      "id": "outer_card",
+      "bounds": [
+        11.0,
+        36.0,
+        384.0,
+        737.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.93
+    },
+    {
+      "id": "model",
+      "bounds": [
+        43.0,
+        193.0,
+        326.0,
+        60.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 9.58
+    },
+    {
+      "id": "model_field",
+      "bounds": [
+        57.535,
+        207.366,
+        296.93,
+        31.269
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "segments",
+      "bounds": [
+        43.0,
+        418.0,
+        326.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 11.58
+    },
+    {
+      "id": "seg_sel",
+      "bounds": [
+        43.0,
+        418.0,
+        112.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835453,
+      "radius": 12.83
+    },
+    {
+      "id": "segdiv1",
+      "bounds": [
+        158.616,
+        423.789,
+        1.038,
+        43.421
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "segdiv2",
+      "bounds": [
+        273.318,
+        423.789,
+        1.038,
+        43.421
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "sandbox_box",
+      "bounds": [
+        43.0,
+        605.0,
+        326.0,
+        65.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.19
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "id": "seg-control",
+  "app": "octoscode",
+  "number": 5,
+  "title": "Session settings",
+  "structure": "Native component reconstructed from the approved setup atlas (board 2, #28c)",
+  "artboard": [
+    314.0,
+    38.0
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "segments",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 314.0,
+    "h": 38.0,
+    "c": [
+      {
+        "t": "stack",
+        "id": "seg_sel",
+        "x": 2.539999999999999,
+        "y": 4.0,
+        "w": 104.79,
+        "h": 30.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294967295,
+        "radius": 7
+      },
+      {
+        "t": "text",
+        "id": "t_seg0",
+        "text": "On request",
+        "x": 12.54,
+        "y": 11.0,
+        "w": 84.79,
+        "h": 22.27,
+        "size": 13,
+        "line_height": 22.27,
+        "weight": 600,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t_seg1",
+        "text": "On failure",
+        "x": 125.38999999999999,
+        "y": 11.28000000000003,
+        "w": 73.38,
+        "h": 19.5,
+        "size": 13,
+        "line_height": 19.5,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t_seg2",
+        "text": "Never",
+        "x": 244.92000000000002,
+        "y": 11.310000000000002,
+        "w": 45.2,
+        "h": 19.5,
+        "size": 13,
+        "line_height": 19.5,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "stack",
+        "id": "segdiv1",
+        "x": 111.36000000000001,
+        "y": 4.0,
+        "w": 1.0,
+        "h": 30.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 0
+      },
+      {
+        "t": "stack",
+        "id": "segdiv2",
+        "x": 221.83999999999997,
+        "y": 4.0,
+        "w": 1.0,
+        "h": 30.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 0
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294111991,
+    "radius": 8,
+    "border": 1,
+    "bordercolor": 4293256679
+  },
+  "standalone_service_card": true
+}

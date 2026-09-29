@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "87d7bdcca3653bc8ea229816541ad9992a0b78b41b9f4ffee527790fd31c6df1",
+  "tree": {
+    "t": "stack",
+    "id": "provider_deepseek",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 314.0,
+    "h": 41.52,
+    "c": [
+      {
+        "t": "svg",
+        "id": "radio_deepseek",
+        "x": 16.0,
+        "y": 10.759999999999991,
+        "w": 20.0,
+        "h": 20.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t_prov_deepseek",
+        "text": "DeepSeek • Official API",
+        "x": 46.0,
+        "y": 10.0,
+        "w": 250.0,
+        "h": 21.52,
+        "size": 14,
+        "line_height": 21.52,
+        "weight": 500,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf"
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294111991,
+    "radius": 10
+  },
+  "changes": [
+    {
+      "source": "cards/setup-03/mapped.json",
+      "source_sha256": "da243ff65d6e42f3468b6c4bde42763163f94b2b86a448e99a935280c0492d78",
+      "operation": "Extract native subtree and translate origin",
+      "source_root": "provider_deepseek",
+      "translation": [
+        -46.0,
+        -320.48
+      ]
+    }
+  ]
+}

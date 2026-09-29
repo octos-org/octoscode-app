@@ -1,0 +1,232 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface156d085f4ff5",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "outer_card": {
+        "component": "Surface28a1c2e54e11",
+        "layout": {
+          "x": 10.0,
+          "y": 10.0,
+          "w": 386.0,
+          "h": 756.0
+        }
+      },
+      "t_title": {
+        "component": "Textc54ba87d5a24",
+        "layout": {
+          "x": 82.33,
+          "y": 102.5,
+          "w": 293.23,
+          "h": 40.5
+        }
+      },
+      "t_server": {
+        "component": "Text78f817830549",
+        "layout": {
+          "x": 48.49,
+          "y": 177.08,
+          "w": 68.91,
+          "h": 22.5
+        }
+      },
+      "server": {
+        "component": "Surfacebc08397a72a6",
+        "layout": {
+          "x": 46.0,
+          "y": 213.58,
+          "w": 314.0,
+          "h": 45.43
+        }
+      },
+      "server_field": {
+        "component": "Input832dfe529a64",
+        "layout": {
+          "x": 60.0,
+          "y": 225.58,
+          "w": 286.0,
+          "h": 25.5
+        }
+      },
+      "t_token": {
+        "component": "Texta2d809cd0da7",
+        "layout": {
+          "x": 48.47,
+          "y": 300.98,
+          "w": 137.89,
+          "h": 22.5
+        }
+      },
+      "token": {
+        "component": "Surface60f9f67a8293",
+        "layout": {
+          "x": 46.0,
+          "y": 344.42,
+          "w": 314.0,
+          "h": 34.15
+        }
+      },
+      "token_field": {
+        "component": "Input4d0dff503fef",
+        "layout": {
+          "x": 60.0,
+          "y": 356.42,
+          "w": 286.0,
+          "h": 25.5
+        }
+      },
+      "token_dots": {
+        "component": "Text8a96838bcf2a",
+        "layout": {
+          "x": 60.0,
+          "y": 350.49,
+          "w": 286.0,
+          "h": 22.5
+        }
+      },
+      "token_eye": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 328.0,
+          "y": 351.49,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/setup-02/assets/token_eye-edb457c4d419.svg"
+        }
+      },
+      "t_error": {
+        "component": "Text8640c23bcac7",
+        "layout": {
+          "x": 47.37,
+          "y": 404.92,
+          "w": 269.76,
+          "h": 21.58
+        }
+      },
+      "t_last": {
+        "component": "Text82d806245345",
+        "layout": {
+          "x": 48.49,
+          "y": 465.83,
+          "w": 159.5,
+          "h": 22.67
+        }
+      },
+      "retry": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 194.49,
+          "y": 459.83,
+          "w": 52.0,
+          "h": 34.67
+        }
+      },
+      "retry_surface": {
+        "component": "Surfacef468f03a0025",
+        "layout": {
+          "x": 194.49,
+          "y": 459.83,
+          "w": 52.0,
+          "h": 34.67
+        }
+      },
+      "retry_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 194.49,
+          "y": 459.83,
+          "w": 52.0,
+          "h": 34.67
+        }
+      },
+      "retry_label": {
+        "component": "Text727329dab8a0",
+        "layout": {
+          "x": 198.49,
+          "y": 465.83,
+          "w": 44.0,
+          "h": 22.68
+        }
+      },
+      "connect": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 46.0,
+          "y": 564.94,
+          "w": 314.0,
+          "h": 44.0
+        }
+      },
+      "connect_surface": {
+        "component": "Surface8d834e17f854",
+        "layout": {
+          "x": 46.0,
+          "y": 564.94,
+          "w": 314.0,
+          "h": 44.0
+        }
+      },
+      "connect_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 46.0,
+          "y": 564.94,
+          "w": 314.0,
+          "h": 44.0
+        }
+      },
+      "connect_label": {
+        "component": "Textedd135149ebf",
+        "layout": {
+          "x": 162.05,
+          "y": 574.81,
+          "w": 106.47,
+          "h": 24.27
+        }
+      },
+      "t_local": {
+        "component": "Text0a85cce70c51",
+        "layout": {
+          "x": 118.42,
+          "y": 662.0,
+          "w": 218.45,
+          "h": 21.0
+        }
+      }
+    },
+    "bindings": [
+      {
+        "id": "server_field",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "server_field",
+          "property": "text"
+        }
+      },
+      {
+        "id": "token_field",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "token_field",
+          "property": "text"
+        }
+      }
+    ]
+  }
+}

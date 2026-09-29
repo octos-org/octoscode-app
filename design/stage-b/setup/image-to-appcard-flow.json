@@ -1,0 +1,225 @@
+{
+ "schema_version": 1,
+ "id": "octoscode-setup",
+ "artboard": [
+  406,
+  776
+ ],
+ "locales": [
+  "en",
+  "cn"
+ ],
+ "generation": {
+  "atlas": "source/atlas.png",
+  "prompt": "source/prompt.txt",
+  "provider": "openai",
+  "model": "gpt-image-2",
+  "requested_size": [
+   2048,
+   3072
+  ],
+  "quality": "high"
+ },
+ "scenes": [
+  {
+   "id": "1",
+   "design_id": "setup-01",
+   "directory": "cards/setup-01",
+   "crop": [
+    30,
+    50,
+    467,
+    964
+   ],
+   "surface": "app",
+   "title": "Connect"
+  },
+  {
+   "id": "2",
+   "design_id": "setup-02",
+   "directory": "cards/setup-02",
+   "crop": [
+    535,
+    50,
+    461,
+    964
+   ],
+   "surface": "app",
+   "title": "Connect failed"
+  },
+  {
+   "id": "3",
+   "design_id": "setup-03",
+   "directory": "cards/setup-03",
+   "crop": [
+    1033,
+    50,
+    503,
+    964
+   ],
+   "surface": "app",
+   "title": "Onboarding"
+  },
+  {
+   "id": "4",
+   "design_id": "setup-04",
+   "directory": "cards/setup-04",
+   "crop": [
+    1536,
+    50,
+    466,
+    964
+   ],
+   "surface": "app",
+   "title": "Workspace picker"
+  },
+  {
+   "id": "5",
+   "design_id": "setup-05",
+   "directory": "cards/setup-05",
+   "crop": [
+    30,
+    1074,
+    467,
+    930
+   ],
+   "surface": "app",
+   "title": "Session settings"
+  },
+  {
+   "id": "6",
+   "design_id": "setup-06",
+   "directory": "cards/setup-06",
+   "crop": [
+    535,
+    1074,
+    461,
+    930
+   ],
+   "surface": "app",
+   "title": "General settings"
+  },
+  {
+   "id": "7",
+   "design_id": "setup-07",
+   "directory": "cards/setup-07",
+   "crop": [
+    1035,
+    1074,
+    501,
+    930
+   ],
+   "surface": "app",
+   "title": "Model settings"
+  },
+  {
+   "id": "8",
+   "design_id": "setup-08",
+   "directory": "cards/setup-08",
+   "crop": [
+    1536,
+    1074,
+    466,
+    930
+   ],
+   "surface": "app",
+   "title": "Command palette"
+  },
+  {
+   "id": "9",
+   "design_id": "setup-09",
+   "directory": "cards/setup-09",
+   "crop": [
+    30,
+    2107,
+    466,
+    935
+   ],
+   "surface": "app",
+   "title": "Context panel"
+  },
+  {
+   "id": "10",
+   "design_id": "setup-10",
+   "directory": "cards/setup-10",
+   "crop": [
+    535,
+    2107,
+    460,
+    935
+   ],
+   "surface": "app",
+   "title": "Skills"
+  },
+  {
+   "id": "11",
+   "design_id": "setup-11",
+   "directory": "cards/setup-11",
+   "crop": [
+    1035,
+    2107,
+    501,
+    935
+   ],
+   "surface": "app",
+   "title": "Error screen"
+  },
+  {
+   "id": "12",
+   "design_id": "setup-12",
+   "directory": "cards/setup-12",
+   "crop": [
+    1536,
+    2107,
+    465,
+    935
+   ],
+   "surface": "app",
+   "title": "Loading and reconnecting"
+  }
+ ],
+ "artwork": {
+  "source_prefix": "http://127.0.0.1:8170/ux-images/",
+  "root": "artwork"
+ },
+ "outputs": {
+  "intake": "pipeline-output/intake",
+  "cards": "pipeline-output/service-cards",
+  "bundle": "wizard/card-bundle",
+  "wasm": "wizard/wasm-dist",
+  "runs": "pipeline-output/runs"
+ },
+ "_note": "Scenes 1-6 are card #28c's screens (board 2). Scenes 7-12 are other cards' screens kept so the flow's 8-12-scene validation (flow.py read_manifest) passes; they get stub contracts only and are never mapped/compiled here.",
+ "cards": [
+  {
+   "id": "labeled-input",
+   "scene": "1",
+   "root": "server",
+   "owner": "setup"
+  },
+  {
+   "id": "provider-row",
+   "scene": "3",
+   "root": "provider_deepseek",
+   "owner": "setup"
+  },
+  {
+   "id": "ws-group",
+   "scene": "4",
+   "root": "recent_group",
+   "owner": "setup"
+  },
+  {
+   "id": "seg-control",
+   "scene": "5",
+   "root": "segments",
+   "owner": "setup"
+  },
+  {
+   "id": "settings-toggle-row",
+   "scene": "6",
+   "root": "group2",
+   "owner": "setup"
+  }
+ ]
+}

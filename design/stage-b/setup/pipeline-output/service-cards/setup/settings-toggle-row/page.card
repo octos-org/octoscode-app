@@ -1,0 +1,27 @@
+# ledger settings-toggle-row@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_notif_text { class: user-copy, en: "Desktop notifications" }
+component Surface6cd31c06adc5(instance: text) {
+  view Kit(component: "Surface6cd31c06adc5", instance: instance) { slot }
+}
+component Text7d595ac36aa0(instance: text, text: text) {
+  view Kit(component: "Text7d595ac36aa0", instance: instance, text: text)
+}
+component Surfaceb137a51eded7(instance: text) {
+  view Kit(component: "Surfaceb137a51eded7", instance: instance) { slot }
+}
+component Surfaceab0895dcdf57(instance: text) {
+  view Kit(component: "Surfaceab0895dcdf57", instance: instance) { slot }
+}
+
+view root Surface6cd31c06adc5(instance: "group2") {
+  Text7d595ac36aa0(instance: "t_notif", text: copy.t_notif_text)
+  Surfaceb137a51eded7(instance: "toggle1") {
+    Surfaceab0895dcdf57(instance: "toggle1_knob") {
+
+    }
+  }
+}

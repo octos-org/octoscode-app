@@ -1,0 +1,6 @@
+component Surface382f80774fa6(instance: text) {
+  view Kit(component: "Surface382f80774fa6", instance: instance) { slot }
+}
+component Input79296ad18745(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Input79296ad18745", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+}

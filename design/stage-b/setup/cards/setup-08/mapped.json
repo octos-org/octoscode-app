@@ -1,0 +1,355 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "d0bc43bccfda6307d2e7add1a95ff1796a53390e09d10f118d35193962511122",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "text",
+        "id": "t00",
+        "text": "O. VUIVNIAN TALLIL",
+        "x": 14.66,
+        "y": -0.0,
+        "w": 334.27,
+        "h": 27.0,
+        "size": 18,
+        "line_height": 27.0,
+        "weight": 600,
+        "color": 4278255873,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t01",
+        "text": "/ mo",
+        "x": 57.52,
+        "y": 159.0,
+        "w": 73.31,
+        "h": 25.0,
+        "size": 14,
+        "line_height": 25.0,
+        "weight": 400,
+        "color": 4280163870,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t02",
+        "text": "/ model",
+        "x": 54.89,
+        "y": 234.47,
+        "w": 94.81,
+        "h": 25.09,
+        "size": 14,
+        "line_height": 25.09,
+        "weight": 400,
+        "color": 4279440148,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t03",
+        "text": "/ monitor",
+        "x": 58.61,
+        "y": 297.63,
+        "w": 114.44,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4279045389,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t04",
+        "text": "/ mode",
+        "x": 56.2,
+        "y": 359.25,
+        "w": 79.66,
+        "h": 22.53,
+        "size": 14,
+        "line_height": 22.53,
+        "weight": 400,
+        "color": 4279111182,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t05",
+        "text": "/ compact",
+        "x": 58.57,
+        "y": 422.68,
+        "w": 114.54,
+        "h": 23.13,
+        "size": 14,
+        "line_height": 23.13,
+        "weight": 400,
+        "color": 4279045389,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t06",
+        "text": "/btw",
+        "x": 57.52,
+        "y": 485.0,
+        "w": 60.11,
+        "h": 21.43,
+        "size": 14,
+        "line_height": 21.43,
+        "weight": 400,
+        "color": 4279308561,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t07",
+        "text": "/ resume",
+        "x": 58.6,
+        "y": 547.99,
+        "w": 101.27,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4278913802,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t08",
+        "text": "Switch model",
+        "x": 248.0,
+        "y": 236.21,
+        "w": 129.31,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4284769898,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t09",
+        "text": "Add a monitor",
+        "x": 242.39,
+        "y": 298.38,
+        "w": 135.11,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4286151034,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t10",
+        "text": "Change permissions",
+        "x": 199.62,
+        "y": 360.93,
+        "w": 189.12,
+        "h": 21.57,
+        "size": 14,
+        "line_height": 21.57,
+        "weight": 400,
+        "color": 4285493105,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t11",
+        "text": "Compact context",
+        "x": 223.22,
+        "y": 424.7,
+        "w": 160.03,
+        "h": 21.35,
+        "size": 14,
+        "line_height": 21.35,
+        "weight": 400,
+        "color": 4285756533,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t12",
+        "text": "Ask a side question",
+        "x": 206.38,
+        "y": 487.26,
+        "w": 178.87,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4285493104,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t13",
+        "text": "Resume a session",
+        "x": 215.41,
+        "y": 549.29,
+        "w": 167.14,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4285427055,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t14",
+        "text": "Tv to move \u2022 \u00ab torun \u2022 esc",
+        "x": 76.69,
+        "y": 625.99,
+        "w": 309.35,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4286282620,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294967295
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t00",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": 0.8065544577205881
+    },
+    {
+      "id": "t01",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.11197278390522872
+    },
+    {
+      "id": "t02",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.0919053819444444
+    },
+    {
+      "id": "t03",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.05421956380208337
+    },
+    {
+      "id": "t04",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.14850945723684206
+    },
+    {
+      "id": "t05",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12882302024147727
+    },
+    {
+      "id": "t06",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.0543285924145299
+    },
+    {
+      "id": "t07",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.09890081649436087
+    },
+    {
+      "id": "t08",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.14934819464809387
+    },
+    {
+      "id": "t09",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12355550130208333
+    },
+    {
+      "id": "t10",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1548382927389706
+    },
+    {
+      "id": "t11",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.16457492702609894
+    },
+    {
+      "id": "t12",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.14638468424479167
+    },
+    {
+      "id": "t13",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.14503738239247307
+    },
+    {
+      "id": "t14",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.0037193080357142963
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "295d25bf4bce6339e416c60d7741aea06890332ae2a048e1b41a26317dc3c95e",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "text",
+        "id": "t00",
+        "text": "Something went wrong",
+        "x": 29.0,
+        "y": 187.5,
+        "w": 381.19,
+        "h": 35.6,
+        "size": 18,
+        "line_height": 35.6,
+        "weight": 600,
+        "color": 4278190080,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t01",
+        "text": "OctosCode hit an unexpected",
+        "x": 43.98,
+        "y": 250.4,
+        "w": 335.74,
+        "h": 26.1,
+        "size": 14,
+        "line_height": 26.1,
+        "weight": 400,
+        "color": 4286414207,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t02",
+        "text": "error. Your sessions are safe",
+        "x": 53.01,
+        "y": 284.0,
+        "w": 312.29,
+        "h": 23.0,
+        "size": 14,
+        "line_height": 23.0,
+        "weight": 400,
+        "color": 4286546050,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t03",
+        "text": "on the server.",
+        "x": 111.52,
+        "y": 318.96,
+        "w": 155.99,
+        "h": 21.2,
+        "size": 14,
+        "line_height": 21.2,
+        "weight": 400,
+        "color": 4286677379,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t04",
+        "text": "Reload",
+        "x": 140.91,
+        "y": 410.36,
+        "w": 91.06,
+        "h": 22.95,
+        "size": 14,
+        "line_height": 22.95,
+        "weight": 400,
+        "color": 4279242769,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t05",
+        "text": "Copy diagnostics",
+        "x": 90.11,
+        "y": 490.87,
+        "w": 213.94,
+        "h": 33.53,
+        "size": 14,
+        "line_height": 33.53,
+        "weight": 400,
+        "color": 4278518789,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t06",
+        "text": "Report issue",
+        "x": 122.93,
+        "y": 570.5,
+        "w": 142.21,
+        "h": 24.0,
+        "size": 14,
+        "line_height": 24.0,
+        "weight": 400,
+        "color": 4286414207,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294967295
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t00",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.07746568738656988
+    },
+    {
+      "id": "t01",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12772841437604512
+    },
+    {
+      "id": "t02",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12019856770833333
+    },
+    {
+      "id": "t03",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.121961924793956
+    },
+    {
+      "id": "t04",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1945121017156863
+    },
+    {
+      "id": "t05",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1283894856770833
+    },
+    {
+      "id": "t06",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.13168860311895547
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

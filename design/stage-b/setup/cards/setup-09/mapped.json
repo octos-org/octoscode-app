@@ -1,0 +1,333 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "3f2daa3d59ea16d1303706ee569e2ee312badbfb8135ee6d0d30376c1593a7d2",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "text",
+        "id": "t00",
+        "text": "Context",
+        "x": 43.98,
+        "y": 40.6,
+        "w": 118.75,
+        "h": 27.0,
+        "size": 18,
+        "line_height": 27.0,
+        "weight": 600,
+        "color": 4278190080,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t01",
+        "text": "124k of 200k tokens",
+        "x": 45.11,
+        "y": 101.5,
+        "w": 209.65,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4279374354,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t02",
+        "text": "62%",
+        "x": 323.67,
+        "y": 101.51,
+        "w": 48.39,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4279374611,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t03",
+        "text": "System",
+        "x": 47.37,
+        "y": 212.05,
+        "w": 76.23,
+        "h": 22.56,
+        "size": 14,
+        "line_height": 22.56,
+        "weight": 400,
+        "color": 4279176975,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t04",
+        "text": "Conversation",
+        "x": 46.14,
+        "y": 265.64,
+        "w": 136.6,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4279374611,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t05",
+        "text": "Tools",
+        "x": 45.11,
+        "y": 318.07,
+        "w": 57.17,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4279637526,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t06",
+        "text": "8k",
+        "x": 339.46,
+        "y": 212.05,
+        "w": 27.86,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4279506196,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t07",
+        "text": "96k",
+        "x": 327.06,
+        "y": 266.19,
+        "w": 45.45,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4279637270,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t08",
+        "text": "20k",
+        "x": 327.06,
+        "y": 318.07,
+        "w": 43.98,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4280821800,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t09",
+        "text": "Compaction:",
+        "x": 43.95,
+        "y": 428.47,
+        "w": 126.17,
+        "h": 21.69,
+        "size": 14,
+        "line_height": 21.69,
+        "weight": 400,
+        "color": 4279308561,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t10",
+        "text": "LLM",
+        "x": 190.59,
+        "y": 428.6,
+        "w": 51.31,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4278190080,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t11",
+        "text": "Heuristic",
+        "x": 283.07,
+        "y": 428.6,
+        "w": 87.97,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4280821801,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t12",
+        "text": "Compact now",
+        "x": 136.38,
+        "y": 533.08,
+        "w": 154.14,
+        "h": 23.4,
+        "size": 14,
+        "line_height": 23.4,
+        "weight": 400,
+        "color": 4278716424,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t13",
+        "text": "Keeps the last 4 turns",
+        "x": 108.27,
+        "y": 594.41,
+        "w": 221.38,
+        "h": 22.59,
+        "size": 14,
+        "line_height": 22.59,
+        "weight": 400,
+        "color": 4286545793,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294967295
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t00",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12687174479166663
+    },
+    {
+      "id": "t01",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12296549479166667
+    },
+    {
+      "id": "t02",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.28943241003787873
+    },
+    {
+      "id": "t03",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.17991914970930228
+    },
+    {
+      "id": "t04",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1447545015875668
+    },
+    {
+      "id": "t05",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.19441492417279418
+    },
+    {
+      "id": "t06",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.34716796875
+    },
+    {
+      "id": "t07",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.24262444755162707
+    },
+    {
+      "id": "t08",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.22412109375000006
+    },
+    {
+      "id": "t09",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.16522856212797618
+    },
+    {
+      "id": "t10",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2123592601102941
+    },
+    {
+      "id": "t11",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.13845547762784086
+    },
+    {
+      "id": "t12",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.14466441761363627
+    },
+    {
+      "id": "t13",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.13834581343438543
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

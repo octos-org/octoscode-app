@@ -1,0 +1,24 @@
+component Surface156d085f4ff5(instance: text) {
+  view Kit(component: "Surface156d085f4ff5", instance: instance) { slot }
+}
+component Textdff3c12dd0ad(instance: text, text: text) {
+  view Kit(component: "Textdff3c12dd0ad", instance: instance, text: text)
+}
+component Text5d9757a986bf(instance: text, text: text) {
+  view Kit(component: "Text5d9757a986bf", instance: instance, text: text)
+}
+component Texta83bd04cbcd7(instance: text, text: text) {
+  view Kit(component: "Texta83bd04cbcd7", instance: instance, text: text)
+}
+component Text106c4efc0f04(instance: text, text: text) {
+  view Kit(component: "Text106c4efc0f04", instance: instance, text: text)
+}
+component Text6cd50347b15b(instance: text, text: text) {
+  view Kit(component: "Text6cd50347b15b", instance: instance, text: text)
+}
+component Texta23d8baad481(instance: text, text: text) {
+  view Kit(component: "Texta23d8baad481", instance: instance, text: text)
+}
+component Text28f528bc5db2(instance: text, text: text) {
+  view Kit(component: "Text28f528bc5db2", instance: instance, text: text)
+}

@@ -1,0 +1,17 @@
+{
+  "frame_id": 3,
+  "controls": {
+    "provider_deepseek": {
+      "event": "onboarding.provider.deepseek",
+      "source_bounds": [
+        46,
+        320,
+        314,
+        41
+      ],
+      "enabled": true
+    }
+  },
+  "source": "Approved setup atlas (board 2) + measured OCR",
+  "owner": "setup"
+}

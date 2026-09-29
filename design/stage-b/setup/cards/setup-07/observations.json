@@ -1,0 +1,480 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "a5262c0a1815ad4ba7a0db45e2adb2c46d7a96beaa86ff6586d1cc9d11f7592b",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t00",
+      "expected_text": "1\u2022 IIVULL JLIIIIVUO",
+      "requested_bounds": [
+        7.89,
+        10.0,
+        218.79,
+        27.0
+      ],
+      "status": "observed",
+      "ocr_text": "1\u2022 IIVULL JLIIIIVUO",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        10.0,
+        11.0,
+        216.0,
+        8.0
+      ],
+      "ink_color": [
+        0,
+        0,
+        0
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        7.894451014863975,
+        10.00000012272242,
+        218.78887939453125,
+        12.558139324188218
+      ]
+    },
+    {
+      "id": "t01",
+      "expected_text": "Models",
+      "requested_bounds": [
+        28.14,
+        81.03,
+        77.93,
+        24.05
+      ],
+      "status": "observed",
+      "ocr_text": "Models",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        30.5,
+        82.0,
+        73.0,
+        19.5
+      ],
+      "ink_color": [
+        0,
+        0,
+        0
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        28.139009743281818,
+        81.02592577172004,
+        77.92753601074219,
+        24.0527992248535
+      ]
+    },
+    {
+      "id": "t02",
+      "expected_text": "DeepSeek \u2022 Official API",
+      "requested_bounds": [
+        38.34,
+        156.78,
+        200.74,
+        24.81
+      ],
+      "status": "observed",
+      "ocr_text": "DeepSeek \u2022 Official API",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        41.0,
+        157.5,
+        194.5,
+        22.0
+      ],
+      "ink_color": [
+        8,
+        8,
+        8
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        38.3444429607205,
+        156.7790699890413,
+        200.74444580078125,
+        24.813953399658267
+      ]
+    },
+    {
+      "id": "t03",
+      "expected_text": "3 models",
+      "requested_bounds": [
+        38.34,
+        192.87,
+        71.05,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "3 models",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        39.5,
+        193.0,
+        68.0,
+        15.5
+      ],
+      "ink_color": [
+        117,
+        118,
+        119
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        38.34444327381553,
+        192.8720933608131,
+        71.05000305175781,
+        17.127906799316392
+      ]
+    },
+    {
+      "id": "t04",
+      "expected_text": "\u2022",
+      "requested_bounds": [
+        277.43,
+        157.91,
+        19.17,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "\u2022",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        281.5,
+        160.5,
+        9.0,
+        10.5
+      ],
+      "ink_color": [
+        35,
+        168,
+        82
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        277.4333335126633,
+        157.90697714548213,
+        19.172222137451165,
+        18.04651069641117
+      ]
+    },
+    {
+      "id": "t05",
+      "expected_text": "^",
+      "requested_bounds": [
+        312.39,
+        159.03,
+        15.79,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "^",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        314.0,
+        161.0,
+        13.0,
+        9.0
+      ],
+      "ink_color": [
+        98,
+        99,
+        100
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        312.39444437814063,
+        159.03488369647374,
+        15.788888931274395,
+        13.534883499145455
+      ]
+    },
+    {
+      "id": "t06",
+      "expected_text": "deepseek-v4-flash (default)",
+      "requested_bounds": [
+        49.62,
+        254.91,
+        199.62,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "deepseek-v4-flash (default)",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        51.0,
+        255.5,
+        195.0,
+        19.5
+      ],
+      "ink_color": [
+        98,
+        98,
+        99
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        49.62222263080295,
+        254.90697635312267,
+        199.61666870117188,
+        20.302326202392557
+      ]
+    },
+    {
+      "id": "t07",
+      "expected_text": "deepseek-v4-pro",
+      "requested_bounds": [
+        49.54,
+        315.31,
+        125.34,
+        21.31
+      ],
+      "status": "observed",
+      "ocr_text": "deepseek-v4-pro",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        51.0,
+        316.5,
+        122.0,
+        19.0
+      ],
+      "ink_color": [
+        27,
+        27,
+        27
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        49.542167172625,
+        315.30817100598904,
+        125.34344482421875,
+        21.31389045715335
+      ]
+    },
+    {
+      "id": "t08",
+      "expected_text": "Test route",
+      "requested_bounds": [
+        67.63,
+        386.7,
+        75.64,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "Test route",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        70.0,
+        387.5,
+        71.0,
+        14.5
+      ],
+      "ink_color": [
+        19,
+        19,
+        19
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        67.62952228288984,
+        386.70467002890274,
+        75.6353988647461,
+        17.25344944000242
+      ]
+    },
+    {
+      "id": "t09",
+      "expected_text": "Discover models",
+      "requested_bounds": [
+        209.77,
+        385.5,
+        109.39,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "Discover models",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        212.0,
+        387.0,
+        106.0,
+        15.0
+      ],
+      "ink_color": [
+        22,
+        22,
+        22
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        209.7666680139783,
+        385.49999993042724,
+        109.39443969726562,
+        18.50000000000002
+      ]
+    },
+    {
+      "id": "t10",
+      "expected_text": "Kimi Coding Plan",
+      "requested_bounds": [
+        38.26,
+        481.1,
+        140.01,
+        24.71
+      ],
+      "status": "observed",
+      "ocr_text": "Kimi Coding Plan",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        40.5,
+        482.5,
+        136.0,
+        21.5
+      ],
+      "ink_color": [
+        1,
+        1,
+        1
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        38.25918256992358,
+        481.10216191360115,
+        140.0149688720703,
+        24.714281082153327
+      ]
+    },
+    {
+      "id": "t11",
+      "expected_text": "3 models",
+      "requested_bounds": [
+        38.25,
+        515.08,
+        67.85,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "3 models",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        39.5,
+        516.5,
+        64.5,
+        15.0
+      ],
+      "ink_color": [
+        112,
+        112,
+        113
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        38.2518747398653,
+        515.0754007125518,
+        67.851806640625,
+        17.674779891967834
+      ]
+    },
+    {
+      "id": "t12",
+      "expected_text": "GLM Coding Plan",
+      "requested_bounds": [
+        37.13,
+        602.88,
+        144.53,
+        24.79
+      ],
+      "status": "observed",
+      "ocr_text": "GLM Coding Plan",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        40.0,
+        604.0,
+        139.0,
+        21.5
+      ],
+      "ink_color": [
+        10,
+        10,
+        10
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        37.12843137683444,
+        602.8801397681086,
+        144.5320281982422,
+        24.786231994628896
+      ]
+    },
+    {
+      "id": "t13",
+      "expected_text": "3 models",
+      "requested_bounds": [
+        37.22,
+        639.5,
+        68.79,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "3 models",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        39.5,
+        640.0,
+        64.0,
+        15.0
+      ],
+      "ink_color": [
+        118,
+        118,
+        118
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        37.21666770402959,
+        639.4999999361037,
+        68.79444122314452,
+        17.000000000000025
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    }
+  ],
+  "unmapped_ocr": [],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

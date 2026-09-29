@@ -1,0 +1,56 @@
+{
+  "frame_id": 5,
+  "controls": {
+    "close": {
+      "event": "settings.close",
+      "source_bounds": [
+        333,
+        67,
+        36,
+        38
+      ],
+      "enabled": true
+    },
+    "perm_seg0": {
+      "event": "settings.permissions.on_request",
+      "source_bounds": [
+        50,
+        429,
+        100,
+        38
+      ],
+      "enabled": true
+    },
+    "perm_seg1": {
+      "event": "settings.permissions.on_failure",
+      "source_bounds": [
+        163,
+        429,
+        89,
+        35
+      ],
+      "enabled": true
+    },
+    "perm_seg2": {
+      "event": "settings.permissions.never",
+      "source_bounds": [
+        282,
+        429,
+        61,
+        35
+      ],
+      "enabled": true
+    },
+    "model_field": {
+      "event": "input.model",
+      "source_bounds": [
+        46,
+        200,
+        314,
+        50
+      ],
+      "enabled": true
+    }
+  },
+  "source": "Approved setup atlas (board 2) + measured OCR"
+}

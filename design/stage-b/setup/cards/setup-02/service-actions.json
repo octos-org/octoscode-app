@@ -1,0 +1,56 @@
+{
+  "frame_id": 2,
+  "controls": {
+    "retry": {
+      "event": "connect.retry",
+      "source_bounds": [
+        194,
+        459,
+        52,
+        34
+      ],
+      "enabled": true
+    },
+    "connect": {
+      "event": "connect",
+      "source_bounds": [
+        46,
+        564,
+        314,
+        44
+      ],
+      "enabled": true
+    },
+    "local_solo": {
+      "event": "connect.use_local_solo",
+      "source_bounds": [
+        110,
+        655,
+        184,
+        30
+      ],
+      "enabled": true
+    },
+    "server_field": {
+      "event": "input.server",
+      "source_bounds": [
+        46,
+        213,
+        314,
+        45
+      ],
+      "enabled": true
+    },
+    "token_field": {
+      "event": "input.token",
+      "source_bounds": [
+        46,
+        344,
+        314,
+        34
+      ],
+      "enabled": true
+    }
+  },
+  "source": "Approved setup atlas (board 2) + measured OCR"
+}

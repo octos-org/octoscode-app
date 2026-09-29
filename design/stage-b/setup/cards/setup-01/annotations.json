@@ -1,0 +1,159 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "5025f758e8be3f217cc603ddca62c409c5943d22d5ccb3055dcb6a4d3af6375c",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      46.0,
+      556.0,
+      313.0,
+      62.0
+    ],
+    [
+      48.0,
+      331.0,
+      310.0,
+      56.0
+    ],
+    [
+      45.0,
+      328.0,
+      315.0,
+      61.0
+    ],
+    [
+      48.0,
+      207.0,
+      309.0,
+      53.0
+    ],
+    [
+      45.0,
+      204.0,
+      315.0,
+      59.0
+    ],
+    [
+      20.0,
+      38.0,
+      366.0,
+      733.0
+    ],
+    [
+      17.0,
+      35.0,
+      372.0,
+      738.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4293981682
+    },
+    {
+      "id": "outer_card",
+      "bounds": [
+        17.0,
+        35.0,
+        372.0,
+        738.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.49
+    },
+    {
+      "id": "server",
+      "bounds": [
+        48.0,
+        207.0,
+        309.0,
+        53.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901245,
+      "radius": 9.57
+    },
+    {
+      "id": "server_field",
+      "bounds": [
+        61.777,
+        221.357,
+        281.446,
+        30.508
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "token",
+      "bounds": [
+        48.0,
+        331.0,
+        310.0,
+        56.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 13.12
+    },
+    {
+      "id": "token_field",
+      "bounds": [
+        61.822,
+        350.678,
+        282.357,
+        41.816
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "connect",
+      "bounds": [
+        46.0,
+        556.0,
+        313.0,
+        62.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "connect_surface",
+      "bounds": [
+        46.0,
+        556.0,
+        313.0,
+        62.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279242769,
+      "radius": 31.0
+    },
+    {
+      "id": "connect_control",
+      "bounds": [
+        46.0,
+        556.0,
+        313.0,
+        62.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ]
+}

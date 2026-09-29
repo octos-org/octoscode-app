@@ -1,0 +1,76 @@
+{
+  "frame_id": 4,
+  "controls": {
+    "ws_row0": {
+      "event": "workspace.open",
+      "source_bounds": [
+        46,
+        277,
+        314,
+        59
+      ],
+      "enabled": true
+    },
+    "ws_row1": {
+      "event": "workspace.open",
+      "source_bounds": [
+        46,
+        347,
+        314,
+        64
+      ],
+      "enabled": true
+    },
+    "ws_row2": {
+      "event": "workspace.open",
+      "source_bounds": [
+        46,
+        421,
+        314,
+        60
+      ],
+      "enabled": true
+    },
+    "ws_row3": {
+      "event": "workspace.open",
+      "source_bounds": [
+        46,
+        495,
+        314,
+        59
+      ],
+      "enabled": true
+    },
+    "browse": {
+      "event": "browse",
+      "source_bounds": [
+        46,
+        605,
+        314,
+        44
+      ],
+      "enabled": true
+    },
+    "new_folder": {
+      "event": "workspace.new_folder",
+      "source_bounds": [
+        134,
+        670,
+        108,
+        31
+      ],
+      "enabled": true
+    },
+    "folder_field": {
+      "event": "input.folder",
+      "source_bounds": [
+        46,
+        136,
+        314,
+        72
+      ],
+      "enabled": true
+    }
+  },
+  "source": "Approved setup atlas (board 2) + measured OCR"
+}

@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface156d085f4ff5",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t00",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textdff3c12dd0ad",
+      "semantic_role": "text",
+      "bounds": [
+        29.0,
+        187.5,
+        381.19,
+        35.6
+      ],
+      "text": "Something went wrong",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 18
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text5d9757a986bf",
+      "semantic_role": "text",
+      "bounds": [
+        43.98,
+        250.4,
+        335.74,
+        26.1
+      ],
+      "text": "OctosCode hit an unexpected",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t02",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texta83bd04cbcd7",
+      "semantic_role": "text",
+      "bounds": [
+        53.01,
+        284.0,
+        312.29,
+        23.0
+      ],
+      "text": "error. Your sessions are safe",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t03",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text106c4efc0f04",
+      "semantic_role": "text",
+      "bounds": [
+        111.52,
+        318.96,
+        155.99,
+        21.2
+      ],
+      "text": "on the server.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t04",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text6cd50347b15b",
+      "semantic_role": "text",
+      "bounds": [
+        140.91,
+        410.36,
+        91.06,
+        22.95
+      ],
+      "text": "Reload",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t05",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texta23d8baad481",
+      "semantic_role": "text",
+      "bounds": [
+        90.11,
+        490.87,
+        213.94,
+        33.53
+      ],
+      "text": "Copy diagnostics",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t06",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text28f528bc5db2",
+      "semantic_role": "text",
+      "bounds": [
+        122.93,
+        570.5,
+        142.21,
+        24.0
+      ],
+      "text": "Report issue",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "6208cf595218b30e2c78e58e4c79edea6e57e4292184c689b7678eaf31508375",
+  "mapping_basis": "mapped.json"
+}
