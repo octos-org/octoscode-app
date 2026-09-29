@@ -1,0 +1,9 @@
+scene,shows,capture_png,design_match_self_score,what_i_checked
+01,"thread list: New chat row + compose icon, selected/first thread row, title",tmp/viz/21d/evidence/g-Z-1280-lt.png,9,"new-chat row seats w/ label 'New chat' + compose pencil at [262,123,24,23]; thread row #f1f1f3 pill, title ellipsized; no grey gradient"
+01,thread list (narrow 900),tmp/viz/21d/evidence/g-Z-900-lt.png,9,same row/icon/title at 900; right edge flush
+03,"user bubble right-aligned, hugging its text",tmp/viz/21d/evidence/g-Z-1280-lt.png,9,"bubble [546,102,271,70] right edge 817/818, label wraps to h42, no 'One wo…' clip"
+03,user bubble (narrow 900),tmp/viz/21d/evidence/g-Z-900-lt.png,9,"bubble [433,102,271,70] right edge 704/704"
+04,worked-for row + answer-actions (copy/thumb/share + timestamp),tmp/viz/21d/evidence/g-Z-1280-lt.png,9,worked-for h32 not clipped; 3 action icons seated; timestamp 'now' not 't=1790660000'
+08,live turn: working row / stop control,tmp/viz/21d/evidence/g-Z-1280-conv.png,8,one composer; + / mic / send seated w/ no grey skin; working-row path exercised by the #21c L1 tests (not re-driven here)
+09,completed answer: prose + tool cell + answer-actions,tmp/viz/21d/evidence/g-Z-1280-lt.png,9,"prose 'Five' h28 (was 492), answer-actions 'now', icons flat"
+09,tool scenario: tool-cell 'done' + output,tmp/viz/21d/evidence/g-Z-1280-tool.png,8,tool-cell row seated (worked_for at y177); tool-cell 'done' text not re-measured this round
