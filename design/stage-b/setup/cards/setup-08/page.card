@@ -20,8 +20,8 @@ copy t_hints_text { class: user-copy, en: "↑↓ to move · ↵ to run · esc" 
 component Surface156d085f4ff5(instance: text) {
   view Kit(component: "Surface156d085f4ff5", instance: instance) { slot }
 }
-component Surface5a7573e113ac(instance: text) {
-  view Kit(component: "Surface5a7573e113ac", instance: instance) { slot }
+component Surface3fb84fb22ff9(instance: text) {
+  view Kit(component: "Surface3fb84fb22ff9", instance: instance) { slot }
 }
 component Surface03c9bd7cb6ef(instance: text) {
   view Kit(component: "Surface03c9bd7cb6ef", instance: instance) { slot }
@@ -76,7 +76,7 @@ component Textc07d939f74fc(instance: text, text: text) {
 }
 
 view root Surface156d085f4ff5(instance: "page") {
-  Surface5a7573e113ac(instance: "scrim") {
+  Surface3fb84fb22ff9(instance: "scrim") {
 
   }
   Surface03c9bd7cb6ef(instance: "modal") {

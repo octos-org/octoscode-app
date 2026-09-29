@@ -33,8 +33,8 @@ component Surface156d085f4ff5(instance: text) {
 component Textf50e441e85dc(instance: text, text: text) {
   view Kit(component: "Textf50e441e85dc", instance: instance, text: text)
 }
-component Surface3e47e6c925f8(instance: text) {
-  view Kit(component: "Surface3e47e6c925f8", instance: instance) { slot }
+component Surfacec24999f0c4a5(instance: text) {
+  view Kit(component: "Surfacec24999f0c4a5", instance: instance) { slot }
 }
 component Surface88c878e5338b(instance: text) {
   view Kit(component: "Surface88c878e5338b", instance: instance) { slot }
@@ -111,7 +111,7 @@ component Text1247ac8f8149(instance: text, text: text) {
 
 view root Surface156d085f4ff5(instance: "page") {
   Textf50e441e85dc(instance: "t_title", text: copy.t_title_text)
-  Surface3e47e6c925f8(instance: "search_pill") {
+  Surfacec24999f0c4a5(instance: "search_pill") {
 
   }
   Surface88c878e5338b(instance: "hair_installed") {
