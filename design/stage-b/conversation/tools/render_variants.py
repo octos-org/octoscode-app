@@ -547,50 +547,33 @@ def wait_port(port, timeout=40):
 
 
 def relativize(tree):
-    """Rebase exactly the nodes `design.rs` positions with a MARGIN.
+    """Give every fill-width node the geometry a responsive parent needs.
 
-    `design.rs` wraps a node (and insets the wrapper with `margin`) in three cases
-    only: a `fillw` stack, a `fillw` left-aligned single-line text, and a
-    right-anchored (`alignx: 1`) node that is neither text nor input. For those the
-    source `x`/`y` must be the offset FROM the immediate parent, and the right inset
-    is the node's authored right gap (`parent_w - x - w`), which keeps its box at
-    `x .. x+authored_w` at any parent width (card #18c/#18e).
+    `design.rs` emits a fill node's inset as a wrapper MARGIN, so `x`/`y` must be
+    the offset FROM the parent, and the right inset is the node's authored right
+    gap (`parent_w - x - w`), which keeps its box at x .. x+authored_w at any
+    parent width. Card #18c/#18e.
 
-    Every OTHER node is pinned with `abs_pos`, and makepad `abs_pos` is
-    window-absolute, so its authored coordinates must stay ABSOLUTE. Rebasing one
-    moved it to the card origin: card #18f, the question-card note `input` is flagged
-    `fillw` but `design.rs` never wraps an `Input`, so the shift put the placeholder
-    "Add a note" at the card's top-left over the `?` icon and title.
+    Card #18f item 1: an `input` is NEVER wrapped by `design.rs` (it is pinned
+    with window-absolute `abs_pos`), so rebasing one moved the question-card note
+    placeholder to the card's top-left. Skip it.
+
+    A wrapped grandchild is relative to its IMMEDIATE parent, so recurse with the
+    child's own authored origin whatever its kind (card #18f item 2: the
+    `review_surface` inside the right-anchored `review` wrapper).
     """
-    def wrapped(c):
-        kind = c.get("t")
-        fillw = c.get("fillw") == 1
-        alignx1 = c.get("alignx") == 1
-        if kind == "text":
-            return fillw and c.get("alignx", 0) == 0 and c.get("variant") != "markdown"
-        if kind == "input":
-            return False
-        if kind == "stack":
-            return fillw or alignx1
-        return alignx1
-
-    def rec(n, nax, nay):
-        pw = n.get("w")
+    def rec(n, ox, oy, pw):
         for c in n.get("c", []) or []:
-            cx, cy = c.get("x", 0.0), c.get("y", 0.0)
-            if wrapped(c):
-                if cx is not None:
-                    c["x"] = round(cx - nax, 2)
-                if cy is not None:
-                    c["y"] = round(cy - nay, 2)
-                if pw is not None and c.get("w") is not None:
-                    c["padright"] = round(pw - ((cx - nax) + c["w"]), 2)
-            # Recurse with the child's OWN authored absolute origin: in both the
-            # wrapped and the abs_pos case makepad insets a child within its
-            # immediate parent's box, so a wrapped grandchild is relative to `c`.
-            rec(c, cx, cy)
-
-    rec(tree, tree.get("x") or 0.0, tree.get("y") or 0.0)
+            cx, cy, cw = c.get("x", 0), c.get("y", 0), c.get("w")
+            filled = (any(c.get(k) == 1 for k in ("fillw", "fith", "fillh", "fitw"))
+                      and c.get("t") != "input")
+            if filled:
+                c["x"] = round(cx - ox, 2)
+                c["y"] = round(cy - oy, 2)
+                if pw is not None and cw is not None:
+                    c["padright"] = round(pw - ((cx - ox) + cw), 2)
+            rec(c, cx, cy, cw)
+    rec(tree, 0, 0, None)
     return tree
 
 
