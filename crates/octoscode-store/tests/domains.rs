@@ -137,6 +137,60 @@ fn a_delta_does_not_cross_turns_or_sessions() {
     assert_eq!(store.live_text("s2"), "b");
 }
 
+/// Card #21i — a late delta must not overwrite the canonical receipt.
+///
+/// The real server interleaves: `assistant_persisted` lands mid-stream, and more
+/// `assistant_delta`s follow it. On the live `trace.jsonl` (turn
+/// `01a0ed1d-9d4d-7343-9aff-c5d5e6d20ccc`) the receipt arrived at frame 94 of
+/// 105 and the 11 deltas after it joined to EXACTLY the 45-char tail
+/// `` ` and is formatted into the `{}` placeholder.`` — which is what the screen
+/// showed, because `finalize_assistant` closed the entry and the later deltas
+/// opened a SECOND entry that `timeline_rows` renders (`.next_back()`).
+///
+/// The web is explicit that the receipt wins ("Receipt finality wins over
+/// delivery order", `apps/web/src/features/timeline/model.ts:655-663`), so the
+/// persisted body is the segment's canonical text and later deltas are dropped.
+/// This test is the store-level half; `f21d_lowering.rs` proves the row that
+/// renders reads it.
+#[test]
+fn a_delta_after_the_receipt_keeps_the_canonical_persisted_body() {
+    let store = Store::new();
+    let tl = &store.domains.session.timeline;
+
+    // The exact live order + strings (turn 01a0ed1d…, live-gate trace.jsonl).
+    const PRE: &str = "`main.rs` prints a single line, `5` — `main` calls `println!(\"{}\", add(2, 3))`, and the helper `add(a: i32, b: i32) -> i32 { a + b }` returns the sum of its arguments, so `2 + 3` evaluates to `5`";
+    const PERSISTED: &str = "`main.rs` prints a single line, `5` — `main` calls `println!(\"{}\", add(2, 3))`, and the helper `add(a: i32, b: i32) -> i32 { a + b }` returns the sum of its arguments, so `2 + 3` evaluates to `5` and is formatted into the `{}` placeholder.";
+    const LATE: &str = "` and is formatted into the `{}` placeholder.";
+
+    tl.append_delta("s1", Some("t1"), EntryKind::ASSISTANT_TEXT, PRE);
+    tl.finalize_assistant("s1", "t1", PERSISTED);
+    // Deltas that arrive AFTER the receipt (the real interleaving).
+    tl.append_delta("s1", Some("t1"), EntryKind::ASSISTANT_TEXT, LATE);
+
+    assert_eq!(
+        store.live_text("s1"),
+        PERSISTED,
+        "the canonical persisted body must win over later deltas"
+    );
+    assert_eq!(
+        tl.entries("s1").len(),
+        1,
+        "a late delta must fold into the finalized entry, not open a second one"
+    );
+
+    // A delta after the turn ALSO closed must still be dropped: the web drops
+    // every delta once the turn has a terminal (`timeline/model.ts:487-491`), so
+    // the receipt keeps the row even past the terminal.
+    tl.close_turn("s1", "t1");
+    tl.append_delta("s1", Some("t1"), EntryKind::ASSISTANT_TEXT, LATE);
+    assert_eq!(
+        store.live_text("s1"),
+        PERSISTED,
+        "a post-terminal delta must not resurrect a tail row"
+    );
+    assert_eq!(tl.entries("s1").len(), 1, "still exactly one assistant entry");
+}
+
 #[test]
 fn entry_kind_tags_are_lane_extensible_and_declared_kinds_are_complete() {
     // The twelve parity-matrix kinds are declared once, here:

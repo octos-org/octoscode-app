@@ -100,6 +100,12 @@ pub struct TimelineEntry {
     /// A folded entry stops absorbing `append_delta` text once closed
     /// (a turn boundary closes the assistant entry it belongs to).
     pub closed: bool,
+    /// Card #21i: the entry holds its **canonical** body (a finalized
+    /// `assistant_persisted`) rather than a streamed prefix. A finalized entry
+    /// absorbs no further `append_delta` text: the web drops later deltas
+    /// ("receipt finality wins over delivery order", `timeline/model.ts:655-663`).
+    /// Distinct from `closed`: `close_turn` closes without canonicalizing.
+    pub finalized: bool,
 }
 
 impl TimelineEntry {
@@ -111,6 +117,7 @@ impl TimelineEntry {
             text: String::new(),
             data: serde_json::Value::Null,
             closed: false,
+            finalized: false,
         }
     }
 }
@@ -162,16 +169,34 @@ impl Timeline {
     /// Fold streamed `text` into the last OPEN entry of `(session, turn_id,
     /// kind)`, appending one when there is none. This is how `message/delta`
     /// becomes **one** assistant entry instead of thousands.
+    ///
+    /// Card #21i: a `finalized` entry is a closed receipt, not an open stream —
+    /// once the canonical `assistant_persisted` has landed, later deltas are
+    /// **dropped**, not appended (the web: "receipt finality wins over delivery
+    /// order", `timeline/model.ts:655-663`). The real server interleaves them
+    /// (live `trace.jsonl`: `persisted` at frame 94, 11 more deltas after), and
+    /// appending those 45 chars OVER the canonical 239 gave `finalize`'s entry a
+    /// tail that only held the post-receipt fragment — what the screen showed.
     pub fn append_delta(&self, session: &str, turn_id: Option<&str>, kind: EntryKind, text: &str) -> u64 {
         let mut map = self.inner.lock().unwrap();
         let entries = map.entry(session.to_owned()).or_default();
-        if let Some(last) = entries
-            .iter_mut()
-            .rev()
-            .find(|e| e.kind == kind && e.turn_id.as_deref() == turn_id && !e.closed)
-        {
+        if let Some(last) = entries.iter_mut().rev().find(|e| {
+            e.kind == kind && e.turn_id.as_deref() == turn_id && !e.closed && !e.finalized
+        }) {
             last.text.push_str(text);
             return last.id;
+        }
+        // The turn's assistant entry already holds its canonical body? Then a
+        // late delta is a duplicate tail — keep the receipt, drop the delta.
+        // (`closed` is not consulted: the web drops a delta whenever the turn's
+        // entry is complete OR the turn has a terminal, `timeline/model.ts:487-491`
+        // + `:655-663`, so a post-terminal delta cannot resurrect a tail row.)
+        if let Some(fin) = entries
+            .iter()
+            .rev()
+            .find(|e| e.kind == kind && e.turn_id.as_deref() == turn_id && e.finalized)
+        {
+            return fin.id;
         }
         let id = self.next_id.fetch_add(1, Ordering::Relaxed);
         let mut e = TimelineEntry::new(id, turn_id.map(str::to_owned), kind);
@@ -180,11 +205,18 @@ impl Timeline {
         id
     }
 
-    /// Fold a **finalized** assistant message (`assistant_persisted`): the
-    /// web's fold treats it as finalizing the same segment its deltas wrote
-    /// (`timeline/model.ts`), so when the turn's open assistant entry already
-    /// holds text we leave it (the deltas are the content) and only fill it
-    /// when the deltas never arrived. Either way the entry is then closed.
+    /// Fold a **finalized** assistant message (`assistant_persisted`).
+    ///
+    /// Card #21i: the web's fold makes the persisted body the segment's
+    /// **canonical** content — its `upsert` writes `body: textOf(data)` and
+    /// `status: "complete"` (`timeline/model.ts:502-520`), and `appendText`
+    /// drops later deltas once the entry is complete (`:655-663`).
+    ///
+    /// So: put the persisted body INTO the turn's assistant entry (replacing a
+    /// streamed prefix, which may be partial or, when the receipt raced ahead of
+    /// the stream, only a tail), and mark it `finalized`. `closed` stays false
+    /// so a genuinely new segment in the same turn still opens its own entry
+    /// (multi-segment turns — exactly what `assistant_segment_id` is for).
     pub fn finalize_assistant(&self, session: &str, turn_id: &str, text: &str) {
         let mut map = self.inner.lock().unwrap();
         let entries = map.entry(session.to_owned()).or_default();
@@ -197,16 +229,14 @@ impl Timeline {
                     && !e.closed
             })
         {
-            if last.text.is_empty() {
-                last.text = text.to_owned();
-            }
-            last.closed = true;
+            last.text = text.to_owned();
+            last.finalized = true;
             return;
         }
         let id = self.next_id.fetch_add(1, Ordering::Relaxed);
         let mut e = TimelineEntry::new(id, Some(turn_id.to_owned()), EntryKind::ASSISTANT_TEXT);
         e.text = text.to_owned();
-        e.closed = true;
+        e.finalized = true;
         entries.push(e);
     }
 
