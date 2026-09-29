@@ -24,13 +24,13 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "stack",
-      "component": "Surface3fb84fb22ff9",
+      "component": "Surface5a7573e113ac",
       "semantic_role": "layout",
       "bounds": [
-        21.0,
-        92.0,
-        365.0,
-        572.0
+        0.0,
+        0.0,
+        406.0,
+        776.0
       ],
       "text": null,
       "enabled": null,
@@ -99,10 +99,10 @@
       "component": "Surfacec794427d62ea",
       "semantic_role": "layout",
       "bounds": [
-        38.0,
-        186.0,
-        333.0,
-        67.0
+        48.0,
+        194.45,
+        310.0,
+        52.1
       ],
       "text": null,
       "enabled": null,

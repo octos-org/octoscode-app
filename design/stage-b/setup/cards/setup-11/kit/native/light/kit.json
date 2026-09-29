@@ -2,8 +2,8 @@
   "schema_version": 1,
   "theme": "light",
   "tokens": {
-    "bg_33c64e1da9ef": {
-      "value": 4278190080,
+    "bg_07cf9621f5e0": {
+      "value": 4294901502,
       "property": "bg"
     },
     "size_e67c085a59ce": {
@@ -136,12 +136,12 @@
     }
   },
   "components": {
-    "Surfacee138f8831782": {
+    "Surface16fae9a63e16": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_33c64e1da9ef"
+          "$token": "bg_07cf9621f5e0"
         }
       },
       "props": {},

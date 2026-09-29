@@ -21,12 +21,12 @@
         }
       },
       "search_pill": {
-        "component": "Surfacec24999f0c4a5",
+        "component": "Surface3e47e6c925f8",
         "layout": {
-          "x": 269.0,
-          "y": 476.0,
-          "w": 88.0,
-          "h": 41.0
+          "x": 51.0,
+          "y": 100.5,
+          "w": 158.0,
+          "h": 22.0
         }
       },
       "hair_installed": {

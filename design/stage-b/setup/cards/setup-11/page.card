@@ -12,8 +12,8 @@ copy btn_diag_label_text { class: user-copy, en: "Copy diagnostics" }
 copy t_report_text { class: user-copy, en: "Report issue" }
 state btn_reload_control_enabled { shape: bool, initial: true }
 state btn_diag_control_enabled { shape: bool, initial: true }
-component Surfacee138f8831782(instance: text) {
-  view Kit(component: "Surfacee138f8831782", instance: instance) { slot }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
 }
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
@@ -52,7 +52,7 @@ component Text1d5b7c8d06a0(instance: text, text: text) {
   view Kit(component: "Text1d5b7c8d06a0", instance: instance, text: text)
 }
 
-view root Surfacee138f8831782(instance: "page") {
+view root Surface16fae9a63e16(instance: "page") {
   Vectore0a378fde04f(instance: "icon_warning")
   Texta5445c6e2aa8(instance: "t_title", text: copy.t_title_text)
   Text209c8b4b11ac(instance: "t_msg1", text: copy.t_msg1_text)

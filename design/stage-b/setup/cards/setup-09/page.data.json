@@ -158,10 +158,10 @@
       "btn_compact_surface": {
         "component": "Surface1757f24326c9",
         "layout": {
-          "x": 35.0,
-          "y": 516.0,
-          "w": 328.0,
-          "h": 58.0
+          "x": 60.0,
+          "y": 513.0,
+          "w": 290.0,
+          "h": 44.0
         }
       },
       "btn_compact_control": {

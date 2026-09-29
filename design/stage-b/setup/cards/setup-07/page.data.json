@@ -14,28 +14,28 @@
       "card_deepseek": {
         "component": "Surface355061c60f4b",
         "layout": {
-          "x": 21.0,
-          "y": 111.0,
-          "w": 323.0,
-          "h": 306.0
+          "x": 16.0,
+          "y": 118.0,
+          "w": 374.0,
+          "h": 292.0
         }
       },
       "card_kimi": {
         "component": "Surface426fa1bbc3d5",
         "layout": {
-          "x": 19.0,
-          "y": 439.0,
-          "w": 327.0,
-          "h": 102.0
+          "x": 16.0,
+          "y": 448.0,
+          "w": 374.0,
+          "h": 100.0
         }
       },
       "card_glm": {
         "component": "Surface6df01ea6b2de",
         "layout": {
-          "x": 18.0,
-          "y": 563.0,
-          "w": 328.0,
-          "h": 101.0
+          "x": 16.0,
+          "y": 570.0,
+          "w": 374.0,
+          "h": 106.0
         }
       },
       "t_title": {
@@ -162,10 +162,10 @@
       "btn_test_surface": {
         "component": "Surface26d3b1b7b376",
         "layout": {
-          "x": 36.0,
+          "x": 44.0,
           "y": 356.0,
-          "w": 138.0,
-          "h": 44.0
+          "w": 106.0,
+          "h": 40.0
         }
       },
       "btn_test_control": {
