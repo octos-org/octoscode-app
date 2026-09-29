@@ -516,7 +516,7 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
         // 364px row, which lands mid-column once mounted in a wider slot.
         ItemKind::AnswerActions => right_align_timestamp(&ui),
         // Card #21e item 6: fenced code must not soft-wrap.
-        ItemKind::AssistantProse => no_wrap_code(&fit_heights(&ui)),
+        ItemKind::AssistantProse => reachable_code(&fit_heights(&ui)),
         // Card #21e item 3: the send control is a flat black disc.
         ItemKind::Composer => flat_send_button(&ui),
         // Card #21e item 8: the activity row's spinner keeps its 18px box.
@@ -609,16 +609,18 @@ fn right_align_timestamp(ui: &str) -> String {
 ///
 /// `Markdown` folds fenced code into the body text flow
 /// (`widgets/src/markdown.rs:219` `use_code_block_widget` defaults false), whose
-/// `code_layout.flow` is `Flow.Right{wrap: true}` (`text_flow.rs:192-196`) — so a
-/// code line breaks mid-token (`// 0` spilling onto a `—`-prefixed line). Pin the
-/// code block's flow non-wrapping; the block then clips long lines in its mono
-/// block like the atlas's grey code block.
-fn no_wrap_code(ui: &str) -> String {
-    // The DSL's flow vocabulary is bare (`flow: Overlay`, `flow: Right{wrap: true}`);
-    // `Flow.Right` is the Rust enum path, not a DSL value.
+/// `code_layout.flow` is `Flow.Right{wrap: true}` (`text_flow.rs:192-196`). Card
+/// #21e pinned that to a non-wrapping `flow: Right`, which HARD-CLIPS an
+/// over-long line at the block's edge (`g4-interrupted.png`: `let y = x + 10; //
+/// panic in debug,…` cut off). Card #21g item 2 restores wrapping — the board's
+/// accepted alternative to horizontal scroll — so every glyph is painted over
+/// the wrapped rows and the full line is reachable.
+fn reachable_code(ui: &str) -> String {
+    // Undo the #21e pin (the exact string it inserted), returning the block to
+    // the theme's wrapping code layout.
     ui.replace(
-        " := Markdown {",
         " := Markdown {\ncode_layout: Layout{flow: Right}",
+        " := Markdown {",
     )
 }
 

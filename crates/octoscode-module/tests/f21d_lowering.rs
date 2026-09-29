@@ -154,6 +154,37 @@ fn item1_the_worked_for_row_is_small_grey_over_a_rule() {
     );
 }
 
+/// Card #21g item 2 — a code block must not HARD-CLIP an over-long line.
+///
+/// The #21e pin ran `code_layout` non-wrapping, so a long line was cut at the
+/// block's right edge (`g4-interrupted.png`: `let y = x + 10; // panic in
+/// debug,…`). The board's accepted alternative to horizontal scroll is a
+/// visible soft-wrap, so the theme's wrapping code layout must survive.
+#[test]
+fn item2_a_long_code_line_is_reachable_not_clipped() {
+    // The board's fixture ("let y = x + 10; // panic in debug,…") widened past
+    // 120 columns.
+    let line = format!("let y = x + 10; // {}", "panic in debug ".repeat(10));
+    assert!(
+        line.chars().count() > 120,
+        "the fixture line must exceed 120 columns"
+    );
+    let dsl = components::lower(
+        ItemKind::AssistantProse,
+        "0",
+        &copies(ItemKind::AssistantProse, &line),
+    )
+    .expect("the prose lowers");
+    assert!(
+        !dsl.contains("code_layout: Layout{flow: Right}"),
+        "the non-wrapping #21e pin must be gone (it hard-clips long lines); got:\n{dsl}"
+    );
+    assert!(
+        dsl.contains(&line),
+        "the full >120-column line must survive into the markdown body; got:\n{dsl}"
+    );
+}
+
 /// Card #21f item 2 — the cleared second bubble line must not reserve a line box.
 ///
 /// The component's `t02` is bound to `@clear` (the whole message rides the
