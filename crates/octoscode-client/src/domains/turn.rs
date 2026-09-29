@@ -255,6 +255,12 @@ impl NotificationHandler for ProjectionEnvelopeHandler {
         }
 
         let timeline = &self.store.domains.session.timeline;
+        // Card #22 §2: every `projection/envelope` payload `type` reaches a
+        // handler — this match is exhaustive over `PayloadV2` (no catch-all), so
+        // the compiler proves it. Record the `type` so a test can assert each
+        // one was actually folded on real traffic.
+        self.store
+            .note_payload_type(&payload_type_name(&env.payload));
         match &env.payload {
             // The user's own prompt becomes a `user.message` entry.
             //
@@ -426,6 +432,26 @@ fn owner_json(owner: &AttachmentOwnerV2) -> serde_json::Value {
         "assistant_segment_id": owner.assistant_segment_id,
         "tool_call_id": owner.tool_call_id,
     })
+}
+
+/// Card #22 §2: the wire `type` tag of a [`PayloadV2`] (`replay`-stable, the
+/// exact string the server sent under `payload.type`).
+///
+/// Derived from the payload's own serde tag, NOT a hand-written match, so it
+/// cannot drift from the wire shape: `PayloadV2` is
+/// `#[serde(tag = "type", content = "data", rename_all = "snake_case")]`
+/// (octos-core `ui_protocol.rs:3978`), so `to_value(p)["type"]` is the tag the
+/// server used — e.g. `"assistant_delta"`, and the renamed
+/// `"background/spawn_complete"` (`ui_protocol.rs:4045`).
+fn payload_type_name(payload: &PayloadV2) -> String {
+    serde_json::to_value(payload)
+        .ok()
+        .and_then(|v| {
+            v.get("type")
+                .and_then(|t| t.as_str())
+                .map(str::to_owned)
+        })
+        .unwrap_or_else(|| "unknown".to_owned())
 }
 
 /// `message/reasoning_delta` — the model's streamed thinking (card #13 §3).

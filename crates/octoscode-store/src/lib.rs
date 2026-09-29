@@ -117,6 +117,39 @@ impl Store {
         self.diagnostics.count(method)
     }
 
+    // ---- card #22 §2: the no-silent-drops guard ---------------------------
+
+    /// Card #22 §2: record that `method` reached neither a handler nor an
+    /// explicit ignore entry (a silent drop).
+    pub fn note_unhandled(&self, method: &str) {
+        self.diagnostics.note_unhandled(method);
+    }
+
+    /// Card #22 §2: how many times `method` arrived unhandled.
+    pub fn unhandled_count(&self, method: &str) -> usize {
+        self.diagnostics.unhandled_count(method)
+    }
+
+    /// Card #22 §2: every unhandled method, sorted. Empty in a healthy run.
+    pub fn unhandled_methods(&self) -> Vec<String> {
+        self.diagnostics.unhandled_methods()
+    }
+
+    /// Card #22 §2: whether anything arrived unhandled.
+    pub fn has_unhandled(&self) -> bool {
+        self.diagnostics.has_unhandled()
+    }
+
+    /// Card #22 §2: record one `projection/envelope` payload `type` folded.
+    pub fn note_payload_type(&self, kind: &str) {
+        self.diagnostics.note_payload_type(kind);
+    }
+
+    /// Card #22 §2: every `projection/envelope` payload `type` folded, sorted.
+    pub fn payload_types(&self) -> Vec<String> {
+        self.diagnostics.payload_types()
+    }
+
     /// A one-line summary for a tile: connection + session count.
     pub fn summary(&self) -> String {
         format!(
