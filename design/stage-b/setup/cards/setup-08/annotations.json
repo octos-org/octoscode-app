@@ -54,6 +54,58 @@
       "bg": 4294835709
     },
     {
+      "id": "bd_avatar",
+      "bounds": [
+        23.5,
+        29.5,
+        38.0,
+        38.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4292006613,
+      "radius": 8.0
+    },
+    {
+      "id": "bd_bar1",
+      "bounds": [
+        80.0,
+        40.5,
+        275.5,
+        18.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4292138199,
+      "radius": 9.0
+    },
+    {
+      "id": "bd_bar2",
+      "bounds": [
+        62.0,
+        87.0,
+        321.0,
+        12.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4292796128,
+      "radius": 6.0
+    },
+    {
+      "id": "bd_composer",
+      "bounds": [
+        25.5,
+        694.0,
+        374.0,
+        19.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4292204248,
+      "radius": 9.75
+    },
+    {
       "id": "modal",
       "bounds": [
         40.0,
@@ -65,6 +117,31 @@
       "reviewed": false,
       "bg": 4294835709,
       "radius": 12.0
+    },
+    {
+      "id": "search_field",
+      "bounds": [
+        40.0,
+        111.0,
+        329.0,
+        57.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 9.66
+    },
+    {
+      "id": "cursor",
+      "bounds": [
+        112.5,
+        129.0,
+        2.0,
+        26.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "radius": 1.0
     },
     {
       "id": "icon_close",

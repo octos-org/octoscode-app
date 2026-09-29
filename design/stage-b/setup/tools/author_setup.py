@@ -22,12 +22,17 @@ A.ICONS["warning"] = ('<path d="M12 4L22 20H2z"/>'
 A.ICONS["close"] = '<path d="M6 6l12 12"/><path d="M18 6L6 18"/>'
 A.ICONS["chev_r"] = '<path d="M9 6l6 6-6 6"/>'
 A.ICONS["chev_d"] = '<path d="M6 9l6 6 6-6"/>'
+A.ICONS["chev_u"] = '<path d="M6 15l6-6 6 6"/>'
 
 TITLES = {7: "Model settings", 8: "Command palette", 9: "Context panel",
           10: "Skills", 11: "Error screen", 12: "Loading and reconnecting"}
 
 FIX = {"TV to move • & torun • esc": "↑↓ to move · ↵ to run · esc",
-       "Reconnecting... attempt 2 • Retry now": "Reconnecting… attempt 2 · Retry now"}
+       "Reconnecting... attempt 2 • Retry now": "Reconnecting… attempt 2 · Retry now",
+       # outer #28d2: Apple Vision read the joined slash as "/ model"; the atlas
+       # commands are "/model" (no space). The query row "/ mo" is user input - kept.
+       "/ model": "/model", "/ mode": "/mode",
+       "/ compact": "/compact", "/ btw": "/btw", "/ resume": "/resume"}
 
 def load_rows(k):
     d = json.loads((SETUP / "ocr" / f"setup-{k:02d}.ocr.json").read_text())
@@ -54,48 +59,73 @@ def samp(k, x, y):
 
 def build_07(sc):
     reg("s7_page", 7, 8, 700)
-    reg("s7_card", 7, 300, 160)          # right of the heading text run
-    reg("s7_selrow", 7, 330, 250)        # inside the grey chevron chip (233,233,234)
-    reg("s7_pill1", 7, 52, 361)
-    reg("s7_pill2", 7, 196, 361)
-    reg("s7_dot", 7, 284, 606)
-    sc.put(A.surface("card_deepseek", 16, 118, 374, 292, bg="s7_card", radius=12, border=1,
+    reg("s7_card", 7, 300, 160)          # card fill right of the heading text run
+    reg("s7_dot_ds", 7, 285, 147)        # green status dots (probe bboxes below)
+    reg("s7_dot_kimi", 7, 285, 481)
+    reg("s7_dot", 7, 285, 606)
+    # three provider cards, probe-true bounds (ref L x20, R x344)
+    sc.put(A.surface("card_deepseek", 20, 110, 324, 290, bg="s7_card", radius=12, border=1,
                      bordercolor="hair"))
-    sc.put(A.surface("card_kimi", 16, 448, 374, 100, bg="s7_card", radius=12))
-    sc.put(A.surface("card_glm", 16, 570, 374, 106, bg="s7_card", radius=12))
+    sc.put(A.surface("card_kimi", 20, 441, 324, 99, bg="s7_card", radius=12, border=1,
+                     bordercolor="hair"))
+    sc.put(A.surface("card_glm", 20, 564, 324, 98, bg="s7_card", radius=12, border=1,
+                     bordercolor="hair"))
+    # page-level hairline right of the cards (ref x364.5, spans y110-699)
+    A.C["s7_vline"] = 0xFFD9D9DA
+    sc.put(A.surface("vline", 364, 110, 1, 590, bg="s7_vline", radius=0))
     sc.add_text("t_title", 0, weight=600, size=19)
     sc.add_text("t_ds_head", 1, weight=600, size=15)
     sc.add_text("t_ds_count", 2, color="muted", size=13)
-    sc.put(A.surface("chev_chip", 328, 228, 40, 40, bg="s7_selrow", radius=20))
-    sc.put(A.icon("icon_chev", "chev_r", 342, 240, 14, 22, color="muted"))
-    A.C["s7_check"] = 0xFF2F6FEB   # ref selected-row check is standard blue
-    sc.put(A.icon("icon_check", "check", 299, 240, 16, 16, color="blue"))
-    reg("s7_dot_ds", 7, 284, 293)    # DeepSeek head status dot
-    sc.put(A.surface("dot_ds", 280, 288, 11, 11, bg="s7_dot_ds", radius=6))
-    sc.put(A.icon("icon_chev_ds", "chev_d", 346, 283, 18, 24, color="muted"))
-    reg("s7_dot_kimi", 7, 284, 508)  # Kimi head status dot
-    sc.put(A.surface("dot_kimi", 280, 503, 11, 11, bg="s7_dot_kimi", radius=6))
-    sc.put(A.icon("icon_chev_kimi", "chev_d", 346, 498, 18, 24, color="muted"))
+    # bordered inner card around the two model rows + divider
+    # (ref: L x34.5, T y214, B y337, right border x330-331, divider y276-277)
+    A.C["s7_innerb"] = 0xFFE3E4E4
+    sc.put(A.surface("inner_card", 34.5, 214, 296.5, 123, bg="white", radius=8, border=1,
+                     bordercolor="s7_innerb"))
+    sc.put(A.surface("inner_div", 34.5, 276.5, 296.5, 1, bg="s7_innerb", radius=0))
+    # head status dot + chevron per provider (probe bboxes)
+    sc.put(A.surface("dot_ds", 280.5, 142, 9, 10.5, bg="s7_dot_ds", radius=5))
+    sc.put(A.icon("icon_chev_ds", "chev_u", 313.5, 143, 12.5, 8, color="muted"))
     sc.add_text("t_flash", 3, weight=500, size=14)
     sc.add_text("t_pro", 4, size=14)
-    sc.add_control("btn_test", 44, 356, 106, 40, 5, bg="white", radius=20, weight=500,
+    # blue check ~2x v14 (ref ink 16x16 at 299..315 / 239.5..255.5)
+    A.C["s7_check"] = 0xFF2F6FEB
+    A.C_HEX["s7_check"] = "#2F6FEB"   # the SVG stroke must be blue too (C_HEX fallback trap)
+    sc.put(A.icon("icon_check", "check", 292, 236, 28, 26, color="s7_check"))
+    # equal-width bordered pills (ref L x34.5-174.5, R x192-330.5)
+    sc.add_control("btn_test", 34.5, 356, 140, 40, 5, bg="white", radius=20, weight=500,
                    border=1, bordercolor="ink",
                    lx=65, ly=369, lw=76, lh=20, event="models.test_route")
-    sc.add_control("btn_discover", 190, 356, 140, 40, 6, bg="white", radius=20, weight=500,
+    sc.add_control("btn_discover", 192, 356, 138.5, 40, 6, bg="white", radius=20, weight=500,
                    border=1, bordercolor="ink",
                    lx=208, ly=369, lw=112, lh=20, event="models.discover")
     sc.add_text("t_kimi_head", 7, weight=600, size=15)
     sc.add_text("t_kimi_count", 8, color="muted", size=13)
+    sc.put(A.surface("dot_kimi", 280.5, 476.5, 9, 10.5, bg="s7_dot_kimi", radius=5))
+    sc.put(A.icon("icon_chev_kimi", "chev_d", 314, 484.5, 11.5, 7.5, color="muted"))
     sc.add_text("t_glm_head", 9, weight=600, size=15)
     sc.add_text("t_glm_count", 10, color="muted", size=13)
-    sc.put(A.surface("dot_glm", 280, 601, 11, 11, bg="s7_dot", radius=6))
+    sc.put(A.surface("dot_glm", 280.5, 601.5, 9, 10.5, bg="s7_dot", radius=5))
+    sc.put(A.icon("icon_chev_glm", "chev_d", 314, 608.5, 11.5, 7.5, color="muted"))
 
 def build_08(sc):
     reg("s8_scrim", 8, 10, 10)
     reg("s8_modal", 8, 203, 320)
     reg("s8_selrow", 8, 200, 219)
     sc.put(A.surface("scrim", 0, 0, 406, 776, bg="s8_scrim", radius=0))
-    sc.put(A.surface("modal", 40, 93, 326, 570, bg="s8_modal", radius=12))  # ref white col-run y93..663
+    # dimmed conversation backdrop behind the palette (probe: header pieces
+    # 22.5..384.5 x 29.5..99.5; composer bar y694..713; greys ~210-215)
+    A.C["s8_bone"] = 0xFFD3D4D6
+    sc.put(A.surface("bd_avatar", 23.5, 29.5, 38, 38, bg="s8_bone", radius=8))
+    sc.put(A.surface("bd_bar1", 80, 40.5, 275.5, 18.5, bg="s8_bone", radius=9))
+    sc.put(A.surface("bd_bar2", 62, 87, 321, 12.5, bg="s8_bone", radius=6))
+    sc.put(A.surface("bd_composer", 25.5, 694, 374, 19.5, bg="s8_bone", radius=10))
+    sc.put(A.surface("modal", 40, 93, 326, 570, bg="s8_modal", radius=12))
+    # bordered search field (ref: top y110-111, bottom y168-169, L x39, R x369-370)
+    A.C["s8_boxb"] = 0xFFD2D3D5
+    sc.put(A.surface("search_field", 39, 110, 331, 59, bg="white", radius=10, border=1,
+                     bordercolor="s8_boxb"))
+    # text cursor after the query glyphs (ref dark bar ~x98-107, h~26)
+    sc.put(A.surface("cursor", 112.5, 129, 2, 26, bg="ink", radius=1))  # after the query run (text ends x110.5); the x98-107 ink is the "o" glyph
     _s, _x, _y, _w, _h = sc.rows[1]
     sc.put(A.icon("icon_close", "close", _x, _y, _w, _h, color="ink"))
     s, x, y, w, h = sc.rows[0]
@@ -139,30 +169,30 @@ def build_09(sc):
     sc.add_text("t_keep", 13, color="muted", size=13)
 
 def build_10(sc):
-    reg("s10_input", 10, 200, 95)
     reg("s10_install", 10, 313, 480)   # install pill fill (253,253,253)
-    A.C["s10_hair"] = 0xFFF1F1F1      # full-width hairline grey (241)
-    A.C["s10_pillb"] = 0xFF3C3C3E     # install pill outline (60,60,62)
-    A.C["s10_inkdark"] = 0xFF212122   # ref placeholder ink (33,33,34)
-    A.C["s10_remove"] = 0xFFD3DEFA     # ref (211,222,250) @ (329,236)
-    A.C["s10_blue"] = 0xFF0000E0       # ref Remove glyph darkest (0,0,224)
-    sc.add_text("t_title", 0, weight=600, size=19)
-    A.C["s10_boxb"] = 0xFFD6D6D7    # search field border (214,214,215) @ (34,111)
-    A.C_HEX["s10_boxb"] = "#D6D6D7"
-    A.C["s10_ph"] = 0xFF828081      # placeholder ink (130,128,129)
+    A.C["s10_pillb"] = 0xFF3C3C3E      # install pill outline (60,60,62)
+    A.C["s10_blue"] = 0xFF0000E0       # Remove glyph darkest (0,0,224)
+    A.C["s10_ph"] = 0xFF828081         # placeholder ink (130,128,129)
     A.C_HEX["s10_ph"] = "#828081"
-    sc.put(A.surface("search_box", 34, 80, 364, 60, bg="white", radius=8,
-                     border=1, bordercolor="s10_boxb"))
-    sc.put(A.surface("hair_installed", 0, 204, 406, 1, bg="s10_hair", radius=0))
-    sc.put(A.surface("hair_registry", 0, 602, 406, 1, bg="s10_hair", radius=0))
-    sc.put(A.surface("hair_installed_end", 0, 393, 406, 1, bg="s10_hair", radius=0))
-    sc.put(A.surface("hair_registry_top", 0, 459, 406, 1, bg="s10_hair", radius=0))
-    A.C["s10_grpl"] = 0xFFE2E2E3    # group-card left line (225..230 grey) @ x34
-    A.C_HEX["s10_grpl"] = "#E2E2E3"
-    sc.put(A.surface("grpl_1", 34, 213, 1.5, 172, bg="s10_grpl", radius=0))
-    sc.put(A.surface("grpl_2", 34, 469, 1.5, 123, bg="s10_grpl", radius=0))
-    sc.put(A.icon("icon_search", "search", 51, 103, 17, 17, color="s10_ph"))
+    A.C["s10_boxb"] = 0xFFD6D6D7       # search field border (214,214,215)
+    A.C_HEX["s10_boxb"] = "#D6D6D7"
+    A.C["s10_cardb"] = 0xFFE4E4E5      # group card border (230..236 grey)
+    A.C["s10_div"] = 0xFFF0F0F1        # internal row divider (240,240,241)
+    sc.add_text("t_title", 0, weight=600, size=19)
+    # bordered search field (ref: T y80-81, B y139-140, L x34, R x368.5-370)
+    sc.put(A.surface("search_box", 34, 80, 336, 60, bg="white", radius=8, border=1,
+                     bordercolor="s10_boxb"))
+    sc.put(A.icon("icon_search", "search", 51, 100.5, 18, 20.5, color="s10_ph"))
     sc.put(A.text("t_search", sc.rows[1][0], 83, 104, 128, 18, color="s10_ph", size=12))
+    # two bordered group cards (ref: c1 y203-394, c2 y459-602, L x14, R x391-392)
+    sc.put(A.surface("card_installed", 14, 203, 378, 191, bg="white", radius=8, border=1,
+                     bordercolor="s10_cardb"))
+    sc.put(A.surface("card_registry", 14, 459, 378, 143, bg="white", radius=8, border=1,
+                     bordercolor="s10_cardb"))
+    # internal row dividers (ref y266-267 / y331-332 / y531, span x33.5-370.5)
+    sc.put(A.surface("div_1", 33.5, 266.5, 337, 1, bg="s10_div", radius=0))
+    sc.put(A.surface("div_2", 33.5, 331.5, 337, 1, bg="s10_div", radius=0))
+    sc.put(A.surface("div_3", 33.5, 531, 337, 1, bg="s10_div", radius=0))
     sc.add_text("t_inst_head", 2, weight=600, size=15)
     for ni, vi, ri, bi in [(3, 6, 14, 0), (4, 7, 15, 1), (5, 8, 16, 2)]:
         ns, nx, ny, nw, nh = sc.rows[ni]
@@ -170,9 +200,12 @@ def build_10(sc):
         vs, vx, vy, vw, vh = sc.rows[vi]
         sc.put(A.text(f"t_ver{vi}", vs, vx, vy, vw, vh, color="muted", size=13))
         rs, rx, ry, rw, rh = sc.rows[ri]
-        sc.add_control(f"btn_{bi}_remove", 295, ry - 2, 76, 30, ri, bg="s10_remove", radius=15,
-                       weight=500, color="s10_blue", lx=rx, ly=ry, lw=rw, lh=rh,
-                       event=f"skills.remove_{bi}")
+        # plain blue text, NO pill bg (probe + outer: atlas Remove is bare text)
+        sc.put(A.text(f"t_remove{bi}", rs, rx, ry, rw, rh, weight=500, size=13,
+                      color="s10_blue"))
+        sc.controls[f"btn_{bi}_remove"] = (f"skills.remove_{bi}",
+                                           [int(rx) - 10, int(ry) - 8, int(rw) + 20, int(rh) + 16],
+                                           True)
     sc.add_text("t_reg_head", 9, weight=600, size=15)
     for ni, vi, ri, bi in [(10, 11, 17, 3), (12, 13, 18, 4)]:
         ns, nx, ny, nw, nh = sc.rows[ni]

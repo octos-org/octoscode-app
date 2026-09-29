@@ -19,14 +19,17 @@ state btn_discover_control_enabled { shape: bool, initial: true }
 component Surface16fae9a63e16(instance: text) {
   view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
 }
-component Surface355061c60f4b(instance: text) {
-  view Kit(component: "Surface355061c60f4b", instance: instance) { slot }
+component Surface8e5ec20f13ed(instance: text) {
+  view Kit(component: "Surface8e5ec20f13ed", instance: instance) { slot }
 }
-component Surface426fa1bbc3d5(instance: text) {
-  view Kit(component: "Surface426fa1bbc3d5", instance: instance) { slot }
+component Surface9ee69c2cfe83(instance: text) {
+  view Kit(component: "Surface9ee69c2cfe83", instance: instance) { slot }
 }
-component Surface6df01ea6b2de(instance: text) {
-  view Kit(component: "Surface6df01ea6b2de", instance: instance) { slot }
+component Surface6ac8942dbfa9(instance: text) {
+  view Kit(component: "Surface6ac8942dbfa9", instance: instance) { slot }
+}
+component Surfaceb5be1093af4a(instance: text) {
+  view Kit(component: "Surfaceb5be1093af4a", instance: instance) { slot }
 }
 component Textefc81a410676(instance: text, text: text) {
   view Kit(component: "Textefc81a410676", instance: instance, text: text)
@@ -37,14 +40,17 @@ component Text9d99f2224598(instance: text, text: text) {
 component Textd2de94ec13a5(instance: text, text: text) {
   view Kit(component: "Textd2de94ec13a5", instance: instance, text: text)
 }
-component Surface885d219686b4(instance: text) {
-  view Kit(component: "Surface885d219686b4", instance: instance) { slot }
+component Surfacea7406a4ae43d(instance: text) {
+  view Kit(component: "Surfacea7406a4ae43d", instance: instance) { slot }
+}
+component Surface32251c2d6d0c(instance: text) {
+  view Kit(component: "Surface32251c2d6d0c", instance: instance) { slot }
+}
+component Surfacec5da2fb3c7c1(instance: text) {
+  view Kit(component: "Surfacec5da2fb3c7c1", instance: instance) { slot }
 }
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
-}
-component Surface5f03e3e8e65e(instance: text) {
-  view Kit(component: "Surface5f03e3e8e65e", instance: instance) { slot }
 }
 component Textecbf6c315357(instance: text, text: text) {
   view Kit(component: "Textecbf6c315357", instance: instance, text: text)
@@ -76,44 +82,48 @@ component Textaa1186c45b59(instance: text, text: text) {
 component Texta813d34bcd90(instance: text, text: text) {
   view Kit(component: "Texta813d34bcd90", instance: instance, text: text)
 }
+component Surface1cfef960ffc3(instance: text) {
+  view Kit(component: "Surface1cfef960ffc3", instance: instance) { slot }
+}
 component Textf4212b9678a4(instance: text, text: text) {
   view Kit(component: "Textf4212b9678a4", instance: instance, text: text)
 }
 component Texta3258eaad970(instance: text, text: text) {
   view Kit(component: "Texta3258eaad970", instance: instance, text: text)
 }
-component Surfacedc07632c2b28(instance: text) {
-  view Kit(component: "Surfacedc07632c2b28", instance: instance) { slot }
+component Surface854f2bc4be10(instance: text) {
+  view Kit(component: "Surface854f2bc4be10", instance: instance) { slot }
 }
 
 view root Surface16fae9a63e16(instance: "page") {
-  Surface355061c60f4b(instance: "card_deepseek") {
+  Surface8e5ec20f13ed(instance: "card_deepseek") {
 
   }
-  Surface426fa1bbc3d5(instance: "card_kimi") {
+  Surface9ee69c2cfe83(instance: "card_kimi") {
 
   }
-  Surface6df01ea6b2de(instance: "card_glm") {
+  Surface6ac8942dbfa9(instance: "card_glm") {
+
+  }
+  Surfaceb5be1093af4a(instance: "vline") {
 
   }
   Textefc81a410676(instance: "t_title", text: copy.t_title_text)
   Text9d99f2224598(instance: "t_ds_head", text: copy.t_ds_head_text)
   Textd2de94ec13a5(instance: "t_ds_count", text: copy.t_ds_count_text)
-  Surface885d219686b4(instance: "chev_chip") {
+  Surfacea7406a4ae43d(instance: "inner_card") {
 
   }
-  Vectore0a378fde04f(instance: "icon_chev")
-  Vectore0a378fde04f(instance: "icon_check")
-  Surface5f03e3e8e65e(instance: "dot_ds") {
+  Surface32251c2d6d0c(instance: "inner_div") {
+
+  }
+  Surfacec5da2fb3c7c1(instance: "dot_ds") {
 
   }
   Vectore0a378fde04f(instance: "icon_chev_ds")
-  Surface5f03e3e8e65e(instance: "dot_kimi") {
-
-  }
-  Vectore0a378fde04f(instance: "icon_chev_kimi")
   Textecbf6c315357(instance: "t_flash", text: copy.t_flash_text)
   Text947ba4ca257a(instance: "t_pro", text: copy.t_pro_text)
+  Vectore0a378fde04f(instance: "icon_check")
   KitButton2c6804b990a5(instance: "btn_test") {
     Surface26d3b1b7b376(instance: "btn_test_surface") {
 
@@ -130,9 +140,14 @@ view root Surface16fae9a63e16(instance: "page") {
   }
   Textaa1186c45b59(instance: "t_kimi_head", text: copy.t_kimi_head_text)
   Texta813d34bcd90(instance: "t_kimi_count", text: copy.t_kimi_count_text)
-  Textf4212b9678a4(instance: "t_glm_head", text: copy.t_glm_head_text)
-  Texta3258eaad970(instance: "t_glm_count", text: copy.t_glm_count_text)
-  Surfacedc07632c2b28(instance: "dot_glm") {
+  Surface1cfef960ffc3(instance: "dot_kimi") {
 
   }
+  Vectore0a378fde04f(instance: "icon_chev_kimi")
+  Textf4212b9678a4(instance: "t_glm_head", text: copy.t_glm_head_text)
+  Texta3258eaad970(instance: "t_glm_count", text: copy.t_glm_count_text)
+  Surface854f2bc4be10(instance: "dot_glm") {
+
+  }
+  Vectore0a378fde04f(instance: "icon_chev_glm")
 }

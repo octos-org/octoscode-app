@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "605a811009b2f962ac4c03804c7a94be943c3b6f51d48f274aca71b32a1e6769",
+  "manifest_sha256": "d24fecd6fdc6aa13feb4ec510e06796a576a9998b2d803cceeb9ed269f6eaf51",
   "reference_sha256": "4f6487df5abf26921604ebb014617c33d9034590363270f350b0a035054c69d3",
   "id": "setup-10",
   "round": null,
@@ -46,72 +46,6 @@
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
-      "id": "hair_installed",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "hair_registry",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "hair_installed_end",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "hair_registry_top",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "grpl_1",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "grpl_2",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
       "id": "icon_search",
       "role": "icon",
       "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
@@ -135,6 +69,61 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "card_installed",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "card_registry",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "div_1",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "div_2",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "div_3",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
       "id": "t_inst_head",
@@ -173,42 +162,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "btn_0_remove",
-      "role": "button",
-      "basis": "authored KitButton composition",
-      "expected_widgets": [
-        "Button",
-        "KitButton"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use a native control and verify its declared action."
-    },
-    {
-      "id": "btn_0_remove_surface",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "btn_0_remove_control",
-      "role": "button",
-      "basis": "authored button node",
-      "expected_widgets": [
-        "Button",
-        "KitButton"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use a native control and verify its declared action."
-    },
-    {
-      "id": "btn_0_remove_label",
+      "id": "t_remove0",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -244,42 +198,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "btn_1_remove",
-      "role": "button",
-      "basis": "authored KitButton composition",
-      "expected_widgets": [
-        "Button",
-        "KitButton"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use a native control and verify its declared action."
-    },
-    {
-      "id": "btn_1_remove_surface",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "btn_1_remove_control",
-      "role": "button",
-      "basis": "authored button node",
-      "expected_widgets": [
-        "Button",
-        "KitButton"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use a native control and verify its declared action."
-    },
-    {
-      "id": "btn_1_remove_label",
+      "id": "t_remove1",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -315,42 +234,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "btn_2_remove",
-      "role": "button",
-      "basis": "authored KitButton composition",
-      "expected_widgets": [
-        "Button",
-        "KitButton"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use a native control and verify its declared action."
-    },
-    {
-      "id": "btn_2_remove_surface",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "btn_2_remove_control",
-      "role": "button",
-      "basis": "authored button node",
-      "expected_widgets": [
-        "Button",
-        "KitButton"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use a native control and verify its declared action."
-    },
-    {
-      "id": "btn_2_remove_label",
+      "id": "t_remove2",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [

@@ -30,25 +30,13 @@
       "value": 0.0,
       "property": "tracking"
     },
-    "bg_07cf9621f5e0": {
-      "value": 4294901502,
+    "bg_96b9880d1b2b": {
+      "value": 4294901246,
       "property": "bg"
     },
-    "radius_163c820d9576": {
-      "value": 8.4,
+    "radius_2d8b12d302b2": {
+      "value": 7.73,
       "property": "radius"
-    },
-    "bg_f94f1e08d34a": {
-      "value": 4294046193,
-      "property": "bg"
-    },
-    "radius_5feceb66ffc8": {
-      "value": 0,
-      "property": "radius"
-    },
-    "bg_f444e185712c": {
-      "value": 4293059299,
-      "property": "bg"
     },
     "size_521516cb2702": {
       "value": 16.63,
@@ -69,6 +57,30 @@
     "font_src_86ab34a300f7": {
       "value": "self:resources/ux/Inter-400.ttf",
       "property": "font_src"
+    },
+    "bg_db8349049b3c": {
+      "value": 4294835710,
+      "property": "bg"
+    },
+    "radius_48b8218629f0": {
+      "value": 8.17,
+      "property": "radius"
+    },
+    "bg_40fe55fff4f6": {
+      "value": 4294835709,
+      "property": "bg"
+    },
+    "radius_7e3f3dc553de": {
+      "value": 8.11,
+      "property": "radius"
+    },
+    "bg_859147fa7aca": {
+      "value": 4293980401,
+      "property": "bg"
+    },
+    "radius_5feceb66ffc8": {
+      "value": 0,
+      "property": "radius"
     },
     "size_4037f1e9d06c": {
       "value": 15.72,
@@ -113,14 +125,6 @@
     "color_9cfa22ee49aa": {
       "value": 4283190605,
       "property": "color"
-    },
-    "bg_26a1390e31e2": {
-      "value": 4292075258,
-      "property": "bg"
-    },
-    "radius_c72ae9676454": {
-      "value": 15.0,
-      "property": "radius"
     },
     "size_32e07fa17f1d": {
       "value": 14.27,
@@ -320,46 +324,18 @@
       },
       "slot": false
     },
-    "Surface9e2a67f8c5e4": {
+    "Surfacee97f971c6821": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_07cf9621f5e0"
+          "$token": "bg_96b9880d1b2b"
         },
         "radius": {
-          "$token": "radius_163c820d9576"
+          "$token": "radius_2d8b12d302b2"
         },
         "border": 1,
         "bordercolor": 4292269783
-      },
-      "props": {},
-      "slot": true
-    },
-    "Surface88c878e5338b": {
-      "style": {
-        "t": "stack",
-        "variant": "surface",
-        "bg": {
-          "$token": "bg_f94f1e08d34a"
-        },
-        "radius": {
-          "$token": "radius_5feceb66ffc8"
-        }
-      },
-      "props": {},
-      "slot": true
-    },
-    "Surfaceea7f4e2ca466": {
-      "style": {
-        "t": "stack",
-        "variant": "surface",
-        "bg": {
-          "$token": "bg_f444e185712c"
-        },
-        "radius": {
-          "$token": "radius_5feceb66ffc8"
-        }
       },
       "props": {},
       "slot": true
@@ -399,6 +375,52 @@
         "text": "text"
       },
       "slot": false
+    },
+    "Surface1be164712a79": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_db8349049b3c"
+        },
+        "radius": {
+          "$token": "radius_48b8218629f0"
+        },
+        "border": 1,
+        "bordercolor": 4293190885
+      },
+      "props": {},
+      "slot": true
+    },
+    "Surfacea2f5f15c6f99": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_40fe55fff4f6"
+        },
+        "radius": {
+          "$token": "radius_7e3f3dc553de"
+        },
+        "border": 1,
+        "bordercolor": 4293190885
+      },
+      "props": {},
+      "slot": true
+    },
+    "Surface9990a0385fa9": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_859147fa7aca"
+        },
+        "radius": {
+          "$token": "radius_5feceb66ffc8"
+        }
+      },
+      "props": {},
+      "slot": true
     },
     "Text265dc3539b60": {
       "style": {
@@ -484,37 +506,6 @@
       },
       "props": {
         "text": "text"
-      },
-      "slot": false
-    },
-    "KitButton2c6804b990a5": {
-      "style": {
-        "t": "stack",
-        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
-      },
-      "props": {},
-      "slot": true
-    },
-    "Surface1ba78e247281": {
-      "style": {
-        "t": "stack",
-        "variant": "surface",
-        "bg": {
-          "$token": "bg_26a1390e31e2"
-        },
-        "radius": {
-          "$token": "radius_c72ae9676454"
-        }
-      },
-      "props": {},
-      "slot": true
-    },
-    "NativeButton02f1d1bd99b4": {
-      "style": {
-        "t": "button"
-      },
-      "props": {
-        "enabled": "enabled"
       },
       "slot": false
     },
@@ -808,6 +799,14 @@
       },
       "slot": false
     },
+    "KitButton2c6804b990a5": {
+      "style": {
+        "t": "stack",
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      "props": {},
+      "slot": true
+    },
     "Surface98e1d6fc2c2c": {
       "style": {
         "t": "stack",
@@ -823,6 +822,15 @@
       },
       "props": {},
       "slot": true
+    },
+    "NativeButton02f1d1bd99b4": {
+      "style": {
+        "t": "button"
+      },
+      "props": {
+        "enabled": "enabled"
+      },
+      "slot": false
     },
     "Text2d99b80970ca": {
       "style": {

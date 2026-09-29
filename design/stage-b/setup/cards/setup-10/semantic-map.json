@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "732721c3cc7d4dfd352753c75387ba44c2c0d81550bd8170a1017cc200036e11",
+  "contract_sha256": "e00868a796206b7342a4f079cb9dd10605338c5bfc1fb385346ba848ef1828ae",
   "reference_sha256": "4f6487df5abf26921604ebb014617c33d9034590363270f350b0a035054c69d3",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -21,48 +21,6 @@
     },
     {
       "id": "search_box",
-      "role": "layout",
-      "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "hair_installed",
-      "role": "layout",
-      "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "hair_registry",
-      "role": "layout",
-      "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "hair_installed_end",
-      "role": "layout",
-      "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "hair_registry_top",
-      "role": "layout",
-      "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "grpl_1",
-      "role": "layout",
-      "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "grpl_2",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
@@ -92,6 +50,41 @@
       "decision": "declared"
     },
     {
+      "id": "card_installed",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "card_registry",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "div_1",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "div_2",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "div_3",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "t_inst_head",
       "role": "text",
       "basis": "authored text node",
@@ -113,28 +106,7 @@
       "decision": "declared"
     },
     {
-      "id": "btn_0_remove",
-      "role": "button",
-      "basis": "authored KitButton composition",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "btn_0_remove_surface",
-      "role": "layout",
-      "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "btn_0_remove_control",
-      "role": "button",
-      "basis": "authored button node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "btn_0_remove_label",
+      "id": "t_remove0",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
@@ -155,28 +127,7 @@
       "decision": "declared"
     },
     {
-      "id": "btn_1_remove",
-      "role": "button",
-      "basis": "authored KitButton composition",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "btn_1_remove_surface",
-      "role": "layout",
-      "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "btn_1_remove_control",
-      "role": "button",
-      "basis": "authored button node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "btn_1_remove_label",
+      "id": "t_remove1",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
@@ -197,28 +148,7 @@
       "decision": "declared"
     },
     {
-      "id": "btn_2_remove",
-      "role": "button",
-      "basis": "authored KitButton composition",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "btn_2_remove_surface",
-      "role": "layout",
-      "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "btn_2_remove_control",
-      "role": "button",
-      "basis": "authored button node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "btn_2_remove_label",
+      "id": "t_remove2",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,

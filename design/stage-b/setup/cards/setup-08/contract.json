@@ -42,6 +42,54 @@
       },
       {
         "t": "stack",
+        "id": "bd_avatar",
+        "x": 23.5,
+        "y": 29.5,
+        "w": 38.0,
+        "h": 38.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4292072662,
+        "radius": 8
+      },
+      {
+        "t": "stack",
+        "id": "bd_bar1",
+        "x": 80.0,
+        "y": 40.5,
+        "w": 275.5,
+        "h": 18.5,
+        "c": [],
+        "variant": "surface",
+        "bg": 4292072662,
+        "radius": 9
+      },
+      {
+        "t": "stack",
+        "id": "bd_bar2",
+        "x": 62.0,
+        "y": 87.0,
+        "w": 321.0,
+        "h": 12.5,
+        "c": [],
+        "variant": "surface",
+        "bg": 4292072662,
+        "radius": 6
+      },
+      {
+        "t": "stack",
+        "id": "bd_composer",
+        "x": 25.5,
+        "y": 694.0,
+        "w": 374.0,
+        "h": 19.5,
+        "c": [],
+        "variant": "surface",
+        "bg": 4292072662,
+        "radius": 10
+      },
+      {
+        "t": "stack",
         "id": "modal",
         "x": 40.0,
         "y": 93.0,
@@ -51,6 +99,32 @@
         "variant": "surface",
         "bg": 4294967295,
         "radius": 12
+      },
+      {
+        "t": "stack",
+        "id": "search_field",
+        "x": 39.0,
+        "y": 110.0,
+        "w": 331.0,
+        "h": 59.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294967295,
+        "radius": 10,
+        "border": 1,
+        "bordercolor": 4292006869
+      },
+      {
+        "t": "stack",
+        "id": "cursor",
+        "x": 112.5,
+        "y": 129.0,
+        "w": 2.0,
+        "h": 26.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4280098079,
+        "radius": 1
       },
       {
         "t": "svg",
@@ -92,7 +166,7 @@
       {
         "t": "text",
         "id": "t_cmd0",
-        "text": "/ model",
+        "text": "/model",
         "x": 50.38,
         "y": 208.45,
         "w": 74.04,
@@ -156,7 +230,7 @@
       {
         "t": "text",
         "id": "t_cmd2",
-        "text": "/ mode",
+        "text": "/mode",
         "x": 51.84,
         "y": 340.52,
         "w": 62.11,
@@ -188,7 +262,7 @@
       {
         "t": "text",
         "id": "t_cmd3",
-        "text": "/ compact",
+        "text": "/compact",
         "x": 53.01,
         "y": 407.0,
         "w": 92.48,
@@ -220,7 +294,7 @@
       {
         "t": "text",
         "id": "t_cmd4",
-        "text": "/ btw",
+        "text": "/btw",
         "x": 50.75,
         "y": 472.5,
         "w": 49.62,
@@ -252,7 +326,7 @@
       {
         "t": "text",
         "id": "t_cmd5",
-        "text": "/ resume",
+        "text": "/resume",
         "x": 53.01,
         "y": 538.0,
         "w": 81.2,

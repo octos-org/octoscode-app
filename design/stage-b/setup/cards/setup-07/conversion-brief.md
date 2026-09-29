@@ -35,10 +35,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "card_deepseek",
-    "x": 16.0,
-    "y": 118.0,
-    "w": 374.0,
-    "h": 292.0,
+    "x": 20.0,
+    "y": 110.0,
+    "w": 324.0,
+    "h": 290.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -46,10 +46,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "card_kimi",
-    "x": 16.0,
-    "y": 448.0,
-    "w": 374.0,
-    "h": 100.0,
+    "x": 20.0,
+    "y": 441.0,
+    "w": 324.0,
+    "h": 99.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -57,10 +57,21 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "card_glm",
-    "x": 16.0,
-    "y": 570.0,
-    "w": 374.0,
-    "h": 106.0,
+    "x": 20.0,
+    "y": 564.0,
+    "w": 324.0,
+    "h": 98.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "vline",
+    "x": 364.0,
+    "y": 110.0,
+    "w": 1.0,
+    "h": 590.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -115,40 +126,33 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "chev_chip",
-    "x": 328.0,
-    "y": 228.0,
-    "w": 40.0,
-    "h": 40.0,
+    "id": "inner_card",
+    "x": 34.5,
+    "y": 214.0,
+    "w": 296.5,
+    "h": 123.0,
     "role": "layout",
     "native_candidates": [
       "View"
     ]
   },
   {
-    "id": "icon_chev",
-    "x": 342.0,
-    "y": 240.0,
-    "w": 14.0,
-    "h": 22.0,
-    "role": "unknown",
-    "native_candidates": []
-  },
-  {
-    "id": "icon_check",
-    "x": 299.0,
-    "y": 240.0,
-    "w": 16.0,
-    "h": 16.0,
-    "role": "unknown",
-    "native_candidates": []
+    "id": "inner_div",
+    "x": 34.5,
+    "y": 276.5,
+    "w": 296.5,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
   },
   {
     "id": "dot_ds",
-    "x": 280.0,
-    "y": 288.0,
-    "w": 11.0,
-    "h": 11.0,
+    "x": 280.5,
+    "y": 142.0,
+    "w": 9.0,
+    "h": 10.5,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -156,30 +160,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_chev_ds",
-    "x": 346.0,
-    "y": 283.0,
-    "w": 18.0,
-    "h": 24.0,
-    "role": "unknown",
-    "native_candidates": []
-  },
-  {
-    "id": "dot_kimi",
-    "x": 280.0,
-    "y": 503.0,
-    "w": 11.0,
-    "h": 11.0,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
-  },
-  {
-    "id": "icon_chev_kimi",
-    "x": 346.0,
-    "y": 498.0,
-    "w": 18.0,
-    "h": 24.0,
+    "x": 313.5,
+    "y": 143.0,
+    "w": 12.5,
+    "h": 8.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -216,10 +200,19 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "icon_check",
+    "x": 292.0,
+    "y": 236.0,
+    "w": 28.0,
+    "h": 26.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
     "id": "btn_test",
-    "x": 44.0,
+    "x": 34.5,
     "y": 356.0,
-    "w": 106.0,
+    "w": 140.0,
     "h": 40.0,
     "role": "button",
     "native_candidates": [
@@ -229,9 +222,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_test_surface",
-    "x": 44.0,
+    "x": 34.5,
     "y": 356.0,
-    "w": 106.0,
+    "w": 140.0,
     "h": 40.0,
     "role": "layout",
     "native_candidates": [
@@ -240,9 +233,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_test_control",
-    "x": 44.0,
+    "x": 34.5,
     "y": 356.0,
-    "w": 106.0,
+    "w": 140.0,
     "h": 40.0,
     "role": "button",
     "native_candidates": [
@@ -268,9 +261,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_discover",
-    "x": 190.0,
+    "x": 192.0,
     "y": 356.0,
-    "w": 140.0,
+    "w": 138.5,
     "h": 40.0,
     "role": "button",
     "native_candidates": [
@@ -280,9 +273,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_discover_surface",
-    "x": 190.0,
+    "x": 192.0,
     "y": 356.0,
-    "w": 140.0,
+    "w": 138.5,
     "h": 40.0,
     "role": "layout",
     "native_candidates": [
@@ -291,9 +284,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "btn_discover_control",
-    "x": 190.0,
+    "x": 192.0,
     "y": 356.0,
-    "w": 140.0,
+    "w": 138.5,
     "h": 40.0,
     "role": "button",
     "native_candidates": [
@@ -350,6 +343,26 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "dot_kimi",
+    "x": 280.5,
+    "y": 476.5,
+    "w": 9.0,
+    "h": 10.5,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "icon_chev_kimi",
+    "x": 314.0,
+    "y": 484.5,
+    "w": 11.5,
+    "h": 7.5,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
     "id": "t_glm_head",
     "x": 34.85,
     "y": 588.09,
@@ -383,14 +396,23 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "dot_glm",
-    "x": 280.0,
-    "y": 601.0,
-    "w": 11.0,
-    "h": 11.0,
+    "x": 280.5,
+    "y": 601.5,
+    "w": 9.0,
+    "h": 10.5,
     "role": "layout",
     "native_candidates": [
       "View"
     ]
+  },
+  {
+    "id": "icon_chev_glm",
+    "x": 314.0,
+    "y": 608.5,
+    "w": 11.5,
+    "h": 7.5,
+    "role": "unknown",
+    "native_candidates": []
   }
 ]
 ```

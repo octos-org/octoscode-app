@@ -53,74 +53,8 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "id": "search_box",
     "x": 34.0,
     "y": 80.0,
-    "w": 364.0,
+    "w": 336.0,
     "h": 60.0,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
-  },
-  {
-    "id": "hair_installed",
-    "x": 0.0,
-    "y": 204.0,
-    "w": 406.0,
-    "h": 1.0,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
-  },
-  {
-    "id": "hair_registry",
-    "x": 0.0,
-    "y": 602.0,
-    "w": 406.0,
-    "h": 1.0,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
-  },
-  {
-    "id": "hair_installed_end",
-    "x": 0.0,
-    "y": 393.0,
-    "w": 406.0,
-    "h": 1.0,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
-  },
-  {
-    "id": "hair_registry_top",
-    "x": 0.0,
-    "y": 459.0,
-    "w": 406.0,
-    "h": 1.0,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
-  },
-  {
-    "id": "grpl_1",
-    "x": 34.0,
-    "y": 213.0,
-    "w": 1.5,
-    "h": 172.0,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
-  },
-  {
-    "id": "grpl_2",
-    "x": 34.0,
-    "y": 469.0,
-    "w": 1.5,
-    "h": 123.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -129,9 +63,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "icon_search",
     "x": 51.0,
-    "y": 103.0,
-    "w": 17.0,
-    "h": 17.0,
+    "y": 100.5,
+    "w": 18.0,
+    "h": 20.5,
     "role": "unknown",
     "native_candidates": []
   },
@@ -149,6 +83,61 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "native_candidates": [
       "Label",
       "TextFlow"
+    ]
+  },
+  {
+    "id": "card_installed",
+    "x": 14.0,
+    "y": 203.0,
+    "w": 378.0,
+    "h": 191.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "card_registry",
+    "x": 14.0,
+    "y": 459.0,
+    "w": 378.0,
+    "h": 143.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "div_1",
+    "x": 33.5,
+    "y": 266.5,
+    "w": 337.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "div_2",
+    "x": 33.5,
+    "y": 331.5,
+    "w": 337.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "div_3",
+    "x": 33.5,
+    "y": 531.0,
+    "w": 337.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
     ]
   },
   {
@@ -200,49 +189,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "btn_0_remove",
-    "x": 295.0,
-    "y": 225.5,
-    "w": 76.0,
-    "h": 30.0,
-    "role": "button",
-    "native_candidates": [
-      "Button",
-      "KitButton"
-    ]
-  },
-  {
-    "id": "btn_0_remove_surface",
-    "x": 295.0,
-    "y": 225.5,
-    "w": 76.0,
-    "h": 30.0,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
-  },
-  {
-    "id": "btn_0_remove_control",
-    "x": 295.0,
-    "y": 225.5,
-    "w": 76.0,
-    "h": 30.0,
-    "role": "button",
-    "native_candidates": [
-      "Button",
-      "KitButton"
-    ]
-  },
-  {
-    "id": "btn_0_remove_label",
+    "id": "t_remove0",
     "x": 295.38,
     "y": 227.5,
     "w": 58.84,
-    "h": 17.59,
+    "h": 19.5,
     "text": "Remove",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 11.73,
+    "size": 13,
     "weight": 500,
     "role": "text",
     "native_candidates": [
@@ -283,49 +237,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "btn_1_remove",
-    "x": 295.0,
-    "y": 289.0,
-    "w": 76.0,
-    "h": 30.0,
-    "role": "button",
-    "native_candidates": [
-      "Button",
-      "KitButton"
-    ]
-  },
-  {
-    "id": "btn_1_remove_surface",
-    "x": 295.0,
-    "y": 289.0,
-    "w": 76.0,
-    "h": 30.0,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
-  },
-  {
-    "id": "btn_1_remove_control",
-    "x": 295.0,
-    "y": 289.0,
-    "w": 76.0,
-    "h": 30.0,
-    "role": "button",
-    "native_candidates": [
-      "Button",
-      "KitButton"
-    ]
-  },
-  {
-    "id": "btn_1_remove_label",
+    "id": "t_remove1",
     "x": 295.48,
     "y": 291.0,
     "w": 59.77,
-    "h": 18.05,
+    "h": 19.5,
     "text": "Remove",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 12.03,
+    "size": 13,
     "weight": 500,
     "role": "text",
     "native_candidates": [
@@ -366,49 +285,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "btn_2_remove",
-    "x": 295.0,
-    "y": 353.09,
-    "w": 76.0,
-    "h": 30.0,
-    "role": "button",
-    "native_candidates": [
-      "Button",
-      "KitButton"
-    ]
-  },
-  {
-    "id": "btn_2_remove_surface",
-    "x": 295.0,
-    "y": 353.09,
-    "w": 76.0,
-    "h": 30.0,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
-  },
-  {
-    "id": "btn_2_remove_control",
-    "x": 295.0,
-    "y": 353.09,
-    "w": 76.0,
-    "h": 30.0,
-    "role": "button",
-    "native_candidates": [
-      "Button",
-      "KitButton"
-    ]
-  },
-  {
-    "id": "btn_2_remove_label",
+    "id": "t_remove2",
     "x": 295.42,
     "y": 355.09,
     "w": 58.77,
-    "h": 18.46,
+    "h": 19.5,
     "text": "Remove",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 12.3,
+    "size": 13,
     "weight": 500,
     "role": "text",
     "native_candidates": [

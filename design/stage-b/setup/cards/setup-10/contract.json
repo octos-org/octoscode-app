@@ -49,7 +49,7 @@
         "id": "search_box",
         "x": 34.0,
         "y": 80.0,
-        "w": 364.0,
+        "w": 336.0,
         "h": 60.0,
         "c": [],
         "variant": "surface",
@@ -59,84 +59,12 @@
         "bordercolor": 4292269783
       },
       {
-        "t": "stack",
-        "id": "hair_installed",
-        "x": 0.0,
-        "y": 204.0,
-        "w": 406.0,
-        "h": 1.0,
-        "c": [],
-        "variant": "surface",
-        "bg": 4294046193,
-        "radius": 0
-      },
-      {
-        "t": "stack",
-        "id": "hair_registry",
-        "x": 0.0,
-        "y": 602.0,
-        "w": 406.0,
-        "h": 1.0,
-        "c": [],
-        "variant": "surface",
-        "bg": 4294046193,
-        "radius": 0
-      },
-      {
-        "t": "stack",
-        "id": "hair_installed_end",
-        "x": 0.0,
-        "y": 393.0,
-        "w": 406.0,
-        "h": 1.0,
-        "c": [],
-        "variant": "surface",
-        "bg": 4294046193,
-        "radius": 0
-      },
-      {
-        "t": "stack",
-        "id": "hair_registry_top",
-        "x": 0.0,
-        "y": 459.0,
-        "w": 406.0,
-        "h": 1.0,
-        "c": [],
-        "variant": "surface",
-        "bg": 4294046193,
-        "radius": 0
-      },
-      {
-        "t": "stack",
-        "id": "grpl_1",
-        "x": 34.0,
-        "y": 213.0,
-        "w": 1.5,
-        "h": 172.0,
-        "c": [],
-        "variant": "surface",
-        "bg": 4293059299,
-        "radius": 0
-      },
-      {
-        "t": "stack",
-        "id": "grpl_2",
-        "x": 34.0,
-        "y": 469.0,
-        "w": 1.5,
-        "h": 123.0,
-        "c": [],
-        "variant": "surface",
-        "bg": 4293059299,
-        "radius": 0
-      },
-      {
         "t": "svg",
         "id": "icon_search",
         "x": 51.0,
-        "y": 103.0,
-        "w": 17.0,
-        "h": 17.0,
+        "y": 100.5,
+        "w": 18.0,
+        "h": 20.5,
         "src": ""
       },
       {
@@ -154,6 +82,70 @@
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "stack",
+        "id": "card_installed",
+        "x": 14.0,
+        "y": 203.0,
+        "w": 378.0,
+        "h": 191.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294967295,
+        "radius": 8,
+        "border": 1,
+        "bordercolor": 4293190885
+      },
+      {
+        "t": "stack",
+        "id": "card_registry",
+        "x": 14.0,
+        "y": 459.0,
+        "w": 378.0,
+        "h": 143.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294967295,
+        "radius": 8,
+        "border": 1,
+        "bordercolor": 4293190885
+      },
+      {
+        "t": "stack",
+        "id": "div_1",
+        "x": 33.5,
+        "y": 266.5,
+        "w": 337.0,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293980401,
+        "radius": 0
+      },
+      {
+        "t": "stack",
+        "id": "div_2",
+        "x": 33.5,
+        "y": 331.5,
+        "w": 337.0,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293980401,
+        "radius": 0
+      },
+      {
+        "t": "stack",
+        "id": "div_3",
+        "x": 33.5,
+        "y": 531.0,
+        "w": 337.0,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293980401,
+        "radius": 0
       },
       {
         "t": "text",
@@ -204,52 +196,20 @@
         "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {
-        "t": "stack",
-        "id": "btn_0_remove",
-        "x": 295.0,
-        "y": 225.5,
-        "w": 76.0,
-        "h": 30.0,
-        "c": [
-          {
-            "t": "stack",
-            "id": "btn_0_remove_surface",
-            "x": 295.0,
-            "y": 225.5,
-            "w": 76.0,
-            "h": 30.0,
-            "c": [],
-            "variant": "surface",
-            "bg": 4292075258,
-            "radius": 15
-          },
-          {
-            "t": "button",
-            "id": "btn_0_remove_control",
-            "x": 295.0,
-            "y": 225.5,
-            "w": 76.0,
-            "h": 30.0,
-            "enabled": 1
-          },
-          {
-            "t": "text",
-            "id": "btn_0_remove_label",
-            "text": "Remove",
-            "x": 295.38,
-            "y": 227.5,
-            "w": 58.84,
-            "h": 17.59,
-            "size": 11.73,
-            "line_height": 17.59,
-            "weight": 500,
-            "color": 4278190304,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-500.ttf"
-          }
-        ],
-        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+        "t": "text",
+        "id": "t_remove0",
+        "text": "Remove",
+        "x": 295.38,
+        "y": 227.5,
+        "w": 58.84,
+        "h": 19.5,
+        "size": 13,
+        "line_height": 19.5,
+        "weight": 500,
+        "color": 4278190304,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf"
       },
       {
         "t": "text",
@@ -284,52 +244,20 @@
         "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {
-        "t": "stack",
-        "id": "btn_1_remove",
-        "x": 295.0,
-        "y": 289.0,
-        "w": 76.0,
-        "h": 30.0,
-        "c": [
-          {
-            "t": "stack",
-            "id": "btn_1_remove_surface",
-            "x": 295.0,
-            "y": 289.0,
-            "w": 76.0,
-            "h": 30.0,
-            "c": [],
-            "variant": "surface",
-            "bg": 4292075258,
-            "radius": 15
-          },
-          {
-            "t": "button",
-            "id": "btn_1_remove_control",
-            "x": 295.0,
-            "y": 289.0,
-            "w": 76.0,
-            "h": 30.0,
-            "enabled": 1
-          },
-          {
-            "t": "text",
-            "id": "btn_1_remove_label",
-            "text": "Remove",
-            "x": 295.48,
-            "y": 291.0,
-            "w": 59.77,
-            "h": 18.05,
-            "size": 12.03,
-            "line_height": 18.05,
-            "weight": 500,
-            "color": 4278190304,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-500.ttf"
-          }
-        ],
-        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+        "t": "text",
+        "id": "t_remove1",
+        "text": "Remove",
+        "x": 295.48,
+        "y": 291.0,
+        "w": 59.77,
+        "h": 19.5,
+        "size": 13,
+        "line_height": 19.5,
+        "weight": 500,
+        "color": 4278190304,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf"
       },
       {
         "t": "text",
@@ -364,52 +292,20 @@
         "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {
-        "t": "stack",
-        "id": "btn_2_remove",
-        "x": 295.0,
-        "y": 353.09,
-        "w": 76.0,
-        "h": 30.0,
-        "c": [
-          {
-            "t": "stack",
-            "id": "btn_2_remove_surface",
-            "x": 295.0,
-            "y": 353.09,
-            "w": 76.0,
-            "h": 30.0,
-            "c": [],
-            "variant": "surface",
-            "bg": 4292075258,
-            "radius": 15
-          },
-          {
-            "t": "button",
-            "id": "btn_2_remove_control",
-            "x": 295.0,
-            "y": 353.09,
-            "w": 76.0,
-            "h": 30.0,
-            "enabled": 1
-          },
-          {
-            "t": "text",
-            "id": "btn_2_remove_label",
-            "text": "Remove",
-            "x": 295.42,
-            "y": 355.09,
-            "w": 58.77,
-            "h": 18.46,
-            "size": 12.3,
-            "line_height": 18.46,
-            "weight": 500,
-            "color": 4278190304,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-500.ttf"
-          }
-        ],
-        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+        "t": "text",
+        "id": "t_remove2",
+        "text": "Remove",
+        "x": 295.42,
+        "y": 355.09,
+        "w": 58.77,
+        "h": 19.5,
+        "size": 13,
+        "line_height": 19.5,
+        "weight": 500,
+        "color": 4278190304,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf"
       },
       {
         "t": "text",

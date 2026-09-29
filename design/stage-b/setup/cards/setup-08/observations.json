@@ -42,7 +42,7 @@
     },
     {
       "id": "t_cmd0",
-      "expected_text": "/ model",
+      "expected_text": "/model",
       "requested_bounds": [
         50.38,
         208.45,
@@ -52,7 +52,7 @@
       "status": "observed",
       "ocr_text": "/ model",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9230769230769231,
       "ink_bounds": [
         54.5,
         209.5,
@@ -170,7 +170,7 @@
     },
     {
       "id": "t_cmd2",
-      "expected_text": "/ mode",
+      "expected_text": "/mode",
       "requested_bounds": [
         51.84,
         340.52,
@@ -180,7 +180,7 @@
       "status": "observed",
       "ocr_text": "/ mode",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9090909090909091,
       "ink_bounds": [
         54.5,
         341.0,
@@ -234,7 +234,7 @@
     },
     {
       "id": "t_cmd3",
-      "expected_text": "/ compact",
+      "expected_text": "/compact",
       "requested_bounds": [
         53.01,
         407.0,
@@ -244,7 +244,7 @@
       "status": "observed",
       "ocr_text": "/ compact",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9411764705882353,
       "ink_bounds": [
         54.0,
         407.0,
@@ -298,7 +298,7 @@
     },
     {
       "id": "t_cmd4",
-      "expected_text": "/ btw",
+      "expected_text": "/btw",
       "requested_bounds": [
         50.75,
         472.5,
@@ -308,7 +308,7 @@
       "status": "observed",
       "ocr_text": "/ btw",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.8888888888888888,
       "ink_bounds": [
         54.0,
         472.5,
@@ -362,7 +362,7 @@
     },
     {
       "id": "t_cmd5",
-      "expected_text": "/ resume",
+      "expected_text": "/resume",
       "requested_bounds": [
         53.01,
         538.0,
@@ -372,7 +372,7 @@
       "status": "observed",
       "ocr_text": "/ resume",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9333333333333333,
       "ink_bounds": [
         54.0,
         538.5,
@@ -483,6 +483,58 @@
       "bg": 4294835709
     },
     {
+      "id": "bd_avatar",
+      "bounds": [
+        23.5,
+        29.5,
+        38.0,
+        38.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4292006613,
+      "radius": 8.0
+    },
+    {
+      "id": "bd_bar1",
+      "bounds": [
+        80.0,
+        40.5,
+        275.5,
+        18.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4292138199,
+      "radius": 9.0
+    },
+    {
+      "id": "bd_bar2",
+      "bounds": [
+        62.0,
+        87.0,
+        321.0,
+        12.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4292796128,
+      "radius": 6.0
+    },
+    {
+      "id": "bd_composer",
+      "bounds": [
+        25.5,
+        694.0,
+        374.0,
+        19.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4292204248,
+      "radius": 9.75
+    },
+    {
       "id": "modal",
       "bounds": [
         40.0,
@@ -494,6 +546,31 @@
       "reviewed": false,
       "bg": 4294835709,
       "radius": 12.0
+    },
+    {
+      "id": "search_field",
+      "bounds": [
+        40.0,
+        111.0,
+        329.0,
+        57.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 9.66
+    },
+    {
+      "id": "cursor",
+      "bounds": [
+        112.5,
+        129.0,
+        2.0,
+        26.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "radius": 1.0
     },
     {
       "id": "icon_close",

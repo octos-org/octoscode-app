@@ -4,30 +4,30 @@
     "btn_0_remove": {
       "event": "skills.remove_0",
       "source_bounds": [
-        295,
-        225,
-        76,
-        30
+        285,
+        219,
+        78,
+        33
       ],
       "enabled": true
     },
     "btn_1_remove": {
       "event": "skills.remove_1",
       "source_bounds": [
-        295,
-        289,
-        76,
-        30
+        285,
+        283,
+        79,
+        34
       ],
       "enabled": true
     },
     "btn_2_remove": {
       "event": "skills.remove_2",
       "source_bounds": [
-        295,
-        353,
-        76,
-        30
+        285,
+        347,
+        78,
+        34
       ],
       "enabled": true
     },

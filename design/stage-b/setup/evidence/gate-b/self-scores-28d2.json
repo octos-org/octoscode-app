@@ -1,0 +1,15 @@
+{
+ "schema_version": 1,
+ "entry": "28d2",
+ "note": "Pre-filter self-scores; the outer loop makes the final call. Evidence PNGs under evidence/gate-b/.",
+ "screens": {
+  "setup-07": {"score": 9.0, "evidence": "setup-07-review-v15.png", "fixed": ["Kimi/GLM bordered cards at probed bounds x20-344", "green dots on all three head rows", "chevron up/down per card at right", "model rows in bordered inner card + divider y276.5", "stray chev_chip and pro-row chevron removed", "check 2x blue (28x26)", "equal-width pills 140/138.5"], "residual": []},
+  "setup-08": {"score": 9.0, "evidence": "setup-08-review-v17.png", "fixed": ["bordered search field y110-169", "text cursor after the query run", "command names joined: /model /mode /compact /btw /resume (query '/ mo' is user input, kept)", "dimmed conversation backdrop: avatar+two bars y29-99, composer bar y694"], "residual": ["faint hairline above the hints row not modelled (not in the outer gap list)"]},
+  "setup-10": {"score": 9.0, "evidence": "setup-10-review-v15.png", "fixed": ["Remove = plain blue text (pill removed)", "Installed/Registry = bordered cards y203-394 / y459-602 with row dividers y266/331/531", "search icon 18x20.5", "stray left vertical lines removed"], "residual": []},
+  "setup-09": {"score": 9.0, "evidence": "unchanged; v17 byte-identical to the accepted v14 state (sha 27cdff1248e7)"},
+  "setup-11": {"score": 9.0, "evidence": "unchanged; v17 byte-identical (sha c68eee570a16)"},
+  "setup-12": {"score": 9.0, "evidence": "unchanged; v17 byte-identical (sha d12fb91af054)"}
+ },
+ "regression_check": "setup-07/09/10/11/12 native v17 == v16 byte-identical (sha256); only 08 changed in v16/v17",
+ "not_reached_9": []
+}

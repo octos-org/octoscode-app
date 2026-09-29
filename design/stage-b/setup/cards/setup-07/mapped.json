@@ -12,40 +12,56 @@
       {
         "t": "stack",
         "id": "card_deepseek",
-        "x": 16.0,
-        "y": 118.0,
-        "w": 374.0,
-        "h": 292.0,
+        "x": 20.0,
+        "y": 110.0,
+        "w": 324.0,
+        "h": 290.0,
         "c": [],
         "variant": "surface",
         "bg": 4294835709,
-        "radius": 12.58,
+        "radius": 12.66,
         "border": 1,
         "bordercolor": 4293256679
       },
       {
         "t": "stack",
         "id": "card_kimi",
-        "x": 16.0,
-        "y": 448.0,
-        "w": 374.0,
-        "h": 100.0,
+        "x": 21.0,
+        "y": 442.0,
+        "w": 322.0,
+        "h": 97.0,
         "c": [],
         "variant": "surface",
         "bg": 4294901502,
-        "radius": 12.24
+        "radius": 11.76,
+        "border": 1,
+        "bordercolor": 4293256679
       },
       {
         "t": "stack",
         "id": "card_glm",
-        "x": 16.0,
-        "y": 570.0,
-        "w": 374.0,
-        "h": 106.0,
+        "x": 21.0,
+        "y": 565.0,
+        "w": 322.0,
+        "h": 96.0,
         "c": [],
         "variant": "surface",
-        "bg": 4294901502,
-        "radius": 11.43
+        "bg": 4294901246,
+        "radius": 11.76,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "stack",
+        "id": "vline",
+        "x": 364.0,
+        "y": 110.0,
+        "w": 1.0,
+        "h": 590.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4292467162,
+        "radius": 0
       },
       {
         "t": "text",
@@ -100,74 +116,49 @@
       },
       {
         "t": "stack",
-        "id": "chev_chip",
-        "x": 328.0,
-        "y": 228.0,
-        "w": 40.0,
-        "h": 40.0,
+        "id": "inner_card",
+        "x": 33.0,
+        "y": 213.0,
+        "w": 300.0,
+        "h": 126.0,
         "c": [],
         "variant": "surface",
-        "bg": 4293519850,
-        "radius": 20.0
+        "bg": 4294901246,
+        "radius": 8.2,
+        "border": 1,
+        "bordercolor": 4293125348
       },
       {
-        "t": "svg",
-        "id": "icon_chev",
-        "x": 342.0,
-        "y": 240.0,
-        "w": 14.0,
-        "h": 22.0,
-        "src": ""
-      },
-      {
-        "t": "svg",
-        "id": "icon_check",
-        "x": 299.0,
-        "y": 240.0,
-        "w": 16.0,
-        "h": 16.0,
-        "src": ""
+        "t": "stack",
+        "id": "inner_div",
+        "x": 34.5,
+        "y": 276.5,
+        "w": 296.5,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293125348,
+        "radius": 0
       },
       {
         "t": "stack",
         "id": "dot_ds",
-        "x": 280.0,
-        "y": 288.0,
-        "w": 11.0,
-        "h": 11.0,
+        "x": 280.5,
+        "y": 142.0,
+        "w": 9.0,
+        "h": 10.5,
         "c": [],
         "variant": "surface",
-        "bg": 4294901502,
-        "radius": 5.5
+        "bg": 4280592978,
+        "radius": 4.5
       },
       {
         "t": "svg",
         "id": "icon_chev_ds",
-        "x": 346.0,
-        "y": 283.0,
-        "w": 18.0,
-        "h": 24.0,
-        "src": ""
-      },
-      {
-        "t": "stack",
-        "id": "dot_kimi",
-        "x": 280.0,
-        "y": 503.0,
-        "w": 11.0,
-        "h": 11.0,
-        "c": [],
-        "variant": "surface",
-        "bg": 4294901502,
-        "radius": 5.5
-      },
-      {
-        "t": "svg",
-        "id": "icon_chev_kimi",
-        "x": 346.0,
-        "y": 498.0,
-        "w": 18.0,
-        "h": 24.0,
+        "x": 313.5,
+        "y": 143.0,
+        "w": 12.5,
+        "h": 8.0,
         "src": ""
       },
       {
@@ -205,6 +196,15 @@
         "tracking": 0.0
       },
       {
+        "t": "svg",
+        "id": "icon_check",
+        "x": 292.0,
+        "y": 236.0,
+        "w": 28.0,
+        "h": 26.0,
+        "src": ""
+      },
+      {
         "t": "stack",
         "id": "btn_test",
         "x": 36.0,
@@ -215,10 +215,10 @@
           {
             "t": "stack",
             "id": "btn_test_surface",
-            "x": 44.0,
+            "x": 36.0,
             "y": 356.0,
-            "w": 106.0,
-            "h": 40.0,
+            "w": 138.0,
+            "h": 44.0,
             "c": [],
             "variant": "surface",
             "bg": 4294769916,
@@ -341,6 +341,27 @@
         "tracking": 0.0
       },
       {
+        "t": "stack",
+        "id": "dot_kimi",
+        "x": 280.5,
+        "y": 476.5,
+        "w": 9.0,
+        "h": 10.5,
+        "c": [],
+        "variant": "surface",
+        "bg": 4280329549,
+        "radius": 4.5
+      },
+      {
+        "t": "svg",
+        "id": "icon_chev_kimi",
+        "x": 314.0,
+        "y": 484.5,
+        "w": 11.5,
+        "h": 7.5,
+        "src": ""
+      },
+      {
         "t": "text",
         "id": "t_glm_head",
         "text": "GLM Coding Plan",
@@ -377,14 +398,23 @@
       {
         "t": "stack",
         "id": "dot_glm",
-        "x": 280.0,
-        "y": 601.0,
-        "w": 11.0,
-        "h": 11.0,
+        "x": 280.5,
+        "y": 601.5,
+        "w": 9.0,
+        "h": 10.5,
         "c": [],
         "variant": "surface",
-        "bg": 4280526672,
-        "radius": 5.5
+        "bg": 4280460880,
+        "radius": 4.5
+      },
+      {
+        "t": "svg",
+        "id": "icon_chev_glm",
+        "x": 314.0,
+        "y": 608.5,
+        "w": 11.5,
+        "h": 7.5,
+        "src": ""
       }
     ],
     "variant": "surface",
@@ -408,15 +438,15 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "chev_chip",
+      "id": "vline",
       "source": "observed non-text annotation"
     },
     {
-      "id": "icon_chev",
+      "id": "inner_card",
       "source": "observed non-text annotation"
     },
     {
-      "id": "icon_check",
+      "id": "inner_div",
       "source": "observed non-text annotation"
     },
     {
@@ -428,11 +458,7 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "dot_kimi",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "icon_chev_kimi",
+      "id": "icon_check",
       "source": "observed non-text annotation"
     },
     {
@@ -460,7 +486,19 @@
       "source": "observed non-text annotation"
     },
     {
+      "id": "dot_kimi",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_chev_kimi",
+      "source": "observed non-text annotation"
+    },
+    {
       "id": "dot_glm",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_chev_glm",
       "source": "observed non-text annotation"
     },
     {

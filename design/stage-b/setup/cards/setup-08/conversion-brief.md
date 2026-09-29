@@ -45,11 +45,77 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "bd_avatar",
+    "x": 23.5,
+    "y": 29.5,
+    "w": 38.0,
+    "h": 38.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "bd_bar1",
+    "x": 80.0,
+    "y": 40.5,
+    "w": 275.5,
+    "h": 18.5,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "bd_bar2",
+    "x": 62.0,
+    "y": 87.0,
+    "w": 321.0,
+    "h": 12.5,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "bd_composer",
+    "x": 25.5,
+    "y": 694.0,
+    "w": 374.0,
+    "h": 19.5,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "modal",
     "x": 40.0,
     "y": 93.0,
     "w": 326.0,
     "h": 570.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "search_field",
+    "x": 39.0,
+    "y": 110.0,
+    "w": 331.0,
+    "h": 59.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "cursor",
+    "x": 112.5,
+    "y": 129.0,
+    "w": 2.0,
+    "h": 26.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -97,7 +163,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 208.45,
     "w": 74.04,
     "h": 24.1,
-    "text": "/ model",
+    "text": "/model",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
     "size": 14,
     "weight": 500,
@@ -161,7 +227,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 340.52,
     "w": 62.11,
     "h": 22.78,
-    "text": "/ mode",
+    "text": "/mode",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
     "size": 14,
     "weight": 500,
@@ -193,7 +259,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 407.0,
     "w": 92.48,
     "h": 24.0,
-    "text": "/ compact",
+    "text": "/compact",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
     "size": 14,
     "weight": 500,
@@ -225,7 +291,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 472.5,
     "w": 49.62,
     "h": 22.65,
-    "text": "/ btw",
+    "text": "/btw",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
     "size": 14,
     "weight": 500,
@@ -257,7 +323,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 538.0,
     "w": 81.2,
     "h": 21.5,
-    "text": "/ resume",
+    "text": "/resume",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
     "size": 14,
     "weight": 500,

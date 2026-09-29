@@ -38,8 +38,80 @@
       "size": null
     },
     {
-      "source_id": "modal",
+      "source_id": "bd_avatar",
       "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface504cb18b7301",
+      "semantic_role": "layout",
+      "bounds": [
+        23.5,
+        29.5,
+        38.0,
+        38.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "bd_bar1",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface780cead5c807",
+      "semantic_role": "layout",
+      "bounds": [
+        80.0,
+        40.5,
+        275.5,
+        18.5
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "bd_bar2",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfaceecd8fe9fd242",
+      "semantic_role": "layout",
+      "bounds": [
+        62.0,
+        87.0,
+        321.0,
+        12.5
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "bd_composer",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface723a107b8057",
+      "semantic_role": "layout",
+      "bounds": [
+        25.5,
+        694.0,
+        374.0,
+        19.5
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "modal",
+      "native_id": "beauty_0_5",
       "parent": "page",
       "kind": "stack",
       "component": "Surface03c9bd7cb6ef",
@@ -56,8 +128,44 @@
       "size": null
     },
     {
+      "source_id": "search_field",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface1e07442a0b22",
+      "semantic_role": "layout",
+      "bounds": [
+        40.0,
+        111.0,
+        329.0,
+        57.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "cursor",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface7b66246d5075",
+      "semantic_role": "layout",
+      "bounds": [
+        112.5,
+        129.0,
+        2.0,
+        26.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
       "source_id": "icon_close",
-      "native_id": "beauty_0_2",
+      "native_id": "beauty_0_8",
       "parent": "page",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -75,7 +183,7 @@
     },
     {
       "source_id": "t_query",
-      "native_id": "beauty_0_3",
+      "native_id": "beauty_0_9",
       "parent": "page",
       "kind": "text",
       "component": "Texta4e1fbadfcf0",
@@ -93,7 +201,7 @@
     },
     {
       "source_id": "row_sel",
-      "native_id": "beauty_0_4",
+      "native_id": "beauty_0_10",
       "parent": "page",
       "kind": "stack",
       "component": "Surfacec794427d62ea",
@@ -111,25 +219,25 @@
     },
     {
       "source_id": "t_cmd0",
-      "native_id": "beauty_0_5",
+      "native_id": "beauty_0_11",
       "parent": "page",
       "kind": "text",
-      "component": "Text23925134d5ff",
+      "component": "Text1c5c270c71f6",
       "semantic_role": "text",
       "bounds": [
-        53.59,
+        53.44,
         207.5,
         72.5,
         24.5
       ],
-      "text": "/ model",
+      "text": "/model",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 16.31
+      "size": 19.02
     },
     {
       "source_id": "t_desc0",
-      "native_id": "beauty_0_6",
+      "native_id": "beauty_0_12",
       "parent": "page",
       "kind": "text",
       "component": "Text5569268bc262",
@@ -147,7 +255,7 @@
     },
     {
       "source_id": "t_cmd1",
-      "native_id": "beauty_0_7",
+      "native_id": "beauty_0_13",
       "parent": "page",
       "kind": "text",
       "component": "Texte24f6ee00179",
@@ -165,7 +273,7 @@
     },
     {
       "source_id": "t_desc1",
-      "native_id": "beauty_0_8",
+      "native_id": "beauty_0_14",
       "parent": "page",
       "kind": "text",
       "component": "Text25c035b96c36",
@@ -183,25 +291,25 @@
     },
     {
       "source_id": "t_cmd2",
-      "native_id": "beauty_0_9",
+      "native_id": "beauty_0_15",
       "parent": "page",
       "kind": "text",
-      "component": "Texte7f5cc26447a",
+      "component": "Textba3b290d609e",
       "semantic_role": "text",
       "bounds": [
-        53.62,
+        53.44,
         339.0,
         61.0,
         24.0
       ],
-      "text": "/ mode",
+      "text": "/mode",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 15.83
+      "size": 19.0
     },
     {
       "source_id": "t_desc2",
-      "native_id": "beauty_0_10",
+      "native_id": "beauty_0_16",
       "parent": "page",
       "kind": "text",
       "component": "Text0f08bb9b6dcc",
@@ -219,25 +327,25 @@
     },
     {
       "source_id": "t_cmd3",
-      "native_id": "beauty_0_11",
+      "native_id": "beauty_0_17",
       "parent": "page",
       "kind": "text",
-      "component": "Textcc79e8c7b2b7",
+      "component": "Text469a7e5f2579",
       "semantic_role": "text",
       "bounds": [
-        53.09,
+        52.97,
         405.0,
         92.5,
         27.5
       ],
-      "text": "/ compact",
+      "text": "/compact",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 16.39
+      "size": 18.43
     },
     {
       "source_id": "t_desc3",
-      "native_id": "beauty_0_12",
+      "native_id": "beauty_0_18",
       "parent": "page",
       "kind": "text",
       "component": "Text4e10db7f0aa5",
@@ -255,25 +363,25 @@
     },
     {
       "source_id": "t_cmd4",
-      "native_id": "beauty_0_13",
+      "native_id": "beauty_0_19",
       "parent": "page",
       "kind": "text",
-      "component": "Texte6a32439b9ad",
+      "component": "Text9c1517bb7e47",
       "semantic_role": "text",
       "bounds": [
-        53.17,
+        52.96,
         470.5,
         49.0,
         24.5
       ],
-      "text": "/ btw",
+      "text": "/btw",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 15.0
+      "size": 18.75
     },
     {
       "source_id": "t_desc4",
-      "native_id": "beauty_0_14",
+      "native_id": "beauty_0_20",
       "parent": "page",
       "kind": "text",
       "component": "Text0cf85a49ba16",
@@ -291,25 +399,25 @@
     },
     {
       "source_id": "t_cmd5",
-      "native_id": "beauty_0_15",
+      "native_id": "beauty_0_21",
       "parent": "page",
       "kind": "text",
-      "component": "Text87885bd58230",
+      "component": "Textd2ebfbcd97bf",
       "semantic_role": "text",
       "bounds": [
-        53.09,
+        52.96,
         536.5,
         82.5,
         24.0
       ],
-      "text": "/ resume",
+      "text": "/resume",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 16.35
+      "size": 18.69
     },
     {
       "source_id": "t_desc5",
-      "native_id": "beauty_0_16",
+      "native_id": "beauty_0_22",
       "parent": "page",
       "kind": "text",
       "component": "Textf7ace5674dc3",
@@ -327,7 +435,7 @@
     },
     {
       "source_id": "t_hints",
-      "native_id": "beauty_0_17",
+      "native_id": "beauty_0_23",
       "parent": "page",
       "kind": "text",
       "component": "Textc07d939f74fc",
@@ -348,6 +456,6 @@
     "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "56112bbad6ff706b90d1a79700a6c663406f29b8ebc0f3e3ff9fbc3d1ad8a605",
+  "contract_sha256": "3b6cd8404d4699bf446314816dd18e8a6c422043909b77b380417e0e6e4f41a2",
   "mapping_basis": "mapped.json"
 }
