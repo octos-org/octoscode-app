@@ -1,0 +1,3 @@
+size,png,userbubble_root,userbubble_text,prose_root,prose_text,threadrow,new_chat_hit,composer_splash,timeline_list,kind_label_present,old_composer_ctrls
+1280x800,tmp/f21c-evidence/g-v1280.png,"[533, 102, 284, 70]","[549, 113, 256, 21]","[300, 172, 356, 28]","[300, 172, 356, 28]","[70, 152, 220, 78]","[70, 105, 220, 38]","[300, 473, 518, 190]","[300, 102, 518, 365]",False,False
+900x800,tmp/f21c-evidence/g-v900.png,"[420, 102, 284, 70]","[436, 113, 256, 21]","[300, 172, 356, 28]","[300, 172, 356, 28]","[70, 152, 220, 78]","[70, 105, 220, 38]","[300, 473, 404, 190]","[300, 102, 404, 365]",False,False

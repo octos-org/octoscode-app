@@ -1,0 +1,7 @@
+check,claim,evidence,result
+L1-lifecycle,"FlowUi::end_turn is gated by turn_id; a terminal for another turn leaves the live turn","tests/f21c_live.rs::a_terminal_for_another_turn_does_not_clear_the_running_turn","passed"
+L1-wire,"stop control -> turn/interrupt naming the RUNNING turn_id over the recorded live traffic","tests/f21c_live.rs::the_stop_control_sends_turn_interrupt_with_the_running_turn_id","passed"
+L2-store,"the real 2-turn recording folds 2 user_messages + 2 assistant_texts","tests/f21c_live.rs::two_replayed_real_turns_render_as_two_bubbles_and_two_answers","passed"
+L2-rows,"the row model yields 2 user-bubble + 2 assistant-prose in display order","tests/f21c_live.rs::two_replayed_real_turns_render_as_two_bubbles_and_two_answers","passed"
+L2-app-before,"before auto_tail: after 2 real turns the app showed only turn-1 rows","tmp/f21c-evidence/snap-turn2.json (pre-fix) item_kind=[worked-for,user-bubble,assistant-prose]","observed"
+L2-app-after,"after auto_tail: after 2 real turns turn-2 rows render (i5_assistantprose = '# Integer Overflow in Rust', i3_userbubble_0 = turn-2 prompt)","tmp/f21c-evidence/L2-after-turn2.json","observed"
