@@ -1,0 +1,48 @@
+diff --git a/crates/octoscript-makepad/src/design.rs b/crates/octoscript-makepad/src/design.rs
+--- a/crates/octoscript-makepad/src/design.rs
++++ b/crates/octoscript-makepad/src/design.rs
+@@ -161,8 +161,16 @@
+         let is_fill_text = n.kind == NodeKind::Text && a.fillw == Some(1)
+             && a.alignx.unwrap_or(0.) == 0.
+             && a.variant.as_deref() != Some("markdown");
+-        let wrapped = (flow_origin.is_some() || right_anchor || is_fill_text) && !in_flow
+-            && (n.kind != NodeKind::Stack || right_anchor);
++        // Card #16d: a `fillw` STACK that is a direct child of an Overlay also
++        // needs the wrapper. Emitted raw it is `abs_pos` + `width: Fill`, which
++        // resolves to 0x0 in a Fit-height Overlay parent (#16b) — the tool-cell
++        // console therefore kept its 351px artboard width and stopped short of
++        // the card's right padding at 540. The wrapper gives it a finite width.
++        let is_fill_stack = n.kind == NodeKind::Stack && a.fillw == Some(1)
++            && !right_anchor;
++        let is_fill_leaf = is_fill_text || is_fill_stack;
++        let wrapped = (flow_origin.is_some() || right_anchor || is_fill_leaf) && !in_flow
++            && (n.kind != NodeKind::Stack || right_anchor || is_fill_stack);
+         if wrapped {
+             if right_anchor {
+                 let h = if a.fith == Some(1) { "Fit".to_string() } else { a.h.unwrap_or(0.).to_string() };
+@@ -173,7 +181,7 @@
+                 // child alone is a no-op in an Overlay.
+                 writeln!(out, "View {{width: Fill height: {h} margin: Inset{{top: {}}} align: Align{{x: 1.0}}",
+                     a.y.unwrap_or(0.)).unwrap();
+-            } else if is_fill_text {
++            } else if is_fill_leaf {
+                 let h = if a.fith == Some(1) { "Fit".to_string() } else { a.h.unwrap_or(0.).to_string() };
+                 writeln!(out, "View {{width: Fill height: {h} margin: Inset{{left: {} top: {}}} flow: Overlay padding: 0 clip_x: false clip_y: false",
+                     a.x.unwrap_or(0.), a.y.unwrap_or(0.)).unwrap();
+@@ -520,7 +528,15 @@
+                     let spacing = if a.font_asc.is_some() {
+                         1.0
+                     } else {
+-                        a.line_height.unwrap_or(size * line_box) / (size * 1.1303)
++                        // Card #16d. The source `line_height` of a multi-line flow
++                        // region is the atlas's PARAGRAPH pitch and can be ~2x the
++                        // font size; feeding it straight to `line_spacing` left a
++                        // blank-line-sized gap under every WRAPPED line. Clamp the
++                        // wrapped-line advance to ~1.4x the font size (the atlas
++                        // rhythm); the deliberate blank line between paragraphs is
++                        // still `paragraph_spacing`.
++                        let lh = a.line_height.unwrap_or(size * line_box).min(size * 1.4);
++                        lh / (size * 1.1303)
+                     };
+                     let style = |res: &str| format!(
+                         "TextStyle{{font_family: FontFamily{{latin := FontMember{{res: {res} asc: 0.04 desc: 0.04 weight: {weight}}} symbols := FontMember{{res: {symbols} asc: 0 desc: 0 weight: 400}} emoji := FontMember{{res: {emoji} asc: 0 desc: 0}}}} font_size: {} line_spacing: {spacing}}}",

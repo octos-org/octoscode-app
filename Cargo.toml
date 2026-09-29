@@ -57,3 +57,14 @@ log = "0.4"
 [patch."https://github.com/OctoSense-org/OctoSense"]
 octos-app-transport = { path = "/Users/yuechen/home/oa.noindex/octosense-fork/apps/appcard/app/crates/octos-app-transport" }
 octos-app-store = { path = "/Users/yuechen/home/oa.noindex/octosense-fork/apps/appcard/app/crates/octos-app-store" }
+
+# The renderer the #16/#18 components are authored against (card #21b step 1).
+# The pinned rev's `design.rs` lacks the flow/fill lowering: a `fillw` node
+# resolves to a 0×0 extent and a flowing child is pinned at its measured
+# `abs_pos`. Redirect the renderer crates to the local fork branch;
+# `tools/prepare-octoscript-makepad-fork.sh` recreates that fork from this same
+# rev + `patches/octoscript-makepad/000{1..6}-*.patch`.
+[patch."https://github.com/OctoSense-org/Octoscript-Makepad.git"]
+octoscript-makepad = { path = "/Users/yuechen/home/oa.noindex/octoscript-makepad-fork/crates/octoscript-makepad" }
+octoscript-widgets = { path = "/Users/yuechen/home/oa.noindex/octoscript-makepad-fork/crates/octoscript-widgets" }
+octoscript-node = { path = "/Users/yuechen/home/oa.noindex/octoscript-makepad-fork/crates/octoscript-node" }
