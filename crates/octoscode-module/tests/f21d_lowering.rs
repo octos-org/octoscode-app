@@ -67,6 +67,40 @@ fn item5_the_new_chat_row_carries_its_compose_icon() {
     );
 }
 
+/// Card #21h — the compose icon must sit at the card's right padding, not
+/// overflow it.
+///
+/// #21c pinned the icon with an absolute `left = 220 − 24 − 4` (the old column
+/// width). #21g then inset the card (207 wide), so the fixed left pushed the
+/// icon's right edge to 216 > 207 and it was cut in half at the card edge
+/// (live snap: `i0_newchat_icon r=[262,123,15,28]`). A `Fill`/`Align` wrapper is
+/// not usable here (a `Fill` child under the KitButton root collapses to
+/// `[0,0,0,0]`; `align` is the parent's property), so the wrapper keeps a fixed
+/// size and its `left` must be computed from the card's real width. Assert the
+/// geometry: `left + icon_width` must not exceed the card's 207px.
+#[test]
+fn item_h_the_compose_icon_fits_inside_the_card() {
+    const CARD_W: f64 = 207.0; // threads_column 220 (lib.rs) − #21g's 13px inset
+    let dsl = components::lower(ItemKind::NewChat, "0", &copies(ItemKind::NewChat, ""))
+        .expect("new-chat lowers");
+    // The icon wrapper's margin carries its `left`; parse it.
+    let marker = "height: 28 margin: Inset{left: ";
+    let at = dsl
+        .find(marker)
+        .unwrap_or_else(|| panic!("the icon wrapper must carry a left margin; got:\n{dsl}"));
+    let rest = &dsl[at + marker.len()..];
+    let left: f64 = rest[..rest.find(' ').unwrap()].parse().expect("a numeric left");
+    let icon_w = 24.0;
+    assert!(
+        left + icon_w <= CARD_W,
+        "the icon (left {left} + {icon_w}) overflows the {CARD_W}px card and would clip; got:\n{dsl}"
+    );
+    assert!(
+        left + icon_w >= CARD_W - 8.0,
+        "the icon must still sit at the card's right padding, not float left; got:\n{dsl}"
+    );
+}
+
 #[test]
 fn item5_the_thread_title_ellipsizes() {
     let dsl = components::lower(ItemKind::ThreadRow, "0", &copies(ItemKind::ThreadRow, "x"))

@@ -683,16 +683,25 @@ fn flat_send_button(ui: &str) -> String {
 fn new_chat_with_compose_icon(ui: &str) -> String {
     let icon = components_dir().join("new-chat/assets/icon_compose.svg");
     let icon = std::fs::canonicalize(&icon).unwrap_or(icon);
-    // A FIXED-size wrapper with a `left` margin — the same idiom the label uses
-    // (`View{width: 86 height: 23 margin: Inset{left: 21.04 …}}`). A `Fill`
-    // wrapper under the component's `Overlay` root resolves to 0 (measured: the
-    // node mounted but seated at [0,0,0,0]). The scene's icon is at x=347 of a
-    // 374px row, but the app's thread column is 220 (lib.rs:81), so the left is
-    // the row width minus the icon and its scene-proportional right inset.
-    const ROW_W: f64 = 220.0; // `threads_column` width (lib.rs:81)
+    // Card #21h: place the icon at the card's RIGHT padding.
+    //
+    // #21c pinned it with an absolute `left = 220 − 24 − 4` computed from the
+    // column width; #21g then inset the card by 13px, narrowing it to 207, so the
+    // fixed left pushed the icon's right edge to 216 > 207 and it was cut in half
+    // (snap: `i0_newchat_icon r=[262,123,15,28]`).
+    //
+    // A `Fill` + `Align{x: 1.0}` wrapper is NOT available here: the icon is a
+    // child of the `KitButton` root, and a `Fill` child under that root collapses
+    // to `[0,0,0,0]` (measured again this card — the same #21c finding), while
+    // `align` is a property of the *parent* and would drag the sibling label too.
+    // So keep the fixed-size wrapper and compute `left` from the card's real
+    // width. The thread column is a FIXED 220px (`lib.rs` `threads_column`), and
+    // #21g insets the card 13px → the card is a constant 207px at every window
+    // width, so this is width-exact. `item_h_...` asserts the icon cannot overflow.
+    const CARD_W: f64 = 207.0; // `threads_column` 220 (lib.rs) − #21g's 13px inset
     const ICON_W: f64 = 24.0;
     const RIGHT_INSET: f64 = 4.0;
-    let left = ROW_W - ICON_W - RIGHT_INSET;
+    let left = CARD_W - ICON_W - RIGHT_INSET;
     let node = format!(
         "View {{width: {ICON_W} height: 28 margin: Inset{{left: {left} top: 21 right: 0 bottom: 0}} \
          flow: Overlay padding: 0 clip_x: false clip_y: false\n\
