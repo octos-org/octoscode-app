@@ -50,6 +50,38 @@ fn item3_the_bubble_hugs_wraps_and_is_capped() {
 }
 
 #[test]
+fn item5_the_new_chat_row_carries_its_compose_icon() {
+    let dsl = components::lower(ItemKind::NewChat, "0", &copies(ItemKind::NewChat, ""))
+        .expect("new-chat lowers");
+    assert!(
+        dsl.contains("i0_newchat_icon := Svg"),
+        "scene 01's new-chat row carries a compose icon; got:\n{dsl}"
+    );
+    assert!(
+        dsl.contains("icon_compose.svg") && dsl.contains("file_resource(\"/"),
+        "the compose icon binds the component's own file, not a URL; got:\n{dsl}"
+    );
+    assert!(
+        !dsl.contains("http_resource("),
+        "no icon may need a dev asset server; got:\n{dsl}"
+    );
+}
+
+#[test]
+fn item5_the_thread_title_ellipsizes() {
+    let dsl = components::lower(ItemKind::ThreadRow, "0", &copies(ItemKind::ThreadRow, "x"))
+        .expect("thread-row lowers");
+    assert!(
+        dsl.contains("max_lines: 1 text_overflow: TextOverflow.Ellipsis"),
+        "the title must ellipsize, not hard-clip; got:\n{dsl}"
+    );
+    assert!(
+        !dsl.contains("width: 302") && !dsl.contains("width: 379"),
+        "the row must adopt the column's width, not keep the 406px panel's; got:\n{dsl}"
+    );
+}
+
+#[test]
 fn item6_icons_resolve_to_a_file_not_an_asset_server() {
     let dsl = components::lower(ItemKind::Composer, "0", &copies(ItemKind::Composer, ""))
         .expect("the composer lowers");
