@@ -15,7 +15,7 @@
         33.75,
         33.6,
         66.7,
-        24.15
+        28.5
       ],
       "status": "observed",
       "ocr_text": "Review",
@@ -41,18 +41,18 @@
       ]
     },
     {
-      "id": "t02",
-      "expected_text": "Last turn v",
+      "id": "scope_label",
+      "expected_text": "Last turn",
       "requested_bounds": [
-        205.26,
-        38.35,
-        82.33,
-        18.15
+        204.0,
+        38.0,
+        68.0,
+        22.0
       ],
       "status": "observed",
       "ocr_text": "Last turn v",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9,
       "ink_bounds": [
         208.5,
         37.5,
@@ -73,50 +73,40 @@
       ]
     },
     {
-      "id": "t03",
-      "expected_text": "+62 -5",
+      "id": "t_add",
+      "expected_text": "+62",
       "requested_bounds": [
         309.01,
         37.0,
-        64.28,
-        21.65
+        30.0,
+        22.5
       ],
-      "status": "observed",
-      "ocr_text": "+62 -5",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        315.0,
-        37.0,
-        27.0,
-        18.5
-      ],
-      "ink_color": [
-        80,
-        144,
-        85
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        309.0111110834798,
-        37.000000064359234,
-        64.28333282470705,
-        21.651163101196236
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
-      "id": "t04",
-      "expected_text": "ui_protocol_transport.rs +31 -4",
+      "id": "t_del",
+      "expected_text": "-5",
+      "requested_bounds": [
+        343.01,
+        37.0,
+        22.0,
+        22.5
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_file",
+      "expected_text": "ui_protocol_transport.rs",
       "requested_bounds": [
         42.86,
         131.97,
-        239.09,
+        220.0,
         23.69
       ],
       "status": "observed",
       "ocr_text": "ui_protocol_transport.rs +31 -4",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.8727272727272727,
       "ink_bounds": [
         44.5,
         132.5,
@@ -137,13 +127,35 @@
       ]
     },
     {
-      "id": "t05",
+      "id": "t_fadd",
+      "expected_text": "+31",
+      "requested_bounds": [
+        268.0,
+        131.97,
+        40.0,
+        23.69
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_fdel",
+      "expected_text": "-4",
+      "requested_bounds": [
+        312.0,
+        131.97,
+        30.0,
+        23.69
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "ln_0",
       "expected_text": "198",
       "requested_bounds": [
-        36.09,
-        206.41,
-        25.94,
-        18.05
+        30.0,
+        199.0,
+        18.0,
+        22.0
       ],
       "status": "observed",
       "ocr_text": "198",
@@ -169,237 +181,13 @@
       ]
     },
     {
-      "id": "t06",
-      "expected_text": "199",
-      "requested_bounds": [
-        36.09,
-        256.03,
-        25.94,
-        18.05
-      ],
-      "status": "observed",
-      "ocr_text": "199",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        40.0,
-        256.0,
-        20.0,
-        16.5
-      ],
-      "ink_color": [
-        107,
-        107,
-        107
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        36.08888892873655,
-        256.0348842430736,
-        25.938888549804688,
-        18.046510696411083
-      ]
-    },
-    {
-      "id": "t07",
-      "expected_text": "200",
-      "requested_bounds": [
-        36.09,
-        304.53,
-        27.07,
-        18.05
-      ],
-      "status": "observed",
-      "ocr_text": "200",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        38.5,
-        304.5,
-        22.0,
-        16.5
-      ],
-      "ink_color": [
-        106,
-        106,
-        106
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        36.08888928473742,
-        304.5348842430736,
-        27.066665649414062,
-        18.046510696411083
-      ]
-    },
-    {
-      "id": "t08",
-      "expected_text": "201",
-      "requested_bounds": [
-        36.09,
-        356.42,
-        25.94,
-        19.17
-      ],
-      "status": "observed",
-      "ocr_text": "201",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        38.5,
-        357.0,
-        20.0,
-        16.5
-      ],
-      "ink_color": [
-        112,
-        113,
-        113
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        36.08888887986618,
-        356.41860504583775,
-        25.938888549804684,
-        19.174417495727532
-      ]
-    },
-    {
-      "id": "t09",
-      "expected_text": "202",
-      "requested_bounds": [
-        36.09,
-        407.17,
-        27.07,
-        18.05
-      ],
-      "status": "observed",
-      "ocr_text": "202",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        38.5,
-        407.5,
-        21.5,
-        16.0
-      ],
-      "ink_color": [
-        109,
-        109,
-        110
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        36.08888952054549,
-        407.1744190088769,
-        27.066665649414062,
-        18.046510696411083
-      ]
-    },
-    {
-      "id": "t10",
-      "expected_text": "203",
-      "requested_bounds": [
-        36.09,
-        456.8,
-        25.94,
-        18.05
-      ],
-      "status": "observed",
-      "ocr_text": "203",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        38.5,
-        457.5,
-        21.5,
-        16.0
-      ],
-      "ink_color": [
-        109,
-        110,
-        111
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        36.088888950352285,
-        456.80232610353863,
-        25.938888549804688,
-        18.04651069641117
-      ]
-    },
-    {
-      "id": "t11",
-      "expected_text": "204",
-      "requested_bounds": [
-        36.09,
-        507.56,
-        27.07,
-        19.17
-      ],
-      "status": "observed",
-      "ocr_text": "204",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        38.5,
-        508.0,
-        22.0,
-        16.0
-      ],
-      "ink_color": [
-        116,
-        115,
-        117
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        36.08888962307074,
-        507.5581400423493,
-        27.06666564941407,
-        19.174417495727617
-      ]
-    },
-    {
-      "id": "t12",
-      "expected_text": "205",
-      "requested_bounds": [
-        36.09,
-        557.19,
-        25.94,
-        19.17
-      ],
-      "status": "observed",
-      "ocr_text": "205",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        38.5,
-        558.5,
-        22.0,
-        16.5
-      ],
-      "ink_color": [
-        111,
-        111,
-        112
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        36.08888914301432,
-        557.1860469063029,
-        25.938888549804695,
-        19.174417495727532
-      ]
-    },
-    {
-      "id": "t13",
+      "id": "dl_0",
       "expected_text": "fn handle_disconnect(&mut self) {",
       "requested_bounds": [
-        86.84,
-        207.5,
-        249.24,
-        21.5
+        88.0,
+        199.0,
+        280.0,
+        24.0
       ],
       "status": "observed",
       "ocr_text": "fn handle_disconnect(&mut self) {",
@@ -425,18 +213,61 @@
       ]
     },
     {
-      "id": "t14",
-      "expected_text": "- self.queue.clear();",
+      "id": "ln_1",
+      "expected_text": "199",
       "requested_bounds": [
-        75.56,
-        254.91,
-        197.36,
-        22.59
+        30.0,
+        249.0,
+        18.0,
+        22.0
+      ],
+      "status": "observed",
+      "ocr_text": "199",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        40.0,
+        256.0,
+        20.0,
+        16.5
+      ],
+      "ink_color": [
+        107,
+        107,
+        107
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        36.08888892873655,
+        256.0348842430736,
+        25.938888549804688,
+        18.046510696411083
+      ]
+    },
+    {
+      "id": "mk_1",
+      "expected_text": "-",
+      "requested_bounds": [
+        74.0,
+        249.0,
+        11.0,
+        24.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "dl_1",
+      "expected_text": "self.queue.clear();",
+      "requested_bounds": [
+        88.0,
+        249.0,
+        280.0,
+        24.0
       ],
       "status": "observed",
       "ocr_text": "- self.queue.clear();",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.95,
       "ink_bounds": [
         88.0,
         256.0,
@@ -457,18 +288,61 @@
       ]
     },
     {
-      "id": "t15",
-      "expected_text": "- self.state = State::Disconnected;",
+      "id": "ln_2",
+      "expected_text": "200",
       "requested_bounds": [
-        78.94,
-        303.41,
-        295.48,
-        22.59
+        30.0,
+        299.0,
+        18.0,
+        22.0
+      ],
+      "status": "observed",
+      "ocr_text": "200",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        38.5,
+        304.5,
+        22.0,
+        16.5
+      ],
+      "ink_color": [
+        106,
+        106,
+        106
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        36.08888928473742,
+        304.5348842430736,
+        27.066665649414062,
+        18.046510696411083
+      ]
+    },
+    {
+      "id": "mk_2",
+      "expected_text": "-",
+      "requested_bounds": [
+        74.0,
+        299.0,
+        11.0,
+        24.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "dl_2",
+      "expected_text": "self.state = State::Disconnected;",
+      "requested_bounds": [
+        88.0,
+        299.0,
+        280.0,
+        24.0
       ],
       "status": "observed",
       "ocr_text": "- self.state = State::Disconnected;",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9705882352941176,
       "ink_bounds": [
         88.5,
         304.5,
@@ -489,18 +363,61 @@
       ]
     },
     {
-      "id": "t16",
-      "expected_text": "+ self.persist_queue()?;",
+      "id": "ln_3",
+      "expected_text": "201",
       "requested_bounds": [
-        81.2,
-        355.29,
-        210.89,
-        25.94
+        30.0,
+        349.0,
+        18.0,
+        22.0
+      ],
+      "status": "observed",
+      "ocr_text": "201",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        38.5,
+        357.0,
+        20.0,
+        16.5
+      ],
+      "ink_color": [
+        112,
+        113,
+        113
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        36.08888887986618,
+        356.41860504583775,
+        25.938888549804684,
+        19.174417495727532
+      ]
+    },
+    {
+      "id": "mk_3",
+      "expected_text": "+",
+      "requested_bounds": [
+        74.0,
+        349.0,
+        11.0,
+        24.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "dl_3",
+      "expected_text": "self.persist_queue()?;",
+      "requested_bounds": [
+        88.0,
+        349.0,
+        280.0,
+        24.0
       ],
       "status": "observed",
       "ocr_text": "+ self.persist_queue()?;",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9565217391304348,
       "ink_bounds": [
         91.0,
         357.5,
@@ -521,18 +438,61 @@
       ]
     },
     {
-      "id": "t17",
-      "expected_text": "+ self.queue.mark_pending();",
+      "id": "ln_4",
+      "expected_text": "202",
       "requested_bounds": [
-        81.2,
-        404.92,
-        241.34,
-        24.81
+        30.0,
+        399.0,
+        18.0,
+        22.0
+      ],
+      "status": "observed",
+      "ocr_text": "202",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        38.5,
+        407.5,
+        21.5,
+        16.0
+      ],
+      "ink_color": [
+        109,
+        109,
+        110
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        36.08888952054549,
+        407.1744190088769,
+        27.066665649414062,
+        18.046510696411083
+      ]
+    },
+    {
+      "id": "mk_4",
+      "expected_text": "+",
+      "requested_bounds": [
+        74.0,
+        399.0,
+        11.0,
+        24.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "dl_4",
+      "expected_text": "self.queue.mark_pending();",
+      "requested_bounds": [
+        88.0,
+        399.0,
+        280.0,
+        24.0
       ],
       "status": "observed",
       "ocr_text": "+ self.queue.mark_pending();",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9629629629629629,
       "ink_bounds": [
         88.0,
         407.0,
@@ -553,18 +513,61 @@
       ]
     },
     {
-      "id": "t18",
-      "expected_text": "+ self.metrics.reconnects += 1;",
+      "id": "ln_5",
+      "expected_text": "203",
       "requested_bounds": [
-        81.2,
-        454.5,
-        267.28,
-        25.01
+        30.0,
+        449.0,
+        18.0,
+        22.0
+      ],
+      "status": "observed",
+      "ocr_text": "203",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        38.5,
+        457.5,
+        21.5,
+        16.0
+      ],
+      "ink_color": [
+        109,
+        110,
+        111
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        36.088888950352285,
+        456.80232610353863,
+        25.938888549804688,
+        18.04651069641117
+      ]
+    },
+    {
+      "id": "mk_5",
+      "expected_text": "+",
+      "requested_bounds": [
+        74.0,
+        449.0,
+        11.0,
+        24.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "dl_5",
+      "expected_text": "self.metrics.reconnects += 1;",
+      "requested_bounds": [
+        88.0,
+        449.0,
+        280.0,
+        24.0
       ],
       "status": "observed",
       "ocr_text": "+ self.metrics.reconnects += 1;",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9666666666666667,
       "ink_bounds": [
         88.0,
         456.5,
@@ -585,18 +588,61 @@
       ]
     },
     {
-      "id": "t19",
-      "expected_text": "+ self.state = State::Disconnected;",
+      "id": "ln_6",
+      "expected_text": "204",
       "requested_bounds": [
-        80.01,
-        506.36,
-        294.51,
-        24.93
+        30.0,
+        499.0,
+        18.0,
+        22.0
+      ],
+      "status": "observed",
+      "ocr_text": "204",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        38.5,
+        508.0,
+        22.0,
+        16.0
+      ],
+      "ink_color": [
+        116,
+        115,
+        117
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        36.08888962307074,
+        507.5581400423493,
+        27.06666564941407,
+        19.174417495727617
+      ]
+    },
+    {
+      "id": "mk_6",
+      "expected_text": "+",
+      "requested_bounds": [
+        74.0,
+        499.0,
+        11.0,
+        24.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "dl_6",
+      "expected_text": "self.state = State::Disconnected;",
+      "requested_bounds": [
+        88.0,
+        499.0,
+        280.0,
+        24.0
       ],
       "status": "observed",
       "ocr_text": "+ self.state = State::Disconnected;",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9705882352941176,
       "ink_bounds": [
         88.5,
         507.5,
@@ -617,8 +663,51 @@
       ]
     },
     {
-      "id": "t20",
-      "expected_text": ":412 unmodified lines",
+      "id": "ln_7",
+      "expected_text": "205",
+      "requested_bounds": [
+        30.0,
+        549.0,
+        18.0,
+        22.0
+      ],
+      "status": "observed",
+      "ocr_text": "205",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        38.5,
+        558.5,
+        22.0,
+        16.5
+      ],
+      "ink_color": [
+        111,
+        111,
+        112
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        36.08888914301432,
+        557.1860469063029,
+        25.938888549804695,
+        19.174417495727532
+      ]
+    },
+    {
+      "id": "dl_7",
+      "expected_text": "}",
+      "requested_bounds": [
+        88.0,
+        549.0,
+        280.0,
+        24.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_fold",
+      "expected_text": "\u22ee 412 unmodified lines \u22ee",
       "requested_bounds": [
         100.37,
         620.35,
@@ -628,7 +717,7 @@
       "status": "observed",
       "ocr_text": ":412 unmodified lines",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.8888888888888888,
       "ink_bounds": [
         104.5,
         620.5,
@@ -661,9 +750,181 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4293981682
+    },
+    {
+      "id": "diff_view",
+      "bounds": [
+        20.0,
+        92.0,
+        362.0,
+        566.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294703860,
+      "radius": 12.0
+    },
+    {
+      "id": "scope_pill",
+      "bounds": [
+        196.0,
+        23.0,
+        103.0,
+        45.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835453,
+      "radius": 22.5
+    },
+    {
+      "id": "scope_chev",
+      "bounds": [
+        281.833,
+        36.235,
+        15.021,
+        21.176
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "file_header",
+      "bounds": [
+        20.0,
+        121.97,
+        366.0,
+        42.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "file_divider",
+      "bounds": [
+        24.0,
+        159.65,
+        358.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "diff_rows",
+      "bounds": [
+        20.0,
+        180.0,
+        366.0,
+        420.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "row_1",
+      "bounds": [
+        24.0,
+        241.0,
+        358.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294830828,
+      "radius": 6.0
+    },
+    {
+      "id": "row_2",
+      "bounds": [
+        24.0,
+        291.0,
+        358.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294831085,
+      "radius": 6.0
+    },
+    {
+      "id": "row_3",
+      "bounds": [
+        24.0,
+        341.0,
+        358.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293851889,
+      "radius": 6.0
+    },
+    {
+      "id": "row_4",
+      "bounds": [
+        24.0,
+        391.0,
+        358.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293851889,
+      "radius": 6.0
+    },
+    {
+      "id": "row_5",
+      "bounds": [
+        24.0,
+        441.0,
+        358.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293851889,
+      "radius": 6.0
+    },
+    {
+      "id": "row_6",
+      "bounds": [
+        24.0,
+        491.0,
+        358.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293851889,
+      "radius": 6.0
+    },
+    {
+      "id": "folded",
+      "bounds": [
+        24.0,
+        612.35,
+        358.0,
+        34.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294177780,
+      "radius": 8.0
     }
   ],
-  "unmapped_ocr": [],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        618.0222221669596,
+        74.00000012871847,
+        128.5666656494141,
+        43.30232620239247
+      ],
+      "confidence": 1,
+      "text": "+62 -5"
+    }
+  ],
   "non_text_ocr": [],
   "limits": [
     "OCR cannot prove font family, hierarchy or control behavior.",

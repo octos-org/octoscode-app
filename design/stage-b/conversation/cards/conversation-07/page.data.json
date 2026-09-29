@@ -11,6 +11,15 @@
           "h": 776
         }
       },
+      "edited_files_card": {
+        "component": "Surface13b18c6e4e55",
+        "layout": {
+          "x": 16.0,
+          "y": 60.0,
+          "w": 374.0,
+          "h": 580.0
+        }
+      },
       "t01": {
         "component": "Text5113f491f005",
         "layout": {
@@ -20,34 +29,98 @@
           "h": 26.0
         }
       },
-      "t02": {
-        "component": "Textc44b6dbaba54",
+      "t02_add": {
+        "component": "Textaf5b4a445c6d",
         "layout": {
-          "x": 20.59,
-          "y": 124.5,
-          "w": 35.0,
-          "h": 24.5
+          "x": 16.92,
+          "y": 126.33,
+          "w": 44.0,
+          "h": 23.69
         }
       },
-      "t03": {
-        "component": "Text6ce21eea01d1",
+      "t02_del": {
+        "component": "Texte8095f1ab825",
         "layout": {
-          "x": 231.93,
-          "y": 85.0,
-          "w": 65.5,
-          "h": 24.5
+          "x": 62.92,
+          "y": 126.33,
+          "w": 40.0,
+          "h": 23.69
         }
       },
-      "t04": {
-        "component": "Textc917208d6f8f",
+      "undo_group": {
+        "component": "Group3d2637879433",
         "layout": {
-          "x": 321.14,
+          "x": 210.0,
+          "y": 86.85,
+          "w": 74.0,
+          "h": 22.65
+        }
+      },
+      "t_undo": {
+        "component": "Textf7d96879fa40",
+        "layout": {
+          "x": 210.0,
+          "y": 86.85,
+          "w": 54.0,
+          "h": 22.65
+        }
+      },
+      "icon_undo": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 266.0,
+          "y": 88.85,
+          "w": 18.0,
+          "h": 18.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-07/assets/icon_undo-21d394caf9e6.svg"
+        }
+      },
+      "review": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 309.0,
+          "y": 75.0,
+          "w": 79.0,
+          "h": 46.0
+        }
+      },
+      "review_surface": {
+        "component": "Surface5daed35c890e",
+        "layout": {
+          "x": 309.0,
+          "y": 75.0,
+          "w": 79.0,
+          "h": 46.0
+        }
+      },
+      "review_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 309.0,
+          "y": 75.0,
+          "w": 79.0,
+          "h": 46.0
+        }
+      },
+      "review_label": {
+        "component": "Text7d74dc026487",
+        "layout": {
+          "x": 321.27,
           "y": 86.5,
           "w": 57.0,
           "h": 23.0
         }
       },
-      "t05": {
+      "files_card": {
+        "component": "Surface42018ac4028a",
+        "layout": {
+          "x": 15.0,
+          "y": 178.0,
+          "w": 378.0,
+          "h": 389.0
+        }
+      },
+      "file_1_dir": {
         "component": "Textae2640d69bbf",
         "layout": {
           "x": 38.75,
@@ -56,25 +129,34 @@
           "h": 21.0
         }
       },
-      "t06": {
-        "component": "Text02968943951d",
+      "file_1_name": {
+        "component": "Text249cf0aff4ea",
         "layout": {
-          "x": 38.31,
+          "x": 38.38,
           "y": 249.0,
           "w": 206.0,
           "h": 26.0
         }
       },
-      "t07": {
-        "component": "Textdc9c18fa772b",
+      "file_1_add": {
+        "component": "Text72083545bf65",
         "layout": {
-          "x": 304.16,
-          "y": 232.5,
-          "w": 31.0,
-          "h": 25.0
+          "x": 270.53,
+          "y": 234.5,
+          "w": 56.0,
+          "h": 24.0
         }
       },
-      "t08": {
+      "file_1_del": {
+        "component": "Text701f8c816d8f",
+        "layout": {
+          "x": 330.53,
+          "y": 234.5,
+          "w": 40.0,
+          "h": 24.0
+        }
+      },
+      "file_2_dir": {
         "component": "Text9016802f4a87",
         "layout": {
           "x": 38.75,
@@ -83,25 +165,34 @@
           "h": 21.5
         }
       },
-      "t09": {
-        "component": "Text6f1db48d48a6",
+      "file_2_name": {
+        "component": "Textf5f9fca378aa",
         "layout": {
-          "x": 38.33,
+          "x": 38.42,
           "y": 378.5,
           "w": 101.5,
           "h": 25.5
         }
       },
-      "t10": {
-        "component": "Textb0b9223e4853",
+      "file_2_add": {
+        "component": "Text98953305a681",
         "layout": {
-          "x": 308.82,
-          "y": 361.0,
-          "w": 23.5,
-          "h": 25.0
+          "x": 270.53,
+          "y": 363.0,
+          "w": 56.0,
+          "h": 22.5
         }
       },
-      "t11": {
+      "file_2_del": {
+        "component": "Text5abfe3ea15d7",
+        "layout": {
+          "x": 330.53,
+          "y": 363.0,
+          "w": 40.0,
+          "h": 22.5
+        }
+      },
+      "file_3_dir": {
         "component": "Textc53cee50c43a",
         "layout": {
           "x": 38.74,
@@ -110,31 +201,68 @@
           "h": 21.0
         }
       },
-      "t12": {
-        "component": "Text568b6a0dc5ba",
+      "file_3_name": {
+        "component": "Text88f3798c882f",
         "layout": {
-          "x": 38.7,
+          "x": 38.79,
           "y": 508.0,
           "w": 110.0,
           "h": 24.0
         }
       },
-      "t13": {
-        "component": "Texta1b347f8cbae",
+      "file_3_add": {
+        "component": "Text344e9e45d692",
         "layout": {
-          "x": 296.62,
-          "y": 489.5,
-          "w": 34.0,
-          "h": 24.5
+          "x": 270.53,
+          "y": 490.5,
+          "w": 56.0,
+          "h": 25.0
         }
       },
-      "t14": {
-        "component": "Texta0d9e419a67b",
+      "file_3_del": {
+        "component": "Text72fbd35abf74",
         "layout": {
-          "x": 34.53,
+          "x": 330.53,
+          "y": 490.5,
+          "w": 40.0,
+          "h": 25.0
+        }
+      },
+      "div_1": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 29.15,
+          "y": 308.003,
+          "w": 349.701,
+          "h": 1.008
+        }
+      },
+      "div_2": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 29.15,
+          "y": 438.005,
+          "w": 349.701,
+          "h": 1.008
+        }
+      },
+      "t_show": {
+        "component": "Textaae9674944b4",
+        "layout": {
+          "x": 34.62,
           "y": 604.0,
           "w": 81.5,
           "h": 23.5
+        }
+      },
+      "icon_show": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 121.12,
+          "y": 608.37,
+          "w": 16.0,
+          "h": 16.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-07/assets/icon_show-23070b5e0c3a.svg"
         }
       }
     },

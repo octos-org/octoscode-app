@@ -45,9 +45,9 @@
       "expected_text": "git push origin feat/steer-queue",
       "requested_bounds": [
         29.0,
-        187.5,
-        328.67,
-        32.51
+        185.0,
+        340.0,
+        30.0
       ],
       "status": "observed",
       "ocr_text": "git push origin feat/steer-queue",
@@ -73,18 +73,18 @@
       ]
     },
     {
-      "id": "t03",
-      "expected_text": "Reason: Push the fix branch so Cl",
+      "id": "reason_text",
+      "expected_text": "Reason: Push the fix branch so Cl can run",
       "requested_bounds": [
-        21.43,
-        276.34,
-        297.73,
-        21.66
+        21.0,
+        266.0,
+        302.0,
+        66.0
       ],
       "status": "observed",
       "ocr_text": "Reason: Push the fix branch so Cl",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.8918918918918919,
       "ink_bounds": [
         22.0,
         276.5,
@@ -105,62 +105,30 @@
       ]
     },
     {
-      "id": "t04",
-      "expected_text": "can run",
-      "requested_bounds": [
-        19.14,
-        317.93,
-        66.6,
-        16.07
-      ],
-      "status": "observed",
-      "ocr_text": "can run",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        21.0,
-        319.0,
-        62.5,
-        13.5
-      ],
-      "ink_color": [
-        140,
-        140,
-        143
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        19.139545792825785,
-        317.9309528744846,
-        66.60424041748047,
-        16.068326950073235
-      ]
-    },
-    {
-      "id": "t05",
+      "id": "approve_once_label",
       "expected_text": "Approve once",
       "requested_bounds": [
-        136.31,
-        389.55,
-        125.48,
-        28.48
+        136.0,
+        390.0,
+        200.0,
+        30.0
       ],
       "status": "observed",
       "ocr_text": "Approve once",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        135.0,
-        388.5,
-        128.0,
-        31.0
+        139.0,
+        391.5,
+        120.5,
+        25.0
       ],
       "ink_color": [
-        2,
-        2,
-        1
+        253,
+        254,
+        254
       ],
-      "light_foreground": false,
+      "light_foreground": true,
       "ocr_bounds": [
         136.3124928412235,
         389.55116308171085,
@@ -169,13 +137,13 @@
       ]
     },
     {
-      "id": "t06",
+      "id": "approve_session_label",
       "expected_text": "Approve for session",
       "requested_bounds": [
-        109.48,
-        471.66,
-        180.59,
-        33.14
+        109.0,
+        472.0,
+        240.0,
+        32.0
       ],
       "status": "observed",
       "ocr_text": "Approve for session",
@@ -201,13 +169,13 @@
       ]
     },
     {
-      "id": "t07",
+      "id": "deny_label",
       "expected_text": "Deny",
       "requested_bounds": [
-        170.29,
-        552.67,
-        47.37,
-        27.08
+        170.0,
+        553.0,
+        80.0,
+        28.01
       ],
       "status": "observed",
       "ocr_text": "Deny",
@@ -233,7 +201,7 @@
       ]
     },
     {
-      "id": "t08",
+      "id": "t_hint",
       "expected_text": "Y /S / N",
       "requested_bounds": [
         153.38,
@@ -277,9 +245,161 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4294901502
+    },
+    {
+      "id": "approval_card",
+      "bounds": [
+        16.0,
+        74.0,
+        374.0,
+        622.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709
+    },
+    {
+      "id": "icon_shield",
+      "bounds": [
+        26.0,
+        85.0,
+        30.0,
+        42.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "cmd_box",
+      "bounds": [
+        19.0,
+        159.0,
+        368.0,
+        86.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294506745,
+      "radius": 14.74
+    },
+    {
+      "id": "approve_once",
+      "bounds": [
+        18.0,
+        366.0,
+        369.0,
+        68.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "approve_once_surface",
+      "bounds": [
+        18.0,
+        366.0,
+        369.0,
+        68.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4278255616,
+      "radius": 34.0
+    },
+    {
+      "id": "approve_once_control",
+      "bounds": [
+        18.0,
+        366.0,
+        369.0,
+        68.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "approve_session",
+      "bounds": [
+        17.0,
+        449.0,
+        371.0,
+        72.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "approve_session_surface",
+      "bounds": [
+        17.0,
+        449.0,
+        371.0,
+        72.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 36.0
+    },
+    {
+      "id": "approve_session_control",
+      "bounds": [
+        17.0,
+        449.0,
+        371.0,
+        72.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "deny",
+      "bounds": [
+        18.0,
+        532.0,
+        368.0,
+        58.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "deny_surface",
+      "bounds": [
+        18.0,
+        532.0,
+        368.0,
+        58.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 29.0
+    },
+    {
+      "id": "deny_control",
+      "bounds": [
+        18.0,
+        532.0,
+        368.0,
+        58.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
     }
   ],
-  "unmapped_ocr": [],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        38.27909158565157,
+        635.8619057489692,
+        133.20848083496094,
+        32.13665390014647
+      ],
+      "confidence": 1,
+      "text": "can run"
+    }
+  ],
   "non_text_ocr": [],
   "limits": [
     "OCR cannot prove font family, hierarchy or control behavior.",

@@ -34,6 +34,189 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4294901502
+    },
+    {
+      "id": "question_card",
+      "bounds": [
+        16.0,
+        60.0,
+        374.0,
+        660.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709
+    },
+    {
+      "id": "icon_decision",
+      "bounds": [
+        24.0,
+        80.0,
+        26.0,
+        28.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "opt_ledger",
+      "bounds": [
+        34.0,
+        248.59,
+        340.0,
+        43.71
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "opt_ledger_radio",
+      "bounds": [
+        37.0,
+        255.59,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "opt_memory",
+      "bounds": [
+        34.0,
+        349.12,
+        340.0,
+        38.28
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "opt_memory_radio",
+      "bounds": [
+        37.0,
+        356.12,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "opt_ask",
+      "bounds": [
+        34.0,
+        409.52,
+        340.0,
+        34.78
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "opt_ask_radio",
+      "bounds": [
+        37.0,
+        416.52,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "note_box",
+      "bounds": [
+        23.0,
+        474.0,
+        358.0,
+        69.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.8
+    },
+    {
+      "id": "note_input",
+      "bounds": [
+        37.828,
+        487.8,
+        328.343,
+        41.4
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "submit_answer",
+      "bounds": [
+        22.0,
+        567.0,
+        360.0,
+        71.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "submit_answer_surface",
+      "bounds": [
+        22.0,
+        567.0,
+        360.0,
+        71.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4278255872,
+      "radius": 35.5
+    },
+    {
+      "id": "submit_answer_control",
+      "bounds": [
+        22.0,
+        567.0,
+        360.0,
+        71.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "skip",
+      "bounds": [
+        24.0,
+        650.0,
+        362.0,
+        60.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "skip_surface",
+      "bounds": [
+        24.0,
+        650.0,
+        362.0,
+        60.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 30.0
+    },
+    {
+      "id": "skip_control",
+      "bounds": [
+        24.0,
+        650.0,
+        362.0,
+        60.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
     }
   ]
 }

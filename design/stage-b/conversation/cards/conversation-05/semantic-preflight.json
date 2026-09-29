@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "a82083cee47c172188171425fd7b093bd192d5875e65a07d6ee6e20127ead87e",
+  "manifest_sha256": "c03aa3cb0bd13b3b13a7408a03cc7da6ce2c0b05f72cd58fffd1c33b135a778a",
   "reference_sha256": "f0c5063d5ef28d36e17bc1b77314478d4493a9a04897fbb6c050db5a10d7f874",
   "id": "conversation-05",
   "round": null,
@@ -23,6 +23,30 @@
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
+      "id": "approval_card",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "icon_shield",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
       "id": "t01",
       "role": "text",
       "basis": "authored text node",
@@ -33,6 +57,17 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "cmd_box",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
       "id": "t02",
@@ -47,7 +82,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t03",
+      "id": "reason_text",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -59,7 +94,42 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t04",
+      "id": "approve_once",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "expected_widgets": [
+        "Button",
+        "KitButton"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a native control and verify its declared action."
+    },
+    {
+      "id": "approve_once_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "approve_once_control",
+      "role": "button",
+      "basis": "authored button node",
+      "expected_widgets": [
+        "Button",
+        "KitButton"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a native control and verify its declared action."
+    },
+    {
+      "id": "approve_once_label",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -71,7 +141,42 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t05",
+      "id": "approve_session",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "expected_widgets": [
+        "Button",
+        "KitButton"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a native control and verify its declared action."
+    },
+    {
+      "id": "approve_session_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "approve_session_control",
+      "role": "button",
+      "basis": "authored button node",
+      "expected_widgets": [
+        "Button",
+        "KitButton"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a native control and verify its declared action."
+    },
+    {
+      "id": "approve_session_label",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -83,7 +188,42 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t06",
+      "id": "deny",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "expected_widgets": [
+        "Button",
+        "KitButton"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a native control and verify its declared action."
+    },
+    {
+      "id": "deny_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "deny_control",
+      "role": "button",
+      "basis": "authored button node",
+      "expected_widgets": [
+        "Button",
+        "KitButton"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a native control and verify its declared action."
+    },
+    {
+      "id": "deny_label",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -95,19 +235,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t07",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "t08",
+      "id": "t_hint",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [

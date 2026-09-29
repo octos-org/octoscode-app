@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "3785246a75f5c03cb0530fad6dc962babcb12e91a622573d4b3a2315b733923b",
+  "tree": {
+    "t": "stack",
+    "id": "goal_strip",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 374.0,
+    "h": 40.0,
+    "c": [
+      {
+        "t": "text",
+        "id": "t01",
+        "text": "Goal • Fix steer queue on reconnect • 18m",
+        "x": 17.810000000000002,
+        "y": 5.5,
+        "w": 256.5,
+        "h": 25.0,
+        "size": 12.5,
+        "line_height": 15.12,
+        "weight": 500,
+        "color": 4284572002,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "svg",
+        "id": "icon_pause",
+        "x": 290.0,
+        "y": 3.0,
+        "w": 18.0,
+        "h": 20.0,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "icon_stop",
+        "x": 326.0,
+        "y": 4.0,
+        "w": 18.0,
+        "h": 18.0,
+        "src": ""
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294835709,
+    "radius": 10.0
+  },
+  "changes": [
+    {
+      "source": "cards/conversation-10/mapped.json",
+      "source_sha256": "931ecbea1de82f169b41bd967ee76fd85c6f0c6a83f4e242882f8ec15d3fcbfb",
+      "operation": "Extract native subtree and translate origin",
+      "source_root": "goal_strip",
+      "translation": [
+        -16.0,
+        -28.0
+      ]
+    }
+  ]
+}

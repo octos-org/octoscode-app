@@ -21,6 +21,7 @@ Run:  python3 tools/render_variants.py [component ...]
 """
 import hashlib
 import json
+from collections import Counter
 import os
 import shutil
 import socket
@@ -32,6 +33,7 @@ from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
+import numpy as np
 from PIL import Image
 
 HERE = Path(__file__).resolve().parents[1]          # design/stage-b/conversation
@@ -40,10 +42,16 @@ CLONE = ROOT / "tmp/stage-b/native-ws/OctoScript-App-Design-Flow"
 PUBLISHED = CLONE / "flows/image-lib/published"
 BEAUTY = ROOT / "tmp/beauty-clone-target/release/beauty-host"
 COMPONENTS = ROOT / "design/components"
-WORK = ROOT / "tmp/stage-b/render-variants"
-ART_PORT = 8179
-PORTS = [8390, 8391, 8392, 8393]
+WORK = ROOT / "tmp/stage-b/render-variants-18"
+ART_PORT = 8181                                     # 8179/8180 are other lanes' art servers
+PORTS = [8346, 8347, 8348, 8349]                    # this card's block (8340-8349)
 WIDTHS = (360, 540)
+# Card #18c/#18e: the atlas crop is card-tight, so the extracted root sits at
+# x=0 and a `Fill` root would run edge-to-edge with its right border/radius at
+# the window's last pixel. Give it the page gutter the atlas normalised away so
+# all four rounded corners are inside the render at every width.
+ROOT_GUTTER_X = 16
+ROOT_GUTTER_Y = 8
 
 INTER4 = "self:resources/ux/Inter-400.ttf"
 INTER5 = "self:resources/ux/Inter-500.ttf"
@@ -57,43 +65,133 @@ MONOBG = 0xFFF6F6F7
 # Responsive flags (card #16b: fill the slot width, height from content). Applied
 # to every variant. `fillw` on a text node lets it wrap to the slot; `fith` on
 # the root lets it hug its content.
-RESPONSIVE = {
-    "thread-row": {"thread_1": {"fillw": 1, "fith": 1},
-                   "thread_1_surface": {"fillw": 1},
-                   "thread_1_control": {"fillw": 1, "fillh": 1},
-                   "thread_1_label": {"fillw": 1}},
-    "new-chat": {"new_chat": {"fillw": 1, "fith": 1},
-                 "new_chat_surface": {"fillw": 1},
-                 "new_chat_control": {"fillw": 1, "fillh": 1},
-                 "new_chat_label": {"fillw": 1}},
-    "worked-for": {"worked_row": {"fillw": 1, "fith": 1},
-                   "worked_row_surface": {"fillw": 1},
-                   "worked_row_control": {"fillw": 1, "fillh": 1},
-                   "worked_row_label": {"fillw": 1}},
-    # Card #16c: the bubble hugs its text and right-aligns. `fitw` makes the
-    # bubble take its content width, `alignx: 1` wraps it in a Fill/align-right
-    # box (design.rs); the labels keep their measured widths so they define the
-    # hug instead of stretching it.
-    # Card #16d: keep the MEASURED bubble width (it already includes the atlas's
-    # horizontal padding on both sides); `fitw` hugged to the widest label, which
-    # left the text flush against the bubble's right edge.
-    "user-bubble": {"user_bubble": {"alignx": 1},
-                    "t01": {}, "t02": {}},
-    "working-row": {"working_row": {"fillw": 1, "fith": 1}, "t03": {"fillw": 1}},
-    "assistant-prose": {"answer_prose": {"fillw": 1, "fith": 1},
-                        "answer_md": {"fillw": 1, "fith": 1}},
-    "answer-actions": {"answer_actions": {"fillw": 1, "fith": 1},
-                       "t11": {"fillw": 1, "alignx": 1, "x": 0}},
-    "tool-cell": {"tool_1": {"fillw": 1, "fith": 1}, "t01": {"fillw": 1},
-                  "t02": {"fillw": 1},
-                  # Card #16c: the ✓ pins to the card's right edge.
-                  "icon_check1": {"alignx": 1}},
-    "composer": {"composer_idle": {"fillw": 1, "fith": 1},
-                 "composer_idle_input": {"fillw": 1},
-                 # Card #16c: the send/stop button pins to the right edge (at 360
-                 # its atlas x put it past the card).
-                 "send1": {"alignx": 1}},
-}
+def _btn(*ids):
+    """A KitButton is a `stack` wrapping `_surface` (the rounded pill), `_control`
+    (the hit area) and `_label`. `#18b`: the pill stayed at its measured width
+    inside a slot-filling button, so the fill stopped short at 540 and the pill
+    clipped at 360. The container + surface + control fill the slot.
+
+    The LABEL deliberately keeps its measured box: bisected on this renderer, a
+    free-standing `text` node carrying ANY responsive flag (`fillw`/`fitw`/`fith`)
+    paints nothing (deny label ink 301 -> 0), so filling the label would erase it.
+    At the reference width the label's measured x is already exact."""
+    d = {}
+    for i in ids:
+        d[i] = {"fillw": 1}
+        d[i + "_surface"] = {"fillw": 1}
+        d[i + "_control"] = {"fillw": 1, "fillh": 1}
+    return d
+
+RESPONSIVE = {   'thread-row': {   'thread_1': {'fillw': 1, 'fith': 1},
+                      'thread_1_surface': {'fillw': 1},
+                      'thread_1_control': {'fillw': 1, 'fillh': 1},
+                      'thread_1_label': {'fillw': 1}},
+    'new-chat': {   'new_chat': {'fillw': 1, 'fith': 1},
+                    'new_chat_surface': {'fillw': 1},
+                    'new_chat_control': {'fillw': 1, 'fillh': 1},
+                    'new_chat_label': {'fillw': 1}},
+    'worked-for': {   'worked_row': {'fillw': 1, 'fith': 1},
+                      'worked_row_surface': {'fillw': 1},
+                      'worked_row_control': {'fillw': 1, 'fillh': 1},
+                      'worked_row_label': {'fillw': 1}},
+    'user-bubble': {'user_bubble': {'alignx': 1}, 't01': {}, 't02': {}},
+    'working-row': {'working_row': {'fillw': 1, 'fith': 1}, 't03': {'fillw': 1}},
+    'assistant-prose': {'answer_prose': {'fillw': 1, 'fith': 1}, 'answer_md': {'fillw': 1, 'fith': 1}},
+    'answer-actions': {   'answer_actions': {'fillw': 1, 'fith': 1},
+                          't11': {'fillw': 1, 'alignx': 1, 'x': 0}},
+    'tool-cell': {   'tool_1': {'fillw': 1, 'fith': 1},
+                     't01': {'fillw': 1},
+                     't02': {'fillw': 1},
+                     'icon_check1': {'alignx': 1}},
+    'composer': {   'composer_idle': {'fillw': 1, 'fith': 1},
+                    'composer_idle_input': {'fillw': 1},
+                    'send1': {'alignx': 1}},
+    'approval-card': {   'approval_card': {'fillw': 1, 'fith': 1},
+                         'cmd_box': {'fillw': 1},
+                         'approve_once': {'fillw': 1},
+                         'approve_once_surface': {'fillw': 1},
+                         'approve_once_control': {'fillw': 1, 'fillh': 1},
+                         'approve_session': {'fillw': 1},
+                         'approve_session_surface': {'fillw': 1},
+                         'approve_session_control': {'fillw': 1, 'fillh': 1},
+                         'deny': {'fillw': 1},
+                         'deny_surface': {'fillw': 1},
+                         'deny_control': {'fillw': 1, 'fillh': 1}},
+    'question-card': {   'question_card': {'fillw': 1, 'fith': 1},
+                         'note_box': {'fillw': 1},
+                         'note_input': {'fillw': 1},
+                         'opt_ledger': {'fillw': 1},
+                         'opt_memory': {'fillw': 1},
+                         'opt_ask': {'fillw': 1},
+                         'submit_answer': {'fillw': 1},
+                         'submit_answer_surface': {'fillw': 1},
+                         'submit_answer_control': {'fillw': 1, 'fillh': 1},
+                         'skip': {'fillw': 1},
+                         'skip_surface': {'fillw': 1},
+                         'skip_control': {'fillw': 1, 'fillh': 1}},
+    'edited-files-card': {   'edited_files_card': {'fillw': 1, 'fith': 1},
+                             'files_card': {'fillw': 1},
+                             'div_1': {'fillw': 1},
+                             'div_2': {'fillw': 1},
+                             'review_surface': {'fillw': 1},
+                             'review_control': {'fillw': 1, 'fillh': 1},
+                             # Card #18d (外环补充): the trailing cluster pins to
+                             # the slot's right edge with the #16c `alignx`
+                             # mechanism: the per-file +N/-N stats, the disclosure
+                             # chevron, and the Undo/Review group.
+                             # The per-file +N (green) / -N (red) stats are TWO
+                             # adjacent TEXT runs. Right-anchoring them is not
+                             # expressible here: design.rs's #16c wrapper is
+                             # `alignx==1 && kind != Text`, so on a text node
+                             # `alignx` only sets the run's alignment INSIDE its box,
+                             # and adding `fillw` makes each run a full-width label
+                             # (measured: both boxes 0..540, so +31 and -4 overlapped).
+                             # Keep the measured pair, which matches the atlas at 360.
+                             # atlas: chevron 333..340.5 in a 374 root -> inset ~20.5
+                             'icon_show': {'alignx': 1, 'x': 337.5},
+                             'undo_group': {'alignx': 1},
+                             # Card #18e: the Review pill must HUG its label and be
+                             # right-anchored (the #18c state). `fillw` made the
+                             # button span the slot, so it covered the title and the
+                             # Undo group (measured: the header band collapsed to
+                             # "E..."). `alignx` alone right-anchors the measured
+                             # 79px pill; `_btn` keeps its surface/control filling
+                             # that box.
+                             'review': {'alignx': 1}},
+    'plan-card': {'plan_card': {'fillw': 1, 'fith': 1}, 'plan_steps': {'fillw': 1}},
+    'goal-strip': {'goal_strip': {'fillw': 1, 'fith': 1, 'variant': 'row'}, 't01': {'fillw': 1}},
+    'diff-view': {   'diff_view': {'fillw': 1, 'fith': 1},
+                     'diff_rows': {'fillw': 1},
+                     'file_divider': {'fillw': 1},
+                     'file_header': {'fillw': 1},
+                     'scope_pill': {'fillw': 1},
+                     'row_1': {'fillw': 1},
+                     'row_2': {'fillw': 1},
+                     'row_3': {'fillw': 1},
+                     'row_4': {'fillw': 1},
+                     'row_5': {'fillw': 1},
+                     'row_6': {'fillw': 1},
+                     'folded': {'fillw': 1}},
+    'settings-group': {   'settings_group': {'fillw': 1, 'fith': 1},
+                          'perm_card': {'fillw': 1},
+                          # NOTE (#18d): `variant:"row"` here emits NOTHING (the
+                          # measured parent is an Overlay), so the card stays an
+                          # overlay and only the chevron is right-anchored.
+                          'model_card': {'fillw': 1},
+                          'perm_divider': {'fillw': 1},
+                          # Card #18d (外环补充): pin the trailing controls to the
+                          # slot's right edge with the #16c `alignx` mechanism.
+                          'toggle1': {'alignx': 1},
+                          'toggle2': {'alignx': 1},
+                          # t_pick is a TEXT run: `alignx` here is the run's own
+                          # alignment inside a FILLED label, which overlays its
+                          # trailing chevron (measured: chevron squeezed to 4px).
+                          # Keep the value measured; anchor the chevron instead.
+                          't_pick': {},
+                          # the chevron rides inside `model_row` (ROW_WRAP below),
+                          # so it no longer needs its own anchor.
+                          'pick_chev': {},
+                          't01': {'w': 340}}}
 
 # The expanded tool-cell console, from scene 04's third card (`tool_3_output`).
 OUTPUT_BOX = {"t": "stack", "id": "tool_1_output", "x": 10, "y": 84, "w": 351, "h": 116,
@@ -138,85 +236,271 @@ QUEUED = {"t": "stack", "id": "queued_row", "x": 10, "y": 10, "w": 240, "h": 50,
                "weight": 500, "font_src": INTER5, "line_height": 18, "color": 4280953387,
                "variant": "single_line", "text": "1 queued \u00b7 Steer now \u00b7 \u2715"}]}
 
-VARIANTS = {
-    "thread-row": {
-        # scene 01: thread_2 (0xFFFDFDFD) is unselected; thread_1 (0xFFF1F1F3) is
-        # the selected row (its fill is the darker token).
-        "short": {"text": {"thread_1_label": "Add session fork"},
-                  "flags": {"thread_1_surface": {"bg": 0xFFFDFDFD}}},
-        "long": {"text": {"thread_1_label":
-                          "Bump octos-core to a6ea8505 and re-verify the steer queue timeout"},
-                 "flags": {"thread_1_surface": {"bg": 0xFFF1F1F3}}},
-    },
-    "new-chat": {"short": {"text": {}, "insert": [("new_chat", COMPOSE_ICON)]},
-                 "long": {"text": {}, "insert": [("new_chat", COMPOSE_ICON)]}},
-    "user-bubble": {
-        # Card #16c: heights are the atlas's own boxes (2-line 85.5), so the
-        # vertical padding stays symmetric — a Fit height would end at the last
-        # label's bottom edge and cut the lower padding entirely. Labels keep the
-        # atlas line pitch (their measured y, ~37.5 apart).
-        "short": {"text": {"t01": "Retry the build"}, "drop": ["t02"],
-                  # 15.72 padding + ~103 text + 15.72 padding, rounded to the atlas pitch
-                  "flags": {"user_bubble": {"w": 135.0, "h": 50.2}}},
-        # Card #16e: the atlas bubble is ONE wrapped paragraph, so the fixture is
-        # one wrapping Text node (not two pre-placed single lines). Its line_height
-        # is the ATLAS's measured paragraph pitch (the two lines sit 38px apart),
-        # which is what the renderer's 1.4x wrap rule then clamps.
-        "long": {"text": {"t01": "Fix the steer queue so queued steers survive a reconnect"},
-                 "drop": ["t02"],
-                 "flags": {"user_bubble": {"h": 85.09},
-                           "t01": {"variant": "wrap", "w": 252.6, "h": 63.0,
-                                   "line_height": 38.0}}},
-    },
-    "working-row": {"short": {"text": {"t03": "Working \u2022 3s"}},
-                    "long": {"text": {"t03": "Working \u2022 12s"}}},
-    "assistant-prose": {
-        "short": {"text": {"answer_md": "Fixed `steer_dropped` handling."}},
-        # Card #16c: the atlas has FOUR bullets; the old fixture authored only two
-        # (a fixture truncation, not a renderer drop). Use scene 09's full prose.
-        "long": {"text": {"answer_md":
-                          "Queued steers now survive a reconnect.\n\n"
-                          "\u2022 Fixed loss of queued steers when reconnecting after a drop in "
-                          "`steer_dropped` handling.\n\n"
-                          "\u2022 Updated `ui_protocol_transport.rs` to persist queued steers to "
-                          "the session ledger.\n\n"
-                          "\u2022 All tests pass: `12 passed`.\n\n"
-                          "\u2022 Changes included in commit `a6ea8505`."}},
-    },
-    "worked-for": {"short": {"text": {"worked_row_label": "Worked for 3s \u203a"}},
-                   "long": {"text": {"worked_row_label": "Worked for 3m 4s \u203a"}}},
-    "answer-actions": {"short": {"text": {"t11": "now"}},
-                       "long": {"text": {"t11": "Sep 28, 9:41 PM"}}},
-    "tool-cell": {
-        "short": {"text": {"t01": "Read ui_protocol_transport.rs", "t02": "\u2022 412 lines"}},
-        # Card #16c: a command cell uses the terminal glyph, so swap the file icon
-        # out for `icon_term` (the atlas's ">_ " is that icon, not OCR text).
-        "long": {"text": {"t01": "Ran cargo test -p octos-cli", "t02": "\u2022 12 passed"},
-                 "flags": {"tool_1": {"h": 210, "fith": 0}}, "drop": ["icon_file"],
-                 "insert": [("tool_1", TERM_ICON), ("tool_1", OUTPUT_BOX)]},
-        # Card #16c: this is also a COMMAND cell, so it takes the terminal glyph.
-        "failed": {"text": {"t01": "Ran cargo test -p octos-cli",
-                            "t02": "\u2022 exit 2 \u00b7 0 passed, 2 failed"},
-                   "flags": {"icon_check1": {"w": 0, "h": 0}, "t02": {"color": RED}},
-                   "drop": ["icon_file"], "insert": [("tool_1", TERM_ICON), ("tool_1", FAILED_X)]},
-    },
-    "composer": {
-        "short": {"text": {}},
-        # Card #16c: the send/stop control is BLACK in the atlas (the old fixture
-        # painted it salmon), and the queued chip belongs ABOVE the input, so the
-        # input and the control row shift down to make room for it at the top.
-        "long": {"text": {"composer_idle_input": "also add a test for reconnect"},
-                 # Every child (grandchildren too — a shifted parent does NOT
-                 # move an `abs_pos` child) moves down by the chip's 58px.
-                 "flags": {"composer_idle": {"h": 250, "fith": 0},
-                           "composer_idle_input": {"y": 68.556},
-                           "icon_plus1": {"y": 186.778}, "pill1": {"y": 179.0},
-                           "pill1_t": {"y": 193.5},
-                           "icon_mic1": {"y": 183.611}, "t04": {"y": 196.5},
-                           "send1": {"y": 176.222}, "icon_send": {"y": 186.778}},
-                 "insert": [("composer_idle", QUEUED)]},
-    },
+# Card #18d (外环补充): the two per-file stats (+N green / -N red) are adjacent
+# TEXT runs. `alignx` on a text node only aligns the run INSIDE its own box and
+# `fillw` makes each box full-width, so two of them overlapped (measured 0..540).
+# The #16c wrapper (`alignx==1 && kind != Text`) does not apply to text either.
+# The mechanism that DOES render text side by side is a flow ROW (goal-strip), so
+# group the pair into a fill-width row with a leading fill-spacer that pushes them
+# to the right edge, and a small trailing spacer holding the atlas inset.
+ROW_WRAP = {
+    "edited-files-card": [
+        ("files_card", "stats_1", ["file_1_add", "file_1_del"], 13.5),
+        ("files_card", "stats_2", ["file_2_add", "file_2_del"], 13.5),
+        ("files_card", "stats_3", ["file_3_add", "file_3_del"], 13.5),
+    ],
+    # the model value + its disclosure chevron as one right-anchored cluster
+    # (atlas: value 191..321, chevron 329..336.5 in the 348 card).
+    "settings-group": [
+        ("model_card", "model_row", ["t_pick", "pick_chev"], 15.0),
+    ],
 }
+
+
+VARIANTS = {   'thread-row': {   'short': {   'text': {'thread_1_label': 'Add session fork'},
+                                   'flags': {'thread_1_surface': {'bg': 4294835709}}},
+                      'long': {   'text': {   'thread_1_label': 'Bump octos-core to a6ea8505 and '
+                                                                're-verify the steer queue timeout'},
+                                  'flags': {'thread_1_surface': {'bg': 4294046195}}}},
+    'new-chat': {   'short': {   'text': {},
+                                 'insert': [   (   'new_chat',
+                                                   {   't': 'svg',
+                                                       'id': 'icon_compose',
+                                                       'x': 347,
+                                                       'y': 10,
+                                                       'w': 24,
+                                                       'h': 28,
+                                                       'alignx': 1,
+                                                       'src': ''})]},
+                    'long': {   'text': {},
+                                'insert': [   (   'new_chat',
+                                                  {   't': 'svg',
+                                                      'id': 'icon_compose',
+                                                      'x': 347,
+                                                      'y': 10,
+                                                      'w': 24,
+                                                      'h': 28,
+                                                      'alignx': 1,
+                                                      'src': ''})]}},
+    'user-bubble': {   'short': {   'text': {'t01': 'Retry the build'},
+                                    'drop': ['t02'],
+                                    'flags': {'user_bubble': {'w': 135.0, 'h': 50.2}}},
+                       'long': {   'text': {'t01': 'Fix the steer queue so queued steers '
+                                                   'survive a reconnect'},
+                                   'drop': ['t02'],
+                                   'flags': {   'user_bubble': {'h': 85.09},
+                                                't01': {   'variant': 'wrap', 'w': 252.6,
+                                                           'h': 63.0, 'line_height': 38.0}}}},
+    'working-row': {   'short': {'text': {'t03': 'Working • 3s'}},
+                       'long': {'text': {'t03': 'Working • 12s'}}},
+    'assistant-prose': {   'short': {'text': {'answer_md': 'Fixed `steer_dropped` handling.'}},
+                           'long': {   'text': {   'answer_md': 'Queued steers now survive a '
+                                                                'reconnect.\n'
+                                                                '\n'
+                                                                '• Fixed loss of queued steers when '
+                                                                'reconnecting after a drop in '
+                                                                '`steer_dropped` handling.\n'
+                                                                '\n'
+                                                                '• Updated `ui_protocol_transport.rs` '
+                                                                'to persist queued steers to the '
+                                                                'session ledger.\n'
+                                                                '\n'
+                                                                '• All tests pass: `12 passed`.\n'
+                                                                '\n'
+                                                                '• Changes included in commit '
+                                                                '`a6ea8505`.'}}},
+    'worked-for': {   'short': {'text': {'worked_row_label': 'Worked for 3s ›'}},
+                      'long': {'text': {'worked_row_label': 'Worked for 3m 4s ›'}}},
+    'answer-actions': {'short': {'text': {'t11': 'now'}}, 'long': {'text': {'t11': 'Sep 28, 9:41 PM'}}},
+    'tool-cell': {   'short': {'text': {'t01': 'Read ui_protocol_transport.rs', 't02': '• 412 lines'}},
+                     'long': {   'text': {'t01': 'Ran cargo test -p octos-cli', 't02': '• 12 passed'},
+                                 'flags': {'tool_1': {'h': 210, 'fith': 0}},
+                                 'drop': ['icon_file'],
+                                 'insert': [   (   'tool_1',
+                                                   {   't': 'svg',
+                                                       'id': 'icon_term',
+                                                       'x': 25.791,
+                                                       'y': 27.391,
+                                                       'w': 23.807,
+                                                       'h': 29.674,
+                                                       'src': ''}),
+                                               (   'tool_1',
+                                                   {   't': 'stack',
+                                                       'id': 'tool_1_output',
+                                                       'x': 10,
+                                                       'y': 84,
+                                                       'w': 351,
+                                                       'h': 116,
+                                                       'variant': 'surface',
+                                                       'bg': 4294375159,
+                                                       'radius': 8,
+                                                       'c': [   {   't': 'text',
+                                                                    'id': 'o1',
+                                                                    'x': 18,
+                                                                    'y': 10,
+                                                                    'w': 316,
+                                                                    'h': 17,
+                                                                    'size': 13.4,
+                                                                    'weight': 400,
+                                                                    'font_src': 'self:resources/ux/LiberationMono-Regular.ttf',
+                                                                    'line_height': 16.6,
+                                                                    'color': 4281216815,
+                                                                    'variant': 'single_line',
+                                                                    'text': 'running 12 tests'},
+                                                                {   't': 'text',
+                                                                    'id': 'o2',
+                                                                    'x': 18,
+                                                                    'y': 38,
+                                                                    'w': 316,
+                                                                    'h': 17,
+                                                                    'size': 13.4,
+                                                                    'weight': 400,
+                                                                    'font_src': 'self:resources/ux/LiberationMono-Regular.ttf',
+                                                                    'line_height': 16.6,
+                                                                    'color': 4281479731,
+                                                                    'variant': 'single_line',
+                                                                    'text': 'test '
+                                                                            'steer_queue::reconnect_ok '
+                                                                            '... ok'},
+                                                                {   't': 'text',
+                                                                    'id': 'o3',
+                                                                    'x': 18,
+                                                                    'y': 66,
+                                                                    'w': 316,
+                                                                    'h': 17,
+                                                                    'size': 13.4,
+                                                                    'weight': 500,
+                                                                    'font_src': 'self:resources/ux/LiberationMono-Regular.ttf',
+                                                                    'line_height': 16.6,
+                                                                    'color': 4281362226,
+                                                                    'variant': 'single_line',
+                                                                    'text': 'test result: ok. 12 '
+                                                                            'passed; 0 failed'},
+                                                                {   't': 'text',
+                                                                    'id': 'o4',
+                                                                    'x': 18,
+                                                                    'y': 92,
+                                                                    'w': 316,
+                                                                    'h': 17,
+                                                                    'size': 13.4,
+                                                                    'weight': 400,
+                                                                    'font_src': 'self:resources/ux/LiberationMono-Regular.ttf',
+                                                                    'line_height': 16.6,
+                                                                    'color': 4281216815,
+                                                                    'variant': 'single_line',
+                                                                    'text': 'Finished in 0.42s'}]})]},
+                     'failed': {   'text': {   't01': 'Ran cargo test -p octos-cli',
+                                               't02': '• exit 2 · 0 passed, 2 failed'},
+                                   'flags': {   'icon_check1': {'w': 0, 'h': 0},
+                                                't02': {'color': 4291764782}},
+                                   'drop': ['icon_file'],
+                                   'insert': [   (   'tool_1',
+                                                     {   't': 'svg',
+                                                         'id': 'icon_term',
+                                                         'x': 25.791,
+                                                         'y': 27.391,
+                                                         'w': 23.807,
+                                                         'h': 29.674,
+                                                         'src': ''}),
+                                                 (   'tool_1',
+                                                     {   't': 'text',
+                                                         'id': 'status_x',
+                                                         'x': 336,
+                                                         'y': 25,
+                                                         'w': 20,
+                                                         'h': 23,
+                                                         'size': 17,
+                                                         'weight': 700,
+                                                         'font_src': 'self:resources/ux/Inter-700.ttf',
+                                                         'line_height': 21,
+                                                         'color': 4291764782,
+                                                         'variant': 'single_line',
+                                                         'text': '✕'})]}},
+    'composer': {   'short': {'text': {}},
+                    'long': {   'text': {'composer_idle_input': 'also add a test for reconnect'},
+                                'flags': {   'composer_idle': {'h': 250, 'fith': 0},
+                                             'composer_idle_input': {'y': 68.556},
+                                             'icon_plus1': {'y': 186.778},
+                                             'pill1': {'y': 179.0},
+                                             'pill1_t': {'y': 193.5},
+                                             'icon_mic1': {'y': 183.611},
+                                             't04': {'y': 196.5},
+                                             'send1': {'y': 176.222},
+                                             'icon_send': {'y': 186.778}},
+                                'insert': [   (   'composer_idle',
+                                                  {   't': 'stack',
+                                                      'id': 'queued_row',
+                                                      'x': 10,
+                                                      'y': 10,
+                                                      'w': 240,
+                                                      'h': 50,
+                                                      'variant': 'surface',
+                                                      'bg': 4294440952,
+                                                      'radius': 12,
+                                                      'c': [   {   't': 'text',
+                                                                   'id': 'q1',
+                                                                   'x': 16,
+                                                                   'y': 13,
+                                                                   'w': 208,
+                                                                   'h': 24,
+                                                                   'size': 15,
+                                                                   'weight': 500,
+                                                                   'font_src': 'self:resources/ux/Inter-500.ttf',
+                                                                   'line_height': 18,
+                                                                   'color': 4280953387,
+                                                                   'variant': 'single_line',
+                                                                   'text': '1 queued · Steer now · '
+                                                                           '✕'}]})]}},
+    'approval-card': {   'short': {   'text': {   't02': 'git push origin feat/steer-queue',
+                                                  'reason_text': 'Reason: Push the fix branch so CI '
+                                                                 'can run'}},
+                         'long': {   'text': {   't02': 'cargo test -p octos-cli steer_queue -- '
+                                                        '--nocapture',
+                                                 'reason_text': 'Reason: Run the full steer-queue '
+                                                                'integration suite before pushing so a '
+                                                                'regression in the durable queue is '
+                                                                'caught locally rather than in CI.'},
+                                     'flags': {   'approval_card': {'h': 704},
+                                                  't02': {'variant': None, 'h': 56},
+                                                  'cmd_box': {'h': 112},
+                                                  'reason_text': {'y': 210, 'h': 130},
+                                                  'approve_once': {'y': 352},
+                                                  'approve_session': {'y': 435},
+                                                  'deny': {'y': 518},
+                                                  't_hint': {'y': 618}}}},
+    'question-card': {   'short': {   'text': {   'question_text': 'Where should queued steers be '
+                                                                   'persisted?'}},
+                         'long': {   'text': {   'question_text': 'Where should queued steers be '
+                                                                  'persisted so they survive both a '
+                                                                  'reconnect and an app restart '
+                                                                  'without losing ordering?'},
+                                     'flags': {   'question_card': {'h': 720},
+                                                  'question_text': {'h': 110}}}},
+    'edited-files-card': {   'short': {'text': {'t01': 'Edited 1 file', 't02': '+12 -2'}},
+                             'long': {'text': {'t01': 'Edited 3 files', 't02': '+62 -5'}}},
+    'plan-card': {   'short': {   'text': {   't02': 'Plan · 1 of 2',
+                                              'step_0_label': 'Reproduce reconnect drop',
+                                              'step_1_label': 'Implement durable queue'},
+                                  'drop': [   'step_2_label',
+                                              'step_3_label',
+                                              'step_4_label',
+                                              'icon_step2',
+                                              'icon_step3',
+                                              'icon_step4'],
+                                  'flags': {'plan_card': {'h': 300}}},
+                     'long': {'text': {'t02': 'Plan · 3 of 5'}}},
+    'goal-strip': {   'short': {'text': {'t01': 'Goal · Fix steer queue · 2m'}},
+                      'long': {'text': {'t01': 'Goal · Fix steer queue on reconnect · 18m'}}},
+    'diff-view': {   'short': {   'text': {   't_file': 'ui_protocol.rs',
+                                              't_fadd': '+9',
+                                              't_fdel': '-1',
+                                              't_fold': '⋮ 88 unmodified lines ⋮'}},
+                     'long': {   'text': {   't_file': 'ui_protocol_transport.rs',
+                                             't_fadd': '+31',
+                                             't_fdel': '-4',
+                                             't_fold': '⋮ 412 unmodified lines ⋮'}}},
+    'settings-group': {   'short': {'text': {'t01': 'Permissions'}},
+                          'long': {'text': {'t01': 'Permissions and defaults'}}}}
 
 ROLE_BY_KIND = {"stack": "layout", "text": "text", "svg": "icon", "button": "button",
                 "input": "input"}
@@ -262,6 +546,54 @@ def wait_port(port, timeout=40):
     return False
 
 
+def relativize(tree):
+    """Give every fill-width node the geometry a responsive parent needs.
+
+    `design.rs` emits a fill node's inset as a wrapper MARGIN, so `x`/`y` must be
+    the offset FROM the parent, and the right inset is the node's authored right
+    gap (`parent_w - x - w`), which keeps its box at x .. x+authored_w at any
+    parent width. Card #18c/#18e.
+
+    Card #18f item 1: an `input` is NEVER wrapped by `design.rs` (it is pinned
+    with window-absolute `abs_pos`), so rebasing one moved the question-card note
+    placeholder to the card's top-left. Skip it.
+
+    A wrapped grandchild is relative to its IMMEDIATE parent, so recurse with the
+    child's own authored origin whatever its kind (card #18f item 2: the
+    `review_surface` inside the right-anchored `review` wrapper).
+    """
+    def rec(n, ox, oy, pw):
+        for c in n.get("c", []) or []:
+            cx, cy, cw = c.get("x", 0), c.get("y", 0), c.get("w")
+            filled = (any(c.get(k) == 1 for k in ("fillw", "fith", "fillh", "fitw"))
+                      and c.get("t") != "input")
+            if filled:
+                c["x"] = round(cx - ox, 2)
+                c["y"] = round(cy - oy, 2)
+                if pw is not None and cw is not None:
+                    c["padright"] = round(pw - ((cx - ox) + cw), 2)
+            elif c.get("t") == "input":
+                # Not wrapped: keep it absolute, but normalise the emitted
+                # precision exactly as the #18c/#18e path did, so components that
+                # only contain a pass-through input (composer) are byte-identical.
+                c["x"], c["y"] = round(cx, 2), round(cy, 2)
+            rec(c, cx, cy, cw)
+    rec(tree, 0, 0, None)
+    return tree
+
+
+def right_edge_ok(png_path):
+    """Card #18c acceptance check: the rightmost 4px column of a variant must be
+    background (near-white page ground, or the host's #4c4c4c), i.e. no card
+    border, radius or tint may be cut off at the render's right edge."""
+    a = np.asarray(Image.open(png_path).convert("RGB")).astype(int)
+    strip = a[:, -4:, :]
+    white = bool((strip.min(axis=2) > 238).all())
+    ground = bool((np.abs(strip - 76).max(axis=2) <= 8).all())
+    top = Counter(map(tuple, strip.reshape(-1, 3))).most_common(1)[0][0]
+    return white or ground, [int(v) for v in top]
+
+
 def apply_variant(tree, comp, variant):
     spec = VARIANTS[comp][variant]
     # Merge per NODE ID, not per top-level key: otherwise a variant flag like
@@ -272,11 +604,87 @@ def apply_variant(tree, comp, variant):
         flags.setdefault(nid, {}).update(fl)
     inserts = spec.get("insert", [])
     drops = set(spec.get("drop", []))
+    # Card #18c item 4 (kept across the #16 merge): a positional flag moves a
+    # node AND its subtree. Without this a moved KitButton left its
+    # `_surface`/`_label` at the old y and the button rendered detached.
+    moved = []
     for n in walk(tree):
         if n["id"] in spec.get("text", {}):
             n["text"] = spec["text"][n["id"]]
         if n["id"] in flags:
+            before = (n.get("x"), n.get("y"))
             n.update(flags[n["id"]])
+            if (n.get("x"), n.get("y")) != before:
+                moved.append((n, before[0], before[1]))
+    for n, bx, by in moved:
+        dx = (n.get("x") or 0) - (bx or 0)
+        dy = (n.get("y") or 0) - (by or 0)
+        for c in walk(n):
+            if c is n:
+                continue
+            if c.get("x") is not None:
+                c["x"] = round(c["x"] + dx, 2)
+            if c.get("y") is not None:
+                c["y"] = round(c["y"] + dy, 2)
+    # Card #18d (外环补充): the #16c right-anchor wrapper emits
+    # `margin: Inset{top: a.y}`, where `a.y` must be PARENT-relative. The measure
+    # stage writes window-absolute y, so a right-anchored node nested under a
+    # parent at y>0 double-counts (the settings toggles inside `perm_card` at y=66
+    # landed at 168 = 66+102). Rebase each `alignx` node's y on its parent's y; a
+    # node whose parent is the root (y=0) is unchanged.
+    def _rebase(node):
+        for c in node.get("c", []) or []:
+            if c.get("alignx") == 1 and c.get("y") is not None:
+                # y feeds the #16c wrapper's `margin: top`, x feeds the child's
+                # right inset (`gap = parent_w - x - w`). Both must be
+                # PARENT-relative, but the measure stage writes them absolute, so
+                # a node nested under a parent at (px, py) lands at y+py and its
+                # gap is short by px (settings toggles: gap 7 -> flush at 540).
+                #
+                # Card #18e: `design.rs` measures a right-anchored node's CHILDREN
+                # from the node's own box, so the whole SUBTREE must move with it.
+                # Rebasing only the node left its knob at the old absolute
+                # coordinate, so design.rs emitted `margin: Inset{left: 35.4 top:
+                # 70.6}` inside a 55x46 toggle -> the knob resolved to 0x0 and the
+                # toggle rendered as a bare pill (settings-group, both cards).
+                dx = -(node.get("x") or 0.0)
+                dy = -(node.get("y") or 0.0)
+                for m in walk(c):
+                    if m.get("x") is not None:
+                        m["x"] = round(m["x"] + dx, 2)
+                    if m.get("y") is not None:
+                        m["y"] = round(m["y"] + dy, 2)
+            else:
+                _rebase(c)
+    _rebase(tree)
+    # Card #18d: group the flagged adjacent text leaves into one fill-width flow
+    # row; a leading fill-spacer pushes the pair to the right, a trailing spacer
+    # holds the atlas inset.
+    for parent_id, row_id, kid_ids, inset in ROW_WRAP.get(comp, []):
+        parent = next((n for n in walk(tree) if n["id"] == parent_id), None)
+        kids = [n for n in walk(tree) if n["id"] in kid_ids]
+        if parent is None or len(kids) != len(kid_ids):
+            continue
+        y0 = min(k["y"] for k in kids)
+        h = max(k["h"] for k in kids)
+        # Card #18f item 3: author the row at the PARENT's absolute x. `relativize`
+        # rebases a wrapped child by its parent's absolute origin, so x=0.0 landed
+        # the row at -12 and dragged the whole right-anchored cluster left until the
+        # collapsing fill spacer left only 8.5px between the label and the value.
+        row = {"t": "stack", "id": row_id, "x": parent.get("x", 0.0), "y": y0,
+               "w": parent.get("w", 0.0),
+               "h": h, "fillw": 1, "variant": "row", "c": []}
+        row["c"].append({"t": "stack", "id": row_id + "_spacer", "x": 0.0,
+                         "y": 0.0, "w": 8.0, "h": h, "fillw": 1})
+        for k in kids:
+            k["x"] = 0.0
+            k["y"] = 0.0
+            row["c"].append(k)
+        if inset:
+            row["c"].append({"t": "stack", "id": row_id + "_pad", "x": 0.0,
+                             "y": 0.0, "w": inset, "h": h})
+        parent["c"] = [c for c in parent.get("c", []) if c["id"] not in kid_ids]
+        parent.setdefault("c", []).append(row)
     if drops:
         def prune(node):
             node["c"] = [c for c in node.get("c", []) if c["id"] not in drops]
@@ -294,6 +702,16 @@ def apply_variant(tree, comp, variant):
         # (scene 04: nested `tool_3_output` at y=398, its line `t07` at 442.86).
         absolutize(node, parent.get("x", 0.0), parent.get("y", 0.0))
         parent.setdefault("c", []).append(node)
+    # Card #18e: restore the root gutter the #18 merge dropped. The atlas crop is
+    # card-tight, so the extracted root sits at x=0; a `Fill` root (every card
+    # here is `fillw`) then runs edge-to-edge and its right border/radius lands on
+    # the window's last pixel. Rebase the fill children on their parents, then
+    # give the root the page gutter the atlas normalised away so all four rounded
+    # corners stay inside the render at every width.
+    relativize(tree)
+    tree["x"] = round(tree.get("x", 0) + ROOT_GUTTER_X, 2)
+    tree["y"] = round(tree.get("y", 0) + ROOT_GUTTER_Y, 2)
+    tree["padright"] = float(ROOT_GUTTER_X)   # the root is gutted on BOTH sides
     return tree, inserts, drops
 
 
@@ -319,6 +737,16 @@ def build_workspace(comp, variant):
     # A dropped node must leave the semantic map too, or preflight reports it as
     # "absent from the composition".
     semantic["elements"] = [e for e in semantic["elements"] if e["id"] not in drops]
+    # Card #18d: register the row + its spacers so preflight stays green.
+    for _pid, row_id, _kids, _inset in ROW_WRAP.get(comp, []):
+        for rid in (row_id, row_id + "_spacer", row_id + "_pad"):
+            if rid in known:
+                continue
+            semantic["elements"].append({
+                "id": rid, "role": "layout",
+                "basis": "authored stack/text node (card #18d right-anchor row)",
+                "confidence": 1.0, "decision": "declared"})
+            known.add(rid)
     for parent_id, node in inserts:
         for n in walk(node):
             if n["id"] in known:
@@ -457,11 +885,21 @@ def main():
                 for w in WIDTHS:
                     p = vdir / f"{variant}-{w}.png"
                     panels.append(str(p))
-                ok = all(Path(p).is_file() for p in panels)
+                # Card #18e acceptance: the rightmost 4px of EVERY variant must be
+                # background (no border/radius/tint cut off at the render edge).
+                edge = {}
+                for w in WIDTHS:
+                    p = vdir / f"{variant}-{w}.png"
+                    if p.is_file():
+                        ok_e, col = right_edge_ok(p)
+                        edge[w] = {"ok": ok_e, "colour": col}
+                edge_ok = bool(edge) and all(v["ok"] for v in edge.values())
+                ok = all(Path(p).is_file() for p in panels) and edge_ok
                 review = str(assemble(comp, variant, panels)) if ok else None
                 summary[comp][variant] = {
                     "render": str(Path(review).relative_to(ROOT)) if review else None,
                     "widths": list(WIDTHS),
+                    "right_edge": edge,
                     "nodes": {f"w{r['w']}": r.get("nodes") for r in renders},
                     "font_warnings": sum(r.get("font_warnings", 0) for r in renders),
                 }

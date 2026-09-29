@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "aef4dc076427e31281c566c912927504097d744a902a60bdb06ca2f8b1fb7f76",
+  "contract_sha256": "5f4b3d9241ab1265e45cd5d5bbecc6a9c31c1db53252aa28db99fd50192f0adc",
   "reference_sha256": "f0c5063d5ef28d36e17bc1b77314478d4493a9a04897fbb6c050db5a10d7f874",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -13,9 +13,39 @@
       "decision": "declared"
     },
     {
+      "id": "approval_card",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "icon_shield",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_shield.svg",
+        "sha256": "b2103847b0caa4d30731d12d76ad80251dc0a0ced5ed8eec7eb18d96c1c42833",
+        "method": "reference_svg",
+        "reference_sha256": "f0c5063d5ef28d36e17bc1b77314478d4493a9a04897fbb6c050db5a10d7f874",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
       "id": "t01",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "cmd_box",
+      "role": "layout",
+      "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -27,42 +57,98 @@
       "decision": "declared"
     },
     {
-      "id": "t03",
+      "id": "reason_text",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t04",
+      "id": "approve_once",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "approve_once_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "approve_once_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "approve_once_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t05",
+      "id": "approve_session",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "approve_session_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "approve_session_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "approve_session_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t06",
+      "id": "deny",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "deny_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "deny_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "deny_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t07",
-      "role": "text",
-      "basis": "authored text node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "t08",
+      "id": "t_hint",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,

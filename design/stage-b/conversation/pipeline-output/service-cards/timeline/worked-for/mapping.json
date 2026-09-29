@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "worked_row",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        0.0,
+        0.0,
+        374.0,
+        44.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "worked_row_surface",
+      "native_id": "beauty_0_0",
+      "parent": "worked_row",
+      "kind": "stack",
+      "component": "Surface5e06c9b428ce",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        374.0,
+        44.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "worked_row_control",
+      "native_id": "beauty_0_1",
+      "parent": "worked_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        0.0,
+        0.0,
+        374.0,
+        44.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "worked_row_label",
+      "native_id": "beauty_0_2",
+      "parent": "worked_row",
+      "kind": "text",
+      "component": "Textf545a5164562",
+      "semantic_role": "text",
+      "bounds": [
+        10.530000000000001,
+        9.5,
+        178.0,
+        24.0
+      ],
+      "text": "Worked for 3m 4s \u203a",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 18.7
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
+  },
+  "contract_sha256": "292711fd2b0e1669249e05fe2f960f35b0a0e6c1560a431bfaae4faa417d4965",
+  "mapping_basis": "mapped.json"
+}

@@ -34,6 +34,26 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "approval_card",
+    "x": 16.0,
+    "y": 74.0,
+    "w": 374.0,
+    "h": 622.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "icon_shield",
+    "x": 26.0,
+    "y": 85.0,
+    "w": 30.0,
+    "h": 42.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
     "id": "t01",
     "x": 77.82,
     "y": 98.0,
@@ -41,7 +61,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 27.2,
     "text": "Run this command?",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 18.13,
+    "size": 17,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -50,14 +70,41 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "cmd_box",
+    "x": 20.0,
+    "y": 158.0,
+    "w": 366.0,
+    "h": 70.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "t02",
     "x": 29.0,
-    "y": 187.5,
-    "w": 328.67,
-    "h": 32.51,
+    "y": 185.0,
+    "w": 340.0,
+    "h": 30.0,
     "text": "git push origin feat/steer-queue",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 15,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "reason_text",
+    "x": 21.0,
+    "y": 266.0,
+    "w": 302.0,
+    "h": 66.0,
+    "text": "Reason: Push the fix branch so Cl can run",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 21.67,
+    "size": 21,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -66,47 +113,50 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t03",
-    "x": 21.43,
-    "y": 276.34,
-    "w": 297.73,
-    "h": 21.66,
-    "text": "Reason: Push the fix branch so Cl",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14.44,
-    "weight": 400,
-    "role": "text",
+    "id": "approve_once",
+    "x": 18.0,
+    "y": 364.0,
+    "w": 368.0,
+    "h": 70.0,
+    "role": "button",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "Button",
+      "KitButton"
     ]
   },
   {
-    "id": "t04",
-    "x": 19.14,
-    "y": 317.93,
-    "w": 66.6,
-    "h": 16.07,
-    "text": "can run",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 10.71,
-    "weight": 400,
-    "role": "text",
+    "id": "approve_once_surface",
+    "x": 18.0,
+    "y": 364.0,
+    "w": 368.0,
+    "h": 70.0,
+    "role": "layout",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "View"
     ]
   },
   {
-    "id": "t05",
-    "x": 136.31,
-    "y": 389.55,
-    "w": 125.48,
-    "h": 28.48,
+    "id": "approve_once_control",
+    "x": 18.0,
+    "y": 364.0,
+    "w": 368.0,
+    "h": 70.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "approve_once_label",
+    "x": 136.0,
+    "y": 390.0,
+    "w": 200.0,
+    "h": 30.0,
     "text": "Approve once",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 18.99,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 20.0,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -114,15 +164,50 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t06",
-    "x": 109.48,
-    "y": 471.66,
-    "w": 180.59,
-    "h": 33.14,
+    "id": "approve_session",
+    "x": 18.0,
+    "y": 448.0,
+    "w": 368.0,
+    "h": 70.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "approve_session_surface",
+    "x": 18.0,
+    "y": 448.0,
+    "w": 368.0,
+    "h": 70.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "approve_session_control",
+    "x": 18.0,
+    "y": 448.0,
+    "w": 368.0,
+    "h": 70.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "approve_session_label",
+    "x": 109.0,
+    "y": 472.0,
+    "w": 240.0,
+    "h": 32.0,
     "text": "Approve for session",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 22.09,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 21.33,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -130,14 +215,49 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t07",
-    "x": 170.29,
-    "y": 552.67,
-    "w": 47.37,
-    "h": 27.08,
+    "id": "deny",
+    "x": 18.0,
+    "y": 532.0,
+    "w": 368.0,
+    "h": 58.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "deny_surface",
+    "x": 18.0,
+    "y": 532.0,
+    "w": 368.0,
+    "h": 58.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "deny_control",
+    "x": 18.0,
+    "y": 532.0,
+    "w": 368.0,
+    "h": 58.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "deny_label",
+    "x": 170.0,
+    "y": 553.0,
+    "w": 80.0,
+    "h": 28.01,
     "text": "Deny",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 18.05,
+    "size": 18.67,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -146,14 +266,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t08",
+    "id": "t_hint",
     "x": 153.38,
     "y": 653.0,
     "w": 78.94,
     "h": 21.5,
     "text": "Y /S / N",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14.33,
+    "size": 12,
     "weight": 400,
     "role": "text",
     "native_candidates": [

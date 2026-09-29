@@ -1,0 +1,26 @@
+# ledger tool-cell@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t01_text { class: user-copy, en: "Read ui_protocol_transport.rs" }
+copy t02_text { class: user-copy, en: "• 412 lines" }
+component Surface2d72cf7029d3(instance: text) {
+  view Kit(component: "Surface2d72cf7029d3", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Text3990198d8404(instance: text, text: text) {
+  view Kit(component: "Text3990198d8404", instance: instance, text: text)
+}
+component Textbed76d0b7729(instance: text, text: text) {
+  view Kit(component: "Textbed76d0b7729", instance: instance, text: text)
+}
+
+view root Surface2d72cf7029d3(instance: "tool_1") {
+  Vectore0a378fde04f(instance: "icon_file")
+  Text3990198d8404(instance: "t01", text: copy.t01_text)
+  Textbed76d0b7729(instance: "t02", text: copy.t02_text)
+  Vectore0a378fde04f(instance: "icon_check1")
+}

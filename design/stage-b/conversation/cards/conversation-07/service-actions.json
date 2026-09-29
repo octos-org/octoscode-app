@@ -1,5 +1,46 @@
 {
   "frame_id": 7,
-  "controls": {},
+  "controls": {
+    "review": {
+      "event": "files.review",
+      "source_bounds": [
+        296,
+        78,
+        76,
+        40
+      ],
+      "enabled": true
+    },
+    "file_1": {
+      "event": "files.open.file_1",
+      "source_bounds": [
+        16,
+        201,
+        374,
+        96
+      ],
+      "enabled": true
+    },
+    "file_2": {
+      "event": "files.open.file_2",
+      "source_bounds": [
+        16,
+        331,
+        374,
+        96
+      ],
+      "enabled": true
+    },
+    "file_3": {
+      "event": "files.open.file_3",
+      "source_bounds": [
+        16,
+        458,
+        374,
+        96
+      ],
+      "enabled": true
+    }
+  },
   "source": "edited-files"
 }

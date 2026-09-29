@@ -1,0 +1,173 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "composer_idle",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface07eaedee1d73",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        374.0,
+        190.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "composer_idle_input",
+      "native_id": "beauty_0_0",
+      "parent": "composer_idle",
+      "kind": "input",
+      "component": "Input9ca276b5cc2e",
+      "semantic_role": "input",
+      "bounds": [
+        14.0,
+        10.556000000000012,
+        300.0,
+        42.222
+      ],
+      "text": "",
+      "enabled": 1,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15
+    },
+    {
+      "source_id": "icon_plus1",
+      "native_id": "beauty_0_1",
+      "parent": "composer_idle",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        14.0,
+        128.77800000000002,
+        18.0,
+        25.333
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "pill1",
+      "native_id": "beauty_0_2",
+      "parent": "composer_idle",
+      "kind": "stack",
+      "component": "Surface595642fcfba0",
+      "semantic_role": "layout",
+      "bounds": [
+        49.0,
+        121.0,
+        122.0,
+        46.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "pill1_t",
+      "native_id": "beauty_0_2_0",
+      "parent": "pill1",
+      "kind": "text",
+      "component": "Text78e146733ffe",
+      "semantic_role": "text",
+      "bounds": [
+        61.18000000000001,
+        135.5,
+        101.5,
+        23.0
+      ],
+      "text": "Ask for approval",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12.49
+    },
+    {
+      "source_id": "icon_mic1",
+      "native_id": "beauty_0_3",
+      "parent": "composer_idle",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        290.0,
+        125.61099999999999,
+        16.0,
+        28.5
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t04",
+      "native_id": "beauty_0_4",
+      "parent": "composer_idle",
+      "kind": "text",
+      "component": "Text4c1a70e63ea9",
+      "semantic_role": "text",
+      "bounds": [
+        198.69,
+        138.5,
+        73.0,
+        21.5
+      ],
+      "text": "v4-flash \u25be",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 13.92
+    },
+    {
+      "source_id": "send1",
+      "native_id": "beauty_0_5",
+      "parent": "composer_idle",
+      "kind": "stack",
+      "component": "Surface989cca714cb6",
+      "semantic_role": "layout",
+      "bounds": [
+        328.0,
+        118.22200000000001,
+        36.0,
+        38.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_send",
+      "native_id": "beauty_0_5_0",
+      "parent": "send1",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        338.0,
+        128.77800000000002,
+        16.0,
+        16.889
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
+  },
+  "contract_sha256": "e8b59b38e51a6a186852f24b32f4e7ec2d5fc5cc174d95703ed604cc9fd89f22",
+  "mapping_basis": "mapped.json"
+}

@@ -11,6 +11,25 @@
           "h": 776
         }
       },
+      "approval_card": {
+        "component": "Surface5a7573e113ac",
+        "layout": {
+          "x": 16.0,
+          "y": 74.0,
+          "w": 374.0,
+          "h": 622.0
+        }
+      },
+      "icon_shield": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 26.0,
+          "y": 85.0,
+          "w": 30.0,
+          "h": 42.0,
+          "src": "http://127.0.0.1:8170/ux-images/conversation-05/assets/icon_shield-b2103847b0ca.svg"
+        }
+      },
       "t01": {
         "component": "Text8cb1e9073ec4",
         "layout": {
@@ -20,52 +39,133 @@
           "h": 27.0
         }
       },
-      "t02": {
-        "component": "Text35f0a2e18a80",
+      "cmd_box": {
+        "component": "Surfaced4520a0efa8e",
         "layout": {
-          "x": 34.93,
+          "x": 19.0,
+          "y": 159.0,
+          "w": 368.0,
+          "h": 86.0
+        }
+      },
+      "t02": {
+        "component": "Textd0578af30f19",
+        "layout": {
+          "x": 34.84,
           "y": 188.0,
           "w": 322.0,
           "h": 29.0
         }
       },
-      "t03": {
-        "component": "Text0ec9c7831f76",
+      "reason_text": {
+        "component": "Text776e18c492bd",
         "layout": {
-          "x": 20.38,
+          "x": 19.78688524590164,
           "y": 274.5,
-          "w": 297.0,
-          "h": 23.5
+          "w": 302.0,
+          "h": 66.0
         }
       },
-      "t04": {
-        "component": "Text37f3e2fa568e",
+      "approve_once": {
+        "component": "KitButton2c6804b990a5",
         "layout": {
-          "x": 20.11,
-          "y": 317.0,
-          "w": 66.5,
-          "h": 21.22
+          "x": 18.0,
+          "y": 366.0,
+          "w": 369.0,
+          "h": 68.0
         }
       },
-      "t05": {
-        "component": "Text4babf535c3bd",
+      "approve_once_surface": {
+        "component": "Surfaceb09388d9616a",
         "layout": {
-          "x": 134.51,
-          "y": 386.5,
-          "w": 132.0,
-          "h": 35.0
+          "x": 18.0,
+          "y": 366.0,
+          "w": 369.0,
+          "h": 68.0
         }
       },
-      "t06": {
-        "component": "Texteaf9cf71c02e",
+      "approve_once_control": {
+        "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 113.54,
+          "x": 18.0,
+          "y": 366.0,
+          "w": 369.0,
+          "h": 68.0
+        }
+      },
+      "approve_once_label": {
+        "component": "Text1203da972db2",
+        "layout": {
+          "x": 138.55,
+          "y": 389.5,
+          "w": 124.5,
+          "h": 29.0
+        }
+      },
+      "approve_session": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 17.0,
+          "y": 449.0,
+          "w": 371.0,
+          "h": 72.0
+        }
+      },
+      "approve_session_surface": {
+        "component": "Surfacecf419a0f4c2f",
+        "layout": {
+          "x": 17.0,
+          "y": 449.0,
+          "w": 371.0,
+          "h": 72.0
+        }
+      },
+      "approve_session_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 17.0,
+          "y": 449.0,
+          "w": 371.0,
+          "h": 72.0
+        }
+      },
+      "approve_session_label": {
+        "component": "Textb89d74582783",
+        "layout": {
+          "x": 113.56,
           "y": 472.5,
           "w": 175.5,
           "h": 29.0
         }
       },
-      "t07": {
+      "deny": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 18.0,
+          "y": 532.0,
+          "w": 368.0,
+          "h": 58.0
+        }
+      },
+      "deny_surface": {
+        "component": "Surface9eeb0502ed91",
+        "layout": {
+          "x": 18.0,
+          "y": 532.0,
+          "w": 368.0,
+          "h": 58.0
+        }
+      },
+      "deny_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 18.0,
+          "y": 532.0,
+          "w": 368.0,
+          "h": 58.0
+        }
+      },
+      "deny_label": {
         "component": "Textd69d397afce1",
         "layout": {
           "x": 170.93,
@@ -74,7 +174,7 @@
           "h": 29.0
         }
       },
-      "t08": {
+      "t_hint": {
         "component": "Text67f5fdec256d",
         "layout": {
           "x": 154.98,

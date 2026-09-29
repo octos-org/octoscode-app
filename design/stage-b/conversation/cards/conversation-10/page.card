@@ -5,19 +5,31 @@
 theme light
 copy t01_text { class: user-copy, en: "Goal • Fix steer queue on reconnect • 18m" }
 copy t02_text { class: user-copy, en: "Plan • 3 of 5" }
-copy t03_text { class: user-copy, en: "Reproduce reconnect drop" }
-copy t04_text { class: user-copy, en: "Trace steer queue lifecycle" }
-copy t05_text { class: user-copy, en: "Write failing test" }
-copy t06_text { class: user-copy, en: "Implement durable queue" }
-copy t07_text { class: user-copy, en: "Run full suite and push" }
-component Surface991755d1cfb2(instance: text) {
-  view Kit(component: "Surface991755d1cfb2", instance: instance) { slot }
+copy step_0_label_text { class: user-copy, en: "Reproduce reconnect drop" }
+copy step_1_label_text { class: user-copy, en: "Trace steer queue lifecycle" }
+copy step_2_label_text { class: user-copy, en: "Write failing test" }
+copy step_3_label_text { class: user-copy, en: "Implement durable queue" }
+copy step_4_label_text { class: user-copy, en: "Run full suite and push" }
+component Surface156d085f4ff5(instance: text) {
+  view Kit(component: "Surface156d085f4ff5", instance: instance) { slot }
 }
-component Text137eead2583a(instance: text, text: text) {
-  view Kit(component: "Text137eead2583a", instance: instance, text: text)
+component Surface5e06c9b428ce(instance: text) {
+  view Kit(component: "Surface5e06c9b428ce", instance: instance) { slot }
 }
-component Texte862ba55a85d(instance: text, text: text) {
-  view Kit(component: "Texte862ba55a85d", instance: instance, text: text)
+component Textfaa232946c99(instance: text, text: text) {
+  view Kit(component: "Textfaa232946c99", instance: instance, text: text)
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Surfaceb4206391250d(instance: text) {
+  view Kit(component: "Surfaceb4206391250d", instance: instance) { slot }
+}
+component Text6d7683639e3a(instance: text, text: text) {
+  view Kit(component: "Text6d7683639e3a", instance: instance, text: text)
+}
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
 }
 component Text10450de85f33(instance: text, text: text) {
   view Kit(component: "Text10450de85f33", instance: instance, text: text)
@@ -28,19 +40,32 @@ component Textee1e7e5ed697(instance: text, text: text) {
 component Textfcb7eee893cc(instance: text, text: text) {
   view Kit(component: "Textfcb7eee893cc", instance: instance, text: text)
 }
-component Text77009da7de2b(instance: text, text: text) {
-  view Kit(component: "Text77009da7de2b", instance: instance, text: text)
+component Textc378303468e9(instance: text, text: text) {
+  view Kit(component: "Textc378303468e9", instance: instance, text: text)
 }
 component Text378d81a8d7fe(instance: text, text: text) {
   view Kit(component: "Text378d81a8d7fe", instance: instance, text: text)
 }
 
-view root Surface991755d1cfb2(instance: "page") {
-  Text137eead2583a(instance: "t01", text: copy.t01_text)
-  Texte862ba55a85d(instance: "t02", text: copy.t02_text)
-  Text10450de85f33(instance: "t03", text: copy.t03_text)
-  Textee1e7e5ed697(instance: "t04", text: copy.t04_text)
-  Textfcb7eee893cc(instance: "t05", text: copy.t05_text)
-  Text77009da7de2b(instance: "t06", text: copy.t06_text)
-  Text378d81a8d7fe(instance: "t07", text: copy.t07_text)
+view root Surface156d085f4ff5(instance: "page") {
+  Surface5e06c9b428ce(instance: "goal_strip") {
+    Textfaa232946c99(instance: "t01", text: copy.t01_text)
+    Vectore0a378fde04f(instance: "icon_pause")
+    Vectore0a378fde04f(instance: "icon_stop")
+  }
+  Surfaceb4206391250d(instance: "plan_card") {
+    Text6d7683639e3a(instance: "t02", text: copy.t02_text)
+    Group3d2637879433(instance: "plan_steps") {
+      Text10450de85f33(instance: "step_0_label", text: copy.step_0_label_text)
+      Textee1e7e5ed697(instance: "step_1_label", text: copy.step_1_label_text)
+      Textfcb7eee893cc(instance: "step_2_label", text: copy.step_2_label_text)
+      Textc378303468e9(instance: "step_3_label", text: copy.step_3_label_text)
+      Text378d81a8d7fe(instance: "step_4_label", text: copy.step_4_label_text)
+    }
+    Vectore0a378fde04f(instance: "icon_step0")
+    Vectore0a378fde04f(instance: "icon_step1")
+    Vectore0a378fde04f(instance: "icon_step2")
+    Vectore0a378fde04f(instance: "icon_step3")
+    Vectore0a378fde04f(instance: "icon_step4")
+  }
 }

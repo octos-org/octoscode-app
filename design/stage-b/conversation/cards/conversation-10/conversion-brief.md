@@ -34,19 +34,59 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "goal_strip",
+    "x": 16.0,
+    "y": 28.0,
+    "w": 374.0,
+    "h": 40.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "t01",
     "x": 33.83,
     "y": 36.0,
     "w": 254.88,
-    "h": 21.52,
+    "h": 22.5,
     "text": "Goal \u2022 Fix steer queue on reconnect \u2022 18m",
-    "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 14.35,
-    "weight": 600,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 15,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
       "TextFlow"
+    ]
+  },
+  {
+    "id": "icon_pause",
+    "x": 306.0,
+    "y": 31.0,
+    "w": 18.0,
+    "h": 20.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "icon_stop",
+    "x": 342.0,
+    "y": 32.0,
+    "w": 18.0,
+    "h": 18.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "plan_card",
+    "x": 16.0,
+    "y": 130.0,
+    "w": 374.0,
+    "h": 500.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
     ]
   },
   {
@@ -56,9 +96,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "w": 103.95,
     "h": 22.42,
     "text": "Plan \u2022 3 of 5",
-    "font_src": "self:resources/ux/Inter-400.ttf",
+    "font_src": "self:resources/ux/Inter-600.ttf",
     "size": 14.94,
-    "weight": 400,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -66,7 +106,18 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t03",
+    "id": "plan_steps",
+    "x": 24.0,
+    "y": 200.0,
+    "w": 368.0,
+    "h": 420.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "step_0_label",
     "x": 82.33,
     "y": 235.5,
     "w": 198.49,
@@ -82,7 +133,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t04",
+    "id": "step_1_label",
     "x": 85.71,
     "y": 321.45,
     "w": 192.85,
@@ -98,7 +149,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t05",
+    "id": "step_2_label",
     "x": 85.71,
     "y": 407.0,
     "w": 124.06,
@@ -114,15 +165,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t06",
+    "id": "step_3_label",
     "x": 77.82,
     "y": 494.0,
     "w": 197.36,
     "h": 23.71,
     "text": "Implement durable queue",
-    "font_src": "self:resources/ux/Inter-400.ttf",
+    "font_src": "self:resources/ux/Inter-500.ttf",
     "size": 15.81,
-    "weight": 400,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -130,7 +181,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t07",
+    "id": "step_4_label",
     "x": 87.97,
     "y": 579.5,
     "w": 166.91,
@@ -144,6 +195,51 @@ legacy Studio capture/gate adapters require their own evidence schema.
       "Label",
       "TextFlow"
     ]
+  },
+  {
+    "id": "icon_step0",
+    "x": 40.0,
+    "y": 226.0,
+    "w": 26.0,
+    "h": 26.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "icon_step1",
+    "x": 40.0,
+    "y": 311.0,
+    "w": 26.0,
+    "h": 26.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "icon_step2",
+    "x": 40.0,
+    "y": 397.0,
+    "w": 26.0,
+    "h": 26.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "icon_step3",
+    "x": 40.0,
+    "y": 482.0,
+    "w": 26.0,
+    "h": 26.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "icon_step4",
+    "x": 40.0,
+    "y": 570.0,
+    "w": 26.0,
+    "h": 26.0,
+    "role": "unknown",
+    "native_candidates": []
   }
 ]
 ```

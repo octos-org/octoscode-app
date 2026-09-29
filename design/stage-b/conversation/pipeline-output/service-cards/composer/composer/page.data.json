@@ -1,0 +1,105 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "composer_idle": {
+        "component": "Surface07eaedee1d73",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 374.0,
+          "h": 190.0
+        }
+      },
+      "composer_idle_input": {
+        "component": "Input9ca276b5cc2e",
+        "layout": {
+          "x": 14.0,
+          "y": 10.556000000000012,
+          "w": 300.0,
+          "h": 42.222
+        }
+      },
+      "icon_plus1": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 14.0,
+          "y": 128.77800000000002,
+          "w": 18.0,
+          "h": 25.333,
+          "src": "http://127.0.0.1:8170/ux-images/composer/assets/icon_plus1-e726c53afe21.svg"
+        }
+      },
+      "pill1": {
+        "component": "Surface595642fcfba0",
+        "layout": {
+          "x": 49.0,
+          "y": 121.0,
+          "w": 122.0,
+          "h": 46.0
+        }
+      },
+      "pill1_t": {
+        "component": "Text78e146733ffe",
+        "layout": {
+          "x": 61.18000000000001,
+          "y": 135.5,
+          "w": 101.5,
+          "h": 23.0
+        }
+      },
+      "icon_mic1": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 290.0,
+          "y": 125.61099999999999,
+          "w": 16.0,
+          "h": 28.5,
+          "src": "http://127.0.0.1:8170/ux-images/composer/assets/icon_mic1-e21b462810d1.svg"
+        }
+      },
+      "t04": {
+        "component": "Text4c1a70e63ea9",
+        "layout": {
+          "x": 198.69,
+          "y": 138.5,
+          "w": 73.0,
+          "h": 21.5
+        }
+      },
+      "send1": {
+        "component": "Surface989cca714cb6",
+        "layout": {
+          "x": 328.0,
+          "y": 118.22200000000001,
+          "w": 36.0,
+          "h": 38.0
+        }
+      },
+      "icon_send": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 338.0,
+          "y": 128.77800000000002,
+          "w": 16.0,
+          "h": 16.889,
+          "src": "http://127.0.0.1:8170/ux-images/composer/assets/icon_send-3fe1783d764e.svg"
+        }
+      }
+    },
+    "bindings": [
+      {
+        "id": "composer_idle_input",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "composer_idle_input",
+          "property": "text"
+        }
+      }
+    ]
+  }
+}

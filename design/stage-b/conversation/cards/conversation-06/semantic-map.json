@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "38c1fb26f9ea2d9c5af66e53e947fc641934cf9b57ea7b67d1b5946dab1c6268",
+  "contract_sha256": "1d6bcba1dc230ce973fac3e247e04db69f68dbfa013e3845a4a811e3fba0ce85",
   "reference_sha256": "1d4b03b5aa37808cce2211cf8dde447b1629ff2d1e4727b1e7696db81f69c59f",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -13,6 +13,29 @@
       "decision": "declared"
     },
     {
+      "id": "question_card",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "icon_decision",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_decision.svg",
+        "sha256": "79c4499823a84f46733f0897f09df318b7834eedcf150b8ce451a5435b82fe6d",
+        "method": "reference_svg",
+        "reference_sha256": "1d4b03b5aa37808cce2211cf8dde447b1629ff2d1e4727b1e7696db81f69c59f",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
       "id": "t01",
       "role": "text",
       "basis": "authored text node",
@@ -20,63 +43,172 @@
       "decision": "declared"
     },
     {
-      "id": "t02",
+      "id": "question_text",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t03",
+      "id": "opt_ledger",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "opt_ledger_radio",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/opt_ledger_radio.svg",
+        "sha256": "def80ed3f9f00a196b876687e175a212f6ae9db9d2529fba180f65e6f90768d8",
+        "method": "reference_svg",
+        "reference_sha256": "1d4b03b5aa37808cce2211cf8dde447b1629ff2d1e4727b1e7696db81f69c59f",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "opt_ledger_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t04",
+      "id": "opt_memory",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "opt_memory_radio",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/opt_memory_radio.svg",
+        "sha256": "912d54d8f84f31876872de6773fd5946e84cc2b63c437ccb2329e0da5af39236",
+        "method": "reference_svg",
+        "reference_sha256": "1d4b03b5aa37808cce2211cf8dde447b1629ff2d1e4727b1e7696db81f69c59f",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "opt_memory_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t05",
+      "id": "opt_ask",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "opt_ask_radio",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/opt_ask_radio.svg",
+        "sha256": "912d54d8f84f31876872de6773fd5946e84cc2b63c437ccb2329e0da5af39236",
+        "method": "reference_svg",
+        "reference_sha256": "1d4b03b5aa37808cce2211cf8dde447b1629ff2d1e4727b1e7696db81f69c59f",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "opt_ask_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t06",
+      "id": "note_box",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "note_input",
+      "role": "input",
+      "basis": "authored input node",
+      "confidence": 1.0,
+      "decision": "declared",
+      "behavior": {
+        "event": "changed",
+        "target": "note_input",
+        "property": "text"
+      }
+    },
+    {
+      "id": "submit_answer",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "submit_answer_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "submit_answer_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "submit_answer_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t07",
-      "role": "text",
-      "basis": "authored text node",
+      "id": "skip",
+      "role": "button",
+      "basis": "authored KitButton composition",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t08",
-      "role": "text",
-      "basis": "authored text node",
+      "id": "skip_surface",
+      "role": "layout",
+      "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t09",
-      "role": "text",
-      "basis": "authored text node",
+      "id": "skip_control",
+      "role": "button",
+      "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t10",
+      "id": "skip_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,

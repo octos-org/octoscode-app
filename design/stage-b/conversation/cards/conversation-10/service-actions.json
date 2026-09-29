@@ -1,5 +1,26 @@
 {
   "frame_id": 10,
-  "controls": {},
+  "controls": {
+    "goal_pause": {
+      "event": "goal.pause",
+      "source_bounds": [
+        306,
+        31,
+        18,
+        20
+      ],
+      "enabled": true
+    },
+    "goal_stop": {
+      "event": "goal.stop",
+      "source_bounds": [
+        342,
+        32,
+        18,
+        18
+      ],
+      "enabled": true
+    }
+  },
   "source": "goal-plan"
 }

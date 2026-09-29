@@ -1,0 +1,46 @@
+# ledger composer@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy composer_idle_input_text { class: user-copy, en: "" }
+copy composer_idle_input_placeholder { class: user-copy, en: "Ask Octos anything" }
+copy pill1_t_text { class: user-copy, en: "Ask for approval" }
+copy t04_text { class: user-copy, en: "v4-flash ▾" }
+state composer_idle_input_enabled { shape: bool, initial: true }
+component Surface07eaedee1d73(instance: text) {
+  view Kit(component: "Surface07eaedee1d73", instance: instance) { slot }
+}
+component Input9ca276b5cc2e(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Input9ca276b5cc2e", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Surface595642fcfba0(instance: text) {
+  view Kit(component: "Surface595642fcfba0", instance: instance) { slot }
+}
+component Text78e146733ffe(instance: text, text: text) {
+  view Kit(component: "Text78e146733ffe", instance: instance, text: text)
+}
+component Text4c1a70e63ea9(instance: text, text: text) {
+  view Kit(component: "Text4c1a70e63ea9", instance: instance, text: text)
+}
+component Surface989cca714cb6(instance: text) {
+  view Kit(component: "Surface989cca714cb6", instance: instance) { slot }
+}
+
+view root Surface07eaedee1d73(instance: "composer_idle") {
+  Input9ca276b5cc2e(instance: "composer_idle_input", text: copy.composer_idle_input_text, placeholder: copy.composer_idle_input_placeholder, enabled: composer_idle_input_enabled) {
+
+  }
+  Vectore0a378fde04f(instance: "icon_plus1")
+  Surface595642fcfba0(instance: "pill1") {
+    Text78e146733ffe(instance: "pill1_t", text: copy.pill1_t_text)
+  }
+  Vectore0a378fde04f(instance: "icon_mic1")
+  Text4c1a70e63ea9(instance: "t04", text: copy.t04_text)
+  Surface989cca714cb6(instance: "send1") {
+    Vectore0a378fde04f(instance: "icon_send")
+  }
+}

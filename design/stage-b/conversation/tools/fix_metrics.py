@@ -41,6 +41,33 @@ ROOT = Path(__file__).resolve().parents[1] / "cards"
 # Value = the measured logical x where the copy itself starts.
 X_OVERRIDE = {(4, "t05"): 87.5}   # conversation-04 tool_3: ">_ " is the terminal icon
 
+# Nodes whose OCR row MERGED several visual runs, so the ink-width fit mis-sizes
+# them and the authored size must stand (card #18b):
+#   07 t02  — the green "+62" and the red "−5" arrive as ONE row ("+62 -5"), and
+#             fitting 6 glyphs into the merged 31px ink box shrank them to 9.5pt
+#             (the atlas draws both runs large). Authored as two explicit nodes.
+#   07 t_undo — "Undo 9" merged the ↺ glyph into the label; fitting "Undo" into
+#             the run's 61.5px ink box pushed it to 24pt (the atlas is ~14pt).
+SIZE_KEEP = {(7, "t_undo")}
+
+# Card #18d item 4: the OCR row MERGED the trailing chevron GLYPH into the label,
+# so the ink-width fit ran the text under the icon ("Last turn v" fitted across
+# 208.5..285.5 while the chevron sits at 277..285.5 — the glyph drew on the "n").
+# Value = the logical x the label's ink must stop at.
+X_RIGHT = {(11, "scope_label"): 268.0}
+
+# Card #18e item 4: option 1 of the question card ("In the session ledger
+# (recommended)") is ONE label whose OCR row is `missing_or_ocr_unresolved`, so it
+# is never width-fitted — it kept the authored 14pt size and a stale 2-line-tall
+# box (an empty gap under the single line) while its siblings fit to ~17.9pt. The
+# atlas draws it on TWO lines (line 1 "In the session ledger", 181.49 wide; line 2
+# "(recommended)"). Adopt a sibling's fitted size, wrap the label at the atlas's
+# line-1 width, and take the height from the wrapped content (no gap, no bleed).
+#   sibling = the already-fitted node whose size/line_height this node must match
+#   wrap_w  = the label's measured box width (forces the atlas's 2-line break)
+SIZE_FROM_SIBLING = {(6, "opt_ledger_label"): {"sibling": "opt_memory_label",
+                                               "wrap_w": 181.49, "lines": 2}}
+
 # Fonts must be resolved from the SAME tree compile.py validates against: the flow's
 # repository('splash-makepad') = <native workspace>/octoscript-makepad. The mono face
 # (ux/LiberationMono-Regular.ttf) is bundled in THIS clone, not in the read-only
@@ -91,9 +118,31 @@ def fix_scene(d, scene_no):
     ink = {r["id"]: r.get("ink_bounds") for r in obs["text"]
            if r.get("status") == "observed" and r.get("ink_bounds")}
     doc = json.loads(mapped_path.read_text())
+    # Card #18: the authored contract, so a FLOW region (dynamic runtime text) can
+    # be restored to the box its author chose. The `map`/`observe` stage ink-fits
+    # any node whose text matches one OCR row, which collapses a wrapping region to
+    # a single line box (05 reason h 66 -> 23.5) — and `design.rs:338` then pins it
+    # to the non-wrapping `flow: Right`. Frame text keeps that fitting.
+    authored = {}
+    if (d / "contract.json").exists():
+        authored = {n["id"]: n for n in walk(json.loads((d / "contract.json").read_text())["tree"])
+                    if n.get("t") == "text"}
     changed = 0
     for n in walk(doc["tree"]):
         if n["t"] != "text" or n["id"] not in ink:
+            continue
+        if n.get("variant") != "single_line":
+            # a flow region: keep the author's box (width + multi-line height), and
+            # drop the `map` stage's width-solved `tracking` — it was fitted to the
+            # squashed size, so at the authored size it overlaps the glyphs.
+            a = authored.get(n["id"])
+            if a and a.get("h"):
+                n["w"] = a["w"]
+                n["h"] = a["h"]
+                n["size"] = a.get("size", n.get("size"))
+                n["line_height"] = a.get("line_height", n.get("line_height"))
+                n["tracking"] = 0.0
+                changed += 1
             continue
         fp = font_path(n["font_src"])
         if not fp.is_file():
@@ -109,6 +158,24 @@ def fix_scene(d, scene_no):
             new_x = X_OVERRIDE[(scene_no, n["id"])]
             iw = (ix + iw) - new_x
             ix = new_x
+        if (scene_no, n["id"]) in X_RIGHT:
+            # cap the ink's right edge (the merged chevron is a separate icon)
+            iw = X_RIGHT[(scene_no, n["id"])] - ix
+        if (scene_no, n["id"]) in SIZE_KEEP:
+            # The OCR row merged a glyph into the text, so the ink-width fit is
+            # wrong for this node: restore the AUTHORED size/box instead of leaving
+            # the `map` stage's over-sized value (07 t_undo went to 27.75pt).
+            a = authored.get(n["id"])
+            if a:
+                n["x"] = a["x"]
+                n["y"] = a["y"]
+                n["w"] = a["w"]
+                n["h"] = a["h"]
+                n["size"] = a["size"]
+                n["line_height"] = a.get("line_height", n.get("line_height"))
+                n["tracking"] = a.get("tracking", 0.0)
+                changed += 1
+            continue
         size = iw / advance                      # width-fit => tracking 0
         line_box = size * 2478 / 2048            # Inter's natural line box
         n["x"] = round(ix - x0 * size, 2)        # keep the glyph left-bearing offset
@@ -123,6 +190,30 @@ def fix_scene(d, scene_no):
         n["alignx"] = 0
         n.pop("font_asc", None)                  # let design.rs apply its Inter default
         n.pop("font_desc", None)
+        changed += 1
+    # Card #18e item 4: a node whose OCR row is `missing_or_ocr_unresolved` is
+    # skipped above, so it keeps the authored size (14pt) and a stale 2-line-tall
+    # box even though the label renders on one line (an empty gap under it). Adopt
+    # a sibling's already-fitted size and take the height from one line box, so
+    # option 1 wraps at the atlas's line-1 width and takes height from content.
+    for (scene, nid), spec in SIZE_FROM_SIBLING.items():
+        if scene != scene_no:
+            continue
+        sib = next((n for n in walk(doc["tree"]) if n["id"] == spec["sibling"]), None)
+        tgt = next((n for n in walk(doc["tree"]) if n["id"] == nid), None)
+        if not sib or not tgt:
+            continue
+        tgt["size"] = sib["size"]
+        lh = sib.get("line_height", tgt.get("line_height"))
+        tgt["line_height"] = lh
+        tgt["tracking"] = 0.0
+        # Wrap rather than clip: drop `single_line` and clamp the box to the
+        # atlas's line-1 width so the label breaks at "(recommended)". Height is
+        # the content's OWN line count (2), not a stale authored 2-line box.
+        tgt["variant"] = None
+        tgt["w"] = round(float(spec["wrap_w"]), 2)
+        lines = spec["lines"]
+        tgt["h"] = round(lh * lines, 2)
         changed += 1
     mapped_path.write_text(json.dumps(doc, indent=2) + "\n")
     return changed

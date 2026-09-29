@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "248f5c707e5f99352736a2fca675971be6f8ed76d04e24817e08e06433a07dbf",
+  "tree": {
+    "t": "stack",
+    "id": "settings_group",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 374.0,
+    "h": 620.0,
+    "c": [
+      {
+        "t": "text",
+        "id": "t01",
+        "text": "Permissions",
+        "x": 16.72,
+        "y": 17.0,
+        "w": 107.5,
+        "h": 25.0,
+        "size": 17.47,
+        "line_height": 21.13,
+        "weight": 600,
+        "color": 4278190080,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "perm_card",
+        "x": 9.0,
+        "y": 66.0,
+        "w": 355.0,
+        "h": 305.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t_r1",
+            "text": "Default permissions",
+            "x": 30.71,
+            "y": 98.0,
+            "w": 157.0,
+            "h": 27.5,
+            "size": 16.07,
+            "line_height": 19.44,
+            "weight": 500,
+            "color": 4279242769,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "t_d1",
+            "text": "Ask before running commands that modify your system.",
+            "x": 29.0,
+            "y": 134.0,
+            "w": 210.0,
+            "h": 44.0,
+            "size": 13,
+            "line_height": 18.85,
+            "weight": 400,
+            "color": 4285427315,
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "text",
+            "id": "t_r2",
+            "text": "Full access",
+            "x": 30.729999999999997,
+            "y": 249.5,
+            "w": 88.0,
+            "h": 22.5,
+            "size": 15.71,
+            "line_height": 19.0,
+            "weight": 500,
+            "color": 4279242768,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "t_d2",
+            "text": "Allow Octos to run any command without asking.",
+            "x": 29.0,
+            "y": 286.0,
+            "w": 210.0,
+            "h": 44.0,
+            "size": 13,
+            "line_height": 18.85,
+            "weight": 400,
+            "color": 4285427315,
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "stack",
+            "id": "toggle1",
+            "x": 293.0,
+            "y": 102.0,
+            "w": 55.0,
+            "h": 46.0,
+            "c": [
+              {
+                "t": "stack",
+                "id": "toggle1_knob",
+                "x": 319.4,
+                "y": 106.6,
+                "w": 26.4,
+                "h": 36.8,
+                "c": [],
+                "variant": "surface",
+                "bg": 4294769917,
+                "radius": 13.2
+              }
+            ],
+            "variant": "surface",
+            "bg": 4281298923,
+            "radius": 23.0
+          },
+          {
+            "t": "stack",
+            "id": "toggle2",
+            "x": 294.0,
+            "y": 254.0,
+            "w": 54.0,
+            "h": 47.0,
+            "c": [
+              {
+                "t": "stack",
+                "id": "toggle2_knob",
+                "x": 297.24,
+                "y": 258.7,
+                "w": 25.92,
+                "h": 37.6,
+                "c": [],
+                "variant": "surface",
+                "bg": 4294835709,
+                "radius": 12.96
+              }
+            ],
+            "variant": "surface",
+            "bg": 4293059300,
+            "radius": 23.5
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901246,
+        "radius": 13.46,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "stack",
+        "id": "perm_divider",
+        "x": 14.0,
+        "y": 218.0,
+        "w": 346.0,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 0
+      },
+      {
+        "t": "text",
+        "id": "t_sec2",
+        "text": "Model",
+        "x": 15.7,
+        "y": 439.0,
+        "w": 57.5,
+        "h": 24.5,
+        "size": 17.78,
+        "line_height": 21.52,
+        "weight": 600,
+        "color": 4278453252,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "model_card",
+        "x": 12.0,
+        "y": 491.0,
+        "w": 348.0,
+        "h": 104.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t_model",
+            "text": "Default model",
+            "x": 28.759999999999998,
+            "y": 530.0,
+            "w": 107.0,
+            "h": 22.5,
+            "size": 15.45,
+            "line_height": 18.69,
+            "weight": 500,
+            "color": 4279440147,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "t_pick",
+            "text": "deepseek-v4-flash",
+            "x": 190.76,
+            "y": 531.0,
+            "w": 149.0,
+            "h": 26.5,
+            "size": 15.8,
+            "line_height": 19.11,
+            "weight": 500,
+            "color": 4281414194,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "svg",
+            "id": "pick_chev",
+            "x": 340.0,
+            "y": 527.833,
+            "w": 16.0,
+            "h": 23.111,
+            "src": ""
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 17.33,
+        "border": 1,
+        "bordercolor": 4293256679
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502,
+    "radius": 0
+  },
+  "changes": [
+    {
+      "source": "cards/conversation-12/mapped.json",
+      "source_sha256": "424e3ea5df75c73c1db218856e6d4996ec18b9cb032ba8450914a1a15b0df399",
+      "operation": "Extract native subtree and translate origin",
+      "source_root": "settings_group",
+      "translation": [
+        -16.0,
+        -30.0
+      ]
+    }
+  ]
+}

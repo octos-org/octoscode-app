@@ -34,14 +34,25 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "diff_view",
+    "x": 20.0,
+    "y": 92.0,
+    "w": 362.0,
+    "h": 566.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "t01",
     "x": 33.75,
     "y": 33.6,
     "w": 66.7,
-    "h": 24.15,
+    "h": 28.5,
     "text": "Review",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 16.1,
+    "size": 19,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -50,15 +61,26 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t02",
-    "x": 205.26,
-    "y": 38.35,
-    "w": 82.33,
-    "h": 18.15,
-    "text": "Last turn v",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 12.1,
-    "weight": 400,
+    "id": "scope_pill",
+    "x": 196.0,
+    "y": 30.0,
+    "w": 96.0,
+    "h": 34.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "scope_label",
+    "x": 204.0,
+    "y": 38.0,
+    "w": 68.0,
+    "h": 22.0,
+    "text": "Last turn",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -66,15 +88,24 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t03",
+    "id": "scope_chev",
+    "x": 276.0,
+    "y": 40.0,
+    "w": 14.0,
+    "h": 16.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "t_add",
     "x": 309.01,
     "y": 37.0,
-    "w": 64.28,
-    "h": 21.65,
-    "text": "+62 -5",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14.43,
-    "weight": 400,
+    "w": 30.0,
+    "h": 22.5,
+    "text": "+62",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 15,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -82,15 +113,42 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t04",
+    "id": "t_del",
+    "x": 343.01,
+    "y": 37.0,
+    "w": 22.0,
+    "h": 22.5,
+    "text": "-5",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 15,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "file_header",
+    "x": 20.0,
+    "y": 121.97,
+    "w": 366.0,
+    "h": 42.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t_file",
     "x": 42.86,
     "y": 131.97,
-    "w": 239.09,
+    "w": 220.0,
     "h": 23.69,
-    "text": "ui_protocol_transport.rs +31 -4",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.79,
-    "weight": 400,
+    "text": "ui_protocol_transport.rs",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 14,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -98,14 +156,68 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t05",
-    "x": 36.09,
-    "y": 206.41,
-    "w": 25.94,
-    "h": 18.05,
+    "id": "t_fadd",
+    "x": 268.0,
+    "y": 131.97,
+    "w": 40.0,
+    "h": 23.69,
+    "text": "+31",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_fdel",
+    "x": 312.0,
+    "y": 131.97,
+    "w": 30.0,
+    "h": 23.69,
+    "text": "-4",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "file_divider",
+    "x": 24.0,
+    "y": 159.65,
+    "w": 358.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "diff_rows",
+    "x": 20.0,
+    "y": 180.0,
+    "w": 366.0,
+    "h": 420.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "ln_0",
+    "x": 30.0,
+    "y": 199.0,
+    "w": 18.0,
+    "h": 22.0,
     "text": "198",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 12.03,
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 14.67,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -114,126 +226,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t06",
-    "x": 36.09,
-    "y": 256.03,
-    "w": 25.94,
-    "h": 18.05,
-    "text": "199",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 12.03,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t07",
-    "x": 36.09,
-    "y": 304.53,
-    "w": 27.07,
-    "h": 18.05,
-    "text": "200",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 12.03,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t08",
-    "x": 36.09,
-    "y": 356.42,
-    "w": 25.94,
-    "h": 19.17,
-    "text": "201",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 12.78,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t09",
-    "x": 36.09,
-    "y": 407.17,
-    "w": 27.07,
-    "h": 18.05,
-    "text": "202",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 12.03,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t10",
-    "x": 36.09,
-    "y": 456.8,
-    "w": 25.94,
-    "h": 18.05,
-    "text": "203",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 12.03,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t11",
-    "x": 36.09,
-    "y": 507.56,
-    "w": 27.07,
-    "h": 19.17,
-    "text": "204",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 12.78,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t12",
-    "x": 36.09,
-    "y": 557.19,
-    "w": 25.94,
-    "h": 19.17,
-    "text": "205",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 12.78,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t13",
-    "x": 86.84,
-    "y": 207.5,
-    "w": 249.24,
-    "h": 21.5,
+    "id": "dl_0",
+    "x": 88.0,
+    "y": 199.0,
+    "w": 280.0,
+    "h": 24.0,
     "text": "fn handle_disconnect(&mut self) {",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14.33,
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 16.0,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -242,14 +242,25 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t14",
-    "x": 75.56,
-    "y": 254.91,
-    "w": 197.36,
-    "h": 22.59,
-    "text": "- self.queue.clear();",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.06,
+    "id": "row_1",
+    "x": 24.0,
+    "y": 241.0,
+    "w": 358.0,
+    "h": 44.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "ln_1",
+    "x": 30.0,
+    "y": 249.0,
+    "w": 18.0,
+    "h": 22.0,
+    "text": "199",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 14.67,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -258,14 +269,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t15",
-    "x": 78.94,
-    "y": 303.41,
-    "w": 295.48,
-    "h": 22.59,
-    "text": "- self.state = State::Disconnected;",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.06,
+    "id": "mk_1",
+    "x": 74.0,
+    "y": 249.0,
+    "w": 11.0,
+    "h": 24.0,
+    "text": "-",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 16.0,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -274,14 +285,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t16",
-    "x": 81.2,
-    "y": 355.29,
-    "w": 210.89,
-    "h": 25.94,
-    "text": "+ self.persist_queue()?;",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 17.29,
+    "id": "dl_1",
+    "x": 88.0,
+    "y": 249.0,
+    "w": 280.0,
+    "h": 24.0,
+    "text": "self.queue.clear();",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 16.0,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -290,14 +301,25 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t17",
-    "x": 81.2,
-    "y": 404.92,
-    "w": 241.34,
-    "h": 24.81,
-    "text": "+ self.queue.mark_pending();",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.54,
+    "id": "row_2",
+    "x": 24.0,
+    "y": 291.0,
+    "w": 358.0,
+    "h": 44.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "ln_2",
+    "x": 30.0,
+    "y": 299.0,
+    "w": 18.0,
+    "h": 22.0,
+    "text": "200",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 14.67,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -306,14 +328,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t18",
-    "x": 81.2,
-    "y": 454.5,
-    "w": 267.28,
-    "h": 25.01,
-    "text": "+ self.metrics.reconnects += 1;",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.67,
+    "id": "mk_2",
+    "x": 74.0,
+    "y": 299.0,
+    "w": 11.0,
+    "h": 24.0,
+    "text": "-",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 16.0,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -322,14 +344,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t19",
-    "x": 80.01,
-    "y": 506.36,
-    "w": 294.51,
-    "h": 24.93,
-    "text": "+ self.state = State::Disconnected;",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.62,
+    "id": "dl_2",
+    "x": 88.0,
+    "y": 299.0,
+    "w": 280.0,
+    "h": 24.0,
+    "text": "self.state = State::Disconnected;",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 16.0,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -338,14 +360,293 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t20",
+    "id": "row_3",
+    "x": 24.0,
+    "y": 341.0,
+    "w": 358.0,
+    "h": 44.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "ln_3",
+    "x": 30.0,
+    "y": 349.0,
+    "w": 18.0,
+    "h": 22.0,
+    "text": "201",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 14.67,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "mk_3",
+    "x": 74.0,
+    "y": 349.0,
+    "w": 11.0,
+    "h": 24.0,
+    "text": "+",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 16.0,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "dl_3",
+    "x": 88.0,
+    "y": 349.0,
+    "w": 280.0,
+    "h": 24.0,
+    "text": "self.persist_queue()?;",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 16.0,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "row_4",
+    "x": 24.0,
+    "y": 391.0,
+    "w": 358.0,
+    "h": 44.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "ln_4",
+    "x": 30.0,
+    "y": 399.0,
+    "w": 18.0,
+    "h": 22.0,
+    "text": "202",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 14.67,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "mk_4",
+    "x": 74.0,
+    "y": 399.0,
+    "w": 11.0,
+    "h": 24.0,
+    "text": "+",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 16.0,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "dl_4",
+    "x": 88.0,
+    "y": 399.0,
+    "w": 280.0,
+    "h": 24.0,
+    "text": "self.queue.mark_pending();",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 16.0,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "row_5",
+    "x": 24.0,
+    "y": 441.0,
+    "w": 358.0,
+    "h": 44.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "ln_5",
+    "x": 30.0,
+    "y": 449.0,
+    "w": 18.0,
+    "h": 22.0,
+    "text": "203",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 14.67,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "mk_5",
+    "x": 74.0,
+    "y": 449.0,
+    "w": 11.0,
+    "h": 24.0,
+    "text": "+",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 16.0,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "dl_5",
+    "x": 88.0,
+    "y": 449.0,
+    "w": 280.0,
+    "h": 24.0,
+    "text": "self.metrics.reconnects += 1;",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 16.0,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "row_6",
+    "x": 24.0,
+    "y": 491.0,
+    "w": 358.0,
+    "h": 44.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "ln_6",
+    "x": 30.0,
+    "y": 499.0,
+    "w": 18.0,
+    "h": 22.0,
+    "text": "204",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 14.67,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "mk_6",
+    "x": 74.0,
+    "y": 499.0,
+    "w": 11.0,
+    "h": 24.0,
+    "text": "+",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 16.0,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "dl_6",
+    "x": 88.0,
+    "y": 499.0,
+    "w": 280.0,
+    "h": 24.0,
+    "text": "self.state = State::Disconnected;",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 16.0,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "ln_7",
+    "x": 30.0,
+    "y": 549.0,
+    "w": 18.0,
+    "h": 22.0,
+    "text": "205",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 14.67,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "dl_7",
+    "x": 88.0,
+    "y": 549.0,
+    "w": 280.0,
+    "h": 24.0,
+    "text": "}",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 16.0,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "folded",
+    "x": 24.0,
+    "y": 612.35,
+    "w": 358.0,
+    "h": 34.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t_fold",
     "x": 100.37,
     "y": 620.35,
     "w": 182.7,
     "h": 20.3,
-    "text": ":412 unmodified lines",
+    "text": "\u22ee 412 unmodified lines \u22ee",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 13.53,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [

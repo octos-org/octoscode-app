@@ -1,0 +1,27 @@
+# ledger new-chat@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy new_chat_label_text { class: user-copy, en: "New chat" }
+state new_chat_control_enabled { shape: bool, initial: true }
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surface2c8289ea3ffc(instance: text) {
+  view Kit(component: "Surface2c8289ea3ffc", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Text0cb52ec5325c(instance: text, text: text) {
+  view Kit(component: "Text0cb52ec5325c", instance: instance, text: text)
+}
+
+view root KitButton2c6804b990a5(instance: "new_chat") {
+  Surface2c8289ea3ffc(instance: "new_chat_surface") {
+
+  }
+  NativeButton02f1d1bd99b4(instance: "new_chat_control", enabled: new_chat_control_enabled)
+  Text0cb52ec5325c(instance: "new_chat_label", text: copy.new_chat_label_text)
+}

@@ -1,0 +1,17 @@
+{
+  "frame_id": 8,
+  "controls": {
+    "composer_idle_input": {
+      "event": "composer.draft",
+      "source_bounds": [
+        30,
+        150,
+        300,
+        40
+      ],
+      "enabled": true
+    }
+  },
+  "source": "composer-states",
+  "owner": "composer"
+}

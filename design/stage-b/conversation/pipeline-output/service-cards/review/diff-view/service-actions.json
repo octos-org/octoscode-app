@@ -1,0 +1,17 @@
+{
+  "frame_id": 11,
+  "controls": {
+    "scope_pill": {
+      "event": "diff.scope",
+      "source_bounds": [
+        196,
+        30,
+        96,
+        34
+      ],
+      "enabled": true
+    }
+  },
+  "source": "review-diff",
+  "owner": "review"
+}

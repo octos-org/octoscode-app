@@ -34,14 +34,25 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "settings_group",
+    "x": 16.0,
+    "y": 30.0,
+    "w": 374.0,
+    "h": 620.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "t01",
     "x": 31.53,
     "y": 48.27,
     "w": 108.37,
-    "h": 24.15,
+    "h": 28.5,
     "text": "Permissions",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 16.1,
+    "size": 19,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -50,14 +61,41 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t02",
+    "id": "perm_card",
+    "x": 28.0,
+    "y": 99.0,
+    "w": 350.0,
+    "h": 272.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t_r1",
     "x": 45.0,
     "y": 128.96,
     "w": 158.12,
     "h": 26.32,
     "text": "Default permissions",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 15,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_d1",
+    "x": 45.0,
+    "y": 164.0,
+    "w": 210.0,
+    "h": 44.0,
+    "text": "Ask before running commands that modify your system.",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 17.54,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -66,46 +104,30 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t03",
-    "x": 45.11,
-    "y": 168.0,
-    "w": 199.62,
-    "h": 22.62,
-    "text": "Ask before running commands",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.08,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t04",
-    "x": 45.11,
-    "y": 200.77,
-    "w": 160.14,
-    "h": 21.43,
-    "text": "that modify your system.",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14.29,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t05",
+    "id": "t_r2",
     "x": 46.2,
     "y": 280.67,
     "w": 88.05,
-    "h": 20.66,
+    "h": 22.5,
     "text": "Full access",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 15,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_d2",
+    "x": 45.0,
+    "y": 316.0,
+    "w": 210.0,
+    "h": 44.0,
+    "text": "Allow Octos to run any command without asking.",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 13.77,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -114,47 +136,70 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t06",
-    "x": 46.24,
-    "y": 319.0,
-    "w": 210.89,
-    "h": 21.63,
-    "text": "Allow Octos to run any command",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14.42,
-    "weight": 400,
-    "role": "text",
+    "id": "toggle1",
+    "x": 312.0,
+    "y": 130.0,
+    "w": 50.0,
+    "h": 30.0,
+    "role": "layout",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "View"
     ]
   },
   {
-    "id": "t07",
-    "x": 45.11,
-    "y": 353.0,
-    "w": 98.12,
-    "h": 21.5,
-    "text": "without asking.",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14.33,
-    "weight": 400,
-    "role": "text",
+    "id": "toggle1_knob",
+    "x": 336.0,
+    "y": 133.0,
+    "w": 24.0,
+    "h": 24.0,
+    "role": "layout",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "View"
     ]
   },
   {
-    "id": "t08",
+    "id": "toggle2",
+    "x": 312.0,
+    "y": 282.0,
+    "w": 50.0,
+    "h": 30.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "toggle2_knob",
+    "x": 315.0,
+    "y": 285.0,
+    "w": 24.0,
+    "h": 24.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "perm_divider",
+    "x": 30.0,
+    "y": 248.0,
+    "w": 346.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t_sec2",
     "x": 30.45,
     "y": 469.21,
     "w": 60.9,
-    "h": 24.81,
+    "h": 25.5,
     "text": "Model",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.54,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 17,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -162,15 +207,26 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t09",
+    "id": "model_card",
+    "x": 28.0,
+    "y": 540.0,
+    "w": 348.0,
+    "h": 72.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t_model",
     "x": 42.86,
     "y": 561.5,
     "w": 110.52,
-    "h": 21.63,
+    "h": 22.5,
     "text": "Default model",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14.42,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 15,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -178,20 +234,29 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t10",
-    "x": 205.21,
-    "y": 561.43,
-    "w": 150.08,
-    "h": 24.22,
-    "text": "deepseek-v4-flash v",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.14,
-    "weight": 400,
+    "id": "t_pick",
+    "x": 205.0,
+    "y": 561.5,
+    "w": 150.0,
+    "h": 21.63,
+    "text": "deepseek-v4-flash",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
       "TextFlow"
     ]
+  },
+  {
+    "id": "pick_chev",
+    "x": 356.0,
+    "y": 565.5,
+    "w": 16.0,
+    "h": 16.0,
+    "role": "unknown",
+    "native_candidates": []
   }
 ]
 ```

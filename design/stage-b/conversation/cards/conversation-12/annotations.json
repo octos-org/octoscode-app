@@ -58,6 +58,118 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4293981682
+    },
+    {
+      "id": "settings_group",
+      "bounds": [
+        16.0,
+        30.0,
+        374.0,
+        620.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "perm_card",
+      "bounds": [
+        25.0,
+        96.0,
+        355.0,
+        305.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 13.46
+    },
+    {
+      "id": "toggle1",
+      "bounds": [
+        309.0,
+        132.0,
+        55.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4281757396,
+      "radius": 23.0
+    },
+    {
+      "id": "toggle1_knob",
+      "bounds": [
+        335.4,
+        136.6,
+        26.4,
+        36.8
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294769917,
+      "radius": 13.2
+    },
+    {
+      "id": "toggle2",
+      "bounds": [
+        310.0,
+        284.0,
+        54.0,
+        47.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293059300,
+      "radius": 23.5
+    },
+    {
+      "id": "toggle2_knob",
+      "bounds": [
+        313.24,
+        288.7,
+        25.92,
+        37.6
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.96
+    },
+    {
+      "id": "perm_divider",
+      "bounds": [
+        30.0,
+        248.0,
+        346.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "model_card",
+      "bounds": [
+        28.0,
+        521.0,
+        348.0,
+        104.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 17.33
+    },
+    {
+      "id": "pick_chev",
+      "bounds": [
+        356.0,
+        557.833,
+        16.0,
+        23.111
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     }
   ]
 }

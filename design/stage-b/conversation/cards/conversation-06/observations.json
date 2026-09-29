@@ -15,7 +15,7 @@
         78.94,
         82.34,
         246.98,
-        27.16
+        28.5
       ],
       "status": "observed",
       "ocr_text": "Octos needs a decision",
@@ -41,135 +41,29 @@
       ]
     },
     {
-      "id": "t02",
-      "expected_text": "Where should queued steers",
+      "id": "question_text",
+      "expected_text": "Where should queued steers be persisted?",
       "requested_bounds": [
-        37.22,
-        154.5,
-        257.13,
-        28.22
+        37.0,
+        150.0,
+        290.0,
+        62.0
       ],
-      "status": "observed",
-      "ocr_text": "Where should queued steers",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        37.5,
-        155.5,
-        255.0,
-        25.5
-      ],
-      "ink_color": [
-        18,
-        18,
-        19
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        37.21666783898874,
-        154.49999999880768,
-        257.1333312988281,
-        28.220930099487305
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
-      "id": "t03",
-      "expected_text": "be persisted?",
-      "requested_bounds": [
-        36.09,
-        192.87,
-        121.8,
-        28.2
-      ],
-      "status": "observed",
-      "ocr_text": "be persisted?",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        38.5,
-        194.5,
-        116.5,
-        25.5
-      ],
-      "ink_color": [
-        13,
-        13,
-        13
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        36.08889179798501,
-        192.87209315751895,
-        121.79999542236328,
-        28.197673797607443
-      ]
-    },
-    {
-      "id": "t04",
-      "expected_text": "In the session ledger",
+      "id": "opt_ledger_label",
+      "expected_text": "In the session ledger  (recommended)",
       "requested_bounds": [
         75.1,
         254.59,
-        181.49,
+        331.49,
         31.71
       ],
-      "status": "observed",
-      "ocr_text": "In the session ledger",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        83.0,
-        259.5,
-        170.5,
-        24.5
-      ],
-      "ink_color": [
-        36,
-        37,
-        37
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        75.10019440047037,
-        254.59158427035575,
-        181.4917144775391,
-        31.70685005187994
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
-      "id": "t05",
-      "expected_text": "(recommended)",
-      "requested_bounds": [
-        76.61,
-        293.91,
-        140.01,
-        25.77
-      ],
-      "status": "observed",
-      "ocr_text": "(recommended)",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        82.5,
-        294.0,
-        130.5,
-        23.0
-      ],
-      "ink_color": [
-        20,
-        20,
-        20
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        76.60621416897794,
-        293.90909558624446,
-        140.00979614257812,
-        25.76320457458491
-      ]
-    },
-    {
-      "id": "t06",
+      "id": "opt_memory_label",
       "expected_text": "In memory only",
       "requested_bounds": [
         76.66,
@@ -201,13 +95,13 @@
       ]
     },
     {
-      "id": "t07",
+      "id": "opt_ask_label",
       "expected_text": "Ask each time",
       "requested_bounds": [
         79.96,
         415.52,
         124.28,
-        22.79
+        22.78
       ],
       "status": "observed",
       "ocr_text": "Ask each time",
@@ -233,62 +127,30 @@
       ]
     },
     {
-      "id": "t08",
-      "expected_text": "Add a note",
-      "requested_bounds": [
-        39.26,
-        493.14,
-        92.89,
-        24.33
-      ],
-      "status": "observed",
-      "ocr_text": "Add a note",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        41.5,
-        494.5,
-        88.5,
-        19.5
-      ],
-      "ink_color": [
-        152,
-        153,
-        156
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        39.26405983846847,
-        493.1372056586084,
-        92.89410400390625,
-        24.33023929595948
-      ]
-    },
-    {
-      "id": "t09",
+      "id": "submit_answer_label",
       "expected_text": "Submit answer",
       "requested_bounds": [
-        137.55,
-        590.77,
-        135.42,
-        24.2
+        138.0,
+        591.0,
+        220.0,
+        30.0
       ],
       "status": "observed",
       "ocr_text": "Submit answer",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        136.5,
-        589.5,
-        137.5,
-        26.5
+        141.0,
+        592.5,
+        129.5,
+        20.5
       ],
       "ink_color": [
-        2,
-        2,
-        2
+        251,
+        252,
+        252
       ],
-      "light_foreground": false,
+      "light_foreground": true,
       "ocr_bounds": [
         137.54531165402653,
         590.7717433066812,
@@ -297,13 +159,13 @@
       ]
     },
     {
-      "id": "t10",
+      "id": "skip_label",
       "expected_text": "Skip",
       "requested_bounds": [
-        180.44,
-        673.36,
-        42.86,
-        29.33
+        180.0,
+        673.0,
+        80.0,
+        30.0
       ],
       "status": "observed",
       "ocr_text": "Skip",
@@ -341,9 +203,243 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4294901502
+    },
+    {
+      "id": "question_card",
+      "bounds": [
+        16.0,
+        60.0,
+        374.0,
+        660.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709
+    },
+    {
+      "id": "icon_decision",
+      "bounds": [
+        24.0,
+        80.0,
+        26.0,
+        28.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "opt_ledger",
+      "bounds": [
+        34.0,
+        248.59,
+        340.0,
+        43.71
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "opt_ledger_radio",
+      "bounds": [
+        37.0,
+        255.59,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "opt_memory",
+      "bounds": [
+        34.0,
+        349.12,
+        340.0,
+        38.28
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "opt_memory_radio",
+      "bounds": [
+        37.0,
+        356.12,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "opt_ask",
+      "bounds": [
+        34.0,
+        409.52,
+        340.0,
+        34.78
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "opt_ask_radio",
+      "bounds": [
+        37.0,
+        416.52,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "note_box",
+      "bounds": [
+        23.0,
+        474.0,
+        358.0,
+        69.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.8
+    },
+    {
+      "id": "note_input",
+      "bounds": [
+        37.828,
+        487.8,
+        328.343,
+        41.4
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "submit_answer",
+      "bounds": [
+        22.0,
+        567.0,
+        360.0,
+        71.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "submit_answer_surface",
+      "bounds": [
+        22.0,
+        567.0,
+        360.0,
+        71.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4278255872,
+      "radius": 35.5
+    },
+    {
+      "id": "submit_answer_control",
+      "bounds": [
+        22.0,
+        567.0,
+        360.0,
+        71.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "skip",
+      "bounds": [
+        24.0,
+        650.0,
+        362.0,
+        60.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "skip_surface",
+      "bounds": [
+        24.0,
+        650.0,
+        362.0,
+        60.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 30.0
+    },
+    {
+      "id": "skip_control",
+      "bounds": [
+        24.0,
+        650.0,
+        362.0,
+        60.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
     }
   ],
-  "unmapped_ocr": [],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        74.43333567797748,
+        308.99999999761536,
+        514.2666625976562,
+        56.44186019897461
+      ],
+      "confidence": 1,
+      "text": "Where should queued steers"
+    },
+    {
+      "bounds": [
+        72.17778359597003,
+        385.7441863150379,
+        243.59999084472656,
+        56.395347595214886
+      ],
+      "confidence": 1,
+      "text": "be persisted?"
+    },
+    {
+      "bounds": [
+        150.20038880094074,
+        509.1831685407115,
+        362.9834289550782,
+        63.41370010375988
+      ],
+      "confidence": 1,
+      "text": "In the session ledger"
+    },
+    {
+      "bounds": [
+        153.21242833795588,
+        587.8181911724889,
+        280.01959228515625,
+        51.52640914916982
+      ],
+      "confidence": 1,
+      "text": "(recommended)"
+    },
+    {
+      "bounds": [
+        78.52811967693694,
+        986.2744113172168,
+        185.7882080078125,
+        48.66047859191896
+      ],
+      "confidence": 1,
+      "text": "Add a note"
+    }
+  ],
   "non_text_ocr": [],
   "limits": [
     "OCR cannot prove font family, hierarchy or control behavior.",

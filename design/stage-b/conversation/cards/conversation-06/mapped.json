@@ -10,174 +10,301 @@
     "h": 776,
     "c": [
       {
-        "t": "text",
-        "id": "t01",
-        "text": "Octos needs a decision",
-        "x": 79.91,
-        "y": 81.5,
-        "w": 247.0,
-        "h": 27.5,
-        "size": 21.6,
-        "line_height": 26.13,
-        "weight": 600,
-        "color": 4278190080,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-600.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t02",
-        "text": "Where should queued steers",
-        "x": 37.02,
-        "y": 153.5,
-        "w": 259.0,
-        "h": 29.5,
-        "size": 18.71,
-        "line_height": 22.64,
-        "weight": 400,
-        "color": 4279374355,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t03",
-        "text": "be persisted?",
-        "x": 37.09,
-        "y": 192.5,
-        "w": 120.5,
-        "h": 29.5,
-        "size": 18.26,
-        "line_height": 22.09,
-        "weight": 400,
-        "color": 4279045389,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t04",
-        "text": "In the session ledger",
-        "x": 81.47,
-        "y": 257.5,
-        "w": 174.5,
-        "h": 28.5,
-        "size": 17.37,
-        "line_height": 21.02,
-        "weight": 400,
-        "color": 4280558885,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t05",
-        "text": "(recommended)",
-        "x": 80.67,
-        "y": 292.0,
-        "w": 134.5,
-        "h": 27.0,
-        "size": 17.19,
-        "line_height": 20.79,
-        "weight": 400,
-        "color": 4279505940,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t06",
-        "text": "In memory only",
-        "x": 81.43,
-        "y": 352.5,
-        "w": 134.5,
-        "h": 29.5,
-        "size": 17.9,
-        "line_height": 21.66,
-        "weight": 400,
-        "color": 4279374354,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t07",
-        "text": "Ask each time",
-        "x": 81.54,
-        "y": 414.5,
-        "w": 123.5,
-        "h": 23.0,
-        "size": 17.93,
-        "line_height": 21.7,
-        "weight": 400,
-        "color": 4279176975,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t08",
-        "text": "Add a note",
-        "x": 41.06,
-        "y": 492.5,
-        "w": 92.5,
-        "h": 23.5,
-        "size": 17.22,
-        "line_height": 20.84,
-        "weight": 400,
-        "color": 4288190876,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t09",
-        "text": "Submit answer",
-        "x": 135.39,
-        "y": 587.5,
-        "w": 141.5,
-        "h": 30.5,
-        "size": 19.56,
-        "line_height": 23.67,
-        "weight": 400,
-        "color": 4278321666,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t10",
-        "text": "Skip",
-        "x": 180.92,
-        "y": 672.5,
-        "w": 43.0,
-        "h": 31.0,
-        "size": 19.07,
-        "line_height": 23.08,
-        "weight": 400,
-        "color": 4287335313,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
+        "t": "stack",
+        "id": "question_card",
+        "x": 16.0,
+        "y": 60.0,
+        "w": 374.0,
+        "h": 660.0,
+        "c": [
+          {
+            "t": "svg",
+            "id": "icon_decision",
+            "x": 24.0,
+            "y": 80.0,
+            "w": 26.0,
+            "h": 28.0,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "t01",
+            "text": "Octos needs a decision",
+            "x": 79.91,
+            "y": 81.5,
+            "w": 247.0,
+            "h": 27.5,
+            "size": 21.6,
+            "line_height": 26.13,
+            "weight": 600,
+            "color": 4278190080,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "question_text",
+            "text": "Where should queued steers be persisted?",
+            "x": 37.0,
+            "y": 150.0,
+            "w": 290.0,
+            "h": 62.0,
+            "size": 17,
+            "line_height": 24.65,
+            "weight": 400,
+            "color": 4280098079,
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "stack",
+            "id": "opt_ledger",
+            "x": 34.0,
+            "y": 248.59,
+            "w": 340.0,
+            "h": 43.71,
+            "c": [
+              {
+                "t": "svg",
+                "id": "opt_ledger_radio",
+                "x": 37.0,
+                "y": 255.59,
+                "w": 22.0,
+                "h": 22.0,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "opt_ledger_label",
+                "text": "In the session ledger  (recommended)",
+                "x": 75.1,
+                "y": 254.59,
+                "w": 181.49,
+                "h": 43.32,
+                "size": 17.9,
+                "line_height": 21.66,
+                "weight": 500,
+                "color": 4280098079,
+                "variant": null,
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf",
+                "tracking": 0.0
+              }
+            ],
+            "event": "question.select.ledger"
+          },
+          {
+            "t": "stack",
+            "id": "opt_memory",
+            "x": 34.0,
+            "y": 349.12,
+            "w": 340.0,
+            "h": 38.28,
+            "c": [
+              {
+                "t": "svg",
+                "id": "opt_memory_radio",
+                "x": 37.0,
+                "y": 356.12,
+                "w": 22.0,
+                "h": 22.0,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "opt_memory_label",
+                "text": "In memory only",
+                "x": 81.43,
+                "y": 352.5,
+                "w": 134.5,
+                "h": 29.5,
+                "size": 17.9,
+                "line_height": 21.66,
+                "weight": 400,
+                "color": 4279374354,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 0.0
+              }
+            ],
+            "event": "question.select.memory"
+          },
+          {
+            "t": "stack",
+            "id": "opt_ask",
+            "x": 34.0,
+            "y": 409.52,
+            "w": 340.0,
+            "h": 34.78,
+            "c": [
+              {
+                "t": "svg",
+                "id": "opt_ask_radio",
+                "x": 37.0,
+                "y": 416.52,
+                "w": 22.0,
+                "h": 22.0,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "opt_ask_label",
+                "text": "Ask each time",
+                "x": 81.54,
+                "y": 414.5,
+                "w": 123.5,
+                "h": 23.0,
+                "size": 17.93,
+                "line_height": 21.7,
+                "weight": 400,
+                "color": 4279176975,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 0.0
+              }
+            ],
+            "event": "question.select.ask"
+          },
+          {
+            "t": "stack",
+            "id": "note_box",
+            "x": 23.0,
+            "y": 474.0,
+            "w": 358.0,
+            "h": 69.0,
+            "c": [
+              {
+                "t": "input",
+                "id": "note_input",
+                "text": "",
+                "placeholder": "Add a note",
+                "x": 37.828,
+                "y": 487.8,
+                "w": 328.343,
+                "h": 41.4,
+                "size": 14,
+                "line_height": 30.0,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "enabled": 1,
+                "c": []
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294901502,
+            "radius": 13.8,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "stack",
+            "id": "submit_answer",
+            "x": 22.0,
+            "y": 567.0,
+            "w": 360.0,
+            "h": 71.0,
+            "c": [
+              {
+                "t": "stack",
+                "id": "submit_answer_surface",
+                "x": 22.0,
+                "y": 567.0,
+                "w": 360.0,
+                "h": 71.0,
+                "c": [],
+                "variant": "surface",
+                "bg": 4278255872,
+                "radius": 35.5
+              },
+              {
+                "t": "button",
+                "id": "submit_answer_control",
+                "x": 22.0,
+                "y": 567.0,
+                "w": 360.0,
+                "h": 71.0,
+                "enabled": 1
+              },
+              {
+                "t": "text",
+                "id": "submit_answer_label",
+                "text": "Submit answer",
+                "x": 140.06,
+                "y": 590.5,
+                "w": 133.5,
+                "h": 24.5,
+                "size": 18.18,
+                "line_height": 21.99,
+                "weight": 500,
+                "color": 4294704380,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf",
+                "tracking": 0.0
+              }
+            ],
+            "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+          },
+          {
+            "t": "stack",
+            "id": "skip",
+            "x": 24.0,
+            "y": 650.0,
+            "w": 362.0,
+            "h": 60.0,
+            "c": [
+              {
+                "t": "stack",
+                "id": "skip_surface",
+                "x": 24.0,
+                "y": 650.0,
+                "w": 362.0,
+                "h": 60.0,
+                "c": [],
+                "variant": "surface",
+                "bg": 4294901502,
+                "radius": 30.0
+              },
+              {
+                "t": "button",
+                "id": "skip_control",
+                "x": 24.0,
+                "y": 650.0,
+                "w": 362.0,
+                "h": 60.0,
+                "enabled": 1
+              },
+              {
+                "t": "text",
+                "id": "skip_label",
+                "text": "Skip",
+                "x": 180.92,
+                "y": 672.5,
+                "w": 43.0,
+                "h": 31.0,
+                "size": 19.07,
+                "line_height": 23.08,
+                "weight": 400,
+                "color": 4287335313,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 0.0
+              }
+            ],
+            "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294835709,
+        "radius": 0
       }
     ],
     "variant": "surface",
@@ -189,61 +316,95 @@
       "source": "observed non-text annotation"
     },
     {
+      "id": "question_card",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_decision",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "opt_ledger",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "opt_ledger_radio",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "opt_memory",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "opt_memory_radio",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "opt_ask",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "opt_ask_radio",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "note_box",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "note_input",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "submit_answer",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "submit_answer_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "submit_answer_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "skip",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "skip_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "skip_control",
+      "source": "observed non-text annotation"
+    },
+    {
       "id": "t01",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.14933886619807496
     },
     {
-      "id": "t02",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.169375
-    },
-    {
-      "id": "t03",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.15727523105596405
-    },
-    {
-      "id": "t04",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.14860491071428572
-    },
-    {
-      "id": "t05",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.1856087947237319
-    },
-    {
-      "id": "t06",
+      "id": "opt_memory_label",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.183653404270362
     },
     {
-      "id": "t07",
+      "id": "opt_ask_label",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.14868056983278513
     },
     {
-      "id": "t08",
+      "id": "submit_answer_label",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.18949068509615385
+      "tracking_em": -0.182764068851626
     },
     {
-      "id": "t09",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.24880847091194966
-    },
-    {
-      "id": "t10",
+      "id": "skip_label",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.18574580439814814

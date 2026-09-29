@@ -1,12 +1,19 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "329f2c998997bc81d519899cc0aaf397b139b13b44180c4ef591e6189955bedb",
+  "contract_sha256": "bfa13a9571eb882c98e473f92990f79d951a7b189b7248a3a90caad1c61e1a85",
   "reference_sha256": "76ac7c43df118ffd0a4be3321c653c4bcf817e59d4b50fe05cca4e5f1fb5b1aa",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
     {
       "id": "page",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "edited_files_card",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
@@ -20,95 +27,204 @@
       "decision": "declared"
     },
     {
-      "id": "t02",
+      "id": "t02_add",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t03",
+      "id": "t02_del",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t04",
+      "id": "undo_group",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_undo",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t05",
+      "id": "icon_undo",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_undo.svg",
+        "sha256": "21d394caf9e6c1e86b8d6fb87b66cdf694c04697bce180c8835dcd286b24ed27",
+        "method": "reference_svg",
+        "reference_sha256": "76ac7c43df118ffd0a4be3321c653c4bcf817e59d4b50fe05cca4e5f1fb5b1aa",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "review",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "review_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "review_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "review_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t06",
+      "id": "files_card",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "file_1_dir",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t07",
+      "id": "file_1_name",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t08",
+      "id": "file_1_add",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t09",
+      "id": "file_1_del",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t10",
+      "id": "file_2_dir",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t11",
+      "id": "file_2_name",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t12",
+      "id": "file_2_add",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t13",
+      "id": "file_2_del",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t14",
+      "id": "file_3_dir",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
+    },
+    {
+      "id": "file_3_name",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "file_3_add",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "file_3_del",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "div_1",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "div_2",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_show",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "icon_show",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_show.svg",
+        "sha256": "23070b5e0c3afc8dc164ef95e45af0627d4fb486a49963a9dbbf0839430dbf89",
+        "method": "reference_svg",
+        "reference_sha256": "76ac7c43df118ffd0a4be3321c653c4bcf817e59d4b50fe05cca4e5f1fb5b1aa",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
     }
   ]
 }

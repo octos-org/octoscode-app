@@ -203,7 +203,14 @@
     {"id": "worked-for", "scene": "9", "root": "worked_row", "owner": "timeline"},
     {"id": "answer-actions", "scene": "9", "root": "answer_actions", "owner": "timeline"},
     {"id": "tool-cell", "scene": "4", "root": "tool_1", "owner": "tools"},
-    {"id": "composer", "scene": "8", "root": "composer_idle", "owner": "composer"}
+    {"id": "composer", "scene": "8", "root": "composer_idle", "owner": "composer"},
+    {"id": "approval-card", "scene": "5", "root": "approval_card", "owner": "approval"},
+    {"id": "question-card", "scene": "6", "root": "question_card", "owner": "question"},
+    {"id": "edited-files-card", "scene": "7", "root": "edited_files_card", "owner": "files"},
+    {"id": "plan-card", "scene": "10", "root": "plan_card", "owner": "plan"},
+    {"id": "goal-strip", "scene": "10", "root": "goal_strip", "owner": "plan"},
+    {"id": "diff-view", "scene": "11", "root": "diff_view", "owner": "review"},
+    {"id": "settings-group", "scene": "12", "root": "settings_group", "owner": "settings"}
   ],
   "checks": {
     "service-test": [

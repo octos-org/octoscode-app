@@ -46,6 +46,121 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4294901502
+    },
+    {
+      "id": "edited_files_card",
+      "bounds": [
+        16.0,
+        60.0,
+        374.0,
+        580.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901246
+    },
+    {
+      "id": "undo_group",
+      "bounds": [
+        210.0,
+        86.85,
+        74.0,
+        22.65
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "icon_undo",
+      "bounds": [
+        266.0,
+        88.85,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "review",
+      "bounds": [
+        309.0,
+        75.0,
+        79.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "review_surface",
+      "bounds": [
+        309.0,
+        75.0,
+        79.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294704123,
+      "radius": 23.0
+    },
+    {
+      "id": "review_control",
+      "bounds": [
+        309.0,
+        75.0,
+        79.0,
+        46.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "files_card",
+      "bounds": [
+        15.0,
+        178.0,
+        378.0,
+        389.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 12.13
+    },
+    {
+      "id": "div_1",
+      "bounds": [
+        29.15,
+        308.003,
+        349.701,
+        1.008
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "div_2",
+      "bounds": [
+        29.15,
+        438.005,
+        349.701,
+        1.008
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "icon_show",
+      "bounds": [
+        121.12,
+        608.37,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     }
   ]
 }

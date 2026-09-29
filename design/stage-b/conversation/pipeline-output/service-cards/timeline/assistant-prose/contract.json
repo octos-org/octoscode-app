@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "id": "assistant-prose",
+  "app": "octoscode",
+  "number": 9,
+  "title": "Completed answer",
+  "structure": "Native component reconstructed from the approved conversation atlas",
+  "artboard": [
+    356.0,
+    492.0
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "answer_prose",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 356.0,
+    "h": 492.0,
+    "c": [
+      {
+        "t": "text",
+        "id": "answer_md",
+        "text": "Queued steers now survive a reconnect.\n\n• Fixed loss of queued steers when reconnecting after a drop in `steer_dropped` handling.\n\n• Updated `ui_protocol_transport.rs` to persist queued steers to the session ledger.\n\n• All tests pass: `12 passed`.\n\n• Changes included in commit `a6ea8505`.",
+        "x": 0.0,
+        "y": 0.0,
+        "w": 356.0,
+        "h": 492.0,
+        "size": 17.5,
+        "line_height": 38.0,
+        "weight": 400,
+        "color": 4280098079,
+        "bg": 4294243573,
+        "alignx": 0,
+        "variant": "markdown",
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      }
+    ]
+  },
+  "standalone_service_card": true
+}

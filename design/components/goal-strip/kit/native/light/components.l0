@@ -1,0 +1,9 @@
+component Surface5e06c9b428ce(instance: text) {
+  view Kit(component: "Surface5e06c9b428ce", instance: instance) { slot }
+}
+component Textfaa232946c99(instance: text, text: text) {
+  view Kit(component: "Textfaa232946c99", instance: instance, text: text)
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}

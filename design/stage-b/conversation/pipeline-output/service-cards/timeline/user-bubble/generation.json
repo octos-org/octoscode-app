@@ -1,0 +1,15 @@
+{
+  "provider": "openai",
+  "model": "gpt-image-2",
+  "derived_from": "cards/conversation-03/reference.png",
+  "derived_from_sha256": "20c93ab2acc37e0b32815a730cd218b3103dfabd3ca56626adb4ac5ea52edd7b",
+  "source_region_pixels": [
+    182,
+    98,
+    568,
+    170
+  ],
+  "image_sha256": "8f480e60d9319adc93da297cc3f6addd10aa0e4cf4f7d54c75399d4ed8c9a54c",
+  "original_prompt_sha256": "f8b61ed21c5f4ea6f5add89edff35d3149f501c63453d46c706bcef43c94495c",
+  "new_image_generation": false
+}

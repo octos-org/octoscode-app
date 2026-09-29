@@ -1,0 +1,21 @@
+# ledger goal-strip@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t01_text { class: user-copy, en: "Goal • Fix steer queue on reconnect • 18m" }
+component Surface5e06c9b428ce(instance: text) {
+  view Kit(component: "Surface5e06c9b428ce", instance: instance) { slot }
+}
+component Textfaa232946c99(instance: text, text: text) {
+  view Kit(component: "Textfaa232946c99", instance: instance, text: text)
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+
+view root Surface5e06c9b428ce(instance: "goal_strip") {
+  Textfaa232946c99(instance: "t01", text: copy.t01_text)
+  Vectore0a378fde04f(instance: "icon_pause")
+  Vectore0a378fde04f(instance: "icon_stop")
+}

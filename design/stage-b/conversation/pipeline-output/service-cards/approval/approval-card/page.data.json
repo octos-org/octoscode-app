@@ -1,0 +1,180 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "approval_card": {
+        "component": "Surface5a7573e113ac",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 374.0,
+          "h": 622.0
+        }
+      },
+      "icon_shield": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 10.0,
+          "y": 11.0,
+          "w": 30.0,
+          "h": 42.0,
+          "src": "http://127.0.0.1:8170/ux-images/approval-card/assets/icon_shield-b2103847b0ca.svg"
+        }
+      },
+      "t01": {
+        "component": "Text8cb1e9073ec4",
+        "layout": {
+          "x": 62.42,
+          "y": 21.5,
+          "w": 209.5,
+          "h": 27.0
+        }
+      },
+      "cmd_box": {
+        "component": "Surfaced4520a0efa8e",
+        "layout": {
+          "x": 3.0,
+          "y": 85.0,
+          "w": 368.0,
+          "h": 86.0
+        }
+      },
+      "t02": {
+        "component": "Textd0578af30f19",
+        "layout": {
+          "x": 18.840000000000003,
+          "y": 114.0,
+          "w": 322.0,
+          "h": 29.0
+        }
+      },
+      "reason_text": {
+        "component": "Text776e18c492bd",
+        "layout": {
+          "x": 3.78688524590164,
+          "y": 200.5,
+          "w": 302.0,
+          "h": 66.0
+        }
+      },
+      "approve_once": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 2.0,
+          "y": 292.0,
+          "w": 369.0,
+          "h": 68.0
+        }
+      },
+      "approve_once_surface": {
+        "component": "Surfaceb09388d9616a",
+        "layout": {
+          "x": 2.0,
+          "y": 292.0,
+          "w": 369.0,
+          "h": 68.0
+        }
+      },
+      "approve_once_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 2.0,
+          "y": 292.0,
+          "w": 369.0,
+          "h": 68.0
+        }
+      },
+      "approve_once_label": {
+        "component": "Text1203da972db2",
+        "layout": {
+          "x": 122.55000000000001,
+          "y": 315.5,
+          "w": 124.5,
+          "h": 29.0
+        }
+      },
+      "approve_session": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 1.0,
+          "y": 375.0,
+          "w": 371.0,
+          "h": 72.0
+        }
+      },
+      "approve_session_surface": {
+        "component": "Surfacecf419a0f4c2f",
+        "layout": {
+          "x": 1.0,
+          "y": 375.0,
+          "w": 371.0,
+          "h": 72.0
+        }
+      },
+      "approve_session_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 1.0,
+          "y": 375.0,
+          "w": 371.0,
+          "h": 72.0
+        }
+      },
+      "approve_session_label": {
+        "component": "Textb89d74582783",
+        "layout": {
+          "x": 97.56,
+          "y": 398.5,
+          "w": 175.5,
+          "h": 29.0
+        }
+      },
+      "deny": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 2.0,
+          "y": 458.0,
+          "w": 368.0,
+          "h": 58.0
+        }
+      },
+      "deny_surface": {
+        "component": "Surface9eeb0502ed91",
+        "layout": {
+          "x": 2.0,
+          "y": 458.0,
+          "w": 368.0,
+          "h": 58.0
+        }
+      },
+      "deny_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 2.0,
+          "y": 458.0,
+          "w": 368.0,
+          "h": 58.0
+        }
+      },
+      "deny_label": {
+        "component": "Textd69d397afce1",
+        "layout": {
+          "x": 154.93,
+          "y": 477.5,
+          "w": 48.0,
+          "h": 29.0
+        }
+      },
+      "t_hint": {
+        "component": "Text67f5fdec256d",
+        "layout": {
+          "x": 138.98,
+          "y": 577.0,
+          "w": 79.0,
+          "h": 24.94
+        }
+      }
+    },
+    "bindings": []
+  }
+}

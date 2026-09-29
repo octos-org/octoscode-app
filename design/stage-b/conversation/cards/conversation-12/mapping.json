@@ -6,7 +6,7 @@
       "native_id": "beauty_0",
       "parent": null,
       "kind": "stack",
-      "component": "Surface991755d1cfb2",
+      "component": "Surface156d085f4ff5",
       "semantic_role": "layout",
       "bounds": [
         0,
@@ -20,9 +20,27 @@
       "size": null
     },
     {
-      "source_id": "t01",
+      "source_id": "settings_group",
       "native_id": "beauty_0_0",
       "parent": "page",
+      "kind": "stack",
+      "component": "Surfaceb4206391250d",
+      "semantic_role": "layout",
+      "bounds": [
+        16.0,
+        30.0,
+        374.0,
+        620.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_0_0",
+      "parent": "settings_group",
       "kind": "text",
       "component": "Texte6662bb38e5f",
       "semantic_role": "text",
@@ -38,155 +56,245 @@
       "size": 17.47
     },
     {
-      "source_id": "t02",
-      "native_id": "beauty_0_1",
-      "parent": "page",
+      "source_id": "perm_card",
+      "native_id": "beauty_0_0_1",
+      "parent": "settings_group",
+      "kind": "stack",
+      "component": "Surface40a6adb74bc2",
+      "semantic_role": "layout",
+      "bounds": [
+        25.0,
+        96.0,
+        355.0,
+        305.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_r1",
+      "native_id": "beauty_0_0_1_0",
+      "parent": "perm_card",
       "kind": "text",
-      "component": "Texta09d2265f1c6",
+      "component": "Texta09488cf4ea1",
       "semantic_role": "text",
       "bounds": [
-        46.57,
+        46.71,
         128.0,
         157.0,
         27.5
       ],
       "text": "Default permissions",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 16.3
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 16.07
     },
     {
-      "source_id": "t03",
-      "native_id": "beauty_0_2",
-      "parent": "page",
+      "source_id": "t_d1",
+      "native_id": "beauty_0_0_1_1",
+      "parent": "perm_card",
       "kind": "text",
-      "component": "Textbbae447f5f24",
+      "component": "Text61968c0f7a49",
       "semantic_role": "text",
       "bounds": [
-        46.16,
-        167.0,
-        200.5,
-        24.5
+        45.0,
+        164.0,
+        210.0,
+        44.0
       ],
-      "text": "Ask before running commands",
+      "text": "Ask before running commands that modify your system.",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 13.51
+      "size": 13
     },
     {
-      "source_id": "t04",
-      "native_id": "beauty_0_3",
-      "parent": "page",
+      "source_id": "t_r2",
+      "native_id": "beauty_0_0_1_2",
+      "parent": "perm_card",
       "kind": "text",
-      "component": "Text809788095e3f",
+      "component": "Text383523ce1bc1",
       "semantic_role": "text",
       "bounds": [
-        46.37,
-        199.0,
-        159.5,
-        25.0
-      ],
-      "text": "that modify your system.",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 13.25
-    },
-    {
-      "source_id": "t05",
-      "native_id": "beauty_0_4",
-      "parent": "page",
-      "kind": "text",
-      "component": "Text1eeca2aaedba",
-      "semantic_role": "text",
-      "bounds": [
-        46.6,
+        46.73,
         279.5,
         88.0,
         22.5
       ],
       "text": "Full access",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 15.88
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 15.71
     },
     {
-      "source_id": "t06",
-      "native_id": "beauty_0_5",
-      "parent": "page",
+      "source_id": "t_d2",
+      "native_id": "beauty_0_0_1_3",
+      "parent": "perm_card",
       "kind": "text",
-      "component": "Textbc91ee35d0fa",
+      "component": "Text61968c0f7a49",
       "semantic_role": "text",
       "bounds": [
-        46.16,
-        318.0,
-        212.5,
-        25.0
+        45.0,
+        316.0,
+        210.0,
+        44.0
       ],
-      "text": "Allow Octos to run any command",
+      "text": "Allow Octos to run any command without asking.",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 13.3
+      "size": 13
     },
     {
-      "source_id": "t07",
-      "native_id": "beauty_0_6",
-      "parent": "page",
-      "kind": "text",
-      "component": "Textf3835e97c17a",
-      "semantic_role": "text",
+      "source_id": "toggle1",
+      "native_id": "beauty_0_0_1_4",
+      "parent": "perm_card",
+      "kind": "stack",
+      "component": "Surface420bbc664d64",
+      "semantic_role": "layout",
       "bounds": [
-        46.05,
-        351.0,
-        98.0,
-        24.5
+        309.0,
+        132.0,
+        55.0,
+        46.0
       ],
-      "text": "without asking.",
+      "text": null,
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 13.15
+      "font": null,
+      "size": null
     },
     {
-      "source_id": "t08",
-      "native_id": "beauty_0_7",
-      "parent": "page",
+      "source_id": "toggle1_knob",
+      "native_id": "beauty_0_0_1_4_0",
+      "parent": "toggle1",
+      "kind": "stack",
+      "component": "Surfaceb4c66cb17ca9",
+      "semantic_role": "layout",
+      "bounds": [
+        335.4,
+        136.6,
+        26.4,
+        36.8
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "toggle2",
+      "native_id": "beauty_0_0_1_5",
+      "parent": "perm_card",
+      "kind": "stack",
+      "component": "Surface7b8eda49274c",
+      "semantic_role": "layout",
+      "bounds": [
+        310.0,
+        284.0,
+        54.0,
+        47.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "toggle2_knob",
+      "native_id": "beauty_0_0_1_5_0",
+      "parent": "toggle2",
+      "kind": "stack",
+      "component": "Surface053060c5a689",
+      "semantic_role": "layout",
+      "bounds": [
+        313.24,
+        288.7,
+        25.92,
+        37.6
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "perm_divider",
+      "native_id": "beauty_0_0_2",
+      "parent": "settings_group",
+      "kind": "stack",
+      "component": "Surfacec4c38149242a",
+      "semantic_role": "layout",
+      "bounds": [
+        30.0,
+        248.0,
+        346.0,
+        1.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_sec2",
+      "native_id": "beauty_0_0_3",
+      "parent": "settings_group",
       "kind": "text",
-      "component": "Texte20bb807188d",
+      "component": "Text10fc92947883",
       "semantic_role": "text",
       "bounds": [
-        31.4,
+        31.7,
         469.0,
         57.5,
         24.5
       ],
       "text": "Model",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 18.19
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 17.78
     },
     {
-      "source_id": "t09",
-      "native_id": "beauty_0_8",
-      "parent": "page",
+      "source_id": "model_card",
+      "native_id": "beauty_0_0_4",
+      "parent": "settings_group",
+      "kind": "stack",
+      "component": "Surfacef73992c5f8a4",
+      "semantic_role": "layout",
+      "bounds": [
+        28.0,
+        521.0,
+        348.0,
+        104.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_model",
+      "native_id": "beauty_0_0_4_0",
+      "parent": "model_card",
       "kind": "text",
-      "component": "Text82b9d96f1301",
+      "component": "Texta445ee2dd47b",
       "semantic_role": "text",
       "bounds": [
-        44.63,
+        44.76,
         560.0,
         107.0,
         22.5
       ],
       "text": "Default model",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 15.63
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 15.45
     },
     {
-      "source_id": "t10",
-      "native_id": "beauty_0_9",
-      "parent": "page",
+      "source_id": "t_pick",
+      "native_id": "beauty_0_0_4_1",
+      "parent": "model_card",
       "kind": "text",
-      "component": "Text55f6063028f5",
+      "component": "Text47dd2c54383e",
       "semantic_role": "text",
       "bounds": [
         206.76,
@@ -194,16 +302,35 @@
         149.0,
         26.5
       ],
-      "text": "deepseek-v4-flash v",
+      "text": "deepseek-v4-flash",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14.65
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 15.8
+    },
+    {
+      "source_id": "pick_chev",
+      "native_id": "beauty_0_0_4_2",
+      "parent": "model_card",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        356.0,
+        557.833,
+        16.0,
+        23.111
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
     }
   ],
   "fonts": {
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "0f9950373c3bb78e933ff77e70243447cfe79a305788233776b4583650d2b22d",
+  "contract_sha256": "fba9a63e91d82e24a331918458ef6bedbadb9284669631691f9975c26cee1575",
   "mapping_basis": "mapped.json"
 }
