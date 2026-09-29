@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "group2",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface6cd31c06adc5",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        350.0,
+        62.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_notif",
+      "native_id": "beauty_0_0",
+      "parent": "group2",
+      "kind": "text",
+      "component": "Text7d595ac36aa0",
+      "semantic_role": "text",
+      "bounds": [
+        26.130000000000003,
+        34.920000000000016,
+        164.66,
+        22.58
+      ],
+      "text": "Desktop notifications",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "toggle1",
+      "native_id": "beauty_0_1",
+      "parent": "group2",
+      "kind": "stack",
+      "component": "Surfaceb137a51eded7",
+      "semantic_role": "layout",
+      "bounds": [
+        240.0,
+        28.920000000000016,
+        50.0,
+        30.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "toggle1_knob",
+      "native_id": "beauty_0_1_0",
+      "parent": "toggle1",
+      "kind": "stack",
+      "component": "Surfaceab0895dcdf57",
+      "semantic_role": "layout",
+      "bounds": [
+        266.0,
+        31.920000000000016,
+        24.0,
+        24.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
+  },
+  "contract_sha256": "6a2ede7a1236724e55dd6d1df01fc106a4a5350ee49636bb9eb8a3dafaf98ffa",
+  "mapping_basis": "mapped.json"
+}

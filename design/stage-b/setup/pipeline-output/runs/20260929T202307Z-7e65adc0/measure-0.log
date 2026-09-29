@@ -1,0 +1,12 @@
+{"scene": "1", "stage": "measure", "result": {"id": "setup-01", "surfaces_found": 2, "nontext": 8, "candidates": 7}}
+{"scene": "2", "stage": "measure", "result": {"id": "setup-02", "surfaces_found": 2, "nontext": 13, "candidates": 7}}
+{"scene": "3", "stage": "measure", "result": {"id": "setup-03", "surfaces_found": 4, "nontext": 15, "candidates": 7}}
+{"scene": "4", "stage": "measure", "result": {"id": "setup-04", "surfaces_found": 4, "nontext": 19, "candidates": 10}}
+{"scene": "5", "stage": "measure", "result": {"id": "setup-05", "surfaces_found": 4, "nontext": 7, "candidates": 10}}
+{"scene": "6", "stage": "measure", "result": {"id": "setup-06", "surfaces_found": 5, "nontext": 14, "candidates": 14}}
+{"scene": "7", "stage": "measure", "result": {"id": "setup-07", "surfaces_found": 0, "nontext": 1, "candidates": 15}}
+{"scene": "8", "stage": "measure", "result": {"id": "setup-08", "surfaces_found": 0, "nontext": 1, "candidates": 5}}
+{"scene": "9", "stage": "measure", "result": {"id": "setup-09", "surfaces_found": 0, "nontext": 1, "candidates": 7}}
+{"scene": "10", "stage": "measure", "result": {"id": "setup-10", "surfaces_found": 0, "nontext": 1, "candidates": 12}}
+{"scene": "11", "stage": "measure", "result": {"id": "setup-11", "surfaces_found": 0, "nontext": 1, "candidates": 5}}
+{"scene": "12", "stage": "measure", "result": {"id": "setup-12", "surfaces_found": 0, "nontext": 1, "candidates": 3}}

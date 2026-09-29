@@ -1,0 +1,271 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface156d085f4ff5",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "outer_card": {
+        "component": "Surface28a1c2e54e11",
+        "layout": {
+          "x": 10.0,
+          "y": 10.0,
+          "w": 386.0,
+          "h": 756.0
+        }
+      },
+      "t_title": {
+        "component": "Textf85e886e09bb",
+        "layout": {
+          "x": 57.52,
+          "y": 94.5,
+          "w": 313.74,
+          "h": 36.0
+        }
+      },
+      "t_pname": {
+        "component": "Text0b928d994de3",
+        "layout": {
+          "x": 31.52,
+          "y": 156.45,
+          "w": 127.71,
+          "h": 22.5
+        }
+      },
+      "profile": {
+        "component": "Surfacebc08397a72a6",
+        "layout": {
+          "x": 46.0,
+          "y": 193.16,
+          "w": 314.0,
+          "h": 44.55
+        }
+      },
+      "profile_field": {
+        "component": "Input832dfe529a64",
+        "layout": {
+          "x": 60.0,
+          "y": 205.16,
+          "w": 286.0,
+          "h": 25.5
+        }
+      },
+      "t_provider": {
+        "component": "Text91fae47769cf",
+        "layout": {
+          "x": 31.4,
+          "y": 280.19,
+          "w": 86.96,
+          "h": 22.5
+        }
+      },
+      "provider_deepseek": {
+        "component": "Surface409a8dfb0311",
+        "layout": {
+          "x": 28.0,
+          "y": 320.48,
+          "w": 332.0,
+          "h": 41.52
+        }
+      },
+      "radio_deepseek": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 32.0,
+          "y": 330.24,
+          "w": 22.0,
+          "h": 22.0,
+          "src": "http://127.0.0.1:8170/ux-images/setup-03/assets/radio_deepseek-2a1f67c04b59.svg"
+        }
+      },
+      "t_prov_deepseek": {
+        "component": "Text684c870f921b",
+        "layout": {
+          "x": 62.0,
+          "y": 330.48,
+          "w": 325.0,
+          "h": 24.0
+        }
+      },
+      "provider_kimi": {
+        "component": "Surface409a8dfb0311",
+        "layout": {
+          "x": 28.0,
+          "y": 371.49,
+          "w": 332.0,
+          "h": 44.29
+        }
+      },
+      "radio_kimi": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 32.0,
+          "y": 382.64,
+          "w": 22.0,
+          "h": 22.0,
+          "src": "http://127.0.0.1:8170/ux-images/setup-03/assets/radio_kimi-8a81d06ed06a.svg"
+        }
+      },
+      "t_prov_kimi": {
+        "component": "Textfe983b7a369c",
+        "layout": {
+          "x": 62.0,
+          "y": 381.49,
+          "w": 325.0,
+          "h": 24.29
+        }
+      },
+      "provider_glm": {
+        "component": "Surface409a8dfb0311",
+        "layout": {
+          "x": 28.0,
+          "y": 425.9,
+          "w": 332.0,
+          "h": 43.75
+        }
+      },
+      "radio_glm": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 32.0,
+          "y": 436.78,
+          "w": 22.0,
+          "h": 22.0,
+          "src": "http://127.0.0.1:8170/ux-images/setup-03/assets/radio_glm-8a81d06ed06a.svg"
+        }
+      },
+      "t_prov_glm": {
+        "component": "Text684c870f921b",
+        "layout": {
+          "x": 62.0,
+          "y": 435.9,
+          "w": 325.0,
+          "h": 24.0
+        }
+      },
+      "t_apikey": {
+        "component": "Text048e64989bba",
+        "layout": {
+          "x": 30.45,
+          "y": 498.5,
+          "w": 80.64,
+          "h": 22.59
+        }
+      },
+      "apikey": {
+        "component": "Surfacebc08397a72a6",
+        "layout": {
+          "x": 46.0,
+          "y": 541.8,
+          "w": 314.0,
+          "h": 33.02
+        }
+      },
+      "apikey_field": {
+        "component": "Input4d0dff503fef",
+        "layout": {
+          "x": 60.0,
+          "y": 553.8,
+          "w": 286.0,
+          "h": 25.5
+        }
+      },
+      "apikey_dots": {
+        "component": "Text8a96838bcf2a",
+        "layout": {
+          "x": 60.0,
+          "y": 547.31,
+          "w": 286.0,
+          "h": 22.5
+        }
+      },
+      "apikey_eye": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 328.0,
+          "y": 548.31,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/setup-03/assets/apikey_eye-edb457c4d419.svg"
+        }
+      },
+      "t_keyhint": {
+        "component": "Textd525be2d0937",
+        "layout": {
+          "x": 31.58,
+          "y": 603.43,
+          "w": 328.41,
+          "h": 21.57
+        }
+      },
+      "create_profile": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 46.0,
+          "y": 680.28,
+          "w": 314.0,
+          "h": 44.0
+        }
+      },
+      "create_profile_surface": {
+        "component": "Surface8d834e17f854",
+        "layout": {
+          "x": 46.0,
+          "y": 680.28,
+          "w": 314.0,
+          "h": 44.0
+        }
+      },
+      "create_profile_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 46.0,
+          "y": 680.28,
+          "w": 314.0,
+          "h": 44.0
+        }
+      },
+      "create_profile_label": {
+        "component": "Textb4e41541d5f2",
+        "layout": {
+          "x": 143.79,
+          "y": 689.31,
+          "w": 153.95,
+          "h": 25.94
+        }
+      }
+    },
+    "bindings": [
+      {
+        "id": "profile_field",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "profile_field",
+          "property": "text"
+        }
+      },
+      {
+        "id": "apikey_field",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "apikey_field",
+          "property": "text"
+        }
+      }
+    ]
+  }
+}

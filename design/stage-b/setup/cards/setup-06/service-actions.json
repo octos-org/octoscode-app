@@ -1,0 +1,66 @@
+{
+  "frame_id": 6,
+  "controls": {
+    "g1_r0": {
+      "event": "settings.open",
+      "source_bounds": [
+        28,
+        144,
+        350,
+        43
+      ],
+      "enabled": true
+    },
+    "g1_r1": {
+      "event": "settings.open",
+      "source_bounds": [
+        28,
+        215,
+        350,
+        45
+      ],
+      "enabled": true
+    },
+    "g1_r2": {
+      "event": "settings.open",
+      "source_bounds": [
+        28,
+        286,
+        350,
+        44
+      ],
+      "enabled": true
+    },
+    "notif_toggle": {
+      "event": "settings.notifications",
+      "source_bounds": [
+        28,
+        370,
+        350,
+        76
+      ],
+      "enabled": true
+    },
+    "copy_diag": {
+      "event": "settings.copy_diagnostics",
+      "source_bounds": [
+        28,
+        462,
+        350,
+        90
+      ],
+      "enabled": true
+    },
+    "disconnect": {
+      "event": "settings.disconnect",
+      "source_bounds": [
+        28,
+        612,
+        350,
+        48
+      ],
+      "enabled": true
+    }
+  },
+  "source": "Approved setup atlas (board 2) + measured OCR"
+}

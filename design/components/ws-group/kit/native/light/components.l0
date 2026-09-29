@@ -1,0 +1,24 @@
+component Surface7a7bef822439(instance: text) {
+  view Kit(component: "Surface7a7bef822439", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Text404646513d4f(instance: text, text: text) {
+  view Kit(component: "Text404646513d4f", instance: instance, text: text)
+}
+component Textfd6a3ee4835f(instance: text, text: text) {
+  view Kit(component: "Textfd6a3ee4835f", instance: instance, text: text)
+}
+component Surfacec4c38149242a(instance: text) {
+  view Kit(component: "Surfacec4c38149242a", instance: instance) { slot }
+}
+component Texta90b9b77c268(instance: text, text: text) {
+  view Kit(component: "Texta90b9b77c268", instance: instance, text: text)
+}
+component Textfd1c766318fb(instance: text, text: text) {
+  view Kit(component: "Textfd1c766318fb", instance: instance, text: text)
+}
+component Text2cf7aad1d558(instance: text, text: text) {
+  view Kit(component: "Text2cf7aad1d558", instance: instance, text: text)
+}

@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "4738fa27565748637bc8abc66b5e77fa4b22b693a4fef324c24a72dcde0155c1",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t00",
+      "expected_text": "Reconnecting... attempt 2 \u2022 Retry now",
+      "requested_bounds": [
+        42.86,
+        31.5,
+        305.63,
+        27.0
+      ],
+      "status": "observed",
+      "ocr_text": "Reconnecting... attempt 2 \u2022 Retry now",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        44.5,
+        32.5,
+        215.0,
+        20.5
+      ],
+      "ink_color": [
+        141,
+        92,
+        47
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        42.85555746225083,
+        31.49999984095399,
+        305.6277770996094,
+        22.63953495025639
+      ]
+    },
+    {
+      "id": "t01",
+      "expected_text": "Loading session...",
+      "requested_bounds": [
+        109.17,
+        509.45,
+        154.96,
+        27.81
+      ],
+      "status": "observed",
+      "ocr_text": "Loading session...",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        114.5,
+        511.5,
+        146.0,
+        22.5
+      ],
+      "ink_color": [
+        15,
+        15,
+        15
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        109.16827159748622,
+        509.44576121229284,
+        154.9579010009766,
+        27.806152343750043
+      ]
+    },
+    {
+      "id": "t02",
+      "expected_text": "Cancel",
+      "requested_bounds": [
+        159.02,
+        570.72,
+        58.64,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "Cancel",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        160.0,
+        571.5,
+        54.0,
+        17.5
+      ],
+      "ink_color": [
+        129,
+        129,
+        131
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        159.01666742612963,
+        570.7209307362641,
+        58.6444435119629,
+        19.174417495727532
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4293981682
+    }
+  ],
+  "unmapped_ocr": [],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

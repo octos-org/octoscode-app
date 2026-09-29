@@ -1,0 +1,107 @@
+# ledger setup-06@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Settings" }
+copy t_g1_r0_text { class: user-copy, en: "Connection" }
+copy t_g1_v0_text { class: user-copy, en: "Live" }
+copy t_g1_r1_text { class: user-copy, en: "Workspace" }
+copy t_g1_v1_text { class: user-copy, en: "octos" }
+copy t_g1_r2_text { class: user-copy, en: "Profile" }
+copy t_g1_v2_text { class: user-copy, en: "octos-dev" }
+copy t_notif_text { class: user-copy, en: "Desktop notifications" }
+copy t_diag_text { class: user-copy, en: "Copy diagnostics" }
+copy t_disconnect_text { class: user-copy, en: "Disconnect" }
+component Surface156d085f4ff5(instance: text) {
+  view Kit(component: "Surface156d085f4ff5", instance: instance) { slot }
+}
+component Surface28a1c2e54e11(instance: text) {
+  view Kit(component: "Surface28a1c2e54e11", instance: instance) { slot }
+}
+component Textc54ba87d5a24(instance: text, text: text) {
+  view Kit(component: "Textc54ba87d5a24", instance: instance, text: text)
+}
+component Surface6cd31c06adc5(instance: text) {
+  view Kit(component: "Surface6cd31c06adc5", instance: instance) { slot }
+}
+component Text3287021b9274(instance: text, text: text) {
+  view Kit(component: "Text3287021b9274", instance: instance, text: text)
+}
+component Surfaced11bb9bd8a66(instance: text) {
+  view Kit(component: "Surfaced11bb9bd8a66", instance: instance) { slot }
+}
+component Text120bce270049(instance: text, text: text) {
+  view Kit(component: "Text120bce270049", instance: instance, text: text)
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Text0e0a5afd4043(instance: text, text: text) {
+  view Kit(component: "Text0e0a5afd4043", instance: instance, text: text)
+}
+component Text10829a4ef378(instance: text, text: text) {
+  view Kit(component: "Text10829a4ef378", instance: instance, text: text)
+}
+component Surfacec4c38149242a(instance: text) {
+  view Kit(component: "Surfacec4c38149242a", instance: instance) { slot }
+}
+component Text403c34ab46e6(instance: text, text: text) {
+  view Kit(component: "Text403c34ab46e6", instance: instance, text: text)
+}
+component Text739d693858ad(instance: text, text: text) {
+  view Kit(component: "Text739d693858ad", instance: instance, text: text)
+}
+component Surfaceb137a51eded7(instance: text) {
+  view Kit(component: "Surfaceb137a51eded7", instance: instance) { slot }
+}
+component Surfaceab0895dcdf57(instance: text) {
+  view Kit(component: "Surfaceab0895dcdf57", instance: instance) { slot }
+}
+component Text4da9dcc73b92(instance: text, text: text) {
+  view Kit(component: "Text4da9dcc73b92", instance: instance, text: text)
+}
+component Textcdf604602ec5(instance: text, text: text) {
+  view Kit(component: "Textcdf604602ec5", instance: instance, text: text)
+}
+
+view root Surface156d085f4ff5(instance: "page") {
+  Surface28a1c2e54e11(instance: "outer_card") {
+    Textc54ba87d5a24(instance: "t_title", text: copy.t_title_text)
+    Surface6cd31c06adc5(instance: "group1") {
+      Text3287021b9274(instance: "t_g1_r0", text: copy.t_g1_r0_text)
+      Surfaced11bb9bd8a66(instance: "live_dot") {
+
+      }
+      Text120bce270049(instance: "t_g1_v0", text: copy.t_g1_v0_text)
+      Vectore0a378fde04f(instance: "chev_g1_r0")
+      Text0e0a5afd4043(instance: "t_g1_r1", text: copy.t_g1_r1_text)
+      Text10829a4ef378(instance: "t_g1_v1", text: copy.t_g1_v1_text)
+      Vectore0a378fde04f(instance: "chev_g1_r1")
+      Surfacec4c38149242a(instance: "hair_g1_1") {
+
+      }
+      Text0e0a5afd4043(instance: "t_g1_r2", text: copy.t_g1_r2_text)
+      Text403c34ab46e6(instance: "t_g1_v2", text: copy.t_g1_v2_text)
+      Vectore0a378fde04f(instance: "chev_g1_r2")
+      Surfacec4c38149242a(instance: "hair_g1_2") {
+
+      }
+    }
+    Surface6cd31c06adc5(instance: "group2") {
+      Text739d693858ad(instance: "t_notif", text: copy.t_notif_text)
+      Surfaceb137a51eded7(instance: "toggle1") {
+        Surfaceab0895dcdf57(instance: "toggle1_knob") {
+
+        }
+      }
+    }
+    Surface6cd31c06adc5(instance: "group3") {
+      Text4da9dcc73b92(instance: "t_diag", text: copy.t_diag_text)
+      Vectore0a378fde04f(instance: "copy_diag")
+    }
+    Surface6cd31c06adc5(instance: "disconnect") {
+      Textcdf604602ec5(instance: "t_disconnect", text: copy.t_disconnect_text)
+    }
+  }
+}

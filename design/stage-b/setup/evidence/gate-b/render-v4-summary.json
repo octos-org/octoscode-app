@@ -1,0 +1,50 @@
+[
+  {
+    "scene": "01",
+    "port": 8385,
+    "png": "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/peer-tmp/makepad-remote/beauty-host-69483/grab-w0-00001.png",
+    "font_warnings": 0,
+    "border_widths": 2,
+    "widgets": 32
+  },
+  {
+    "scene": "02",
+    "port": 8386,
+    "png": "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/peer-tmp/makepad-remote/beauty-host-69999/grab-w0-00001.png",
+    "font_warnings": 0,
+    "border_widths": 3,
+    "widgets": 39
+  },
+  {
+    "scene": "03",
+    "port": 8387,
+    "png": "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/peer-tmp/makepad-remote/beauty-host-70323/grab-w0-00001.png",
+    "font_warnings": 0,
+    "border_widths": 2,
+    "widgets": 42
+  },
+  {
+    "scene": "04",
+    "port": 8388,
+    "png": "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/peer-tmp/makepad-remote/beauty-host-70650/grab-w0-00001.png",
+    "font_warnings": 0,
+    "border_widths": 3,
+    "widgets": 49
+  },
+  {
+    "scene": "05",
+    "port": 8389,
+    "png": "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/peer-tmp/makepad-remote/beauty-host-71024/grab-w0-00001.png",
+    "font_warnings": 0,
+    "border_widths": 2,
+    "widgets": 35
+  },
+  {
+    "scene": "06",
+    "port": 8390,
+    "png": "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/peer-tmp/makepad-remote/beauty-host-71502/grab-w0-00001.png",
+    "font_warnings": 0,
+    "border_widths": 4,
+    "widgets": 42
+  }
+]

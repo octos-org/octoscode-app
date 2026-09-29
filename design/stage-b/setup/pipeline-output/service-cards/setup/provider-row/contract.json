@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "id": "provider-row",
+  "app": "octoscode",
+  "number": 3,
+  "title": "Onboarding",
+  "structure": "Native component reconstructed from the approved setup atlas (board 2, #28c)",
+  "artboard": [
+    314.0,
+    41.52
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "provider_deepseek",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 314.0,
+    "h": 41.52,
+    "c": [
+      {
+        "t": "svg",
+        "id": "radio_deepseek",
+        "x": 16.0,
+        "y": 10.759999999999991,
+        "w": 20.0,
+        "h": 20.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t_prov_deepseek",
+        "text": "DeepSeek • Official API",
+        "x": 46.0,
+        "y": 10.0,
+        "w": 250.0,
+        "h": 21.52,
+        "size": 14,
+        "line_height": 21.52,
+        "weight": 500,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf"
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294111991,
+    "radius": 10
+  },
+  "standalone_service_card": true
+}

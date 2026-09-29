@@ -1,0 +1,38 @@
+# ledger seg-control@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_seg0_text { class: user-copy, en: "On request" }
+copy t_seg1_text { class: user-copy, en: "On failure" }
+copy t_seg2_text { class: user-copy, en: "Never" }
+component Surface5e76d82e8b78(instance: text) {
+  view Kit(component: "Surface5e76d82e8b78", instance: instance) { slot }
+}
+component Surfacefcfdbbddc65b(instance: text) {
+  view Kit(component: "Surfacefcfdbbddc65b", instance: instance) { slot }
+}
+component Text1693d826aa0c(instance: text, text: text) {
+  view Kit(component: "Text1693d826aa0c", instance: instance, text: text)
+}
+component Text6d1c12998f89(instance: text, text: text) {
+  view Kit(component: "Text6d1c12998f89", instance: instance, text: text)
+}
+component Surfacec4c38149242a(instance: text) {
+  view Kit(component: "Surfacec4c38149242a", instance: instance) { slot }
+}
+
+view root Surface5e76d82e8b78(instance: "segments") {
+  Surfacefcfdbbddc65b(instance: "seg_sel") {
+
+  }
+  Text1693d826aa0c(instance: "t_seg0", text: copy.t_seg0_text)
+  Text6d1c12998f89(instance: "t_seg1", text: copy.t_seg1_text)
+  Text6d1c12998f89(instance: "t_seg2", text: copy.t_seg2_text)
+  Surfacec4c38149242a(instance: "segdiv1") {
+
+  }
+  Surfacec4c38149242a(instance: "segdiv2") {
+
+  }
+}

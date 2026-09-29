@@ -1,0 +1,512 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "d0bc43bccfda6307d2e7add1a95ff1796a53390e09d10f118d35193962511122",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t00",
+      "expected_text": "O. VUIVNIAN TALLIL",
+      "requested_bounds": [
+        14.66,
+        -0.0,
+        257.13,
+        27.0
+      ],
+      "status": "observed",
+      "ocr_text": "O. VUIVNIAN TALLIL",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        16.5,
+        0.0,
+        252.0,
+        8.0
+      ],
+      "ink_color": [
+        1,
+        1,
+        1
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        14.661109557030414,
+        -6.653533723977034e-08,
+        257.1333312988281,
+        11.49999999999996
+      ]
+    },
+    {
+      "id": "t01",
+      "expected_text": "/ mo",
+      "requested_bounds": [
+        57.52,
+        159.0,
+        56.39,
+        25.0
+      ],
+      "status": "observed",
+      "ocr_text": "/ mo",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        60.5,
+        158.0,
+        50.0,
+        25.5
+      ],
+      "ink_color": [
+        30,
+        30,
+        30
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        57.51666692464644,
+        159.00000024734325,
+        56.38888931274415,
+        24.999999999999996
+      ]
+    },
+    {
+      "id": "t02",
+      "expected_text": "/ model",
+      "requested_bounds": [
+        54.89,
+        234.47,
+        72.93,
+        25.09
+      ],
+      "status": "observed",
+      "ocr_text": "/ model",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        60.5,
+        235.5,
+        65.0,
+        19.5
+      ],
+      "ink_color": [
+        19,
+        19,
+        20
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        54.88553049372248,
+        234.46626537344352,
+        72.92893981933595,
+        25.090724945068402
+      ]
+    },
+    {
+      "id": "t03",
+      "expected_text": "/ monitor",
+      "requested_bounds": [
+        58.61,
+        297.63,
+        88.03,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "/ monitor",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        60.0,
+        297.5,
+        84.5,
+        19.5
+      ],
+      "ink_color": [
+        13,
+        13,
+        13
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        58.61349505132833,
+        297.63253683199974,
+        88.028564453125,
+        20.572135925292965
+      ]
+    },
+    {
+      "id": "t04",
+      "expected_text": "/ mode",
+      "requested_bounds": [
+        56.2,
+        359.25,
+        61.28,
+        22.53
+      ],
+      "status": "observed",
+      "ocr_text": "/ mode",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        60.0,
+        360.5,
+        54.5,
+        19.0
+      ],
+      "ink_color": [
+        14,
+        14,
+        14
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        56.19998392798374,
+        359.25322243035447,
+        61.277809143066406,
+        22.528438568115245
+      ]
+    },
+    {
+      "id": "t05",
+      "expected_text": "/ compact",
+      "requested_bounds": [
+        58.57,
+        422.68,
+        88.11,
+        23.13
+      ],
+      "status": "observed",
+      "ocr_text": "/ compact",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        60.0,
+        423.5,
+        84.0,
+        22.0
+      ],
+      "ink_color": [
+        13,
+        13,
+        13
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        58.57188032207199,
+        422.6788143496952,
+        88.11179351806642,
+        23.13074302673347
+      ]
+    },
+    {
+      "id": "t06",
+      "expected_text": "/btw",
+      "requested_bounds": [
+        57.52,
+        485.0,
+        46.24,
+        21.43
+      ],
+      "status": "observed",
+      "ocr_text": "/btw",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        60.0,
+        485.5,
+        42.5,
+        19.5
+      ],
+      "ink_color": [
+        17,
+        17,
+        17
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        57.51666705556043,
+        484.99999991215424,
+        46.23888778686524,
+        21.43023300170892
+      ]
+    },
+    {
+      "id": "t07",
+      "expected_text": "/ resume",
+      "requested_bounds": [
+        58.6,
+        547.99,
+        77.9,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "/ resume",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        60.0,
+        548.0,
+        74.5,
+        19.0
+      ],
+      "ink_color": [
+        11,
+        11,
+        10
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        58.601353592420566,
+        547.9864195432235,
+        77.90284729003905,
+        19.527160644531175
+      ]
+    },
+    {
+      "id": "t08",
+      "expected_text": "Switch model",
+      "requested_bounds": [
+        248.0,
+        236.21,
+        99.47,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "Switch model",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        250.0,
+        237.5,
+        93.5,
+        15.5
+      ],
+      "ink_color": [
+        100,
+        102,
+        106
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        247.9971853270553,
+        236.21147965493702,
+        99.47229766845703,
+        19.344482421875025
+      ]
+    },
+    {
+      "id": "t09",
+      "expected_text": "Add a monitor",
+      "requested_bounds": [
+        242.39,
+        298.38,
+        103.93,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "Add a monitor",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        243.5,
+        300.0,
+        100.5,
+        15.0
+      ],
+      "ink_color": [
+        121,
+        121,
+        122
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        242.38584341470474,
+        298.3848035323622,
+        103.92831420898435,
+        19.067602157592717
+      ]
+    },
+    {
+      "id": "t10",
+      "expected_text": "Change permissions",
+      "requested_bounds": [
+        199.62,
+        360.93,
+        145.48,
+        21.57
+      ],
+      "status": "observed",
+      "ocr_text": "Change permissions",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        200.5,
+        362.0,
+        143.0,
+        20.0
+      ],
+      "ink_color": [
+        111,
+        111,
+        113
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        199.61666345739297,
+        360.9302321577696,
+        145.48333740234372,
+        21.569767951965304
+      ]
+    },
+    {
+      "id": "t11",
+      "expected_text": "Compact context",
+      "requested_bounds": [
+        223.22,
+        424.7,
+        123.1,
+        21.35
+      ],
+      "status": "observed",
+      "ocr_text": "Compact context",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        225.0,
+        425.5,
+        118.5,
+        19.5
+      ],
+      "ink_color": [
+        115,
+        116,
+        117
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        223.216022946034,
+        424.6995380125848,
+        123.09573364257812,
+        21.345109939575227
+      ]
+    },
+    {
+      "id": "t12",
+      "expected_text": "Ask a side question",
+      "requested_bounds": [
+        206.38,
+        487.26,
+        137.59,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "Ask a side question",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        207.0,
+        487.5,
+        135.5,
+        20.0
+      ],
+      "ink_color": [
+        111,
+        111,
+        112
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        206.3833367801888,
+        487.2558137880064,
+        137.58888244628903,
+        20.302326202392557
+      ]
+    },
+    {
+      "id": "t13",
+      "expected_text": "Resume a session",
+      "requested_bounds": [
+        215.41,
+        549.29,
+        128.57,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "Resume a session",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        217.0,
+        550.0,
+        125.5,
+        15.5
+      ],
+      "ink_color": [
+        110,
+        109,
+        111
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        215.4055567784411,
+        549.2906981025696,
+        128.56666564941403,
+        18.20930194854741
+      ]
+    },
+    {
+      "id": "t14",
+      "expected_text": "Tv to move \u2022 \u00ab torun \u2022 esc",
+      "requested_bounds": [
+        76.69,
+        625.99,
+        237.96,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "Tv to move \u2022 \u00ab torun \u2022 esc",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        78.5,
+        626.0,
+        235.0,
+        14.0
+      ],
+      "ink_color": [
+        123,
+        123,
+        124
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        76.68889347082683,
+        625.9883723491175,
+        237.96110534667966,
+        16.01162719726567
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4293981682
+    }
+  ],
+  "unmapped_ocr": [],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "295d25bf4bce6339e416c60d7741aea06890332ae2a048e1b41a26317dc3c95e",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t00",
+      "expected_text": "Something went wrong",
+      "requested_bounds": [
+        29.0,
+        187.5,
+        293.22,
+        35.6
+      ],
+      "status": "observed",
+      "ocr_text": "Something went wrong",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        34.0,
+        190.5,
+        285.0,
+        29.0
+      ],
+      "ink_color": [
+        0,
+        0,
+        0
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        28.99999374138025,
+        187.50000066158591,
+        293.22222900390625,
+        35.59999847412108
+      ]
+    },
+    {
+      "id": "t01",
+      "expected_text": "OctosCode hit an unexpected",
+      "requested_bounds": [
+        43.98,
+        250.4,
+        258.26,
+        26.1
+      ],
+      "status": "observed",
+      "ocr_text": "OctosCode hit an unexpected",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        45.5,
+        251.5,
+        255.5,
+        23.0
+      ],
+      "ink_color": [
+        125,
+        125,
+        127
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        43.98333599601273,
+        250.39534918646234,
+        258.2611083984375,
+        26.104650497436587
+      ]
+    },
+    {
+      "id": "t02",
+      "expected_text": "error. Your sessions are safe",
+      "requested_bounds": [
+        53.01,
+        284.0,
+        240.22,
+        23.0
+      ],
+      "status": "observed",
+      "ocr_text": "error. Your sessions are safe",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        54.5,
+        285.0,
+        237.0,
+        18.0
+      ],
+      "ink_color": [
+        127,
+        128,
+        130
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        53.00556083177298,
+        283.99999972381096,
+        240.2166595458984,
+        22.99999999999992
+      ]
+    },
+    {
+      "id": "t03",
+      "expected_text": "on the server.",
+      "requested_bounds": [
+        111.52,
+        318.96,
+        119.99,
+        21.2
+      ],
+      "status": "observed",
+      "ocr_text": "on the server.",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        113.5,
+        319.5,
+        114.5,
+        17.5
+      ],
+      "ink_color": [
+        129,
+        129,
+        131
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        111.51526467655157,
+        318.96086490050754,
+        119.99298095703124,
+        21.202639579772956
+      ]
+    },
+    {
+      "id": "t04",
+      "expected_text": "Reload",
+      "requested_bounds": [
+        140.91,
+        410.36,
+        70.05,
+        22.95
+      ],
+      "status": "observed",
+      "ocr_text": "Reload",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        139.5,
+        409.0,
+        72.5,
+        25.5
+      ],
+      "ink_color": [
+        16,
+        16,
+        17
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        140.91020517373022,
+        410.3644614451353,
+        70.04625701904297,
+        22.945495605468707
+      ]
+    },
+    {
+      "id": "t05",
+      "expected_text": "Copy diagnostics",
+      "requested_bounds": [
+        90.11,
+        490.87,
+        164.57,
+        33.53
+      ],
+      "status": "observed",
+      "ocr_text": "Copy diagnostics",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        96.5,
+        495.0,
+        153.0,
+        24.0
+      ],
+      "ink_color": [
+        5,
+        4,
+        5
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        90.10592364569624,
+        490.869121526974,
+        164.56593322753903,
+        33.52842330932618
+      ]
+    },
+    {
+      "id": "t06",
+      "expected_text": "Report issue",
+      "requested_bounds": [
+        122.93,
+        570.5,
+        109.39,
+        24.0
+      ],
+      "status": "observed",
+      "ocr_text": "Report issue",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        124.0,
+        571.5,
+        106.0,
+        23.5
+      ],
+      "ink_color": [
+        125,
+        125,
+        127
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        122.92778106298752,
+        570.5000000417178,
+        109.39443969726562,
+        24.0
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901246
+    }
+  ],
+  "unmapped_ocr": [],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

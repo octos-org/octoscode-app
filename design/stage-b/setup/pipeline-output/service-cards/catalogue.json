@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "kind": "native-service-appcards",
+  "cards": [
+    {
+      "id": "labeled-input",
+      "scene": "1",
+      "root": "server",
+      "owner": "setup",
+      "folder": "setup/labeled-input",
+      "artboard": [
+        314.0,
+        44.3
+      ],
+      "nodes": 2,
+      "native_controls": 0,
+      "components": 2
+    },
+    {
+      "id": "provider-row",
+      "scene": "3",
+      "root": "provider_deepseek",
+      "owner": "setup",
+      "folder": "setup/provider-row",
+      "artboard": [
+        314.0,
+        41.52
+      ],
+      "nodes": 3,
+      "native_controls": 0,
+      "components": 3
+    },
+    {
+      "id": "ws-group",
+      "scene": "4",
+      "root": "recent_group",
+      "owner": "setup",
+      "folder": "setup/ws-group",
+      "artboard": [
+        314.0,
+        290.8
+      ],
+      "nodes": 16,
+      "native_controls": 0,
+      "components": 8
+    },
+    {
+      "id": "seg-control",
+      "scene": "5",
+      "root": "segments",
+      "owner": "setup",
+      "folder": "setup/seg-control",
+      "artboard": [
+        314.0,
+        38.0
+      ],
+      "nodes": 7,
+      "native_controls": 0,
+      "components": 5
+    },
+    {
+      "id": "settings-toggle-row",
+      "scene": "6",
+      "root": "group2",
+      "owner": "setup",
+      "folder": "setup/settings-toggle-row",
+      "artboard": [
+        350.0,
+        62.0
+      ],
+      "nodes": 4,
+      "native_controls": 0,
+      "components": 4
+    }
+  ],
+  "validation": "Compiled native subtrees; independent Studio input/layout and visual review remain required"
+}

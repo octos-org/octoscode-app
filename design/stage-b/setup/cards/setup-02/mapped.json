@@ -1,0 +1,415 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "cfdf9b000c01ce80655ea736e8e844eeab922eac92a1a29a8b99d9d127bb0ecb",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "stack",
+        "id": "outer_card",
+        "x": 10.0,
+        "y": 10.0,
+        "w": 386.0,
+        "h": 756.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t_title",
+            "text": "Connect to Octos",
+            "x": 82.33,
+            "y": 102.5,
+            "w": 293.23,
+            "h": 40.5,
+            "size": 27,
+            "line_height": 40.5,
+            "weight": 600,
+            "color": 4278190080,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf"
+          },
+          {
+            "t": "text",
+            "id": "t_server",
+            "text": "Server",
+            "x": 48.49,
+            "y": 177.08,
+            "w": 68.91,
+            "h": 22.5,
+            "size": 15,
+            "line_height": 22.5,
+            "weight": 400,
+            "color": 4279703319,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "stack",
+            "id": "server",
+            "x": 46.0,
+            "y": 213.58,
+            "w": 314.0,
+            "h": 45.43,
+            "c": [
+              {
+                "t": "input",
+                "id": "server_field",
+                "text": "http://127.0.0.1:50190",
+                "placeholder": "",
+                "x": 60.0,
+                "y": 225.58,
+                "w": 286.0,
+                "h": 25.5,
+                "size": 17,
+                "line_height": 25.5,
+                "weight": 400,
+                "color": 4280098079,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "enabled": 1,
+                "c": []
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 8,
+            "border": 1,
+            "bordercolor": 4292006615
+          },
+          {
+            "t": "text",
+            "id": "t_token",
+            "text": "Access token",
+            "x": 48.47,
+            "y": 300.98,
+            "w": 137.89,
+            "h": 22.5,
+            "size": 15,
+            "line_height": 22.5,
+            "weight": 400,
+            "color": 4280953643,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "stack",
+            "id": "token",
+            "x": 46.0,
+            "y": 344.42,
+            "w": 314.0,
+            "h": 34.15,
+            "c": [
+              {
+                "t": "input",
+                "id": "token_field",
+                "text": "",
+                "placeholder": "",
+                "x": 60.0,
+                "y": 356.42,
+                "w": 286.0,
+                "h": 25.5,
+                "size": 17,
+                "line_height": 25.5,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "enabled": 1,
+                "c": []
+              },
+              {
+                "t": "text",
+                "id": "token_dots",
+                "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+                "x": 60.0,
+                "y": 350.49,
+                "w": 286.0,
+                "h": 22.5,
+                "size": 15,
+                "line_height": 22.5,
+                "weight": 700,
+                "color": 4280098079,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-700.ttf"
+              },
+              {
+                "t": "svg",
+                "id": "token_eye",
+                "x": 328.0,
+                "y": 351.49,
+                "w": 20.0,
+                "h": 20.0,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 8,
+            "border": 1,
+            "bordercolor": 4291764782
+          },
+          {
+            "t": "text",
+            "id": "t_error",
+            "text": "Token rejected by the server",
+            "x": 47.37,
+            "y": 404.92,
+            "w": 269.76,
+            "h": 21.58,
+            "size": 14,
+            "line_height": 21.58,
+            "weight": 500,
+            "color": 4290778646,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf"
+          },
+          {
+            "t": "text",
+            "id": "t_last",
+            "text": "Last tried 9:41 PM \u00b7",
+            "x": 48.49,
+            "y": 465.83,
+            "w": 159.5,
+            "h": 22.67,
+            "size": 14,
+            "line_height": 22.67,
+            "weight": 400,
+            "color": 4285624690,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "stack",
+            "id": "retry",
+            "x": 194.49,
+            "y": 459.83,
+            "w": 52.0,
+            "h": 34.67,
+            "c": [
+              {
+                "t": "stack",
+                "id": "retry_surface",
+                "x": 194.49,
+                "y": 459.83,
+                "w": 52.0,
+                "h": 34.67,
+                "c": [],
+                "variant": "surface",
+                "bg": 4294967295,
+                "radius": 0
+              },
+              {
+                "t": "button",
+                "id": "retry_control",
+                "x": 194.49,
+                "y": 459.83,
+                "w": 52.0,
+                "h": 34.67,
+                "enabled": 1
+              },
+              {
+                "t": "text",
+                "id": "retry_label",
+                "text": "Retry",
+                "x": 198.49,
+                "y": 465.83,
+                "w": 44.0,
+                "h": 22.68,
+                "size": 14,
+                "line_height": 22.68,
+                "weight": 600,
+                "color": 4281298923,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-600.ttf"
+              }
+            ],
+            "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+          },
+          {
+            "t": "stack",
+            "id": "connect",
+            "x": 46.0,
+            "y": 564.94,
+            "w": 314.0,
+            "h": 44.0,
+            "c": [
+              {
+                "t": "stack",
+                "id": "connect_surface",
+                "x": 46.0,
+                "y": 564.94,
+                "w": 314.0,
+                "h": 44.0,
+                "c": [],
+                "variant": "surface",
+                "bg": 4278190080,
+                "radius": 999
+              },
+              {
+                "t": "button",
+                "id": "connect_control",
+                "x": 46.0,
+                "y": 564.94,
+                "w": 314.0,
+                "h": 44.0,
+                "enabled": 1
+              },
+              {
+                "t": "text",
+                "id": "connect_label",
+                "text": "Connect",
+                "x": 162.05,
+                "y": 574.81,
+                "w": 106.47,
+                "h": 24.27,
+                "size": 16,
+                "line_height": 24.27,
+                "weight": 600,
+                "color": 4294770173,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-600.ttf"
+              }
+            ],
+            "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+          },
+          {
+            "t": "text",
+            "id": "t_local",
+            "text": "Use local solo server",
+            "x": 118.42,
+            "y": 662.0,
+            "w": 218.45,
+            "h": 21.0,
+            "size": 14,
+            "line_height": 21.0,
+            "weight": 500,
+            "color": 4279719155,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf"
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294967295,
+        "radius": 14,
+        "border": 1,
+        "bordercolor": 4293256679
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294967295
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "outer_card",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "server",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "server_field",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "token",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "token_field",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "token_eye",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "retry",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "retry_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "retry_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "connect",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "connect_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "connect_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t_title",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.07278292006340573
+    },
+    {
+      "id": "t_server",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.13933656754032261
+    },
+    {
+      "id": "t_token",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1260753642778592
+    },
+    {
+      "id": "t_error",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12566912615740736
+    },
+    {
+      "id": "t_last",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.07612449244449013
+    },
+    {
+      "id": "connect_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.15148925781249994
+    },
+    {
+      "id": "t_local",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1348776424632353
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

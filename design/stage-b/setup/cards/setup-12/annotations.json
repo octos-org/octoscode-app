@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "4738fa27565748637bc8abc66b5e77fa4b22b693a4fef324c24a72dcde0155c1",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      77.0,
+      276.0,
+      195.0,
+      44.0
+    ],
+    [
+      78.0,
+      185.0,
+      273.0,
+      53.0
+    ],
+    [
+      77.0,
+      106.0,
+      274.0,
+      45.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4293981682
+    }
+  ]
+}

@@ -1,0 +1,210 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface156d085f4ff5",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "outer_card": {
+        "component": "Surface28a1c2e54e11",
+        "layout": {
+          "x": 10.0,
+          "y": 10.0,
+          "w": 386.0,
+          "h": 756.0
+        }
+      },
+      "t_title": {
+        "component": "Texta874b8608484",
+        "layout": {
+          "x": 82.24,
+          "y": 80.66,
+          "w": 236.26,
+          "h": 39.0
+        }
+      },
+      "t_close": {
+        "component": "Text3403f2e38992",
+        "layout": {
+          "x": 341.72,
+          "y": 75.57,
+          "w": 26.39,
+          "h": 36.0
+        }
+      },
+      "t_model": {
+        "component": "Textbbee5f4d4025",
+        "layout": {
+          "x": 42.86,
+          "y": 155.65,
+          "w": 68.91,
+          "h": 22.5
+        }
+      },
+      "model": {
+        "component": "Surfacebc08397a72a6",
+        "layout": {
+          "x": 46.0,
+          "y": 201.0,
+          "w": 314.0,
+          "h": 50.12
+        }
+      },
+      "model_field": {
+        "component": "Inputc54128acf65f",
+        "layout": {
+          "x": 60.0,
+          "y": 213.0,
+          "w": 286.0,
+          "h": 26.12
+        }
+      },
+      "model_caret": {
+        "component": "Textfe0b97eafab5",
+        "layout": {
+          "x": 330.0,
+          "y": 215.06,
+          "w": 26.0,
+          "h": 27.0
+        }
+      },
+      "t_saved": {
+        "component": "Text4ca76db8fb6d",
+        "layout": {
+          "x": 43.98,
+          "y": 274.0,
+          "w": 196.46,
+          "h": 21.51
+        }
+      },
+      "t_perm": {
+        "component": "Textdf31566c02d1",
+        "layout": {
+          "x": 43.93,
+          "y": 376.41,
+          "w": 130.64,
+          "h": 22.5
+        }
+      },
+      "segments": {
+        "component": "Surfaceec2e0f41be2a",
+        "layout": {
+          "x": 46.0,
+          "y": 426.21,
+          "w": 314.0,
+          "h": 38.0
+        }
+      },
+      "seg_sel": {
+        "component": "Surface5245d50005d8",
+        "layout": {
+          "x": 48.54,
+          "y": 430.21,
+          "w": 104.79,
+          "h": 30.0
+        }
+      },
+      "t_seg0": {
+        "component": "Textc1ca2c3cdb0e",
+        "layout": {
+          "x": 58.54,
+          "y": 437.21,
+          "w": 110.23,
+          "h": 22.27
+        }
+      },
+      "t_seg1": {
+        "component": "Text6192e9229250",
+        "layout": {
+          "x": 171.39,
+          "y": 437.49,
+          "w": 95.39,
+          "h": 19.5
+        }
+      },
+      "t_seg2": {
+        "component": "Text63edcc63ac7e",
+        "layout": {
+          "x": 290.92,
+          "y": 437.52,
+          "w": 58.76,
+          "h": 19.5
+        }
+      },
+      "segdiv1": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 157.36,
+          "y": 430.21,
+          "w": 1.0,
+          "h": 30.0
+        }
+      },
+      "segdiv2": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 267.84,
+          "y": 430.21,
+          "w": 1.0,
+          "h": 30.0
+        }
+      },
+      "t_sandbox": {
+        "component": "Text266373d7c3a7",
+        "layout": {
+          "x": 43.86,
+          "y": 566.87,
+          "w": 95.61,
+          "h": 22.5
+        }
+      },
+      "sandbox_box": {
+        "component": "Surfaceec2e0f41be2a",
+        "layout": {
+          "x": 46.0,
+          "y": 617.0,
+          "w": 314.0,
+          "h": 42.67
+        }
+      },
+      "t_sb_b": {
+        "component": "Text1e88c409830c",
+        "layout": {
+          "x": 58.64,
+          "y": 627.0,
+          "w": 54.0,
+          "h": 22.67
+        }
+      },
+      "t_sb_r": {
+        "component": "Text48f5e967e862",
+        "layout": {
+          "x": 114.64,
+          "y": 627.0,
+          "w": 295.0,
+          "h": 22.67
+        }
+      }
+    },
+    "bindings": [
+      {
+        "id": "model_field",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "model_field",
+          "property": "text"
+        }
+      }
+    ]
+  }
+}

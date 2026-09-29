@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "setup-12",
+  "app": "octoscode",
+  "number": 12,
+  "title": "Loading and reconnecting",
+  "structure": "Text-tree stub: other card's screen; exists only for flow scene validation",
+  "artboard": [
+    406,
+    776
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
+    "c": [
+      {
+        "t": "text",
+        "id": "t00",
+        "text": "Reconnecting... attempt 2 • Retry now",
+        "x": 42.86,
+        "y": 31.5,
+        "w": 305.63,
+        "h": 27.0,
+        "size": 18,
+        "line_height": 27.0,
+        "weight": 600,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t01",
+        "text": "Loading session...",
+        "x": 109.17,
+        "y": 509.45,
+        "w": 154.96,
+        "h": 27.81,
+        "size": 14,
+        "line_height": 27.81,
+        "weight": 400,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t02",
+        "text": "Cancel",
+        "x": 159.02,
+        "y": 570.72,
+        "w": 58.64,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294967295
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "frame_id": 3,
+  "controls": {
+    "provider_deepseek": {
+      "event": "onboarding.provider.deepseek",
+      "source_bounds": [
+        28,
+        320,
+        332,
+        41
+      ],
+      "enabled": true
+    },
+    "provider_kimi": {
+      "event": "onboarding.provider.kimi",
+      "source_bounds": [
+        28,
+        371,
+        332,
+        44
+      ],
+      "enabled": true
+    },
+    "provider_glm": {
+      "event": "onboarding.provider.glm",
+      "source_bounds": [
+        28,
+        425,
+        332,
+        43
+      ],
+      "enabled": true
+    },
+    "create_profile": {
+      "event": "create_profile",
+      "source_bounds": [
+        46,
+        680,
+        314,
+        44
+      ],
+      "enabled": true
+    },
+    "profile_field": {
+      "event": "input.profile",
+      "source_bounds": [
+        46,
+        193,
+        314,
+        44
+      ],
+      "enabled": true
+    },
+    "apikey_field": {
+      "event": "input.apikey",
+      "source_bounds": [
+        46,
+        541,
+        314,
+        33
+      ],
+      "enabled": true
+    }
+  },
+  "source": "Approved setup atlas (board 2) + measured OCR"
+}

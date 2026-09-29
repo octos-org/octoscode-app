@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "1e475e2ce4500bad62e649eb767306eb03aa9c1e05e840815e1c3363b3682f67",
+  "tree": {
+    "t": "stack",
+    "id": "segments",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 314.0,
+    "h": 38.0,
+    "c": [
+      {
+        "t": "stack",
+        "id": "seg_sel",
+        "x": 2.539999999999999,
+        "y": 4.0,
+        "w": 104.79,
+        "h": 30.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294967295,
+        "radius": 7
+      },
+      {
+        "t": "text",
+        "id": "t_seg0",
+        "text": "On request",
+        "x": 12.54,
+        "y": 11.0,
+        "w": 84.79,
+        "h": 22.27,
+        "size": 13,
+        "line_height": 22.27,
+        "weight": 600,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t_seg1",
+        "text": "On failure",
+        "x": 125.38999999999999,
+        "y": 11.28000000000003,
+        "w": 73.38,
+        "h": 19.5,
+        "size": 13,
+        "line_height": 19.5,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t_seg2",
+        "text": "Never",
+        "x": 244.92000000000002,
+        "y": 11.310000000000002,
+        "w": 45.2,
+        "h": 19.5,
+        "size": 13,
+        "line_height": 19.5,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "stack",
+        "id": "segdiv1",
+        "x": 111.36000000000001,
+        "y": 4.0,
+        "w": 1.0,
+        "h": 30.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 0
+      },
+      {
+        "t": "stack",
+        "id": "segdiv2",
+        "x": 221.83999999999997,
+        "y": 4.0,
+        "w": 1.0,
+        "h": 30.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 0
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294111991,
+    "radius": 8,
+    "border": 1,
+    "bordercolor": 4293256679
+  },
+  "changes": [
+    {
+      "source": "cards/setup-05/mapped.json",
+      "source_sha256": "0fd79e9d4c4d356234fe18f4115bda935259f73abb8550eec487b474c9225f8a",
+      "operation": "Extract native subtree and translate origin",
+      "source_root": "segments",
+      "translation": [
+        -46.0,
+        -426.21
+      ]
+    }
+  ]
+}
