@@ -1,0 +1,8 @@
+domain,frames,model_turns,kinds_seen
+agent,17,0,agent/list;agent/status/read;agent/output/read;agent/artifact/list;agent/interrupt;agent/close;agent/updated(x3)
+task,5,0,task/list;task/output/delta;task/updated(x2)
+monitor,16,0,monitor/create;monitor/list;monitor/pause;monitor/resume;monitor/delete;monitor/updated(x4)
+loop,19,0,loop/create;loop/list;loop/pause;loop/resume;loop/fire_now;loop/delete;loop/updated(x4);loop/fired
+goal,10,0,session/goal/set;session/goal/get;session/goal/clear;session/goal/updated(gen5);session/goal/cleared(gen6)
+peer,4,0,peer/prepare;peer/gather
+visual,0,0,none - dsflash profile advertises no image-generation binding
