@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "6c1cf188c26c8f6ccd83dec4d0c657afdb4ce37a840dfad0e34aa407f0d798e9",
+  "contract_sha256": "98f18142ae0ebd83d059483a6ef962e9a89dc8e43342eb291ba44fb532043399",
   "reference_sha256": "5c08d9fc4a83f0e3a62d3a2098042c7651586fb065eef494aab64d625711f019",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -98,6 +98,13 @@
     },
     {
       "id": "seg_box",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "seg_div",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,

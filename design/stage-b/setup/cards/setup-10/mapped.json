@@ -28,15 +28,17 @@
       },
       {
         "t": "stack",
-        "id": "search_pill",
-        "x": 51.0,
-        "y": 100.5,
-        "w": 158.0,
-        "h": 22.0,
+        "id": "search_box",
+        "x": 34.0,
+        "y": 80.0,
+        "w": 364.0,
+        "h": 60.0,
         "c": [],
         "variant": "surface",
-        "bg": 4284177246,
-        "radius": 20.5
+        "bg": 4294901502,
+        "radius": 8.4,
+        "border": 1,
+        "bordercolor": 4292269783
       },
       {
         "t": "stack",
@@ -87,12 +89,36 @@
         "radius": 0
       },
       {
+        "t": "stack",
+        "id": "grpl_1",
+        "x": 34.0,
+        "y": 213.0,
+        "w": 1.5,
+        "h": 172.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293059299,
+        "radius": 0
+      },
+      {
+        "t": "stack",
+        "id": "grpl_2",
+        "x": 34.0,
+        "y": 469.0,
+        "w": 1.5,
+        "h": 123.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293059299,
+        "radius": 0
+      },
+      {
         "t": "svg",
         "id": "icon_search",
-        "x": 60.0,
-        "y": 102.0,
-        "w": 16.0,
-        "h": 16.0,
+        "x": 51.0,
+        "y": 103.0,
+        "w": 17.0,
+        "h": 17.0,
         "src": ""
       },
       {
@@ -575,7 +601,7 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "search_pill",
+      "id": "search_box",
       "source": "observed non-text annotation"
     },
     {
@@ -592,6 +618,14 @@
     },
     {
       "id": "hair_registry_top",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "grpl_1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "grpl_2",
       "source": "observed non-text annotation"
     },
     {

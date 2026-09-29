@@ -218,6 +218,18 @@
         "bordercolor": 4292401625
       },
       {
+        "t": "stack",
+        "id": "seg_div",
+        "x": 266.0,
+        "y": 414.0,
+        "w": 1.5,
+        "h": 46.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4291875280,
+        "radius": 0
+      },
+      {
         "t": "text",
         "id": "t_llm",
         "text": "LLM",
@@ -338,6 +350,10 @@
     },
     {
       "id": "seg_box",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "seg_div",
       "source": "observed non-text annotation"
     },
     {

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "5d03d4d6ce1da9b5d54a3e4067dac2032da259f2205341f561b216cbddcd4b2a",
+  "contract_sha256": "732721c3cc7d4dfd352753c75387ba44c2c0d81550bd8170a1017cc200036e11",
   "reference_sha256": "4f6487df5abf26921604ebb014617c33d9034590363270f350b0a035054c69d3",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -20,7 +20,7 @@
       "decision": "declared"
     },
     {
-      "id": "search_pill",
+      "id": "search_box",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
@@ -55,6 +55,20 @@
       "decision": "declared"
     },
     {
+      "id": "grpl_1",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "grpl_2",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "icon_search",
       "role": "icon",
       "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
@@ -62,7 +76,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/icon_search.svg",
-        "sha256": "2ceefeccc2f35c53511f027027419164ab011265d180b7a10100add5a1a49bd6",
+        "sha256": "adcf9958f32786a8affbde2895a3d91587bf801078c44b804c37293874f4d9b4",
         "method": "reference_svg",
         "reference_sha256": "4f6487df5abf26921604ebb014617c33d9034590363270f350b0a035054c69d3",
         "fit": "stretch",

@@ -60,6 +60,9 @@ component Textcb1852baeae2(instance: text, text: text) {
 component Surface4016170e5b33(instance: text) {
   view Kit(component: "Surface4016170e5b33", instance: instance) { slot }
 }
+component Surface04d980ce2c9b(instance: text) {
+  view Kit(component: "Surface04d980ce2c9b", instance: instance) { slot }
+}
 component Texte71ceccda95f(instance: text, text: text) {
   view Kit(component: "Texte71ceccda95f", instance: instance, text: text)
 }
@@ -100,6 +103,9 @@ view root Surface156d085f4ff5(instance: "page") {
   Text8f6ab1e5e5bc(instance: "t_val8", text: copy.t_val8_text)
   Textcb1852baeae2(instance: "t_comp", text: copy.t_comp_text)
   Surface4016170e5b33(instance: "seg_box") {
+
+  }
+  Surface04d980ce2c9b(instance: "seg_div") {
 
   }
   Texte71ceccda95f(instance: "t_llm", text: copy.t_llm_text)

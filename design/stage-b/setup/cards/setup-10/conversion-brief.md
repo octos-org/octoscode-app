@@ -50,11 +50,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "search_pill",
-    "x": 51.0,
-    "y": 100.5,
-    "w": 158.0,
-    "h": 22.0,
+    "id": "search_box",
+    "x": 34.0,
+    "y": 80.0,
+    "w": 364.0,
+    "h": 60.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -105,11 +105,33 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "grpl_1",
+    "x": 34.0,
+    "y": 213.0,
+    "w": 1.5,
+    "h": 172.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "grpl_2",
+    "x": 34.0,
+    "y": 469.0,
+    "w": 1.5,
+    "h": 123.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "icon_search",
-    "x": 60.0,
-    "y": 102.0,
-    "w": 16.0,
-    "h": 16.0,
+    "x": 51.0,
+    "y": 103.0,
+    "w": 17.0,
+    "h": 17.0,
     "role": "unknown",
     "native_candidates": []
   },

@@ -128,6 +128,15 @@
           "h": 55.0
         }
       },
+      "seg_div": {
+        "component": "Surface04d980ce2c9b",
+        "layout": {
+          "x": 266.0,
+          "y": 414.0,
+          "w": 1.5,
+          "h": 46.0
+        }
+      },
       "t_llm": {
         "component": "Texte71ceccda95f",
         "layout": {

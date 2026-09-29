@@ -30,12 +30,12 @@
       "value": 0.0,
       "property": "tracking"
     },
-    "bg_3c72b8e3ff4a": {
-      "value": 4284177246,
+    "bg_07cf9621f5e0": {
+      "value": 4294901502,
       "property": "bg"
     },
-    "radius_d86e0da98f89": {
-      "value": 20.5,
+    "radius_163c820d9576": {
+      "value": 8.4,
       "property": "radius"
     },
     "bg_f94f1e08d34a": {
@@ -45,6 +45,10 @@
     "radius_5feceb66ffc8": {
       "value": 0,
       "property": "radius"
+    },
+    "bg_f444e185712c": {
+      "value": 4293059299,
+      "property": "bg"
     },
     "size_521516cb2702": {
       "value": 16.63,
@@ -316,16 +320,18 @@
       },
       "slot": false
     },
-    "Surfacec24999f0c4a5": {
+    "Surface9e2a67f8c5e4": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_3c72b8e3ff4a"
+          "$token": "bg_07cf9621f5e0"
         },
         "radius": {
-          "$token": "radius_d86e0da98f89"
-        }
+          "$token": "radius_163c820d9576"
+        },
+        "border": 1,
+        "bordercolor": 4292269783
       },
       "props": {},
       "slot": true
@@ -336,6 +342,20 @@
         "variant": "surface",
         "bg": {
           "$token": "bg_f94f1e08d34a"
+        },
+        "radius": {
+          "$token": "radius_5feceb66ffc8"
+        }
+      },
+      "props": {},
+      "slot": true
+    },
+    "Surfaceea7f4e2ca466": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_f444e185712c"
         },
         "radius": {
           "$token": "radius_5feceb66ffc8"

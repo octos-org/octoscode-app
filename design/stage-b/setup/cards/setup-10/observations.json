@@ -631,17 +631,17 @@
       "bg": 4293981682
     },
     {
-      "id": "search_pill",
+      "id": "search_box",
       "bounds": [
-        269.0,
-        476.0,
-        88.0,
-        41.0
+        33.0,
+        79.0,
+        338.0,
+        63.0
       ],
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
-      "bg": 4294704123,
-      "radius": 20.5
+      "bg": 4294901502,
+      "radius": 8.4
     },
     {
       "id": "hair_installed",
@@ -688,12 +688,34 @@
       "reviewed": false
     },
     {
+      "id": "grpl_1",
+      "bounds": [
+        34.0,
+        213.0,
+        1.5,
+        172.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "grpl_2",
+      "bounds": [
+        34.0,
+        469.0,
+        1.5,
+        123.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
       "id": "icon_search",
       "bounds": [
-        60.0,
-        102.0,
-        16.0,
-        16.0
+        51.0,
+        103.0,
+        17.0,
+        17.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false

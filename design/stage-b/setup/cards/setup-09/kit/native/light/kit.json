@@ -158,6 +158,14 @@
       "value": 27.5,
       "property": "radius"
     },
+    "bg_ca7b2a1497ab": {
+      "value": 4291875280,
+      "property": "bg"
+    },
+    "radius_5feceb66ffc8": {
+      "value": 0,
+      "property": "radius"
+    },
     "size_fc0d25da0a94": {
       "value": 16.64,
       "property": "size"
@@ -557,6 +565,20 @@
         },
         "border": 1,
         "bordercolor": 4292401625
+      },
+      "props": {},
+      "slot": true
+    },
+    "Surface04d980ce2c9b": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_ca7b2a1497ab"
+        },
+        "radius": {
+          "$token": "radius_5feceb66ffc8"
+        }
       },
       "props": {},
       "slot": true

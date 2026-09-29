@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "75192856ae0c5ad965eafdf497ac38a2b52fb042d69c7e4929514e41f769877b",
+  "manifest_sha256": "cd8a1f96c052d1ff7e74ca0e895fe9f7be2d02a7e06d6a4af45f3eff485f185a",
   "reference_sha256": "5c08d9fc4a83f0e3a62d3a2098042c7651586fb065eef494aab64d625711f019",
   "id": "setup-09",
   "round": null,
@@ -166,6 +166,17 @@
     },
     {
       "id": "seg_box",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "seg_div",
       "role": "layout",
       "basis": "authored stack node",
       "expected_widgets": [

@@ -129,6 +129,8 @@ def build_09(sc):
     sc.add_text("t_comp", 9, size=14)
     sc.put(A.surface("seg_box", 160.5, 408, 207.5, 58, bg="white", radius=29,
                      border=1, bordercolor="s9_segborder"))
+    A.C["s9_segdiv"] = 0xFFD0D1D0   # centre divider (208..216 grey) @ x266
+    sc.put(A.surface("seg_div", 266, 414, 1.5, 46, bg="s9_segdiv", radius=0))
     sc.add_text("t_llm", 10, weight=500, size=13)
     sc.add_text("t_heur", 11, color="muted", size=13)
     sc.add_control("btn_compact", 60, 513, 290, 44, 12, bg="white", radius=22, weight=600,
@@ -145,17 +147,22 @@ def build_10(sc):
     A.C["s10_remove"] = 0xFFD3DEFA     # ref (211,222,250) @ (329,236)
     A.C["s10_blue"] = 0xFF0000E0       # ref Remove glyph darkest (0,0,224)
     sc.add_text("t_title", 0, weight=600, size=19)
-    A.C["s10_pill"] = 0xFF5B5B5E      # ref dark input pill (91,91,94) @ (203,111)
-    A.C_HEX["s10_pill"] = "#5B5B5E"
-    A.C["s10_plight"] = 0xFFF6F7F7    # light text/icon on the pill (246,247,247)
-    A.C_HEX["s10_plight"] = "#F6F7F7"
-    sc.put(A.surface("search_pill", 51, 100.5, 158, 22, bg="s10_pill", radius=11))
+    A.C["s10_boxb"] = 0xFFD6D6D7    # search field border (214,214,215) @ (34,111)
+    A.C_HEX["s10_boxb"] = "#D6D6D7"
+    A.C["s10_ph"] = 0xFF828081      # placeholder ink (130,128,129)
+    A.C_HEX["s10_ph"] = "#828081"
+    sc.put(A.surface("search_box", 34, 80, 364, 60, bg="white", radius=8,
+                     border=1, bordercolor="s10_boxb"))
     sc.put(A.surface("hair_installed", 0, 204, 406, 1, bg="s10_hair", radius=0))
     sc.put(A.surface("hair_registry", 0, 602, 406, 1, bg="s10_hair", radius=0))
     sc.put(A.surface("hair_installed_end", 0, 393, 406, 1, bg="s10_hair", radius=0))
     sc.put(A.surface("hair_registry_top", 0, 459, 406, 1, bg="s10_hair", radius=0))
-    sc.put(A.icon("icon_search", "search", 60, 102, 16, 16, color="s10_plight"))
-    sc.put(A.text("t_search", sc.rows[1][0], 83, 104, 128, 18, color="s10_plight", size=12))
+    A.C["s10_grpl"] = 0xFFE2E2E3    # group-card left line (225..230 grey) @ x34
+    A.C_HEX["s10_grpl"] = "#E2E2E3"
+    sc.put(A.surface("grpl_1", 34, 213, 1.5, 172, bg="s10_grpl", radius=0))
+    sc.put(A.surface("grpl_2", 34, 469, 1.5, 123, bg="s10_grpl", radius=0))
+    sc.put(A.icon("icon_search", "search", 51, 103, 17, 17, color="s10_ph"))
+    sc.put(A.text("t_search", sc.rows[1][0], 83, 104, 128, 18, color="s10_ph", size=12))
     sc.add_text("t_inst_head", 2, weight=600, size=15)
     for ni, vi, ri, bi in [(3, 6, 14, 0), (4, 7, 15, 1), (5, 8, 16, 2)]:
         ns, nx, ny, nw, nh = sc.rows[ni]

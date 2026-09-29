@@ -40,6 +40,9 @@ component Textcb1852baeae2(instance: text, text: text) {
 component Surface4016170e5b33(instance: text) {
   view Kit(component: "Surface4016170e5b33", instance: instance) { slot }
 }
+component Surface04d980ce2c9b(instance: text) {
+  view Kit(component: "Surface04d980ce2c9b", instance: instance) { slot }
+}
 component Texte71ceccda95f(instance: text, text: text) {
   view Kit(component: "Texte71ceccda95f", instance: instance, text: text)
 }
