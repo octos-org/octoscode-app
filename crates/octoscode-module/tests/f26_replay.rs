@@ -49,6 +49,16 @@ fn live_gate() -> Vec<Frame> {
     ))
 }
 
+/// The **interrupted-case** recording (board #26 addendum): the live gate's own
+/// `live-gate/evidence/trace.jsonl`, scrubbed to `<WORKSPACE>` and committed.
+/// Turn 2 was interrupted (`out turn/interrupt`) and carries no `user_message`.
+fn interrupted_fixture() -> Vec<Frame> {
+    load(concat!(
+        env!("CARGO_MANIFEST_DIR"),
+        "/../octoscode-client/tests/fixtures/r26-interrupted-a6ea8505.jsonl"
+    ))
+}
+
 /// The `turn/start` a recorded turn was driven with: `(turn_id, prompt)`.
 fn recorded_turns(frames: &[Frame]) -> Vec<(String, String)> {
     frames
@@ -273,6 +283,45 @@ async fn an_interrupted_turn_still_shows_its_user_row() {
     assert!(
         prompts.contains(&turns[1].1.as_str()),
         "the interrupted turn's prompt must show; got {prompts:?}"
+    );
+    assert_eq!(users.len(), 2, "exactly one user row per turn: {prompts:?}");
+}
+
+/// Board #26 addendum (§8.14): the same claim on the **interrupted-case**
+/// recording the live gate itself produced, scrubbed into
+/// `r26-interrupted-a6ea8505.jsonl`. Turn 2 carries `out turn/interrupt` and NO
+/// `user_message`, so a naive client shows only turn 1's bubble; with the
+/// optimistic row turn 2's prompt must still show.
+#[tokio::test]
+async fn the_interrupted_case_recording_shows_turn_2s_prompt() {
+    let frames = interrupted_fixture();
+    let turns = recorded_turns(&frames);
+    assert_eq!(turns.len(), 2, "the recording drove two turns");
+    let user_turns = recorded_user_turns(&frames);
+    assert!(user_turns.contains(&turns[0].0), "turn 1 has a server user_message");
+    assert!(
+        !user_turns.contains(&turns[1].0),
+        "turn 2 was interrupted: no server user_message"
+    );
+
+    let server = ReplayServer::start(frames).await;
+    let (conv, mut events) = Conversation::connect(&server.base_url, "dummy", "dsflash", None, None)
+        .expect("connect");
+    conv.open_workspace(None).await.expect("session/open");
+    drain_until(&conv, &mut events, |_| false).await;
+    for (id, prompt) in &turns {
+        conv.start_turn_with_id(prompt, id.clone())
+            .await
+            .expect("turn/start");
+        drain_until(&conv, &mut events, |e| matches!(e, FlowEvent::TurnEnded { .. })).await;
+    }
+
+    let tl = &conv.store.domains.session.timeline;
+    let users = tl.of_kind("dsflash:main", octoscode_store::EntryKind::USER_MESSAGE);
+    let prompts: Vec<&str> = users.iter().map(|e| e.text.as_str()).collect();
+    assert!(
+        prompts.contains(&turns[1].1.as_str()),
+        "the interrupted turn's prompt must show from the recording; got {prompts:?}"
     );
     assert_eq!(users.len(), 2, "exactly one user row per turn: {prompts:?}");
 }
