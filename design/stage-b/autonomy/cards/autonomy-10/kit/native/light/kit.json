@@ -58,20 +58,20 @@
       "value": 10.0,
       "property": "radius"
     },
-    "size_34499a106b72": {
-      "value": 12.03,
+    "size_7d96c5add449": {
+      "value": 10.4,
       "property": "size"
     },
-    "line_height_03954ef0ff30": {
-      "value": 14.56,
+    "line_height_07218093ec97": {
+      "value": 15.2,
       "property": "line_height"
     },
     "weight_26d228663f13": {
       "value": 400,
       "property": "weight"
     },
-    "color_85d3dcfffad8": {
-      "value": 4284243293,
+    "color_5e6b06fd707a": {
+      "value": 4285427315,
       "property": "color"
     },
     "font_src_127b81481877": {
@@ -149,10 +149,6 @@
     "size_e629fa6598d7": {
       "value": 15,
       "property": "size"
-    },
-    "color_5e6b06fd707a": {
-      "value": 4285427315,
-      "property": "color"
     },
     "bg_75d672c0f74f": {
       "value": 4294704123,
@@ -302,20 +298,20 @@
       "props": {},
       "slot": false
     },
-    "Text012b54cc7942": {
+    "Text9ccbe7abdc8b": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_34499a106b72"
+          "$token": "size_7d96c5add449"
         },
         "line_height": {
-          "$token": "line_height_03954ef0ff30"
+          "$token": "line_height_07218093ec97"
         },
         "weight": {
           "$token": "weight_26d228663f13"
         },
         "color": {
-          "$token": "color_85d3dcfffad8"
+          "$token": "color_5e6b06fd707a"
         },
         "variant": "single_line",
         "alignx": 0,

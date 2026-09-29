@@ -31,8 +31,8 @@ component Surfacebdb4a7f0da35(instance: text) {
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
-component Text012b54cc7942(instance: text, text: text) {
-  view Kit(component: "Text012b54cc7942", instance: instance, text: text)
+component Text9ccbe7abdc8b(instance: text, text: text) {
+  view Kit(component: "Text9ccbe7abdc8b", instance: instance, text: text)
 }
 component Surface8938b292c8f9(instance: text) {
   view Kit(component: "Surface8938b292c8f9", instance: instance) { slot }
@@ -75,7 +75,7 @@ view root Surface16fae9a63e16(instance: "page") {
   }
   Surfacebdb4a7f0da35(instance: "tool_card") {
     Vectore0a378fde04f(instance: "icon_tool")
-    Text012b54cc7942(instance: "t_tool", text: copy.t_tool_text)
+    Text9ccbe7abdc8b(instance: "t_tool", text: copy.t_tool_text)
     Vectore0a378fde04f(instance: "icon_tool_done")
   }
   Surface8938b292c8f9(instance: "aside_card") {
@@ -95,5 +95,6 @@ view root Surface16fae9a63e16(instance: "page") {
     Surface12c1b4d26f2d(instance: "send_btn") {
       Vectore0a378fde04f(instance: "icon_send")
     }
+    Vectore0a378fde04f(instance: "icon_mic")
   }
 }

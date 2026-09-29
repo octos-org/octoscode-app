@@ -45,10 +45,10 @@
       "component": "Imageec6f4cac3824",
       "semantic_role": "photo",
       "bounds": [
-        15.0,
-        190.9,
-        170.0,
-        175.5
+        12.0,
+        188.0,
+        176.0,
+        231.0
       ],
       "text": null,
       "enabled": null,
@@ -117,10 +117,10 @@
       "component": "Imageec6f4cac3824",
       "semantic_role": "photo",
       "bounds": [
-        208.022,
-        190.9,
-        170.955,
-        175.5
+        205.0,
+        188.0,
+        176.0,
+        231.0
       ],
       "text": null,
       "enabled": null,
@@ -171,10 +171,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        267.354,
-        235.75,
-        52.292,
-        50.7
+        287.0,
+        249.5,
+        52.0,
+        52.0
       ],
       "text": null,
       "enabled": null,
@@ -186,7 +186,7 @@
       "native_id": "beauty_0_1_3",
       "parent": "att_2",
       "kind": "text",
-      "component": "Text5c1b81679a13",
+      "component": "Text489fa4c65eca",
       "semantic_role": "text",
       "bounds": [
         275.04,
@@ -439,6 +439,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "ad5caf3b4f691a18b6efcfbeb417570af481f69c0ae621e058e0a17ba0589ee4",
+  "contract_sha256": "6a9f03db18e7cb2444f245be36aeea974795f13757f29f14d9cb3d2d09c3b1eb",
   "mapping_basis": "mapped.json"
 }

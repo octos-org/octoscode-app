@@ -31,8 +31,8 @@ component Surfacee2ecf8684e5f(instance: text) {
 component Surfacebd12216ed43c(instance: text) {
   view Kit(component: "Surfacebd12216ed43c", instance: instance) { slot }
 }
-component Text5c1b81679a13(instance: text, text: text) {
-  view Kit(component: "Text5c1b81679a13", instance: instance, text: text)
+component Text489fa4c65eca(instance: text, text: text) {
+  view Kit(component: "Text489fa4c65eca", instance: instance, text: text)
 }
 component Text8a95be22d912(instance: text, text: text) {
   view Kit(component: "Text8a95be22d912", instance: instance, text: text)
@@ -78,7 +78,7 @@ view root Surface16fae9a63e16(instance: "page") {
       Vectore0a378fde04f(instance: "att_2_close")
     }
     Vectore0a378fde04f(instance: "att2_ring")
-    Text5c1b81679a13(instance: "att2_pct", text: copy.att2_pct_text)
+    Text489fa4c65eca(instance: "att2_pct", text: copy.att2_pct_text)
   }
   Text8a95be22d912(instance: "t_sz1", text: copy.t_sz1_text)
   Text5cf710de1563(instance: "t_sz2", text: copy.t_sz2_text)

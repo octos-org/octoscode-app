@@ -42,8 +42,8 @@
       "value": 600,
       "property": "weight"
     },
-    "color_efc46405f71b": {
-      "value": 4294507001,
+    "color_f807212b6748": {
+      "value": 4294967295,
       "property": "color"
     },
     "font_src_a9a389fb1fcc": {
@@ -245,7 +245,7 @@
       "props": {},
       "slot": true
     },
-    "Text5c1b81679a13": {
+    "Text489fa4c65eca": {
       "style": {
         "t": "text",
         "size": {
@@ -258,7 +258,7 @@
           "$token": "weight_284b7e6d788f"
         },
         "color": {
-          "$token": "color_efc46405f71b"
+          "$token": "color_f807212b6748"
         },
         "variant": "single_line",
         "alignx": 0,

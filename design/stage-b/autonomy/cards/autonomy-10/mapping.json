@@ -114,18 +114,18 @@
       "native_id": "beauty_0_1_1",
       "parent": "tool_card",
       "kind": "text",
-      "component": "Text012b54cc7942",
+      "component": "Text9ccbe7abdc8b",
       "semantic_role": "text",
       "bounds": [
-        21.21,
-        269.04,
-        300.08,
-        27.39
+        52.0,
+        281.0,
+        265.0,
+        15.2
       ],
       "text": "Read crates/octos-core/src/ui_protocol.rs",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 12.03
+      "size": 10.4
     },
     {
       "source_id": "icon_tool_done",
@@ -396,6 +396,24 @@
       "enabled": null,
       "font": null,
       "size": null
+    },
+    {
+      "source_id": "icon_mic",
+      "native_id": "beauty_0_4_5",
+      "parent": "composer",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        316.0,
+        691.0,
+        15.0,
+        22.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
     }
   ],
   "fonts": {
@@ -404,6 +422,6 @@
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "1cda346161797ba9e00e2a51616a872824b40cf1368cd988f0c3511c60262fd9",
+  "contract_sha256": "1cb95b129112b45b44cf817241ea6eb8e8a8429af5c04a2643d54358358991ac",
   "mapping_basis": "mapped.json"
 }

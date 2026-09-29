@@ -52,6 +52,7 @@ SIZE_KEEP = {(7, "t_undo"), (7, "t_log0"), (7, "t_log1"), (7, "t_log2"), (7, "t_
              (8, "t_resume"), (8, "t_confirm"), (8, "t_cancel2"),
              # #28b3: map/fix re-position these off the authored control row / card
              (9, "t_approval"), (9, "t_model"),
+             (10, "t_tool"),
              (11, "t_tool"), (11, "t_approval"), (11, "t_model"),
              (12, "t_disconnect"), (12, "t_wsval"), (12, "t_profval")}
 

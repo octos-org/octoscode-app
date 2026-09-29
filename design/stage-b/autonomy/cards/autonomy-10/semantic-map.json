@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "1cda346161797ba9e00e2a51616a872824b40cf1368cd988f0c3511c60262fd9",
+  "contract_sha256": "1cb95b129112b45b44cf817241ea6eb8e8a8429af5c04a2643d54358358991ac",
   "reference_sha256": "85fcd1e6e9f1ab1539c417cde61932e4342ef8a4fee8a21d44d2b567e2b2728c",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -202,6 +202,22 @@
       "asset": {
         "path": "assets/icon_send.svg",
         "sha256": "3fe1783d764e9fc45946b981d0f1916002bee25cd4f372339740edc4d6dd47c9",
+        "method": "reference_svg",
+        "reference_sha256": "85fcd1e6e9f1ab1539c417cde61932e4342ef8a4fee8a21d44d2b567e2b2728c",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "icon_mic",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_mic.svg",
+        "sha256": "94bc5db4a153ef0a47d50557e4110c80233e4ec2974a592cd0c798402d672d4b",
         "method": "reference_svg",
         "reference_sha256": "85fcd1e6e9f1ab1539c417cde61932e4342ef8a4fee8a21d44d2b567e2b2728c",
         "fit": "stretch",

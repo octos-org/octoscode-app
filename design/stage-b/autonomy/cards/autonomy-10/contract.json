@@ -95,16 +95,17 @@
             "id": "t_tool",
             "text": "Read crates/octos-core/src/ui_protocol.rs",
             "x": 52.0,
-            "y": 266.2,
-            "w": 280.0,
-            "h": 33.88,
-            "size": 13,
-            "line_height": 33.88,
+            "y": 281.0,
+            "w": 265.0,
+            "h": 15.2,
+            "size": 10.4,
+            "line_height": 15.2,
             "weight": 400,
             "color": 4285427315,
             "variant": "single_line",
             "alignx": 0,
-            "font_src": "self:resources/ux/LiberationMono-Regular.ttf"
+            "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+            "tracking": 0.0
           },
           {
             "t": "svg",
@@ -306,6 +307,15 @@
             "variant": "surface",
             "bg": 4278190080,
             "radius": 999
+          },
+          {
+            "t": "svg",
+            "id": "icon_mic",
+            "x": 316.0,
+            "y": 691.0,
+            "w": 15.0,
+            "h": 22.0,
+            "src": ""
           }
         ],
         "variant": "surface",

@@ -58,12 +58,12 @@
       "value": 11.29,
       "property": "radius"
     },
-    "size_3fdba35f04dc": {
-      "value": 13,
+    "size_7d96c5add449": {
+      "value": 10.4,
       "property": "size"
     },
-    "line_height_840ca1c3f215": {
-      "value": 26.94,
+    "line_height_07218093ec97": {
+      "value": 15.2,
       "property": "line_height"
     },
     "weight_26d228663f13": {
@@ -129,6 +129,10 @@
     "radius_c22cd1ea7268": {
       "value": 23.0,
       "property": "radius"
+    },
+    "size_3fdba35f04dc": {
+      "value": 13,
+      "property": "size"
     },
     "line_height_553beed538e6": {
       "value": 19.5,
@@ -266,14 +270,14 @@
       "props": {},
       "slot": false
     },
-    "Text17c9f98785a8": {
+    "Textccd543f81a7a": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_3fdba35f04dc"
+          "$token": "size_7d96c5add449"
         },
         "line_height": {
-          "$token": "line_height_840ca1c3f215"
+          "$token": "line_height_07218093ec97"
         },
         "weight": {
           "$token": "weight_26d228663f13"

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "801a54c6c958591215ce5bbdc11dcd00ee9aec887c4f84e8abe2ee510b72eff6",
+  "contract_sha256": "6762fc505a5c6db67abd6e15aa1679b094ea2ff4e997a7c720e7e4213e3d0362",
   "reference_sha256": "d33aa28a0628f5be1ea6460ad6ed34e53d4a7aae982d2ddab7f32dd7ac59ee8a",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -226,7 +226,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/icon_send.svg",
-        "sha256": "30e16d885bd713c47e181d95b2bb2c0695ec24f057ae6a0ebe0c62596b58f16e",
+        "sha256": "1b6d622a38e93dbbb8af3310ac8c9a583bd00f12e938c5debaff254d377e4627",
         "method": "reference_svg",
         "reference_sha256": "d33aa28a0628f5be1ea6460ad6ed34e53d4a7aae982d2ddab7f32dd7ac59ee8a",
         "fit": "stretch",

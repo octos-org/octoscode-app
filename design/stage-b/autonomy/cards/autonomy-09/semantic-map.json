@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "ad5caf3b4f691a18b6efcfbeb417570af481f69c0ae621e058e0a17ba0589ee4",
+  "contract_sha256": "6a9f03db18e7cb2444f245be36aeea974795f13757f29f14d9cb3d2d09c3b1eb",
   "reference_sha256": "a8361d691033b222d61a8cb803d8ab4a0fa0faa3a33b356d0677de5c5c72ae18",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -27,7 +27,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/thumb_code.png",
-        "sha256": "f187c53eac2c9d8f33c53290fe4bbb7da9488529544429d4da46a4f77e58d5ae",
+        "sha256": "d08ed1b523f0254279c3bfdad29ccef5955140d38d81a0cf2b2c2a5f85b46154",
         "method": "original_asset",
         "source": "repo evidence render conversation-11-native-v12.png, diff-rows crop [40,360,772,840] (design/stage-b/conversation/evidence/gate-b/), reused per #28b2 outer-loop item",
         "fit": "stretch",
@@ -73,7 +73,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/thumb_code.png",
-        "sha256": "f187c53eac2c9d8f33c53290fe4bbb7da9488529544429d4da46a4f77e58d5ae",
+        "sha256": "d08ed1b523f0254279c3bfdad29ccef5955140d38d81a0cf2b2c2a5f85b46154",
         "method": "original_asset",
         "source": "repo evidence render conversation-11-native-v12.png, diff-rows crop [40,360,772,840] (design/stage-b/conversation/evidence/gate-b/), reused per #28b2 outer-loop item",
         "fit": "stretch",
@@ -112,7 +112,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/att2_ring.svg",
-        "sha256": "43ab5de16f057de789f67be81a496aa8c42222a3e784428ef8dddabe027a4938",
+        "sha256": "ba3ee197a8a56b32daf483257588e9c9096e22ac91af54ea0837d8a0af06d1e8",
         "method": "reference_svg",
         "reference_sha256": "a8361d691033b222d61a8cb803d8ab4a0fa0faa3a33b356d0677de5c5c72ae18",
         "fit": "stretch",

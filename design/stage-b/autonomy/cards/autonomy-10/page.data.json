@@ -58,12 +58,12 @@
         }
       },
       "t_tool": {
-        "component": "Text012b54cc7942",
+        "component": "Text9ccbe7abdc8b",
         "layout": {
-          "x": 21.21,
-          "y": 269.04,
-          "w": 300.08,
-          "h": 27.39
+          "x": 52.0,
+          "y": 281.0,
+          "w": 265.0,
+          "h": 15.2
         }
       },
       "icon_tool_done": {
@@ -203,6 +203,16 @@
           "w": 16.0,
           "h": 16.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-10/assets/icon_send-3fe1783d764e.svg"
+        }
+      },
+      "icon_mic": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 316.0,
+          "y": 691.0,
+          "w": 15.0,
+          "h": 22.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-10/assets/icon_mic-94bc5db4a153.svg"
         }
       }
     },

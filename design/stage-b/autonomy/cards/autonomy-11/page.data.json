@@ -58,7 +58,7 @@
         }
       },
       "t_tool": {
-        "component": "Text17c9f98785a8",
+        "component": "Textccd543f81a7a",
         "layout": {
           "x": 52.0,
           "y": 281.49,
@@ -213,7 +213,7 @@
           "y": 671.932,
           "w": 15.658,
           "h": 15.233,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-11/assets/icon_send-30e16d885bd7.svg"
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-11/assets/icon_send-1b6d622a38e9.svg"
         }
       }
     },

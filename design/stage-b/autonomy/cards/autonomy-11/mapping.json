@@ -114,7 +114,7 @@
       "native_id": "beauty_0_1_1",
       "parent": "tool_card",
       "kind": "text",
-      "component": "Text17c9f98785a8",
+      "component": "Textccd543f81a7a",
       "semantic_role": "text",
       "bounds": [
         52.0,
@@ -125,7 +125,7 @@
       "text": "Edit crates/octos-cli/tests/steer_queue.rs",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 13
+      "size": 10.4
     },
     {
       "source_id": "icon_tool_done",
@@ -421,6 +421,6 @@
     "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "801a54c6c958591215ce5bbdc11dcd00ee9aec887c4f84e8abe2ee510b72eff6",
+  "contract_sha256": "6762fc505a5c6db67abd6e15aa1679b094ea2ff4e997a7c720e7e4213e3d0362",
   "mapping_basis": "mapped.json"
 }
