@@ -4135,7 +4135,7 @@ dependencies = [
  "makepad-draw",
  "makepad-html",
  "makepad-latex-math",
- "octoscript-node 0.1.0 (git+https://github.com/OctoSense-org/Octoscript-Makepad.git?rev=78f90f6e9e5e3b9fe4b5f5b0618fa4e93db30860)",
+ "octoscript-node",
  "pulldown-cmark",
  "serde_json",
  "ttf-parser",
@@ -5210,7 +5210,6 @@ dependencies = [
 [[package]]
 name = "octoscript-makepad"
 version = "0.1.0"
-source = "git+https://github.com/OctoSense-org/Octoscript-Makepad.git?rev=6881fb6c3c3220e407633b0ba5211c3d42c7e625#6881fb6c3c3220e407633b0ba5211c3d42c7e625"
 dependencies = [
  "octoscript-render",
  "octoscript-ui-l0",
@@ -5220,20 +5219,13 @@ dependencies = [
 [[package]]
 name = "octoscript-node"
 version = "0.1.0"
-source = "git+https://github.com/OctoSense-org/Octoscript-Makepad.git?rev=6881fb6c3c3220e407633b0ba5211c3d42c7e625#6881fb6c3c3220e407633b0ba5211c3d42c7e625"
-
-[[package]]
-name = "octoscript-node"
-version = "0.1.0"
-source = "git+https://github.com/OctoSense-org/Octoscript-Makepad.git?rev=78f90f6e9e5e3b9fe4b5f5b0618fa4e93db30860#78f90f6e9e5e3b9fe4b5f5b0618fa4e93db30860"
 
 [[package]]
 name = "octoscript-render"
 version = "0.1.0"
-source = "git+https://github.com/OctoSense-org/Octoscript-Makepad.git?rev=6881fb6c3c3220e407633b0ba5211c3d42c7e625#6881fb6c3c3220e407633b0ba5211c3d42c7e625"
 dependencies = [
  "makepad-script",
- "octoscript-node 0.1.0 (git+https://github.com/OctoSense-org/Octoscript-Makepad.git?rev=6881fb6c3c3220e407633b0ba5211c3d42c7e625)",
+ "octoscript-node",
  "serde_json",
 ]
 
@@ -5249,7 +5241,6 @@ dependencies = [
 [[package]]
 name = "octoscript-widgets"
 version = "0.1.0"
-source = "git+https://github.com/OctoSense-org/Octoscript-Makepad.git?rev=6881fb6c3c3220e407633b0ba5211c3d42c7e625#6881fb6c3c3220e407633b0ba5211c3d42c7e625"
 dependencies = [
  "makepad-widgets",
  "serde_json",

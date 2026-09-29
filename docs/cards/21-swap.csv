@@ -1,0 +1,10 @@
+component,resolves_on_disk,slots_declared,lower_ok,lowered_bytes,lowered_widgets,live_values_injected,live_values_expected
+thread-row,true,1,yes,1289,7,1,1
+user-bubble,true,2,yes,1606,9,2,2
+assistant-prose,true,1,yes,752,5,1,1
+tool-cell,true,2,yes,2156,11,2,2
+working-row,true,1,yes,1036,6,1,1
+worked-for,true,1,yes,1289,7,1,1
+answer-actions,true,1,yes,1568,8,1,1
+composer,true,4,yes,3726,18,4,4
+new-chat,true,1,yes,1271,7,1,1

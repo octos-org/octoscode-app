@@ -101,6 +101,10 @@ pub const ACTIONS: &[(&str, &str)] = &[
     ("turn.interrupt", "turn/interrupt the live turn"),
     ("turn.steer", "turn/steer the live turn's input buffer"),
     ("answer.expand", "toggle the worked-for disclosure (UI-local)"),
+    // Card #21 §3 — the per-item control actions the #16 components emit.
+    ("thread.open", "open the clicked thread row's session (`row.id`)"),
+    ("answer.copy", "copy the answer text (UI-local; the clipboard is the host's)"),
+    ("tool.toggle", "toggle a tool cell's output disclosure (UI-local)"),
 ];
 
 /// The conversation action ids the fallback view emits (its buttons map to
@@ -559,8 +563,9 @@ mod tests {
             assert!(is_action(id), "{id} must be an action");
         }
         // The four conversation actions + session.refresh + session.new
-        // (card #14 defect 4: New chat mints a fresh session id).
-        assert_eq!(ACTIONS.len(), 6);
+        // (card #14 defect 4: New chat mints a fresh session id) + card #21 §3's
+        // three per-item controls (thread.open, answer.copy, tool.toggle).
+        assert_eq!(ACTIONS.len(), 9);
         assert!(is_action("composer.submit"));
         assert!(is_action("turn.interrupt"));
         assert!(is_action("turn.steer"));

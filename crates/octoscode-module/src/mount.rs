@@ -1,0 +1,265 @@
+//! Card #21b — mount a lowered #16 component the way `beauty-host` does.
+//!
+//! ## Why not `Splash::set_text`
+//!
+//! `set_text` evaluates the body in the Splash's **own nested isolate** and
+//! assigns the freshly-minted `View` to `Splash::view`. The widgets that view
+//! contains are minted as a **standalone tree**: nothing calls
+//! `widget_tree_insert_child_deep`, so they never enter the shared widget-tree
+//! graph the draw pass walks. They instantiate with a zero rect and paint
+//! nothing — the exact symptom card #21b measured (`/snap` showed the real DSL
+//! and real authored sizes, but every `i*_*` node seated at `[0,0,0,0]`).
+//!
+//! `beauty-host` (the reference that DOES paint this DSL,
+//! `apps/kit-host/src/beauty.rs:125-195`) instead:
+//!
+//! 1. evaluates `return View{… <ui>}` with `vm.eval_checked(..)` →
+//!    `View::script_from_value(vm, value)`;
+//! 2. `std::mem::replace(&mut splash.view, view)` — the component tree becomes
+//!    the Splash's own view;
+//! 3. for each child `cx.widget_tree_insert_child_deep(splash_uid, id, child)`
+//!    (this is what "reparents the nodes created under the temporary standalone
+//!    View during script evaluation"), then `widget_tree_mark_dirty`.
+//!
+//! ## Which VM
+//!
+//! Our module is not a plain `app_main!` app: the OctoSense shell hosts it in an
+//! **isolate** (`module_host.rs:133` `alloc_splash_vm_with_network(false)`, then
+//! `module.register(vm)` / `module.create(vm, ..)` inside it). So "the main VM"
+//! for us is *the VM that owns our widgets* — the isolate `OctoscodeView` and
+//! its `Splash` children were minted in. Evaluating the component in any other
+//! VM would mint a `View` whose script refs point at another heap, which
+//! `View::script_call` refuses (view.rs:900, "a view whose isolate has since
+//! been torn down"). We therefore recover the owning VM from the Splash's own
+//! view source (`cx.script_ref_vm_id`) rather than assuming the installed VM.
+//!
+//! The design/kit vocabulary the DSL names must be registered in THAT VM.
+//! `OctoscodeModule::register` registers `octoscript_widgets::{design,kit}::
+//! script_mod` directly into it, as `beauty.rs:356-364` does in the App's
+//! `script_mod`.
+use std::collections::HashMap;
+
+use makepad_widgets::*;
+use makepad_widgets::makepad_script::ScriptMod;
+
+/// The DSL prelude: name the design/kit vocabulary, then return the component's
+/// own root inside a wrapper `View`.
+///
+/// `Fill/Fill`, the shape `beauty-host` evaluates (`beauty.rs:127`). The host
+/// owns the slot — each `Splash` is declared with an explicit height
+/// (`Splash{height:56}` / `190`) — so `Fill` gives the component exactly the box
+/// the host reserved.
+const PRELUDE: &str = "use mod.prelude.widgets.*\nreturn View{width:Fill height:Fill flow:Overlay ";
+
+/// One mounted slot: the DSL it was mounted from, and the view it displaced.
+///
+/// The displaced (`retired`) view is kept for one more mount so its GPU draw
+/// lists stay alive through the frame that swapped them out — the same reason
+/// `beauty-host` keeps `retired_view` (`beauty.rs:38,223`).
+#[derive(Default)]
+struct Slot {
+    dsl: String,
+    retired: Option<View>,
+}
+
+/// The per-widget mount state, keyed by the Splash's widget uid.
+///
+/// The card asks to cache the evaluated View per (item id, values hash) and not
+/// re-eval every frame. The DSL string already IS that hash
+/// (`screen::Cache` builds it from `(kind, index, values-json)`), so comparing
+/// it is both the cache key and the change test.
+#[derive(Default)]
+pub struct MountCache {
+    slots: HashMap<u64, Slot>,
+}
+
+impl MountCache {
+    /// Mount `ui` into `splash` when its DSL differs from the last mount into
+    /// that widget.
+    ///
+    /// Returns `Ok(true)` when a mount happened, `Ok(false)` when the widget was
+    /// already mounted from the same DSL (the steady-state case a `PortalList`
+    /// hits every frame).
+    pub fn mount(&mut self, cx: &mut Cx, splash: &SplashRef, ui: &str) -> Result<bool, String> {
+        let (uid, source) = {
+            let inner = splash.borrow().ok_or("mount: the Splash is not live")?;
+            (inner.widget_uid().0, inner.view.source.clone())
+        };
+        if uid == 0 {
+            return Err("mount: the Splash is not live".into());
+        }
+        if self.slots.get(&uid).is_some_and(|s| s.dsl == ui) {
+            return Ok(false);
+        }
+        // The widgets the DSL mints must live in the heap that owns this Splash,
+        // or their script refs are garbage in the wrong VM.
+        let vm_id = cx
+            .script_ref_vm_id(&source)
+            .unwrap_or(MAIN_SPLASH_VM_ID);
+        let mut view = eval_component(cx, vm_id, ui)?;
+
+        let mut inner = splash.borrow_mut().ok_or("mount: not a Splash")?;
+        // The HOST owns the Splash's slot, and `Splash::walk()` delegates to
+        // `self.view.walk` — so the declared `Splash{height:56}` lives on the OLD
+        // view. A `mem::replace` that drops it leaves the Splash on the DSL's own
+        // `height:Fit`, which measures 0 for a component whose children are all
+        // absolutely positioned (`abs_pos`), and nothing seats. Preserve it, the
+        // same line `Splash::eval_styled_body_with_apply` runs
+        // (splash.rs:352-355) so rebuilding a body never takes the slot away.
+        view.walk = inner.view.walk;
+        let old = std::mem::replace(&mut inner.view, view);
+        // Reparent the new tree's nodes into the shared widget-tree graph. Do
+        // this while the view is still owned by the Splash so its children are
+        // reachable without a second lookup.
+        let mut children: Vec<(LiveId, WidgetRef)> = Vec::new();
+        inner.children(&mut |id, child| {
+            if !child.is_empty() {
+                children.push((id, child));
+            }
+        });
+        inner.redraw(cx);
+        drop(inner);
+
+        for (id, child) in children {
+            cx.widget_tree_insert_child_deep(WidgetUid(uid), id, child);
+        }
+        cx.widget_tree_mark_dirty(WidgetUid(uid));
+
+        let slot = self.slots.entry(uid).or_default();
+        slot.dsl = ui.to_owned();
+        slot.retired = Some(old);
+        Ok(true)
+    }
+
+    /// Diagnose one mount: the widget uid, owning VM, the lowered children and
+    /// their drawn areas — the evidence that separates "mounted but not walked"
+    /// from "never mounted".
+    pub fn diagnose(&self, cx: &mut Cx, splash: &SplashRef) -> String {
+        let inner = match splash.borrow() {
+            Some(i) => i,
+            None => return "not live".into(),
+        };
+        let uid = inner.widget_uid().0;
+        let srect = inner.area().rect(cx);
+        let wrect = inner.view.area().rect(cx);
+        let mut out = format!(
+            "uid={uid} vm={:?} splash=({:.0},{:.0},{:.0},{:.0}) wrapper=({:.0},{:.0},{:.0},{:.0}) kids=",
+            cx.script_ref_vm_id(&inner.view.source),
+            srect.pos.x, srect.pos.y, srect.size.x, srect.size.y,
+            wrect.pos.x, wrect.pos.y, wrect.size.x, wrect.size.y,
+        );
+        let mut n = 0;
+        inner.children(&mut |id, child| {
+            n += 1;
+            let r = child.area().rect(cx);
+            out.push_str(&format!(
+                " [{:?} {} rect=({:.0},{:.0},{:.0},{:.0})]",
+                id,
+                child
+                    .widget_type_id()
+                    .map(|t| format!("{t:?}"))
+                    .unwrap_or_default(),
+                r.pos.x,
+                r.pos.y,
+                r.size.x,
+                r.size.y
+            ));
+        });
+        out.push_str(&format!(" count={n} dsl={}", self.slots.get(&uid).map(|s| s.dsl.len()).unwrap_or(0)));
+        out
+    }
+
+    /// Forget a widget's slot: a `PortalList` pool hands a recycled uid to a
+    /// different row, and the next mount must re-evaluate rather than compare
+    /// against the previous row's DSL.
+    pub fn forget(&mut self, uid: u64) {
+        self.slots.remove(&uid);
+    }
+
+    /// How many mounts are memoised (a test reads this).
+    pub fn len(&self) -> usize {
+        self.slots.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.slots.is_empty()
+    }
+}
+
+/// Evaluate `<PRELUDE><ui>}` in `vm_id` and return the resulting `View`.
+pub fn eval_component(cx: &mut Cx, vm_id: SplashVmId, ui: &str) -> Result<View, String> {
+    let code = format!("{PRELUDE}{ui}}}");
+    let sm = ScriptMod {
+        cargo_manifest_path: env!("CARGO_MANIFEST_DIR").into(),
+        module_path: module_path!().into(),
+        file: file!().into(),
+        line: 1,
+        column: 0,
+        code,
+        values: Vec::new(),
+    };
+    // `_trusted` skips the per-entry app-script byte budget: this is host-driven
+    // rendering of a lowered component, exactly like `module.register` /
+    // `module.create` in `module_host.rs:150-152`.
+    cx.with_script_vm_id_trusted(vm_id, |vm| {
+        let value = vm
+            .eval_checked(sm, 2_000_000)
+            .ok_or_else(|| "the component DSL did not evaluate".to_string())?;
+        Ok::<_, String>(View::script_from_value(vm, value))
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    //! The app-path evaluation: the same `eval_component` the screen calls,
+    //! against the real lowered #16 component. The pixel proof is the headless
+    //! capture (card #21b §4); this pins the eval + child mounting contract.
+    use super::*;
+
+    fn cx_with_vocabulary() -> Cx {
+        let mut cx = Cx::new(Box::new(|_, _| {}));
+        cx.with_vm(makepad_widgets::script_mod);
+        cx.with_vm(octoscript_widgets::design::script_mod);
+        cx.with_vm(octoscript_widgets::kit::script_mod);
+        cx
+    }
+
+    #[test]
+    fn the_app_vm_evaluates_a_lowered_component_into_a_root_with_children() {
+        let ui = crate::components::lower(
+            crate::components::ItemKind::UserBubble,
+            "0",
+            &[
+                ("t01_text".to_owned(), "Fix the steer queue".to_owned()),
+                ("t02_text".to_owned(), String::new()),
+            ],
+        )
+        .expect("user-bubble lowers");
+        let mut cx = cx_with_vocabulary();
+        let view = eval_component(&mut cx, MAIN_SPLASH_VM_ID, &ui)
+            .expect("the app VM evaluates the component DSL");
+        // The lowered root is `i0_userbubble := DesignSurface { … }`; the wrapper
+        // View the prelude returns must carry it as a child.
+        let mut children = Vec::new();
+        view.children(&mut |id, child| {
+            if !child.is_empty() {
+                children.push(id);
+            }
+        });
+        assert!(
+            !children.is_empty(),
+            "the evaluated component View must own its lowered root as a child"
+        );
+    }
+
+    #[test]
+    fn the_prelude_wraps_the_component_in_a_slot_sized_view() {
+        // The host declares the slot's height (`Splash{height:56}` / `190`), so the
+        // wrapper fills it. `Fit` would measure 0: every component positions its
+        // children by `abs_pos`, which contributes nothing to a `Fit`.
+        let code = format!("{PRELUDE}i0_x := View{{width:Fill height:Fill}}}}");
+        assert!(code.starts_with("use mod.prelude.widgets.*\nreturn View{"));
+        assert!(code.ends_with("}}"));
+        assert!(code.contains("width:Fill height:Fill flow:Overlay"));
+    }
+}

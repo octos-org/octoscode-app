@@ -1,0 +1,132 @@
+diff --git a/crates/octoscript-makepad/src/design.rs b/crates/octoscript-makepad/src/design.rs
+--- a/crates/octoscript-makepad/src/design.rs
++++ b/crates/octoscript-makepad/src/design.rs
+@@ -116,6 +116,7 @@
+         out: &mut String,
+         flow_origin: Option<(f64, f64)>,
+         in_flow: bool,
++        parent_w: f64,
+     ) -> Result<(), String> {
+         let a = &n.attrs;
+         let scroll_y = n.kind == NodeKind::Stack && a.variant.as_deref() == Some("scroll_y");
+@@ -137,12 +138,51 @@
+         };
+         // Leaf widgets may reuse their Walk for internal text layout. Keep the
+         // positioning margin on a wrapper so it cannot be applied twice.
+-        let wrapped = flow_origin.is_some() && !in_flow && n.kind != NodeKind::Stack;
++        // Card #16c: a node flagged right-anchored (`alignx: 1`) is wrapped the
++        // same way, so it pins to the container's right edge instead of the
++        // atlas's absolute x. An `align` on the node itself is a no-op inside a
++        // makepad Overlay; only a Fill-width wrapper with `align` right-aligns
++        // it (probe r1/P4). Its `x` is re-read as the right inset, so the node
++        // follows the slot width (the composer send button was clipped past the
++        // 360 card edge at its fixed artboard x).
++        // `alignx` on a TEXT node is the run's own alignment inside the label
++        // (line 530), so a text node right-aligns by that route; only a
++        // non-text node needs the wrapper.
++        let right_anchor = a.alignx == Some(1.0) && !in_flow
++            && !matches!(n.kind, NodeKind::Text | NodeKind::Input);
++        // Card #16c: a Fill-width, left-aligned single-line TEXT leaf is wrapped
++        // so it is positioned by a margin. Pinned with `abs_pos` inside a makepad
++        // Overlay the label resolved no layout width, so `max_lines:1` +
++        // `TextOverflow.Ellipsis` could not truncate and the row hard-clipped
++        // mid-word (thread-row's long title). With a wrapper the label resolves a
++        // finite width from its turtle and the ellipsis fires (probe C: the same
++        // structure OCR'd a trailing "…"). Markdown is excluded — its chips need
++        // to stay a direct child of the flowing parent.
++        let is_fill_text = n.kind == NodeKind::Text && a.fillw == Some(1)
++            && a.alignx.unwrap_or(0.) == 0.
++            && a.variant.as_deref() != Some("markdown");
++        let wrapped = (flow_origin.is_some() || right_anchor || is_fill_text) && !in_flow
++            && (n.kind != NodeKind::Stack || right_anchor);
+         if wrapped {
+-            let (x, y) = flow_origin.unwrap();
+-            writeln!(out, "View {{width: {} height: {} margin: Inset{{left: {} top: {} right: 0 bottom: 0}} flow: Overlay padding: 0 clip_x: false clip_y: false",
+-                a.w.ok_or("design width required")?, a.h.ok_or("design height required")?,
+-                a.x.unwrap_or(0.) - x, a.y.unwrap_or(0.) - y).unwrap();
++            if right_anchor {
++                let h = if a.fith == Some(1) { "Fit".to_string() } else { a.h.unwrap_or(0.).to_string() };
++                // The right inset is a design constant measured in the component's
++                // OWN artboard (composer: send1 x328 w36 in a 374 root -> 10px),
++                // so it survives any slot width. An Align wrapper with a right
++                // padding pins the child inside it (probe r1/P4); `align` on the
++                // child alone is a no-op in an Overlay.
++                writeln!(out, "View {{width: Fill height: {h} margin: Inset{{top: {}}} align: Align{{x: 1.0}}",
++                    a.y.unwrap_or(0.)).unwrap();
++            } else if is_fill_text {
++                let h = if a.fith == Some(1) { "Fit".to_string() } else { a.h.unwrap_or(0.).to_string() };
++                writeln!(out, "View {{width: Fill height: {h} margin: Inset{{left: {} top: {}}} flow: Overlay padding: 0 clip_x: false clip_y: false",
++                    a.x.unwrap_or(0.), a.y.unwrap_or(0.)).unwrap();
++            } else {
++                let (x, y) = flow_origin.unwrap();
++                writeln!(out, "View {{width: {} height: {} margin: Inset{{left: {} top: {} right: 0 bottom: 0}} flow: Overlay padding: 0 clip_x: false clip_y: false",
++                    a.w.ok_or("design width required")?, a.h.ok_or("design height required")?,
++                    a.x.unwrap_or(0.) - x, a.y.unwrap_or(0.) - y).unwrap();
++            }
+         }
+         let contract = kit_contract(n)?;
+         let glass = matches!(a.variant.as_deref(),Some("glass_surface" | "glass_overlay"));
+@@ -259,7 +299,16 @@
+             // source frame here is exactly what pinned every component to its
+             // atlas artboard, so it is deliberately omitted. Card #16b.
+         } else if wrapped {
+-            writeln!(out, "margin: 0").unwrap();
++            if right_anchor {
++                // Probe r1: the aligned child is pinned inside the wrapper by its
++                // own right margin (an `align` on the child is a no-op in an
++                // Overlay). The inset is a design constant in the component's
++                // artboard space (composer send1 x328 w36 in a 374 root -> 10).
++                let gap = (parent_w - a.x.unwrap_or(0.) - a.w.unwrap_or(0.) as f64).max(0.) as f32;
++                writeln!(out, "margin: Inset{{right: {gap}}}").unwrap();
++            } else {
++                writeln!(out, "margin: 0").unwrap();
++            }
+         } else if let Some((x, y)) = flow_origin {
+             writeln!(out, "margin: Inset{{left: {} top: {} right: 0 bottom: 0}}",
+                 a.x.unwrap_or(0.) - x, a.y.unwrap_or(0.) - y).unwrap();
+@@ -385,7 +434,7 @@
+                         writeln!(out, "selected: {}", selected != 0).unwrap();
+                     }
+                     for c in &n.children {
+-                        emit(c, out, None, true)?;
++                        emit(c, out, None, true, a.w.unwrap_or(0.) as f64)?;
+                     }
+                 } else {
+                     let clip=scroll_y || a.variant.as_deref()==Some("clip");
+@@ -397,10 +446,15 @@
+                         writeln!(out, "selected: {}", selected != 0).unwrap();
+                     }
+                     for c in &n.children {
+-                        let origin = if scroll_y || flow_origin.is_some() {
++                        // Card #16c: a right-anchored node is re-placed by its
++                        // wrapper, so its own children must be measured from ITS
++                        // box (as under a scroll), not the window — otherwise the
++                        // pin moved the surface and left the glyph at the old
++                        // atlas x (the composer send arrow rendered 0x0).
++                        let origin = if scroll_y || flow_origin.is_some() || right_anchor {
+                             Some((a.x.unwrap_or(0.), a.y.unwrap_or(0.)))
+                         } else { None };
+-                        emit(c, out, origin, false)?;
++                        emit(c, out, origin, false, a.w.unwrap_or(0.) as f64)?;
+                     }
+                 }
+             }
+@@ -421,7 +475,7 @@
+                     writeln!(out, "show_bg: true draw_bg.color: {}", super::hex_rgba(bg)).unwrap();
+                 }
+                 for c in &n.children {
+-                    emit(c, out, None, true)?;
++                    emit(c, out, None, true, a.w.unwrap_or(0.) as f64)?;
+                 }
+             }
+             NodeKind::Text | NodeKind::Input => {
+@@ -647,7 +701,8 @@
+         Ok(())
+     }
+     let mut out = String::new();
+-    emit(tree, &mut out, None, false)?;
++    let root_w = tree.attrs.w.unwrap_or(0.) as f64;
++    emit(tree, &mut out, None, false, root_w)?;
+     Ok(out)
+ }
+ 

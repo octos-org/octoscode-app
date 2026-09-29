@@ -30,18 +30,21 @@ use std::sync::{Arc, Mutex};
 
 use octoscode_store::Store;
 
+pub mod actions;
 pub mod bindings;
 pub mod cards;
 pub mod components;
 pub mod fallback;
 pub mod l0_host;
 pub mod flow;
+pub mod mount;
 pub mod screen;
 
 use flow::{Conversation, FlowUi};
 // A top-level `::` path is not a `#[rust]` field type the `Script` derive's
 // parser accepts (its `eat_type` reads one ident + optional generics), so the
-// cache type is aliased to a bare ident here.
+// cache types are aliased to bare idents here.
+use mount::MountCache as ComponentMounts;
 use screen::Cache as ScreenCache;
 
 script_mod! {
@@ -81,13 +84,26 @@ script_mod! {
             threads_column := View {
                 width: 220 height: Fill flow: Down spacing: 6
                 Label { width: Fill height: Fit text: "Threads" draw_text.text_style.font_size: 14 }
-                // One `thread-row` component per session (virtualized).
+                // One `thread-row` component per session (virtualized). A
+                // transparent `row_hit` button overlays the row so the HOST sees
+                // the click and routes it with the item id (`thread.open`); the
+                // #16 component's own inner button lives in the Splash isolate and
+                // never reports to the host.
                 thread_list := PortalList {
                     width: Fill height: Fill flow: Down drag_scrolling: true
                     ThreadRowTpl := View {
-                        width: Fill height: Fit flow: Down padding: 2
-                        thread_name := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "(thread)" }
-                        thread_splash := Splash { width: Fill height: 34 }
+                        width: Fill height: Fit flow: Overlay
+                        thread_body := View {
+                            width: Fill height: Fit flow: Down padding: 2
+                            thread_name := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "(thread)" }
+                            thread_splash := Splash { width: Fill height: 34 }
+                        }
+                        row_hit := Button {
+                            width: Fill height: Fill text: ""
+                            draw_bg.color: #00000000
+                            draw_bg.color_hover: #00000012
+                            draw_bg.color_down: #00000022
+                        }
                     }
                 }
             }
@@ -95,26 +111,41 @@ script_mod! {
             conversation_column := View {
                 width: Fill height: Fill flow: Down spacing: 6
                 Label { width: Fill height: Fit text: "Conversation" draw_text.text_style.font_size: 14 }
-                // One L0 component per timeline entry, from the store timeline in
-                // DISPLAY order (user first, reasoning folded, answer, tools,
-                // worked-for) — `screen::timeline_rows`.
+                // One L0 component per timeline entry, in DISPLAY order (user
+                // first, reasoning folded, answer, tools, worked-for). A
+                // transparent `row_hit` overlays each row so the host routes the
+                // click with the item id (`tool.toggle`, `answer.copy`).
                 timeline_list := PortalList {
                     width: Fill height: Fill flow: Down drag_scrolling: true
                     TimelineItemTpl := View {
-                        width: Fill height: Fit flow: Down
-                        item_kind := Label { width: Fill height: Fit draw_text.text_style.font_size: 9 text: "" }
-                        item_splash := Splash { width: Fill height: 56 }
+                        width: Fill height: Fit flow: Overlay
+                        item_body := View {
+                            width: Fill height: Fit flow: Down
+                            item_kind := Label { width: Fill height: Fit draw_text.text_style.font_size: 9 text: "" }
+                            item_splash := Splash { width: Fill height: 56 }
+                        }
+                        row_hit := Button {
+                            width: Fill height: Fill text: ""
+                            draw_bg.color: #00000000
+                            draw_bg.color_hover: #00000010
+                            draw_bg.color_down: #00000020
+                        }
                     }
                 }
-                // The composer docked at the center column's bottom — ONE
-                // composer. (The conversation-08 composer CARD, re-homed as the
-                // dock, is a follow-up: #16 owns the composer component.)
+                // The composer docked at the center column's bottom. The #16
+                // `composer` component IS the look (idle: input + pills + send);
+                // the host controls beside it emit the declared action ids
+                // (`composer.submit`, `turn.steer`, `turn.interrupt`).
                 composer_row := View {
-                    width: Fill height: Fit
-                    flow: Right spacing: 8
-                    draft := TextInput { width: Fill height: Fit empty_text: "Ask Octos anything" }
-                    send := Button { text: "Send" }
-                    stop := Button { text: "Stop" }
+                    width: Fill height: Fit flow: Down spacing: 4
+                    composer_splash := Splash { width: Fill height: 190 }
+                    composer_controls := View {
+                        width: Fill height: Fit flow: Right spacing: 8
+                        draft := TextInput { width: Fill height: Fit empty_text: "Ask Octos anything" }
+                        steer := Button { text: "Steer now" }
+                        send := Button { text: "Send" }
+                        stop := Button { text: "×" }
+                    }
                 }
             }
 
@@ -181,6 +212,12 @@ pub struct OctoscodeView {
     /// frame). See [`screen::Cache`].
     #[rust]
     cache: ScreenCache,
+    /// Card #21b: the per-`Splash` mounted components. Each visible row's
+    /// lowered DSL is evaluated in the app's VM and made the Splash's own
+    /// `view` (`mount`), memoised by the widget uid so a `PortalList` that
+    /// re-instantiates its rows every frame does not re-evaluate them.
+    #[rust]
+    mounts: ComponentMounts,
     /// The two virtualized lists' widget uids (0 = not captured yet), so
     /// `draw_walk` can tell which `PortalList` a draw step belongs to.
     #[rust]
@@ -275,36 +312,38 @@ impl OctoscodeView {
         self.runtime = Some(runtime);
     }
 
-    /// Run one binding action, off the UI thread.
-    fn perform_action(&self, action: &str) {
+    /// Run one binding action with the item index that emitted it (card #21 §3).
+    /// The mapping is the pure [`actions::resolve`]; this only performs the
+    /// resulting effect (off the UI thread).
+    fn perform_action(&self, action: &str, index: usize) {
+        let (store, ui, conv) = {
+            let b = self.bridge.lock().unwrap();
+            (b.store.clone(), b.ui.clone(), b.conv.clone())
+        };
+        let effect = {
+            let ctx = bindings::Ctx::new(&store, &ui);
+            actions::resolve(action, index, &ctx)
+        };
+        // UI-local effects need no runtime/transport.
+        match &effect {
+            actions::Effect::ToggleTool(key) => {
+                let _ = ui.lock().map(|mut u| u.toggle_expanded(key));
+                return;
+            }
+            actions::Effect::Unhandled(id) => {
+                ::log::warn!("octoscode: unhandled action id {id:?}");
+                return;
+            }
+            _ => {}
+        }
         let Some(rt) = self.runtime.as_ref() else {
             return;
         };
-        let Some(conv) = ({
-            let b = self.bridge.lock().unwrap();
-            b.conv.clone()
-        }) else {
+        let Some(conv) = conv else {
             return;
         };
-        match action {
-            bindings::ACTION_SUBMIT => {
-                rt.spawn(async move {
-                    if let Err(e) = conv.submit_draft().await {
-                        ::log::warn!("octoscode: composer.submit: {e}");
-                    }
-                });
-            }
-            bindings::ACTION_INTERRUPT => {
-                let turn = conv.ui().lock().unwrap().active_turn();
-                if let Some(turn) = turn {
-                    rt.spawn(async move {
-                        if let Err(e) = conv.interrupt(&turn).await {
-                            ::log::warn!("octoscode: turn.interrupt: {e}");
-                        }
-                    });
-                }
-            }
-            "session.refresh" => {
+        match effect {
+            actions::Effect::Refresh => {
                 rt.spawn(async move {
                     if let Err(e) = conv.refresh_sessions().await {
                         ::log::warn!("octoscode: session.refresh: {e}");
@@ -313,7 +352,7 @@ impl OctoscodeView {
             }
             // Card #14 defect 4: "New chat" mints a FRESH session id, so a new
             // chat never reuses the previous run's context.
-            bindings::ACTION_NEW_CHAT => {
+            actions::Effect::NewChat => {
                 let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
                 rt.spawn(async move {
                     match conv.new_chat(cwd).await {
@@ -322,7 +361,40 @@ impl OctoscodeView {
                     }
                 });
             }
-            other => ::log::warn!("octoscode: unhandled action id {other:?}"),
+            actions::Effect::Submit => {
+                rt.spawn(async move {
+                    if let Err(e) = conv.submit_draft().await {
+                        ::log::warn!("octoscode: composer.submit: {e}");
+                    }
+                });
+            }
+            actions::Effect::Steer(text) => {
+                rt.spawn(async move {
+                    if let Err(e) = conv.steer(&text).await {
+                        ::log::warn!("octoscode: turn.steer: {e}");
+                    }
+                });
+            }
+            actions::Effect::Interrupt(turn) => {
+                rt.spawn(async move {
+                    if let Err(e) = conv.interrupt(&turn).await {
+                        ::log::warn!("octoscode: turn.interrupt: {e}");
+                    }
+                });
+            }
+            actions::Effect::Open(session) => {
+                let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
+                rt.spawn(async move {
+                    match conv.open_session(&session, cwd).await {
+                        Ok(id) => ::log::info!("octoscode: thread.open opened {id}"),
+                        Err(e) => ::log::warn!("octoscode: thread.open: {e}"),
+                    }
+                });
+            }
+            // Handled above / needs `cx` (copy).
+            actions::Effect::ToggleTool(_)
+            | actions::Effect::Unhandled(_)
+            | actions::Effect::CopyAnswer => {}
         }
     }
 
@@ -339,6 +411,24 @@ impl OctoscodeView {
         self.view
             .label(cx, ids!(sessions))
             .set_text(cx, &format!("sessions: {sessions}"));
+        // The #16 `composer` component is the dock's look. It is NOT virtualized
+        // (one instance), so it is lowered here rather than in `draw_walk`; its
+        // two live slots are the draft and the idle placeholder. Card #21b: it is
+        // MOUNTED (evaluated in our VM + `mem::replace` + deep insert), not
+        // `set_text` — the latter mints a standalone tree that never seats.
+        let bridge = self.bridge.clone();
+        let composer = {
+            let mut cache = std::mem::take(&mut self.cache);
+            let c = cache
+                .lower(&bridge, components::ItemKind::Composer, 0)
+                .unwrap_or_default();
+            self.cache = cache;
+            c
+        };
+        let composer_splash = self.view.splash(cx, ids!(composer_splash));
+        if let Err(e) = self.mounts.mount(cx, &composer_splash, &composer) {
+            makepad_widgets::log!("[octoscode] composer mount: {e}");
+        }
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
     }
 
@@ -353,9 +443,11 @@ impl Widget for OctoscodeView {
             self.timeline_uid = self.view.portal_list(cx, ids!(timeline_list)).widget_uid().0;
         }
         let (thread_uid, timeline_uid) = (self.thread_uid, self.timeline_uid);
-        // The cache is taken OUT of self so the loop body borrows only `bridge`
-        // (a local Arc) — `self.view.draw_walk` already holds `self.view`.
+        // Both the lowering cache and the mount cache are taken OUT of self so the
+        // loop body borrows only `bridge` (a local Arc) — `self.view.draw_walk`
+        // already holds `self.view`.
         let mut cache = std::mem::take(&mut self.cache);
+        let mut mounts = std::mem::take(&mut self.mounts);
         let bridge = self.bridge.clone();
 
         while let Some(step) = self.view.draw_walk(cx, scope, walk).step() {
@@ -375,7 +467,10 @@ impl Widget for OctoscodeView {
                         let body = cache
                             .lower(&bridge, components::ItemKind::ThreadRow, id)
                             .unwrap_or_default();
-                        item.splash(cx, ids!(thread_splash)).set_text(cx, &body);
+                        let splash = item.splash(cx, ids!(thread_splash));
+                        if let Err(e) = mounts.mount(cx, &splash, &body) {
+                            makepad_widgets::log!("[octoscode] thread-row mount: {e}");
+                        }
                         item.draw_all_unscoped(cx);
                     }
                 } else if uid == timeline_uid {
@@ -397,13 +492,17 @@ impl Widget for OctoscodeView {
                         let item = list.item(cx, id, id!(TimelineItemTpl));
                         item.label(cx, ids!(item_kind)).set_text(cx, row.kind.id());
                         let body = cache.lower(&bridge, row.kind, row.index).unwrap_or_default();
-                        item.splash(cx, ids!(item_splash)).set_text(cx, &body);
+                        let splash = item.splash(cx, ids!(item_splash));
+                        if let Err(e) = mounts.mount(cx, &splash, &body) {
+                            makepad_widgets::log!("[octoscode] {} mount: {e}", row.kind.id());
+                        }
                         item.draw_all_unscoped(cx);
                     }
                 }
             }
         }
         self.cache = cache;
+        self.mounts = mounts;
         DrawStep::done()
     }
 
@@ -425,10 +524,10 @@ impl Widget for OctoscodeView {
                 }
                 // Header + composer controls emit BINDING ACTION ids.
                 if self.view.button(cx, ids!(refresh)).clicked(actions) {
-                    self.perform_action("session.refresh");
+                    self.perform_action("session.refresh", 0);
                 }
                 if self.view.button(cx, ids!(new_chat)).clicked(actions) {
-                    self.perform_action(bindings::ACTION_NEW_CHAT);
+                    self.perform_action(bindings::ACTION_NEW_CHAT, 0);
                 }
                 if self.view.button(cx, ids!(send)).clicked(actions) {
                     // Card #13 §4: the draft clears on send. The flow clears
@@ -444,7 +543,7 @@ impl Widget for OctoscodeView {
                         .unwrap()
                         .draft()
                         .len();
-                    self.perform_action(bindings::ACTION_SUBMIT);
+                    self.perform_action(bindings::ACTION_SUBMIT, 0);
                     if len > 0 {
                         let _ = self.view.text_input(cx, ids!(draft)).replace_range(
                             cx,
@@ -455,7 +554,50 @@ impl Widget for OctoscodeView {
                     }
                 }
                 if self.view.button(cx, ids!(stop)).clicked(actions) {
-                    self.perform_action(bindings::ACTION_INTERRUPT);
+                    self.perform_action(bindings::ACTION_INTERRUPT, 0);
+                }
+                if self.view.button(cx, ids!(steer)).clicked(actions) {
+                    // "Steer now": send the queued draft into the live turn.
+                    self.perform_action("turn.steer", 0);
+                }
+                // Card #21 §3 — the per-item controls. A row click is routed
+                // WITH its item id (the same `items_with_actions` contract the
+                // makepad examples use).
+                let thread_list = self.view.portal_list(cx, ids!(thread_list));
+                for (item_id, item) in thread_list.items_with_actions(actions) {
+                    if item.button(cx, ids!(row_hit)).clicked(actions) {
+                        self.perform_action("thread.open", item_id);
+                    }
+                }
+                let timeline_list = self.view.portal_list(cx, ids!(timeline_list));
+                let (live, rows) = {
+                    let b = self.bridge.lock().unwrap();
+                    let ctx = bindings::Ctx::new(&b.store, &b.ui);
+                    let live = bindings::query(&ctx, "turn.active")
+                        .and_then(|v| v.as_bool())
+                        .unwrap_or(false);
+                    let rows = screen::timeline_rows(&b.store, live);
+                    (live, rows)
+                };
+                let _ = live;
+                for (item_id, item) in timeline_list.items_with_actions(actions) {
+                    let Some(row) = rows.get(item_id) else { continue };
+                    if !item.button(cx, ids!(row_hit)).clicked(actions) {
+                        continue;
+                    }
+                    // Each row kind owns a different control id.
+                    let control = match row.kind {
+                        components::ItemKind::ToolCell => "expand",
+                        components::ItemKind::AnswerActions => "copy",
+                        _ => continue,
+                    };
+                    if let Some(action) = components::action_for(row.kind, control) {
+                        if action == "tool.toggle" {
+                            self.perform_action(action, row.index);
+                        } else {
+                            self.perform_action(action, 0);
+                        }
+                    }
                 }
                 self.sync_labels(cx);
             }
@@ -476,10 +618,24 @@ impl AppModule for OctoscodeModule {
     }
     fn register(&self, vm: &mut ScriptVm) {
         script_mod(vm);
-        // Card #15b: the L0 vocabulary every lowered card names
-        // (`DesignSurface`, `DesignNativeButton`, …). Process-wide, exactly as
-        // card-host registers it (`host.rs:206-215`).
+        // Card #21b: the design/kit vocabulary every lowered #16 component names
+        // (`DesignSurface`, `KitButton`, …) must be in THIS VM — the isolate the
+        // shell hosts the module in (`module_host.rs:133` allocates it, then
+        // calls `register(vm)`/`create(vm, ..)` inside it). `register_vocabulary`
+        // below uses `register_splash_isolate_mod`, which only reaches isolates
+        // allocated AFTER it, so it cannot reach ours; register directly, exactly
+        // as `beauty-host` does in the App's own `script_mod`
+        // (`beauty.rs:356-364`).
+        octoscript_widgets::design::script_mod(vm);
+        octoscript_widgets::kit::script_mod(vm);
+        // Card #15b: the same vocabulary, process-wide, for any OTHER isolate
+        // (the tests and the card probes lower there).
         l0_host::register_vocabulary();
+        // Card #21b: log what the RUNNING app resolves at startup
+        // (`id -> path -> on-disk|placeholder`), so a capture's `/log` proves
+        // which components root the launched process used — the test harness
+        // passing from the repo root proved nothing.
+        components::log_resolutions();
     }
     fn open_schema(&self) -> OpenSchema {
         OpenSchema::new(1)

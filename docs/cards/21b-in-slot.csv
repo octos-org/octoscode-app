@@ -1,0 +1,8 @@
+window,component,root_rect_before,root_rect_after,slot_dark_px_before,slot_dark_px_after,note
+1280x800,user-bubble,"[0,0,0,0]","[300,219,284,56]",332,42497,"min=2 => #030202 bubble fill present"
+900x800,user-bubble,"[0,0,0,0]","[300,219,284,56]",332,42491,"same fill; width follows the 404px slot"
+1280x800,assistant-prose,"[300,303,56,56]","[300,303,356,56]",0,2876,"Markdown body seats in-slot"
+1280x800,worked-for,"[0,0,0,0]","[300,388,374,41]",0,929,"KitButton disclosure"
+1280x800,composer,"[0,0,0,0]","[300,435,374,190]",0,7112,"docked composer"
+1280x800,thread-row,"[0,0,0,0]","[72,252,216,34]",0,55,"left column"
+1280x800,answer-actions,ABSENT,ABSENT,0,0,"below the timeline fold; needs scroll (follow-up)"
