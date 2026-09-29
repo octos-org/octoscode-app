@@ -324,6 +324,40 @@ fn the_user_row_precedes_its_turns_reasoning_and_answer() {
     );
 }
 
+// ------------------------------------------- §1 no turn from an empty draft
+
+#[tokio::test]
+async fn an_empty_draft_starts_no_turn() {
+    // Found by the live proof: the composer's send control doubles as STOP while
+    // a turn is live, so a stop-glyph click that lands just after the turn
+    // settled routed to `composer.submit` with the already-cleared draft and
+    // minted an empty optimistic row. The web refuses the same at its submit
+    // entry (`use-turn-controller.ts:631` `!text.trim()`).
+    let server = ReplayServer::start_with_stream(vec![]).await;
+    let (conv, _events) = Conversation::connect(&server.base_url, "dummy", "dsflash", None, None)
+        .expect("connect");
+    conv.open_workspace(None).await.expect("session/open");
+
+    // The draft is empty (never typed, or already cleared by a prior send).
+    assert!(conv.ui().lock().unwrap().draft().is_empty());
+    let id = conv.submit_draft().await.expect("submit is not an error");
+    assert!(id.is_empty(), "an empty draft starts no turn, got {id:?}");
+
+    // No `turn/start` reached the wire, and no user row was minted.
+    let received = server.received.lock().unwrap().clone();
+    assert!(
+        !received.contains(&"turn/start".to_owned()),
+        "an empty draft must send no turn/start; sent {received:?}"
+    );
+    let users = conv
+        .store
+        .domains
+        .session
+        .timeline
+        .of_kind("dsflash:main", octoscode_store::EntryKind::USER_MESSAGE);
+    assert!(users.is_empty(), "no phantom empty user row: {users:?}");
+}
+
 // -------------------------------------------------- §2 act on the lossy resync
 
 #[tokio::test]

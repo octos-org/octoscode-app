@@ -774,8 +774,22 @@ impl Conversation {
 
     /// `composer.submit` — the composer's send button: `turn/start` with the
     /// current draft (`bindings.json` `composer.submit`).
+    ///
+    /// Card #26: an **empty draft starts no turn**. Found by the live proof — the
+    /// composer's send control also carries STOP while a turn is live, and a
+    /// stop-glyph click that lands just after the turn settled routed to
+    /// `composer.submit` with the (already cleared) draft, minting an optimistic
+    /// row with empty text and no server copy. The web refuses the same way at
+    /// its submit entry (`use-turn-controller.ts:631` `!text.trim()`, and
+    /// `:602` for a queued turn), so a whitespace-only prompt never becomes a
+    /// turn. Returns an empty id (no turn) rather than an error: refusing an
+    /// empty prompt is not a failure.
     pub async fn submit_draft(&self) -> Result<String, ClientError> {
         let text = self.ui.lock().unwrap().draft();
+        if text.trim().is_empty() {
+            ::log::debug!("octoscode: composer.submit ignored (empty draft)");
+            return Ok(String::new());
+        }
         self.start_turn(text).await
     }
 
