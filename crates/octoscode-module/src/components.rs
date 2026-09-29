@@ -495,7 +495,59 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
     // Gate-B renders (the card IS the window) but wrong for an item at (300,219),
     // whose nodes would pin to (0,0) and be clipped away by the slot.
     let ui = octoscript_makepad::design::to_makepad_ui_in_slot(&tree)?;
-    Ok(ui.replace("beauty_0", &format!("i{token}_{}", kind.id().replace('-', ""))))
+    let ui = ui.replace("beauty_0", &format!("i{token}_{}", kind.id().replace('-', "")));
+    // Card #21c item 3: content-driven height. Every node the component emits
+    // carries the MEASURED artboard height of the fixture it was compiled from
+    // (the prose root is `height: 492`, the bubble `85.09`), so a one-word live
+    // answer still occupied 492 px — clipping long prose and pushing short rows
+    // off the timeline. For the TEXT-FLOW kinds every emitted `height: <n>`
+    // becomes `Fit`, so each node takes its content's height. Chrome kinds
+    // (buttons, the composer dock) keep their measured box.
+    let ui = match kind {
+        ItemKind::UserBubble
+        | ItemKind::AssistantProse
+        | ItemKind::WorkedFor
+        | ItemKind::AnswerActions
+        | ItemKind::WorkingRow
+        | ItemKind::ToolCell => fit_heights(&ui),
+        _ => ui,
+    };
+    // Card #21c item 4: the person's bubble is RIGHT-aligned in the column
+    // (scene 01/03). The component's own root is a left-anchored artboard, so it
+    // is wrapped in a full-width `Down` view with `align: Align{x: 1.0}` — the
+    // cross-axis alignment for a `Down` flow — which right-aligns the measured
+    // bubble (284 of the 518 column = 55%, inside the ~80% cap). The wrapper's
+    // `Fit` height keeps the row content-driven (item 3).
+    let ui = if kind == ItemKind::UserBubble {
+        format!("user_align := View{{width:Fill height:Fit flow:Down align: Align{{x: 1.0}} {ui}}}")
+    } else {
+        ui
+    };
+    Ok(ui)
+}
+
+/// Rewrite every `height: <number>` in a lowered DSL to `height: Fit` (card #21c
+/// item 3). The numbers are the compiled fixture's measured artboard metrics;
+/// `Fit` lets each node take its live content's height instead.
+fn fit_heights(ui: &str) -> String {
+    const KEY: &str = "height: ";
+    let mut out = String::with_capacity(ui.len());
+    let bytes = ui.as_bytes();
+    let mut i = 0;
+    while i < ui.len() {
+        if ui[i..].starts_with(KEY) {
+            out.push_str("height: Fit");
+            i += KEY.len();
+            while i < ui.len() && (bytes[i].is_ascii_digit() || bytes[i] == b'.') {
+                i += 1;
+            }
+        } else {
+            let ch = ui[i..].chars().next().unwrap();
+            out.push(ch);
+            i += ch.len_utf8();
+        }
+    }
+    out
 }
 
 /// The copy ids a component declares (the coverage audit: every live id a
