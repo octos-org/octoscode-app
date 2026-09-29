@@ -53,6 +53,14 @@ script_mod! {
         ..mod.widgets.RectView
         width: Fill height: Fill
         draw_bg.color: theme.color_bg_app
+        // Card #28e (board 4): the root is an OVERLAY — base chrome, a dimmer,
+        // and the floating command palette stack on one origin; `first_run`
+        // replaces `base` before a connection.
+        flow: Overlay
+        // The base chrome (everything except the overlays and the first-run
+        // card). The first-run frame hides it (`base.set_visible(false)`).
+        base := View {
+        width: Fill height: Fill
         flow: Down padding: 16 spacing: 10
         // Card #21c item 7: the debug header is GONE from the visible UI. The
         // connection state / session count stay as 1px labels so `/g` still
@@ -78,7 +86,16 @@ script_mod! {
             flow: Right spacing: 10
 
             threads_column := View {
-                width: 220 height: Fill flow: Down spacing: 6
+                width: 260 height: Fill flow: Down spacing: 6
+                // Card #28e item 1 (board 4): the sidebar is 260 px with an
+                // `OctosCode ▾` header above `New chat`, then THREADS, then the
+                // autonomy sections (GOALS / LOOPS / FLEET) — native shell rows
+                // for now, L0 components only where one exists (thread-row,
+                // new-chat).
+                sidebar_header := Label {
+                    width: Fill height: Fit text: "OctosCode ▾"
+                    draw_text.text_style.font_size: 13
+                }
                 // Card #21c item 7: `New chat` is #16's own `new-chat` component
                 // at the top of the thread column (scene 01). A transparent hit
                 // target overlays it so the HOST routes `session.new` — the
@@ -111,6 +128,13 @@ script_mod! {
                 // state, ellipsized title) — the component draws its own label,
                 // so no native title Label sits under it. A transparent `row_hit`
                 // routes the click with the item id (`thread.open`).
+                // Card #28e item 1: the THREADS section label (small grey caps)
+                // above the list.
+                Label {
+                    width: Fill height: Fit text: "THREADS"
+                    draw_text.text_style.font_size: 10
+                    draw_text.color: #6E6E73
+                }
                 thread_list := PortalList {
                     width: Fill height: Fill flow: Down drag_scrolling: true
                     // Card #21g item 3: the rows must share the New chat card's
@@ -132,10 +156,55 @@ script_mod! {
                         }
                     }
                 }
+                // Card #28e item 1: the autonomy sections — GOALS / LOOPS / FLEET
+                // — appear only when the session has them (board 4 frame 3).
+                // Native shell rows (no #16 component exists for these yet); the
+                // section label is small grey caps, each row 32 px.
+                autonomy_sections := View {
+                    width: Fill height: Fit flow: Down spacing: 4 visible: false
+                    Label {
+                        width: Fill height: Fit text: "GOALS"
+                        draw_text.text_style.font_size: 10
+                        draw_text.color: #6E6E73
+                    }
+                    goals_list := View {
+                        width: Fill height: Fit flow: Down spacing: 2
+                        goal_row_1 := Label { width: Fill height: 32 text: "" draw_text.text_style.font_size: 13 }
+                        goal_row_2 := Label { width: Fill height: 32 text: "" draw_text.text_style.font_size: 13 }
+                    }
+                    Label {
+                        width: Fill height: Fit text: "LOOPS"
+                        draw_text.text_style.font_size: 10
+                        draw_text.color: #6E6E73
+                    }
+                    loops_list := View {
+                        width: Fill height: Fit flow: Down spacing: 2
+                        loop_row_1 := Label { width: Fill height: 32 text: "" draw_text.text_style.font_size: 13 }
+                        loop_row_2 := Label { width: Fill height: 32 text: "" draw_text.text_style.font_size: 13 }
+                    }
+                    Label {
+                        width: Fill height: Fit text: "FLEET"
+                        draw_text.text_style.font_size: 10
+                        draw_text.color: #6E6E73
+                    }
+                    fleet_list := View {
+                        width: Fill height: Fit flow: Down spacing: 2
+                        fleet_row_1 := Label { width: Fill height: 32 text: "" draw_text.text_style.font_size: 13 }
+                        fleet_row_2 := Label { width: Fill height: 32 text: "" draw_text.text_style.font_size: 13 }
+                        fleet_row_3 := Label { width: Fill height: 32 text: "" draw_text.text_style.font_size: 13 }
+                    }
+                }
             }
 
             conversation_column := View {
                 width: Fill height: Fill flow: Down spacing: 6
+                // Card #28e item 2 (board 4): the conversation column is centered
+                // with a max width of 720 px. `align.x: 0.5` centers the
+                // `max_width: 720` child inside the Fill column.
+                align: Align{x: 0.5 y: 0.0}
+                conversation_inner := View {
+                    width: Fill height: Fill flow: Down spacing: 6
+                    max_width: 720
                 // Card #21c item 2: the component IS the item. No native `kind`
                 // label and no row chrome — the row is just the lowered
                 // component plus a transparent hit target.
@@ -260,11 +329,158 @@ script_mod! {
                         }
                     }
                 }
+            } // conversation_inner
+        }
+
+            // Card #28e item 3 (board 4): the 560 px Review panel, toggled by the
+            // Review affordance (an "Edited files" card later; the header pill
+            // works today). Empty for now — the header + scope pill only.
+            review_panel := SolidView {
+                width: 560 height: Fill flow: Down spacing: 6
+                visible: false
+                draw_bg.color: #FFFFFF
+                review_header := View {
+                    width: Fill height: Fit flow: Right spacing: 8
+                    Label {
+                        width: Fit height: Fit text: "Review"
+                        draw_text.text_style.font_size: 14
+                    }
+                    review_scope := RoundedView {
+                        width: Fit height: Fit flow: Right
+                        padding: Inset{left: 10 right: 10 top: 4 bottom: 4}
+                        draw_bg +: {color: #F0F0F2 border_radius: 999.0}
+                        Label {
+                            width: Fit height: Fit text: "Last turn ▾"
+                            draw_text.text_style.font_size: 11
+                        }
+                    }
+                    review_toggle_hit := Button {
+                        width: Fit height: Fit text: "Review"
+                        draw_bg.color: #00000000
+                        draw_bg.color_hover: #00000010
+                        draw_bg.color_down: #00000020
+                        draw_bg.border_size: 0.0
+                        draw_bg.color_2: #00000000
+                        draw_bg.border_color: #00000000
+                        draw_bg.border_color_2: #00000000
+                    }
+                    review_close := Button {
+                        width: 28 height: 28 text: "✕"
+                        draw_bg.color: #00000000
+                        draw_bg.color_hover: #00000010
+                        draw_bg.color_down: #00000020
+                        draw_bg.border_size: 0.0
+                        draw_bg.color_2: #00000000
+                        draw_bg.border_color: #00000000
+                        draw_bg.border_color_2: #00000000
+                    }
+                }
             }
 
-            review_column := View {
-                width: 200 height: Fill flow: Down spacing: 6
-                Label { width: Fill height: Fit text: "Review" draw_text.text_style.font_size: 14 }
+            // Card #28e item 4 (board 4): the 420 px Session-settings drawer,
+            // toggled from the model picker / a settings action. Content comes in
+            // Stage C; this is the drawer shell (header + close + section labels).
+            settings_drawer := SolidView {
+                width: 420 height: Fill flow: Down spacing: 10
+                visible: false
+                draw_bg.color: #FFFFFF
+                settings_header := View {
+                    width: Fill height: Fit flow: Right spacing: 8
+                    Label {
+                        width: Fill height: Fit text: "Session settings"
+                        draw_text.text_style.font_size: 14
+                    }
+                    settings_close := Button {
+                        width: 28 height: 28 text: "✕"
+                        draw_bg.color: #00000000
+                        draw_bg.color_hover: #00000010
+                        draw_bg.color_down: #00000020
+                        draw_bg.border_size: 0.0
+                        draw_bg.color_2: #00000000
+                        draw_bg.border_color: #00000000
+                        draw_bg.border_color_2: #00000000
+                    }
+                }
+                Label { width: Fill height: Fit text: "Model" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
+                Label { width: Fill height: Fit text: "Permissions" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
+                Label { width: Fill height: Fit text: "Sandbox" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
+                Label { width: Fill height: Fit text: "Context" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
+            }
+        }
+        } // base
+
+        // Card #28e item 5 (board 4 frame 3): a dimmer between the base chrome
+        // and the floating palette (the "conversation dimmed slightly" layer).
+        dimmer := SolidView {
+            width: Fill height: Fill
+            visible: false
+            draw_bg.color: #1D1D1F40
+        }
+
+        // Card #28e item 5 (board 4 frame 3): the floating 560 px command
+        // palette, near the top of the window. Cmd+K and "/" in an empty
+        // composer open it; Esc closes. The search field + the command rows are
+        // native shell chrome (no #16 component yet).
+        palette := RoundedView {
+            width: 560 height: Fit flow: Down spacing: 4
+            visible: false
+            abs_pos: vec2(440.0, 120.0)
+            draw_bg +: {color: #FFFFFF border_radius: 12.0 border_size: 1.0 border_color: #E5E5E7}
+            padding: Inset{left: 8 right: 8 top: 8 bottom: 8}
+            palette_search := TextInput {
+                width: Fill height: 34 text: ""
+                empty_text: "/"
+                draw_text.text_style.font_size: 13
+            }
+            palette_list := PortalList {
+                width: Fill height: Fit flow: Down
+                PaletteRowTpl := View {
+                    width: Fill height: 34 flow: Right spacing: 8
+                    padding: Inset{left: 6 top: 8}
+                    palette_row_name := Label { width: 150 height: Fit text: "" draw_text.text_style.font_size: 13 }
+                    palette_row_desc := Label { width: Fill height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
+                }
+            }
+            Label {
+                width: Fill height: Fit text: "↑↓ move · ↵ run · esc"
+                draw_text.text_style.font_size: 10
+                draw_text.color: #6E6E73
+            }
+        }
+
+        // Card #28e item 6 (board 4 frame 4): the first-run screen. Before a
+        // connection the window shows only a centered 480-wide card area (the
+        // Connect card comes from board 2 mapping in Stage C). This replaces
+        // `base` (`base.set_visible(false)` while `store.is_live()` is false).
+        first_run := View {
+            width: Fill height: Fill flow: Down
+            visible: false
+            draw_bg.color: #FFFFFF
+            align: Align{x: 0.5 y: 0.5}
+            first_run_card := RoundedView {
+                width: 480 height: Fit flow: Down spacing: 10
+                draw_bg +: {color: #FFFFFF border_radius: 12.0 border_size: 1.0 border_color: #E5E5E7}
+                padding: Inset{left: 24 right: 24 top: 24 bottom: 24}
+                Label {
+                    width: Fill height: Fit text: "Connect to Octos"
+                    draw_text.text_style.font_size: 16
+                }
+                Label { width: Fill height: Fit text: "Server" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
+                server_input := TextInput {
+                    width: Fill height: 36 text: "http://127.0.0.1:50190"
+                    draw_text.text_style.font_size: 13
+                }
+                Label { width: Fill height: Fit text: "Access token" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
+                token_input := TextInput {
+                    width: Fill height: 36 text: ""
+                    empty_text: "••••••••"
+                    draw_text.text_style.font_size: 13
+                }
+                connect_button := Button {
+                    width: Fill height: 40 text: "Connect"
+                    draw_bg.color: #000000
+                    draw_bg.border_radius: 999.0
+                }
             }
         }
     }
@@ -337,6 +553,9 @@ pub struct OctoscodeView {
     thread_uid: u64,
     #[rust]
     timeline_uid: u64,
+    /// Card #28e — the command palette's `PortalList` uid (0 = not captured).
+    #[rust]
+    palette_uid: u64,
 }
 
 impl OctoscodeView {
@@ -352,6 +571,16 @@ impl OctoscodeView {
                 seed_synthetic(&b.store, n);
             }
             ::log::info!("[octoscode] synthetic timeline: {n} entries (no transport)");
+            return;
+        }
+        // Card #28e item 6 (board 4 frame 4): the first-run frame needs NO
+        // connection, so `is_live()` stays false and the window shows only the
+        // centered 480 px card. `OCTOSCODE_NO_CONNECT`/`OCTOSCODE_FIRST_RUN`
+        // gate the transport off for that capture.
+        if std::env::var("OCTOSCODE_NO_CONNECT").is_ok()
+            || std::env::var("OCTOSCODE_FIRST_RUN").is_ok()
+        {
+            ::log::info!("[octoscode] first-run: no transport (board 4 frame 4)");
             return;
         }
         let base =
@@ -443,6 +672,24 @@ impl OctoscodeView {
                 let _ = ui.lock().map(|mut u| u.toggle_expanded(key));
                 return;
             }
+            // Card #28e — board-4 chrome toggles. Flip the FlowUi flag; the
+            // next `sync_labels` moves it onto the view (`set_visible`).
+            actions::Effect::UiChrome(which) => {
+                if let Ok(mut u) = ui.lock() {
+                    match which {
+                        actions::UiChrome::ReviewToggle => {
+                            u.toggle_review();
+                        }
+                        actions::UiChrome::SettingsToggle => {
+                            u.toggle_settings();
+                        }
+                        actions::UiChrome::PaletteToggle => {
+                            u.toggle_palette();
+                        }
+                    }
+                }
+                return;
+            }
             actions::Effect::Unhandled(id) => {
                 ::log::warn!("octoscode: unhandled action id {id:?}");
                 return;
@@ -507,6 +754,7 @@ impl OctoscodeView {
             // Handled above / needs `cx` (copy).
             actions::Effect::ToggleTool(_)
             | actions::Effect::Unhandled(_)
+            | actions::Effect::UiChrome(_)
             | actions::Effect::CopyAnswer => {}
         }
     }
@@ -578,7 +826,75 @@ impl OctoscodeView {
         if let Err(e) = self.mounts.mount(cx, &new_chat_splash, &new_chat) {
             makepad_widgets::log!("[octoscode] new-chat mount: {e}");
         }
+        self.sync_chrome(cx);
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
+    }
+
+    /// Card #28e — move the chrome state (FlowUi flags + store) onto the view:
+    /// the first-run swap, the review panel / settings drawer / palette /
+    /// dimmer visibility, and the GOALS/LOOPS/FLEET sidebar sections.
+    fn sync_chrome(&mut self, cx: &mut Cx) {
+        let (live, review, settings, palette) = {
+            let b = self.bridge.lock().unwrap();
+            (
+                b.store.is_live(),
+                b.ui.lock().map(|u| u.review_open()).unwrap_or(false),
+                b.ui.lock().map(|u| u.settings_open()).unwrap_or(false),
+                b.ui.lock().map(|u| u.palette_open()).unwrap_or(false),
+            )
+        };
+        // First run (board 4 frame 4): before a connection the window shows
+        // only the centered card area; the base chrome is hidden.
+        self.view.widget(cx, ids!(base)).set_visible(cx, live);
+        self.view.widget(cx, ids!(first_run)).set_visible(cx, !live);
+        self.view.widget(cx, ids!(review_panel)).set_visible(cx, review);
+        self.view.widget(cx, ids!(settings_drawer)).set_visible(cx, settings);
+        self.view.widget(cx, ids!(palette)).set_visible(cx, palette);
+        self.view.widget(cx, ids!(dimmer)).set_visible(cx, palette || settings);
+
+        // GOALS / LOOPS / FLEET rows (board 4 frame 3): visible only when the
+        // session has them.
+        let (goals, loops, fleet) = {
+            let b = self.bridge.lock().unwrap();
+            let session = b.store.active_session();
+            let goal = session
+                .as_deref()
+                .and_then(|s| b.store.domains.autonomy.goal(s));
+            let goal_txt = goal
+                .map(|g| format!("{} · {}", g.objective, g.status))
+                .unwrap_or_default();
+            let loops: Vec<String> = b
+                .store
+                .domains
+                .autonomy
+                .loops()
+                .into_iter()
+                .map(|l| format!("{} · {}", l.prompt, l.status))
+                .collect();
+            let fleet: Vec<String> = b
+                .store
+                .domains
+                .peer
+                .list()
+                .into_iter()
+                .map(|p| format!("{} · {}", p.name, if p.closed { "closed" } else { "open" }))
+                .collect();
+            (goal_txt, loops, fleet)
+        };
+        let any = !goals.is_empty() || !loops.is_empty() || !fleet.is_empty();
+        self.view.widget(cx, ids!(autonomy_sections)).set_visible(cx, any);
+        self.view.label(cx, ids!(goal_row_1)).set_text(cx, &goals);
+        let mut set_rows = |ids: &[LiveId], rows: &[String]| {
+            for (i, id) in ids.iter().enumerate() {
+                let txt = rows.get(i).cloned().unwrap_or_default();
+                self.view.label(cx, &[*id]).set_text(cx, &txt);
+            }
+        };
+        set_rows(&[live_id!(loop_row_1), live_id!(loop_row_2)], &loops);
+        set_rows(
+            &[live_id!(fleet_row_1), live_id!(fleet_row_2), live_id!(fleet_row_3)],
+            &fleet,
+        );
     }
 
 }
@@ -590,8 +906,10 @@ impl Widget for OctoscodeView {
         if self.thread_uid == 0 {
             self.thread_uid = self.view.portal_list(cx, ids!(thread_list)).widget_uid().0;
             self.timeline_uid = self.view.portal_list(cx, ids!(timeline_list)).widget_uid().0;
+            self.palette_uid = self.view.portal_list(cx, ids!(palette_list)).widget_uid().0;
         }
-        let (thread_uid, timeline_uid) = (self.thread_uid, self.timeline_uid);
+        let (thread_uid, timeline_uid, palette_uid) =
+            (self.thread_uid, self.timeline_uid, self.palette_uid);
         // Both the lowering cache and the mount cache are taken OUT of self so the
         // loop body borrows only `bridge` (a local Arc) — `self.view.draw_walk`
         // already holds `self.view`.
@@ -649,6 +967,19 @@ impl Widget for OctoscodeView {
                         }
                         item.draw_all_unscoped(cx);
                     }
+                } else if uid == palette_uid {
+                    // Card #28e — the command palette's rows: (monospace) name
+                    // + grey description, first row highlighted by the shell's
+                    // hover state.
+                    let rows = palette_commands();
+                    list.set_item_range(cx, 0, rows.len());
+                    while let Some(id) = list.next_visible_item(cx) {
+                        let Some((name, desc)) = rows.get(id) else { continue };
+                        let item = list.item(cx, id, id!(PaletteRowTpl));
+                        item.label(cx, ids!(palette_row_name)).set_text(cx, name);
+                        item.label(cx, ids!(palette_row_desc)).set_text(cx, desc);
+                        item.draw_all_unscoped(cx);
+                    }
                 }
             }
         }
@@ -677,6 +1008,13 @@ impl Widget for OctoscodeView {
                     .text_input(cx, &[live_id!(i0_composer_0)])
                     .changed(actions)
                 {
+                    // Card #28e item 5: "/" typed into an EMPTY composer opens
+                    // the command palette (board 4 frame 3).
+                    if text == "/" {
+                        if let Ok(mut u) = self.bridge.lock().unwrap().ui.lock() {
+                            u.set_palette_open(true);
+                        }
+                    }
                     self.bridge.lock().unwrap().ui.lock().unwrap().set_draft_inner(text);
                 }
                 if self.view.button(cx, ids!(refresh)).clicked(actions) {
@@ -690,6 +1028,7 @@ impl Widget for OctoscodeView {
                 // control is STOP (scene 08 / Codex) and sends `turn/interrupt`
                 // (the L1 fix); otherwise it submits the draft.
                 if self.view.button(cx, ids!(send_hit)).clicked(actions) {
+                    makepad_widgets::log!("[octoscode] send_hit clicked");
                     let live = {
                         let b = self.bridge.lock().unwrap();
                         let ctx = bindings::Ctx::new(&b.store, &b.ui);
@@ -745,7 +1084,40 @@ impl Widget for OctoscodeView {
                         }
                     }
                 }
+                // Card #28e — the board-4 chrome controls.
+                if self.view.button(cx, ids!(review_toggle_hit)).clicked(actions)
+                    || self.view.button(cx, ids!(review_close)).clicked(actions)
+                {
+                    self.perform_action("review.toggle", 0);
+                }
+                if self.view.button(cx, ids!(settings_close)).clicked(actions) {
+                    self.perform_action("settings.toggle", 0);
+                }
                 self.sync_labels(cx);
+            }
+            // Card #28e — board-4 keys. Esc closes the palette (frame 3);
+            // Cmd+K toggles it.
+            Event::KeyDown(e) => {
+                let ui = self.bridge.lock().unwrap().ui.clone();
+                let mut open_changed = false;
+                if let Ok(mut u) = ui.lock() {
+                    if e.key_code == KeyCode::Escape && u.palette_open() {
+                        u.set_palette_open(false);
+                        open_changed = true;
+                    } else if e.key_code == KeyCode::KeyK && e.modifiers.logo {
+                        u.toggle_palette();
+                        open_changed = true;
+                    } else if e.key_code == KeyCode::KeyE && e.modifiers.logo {
+                        u.toggle_review();
+                        open_changed = true;
+                    } else if e.key_code == KeyCode::Period && e.modifiers.logo {
+                        u.toggle_settings();
+                        open_changed = true;
+                    }
+                }
+                if open_changed {
+                    self.sync_labels(cx);
+                }
             }
             _ => {}
         }
@@ -754,6 +1126,20 @@ impl Widget for OctoscodeView {
 
 pub struct OctoscodeModule;
 pub static OCTOSCODE_MODULE: OctoscodeModule = OctoscodeModule;
+
+/// Card #28e — the board-4 command palette rows (frame 3): monospace name +
+/// grey description. Static shell data for now; the actions they route land
+/// with the Stage-C command surface.
+fn palette_commands() -> Vec<(&'static str, &'static str)> {
+    vec![
+        ("/model", "Switch model"),
+        ("/monitor", "Add a monitor"),
+        ("/mode", "Change permissions"),
+        ("/compact", "Compact context"),
+        ("/btw", "Ask a side question"),
+        ("/resume", "Resume a session"),
+    ]
+}
 
 impl AppModule for OctoscodeModule {
     fn id(&self) -> &'static str {

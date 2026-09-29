@@ -105,6 +105,10 @@ pub const ACTIONS: &[(&str, &str)] = &[
     ("thread.open", "open the clicked thread row's session (`row.id`)"),
     ("answer.copy", "copy the answer text (UI-local; the clipboard is the host's)"),
     ("tool.toggle", "toggle a tool cell's output disclosure (UI-local)"),
+    // Card #28e — the board-4 chrome toggles (all UI-local).
+    ("review.toggle", "toggle the 560 px Review panel (UI-local)"),
+    ("settings.toggle", "toggle the 420 px Session-settings drawer (UI-local)"),
+    ("palette.toggle", "toggle the floating '/' command palette (UI-local)"),
 ];
 
 /// The conversation action ids the fallback view emits (its buttons map to
@@ -568,8 +572,9 @@ mod tests {
         }
         // The four conversation actions + session.refresh + session.new
         // (card #14 defect 4: New chat mints a fresh session id) + card #21 §3's
-        // three per-item controls (thread.open, answer.copy, tool.toggle).
-        assert_eq!(ACTIONS.len(), 9);
+        // three per-item controls (thread.open, answer.copy, tool.toggle) + card
+        // #28e's three board-4 chrome toggles (review/settings/palette).
+        assert_eq!(ACTIONS.len(), 12);
         assert!(is_action("composer.submit"));
         assert!(is_action("turn.interrupt"));
         assert!(is_action("turn.steer"));

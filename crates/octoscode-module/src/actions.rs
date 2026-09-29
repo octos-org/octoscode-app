@@ -33,9 +33,23 @@ pub enum Effect {
     /// `answer.copy` — copy the last answer (UI-local; the host owns the
     /// clipboard).
     CopyAnswer,
+    /// Card #28e — a board-4 chrome toggle (review panel, settings drawer,
+    /// command palette). UI-local, like `ToggleTool`.
+    UiChrome(UiChrome),
     /// A declared id with no resolvable target (a missing row), or an id this
     /// router does not own. Logged by name, never fatal (LESSONS 6).
     Unhandled(String),
+}
+
+/// The board-4 chrome surfaces a view can toggle (card #28e).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum UiChrome {
+    /// The 560 px right Review panel.
+    ReviewToggle,
+    /// The 420 px Session-settings drawer.
+    SettingsToggle,
+    /// The 560 px floating "/" command palette.
+    PaletteToggle,
 }
 
 /// Route one action. `index` is the item the control belonged to (a session
@@ -60,6 +74,11 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             None => Effect::Unhandled(format!("{action}[{index}]")),
         },
         "answer.copy" => Effect::CopyAnswer,
+        // Card #28e — board-4 chrome toggles. UI-local (no protocol method):
+        // the view flips its own FlowUi flags and redraws.
+        "review.toggle" => Effect::UiChrome(UiChrome::ReviewToggle),
+        "settings.toggle" => Effect::UiChrome(UiChrome::SettingsToggle),
+        "palette.toggle" => Effect::UiChrome(UiChrome::PaletteToggle),
         // `answer.expand` / any other declared id the router does not own.
         other => Effect::Unhandled(other.to_owned()),
     }
@@ -76,6 +95,9 @@ pub const ROUTED: &[&str] = &[
     "thread.open",
     "tool.toggle",
     "answer.copy",
+    "review.toggle",
+    "settings.toggle",
+    "palette.toggle",
 ];
 
 /// Whether `id` is a routed action id.
