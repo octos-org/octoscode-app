@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "d8d2313476c89fa009f130da1c80fcd84feb55ce5686615cd88ffe35ed64d0e5",
+  "manifest_sha256": "3efbb6b58e1f13241261c75e31564053b523f3709e731c101c81b19c98b23ce9",
   "reference_sha256": "33f5f3c529151411246085a86d2a91b8475ba2a7a449207b6c47eda4c636abbe",
   "id": "setup-03",
   "round": null,

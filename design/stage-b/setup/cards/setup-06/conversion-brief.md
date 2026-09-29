@@ -290,7 +290,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "t_diag",
     "x": 51.78,
-    "y": 509.27,
+    "y": 487.62,
     "w": 134.39,
     "h": 24.77,
     "text": "Copy diagnostics",
@@ -306,7 +306,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "copy_diag",
     "x": 338.0,
-    "y": 506.66,
+    "y": 485.0,
     "w": 30.0,
     "h": 30.0,
     "role": "unknown",

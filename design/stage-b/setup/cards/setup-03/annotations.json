@@ -99,9 +99,9 @@
     {
       "id": "provider_deepseek",
       "bounds": [
-        38.482,
+        21.741,
         339.034,
-        292.036,
+        308.777,
         40.257
       ],
       "method": "surface contour unresolved; requested geometry retained",
@@ -112,7 +112,7 @@
     {
       "id": "radio_deepseek",
       "bounds": [
-        53.363,
+        25.461,
         348.497,
         20.461,
         21.331
@@ -123,9 +123,9 @@
     {
       "id": "provider_kimi",
       "bounds": [
-        38.482,
+        21.741,
         388.492,
-        292.036,
+        308.777,
         42.943
       ],
       "method": "surface contour unresolved; requested geometry retained",
@@ -136,7 +136,7 @@
     {
       "id": "radio_kimi",
       "bounds": [
-        53.363,
+        25.461,
         399.303,
         20.461,
         21.331
@@ -147,9 +147,9 @@
     {
       "id": "provider_glm",
       "bounds": [
-        38.482,
+        21.741,
         441.247,
-        292.036,
+        308.777,
         42.419
       ],
       "method": "surface contour unresolved; requested geometry retained",
@@ -160,7 +160,7 @@
     {
       "id": "radio_glm",
       "bounds": [
-        53.363,
+        25.461,
         451.796,
         20.461,
         21.331

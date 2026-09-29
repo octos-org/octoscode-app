@@ -194,13 +194,13 @@ def build_03(sc):
     sc.add_text("t_provider", 3, size=14, color="ink")
     for k, (name_i, rid, on) in enumerate([(5, "deepseek", True), (6, "kimi", False), (7, "glm", False)]):
         s, x, y, w, h = sc.rows[name_i]
-        sc.put(av.surface(f"provider_{rid}", 46, y - 10, 314, h + 20,
+        sc.put(av.surface(f"provider_{rid}", 28, y - 10, 332, h + 20,
                           bg="white", radius=10,
                           kids=[av.icon(f"radio_{rid}", "radio_on" if on else "radio_off",
-                                        62, y + (h - 22) / 2, 22, 22,
+                                        32, y + (h - 22) / 2, 22, 22,
                                         color="blue" if on else "muted"),
-                                av.text(f"t_prov_{rid}", s, 92, y, 250, h, size=16, weight=500)]))
-        sc.controls[f"provider_{rid}"] = (f"onboarding.provider.{rid}", [46, int(y) - 10, 314, int(h) + 20], True)
+                                av.text(f"t_prov_{rid}", s, 62, y, 250, h, size=16, weight=500)]))
+        sc.controls[f"provider_{rid}"] = (f"onboarding.provider.{rid}", [28, int(y) - 10, 332, int(h) + 20], True)
     sc.add_text("t_apikey", 4, size=14, color="ink")
     titled_box(sc, "apikey", 8, eye=True, dots=True)
     sc.add_text("t_keyhint", 9, size=13, color="muted")
@@ -316,10 +316,12 @@ def build_06(sc):
                                        kids=[av.surface("toggle1_knob", 338, ny - 3, 24, 24, bg="white", radius=999)])]))
     sc.controls["notif_toggle"] = ("settings.notifications", [gx, 370, gw, 76], True)
     cs, cx, cy, cw, ch = sc.rows[8]
+    # round-4: one row, vertically centred in the card (the OCR y sat on the
+    # card's bottom edge); card geometry = the notifications card (462/76).
     sc.put(av.surface("group3", gx, 462, gw, 76, bg="white", radius=12, border=1,
                       bordercolor="hair",
-                      kids=[av.text("t_diag", cs, cx, cy, cw, ch, size=14, weight=500),
-                            av.icon("copy_diag", "copy", gx + gw - 40, cy + (ch - 30) / 2, 30, 30, color="muted")]))
+                      kids=[av.text("t_diag", cs, cx, 462 + (76 - ch) / 2, cw, ch, size=14, weight=500),
+                            av.icon("copy_diag", "copy", gx + gw - 40, 462 + (76 - 30) / 2, 30, 30, color="muted")]))
     sc.controls["copy_diag"] = ("settings.copy_diagnostics", [gx, 462, gw, 90], True)
     ds, dx, dy, dw, dh = sc.rows[9]
     sc.put(av.surface("disconnect", gx, dy - 14, gw, dh + 28, bg="white", radius=12,

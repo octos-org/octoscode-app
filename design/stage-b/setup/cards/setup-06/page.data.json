@@ -198,7 +198,7 @@
         "component": "Text4da9dcc73b92",
         "layout": {
           "x": 51.78,
-          "y": 509.27,
+          "y": 487.62,
           "w": 174.71,
           "h": 24.77
         }
@@ -207,7 +207,7 @@
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 338.0,
-          "y": 506.66,
+          "y": 485.0,
           "w": 30.0,
           "h": 30.0,
           "src": "http://127.0.0.1:8170/ux-images/setup-06/assets/copy_diag-e71cb744fd09.svg"

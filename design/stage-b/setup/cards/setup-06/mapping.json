@@ -388,7 +388,7 @@
       "semantic_role": "text",
       "bounds": [
         51.78,
-        509.27,
+        487.62,
         174.71,
         24.77
       ],
@@ -406,7 +406,7 @@
       "semantic_role": "icon",
       "bounds": [
         338.0,
-        506.66,
+        485.0,
         30.0,
         30.0
       ],
@@ -457,6 +457,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "bd1d7ad794b54d44c57196fbf2d62915b9751975c1e58b889dbeb312df0dc66b",
+  "contract_sha256": "ab6697f48f8d83faf008ff7fbb46a6c74ad58f5f0364cec478f90411db721dd3",
   "mapping_basis": "mapped.json"
 }

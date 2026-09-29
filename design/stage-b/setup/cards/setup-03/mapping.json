@@ -135,9 +135,9 @@
       "component": "Surface409a8dfb0311",
       "semantic_role": "layout",
       "bounds": [
-        46.0,
+        28.0,
         320.48,
-        314.0,
+        332.0,
         41.52
       ],
       "text": null,
@@ -153,7 +153,7 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        62.0,
+        32.0,
         330.24,
         22.0,
         22.0
@@ -171,7 +171,7 @@
       "component": "Text684c870f921b",
       "semantic_role": "text",
       "bounds": [
-        92.0,
+        62.0,
         330.48,
         325.0,
         24.0
@@ -189,9 +189,9 @@
       "component": "Surface409a8dfb0311",
       "semantic_role": "layout",
       "bounds": [
-        46.0,
+        28.0,
         371.49,
-        314.0,
+        332.0,
         44.29
       ],
       "text": null,
@@ -207,7 +207,7 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        62.0,
+        32.0,
         382.64,
         22.0,
         22.0
@@ -225,7 +225,7 @@
       "component": "Textfe983b7a369c",
       "semantic_role": "text",
       "bounds": [
-        92.0,
+        62.0,
         381.49,
         325.0,
         24.29
@@ -243,9 +243,9 @@
       "component": "Surface409a8dfb0311",
       "semantic_role": "layout",
       "bounds": [
-        46.0,
+        28.0,
         425.9,
-        314.0,
+        332.0,
         43.75
       ],
       "text": null,
@@ -261,7 +261,7 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        62.0,
+        32.0,
         436.78,
         22.0,
         22.0
@@ -279,7 +279,7 @@
       "component": "Text684c870f921b",
       "semantic_role": "text",
       "bounds": [
-        92.0,
+        62.0,
         435.9,
         325.0,
         24.0
@@ -476,6 +476,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-700.ttf": "b6e29575c0d0aff9c4c8f89763994876000a09fa9d0d1da32133aea5fdbfe0e5"
   },
-  "contract_sha256": "639cd41c995b47a2ddd2a7bfd13aa708b2fe3aa767dc943de2d6399c1ea8f963",
+  "contract_sha256": "9a5956bfac3ad19b2e012dc716ba344cc56d23b195b474e766a97cfe211dd859",
   "mapping_basis": "mapped.json"
 }

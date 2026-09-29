@@ -121,9 +121,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "provider_deepseek",
-    "x": 46.0,
+    "x": 28.0,
     "y": 320.48,
-    "w": 314.0,
+    "w": 332.0,
     "h": 41.52,
     "role": "layout",
     "native_candidates": [
@@ -132,7 +132,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "radio_deepseek",
-    "x": 62.0,
+    "x": 32.0,
     "y": 330.24,
     "w": 22.0,
     "h": 22.0,
@@ -141,7 +141,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "t_prov_deepseek",
-    "x": 92.0,
+    "x": 62.0,
     "y": 330.48,
     "w": 250.0,
     "h": 24.0,
@@ -157,9 +157,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "provider_kimi",
-    "x": 46.0,
+    "x": 28.0,
     "y": 371.49,
-    "w": 314.0,
+    "w": 332.0,
     "h": 44.29,
     "role": "layout",
     "native_candidates": [
@@ -168,7 +168,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "radio_kimi",
-    "x": 62.0,
+    "x": 32.0,
     "y": 382.64,
     "w": 22.0,
     "h": 22.0,
@@ -177,7 +177,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "t_prov_kimi",
-    "x": 92.0,
+    "x": 62.0,
     "y": 381.49,
     "w": 250.0,
     "h": 24.29,
@@ -193,9 +193,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "provider_glm",
-    "x": 46.0,
+    "x": 28.0,
     "y": 425.9,
-    "w": 314.0,
+    "w": 332.0,
     "h": 43.75,
     "role": "layout",
     "native_candidates": [
@@ -204,7 +204,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "radio_glm",
-    "x": 62.0,
+    "x": 32.0,
     "y": 436.78,
     "w": 22.0,
     "h": 22.0,
@@ -213,7 +213,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "t_prov_glm",
-    "x": 92.0,
+    "x": 62.0,
     "y": 435.9,
     "w": 250.0,
     "h": 24.0,

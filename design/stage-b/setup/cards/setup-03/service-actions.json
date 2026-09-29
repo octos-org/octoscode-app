@@ -4,9 +4,9 @@
     "provider_deepseek": {
       "event": "onboarding.provider.deepseek",
       "source_bounds": [
-        46,
+        28,
         320,
-        314,
+        332,
         41
       ],
       "enabled": true
@@ -14,9 +14,9 @@
     "provider_kimi": {
       "event": "onboarding.provider.kimi",
       "source_bounds": [
-        46,
+        28,
         371,
-        314,
+        332,
         44
       ],
       "enabled": true
@@ -24,9 +24,9 @@
     "provider_glm": {
       "event": "onboarding.provider.glm",
       "source_bounds": [
-        46,
+        28,
         425,
-        314,
+        332,
         43
       ],
       "enabled": true
