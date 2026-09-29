@@ -888,13 +888,17 @@ impl OctoscodeView {
     /// the first-run swap, the review panel / settings drawer / palette /
     /// dimmer visibility, and the GOALS/LOOPS/FLEET sidebar sections.
     fn sync_chrome(&mut self, cx: &mut Cx) {
+        // Card #28e — the headless-capture gate: `OCTOSCODE_CHROME=review|
+        // settings|palette` pre-opens that surface deterministically (a
+        // headless run cannot click the toggle). Parsed once per process.
+        let (env_review, env_settings, env_palette) = chrome_env();
         let (live, review, settings, palette) = {
             let b = self.bridge.lock().unwrap();
             (
                 b.store.is_live(),
-                b.ui.lock().map(|u| u.review_open()).unwrap_or(false),
-                b.ui.lock().map(|u| u.settings_open()).unwrap_or(false),
-                b.ui.lock().map(|u| u.palette_open()).unwrap_or(false),
+                b.ui.lock().map(|u| u.review_open()).unwrap_or(false) || env_review,
+                b.ui.lock().map(|u| u.settings_open()).unwrap_or(false) || env_settings,
+                b.ui.lock().map(|u| u.palette_open()).unwrap_or(false) || env_palette,
             )
         };
         // First run (board 4 frame 4): before a connection the window shows
@@ -951,6 +955,17 @@ impl OctoscodeView {
         );
     }
 
+}
+
+/// Card #28e — the `OCTOSCODE_CHROME` capture gate, parsed once.
+fn chrome_env() -> (bool, bool, bool) {
+    static CHROME: std::sync::OnceLock<(bool, bool, bool)> = std::sync::OnceLock::new();
+    *CHROME.get_or_init(|| {
+        let v = std::env::var("OCTOSCODE_CHROME")
+            .unwrap_or_default()
+            .to_lowercase();
+        (v == "review", v == "settings", v == "palette")
+    })
 }
 
 impl Widget for OctoscodeView {
@@ -1166,6 +1181,15 @@ impl Widget for OctoscodeView {
                         open_changed = true;
                     } else if e.key_code == KeyCode::Period && e.modifiers.logo {
                         u.toggle_settings();
+                        open_changed = true;
+                    // Card #28e item 5: typing "/" in an EMPTY composer opens
+                    // the palette (board 4 frame 3). A non-empty draft keeps
+                    // the "/" as text.
+                    } else if e.key_code == KeyCode::Slash
+                        && !u.palette_open()
+                        && u.draft().is_empty()
+                    {
+                        u.set_palette_open(true);
                         open_changed = true;
                     }
                 }
