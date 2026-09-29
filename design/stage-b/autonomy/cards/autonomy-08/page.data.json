@@ -172,7 +172,7 @@
         "component": "Surfaceebeaffab57cc",
         "layout": {
           "x": 16.0,
-          "y": 725.37,
+          "y": 733.37,
           "w": 374.0,
           "h": 52.0
         }
@@ -181,16 +181,16 @@
         "component": "Text1a789bc844b3",
         "layout": {
           "x": 30.0,
-          "y": 739.37,
+          "y": 747.37,
           "w": 190.0,
           "h": 24.0
         }
       },
       "resume_pill": {
-        "component": "Surface32645d09434a",
+        "component": "Surface18cf6295f038",
         "layout": {
           "x": 226.0,
-          "y": 734.37,
+          "y": 742.37,
           "w": 74.0,
           "h": 34.0
         }
@@ -199,7 +199,7 @@
         "component": "Text2e3d885623cb",
         "layout": {
           "x": 240.0,
-          "y": 741.37,
+          "y": 749.37,
           "w": 54.0,
           "h": 22.0
         }
@@ -208,7 +208,7 @@
         "component": "Text8ea8e82f94f8",
         "layout": {
           "x": 314.0,
-          "y": 741.37,
+          "y": 749.37,
           "w": 52.0,
           "h": 22.0
         }

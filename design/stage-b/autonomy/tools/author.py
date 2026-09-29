@@ -29,7 +29,8 @@ MONO = "self:resources/ux/LiberationMono-Regular.ttf"
 # Dark token set for screens 11/12 — same components, dark values.
 CD = {"page": 0xFF1C1C1E, "panel": 0xFF2C2C2E, "hair": 0xFF3A3A3C, "ink": 0xFFF2F2F7,
       "muted": 0xFF98989D, "black": 0xFF3A3A3C, "box": 0xFF242426,
-      "white": 0xFF2C2C2E, "sel": 0xFF3A3A3C, "mono": 0xFF242426}
+      "white": 0xFF2C2C2E, "sel": 0xFF3A3A3C, "mono": 0xFF242426,
+      "purewhite": 0xFFFFFFFF}
 CD_HEX = {k: f"#{v & 0xFFFFFF:06X}" for k, v in CD.items()}
 
 # Active palette — switched per scene by build() before the builder runs.
@@ -253,8 +254,6 @@ def build_07(sc):
     duration, a grey console block inside it (y350..548, 4 mono lines), a wide
     outlined Cancel button, then a completed row '› cargo clippy -p octos-cli'
     with green 'Done' pill + '1m' (y672..756)."""
-    _, t2x, t2y, t2w, t2h = sc.rows[2]
-    sc.put(icon("icon_tasks", "terminal", t2x - 26, t2y - 2, 20, 20, color="ink"))
     sc.add_text("t02", 2, weight=600, size=17)          # Tasks
     # running sub-card
     _, cx, cy, cw, ch = sc.rows[3]
@@ -266,22 +265,24 @@ def build_07(sc):
     # author them pre-truncated to that width (single_line does not clip for us)
     # measured on the bundled mono face: ~42 chars fit the console inner width at
     # 14pt (LiberationMono advance 0.6em -> 304px/14pt/0.6 = 36 chars; at 12pt 42)
-    # measured on the bundled mono face (LiberationMono advance 0.6em): 37-38 chars
-    # at 14pt = 311-319px, just over the 304 box; single_line doesn't clip, so keep
-    # the ink inside the console's right edge (x360) — 35 chars = ~294px.
-    LOG_TRUNC = {
-        5: "Compiling octos-cli v0.24.1 (/work…",
-        6: "Finished test [unoptimized + debugi…",
-        7: "Running unittests src/lib.rs (targe…",
+    # the atlas shows the FULL cargo lines (no …): use a smaller mono so they fit.
+    # LiberationMono advance = 0.6em; console inner width 312px at 10pt -> 52 chars.
+    # full lines, no ellipsis: at 9pt LiberationMono (0.6em advance) 58 chars = 313px,
+    # matching the atlas's full-line rows at the console's inner width
+    LOG_FULL = {
+        5: "Compiling octos-cli v0.24.1 (/workspace/crates/octos-cli)",
+        6: "Finished test [unoptimized + debuginfo] target(s) in 1.23s",
+        7: "Running unittests src/lib.rs (target/debug/deps/octos_cli…)",
     }
     for i, row_i in enumerate([5, 6, 7, 8]):
         s, x, y, w, h = sc.rows[row_i]
-        s = LOG_TRUNC.get(row_i, s)
-        n = code(f"t_log{i}", s, 40, y, min(w, 304), h, size=14, color="ink")
+        s = LOG_FULL.get(row_i, s)
+        n = code(f"t_log{i}", s, 40, y, min(w, 304), h, size=9, color="ink")
         n["tracking"] = 0.0          # pin: no width-solved tracking shrink
         log_kids.append(n)
     run_kids = [
-        code("t_cmd", sc.t(3), cx, cy, cw, ch, weight=500, size=14),
+        icon("icon_run_task", "terminal", cx - 2, cy + 1, 16, 16, color="muted"),
+        code("t_cmd", sc.t(3), cx + 22, cy, cw - 22, ch, weight=500, size=14),
         surface("run_pill", rx - 6, ry - 4, rw + 12, rh + 8, bg="greenbg", radius=999,
                 kids=[text("t_run", sc.t(4), rx, ry, rw, rh, size=12, weight=500, color="green")]),
         text("t_run_dur", "2m", rx + rw + 12, ry, 24, rh, size=12, color="muted"),
@@ -301,7 +302,8 @@ def build_07(sc):
                    bordercolor="hair", kids=run_kids))
     # completed task row (y672..756): command + green Done pill + duration
     _, dx, dy, dw, dh = sc.rows[10]
-    sc.put(code("t_done_cmd", sc.t(10), dx, dy, dw, dh, weight=500, size=14))
+    sc.put(icon("icon_done_task", "terminal", dx - 2, dy + 1, 16, 16, color="muted"))
+    sc.put(code("t_done_cmd", sc.t(10), dx + 22, dy, dw - 22, dh, weight=500, size=14))
     _, gx, gy, gw, gh = sc.rows[11]
     sc.put(surface("done_pill", gx - 6, gy - 4, gw + 12, gh + 8, bg="greenbg", radius=999,
                    kids=[text("t_done", sc.t(11), gx, gy, gw, gh, size=12, weight=500, color="green")]))
@@ -335,11 +337,11 @@ def build_08(sc):
             sc.put(surface(f"div_{idx}", 16, ybot + 4, 374, 1, bg="hair", radius=0))
     # bottom confirmation strip BELOW the last row (outer loop: missing)
     _, _mx, _my, _mw, _mh = sc.rows[10]
-    strip_y = _my + _mh + 16
+    strip_y = _my + _mh + 24
     sc.put(surface("confirm_strip", 16, strip_y, 374, 52, bg="panel", radius=12, border=1,
                    bordercolor="hair", kids=[
         text("t_confirm", 'Resume "Add session fork"?', 30, strip_y + 14, 190, 24, size=14, weight=500),
-        surface("resume_pill", 226, strip_y + 9, 74, 34, bg="blue", radius=999,
+        surface("resume_pill", 226, strip_y + 9, 74, 34, bg="black", radius=999,
                 kids=[text("t_resume", "Resume", 240, strip_y + 16, 54, 22,
                            size=14, weight=600, color="white")]),
         text("t_cancel2", "Cancel", 314, strip_y + 16, 52, 22, size=14, weight=500, color="muted")]))
@@ -375,18 +377,20 @@ def build_09(sc):
     sc.add_text("t_sz2", 22, size=13, weight=500)
     sc.add_text("t_caption", 23, color="muted", size=13)
     # composer — all controls INSIDE the card edge (outer loop: they sat below it)
+    # ONE card, ONE control row: + · Ask for approval · spacer · v4-flash · mic · send
     sc.put(surface("composer", 16, 616, 374, 146, bg="panel", radius=12, border=1,
                    bordercolor="hair", kids=[
         input_node("composer_input", 28, 624, 300, 36, sc.t(24)),
-        icon("icon_plus", "plus", 28, 676, 18, 24, color="muted"),
-        surface("approval_pill", 62, 678, sc.rows[26][3] + 22, sc.rows[26][4] + 12,
-                bg="white", radius=999, border=1, bordercolor="hair",
-                kids=[text("t_approval", sc.t(26), *sc.rows[26][1:], size=13, color="muted")]),
-        text("t_model", FIX.get(sc.t(27), sc.t(27)), sc.rows[27][1], 682,
-             sc.rows[27][3], sc.rows[27][4], size=13, weight=500),
-        icon("icon_mic", "mic", 304, 676, 16, 26, color="muted"),
-        surface("send_btn", 338, 670, 36, 36, bg="black", radius=999,
-                kids=[icon("icon_send", "send", 348, 680, 16, 16, color="white")])]))
+        stack("control_row", 28, 668, 346, 40, [
+            icon("icon_plus", "plus", 28, 676, 18, 24, color="muted"),
+            surface("approval_pill", 58, 672, 128, 32,
+                    bg="white", radius=999, border=1, bordercolor="hair",
+                    kids=[text("t_approval", sc.t(26), 70, 680, 104, 16, size=13, color="muted")]),
+            text("t_model", FIX.get(sc.t(27), sc.t(27)), 212, 680,
+                 sc.rows[27][3], sc.rows[27][4], size=13, weight=500),
+            icon("icon_mic", "mic", 296, 676, 16, 26, color="muted"),
+            surface("send_btn", 338, 670, 36, 36, bg="black", radius=999,
+                    kids=[icon("icon_send", "send", 348, 680, 16, 16, color="white")])])]))
     sc.inputs["composer_input"] = ("composer.draft", [28, 624, 300, 36])
 
 
@@ -459,9 +463,9 @@ def build_11(sc):
     _, t4x, t4y, t4w, t4h = sc.rows[4]
     sc.put(surface("tool_card", 16, t4y - 10, 374, t4h + 20, bg="panel", radius=10,
                    border=1, bordercolor="hair", kids=[
-        icon("icon_tool", "wrench", 26, t4y, 18, 18, color="muted"),
+        icon("icon_tool", "wrench", 26, t4y, 16, 16, color="muted"),
         code("t_tool", "Edit crates/octos-cli/tests/steer_queue.rs",
-             54, t4y, 270, t4h, size=13, color="muted"),
+             52, t4y, 270, t4h, size=13, color="muted"),
         icon("icon_tool_done", "check", 358, t4y + 1, 16, 16, color="green")]))
     # streaming answer: markdown with inline code chips (dark chip token #3A3A3C).
     # The component, not the scene, must take the dark chip — flow_md's `bg` is the
@@ -475,65 +479,70 @@ def build_11(sc):
     sc.flows["answer_md"] = ("answer.markdown", 30, 352, 340, 170)
     # thumbs up/down row (outer loop: missing)
     sc.put(stack("answer_actions", 30, 546, 120, 28, [
-        icon("icon_up", "thumbs_up", 30, 548, 20, 20, color="muted"),
-        icon("icon_down", "thumbs_down", 62, 548, 20, 20, color="muted")]))
+        icon("icon_up", "thumbs_up", 30, 544, 24, 24, color="muted"),
+        icon("icon_down", "thumbs_down", 66, 544, 24, 24, color="muted")]))
     # composer: WHITE send button with a black arrow on the dark set
+    # ONE card, ONE control row; send = white disc with a black arrow (dark mode)
     sc.put(surface("composer", 16, 616, 374, 146, bg="panel", radius=12, border=1,
                    bordercolor="hair", kids=[
         input_node("composer_input", 30, 624, 300, 36, sc.t(9)),
-        icon("icon_plus", "plus", 30, 676, 18, 24, color="muted"),
-        surface("approval_pill", 76, 678, sc.rows[11][3] + 22, sc.rows[11][4] + 12,
-                bg="page", radius=999, border=1, bordercolor="hair",
-                kids=[text("t_approval", sc.t(11), *sc.rows[11][1:], size=13, color="muted")]),
-        text("t_model", FIX.get(sc.t(12), sc.t(12)), sc.rows[12][1], 682,
-             sc.rows[12][3], sc.rows[12][4], size=13, weight=500),
-        icon("icon_mic", "mic", 304, 676, 16, 26, color="muted"),
-        surface("send_btn", 338, 670, 36, 36, bg="ink", radius=999,
-                kids=[icon("icon_send", "send", 348, 680, 16, 16, color="page")])]))
+        stack("control_row", 30, 668, 344, 40, [
+            icon("icon_plus", "plus", 30, 676, 18, 24, color="muted"),
+            surface("approval_pill", 62, 672, 128, 32,
+                    bg="page", radius=999, border=1, bordercolor="hair",
+                    kids=[text("t_approval", sc.t(11), 74, 680, 104, 16, size=13, color="muted")]),
+            text("t_model", FIX.get(sc.t(12), sc.t(12)), 216, 680,
+                 sc.rows[12][3], sc.rows[12][4], size=13, weight=500),
+            icon("icon_mic", "mic", 298, 676, 16, 26, color="muted"),
+            surface("send_btn", 338, 670, 36, 36, bg="purewhite", radius=999,
+                    kids=[icon("icon_send", "send", 348, 680, 16, 16, color="ink")])])]))
     sc.inputs["composer_input"] = ("composer.draft", [30, 624, 300, 36])
 
 
 def build_12(sc):
     """DARK SETTINGS. Dark token set: title 'Settings', grouped card (Connection
-    ● Live › / Workspace octos › / Profile octos-dev ›), 'Desktop notifications'
-    INSIDE the card with its toggle, 'Copy diagnostics' row with a COPY icon (not a
-    toggle), and a 'Disconnect' row in its own card with a power icon."""
+    ● Live › / Workspace octos › / Profile octos-dev › / Desktop notifications with
+    a KNOBBED toggle / Copy diagnostics with a copy icon — ALL INSIDE the card),
+    and a 'Disconnect' row in its own card with a power icon."""
     sc.add_text("t01", 2, weight=600, size=19)
-    # grouped card: 3 link rows + the notifications toggle row INSIDE the card
     _, dnx, dny, dnw, dnh = sc.rows[9]   # Desktop notifications
+    _, cdx, cdy, cdw, cdh = sc.rows[10]  # Copy diagnostics
     card_kids = [
         text("t_conn", sc.t(3), *sc.rows[3][1:], size=15, weight=500),
         text("t_live", FIX.get(sc.t(4), sc.t(4)), *sc.rows[4][1:], size=14, weight=500, color="green"),
         text("t_ws", sc.t(5), *sc.rows[5][1:], size=15, weight=500),
-        text("t_wsval", sc.t(7), *sc.rows[7][1:], size=14, weight=500, color="muted"),
-        icon("chev_ws", "chevron_right_sm", 356, sc.rows[5][2] + 2, 16, 16, color="muted"),
+        text("t_wsval", sc.t(7), 348 - sc.rows[7][3], sc.rows[7][2], sc.rows[7][3], sc.rows[7][4],
+             size=14, weight=500, color="muted"),
+        icon("chev_ws", "chevron_right_sm", 356, sc.rows[5][2] + 2, 14, 14, color="muted"),
         text("t_prof", sc.t(6), *sc.rows[6][1:], size=15, weight=500),
-        text("t_profval", sc.t(8), *sc.rows[8][1:], size=14, weight=500, color="muted"),
-        icon("chev_prof", "chevron_right_sm", 356, sc.rows[6][2] + 2, 16, 16, color="muted"),
-        # Desktop notifications INSIDE the card (outer loop: it sat outside)
+        text("t_profval", sc.t(8), 348 - sc.rows[8][3], sc.rows[8][2], sc.rows[8][3], sc.rows[8][4],
+             size=14, weight=500, color="muted"),
+        icon("chev_prof", "chevron_right_sm", 356, sc.rows[6][2] + 2, 14, 14, color="muted"),
+        # Desktop notifications INSIDE the card, toggle WITH a knob
         text("t_notif", sc.t(9), dnx, dny, dnw, dnh, size=15, weight=500),
-        surface("toggle_notif", 320, dny - 3, 50, 30, bg="blue", radius=999,
-                kids=[surface("toggle_notif_knob", 344, dny, 24, 24, bg="white", radius=999)]),
+        surface("toggle_notif", 320, dny - 3, 50, 30, bg="blue", radius=999, kids=[
+            # knob coords are window-absolute (design.rs emits the node's own x/y);
+            # parent-relative (22,3) rendered it at the page's top-left corner
+            surface("toggle_notif_knob", 344, dny, 24, 24, bg="purewhite", radius=999)]),
+        # Copy diagnostics INSIDE the card, with a copy icon (not a toggle)
+        text("t_diag", sc.t(10), cdx, cdy, cdw, cdh, size=15, weight=500),
+        icon("icon_copy", "copy", 350, cdy + 2, 20, 20, color="muted"),
     ]
-    sc.put(surface("settings_card", 20, 250, 350, dny + dnh + 24 - 250, bg="panel",
+    sc.put(surface("settings_card", 20, 250, 350, cdy + cdh + 24 - 250, bg="panel",
                    radius=12, border=1, bordercolor="hair", kids=card_kids))
     sc.put(surface("div_1", 24, 330, 342, 1, bg="hair", radius=0))
     sc.put(surface("div_2", 24, 404, 342, 1, bg="hair", radius=0))
     sc.put(surface("div_3", 24, 478, 342, 1, bg="hair", radius=0))
     sc.controls["conn_row"] = ("settings.connection", [20, 250, 350, 84], True)
     sc.controls["toggle_notif"] = ("settings.notifications", [320, int(dny) - 3, 50, 30], True)
-    # Copy diagnostics: COPY icon, not a toggle (outer loop)
-    _, cdx, cdy, cdw, cdh = sc.rows[10]
-    sc.put(stack("copy_row", 20, cdy - 12, 350, cdh + 24, [
-        text("t_diag", sc.t(10), cdx, cdy, cdw, cdh, size=15, weight=500),
-        icon("icon_copy", "copy", 344, cdy + 2, 20, 20, color="muted")]))
     sc.controls["copy_diag"] = ("settings.copy_diagnostics", [20, int(cdy) - 12, 350, int(cdh) + 24], True)
-    # Disconnect: its own card + power icon (outer loop: both lost)
+    # Disconnect: its own card + power icon (no stray glyph — the label starts AFTER the icon)
     _, dcx, dcy, dcw, dch = sc.rows[11]
+    # label left, power icon at the row's right edge (atlas: text left, icon flush right)
     sc.put(surface("disconnect_card", 20, dcy - 14, 350, dch + 28, bg="panel", radius=12,
                    border=1, bordercolor="hair", kids=[
-        icon("icon_power", "power", dcx, dcy, 20, 20, color="red"),
-        text("t_disconnect", sc.t(11), dcx + 30, dcy, dcw, dch, color="red", weight=500, size=15)]))
+        text("t_disconnect", sc.t(11), dcx, dcy, dcw, dch, color="red", weight=500, size=15),
+        icon("icon_power", "power", 346, dcy, 20, 20, color="red")]))
     sc.controls["disconnect"] = ("settings.disconnect", [20, int(dcy) - 14, 350, int(dch) + 28], True)
 
 

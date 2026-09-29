@@ -24,7 +24,7 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "stack",
-      "component": "Surfaceea6370641130",
+      "component": "Surface1eb19c14a527",
       "semantic_role": "layout",
       "bounds": [
         11.0,
@@ -96,7 +96,7 @@
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "stack",
-      "component": "Surfacec86a8f690fbd",
+      "component": "Surfacee2ecf8684e5f",
       "semantic_role": "layout",
       "bounds": [
         204.0,
@@ -290,9 +290,27 @@
       "size": 15
     },
     {
-      "source_id": "icon_plus",
+      "source_id": "control_row",
       "native_id": "beauty_0_5_1",
       "parent": "composer",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        28.0,
+        668.0,
+        346.0,
+        40.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_plus",
+      "native_id": "beauty_0_5_1_0",
+      "parent": "control_row",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
@@ -309,16 +327,16 @@
     },
     {
       "source_id": "approval_pill",
-      "native_id": "beauty_0_5_2",
-      "parent": "composer",
+      "native_id": "beauty_0_5_1_1",
+      "parent": "control_row",
       "kind": "stack",
       "component": "Surface43ce61531354",
       "semantic_role": "layout",
       "bounds": [
-        64.0,
-        729.0,
-        120.0,
-        44.0
+        58.0,
+        672.0,
+        128.0,
+        32.0
       ],
       "text": null,
       "enabled": null,
@@ -327,49 +345,49 @@
     },
     {
       "source_id": "t_approval",
-      "native_id": "beauty_0_5_2_0",
+      "native_id": "beauty_0_5_1_1_0",
       "parent": "approval_pill",
       "kind": "text",
-      "component": "Texta5589c5e8789",
+      "component": "Text436ea05a97ef",
       "semantic_role": "text",
       "bounds": [
-        75.55,
-        742.86,
-        97.96,
-        23.03
+        70.0,
+        680.0,
+        104.0,
+        19.5
       ],
       "text": "Ask for approval",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 12.04
+      "size": 13
     },
     {
       "source_id": "t_model",
-      "native_id": "beauty_0_5_3",
-      "parent": "composer",
+      "native_id": "beauty_0_5_1_2",
+      "parent": "control_row",
       "kind": "text",
-      "component": "Text163d4dbc805c",
+      "component": "Textd48a5720deb7",
       "semantic_role": "text",
       "bounds": [
-        207.44,
-        741.99,
-        71.24,
-        19.57
+        212.0,
+        680.0,
+        72.64,
+        19.5
       ],
       "text": "v4-flash \u25be",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 13.57
+      "size": 13
     },
     {
       "source_id": "icon_mic",
-      "native_id": "beauty_0_5_4",
-      "parent": "composer",
+      "native_id": "beauty_0_5_1_3",
+      "parent": "control_row",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        304.0,
+        296.0,
         676.0,
         16.0,
         26.0
@@ -381,8 +399,8 @@
     },
     {
       "source_id": "send_btn",
-      "native_id": "beauty_0_5_5",
-      "parent": "composer",
+      "native_id": "beauty_0_5_1_4",
+      "parent": "control_row",
       "kind": "stack",
       "component": "Surface2ef0543e59b4",
       "semantic_role": "layout",
@@ -399,7 +417,7 @@
     },
     {
       "source_id": "icon_send",
-      "native_id": "beauty_0_5_5_0",
+      "native_id": "beauty_0_5_1_4_0",
       "parent": "send_btn",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -421,6 +439,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "85b6aeab13d59eda2aaec3634d2811ffa07ecf6bb1ac6dad734e160941109662",
+  "contract_sha256": "ad5caf3b4f691a18b6efcfbeb417570af481f69c0ae621e058e0a17ba0589ee4",
   "mapping_basis": "mapped.json"
 }

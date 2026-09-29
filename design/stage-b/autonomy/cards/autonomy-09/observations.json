@@ -140,10 +140,10 @@
       "id": "t_approval",
       "expected_text": "Ask for approval",
       "requested_bounds": [
-        72.25,
-        743.16,
-        103.22,
-        22.47
+        70.0,
+        680.0,
+        104.0,
+        19.5
       ],
       "status": "observed",
       "ocr_text": "Ask for approval",
@@ -172,8 +172,8 @@
       "id": "t_model",
       "expected_text": "v4-flash \u25be",
       "requested_bounds": [
-        204.53,
-        682.0,
+        212.0,
+        680.0,
         72.64,
         19.5
       ],
@@ -346,6 +346,17 @@
       "reviewed": false
     },
     {
+      "id": "control_row",
+      "bounds": [
+        28.0,
+        668.0,
+        346.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
       "id": "icon_plus",
       "bounds": [
         28.0,
@@ -372,7 +383,7 @@
     {
       "id": "icon_mic",
       "bounds": [
-        304.0,
+        296.0,
         676.0,
         16.0,
         26.0

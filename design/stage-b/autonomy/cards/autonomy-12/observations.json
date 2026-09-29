@@ -119,7 +119,7 @@
       "id": "t_wsval",
       "expected_text": "octos",
       "requested_bounds": [
-        325.49,
+        306.89,
         347.75,
         41.11,
         21.0
@@ -183,7 +183,7 @@
       "id": "t_profval",
       "expected_text": "octos-dev",
       "requested_bounds": [
-        291.12,
+        272.42,
         418.27,
         75.58,
         21.58
@@ -279,7 +279,7 @@
       "id": "t_disconnect",
       "expected_text": "Disconnect",
       "requested_bounds": [
-        50.49,
+        20.49,
         666.28,
         89.21,
         22.5
@@ -327,7 +327,7 @@
         20.0,
         250.0,
         350.0,
-        305.48
+        376.36
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
@@ -339,8 +339,8 @@
       "bounds": [
         356.0,
         346.38,
-        16.0,
-        16.0
+        14.0,
+        14.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -350,8 +350,8 @@
       "bounds": [
         356.0,
         420.59,
-        16.0,
-        16.0
+        14.0,
+        14.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -381,6 +381,17 @@
       "reviewed": false,
       "bg": 4281430000,
       "radius": 12.0
+    },
+    {
+      "id": "icon_copy",
+      "bounds": [
+        350.0,
+        579.74,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     },
     {
       "id": "div_1",
@@ -416,28 +427,6 @@
       "reviewed": false
     },
     {
-      "id": "copy_row",
-      "bounds": [
-        20.0,
-        565.74,
-        350.0,
-        48.62
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "icon_copy",
-      "bounds": [
-        344.0,
-        579.74,
-        20.0,
-        20.0
-      ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
-      "reviewed": false
-    },
-    {
       "id": "disconnect_card",
       "bounds": [
         20.0,
@@ -453,7 +442,7 @@
     {
       "id": "icon_power",
       "bounds": [
-        20.49,
+        346.0,
         666.28,
         20.0,
         20.0

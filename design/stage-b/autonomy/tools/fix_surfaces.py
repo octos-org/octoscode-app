@@ -70,6 +70,10 @@ def fix_scene(d):
         # mapped fill drifted light, regardless of child coverage.
         authored_dark = max(channels(authored)) < 0x60
         mapped_light = min(channels(n["bg"])) > 0xC0
+        # #28b3 (12 knob): map also drifts a LIGHT authored fill (knob FFFFFFFF)
+        # toward the parent's saturated blue (316FF0), hiding it on the track.
+        authored_light = min(channels(authored)) > 0xC0
+        mapped_not_light = min(channels(n["bg"])) <= 0xC0
         # Card #28b2 (08 resume_pill): map also drifts a SATURATED authored fill
         # (blue 2F6FEB) to near-white — the blue's max channel (0xEB) is > 0x60 so
         # authored_dark misses it. Restore when authored is saturated (channels not
@@ -77,7 +81,8 @@ def fix_scene(d):
         ch = channels(authored)
         authored_saturated = (max(ch) - min(ch)) > 0x18
         if (cover > COVER or (authored_dark and mapped_light)
-                or (authored_saturated and mapped_light)) and differs(n["bg"], authored):
+                or (authored_saturated and mapped_light)
+                or (authored_light and mapped_not_light)) and differs(n["bg"], authored):
             n["bg"] = authored
             changed += 1
     if changed:

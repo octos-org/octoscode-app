@@ -214,91 +214,101 @@
             "font_src": "self:resources/ux/Inter-400.ttf"
           },
           {
-            "t": "svg",
-            "id": "icon_plus",
+            "t": "stack",
+            "id": "control_row",
             "x": 28.0,
-            "y": 676.0,
-            "w": 18.0,
-            "h": 24.0,
-            "src": ""
-          },
-          {
-            "t": "stack",
-            "id": "approval_pill",
-            "x": 62.0,
-            "y": 678.0,
-            "w": 125.22,
-            "h": 34.47,
-            "c": [
-              {
-                "t": "text",
-                "id": "t_approval",
-                "text": "Ask for approval",
-                "x": 72.25,
-                "y": 743.16,
-                "w": 103.22,
-                "h": 22.47,
-                "size": 13,
-                "line_height": 22.47,
-                "weight": 400,
-                "color": 4285427315,
-                "variant": "single_line",
-                "alignx": 0,
-                "font_src": "self:resources/ux/Inter-400.ttf"
-              }
-            ],
-            "variant": "surface",
-            "bg": 4294967295,
-            "radius": 999,
-            "border": 1,
-            "bordercolor": 4293256679
-          },
-          {
-            "t": "text",
-            "id": "t_model",
-            "text": "v4-flash ▾",
-            "x": 204.53,
-            "y": 682.0,
-            "w": 72.64,
-            "h": 19.5,
-            "size": 13,
-            "line_height": 19.5,
-            "weight": 500,
-            "color": 4280098079,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-500.ttf"
-          },
-          {
-            "t": "svg",
-            "id": "icon_mic",
-            "x": 304.0,
-            "y": 676.0,
-            "w": 16.0,
-            "h": 26.0,
-            "src": ""
-          },
-          {
-            "t": "stack",
-            "id": "send_btn",
-            "x": 338.0,
-            "y": 670.0,
-            "w": 36.0,
-            "h": 36.0,
+            "y": 668.0,
+            "w": 346.0,
+            "h": 40.0,
             "c": [
               {
                 "t": "svg",
-                "id": "icon_send",
-                "x": 348.0,
-                "y": 680.0,
-                "w": 16.0,
-                "h": 16.0,
+                "id": "icon_plus",
+                "x": 28.0,
+                "y": 676.0,
+                "w": 18.0,
+                "h": 24.0,
                 "src": ""
+              },
+              {
+                "t": "stack",
+                "id": "approval_pill",
+                "x": 58.0,
+                "y": 672.0,
+                "w": 128.0,
+                "h": 32.0,
+                "c": [
+                  {
+                    "t": "text",
+                    "id": "t_approval",
+                    "text": "Ask for approval",
+                    "x": 70.0,
+                    "y": 680.0,
+                    "w": 104.0,
+                    "h": 19.5,
+                    "size": 13,
+                    "line_height": 19.5,
+                    "weight": 400,
+                    "color": 4285427315,
+                    "variant": "single_line",
+                    "alignx": 0,
+                    "font_src": "self:resources/ux/Inter-400.ttf"
+                  }
+                ],
+                "variant": "surface",
+                "bg": 4294967295,
+                "radius": 999,
+                "border": 1,
+                "bordercolor": 4293256679
+              },
+              {
+                "t": "text",
+                "id": "t_model",
+                "text": "v4-flash ▾",
+                "x": 212.0,
+                "y": 680.0,
+                "w": 72.64,
+                "h": 19.5,
+                "size": 13,
+                "line_height": 19.5,
+                "weight": 500,
+                "color": 4280098079,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf"
+              },
+              {
+                "t": "svg",
+                "id": "icon_mic",
+                "x": 296.0,
+                "y": 676.0,
+                "w": 16.0,
+                "h": 26.0,
+                "src": ""
+              },
+              {
+                "t": "stack",
+                "id": "send_btn",
+                "x": 338.0,
+                "y": 670.0,
+                "w": 36.0,
+                "h": 36.0,
+                "c": [
+                  {
+                    "t": "svg",
+                    "id": "icon_send",
+                    "x": 348.0,
+                    "y": 680.0,
+                    "w": 16.0,
+                    "h": 16.0,
+                    "src": ""
+                  }
+                ],
+                "variant": "surface",
+                "bg": 4278190080,
+                "radius": 999
               }
-            ],
-            "variant": "surface",
-            "bg": 4278190080,
-            "radius": 999
+            ]
           }
         ],
         "variant": "surface",

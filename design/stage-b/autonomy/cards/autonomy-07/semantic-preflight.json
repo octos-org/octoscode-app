@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "213ae8cd2c734fa09cdab36b8531fd0ba9490ba8263ab20198c5c9d3236f12a6",
+  "manifest_sha256": "babcf97e3ae09e997e1f0f288e128f04e8c22bd631e411a94bbbfae521a23777",
   "reference_sha256": "f3e6bb77e8933fe4ebe6658ca11d11aaa3bf0b23847e7a6f563d250482146c6b",
   "id": "autonomy-07",
   "round": null,
@@ -34,19 +34,6 @@
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
-      "id": "icon_tasks",
-      "role": "icon",
-      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
-      "expected_widgets": [
-        "Svg",
-        "Icon",
-        "Image"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
-    },
-    {
       "id": "t02",
       "role": "text",
       "basis": "authored text node",
@@ -68,6 +55,19 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "icon_run_task",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
     },
     {
       "id": "t_cmd",
@@ -220,6 +220,19 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "icon_done_task",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
     },
     {
       "id": "t_done_cmd",

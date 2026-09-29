@@ -44,9 +44,9 @@
       "id": "t_cmd",
       "expected_text": "\u203a cargo test -p octos-cli steer_queue",
       "requested_bounds": [
-        34.85,
+        56.85,
         297.11,
-        231.75,
+        209.75,
         25.41
       ],
       "status": "observed",
@@ -117,36 +117,99 @@
     },
     {
       "id": "t_log0",
-      "expected_text": "Compiling octos-cli v0.24.1 (/work\u2026",
+      "expected_text": "Compiling octos-cli v0.24.1 (/workspace/crates/octos-cli)",
       "requested_bounds": [
         40.0,
         381.16,
         304.0,
         21.5
       ],
-      "status": "missing_or_ocr_unresolved"
+      "status": "observed",
+      "ocr_text": "Compiling octos-cli v0.24.1 (/workspace/crates/octos-cli)",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        45.40215053763441,
+        381.6393442622951,
+        316.94193548387096,
+        17.6141235813367
+      ],
+      "ink_color": [
+        88,
+        88,
+        88
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        41.81973845976405,
+        381.1586902496223,
+        322.36051502145926,
+        21.501259445843814
+      ]
     },
     {
       "id": "t_log1",
-      "expected_text": "Finished test [unoptimized + debugi\u2026",
+      "expected_text": "Finished test [unoptimized + debuginfo] target(s) in 1.23s",
       "requested_bounds": [
         40.0,
         422.21,
         304.0,
         21.5
       ],
-      "status": "missing_or_ocr_unresolved"
+      "status": "observed",
+      "ocr_text": "Finished test [unoptimized + debuginfo] target(s) in 1.23s",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        46.2752688172043,
+        422.7389659520807,
+        316.94193548387096,
+        17.6141235813367
+      ],
+      "ink_color": [
+        87,
+        87,
+        88
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        43.56223444599425,
+        422.20654903694384,
+        322.36051502145926,
+        21.501259445843814
+      ]
     },
     {
       "id": "t_log2",
-      "expected_text": "Running unittests src/lib.rs (targe\u2026",
+      "expected_text": "Running unittests src/lib.rs (target/debug/deps/octos_cli\u2026)",
       "requested_bounds": [
         40.0,
         463.25,
         304.0,
         23.46
       ],
-      "status": "missing_or_ocr_unresolved"
+      "status": "observed",
+      "ocr_text": "Ronsing unittests src/lib.rs (target/debug/deps/octos_cli..)",
+      "confidence": 1,
+      "text_similarity": 0.9411764705882353,
+      "ink_bounds": [
+        46.2752688172043,
+        463.83858764186635,
+        317.81505376344086,
+        16.635561160151326
+      ],
+      "ink_color": [
+        105,
+        105,
+        107
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        41.819744638340445,
+        463.2544082559194,
+        324.1030042918455,
+        23.45591939546604
+      ]
     },
     {
       "id": "t_log3",
@@ -216,9 +279,9 @@
       "id": "t_done_cmd",
       "expected_text": "\u203a cargo clippy -p octos-cli",
       "requested_bounds": [
-        34.85,
+        56.85,
         705.63,
-        179.48,
+        157.48,
         23.46
       ],
       "status": "observed",
@@ -336,17 +399,6 @@
       "radius": 12.0
     },
     {
-      "id": "icon_tasks",
-      "bounds": [
-        5.36,
-        207.15,
-        20.0,
-        20.0
-      ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
-      "reviewed": false
-    },
-    {
       "id": "run_card",
       "bounds": [
         24.0,
@@ -358,6 +410,17 @@
       "reviewed": false,
       "bg": 4294638330,
       "radius": 13.5
+    },
+    {
+      "id": "icon_run_task",
+      "bounds": [
+        33.956,
+        303.825,
+        18.0,
+        18.212
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     },
     {
       "id": "run_pill",
@@ -421,6 +484,17 @@
       "reviewed": false
     },
     {
+      "id": "icon_done_task",
+      "bounds": [
+        32.85,
+        706.63,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
       "id": "done_pill",
       "bounds": [
         271.0,
@@ -454,36 +528,6 @@
       ],
       "confidence": 1,
       "text": "OctosCode"
-    },
-    {
-      "bounds": [
-        47.896991093079514,
-        389.5088161958124,
-        369.206008583691,
-        21.972292191435752
-      ],
-      "confidence": 1,
-      "text": "Compiling octos-cli v0.24.1 (/workspace/crates/octos-cli)"
-    },
-    {
-      "bounds": [
-        49.892706939377646,
-        431.45591931223765,
-        369.206008583691,
-        21.972292191435752
-      ],
-      "confidence": 1,
-      "text": "Finished test [unoptimized + debuginfo] target(s) in 1.23s"
-    },
-    {
-      "bounds": [
-        47.89699816952785,
-        473.4030228697732,
-        371.20171673819743,
-        23.969773299748155
-      ],
-      "confidence": 1,
-      "text": "Ronsing unittests src/lib.rs (target/debug/deps/octos_cli..)"
     }
   ],
   "non_text_ocr": [],

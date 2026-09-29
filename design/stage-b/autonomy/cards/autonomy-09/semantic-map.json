@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "85b6aeab13d59eda2aaec3634d2811ffa07ecf6bb1ac6dad734e160941109662",
+  "contract_sha256": "ad5caf3b4f691a18b6efcfbeb417570af481f69c0ae621e058e0a17ba0589ee4",
   "reference_sha256": "a8361d691033b222d61a8cb803d8ab4a0fa0faa3a33b356d0677de5c5c72ae18",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -166,6 +166,13 @@
         "target": "composer_input",
         "property": "text"
       }
+    },
+    {
+      "id": "control_row",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
     },
     {
       "id": "icon_plus",

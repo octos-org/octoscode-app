@@ -60,8 +60,8 @@ component Surfaceebeaffab57cc(instance: text) {
 component Text1a789bc844b3(instance: text, text: text) {
   view Kit(component: "Text1a789bc844b3", instance: instance, text: text)
 }
-component Surface32645d09434a(instance: text) {
-  view Kit(component: "Surface32645d09434a", instance: instance) { slot }
+component Surface18cf6295f038(instance: text) {
+  view Kit(component: "Surface18cf6295f038", instance: instance) { slot }
 }
 component Text2e3d885623cb(instance: text, text: text) {
   view Kit(component: "Text2e3d885623cb", instance: instance, text: text)
@@ -98,7 +98,7 @@ view root Surface16fae9a63e16(instance: "page") {
   Texteedb438bd616(instance: "row_4_meta", text: copy.row_4_meta_text)
   Surfaceebeaffab57cc(instance: "confirm_strip") {
     Text1a789bc844b3(instance: "t_confirm", text: copy.t_confirm_text)
-    Surface32645d09434a(instance: "resume_pill") {
+    Surface18cf6295f038(instance: "resume_pill") {
       Text2e3d885623cb(instance: "t_resume", text: copy.t_resume_text)
     }
     Text8ea8e82f94f8(instance: "t_cancel2", text: copy.t_cancel2_text)

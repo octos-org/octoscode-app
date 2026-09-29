@@ -50,7 +50,7 @@
         "x": 20.0,
         "y": 250.0,
         "w": 350.0,
-        "h": 305.48,
+        "h": 376.36,
         "c": [
           {
             "t": "text",
@@ -104,7 +104,7 @@
             "t": "text",
             "id": "t_wsval",
             "text": "octos",
-            "x": 325.49,
+            "x": 306.89,
             "y": 347.75,
             "w": 41.11,
             "h": 21.0,
@@ -121,8 +121,8 @@
             "id": "chev_ws",
             "x": 356.0,
             "y": 346.38,
-            "w": 16.0,
-            "h": 16.0,
+            "w": 14.0,
+            "h": 14.0,
             "src": ""
           },
           {
@@ -145,7 +145,7 @@
             "t": "text",
             "id": "t_profval",
             "text": "octos-dev",
-            "x": 291.12,
+            "x": 272.42,
             "y": 418.27,
             "w": 75.58,
             "h": 21.58,
@@ -162,8 +162,8 @@
             "id": "chev_prof",
             "x": 356.0,
             "y": 420.59,
-            "w": 16.0,
-            "h": 16.0,
+            "w": 14.0,
+            "h": 14.0,
             "src": ""
           },
           {
@@ -199,13 +199,38 @@
                 "h": 24.0,
                 "c": [],
                 "variant": "surface",
-                "bg": 4281084974,
+                "bg": 4294967295,
                 "radius": 999
               }
             ],
             "variant": "surface",
             "bg": 4281298923,
             "radius": 999
+          },
+          {
+            "t": "text",
+            "id": "t_diag",
+            "text": "Copy diagnostics",
+            "x": 20.51,
+            "y": 577.74,
+            "w": 123.45,
+            "h": 24.62,
+            "size": 15,
+            "line_height": 24.62,
+            "weight": 500,
+            "color": 4294111991,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf"
+          },
+          {
+            "t": "svg",
+            "id": "icon_copy",
+            "x": 350.0,
+            "y": 579.74,
+            "w": 20.0,
+            "h": 20.0,
+            "src": ""
           }
         ],
         "variant": "surface",
@@ -252,41 +277,6 @@
       },
       {
         "t": "stack",
-        "id": "copy_row",
-        "x": 20.0,
-        "y": 565.74,
-        "w": 350.0,
-        "h": 48.62,
-        "c": [
-          {
-            "t": "text",
-            "id": "t_diag",
-            "text": "Copy diagnostics",
-            "x": 20.51,
-            "y": 577.74,
-            "w": 123.45,
-            "h": 24.62,
-            "size": 15,
-            "line_height": 24.62,
-            "weight": 500,
-            "color": 4294111991,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-500.ttf"
-          },
-          {
-            "t": "svg",
-            "id": "icon_copy",
-            "x": 344.0,
-            "y": 579.74,
-            "w": 20.0,
-            "h": 20.0,
-            "src": ""
-          }
-        ]
-      },
-      {
-        "t": "stack",
         "id": "disconnect_card",
         "x": 20.0,
         "y": 652.28,
@@ -294,19 +284,10 @@
         "h": 49.42,
         "c": [
           {
-            "t": "svg",
-            "id": "icon_power",
-            "x": 20.49,
-            "y": 666.28,
-            "w": 20.0,
-            "h": 20.0,
-            "src": ""
-          },
-          {
             "t": "text",
             "id": "t_disconnect",
             "text": "Disconnect",
-            "x": 50.49,
+            "x": 20.49,
             "y": 666.28,
             "w": 89.21,
             "h": 22.5,
@@ -317,6 +298,15 @@
             "variant": "single_line",
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-500.ttf"
+          },
+          {
+            "t": "svg",
+            "id": "icon_power",
+            "x": 346.0,
+            "y": 666.28,
+            "w": 20.0,
+            "h": 20.0,
+            "src": ""
           }
         ],
         "variant": "surface",

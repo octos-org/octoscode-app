@@ -97,17 +97,6 @@
       "radius": 12.0
     },
     {
-      "id": "icon_tasks",
-      "bounds": [
-        5.36,
-        207.15,
-        20.0,
-        20.0
-      ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
-      "reviewed": false
-    },
-    {
       "id": "run_card",
       "bounds": [
         24.0,
@@ -119,6 +108,17 @@
       "reviewed": false,
       "bg": 4294638330,
       "radius": 13.5
+    },
+    {
+      "id": "icon_run_task",
+      "bounds": [
+        33.956,
+        303.825,
+        18.0,
+        18.212
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     },
     {
       "id": "run_pill",
@@ -179,6 +179,17 @@
         55.0
       ],
       "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "icon_done_task",
+      "bounds": [
+        32.85,
+        706.63,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
     },
     {

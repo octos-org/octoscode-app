@@ -301,7 +301,7 @@
       "expected_text": "Resume \"Add session fork\"?",
       "requested_bounds": [
         30.0,
-        739.37,
+        747.37,
         190.0,
         24.0
       ],
@@ -312,7 +312,7 @@
       "expected_text": "Resume",
       "requested_bounds": [
         240.0,
-        741.37,
+        749.37,
         54.0,
         22.0
       ],
@@ -344,7 +344,7 @@
       "expected_text": "Cancel",
       "requested_bounds": [
         314.0,
-        741.37,
+        749.37,
         52.0,
         22.0
       ],
@@ -458,7 +458,7 @@
       "id": "confirm_strip",
       "bounds": [
         16.0,
-        725.37,
+        733.37,
         374.0,
         52.0
       ],
@@ -471,7 +471,7 @@
       "id": "resume_pill",
       "bounds": [
         226.0,
-        734.37,
+        742.37,
         74.0,
         34.0
       ],

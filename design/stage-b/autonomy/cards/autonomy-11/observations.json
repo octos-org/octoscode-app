@@ -76,7 +76,7 @@
       "id": "t_tool",
       "expected_text": "Edit crates/octos-cli/tests/steer_queue.rs",
       "requested_bounds": [
-        54.0,
+        52.0,
         281.49,
         270.0,
         26.94
@@ -119,10 +119,10 @@
       "id": "t_approval",
       "expected_text": "Ask for approval",
       "requested_bounds": [
-        88.8,
-        704.9,
-        99.45,
-        21.45
+        74.0,
+        680.0,
+        104.0,
+        19.5
       ],
       "status": "observed",
       "ocr_text": "Ask for approval",
@@ -151,8 +151,8 @@
       "id": "t_model",
       "expected_text": "v4-flash \u25be",
       "requested_bounds": [
-        216.07,
-        682.0,
+        216.0,
+        680.0,
         69.7,
         19.5
       ],
@@ -224,8 +224,8 @@
       "bounds": [
         34.492,
         279.291,
-        17.086,
-        20.324
+        15.187,
+        18.066
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -269,9 +269,9 @@
       "id": "icon_up",
       "bounds": [
         30.0,
-        548.0,
-        20.0,
-        20.0
+        544.0,
+        24.0,
+        24.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -279,10 +279,10 @@
     {
       "id": "icon_down",
       "bounds": [
-        62.0,
-        548.0,
-        20.0,
-        20.0
+        66.0,
+        544.0,
+        24.0,
+        24.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -307,6 +307,17 @@
         618.616,
         293.583,
         34.274
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "control_row",
+      "bounds": [
+        39.701,
+        660.507,
+        336.642,
+        38.082
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -338,7 +349,7 @@
     {
       "id": "icon_mic",
       "bounds": [
-        307.84,
+        301.968,
         668.123,
         15.658,
         24.753

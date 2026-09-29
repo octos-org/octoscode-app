@@ -212,6 +212,17 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "control_row",
+    "x": 28.0,
+    "y": 668.0,
+    "w": 346.0,
+    "h": 40.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "icon_plus",
     "x": 28.0,
     "y": 676.0,
@@ -222,10 +233,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "approval_pill",
-    "x": 62.0,
-    "y": 678.0,
-    "w": 125.22,
-    "h": 34.47,
+    "x": 58.0,
+    "y": 672.0,
+    "w": 128.0,
+    "h": 32.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -233,10 +244,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "t_approval",
-    "x": 72.25,
-    "y": 743.16,
-    "w": 103.22,
-    "h": 22.47,
+    "x": 70.0,
+    "y": 680.0,
+    "w": 104.0,
+    "h": 19.5,
     "text": "Ask for approval",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 13,
@@ -249,8 +260,8 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "t_model",
-    "x": 204.53,
-    "y": 682.0,
+    "x": 212.0,
+    "y": 680.0,
     "w": 72.64,
     "h": 19.5,
     "text": "v4-flash \u25be",
@@ -265,7 +276,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "icon_mic",
-    "x": 304.0,
+    "x": 296.0,
     "y": 676.0,
     "w": 16.0,
     "h": 26.0,

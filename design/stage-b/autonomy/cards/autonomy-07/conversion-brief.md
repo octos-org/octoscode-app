@@ -45,15 +45,6 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "icon_tasks",
-    "x": 5.36,
-    "y": 207.15,
-    "w": 20.0,
-    "h": 20.0,
-    "role": "unknown",
-    "native_candidates": []
-  },
-  {
     "id": "t02",
     "x": 31.36,
     "y": 209.15,
@@ -81,10 +72,19 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "icon_run_task",
+    "x": 32.85,
+    "y": 298.11,
+    "w": 16.0,
+    "h": 16.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
     "id": "t_cmd",
-    "x": 34.85,
+    "x": 56.85,
     "y": 297.11,
-    "w": 231.75,
+    "w": 209.75,
     "h": 25.41,
     "text": "\u203a cargo test -p octos-cli steer_queue",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
@@ -156,9 +156,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 381.16,
     "w": 304.0,
     "h": 21.5,
-    "text": "Compiling octos-cli v0.24.1 (/work\u2026",
+    "text": "Compiling octos-cli v0.24.1 (/workspace/crates/octos-cli)",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 14,
+    "size": 9,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -172,9 +172,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 422.21,
     "w": 304.0,
     "h": 21.5,
-    "text": "Finished test [unoptimized + debugi\u2026",
+    "text": "Finished test [unoptimized + debuginfo] target(s) in 1.23s",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 14,
+    "size": 9,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -188,9 +188,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 463.25,
     "w": 304.0,
     "h": 23.46,
-    "text": "Running unittests src/lib.rs (targe\u2026",
+    "text": "Running unittests src/lib.rs (target/debug/deps/octos_cli\u2026)",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 14,
+    "size": 9,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -206,7 +206,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 24.53,
     "text": "running 12 tests \u2026",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 14,
+    "size": 9,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -265,10 +265,19 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "icon_done_task",
+    "x": 32.85,
+    "y": 706.63,
+    "w": 16.0,
+    "h": 16.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
     "id": "t_done_cmd",
-    "x": 34.85,
+    "x": 56.85,
     "y": 705.63,
-    "w": 179.48,
+    "w": 157.48,
     "h": 23.46,
     "text": "\u203a cargo clippy -p octos-cli",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",

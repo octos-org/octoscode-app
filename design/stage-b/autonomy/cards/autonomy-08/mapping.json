@@ -334,7 +334,7 @@
       "semantic_role": "layout",
       "bounds": [
         16.0,
-        725.37,
+        733.37,
         374.0,
         52.0
       ],
@@ -352,7 +352,7 @@
       "semantic_role": "text",
       "bounds": [
         30.0,
-        739.37,
+        747.37,
         190.0,
         24.0
       ],
@@ -366,11 +366,11 @@
       "native_id": "beauty_0_17_1",
       "parent": "confirm_strip",
       "kind": "stack",
-      "component": "Surface32645d09434a",
+      "component": "Surface18cf6295f038",
       "semantic_role": "layout",
       "bounds": [
         226.0,
-        734.37,
+        742.37,
         74.0,
         34.0
       ],
@@ -388,7 +388,7 @@
       "semantic_role": "text",
       "bounds": [
         240.0,
-        741.37,
+        749.37,
         54.0,
         22.0
       ],
@@ -406,7 +406,7 @@
       "semantic_role": "text",
       "bounds": [
         314.0,
-        741.37,
+        749.37,
         52.0,
         22.0
       ],
@@ -421,6 +421,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "d99b4d132216ed12689389f95687d9b63bd6bfb61b69eb99ac074472ad66020f",
+  "contract_sha256": "f5bf71616aa0dbf3bc14fb1282387db62b8af08b3e0333f8547d17595c56030b",
   "mapping_basis": "mapped.json"
 }

@@ -43,8 +43,8 @@ component Surfaceebeaffab57cc(instance: text) {
 component Text1a789bc844b3(instance: text, text: text) {
   view Kit(component: "Text1a789bc844b3", instance: instance, text: text)
 }
-component Surface32645d09434a(instance: text) {
-  view Kit(component: "Surface32645d09434a", instance: instance) { slot }
+component Surface18cf6295f038(instance: text) {
+  view Kit(component: "Surface18cf6295f038", instance: instance) { slot }
 }
 component Text2e3d885623cb(instance: text, text: text) {
   view Kit(component: "Text2e3d885623cb", instance: instance, text: text)

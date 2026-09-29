@@ -260,7 +260,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "confirm_strip",
     "x": 16.0,
-    "y": 725.37,
+    "y": 733.37,
     "w": 374.0,
     "h": 52.0,
     "role": "layout",
@@ -271,7 +271,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "t_confirm",
     "x": 30.0,
-    "y": 739.37,
+    "y": 747.37,
     "w": 190.0,
     "h": 24.0,
     "text": "Resume \"Add session fork\"?",
@@ -287,7 +287,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "resume_pill",
     "x": 226.0,
-    "y": 734.37,
+    "y": 742.37,
     "w": 74.0,
     "h": 34.0,
     "role": "layout",
@@ -298,7 +298,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "t_resume",
     "x": 240.0,
-    "y": 741.37,
+    "y": 749.37,
     "w": 54.0,
     "h": 22.0,
     "text": "Resume",
@@ -314,7 +314,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "t_cancel2",
     "x": 314.0,
-    "y": 741.37,
+    "y": 749.37,
     "w": 52.0,
     "h": 22.0,
     "text": "Cancel",

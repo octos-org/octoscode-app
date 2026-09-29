@@ -52,18 +52,18 @@
         "layout": {
           "x": 34.492,
           "y": 279.291,
-          "w": 17.086,
-          "h": 20.324,
+          "w": 15.187,
+          "h": 18.066,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-11/assets/icon_tool-24aa7508520e.svg"
         }
       },
       "t_tool": {
-        "component": "Text847323b47602",
+        "component": "Text17c9f98785a8",
         "layout": {
-          "x": 33.97,
-          "y": 280.04,
-          "w": 282.8,
-          "h": 27.37
+          "x": 52.0,
+          "y": 281.49,
+          "w": 270.0,
+          "h": 26.94
         }
       },
       "icon_tool_done": {
@@ -107,19 +107,19 @@
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 30.0,
-          "y": 548.0,
-          "w": 20.0,
-          "h": 20.0,
+          "y": 544.0,
+          "w": 24.0,
+          "h": 24.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-11/assets/icon_up-a50298319ef3.svg"
         }
       },
       "icon_down": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 62.0,
-          "y": 548.0,
-          "w": 20.0,
-          "h": 20.0,
+          "x": 66.0,
+          "y": 544.0,
+          "w": 24.0,
+          "h": 24.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-11/assets/icon_down-7356365e4c4d.svg"
         }
       },
@@ -141,6 +141,15 @@
           "h": 34.274
         }
       },
+      "control_row": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 39.701,
+          "y": 660.507,
+          "w": 336.642,
+          "h": 38.082
+        }
+      },
       "icon_plus": {
         "component": "Vectore0a378fde04f",
         "layout": {
@@ -154,34 +163,34 @@
       "approval_pill": {
         "component": "Surfacee1f6f7dd0a15",
         "layout": {
-          "x": 76.0,
-          "y": 689.0,
-          "w": 124.0,
-          "h": 46.0
+          "x": 62.0,
+          "y": 672.0,
+          "w": 128.0,
+          "h": 32.0
         }
       },
       "t_approval": {
-        "component": "Text15d791953a8c",
+        "component": "Texte2130f18a6e8",
         "layout": {
-          "x": 90.3,
-          "y": 703.09,
-          "w": 98.09,
-          "h": 23.34
+          "x": 74.0,
+          "y": 680.0,
+          "w": 104.0,
+          "h": 19.5
         }
       },
       "t_model": {
-        "component": "Text18b9a73345ce",
+        "component": "Text78558d644fe5",
         "layout": {
-          "x": 218.39,
-          "y": 703.09,
-          "w": 69.34,
-          "h": 19.31
+          "x": 216.0,
+          "y": 680.0,
+          "w": 69.7,
+          "h": 19.5
         }
       },
       "icon_mic": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 307.84,
+          "x": 301.968,
           "y": 668.123,
           "w": 15.658,
           "h": 24.753,
@@ -189,7 +198,7 @@
         }
       },
       "send_btn": {
-        "component": "Surface2060a9c3251d",
+        "component": "Surface7736f8a447e4",
         "layout": {
           "x": 341.112,
           "y": 662.411,
@@ -204,7 +213,7 @@
           "y": 671.932,
           "w": 15.658,
           "h": 15.233,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-11/assets/icon_send-e2b29d7a6bd8.svg"
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-11/assets/icon_send-30e16d885bd7.svg"
         }
       }
     },

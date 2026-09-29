@@ -28,8 +28,8 @@ component Surface5c09226d39f3(instance: text) {
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
-component Text847323b47602(instance: text, text: text) {
-  view Kit(component: "Text847323b47602", instance: instance, text: text)
+component Text17c9f98785a8(instance: text, text: text) {
+  view Kit(component: "Text17c9f98785a8", instance: instance, text: text)
 }
 component Surfacefc2f16a6fb9b(instance: text) {
   view Kit(component: "Surfacefc2f16a6fb9b", instance: instance) { slot }
@@ -49,14 +49,14 @@ component Inputfa788caf1350(instance: text, placeholder: text) {
 component Surfacee1f6f7dd0a15(instance: text) {
   view Kit(component: "Surfacee1f6f7dd0a15", instance: instance) { slot }
 }
-component Text15d791953a8c(instance: text, text: text) {
-  view Kit(component: "Text15d791953a8c", instance: instance, text: text)
+component Texte2130f18a6e8(instance: text, text: text) {
+  view Kit(component: "Texte2130f18a6e8", instance: instance, text: text)
 }
-component Text18b9a73345ce(instance: text, text: text) {
-  view Kit(component: "Text18b9a73345ce", instance: instance, text: text)
+component Text78558d644fe5(instance: text, text: text) {
+  view Kit(component: "Text78558d644fe5", instance: instance, text: text)
 }
-component Surface2060a9c3251d(instance: text) {
-  view Kit(component: "Surface2060a9c3251d", instance: instance) { slot }
+component Surface7736f8a447e4(instance: text) {
+  view Kit(component: "Surface7736f8a447e4", instance: instance) { slot }
 }
 
 view root Surface430cd19400f4(instance: "page") {
@@ -66,7 +66,7 @@ view root Surface430cd19400f4(instance: "page") {
   }
   Surface5c09226d39f3(instance: "tool_card") {
     Vectore0a378fde04f(instance: "icon_tool")
-    Text847323b47602(instance: "t_tool", text: copy.t_tool_text)
+    Text17c9f98785a8(instance: "t_tool", text: copy.t_tool_text)
     Vectore0a378fde04f(instance: "icon_tool_done")
   }
   Surfacefc2f16a6fb9b(instance: "answer_surface") {
@@ -78,14 +78,16 @@ view root Surface430cd19400f4(instance: "page") {
   }
   Surfaceebaff3349490(instance: "composer") {
     Inputfa788caf1350(instance: "composer_input", placeholder: copy.composer_input_placeholder)
-    Vectore0a378fde04f(instance: "icon_plus")
-    Surfacee1f6f7dd0a15(instance: "approval_pill") {
-      Text15d791953a8c(instance: "t_approval", text: copy.t_approval_text)
-    }
-    Text18b9a73345ce(instance: "t_model", text: copy.t_model_text)
-    Vectore0a378fde04f(instance: "icon_mic")
-    Surface2060a9c3251d(instance: "send_btn") {
-      Vectore0a378fde04f(instance: "icon_send")
+    Group3d2637879433(instance: "control_row") {
+      Vectore0a378fde04f(instance: "icon_plus")
+      Surfacee1f6f7dd0a15(instance: "approval_pill") {
+        Texte2130f18a6e8(instance: "t_approval", text: copy.t_approval_text)
+      }
+      Text78558d644fe5(instance: "t_model", text: copy.t_model_text)
+      Vectore0a378fde04f(instance: "icon_mic")
+      Surface7736f8a447e4(instance: "send_btn") {
+        Vectore0a378fde04f(instance: "icon_send")
+      }
     }
   }
 }

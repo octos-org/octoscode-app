@@ -86,15 +86,15 @@
             "id": "icon_tool",
             "x": 26.0,
             "y": 281.49,
-            "w": 18.0,
-            "h": 18.0,
+            "w": 16.0,
+            "h": 16.0,
             "src": ""
           },
           {
             "t": "text",
             "id": "t_tool",
             "text": "Edit crates/octos-cli/tests/steer_queue.rs",
-            "x": 54.0,
+            "x": 52.0,
             "y": 281.49,
             "w": 270.0,
             "h": 26.94,
@@ -164,18 +164,18 @@
             "t": "svg",
             "id": "icon_up",
             "x": 30.0,
-            "y": 548.0,
-            "w": 20.0,
-            "h": 20.0,
+            "y": 544.0,
+            "w": 24.0,
+            "h": 24.0,
             "src": ""
           },
           {
             "t": "svg",
             "id": "icon_down",
-            "x": 62.0,
-            "y": 548.0,
-            "w": 20.0,
-            "h": 20.0,
+            "x": 66.0,
+            "y": 544.0,
+            "w": 24.0,
+            "h": 24.0,
             "src": ""
           }
         ]
@@ -201,91 +201,101 @@
             "font_src": "self:resources/ux/Inter-400.ttf"
           },
           {
-            "t": "svg",
-            "id": "icon_plus",
+            "t": "stack",
+            "id": "control_row",
             "x": 30.0,
-            "y": 676.0,
-            "w": 18.0,
-            "h": 24.0,
-            "src": ""
-          },
-          {
-            "t": "stack",
-            "id": "approval_pill",
-            "x": 76.0,
-            "y": 678.0,
-            "w": 121.45,
-            "h": 33.45,
-            "c": [
-              {
-                "t": "text",
-                "id": "t_approval",
-                "text": "Ask for approval",
-                "x": 88.8,
-                "y": 704.9,
-                "w": 99.45,
-                "h": 21.45,
-                "size": 13,
-                "line_height": 21.45,
-                "weight": 400,
-                "color": 4288190621,
-                "variant": "single_line",
-                "alignx": 0,
-                "font_src": "self:resources/ux/Inter-400.ttf"
-              }
-            ],
-            "variant": "surface",
-            "bg": 4280032286,
-            "radius": 999,
-            "border": 1,
-            "bordercolor": 4282006076
-          },
-          {
-            "t": "text",
-            "id": "t_model",
-            "text": "v4-flash ▾",
-            "x": 216.07,
-            "y": 682.0,
-            "w": 69.7,
-            "h": 19.5,
-            "size": 13,
-            "line_height": 19.5,
-            "weight": 500,
-            "color": 4294111991,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-500.ttf"
-          },
-          {
-            "t": "svg",
-            "id": "icon_mic",
-            "x": 304.0,
-            "y": 676.0,
-            "w": 16.0,
-            "h": 26.0,
-            "src": ""
-          },
-          {
-            "t": "stack",
-            "id": "send_btn",
-            "x": 338.0,
-            "y": 670.0,
-            "w": 36.0,
-            "h": 36.0,
+            "y": 668.0,
+            "w": 344.0,
+            "h": 40.0,
             "c": [
               {
                 "t": "svg",
-                "id": "icon_send",
-                "x": 348.0,
-                "y": 680.0,
-                "w": 16.0,
-                "h": 16.0,
+                "id": "icon_plus",
+                "x": 30.0,
+                "y": 676.0,
+                "w": 18.0,
+                "h": 24.0,
                 "src": ""
+              },
+              {
+                "t": "stack",
+                "id": "approval_pill",
+                "x": 62.0,
+                "y": 672.0,
+                "w": 128.0,
+                "h": 32.0,
+                "c": [
+                  {
+                    "t": "text",
+                    "id": "t_approval",
+                    "text": "Ask for approval",
+                    "x": 74.0,
+                    "y": 680.0,
+                    "w": 104.0,
+                    "h": 19.5,
+                    "size": 13,
+                    "line_height": 19.5,
+                    "weight": 400,
+                    "color": 4288190621,
+                    "variant": "single_line",
+                    "alignx": 0,
+                    "font_src": "self:resources/ux/Inter-400.ttf"
+                  }
+                ],
+                "variant": "surface",
+                "bg": 4280032286,
+                "radius": 999,
+                "border": 1,
+                "bordercolor": 4282006076
+              },
+              {
+                "t": "text",
+                "id": "t_model",
+                "text": "v4-flash ▾",
+                "x": 216.0,
+                "y": 680.0,
+                "w": 69.7,
+                "h": 19.5,
+                "size": 13,
+                "line_height": 19.5,
+                "weight": 500,
+                "color": 4294111991,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf"
+              },
+              {
+                "t": "svg",
+                "id": "icon_mic",
+                "x": 298.0,
+                "y": 676.0,
+                "w": 16.0,
+                "h": 26.0,
+                "src": ""
+              },
+              {
+                "t": "stack",
+                "id": "send_btn",
+                "x": 338.0,
+                "y": 670.0,
+                "w": 36.0,
+                "h": 36.0,
+                "c": [
+                  {
+                    "t": "svg",
+                    "id": "icon_send",
+                    "x": 348.0,
+                    "y": 680.0,
+                    "w": 16.0,
+                    "h": 16.0,
+                    "src": ""
+                  }
+                ],
+                "variant": "surface",
+                "bg": 4294967295,
+                "radius": 999
               }
-            ],
-            "variant": "surface",
-            "bg": 4294111991,
-            "radius": 999
+            ]
           }
         ],
         "variant": "surface",

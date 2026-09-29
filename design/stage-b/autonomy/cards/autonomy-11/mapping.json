@@ -101,8 +101,8 @@
       "bounds": [
         34.492,
         279.291,
-        17.086,
-        20.324
+        15.187,
+        18.066
       ],
       "text": null,
       "enabled": null,
@@ -114,18 +114,18 @@
       "native_id": "beauty_0_1_1",
       "parent": "tool_card",
       "kind": "text",
-      "component": "Text847323b47602",
+      "component": "Text17c9f98785a8",
       "semantic_role": "text",
       "bounds": [
-        33.97,
-        280.04,
-        282.8,
-        27.37
+        52.0,
+        281.49,
+        270.0,
+        26.94
       ],
       "text": "Edit crates/octos-cli/tests/steer_queue.rs",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 11.06
+      "size": 13
     },
     {
       "source_id": "icon_tool_done",
@@ -208,9 +208,9 @@
       "semantic_role": "icon",
       "bounds": [
         30.0,
-        548.0,
-        20.0,
-        20.0
+        544.0,
+        24.0,
+        24.0
       ],
       "text": null,
       "enabled": null,
@@ -225,10 +225,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        62.0,
-        548.0,
-        20.0,
-        20.0
+        66.0,
+        544.0,
+        24.0,
+        24.0
       ],
       "text": null,
       "enabled": null,
@@ -272,9 +272,27 @@
       "size": 15
     },
     {
-      "source_id": "icon_plus",
+      "source_id": "control_row",
       "native_id": "beauty_0_4_1",
       "parent": "composer",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        39.701,
+        660.507,
+        336.642,
+        38.082
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_plus",
+      "native_id": "beauty_0_4_1_0",
+      "parent": "control_row",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
@@ -291,16 +309,16 @@
     },
     {
       "source_id": "approval_pill",
-      "native_id": "beauty_0_4_2",
-      "parent": "composer",
+      "native_id": "beauty_0_4_1_1",
+      "parent": "control_row",
       "kind": "stack",
       "component": "Surfacee1f6f7dd0a15",
       "semantic_role": "layout",
       "bounds": [
-        76.0,
-        689.0,
-        124.0,
-        46.0
+        62.0,
+        672.0,
+        128.0,
+        32.0
       ],
       "text": null,
       "enabled": null,
@@ -309,49 +327,49 @@
     },
     {
       "source_id": "t_approval",
-      "native_id": "beauty_0_4_2_0",
+      "native_id": "beauty_0_4_1_1_0",
       "parent": "approval_pill",
       "kind": "text",
-      "component": "Text15d791953a8c",
+      "component": "Texte2130f18a6e8",
       "semantic_role": "text",
       "bounds": [
-        90.3,
-        703.09,
-        98.09,
-        23.34
+        74.0,
+        680.0,
+        104.0,
+        19.5
       ],
       "text": "Ask for approval",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 12.06
+      "size": 13
     },
     {
       "source_id": "t_model",
-      "native_id": "beauty_0_4_3",
-      "parent": "composer",
+      "native_id": "beauty_0_4_1_2",
+      "parent": "control_row",
       "kind": "text",
-      "component": "Text18b9a73345ce",
+      "component": "Text78558d644fe5",
       "semantic_role": "text",
       "bounds": [
-        218.39,
-        703.09,
-        69.34,
-        19.31
+        216.0,
+        680.0,
+        69.7,
+        19.5
       ],
       "text": "v4-flash \u25be",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 13.19
+      "size": 13
     },
     {
       "source_id": "icon_mic",
-      "native_id": "beauty_0_4_4",
-      "parent": "composer",
+      "native_id": "beauty_0_4_1_3",
+      "parent": "control_row",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        307.84,
+        301.968,
         668.123,
         15.658,
         24.753
@@ -363,10 +381,10 @@
     },
     {
       "source_id": "send_btn",
-      "native_id": "beauty_0_4_5",
-      "parent": "composer",
+      "native_id": "beauty_0_4_1_4",
+      "parent": "control_row",
       "kind": "stack",
-      "component": "Surface2060a9c3251d",
+      "component": "Surface7736f8a447e4",
       "semantic_role": "layout",
       "bounds": [
         341.112,
@@ -381,7 +399,7 @@
     },
     {
       "source_id": "icon_send",
-      "native_id": "beauty_0_4_5_0",
+      "native_id": "beauty_0_4_1_4_0",
       "parent": "send_btn",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -403,6 +421,6 @@
     "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "62c50fafe301f028a0e915cf104f662305f6d70ab93e6ed30f1be987ff42ca38",
+  "contract_sha256": "801a54c6c958591215ce5bbdc11dcd00ee9aec887c4f84e8abe2ee510b72eff6",
   "mapping_basis": "mapped.json"
 }

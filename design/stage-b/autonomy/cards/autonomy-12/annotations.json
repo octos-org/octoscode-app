@@ -22,7 +22,7 @@
         20.0,
         250.0,
         350.0,
-        305.48
+        376.36
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
@@ -34,8 +34,8 @@
       "bounds": [
         356.0,
         346.38,
-        16.0,
-        16.0
+        14.0,
+        14.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -45,8 +45,8 @@
       "bounds": [
         356.0,
         420.59,
-        16.0,
-        16.0
+        14.0,
+        14.0
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -76,6 +76,17 @@
       "reviewed": false,
       "bg": 4281430000,
       "radius": 12.0
+    },
+    {
+      "id": "icon_copy",
+      "bounds": [
+        350.0,
+        579.74,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     },
     {
       "id": "div_1",
@@ -111,28 +122,6 @@
       "reviewed": false
     },
     {
-      "id": "copy_row",
-      "bounds": [
-        20.0,
-        565.74,
-        350.0,
-        48.62
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "icon_copy",
-      "bounds": [
-        344.0,
-        579.74,
-        20.0,
-        20.0
-      ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
-      "reviewed": false
-    },
-    {
       "id": "disconnect_card",
       "bounds": [
         20.0,
@@ -148,7 +137,7 @@
     {
       "id": "icon_power",
       "bounds": [
-        20.49,
+        346.0,
         666.28,
         20.0,
         20.0

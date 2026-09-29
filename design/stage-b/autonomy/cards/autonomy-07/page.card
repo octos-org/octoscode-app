@@ -7,9 +7,9 @@ copy t02_text { class: user-copy, en: "Tasks" }
 copy t_cmd_text { class: user-copy, en: "› cargo test -p octos-cli steer_queue" }
 copy t_run_text { class: user-copy, en: "Running" }
 copy t_run_dur_text { class: user-copy, en: "2m" }
-copy t_log0_text { class: user-copy, en: "Compiling octos-cli v0.24.1 (/work…" }
-copy t_log1_text { class: user-copy, en: "Finished test [unoptimized + debugi…" }
-copy t_log2_text { class: user-copy, en: "Running unittests src/lib.rs (targe…" }
+copy t_log0_text { class: user-copy, en: "Compiling octos-cli v0.24.1 (/workspace/crates/octos-cli)" }
+copy t_log1_text { class: user-copy, en: "Finished test [unoptimized + debuginfo] target(s) in 1.23s" }
+copy t_log2_text { class: user-copy, en: "Running unittests src/lib.rs (target/debug/deps/octos_cli…)" }
 copy t_log3_text { class: user-copy, en: "running 12 tests …" }
 copy cancel_label_text { class: user-copy, en: "Cancel" }
 copy t_done_cmd_text { class: user-copy, en: "› cargo clippy -p octos-cli" }
@@ -22,14 +22,14 @@ component Surface16fae9a63e16(instance: text) {
 component Surfaceb4ab38079b26(instance: text) {
   view Kit(component: "Surfaceb4ab38079b26", instance: instance) { slot }
 }
-component Vectore0a378fde04f(instance: text) {
-  view Kit(component: "Vectore0a378fde04f", instance: instance)
-}
 component Texte9bb098090a8(instance: text, text: text) {
   view Kit(component: "Texte9bb098090a8", instance: instance, text: text)
 }
 component Surfacee81dee70a29b(instance: text) {
   view Kit(component: "Surfacee81dee70a29b", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
 component Text68eb463dd2ca(instance: text, text: text) {
   view Kit(component: "Text68eb463dd2ca", instance: instance, text: text)
@@ -46,14 +46,14 @@ component Text1e0cc765bf27(instance: text, text: text) {
 component Surfacef9797a8e8795(instance: text) {
   view Kit(component: "Surfacef9797a8e8795", instance: instance) { slot }
 }
-component Text7b2dcbb74615(instance: text, text: text) {
-  view Kit(component: "Text7b2dcbb74615", instance: instance, text: text)
+component Text299eedcdd47c(instance: text, text: text) {
+  view Kit(component: "Text299eedcdd47c", instance: instance, text: text)
 }
-component Textc392af01d103(instance: text, text: text) {
-  view Kit(component: "Textc392af01d103", instance: instance, text: text)
+component Texta60c8f8c478f(instance: text, text: text) {
+  view Kit(component: "Texta60c8f8c478f", instance: instance, text: text)
 }
-component Text7e7258ff9424(instance: text, text: text) {
-  view Kit(component: "Text7e7258ff9424", instance: instance, text: text)
+component Text7f5d92e03c46(instance: text, text: text) {
+  view Kit(component: "Text7f5d92e03c46", instance: instance, text: text)
 }
 component Group3d2637879433(instance: text) {
   view Kit(component: "Group3d2637879433", instance: instance) { slot }
@@ -82,19 +82,19 @@ component Textc440e7c590d3(instance: text, text: text) {
 
 view root Surface16fae9a63e16(instance: "page") {
   Surfaceb4ab38079b26(instance: "tasks_card") {
-    Vectore0a378fde04f(instance: "icon_tasks")
     Texte9bb098090a8(instance: "t02", text: copy.t02_text)
     Surfacee81dee70a29b(instance: "run_card") {
+      Vectore0a378fde04f(instance: "icon_run_task")
       Text68eb463dd2ca(instance: "t_cmd", text: copy.t_cmd_text)
       Surfaceec5e698cce2f(instance: "run_pill") {
         Text97dbc02c6f15(instance: "t_run", text: copy.t_run_text)
       }
       Text1e0cc765bf27(instance: "t_run_dur", text: copy.t_run_dur_text)
       Surfacef9797a8e8795(instance: "console") {
-        Text7b2dcbb74615(instance: "t_log0", text: copy.t_log0_text)
-        Text7b2dcbb74615(instance: "t_log1", text: copy.t_log1_text)
-        Textc392af01d103(instance: "t_log2", text: copy.t_log2_text)
-        Text7e7258ff9424(instance: "t_log3", text: copy.t_log3_text)
+        Text299eedcdd47c(instance: "t_log0", text: copy.t_log0_text)
+        Text299eedcdd47c(instance: "t_log1", text: copy.t_log1_text)
+        Texta60c8f8c478f(instance: "t_log2", text: copy.t_log2_text)
+        Text7f5d92e03c46(instance: "t_log3", text: copy.t_log3_text)
       }
       Group3d2637879433(instance: "cancel_row") {
         Surfaceff776c252975(instance: "cancel_surface") {
@@ -104,6 +104,7 @@ view root Surface16fae9a63e16(instance: "page") {
         Text6f1917ec00eb(instance: "cancel_label", text: copy.cancel_label_text)
       }
     }
+    Vectore0a378fde04f(instance: "icon_done_task")
     Textbaa988d15172(instance: "t_done_cmd", text: copy.t_done_cmd_text)
     Surfaceffa407c932d5(instance: "done_pill") {
       Text4cb0e7db43f8(instance: "t_done", text: copy.t_done_text)

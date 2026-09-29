@@ -45,7 +45,7 @@
       "event": "session.resume.confirm",
       "source_bounds": [
         226,
-        734,
+        742,
         74,
         34
       ],
@@ -55,7 +55,7 @@
       "event": "session.resume.cancel",
       "source_bounds": [
         314,
-        739,
+        747,
         52,
         32
       ],

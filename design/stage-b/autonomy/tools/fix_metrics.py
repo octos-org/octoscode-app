@@ -49,7 +49,11 @@ X_OVERRIDE = {(4, "t05"): 87.5}   # conversation-04 tool_3: ">_ " is the termina
 #   07 t_undo — "Undo 9" merged the ↺ glyph into the label; fitting "Undo" into
 #             the run's 61.5px ink box pushed it to 24pt (the atlas is ~14pt).
 SIZE_KEEP = {(7, "t_undo"), (7, "t_log0"), (7, "t_log1"), (7, "t_log2"), (7, "t_log3"),
-             (8, "t_resume"), (8, "t_confirm"), (8, "t_cancel2")}
+             (8, "t_resume"), (8, "t_confirm"), (8, "t_cancel2"),
+             # #28b3: map/fix re-position these off the authored control row / card
+             (9, "t_approval"), (9, "t_model"),
+             (11, "t_tool"), (11, "t_approval"), (11, "t_model"),
+             (12, "t_disconnect"), (12, "t_wsval"), (12, "t_profval")}
 
 # Card #18d item 4: the OCR row MERGED the trailing chevron GLYPH into the label,
 # so the ink-width fit ran the text under the icon ("Last turn v" fitted across
@@ -66,6 +70,11 @@ X_RIGHT = {(11, "scope_label"): 268.0}
 # line-1 width, and take the height from the wrapped content (no gap, no bleed).
 #   sibling = the already-fitted node whose size/line_height this node must match
 #   wrap_w  = the label's measured box width (forces the atlas's 2-line break)
+# Stack/surface nodes whose authored position must stand (map re-fits them to OCR
+# rows; the #28b3 ghost pill under the 09/11 composers was approval_pill's surface
+# drifting to y=729/689 while its label stayed in the control row).
+POS_KEEP = {(9, "approval_pill"), (11, "approval_pill")}
+
 SIZE_FROM_SIBLING = {(6, "opt_ledger_label"): {"sibling": "opt_memory_label",
                                                "wrap_w": 181.49, "lines": 2}}
 
@@ -126,10 +135,16 @@ def fix_scene(d, scene_no):
     # to the non-wrapping `flow: Right`. Frame text keeps that fitting.
     authored = {}
     if (d / "contract.json").exists():
-        authored = {n["id"]: n for n in walk(json.loads((d / "contract.json").read_text())["tree"])
-                    if n.get("t") == "text"}
+        authored = {n["id"]: n for n in walk(json.loads((d / "contract.json").read_text())["tree"])}
     changed = 0
     for n in walk(doc["tree"]):
+        if (scene_no, n["id"]) in POS_KEEP and n["t"] in ("stack", "surface"):
+            a = authored.get(n["id"])
+            if a:
+                for k in ("x", "y", "w", "h"):
+                    n[k] = a[k]
+                changed += 1
+            continue
         if n["t"] != "text" or n["id"] not in ink:
             continue
         if n.get("variant") != "single_line":

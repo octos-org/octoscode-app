@@ -26,7 +26,7 @@
           "x": 20.0,
           "y": 250.0,
           "w": 350.0,
-          "h": 305.48
+          "h": 376.36
         }
       },
       "t_conn": {
@@ -57,12 +57,12 @@
         }
       },
       "t_wsval": {
-        "component": "Text52b015715674",
+        "component": "Text9e00f550f1f0",
         "layout": {
-          "x": 326.57,
-          "y": 346.56,
-          "w": 39.97,
-          "h": 19.29
+          "x": 306.89,
+          "y": 347.75,
+          "w": 41.11,
+          "h": 21.0
         }
       },
       "chev_ws": {
@@ -70,8 +70,8 @@
         "layout": {
           "x": 356.0,
           "y": 346.38,
-          "w": 16.0,
-          "h": 16.0,
+          "w": 14.0,
+          "h": 14.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-12/assets/chev_ws-12902545cdb5.svg"
         }
       },
@@ -85,12 +85,12 @@
         }
       },
       "t_profval": {
-        "component": "Text7ca184431fa8",
+        "component": "Text70f04bb34bc2",
         "layout": {
-          "x": 293.13,
-          "y": 417.39,
-          "w": 73.38,
-          "h": 21.71
+          "x": 272.42,
+          "y": 418.27,
+          "w": 75.58,
+          "h": 21.58
         }
       },
       "chev_prof": {
@@ -98,8 +98,8 @@
         "layout": {
           "x": 356.0,
           "y": 420.59,
-          "w": 16.0,
-          "h": 16.0,
+          "w": 14.0,
+          "h": 14.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-12/assets/chev_prof-12902545cdb5.svg"
         }
       },
@@ -122,12 +122,31 @@
         }
       },
       "toggle_notif_knob": {
-        "component": "Surfacefe28e35abdae",
+        "component": "Surface418308a71490",
         "layout": {
           "x": 344.0,
           "y": 505.33,
           "w": 24.0,
           "h": 24.0
+        }
+      },
+      "t_diag": {
+        "component": "Textef7151973db2",
+        "layout": {
+          "x": 21.48,
+          "y": 577.59,
+          "w": 122.2,
+          "h": 25.73
+        }
+      },
+      "icon_copy": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 350.0,
+          "y": 579.74,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-12/assets/icon_copy-28449e45a742.svg"
         }
       },
       "div_1": {
@@ -157,34 +176,6 @@
           "h": 1.0
         }
       },
-      "copy_row": {
-        "component": "Group3d2637879433",
-        "layout": {
-          "x": 20.0,
-          "y": 565.74,
-          "w": 350.0,
-          "h": 48.62
-        }
-      },
-      "t_diag": {
-        "component": "Textef7151973db2",
-        "layout": {
-          "x": 21.48,
-          "y": 577.59,
-          "w": 122.2,
-          "h": 25.73
-        }
-      },
-      "icon_copy": {
-        "component": "Vectore0a378fde04f",
-        "layout": {
-          "x": 344.0,
-          "y": 579.74,
-          "w": 20.0,
-          "h": 20.0,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-12/assets/icon_copy-28449e45a742.svg"
-        }
-      },
       "disconnect_card": {
         "component": "Surface10516703507f",
         "layout": {
@@ -194,23 +185,23 @@
           "h": 49.42
         }
       },
+      "t_disconnect": {
+        "component": "Text46708281856a",
+        "layout": {
+          "x": 20.49,
+          "y": 666.28,
+          "w": 89.21,
+          "h": 22.5
+        }
+      },
       "icon_power": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 20.49,
+          "x": 346.0,
           "y": 666.28,
           "w": 20.0,
           "h": 20.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-12/assets/icon_power-8d4d0bb1b7fd.svg"
-        }
-      },
-      "t_disconnect": {
-        "component": "Text7877f20e84d0",
-        "layout": {
-          "x": 21.9,
-          "y": 665.33,
-          "w": 86.23,
-          "h": 21.71
         }
       }
     },

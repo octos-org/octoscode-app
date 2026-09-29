@@ -20,16 +20,6 @@
           "h": 648.0
         }
       },
-      "icon_tasks": {
-        "component": "Vectore0a378fde04f",
-        "layout": {
-          "x": 5.36,
-          "y": 207.15,
-          "w": 20.0,
-          "h": 20.0,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-07/assets/icon_tasks-5e4ab2add346.svg"
-        }
-      },
       "t02": {
         "component": "Texte9bb098090a8",
         "layout": {
@@ -46,6 +36,16 @@
           "y": 265.0,
           "w": 360.0,
           "h": 387.0
+        }
+      },
+      "icon_run_task": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 33.956,
+          "y": 303.825,
+          "w": 18.0,
+          "h": 18.212,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-07/assets/icon_run_task-852a6d619912.svg"
         }
       },
       "t_cmd": {
@@ -94,7 +94,7 @@
         }
       },
       "t_log0": {
-        "component": "Text7b2dcbb74615",
+        "component": "Text299eedcdd47c",
         "layout": {
           "x": 40.0,
           "y": 381.16,
@@ -103,7 +103,7 @@
         }
       },
       "t_log1": {
-        "component": "Text7b2dcbb74615",
+        "component": "Text299eedcdd47c",
         "layout": {
           "x": 40.0,
           "y": 422.21,
@@ -112,7 +112,7 @@
         }
       },
       "t_log2": {
-        "component": "Textc392af01d103",
+        "component": "Texta60c8f8c478f",
         "layout": {
           "x": 40.0,
           "y": 463.25,
@@ -121,7 +121,7 @@
         }
       },
       "t_log3": {
-        "component": "Text7e7258ff9424",
+        "component": "Text7f5d92e03c46",
         "layout": {
           "x": 40.0,
           "y": 501.81,
@@ -163,6 +163,16 @@
           "y": 590.03,
           "w": 45.91,
           "h": 21.61
+        }
+      },
+      "icon_done_task": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 32.85,
+          "y": 706.63,
+          "w": 16.0,
+          "h": 16.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-07/assets/icon_done_task-852a6d619912.svg"
         }
       },
       "t_done_cmd": {
