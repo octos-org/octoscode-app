@@ -275,7 +275,7 @@ fn assert_lowered_with(
 ) {
     let copies = {
         let ctx = Ctx::new(store, ui);
-        components::item_copies(kind, &ctx, index)
+        components::item_copies(kind, &ctx, index, None)
             .unwrap_or_else(|e| panic!("{} binds a replayed item: {e}", kind.id()))
     };
     let dsl = components::lower(kind, "0", &copies)
@@ -318,7 +318,7 @@ async fn each_component_binds_a_real_item_from_the_recorded_turn() {
     {
         let copies = {
             let ctx = Ctx::new(&store, &ui);
-            components::item_copies(ItemKind::UserBubble, &ctx, user_idx).unwrap()
+            components::item_copies(ItemKind::UserBubble, &ctx, user_idx, None).unwrap()
         };
         let dsl = components::lower(ItemKind::UserBubble, "0", &copies).unwrap();
         assert!(
@@ -433,7 +433,7 @@ async fn each_component_binds_a_real_item_from_the_recorded_turn() {
         ui.lock().unwrap().set_draft_inner("draft text");
         {
             let ctx = Ctx::new(&store, &ui);
-            let copies = components::item_copies(ItemKind::Composer, &ctx, 0).unwrap();
+            let copies = components::item_copies(ItemKind::Composer, &ctx, 0, None).unwrap();
             let dsl = components::lower(ItemKind::Composer, "0", &copies).unwrap();
             assert!(dsl.contains(&esc("draft text")), "composer shows the live draft");
             assert!(
@@ -446,7 +446,7 @@ async fn each_component_binds_a_real_item_from_the_recorded_turn() {
     // ---- new-chat: the component's own static label ------------------------
     {
         let ctx = Ctx::new(&store, &ui);
-        let copies = components::item_copies(ItemKind::NewChat, &ctx, 0).unwrap();
+        let copies = components::item_copies(ItemKind::NewChat, &ctx, 0, None).unwrap();
         let dsl = components::lower(ItemKind::NewChat, "0", &copies).unwrap();
         assert!(dsl.contains(&esc("New chat")), "new-chat keeps its label");
     }

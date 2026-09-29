@@ -26,8 +26,9 @@
 //!   Params `{session_id, turn_id, input:[{kind:"text",text}]}`,
 //!   `apps/web/src/features/composer/use-turn-controller.ts:398-412`.
 //! - `turn/interrupt`: `{session_id, turn_id}` (`ui_protocol.rs:2097`).
+use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
-use std::time::{Duration, Instant};
+use std::time::{Duration, Instant, SystemTime};
 
 use octos_app_transport::{
     LifecycleResult, OutboundCommand, ProfileId, SecretString, TransportConfig, TransportEvent,
@@ -148,6 +149,24 @@ pub struct ToolRow {
     pub status: String,
 }
 
+/// One turn's own terminal result (**card #21j**).
+///
+/// The wire's `turn_terminal` carries `outcome` / `error` / `token_usage` and
+/// **no duration** (`ui_protocol.rs:4006-4012`), so `worked` / `completed_at`
+/// are measurements only the party that sent `turn/start` has. Kept **per
+/// turn** so a later turn's terminal can never change an earlier turn's row.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct TurnEnd {
+    /// `completed` / `errored` / `interrupted` / `rate_limited`, from that
+    /// turn's own `turn_terminal`.
+    pub outcome: String,
+    /// Wall-clock duration, measured locally between `turn/started` and the
+    /// terminal. `None` until the turn settled while it was the live one.
+    pub worked: Option<Duration>,
+    /// When the terminal landed (locally), for `answer.timestamp`.
+    pub completed_at: Option<SystemTime>,
+}
+
 /// The flow's own UI-relevant facts — what no protocol method reports.
 #[derive(Debug, Default)]
 pub struct FlowUi {
@@ -159,10 +178,15 @@ pub struct FlowUi {
     tool_output: Vec<String>,
     /// The turn currently in flight, with when it started.
     active_turn: Option<(String, Instant)>,
-    /// The last completed turn's wall-clock duration (`answer.worked_for`).
-    last_worked: Option<Duration>,
-    /// `answer.timestamp` — when the last turn completed.
-    last_completed_at: Option<std::time::SystemTime>,
+    /// **Per-turn** terminal results, keyed by turn id (card #21j). A later
+    /// turn's terminal can never change an earlier turn's settled row, which is
+    /// the defect the gate showed: turn 1 (completed) rendered "Interrupted"
+    /// once turn 2's terminal landed.
+    turn_ends: HashMap<String, TurnEnd>,
+    /// The turn whose terminal most recently settled. The **global** `answer.*`
+    /// bindings project this turn; the timeline's settled rows are per-turn and
+    /// carry their own turn id instead (`screen::Row::turn`).
+    last_settled_turn: Option<String>,
     /// `approval.pending` — an `approval/requested` is outstanding.
     approval_pending: bool,
     /// `question.pending` — a `user_question/requested` is outstanding.
@@ -172,9 +196,6 @@ pub struct FlowUi {
     expanded: Vec<String>,
     /// `answer.expand` state (the "worked for" disclosure).
     answer_expanded: bool,
-    /// The last turn's terminal outcome (`completed`/`errored`/`interrupted`/
-    /// `rate_limited`) — drives the interrupted marker (card #21e item 1).
-    last_outcome: Option<String>,
 }
 
 impl FlowUi {
@@ -215,31 +236,66 @@ impl FlowUi {
         }
     }
 
-    /// Record the last turn's terminal outcome (card #21e item 1).
+    /// Record a terminal outcome against the turn it names (**card #21j**).
     ///
-    /// Gated on the *live* turn's own id, exactly like [`Self::end_turn`]: a
-    /// terminal for a different (already-settled) turn must not stamp its
-    /// outcome onto the tail row (the L1 gate's own lesson, `f21c_live.rs`).
+    /// Per-turn, not session-level: a later turn's terminal can never rewrite an
+    /// earlier turn's settled row (the #21e gate on the *live* id recorded only
+    /// one global outcome, so turn 2's `interrupted` restamped turn 1). The
+    /// LIVE-turn bookkeeping (`active_turn`, the measured duration) still lives
+    /// in [`Self::end_turn`], which stays gated by id so a stale terminal can
+    /// never stop a running turn (the L1 lesson, `f21c_live.rs`).
     pub fn note_outcome(&mut self, turn_id: &str, outcome: &str) {
+        self.turn_ends
+            .entry(turn_id.to_owned())
+            .or_default()
+            .outcome = outcome.to_owned();
+        // The GLOBAL `answer.*` projection follows the *live* turn's terminal, so
+        // a stale terminal for an already-settled turn cannot relabel the current
+        // row (card #21e's gate; `f21c_live.rs`). Per-turn rows read their own
+        // `turn_ends` entry regardless, which is the whole of card #21j.
         if matches!(&self.active_turn, Some((id, _)) if id == turn_id) {
-            self.last_outcome = Some(outcome.to_owned());
+            self.last_settled_turn = Some(turn_id.to_owned());
         }
     }
 
-    /// `answer.worked_for` — "Worked for 3m 4s ›" for the last completed turn.
+    /// The settled result of one turn, if that turn has a terminal yet.
+    pub fn turn_end(&self, turn_id: &str) -> Option<&TurnEnd> {
+        self.turn_ends.get(turn_id)
+    }
+
+    /// The label for ONE turn's `worked-for` row (**card #21j**) — that turn's
+    /// own terminal, never another's.
     ///
     /// Card #21d item 4 / #21e item 1: the atlas shows the row as a small grey
     /// disclosure with a trailing chevron (`design/components/worked-for/
-    /// page.card:7` and the scene-09/04 fixtures both read `Worked for 3m 4s ›`),
-    /// and the row IS the disclosure toggle — the `›` is the affordance that says
-    /// so. When the turn's terminal was `interrupted` the row shows the marker
-    /// instead (the web's `timeline/model.ts:262-264` terminal note; Codex labels
-    /// it `Interrupted`), because a stopped turn has no duration worth reporting.
-    pub fn worked_for(&self) -> String {
-        if self.last_outcome.as_deref() == Some("interrupted") {
-            return "Interrupted".to_owned();
+    /// page.card` — `Worked for 3m 4s ›`), and the `›` is the affordance that
+    /// says the row toggles. A turn that did not complete cleanly shows the
+    /// terminal marker instead, because a stopped/failed turn has no duration
+    /// worth reporting: `interrupted` → `Interrupted` (the web's terminal note,
+    /// `timeline/model.ts:262-264`), `errored` → `Failed`, `rate_limited` →
+    /// `Rate limited`. No atlas art exists for the error/limited labels (the
+    /// design fixtures only draw the success row), so the wording mirrors the
+    /// web's `Turn failed` / `Turn rate limited` system titles
+    /// (`timeline/model.ts:766-770`) in the row's one-word style.
+    ///
+    /// `turn = None` (the global `answer.worked_for` binding) projects the most
+    /// recently **settled** turn.
+    pub fn worked_for_for(&self, turn: Option<&str>) -> String {
+        let end = match turn {
+            Some(t) => self.turn_ends.get(t),
+            None => self
+                .last_settled_turn
+                .as_deref()
+                .and_then(|t| self.turn_ends.get(t)),
+        };
+        let Some(end) = end else { return String::new() };
+        match end.outcome.as_str() {
+            "interrupted" => return "Interrupted".to_owned(),
+            "errored" => return "Failed".to_owned(),
+            "rate_limited" => return "Rate limited".to_owned(),
+            _ => {}
         }
-        match self.last_worked {
+        match end.worked {
             Some(d) => {
                 let secs = d.as_secs();
                 if secs >= 60 {
@@ -252,6 +308,12 @@ impl FlowUi {
         }
     }
 
+    /// `answer.worked_for` — the most recently settled turn's label (the global
+    /// binding; a timeline row uses [`Self::worked_for_for`] with its own turn).
+    pub fn worked_for(&self) -> String {
+        self.worked_for_for(None)
+    }
+
     /// `answer.timestamp` — the last turn's completion, as a display label.
     ///
     /// Card #21d item 4: the app showed the raw epoch (`t=1790660000`). The
@@ -261,8 +323,23 @@ impl FlowUi {
     /// `2d` for anything under a week, else a `Mon D` date. Mirror both: a fresh
     /// turn reads `now`, an older one the atlas-shaped `Sep 28, 9:41 PM`.
     pub fn answer_timestamp(&self) -> String {
-        self.last_completed_at
-            .map(|t| format_completed_at(t, std::time::SystemTime::now()))
+        self.answer_timestamp_for(None)
+    }
+
+    /// The completion timestamp for ONE turn (**card #21j**), or the most
+    /// recently settled turn for `None` — the per-turn companion of
+    /// [`Self::worked_for_for`], so the settled tail of an earlier turn does
+    /// not re-label itself when a later turn completes.
+    pub fn answer_timestamp_for(&self, turn: Option<&str>) -> String {
+        let end = match turn {
+            Some(t) => self.turn_ends.get(t),
+            None => self
+                .last_settled_turn
+                .as_deref()
+                .and_then(|t| self.turn_ends.get(t)),
+        };
+        end.and_then(|e| e.completed_at)
+            .map(|t| format_completed_at(t, SystemTime::now()))
             .unwrap_or_default()
     }
 
@@ -1123,14 +1200,18 @@ impl FlowUi {
         match &self.active_turn {
             Some((id, started)) if id == turn_id => {
                 let started = *started;
-                self.last_worked = Some(started.elapsed());
+                // **Card #21j**: the measured duration belongs to THIS turn's own
+                // record, so a later turn's terminal cannot restamp it.
+                let end = self.turn_ends.entry(turn_id.to_owned()).or_default();
+                end.worked = Some(started.elapsed());
+                end.completed_at = Some(SystemTime::now());
                 self.active_turn = None;
+                self.last_settled_turn = Some(turn_id.to_owned());
             }
             // A terminal for another turn, or no live turn: do not touch the
             // live turn's state.
             _ => return,
         }
-        self.last_completed_at = Some(std::time::SystemTime::now());
         self.approval_pending = false;
         self.question_pending = false;
     }

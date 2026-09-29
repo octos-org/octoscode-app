@@ -540,7 +540,7 @@ impl OctoscodeView {
         let composer = {
             let mut cache = std::mem::take(&mut self.cache);
             let c = cache
-                .lower(&bridge, components::ItemKind::Composer, 0)
+                .lower(&bridge, components::ItemKind::Composer, 0, None)
                 .unwrap_or_default();
             self.cache = cache;
             c
@@ -569,7 +569,7 @@ impl OctoscodeView {
         let new_chat = {
             let mut cache = std::mem::take(&mut self.cache);
             let c = cache
-                .lower(&bridge, components::ItemKind::NewChat, 0)
+                .lower(&bridge, components::ItemKind::NewChat, 0, None)
                 .unwrap_or_default();
             self.cache = cache;
             c
@@ -613,7 +613,7 @@ impl Widget for OctoscodeView {
                         let Some(_row) = rows.get(id) else { continue };
                         let item = list.item(cx, id, id!(ThreadRowTpl));
                         let body = cache
-                            .lower(&bridge, components::ItemKind::ThreadRow, id)
+                            .lower(&bridge, components::ItemKind::ThreadRow, id, None)
                             .unwrap_or_default();
                         let splash = item.splash(cx, ids!(thread_splash));
                         if let Err(e) = mounts.mount(cx, &splash, &body) {
@@ -640,7 +640,9 @@ impl Widget for OctoscodeView {
                         let item = list.item(cx, id, id!(TimelineItemTpl));
                         // Card #21c item 2: no native kind label on screen; the
                         // kind is carried by the component's own node ids in `/g`.
-                        let body = cache.lower(&bridge, row.kind, row.index).unwrap_or_default();
+                        let body = cache
+                            .lower(&bridge, row.kind, row.index, row.turn.as_deref())
+                            .unwrap_or_default();
                         let splash = item.splash(cx, ids!(item_splash));
                         if let Err(e) = mounts.mount(cx, &splash, &body) {
                             makepad_widgets::log!("[octoscode] {} mount: {e}", row.kind.id());

@@ -410,6 +410,7 @@ pub fn item_copies(
     kind: ItemKind,
     ctx: &bindings::Ctx<'_>,
     index: usize,
+    turn: Option<&str>,
 ) -> Result<Vec<(String, String)>, String> {
     let get = |id: &str| bindings::query(ctx, id).ok_or_else(|| format!("binding {id:?} is not declared"));
     let arr = |id: &str| -> Result<Vec<Value>, String> { Ok(get(id)?.as_array().cloned().unwrap_or_default()) };
@@ -458,8 +459,24 @@ pub fn item_copies(
             "tools[].detail" => text(&row("tools")?.get("summary").cloned().unwrap_or(Value::Null)),
             // ---- turn / answer ---------------------------------------------
             "turn.activity" => text(&get("turn.activity")?),
-            "answer.worked_for" => text(&get("answer.worked_for")?),
-            "answer.timestamp" => text(&get("answer.timestamp")?),
+            // **Card #21j**: the settled tail renders from ITS OWN turn's
+            // terminal, so a later turn cannot relabel an earlier row.
+            "answer.worked_for" => {
+                let v = ctx
+                    .ui
+                    .lock()
+                    .unwrap()
+                    .worked_for_for(turn);
+                text(&Value::String(v))
+            }
+            "answer.timestamp" => {
+                let v = ctx
+                    .ui
+                    .lock()
+                    .unwrap()
+                    .answer_timestamp_for(turn);
+                text(&Value::String(v))
+            }
             // ---- composer ---------------------------------------------------
             "composer.draft" => text(&get("composer.draft")?),
             "composer.placeholder" => text(&get("composer.placeholder")?),
