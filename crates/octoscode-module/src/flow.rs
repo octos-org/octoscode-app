@@ -792,19 +792,19 @@ impl Conversation {
             }
             UiNotification::TurnCompleted(e) => {
                 let turn_id = e.turn_id.0.to_string();
-                ui.end_turn(true);
+                ui.end_turn(&turn_id, true);
                 FlowEvent::TurnEnded { turn_id, error: None }
             }
             UiNotification::TurnError(e) => {
                 let turn_id = e.turn_id.0.to_string();
-                ui.end_turn(false);
+                ui.end_turn(&turn_id, false);
                 FlowEvent::TurnEnded {
                     turn_id,
                     error: Some(format!("{}: {}", e.code, e.message)),
                 }
             }
             UiNotification::MessageDelta(e) => {
-                ui.touch_turn();
+                ui.touch_turn(&e.turn_id.0.to_string());
                 FlowEvent::Delta {
                     turn_id: e.turn_id.0.to_string(),
                     bytes: e.text.len(),
@@ -839,7 +839,7 @@ impl Conversation {
                 let turn_id = frame.envelope.turn_id.clone();
                 match &frame.envelope.payload {
                     PayloadV2::AssistantDelta { text, .. } => {
-                        ui.touch_turn();
+                        ui.touch_turn(&turn_id);
                         FlowEvent::Delta { turn_id, bytes: text.len() }
                     }
                     PayloadV2::ToolStart { tool_call_id, name, .. } => {
@@ -859,11 +859,11 @@ impl Conversation {
                     }
                     PayloadV2::TurnTerminal { outcome, error, .. } => match outcome {
                         TurnTerminalOutcome::Completed => {
-                            ui.end_turn(true);
+                            ui.end_turn(&turn_id, true);
                             FlowEvent::TurnEnded { turn_id, error: None }
                         }
                         other => {
-                            ui.end_turn(false);
+                            ui.end_turn(&turn_id, false);
                             let label = format!("{other:?}");
                             FlowEvent::TurnEnded {
                                 turn_id,
@@ -901,9 +901,11 @@ impl FlowUi {
         self.active_turn = Some((turn_id.to_owned(), Instant::now()));
     }
 
-    /// End the live turn (test support; production uses `end_turn`).
+    /// End the live turn (test support; production uses `end_turn`). Ends
+    /// whichever turn is live, by its own id, so the id gate is satisfied.
     pub fn end_turn_now(&mut self, ok: bool) {
-        self.end_turn(ok);
+        let id = self.active_turn.as_ref().map(|(id, _)| id.clone()).unwrap_or_default();
+        self.end_turn(&id, ok);
     }
 
     /// Note a tool starting (test support; the event path uses this too).
@@ -928,19 +930,40 @@ impl FlowUi {
         self.question_pending = question;
     }
 
+    /// A turn becomes live. A `turn/started` names the turn, so the id is
+    /// authoritative — a new turn supersedes whatever was live.
     fn begin_turn(&mut self, turn_id: &str, _started: Instant) {
         self.active_turn = Some((turn_id.to_owned(), Instant::now()));
     }
 
-    fn touch_turn(&mut self) {
-        if self.active_turn.is_none() {
-            self.active_turn = Some((String::new(), Instant::now()));
+    /// A delta arrived for `turn_id`. If no turn is live yet (a delta can beat
+    /// `turn/started`), this turn becomes live. A delta for a DIFFERENT turn
+    /// never hijacks the live one — the live L1/L2 defect was a stale frame
+    /// clearing/replacing a running turn (LESSONS 5).
+    fn touch_turn(&mut self, turn_id: &str) {
+        match &self.active_turn {
+            None => self.active_turn = Some((turn_id.to_owned(), Instant::now())),
+            Some((id, _)) if id == turn_id => {}
+            Some(_) => {}
         }
     }
 
-    fn end_turn(&mut self, _ok: bool) {
-        if let Some((_, started)) = self.active_turn.take() {
-            self.last_worked = Some(started.elapsed());
+    /// A terminal arrived for `turn_id`. **Gated by id**: a terminal for a turn
+    /// other than the live one is ignored, so a late/stale terminal can never
+    /// clear a running turn — which is exactly how the live `×` click stopped
+    /// sending `turn/interrupt` (L1): the running turn's `active_turn` was
+    /// cleared by a different turn's terminal, so `turn.interrupt` resolved to
+    /// `Unhandled`.
+    fn end_turn(&mut self, turn_id: &str, _ok: bool) {
+        match &self.active_turn {
+            Some((id, started)) if id == turn_id => {
+                let started = *started;
+                self.last_worked = Some(started.elapsed());
+                self.active_turn = None;
+            }
+            // A terminal for another turn, or no live turn: do not touch the
+            // live turn's state.
+            _ => return,
         }
         self.last_completed_at = Some(std::time::SystemTime::now());
         self.approval_pending = false;

@@ -65,6 +65,9 @@ fn scenario_fixture(name: &str) -> (&'static str, &'static str) {
             ("conversation", "live-gate-a6ea8505.jsonl")
         }
         "live-turn" => ("live-turn", "live-turn-a6ea8505.jsonl"),
+        // Card #21c L2: two REAL consecutive turns from one live session, so a
+        // `turn/start` twice reproduces the live "second turn never appears".
+        "two-turn" => ("two-turn", "live-two-turn-a6ea8505.jsonl"),
         "approval" => ("approval", "r5-turn-a6ea8505.jsonl"),
         "autonomy" => ("autonomy", "r1-autonomy-a6ea8505.jsonl"),
         "task" => ("task", "r4-task-a6ea8505.jsonl"),
