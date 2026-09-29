@@ -1,0 +1,379 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "29638e4fd903df503f18080c9d8ad5472e2620cae5f7e2c267a675a0a32e7287",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "stack",
+        "id": "monitors_screen",
+        "x": 0.0,
+        "y": 0.0,
+        "w": 406.0,
+        "h": 776.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t01",
+            "text": "OctosCode",
+            "x": 18.8,
+            "y": 21.79,
+            "w": 92.71,
+            "h": 23.22,
+            "size": 16.36,
+            "line_height": 19.79,
+            "weight": 600,
+            "color": 4278584838,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "t_title",
+            "text": "Monitors",
+            "x": 19.15,
+            "y": 95.0,
+            "w": 81.62,
+            "h": 25.05,
+            "size": 18.0,
+            "line_height": 21.77,
+            "weight": 600,
+            "color": 4278650631,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "stack",
+            "id": "mon_1",
+            "x": 12.0,
+            "y": 156.0,
+            "w": 378.0,
+            "h": 151.0,
+            "c": [
+              {
+                "t": "text",
+                "id": "mon_1_cmd",
+                "text": "cargo test -q",
+                "x": 29.8,
+                "y": 191.08,
+                "w": 114.88,
+                "h": 24.13,
+                "size": 14.21,
+                "line_height": 17.2,
+                "weight": 500,
+                "color": 4281085229,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+                "tracking": 0.0
+              },
+              {
+                "t": "text",
+                "id": "mon_1_state",
+                "text": "fired 3\u00d7",
+                "x": 29.71,
+                "y": 238.67,
+                "w": 59.44,
+                "h": 23.22,
+                "size": 14.81,
+                "line_height": 17.91,
+                "weight": 400,
+                "color": 4285822075,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 0.0
+              },
+              {
+                "t": "svg",
+                "id": "mon_1_clock",
+                "x": 188.811,
+                "y": 243.511,
+                "w": 18.193,
+                "h": 25.48,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "mon_1_int",
+                "text": "30s",
+                "x": 220.06,
+                "y": 238.67,
+                "w": 28.74,
+                "h": 23.22,
+                "size": 13.92,
+                "line_height": 16.85,
+                "weight": 400,
+                "color": 4286348419,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 0.0
+              },
+              {
+                "t": "svg",
+                "id": "mon_1_pause",
+                "x": 294.995,
+                "y": 238.712,
+                "w": 18.193,
+                "h": 28.312,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "mon_1_trash",
+                "x": 348.258,
+                "y": 238.712,
+                "w": 18.193,
+                "h": 28.312,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294901502,
+            "radius": 16.99,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "stack",
+            "id": "mon_2",
+            "x": 12.0,
+            "y": 328.0,
+            "w": 378.0,
+            "h": 149.0,
+            "c": [
+              {
+                "t": "text",
+                "id": "mon_2_cmd",
+                "text": "tail -n 50 app.log",
+                "x": 29.39,
+                "y": 363.12,
+                "w": 157.53,
+                "h": 25.05,
+                "size": 14.21,
+                "line_height": 17.2,
+                "weight": 500,
+                "color": 4281150766,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+                "tracking": 0.0
+              },
+              {
+                "t": "text",
+                "id": "mon_2_state",
+                "text": "no change",
+                "x": 29.6,
+                "y": 408.88,
+                "w": 75.65,
+                "h": 28.71,
+                "size": 14.38,
+                "line_height": 17.4,
+                "weight": 400,
+                "color": 4285953916,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 0.0
+              },
+              {
+                "t": "svg",
+                "id": "mon_2_clock",
+                "x": 190.539,
+                "y": 413.734,
+                "w": 18.193,
+                "h": 25.403,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "mon_2_int",
+                "text": "30s",
+                "x": 220.06,
+                "y": 408.88,
+                "w": 28.74,
+                "h": 23.22,
+                "size": 13.92,
+                "line_height": 16.85,
+                "weight": 400,
+                "color": 4286151297,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 0.0
+              },
+              {
+                "t": "svg",
+                "id": "mon_2_pause",
+                "x": 294.995,
+                "y": 411.447,
+                "w": 18.193,
+                "h": 28.225,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "mon_2_trash",
+                "x": 348.258,
+                "y": 411.447,
+                "w": 18.193,
+                "h": 28.225,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294901502,
+            "radius": 16.94,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "stack",
+            "id": "monitors_footer",
+            "x": 16.0,
+            "y": 506.68,
+            "w": 374.0,
+            "h": 50.62,
+            "c": [
+              {
+                "t": "text",
+                "id": "monitors_footer_label",
+                "text": "Monitors fire when the output changes",
+                "x": 58.44,
+                "y": 518.69,
+                "w": 268.41,
+                "h": 27.79,
+                "size": 14.43,
+                "line_height": 17.47,
+                "weight": 400,
+                "color": 4286414209,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 0.0
+              }
+            ]
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 0
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "monitors_screen",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "mon_1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "mon_1_clock",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "mon_1_pause",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "mon_1_trash",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "mon_2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "mon_2_clock",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "mon_2_pause",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "mon_2_trash",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "monitors_footer",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t01",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.23453663767576943
+    },
+    {
+      "id": "t_title",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.19235022044522088
+    },
+    {
+      "id": "mon_1_cmd",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.23659842402980116
+    },
+    {
+      "id": "mon_1_state",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.200484422183822
+    },
+    {
+      "id": "mon_1_int",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.35070785623366624
+    },
+    {
+      "id": "mon_2_cmd",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.22494611888778404
+    },
+    {
+      "id": "mon_2_state",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2651719678790492
+    },
+    {
+      "id": "mon_2_int",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.35070785623366624
+    },
+    {
+      "id": "monitors_footer_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.20323688750494834
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}
