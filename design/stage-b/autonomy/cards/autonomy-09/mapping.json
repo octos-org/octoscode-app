@@ -315,7 +315,7 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        23.0,
+        32.0,
         674.0,
         28.0,
         28.0
@@ -333,7 +333,7 @@
       "component": "Surface43ce61531354",
       "semantic_role": "layout",
       "bounds": [
-        58.0,
+        67.0,
         672.0,
         128.0,
         32.0
@@ -351,7 +351,7 @@
       "component": "Text436ea05a97ef",
       "semantic_role": "text",
       "bounds": [
-        70.0,
+        79.0,
         680.0,
         104.0,
         19.5
@@ -369,7 +369,7 @@
       "component": "Textd48a5720deb7",
       "semantic_role": "text",
       "bounds": [
-        212.0,
+        221.0,
         680.0,
         72.64,
         19.5
@@ -387,7 +387,7 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        294.0,
+        303.0,
         673.0,
         20.0,
         32.0
@@ -439,6 +439,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "dababb85d3a1f72a1078fab2ba4667f119919fc9d50e9ab8c6ac35568af4cf42",
+  "contract_sha256": "dd047f29eb50a22889c5a8cc42a1baa9c11d3ed41acd650f9a70c8ee3e82bf06",
   "mapping_basis": "mapped.json"
 }

@@ -499,6 +499,10 @@ def build_11(sc):
     sc.inputs["composer_input"] = ("composer.draft", [30, 624, 300, 36])
 
 
+# #28b5 dual-write: build_12 right-edge literals updated (card right 370, padding 16).
+# The composer (+/mic/pill +9, send 338), 07 card widths and 11 thumbs fixes live in
+# contract.json/mapped.json — build_07/09/10/11 here are STALE vs the reviewed renders;
+# do NOT rebuild those cards from this file until it is re-based on the reviewed state.
 def build_12(sc):
     """DARK SETTINGS. Dark token set: title 'Settings', grouped card (Connection
     ● Live › / Workspace octos › / Profile octos-dev › / Desktop notifications with
@@ -511,22 +515,22 @@ def build_12(sc):
         text("t_conn", sc.t(3), *sc.rows[3][1:], size=15, weight=500),
         text("t_live", FIX.get(sc.t(4), sc.t(4)), *sc.rows[4][1:], size=14, weight=500, color="green"),
         text("t_ws", sc.t(5), *sc.rows[5][1:], size=15, weight=500),
-        text("t_wsval", sc.t(7), 348 - sc.rows[7][3], sc.rows[7][2], sc.rows[7][3], sc.rows[7][4],
+        text("t_wsval", sc.t(7), 332 - sc.rows[7][3], sc.rows[7][2], sc.rows[7][3], sc.rows[7][4],
              size=14, weight=500, color="muted"),
-        icon("chev_ws", "chevron_right_sm", 356, sc.rows[5][2] + 2, 14, 14, color="muted"),
+        icon("chev_ws", "chevron_right_sm", 340, sc.rows[5][2] + 2, 14, 14, color="muted"),
         text("t_prof", sc.t(6), *sc.rows[6][1:], size=15, weight=500),
-        text("t_profval", sc.t(8), 348 - sc.rows[8][3], sc.rows[8][2], sc.rows[8][3], sc.rows[8][4],
+        text("t_profval", sc.t(8), 332 - sc.rows[8][3], sc.rows[8][2], sc.rows[8][3], sc.rows[8][4],
              size=14, weight=500, color="muted"),
-        icon("chev_prof", "chevron_right_sm", 356, sc.rows[6][2] + 2, 14, 14, color="muted"),
+        icon("chev_prof", "chevron_right_sm", 340, sc.rows[6][2] + 2, 14, 14, color="muted"),
         # Desktop notifications INSIDE the card, toggle WITH a knob
         text("t_notif", sc.t(9), dnx, dny, dnw, dnh, size=15, weight=500),
-        surface("toggle_notif", 320, dny - 3, 50, 30, bg="blue", radius=999, kids=[
+        surface("toggle_notif", 304, dny - 3, 50, 30, bg="blue", radius=999, kids=[
             # knob coords are window-absolute (design.rs emits the node's own x/y);
             # parent-relative (22,3) rendered it at the page's top-left corner
-            surface("toggle_notif_knob", 344, dny, 24, 24, bg="purewhite", radius=999)]),
+            surface("toggle_notif_knob", 328, dny, 24, 24, bg="purewhite", radius=999)]),
         # Copy diagnostics INSIDE the card, with a copy icon (not a toggle)
         text("t_diag", sc.t(10), cdx, cdy, cdw, cdh, size=15, weight=500),
-        icon("icon_copy", "copy", 350, cdy + 2, 20, 20, color="muted"),
+        icon("icon_copy", "copy", 334, cdy + 2, 20, 20, color="muted"),
     ]
     sc.put(surface("settings_card", 20, 250, 350, cdy + cdh + 24 - 250, bg="panel",
                    radius=12, border=1, bordercolor="hair", kids=card_kids))
@@ -534,7 +538,7 @@ def build_12(sc):
     sc.put(surface("div_2", 24, 404, 342, 1, bg="hair", radius=0))
     sc.put(surface("div_3", 24, 478, 342, 1, bg="hair", radius=0))
     sc.controls["conn_row"] = ("settings.connection", [20, 250, 350, 84], True)
-    sc.controls["toggle_notif"] = ("settings.notifications", [320, int(dny) - 3, 50, 30], True)
+    sc.controls["toggle_notif"] = ("settings.notifications", [304, int(dny) - 3, 50, 30], True)
     sc.controls["copy_diag"] = ("settings.copy_diagnostics", [20, int(cdy) - 12, 350, int(cdh) + 24], True)
     # Disconnect: its own card + power icon (no stray glyph — the label starts AFTER the icon)
     _, dcx, dcy, dcw, dch = sc.rows[11]
@@ -542,7 +546,7 @@ def build_12(sc):
     sc.put(surface("disconnect_card", 20, dcy - 14, 350, dch + 28, bg="panel", radius=12,
                    border=1, bordercolor="hair", kids=[
         text("t_disconnect", sc.t(11), dcx, dcy, dcw, dch, color="red", weight=500, size=15),
-        icon("icon_power", "power", 346, dcy, 20, 20, color="red")]))
+        icon("icon_power", "power", 334, dcy, 20, 20, color="red")]))
     sc.controls["disconnect"] = ("settings.disconnect", [20, int(dcy) - 14, 350, int(dch) + 28], True)
 
 

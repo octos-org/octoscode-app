@@ -41,7 +41,7 @@
       "t_live": {
         "component": "Text8839aec3fb92",
         "layout": {
-          "x": 306.45,
+          "x": 236.83,
           "y": 268.3,
           "w": 91.17,
           "h": 28.5
@@ -59,7 +59,7 @@
       "t_wsval": {
         "component": "Text9e00f550f1f0",
         "layout": {
-          "x": 306.89,
+          "x": 286.89,
           "y": 347.75,
           "w": 41.11,
           "h": 21.0
@@ -68,7 +68,7 @@
       "chev_ws": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 350.0,
+          "x": 336.0,
           "y": 346.0,
           "w": 18.0,
           "h": 18.0,
@@ -87,7 +87,7 @@
       "t_profval": {
         "component": "Text70f04bb34bc2",
         "layout": {
-          "x": 272.42,
+          "x": 252.42,
           "y": 418.27,
           "w": 75.58,
           "h": 21.58
@@ -96,7 +96,7 @@
       "chev_prof": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 350.0,
+          "x": 336.0,
           "y": 420.0,
           "w": 18.0,
           "h": 18.0,
@@ -115,7 +115,7 @@
       "toggle_notif": {
         "component": "Surfacec366cb079903",
         "layout": {
-          "x": 320.0,
+          "x": 304.0,
           "y": 502.33,
           "w": 50.0,
           "h": 30.0
@@ -124,7 +124,7 @@
       "toggle_notif_knob": {
         "component": "Surface418308a71490",
         "layout": {
-          "x": 344.0,
+          "x": 328.0,
           "y": 505.33,
           "w": 24.0,
           "h": 24.0
@@ -142,7 +142,7 @@
       "icon_copy": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 368.0,
+          "x": 336.0,
           "y": 574.0,
           "w": 18.0,
           "h": 27.0,
@@ -197,7 +197,7 @@
       "icon_power": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 366.0,
+          "x": 332.0,
           "y": 662.0,
           "w": 22.0,
           "h": 29.0,

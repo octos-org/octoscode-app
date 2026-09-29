@@ -81,7 +81,7 @@
       "component": "Text8839aec3fb92",
       "semantic_role": "text",
       "bounds": [
-        306.45,
+        236.83,
         268.3,
         91.17,
         28.5
@@ -117,7 +117,7 @@
       "component": "Text9e00f550f1f0",
       "semantic_role": "text",
       "bounds": [
-        306.89,
+        286.89,
         347.75,
         41.11,
         21.0
@@ -135,7 +135,7 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        350.0,
+        336.0,
         346.0,
         18.0,
         18.0
@@ -171,7 +171,7 @@
       "component": "Text70f04bb34bc2",
       "semantic_role": "text",
       "bounds": [
-        272.42,
+        252.42,
         418.27,
         75.58,
         21.58
@@ -189,7 +189,7 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        350.0,
+        336.0,
         420.0,
         18.0,
         18.0
@@ -225,7 +225,7 @@
       "component": "Surfacec366cb079903",
       "semantic_role": "layout",
       "bounds": [
-        320.0,
+        304.0,
         502.33,
         50.0,
         30.0
@@ -243,7 +243,7 @@
       "component": "Surface418308a71490",
       "semantic_role": "layout",
       "bounds": [
-        344.0,
+        328.0,
         505.33,
         24.0,
         24.0
@@ -279,7 +279,7 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        368.0,
+        336.0,
         574.0,
         18.0,
         27.0
@@ -387,7 +387,7 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        366.0,
+        332.0,
         662.0,
         22.0,
         29.0
@@ -402,6 +402,6 @@
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "8bfb596ea12d77a65a869aca064880b4014e2d0da96a33f177dde52db1e305d0",
+  "contract_sha256": "564879afff5ef932beea6d81db564e372615f7c49be3b2918bca607fdc62813b",
   "mapping_basis": "mapped.json"
 }

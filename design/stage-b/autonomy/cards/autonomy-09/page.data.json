@@ -163,7 +163,7 @@
       "icon_plus": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 23.0,
+          "x": 32.0,
           "y": 674.0,
           "w": 28.0,
           "h": 28.0,
@@ -173,7 +173,7 @@
       "approval_pill": {
         "component": "Surface43ce61531354",
         "layout": {
-          "x": 58.0,
+          "x": 67.0,
           "y": 672.0,
           "w": 128.0,
           "h": 32.0
@@ -182,7 +182,7 @@
       "t_approval": {
         "component": "Text436ea05a97ef",
         "layout": {
-          "x": 70.0,
+          "x": 79.0,
           "y": 680.0,
           "w": 104.0,
           "h": 19.5
@@ -191,7 +191,7 @@
       "t_model": {
         "component": "Textd48a5720deb7",
         "layout": {
-          "x": 212.0,
+          "x": 221.0,
           "y": 680.0,
           "w": 72.64,
           "h": 19.5
@@ -200,7 +200,7 @@
       "icon_mic": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 294.0,
+          "x": 303.0,
           "y": 673.0,
           "w": 20.0,
           "h": 32.0,

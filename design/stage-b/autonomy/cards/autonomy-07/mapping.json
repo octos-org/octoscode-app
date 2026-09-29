@@ -45,10 +45,10 @@
       "component": "Surfaceed7038384cce",
       "semantic_role": "layout",
       "bounds": [
-        24.0,
-        692.0,
-        320.0,
-        48.0
+        20.0,
+        690.0,
+        350.0,
+        49.0
       ],
       "text": null,
       "enabled": null,
@@ -81,9 +81,9 @@
       "component": "Surfacee81dee70a29b",
       "semantic_role": "layout",
       "bounds": [
-        24.0,
+        20.0,
         265.0,
-        360.0,
+        350.0,
         387.0
       ],
       "text": null,
@@ -351,8 +351,8 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        33.0,
-        709.0,
+        29.0,
+        706.0,
         16.0,
         16.0
       ],
@@ -369,8 +369,8 @@
       "component": "Textd55469de8b8b",
       "semantic_role": "text",
       "bounds": [
-        53.0,
-        708.0,
+        49.0,
+        705.0,
         222.0,
         20.0
       ],
@@ -406,7 +406,7 @@
       "semantic_role": "text",
       "bounds": [
         282.0,
-        704.52,
+        705.0,
         31.94,
         18.68
       ],
@@ -424,7 +424,7 @@
       "semantic_role": "text",
       "bounds": [
         349.55,
-        704.52,
+        705.0,
         19.72,
         18.68
       ],
@@ -458,6 +458,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045"
   },
-  "contract_sha256": "f8ee4e191bed9153bf6b6c9416ff4d05f14e3e868df57d9ed84eb38010f67b3a",
+  "contract_sha256": "5173feed954f8fbf0e17a0f24d0f30286aaedcc06e98f9845fe3b3da6f687329",
   "mapping_basis": "mapped.json"
 }

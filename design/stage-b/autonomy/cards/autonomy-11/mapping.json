@@ -156,7 +156,7 @@
         20.0,
         344.0,
         366.0,
-        186.0
+        177.0
       ],
       "text": null,
       "enabled": null,
@@ -174,7 +174,7 @@
         30.0,
         352.0,
         340.0,
-        170.0
+        165.0
       ],
       "text": "I added a test that simulates a reconnect and verifies pending messages are preserved. The test asserts `metrics.steer_preserved` increments and `metrics.steer_dropped` remains unchanged.",
       "enabled": null,
@@ -190,9 +190,9 @@
       "semantic_role": "layout",
       "bounds": [
         30.0,
-        546.0,
+        521.0,
         120.0,
-        28.0
+        26.0
       ],
       "text": null,
       "enabled": null,
@@ -208,9 +208,9 @@
       "semantic_role": "icon",
       "bounds": [
         37.0,
-        521.0,
-        21.0,
-        25.0
+        523.0,
+        22.0,
+        22.0
       ],
       "text": null,
       "enabled": null,
@@ -226,9 +226,9 @@
       "semantic_role": "icon",
       "bounds": [
         80.0,
-        521.0,
-        21.0,
-        25.0
+        523.0,
+        22.0,
+        22.0
       ],
       "text": null,
       "enabled": null,
@@ -297,7 +297,7 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        23.0,
+        32.0,
         662.0,
         28.0,
         28.0
@@ -315,7 +315,7 @@
       "component": "Surfacee1f6f7dd0a15",
       "semantic_role": "layout",
       "bounds": [
-        62.0,
+        71.0,
         672.0,
         128.0,
         32.0
@@ -333,7 +333,7 @@
       "component": "Texte2130f18a6e8",
       "semantic_role": "text",
       "bounds": [
-        74.0,
+        83.0,
         680.0,
         104.0,
         19.5
@@ -351,7 +351,7 @@
       "component": "Text78558d644fe5",
       "semantic_role": "text",
       "bounds": [
-        216.0,
+        225.0,
         680.0,
         69.7,
         19.5
@@ -369,7 +369,7 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        292.0,
+        301.0,
         665.0,
         20.0,
         32.0
@@ -387,7 +387,7 @@
       "component": "Surface7736f8a447e4",
       "semantic_role": "layout",
       "bounds": [
-        341.112,
+        338.0,
         662.411,
         35.23,
         34.274
@@ -405,7 +405,7 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        350.898,
+        348.0,
         671.932,
         15.658,
         15.233
@@ -420,6 +420,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "5c530919cb96e5b23fbe2f825e061b2c5507790d477bd6e922ec1e12d1168216",
+  "contract_sha256": "03475ca9ab78c84324329536dfd8b0d3268ef12c664d64c5976fbbede2f27fd8",
   "mapping_basis": "mapped.json"
 }
