@@ -6,7 +6,7 @@
       "native_id": "beauty_0",
       "parent": null,
       "kind": "stack",
-      "component": "Surfacefc069f806a2a",
+      "component": "Surface156d085f4ff5",
       "semantic_role": "layout",
       "bounds": [
         0,
@@ -24,7 +24,7 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "text",
-      "component": "Textdff3c12dd0ad",
+      "component": "Text8ed29d098ff6",
       "semantic_role": "text",
       "bounds": [
         29.0,
@@ -42,7 +42,7 @@
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "text",
-      "component": "Text5d9757a986bf",
+      "component": "Textf05f6b03959c",
       "semantic_role": "text",
       "bounds": [
         43.98,
@@ -60,7 +60,7 @@
       "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "text",
-      "component": "Texta83bd04cbcd7",
+      "component": "Text74b09770253e",
       "semantic_role": "text",
       "bounds": [
         53.01,
@@ -78,7 +78,7 @@
       "native_id": "beauty_0_3",
       "parent": "page",
       "kind": "text",
-      "component": "Text106c4efc0f04",
+      "component": "Textd4c7193543be",
       "semantic_role": "text",
       "bounds": [
         111.52,
@@ -96,7 +96,7 @@
       "native_id": "beauty_0_4",
       "parent": "page",
       "kind": "text",
-      "component": "Text6cd50347b15b",
+      "component": "Text3e2bc4cf1a70",
       "semantic_role": "text",
       "bounds": [
         140.91,
@@ -114,7 +114,7 @@
       "native_id": "beauty_0_5",
       "parent": "page",
       "kind": "text",
-      "component": "Texta23d8baad481",
+      "component": "Textda1df1e471b3",
       "semantic_role": "text",
       "bounds": [
         90.11,
@@ -132,7 +132,7 @@
       "native_id": "beauty_0_6",
       "parent": "page",
       "kind": "text",
-      "component": "Text28f528bc5db2",
+      "component": "Textd65aff48079e",
       "semantic_role": "text",
       "bounds": [
         122.93,

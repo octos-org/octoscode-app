@@ -1,0 +1,15 @@
+{
+  "provider": "openai",
+  "model": "gpt-image-2",
+  "derived_from": "cards/setup-05/reference.png",
+  "derived_from_sha256": "d98822b963f51fdc9fd89328834d8f255a4e29d07a1b0a079117e8829024d440",
+  "source_region_pixels": [
+    92,
+    852,
+    628,
+    76
+  ],
+  "image_sha256": "1e475e2ce4500bad62e649eb767306eb03aa9c1e05e840815e1c3363b3682f67",
+  "original_prompt_sha256": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146",
+  "new_image_generation": false
+}

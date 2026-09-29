@@ -44,9 +44,9 @@
       "id": "t_sfolder",
       "expected_text": "Server folder",
       "requested_bounds": [
-        98.07,
+        92.0,
         150.85,
-        98.21,
+        200.0,
         21.0
       ],
       "status": "observed",
@@ -70,38 +70,6 @@
         150.85415018252928,
         98.21350097656251,
         17.489374160766587
-      ]
-    },
-    {
-      "id": "t_recent",
-      "expected_text": "Recent",
-      "requested_bounds": [
-        30.45,
-        243.63,
-        56.39,
-        22.5
-      ],
-      "status": "observed",
-      "ocr_text": "Recent",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        31.5,
-        245.5,
-        52.0,
-        15.5
-      ],
-      "ink_color": [
-        19,
-        19,
-        19
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        30.44999929185016,
-        243.62790733946184,
-        56.38888931274415,
-        19.174417495727532
       ]
     },
     {
@@ -141,7 +109,7 @@
       "expected_text": "~/home/octos",
       "requested_bounds": [
         94.73,
-        308.79,
+        314.05,
         240.0,
         19.31
       ],
@@ -205,7 +173,7 @@
       "expected_text": "~/home/octos/octoscode-app",
       "requested_bounds": [
         94.64,
-        384.92,
+        388.0,
         240.0,
         19.17
       ],
@@ -269,7 +237,7 @@
       "expected_text": "~/home/octos/robrix2",
       "requested_bounds": [
         93.61,
-        455.42,
+        461.31,
         240.0,
         18.05
       ],
@@ -333,7 +301,7 @@
       "expected_text": "~/home/octos/octos-web",
       "requested_bounds": [
         94.64,
-        529.2,
+        535.76,
         240.0,
         18.05
       ],
@@ -393,30 +361,30 @@
       ]
     },
     {
-      "id": "new_folder_label",
+      "id": "t_newfolder",
       "expected_text": "New folder",
       "requested_bounds": [
         142.1,
         676.5,
         92.48,
-        19.5
+        21.0
       ],
       "status": "observed",
       "ocr_text": "New folder",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        141.0,
-        675.5,
-        95.0,
-        22.0
+        147.0,
+        678.0,
+        84.5,
+        16.5
       ],
       "ink_color": [
-        252,
-        252,
-        252
+        10,
+        9,
+        9
       ],
-      "light_foreground": true,
+      "light_foreground": false,
       "ocr_bounds": [
         142.10000168000977,
         676.500000178458,
@@ -439,6 +407,19 @@
       "bg": 4293981682
     },
     {
+      "id": "outer_card",
+      "bounds": [
+        14.0,
+        35.0,
+        374.0,
+        741.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 13.56
+    },
+    {
       "id": "folder",
       "bounds": [
         31.0,
@@ -449,15 +430,26 @@
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4294901246,
-      "radius": 14.75
+      "radius": 8.67
+    },
+    {
+      "id": "folder_icon",
+      "bounds": [
+        48.172,
+        146.811,
+        21.465,
+        21.665
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     },
     {
       "id": "folder_field",
       "bounds": [
-        46.025,
-        155.124,
-        306.949,
-        41.482
+        80.369,
+        178.593,
+        214.65,
+        24.373
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -465,106 +457,100 @@
     {
       "id": "folder_chev",
       "bounds": [
-        335.803,
-        154.054,
-        21.465,
-        36.873
+        340.096,
+        162.756,
+        19.318,
+        19.498
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
     },
     {
-      "id": "ws_row0",
+      "id": "recent_group",
       "bounds": [
-        30.0,
-        274.0,
-        337.0,
-        71.0
+        27.0,
+        271.0,
+        343.0,
+        297.0
       ],
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
-      "bg": 4294901246,
-      "radius": 12.43
+      "bg": 4294835709,
+      "radius": 10.21
     },
     {
       "id": "ws_icon0",
       "bounds": [
-        45.025,
-        285.065,
-        19.318,
-        22.378
+        42.293,
+        284.175,
+        19.662,
+        18.384
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
     },
     {
-      "id": "ws_row1",
+      "id": "hair_ws1",
       "bounds": [
-        46.0,
-        351.49,
-        314.0,
-        62.6
+        40.108,
+        342.932,
+        316.783,
+        1.021
       ],
       "method": "surface contour unresolved; requested geometry retained",
-      "reviewed": false,
-      "bg": 4294835709,
-      "radius": 10.0
+      "reviewed": false
     },
     {
       "id": "ws_icon1",
       "bounds": [
-        60.0,
-        363.21,
-        18.0,
-        18.0
+        42.293,
+        359.048,
+        19.662,
+        18.384
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
     },
     {
-      "id": "ws_row2",
+      "id": "hair_ws2",
       "bounds": [
-        30.0,
-        420.0,
-        338.0,
-        72.0
+        40.108,
+        418.346,
+        316.783,
+        1.021
       ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294901246,
-      "radius": 12.39
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
     },
     {
       "id": "ws_icon2",
       "bounds": [
-        45.07,
-        432.432,
-        19.376,
-        22.31
+        42.293,
+        432.777,
+        19.662,
+        18.384
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
     },
     {
-      "id": "ws_row3",
+      "id": "hair_ws3",
       "bounds": [
-        30.0,
-        493.0,
-        340.0,
-        75.0
+        40.108,
+        492.984,
+        316.783,
+        1.021
       ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294835709,
-      "radius": 12.95
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
     },
     {
       "id": "ws_icon3",
       "bounds": [
-        45.159,
-        505.85,
-        19.49,
-        23.316
+        42.293,
+        508.222,
+        19.662,
+        18.384
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -603,41 +589,6 @@
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
-    },
-    {
-      "id": "new_folder",
-      "bounds": [
-        121.1,
-        666.5,
-        134.48,
-        39.5
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "new_folder_surface",
-      "bounds": [
-        121.1,
-        666.5,
-        134.48,
-        39.5
-      ],
-      "method": "surface contour unresolved; requested geometry retained",
-      "reviewed": false,
-      "bg": 4294835709,
-      "radius": 19.75
-    },
-    {
-      "id": "new_folder_control",
-      "bounds": [
-        121.1,
-        666.5,
-        134.48,
-        39.5
-      ],
-      "method": "inferred semantic extent from observed parent",
-      "reviewed": false
     }
   ],
   "unmapped_ocr": [
@@ -650,6 +601,16 @@
       ],
       "confidence": 1,
       "text": "~/home/octos"
+    },
+    {
+      "bounds": [
+        60.89999858370032,
+        487.2558146789237,
+        112.7777786254883,
+        38.348834991455064
+      ],
+      "confidence": 1,
+      "text": "Recent"
     }
   ],
   "non_text_ocr": [],

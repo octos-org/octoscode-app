@@ -34,6 +34,17 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "outer_card",
+    "x": 10.0,
+    "y": 10.0,
+    "w": 386.0,
+    "h": 756.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "t_title",
     "x": 82.24,
     "y": 80.66,
@@ -98,7 +109,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 213.0,
     "w": 286.0,
     "h": 26.12,
-    "text": "deepseek-v4-flash \u00d7",
+    "text": "deepseek-v4-flash",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 15,
     "weight": 400,
@@ -217,6 +228,28 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "native_candidates": [
       "Label",
       "TextFlow"
+    ]
+  },
+  {
+    "id": "segdiv1",
+    "x": 157.36,
+    "y": 430.21,
+    "w": 1.0,
+    "h": 30.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "segdiv2",
+    "x": 267.84,
+    "y": 430.21,
+    "w": 1.0,
+    "h": 30.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
     ]
   },
   {

@@ -3,7 +3,7 @@
     "theme": "light",
     "placements": {
       "page": {
-        "component": "Surface991755d1cfb2",
+        "component": "Surface156d085f4ff5",
         "layout": {
           "x": 0,
           "y": 0,
@@ -11,8 +11,17 @@
           "h": 776
         }
       },
+      "outer_card": {
+        "component": "Surface28a1c2e54e11",
+        "layout": {
+          "x": 10.0,
+          "y": 10.0,
+          "w": 386.0,
+          "h": 756.0
+        }
+      },
       "t_title": {
-        "component": "Textaefc4a0ae779",
+        "component": "Textd66023eede35",
         "layout": {
           "x": 82.24,
           "y": 80.66,
@@ -30,7 +39,7 @@
         }
       },
       "t_model": {
-        "component": "Textd2b397229938",
+        "component": "Text2e470f825ed2",
         "layout": {
           "x": 42.86,
           "y": 155.65,
@@ -39,35 +48,35 @@
         }
       },
       "model": {
-        "component": "Surface89a969e2425c",
+        "component": "Surface382f80774fa6",
         "layout": {
-          "x": 43.0,
-          "y": 193.0,
-          "w": 326.0,
-          "h": 60.0
+          "x": 46.0,
+          "y": 201.0,
+          "w": 314.0,
+          "h": 50.12
         }
       },
       "model_field": {
         "component": "Input373e8574a2d7",
         "layout": {
-          "x": 57.535,
-          "y": 207.366,
-          "w": 296.93,
-          "h": 31.269
+          "x": 60.0,
+          "y": 213.0,
+          "w": 286.0,
+          "h": 26.12
         }
       },
       "model_chev": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 337.854,
-          "y": 211.029,
-          "w": 20.764,
-          "h": 23.943,
+          "x": 330.0,
+          "y": 216.06,
+          "w": 20.0,
+          "h": 20.0,
           "src": "http://127.0.0.1:8170/ux-images/setup-05/assets/model_chev-a742d013f874.svg"
         }
       },
       "t_saved": {
-        "component": "Text4ca76db8fb6d",
+        "component": "Text2cbbbbbe52a9",
         "layout": {
           "x": 43.98,
           "y": 274.0,
@@ -76,7 +85,7 @@
         }
       },
       "t_perm": {
-        "component": "Text361e3df13fba",
+        "component": "Text840a7f555cd2",
         "layout": {
           "x": 43.93,
           "y": 376.41,
@@ -85,25 +94,25 @@
         }
       },
       "segments": {
-        "component": "Surface681ac6f77c74",
+        "component": "Surface5e76d82e8b78",
         "layout": {
-          "x": 43.0,
-          "y": 418.0,
-          "w": 326.0,
-          "h": 55.0
+          "x": 46.0,
+          "y": 426.21,
+          "w": 314.0,
+          "h": 38.0
         }
       },
       "seg_sel": {
-        "component": "Surfacee4e64d02d86e",
+        "component": "Surfacefcfdbbddc65b",
         "layout": {
-          "x": 43.0,
-          "y": 418.0,
-          "w": 112.0,
-          "h": 55.0
+          "x": 48.54,
+          "y": 430.21,
+          "w": 104.79,
+          "h": 30.0
         }
       },
       "t_seg0": {
-        "component": "Textc1ca2c3cdb0e",
+        "component": "Text1693d826aa0c",
         "layout": {
           "x": 58.54,
           "y": 437.21,
@@ -112,7 +121,7 @@
         }
       },
       "t_seg1": {
-        "component": "Text6192e9229250",
+        "component": "Text6d1c12998f89",
         "layout": {
           "x": 171.39,
           "y": 437.49,
@@ -121,7 +130,7 @@
         }
       },
       "t_seg2": {
-        "component": "Text63edcc63ac7e",
+        "component": "Text6d1c12998f89",
         "layout": {
           "x": 290.92,
           "y": 437.52,
@@ -129,8 +138,26 @@
           "h": 19.5
         }
       },
+      "segdiv1": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 157.36,
+          "y": 430.21,
+          "w": 1.0,
+          "h": 30.0
+        }
+      },
+      "segdiv2": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 267.84,
+          "y": 430.21,
+          "w": 1.0,
+          "h": 30.0
+        }
+      },
       "t_sandbox": {
-        "component": "Text0b5070ada62a",
+        "component": "Text840a7f555cd2",
         "layout": {
           "x": 43.86,
           "y": 566.87,
@@ -139,16 +166,16 @@
         }
       },
       "sandbox_box": {
-        "component": "Surfacee8ccae7a114e",
+        "component": "Surfaceec2e0f41be2a",
         "layout": {
-          "x": 43.0,
-          "y": 605.0,
-          "w": 326.0,
-          "h": 65.0
+          "x": 46.0,
+          "y": 617.0,
+          "w": 314.0,
+          "h": 42.67
         }
       },
       "t_sandbox_v": {
-        "component": "Textc9c93a547620",
+        "component": "Texte37ac11ac666",
         "layout": {
           "x": 58.64,
           "y": 627.0,

@@ -2,9 +2,13 @@
   "schema_version": 1,
   "theme": "light",
   "tokens": {
-    "bg_0ffa744e1b9f": {
-      "value": 4293981682,
+    "bg_f807212b6748": {
+      "value": 4294967295,
       "property": "bg"
+    },
+    "radius_8527a891e224": {
+      "value": 14,
+      "property": "radius"
     },
     "size_f5ca38f748a1": {
       "value": 20,
@@ -18,8 +22,8 @@
       "value": 600,
       "property": "weight"
     },
-    "color_33c64e1da9ef": {
-      "value": 4278190080,
+    "color_e0ccdd36059a": {
+      "value": 4280098079,
       "property": "color"
     },
     "font_src_a9a389fb1fcc": {
@@ -38,20 +42,20 @@
       "value": 400,
       "property": "weight"
     },
-    "color_46488df7f066": {
-      "value": 4279703319,
+    "color_5e6b06fd707a": {
+      "value": 4285427315,
       "property": "color"
     },
     "font_src_86ab34a300f7": {
       "value": "self:resources/ux/Inter-400.ttf",
       "property": "font_src"
     },
-    "bg_40fe55fff4f6": {
-      "value": 4294835709,
+    "bg_ced343610738": {
+      "value": 4294440952,
       "property": "bg"
     },
-    "radius_c31d121f7a6d": {
-      "value": 9.33,
+    "radius_2c624232cdd2": {
+      "value": 8,
       "property": "radius"
     },
     "size_e629fa6598d7": {
@@ -62,21 +66,9 @@
       "value": 22.5,
       "property": "line_height"
     },
-    "color_e0ccdd36059a": {
-      "value": 4280098079,
-      "property": "color"
-    },
-    "color_79ac99cbdb18": {
-      "value": 4280953643,
-      "property": "color"
-    },
-    "radius_4128f3e88e47": {
-      "value": 13.12,
-      "property": "radius"
-    },
-    "radius_7b1bd53949b7": {
-      "value": 8.0,
-      "property": "radius"
+    "bg_cfc8c60a5fe5": {
+      "value": 4294831340,
+      "property": "bg"
     },
     "size_3fdba35f04dc": {
       "value": 13,
@@ -90,8 +82,8 @@
       "value": 500,
       "property": "weight"
     },
-    "color_583e06594315": {
-      "value": 4290778646,
+    "color_ab6fe2047f74": {
+      "value": 4291764782,
       "property": "color"
     },
     "font_src_cb352dc03af3": {
@@ -102,14 +94,6 @@
       "value": 22.67,
       "property": "line_height"
     },
-    "color_d52cd77c4816": {
-      "value": 4285624690,
-      "property": "color"
-    },
-    "bg_98d37e949cdf": {
-      "value": 4294770174,
-      "property": "bg"
-    },
     "size_f5f9ce8a64e5": {
       "value": 15.12,
       "property": "size"
@@ -118,12 +102,12 @@
       "value": 22.68,
       "property": "line_height"
     },
-    "bg_fd057fc5ddd0": {
-      "value": 4279243025,
+    "bg_33c64e1da9ef": {
+      "value": 4278190080,
       "property": "bg"
     },
-    "radius_9f1bc1358f9b": {
-      "value": 22.14,
+    "radius_83cf8b609de6": {
+      "value": 999,
       "property": "radius"
     },
     "size_653e689f03be": {
@@ -134,32 +118,48 @@
       "value": 24.27,
       "property": "line_height"
     },
-    "color_32826aa684df": {
-      "value": 4294770173,
+    "color_f807212b6748": {
+      "value": 4294967295,
       "property": "color"
     },
     "line_height_553beed538e6": {
       "value": 19.5,
       "property": "line_height"
     },
-    "color_d46ff72351bc": {
-      "value": 4279719155,
+    "color_5ab339f4f62e": {
+      "value": 4281298923,
       "property": "color"
     }
   },
   "components": {
-    "Surface991755d1cfb2": {
+    "Surface156d085f4ff5": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_0ffa744e1b9f"
+          "$token": "bg_f807212b6748"
         }
       },
       "props": {},
       "slot": true
     },
-    "Textaefc4a0ae779": {
+    "Surface28a1c2e54e11": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_f807212b6748"
+        },
+        "radius": {
+          "$token": "radius_8527a891e224"
+        },
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      "props": {},
+      "slot": true
+    },
+    "Textd66023eede35": {
       "style": {
         "t": "text",
         "size": {
@@ -172,7 +172,7 @@
           "$token": "weight_284b7e6d788f"
         },
         "color": {
-          "$token": "color_33c64e1da9ef"
+          "$token": "color_e0ccdd36059a"
         },
         "variant": "single_line",
         "alignx": 0,
@@ -185,7 +185,7 @@
       },
       "slot": false
     },
-    "Text7d708cf6afb5": {
+    "Textc6cd0ea2df1a": {
       "style": {
         "t": "text",
         "size": {
@@ -198,7 +198,7 @@
           "$token": "weight_26d228663f13"
         },
         "color": {
-          "$token": "color_46488df7f066"
+          "$token": "color_5e6b06fd707a"
         },
         "variant": "single_line",
         "alignx": 0,
@@ -211,15 +211,15 @@
       },
       "slot": false
     },
-    "Surface22a941a90d6f": {
+    "Surface382f80774fa6": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_40fe55fff4f6"
+          "$token": "bg_ced343610738"
         },
         "radius": {
-          "$token": "radius_c31d121f7a6d"
+          "$token": "radius_2c624232cdd2"
         },
         "border": 1,
         "bordercolor": 4293256679
@@ -255,44 +255,18 @@
       },
       "slot": true
     },
-    "Text31e7204bc037": {
-      "style": {
-        "t": "text",
-        "size": {
-          "$token": "size_8527a891e224"
-        },
-        "line_height": {
-          "$token": "line_height_e4658389f3e9"
-        },
-        "weight": {
-          "$token": "weight_26d228663f13"
-        },
-        "color": {
-          "$token": "color_79ac99cbdb18"
-        },
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": {
-          "$token": "font_src_86ab34a300f7"
-        }
-      },
-      "props": {
-        "text": "text"
-      },
-      "slot": false
-    },
-    "Surface1d6671c34bf2": {
+    "Surface2da59a09e281": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_40fe55fff4f6"
+          "$token": "bg_ced343610738"
         },
         "radius": {
-          "$token": "radius_4128f3e88e47"
+          "$token": "radius_2c624232cdd2"
         },
         "border": 1,
-        "bordercolor": 4293256679
+        "bordercolor": 4291764782
       },
       "props": {},
       "slot": true
@@ -304,21 +278,21 @@
       "props": {},
       "slot": false
     },
-    "Surfacec9decdad0d23": {
+    "Surfacef547a10f859d": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_40fe55fff4f6"
+          "$token": "bg_cfc8c60a5fe5"
         },
         "radius": {
-          "$token": "radius_7b1bd53949b7"
+          "$token": "radius_2c624232cdd2"
         }
       },
       "props": {},
       "slot": true
     },
-    "Textd093f84d15e5": {
+    "Text58cf66c80d76": {
       "style": {
         "t": "text",
         "size": {
@@ -331,7 +305,7 @@
           "$token": "weight_0604cd3138fe"
         },
         "color": {
-          "$token": "color_583e06594315"
+          "$token": "color_ab6fe2047f74"
         },
         "variant": "single_line",
         "alignx": 0,
@@ -344,7 +318,7 @@
       },
       "slot": false
     },
-    "Text5f1204755b5b": {
+    "Text9153f9b81b11": {
       "style": {
         "t": "text",
         "size": {
@@ -357,7 +331,7 @@
           "$token": "weight_26d228663f13"
         },
         "color": {
-          "$token": "color_d52cd77c4816"
+          "$token": "color_5e6b06fd707a"
         },
         "variant": "single_line",
         "alignx": 0,
@@ -378,15 +352,15 @@
       "props": {},
       "slot": true
     },
-    "Surface6f5cdfb4aa3f": {
+    "Surfaceec2e0f41be2a": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_98d37e949cdf"
+          "$token": "bg_f807212b6748"
         },
         "radius": {
-          "$token": "radius_7b1bd53949b7"
+          "$token": "radius_2c624232cdd2"
         },
         "border": 1,
         "bordercolor": 4293256679
@@ -429,21 +403,21 @@
       },
       "slot": false
     },
-    "Surfacea1888d759809": {
+    "Surface8d834e17f854": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_fd057fc5ddd0"
+          "$token": "bg_33c64e1da9ef"
         },
         "radius": {
-          "$token": "radius_9f1bc1358f9b"
+          "$token": "radius_83cf8b609de6"
         }
       },
       "props": {},
       "slot": true
     },
-    "Textb034b0fd19fd": {
+    "Text30f12eee0685": {
       "style": {
         "t": "text",
         "size": {
@@ -456,7 +430,7 @@
           "$token": "weight_284b7e6d788f"
         },
         "color": {
-          "$token": "color_32826aa684df"
+          "$token": "color_f807212b6748"
         },
         "variant": "single_line",
         "alignx": 0,
@@ -469,7 +443,7 @@
       },
       "slot": false
     },
-    "Text9f71da0bfe10": {
+    "Text17cebe08f043": {
       "style": {
         "t": "text",
         "size": {
@@ -482,7 +456,7 @@
           "$token": "weight_0604cd3138fe"
         },
         "color": {
-          "$token": "color_d46ff72351bc"
+          "$token": "color_5ab339f4f62e"
         },
         "variant": "single_line",
         "alignx": 0,

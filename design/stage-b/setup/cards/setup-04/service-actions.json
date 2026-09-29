@@ -5,9 +5,9 @@
       "event": "workspace.open",
       "source_bounds": [
         46,
-        281,
+        277,
         314,
-        57
+        59
       ],
       "enabled": true
     },
@@ -15,9 +15,9 @@
       "event": "workspace.open",
       "source_bounds": [
         46,
-        351,
+        347,
         314,
-        62
+        64
       ],
       "enabled": true
     },
@@ -25,9 +25,9 @@
       "event": "workspace.open",
       "source_bounds": [
         46,
-        425,
+        421,
         314,
-        58
+        60
       ],
       "enabled": true
     },
@@ -35,9 +35,9 @@
       "event": "workspace.open",
       "source_bounds": [
         46,
-        499,
+        495,
         314,
-        57
+        59
       ],
       "enabled": true
     },
@@ -52,12 +52,12 @@
       "enabled": true
     },
     "new_folder": {
-      "event": "new_folder",
+      "event": "workspace.new_folder",
       "source_bounds": [
-        121,
-        666,
         134,
-        39
+        670,
+        108,
+        31
       ],
       "enabled": true
     },
@@ -65,9 +65,9 @@
       "event": "input.folder",
       "source_bounds": [
         46,
-        166,
+        136,
         314,
-        42
+        72
       ],
       "enabled": true
     }

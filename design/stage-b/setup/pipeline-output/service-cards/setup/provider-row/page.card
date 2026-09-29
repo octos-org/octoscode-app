@@ -1,0 +1,20 @@
+# ledger provider-row@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_prov_deepseek_text { class: user-copy, en: "DeepSeek • Official API" }
+component Surfaced4707dd25870(instance: text) {
+  view Kit(component: "Surfaced4707dd25870", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Textb5929a1e0eb3(instance: text, text: text) {
+  view Kit(component: "Textb5929a1e0eb3", instance: instance, text: text)
+}
+
+view root Surfaced4707dd25870(instance: "provider_deepseek") {
+  Vectore0a378fde04f(instance: "radio_deepseek")
+  Textb5929a1e0eb3(instance: "t_prov_deepseek", text: copy.t_prov_deepseek_text)
+}

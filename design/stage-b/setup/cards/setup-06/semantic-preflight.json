@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "8b3e3154ff0c49840c4fba5df37d737166dda5e7039607a3074f804338a870f9",
+  "manifest_sha256": "d9cb4426ea30496921e82bf52c898b190cd8ee39b5aaba70d169361429c6a3f6",
   "reference_sha256": "3d7b4292eea6e581bb223e6bd810ed674773028569a9096115b2b3131ab844f0",
   "id": "setup-06",
   "round": null,
@@ -13,6 +13,17 @@
   "elements": [
     {
       "id": "page",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "outer_card",
       "role": "layout",
       "basis": "authored stack node",
       "expected_widgets": [
@@ -81,15 +92,17 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "hair_g1_0",
-      "role": "layout",
-      "basis": "authored stack node",
+      "id": "chev_g1_r0",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
       "expected_widgets": [
-        "View"
+        "Svg",
+        "Icon",
+        "Image"
       ],
       "actual_widget": null,
       "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
     },
     {
       "id": "t_g1_r1",
@@ -175,6 +188,17 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "hair_g1_2",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
       "id": "group2",

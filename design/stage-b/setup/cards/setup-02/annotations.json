@@ -60,6 +60,19 @@
       "bg": 4293981682
     },
     {
+      "id": "outer_card",
+      "bounds": [
+        19.0,
+        35.0,
+        367.0,
+        738.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 13.31
+    },
+    {
       "id": "server",
       "bounds": [
         48.0,
@@ -121,23 +134,23 @@
     {
       "id": "error_band",
       "bounds": [
-        46.0,
-        396.92,
-        314.0,
-        37.58
+        53.228,
+        412.708,
+        298.544,
+        36.685
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
-      "bg": 4294835709,
-      "radius": 8.0
+      "bg": 4294901245,
+      "radius": 7.81
     },
     {
       "id": "retry",
       "bounds": [
-        198.49,
-        458.83,
-        62.0,
-        36.67
+        198.212,
+        473.144,
+        58.948,
+        35.797
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -145,23 +158,23 @@
     {
       "id": "retry_surface",
       "bounds": [
-        198.49,
-        458.83,
-        62.0,
-        36.67
+        198.212,
+        473.144,
+        58.948,
+        35.797
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
-      "bg": 4294770174,
-      "radius": 8.0
+      "bg": 4294835710,
+      "radius": 7.81
     },
     {
       "id": "retry_control",
       "bounds": [
-        198.49,
-        458.83,
-        62.0,
-        36.67
+        198.212,
+        473.144,
+        58.948,
+        35.797
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -169,10 +182,10 @@
     {
       "id": "connect",
       "bounds": [
-        138.79,
-        564.94,
-        123.9,
-        44.27
+        141.451,
+        576.727,
+        117.801,
+        43.216
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -180,23 +193,23 @@
     {
       "id": "connect_surface",
       "bounds": [
-        138.79,
-        564.94,
-        123.9,
-        44.27
+        141.451,
+        576.727,
+        117.801,
+        43.216
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
-      "bg": 4279243025,
-      "radius": 22.14
+      "bg": 4279308562,
+      "radius": 21.61
     },
     {
       "id": "connect_control",
       "bounds": [
-        138.79,
-        564.94,
-        123.9,
-        44.27
+        141.451,
+        576.727,
+        117.801,
+        43.216
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false

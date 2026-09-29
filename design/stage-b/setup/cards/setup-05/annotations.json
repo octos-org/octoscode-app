@@ -78,6 +78,19 @@
       "bg": 4293981682
     },
     {
+      "id": "outer_card",
+      "bounds": [
+        11.0,
+        36.0,
+        384.0,
+        737.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.93
+    },
+    {
       "id": "model",
       "bounds": [
         43.0,
@@ -137,6 +150,28 @@
       "reviewed": false,
       "bg": 4294835453,
       "radius": 12.83
+    },
+    {
+      "id": "segdiv1",
+      "bounds": [
+        158.616,
+        423.789,
+        1.038,
+        43.421
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "segdiv2",
+      "bounds": [
+        273.318,
+        423.789,
+        1.038,
+        43.421
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
     },
     {
       "id": "sandbox_box",

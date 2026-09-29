@@ -189,5 +189,37 @@
   "wasm": "wizard/wasm-dist",
   "runs": "pipeline-output/runs"
  },
- "_note": "Scenes 1-6 are card #28c's screens (board 2). Scenes 7-12 are other cards' screens kept so the flow's 8-12-scene validation (flow.py read_manifest) passes; they get stub contracts only and are never mapped/compiled here."
+ "_note": "Scenes 1-6 are card #28c's screens (board 2). Scenes 7-12 are other cards' screens kept so the flow's 8-12-scene validation (flow.py read_manifest) passes; they get stub contracts only and are never mapped/compiled here.",
+ "cards": [
+  {
+   "id": "labeled-input",
+   "scene": "1",
+   "root": "server",
+   "owner": "setup"
+  },
+  {
+   "id": "provider-row",
+   "scene": "3",
+   "root": "provider_deepseek",
+   "owner": "setup"
+  },
+  {
+   "id": "ws-group",
+   "scene": "4",
+   "root": "recent_group",
+   "owner": "setup"
+  },
+  {
+   "id": "seg-control",
+   "scene": "5",
+   "root": "segments",
+   "owner": "setup"
+  },
+  {
+   "id": "settings-toggle-row",
+   "scene": "6",
+   "root": "group2",
+   "owner": "setup"
+  }
+ ]
 }

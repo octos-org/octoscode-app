@@ -34,6 +34,17 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "outer_card",
+    "x": 10.0,
+    "y": 10.0,
+    "w": 386.0,
+    "h": 756.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "t_title",
     "x": 43.82,
     "y": 77.29,
@@ -104,15 +115,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "hair_g1_0",
-    "x": 44.0,
-    "y": 122.04,
-    "w": 318.0,
-    "h": 1.0,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
+    "id": "chev_g1_r0",
+    "x": 336.67,
+    "y": 158.93,
+    "w": 16.0,
+    "h": 16.0,
+    "role": "unknown",
+    "native_candidates": []
   },
   {
     "id": "t_g1_r1",
@@ -158,7 +167,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "hair_g1_1",
     "x": 44.0,
-    "y": 192.5,
+    "y": 201.97,
     "w": 318.0,
     "h": 1.0,
     "role": "layout",
@@ -206,6 +215,17 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 16.0,
     "role": "unknown",
     "native_candidates": []
+  },
+  {
+    "id": "hair_g1_2",
+    "x": 44.0,
+    "y": 274.34,
+    "w": 318.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
   },
   {
     "id": "group2",

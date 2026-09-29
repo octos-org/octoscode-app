@@ -1,0 +1,39 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "server": {
+        "component": "Surface382f80774fa6",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 314.0,
+          "h": 44.3
+        }
+      },
+      "server_field": {
+        "component": "Input79296ad18745",
+        "layout": {
+          "x": 14.0,
+          "y": 12.0,
+          "w": 286.0,
+          "h": 22.5
+        }
+      }
+    },
+    "bindings": [
+      {
+        "id": "server_field",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "server_field",
+          "property": "text"
+        }
+      }
+    ]
+  }
+}

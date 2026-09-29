@@ -34,6 +34,17 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "outer_card",
+    "x": 10.0,
+    "y": 10.0,
+    "w": 386.0,
+    "h": 756.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "t_title",
     "x": 57.52,
     "y": 94.5,
@@ -121,7 +132,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "radio_deepseek",
-    "x": 60.0,
+    "x": 62.0,
     "y": 331.24,
     "w": 20.0,
     "h": 20.0,
@@ -130,9 +141,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "t_prov_deepseek",
-    "x": 72.18,
+    "x": 92.0,
     "y": 330.48,
-    "w": 184.96,
+    "w": 250.0,
     "h": 21.52,
     "text": "DeepSeek \u2022 Official API",
     "font_src": "self:resources/ux/Inter-500.ttf",
@@ -157,7 +168,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "radio_kimi",
-    "x": 60.0,
+    "x": 62.0,
     "y": 383.64,
     "w": 20.0,
     "h": 20.0,
@@ -166,9 +177,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "t_prov_kimi",
-    "x": 72.04,
+    "x": 92.0,
     "y": 381.49,
-    "w": 134.49,
+    "w": 250.0,
     "h": 24.29,
     "text": "Kimi Coding Plan",
     "font_src": "self:resources/ux/Inter-500.ttf",
@@ -193,7 +204,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "radio_glm",
-    "x": 60.0,
+    "x": 62.0,
     "y": 437.78,
     "w": 20.0,
     "h": 20.0,
@@ -202,9 +213,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "t_prov_glm",
-    "x": 72.08,
+    "x": 92.0,
     "y": 435.9,
-    "w": 137.78,
+    "w": 250.0,
     "h": 23.75,
     "text": "GLM Coding Plan",
     "font_src": "self:resources/ux/Inter-500.ttf",

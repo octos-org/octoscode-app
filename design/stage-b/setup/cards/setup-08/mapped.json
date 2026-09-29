@@ -20,7 +20,7 @@
         "size": 18,
         "line_height": 27.0,
         "weight": 600,
-        "color": 4278255873,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-600.ttf"
@@ -36,7 +36,7 @@
         "size": 14,
         "line_height": 25.0,
         "weight": 400,
-        "color": 4280163870,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
@@ -52,7 +52,7 @@
         "size": 14,
         "line_height": 25.09,
         "weight": 400,
-        "color": 4279440148,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
@@ -68,7 +68,7 @@
         "size": 14,
         "line_height": 21.0,
         "weight": 400,
-        "color": 4279045389,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
@@ -84,7 +84,7 @@
         "size": 14,
         "line_height": 22.53,
         "weight": 400,
-        "color": 4279111182,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
@@ -100,7 +100,7 @@
         "size": 14,
         "line_height": 23.13,
         "weight": 400,
-        "color": 4279045389,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
@@ -116,7 +116,7 @@
         "size": 14,
         "line_height": 21.43,
         "weight": 400,
-        "color": 4279308561,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
@@ -132,7 +132,7 @@
         "size": 14,
         "line_height": 21.0,
         "weight": 400,
-        "color": 4278913802,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
@@ -148,7 +148,7 @@
         "size": 14,
         "line_height": 21.0,
         "weight": 400,
-        "color": 4284769898,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
@@ -164,7 +164,7 @@
         "size": 14,
         "line_height": 21.0,
         "weight": 400,
-        "color": 4286151034,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
@@ -180,7 +180,7 @@
         "size": 14,
         "line_height": 21.57,
         "weight": 400,
-        "color": 4285493105,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
@@ -196,7 +196,7 @@
         "size": 14,
         "line_height": 21.35,
         "weight": 400,
-        "color": 4285756533,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
@@ -212,7 +212,7 @@
         "size": 14,
         "line_height": 21.0,
         "weight": 400,
-        "color": 4285493104,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
@@ -228,7 +228,7 @@
         "size": 14,
         "line_height": 21.0,
         "weight": 400,
-        "color": 4285427055,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
@@ -244,14 +244,14 @@
         "size": 14,
         "line_height": 21.0,
         "weight": 400,
-        "color": 4286282620,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
       }
     ],
     "variant": "surface",
-    "bg": 4293981682
+    "bg": 4294967295
   },
   "changes": [
     {

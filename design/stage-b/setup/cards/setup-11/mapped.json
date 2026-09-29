@@ -20,7 +20,7 @@
         "size": 18,
         "line_height": 35.6,
         "weight": 600,
-        "color": 4278190080,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-600.ttf"
@@ -36,7 +36,7 @@
         "size": 14,
         "line_height": 26.1,
         "weight": 400,
-        "color": 4286414207,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
@@ -52,7 +52,7 @@
         "size": 14,
         "line_height": 23.0,
         "weight": 400,
-        "color": 4286546050,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
@@ -68,7 +68,7 @@
         "size": 14,
         "line_height": 21.2,
         "weight": 400,
-        "color": 4286677379,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
@@ -84,7 +84,7 @@
         "size": 14,
         "line_height": 22.95,
         "weight": 400,
-        "color": 4279242769,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
@@ -100,7 +100,7 @@
         "size": 14,
         "line_height": 33.53,
         "weight": 400,
-        "color": 4278518789,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
@@ -116,14 +116,14 @@
         "size": 14,
         "line_height": 24.0,
         "weight": 400,
-        "color": 4286414207,
+        "color": 4280098079,
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
       }
     ],
     "variant": "surface",
-    "bg": 4294901246
+    "bg": 4294967295
   },
   "changes": [
     {

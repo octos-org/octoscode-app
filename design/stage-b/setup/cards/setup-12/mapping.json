@@ -6,7 +6,7 @@
       "native_id": "beauty_0",
       "parent": null,
       "kind": "stack",
-      "component": "Surface991755d1cfb2",
+      "component": "Surface156d085f4ff5",
       "semantic_role": "layout",
       "bounds": [
         0,
@@ -24,7 +24,7 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "text",
-      "component": "Textfb1d54978e9d",
+      "component": "Textfe0b97eafab5",
       "semantic_role": "text",
       "bounds": [
         42.86,
@@ -42,7 +42,7 @@
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "text",
-      "component": "Text3b0c706d6edf",
+      "component": "Texta696e2ef078d",
       "semantic_role": "text",
       "bounds": [
         109.17,
@@ -60,7 +60,7 @@
       "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "text",
-      "component": "Text23269b208f3f",
+      "component": "Text840a7f555cd2",
       "semantic_role": "text",
       "bounds": [
         159.02,

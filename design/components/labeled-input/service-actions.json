@@ -1,0 +1,17 @@
+{
+  "frame_id": 1,
+  "controls": {
+    "server_field": {
+      "event": "input.server",
+      "source_bounds": [
+        46,
+        213,
+        314,
+        44
+      ],
+      "enabled": true
+    }
+  },
+  "source": "Approved setup atlas (board 2) + measured OCR",
+  "owner": "setup"
+}

@@ -86,7 +86,7 @@ def render(n, port):
         data.write_text(body.replace("127.0.0.1:8170", f"127.0.0.1:{ART_PORT}"))
     request = {
         "card": str(work / "page.card"), "data": str(data), "kit_dir": str(work / "kit"),
-        "format": "l0-kit", "width": 406, "height": 776, "nonce": f"gate-b-setup-v3-{n}",
+        "format": "l0-kit", "width": 406, "height": 776, "nonce": f"gate-b-setup-v6-{n}",
         "result": str(work / "native.json"), "layout": str(work / "layout.json"),
         "actions": str(work / "actions.json"),
     }
@@ -101,14 +101,14 @@ def render(n, port):
         time.sleep(6)                                   # let the scene mount and the SVGs resolve
         snap = subprocess.check_output(
             ["curl", "-s", "--max-time", "10", f"127.0.0.1:{port}/snap?all=1"]).decode()
-        (EVIDENCE / f"setup-{n}-snap-v3.json").write_text(snap)
+        (EVIDENCE / f"setup-{n}-snap-v6.json").write_text(snap)
         grab = json.loads(subprocess.check_output(
             ["curl", "-s", "--max-time", "25", f"127.0.0.1:{port}/g"]).decode() or "{}")
         png = grab.get("png")
         if png and Path(png).is_file():
-            shutil.copy(png, EVIDENCE / f"setup-{n}-native-v3.png")
-            compose_review(n, EVIDENCE / f"setup-{n}-native-v3.png",
-                           EVIDENCE / f"setup-{n}-review-v3.png")
+            shutil.copy(png, EVIDENCE / f"setup-{n}-native-v6.png")
+            compose_review(n, EVIDENCE / f"setup-{n}-native-v6.png",
+                           EVIDENCE / f"setup-{n}-review-v6.png")
         subprocess.run(["curl", "-s", "--max-time", "5", f"127.0.0.1:{port}/quit"],
                        capture_output=True)
         time.sleep(1)
@@ -120,7 +120,7 @@ def render(n, port):
     splash = work / "layout.json.native.splash"
     widgets = None
     try:
-        widgets = len(json.loads((EVIDENCE / f"setup-{n}-snap-v3.json").read_text())["s"])
+        widgets = len(json.loads((EVIDENCE / f"setup-{n}-snap-v6.json").read_text())["s"])
     except Exception:
         pass
     return {
@@ -143,5 +143,5 @@ if __name__ == "__main__":
             print(json.dumps(r), flush=True)
     finally:
         httpd.shutdown()
-    (EVIDENCE / "render-v3-summary.json").write_text(json.dumps(results, indent=2) + "\n")
+    (EVIDENCE / "render-v6-summary.json").write_text(json.dumps(results, indent=2) + "\n")
     print("RENDER_SETUP_DONE")

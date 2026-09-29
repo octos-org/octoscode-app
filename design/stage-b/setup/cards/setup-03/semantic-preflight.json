@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "a5e9eb2d961b4c07ad5258da42fc1d177abe644fcb91fedc2e381505dac6583c",
+  "manifest_sha256": "614180ddfeaa684aa244de1de9ba1ef6831d53b106e11be7be7704e5a74be62a",
   "reference_sha256": "33f5f3c529151411246085a86d2a91b8475ba2a7a449207b6c47eda4c636abbe",
   "id": "setup-03",
   "round": null,
@@ -13,6 +13,17 @@
   "elements": [
     {
       "id": "page",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "outer_card",
       "role": "layout",
       "basis": "authored stack node",
       "expected_widgets": [

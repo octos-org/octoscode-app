@@ -3,7 +3,7 @@
     "theme": "light",
     "placements": {
       "page": {
-        "component": "Surface62dc94dea323",
+        "component": "Surface156d085f4ff5",
         "layout": {
           "x": 0,
           "y": 0,
@@ -11,8 +11,17 @@
           "h": 776
         }
       },
+      "outer_card": {
+        "component": "Surface28a1c2e54e11",
+        "layout": {
+          "x": 10.0,
+          "y": 10.0,
+          "w": 386.0,
+          "h": 756.0
+        }
+      },
       "t_title": {
-        "component": "Text354f48ba479f",
+        "component": "Textde98fde59a53",
         "layout": {
           "x": 57.52,
           "y": 94.5,
@@ -21,7 +30,7 @@
         }
       },
       "t_pname": {
-        "component": "Text30448f4af685",
+        "component": "Textc6cd0ea2df1a",
         "layout": {
           "x": 31.52,
           "y": 156.45,
@@ -30,25 +39,25 @@
         }
       },
       "profile": {
-        "component": "Surfaceee8deb5316fb",
+        "component": "Surface382f80774fa6",
         "layout": {
-          "x": 32.0,
-          "y": 187.0,
-          "w": 306.0,
-          "h": 56.0
+          "x": 46.0,
+          "y": 193.16,
+          "w": 314.0,
+          "h": 44.55
         }
       },
       "profile_field": {
         "component": "Input79296ad18745",
         "layout": {
-          "x": 45.643,
-          "y": 202.084,
-          "w": 278.713,
-          "h": 28.283
+          "x": 60.0,
+          "y": 205.16,
+          "w": 286.0,
+          "h": 22.5
         }
       },
       "t_provider": {
-        "component": "Text5cf6225e7834",
+        "component": "Textc6cd0ea2df1a",
         "layout": {
           "x": 31.4,
           "y": 280.19,
@@ -57,7 +66,7 @@
         }
       },
       "provider_deepseek": {
-        "component": "Surface5e06c9b428ce",
+        "component": "Surfaced4707dd25870",
         "layout": {
           "x": 46.0,
           "y": 320.48,
@@ -68,7 +77,7 @@
       "radio_deepseek": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 60.0,
+          "x": 62.0,
           "y": 331.24,
           "w": 20.0,
           "h": 20.0,
@@ -76,16 +85,16 @@
         }
       },
       "t_prov_deepseek": {
-        "component": "Text5845c2b38043",
+        "component": "Textb5929a1e0eb3",
         "layout": {
-          "x": 72.18,
+          "x": 92.0,
           "y": 330.48,
-          "w": 184.96,
+          "w": 250.0,
           "h": 21.52
         }
       },
       "provider_kimi": {
-        "component": "Surface5e06c9b428ce",
+        "component": "Surface409a8dfb0311",
         "layout": {
           "x": 46.0,
           "y": 371.49,
@@ -96,7 +105,7 @@
       "radio_kimi": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 60.0,
+          "x": 62.0,
           "y": 383.64,
           "w": 20.0,
           "h": 20.0,
@@ -104,16 +113,16 @@
         }
       },
       "t_prov_kimi": {
-        "component": "Text2f665e198ea4",
+        "component": "Text2873159a6d77",
         "layout": {
-          "x": 72.04,
+          "x": 92.0,
           "y": 381.49,
-          "w": 134.49,
+          "w": 250.0,
           "h": 24.29
         }
       },
       "provider_glm": {
-        "component": "Surface5e06c9b428ce",
+        "component": "Surface409a8dfb0311",
         "layout": {
           "x": 46.0,
           "y": 425.9,
@@ -124,7 +133,7 @@
       "radio_glm": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 60.0,
+          "x": 62.0,
           "y": 437.78,
           "w": 20.0,
           "h": 20.0,
@@ -132,16 +141,16 @@
         }
       },
       "t_prov_glm": {
-        "component": "Text53fce0316d7d",
+        "component": "Text869ee9b954f6",
         "layout": {
-          "x": 72.08,
+          "x": 92.0,
           "y": 435.9,
-          "w": 137.78,
+          "w": 250.0,
           "h": 23.75
         }
       },
       "t_apikey": {
-        "component": "Textf103ebe4f6cf",
+        "component": "Text46862cf853be",
         "layout": {
           "x": 30.45,
           "y": 498.5,
@@ -150,35 +159,35 @@
         }
       },
       "apikey": {
-        "component": "Surfacefc9e30cb0ef8",
+        "component": "Surface382f80774fa6",
         "layout": {
-          "x": 32.0,
-          "y": 531.0,
-          "w": 306.0,
-          "h": 54.0
+          "x": 46.0,
+          "y": 541.8,
+          "w": 314.0,
+          "h": 33.02
         }
       },
       "apikey_field": {
         "component": "Inputb47d265fdc33",
         "layout": {
-          "x": 45.643,
-          "y": 550.624,
-          "w": 278.713,
-          "h": 36.796
+          "x": 60.0,
+          "y": 553.8,
+          "w": 286.0,
+          "h": 22.5
         }
       },
       "apikey_eye": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 306.815,
-          "y": 541.646,
-          "w": 19.49,
-          "h": 32.707,
+          "x": 328.0,
+          "y": 548.31,
+          "w": 20.0,
+          "h": 20.0,
           "src": "http://127.0.0.1:8170/ux-images/setup-03/assets/apikey_eye-edb457c4d419.svg"
         }
       },
       "t_keyhint": {
-        "component": "Textd525be2d0937",
+        "component": "Text1ecea821a1dd",
         "layout": {
           "x": 31.58,
           "y": 603.43,
@@ -189,28 +198,28 @@
       "create_profile": {
         "component": "KitButton2c6804b990a5",
         "layout": {
-          "x": 30.0,
-          "y": 669.0,
-          "w": 309.0,
-          "h": 61.0
+          "x": 104.18,
+          "y": 680.28,
+          "w": 160.42,
+          "h": 45.94
         }
       },
       "create_profile_surface": {
-        "component": "Surfaceac6629ccf47a",
+        "component": "Surface8d834e17f854",
         "layout": {
-          "x": 30.0,
-          "y": 669.0,
-          "w": 309.0,
-          "h": 61.0
+          "x": 104.18,
+          "y": 680.28,
+          "w": 160.42,
+          "h": 45.94
         }
       },
       "create_profile_control": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 30.0,
-          "y": 669.0,
-          "w": 309.0,
-          "h": 61.0
+          "x": 104.18,
+          "y": 680.28,
+          "w": 160.42,
+          "h": 45.94
         }
       },
       "create_profile_label": {

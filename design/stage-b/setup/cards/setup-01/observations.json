@@ -215,6 +215,19 @@
       "bg": 4293981682
     },
     {
+      "id": "outer_card",
+      "bounds": [
+        17.0,
+        35.0,
+        372.0,
+        738.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.49
+    },
+    {
       "id": "server",
       "bounds": [
         48.0,
@@ -265,10 +278,10 @@
     {
       "id": "connect",
       "bounds": [
-        137.78,
-        565.43,
-        124.79,
-        43.3
+        140.145,
+        577.205,
+        120.264,
+        42.269
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -276,23 +289,23 @@
     {
       "id": "connect_surface",
       "bounds": [
-        137.78,
-        565.43,
-        124.79,
-        43.3
+        140.145,
+        577.205,
+        120.264,
+        42.269
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
       "bg": 4279243025,
-      "radius": 21.65
+      "radius": 21.13
     },
     {
       "id": "connect_control",
       "bounds": [
-        137.78,
-        565.43,
-        124.79,
-        43.3
+        140.145,
+        577.205,
+        120.264,
+        42.269
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false

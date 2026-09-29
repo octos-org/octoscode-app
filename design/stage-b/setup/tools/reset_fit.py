@@ -29,25 +29,38 @@ for d in sorted(ROOT.glob("setup-*")):
     mapped = d / "mapped.json"
     if not (contract.exists() and mapped.exists()):
         continue
-    authored = {n["id"]: n for n in walk(json.loads(contract.read_text())["tree"])
-                if n["t"] == "text"}
+    authored = {n["id"]: n for n in walk(json.loads(contract.read_text())["tree"])}
     tree = json.loads(mapped.read_text())
     hit = 0
     for n in walk(tree["tree"]):
-        if n["t"] != "text":
-            continue
         a = authored.get(n["id"])
         if not a:
             continue
-        # restore the FULL authored box + typography: map also rewrites h/x/y
-        # (leaving h behind made boxes shorter than their line box and
-        # preflight fails with "text box height ... is under its line box").
-        for k in ("x", "y", "w", "h", "size", "line_height"):
-            if k in a and n.get(k) != a[k]:
-                n[k] = a[k]
-                hit += 1
-        for k in FIT_KEYS:
-            n.pop(k, None)
+        if n["t"] == "text":
+            # fit's SIZE was right (the reference glyph box ≈ the font size); the
+            # poison was tracking ±3-4 and drifting line boxes (the v2 ghosting).
+            # So: keep the fit size (clamped), keep the authored geometry, and
+            # restate line_height/h from the size invariant so preflight's
+            # box>=line-box check holds while the glyphs grow to match the target.
+            fit = n.get("size")
+            size = fit if isinstance(fit, (int, float)) and 12 <= fit <= 28 else a.get("size", fit)
+            n["size"] = size
+            lh = max(float(size) * 1.5, float(a.get("line_height") or 0))
+            n["line_height"] = lh
+            n["h"] = max(float(a.get("h") or 0), lh)
+            for k in ("x", "y", "w"):
+                if k in a:
+                    n[k] = a[k]
+            for k in FIT_KEYS:
+                n.pop(k, None)
+            hit += 1
+        else:
+            # map's median sampling repaints surface fills (the grey #F0F5F2
+            # page bug): restore every authored paint/geometry field.
+            for k in ("x", "y", "w", "h", "color", "bg", "radius", "border", "bordercolor"):
+                if k in a and n.get(k) != a[k]:
+                    n[k] = a[k]
+                    hit += 1
     if hit:
         mapped.write_text(json.dumps(tree, indent=2) + "\n")
         changed += 1

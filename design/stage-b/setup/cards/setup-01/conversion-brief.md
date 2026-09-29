@@ -34,6 +34,17 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "outer_card",
+    "x": 10.0,
+    "y": 10.0,
+    "w": 386.0,
+    "h": 756.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "t_title",
     "x": 78.94,
     "y": 102.5,
@@ -125,7 +136,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 355.29,
     "w": 286.0,
     "h": 22.5,
-    "text": "\u2022",
+    "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 15,
     "weight": 400,

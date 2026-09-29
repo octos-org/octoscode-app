@@ -1,12 +1,19 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "0beed57509e6a902aba4526c48f4684fb5037ea3e688270817960ca9cd380a29",
+  "contract_sha256": "e7686342c42ba304008b232ce3ca7997729bf606f12ecced0cd76bd1cefb9801",
   "reference_sha256": "d98822b963f51fdc9fd89328834d8f255a4e29d07a1b0a079117e8829024d440",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
     {
       "id": "page",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "outer_card",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
@@ -114,6 +121,20 @@
       "id": "t_seg2",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "segdiv1",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "segdiv2",
+      "role": "layout",
+      "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },

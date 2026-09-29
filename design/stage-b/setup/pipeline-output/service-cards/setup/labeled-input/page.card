@@ -1,0 +1,20 @@
+# ledger labeled-input@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy server_field_text { class: user-copy, en: "http://127.0.0.1:50190" }
+copy server_field_placeholder { class: user-copy, en: "" }
+state server_field_enabled { shape: bool, initial: true }
+component Surface382f80774fa6(instance: text) {
+  view Kit(component: "Surface382f80774fa6", instance: instance) { slot }
+}
+component Input79296ad18745(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Input79296ad18745", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+}
+
+view root Surface382f80774fa6(instance: "server") {
+  Input79296ad18745(instance: "server_field", text: copy.server_field_text, placeholder: copy.server_field_placeholder, enabled: server_field_enabled) {
+
+  }
+}

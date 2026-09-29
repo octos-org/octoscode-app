@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "provider_deepseek",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surfaced4707dd25870",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        314.0,
+        41.52
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "radio_deepseek",
+      "native_id": "beauty_0_0",
+      "parent": "provider_deepseek",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        16.0,
+        10.759999999999991,
+        20.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_prov_deepseek",
+      "native_id": "beauty_0_1",
+      "parent": "provider_deepseek",
+      "kind": "text",
+      "component": "Textb5929a1e0eb3",
+      "semantic_role": "text",
+      "bounds": [
+        46.0,
+        10.0,
+        250.0,
+        21.52
+      ],
+      "text": "DeepSeek \u2022 Official API",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 14
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
+  },
+  "contract_sha256": "502c12498e73c25a66b176b314f6c00d47f61c76a0a6fad439373725c18dbc90",
+  "mapping_basis": "mapped.json"
+}

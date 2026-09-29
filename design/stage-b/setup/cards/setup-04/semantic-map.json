@@ -1,12 +1,19 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "f87004701508871d8d2e1109e8e1c176bec7caf4791c13edbfa616de06ac165c",
+  "contract_sha256": "ea3d7710a023088f56ab39af1087edf49767afdfe50aff1830a2234e2fc0cf84",
   "reference_sha256": "adeccfea7aa57e90e193de92bd3169cbeddc4a856364fee2a74faf6c3e23c995",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
     {
       "id": "page",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "outer_card",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
@@ -20,16 +27,32 @@
       "decision": "declared"
     },
     {
-      "id": "t_sfolder",
-      "role": "text",
-      "basis": "authored text node",
+      "id": "folder",
+      "role": "layout",
+      "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "folder",
-      "role": "layout",
-      "basis": "authored stack node",
+      "id": "folder_icon",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/folder_icon.svg",
+        "sha256": "cba5fa12f954048a4d2c879f71b5152be7265e37826fa7bb61010e762895754f",
+        "method": "reference_svg",
+        "reference_sha256": "adeccfea7aa57e90e193de92bd3169cbeddc4a856364fee2a74faf6c3e23c995",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "t_sfolder",
+      "role": "text",
+      "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -53,7 +76,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/folder_chev.svg",
-        "sha256": "a742d013f8749957ad814680e16e2b20f48758592c8865be385020b662bbab72",
+        "sha256": "23070b5e0c3afc8dc164ef95e45af0627d4fb486a49963a9dbbf0839430dbf89",
         "method": "reference_svg",
         "reference_sha256": "adeccfea7aa57e90e193de92bd3169cbeddc4a856364fee2a74faf6c3e23c995",
         "fit": "stretch",
@@ -62,14 +85,7 @@
       }
     },
     {
-      "id": "t_recent",
-      "role": "text",
-      "basis": "authored text node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "ws_row0",
+      "id": "recent_group",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
@@ -83,7 +99,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/ws_icon0.svg",
-        "sha256": "6f966f5e36261e97955f332dd39435bf4e396c49b698ca38327a645472c2aa60",
+        "sha256": "cba5fa12f954048a4d2c879f71b5152be7265e37826fa7bb61010e762895754f",
         "method": "reference_svg",
         "reference_sha256": "adeccfea7aa57e90e193de92bd3169cbeddc4a856364fee2a74faf6c3e23c995",
         "fit": "stretch",
@@ -106,7 +122,7 @@
       "decision": "declared"
     },
     {
-      "id": "ws_row1",
+      "id": "hair_ws1",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
@@ -120,7 +136,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/ws_icon1.svg",
-        "sha256": "6f966f5e36261e97955f332dd39435bf4e396c49b698ca38327a645472c2aa60",
+        "sha256": "cba5fa12f954048a4d2c879f71b5152be7265e37826fa7bb61010e762895754f",
         "method": "reference_svg",
         "reference_sha256": "adeccfea7aa57e90e193de92bd3169cbeddc4a856364fee2a74faf6c3e23c995",
         "fit": "stretch",
@@ -143,7 +159,7 @@
       "decision": "declared"
     },
     {
-      "id": "ws_row2",
+      "id": "hair_ws2",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
@@ -157,7 +173,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/ws_icon2.svg",
-        "sha256": "6f966f5e36261e97955f332dd39435bf4e396c49b698ca38327a645472c2aa60",
+        "sha256": "cba5fa12f954048a4d2c879f71b5152be7265e37826fa7bb61010e762895754f",
         "method": "reference_svg",
         "reference_sha256": "adeccfea7aa57e90e193de92bd3169cbeddc4a856364fee2a74faf6c3e23c995",
         "fit": "stretch",
@@ -180,7 +196,7 @@
       "decision": "declared"
     },
     {
-      "id": "ws_row3",
+      "id": "hair_ws3",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
@@ -194,7 +210,7 @@
       "decision": "reviewed",
       "asset": {
         "path": "assets/ws_icon3.svg",
-        "sha256": "6f966f5e36261e97955f332dd39435bf4e396c49b698ca38327a645472c2aa60",
+        "sha256": "cba5fa12f954048a4d2c879f71b5152be7265e37826fa7bb61010e762895754f",
         "method": "reference_svg",
         "reference_sha256": "adeccfea7aa57e90e193de92bd3169cbeddc4a856364fee2a74faf6c3e23c995",
         "fit": "stretch",
@@ -245,28 +261,7 @@
       "decision": "declared"
     },
     {
-      "id": "new_folder",
-      "role": "button",
-      "basis": "authored KitButton composition",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "new_folder_surface",
-      "role": "layout",
-      "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "new_folder_control",
-      "role": "button",
-      "basis": "authored button node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "new_folder_label",
+      "id": "t_newfolder",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,

@@ -2,8 +2,8 @@
   "schema_version": 1,
   "theme": "light",
   "tokens": {
-    "bg_0ffa744e1b9f": {
-      "value": 4293981682,
+    "bg_f807212b6748": {
+      "value": 4294967295,
       "property": "bg"
     },
     "size_4ec9599fc203": {
@@ -18,8 +18,8 @@
       "value": 600,
       "property": "weight"
     },
-    "color_c7415cc0c586": {
-      "value": 4287454255,
+    "color_e0ccdd36059a": {
+      "value": 4280098079,
       "property": "color"
     },
     "font_src_a9a389fb1fcc": {
@@ -38,10 +38,6 @@
       "value": 400,
       "property": "weight"
     },
-    "color_c43aba66bfa1": {
-      "value": 4279176975,
-      "property": "color"
-    },
     "font_src_86ab34a300f7": {
       "value": "self:resources/ux/Inter-400.ttf",
       "property": "font_src"
@@ -49,25 +45,21 @@
     "line_height_e4658389f3e9": {
       "value": 21.0,
       "property": "line_height"
-    },
-    "color_7691bd220431": {
-      "value": 4286677379,
-      "property": "color"
     }
   },
   "components": {
-    "Surface991755d1cfb2": {
+    "Surface156d085f4ff5": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_0ffa744e1b9f"
+          "$token": "bg_f807212b6748"
         }
       },
       "props": {},
       "slot": true
     },
-    "Textfb1d54978e9d": {
+    "Textfe0b97eafab5": {
       "style": {
         "t": "text",
         "size": {
@@ -80,7 +72,7 @@
           "$token": "weight_284b7e6d788f"
         },
         "color": {
-          "$token": "color_c7415cc0c586"
+          "$token": "color_e0ccdd36059a"
         },
         "variant": "single_line",
         "alignx": 0,
@@ -93,7 +85,7 @@
       },
       "slot": false
     },
-    "Text3b0c706d6edf": {
+    "Texta696e2ef078d": {
       "style": {
         "t": "text",
         "size": {
@@ -106,7 +98,7 @@
           "$token": "weight_26d228663f13"
         },
         "color": {
-          "$token": "color_c43aba66bfa1"
+          "$token": "color_e0ccdd36059a"
         },
         "variant": "single_line",
         "alignx": 0,
@@ -119,7 +111,7 @@
       },
       "slot": false
     },
-    "Text23269b208f3f": {
+    "Text840a7f555cd2": {
       "style": {
         "t": "text",
         "size": {
@@ -132,7 +124,7 @@
           "$token": "weight_26d228663f13"
         },
         "color": {
-          "$token": "color_7691bd220431"
+          "$token": "color_e0ccdd36059a"
         },
         "variant": "single_line",
         "alignx": 0,

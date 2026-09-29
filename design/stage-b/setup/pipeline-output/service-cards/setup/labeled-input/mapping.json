@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "server",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface382f80774fa6",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        314.0,
+        44.3
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "server_field",
+      "native_id": "beauty_0_0",
+      "parent": "server",
+      "kind": "input",
+      "component": "Input79296ad18745",
+      "semantic_role": "input",
+      "bounds": [
+        14.0,
+        12.0,
+        286.0,
+        22.5
+      ],
+      "text": "http://127.0.0.1:50190",
+      "enabled": 1,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "944a67b3893ae870d0ee51258a9f89ad60df758ca9880037a0cfd46f6703a44b",
+  "mapping_basis": "mapped.json"
+}

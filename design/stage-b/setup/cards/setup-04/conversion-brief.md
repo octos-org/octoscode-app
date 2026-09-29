@@ -34,6 +34,17 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "outer_card",
+    "x": 10.0,
+    "y": 10.0,
+    "w": 386.0,
+    "h": 756.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "t_title",
     "x": 78.94,
     "y": 80.0,
@@ -50,15 +61,35 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "folder",
+    "x": 46.0,
+    "y": 136.85,
+    "w": 314.0,
+    "h": 72.93,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "folder_icon",
+    "x": 62.0,
+    "y": 149.6,
+    "w": 20.0,
+    "h": 20.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
     "id": "t_sfolder",
-    "x": 98.07,
+    "x": 92.0,
     "y": 150.85,
-    "w": 98.21,
+    "w": 200.0,
     "h": 21.0,
     "text": "Server folder",
-    "font_src": "self:resources/ux/Inter-400.ttf",
+    "font_src": "self:resources/ux/Inter-500.ttf",
     "size": 14,
-    "weight": 400,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -66,21 +97,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "folder",
-    "x": 46.0,
-    "y": 166.94,
-    "w": 314.0,
-    "h": 42.85,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
-  },
-  {
     "id": "folder_field",
-    "x": 60.0,
+    "x": 92.0,
     "y": 178.94,
-    "w": 286.0,
+    "w": 200.0,
     "h": 22.5,
     "text": "~/home/octos",
     "font_src": "self:resources/ux/Inter-400.ttf",
@@ -94,35 +114,19 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "folder_chev",
-    "x": 330.0,
-    "y": 178.36,
-    "w": 20.0,
-    "h": 20.0,
+    "x": 334.0,
+    "y": 164.32,
+    "w": 18.0,
+    "h": 18.0,
     "role": "unknown",
     "native_candidates": []
   },
   {
-    "id": "t_recent",
-    "x": 30.45,
-    "y": 243.63,
-    "w": 56.39,
-    "h": 22.5,
-    "text": "Recent",
-    "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 15,
-    "weight": 600,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "ws_row0",
+    "id": "recent_group",
     "x": 46.0,
-    "y": 281.0,
+    "y": 277.0,
     "w": 314.0,
-    "h": 57.11,
+    "h": 290.8,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -156,7 +160,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "t_ws0_path",
     "x": 94.73,
-    "y": 308.79,
+    "y": 314.05,
     "w": 240.0,
     "h": 19.31,
     "text": "~/home/octos",
@@ -170,11 +174,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "ws_row1",
-    "x": 46.0,
-    "y": 351.49,
-    "w": 314.0,
-    "h": 62.6,
+    "id": "hair_ws1",
+    "x": 58.0,
+    "y": 347.43,
+    "w": 290.0,
+    "h": 1.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -208,7 +212,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "t_ws1_path",
     "x": 94.64,
-    "y": 384.92,
+    "y": 388.0,
     "w": 240.0,
     "h": 19.17,
     "text": "~/home/octos/octoscode-app",
@@ -222,11 +226,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "ws_row2",
-    "x": 46.0,
-    "y": 425.37,
-    "w": 314.0,
-    "h": 58.09,
+    "id": "hair_ws2",
+    "x": 58.0,
+    "y": 421.27,
+    "w": 290.0,
+    "h": 1.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -260,7 +264,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "t_ws2_path",
     "x": 93.61,
-    "y": 455.42,
+    "y": 461.31,
     "w": 240.0,
     "h": 18.05,
     "text": "~/home/octos/robrix2",
@@ -274,11 +278,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "ws_row3",
-    "x": 46.0,
-    "y": 499.35,
-    "w": 314.0,
-    "h": 57.9,
+    "id": "hair_ws3",
+    "x": 58.0,
+    "y": 494.35,
+    "w": 290.0,
+    "h": 1.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -312,7 +316,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "t_ws3_path",
     "x": 94.64,
-    "y": 529.2,
+    "y": 535.76,
     "w": 240.0,
     "h": 18.05,
     "text": "~/home/octos/octos-web",
@@ -377,50 +381,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "new_folder",
-    "x": 121.1,
-    "y": 666.5,
-    "w": 134.48,
-    "h": 39.5,
-    "role": "button",
-    "native_candidates": [
-      "Button",
-      "KitButton"
-    ]
-  },
-  {
-    "id": "new_folder_surface",
-    "x": 121.1,
-    "y": 666.5,
-    "w": 134.48,
-    "h": 39.5,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
-  },
-  {
-    "id": "new_folder_control",
-    "x": 121.1,
-    "y": 666.5,
-    "w": 134.48,
-    "h": 39.5,
-    "role": "button",
-    "native_candidates": [
-      "Button",
-      "KitButton"
-    ]
-  },
-  {
-    "id": "new_folder_label",
+    "id": "t_newfolder",
     "x": 142.1,
     "y": 676.5,
     "w": 92.48,
-    "h": 19.5,
+    "h": 21.0,
     "text": "New folder",
-    "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 13.0,
-    "weight": 600,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",

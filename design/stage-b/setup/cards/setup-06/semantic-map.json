@@ -1,12 +1,19 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "bd9800b942f5990910506651e985001ce1f08016bddbf2707adf63327722dcee",
+  "contract_sha256": "b797960a762a3d781e3e0514b7d206cfc600b6dd759f2a91212d8a9d9d2e1afd",
   "reference_sha256": "3d7b4292eea6e581bb223e6bd810ed674773028569a9096115b2b3131ab844f0",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
     {
       "id": "page",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "outer_card",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
@@ -48,11 +55,20 @@
       "decision": "declared"
     },
     {
-      "id": "hair_g1_0",
-      "role": "layout",
-      "basis": "authored stack node",
+      "id": "chev_g1_r0",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
       "confidence": 1.0,
-      "decision": "declared"
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/chev_g1_r0.svg",
+        "sha256": "23070b5e0c3afc8dc164ef95e45af0627d4fb486a49963a9dbbf0839430dbf89",
+        "method": "reference_svg",
+        "reference_sha256": "3d7b4292eea6e581bb223e6bd810ed674773028569a9096115b2b3131ab844f0",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
     },
     {
       "id": "t_g1_r1",
@@ -120,6 +136,13 @@
         "clip": true,
         "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
       }
+    },
+    {
+      "id": "hair_g1_2",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
     },
     {
       "id": "group2",

@@ -343,6 +343,19 @@
       "bg": 4293981682
     },
     {
+      "id": "outer_card",
+      "bounds": [
+        13.0,
+        36.0,
+        380.0,
+        737.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.78
+    },
+    {
       "id": "group1",
       "bounds": [
         32.0,
@@ -368,14 +381,14 @@
       "radius": 3.87
     },
     {
-      "id": "hair_g1_0",
+      "id": "chev_g1_r0",
       "bounds": [
-        47.497,
-        107.003,
-        308.006,
-        1.102
+        330.969,
+        147.658,
+        15.497,
+        17.633
       ],
-      "method": "surface contour unresolved; requested geometry retained",
+      "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
     },
     {
@@ -393,7 +406,7 @@
       "id": "hair_g1_1",
       "bounds": [
         47.497,
-        184.653,
+        195.089,
         308.006,
         1.102
       ],
@@ -409,6 +422,17 @@
         17.633
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "hair_g1_2",
+      "bounds": [
+        47.497,
+        274.844,
+        308.006,
+        1.102
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false
     },
     {

@@ -3,7 +3,7 @@
     "theme": "light",
     "placements": {
       "page": {
-        "component": "Surface991755d1cfb2",
+        "component": "Surface156d085f4ff5",
         "layout": {
           "x": 0,
           "y": 0,
@@ -12,7 +12,7 @@
         }
       },
       "t00": {
-        "component": "Textfb1d54978e9d",
+        "component": "Textfe0b97eafab5",
         "layout": {
           "x": 42.86,
           "y": 31.5,
@@ -21,7 +21,7 @@
         }
       },
       "t01": {
-        "component": "Text3b0c706d6edf",
+        "component": "Texta696e2ef078d",
         "layout": {
           "x": 109.17,
           "y": 509.45,
@@ -30,7 +30,7 @@
         }
       },
       "t02": {
-        "component": "Text23269b208f3f",
+        "component": "Text840a7f555cd2",
         "layout": {
           "x": 159.02,
           "y": 570.72,

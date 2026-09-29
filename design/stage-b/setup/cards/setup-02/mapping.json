@@ -6,7 +6,7 @@
       "native_id": "beauty_0",
       "parent": null,
       "kind": "stack",
-      "component": "Surface991755d1cfb2",
+      "component": "Surface156d085f4ff5",
       "semantic_role": "layout",
       "bounds": [
         0,
@@ -20,11 +20,29 @@
       "size": null
     },
     {
-      "source_id": "t_title",
+      "source_id": "outer_card",
       "native_id": "beauty_0_0",
       "parent": "page",
+      "kind": "stack",
+      "component": "Surface28a1c2e54e11",
+      "semantic_role": "layout",
+      "bounds": [
+        10.0,
+        10.0,
+        386.0,
+        756.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_title",
+      "native_id": "beauty_0_0_0",
+      "parent": "outer_card",
       "kind": "text",
-      "component": "Textaefc4a0ae779",
+      "component": "Textd66023eede35",
       "semantic_role": "text",
       "bounds": [
         82.33,
@@ -39,10 +57,10 @@
     },
     {
       "source_id": "t_server",
-      "native_id": "beauty_0_1",
-      "parent": "page",
+      "native_id": "beauty_0_0_1",
+      "parent": "outer_card",
       "kind": "text",
-      "component": "Text7d708cf6afb5",
+      "component": "Textc6cd0ea2df1a",
       "semantic_role": "text",
       "bounds": [
         48.49,
@@ -57,16 +75,16 @@
     },
     {
       "source_id": "server",
-      "native_id": "beauty_0_2",
-      "parent": "page",
+      "native_id": "beauty_0_0_2",
+      "parent": "outer_card",
       "kind": "stack",
-      "component": "Surface22a941a90d6f",
+      "component": "Surface382f80774fa6",
       "semantic_role": "layout",
       "bounds": [
-        48.0,
-        207.0,
-        309.0,
-        53.0
+        46.0,
+        213.58,
+        314.0,
+        45.43
       ],
       "text": null,
       "enabled": null,
@@ -75,16 +93,16 @@
     },
     {
       "source_id": "server_field",
-      "native_id": "beauty_0_2_0",
+      "native_id": "beauty_0_0_2_0",
       "parent": "server",
       "kind": "input",
       "component": "Input79296ad18745",
       "semantic_role": "input",
       "bounds": [
-        61.777,
-        221.0,
-        281.446,
-        26.249
+        60.0,
+        225.58,
+        286.0,
+        22.5
       ],
       "text": "http://127.0.0.1:50190",
       "enabled": 1,
@@ -93,10 +111,10 @@
     },
     {
       "source_id": "t_token",
-      "native_id": "beauty_0_3",
-      "parent": "page",
+      "native_id": "beauty_0_0_3",
+      "parent": "outer_card",
       "kind": "text",
-      "component": "Text31e7204bc037",
+      "component": "Textc6cd0ea2df1a",
       "semantic_role": "text",
       "bounds": [
         48.47,
@@ -111,16 +129,16 @@
     },
     {
       "source_id": "token",
-      "native_id": "beauty_0_4",
-      "parent": "page",
+      "native_id": "beauty_0_0_4",
+      "parent": "outer_card",
       "kind": "stack",
-      "component": "Surface1d6671c34bf2",
+      "component": "Surface2da59a09e281",
       "semantic_role": "layout",
       "bounds": [
-        47.0,
-        331.0,
-        310.0,
-        56.0
+        46.0,
+        344.42,
+        314.0,
+        34.15
       ],
       "text": null,
       "enabled": null,
@@ -129,34 +147,34 @@
     },
     {
       "source_id": "token_field",
-      "native_id": "beauty_0_4_0",
+      "native_id": "beauty_0_0_4_0",
       "parent": "token",
       "kind": "input",
       "component": "Input79296ad18745",
       "semantic_role": "input",
       "bounds": [
-        60.822,
-        350.678,
-        282.357,
-        36.896
+        60.0,
+        356.42,
+        286.0,
+        22.5
       ],
-      "text": "\u2022",
+      "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
       "enabled": 1,
       "font": "self:resources/ux/Inter-400.ttf",
       "size": 15
     },
     {
       "source_id": "token_eye",
-      "native_id": "beauty_0_4_1",
+      "native_id": "beauty_0_0_4_1",
       "parent": "token",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        325.408,
-        342.594,
-        19.745,
-        32.796
+        328.0,
+        351.49,
+        20.0,
+        20.0
       ],
       "text": null,
       "enabled": null,
@@ -165,10 +183,10 @@
     },
     {
       "source_id": "error_band",
-      "native_id": "beauty_0_5",
-      "parent": "page",
+      "native_id": "beauty_0_0_5",
+      "parent": "outer_card",
       "kind": "stack",
-      "component": "Surfacec9decdad0d23",
+      "component": "Surfacef547a10f859d",
       "semantic_role": "layout",
       "bounds": [
         46.0,
@@ -183,10 +201,10 @@
     },
     {
       "source_id": "t_error",
-      "native_id": "beauty_0_5_0",
+      "native_id": "beauty_0_0_5_0",
       "parent": "error_band",
       "kind": "text",
-      "component": "Textd093f84d15e5",
+      "component": "Text58cf66c80d76",
       "semantic_role": "text",
       "bounds": [
         47.37,
@@ -201,10 +219,10 @@
     },
     {
       "source_id": "t_last",
-      "native_id": "beauty_0_6",
-      "parent": "page",
+      "native_id": "beauty_0_0_6",
+      "parent": "outer_card",
       "kind": "text",
-      "component": "Text5f1204755b5b",
+      "component": "Text9153f9b81b11",
       "semantic_role": "text",
       "bounds": [
         48.49,
@@ -219,8 +237,8 @@
     },
     {
       "source_id": "retry",
-      "native_id": "beauty_0_7",
-      "parent": "page",
+      "native_id": "beauty_0_0_7",
+      "parent": "outer_card",
       "kind": "stack",
       "component": "KitButton2c6804b990a5",
       "semantic_role": "button",
@@ -237,10 +255,10 @@
     },
     {
       "source_id": "retry_surface",
-      "native_id": "beauty_0_7_0",
+      "native_id": "beauty_0_0_7_0",
       "parent": "retry",
       "kind": "stack",
-      "component": "Surface6f5cdfb4aa3f",
+      "component": "Surfaceec2e0f41be2a",
       "semantic_role": "layout",
       "bounds": [
         198.49,
@@ -255,7 +273,7 @@
     },
     {
       "source_id": "retry_control",
-      "native_id": "beauty_0_7_1",
+      "native_id": "beauty_0_0_7_1",
       "parent": "retry",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -273,7 +291,7 @@
     },
     {
       "source_id": "retry_label",
-      "native_id": "beauty_0_7_2",
+      "native_id": "beauty_0_0_7_2",
       "parent": "retry",
       "kind": "text",
       "component": "Texte7e36b0d5eb5",
@@ -291,8 +309,8 @@
     },
     {
       "source_id": "connect",
-      "native_id": "beauty_0_8",
-      "parent": "page",
+      "native_id": "beauty_0_0_8",
+      "parent": "outer_card",
       "kind": "stack",
       "component": "KitButton2c6804b990a5",
       "semantic_role": "button",
@@ -309,10 +327,10 @@
     },
     {
       "source_id": "connect_surface",
-      "native_id": "beauty_0_8_0",
+      "native_id": "beauty_0_0_8_0",
       "parent": "connect",
       "kind": "stack",
-      "component": "Surfacea1888d759809",
+      "component": "Surface8d834e17f854",
       "semantic_role": "layout",
       "bounds": [
         138.79,
@@ -327,7 +345,7 @@
     },
     {
       "source_id": "connect_control",
-      "native_id": "beauty_0_8_1",
+      "native_id": "beauty_0_0_8_1",
       "parent": "connect",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -345,10 +363,10 @@
     },
     {
       "source_id": "connect_label",
-      "native_id": "beauty_0_8_2",
+      "native_id": "beauty_0_0_8_2",
       "parent": "connect",
       "kind": "text",
-      "component": "Textb034b0fd19fd",
+      "component": "Text30f12eee0685",
       "semantic_role": "text",
       "bounds": [
         159.79,
@@ -363,10 +381,10 @@
     },
     {
       "source_id": "t_local",
-      "native_id": "beauty_0_9",
-      "parent": "page",
+      "native_id": "beauty_0_0_9",
+      "parent": "outer_card",
       "kind": "text",
-      "component": "Text9f71da0bfe10",
+      "component": "Text17cebe08f043",
       "semantic_role": "text",
       "bounds": [
         118.42,
@@ -385,6 +403,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "f8137566a85e7afa50f4f10f6cfc8974705c3bea0bb6dc879c9f9d2efc55a177",
+  "contract_sha256": "3342b2c2baf3229253fa11d5226d9a21cc73ae72c6faea8ec49f0724b4695709",
   "mapping_basis": "mapped.json"
 }

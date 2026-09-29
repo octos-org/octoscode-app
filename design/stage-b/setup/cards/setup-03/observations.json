@@ -108,9 +108,9 @@
       "id": "t_prov_deepseek",
       "expected_text": "DeepSeek \u2022 Official API",
       "requested_bounds": [
-        72.18,
+        92.0,
         330.48,
-        184.96,
+        250.0,
         21.52
       ],
       "status": "observed",
@@ -140,9 +140,9 @@
       "id": "t_prov_kimi",
       "expected_text": "Kimi Coding Plan",
       "requested_bounds": [
-        72.04,
+        92.0,
         381.49,
-        134.49,
+        250.0,
         24.29
       ],
       "status": "observed",
@@ -172,9 +172,9 @@
       "id": "t_prov_glm",
       "expected_text": "GLM Coding Plan",
       "requested_bounds": [
-        72.08,
+        92.0,
         435.9,
-        137.78,
+        250.0,
         23.75
       ],
       "status": "observed",
@@ -311,6 +311,19 @@
       "bg": 4294835709
     },
     {
+      "id": "outer_card",
+      "bounds": [
+        5.0,
+        38.0,
+        359.0,
+        733.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 13.02
+    },
+    {
       "id": "profile",
       "bounds": [
         32.0,
@@ -337,23 +350,23 @@
     {
       "id": "provider_deepseek",
       "bounds": [
-        46.0,
-        320.48,
-        314.0,
-        41.52
+        38.482,
+        339.034,
+        292.036,
+        40.257
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
       "bg": 4294835709,
-      "radius": 10.0
+      "radius": 9.7
     },
     {
       "id": "radio_deepseek",
       "bounds": [
-        60.0,
-        331.24,
-        20.0,
-        20.0
+        53.363,
+        349.467,
+        18.601,
+        19.392
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -361,23 +374,23 @@
     {
       "id": "provider_kimi",
       "bounds": [
-        46.0,
-        371.49,
-        314.0,
-        44.29
+        38.482,
+        388.492,
+        292.036,
+        42.943
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
       "bg": 4294835709,
-      "radius": 10.0
+      "radius": 9.7
     },
     {
       "id": "radio_kimi",
       "bounds": [
-        60.0,
-        383.64,
-        20.0,
-        20.0
+        53.363,
+        400.273,
+        18.601,
+        19.392
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -385,23 +398,23 @@
     {
       "id": "provider_glm",
       "bounds": [
-        46.0,
-        425.9,
-        314.0,
-        43.75
+        38.482,
+        441.247,
+        292.036,
+        42.419
       ],
       "method": "surface contour unresolved; requested geometry retained",
       "reviewed": false,
-      "bg": 4294835709,
-      "radius": 10.0
+      "bg": 4294901246,
+      "radius": 9.7
     },
     {
       "id": "radio_glm",
       "bounds": [
-        60.0,
-        437.78,
-        20.0,
-        20.0
+        53.363,
+        452.766,
+        18.601,
+        19.392
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false

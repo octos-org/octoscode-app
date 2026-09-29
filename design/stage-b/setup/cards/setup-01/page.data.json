@@ -3,7 +3,7 @@
     "theme": "light",
     "placements": {
       "page": {
-        "component": "Surface991755d1cfb2",
+        "component": "Surface156d085f4ff5",
         "layout": {
           "x": 0,
           "y": 0,
@@ -11,8 +11,17 @@
           "h": 776
         }
       },
+      "outer_card": {
+        "component": "Surface28a1c2e54e11",
+        "layout": {
+          "x": 10.0,
+          "y": 10.0,
+          "w": 386.0,
+          "h": 756.0
+        }
+      },
       "t_title": {
-        "component": "Textaefc4a0ae779",
+        "component": "Textd66023eede35",
         "layout": {
           "x": 78.94,
           "y": 102.5,
@@ -21,7 +30,7 @@
         }
       },
       "t_server": {
-        "component": "Text0c5385e30673",
+        "component": "Textc6cd0ea2df1a",
         "layout": {
           "x": 47.3,
           "y": 175.76,
@@ -30,25 +39,25 @@
         }
       },
       "server": {
-        "component": "Surface3edf36de2935",
+        "component": "Surface382f80774fa6",
         "layout": {
-          "x": 48.0,
-          "y": 207.0,
-          "w": 309.0,
-          "h": 53.0
+          "x": 46.0,
+          "y": 213.58,
+          "w": 314.0,
+          "h": 44.3
         }
       },
       "server_field": {
         "component": "Input79296ad18745",
         "layout": {
-          "x": 61.777,
-          "y": 221.357,
-          "w": 281.446,
-          "h": 26.919
+          "x": 60.0,
+          "y": 225.58,
+          "w": 286.0,
+          "h": 22.5
         }
       },
       "t_token": {
-        "component": "Textfe875f1c03b4",
+        "component": "Textc6cd0ea2df1a",
         "layout": {
           "x": 48.45,
           "y": 299.77,
@@ -57,25 +66,25 @@
         }
       },
       "token": {
-        "component": "Surface1d6671c34bf2",
+        "component": "Surface382f80774fa6",
         "layout": {
-          "x": 48.0,
-          "y": 331.0,
-          "w": 310.0,
-          "h": 56.0
+          "x": 46.0,
+          "y": 343.29,
+          "w": 314.0,
+          "h": 34.15
         }
       },
       "token_field": {
         "component": "Input79296ad18745",
         "layout": {
-          "x": 61.822,
-          "y": 350.678,
-          "w": 282.357,
-          "h": 36.896
+          "x": 60.0,
+          "y": 355.29,
+          "w": 286.0,
+          "h": 22.5
         }
       },
       "t_hint": {
-        "component": "Text157fd7b9a442",
+        "component": "Text0c2e2a4f4b4f",
         "layout": {
           "x": 47.14,
           "y": 403.53,
@@ -93,7 +102,7 @@
         }
       },
       "connect_surface": {
-        "component": "Surface28b22817b9b2",
+        "component": "Surface8d834e17f854",
         "layout": {
           "x": 137.78,
           "y": 565.43,
@@ -111,7 +120,7 @@
         }
       },
       "connect_label": {
-        "component": "Text12adfdd2d299",
+        "component": "Text67189f9f4343",
         "layout": {
           "x": 158.78,
           "y": 575.43,
@@ -120,7 +129,7 @@
         }
       },
       "t_local": {
-        "component": "Textcae59d14e7c1",
+        "component": "Text17cebe08f043",
         "layout": {
           "x": 118.42,
           "y": 662.0,
