@@ -1,0 +1,201 @@
+{
+  "card": "#21b",
+  "fix": "to_makepad_ui_in_slot (parent-relative lowering) + beauty-style mount",
+  "commit": "0ca46f2",
+  "captures": {
+    "final1280": {
+      "window": 1280,
+      "roots": {
+        "user-bubble": [
+          300,
+          219,
+          284,
+          56
+        ],
+        "assistant-prose": [
+          300,
+          303,
+          356,
+          56
+        ],
+        "worked-for": [
+          300,
+          388,
+          374,
+          41
+        ],
+        "answer-actions": null,
+        "composer": [
+          300,
+          435,
+          374,
+          190
+        ],
+        "thread-row": [
+          72,
+          252,
+          216,
+          34
+        ]
+      },
+      "slot_ink": {
+        "total_dark_lt120": 42497,
+        "per_splash": {
+          "thread_splash": [
+            {
+              "rect": [
+                72,
+                252,
+                216,
+                34
+              ],
+              "min": 13,
+              "dark_lt120": 55
+            }
+          ],
+          "item_splash": [
+            {
+              "rect": [
+                300,
+                303,
+                518,
+                56
+              ],
+              "min": 61,
+              "dark_lt120": 2876
+            },
+            {
+              "rect": [
+                300,
+                219,
+                518,
+                56
+              ],
+              "min": 2,
+              "dark_lt120": 31525
+            },
+            {
+              "rect": [
+                300,
+                388,
+                518,
+                41
+              ],
+              "min": 88,
+              "dark_lt120": 929
+            }
+          ],
+          "composer_splash": [
+            {
+              "rect": [
+                300,
+                435,
+                518,
+                190
+              ],
+              "min": 3,
+              "dark_lt120": 7112
+            }
+          ]
+        }
+      }
+    },
+    "final900": {
+      "window": 900,
+      "roots": {
+        "user-bubble": [
+          300,
+          219,
+          284,
+          56
+        ],
+        "assistant-prose": [
+          300,
+          303,
+          356,
+          56
+        ],
+        "worked-for": [
+          300,
+          388,
+          374,
+          41
+        ],
+        "answer-actions": null,
+        "composer": [
+          300,
+          435,
+          374,
+          190
+        ],
+        "thread-row": [
+          72,
+          252,
+          216,
+          34
+        ]
+      },
+      "slot_ink": {
+        "total_dark_lt120": 42491,
+        "per_splash": {
+          "thread_splash": [
+            {
+              "rect": [
+                72,
+                252,
+                216,
+                34
+              ],
+              "min": 13,
+              "dark_lt120": 55
+            }
+          ],
+          "item_splash": [
+            {
+              "rect": [
+                300,
+                303,
+                404,
+                56
+              ],
+              "min": 63,
+              "dark_lt120": 2884
+            },
+            {
+              "rect": [
+                300,
+                388,
+                404,
+                41
+              ],
+              "min": 88,
+              "dark_lt120": 904
+            },
+            {
+              "rect": [
+                300,
+                219,
+                404,
+                56
+              ],
+              "min": 2,
+              "dark_lt120": 31536
+            }
+          ],
+          "composer_splash": [
+            {
+              "rect": [
+                300,
+                435,
+                404,
+                190
+              ],
+              "min": 3,
+              "dark_lt120": 7112
+            }
+          ]
+        }
+      }
+    }
+  }
+}
