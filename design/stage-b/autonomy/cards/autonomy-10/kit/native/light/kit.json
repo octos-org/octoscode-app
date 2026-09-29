@@ -58,24 +58,24 @@
       "value": 10.0,
       "property": "radius"
     },
-    "size_7d96c5add449": {
-      "value": 10.4,
+    "size_be293da5be47": {
+      "value": 13.0,
       "property": "size"
     },
-    "line_height_07218093ec97": {
-      "value": 15.2,
+    "line_height_566afbb607a8": {
+      "value": 18.0,
       "property": "line_height"
     },
     "weight_26d228663f13": {
       "value": 400,
       "property": "weight"
     },
-    "color_5e6b06fd707a": {
-      "value": 4285427315,
+    "color_e0ccdd36059a": {
+      "value": 4280098079,
       "property": "color"
     },
-    "font_src_127b81481877": {
-      "value": "self:resources/ux/LiberationMono-Regular.ttf",
+    "font_src_86ab34a300f7": {
+      "value": "self:resources/ux/Inter-400.ttf",
       "property": "font_src"
     },
     "radius_54cde7271283": {
@@ -114,10 +114,6 @@
       "value": 4287006860,
       "property": "color"
     },
-    "font_src_86ab34a300f7": {
-      "value": "self:resources/ux/Inter-400.ttf",
-      "property": "font_src"
-    },
     "size_c2a63df5b917": {
       "value": 15.28,
       "property": "size"
@@ -138,10 +134,6 @@
       "value": 24.65,
       "property": "line_height"
     },
-    "color_e0ccdd36059a": {
-      "value": 4280098079,
-      "property": "color"
-    },
     "radius_77c52f3feed5": {
       "value": 12.0,
       "property": "radius"
@@ -149,6 +141,10 @@
     "size_e629fa6598d7": {
       "value": 15,
       "property": "size"
+    },
+    "color_5e6b06fd707a": {
+      "value": 4285427315,
+      "property": "color"
     },
     "bg_75d672c0f74f": {
       "value": 4294704123,
@@ -298,25 +294,25 @@
       "props": {},
       "slot": false
     },
-    "Text9ccbe7abdc8b": {
+    "Textca908b50c827": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_7d96c5add449"
+          "$token": "size_be293da5be47"
         },
         "line_height": {
-          "$token": "line_height_07218093ec97"
+          "$token": "line_height_566afbb607a8"
         },
         "weight": {
           "$token": "weight_26d228663f13"
         },
         "color": {
-          "$token": "color_5e6b06fd707a"
+          "$token": "color_e0ccdd36059a"
         },
         "variant": "single_line",
         "alignx": 0,
         "font_src": {
-          "$token": "font_src_127b81481877"
+          "$token": "font_src_86ab34a300f7"
         },
         "tracking": {
           "$token": "tracking_8aed642bf511"

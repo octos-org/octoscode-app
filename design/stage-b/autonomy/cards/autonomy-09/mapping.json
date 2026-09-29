@@ -315,10 +315,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
+        23.0,
+        674.0,
         28.0,
-        676.0,
-        18.0,
-        24.0
+        28.0
       ],
       "text": null,
       "enabled": null,
@@ -387,10 +387,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        296.0,
-        676.0,
-        16.0,
-        26.0
+        294.0,
+        673.0,
+        20.0,
+        32.0
       ],
       "text": null,
       "enabled": null,
@@ -439,6 +439,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "6a9f03db18e7cb2444f245be36aeea974795f13757f29f14d9cb3d2d09c3b1eb",
+  "contract_sha256": "dababb85d3a1f72a1078fab2ba4667f119919fc9d50e9ab8c6ac35568af4cf42",
   "mapping_basis": "mapped.json"
 }

@@ -99,10 +99,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        24.0,
-        266.2,
-        18.0,
-        18.0
+        28.0,
+        270.0,
+        20.0,
+        20.0
       ],
       "text": null,
       "enabled": null,
@@ -114,18 +114,18 @@
       "native_id": "beauty_0_1_1",
       "parent": "tool_card",
       "kind": "text",
-      "component": "Text9ccbe7abdc8b",
+      "component": "Textca908b50c827",
       "semantic_role": "text",
       "bounds": [
         52.0,
-        281.0,
-        265.0,
-        15.2
+        279.5,
+        266.0,
+        18.0
       ],
       "text": "Read crates/octos-core/src/ui_protocol.rs",
       "enabled": null,
-      "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 10.4
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13.0
     },
     {
       "source_id": "icon_tool_done",
@@ -135,10 +135,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        356.0,
-        267.2,
-        16.0,
-        16.0
+        352.0,
+        268.0,
+        18.0,
+        18.0
       ],
       "text": null,
       "enabled": null,
@@ -262,9 +262,9 @@
       "semantic_role": "layout",
       "bounds": [
         16.0,
-        622.0,
+        608.0,
         374.0,
-        130.0
+        146.0
       ],
       "text": null,
       "enabled": null,
@@ -280,7 +280,7 @@
       "semantic_role": "input",
       "bounds": [
         26.0,
-        632.0,
+        618.0,
         300.0,
         40.0
       ],
@@ -297,10 +297,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        26.0,
-        692.0,
-        18.0,
-        24.0
+        23.0,
+        666.0,
+        28.0,
+        28.0
       ],
       "text": null,
       "enabled": null,
@@ -316,7 +316,7 @@
       "semantic_role": "layout",
       "bounds": [
         67.0,
-        690.0,
+        682.0,
         120.0,
         38.0
       ],
@@ -334,7 +334,7 @@
       "semantic_role": "text",
       "bounds": [
         71.47,
-        700.59,
+        692.0,
         105.94,
         28.2
       ],
@@ -352,7 +352,7 @@
       "semantic_role": "text",
       "bounds": [
         206.24,
-        699.79,
+        691.0,
         70.48,
         19.33
       ],
@@ -370,7 +370,7 @@
       "semantic_role": "layout",
       "bounds": [
         344.0,
-        686.0,
+        662.0,
         36.0,
         36.0
       ],
@@ -388,7 +388,7 @@
       "semantic_role": "icon",
       "bounds": [
         354.0,
-        696.0,
+        672.0,
         16.0,
         16.0
       ],
@@ -405,10 +405,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        316.0,
-        691.0,
-        15.0,
-        22.0
+        292.0,
+        665.0,
+        20.0,
+        32.0
       ],
       "text": null,
       "enabled": null,
@@ -418,10 +418,9 @@
   ],
   "fonts": {
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
-    "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
-    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
-    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242"
   },
-  "contract_sha256": "1cb95b129112b45b44cf817241ea6eb8e8a8429af5c04a2643d54358358991ac",
+  "contract_sha256": "e4f2b846876ed13ccf1d2fc2e958ac56d2143a7892bb1a7e515909ae8cec1a24",
   "mapping_basis": "mapped.json"
 }

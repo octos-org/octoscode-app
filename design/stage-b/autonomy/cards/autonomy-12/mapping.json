@@ -135,10 +135,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        356.0,
-        346.38,
-        14.0,
-        14.0
+        350.0,
+        346.0,
+        18.0,
+        18.0
       ],
       "text": null,
       "enabled": null,
@@ -189,10 +189,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        356.0,
-        420.59,
-        14.0,
-        14.0
+        350.0,
+        420.0,
+        18.0,
+        18.0
       ],
       "text": null,
       "enabled": null,
@@ -279,10 +279,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        350.0,
-        579.74,
-        20.0,
-        20.0
+        368.0,
+        574.0,
+        18.0,
+        27.0
       ],
       "text": null,
       "enabled": null,
@@ -369,7 +369,7 @@
       "component": "Text46708281856a",
       "semantic_role": "text",
       "bounds": [
-        20.49,
+        24.0,
         666.28,
         89.21,
         22.5
@@ -387,10 +387,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        346.0,
-        666.28,
-        20.0,
-        20.0
+        366.0,
+        662.0,
+        22.0,
+        29.0
       ],
       "text": null,
       "enabled": null,
@@ -402,6 +402,6 @@
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "887047c7bf314e364233e38a4a2fc01a451d139327c1b60ce11334a9a375859b",
+  "contract_sha256": "8bfb596ea12d77a65a869aca064880b4014e2d0da96a33f177dde52db1e305d0",
   "mapping_basis": "mapped.json"
 }

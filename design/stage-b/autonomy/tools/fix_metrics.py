@@ -48,7 +48,8 @@ X_OVERRIDE = {(4, "t05"): 87.5}   # conversation-04 tool_3: ">_ " is the termina
 #             (the atlas draws both runs large). Authored as two explicit nodes.
 #   07 t_undo — "Undo 9" merged the ↺ glyph into the label; fitting "Undo" into
 #             the run's 61.5px ink box pushed it to 24pt (the atlas is ~14pt).
-SIZE_KEEP = {(7, "t_undo"), (7, "t_log0"), (7, "t_log1"), (7, "t_log2"), (7, "t_log3"),
+SIZE_KEEP = {(7, "t_undo"), (7, "t_cmd"), (7, "t_done_cmd"),
+             (7, "t_log0"), (7, "t_log1"), (7, "t_log2"), (7, "t_log3"),
              (8, "t_resume"), (8, "t_confirm"), (8, "t_cancel2"),
              # #28b3: map/fix re-position these off the authored control row / card
              (9, "t_approval"), (9, "t_model"),

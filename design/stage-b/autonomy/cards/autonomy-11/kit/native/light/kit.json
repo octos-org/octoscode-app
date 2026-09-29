@@ -58,12 +58,12 @@
       "value": 11.29,
       "property": "radius"
     },
-    "size_7d96c5add449": {
-      "value": 10.4,
+    "size_be293da5be47": {
+      "value": 13.0,
       "property": "size"
     },
-    "line_height_07218093ec97": {
-      "value": 15.2,
+    "line_height_566afbb607a8": {
+      "value": 18.0,
       "property": "line_height"
     },
     "weight_26d228663f13": {
@@ -74,8 +74,8 @@
       "value": 4288190621,
       "property": "color"
     },
-    "font_src_127b81481877": {
-      "value": "self:resources/ux/LiberationMono-Regular.ttf",
+    "font_src_86ab34a300f7": {
+      "value": "self:resources/ux/Inter-400.ttf",
       "property": "font_src"
     },
     "font_asc_b1b8bea71346": {
@@ -109,10 +109,6 @@
     "bg_b76f1c863167": {
       "value": 4282006076,
       "property": "bg"
-    },
-    "font_src_86ab34a300f7": {
-      "value": "self:resources/ux/Inter-400.ttf",
-      "property": "font_src"
     },
     "bg_db263a7b8375": {
       "value": 4279572507,
@@ -270,14 +266,14 @@
       "props": {},
       "slot": false
     },
-    "Textccd543f81a7a": {
+    "Textd563609b793c": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_7d96c5add449"
+          "$token": "size_be293da5be47"
         },
         "line_height": {
-          "$token": "line_height_07218093ec97"
+          "$token": "line_height_566afbb607a8"
         },
         "weight": {
           "$token": "weight_26d228663f13"
@@ -288,7 +284,7 @@
         "variant": "single_line",
         "alignx": 0,
         "font_src": {
-          "$token": "font_src_127b81481877"
+          "$token": "font_src_86ab34a300f7"
         },
         "tracking": {
           "$token": "tracking_8aed642bf511"

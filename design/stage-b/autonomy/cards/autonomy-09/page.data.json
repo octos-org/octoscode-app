@@ -163,11 +163,11 @@
       "icon_plus": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 28.0,
-          "y": 676.0,
-          "w": 18.0,
-          "h": 24.0,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/icon_plus-e726c53afe21.svg"
+          "x": 23.0,
+          "y": 674.0,
+          "w": 28.0,
+          "h": 28.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/icon_plus-06052c31254f.svg"
         }
       },
       "approval_pill": {
@@ -200,10 +200,10 @@
       "icon_mic": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 296.0,
-          "y": 676.0,
-          "w": 16.0,
-          "h": 26.0,
+          "x": 294.0,
+          "y": 673.0,
+          "w": 20.0,
+          "h": 32.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/icon_mic-94bc5db4a153.svg"
         }
       },

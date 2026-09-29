@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "e8529798bdd7f3f64986ad061de94d6f652c57c41186c9bdc268c22dc72827b0",
+  "contract_sha256": "f8ee4e191bed9153bf6b6c9416ff4d05f14e3e868df57d9ed84eb38010f67b3a",
   "reference_sha256": "f3e6bb77e8933fe4ebe6658ca11d11aaa3bf0b23847e7a6f563d250482146c6b",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -179,6 +179,20 @@
     },
     {
       "id": "t_dur",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "done_card",
+      "role": "layout",
+      "basis": "authored layout node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_cursor",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,

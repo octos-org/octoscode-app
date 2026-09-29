@@ -28,8 +28,8 @@ component Surface5c09226d39f3(instance: text) {
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
-component Textccd543f81a7a(instance: text, text: text) {
-  view Kit(component: "Textccd543f81a7a", instance: instance, text: text)
+component Textd563609b793c(instance: text, text: text) {
+  view Kit(component: "Textd563609b793c", instance: instance, text: text)
 }
 component Surfacefc2f16a6fb9b(instance: text) {
   view Kit(component: "Surfacefc2f16a6fb9b", instance: instance) { slot }
@@ -66,7 +66,7 @@ view root Surface430cd19400f4(instance: "page") {
   }
   Surface5c09226d39f3(instance: "tool_card") {
     Vectore0a378fde04f(instance: "icon_tool")
-    Textccd543f81a7a(instance: "t_tool", text: copy.t_tool_text)
+    Textd563609b793c(instance: "t_tool", text: copy.t_tool_text)
     Vectore0a378fde04f(instance: "icon_tool_done")
   }
   Surfacefc2f16a6fb9b(instance: "answer_surface") {

@@ -68,10 +68,10 @@
       "chev_ws": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 356.0,
-          "y": 346.38,
-          "w": 14.0,
-          "h": 14.0,
+          "x": 350.0,
+          "y": 346.0,
+          "w": 18.0,
+          "h": 18.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-12/assets/chev_ws-12902545cdb5.svg"
         }
       },
@@ -96,10 +96,10 @@
       "chev_prof": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 356.0,
-          "y": 420.59,
-          "w": 14.0,
-          "h": 14.0,
+          "x": 350.0,
+          "y": 420.0,
+          "w": 18.0,
+          "h": 18.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-12/assets/chev_prof-12902545cdb5.svg"
         }
       },
@@ -142,11 +142,11 @@
       "icon_copy": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 350.0,
-          "y": 579.74,
-          "w": 20.0,
-          "h": 20.0,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-12/assets/icon_copy-28449e45a742.svg"
+          "x": 368.0,
+          "y": 574.0,
+          "w": 18.0,
+          "h": 27.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-12/assets/icon_copy-6346967d916c.svg"
         }
       },
       "div_1": {
@@ -188,7 +188,7 @@
       "t_disconnect": {
         "component": "Text46708281856a",
         "layout": {
-          "x": 20.49,
+          "x": 24.0,
           "y": 666.28,
           "w": 89.21,
           "h": 22.5
@@ -197,10 +197,10 @@
       "icon_power": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 346.0,
-          "y": 666.28,
-          "w": 20.0,
-          "h": 20.0,
+          "x": 366.0,
+          "y": 662.0,
+          "w": 22.0,
+          "h": 29.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-12/assets/icon_power-8d4d0bb1b7fd.svg"
         }
       }

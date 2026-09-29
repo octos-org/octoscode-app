@@ -334,7 +334,7 @@
       "semantic_role": "layout",
       "bounds": [
         16.0,
-        733.37,
+        716.0,
         374.0,
         52.0
       ],
@@ -352,7 +352,7 @@
       "semantic_role": "text",
       "bounds": [
         30.0,
-        747.37,
+        730.0,
         190.0,
         24.0
       ],
@@ -370,7 +370,7 @@
       "semantic_role": "layout",
       "bounds": [
         226.0,
-        742.37,
+        725.0,
         74.0,
         34.0
       ],
@@ -388,7 +388,7 @@
       "semantic_role": "text",
       "bounds": [
         240.0,
-        749.37,
+        732.0,
         54.0,
         22.0
       ],
@@ -406,7 +406,7 @@
       "semantic_role": "text",
       "bounds": [
         314.0,
-        749.37,
+        732.0,
         52.0,
         22.0
       ],
@@ -421,6 +421,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "f5bf71616aa0dbf3bc14fb1282387db62b8af08b3e0333f8547d17595c56030b",
+  "contract_sha256": "0ecd7c34fb7d5ea980a0c09c309ba00f1e0ac44e387868f3f96a42f35524c7ac",
   "mapping_basis": "mapped.json"
 }

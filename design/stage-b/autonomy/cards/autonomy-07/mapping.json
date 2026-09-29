@@ -38,8 +38,26 @@
       "size": null
     },
     {
-      "source_id": "t02",
+      "source_id": "done_card",
       "native_id": "beauty_0_0_0",
+      "parent": "tasks_card",
+      "kind": "stack",
+      "component": "Surfaceed7038384cce",
+      "semantic_role": "layout",
+      "bounds": [
+        24.0,
+        692.0,
+        320.0,
+        48.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t02",
+      "native_id": "beauty_0_0_1",
       "parent": "tasks_card",
       "kind": "text",
       "component": "Texte9bb098090a8",
@@ -57,7 +75,7 @@
     },
     {
       "source_id": "run_card",
-      "native_id": "beauty_0_0_1",
+      "native_id": "beauty_0_0_2",
       "parent": "tasks_card",
       "kind": "stack",
       "component": "Surfacee81dee70a29b",
@@ -75,14 +93,14 @@
     },
     {
       "source_id": "icon_run_task",
-      "native_id": "beauty_0_0_1_0",
+      "native_id": "beauty_0_0_2_0",
       "parent": "run_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        33.956,
-        303.825,
+        33.0,
+        299.0,
         18.0,
         18.212
       ],
@@ -93,25 +111,25 @@
     },
     {
       "source_id": "t_cmd",
-      "native_id": "beauty_0_0_1_1",
+      "native_id": "beauty_0_0_2_1",
       "parent": "run_card",
       "kind": "text",
-      "component": "Text68eb463dd2ca",
+      "component": "Textfda4b2da12b8",
       "semantic_role": "text",
       "bounds": [
-        36.6,
-        296.46,
-        229.26,
-        23.57
+        53.0,
+        297.0,
+        222.0,
+        20.0
       ],
-      "text": "\u203a cargo test -p octos-cli steer_queue",
+      "text": "cargo test -p octos-cli steer_queue",
       "enabled": null,
-      "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 10.15
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13.0
     },
     {
       "source_id": "run_pill",
-      "native_id": "beauty_0_0_1_2",
+      "native_id": "beauty_0_0_2_2",
       "parent": "run_card",
       "kind": "stack",
       "component": "Surfaceec5e698cce2f",
@@ -129,7 +147,7 @@
     },
     {
       "source_id": "t_run",
-      "native_id": "beauty_0_0_1_2_0",
+      "native_id": "beauty_0_0_2_2_0",
       "parent": "run_pill",
       "kind": "text",
       "component": "Text97dbc02c6f15",
@@ -147,7 +165,7 @@
     },
     {
       "source_id": "t_run_dur",
-      "native_id": "beauty_0_0_1_3",
+      "native_id": "beauty_0_0_2_3",
       "parent": "run_card",
       "kind": "text",
       "component": "Text1e0cc765bf27",
@@ -165,7 +183,7 @@
     },
     {
       "source_id": "console",
-      "native_id": "beauty_0_0_1_4",
+      "native_id": "beauty_0_0_2_4",
       "parent": "run_card",
       "kind": "stack",
       "component": "Surfacef9797a8e8795",
@@ -183,79 +201,79 @@
     },
     {
       "source_id": "t_log0",
-      "native_id": "beauty_0_0_1_4_0",
+      "native_id": "beauty_0_0_2_4_0",
       "parent": "console",
       "kind": "text",
-      "component": "Text299eedcdd47c",
+      "component": "Texte890c3523ee8",
       "semantic_role": "text",
       "bounds": [
         40.0,
-        381.16,
-        304.0,
-        21.5
+        381.0,
+        310.0,
+        41.0
       ],
       "text": "Compiling octos-cli v0.24.1 (/workspace/crates/octos-cli)",
       "enabled": null,
-      "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 9
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11.0
     },
     {
       "source_id": "t_log1",
-      "native_id": "beauty_0_0_1_4_1",
+      "native_id": "beauty_0_0_2_4_1",
       "parent": "console",
       "kind": "text",
-      "component": "Text299eedcdd47c",
+      "component": "Texte890c3523ee8",
       "semantic_role": "text",
       "bounds": [
         40.0,
-        422.21,
-        304.0,
-        21.5
+        422.0,
+        310.0,
+        41.0
       ],
       "text": "Finished test [unoptimized + debuginfo] target(s) in 1.23s",
       "enabled": null,
-      "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 9
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11.0
     },
     {
       "source_id": "t_log2",
-      "native_id": "beauty_0_0_1_4_2",
+      "native_id": "beauty_0_0_2_4_2",
       "parent": "console",
       "kind": "text",
-      "component": "Texta60c8f8c478f",
+      "component": "Textf26085efae71",
       "semantic_role": "text",
       "bounds": [
         40.0,
-        463.25,
-        304.0,
-        23.46
+        463.0,
+        310.0,
+        41.0
       ],
       "text": "Running unittests src/lib.rs (target/debug/deps/octos_cli\u2026)",
       "enabled": null,
-      "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 9
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11.0
     },
     {
       "source_id": "t_log3",
-      "native_id": "beauty_0_0_1_4_3",
+      "native_id": "beauty_0_0_2_4_3",
       "parent": "console",
       "kind": "text",
-      "component": "Text7f5d92e03c46",
+      "component": "Textd49e66b4cabb",
       "semantic_role": "text",
       "bounds": [
         40.0,
-        501.81,
-        118.65,
-        24.53
+        504.0,
+        310.0,
+        15.0
       ],
       "text": "running 12 tests \u2026",
       "enabled": null,
-      "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 9
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11.0
     },
     {
       "source_id": "cancel_row",
-      "native_id": "beauty_0_0_1_5",
+      "native_id": "beauty_0_0_2_5",
       "parent": "run_card",
       "kind": "stack",
       "component": "Group3d2637879433",
@@ -273,7 +291,7 @@
     },
     {
       "source_id": "cancel_surface",
-      "native_id": "beauty_0_0_1_5_0",
+      "native_id": "beauty_0_0_2_5_0",
       "parent": "cancel_row",
       "kind": "stack",
       "component": "Surfaceff776c252975",
@@ -291,7 +309,7 @@
     },
     {
       "source_id": "cancel_control",
-      "native_id": "beauty_0_0_1_5_1",
+      "native_id": "beauty_0_0_2_5_1",
       "parent": "cancel_row",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -309,7 +327,7 @@
     },
     {
       "source_id": "cancel_label",
-      "native_id": "beauty_0_0_1_5_2",
+      "native_id": "beauty_0_0_2_5_2",
       "parent": "cancel_row",
       "kind": "text",
       "component": "Text6f1917ec00eb",
@@ -327,14 +345,14 @@
     },
     {
       "source_id": "icon_done_task",
-      "native_id": "beauty_0_0_2",
+      "native_id": "beauty_0_0_3",
       "parent": "tasks_card",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        32.85,
-        706.63,
+        33.0,
+        709.0,
         16.0,
         16.0
       ],
@@ -345,25 +363,25 @@
     },
     {
       "source_id": "t_done_cmd",
-      "native_id": "beauty_0_0_3",
+      "native_id": "beauty_0_0_4",
       "parent": "tasks_card",
       "kind": "text",
-      "component": "Textbaa988d15172",
+      "component": "Textd55469de8b8b",
       "semantic_role": "text",
       "bounds": [
-        36.5,
-        704.52,
-        177.75,
-        22.59
+        53.0,
+        708.0,
+        222.0,
+        20.0
       ],
-      "text": "\u203a cargo clippy -p octos-cli",
+      "text": "cargo clippy -p octos-cli",
       "enabled": null,
-      "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 10.72
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13.0
     },
     {
       "source_id": "done_pill",
-      "native_id": "beauty_0_0_4",
+      "native_id": "beauty_0_0_5",
       "parent": "tasks_card",
       "kind": "stack",
       "component": "Surfaceffa407c932d5",
@@ -381,7 +399,7 @@
     },
     {
       "source_id": "t_done",
-      "native_id": "beauty_0_0_4_0",
+      "native_id": "beauty_0_0_5_0",
       "parent": "done_pill",
       "kind": "text",
       "component": "Text4cb0e7db43f8",
@@ -399,7 +417,7 @@
     },
     {
       "source_id": "t_dur",
-      "native_id": "beauty_0_0_5",
+      "native_id": "beauty_0_0_6",
       "parent": "tasks_card",
       "kind": "text",
       "component": "Textc440e7c590d3",
@@ -414,14 +432,32 @@
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
       "size": 12.25
+    },
+    {
+      "source_id": "t_cursor",
+      "native_id": "beauty_0_0_7",
+      "parent": "tasks_card",
+      "kind": "text",
+      "component": "Text60155355f2e8",
+      "semantic_role": "text",
+      "bounds": [
+        155.0,
+        500.0,
+        6.0,
+        22.0
+      ],
+      "text": "|",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 15.0
     }
   ],
   "fonts": {
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
-    "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
-    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+    "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045"
   },
-  "contract_sha256": "e8529798bdd7f3f64986ad061de94d6f652c57c41186c9bdc268c22dc72827b0",
+  "contract_sha256": "f8ee4e191bed9153bf6b6c9416ff4d05f14e3e868df57d9ed84eb38010f67b3a",
   "mapping_basis": "mapped.json"
 }

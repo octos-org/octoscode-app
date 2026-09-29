@@ -16,8 +16,8 @@ component Surfacebdb4a7f0da35(instance: text) {
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
-component Text9ccbe7abdc8b(instance: text, text: text) {
-  view Kit(component: "Text9ccbe7abdc8b", instance: instance, text: text)
+component Textca908b50c827(instance: text, text: text) {
+  view Kit(component: "Textca908b50c827", instance: instance, text: text)
 }
 component Surface8938b292c8f9(instance: text) {
   view Kit(component: "Surface8938b292c8f9", instance: instance) { slot }
