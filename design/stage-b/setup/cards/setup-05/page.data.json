@@ -1,0 +1,175 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface991755d1cfb2",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "t_title": {
+        "component": "Textaefc4a0ae779",
+        "layout": {
+          "x": 82.24,
+          "y": 80.66,
+          "w": 181.74,
+          "h": 30.0
+        }
+      },
+      "t_close": {
+        "component": "Texteeea64e1d14e",
+        "layout": {
+          "x": 341.72,
+          "y": 75.57,
+          "w": 20.3,
+          "h": 24.0
+        }
+      },
+      "t_model": {
+        "component": "Textd2b397229938",
+        "layout": {
+          "x": 42.86,
+          "y": 155.65,
+          "w": 53.01,
+          "h": 21.43
+        }
+      },
+      "model": {
+        "component": "Surface89a969e2425c",
+        "layout": {
+          "x": 43.0,
+          "y": 193.0,
+          "w": 326.0,
+          "h": 60.0
+        }
+      },
+      "model_field": {
+        "component": "Input373e8574a2d7",
+        "layout": {
+          "x": 57.535,
+          "y": 207.366,
+          "w": 296.93,
+          "h": 31.269
+        }
+      },
+      "model_chev": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 337.854,
+          "y": 211.029,
+          "w": 20.764,
+          "h": 23.943,
+          "src": "http://127.0.0.1:8170/ux-images/setup-05/assets/model_chev-a742d013f874.svg"
+        }
+      },
+      "t_saved": {
+        "component": "Text4ca76db8fb6d",
+        "layout": {
+          "x": 43.98,
+          "y": 274.0,
+          "w": 151.12,
+          "h": 21.51
+        }
+      },
+      "t_perm": {
+        "component": "Text361e3df13fba",
+        "layout": {
+          "x": 43.93,
+          "y": 376.41,
+          "w": 100.49,
+          "h": 21.0
+        }
+      },
+      "segments": {
+        "component": "Surface681ac6f77c74",
+        "layout": {
+          "x": 43.0,
+          "y": 418.0,
+          "w": 326.0,
+          "h": 55.0
+        }
+      },
+      "seg_sel": {
+        "component": "Surfacee4e64d02d86e",
+        "layout": {
+          "x": 43.0,
+          "y": 418.0,
+          "w": 112.0,
+          "h": 55.0
+        }
+      },
+      "t_seg0": {
+        "component": "Textc1ca2c3cdb0e",
+        "layout": {
+          "x": 58.54,
+          "y": 437.21,
+          "w": 84.79,
+          "h": 22.27
+        }
+      },
+      "t_seg1": {
+        "component": "Text6192e9229250",
+        "layout": {
+          "x": 171.39,
+          "y": 437.49,
+          "w": 73.38,
+          "h": 19.5
+        }
+      },
+      "t_seg2": {
+        "component": "Text63edcc63ac7e",
+        "layout": {
+          "x": 290.92,
+          "y": 437.52,
+          "w": 45.2,
+          "h": 19.5
+        }
+      },
+      "t_sandbox": {
+        "component": "Text0b5070ada62a",
+        "layout": {
+          "x": 43.86,
+          "y": 566.87,
+          "w": 73.55,
+          "h": 21.0
+        }
+      },
+      "sandbox_box": {
+        "component": "Surfacee8ccae7a114e",
+        "layout": {
+          "x": 43.0,
+          "y": 605.0,
+          "w": 326.0,
+          "h": 65.0
+        }
+      },
+      "t_sandbox_v": {
+        "component": "Textc9c93a547620",
+        "layout": {
+          "x": 58.64,
+          "y": 627.0,
+          "w": 294.35,
+          "h": 22.67
+        }
+      }
+    },
+    "bindings": [
+      {
+        "id": "model_field",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "model_field",
+          "property": "text"
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "height": 1552,
+  "observations": [
+    {
+      "bounds": [
+        57.9999874827605,
+        375.00000132317183,
+        586.4444580078125,
+        71.19999694824216
+      ],
+      "confidence": 1,
+      "text": "Something went wrong"
+    },
+    {
+      "bounds": [
+        87.96667199202545,
+        500.7906983729247,
+        516.522216796875,
+        52.209300994873175
+      ],
+      "confidence": 1,
+      "text": "OctosCode hit an unexpected"
+    },
+    {
+      "bounds": [
+        106.01112166354596,
+        567.9999994476219,
+        480.4333190917968,
+        45.99999999999984
+      ],
+      "confidence": 1,
+      "text": "error. Your sessions are safe"
+    },
+    {
+      "bounds": [
+        223.03052935310313,
+        637.9217298010151,
+        239.98596191406247,
+        42.40527915954591
+      ],
+      "confidence": 1,
+      "text": "on the server."
+    },
+    {
+      "bounds": [
+        281.82041034746044,
+        820.7289228902706,
+        140.09251403808594,
+        45.890991210937415
+      ],
+      "confidence": 1,
+      "text": "Reload"
+    },
+    {
+      "bounds": [
+        180.21184729139247,
+        981.738243053948,
+        329.13186645507807,
+        67.05684661865236
+      ],
+      "confidence": 1,
+      "text": "Copy diagnostics"
+    },
+    {
+      "bounds": [
+        245.85556212597504,
+        1141.0000000834357,
+        218.78887939453125,
+        48
+      ],
+      "confidence": 1,
+      "text": "Report issue"
+    }
+  ],
+  "width": 812,
+  "image_sha256": "295d25bf4bce6339e416c60d7741aea06890332ae2a048e1b41a26317dc3c95e",
+  "engine": "Apple Vision VNRecognizeTextRequest accurate, en-US"
+}

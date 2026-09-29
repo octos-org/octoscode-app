@@ -1,0 +1,46 @@
+# ledger setup-11@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t00_text { class: user-copy, en: "Something went wrong" }
+copy t01_text { class: user-copy, en: "OctosCode hit an unexpected" }
+copy t02_text { class: user-copy, en: "error. Your sessions are safe" }
+copy t03_text { class: user-copy, en: "on the server." }
+copy t04_text { class: user-copy, en: "Reload" }
+copy t05_text { class: user-copy, en: "Copy diagnostics" }
+copy t06_text { class: user-copy, en: "Report issue" }
+component Surfacefc069f806a2a(instance: text) {
+  view Kit(component: "Surfacefc069f806a2a", instance: instance) { slot }
+}
+component Textdff3c12dd0ad(instance: text, text: text) {
+  view Kit(component: "Textdff3c12dd0ad", instance: instance, text: text)
+}
+component Text5d9757a986bf(instance: text, text: text) {
+  view Kit(component: "Text5d9757a986bf", instance: instance, text: text)
+}
+component Texta83bd04cbcd7(instance: text, text: text) {
+  view Kit(component: "Texta83bd04cbcd7", instance: instance, text: text)
+}
+component Text106c4efc0f04(instance: text, text: text) {
+  view Kit(component: "Text106c4efc0f04", instance: instance, text: text)
+}
+component Text6cd50347b15b(instance: text, text: text) {
+  view Kit(component: "Text6cd50347b15b", instance: instance, text: text)
+}
+component Texta23d8baad481(instance: text, text: text) {
+  view Kit(component: "Texta23d8baad481", instance: instance, text: text)
+}
+component Text28f528bc5db2(instance: text, text: text) {
+  view Kit(component: "Text28f528bc5db2", instance: instance, text: text)
+}
+
+view root Surfacefc069f806a2a(instance: "page") {
+  Textdff3c12dd0ad(instance: "t00", text: copy.t00_text)
+  Text5d9757a986bf(instance: "t01", text: copy.t01_text)
+  Texta83bd04cbcd7(instance: "t02", text: copy.t02_text)
+  Text106c4efc0f04(instance: "t03", text: copy.t03_text)
+  Text6cd50347b15b(instance: "t04", text: copy.t04_text)
+  Texta23d8baad481(instance: "t05", text: copy.t05_text)
+  Text28f528bc5db2(instance: "t06", text: copy.t06_text)
+}

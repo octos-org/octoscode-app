@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "flow": "octoscode-setup",
+  "status": "completed",
+  "scope": "Only explicitly executed stages; no automatic visual or production acceptance",
+  "inputs": {
+    "sha256": "21194207823bee8421eece46267ff904fc42e13121f846deea96570bd41169a9",
+    "files": {
+      "image-to-appcard-flow.json": "1110cc7ac5c4eab4eebac4e0cf89295a8d65bcb385113d0b5d31ae491f3074e5",
+      "source/atlas.png": "6803654f5cffba2720a050317d70a29cbb78c3d22b3db606252bfe9eca1e5fea",
+      "source/prompt.txt": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146",
+      "cards/setup-01/contract.json": null,
+      "cards/setup-01/mapped.json": null,
+      "cards/setup-01/semantic-map.json": null,
+      "cards/setup-01/service-actions.json": null,
+      "cards/setup-02/contract.json": null,
+      "cards/setup-02/mapped.json": null,
+      "cards/setup-02/semantic-map.json": null,
+      "cards/setup-02/service-actions.json": null,
+      "cards/setup-03/contract.json": null,
+      "cards/setup-03/mapped.json": null,
+      "cards/setup-03/semantic-map.json": null,
+      "cards/setup-03/service-actions.json": null,
+      "cards/setup-04/contract.json": null,
+      "cards/setup-04/mapped.json": null,
+      "cards/setup-04/semantic-map.json": null,
+      "cards/setup-04/service-actions.json": null,
+      "cards/setup-05/contract.json": null,
+      "cards/setup-05/mapped.json": null,
+      "cards/setup-05/semantic-map.json": null,
+      "cards/setup-05/service-actions.json": null,
+      "cards/setup-06/contract.json": null,
+      "cards/setup-06/mapped.json": null,
+      "cards/setup-06/semantic-map.json": null,
+      "cards/setup-06/service-actions.json": null,
+      "cards/setup-07/contract.json": null,
+      "cards/setup-07/mapped.json": null,
+      "cards/setup-07/semantic-map.json": null,
+      "cards/setup-07/service-actions.json": null,
+      "cards/setup-08/contract.json": null,
+      "cards/setup-08/mapped.json": null,
+      "cards/setup-08/semantic-map.json": null,
+      "cards/setup-08/service-actions.json": null,
+      "cards/setup-09/contract.json": null,
+      "cards/setup-09/mapped.json": null,
+      "cards/setup-09/semantic-map.json": null,
+      "cards/setup-09/service-actions.json": null,
+      "cards/setup-10/contract.json": null,
+      "cards/setup-10/mapped.json": null,
+      "cards/setup-10/semantic-map.json": null,
+      "cards/setup-10/service-actions.json": null,
+      "cards/setup-11/contract.json": null,
+      "cards/setup-11/mapped.json": null,
+      "cards/setup-11/semantic-map.json": null,
+      "cards/setup-11/service-actions.json": null,
+      "cards/setup-12/contract.json": null,
+      "cards/setup-12/mapped.json": null,
+      "cards/setup-12/semantic-map.json": null,
+      "cards/setup-12/service-actions.json": null
+    }
+  },
+  "stages": [
+    {
+      "stage": "intake",
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "/Users/yuechen/miniconda3/bin/python3",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/atlas.py",
+            "--project",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup",
+            "--manifest",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup/image-to-appcard-flow.json",
+            "--output",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup/pipeline-output/intake"
+          ],
+          "cwd": "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup"
+        }
+      ],
+      "logs": [
+        {
+          "path": "intake-0.log",
+          "sha256": "a35fbbca5560d0073b640f56f5517c04c372522a8b9f4ade4b1eaf1815346d75",
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "stage": "prepare",
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "/Users/yuechen/miniconda3/bin/python3",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/prepare.py",
+            "--project",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup",
+            "--manifest",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup/image-to-appcard-flow.json",
+            "--intake",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup/pipeline-output/intake"
+          ],
+          "cwd": "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup"
+        }
+      ],
+      "logs": [
+        {
+          "path": "prepare-0.log",
+          "sha256": "3af2f507cfa04b59fd5652795a1e28f9e1e2df454586187131f53d1e00625972",
+          "exit_code": 0
+        }
+      ]
+    }
+  ],
+  "not_run": [
+    "observe",
+    "measure",
+    "map",
+    "semantic",
+    "compile",
+    "capture",
+    "gate",
+    "extract",
+    "bundle",
+    "service-test",
+    "wasm",
+    "integrate",
+    "web-test",
+    "hosted-test"
+  ],
+  "finished_at": "2026-09-29T19:07:52.956756+00:00"
+}

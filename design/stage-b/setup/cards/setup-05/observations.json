@@ -1,0 +1,426 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "d98822b963f51fdc9fd89328834d8f255a4e29d07a1b0a079117e8829024d440",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t_title",
+      "expected_text": "Session settings",
+      "requested_bounds": [
+        82.24,
+        80.66,
+        181.74,
+        30.0
+      ],
+      "status": "observed",
+      "ocr_text": "Session settings",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        85.0,
+        81.0,
+        176.5,
+        26.0
+      ],
+      "ink_color": [
+        0,
+        0,
+        0
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        82.2434983404498,
+        80.65609137543426,
+        181.74078369140628,
+        29.30409622192382
+      ]
+    },
+    {
+      "id": "t_close",
+      "expected_text": "\u2715",
+      "requested_bounds": [
+        341.72,
+        75.57,
+        20.3,
+        24.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_model",
+      "expected_text": "Model",
+      "requested_bounds": [
+        42.86,
+        155.65,
+        53.01,
+        21.43
+      ],
+      "status": "observed",
+      "ocr_text": "Model",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        44.5,
+        156.5,
+        47.5,
+        17.0
+      ],
+      "ink_color": [
+        12,
+        11,
+        11
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        42.85555637469618,
+        155.65116274749818,
+        53.00555419921875,
+        21.430233001709006
+      ]
+    },
+    {
+      "id": "t_saved",
+      "expected_text": "Saved for this profile",
+      "requested_bounds": [
+        43.98,
+        274.0,
+        151.12,
+        21.51
+      ],
+      "status": "observed",
+      "ocr_text": "Saved for this profile",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        44.5,
+        274.0,
+        148.5,
+        20.0
+      ],
+      "ink_color": [
+        111,
+        111,
+        112
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        43.983333738582445,
+        274.0000001921238,
+        151.12222290039062,
+        21.51162815093994
+      ]
+    },
+    {
+      "id": "t_perm",
+      "expected_text": "Permissions",
+      "requested_bounds": [
+        43.93,
+        376.41,
+        100.49,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "Permissions",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        46.0,
+        377.5,
+        96.5,
+        16.5
+      ],
+      "ink_color": [
+        14,
+        14,
+        14
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        43.92557416071898,
+        376.4139192416727,
+        100.48773956298828,
+        19.788440704345717
+      ]
+    },
+    {
+      "id": "t_seg0",
+      "expected_text": "On request",
+      "requested_bounds": [
+        58.54,
+        437.21,
+        84.79,
+        22.27
+      ],
+      "status": "observed",
+      "ocr_text": "On request",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        60.0,
+        438.5,
+        80.5,
+        20.5
+      ],
+      "ink_color": [
+        6,
+        5,
+        6
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        58.53987413715066,
+        437.2075374481078,
+        84.79247283935547,
+        22.270970344543397
+      ]
+    },
+    {
+      "id": "t_seg1",
+      "expected_text": "On failure",
+      "requested_bounds": [
+        171.39,
+        437.49,
+        73.38,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "On failure",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        173.5,
+        438.5,
+        69.0,
+        15.5
+      ],
+      "ink_color": [
+        27,
+        27,
+        27
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        171.38657339498408,
+        437.49073384898725,
+        73.37685394287108,
+        19.448764801025426
+      ]
+    },
+    {
+      "id": "t_seg2",
+      "expected_text": "Never",
+      "requested_bounds": [
+        290.92,
+        437.52,
+        45.2,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "Never",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        293.5,
+        438.5,
+        40.0,
+        16.0
+      ],
+      "ink_color": [
+        38,
+        38,
+        38
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        290.921586440477,
+        437.521387711071,
+        45.201271057128885,
+        19.38745689392089
+      ]
+    },
+    {
+      "id": "t_sandbox",
+      "expected_text": "Sandbox",
+      "requested_bounds": [
+        43.86,
+        566.87,
+        73.55,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "Sandbox",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        45.0,
+        568.5,
+        70.0,
+        16.5
+      ],
+      "ink_color": [
+        16,
+        17,
+        17
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        43.86310500462048,
+        566.8668814856259,
+        73.54601287841795,
+        20.115074157714805
+      ]
+    },
+    {
+      "id": "t_sandbox_v",
+      "expected_text": "Enabled \u00b7 Network off \u00b7 Workspace write",
+      "requested_bounds": [
+        58.64,
+        627.0,
+        294.35,
+        22.67
+      ],
+      "status": "observed",
+      "ocr_text": "Enabled \u2022 Network off \u2022 Workspace write",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        60.0,
+        628.0,
+        291.0,
+        20.5
+      ],
+      "ink_color": [
+        64,
+        64,
+        65
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        58.644442736621784,
+        627.0000004763046,
+        294.3500061035157,
+        22.674418449401806
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4293981682
+    },
+    {
+      "id": "model",
+      "bounds": [
+        43.0,
+        193.0,
+        326.0,
+        60.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 9.58
+    },
+    {
+      "id": "model_field",
+      "bounds": [
+        57.535,
+        207.366,
+        296.93,
+        31.269
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "model_chev",
+      "bounds": [
+        337.854,
+        211.029,
+        20.764,
+        23.943
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "segments",
+      "bounds": [
+        43.0,
+        418.0,
+        326.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 11.58
+    },
+    {
+      "id": "seg_sel",
+      "bounds": [
+        43.0,
+        418.0,
+        112.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835453,
+      "radius": 12.83
+    },
+    {
+      "id": "sandbox_box",
+      "bounds": [
+        43.0,
+        605.0,
+        326.0,
+        65.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.19
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        683.4333341965196,
+        151.13953486822516,
+        40.59999847412109,
+        45.11627960205091
+      ],
+      "confidence": 1,
+      "text": "X"
+    },
+    {
+      "bounds": [
+        117.28889362102576,
+        425.99999910165593,
+        376.67776489257807,
+        52.232559204101605
+      ],
+      "confidence": 1,
+      "text": "deepseek-v4-flash \u00d7"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "33f5f3c529151411246085a86d2a91b8475ba2a7a449207b6c47eda4c636abbe",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      30.0,
+      669.0,
+      309.0,
+      61.0
+    ],
+    [
+      32.0,
+      531.0,
+      306.0,
+      54.0
+    ],
+    [
+      29.0,
+      528.0,
+      311.0,
+      59.0
+    ],
+    [
+      32.0,
+      187.0,
+      306.0,
+      56.0
+    ],
+    [
+      29.0,
+      184.0,
+      312.0,
+      62.0
+    ],
+    [
+      5.0,
+      38.0,
+      359.0,
+      733.0
+    ],
+    [
+      3.0,
+      35.0,
+      364.0,
+      738.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294835709
+    },
+    {
+      "id": "profile",
+      "bounds": [
+        32.0,
+        187.0,
+        306.0,
+        56.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.06
+    },
+    {
+      "id": "profile_field",
+      "bounds": [
+        45.643,
+        202.084,
+        278.713,
+        28.283
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "provider_deepseek",
+      "bounds": [
+        46.0,
+        320.48,
+        314.0,
+        41.52
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.0
+    },
+    {
+      "id": "radio_deepseek",
+      "bounds": [
+        60.0,
+        331.24,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "provider_kimi",
+      "bounds": [
+        46.0,
+        371.49,
+        314.0,
+        44.29
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.0
+    },
+    {
+      "id": "radio_kimi",
+      "bounds": [
+        60.0,
+        383.64,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "provider_glm",
+      "bounds": [
+        46.0,
+        425.9,
+        314.0,
+        43.75
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.0
+    },
+    {
+      "id": "radio_glm",
+      "bounds": [
+        60.0,
+        437.78,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "apikey",
+      "bounds": [
+        32.0,
+        531.0,
+        306.0,
+        54.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 13.08
+    },
+    {
+      "id": "apikey_field",
+      "bounds": [
+        45.643,
+        550.624,
+        278.713,
+        36.796
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "apikey_eye",
+      "bounds": [
+        306.815,
+        541.646,
+        19.49,
+        32.707
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "create_profile",
+      "bounds": [
+        30.0,
+        669.0,
+        309.0,
+        61.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "create_profile_surface",
+      "bounds": [
+        30.0,
+        669.0,
+        309.0,
+        61.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279243026,
+      "radius": 30.5
+    },
+    {
+      "id": "create_profile_control",
+      "bounds": [
+        30.0,
+        669.0,
+        309.0,
+        61.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ]
+}

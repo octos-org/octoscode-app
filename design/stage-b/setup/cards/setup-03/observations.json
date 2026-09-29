@@ -1,0 +1,507 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "33f5f3c529151411246085a86d2a91b8475ba2a7a449207b6c47eda4c636abbe",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t_title",
+      "expected_text": "Set up a local profile",
+      "requested_bounds": [
+        57.52,
+        94.5,
+        241.34,
+        33.0
+      ],
+      "status": "observed",
+      "ocr_text": "Set up a local profile",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        59.5,
+        95.5,
+        238.5,
+        27.0
+      ],
+      "ink_color": [
+        0,
+        0,
+        0
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        57.516672126227554,
+        94.4999997999771,
+        241.34443664550778,
+        29.569766998290987
+      ]
+    },
+    {
+      "id": "t_pname",
+      "expected_text": "Profile name",
+      "requested_bounds": [
+        31.52,
+        156.45,
+        98.24,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "Profile name",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        33.0,
+        157.0,
+        94.5,
+        16.0
+      ],
+      "ink_color": [
+        29,
+        30,
+        29
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        31.517999673329854,
+        156.44827575365701,
+        98.23622131347655,
+        18.708099365234332
+      ]
+    },
+    {
+      "id": "t_provider",
+      "expected_text": "Provider",
+      "requested_bounds": [
+        31.4,
+        280.19,
+        66.89,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "Provider",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        33.0,
+        281.0,
+        62.5,
+        15.5
+      ],
+      "ink_color": [
+        26,
+        26,
+        26
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        31.404263283161452,
+        280.1865863293649,
+        66.88591766357422,
+        19.3710136413574
+      ]
+    },
+    {
+      "id": "t_prov_deepseek",
+      "expected_text": "DeepSeek \u2022 Official API",
+      "requested_bounds": [
+        72.18,
+        330.48,
+        184.96,
+        21.52
+      ],
+      "status": "observed",
+      "ocr_text": "DeepSeek \u2022 Official API",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        73.5,
+        331.5,
+        180.5,
+        20.0
+      ],
+      "ink_color": [
+        13,
+        13,
+        13
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        72.17777933335287,
+        330.4767440982007,
+        184.95555114746097,
+        21.52325630187987
+      ]
+    },
+    {
+      "id": "t_prov_kimi",
+      "expected_text": "Kimi Coding Plan",
+      "requested_bounds": [
+        72.04,
+        381.49,
+        134.49,
+        24.29
+      ],
+      "status": "observed",
+      "ocr_text": "Kimi Coding Plan",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        73.5,
+        383.5,
+        131.0,
+        20.5
+      ],
+      "ink_color": [
+        15,
+        15,
+        14
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        72.03753691445206,
+        381.49391662701566,
+        134.4860382080078,
+        24.29123687744145
+      ]
+    },
+    {
+      "id": "t_prov_glm",
+      "expected_text": "GLM Coding Plan",
+      "requested_bounds": [
+        72.08,
+        435.9,
+        137.78,
+        23.75
+      ],
+      "status": "observed",
+      "ocr_text": "GLM Coding Plan",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        73.0,
+        438.0,
+        135.0,
+        20.0
+      ],
+      "ink_color": [
+        13,
+        13,
+        13
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        72.08247508964786,
+        435.9034958477212,
+        137.7794952392578,
+        23.75114822387699
+      ]
+    },
+    {
+      "id": "t_apikey",
+      "expected_text": "API key",
+      "requested_bounds": [
+        30.45,
+        498.5,
+        62.03,
+        22.59
+      ],
+      "status": "observed",
+      "ocr_text": "API key",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        32.0,
+        499.5,
+        58.0,
+        20.0
+      ],
+      "ink_color": [
+        17,
+        18,
+        18
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        30.449999935623907,
+        498.50000022970227,
+        62.02777862548829,
+        22.59302330017087
+      ]
+    },
+    {
+      "id": "t_keyhint",
+      "expected_text": "Your key never leaves this machine",
+      "requested_bounds": [
+        31.58,
+        603.43,
+        252.62,
+        21.57
+      ],
+      "status": "observed",
+      "ocr_text": "Your key never leaves this machine",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        32.5,
+        604.5,
+        249.5,
+        19.5
+      ],
+      "ink_color": [
+        125,
+        125,
+        126
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        31.57777653647136,
+        603.4302324894279,
+        252.62222290039057,
+        21.569767951965304
+      ]
+    },
+    {
+      "id": "create_profile_label",
+      "expected_text": "Create profile",
+      "requested_bounds": [
+        125.18,
+        690.28,
+        118.42,
+        25.94
+      ],
+      "status": "observed",
+      "ocr_text": "Create profile",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        128.0,
+        691.5,
+        114.0,
+        22.5
+      ],
+      "ink_color": [
+        255,
+        255,
+        255
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        125.18333480628797,
+        690.2790700858117,
+        118.41666412353514,
+        25.941860198974545
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294835709
+    },
+    {
+      "id": "profile",
+      "bounds": [
+        32.0,
+        187.0,
+        306.0,
+        56.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.06
+    },
+    {
+      "id": "profile_field",
+      "bounds": [
+        45.643,
+        202.084,
+        278.713,
+        28.283
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "provider_deepseek",
+      "bounds": [
+        46.0,
+        320.48,
+        314.0,
+        41.52
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.0
+    },
+    {
+      "id": "radio_deepseek",
+      "bounds": [
+        60.0,
+        331.24,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "provider_kimi",
+      "bounds": [
+        46.0,
+        371.49,
+        314.0,
+        44.29
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.0
+    },
+    {
+      "id": "radio_kimi",
+      "bounds": [
+        60.0,
+        383.64,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "provider_glm",
+      "bounds": [
+        46.0,
+        425.9,
+        314.0,
+        43.75
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.0
+    },
+    {
+      "id": "radio_glm",
+      "bounds": [
+        60.0,
+        437.78,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "apikey",
+      "bounds": [
+        32.0,
+        531.0,
+        306.0,
+        54.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 13.08
+    },
+    {
+      "id": "apikey_field",
+      "bounds": [
+        45.643,
+        550.624,
+        278.713,
+        36.796
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "apikey_eye",
+      "bounds": [
+        306.815,
+        541.646,
+        19.49,
+        32.707
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "create_profile",
+      "bounds": [
+        30.0,
+        669.0,
+        309.0,
+        61.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "create_profile_surface",
+      "bounds": [
+        30.0,
+        669.0,
+        309.0,
+        61.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279243026,
+      "radius": 30.5
+    },
+    {
+      "id": "create_profile_control",
+      "bounds": [
+        30.0,
+        669.0,
+        309.0,
+        61.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        92.42364247380681,
+        410.31018127641227,
+        185.06382751464844,
+        41.10056686401375
+      ],
+      "confidence": 1,
+      "text": "octos-dev"
+    },
+    {
+      "bounds": [
+        471.41111097714054,
+        1107.6046514480736,
+        15.788888931274439,
+        18.046510696411083
+      ],
+      "confidence": 1,
+      "text": "\u2022"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

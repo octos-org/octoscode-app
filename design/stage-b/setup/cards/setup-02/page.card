@@ -1,0 +1,111 @@
+# ledger setup-02@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Connect to Octos" }
+copy t_server_text { class: user-copy, en: "Server" }
+copy server_field_text { class: user-copy, en: "http://127.0.0.1:50190" }
+copy server_field_placeholder { class: user-copy, en: "" }
+copy t_token_text { class: user-copy, en: "Access token" }
+copy token_field_text { class: user-copy, en: "•" }
+copy token_field_placeholder { class: user-copy, en: "" }
+copy t_error_text { class: user-copy, en: "Token rejected by the server" }
+copy t_last_text { class: user-copy, en: "Last tried 9:41 PM" }
+copy retry_label_text { class: user-copy, en: "Retry" }
+copy connect_label_text { class: user-copy, en: "Connect" }
+copy t_local_text { class: user-copy, en: "Use local solo server" }
+state server_field_enabled { shape: bool, initial: true }
+state token_field_enabled { shape: bool, initial: true }
+state retry_control_enabled { shape: bool, initial: true }
+state connect_control_enabled { shape: bool, initial: true }
+component Surface991755d1cfb2(instance: text) {
+  view Kit(component: "Surface991755d1cfb2", instance: instance) { slot }
+}
+component Textaefc4a0ae779(instance: text, text: text) {
+  view Kit(component: "Textaefc4a0ae779", instance: instance, text: text)
+}
+component Text7d708cf6afb5(instance: text, text: text) {
+  view Kit(component: "Text7d708cf6afb5", instance: instance, text: text)
+}
+component Surface22a941a90d6f(instance: text) {
+  view Kit(component: "Surface22a941a90d6f", instance: instance) { slot }
+}
+component Input79296ad18745(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Input79296ad18745", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+}
+component Text31e7204bc037(instance: text, text: text) {
+  view Kit(component: "Text31e7204bc037", instance: instance, text: text)
+}
+component Surface1d6671c34bf2(instance: text) {
+  view Kit(component: "Surface1d6671c34bf2", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Surfacec9decdad0d23(instance: text) {
+  view Kit(component: "Surfacec9decdad0d23", instance: instance) { slot }
+}
+component Textd093f84d15e5(instance: text, text: text) {
+  view Kit(component: "Textd093f84d15e5", instance: instance, text: text)
+}
+component Text5f1204755b5b(instance: text, text: text) {
+  view Kit(component: "Text5f1204755b5b", instance: instance, text: text)
+}
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surface6f5cdfb4aa3f(instance: text) {
+  view Kit(component: "Surface6f5cdfb4aa3f", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Texte7e36b0d5eb5(instance: text, text: text) {
+  view Kit(component: "Texte7e36b0d5eb5", instance: instance, text: text)
+}
+component Surfacea1888d759809(instance: text) {
+  view Kit(component: "Surfacea1888d759809", instance: instance) { slot }
+}
+component Textb034b0fd19fd(instance: text, text: text) {
+  view Kit(component: "Textb034b0fd19fd", instance: instance, text: text)
+}
+component Text9f71da0bfe10(instance: text, text: text) {
+  view Kit(component: "Text9f71da0bfe10", instance: instance, text: text)
+}
+
+view root Surface991755d1cfb2(instance: "page") {
+  Textaefc4a0ae779(instance: "t_title", text: copy.t_title_text)
+  Text7d708cf6afb5(instance: "t_server", text: copy.t_server_text)
+  Surface22a941a90d6f(instance: "server") {
+    Input79296ad18745(instance: "server_field", text: copy.server_field_text, placeholder: copy.server_field_placeholder, enabled: server_field_enabled) {
+
+    }
+  }
+  Text31e7204bc037(instance: "t_token", text: copy.t_token_text)
+  Surface1d6671c34bf2(instance: "token") {
+    Input79296ad18745(instance: "token_field", text: copy.token_field_text, placeholder: copy.token_field_placeholder, enabled: token_field_enabled) {
+
+    }
+    Vectore0a378fde04f(instance: "token_eye")
+  }
+  Surfacec9decdad0d23(instance: "error_band") {
+    Textd093f84d15e5(instance: "t_error", text: copy.t_error_text)
+  }
+  Text5f1204755b5b(instance: "t_last", text: copy.t_last_text)
+  KitButton2c6804b990a5(instance: "retry") {
+    Surface6f5cdfb4aa3f(instance: "retry_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "retry_control", enabled: retry_control_enabled)
+    Texte7e36b0d5eb5(instance: "retry_label", text: copy.retry_label_text)
+  }
+  KitButton2c6804b990a5(instance: "connect") {
+    Surfacea1888d759809(instance: "connect_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "connect_control", enabled: connect_control_enabled)
+    Textb034b0fd19fd(instance: "connect_label", text: copy.connect_label_text)
+  }
+  Text9f71da0bfe10(instance: "t_local", text: copy.t_local_text)
+}

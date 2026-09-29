@@ -1,0 +1,465 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "75512ec1345b32638f22ed830225d0c87c5a7a05c23414ebbe5b3833981dfe4d",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "text",
+        "id": "t00",
+        "text": "Skills",
+        "x": 40.6,
+        "y": 39.48,
+        "w": 63.16,
+        "h": 27.0,
+        "size": 18,
+        "line_height": 27.0,
+        "weight": 600,
+        "color": 4278190080,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t01",
+        "text": "Q",
+        "x": 51.88,
+        "y": 103.77,
+        "w": 16.92,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4284769380,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t02",
+        "text": "Search registry",
+        "x": 82.26,
+        "y": 103.35,
+        "w": 128.71,
+        "h": 23.4,
+        "size": 14,
+        "line_height": 23.4,
+        "weight": 400,
+        "color": 4285361518,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t03",
+        "text": "Installed",
+        "x": 36.09,
+        "y": 172.57,
+        "w": 69.92,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4279242768,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t04",
+        "text": "rust-review",
+        "x": 51.73,
+        "y": 227.07,
+        "w": 99.55,
+        "h": 21.83,
+        "size": 14,
+        "line_height": 21.83,
+        "weight": 400,
+        "color": 4279045389,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t05",
+        "text": "git-helper",
+        "x": 50.75,
+        "y": 291.0,
+        "w": 86.84,
+        "h": 23.69,
+        "size": 14,
+        "line_height": 23.69,
+        "weight": 400,
+        "color": 4279308305,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t06",
+        "text": "docs-writer",
+        "x": 51.88,
+        "y": 354.16,
+        "w": 99.24,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4278979596,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t07",
+        "text": "1.2.0",
+        "x": 192.85,
+        "y": 225.58,
+        "w": 43.98,
+        "h": 24.81,
+        "size": 14,
+        "line_height": 24.81,
+        "weight": 400,
+        "color": 4283453522,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t08",
+        "text": "0.9.1",
+        "x": 193.98,
+        "y": 288.74,
+        "w": 43.98,
+        "h": 24.81,
+        "size": 14,
+        "line_height": 24.81,
+        "weight": 400,
+        "color": 4284440416,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t09",
+        "text": "2.0.0",
+        "x": 193.98,
+        "y": 351.91,
+        "w": 43.98,
+        "h": 25.94,
+        "size": 14,
+        "line_height": 25.94,
+        "weight": 400,
+        "color": 4283585106,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t10",
+        "text": "Registry",
+        "x": 35.73,
+        "y": 425.33,
+        "w": 69.5,
+        "h": 26.85,
+        "size": 14,
+        "line_height": 26.85,
+        "weight": 400,
+        "color": 4279242768,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t11",
+        "text": "code-linter",
+        "x": 50.73,
+        "y": 487.17,
+        "w": 93.64,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4278584582,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t12",
+        "text": "1.1.0",
+        "x": 190.59,
+        "y": 483.87,
+        "w": 42.86,
+        "h": 24.81,
+        "size": 14,
+        "line_height": 24.81,
+        "weight": 400,
+        "color": 4284703587,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t13",
+        "text": "api-client",
+        "x": 50.51,
+        "y": 555.09,
+        "w": 81.69,
+        "h": 23.36,
+        "size": 14,
+        "line_height": 23.36,
+        "weight": 400,
+        "color": 4278650631,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t14",
+        "text": "0.4.2",
+        "x": 189.47,
+        "y": 554.93,
+        "w": 45.11,
+        "h": 23.69,
+        "size": 14,
+        "line_height": 23.69,
+        "weight": 400,
+        "color": 4284111194,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t15",
+        "text": "Remove",
+        "x": 294.33,
+        "y": 228.9,
+        "w": 58.68,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4280179184,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t16",
+        "text": "Remove",
+        "x": 294.24,
+        "y": 291.75,
+        "w": 58.87,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4280507635,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t17",
+        "text": "Remove",
+        "x": 294.25,
+        "y": 356.06,
+        "w": 58.85,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4280638961,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t18",
+        "text": "Install",
+        "x": 285.33,
+        "y": 488.38,
+        "w": 53.01,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4278848010,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t19",
+        "text": "Install",
+        "x": 287.58,
+        "y": 558.31,
+        "w": 50.75,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4278782217,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      }
+    ],
+    "variant": "surface",
+    "bg": 4293981682
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t00",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.07606286337209306
+    },
+    {
+      "id": "t01",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": 0.029001635174418585
+    },
+    {
+      "id": "t02",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1286085768791528
+    },
+    {
+      "id": "t03",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1149144028172349
+    },
+    {
+      "id": "t04",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.09654651988636359
+    },
+    {
+      "id": "t05",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.09899239946705425
+    },
+    {
+      "id": "t06",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.11340906479779413
+    },
+    {
+      "id": "t07",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1161443536931818
+    },
+    {
+      "id": "t08",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1315592549769243
+    },
+    {
+      "id": "t09",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1552734375
+    },
+    {
+      "id": "t10",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.11955428519518274
+    },
+    {
+      "id": "t11",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.10213068181818184
+    },
+    {
+      "id": "t12",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.08300781250000001
+    },
+    {
+      "id": "t13",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.10762374838501293
+    },
+    {
+      "id": "t14",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.13256835937500003
+    },
+    {
+      "id": "t15",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.20489583333333336
+    },
+    {
+      "id": "t16",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.20489583333333336
+    },
+    {
+      "id": "t17",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.20489583333333336
+    },
+    {
+      "id": "t18",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.08629714801747311
+    },
+    {
+      "id": "t19",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.08629714801747311
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

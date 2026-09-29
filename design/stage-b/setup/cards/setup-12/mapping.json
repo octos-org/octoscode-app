@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface991755d1cfb2",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t00",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textfb1d54978e9d",
+      "semantic_role": "text",
+      "bounds": [
+        42.86,
+        31.5,
+        305.63,
+        27.0
+      ],
+      "text": "Reconnecting... attempt 2 \u2022 Retry now",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 18
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text3b0c706d6edf",
+      "semantic_role": "text",
+      "bounds": [
+        109.17,
+        509.45,
+        154.96,
+        27.81
+      ],
+      "text": "Loading session...",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t02",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text23269b208f3f",
+      "semantic_role": "text",
+      "bounds": [
+        159.02,
+        570.72,
+        58.64,
+        21.0
+      ],
+      "text": "Cancel",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "325cc28b85cc3146125122b54bd5f978ebe63ff6f2246579dbb90c2212af4fdd",
+  "mapping_basis": "mapped.json"
+}

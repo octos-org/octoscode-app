@@ -1,0 +1,44 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface991755d1cfb2",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "t00": {
+        "component": "Textfb1d54978e9d",
+        "layout": {
+          "x": 42.86,
+          "y": 31.5,
+          "w": 305.63,
+          "h": 27.0
+        }
+      },
+      "t01": {
+        "component": "Text3b0c706d6edf",
+        "layout": {
+          "x": 109.17,
+          "y": 509.45,
+          "w": 154.96,
+          "h": 27.81
+        }
+      },
+      "t02": {
+        "component": "Text23269b208f3f",
+        "layout": {
+          "x": 159.02,
+          "y": 570.72,
+          "w": 58.64,
+          "h": 21.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

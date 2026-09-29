@@ -1,0 +1,282 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "adeccfea7aa57e90e193de92bd3169cbeddc4a856364fee2a74faf6c3e23c995",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      33.0,
+      599.0,
+      325.0,
+      51.0
+    ],
+    [
+      31.0,
+      597.0,
+      330.0,
+      56.0
+    ],
+    [
+      30.0,
+      493.0,
+      340.0,
+      75.0
+    ],
+    [
+      30.0,
+      420.0,
+      338.0,
+      72.0
+    ],
+    [
+      30.0,
+      274.0,
+      337.0,
+      71.0
+    ],
+    [
+      27.0,
+      271.0,
+      343.0,
+      297.0
+    ],
+    [
+      31.0,
+      133.0,
+      337.0,
+      79.0
+    ],
+    [
+      28.0,
+      130.0,
+      342.0,
+      85.0
+    ],
+    [
+      15.0,
+      38.0,
+      370.0,
+      733.0
+    ],
+    [
+      14.0,
+      35.0,
+      374.0,
+      741.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4293981682
+    },
+    {
+      "id": "folder",
+      "bounds": [
+        31.0,
+        133.0,
+        337.0,
+        79.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 14.75
+    },
+    {
+      "id": "folder_field",
+      "bounds": [
+        46.025,
+        155.124,
+        306.949,
+        41.482
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "folder_chev",
+      "bounds": [
+        335.803,
+        154.054,
+        21.465,
+        36.873
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "ws_row0",
+      "bounds": [
+        30.0,
+        274.0,
+        337.0,
+        71.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 12.43
+    },
+    {
+      "id": "ws_icon0",
+      "bounds": [
+        45.025,
+        285.065,
+        19.318,
+        22.378
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "ws_row1",
+      "bounds": [
+        46.0,
+        351.49,
+        314.0,
+        62.6
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.0
+    },
+    {
+      "id": "ws_icon1",
+      "bounds": [
+        60.0,
+        363.21,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "ws_row2",
+      "bounds": [
+        30.0,
+        420.0,
+        338.0,
+        72.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 12.39
+    },
+    {
+      "id": "ws_icon2",
+      "bounds": [
+        45.07,
+        432.432,
+        19.376,
+        22.31
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "ws_row3",
+      "bounds": [
+        30.0,
+        493.0,
+        340.0,
+        75.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.95
+    },
+    {
+      "id": "ws_icon3",
+      "bounds": [
+        45.159,
+        505.85,
+        19.49,
+        23.316
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "browse",
+      "bounds": [
+        33.0,
+        599.0,
+        325.0,
+        51.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "browse_surface",
+      "bounds": [
+        33.0,
+        599.0,
+        325.0,
+        51.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835453,
+      "radius": 25.5
+    },
+    {
+      "id": "browse_control",
+      "bounds": [
+        33.0,
+        599.0,
+        325.0,
+        51.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "new_folder",
+      "bounds": [
+        121.1,
+        666.5,
+        134.48,
+        39.5
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "new_folder_surface",
+      "bounds": [
+        121.1,
+        666.5,
+        134.48,
+        39.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 19.75
+    },
+    {
+      "id": "new_folder_control",
+      "bounds": [
+        121.1,
+        666.5,
+        134.48,
+        39.5
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ]
+}

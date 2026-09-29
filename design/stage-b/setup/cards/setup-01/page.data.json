@@ -1,0 +1,159 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface991755d1cfb2",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "t_title": {
+        "component": "Textaefc4a0ae779",
+        "layout": {
+          "x": 78.94,
+          "y": 102.5,
+          "w": 226.68,
+          "h": 30.0
+        }
+      },
+      "t_server": {
+        "component": "Text0c5385e30673",
+        "layout": {
+          "x": 47.3,
+          "y": 175.76,
+          "w": 52.01,
+          "h": 21.0
+        }
+      },
+      "server": {
+        "component": "Surface3edf36de2935",
+        "layout": {
+          "x": 48.0,
+          "y": 207.0,
+          "w": 309.0,
+          "h": 53.0
+        }
+      },
+      "server_field": {
+        "component": "Input79296ad18745",
+        "layout": {
+          "x": 61.777,
+          "y": 221.357,
+          "w": 281.446,
+          "h": 26.919
+        }
+      },
+      "t_token": {
+        "component": "Textfe875f1c03b4",
+        "layout": {
+          "x": 48.45,
+          "y": 299.77,
+          "w": 104.97,
+          "h": 21.0
+        }
+      },
+      "token": {
+        "component": "Surface1d6671c34bf2",
+        "layout": {
+          "x": 48.0,
+          "y": 331.0,
+          "w": 310.0,
+          "h": 56.0
+        }
+      },
+      "token_field": {
+        "component": "Input79296ad18745",
+        "layout": {
+          "x": 61.822,
+          "y": 350.678,
+          "w": 282.357,
+          "h": 36.896
+        }
+      },
+      "t_hint": {
+        "component": "Text157fd7b9a442",
+        "layout": {
+          "x": 47.14,
+          "y": 403.53,
+          "w": 184.31,
+          "h": 21.82
+        }
+      },
+      "connect": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 137.78,
+          "y": 565.43,
+          "w": 124.79,
+          "h": 43.3
+        }
+      },
+      "connect_surface": {
+        "component": "Surface28b22817b9b2",
+        "layout": {
+          "x": 137.78,
+          "y": 565.43,
+          "w": 124.79,
+          "h": 43.3
+        }
+      },
+      "connect_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 137.78,
+          "y": 565.43,
+          "w": 124.79,
+          "h": 43.3
+        }
+      },
+      "connect_label": {
+        "component": "Text12adfdd2d299",
+        "layout": {
+          "x": 158.78,
+          "y": 575.43,
+          "w": 82.79,
+          "h": 23.3
+        }
+      },
+      "t_local": {
+        "component": "Textcae59d14e7c1",
+        "layout": {
+          "x": 118.42,
+          "y": 662.0,
+          "w": 166.91,
+          "h": 19.5
+        }
+      }
+    },
+    "bindings": [
+      {
+        "id": "server_field",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "server_field",
+          "property": "text"
+        }
+      },
+      {
+        "id": "token_field",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "token_field",
+          "property": "text"
+        }
+      }
+    ]
+  }
+}

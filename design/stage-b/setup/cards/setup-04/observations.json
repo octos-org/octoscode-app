@@ -1,0 +1,660 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "adeccfea7aa57e90e193de92bd3169cbeddc4a856364fee2a74faf6c3e23c995",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t_title",
+      "expected_text": "Open a workspace",
+      "requested_bounds": [
+        78.94,
+        80.0,
+        227.81,
+        30.0
+      ],
+      "status": "observed",
+      "ocr_text": "Open a workspace",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        80.5,
+        81.0,
+        224.5,
+        27.0
+      ],
+      "ink_color": [
+        0,
+        0,
+        0
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        78.94444531040736,
+        79.99999959387596,
+        227.81111145019528,
+        29.499999999999982
+      ]
+    },
+    {
+      "id": "t_sfolder",
+      "expected_text": "Server folder",
+      "requested_bounds": [
+        98.07,
+        150.85,
+        98.21,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "Server folder",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        99.5,
+        151.0,
+        94.5,
+        15.0
+      ],
+      "ink_color": [
+        22,
+        21,
+        21
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        98.06824902143907,
+        150.85415018252928,
+        98.21350097656251,
+        17.489374160766587
+      ]
+    },
+    {
+      "id": "t_recent",
+      "expected_text": "Recent",
+      "requested_bounds": [
+        30.45,
+        243.63,
+        56.39,
+        22.5
+      ],
+      "status": "observed",
+      "ocr_text": "Recent",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        31.5,
+        245.5,
+        52.0,
+        15.5
+      ],
+      "ink_color": [
+        19,
+        19,
+        19
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        30.44999929185016,
+        243.62790733946184,
+        56.38888931274415,
+        19.174417495727532
+      ]
+    },
+    {
+      "id": "t_ws0_name",
+      "expected_text": "octos",
+      "requested_bounds": [
+        94.73,
+        291.0,
+        45.11,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "octos",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        97.0,
+        291.5,
+        40.5,
+        13.0
+      ],
+      "ink_color": [
+        9,
+        10,
+        10
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        94.73333349692763,
+        291.0000001755294,
+        45.11111068725587,
+        15.790697097778354
+      ]
+    },
+    {
+      "id": "t_ws0_path",
+      "expected_text": "~/home/octos",
+      "requested_bounds": [
+        94.73,
+        308.79,
+        240.0,
+        19.31
+      ],
+      "status": "observed",
+      "ocr_text": "~/home/octos",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        96.5,
+        315.0,
+        99.5,
+        17.0
+      ],
+      "ink_color": [
+        113,
+        114,
+        115
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        93.50017661014766,
+        314.05208717475267,
+        105.0940933227539,
+        19.314430236816396
+      ]
+    },
+    {
+      "id": "t_ws1_name",
+      "expected_text": "octoscode-app",
+      "requested_bounds": [
+        94.64,
+        361.49,
+        118.6,
+        21.43
+      ],
+      "status": "observed",
+      "ocr_text": "octoscode-app",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        97.0,
+        362.0,
+        114.0,
+        19.0
+      ],
+      "ink_color": [
+        20,
+        21,
+        20
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        94.63933776409351,
+        361.4948202317926,
+        118.60466003417967,
+        21.42896461486814
+      ]
+    },
+    {
+      "id": "t_ws1_path",
+      "expected_text": "~/home/octos/octoscode-app",
+      "requested_bounds": [
+        94.64,
+        384.92,
+        240.0,
+        19.17
+      ],
+      "status": "observed",
+      "ocr_text": "~/home/octos/octoscode-app",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        97.0,
+        388.5,
+        213.5,
+        18.0
+      ],
+      "ink_color": [
+        113,
+        113,
+        114
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        92.47778066487422,
+        388.0000005882991,
+        219.9166564941406,
+        19.174417495727532
+      ]
+    },
+    {
+      "id": "t_ws2_name",
+      "expected_text": "robrix2",
+      "requested_bounds": [
+        93.61,
+        435.37,
+        58.64,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "robrix2",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        97.5,
+        436.0,
+        52.0,
+        15.0
+      ],
+      "ink_color": [
+        25,
+        24,
+        25
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        93.60555634759879,
+        435.3720934263423,
+        58.64444351196288,
+        18.046510696411083
+      ]
+    },
+    {
+      "id": "t_ws2_path",
+      "expected_text": "~/home/octos/robrix2",
+      "requested_bounds": [
+        93.61,
+        455.42,
+        240.0,
+        18.05
+      ],
+      "status": "observed",
+      "ocr_text": "~/home/octos/robrix2",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        96.5,
+        462.0,
+        156.5,
+        16.5
+      ],
+      "ink_color": [
+        114,
+        114,
+        114
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        93.6055572602778,
+        461.3139540246142,
+        161.272216796875,
+        18.04651069641117
+      ]
+    },
+    {
+      "id": "t_ws3_name",
+      "expected_text": "octos-web",
+      "requested_bounds": [
+        94.64,
+        509.35,
+        85.89,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "octos-web",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        97.0,
+        510.5,
+        80.5,
+        15.0
+      ],
+      "ink_color": [
+        14,
+        14,
+        14
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        94.64363024705222,
+        509.3472036045262,
+        85.89051818847656,
+        17.85210418701167
+      ]
+    },
+    {
+      "id": "t_ws3_path",
+      "expected_text": "~/home/octos/octos-web",
+      "requested_bounds": [
+        94.64,
+        529.2,
+        240.0,
+        18.05
+      ],
+      "status": "observed",
+      "ocr_text": "~/home/octos/octos-web",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        96.5,
+        536.0,
+        181.0,
+        17.0
+      ],
+      "ink_color": [
+        108,
+        108,
+        109
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        92.47777846007597,
+        535.7558144869107,
+        186.0833282470703,
+        18.04651069641117
+      ]
+    },
+    {
+      "id": "browse_label",
+      "expected_text": "Browse folders\u2026",
+      "requested_bounds": [
+        122.93,
+        615.84,
+        137.59,
+        20.3
+      ],
+      "status": "observed",
+      "ocr_text": "Browse folders...",
+      "confidence": 1,
+      "text_similarity": 0.875,
+      "ink_bounds": [
+        124.0,
+        617.0,
+        133.5,
+        16.5
+      ],
+      "ink_color": [
+        7,
+        7,
+        7
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        122.92778198185549,
+        615.8372090240529,
+        137.5888824462891,
+        20.302326202392557
+      ]
+    },
+    {
+      "id": "new_folder_label",
+      "expected_text": "New folder",
+      "requested_bounds": [
+        142.1,
+        676.5,
+        92.48,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "New folder",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        141.0,
+        675.5,
+        95.0,
+        22.0
+      ],
+      "ink_color": [
+        252,
+        252,
+        252
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        142.10000168000977,
+        676.500000178458,
+        92.47777557373045,
+        19.500000000000018
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4293981682
+    },
+    {
+      "id": "folder",
+      "bounds": [
+        31.0,
+        133.0,
+        337.0,
+        79.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 14.75
+    },
+    {
+      "id": "folder_field",
+      "bounds": [
+        46.025,
+        155.124,
+        306.949,
+        41.482
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "folder_chev",
+      "bounds": [
+        335.803,
+        154.054,
+        21.465,
+        36.873
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "ws_row0",
+      "bounds": [
+        30.0,
+        274.0,
+        337.0,
+        71.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 12.43
+    },
+    {
+      "id": "ws_icon0",
+      "bounds": [
+        45.025,
+        285.065,
+        19.318,
+        22.378
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "ws_row1",
+      "bounds": [
+        46.0,
+        351.49,
+        314.0,
+        62.6
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.0
+    },
+    {
+      "id": "ws_icon1",
+      "bounds": [
+        60.0,
+        363.21,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "ws_row2",
+      "bounds": [
+        30.0,
+        420.0,
+        338.0,
+        72.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 12.39
+    },
+    {
+      "id": "ws_icon2",
+      "bounds": [
+        45.07,
+        432.432,
+        19.376,
+        22.31
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "ws_row3",
+      "bounds": [
+        30.0,
+        493.0,
+        340.0,
+        75.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.95
+    },
+    {
+      "id": "ws_icon3",
+      "bounds": [
+        45.159,
+        505.85,
+        19.49,
+        23.316
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "browse",
+      "bounds": [
+        33.0,
+        599.0,
+        325.0,
+        51.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "browse_surface",
+      "bounds": [
+        33.0,
+        599.0,
+        325.0,
+        51.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835453,
+      "radius": 25.5
+    },
+    {
+      "id": "browse_control",
+      "bounds": [
+        33.0,
+        599.0,
+        325.0,
+        51.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "new_folder",
+      "bounds": [
+        121.1,
+        666.5,
+        134.48,
+        39.5
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "new_folder_surface",
+      "bounds": [
+        121.1,
+        666.5,
+        134.48,
+        39.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 19.75
+    },
+    {
+      "id": "new_folder_control",
+      "bounds": [
+        121.1,
+        666.5,
+        134.48,
+        39.5
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        191.59185410954808,
+        357.87528783389564,
+        216.7940673828125,
+        37.691284179687436
+      ],
+      "confidence": 1,
+      "text": "~/home/octos"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

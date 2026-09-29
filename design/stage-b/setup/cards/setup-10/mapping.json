@@ -1,0 +1,389 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface991755d1cfb2",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t00",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text7fde3152b682",
+      "semantic_role": "text",
+      "bounds": [
+        40.6,
+        39.48,
+        63.16,
+        27.0
+      ],
+      "text": "Skills",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 18
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text57d55d4310bf",
+      "semantic_role": "text",
+      "bounds": [
+        51.88,
+        103.77,
+        16.92,
+        21.0
+      ],
+      "text": "Q",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t02",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text42ae1ed28616",
+      "semantic_role": "text",
+      "bounds": [
+        82.26,
+        103.35,
+        128.71,
+        23.4
+      ],
+      "text": "Search registry",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t03",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textfd2d772cfbae",
+      "semantic_role": "text",
+      "bounds": [
+        36.09,
+        172.57,
+        69.92,
+        21.0
+      ],
+      "text": "Installed",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t04",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textab500615b72d",
+      "semantic_role": "text",
+      "bounds": [
+        51.73,
+        227.07,
+        99.55,
+        21.83
+      ],
+      "text": "rust-review",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t05",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text96604389ba05",
+      "semantic_role": "text",
+      "bounds": [
+        50.75,
+        291.0,
+        86.84,
+        23.69
+      ],
+      "text": "git-helper",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t06",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text62e96c7eee24",
+      "semantic_role": "text",
+      "bounds": [
+        51.88,
+        354.16,
+        99.24,
+        21.0
+      ],
+      "text": "docs-writer",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t07",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text48b5bfa294b5",
+      "semantic_role": "text",
+      "bounds": [
+        192.85,
+        225.58,
+        43.98,
+        24.81
+      ],
+      "text": "1.2.0",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t08",
+      "native_id": "beauty_0_8",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text0d152e692026",
+      "semantic_role": "text",
+      "bounds": [
+        193.98,
+        288.74,
+        43.98,
+        24.81
+      ],
+      "text": "0.9.1",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t09",
+      "native_id": "beauty_0_9",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text77971de813b6",
+      "semantic_role": "text",
+      "bounds": [
+        193.98,
+        351.91,
+        43.98,
+        25.94
+      ],
+      "text": "2.0.0",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t10",
+      "native_id": "beauty_0_10",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text900f8962fb14",
+      "semantic_role": "text",
+      "bounds": [
+        35.73,
+        425.33,
+        69.5,
+        26.85
+      ],
+      "text": "Registry",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t11",
+      "native_id": "beauty_0_11",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textae384f6a3279",
+      "semantic_role": "text",
+      "bounds": [
+        50.73,
+        487.17,
+        93.64,
+        21.0
+      ],
+      "text": "code-linter",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t12",
+      "native_id": "beauty_0_12",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text1975fb9449be",
+      "semantic_role": "text",
+      "bounds": [
+        190.59,
+        483.87,
+        42.86,
+        24.81
+      ],
+      "text": "1.1.0",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t13",
+      "native_id": "beauty_0_13",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text0bb68fb82072",
+      "semantic_role": "text",
+      "bounds": [
+        50.51,
+        555.09,
+        81.69,
+        23.36
+      ],
+      "text": "api-client",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t14",
+      "native_id": "beauty_0_14",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textc84e32877000",
+      "semantic_role": "text",
+      "bounds": [
+        189.47,
+        554.93,
+        45.11,
+        23.69
+      ],
+      "text": "0.4.2",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t15",
+      "native_id": "beauty_0_15",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text2764dc8e1416",
+      "semantic_role": "text",
+      "bounds": [
+        294.33,
+        228.9,
+        58.68,
+        21.0
+      ],
+      "text": "Remove",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t16",
+      "native_id": "beauty_0_16",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text0ff5a566392d",
+      "semantic_role": "text",
+      "bounds": [
+        294.24,
+        291.75,
+        58.87,
+        21.0
+      ],
+      "text": "Remove",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t17",
+      "native_id": "beauty_0_17",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textc17931f73eef",
+      "semantic_role": "text",
+      "bounds": [
+        294.25,
+        356.06,
+        58.85,
+        21.0
+      ],
+      "text": "Remove",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t18",
+      "native_id": "beauty_0_18",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text89dd3d4b608b",
+      "semantic_role": "text",
+      "bounds": [
+        285.33,
+        488.38,
+        53.01,
+        21.0
+      ],
+      "text": "Install",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "t19",
+      "native_id": "beauty_0_19",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text25e0f0968280",
+      "semantic_role": "text",
+      "bounds": [
+        287.58,
+        558.31,
+        50.75,
+        21.0
+      ],
+      "text": "Install",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "297124571cf638f5a91889651bd6137e53c052958362871525c37cff46090166",
+  "mapping_basis": "mapped.json"
+}

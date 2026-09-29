@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "5025f758e8be3f217cc603ddca62c409c5943d22d5ccb3055dcb6a4d3af6375c",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "text",
+        "id": "t_title",
+        "text": "Connect to Octos",
+        "x": 78.94,
+        "y": 102.5,
+        "w": 226.68,
+        "h": 30.0,
+        "size": 20,
+        "line_height": 30.0,
+        "weight": 600,
+        "color": 4278190080,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t_server",
+        "text": "Server",
+        "x": 47.3,
+        "y": 175.76,
+        "w": 52.01,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4279834905,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "stack",
+        "id": "server",
+        "x": 48.0,
+        "y": 207.0,
+        "w": 309.0,
+        "h": 53.0,
+        "c": [
+          {
+            "t": "input",
+            "id": "server_field",
+            "text": "http://127.0.0.1:50190",
+            "placeholder": "",
+            "x": 61.777,
+            "y": 221.357,
+            "w": 281.446,
+            "h": 26.919,
+            "size": 15,
+            "line_height": 22.5,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "enabled": 1,
+            "c": []
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901245,
+        "radius": 9.57,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "text",
+        "id": "t_token",
+        "text": "Access token",
+        "x": 48.45,
+        "y": 299.77,
+        "w": 104.97,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4279505941,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "stack",
+        "id": "token",
+        "x": 48.0,
+        "y": 331.0,
+        "w": 310.0,
+        "h": 56.0,
+        "c": [
+          {
+            "t": "input",
+            "id": "token_field",
+            "text": "\u2022",
+            "placeholder": "",
+            "x": 61.822,
+            "y": 350.678,
+            "w": 282.357,
+            "h": 36.896,
+            "size": 15,
+            "line_height": 22.5,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "enabled": 1,
+            "c": []
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294835709,
+        "radius": 13.12,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "text",
+        "id": "t_hint",
+        "text": "Stored for this server only",
+        "x": 47.14,
+        "y": 403.53,
+        "w": 184.31,
+        "h": 21.82,
+        "size": 13,
+        "line_height": 21.82,
+        "weight": 400,
+        "color": 4285361518,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "stack",
+        "id": "connect",
+        "x": 137.78,
+        "y": 565.43,
+        "w": 124.79,
+        "h": 43.3,
+        "c": [
+          {
+            "t": "stack",
+            "id": "connect_surface",
+            "x": 137.78,
+            "y": 565.43,
+            "w": 124.79,
+            "h": 43.3,
+            "c": [],
+            "variant": "surface",
+            "bg": 4279243025,
+            "radius": 21.65
+          },
+          {
+            "t": "button",
+            "id": "connect_control",
+            "x": 137.78,
+            "y": 565.43,
+            "w": 124.79,
+            "h": 43.3,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "connect_label",
+            "text": "Connect",
+            "x": 158.78,
+            "y": 575.43,
+            "w": 82.79,
+            "h": 23.3,
+            "size": 15.53,
+            "line_height": 23.3,
+            "weight": 600,
+            "color": 4294835709,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf"
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      {
+        "t": "text",
+        "id": "t_local",
+        "text": "Use local solo server",
+        "x": 118.42,
+        "y": 662.0,
+        "w": 166.91,
+        "h": 19.5,
+        "size": 13,
+        "line_height": 19.5,
+        "weight": 500,
+        "color": 4279652851,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf"
+      }
+    ],
+    "variant": "surface",
+    "bg": 4293981682
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "server",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "server_field",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "token",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "token_field",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "connect",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "connect_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "connect_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t_title",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.07278292006340573
+    },
+    {
+      "id": "t_server",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.14417527721774195
+    },
+    {
+      "id": "t_token",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.14423162286931823
+    },
+    {
+      "id": "t_hint",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1137220869180162
+    },
+    {
+      "id": "connect_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1480238172743055
+    },
+    {
+      "id": "t_local",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.13705336626838235
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}
