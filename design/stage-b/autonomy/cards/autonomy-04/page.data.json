@@ -39,7 +39,7 @@
         }
       },
       "new_loop": {
-        "component": "KitButton3ea7d97692cf",
+        "component": "KitButton2c6804b990a5",
         "layout": {
           "x": 272.091,
           "y": 84.233,
@@ -65,16 +65,6 @@
           "h": 39.209
         }
       },
-      "new_loop_icon": {
-        "component": "Vectore0a378fde04f",
-        "layout": {
-          "x": 282.066,
-          "y": 94.849,
-          "w": 17.956,
-          "h": 17.977,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/new_loop_icon-0b6f5be6fb35.svg"
-        }
-      },
       "new_loop_label": {
         "component": "Textcab5ef52407e",
         "layout": {
@@ -84,22 +74,22 @@
           "h": 25.71
         }
       },
-      "loop_1": {
-        "component": "Surfacef048cb7f7bbf",
+      "loops_card": {
+        "component": "Surface07eaedee1d73",
         "layout": {
-          "x": 12.0,
-          "y": 143.0,
-          "w": 381.0,
-          "h": 121.0
+          "x": 10.0,
+          "y": 141.0,
+          "w": 386.0,
+          "h": 370.0
         }
       },
       "loop_1_dot": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 204.028,
-          "y": 154.919,
-          "w": 20.374,
-          "h": 25.825,
+          "x": 210.225,
+          "y": 166.337,
+          "w": 14.449,
+          "h": 14.78,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_1_dot-47612be73ffb.svg"
         }
       },
@@ -124,49 +114,49 @@
       "loop_1_pause": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 257.714,
-          "y": 238.175,
-          "w": 18.337,
-          "h": 19.865,
+          "x": 258.939,
+          "y": 163.17,
+          "w": 18.578,
+          "h": 21.115,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_1_pause-a8eaf0e4c2cc.svg"
         }
       },
       "loop_1_play": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 308.345,
-          "y": 238.175,
-          "w": 18.337,
-          "h": 19.865,
+          "x": 310.234,
+          "y": 163.17,
+          "w": 18.578,
+          "h": 21.115,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_1_play-c9c0b42d273d.svg"
         }
       },
       "loop_1_trash": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 358.567,
-          "y": 238.175,
-          "w": 18.337,
-          "h": 19.865,
+          "x": 361.116,
+          "y": 163.17,
+          "w": 18.578,
+          "h": 21.115,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_1_trash-931b99768271.svg"
         }
       },
-      "loop_2": {
-        "component": "Surfaceb45c5a1f6470",
+      "loop_2_divider": {
+        "component": "Surfacec4c38149242a",
         "layout": {
-          "x": 12.0,
-          "y": 266.0,
-          "w": 381.0,
-          "h": 120.0
+          "x": 18.257,
+          "y": 279.353,
+          "w": 369.487,
+          "h": 1.056
         }
       },
       "loop_2_dot": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 204.028,
-          "y": 277.895,
-          "w": 20.374,
-          "h": 25.772,
+          "x": 210.225,
+          "y": 296.244,
+          "w": 14.449,
+          "h": 14.78,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_2_dot-47612be73ffb.svg"
         }
       },
@@ -191,49 +181,49 @@
       "loop_2_pause": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 257.714,
-          "y": 360.228,
-          "w": 18.337,
-          "h": 19.825,
+          "x": 258.939,
+          "y": 293.077,
+          "w": 18.578,
+          "h": 21.115,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_2_pause-a8eaf0e4c2cc.svg"
         }
       },
       "loop_2_play": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 308.345,
-          "y": 360.228,
-          "w": 18.337,
-          "h": 19.825,
+          "x": 310.234,
+          "y": 293.077,
+          "w": 18.578,
+          "h": 21.115,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_2_play-c9c0b42d273d.svg"
         }
       },
       "loop_2_trash": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 358.567,
-          "y": 360.228,
-          "w": 18.337,
-          "h": 19.825,
+          "x": 361.116,
+          "y": 293.077,
+          "w": 18.578,
+          "h": 21.115,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_2_trash-931b99768271.svg"
         }
       },
-      "loop_3": {
-        "component": "Surfacec13f4ad941fd",
+      "loop_3_divider": {
+        "component": "Surfacec4c38149242a",
         "layout": {
-          "x": 12.0,
-          "y": 388.0,
-          "w": 382.0,
-          "h": 120.0
+          "x": 18.257,
+          "y": 408.299,
+          "w": 369.487,
+          "h": 1.056
         }
       },
       "loop_3_dot": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 204.532,
-          "y": 399.873,
-          "w": 20.428,
-          "h": 25.726,
+          "x": 210.225,
+          "y": 425.191,
+          "w": 14.449,
+          "h": 14.78,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_3_dot-e51db8e14b1f.svg"
         }
       },
@@ -258,20 +248,20 @@
       "loop_3_play": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 309.122,
-          "y": 482.274,
-          "w": 18.385,
-          "h": 19.789,
+          "x": 310.234,
+          "y": 422.023,
+          "w": 18.578,
+          "h": 21.115,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_3_play-c9c0b42d273d.svg"
         }
       },
       "loop_3_trash": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 359.477,
-          "y": 482.274,
-          "w": 18.385,
-          "h": 19.789,
+          "x": 361.116,
+          "y": 422.023,
+          "w": 18.578,
+          "h": 21.115,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_3_trash-931b99768271.svg"
         }
       }

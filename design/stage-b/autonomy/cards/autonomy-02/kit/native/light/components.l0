@@ -13,8 +13,8 @@ component Text17d36e66429f(instance: text, text: text) {
 component KitButton2c6804b990a5(instance: text) {
   view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
 }
-component Surface90b469db90ab(instance: text) {
-  view Kit(component: "Surface90b469db90ab", instance: instance) { slot }
+component Surfaceb5124380b3ee(instance: text) {
+  view Kit(component: "Surfaceb5124380b3ee", instance: instance) { slot }
 }
 component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
   view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)

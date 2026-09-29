@@ -10,36 +10,6 @@
         39
       ],
       "enabled": true
-    },
-    "loop_1_pause": {
-      "event": "loop.toggle",
-      "source_bounds": [
-        16,
-        155,
-        374,
-        121
-      ],
-      "enabled": true
-    },
-    "loop_2_pause": {
-      "event": "loop.toggle",
-      "source_bounds": [
-        16,
-        278,
-        374,
-        121
-      ],
-      "enabled": true
-    },
-    "loop_3_play": {
-      "event": "loop.toggle",
-      "source_bounds": [
-        16,
-        400,
-        374,
-        121
-      ],
-      "enabled": true
     }
   },
   "source": "design/stage-a/autonomy/atlas.png"

@@ -92,26 +92,8 @@
       "size": null
     },
     {
-      "source_id": "fleet_goal_icon",
-      "native_id": "beauty_0_0_2_0",
-      "parent": "fleet_goal",
-      "kind": "svg",
-      "component": "Vectore0a378fde04f",
-      "semantic_role": "icon",
-      "bounds": [
-        23.32,
-        178.271,
-        18.0,
-        17.977
-      ],
-      "text": null,
-      "enabled": null,
-      "font": null,
-      "size": null
-    },
-    {
       "source_id": "fleet_goal_label",
-      "native_id": "beauty_0_0_2_1",
+      "native_id": "beauty_0_0_2_0",
       "parent": "fleet_goal",
       "kind": "text",
       "component": "Text07d58e36d66e",
@@ -146,9 +128,27 @@
       "size": null
     },
     {
-      "source_id": "peer_1_status",
+      "source_id": "peer_1_badge",
       "native_id": "beauty_0_0_3_0",
       "parent": "peer_1",
+      "kind": "stack",
+      "component": "Surface46bf93b36e13",
+      "semantic_role": "layout",
+      "bounds": [
+        28.0,
+        255.0,
+        86.0,
+        52.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "peer_1_status",
+      "native_id": "beauty_0_0_3_0_0",
+      "parent": "peer_1_badge",
       "kind": "text",
       "component": "Text0ee31649c829",
       "semantic_role": "text",
@@ -236,9 +236,27 @@
       "size": null
     },
     {
-      "source_id": "peer_2_status",
+      "source_id": "peer_2_badge",
       "native_id": "beauty_0_0_4_0",
       "parent": "peer_2",
+      "kind": "stack",
+      "component": "Surfacef7d1de35cc6f",
+      "semantic_role": "layout",
+      "bounds": [
+        28.0,
+        384.0,
+        85.0,
+        52.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "peer_2_status",
+      "native_id": "beauty_0_0_4_0_0",
+      "parent": "peer_2_badge",
       "kind": "text",
       "component": "Text463574b60513",
       "semantic_role": "text",
@@ -326,9 +344,27 @@
       "size": null
     },
     {
-      "source_id": "peer_3_status",
+      "source_id": "peer_3_badge",
       "native_id": "beauty_0_0_5_0",
       "parent": "peer_3",
+      "kind": "stack",
+      "component": "Surfacefe8deb6b02b9",
+      "semantic_role": "layout",
+      "bounds": [
+        28.0,
+        510.0,
+        69.0,
+        52.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "peer_3_status",
+      "native_id": "beauty_0_0_5_0_0",
+      "parent": "peer_3_badge",
       "kind": "text",
       "component": "Textda5b0618c4a3",
       "semantic_role": "text",
@@ -403,6 +439,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "c98c8370a670b560fb84bf54a3aa52eeda9070487f124c7761f4b795dba3c2e3",
+  "contract_sha256": "870dfd2e34ab499053ccfd3f37af277bbabffbf109f9ee00f64c750c130d65b0",
   "mapping_basis": "mapped.json"
 }

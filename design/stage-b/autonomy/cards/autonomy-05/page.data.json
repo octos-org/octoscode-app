@@ -179,16 +179,6 @@
           "h": 50.62
         }
       },
-      "monitors_footer_icon": {
-        "component": "Vectore0a378fde04f",
-        "layout": {
-          "x": 29.66,
-          "y": 516.68,
-          "w": 20.0,
-          "h": 20.0,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-05/assets/monitors_footer_icon-b64e6a5bf721.svg"
-        }
-      },
       "monitors_footer_label": {
         "component": "Text57902c202dfd",
         "layout": {

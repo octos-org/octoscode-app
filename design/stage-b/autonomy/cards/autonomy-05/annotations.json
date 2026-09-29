@@ -167,17 +167,6 @@
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
-    },
-    {
-      "id": "monitors_footer_icon",
-      "bounds": [
-        29.66,
-        516.68,
-        20.0,
-        20.0
-      ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
-      "reviewed": false
     }
   ]
 }

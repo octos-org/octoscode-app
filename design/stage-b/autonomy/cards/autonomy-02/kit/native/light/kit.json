@@ -46,8 +46,8 @@
       "value": 4278650631,
       "property": "color"
     },
-    "bg_7001bceda7dd": {
-      "value": 4278848528,
+    "bg_33c64e1da9ef": {
+      "value": 4278190080,
       "property": "bg"
     },
     "radius_cb30211d8e99": {
@@ -307,12 +307,12 @@
       "props": {},
       "slot": true
     },
-    "Surface90b469db90ab": {
+    "Surfaceb5124380b3ee": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_7001bceda7dd"
+          "$token": "bg_33c64e1da9ef"
         },
         "radius": {
           "$token": "radius_cb30211d8e99"

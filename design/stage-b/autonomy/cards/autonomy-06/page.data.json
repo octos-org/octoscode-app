@@ -47,16 +47,6 @@
           "h": 49.107
         }
       },
-      "fleet_goal_icon": {
-        "component": "Vectore0a378fde04f",
-        "layout": {
-          "x": 23.32,
-          "y": 178.271,
-          "w": 18.0,
-          "h": 17.977,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-06/assets/fleet_goal_icon-47612be73ffb.svg"
-        }
-      },
       "fleet_goal_label": {
         "component": "Text07d58e36d66e",
         "layout": {
@@ -73,6 +63,15 @@
           "y": 220.0,
           "w": 377.0,
           "h": 128.0
+        }
+      },
+      "peer_1_badge": {
+        "component": "Surface46bf93b36e13",
+        "layout": {
+          "x": 28.0,
+          "y": 255.0,
+          "w": 86.0,
+          "h": 52.0
         }
       },
       "peer_1_status": {
@@ -120,6 +119,15 @@
           "h": 125.0
         }
       },
+      "peer_2_badge": {
+        "component": "Surfacef7d1de35cc6f",
+        "layout": {
+          "x": 28.0,
+          "y": 384.0,
+          "w": 85.0,
+          "h": 52.0
+        }
+      },
       "peer_2_status": {
         "component": "Text463574b60513",
         "layout": {
@@ -163,6 +171,15 @@
           "y": 476.0,
           "w": 377.0,
           "h": 127.0
+        }
+      },
+      "peer_3_badge": {
+        "component": "Surfacefe8deb6b02b9",
+        "layout": {
+          "x": 28.0,
+          "y": 510.0,
+          "w": 69.0,
+          "h": 52.0
         }
       },
       "peer_3_status": {

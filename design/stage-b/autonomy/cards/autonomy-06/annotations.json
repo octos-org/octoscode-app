@@ -95,17 +95,6 @@
       "reviewed": false
     },
     {
-      "id": "fleet_goal_icon",
-      "bounds": [
-        23.32,
-        178.271,
-        18.0,
-        17.977
-      ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
-      "reviewed": false
-    },
-    {
       "id": "peer_1",
       "bounds": [
         14.0,
@@ -117,6 +106,19 @@
       "reviewed": false,
       "bg": 4294901502,
       "radius": 18.77
+    },
+    {
+      "id": "peer_1_badge",
+      "bounds": [
+        28.0,
+        255.0,
+        86.0,
+        52.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293326570,
+      "radius": 26.0
     },
     {
       "id": "peer_2",
@@ -132,6 +134,19 @@
       "radius": 18.28
     },
     {
+      "id": "peer_2_badge",
+      "bounds": [
+        28.0,
+        384.0,
+        85.0,
+        52.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294899428,
+      "radius": 26.0
+    },
+    {
       "id": "peer_3",
       "bounds": [
         14.0,
@@ -143,6 +158,19 @@
       "reviewed": false,
       "bg": 4294901502,
       "radius": 18.59
+    },
+    {
+      "id": "peer_3_badge",
+      "bounds": [
+        28.0,
+        510.0,
+        69.0,
+        52.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293326569,
+      "radius": 26.0
     }
   ]
 }

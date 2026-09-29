@@ -33,14 +33,14 @@ component Text64353f2dde61(instance: text, text: text) {
 component Group3d2637879433(instance: text) {
   view Kit(component: "Group3d2637879433", instance: instance) { slot }
 }
-component Vectore0a378fde04f(instance: text) {
-  view Kit(component: "Vectore0a378fde04f", instance: instance)
-}
 component Text07d58e36d66e(instance: text, text: text) {
   view Kit(component: "Text07d58e36d66e", instance: instance, text: text)
 }
 component Surfaceb23206305538(instance: text) {
   view Kit(component: "Surfaceb23206305538", instance: instance) { slot }
+}
+component Surface46bf93b36e13(instance: text) {
+  view Kit(component: "Surface46bf93b36e13", instance: instance) { slot }
 }
 component Text0ee31649c829(instance: text, text: text) {
   view Kit(component: "Text0ee31649c829", instance: instance, text: text)
@@ -57,6 +57,9 @@ component Text05c2e4254ba7(instance: text, text: text) {
 component Surface3a76fed507e1(instance: text) {
   view Kit(component: "Surface3a76fed507e1", instance: instance) { slot }
 }
+component Surfacef7d1de35cc6f(instance: text) {
+  view Kit(component: "Surfacef7d1de35cc6f", instance: instance) { slot }
+}
 component Text463574b60513(instance: text, text: text) {
   view Kit(component: "Text463574b60513", instance: instance, text: text)
 }
@@ -71,6 +74,9 @@ component Textdaf651bf6d75(instance: text, text: text) {
 }
 component Surfaceb30cabf12786(instance: text) {
   view Kit(component: "Surfaceb30cabf12786", instance: instance) { slot }
+}
+component Surfacefe8deb6b02b9(instance: text) {
+  view Kit(component: "Surfacefe8deb6b02b9", instance: instance) { slot }
 }
 component Textda5b0618c4a3(instance: text, text: text) {
   view Kit(component: "Textda5b0618c4a3", instance: instance, text: text)
@@ -90,23 +96,28 @@ view root Surface16fae9a63e16(instance: "page") {
     Text0a4ca06a9999(instance: "t01", text: copy.t01_text)
     Text64353f2dde61(instance: "t_title", text: copy.t_title_text)
     Group3d2637879433(instance: "fleet_goal") {
-      Vectore0a378fde04f(instance: "fleet_goal_icon")
       Text07d58e36d66e(instance: "fleet_goal_label", text: copy.fleet_goal_label_text)
     }
     Surfaceb23206305538(instance: "peer_1") {
-      Text0ee31649c829(instance: "peer_1_status", text: copy.peer_1_status_text)
+      Surface46bf93b36e13(instance: "peer_1_badge") {
+        Text0ee31649c829(instance: "peer_1_status", text: copy.peer_1_status_text)
+      }
       Text6965a34baa9d(instance: "peer_1_name", text: copy.peer_1_name_text)
       Text53a53f8f1184(instance: "peer_1_meta", text: copy.peer_1_meta_text)
       Text05c2e4254ba7(instance: "peer_1_steer", text: copy.peer_1_steer_text)
     }
     Surface3a76fed507e1(instance: "peer_2") {
-      Text463574b60513(instance: "peer_2_status", text: copy.peer_2_status_text)
+      Surfacef7d1de35cc6f(instance: "peer_2_badge") {
+        Text463574b60513(instance: "peer_2_status", text: copy.peer_2_status_text)
+      }
       Textd63615c0f444(instance: "peer_2_name", text: copy.peer_2_name_text)
       Text3748175cfea1(instance: "peer_2_meta", text: copy.peer_2_meta_text)
       Textdaf651bf6d75(instance: "peer_2_steer", text: copy.peer_2_steer_text)
     }
     Surfaceb30cabf12786(instance: "peer_3") {
-      Textda5b0618c4a3(instance: "peer_3_status", text: copy.peer_3_status_text)
+      Surfacefe8deb6b02b9(instance: "peer_3_badge") {
+        Textda5b0618c4a3(instance: "peer_3_status", text: copy.peer_3_status_text)
+      }
       Texta077a2bc8582(instance: "peer_3_name", text: copy.peer_3_name_text)
       Text54d0e7a40736(instance: "peer_3_meta", text: copy.peer_3_meta_text)
       Textf0854a75a707(instance: "peer_3_steer", text: copy.peer_3_steer_text)

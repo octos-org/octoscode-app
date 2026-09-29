@@ -41,13 +41,13 @@
       ]
     },
     {
-      "id": "t_title",
+      "id": "t_goal_title",
       "expected_text": "Goal",
       "requested_bounds": [
         31.09,
         133.47,
         54.86,
-        28.5
+        26.38
       ],
       "status": "observed",
       "ocr_text": "Goal",
@@ -278,17 +278,17 @@
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        79.73363431151242,
-        573.4639999999999,
-        57.738148984198645,
-        25.607999999999997
+        84.31602708803612,
+        578.12,
+        46.740406320541766,
+        17.072
       ],
       "ink_color": [
-        251,
-        251,
-        251
+        10,
+        10,
+        12
       ],
-      "light_foreground": true,
+      "light_foreground": false,
       "ocr_bounds": [
         82.29729688581082,
         575.7919998189333,

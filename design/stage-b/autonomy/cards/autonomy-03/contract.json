@@ -53,22 +53,6 @@
             "font_src": "self:resources/ux/Inter-600.ttf"
           },
           {
-            "t": "text",
-            "id": "t_title",
-            "text": "Goal",
-            "x": 31.09,
-            "y": 133.47,
-            "w": 54.86,
-            "h": 28.5,
-            "size": 19,
-            "line_height": 28.5,
-            "weight": 600,
-            "color": 4280098079,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-600.ttf"
-          },
-          {
             "t": "stack",
             "id": "goal_card",
             "x": 16.0,
@@ -76,6 +60,22 @@
             "w": 374.0,
             "h": 449.31,
             "c": [
+              {
+                "t": "text",
+                "id": "t_goal_title",
+                "text": "Goal",
+                "x": 31.09,
+                "y": 133.47,
+                "w": 54.86,
+                "h": 26.38,
+                "size": 17,
+                "line_height": 26.38,
+                "weight": 600,
+                "color": 4280098079,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-600.ttf"
+              },
               {
                 "t": "text",
                 "id": "t_goal",
@@ -226,8 +226,10 @@
                     "h": 53.73,
                     "c": [],
                     "variant": "surface",
-                    "bg": 4278190080,
-                    "radius": 999
+                    "bg": 4294967295,
+                    "radius": 999,
+                    "border": 1,
+                    "bordercolor": 4293256679
                   },
                   {
                     "t": "button",
@@ -249,7 +251,7 @@
                     "size": 14,
                     "line_height": 21.73,
                     "weight": 600,
-                    "color": 4294967295,
+                    "color": 4280098079,
                     "variant": "single_line",
                     "alignx": 0,
                     "font_src": "self:resources/ux/Inter-600.ttf"

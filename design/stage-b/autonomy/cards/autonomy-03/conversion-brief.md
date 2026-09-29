@@ -61,22 +61,6 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t_title",
-    "x": 31.09,
-    "y": 133.47,
-    "w": 54.86,
-    "h": 28.5,
-    "text": "Goal",
-    "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 19,
-    "weight": 600,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
     "id": "goal_card",
     "x": 16.0,
     "y": 182.21,
@@ -85,6 +69,22 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "role": "layout",
     "native_candidates": [
       "View"
+    ]
+  },
+  {
+    "id": "t_goal_title",
+    "x": 31.09,
+    "y": 133.47,
+    "w": 54.86,
+    "h": 26.38,
+    "text": "Goal",
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 17,
+    "weight": 600,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
     ]
   },
   {

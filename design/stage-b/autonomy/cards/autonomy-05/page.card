@@ -79,7 +79,6 @@ view root Surface16fae9a63e16(instance: "page") {
       Vectore0a378fde04f(instance: "mon_2_trash")
     }
     Group3d2637879433(instance: "monitors_footer") {
-      Vectore0a378fde04f(instance: "monitors_footer_icon")
       Text57902c202dfd(instance: "monitors_footer_label", text: copy.monitors_footer_label_text)
     }
   }

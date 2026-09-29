@@ -88,17 +88,8 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "fleet_goal_icon",
-    "x": 23.32,
-    "y": 177.5,
-    "w": 18.0,
-    "h": 18.0,
-    "role": "unknown",
-    "native_candidates": []
-  },
-  {
     "id": "fleet_goal_label",
-    "x": 49.32,
+    "x": 25.32,
     "y": 176.5,
     "w": 112.06,
     "h": 25.17,
@@ -124,6 +115,17 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "peer_1_badge",
+    "x": 31.96,
+    "y": 269.27,
+    "w": 76.54,
+    "h": 30.64,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "peer_1_status",
     "x": 40.96,
     "y": 272.27,
@@ -131,7 +133,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 24.64,
     "text": "Running",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 14,
+    "size": 13,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -199,6 +201,17 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "peer_2_badge",
+    "x": 32.11,
+    "y": 395.98,
+    "w": 76.24,
+    "h": 29.79,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "peer_2_status",
     "x": 41.11,
     "y": 398.98,
@@ -206,7 +219,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 23.79,
     "text": "Blocked",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 14,
+    "size": 13,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -274,6 +287,17 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "peer_3_badge",
+    "x": 31.84,
+    "y": 523.53,
+    "w": 57.94,
+    "h": 29.09,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "peer_3_status",
     "x": 40.84,
     "y": 526.53,
@@ -281,7 +305,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 23.09,
     "text": "Done",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 14,
+    "size": 13,
     "weight": 600,
     "role": "text",
     "native_candidates": [

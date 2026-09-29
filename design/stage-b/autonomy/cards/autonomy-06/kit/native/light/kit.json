@@ -70,6 +70,14 @@
       "value": 18.77,
       "property": "radius"
     },
+    "bg_6ce78bd46474": {
+      "value": 4293326570,
+      "property": "bg"
+    },
+    "radius_80a753d4a473": {
+      "value": 26.0,
+      "property": "radius"
+    },
     "size_711b3ff3b7e4": {
       "value": 13.78,
       "property": "size"
@@ -130,6 +138,10 @@
       "value": 18.28,
       "property": "radius"
     },
+    "bg_5e86b6817805": {
+      "value": 4294899428,
+      "property": "bg"
+    },
     "size_b8a759f5a69a": {
       "value": 13.66,
       "property": "size"
@@ -181,6 +193,10 @@
     "radius_43ca0e16f70e": {
       "value": 18.59,
       "property": "radius"
+    },
+    "bg_fa0d0938e19f": {
+      "value": 4293326569,
+      "property": "bg"
     },
     "size_f997815921b1": {
       "value": 14.23,
@@ -310,13 +326,6 @@
       "props": {},
       "slot": true
     },
-    "Vectore0a378fde04f": {
-      "style": {
-        "t": "svg"
-      },
-      "props": {},
-      "slot": false
-    },
     "Text07d58e36d66e": {
       "style": {
         "t": "text",
@@ -358,6 +367,20 @@
         },
         "border": 1,
         "bordercolor": 4293256679
+      },
+      "props": {},
+      "slot": true
+    },
+    "Surface46bf93b36e13": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_6ce78bd46474"
+        },
+        "radius": {
+          "$token": "radius_80a753d4a473"
+        }
       },
       "props": {},
       "slot": true
@@ -494,6 +517,20 @@
       "props": {},
       "slot": true
     },
+    "Surfacef7d1de35cc6f": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_5e86b6817805"
+        },
+        "radius": {
+          "$token": "radius_80a753d4a473"
+        }
+      },
+      "props": {},
+      "slot": true
+    },
     "Text463574b60513": {
       "style": {
         "t": "text",
@@ -622,6 +659,20 @@
         },
         "border": 1,
         "bordercolor": 4293256679
+      },
+      "props": {},
+      "slot": true
+    },
+    "Surfacefe8deb6b02b9": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_fa0d0938e19f"
+        },
+        "radius": {
+          "$token": "radius_80a753d4a473"
+        }
       },
       "props": {},
       "slot": true

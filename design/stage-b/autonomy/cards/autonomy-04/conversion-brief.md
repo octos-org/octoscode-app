@@ -112,15 +112,6 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "new_loop_icon",
-    "x": 281.76,
-    "y": 93.97,
-    "w": 18.0,
-    "h": 18.0,
-    "role": "unknown",
-    "native_candidates": []
-  },
-  {
     "id": "new_loop_label",
     "x": 283.76,
     "y": 89.34,
@@ -137,11 +128,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "loop_1",
+    "id": "loops_card",
     "x": 16.0,
-    "y": 155.24,
+    "y": 149.24,
     "w": 374.0,
-    "h": 121.82,
+    "h": 350.47,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -149,10 +140,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "loop_1_dot",
-    "x": 204.5,
-    "y": 167.24,
-    "w": 20.0,
-    "h": 26.0,
+    "x": 210.0,
+    "y": 173.24,
+    "w": 14.0,
+    "h": 14.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -191,7 +182,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "loop_1_pause",
     "x": 257.2,
-    "y": 251.06,
+    "y": 170.24,
     "w": 18.0,
     "h": 20.0,
     "role": "unknown",
@@ -200,7 +191,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "loop_1_play",
     "x": 306.9,
-    "y": 251.06,
+    "y": 170.24,
     "w": 18.0,
     "h": 20.0,
     "role": "unknown",
@@ -209,18 +200,18 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "loop_1_trash",
     "x": 356.2,
-    "y": 251.06,
+    "y": 170.24,
     "w": 18.0,
     "h": 20.0,
     "role": "unknown",
     "native_candidates": []
   },
   {
-    "id": "loop_2",
-    "x": 16.0,
-    "y": 278.29,
-    "w": 374.0,
-    "h": 121.06,
+    "id": "loop_2_divider",
+    "x": 24.0,
+    "y": 280.29,
+    "w": 358.0,
+    "h": 1.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -228,10 +219,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "loop_2_dot",
-    "x": 204.5,
-    "y": 290.29,
-    "w": 20.0,
-    "h": 26.0,
+    "x": 210.0,
+    "y": 296.29,
+    "w": 14.0,
+    "h": 14.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -270,7 +261,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "loop_2_pause",
     "x": 257.2,
-    "y": 373.35,
+    "y": 293.29,
     "w": 18.0,
     "h": 20.0,
     "role": "unknown",
@@ -279,7 +270,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "loop_2_play",
     "x": 306.9,
-    "y": 373.35,
+    "y": 293.29,
     "w": 18.0,
     "h": 20.0,
     "role": "unknown",
@@ -288,18 +279,18 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "loop_2_trash",
     "x": 356.2,
-    "y": 373.35,
+    "y": 293.29,
     "w": 18.0,
     "h": 20.0,
     "role": "unknown",
     "native_candidates": []
   },
   {
-    "id": "loop_3",
-    "x": 16.0,
-    "y": 400.43,
-    "w": 374.0,
-    "h": 121.28,
+    "id": "loop_3_divider",
+    "x": 24.0,
+    "y": 402.43,
+    "w": 358.0,
+    "h": 1.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -307,10 +298,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "loop_3_dot",
-    "x": 204.5,
-    "y": 412.43,
-    "w": 20.0,
-    "h": 26.0,
+    "x": 210.0,
+    "y": 418.43,
+    "w": 14.0,
+    "h": 14.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -349,7 +340,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "loop_3_play",
     "x": 306.9,
-    "y": 495.71,
+    "y": 415.43,
     "w": 18.0,
     "h": 20.0,
     "role": "unknown",
@@ -358,7 +349,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "loop_3_trash",
     "x": 356.2,
-    "y": 495.71,
+    "y": 415.43,
     "w": 18.0,
     "h": 20.0,
     "role": "unknown",

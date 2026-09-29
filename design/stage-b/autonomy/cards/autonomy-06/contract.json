@@ -77,19 +77,10 @@
             "h": 49.17,
             "c": [
               {
-                "t": "svg",
-                "id": "fleet_goal_icon",
-                "x": 23.32,
-                "y": 177.5,
-                "w": 18.0,
-                "h": 18.0,
-                "src": ""
-              },
-              {
                 "t": "text",
                 "id": "fleet_goal_label",
                 "text": "Fix steer queue",
-                "x": 49.32,
+                "x": 25.32,
                 "y": 176.5,
                 "w": 112.06,
                 "h": 25.17,
@@ -112,20 +103,33 @@
             "h": 81.84,
             "c": [
               {
-                "t": "text",
-                "id": "peer_1_status",
-                "text": "Running",
-                "x": 40.96,
-                "y": 272.27,
-                "w": 58.54,
-                "h": 24.64,
-                "size": 14,
-                "line_height": 24.64,
-                "weight": 600,
-                "color": 4280256573,
-                "variant": "single_line",
-                "alignx": 0,
-                "font_src": "self:resources/ux/Inter-600.ttf"
+                "t": "stack",
+                "id": "peer_1_badge",
+                "x": 31.96,
+                "y": 269.27,
+                "w": 76.54,
+                "h": 30.64,
+                "c": [
+                  {
+                    "t": "text",
+                    "id": "peer_1_status",
+                    "text": "Running",
+                    "x": 40.96,
+                    "y": 272.27,
+                    "w": 58.54,
+                    "h": 24.64,
+                    "size": 13,
+                    "line_height": 24.64,
+                    "weight": 600,
+                    "color": 4280256573,
+                    "variant": "single_line",
+                    "alignx": 0,
+                    "font_src": "self:resources/ux/Inter-600.ttf"
+                  }
+                ],
+                "variant": "surface",
+                "bg": 4293326058,
+                "radius": 999
               },
               {
                 "t": "text",
@@ -191,20 +195,33 @@
             "h": 82.06,
             "c": [
               {
-                "t": "text",
-                "id": "peer_2_status",
-                "text": "Blocked",
-                "x": 41.11,
-                "y": 398.98,
-                "w": 58.24,
-                "h": 23.79,
-                "size": 14,
-                "line_height": 23.79,
-                "weight": 600,
-                "color": 4291764782,
-                "variant": "single_line",
-                "alignx": 0,
-                "font_src": "self:resources/ux/Inter-600.ttf"
+                "t": "stack",
+                "id": "peer_2_badge",
+                "x": 32.11,
+                "y": 395.98,
+                "w": 76.24,
+                "h": 29.79,
+                "c": [
+                  {
+                    "t": "text",
+                    "id": "peer_2_status",
+                    "text": "Blocked",
+                    "x": 41.11,
+                    "y": 398.98,
+                    "w": 58.24,
+                    "h": 23.79,
+                    "size": 13,
+                    "line_height": 23.79,
+                    "weight": 600,
+                    "color": 4288308992,
+                    "variant": "single_line",
+                    "alignx": 0,
+                    "font_src": "self:resources/ux/Inter-600.ttf"
+                  }
+                ],
+                "variant": "surface",
+                "bg": 4294833891,
+                "radius": 999
               },
               {
                 "t": "text",
@@ -270,20 +287,33 @@
             "h": 81.98,
             "c": [
               {
-                "t": "text",
-                "id": "peer_3_status",
-                "text": "Done",
-                "x": 40.84,
-                "y": 526.53,
-                "w": 39.94,
-                "h": 23.09,
-                "size": 14,
-                "line_height": 23.09,
-                "weight": 600,
-                "color": 4285427315,
-                "variant": "single_line",
-                "alignx": 0,
-                "font_src": "self:resources/ux/Inter-600.ttf"
+                "t": "stack",
+                "id": "peer_3_badge",
+                "x": 31.84,
+                "y": 523.53,
+                "w": 57.94,
+                "h": 29.09,
+                "c": [
+                  {
+                    "t": "text",
+                    "id": "peer_3_status",
+                    "text": "Done",
+                    "x": 40.84,
+                    "y": 526.53,
+                    "w": 39.94,
+                    "h": 23.09,
+                    "size": 13,
+                    "line_height": 23.09,
+                    "weight": 600,
+                    "color": 4280256573,
+                    "variant": "single_line",
+                    "alignx": 0,
+                    "font_src": "self:resources/ux/Inter-600.ttf"
+                  }
+                ],
+                "variant": "surface",
+                "bg": 4293326058,
+                "radius": 999
               },
               {
                 "t": "text",

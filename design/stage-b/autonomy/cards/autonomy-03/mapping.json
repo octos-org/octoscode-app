@@ -56,26 +56,8 @@
       "size": 18.42
     },
     {
-      "source_id": "t_title",
-      "native_id": "beauty_0_0_1",
-      "parent": "goal_screen",
-      "kind": "text",
-      "component": "Text340535f16f5a",
-      "semantic_role": "text",
-      "bounds": [
-        33.78,
-        133.8,
-        49.82,
-        25.27
-      ],
-      "text": "Goal",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-600.ttf",
-      "size": 20.89
-    },
-    {
       "source_id": "goal_card",
-      "native_id": "beauty_0_0_2",
+      "native_id": "beauty_0_0_1",
       "parent": "goal_screen",
       "kind": "stack",
       "component": "Surfaceebeaffab57cc",
@@ -92,8 +74,26 @@
       "size": null
     },
     {
+      "source_id": "t_goal_title",
+      "native_id": "beauty_0_0_1_0",
+      "parent": "goal_card",
+      "kind": "text",
+      "component": "Text340535f16f5a",
+      "semantic_role": "text",
+      "bounds": [
+        33.78,
+        133.8,
+        49.82,
+        25.27
+      ],
+      "text": "Goal",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 20.89
+    },
+    {
       "source_id": "t_goal",
-      "native_id": "beauty_0_0_2_0",
+      "native_id": "beauty_0_0_1_1",
       "parent": "goal_card",
       "kind": "text",
       "component": "Textbc84cf10033f",
@@ -111,7 +111,7 @@
     },
     {
       "source_id": "goal_badge",
-      "native_id": "beauty_0_0_2_1",
+      "native_id": "beauty_0_0_1_2",
       "parent": "goal_card",
       "kind": "stack",
       "component": "Surface061d79961e7a",
@@ -129,7 +129,7 @@
     },
     {
       "source_id": "goal_badge_label",
-      "native_id": "beauty_0_0_2_1_0",
+      "native_id": "beauty_0_0_1_2_0",
       "parent": "goal_badge",
       "kind": "text",
       "component": "Textb7495c5c5d4f",
@@ -147,7 +147,7 @@
     },
     {
       "source_id": "t_budget",
-      "native_id": "beauty_0_0_2_2",
+      "native_id": "beauty_0_0_1_3",
       "parent": "goal_card",
       "kind": "text",
       "component": "Text8aa5895fa45e",
@@ -165,7 +165,7 @@
     },
     {
       "source_id": "t_budget_val",
-      "native_id": "beauty_0_0_2_3",
+      "native_id": "beauty_0_0_1_4",
       "parent": "goal_card",
       "kind": "text",
       "component": "Text8944a89c950f",
@@ -183,10 +183,10 @@
     },
     {
       "source_id": "bar_track",
-      "native_id": "beauty_0_0_2_4",
+      "native_id": "beauty_0_0_1_5",
       "parent": "goal_card",
       "kind": "stack",
-      "component": "Surface2fe27683340f",
+      "component": "Surface6217c11b5650",
       "semantic_role": "layout",
       "bounds": [
         29.09,
@@ -201,10 +201,10 @@
     },
     {
       "source_id": "bar_fill",
-      "native_id": "beauty_0_0_2_5",
+      "native_id": "beauty_0_0_1_6",
       "parent": "goal_card",
       "kind": "stack",
-      "component": "Surface04156896cc6b",
+      "component": "Surface07a4c38fa722",
       "semantic_role": "layout",
       "bounds": [
         29.09,
@@ -219,7 +219,7 @@
     },
     {
       "source_id": "t_elapsed",
-      "native_id": "beauty_0_0_2_6",
+      "native_id": "beauty_0_0_1_7",
       "parent": "goal_card",
       "kind": "text",
       "component": "Textbdc8ea81e9d3",
@@ -237,7 +237,7 @@
     },
     {
       "source_id": "t_elapsed_val",
-      "native_id": "beauty_0_0_2_7",
+      "native_id": "beauty_0_0_1_8",
       "parent": "goal_card",
       "kind": "text",
       "component": "Textdb2041b71827",
@@ -255,7 +255,7 @@
     },
     {
       "source_id": "pause_btn",
-      "native_id": "beauty_0_0_2_8",
+      "native_id": "beauty_0_0_1_9",
       "parent": "goal_card",
       "kind": "stack",
       "component": "KitButton2c6804b990a5",
@@ -273,10 +273,10 @@
     },
     {
       "source_id": "pause_btn_surface",
-      "native_id": "beauty_0_0_2_8_0",
+      "native_id": "beauty_0_0_1_9_0",
       "parent": "pause_btn",
       "kind": "stack",
-      "component": "Surfacefe6068fabd7e",
+      "component": "Surface8909d71dc5dd",
       "semantic_role": "layout",
       "bounds": [
         34.0,
@@ -291,7 +291,7 @@
     },
     {
       "source_id": "pause_btn_control",
-      "native_id": "beauty_0_0_2_8_1",
+      "native_id": "beauty_0_0_1_9_1",
       "parent": "pause_btn",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -309,25 +309,25 @@
     },
     {
       "source_id": "pause_btn_label",
-      "native_id": "beauty_0_0_2_8_2",
+      "native_id": "beauty_0_0_1_9_2",
       "parent": "pause_btn",
       "kind": "text",
-      "component": "Text51e9d9e3737c",
+      "component": "Text19dba5000243",
       "semantic_role": "text",
       "bounds": [
-        78.31,
-        571.46,
-        61.74,
-        29.61
+        83.16,
+        576.12,
+        50.74,
+        21.07
       ],
       "text": "Pause",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 19.43
+      "size": 15.73
     },
     {
       "source_id": "stop_btn",
-      "native_id": "beauty_0_0_2_9",
+      "native_id": "beauty_0_0_1_10",
       "parent": "goal_card",
       "kind": "stack",
       "component": "KitButton2c6804b990a5",
@@ -345,7 +345,7 @@
     },
     {
       "source_id": "stop_btn_surface",
-      "native_id": "beauty_0_0_2_9_0",
+      "native_id": "beauty_0_0_1_10_0",
       "parent": "stop_btn",
       "kind": "stack",
       "component": "Surfaceff776c252975",
@@ -363,7 +363,7 @@
     },
     {
       "source_id": "stop_btn_control",
-      "native_id": "beauty_0_0_2_9_1",
+      "native_id": "beauty_0_0_1_10_1",
       "parent": "stop_btn",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -381,7 +381,7 @@
     },
     {
       "source_id": "stop_btn_label",
-      "native_id": "beauty_0_0_2_9_2",
+      "native_id": "beauty_0_0_1_10_2",
       "parent": "stop_btn",
       "kind": "text",
       "component": "Textafcbbfd1a4df",
@@ -399,7 +399,7 @@
     },
     {
       "source_id": "clear_goal",
-      "native_id": "beauty_0_0_3",
+      "native_id": "beauty_0_0_2",
       "parent": "goal_screen",
       "kind": "stack",
       "component": "KitButton2c6804b990a5",
@@ -417,7 +417,7 @@
     },
     {
       "source_id": "clear_goal_surface",
-      "native_id": "beauty_0_0_3_0",
+      "native_id": "beauty_0_0_2_0",
       "parent": "clear_goal",
       "kind": "stack",
       "component": "Surfacec768d4b60097",
@@ -435,7 +435,7 @@
     },
     {
       "source_id": "clear_goal_control",
-      "native_id": "beauty_0_0_3_1",
+      "native_id": "beauty_0_0_2_1",
       "parent": "clear_goal",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -453,7 +453,7 @@
     },
     {
       "source_id": "clear_goal_label",
-      "native_id": "beauty_0_0_3_2",
+      "native_id": "beauty_0_0_2_2",
       "parent": "clear_goal",
       "kind": "text",
       "component": "Text196673905202",
@@ -475,6 +475,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "6ada9a20f503b61b2436fab7d1ff426008c37cb187a3f266ec4b7c1536bef9b0",
+  "contract_sha256": "29d62c11e440d285bcc1a8477895c598021e80dec0a43a2109f55ee179b75d59",
   "mapping_basis": "mapped.json"
 }

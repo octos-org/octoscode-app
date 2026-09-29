@@ -36,6 +36,15 @@ COLOR_KEEP = {
 X_SHIFT = {}
 
 
+# node id -> restore the AUTHORED bg. `measure_surfaces` takes one interior
+# median; on small or glyph-covered surfaces (thin progress bar, solid black
+# pill under white text) the median lands on the page/label, erasing the fill.
+BG_KEEP = {
+    2: {"start_review_surface"},
+    3: {"bar_track", "bar_fill", "pause_btn_surface"},
+}
+
+
 def walk(n):
     yield n
     for c in n.get("c", []):
@@ -53,6 +62,9 @@ def fix_scene(d, scene_no):
         nid = n.get("id")
         if nid in COLOR_KEEP.get(scene_no, set()) and nid in authored:
             n["color"] = authored[nid]["color"]
+            changed += 1
+        if nid in BG_KEEP.get(scene_no, set()) and nid in authored and "bg" in n:
+            n["bg"] = authored[nid]["bg"]
             changed += 1
         if nid in X_SHIFT.get(scene_no, {}):
             n["x"] = round(n["x"] + X_SHIFT[scene_no][nid], 2)

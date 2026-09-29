@@ -29,15 +29,6 @@
           "h": 22.29
         }
       },
-      "t_title": {
-        "component": "Text340535f16f5a",
-        "layout": {
-          "x": 33.78,
-          "y": 133.8,
-          "w": 49.82,
-          "h": 25.27
-        }
-      },
       "goal_card": {
         "component": "Surfaceebeaffab57cc",
         "layout": {
@@ -45,6 +36,15 @@
           "y": 107.0,
           "w": 374.0,
           "h": 617.0
+        }
+      },
+      "t_goal_title": {
+        "component": "Text340535f16f5a",
+        "layout": {
+          "x": 33.78,
+          "y": 133.8,
+          "w": 49.82,
+          "h": 25.27
         }
       },
       "t_goal": {
@@ -93,7 +93,7 @@
         }
       },
       "bar_track": {
-        "component": "Surface2fe27683340f",
+        "component": "Surface6217c11b5650",
         "layout": {
           "x": 29.09,
           "y": 396.364,
@@ -102,7 +102,7 @@
         }
       },
       "bar_fill": {
-        "component": "Surface04156896cc6b",
+        "component": "Surface07a4c38fa722",
         "layout": {
           "x": 29.09,
           "y": 396.364,
@@ -138,7 +138,7 @@
         }
       },
       "pause_btn_surface": {
-        "component": "Surfacefe6068fabd7e",
+        "component": "Surface8909d71dc5dd",
         "layout": {
           "x": 34.0,
           "y": 559.0,
@@ -156,12 +156,12 @@
         }
       },
       "pause_btn_label": {
-        "component": "Text51e9d9e3737c",
+        "component": "Text19dba5000243",
         "layout": {
-          "x": 78.31,
-          "y": 571.46,
-          "w": 61.74,
-          "h": 29.61
+          "x": 83.16,
+          "y": 576.12,
+          "w": 50.74,
+          "h": 21.07
         }
       },
       "stop_btn": {

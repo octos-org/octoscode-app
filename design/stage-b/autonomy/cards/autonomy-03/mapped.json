@@ -35,23 +35,6 @@
             "tracking": 0.0
           },
           {
-            "t": "text",
-            "id": "t_title",
-            "text": "Goal",
-            "x": 33.78,
-            "y": 133.8,
-            "w": 49.82,
-            "h": 25.27,
-            "size": 20.89,
-            "line_height": 25.27,
-            "weight": 600,
-            "color": 4278584838,
-            "variant": "single_line",
-            "alignx": 0,
-            "font_src": "self:resources/ux/Inter-600.ttf",
-            "tracking": 0.0
-          },
-          {
             "t": "stack",
             "id": "goal_card",
             "x": 14.0,
@@ -59,6 +42,23 @@
             "w": 374.0,
             "h": 617.0,
             "c": [
+              {
+                "t": "text",
+                "id": "t_goal_title",
+                "text": "Goal",
+                "x": 33.78,
+                "y": 133.8,
+                "w": 49.82,
+                "h": 25.27,
+                "size": 20.89,
+                "line_height": 25.27,
+                "weight": 600,
+                "color": 4278584838,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-600.ttf",
+                "tracking": 0.0
+              },
               {
                 "t": "text",
                 "id": "t_goal",
@@ -149,7 +149,7 @@
                 "h": 10.986,
                 "c": [],
                 "variant": "surface",
-                "bg": 4294901502,
+                "bg": 4293256679,
                 "radius": 5.49
               },
               {
@@ -161,7 +161,7 @@
                 "h": 10.986,
                 "c": [],
                 "variant": "surface",
-                "bg": 4294835710,
+                "bg": 4281298923,
                 "radius": 5.49
               },
               {
@@ -215,8 +215,10 @@
                     "h": 55.0,
                     "c": [],
                     "variant": "surface",
-                    "bg": 4294835709,
-                    "radius": 27.5
+                    "bg": 4294967295,
+                    "radius": 27.5,
+                    "border": 1,
+                    "bordercolor": 4293256679
                   },
                   {
                     "t": "button",
@@ -231,14 +233,14 @@
                     "t": "text",
                     "id": "pause_btn_label",
                     "text": "Pause",
-                    "x": 78.31,
-                    "y": 571.46,
-                    "w": 61.74,
-                    "h": 29.61,
-                    "size": 19.43,
-                    "line_height": 23.51,
+                    "x": 83.16,
+                    "y": 576.12,
+                    "w": 50.74,
+                    "h": 21.07,
+                    "size": 15.73,
+                    "line_height": 19.03,
                     "weight": 600,
-                    "color": 4294704123,
+                    "color": 4278848012,
                     "variant": "single_line",
                     "alignx": 0,
                     "font_src": "self:resources/ux/Inter-600.ttf",
@@ -431,7 +433,7 @@
       "tracking_em": -0.11893972539586684
     },
     {
-      "id": "t_title",
+      "id": "t_goal_title",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.12536384516685814
@@ -476,7 +478,7 @@
       "id": "pause_btn_label",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.2979310578208069
+      "tracking_em": -0.20869725547883697
     },
     {
       "id": "stop_btn_label",

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "6b3053d3ed3b25ba1b0d5f5f22da5596c363e2f3d47f172ef40932c1a8f4afc4",
+  "contract_sha256": "f6ee44ed25b4b7e7f7af79beceec31b330177e90b72a6d0b454ecf5b3b927a08",
   "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -55,22 +55,6 @@
       "decision": "declared"
     },
     {
-      "id": "new_loop_icon",
-      "role": "icon",
-      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
-      "confidence": 1.0,
-      "decision": "reviewed",
-      "asset": {
-        "path": "assets/new_loop_icon.svg",
-        "sha256": "0b6f5be6fb3502916c7c2b7954a5d005c2e9feb094c6953d5c642497c8632b55",
-        "method": "reference_svg",
-        "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
-        "fit": "stretch",
-        "clip": true,
-        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
-      }
-    },
-    {
       "id": "new_loop_label",
       "role": "text",
       "basis": "authored text node",
@@ -78,7 +62,7 @@
       "decision": "declared"
     },
     {
-      "id": "loop_1",
+      "id": "loops_card",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
@@ -163,7 +147,7 @@
       }
     },
     {
-      "id": "loop_2",
+      "id": "loop_2_divider",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,
@@ -248,7 +232,7 @@
       }
     },
     {
-      "id": "loop_3",
+      "id": "loop_3_divider",
       "role": "layout",
       "basis": "authored stack node",
       "confidence": 1.0,

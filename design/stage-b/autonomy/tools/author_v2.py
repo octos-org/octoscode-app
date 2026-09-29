@@ -24,10 +24,12 @@ OCR = ROOT / "ocr"
 
 C = {"white": 0xFFFFFFFF, "panel": 0xFFF7F7F8, "hair": 0xFFE5E5E7, "ink": 0xFF1D1D1F,
      "muted": 0xFF6E6E73, "black": 0xFF000000, "blue": 0xFF2F6FEB, "green": 0xFF1F883D,
-     "greenbg": 0xFFE6F4EA, "red": 0xFFCF222E, "redbg": 0xFFFDECEC, "box": 0xFFF4F4F5}
+     "greenbg": 0xFFE6F4EA, "red": 0xFFCF222E, "redbg": 0xFFFDECEC, "box": 0xFFF4F4F5,
+     "amber": 0xFF9A6700, "amberbg": 0xFFFDF6E3}
 C_HEX = {"white": "#FFFFFF", "panel": "#F7F7F8", "hair": "#E5E5E7", "ink": "#1D1D1F",
          "muted": "#6E6E73", "black": "#000000", "blue": "#2F6FEB", "green": "#1F883D",
-         "greenbg": "#E6F4EA", "red": "#CF222E", "redbg": "#FDECEC", "box": "#F4F4F5"}
+         "greenbg": "#E6F4EA", "red": "#CF222E", "redbg": "#FDECEC", "box": "#F4F4F5",
+         "amber": "#9A6700", "amberbg": "#FDF6E3"}
 FONT = {400: "self:resources/ux/Inter-400.ttf", 500: "self:resources/ux/Inter-500.ttf",
         600: "self:resources/ux/Inter-600.ttf", 700: "self:resources/ux/Inter-700.ttf"}
 # The kit bundles a monospace face (see conversation/tools/rebuild.sh): the host
@@ -315,12 +317,13 @@ def build_02(sc):
 
 # ---------------------------------------------------------------- screen 3
 def build_03(sc):
-    """GOAL. Header 'Goal'; one goal card: title 'Fix steer queue on reconnect',
-    green 'Active' badge, 'Token budget' + right-aligned '41k of 100k', a progress
-    bar (blue fill over hairline track), 'Elapsed' + right-aligned '18m', black
-    'Pause' + white 'Stop' buttons side by side, and a 'Clear goal' link below."""
+    """GOAL. The atlas draws the 'Goal' title INSIDE the goal card (top-left), then
+    the goal name, green 'Active' badge, 'Token budget' + right-aligned '41k of
+    100k', a progress bar (blue fill over hairline track), 'Elapsed' + right-aligned
+    '18m', and two white outlined pills 'Pause' + 'Stop' side by side (verified on
+    the reference: both buttons are white with hairline borders), 'Clear goal' below."""
     header(sc, 0)
-    sc.add_text("t_title", 1, weight=600, size=19)                       # Goal
+    _, tx0, ty0, tw0, th0 = sc.rows[1]                                 # Goal (inside card)
     _, gx, gy, gw, gh = sc.rows[2]                                       # goal title
     _, ax, ay, aw, ah = sc.rows[3]                                       # Active
     _, tx, ty, tw, th = sc.rows[4]                                       # Token budget
@@ -333,6 +336,7 @@ def build_03(sc):
     bar_y = r(vy + vh + 22)
     bar_h = 8
     kids = [
+        text("t_goal_title", sc.t(1), tx0, ty0, tw0, th0, size=17, weight=600),
         text("t_goal", sc.t(2), gx, gy, gw, gh, size=15, weight=600),
         surface("goal_badge", ax - 10, ay - 4, aw + 20, ah + 8, bg="greenbg",
                 radius=999, kids=[
@@ -345,14 +349,16 @@ def build_03(sc):
         text("t_elapsed", sc.t(6), ex, ey, ew, eh, size=14, color="muted"),
         text("t_elapsed_val", sc.t(7), mvx, mvy, mvw, mvh, size=14, weight=500),
     ]
-    # buttons: Pause black pill, Stop white pill with hairline border; measured
-    # button band (pixel scan): [35,202] and [226,392] -> logical /1.172.
+    # buttons: the atlas draws BOTH Pause and Stop as white pills with hairline
+    # borders (verified on the reference bottom band). Button band from the pixel
+    # scan: [35,202] and [226,392] -> logical /1.172.
     band_y = r(py - 16)
     kids.append(stack("pause_btn", 30, band_y, 143, ph + 32, [
-        surface("pause_btn_surface", 30, band_y, 143, ph + 32, bg="black", radius=999),
+        surface("pause_btn_surface", 30, band_y, 143, ph + 32, bg="white", radius=999,
+                border=1, bordercolor="hair"),
         {"t": "button", "id": "pause_btn_control", "x": 30.0, "y": band_y, "w": 143.0,
          "h": r(ph + 32), "enabled": 1},
-        text("pause_btn_label", sc.t(8), px, py, pw, ph, size=14, weight=600, color="white")],
+        text("pause_btn_label", sc.t(8), px, py, pw, ph, size=14, weight=600, color="ink")],
         kit=json.dumps({"widget": "KitButton", "bindings": {"control": [1], "label": [2]}})))
     kids.append(stack("stop_btn", 193, band_y, 142, ph + 32, [
         surface("stop_btn_surface", 193, band_y, 142, ph + 32, bg="white", radius=999,
@@ -375,16 +381,18 @@ def build_03(sc):
 
 # ---------------------------------------------------------------- screen 4
 def build_04(sc):
-    """LOOPS. Header 'Loops' + blue '+ New loop'; three loop rows, each: status dot
-    (green active / grey paused), name, muted cadence, and right-side icons —
-    active rows carry pause-circled + play-circled + trash; the paused row
-    ('Nightly review') carries only play-circled + trash (no pause icon)."""
+    """LOOPS. Header 'Loops' + blue '+ New loop' (the OCR text already carries the
+    '+', no separate icon — verified on the reference). ONE large card holding all
+    three loop rows with hairline dividers between them (verified: the reference
+    draws one bordered card, not three). Each row: status dot (green active / grey
+    paused) at the NAME line, name, muted cadence below, and right-side icons
+    vertically centred on the name line — active rows carry pause + play + trash;
+    the paused row ('Nightly review') carries only play + trash."""
     header(sc, 0)
     sc.add_text("t_title", 1, weight=600, size=19)                       # Loops
     _, nx, ny, nw, nh = sc.rows[10]                                      # + New loop
     sc.add_control("new_loop", nx - 12, ny - 6, nw + 24, nh + 12, 10, bg="white",
-                   radius=8, color="blue", weight=600, icon_name="plus",
-                   icon_color="blue", event="loop.new")
+                   radius=8, color="blue", weight=600, event="loop.new")
     rows = [
         (2, 3, "loop_1", "dot_green", True),    # Run CI smoke, every 15 min
         (4, 5, "loop_2", "dot_green", True),    # Sync main, every 30 min
@@ -392,22 +400,28 @@ def build_04(sc):
     ]
     # icon x positions from the pixel scan (atlas px -> logical /1.252).
     ic = {"pause": 257.2, "play": 306.9, "trash": 356.2}
-    for name_i, cad_i, rid, dot, active in rows:
+    kids = []
+    first_top = None
+    last_bottom = None
+    for idx, (name_i, cad_i, rid, dot, active) in enumerate(rows):
         _, x, y, w, h = sc.rows[name_i]
         _, cx2, cy2, cw2, ch2 = sc.rows[cad_i]
-        kids = [icon(rid + "_dot", dot, 204.5, y - 4, 20, 26),
-                text(rid + "_name", sc.t(name_i), x, y, w, h, size=15, weight=500),
-                text(rid + "_cad", sc.t(cad_i), cx2, cy2, cw2, ch2, size=13, color="muted")]
-        iy = r(cy2 + ch2 + 14)
+        iy = r(y - 1)                                   # icons centred on the name line
+        if idx > 0:
+            kids.append(surface(rid + "_divider", 24, r(y - 14), 358, 1,
+                                bg="hair", radius=0))
+        kids.append(icon(rid + "_dot", dot, 210.0, r(y + 2), 14, 14))
+        kids.append(text(rid + "_name", sc.t(name_i), x, y, w, h, size=15, weight=500))
+        kids.append(text(rid + "_cad", sc.t(cad_i), cx2, cy2, cw2, ch2, size=13, color="muted"))
         if active:
             kids.append(icon(rid + "_pause", "pause", ic["pause"], iy, 18, 20, color="muted"))
         kids.append(icon(rid + "_play", "play", ic["play"], iy, 18, 20, color="muted"))
         kids.append(icon(rid + "_trash", "trash", ic["trash"], iy, 18, 20, color="muted"))
-        top = r(y - 16)
-        sc.put(surface(rid, 16, top, 374, r((iy + 26) - top), bg="white", radius=12,
-                       border=1, bordercolor="hair", kids=kids))
-        sc.controls[rid + "_pause" if active else rid + "_play"] = (
-            "loop.toggle", [16, int(top), 374, int((iy + 26) - top)], True)
+        if first_top is None:
+            first_top = r(y - 22)
+        last_bottom = r(cy2 + ch2 + 18)
+    sc.put(surface("loops_card", 16, first_top, 374, r(last_bottom - first_top),
+                   bg="white", radius=12, border=1, bordercolor="hair", kids=kids))
     sc.wrap("loops_screen", 0, 0, 406, 776)
 
 # ---------------------------------------------------------------- screen 5
@@ -435,7 +449,6 @@ def build_05(sc):
     # footer info line
     _, fx, fy, fw, fh = sc.rows[8]
     sc.put(stack("monitors_footer", 16, fy - 10, 374, fh + 20, [
-        icon("monitors_footer_icon", "clock", fx - 28, fy, 20, 20, color="muted"),
         text("monitors_footer_label", sc.t(8), fx, fy, fw, fh, size=13, color="muted")]))
     sc.wrap("monitors_screen", 0, 0, 406, 776)
 
@@ -447,13 +460,14 @@ def build_06(sc):
     header(sc, 0)
     sc.add_text("t_title", 1, weight=600, size=19)                       # Fleet · 3 peers
     _, gx, gy, gw, gh = sc.rows[2]
+    # the atlas's fleet goal row is bare text ("Fix steer queue") — no leading
+    # dot (verified: 0 green pixels in the row band on the reference).
     sc.put(stack("fleet_goal", 16, gy - 12, 374, gh + 24, [
-        icon("fleet_goal_icon", "dot_green", gx - 2, gy + 1, 18, 18),
-        text("fleet_goal_label", sc.t(2), gx + 24, gy, gw, gh, size=14, weight=500)]))
-    peers = [(3, 4, 5, 6, "peer_1", "green"),      # Running, tests, 18m · 41k
-             (7, 8, 9, 10, "peer_2", "red"),       # Blocked, docs, 7m · 12k
-             (11, 12, 13, 14, "peer_3", "muted")]  # Done, review, 24m · 28k
-    for st_i, name_i, meta_i, steer_i, pid, stc in peers:
+        text("fleet_goal_label", sc.t(2), gx, gy, gw, gh, size=14, weight=500)]))
+    peers = [(3, 4, 5, 6, "peer_1", "green", "greenbg"),   # Running, tests
+             (7, 8, 9, 10, "peer_2", "amber", "amberbg"),    # Blocked, docs
+             (11, 12, 13, 14, "peer_3", "green", "greenbg")] # Done, review
+    for st_i, name_i, meta_i, steer_i, pid, stc, stbg in peers:
         _, sx2, sy2, sw2, sh2 = sc.rows[st_i]
         _, nx, ny, nw, nh = sc.rows[name_i]
         _, mx, my, mw, mh = sc.rows[meta_i]
@@ -462,7 +476,10 @@ def build_06(sc):
         bottom = r(my + mh + 16)
         sc.put(surface(pid, 16, top, 374, bottom - top, bg="white", radius=12,
                        border=1, bordercolor="hair", kids=[
-            text(pid + "_status", sc.t(st_i), sx2, sy2, sw2, sh2, size=14, weight=600, color=stc),
+            surface(pid + "_badge", sx2 - 9, sy2 - 3, sw2 + 18, sh2 + 6, bg=stbg,
+                    radius=999, kids=[
+                text(pid + "_status", sc.t(st_i), sx2, sy2, sw2, sh2, size=13,
+                     weight=600, color=stc)]),
             text(pid + "_name", sc.t(name_i), nx, ny, nw, nh, size=14, weight=500),
             text(pid + "_meta", sc.t(meta_i), mx, my, mw, mh, size=12, color="muted"),
             text(pid + "_steer", sc.t(steer_i), tx, ty, tw, th, size=14, weight=600, color="blue")]))

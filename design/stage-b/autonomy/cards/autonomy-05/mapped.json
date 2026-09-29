@@ -246,15 +246,6 @@
             "h": 50.62,
             "c": [
               {
-                "t": "svg",
-                "id": "monitors_footer_icon",
-                "x": 29.66,
-                "y": 516.68,
-                "w": 20.0,
-                "h": 20.0,
-                "src": ""
-              },
-              {
                 "t": "text",
                 "id": "monitors_footer_label",
                 "text": "Monitors fire when the output changes",
@@ -325,10 +316,6 @@
     },
     {
       "id": "monitors_footer",
-      "source": "observed non-text annotation"
-    },
-    {
-      "id": "monitors_footer_icon",
       "source": "observed non-text annotation"
     },
     {

@@ -358,36 +358,25 @@
       "reviewed": false
     },
     {
-      "id": "new_loop_icon",
+      "id": "loops_card",
       "bounds": [
-        282.066,
-        94.849,
-        17.956,
-        17.977
-      ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
-      "reviewed": false
-    },
-    {
-      "id": "loop_1",
-      "bounds": [
-        12.0,
-        143.0,
-        381.0,
-        121.0
+        10.0,
+        141.0,
+        386.0,
+        370.0
       ],
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4294901502,
-      "radius": 11.92
+      "radius": 12.67
     },
     {
       "id": "loop_1_dot",
       "bounds": [
-        204.028,
-        154.919,
-        20.374,
-        25.825
+        210.225,
+        166.337,
+        14.449,
+        14.78
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -395,10 +384,10 @@
     {
       "id": "loop_1_pause",
       "bounds": [
-        257.714,
-        238.175,
-        18.337,
-        19.865
+        258.939,
+        163.17,
+        18.578,
+        21.115
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -406,10 +395,10 @@
     {
       "id": "loop_1_play",
       "bounds": [
-        308.345,
-        238.175,
-        18.337,
-        19.865
+        310.234,
+        163.17,
+        18.578,
+        21.115
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -417,34 +406,32 @@
     {
       "id": "loop_1_trash",
       "bounds": [
-        358.567,
-        238.175,
-        18.337,
-        19.865
+        361.116,
+        163.17,
+        18.578,
+        21.115
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
     },
     {
-      "id": "loop_2",
+      "id": "loop_2_divider",
       "bounds": [
-        12.0,
-        266.0,
-        381.0,
-        120.0
+        18.257,
+        279.353,
+        369.487,
+        1.056
       ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294901502,
-      "radius": 11.89
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
     },
     {
       "id": "loop_2_dot",
       "bounds": [
-        204.028,
-        277.895,
-        20.374,
-        25.772
+        210.225,
+        296.244,
+        14.449,
+        14.78
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -452,10 +439,10 @@
     {
       "id": "loop_2_pause",
       "bounds": [
-        257.714,
-        360.228,
-        18.337,
-        19.825
+        258.939,
+        293.077,
+        18.578,
+        21.115
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -463,10 +450,10 @@
     {
       "id": "loop_2_play",
       "bounds": [
-        308.345,
-        360.228,
-        18.337,
-        19.825
+        310.234,
+        293.077,
+        18.578,
+        21.115
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -474,34 +461,32 @@
     {
       "id": "loop_2_trash",
       "bounds": [
-        358.567,
-        360.228,
-        18.337,
-        19.825
+        361.116,
+        293.077,
+        18.578,
+        21.115
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
     },
     {
-      "id": "loop_3",
+      "id": "loop_3_divider",
       "bounds": [
-        12.0,
-        388.0,
-        382.0,
-        120.0
+        18.257,
+        408.299,
+        369.487,
+        1.056
       ],
-      "method": "reference edge contour with contained OCR text anchors",
-      "reviewed": false,
-      "bg": 4294901502,
-      "radius": 11.87
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
     },
     {
       "id": "loop_3_dot",
       "bounds": [
-        204.532,
-        399.873,
-        20.428,
-        25.726
+        210.225,
+        425.191,
+        14.449,
+        14.78
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -509,10 +494,10 @@
     {
       "id": "loop_3_play",
       "bounds": [
-        309.122,
-        482.274,
-        18.385,
-        19.789
+        310.234,
+        422.023,
+        18.578,
+        21.115
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -520,10 +505,10 @@
     {
       "id": "loop_3_trash",
       "bounds": [
-        359.477,
-        482.274,
-        18.385,
-        19.789
+        361.116,
+        422.023,
+        18.578,
+        21.115
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false

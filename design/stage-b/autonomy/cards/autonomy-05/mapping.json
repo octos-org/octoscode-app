@@ -344,26 +344,8 @@
       "size": null
     },
     {
-      "source_id": "monitors_footer_icon",
-      "native_id": "beauty_0_0_4_0",
-      "parent": "monitors_footer",
-      "kind": "svg",
-      "component": "Vectore0a378fde04f",
-      "semantic_role": "icon",
-      "bounds": [
-        29.66,
-        516.68,
-        20.0,
-        20.0
-      ],
-      "text": null,
-      "enabled": null,
-      "font": null,
-      "size": null
-    },
-    {
       "source_id": "monitors_footer_label",
-      "native_id": "beauty_0_0_4_1",
+      "native_id": "beauty_0_0_4_0",
       "parent": "monitors_footer",
       "kind": "text",
       "component": "Text57902c202dfd",
@@ -385,6 +367,6 @@
     "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "d71d95b8050d8ae10897347736af40483f086cfae6bd3dd8f1610adfe75294f9",
+  "contract_sha256": "88a36e1926ef7b1c258911a7fe012afa5dd4fcc889fece4e2406b0d3d2771256",
   "mapping_basis": "mapped.json"
 }

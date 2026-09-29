@@ -66,8 +66,8 @@
       "value": 4281233128,
       "property": "color"
     },
-    "radius_665e59d0657d": {
-      "value": 11.92,
+    "radius_12eb0f13ce5c": {
+      "value": 12.67,
       "property": "radius"
     },
     "size_9741c1ec2f15": {
@@ -110,9 +110,9 @@
       "value": "self:resources/ux/Inter-400.ttf",
       "property": "font_src"
     },
-    "radius_2f6f9e2e888f": {
-      "value": 11.89,
-      "property": "radius"
+    "bg_642da6636bd0": {
+      "value": 4293256679,
+      "property": "bg"
     },
     "size_961001208238": {
       "value": 15.26,
@@ -137,10 +137,6 @@
     "color_dafe478c8d9e": {
       "value": 4286019967,
       "property": "color"
-    },
-    "radius_4009e9764155": {
-      "value": 11.87,
-      "property": "radius"
     },
     "size_cf58a3bafc55": {
       "value": 15.45,
@@ -251,10 +247,10 @@
       },
       "slot": false
     },
-    "KitButton3ea7d97692cf": {
+    "KitButton2c6804b990a5": {
       "style": {
         "t": "stack",
-        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [3]}}"
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
       },
       "props": {},
       "slot": true
@@ -280,13 +276,6 @@
       "props": {
         "enabled": "enabled"
       },
-      "slot": false
-    },
-    "Vectore0a378fde04f": {
-      "style": {
-        "t": "svg"
-      },
-      "props": {},
       "slot": false
     },
     "Textcab5ef52407e": {
@@ -318,7 +307,7 @@
       },
       "slot": false
     },
-    "Surfacef048cb7f7bbf": {
+    "Surface07eaedee1d73": {
       "style": {
         "t": "stack",
         "variant": "surface",
@@ -326,13 +315,20 @@
           "$token": "bg_07cf9621f5e0"
         },
         "radius": {
-          "$token": "radius_665e59d0657d"
+          "$token": "radius_12eb0f13ce5c"
         },
         "border": 1,
         "bordercolor": 4293256679
       },
       "props": {},
       "slot": true
+    },
+    "Vectore0a378fde04f": {
+      "style": {
+        "t": "svg"
+      },
+      "props": {},
+      "slot": false
     },
     "Textf6e73b6022fa": {
       "style": {
@@ -392,18 +388,16 @@
       },
       "slot": false
     },
-    "Surfaceb45c5a1f6470": {
+    "Surfacec4c38149242a": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_07cf9621f5e0"
+          "$token": "bg_642da6636bd0"
         },
         "radius": {
-          "$token": "radius_2f6f9e2e888f"
-        },
-        "border": 1,
-        "bordercolor": 4293256679
+          "$token": "radius_5feceb66ffc8"
+        }
       },
       "props": {},
       "slot": true
@@ -465,22 +459,6 @@
         "text": "text"
       },
       "slot": false
-    },
-    "Surfacec13f4ad941fd": {
-      "style": {
-        "t": "stack",
-        "variant": "surface",
-        "bg": {
-          "$token": "bg_07cf9621f5e0"
-        },
-        "radius": {
-          "$token": "radius_4009e9764155"
-        },
-        "border": 1,
-        "bordercolor": 4293256679
-      },
-      "props": {},
-      "slot": true
     },
     "Textc1510682d715": {
       "style": {

@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "9f2ba25dfca1397a88b50841910c2a907b592df79ff9634a2d40d726a7bc67a6",
+  "manifest_sha256": "fdcd962f550bd6c328ebe36a838a47e2902baf9a1ce6ec5ed344e52e417315b2",
   "reference_sha256": "29638e4fd903df503f18080c9d8ad5472e2620cae5f7e2c267a675a0a32e7287",
   "id": "autonomy-05",
   "round": null,
@@ -239,19 +239,6 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "monitors_footer_icon",
-      "role": "icon",
-      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
-      "expected_widgets": [
-        "Svg",
-        "Icon",
-        "Image"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
     },
     {
       "id": "monitors_footer_label",
