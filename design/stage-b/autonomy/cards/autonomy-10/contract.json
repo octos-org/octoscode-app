@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "id": "autonomy-10",
+  "app": "octoscode",
+  "number": 10,
+  "title": "Side question",
+  "structure": "Native component reconstructed from the approved autonomy atlas",
+  "artboard": [
+    406,
+    776
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a autonomy atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
+    "c": [
+      {
+        "t": "stack",
+        "id": "user_bubble",
+        "x": 113.32,
+        "y": 157.78,
+        "w": 271.22,
+        "h": 78.05,
+        "c": [
+          {
+            "t": "text",
+            "id": "t_q1",
+            "text": "Why is the steer queue dropping",
+            "x": 127.65,
+            "y": 167.78,
+            "w": 242.89,
+            "h": 24.2,
+            "size": 16.13,
+            "line_height": 24.2,
+            "weight": 500,
+            "color": 4294967295,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf"
+          },
+          {
+            "t": "text",
+            "id": "t_q2",
+            "text": "messages on reconnect?",
+            "x": 127.32,
+            "y": 201.37,
+            "w": 185.25,
+            "h": 24.47,
+            "size": 16.31,
+            "line_height": 24.47,
+            "weight": 500,
+            "color": 4294967295,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf"
+          }
+        ],
+        "variant": "surface",
+        "bg": 4278190080,
+        "radius": 16
+      },
+      {
+        "t": "stack",
+        "id": "tool_row",
+        "x": 14.0,
+        "y": 258.2,
+        "w": 320.0,
+        "h": 49.88,
+        "c": [
+          {
+            "t": "svg",
+            "id": "icon_tool",
+            "x": 14.0,
+            "y": 266.2,
+            "w": 20.0,
+            "h": 20.0,
+            "src": ""
+          },
+          {
+            "t": "svg",
+            "id": "icon_tool_done",
+            "x": 330.0,
+            "y": 268.2,
+            "w": 16.0,
+            "h": 16.0,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "t_tool",
+            "text": "Read crates/octos-core/src/ui_protocol.rs",
+            "x": 42.0,
+            "y": 266.2,
+            "w": 280.0,
+            "h": 33.88,
+            "size": 13,
+            "line_height": 33.88,
+            "weight": 400,
+            "color": 4285427315,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/LiberationMono-Regular.ttf"
+          }
+        ]
+      },
+      {
+        "t": "stack",
+        "id": "aside_card",
+        "x": 16.0,
+        "y": 340.0,
+        "w": 374.0,
+        "h": 250.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t_aside",
+            "text": "Aside · /btw",
+            "x": 28.37,
+            "y": 359.77,
+            "w": 109.92,
+            "h": 19.5,
+            "size": 13,
+            "line_height": 19.5,
+            "weight": 600,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf"
+          },
+          {
+            "t": "svg",
+            "id": "icon_dismiss",
+            "x": 277.85,
+            "y": 361.77,
+            "w": 14.0,
+            "h": 14.0,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "t_dismiss",
+            "text": "Dismiss aside",
+            "x": 297.85,
+            "y": 359.77,
+            "w": 86.87,
+            "h": 18.0,
+            "size": 12,
+            "line_height": 18.0,
+            "weight": 400,
+            "color": 4285427315,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "text",
+            "id": "t_qtitle",
+            "text": "What does steer_dropped mean?",
+            "x": 28.37,
+            "y": 406.55,
+            "w": 248.21,
+            "h": 22.59,
+            "size": 15,
+            "line_height": 22.59,
+            "weight": 600,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf"
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294967295,
+        "radius": 12,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "text",
+        "id": "aside_answer",
+        "text": "It's a metric that increments when messages are dropped from the steer queue due to a reconnect or protocol error. It helps track message loss.",
+        "x": 26.0,
+        "y": 452.0,
+        "w": 330.0,
+        "h": 130.0,
+        "size": 15,
+        "line_height": 21.75,
+        "weight": 400,
+        "color": 4280098079,
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "stack",
+        "id": "composer",
+        "x": 16.0,
+        "y": 622.0,
+        "w": 374.0,
+        "h": 130.0,
+        "c": [
+          {
+            "t": "input",
+            "id": "composer_input",
+            "x": 26.0,
+            "y": 632.0,
+            "w": 300.0,
+            "h": 40.0,
+            "placeholder": "Ask Octos anything",
+            "size": 15,
+            "color": 4285427315,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "svg",
+            "id": "icon_plus",
+            "x": 26.0,
+            "y": 692.0,
+            "w": 18.0,
+            "h": 24.0,
+            "src": ""
+          },
+          {
+            "t": "stack",
+            "id": "approval_pill",
+            "x": 64.0,
+            "y": 696.0,
+            "w": 125.59,
+            "h": 36.32,
+            "c": [
+              {
+                "t": "text",
+                "id": "t_approval",
+                "text": "Ask for approval",
+                "x": 74.08,
+                "y": 700.11,
+                "w": 103.59,
+                "h": 24.32,
+                "size": 13,
+                "line_height": 24.32,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf"
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 999,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "text",
+            "id": "t_model",
+            "text": "v4-flash ▾",
+            "x": 203.89,
+            "y": 701.79,
+            "w": 72.69,
+            "h": 19.5,
+            "size": 13,
+            "line_height": 19.5,
+            "weight": 500,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf"
+          },
+          {
+            "t": "stack",
+            "id": "send_btn",
+            "x": 344.0,
+            "y": 686.0,
+            "w": 36.0,
+            "h": 36.0,
+            "c": [
+              {
+                "t": "svg",
+                "id": "icon_send",
+                "x": 354.0,
+                "y": 696.0,
+                "w": 16.0,
+                "h": 16.0,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4278190080,
+            "radius": 999
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294440952,
+        "radius": 12,
+        "border": 1,
+        "bordercolor": 4293256679
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294967295
+  }
+}

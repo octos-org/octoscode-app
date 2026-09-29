@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "8926c7de16902db13e8eb1b0f167c7276a86ad39e900fd1a779d49d5297673cc",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4279835679
+    },
+    {
+      "id": "settings_card",
+      "bounds": [
+        20.0,
+        250.0,
+        350.0,
+        260.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280098595,
+      "radius": 12.0
+    },
+    {
+      "id": "div_1",
+      "bounds": [
+        24.0,
+        330.0,
+        342.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "div_2",
+      "bounds": [
+        24.0,
+        404.0,
+        342.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "toggle1",
+      "bounds": [
+        320.0,
+        498.0,
+        50.0,
+        30.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280098595,
+      "radius": 15.0
+    },
+    {
+      "id": "toggle1_knob",
+      "bounds": [
+        344.0,
+        501.0,
+        24.0,
+        24.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4281495536,
+      "radius": 12.0
+    },
+    {
+      "id": "toggle2",
+      "bounds": [
+        320.0,
+        570.0,
+        50.0,
+        30.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280033058,
+      "radius": 15.0
+    },
+    {
+      "id": "toggle2_knob",
+      "bounds": [
+        323.0,
+        573.0,
+        24.0,
+        24.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280033058,
+      "radius": 12.0
+    }
+  ]
+}

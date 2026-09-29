@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/yuechen/home/oa.noindex/p0-proto/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/extract.py", line 120, in <module>
+    print(json.dumps(extract(args.manifest.resolve(), args.project.resolve(), args.output.resolve())))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/yuechen/home/oa.noindex/p0-proto/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/extract.py", line 26, in extract
+    raise FileExistsError('Retain reviewed standalone cards; use a new output directory')
+FileExistsError: Retain reviewed standalone cards; use a new output directory

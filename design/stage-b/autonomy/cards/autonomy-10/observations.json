@@ -1,0 +1,522 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "85fcd1e6e9f1ab1539c417cde61932e4342ef8a4fee8a21d44d2b567e2b2728c",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.09003205554929694,
+  "text": [
+    {
+      "id": "t_q1",
+      "expected_text": "Why is the steer queue dropping",
+      "requested_bounds": [
+        127.65,
+        167.78,
+        242.89,
+        24.2
+      ],
+      "status": "observed",
+      "ocr_text": "Why is the steer queue dropping",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        130.31004366812226,
+        169.3970893970894,
+        236.68558951965065,
+        20.972972972972972
+      ],
+      "ink_color": [
+        242,
+        243,
+        244
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        127.65065367244058,
+        167.7837838465234,
+        242.89082969432312,
+        24.199584199584244
+      ]
+    },
+    {
+      "id": "t_q2",
+      "expected_text": "messages on reconnect?",
+      "requested_bounds": [
+        127.32,
+        201.37,
+        185.25,
+        24.47
+      ],
+      "status": "observed",
+      "ocr_text": "messages on reconnect?",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        131.19650655021834,
+        200.85654885654884,
+        178.17903930131004,
+        21.77962577962578
+      ],
+      "ink_color": [
+        245,
+        246,
+        246
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        127.3236611798975,
+        201.36719442918752,
+        185.2466654548478,
+        24.46972599148506
+      ]
+    },
+    {
+      "id": "t_tool",
+      "expected_text": "Read crates/octos-core/src/ui_protocol.rs",
+      "requested_bounds": [
+        42.0,
+        266.2,
+        280.0,
+        33.88
+      ],
+      "status": "observed",
+      "ocr_text": "% Read crates/octos-core/src/ui_protocol.rs",
+      "confidence": 1,
+      "text_similarity": 0.9761904761904762,
+      "ink_bounds": [
+        22.161572052401745,
+        271.03534303534303,
+        296.07860262008734,
+        23.39293139293139
+      ],
+      "ink_color": [
+        92,
+        93,
+        93
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        14.18340354279481,
+        266.19542628953576,
+        308.48908296943233,
+        33.879417879417836
+      ]
+    },
+    {
+      "id": "t_aside",
+      "expected_text": "Aside \u00b7 /btw",
+      "requested_bounds": [
+        28.37,
+        359.77,
+        109.92,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "Aside - /btw",
+      "confidence": 1,
+      "text_similarity": 0.9166666666666666,
+      "ink_bounds": [
+        31.026200873362445,
+        359.76715176715174,
+        104.60262008733623,
+        17.746361746361746
+      ],
+      "ink_color": [
+        17,
+        17,
+        18
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        28.36681360109167,
+        359.76715172681907,
+        109.92139737991268,
+        19.35966735966736
+      ]
+    },
+    {
+      "id": "t_dismiss",
+      "expected_text": "Dismiss aside",
+      "requested_bounds": [
+        297.85,
+        359.77,
+        86.87,
+        18.0
+      ],
+      "status": "observed",
+      "ocr_text": "Dismiss aside",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        299.6244541484716,
+        361.38045738045736,
+        82.4410480349345,
+        14.51975051975052
+      ],
+      "ink_color": [
+        134,
+        136,
+        140
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        297.85152910822416,
+        359.7671517268191,
+        86.87336244541481,
+        17.74636174636179
+      ]
+    },
+    {
+      "id": "t_qtitle",
+      "expected_text": "What does steer_dropped mean?",
+      "requested_bounds": [
+        28.37,
+        406.55,
+        248.21,
+        22.59
+      ],
+      "status": "observed",
+      "ocr_text": "What does steer_dropped mean?",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        30.139737991266372,
+        404.9397089397089,
+        243.7772925764192,
+        20.972972972972972
+      ],
+      "ink_color": [
+        46,
+        48,
+        48
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        28.366812439825292,
+        406.55301477887735,
+        248.2096069868996,
+        22.586278586278585
+      ]
+    },
+    {
+      "id": "aside_answer",
+      "expected_text": "It's a metric that increments when messages are dropped from the steer queue due to a reconnect or protocol error. It helps track message loss.",
+      "requested_bounds": [
+        26.0,
+        452.0,
+        330.0,
+        130.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_approval",
+      "expected_text": "Ask for approval",
+      "requested_bounds": [
+        74.08,
+        700.11,
+        103.59,
+        24.32
+      ],
+      "status": "observed",
+      "ocr_text": "Ask for approval",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        71.80349344978166,
+        702.5945945945946,
+        101.94323144104803,
+        24.199584199584198
+      ],
+      "ink_color": [
+        48,
+        50,
+        50
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        74.08209038665461,
+        700.1140128464531,
+        103.59127517766827,
+        24.32083183018926
+      ]
+    },
+    {
+      "id": "t_model",
+      "expected_text": "v4-flash \u25be",
+      "requested_bounds": [
+        203.89,
+        701.79,
+        72.69,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "v4-flash y",
+      "confidence": 1,
+      "text_similarity": 0.9,
+      "ink_bounds": [
+        206.54585152838428,
+        701.7879417879418,
+        66.48471615720524,
+        15.326403326403327
+      ],
+      "ink_color": [
+        59,
+        61,
+        60
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        203.88646360899557,
+        701.7879417072764,
+        72.68995633187777,
+        17.746361746361703
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "user_bubble",
+      "bounds": [
+        115.0,
+        148.0,
+        289.0,
+        90.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279506458,
+      "radius": 18.45
+    },
+    {
+      "id": "tool_row",
+      "bounds": [
+        14.0,
+        258.2,
+        320.0,
+        49.88
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "icon_tool",
+      "bounds": [
+        14.0,
+        266.2,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_tool_done",
+      "bounds": [
+        330.0,
+        268.2,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "aside_card",
+      "bounds": [
+        14.0,
+        333.0,
+        388.0,
+        261.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 12.53
+    },
+    {
+      "id": "icon_dismiss",
+      "bounds": [
+        285.652,
+        355.728,
+        14.524,
+        14.616
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "composer",
+      "bounds": [
+        16.0,
+        622.0,
+        374.0,
+        130.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 12.0
+    },
+    {
+      "id": "composer_input",
+      "bounds": [
+        26.0,
+        632.0,
+        300.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "icon_plus",
+      "bounds": [
+        26.0,
+        692.0,
+        18.0,
+        24.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "approval_pill",
+      "bounds": [
+        67.0,
+        690.0,
+        120.0,
+        38.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294704123,
+      "radius": 19.0
+    },
+    {
+      "id": "send_btn",
+      "bounds": [
+        344.0,
+        686.0,
+        36.0,
+        36.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4278848787,
+      "radius": 18.0
+    },
+    {
+      "id": "icon_send",
+      "bounds": [
+        354.0,
+        696.0,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        -0.2314076839313941,
+        62.9181753219389,
+        207.5584716796875,
+        42.51364898681641
+      ],
+      "confidence": 1,
+      "text": "10. Side question"
+    },
+    {
+      "bounds": [
+        21.806849846063713,
+        141.1886550086173,
+        106.38629913330078,
+        27.622690200805668
+      ],
+      "confidence": 1,
+      "text": "OctosCode"
+    },
+    {
+      "bounds": [
+        29.676733404856236,
+        563.3033886716455,
+        368.6493225097656,
+        31.236644744873022
+      ],
+      "confidence": 1,
+      "text": "It's a metric that increments when messages"
+    },
+    {
+      "bounds": [
+        30.00000439999988,
+        607.999999875,
+        352,
+        26.000000000000053
+      ],
+      "confidence": 1,
+      "text": "are dropped trom the steer queue due to a"
+    },
+    {
+      "bounds": [
+        29.999997571428594,
+        648.0000001,
+        340.00000000000006,
+        25.999999999999947
+      ],
+      "confidence": 1,
+      "text": "reconnect or protocol error. It helps track"
+    },
+    {
+      "bounds": [
+        31.888649439640332,
+        689.4759813912876,
+        120.22270202636722,
+        27.04803657531747
+      ],
+      "confidence": 1,
+      "text": "message loss."
+    },
+    {
+      "bounds": [
+        27.901856906700075,
+        789.4291670649311,
+        148.1962890625,
+        27.14166736602786
+      ],
+      "confidence": 1,
+      "text": "Ask Octos anything"
+    },
+    {
+      "bounds": [
+        28.00000024285714,
+        861.9999998857143,
+        34,
+        36
+      ],
+      "confidence": 1,
+      "text": "+"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

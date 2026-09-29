@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "b4ac0a60a73ed57dfc9f18eca3e5bf3123bf3cf1215669b9610dbfde4ed72732",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "row_1_sel",
+      "bounds": [
+        16.0,
+        269.68,
+        374.0,
+        98.96
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294506488,
+      "radius": 10.0
+    },
+    {
+      "id": "row_1_radio",
+      "bounds": [
+        20.0,
+        285.68,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "div_0",
+      "bounds": [
+        44.0,
+        372.65,
+        346.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "row_2_radio",
+      "bounds": [
+        20.0,
+        405.68,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "div_1",
+      "bounds": [
+        44.0,
+        490.22,
+        346.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "row_3_radio",
+      "bounds": [
+        20.0,
+        523.25,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "div_2",
+      "bounds": [
+        44.0,
+        607.8,
+        346.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "row_4_radio",
+      "bounds": [
+        20.0,
+        640.83,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    }
+  ]
+}

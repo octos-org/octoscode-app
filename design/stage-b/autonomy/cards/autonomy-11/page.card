@@ -1,0 +1,81 @@
+# ledger autonomy-11@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t01_text { class: user-copy, en: "OctosCode" }
+copy t_q1_text { class: user-copy, en: "Can we add a test for preserve_pending" }
+copy t_q2_text { class: user-copy, en: "behavior?" }
+copy t_tool_text { class: user-copy, en: "✎ Edit crates/octos-cli/tests/steer_queue.rs" }
+copy answer_md_text { class: user-copy, en: "I added a test that simulates a reconnect and verifies pending messages are preserved. The test asserts metrics.steer_preserved increments and metrics.steer_dropped remains unchanged." }
+copy composer_input_placeholder { class: user-copy, en: "Ask Octos anything" }
+copy t_approval_text { class: user-copy, en: "Ask for approval" }
+copy t_model_text { class: user-copy, en: "v4-flash ▾" }
+component Surface430cd19400f4(instance: text) {
+  view Kit(component: "Surface430cd19400f4", instance: instance) { slot }
+}
+component Text933bcfbefeb6(instance: text, text: text) {
+  view Kit(component: "Text933bcfbefeb6", instance: instance, text: text)
+}
+component Surface8f75dd049682(instance: text) {
+  view Kit(component: "Surface8f75dd049682", instance: instance) { slot }
+}
+component Text9097f8882d07(instance: text, text: text) {
+  view Kit(component: "Text9097f8882d07", instance: instance, text: text)
+}
+component Text217374c44ad9(instance: text, text: text) {
+  view Kit(component: "Text217374c44ad9", instance: instance, text: text)
+}
+component Textfe8b1afbc6c5(instance: text, text: text) {
+  view Kit(component: "Textfe8b1afbc6c5", instance: instance, text: text)
+}
+component Surfacefc2f16a6fb9b(instance: text) {
+  view Kit(component: "Surfacefc2f16a6fb9b", instance: instance) { slot }
+}
+component Text5d7ab7884e47(instance: text, text: text) {
+  view Kit(component: "Text5d7ab7884e47", instance: instance, text: text)
+}
+component Surfaceda6d6c4c3bc3(instance: text) {
+  view Kit(component: "Surfaceda6d6c4c3bc3", instance: instance) { slot }
+}
+component Inputfa788caf1350(instance: text, placeholder: text) {
+  view Kit(component: "Inputfa788caf1350", instance: instance, placeholder: placeholder)
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Surfaceab9aebe55047(instance: text) {
+  view Kit(component: "Surfaceab9aebe55047", instance: instance) { slot }
+}
+component Text15d791953a8c(instance: text, text: text) {
+  view Kit(component: "Text15d791953a8c", instance: instance, text: text)
+}
+component Text18b9a73345ce(instance: text, text: text) {
+  view Kit(component: "Text18b9a73345ce", instance: instance, text: text)
+}
+component Surface0201468a3022(instance: text) {
+  view Kit(component: "Surface0201468a3022", instance: instance) { slot }
+}
+
+view root Surface430cd19400f4(instance: "page") {
+  Text933bcfbefeb6(instance: "t01", text: copy.t01_text)
+  Surface8f75dd049682(instance: "user_bubble") {
+    Text9097f8882d07(instance: "t_q1", text: copy.t_q1_text)
+    Text217374c44ad9(instance: "t_q2", text: copy.t_q2_text)
+  }
+  Textfe8b1afbc6c5(instance: "t_tool", text: copy.t_tool_text)
+  Surfacefc2f16a6fb9b(instance: "answer_surface") {
+    Text5d7ab7884e47(instance: "answer_md", text: copy.answer_md_text)
+  }
+  Surfaceda6d6c4c3bc3(instance: "composer") {
+    Inputfa788caf1350(instance: "composer_input", placeholder: copy.composer_input_placeholder)
+    Vectore0a378fde04f(instance: "icon_plus")
+    Surfaceab9aebe55047(instance: "approval_pill") {
+      Text15d791953a8c(instance: "t_approval", text: copy.t_approval_text)
+    }
+    Text18b9a73345ce(instance: "t_model", text: copy.t_model_text)
+    Surface0201468a3022(instance: "send_btn") {
+      Vectore0a378fde04f(instance: "icon_send")
+    }
+  }
+}

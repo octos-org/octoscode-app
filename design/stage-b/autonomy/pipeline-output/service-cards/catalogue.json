@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "kind": "native-service-appcards",
+  "cards": [
+    {
+      "id": "task-card",
+      "scene": "7",
+      "root": "run_card",
+      "owner": "autonomy",
+      "folder": "autonomy/task-card",
+      "artboard": [
+        360.0,
+        387.0
+      ],
+      "nodes": 14,
+      "native_controls": 1,
+      "components": 14
+    },
+    {
+      "id": "attachment-card",
+      "scene": "9",
+      "root": "att_1",
+      "owner": "autonomy",
+      "folder": "autonomy/attachment-card",
+      "artboard": [
+        178.0,
+        234.0
+      ],
+      "nodes": 4,
+      "native_controls": 0,
+      "components": 3
+    }
+  ],
+  "validation": "Compiled native subtrees; independent Studio input/layout and visual review remain required"
+}

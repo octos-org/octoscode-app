@@ -1,0 +1,26 @@
+{
+  "frame_id": 10,
+  "controls": {
+    "dismiss": {
+      "event": "aside.dismiss",
+      "source_bounds": [
+        297,
+        359,
+        86,
+        17
+      ],
+      "enabled": true
+    },
+    "composer_input": {
+      "event": "composer.draft",
+      "source_bounds": [
+        26,
+        632,
+        300,
+        40
+      ],
+      "enabled": true
+    }
+  },
+  "source": "side-question"
+}

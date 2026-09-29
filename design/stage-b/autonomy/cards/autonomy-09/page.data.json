@@ -1,0 +1,236 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "att_1": {
+        "component": "Surfaceea6370641130",
+        "layout": {
+          "x": 11.0,
+          "y": 187.0,
+          "w": 178.0,
+          "h": 234.0
+        }
+      },
+      "att_1_img": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 88.0,
+          "y": 274.75,
+          "w": 24.0,
+          "h": 23.4,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/att_1_img-837d9108b5e1.svg"
+        }
+      },
+      "att_1_close_bg": {
+        "component": "Surface84061080c8dc",
+        "layout": {
+          "x": 157.0,
+          "y": 192.85,
+          "w": 24.0,
+          "h": 23.4
+        }
+      },
+      "att_1_close": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 162.0,
+          "y": 197.725,
+          "w": 14.0,
+          "h": 13.65,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/att_1_close-584d3d6cc099.svg"
+        }
+      },
+      "att_2": {
+        "component": "Surfacec86a8f690fbd",
+        "layout": {
+          "x": 204.0,
+          "y": 187.0,
+          "w": 179.0,
+          "h": 234.0
+        }
+      },
+      "att_2_img": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 281.433,
+          "y": 274.75,
+          "w": 24.135,
+          "h": 23.4,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/att_2_img-837d9108b5e1.svg"
+        }
+      },
+      "att_2_close_bg": {
+        "component": "Surfacebd12216ed43c",
+        "layout": {
+          "x": 350.82,
+          "y": 192.85,
+          "w": 24.135,
+          "h": 23.4
+        }
+      },
+      "att_2_close": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 355.848,
+          "y": 197.725,
+          "w": 14.079,
+          "h": 13.65,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/att_2_close-584d3d6cc099.svg"
+        }
+      },
+      "att2_ring": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 266.348,
+          "y": 276.7,
+          "w": 52.292,
+          "h": 50.7,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/att2_ring-43ab5de16f05.svg"
+        }
+      },
+      "att2_pct": {
+        "component": "Text5c1b81679a13",
+        "layout": {
+          "x": 275.04,
+          "y": 294.73,
+          "w": 40.2,
+          "h": 24.76
+        }
+      },
+      "t_sz1": {
+        "component": "Text8a95be22d912",
+        "layout": {
+          "x": 16.52,
+          "y": 435.74,
+          "w": 53.13,
+          "h": 22.17
+        }
+      },
+      "t_sz2": {
+        "component": "Text5cf710de1563",
+        "layout": {
+          "x": 210.46,
+          "y": 436.61,
+          "w": 54.0,
+          "h": 21.3
+        }
+      },
+      "t_caption": {
+        "component": "Text69d5fe2c492a",
+        "layout": {
+          "x": 16.12,
+          "y": 499.76,
+          "w": 197.09,
+          "h": 26.49
+        }
+      },
+      "composer": {
+        "component": "Surfaceebeaffab57cc",
+        "layout": {
+          "x": 16.0,
+          "y": 616.0,
+          "w": 374.0,
+          "h": 130.0
+        }
+      },
+      "composer_input": {
+        "component": "Input51499e46eddf",
+        "layout": {
+          "x": 28.0,
+          "y": 626.0,
+          "w": 300.0,
+          "h": 40.0
+        }
+      },
+      "icon_plus": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 26.0,
+          "y": 726.0,
+          "w": 18.0,
+          "h": 24.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/icon_plus-e726c53afe21.svg"
+        }
+      },
+      "approval_pill": {
+        "component": "Surface43ce61531354",
+        "layout": {
+          "x": 64.0,
+          "y": 729.0,
+          "w": 120.0,
+          "h": 44.0
+        }
+      },
+      "t_approval": {
+        "component": "Texta5589c5e8789",
+        "layout": {
+          "x": 75.55,
+          "y": 742.86,
+          "w": 97.96,
+          "h": 23.03
+        }
+      },
+      "t_model": {
+        "component": "Text163d4dbc805c",
+        "layout": {
+          "x": 207.44,
+          "y": 741.99,
+          "w": 71.24,
+          "h": 19.57
+        }
+      },
+      "icon_mic": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 306.0,
+          "y": 726.0,
+          "w": 16.0,
+          "h": 26.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/icon_mic-94bc5db4a153.svg"
+        }
+      },
+      "send_btn": {
+        "component": "Surface623923efdef0",
+        "layout": {
+          "x": 344.0,
+          "y": 724.0,
+          "w": 36.0,
+          "h": 36.0
+        }
+      },
+      "icon_send": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 354.0,
+          "y": 734.0,
+          "w": 16.0,
+          "h": 16.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-09/assets/icon_send-3fe1783d764e.svg"
+        }
+      }
+    },
+    "bindings": [
+      {
+        "id": "composer_input",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "composer_input",
+          "property": "text"
+        }
+      }
+    ]
+  }
+}

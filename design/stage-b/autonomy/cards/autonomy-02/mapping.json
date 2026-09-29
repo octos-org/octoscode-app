@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text3f09c2e3ff4b",
+      "semantic_role": "text",
+      "bounds": [
+        25.25,
+        33.51,
+        99.84,
+        23.53
+      ],
+      "text": "OctosCode",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 17.67
+    },
+    {
+      "source_id": "t02",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texte2e69097680e",
+      "semantic_role": "text",
+      "bounds": [
+        24.15,
+        110.76,
+        115.52,
+        25.31
+      ],
+      "text": "Code review",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 18.67
+    },
+    {
+      "source_id": "t03",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text5161655d958a",
+      "semantic_role": "text",
+      "bounds": [
+        276.94,
+        106.32,
+        103.32,
+        34.19
+      ],
+      "text": "Start review",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 17.49
+    },
+    {
+      "source_id": "t04",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text92862dc9909d",
+      "semantic_role": "text",
+      "bounds": [
+        82.33,
+        208.43,
+        227.04,
+        27.08
+      ],
+      "text": "Reviewing 3 files \u2022 2 specialists",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14.86
+    },
+    {
+      "source_id": "t05",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textd88fa772081c",
+      "semantic_role": "text",
+      "bounds": [
+        81.54,
+        250.16,
+        259.27,
+        26.2
+      ],
+      "text": "Analyzing changes and code quality...",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14.23
+    },
+    {
+      "source_id": "t06",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textb575bdeb99aa",
+      "semantic_role": "text",
+      "bounds": [
+        41.47,
+        370.91,
+        34.49,
+        25.31
+      ],
+      "text": "High",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13.92
+    },
+    {
+      "source_id": "t07",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textf76d92979c95",
+      "semantic_role": "text",
+      "bounds": [
+        34.96,
+        423.29,
+        340.3,
+        25.31
+      ],
+      "text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14.89
+    },
+    {
+      "source_id": "t08",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texta61aecd7e679",
+      "semantic_role": "text",
+      "bounds": [
+        34.55,
+        467.68,
+        332.46,
+        25.31
+      ],
+      "text": "Potential message loss when reconnecting: pending",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13.33
+    },
+    {
+      "source_id": "t09",
+      "native_id": "beauty_0_8",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text77e5e8bb564d",
+      "semantic_role": "text",
+      "bounds": [
+        34.19,
+        500.54,
+        129.46,
+        25.31
+      ],
+      "text": "queue was dropped.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12.9
+    },
+    {
+      "source_id": "t10",
+      "native_id": "beauty_0_9",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text3ecfce5d1b3f",
+      "semantic_role": "text",
+      "bounds": [
+        41.46,
+        618.62,
+        31.88,
+        21.76
+      ],
+      "text": "Low",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14.06
+    },
+    {
+      "source_id": "t11",
+      "native_id": "beauty_0_10",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text0ec967fe36b1",
+      "semantic_role": "text",
+      "bounds": [
+        34.09,
+        671.89,
+        261.89,
+        26.2
+      ],
+      "text": "crates/octos-core/src/ui_protocol.rs",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15.05
+    },
+    {
+      "source_id": "t12",
+      "native_id": "beauty_0_11",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text31d9642d085e",
+      "semantic_role": "text",
+      "bounds": [
+        33.68,
+        718.06,
+        320.26,
+        26.2
+      ],
+      "text": "Missing documentation for new preserve_pending",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13.35
+    },
+    {
+      "source_id": "t13",
+      "native_id": "beauty_0_12",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text3ca384f9387b",
+      "semantic_role": "text",
+      "bounds": [
+        33.91,
+        753.58,
+        58.02,
+        19.98
+      ],
+      "text": "behavior.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12.23
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "c7d4f9ec06d8031f6a9f426606fcb595fe7313269bd210bc543891a4a63c9b9d",
+  "mapping_basis": "mapped.json"
+}

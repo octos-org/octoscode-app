@@ -1,0 +1,17 @@
+{
+  "frame_id": 9,
+  "controls": {
+    "att_1_close": {
+      "event": "attachment.remove.1",
+      "source_bounds": [
+        162,
+        194,
+        24,
+        24
+      ],
+      "enabled": true
+    }
+  },
+  "source": "attachments",
+  "owner": "autonomy"
+}

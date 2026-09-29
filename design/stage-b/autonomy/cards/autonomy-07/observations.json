@@ -1,0 +1,538 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "f3e6bb77e8933fe4ebe6658ca11d11aaa3bf0b23847e7a6f563d250482146c6b",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.12076730505221178,
+  "text": [
+    {
+      "id": "t01",
+      "expected_text": "OctosCode",
+      "requested_bounds": [
+        32.87,
+        131.75,
+        96.31,
+        28.5
+      ],
+      "status": "observed",
+      "ocr_text": "OctosCode",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        34.924731182795696,
+        134.06305170239597,
+        89.93118279569893,
+        20.549810844892814
+      ],
+      "ink_color": [
+        8,
+        9,
+        9
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        32.872246404969815,
+        131.75053428982085,
+        96.30701053603013,
+        27.743263821157452
+      ]
+    },
+    {
+      "id": "t02",
+      "expected_text": "Tasks",
+      "requested_bounds": [
+        31.36,
+        209.15,
+        57.5,
+        27.37
+      ],
+      "status": "observed",
+      "ocr_text": "Tasks",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        34.924731182795696,
+        208.43379571248425,
+        48.89462365591398,
+        24.464060529634303
+      ],
+      "ink_color": [
+        7,
+        7,
+        7
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        31.364807346137322,
+        209.1486145444165,
+        57.50214592274679,
+        27.365239294710324
+      ]
+    },
+    {
+      "id": "t_cmd",
+      "expected_text": "\u203a cargo test -p octos-cli steer_queue",
+      "requested_bounds": [
+        34.85,
+        297.11,
+        231.75,
+        25.41
+      ],
+      "status": "observed",
+      "ocr_text": "\u203a cargo test -p octos-cli steer_queue",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        38.417204301075266,
+        298.4615384615385,
+        225.26451612903227,
+        19.57124842370744
+      ],
+      "ink_color": [
+        89,
+        90,
+        91
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        34.84978617006434,
+        297.10831202493705,
+        231.75107296137335,
+        25.410579345088184
+      ]
+    },
+    {
+      "id": "t_run",
+      "expected_text": "Running",
+      "requested_bounds": [
+        282.28,
+        299.06,
+        47.05,
+        21.5
+      ],
+      "status": "observed",
+      "ocr_text": "Running",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        284.63655913978494,
+        298.4615384615385,
+        41.909677419354836,
+        19.57124842370744
+      ],
+      "ink_color": [
+        71,
+        141,
+        89
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        282.2832622381974,
+        299.06297250720405,
+        47.047210300429185,
+        21.501259445843814
+      ]
+    },
+    {
+      "id": "t_run_dur",
+      "expected_text": "2m",
+      "requested_bounds": [
+        341.33,
+        299.06,
+        24.0,
+        21.5
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_log0",
+      "expected_text": "Compiling octos-cli v0.24.1 (/workspace/crates/octos-cli)",
+      "requested_bounds": [
+        41.82,
+        381.16,
+        322.36,
+        21.5
+      ],
+      "status": "observed",
+      "ocr_text": "Compiling octos-cli v0.24.1 (/workspace/crates/octos-cli)",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        45.40215053763441,
+        381.6393442622951,
+        316.94193548387096,
+        17.6141235813367
+      ],
+      "ink_color": [
+        88,
+        88,
+        88
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        41.81973845976405,
+        381.1586902496223,
+        322.36051502145926,
+        21.501259445843814
+      ]
+    },
+    {
+      "id": "t_log1",
+      "expected_text": "Finished test [unoptimized + debuginfo] target(s) in 1.23s",
+      "requested_bounds": [
+        43.56,
+        422.21,
+        322.36,
+        21.5
+      ],
+      "status": "observed",
+      "ocr_text": "Finished test [unoptimized + debuginfo] target(s) in 1.23s",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        46.2752688172043,
+        422.7389659520807,
+        316.94193548387096,
+        17.6141235813367
+      ],
+      "ink_color": [
+        87,
+        87,
+        88
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        43.56223444599425,
+        422.20654903694384,
+        322.36051502145926,
+        21.501259445843814
+      ]
+    },
+    {
+      "id": "t_log2",
+      "expected_text": "Running unittests src/lib.rs (target/debug/deps/octos_cli\u2026)",
+      "requested_bounds": [
+        41.82,
+        463.25,
+        324.1,
+        23.46
+      ],
+      "status": "observed",
+      "ocr_text": "Ronsing unittests src/lib.rs (target/debug/deps/octos_cli..)",
+      "confidence": 1,
+      "text_similarity": 0.9411764705882353,
+      "ink_bounds": [
+        46.2752688172043,
+        463.83858764186635,
+        317.81505376344086,
+        16.635561160151326
+      ],
+      "ink_color": [
+        105,
+        105,
+        107
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        41.819744638340445,
+        463.2544082559194,
+        324.1030042918455,
+        23.45591939546604
+      ]
+    },
+    {
+      "id": "t_log3",
+      "expected_text": "running 12 tests \u2026",
+      "requested_bounds": [
+        43.48,
+        501.81,
+        118.65,
+        24.53
+      ],
+      "status": "observed",
+      "ocr_text": "running 12 tests...|",
+      "confidence": 1,
+      "text_similarity": 0.8421052631578947,
+      "ink_bounds": [
+        46.2752688172043,
+        501.0239596469105,
+        112.63225806451614,
+        23.48549810844893
+      ],
+      "ink_color": [
+        78,
+        78,
+        79
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        43.47960995245086,
+        501.81047958733984,
+        118.65451652297646,
+        24.530173717277776
+      ]
+    },
+    {
+      "id": "cancel_label",
+      "expected_text": "Cancel",
+      "requested_bounds": [
+        125.46,
+        590.31,
+        48.79,
+        23.46
+      ],
+      "status": "observed",
+      "ocr_text": "Cancel",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        128.3483870967742,
+        592.03026481715,
+        41.909677419354836,
+        17.6141235813367
+      ],
+      "ink_color": [
+        30,
+        30,
+        29
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        125.45922711931331,
+        590.3073048696652,
+        48.789699570815465,
+        23.45591939546604
+      ]
+    },
+    {
+      "id": "t_done_cmd",
+      "expected_text": "\u203a cargo clippy -p octos-cli",
+      "requested_bounds": [
+        34.85,
+        705.63,
+        179.48,
+        23.46
+      ],
+      "status": "observed",
+      "ocr_text": "\u203a cargo clippy -p octos-cli",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        38.417204301075266,
+        706.5220680958387,
+        173.7505376344086,
+        18.59268600252207
+      ],
+      "ink_color": [
+        73,
+        73,
+        74
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        34.84978668969956,
+        705.6322417019072,
+        179.47639484978538,
+        23.45591939546604
+      ]
+    },
+    {
+      "id": "t_done",
+      "expected_text": "Done",
+      "requested_bounds": [
+        280.44,
+        705.42,
+        33.3,
+        19.96
+      ],
+      "status": "observed",
+      "ocr_text": "Done",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        282.89032258064515,
+        706.5220680958387,
+        27.93978494623656,
+        14.678436317780582
+      ],
+      "ink_color": [
+        48,
+        120,
+        68
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        280.4441304224986,
+        705.4246571928386,
+        33.300579611323926,
+        19.961768258428616
+      ]
+    },
+    {
+      "id": "t_dur",
+      "expected_text": "1m",
+      "requested_bounds": [
+        346.76,
+        705.63,
+        20.91,
+        19.55
+      ],
+      "status": "observed",
+      "ocr_text": "1m",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        350.1204301075269,
+        706.5220680958387,
+        15.716129032258065,
+        14.678436317780582
+      ],
+      "ink_color": [
+        142,
+        141,
+        144
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        346.75536501596565,
+        705.6322417745088,
+        20.909871244635166,
+        19.546599496221674
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "tasks_card",
+      "bounds": [
+        12.0,
+        108.0,
+        372.0,
+        648.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.0
+    },
+    {
+      "id": "run_card",
+      "bounds": [
+        24.0,
+        265.0,
+        360.0,
+        387.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294638330,
+      "radius": 13.5
+    },
+    {
+      "id": "run_pill",
+      "bounds": [
+        274.0,
+        285.0,
+        63.0,
+        42.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293392363,
+      "radius": 21.0
+    },
+    {
+      "id": "console",
+      "bounds": [
+        35.0,
+        351.0,
+        339.0,
+        197.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294440952,
+      "radius": 8.29
+    },
+    {
+      "id": "cancel_row",
+      "bounds": [
+        37.0,
+        574.0,
+        225.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "cancel_surface",
+      "bounds": [
+        37.0,
+        574.0,
+        225.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 27.5
+    },
+    {
+      "id": "cancel_control",
+      "bounds": [
+        37.0,
+        574.0,
+        225.0,
+        55.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "done_pill",
+      "bounds": [
+        271.0,
+        692.0,
+        54.0,
+        43.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293261033,
+      "radius": 21.5
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        13.87233822518413,
+        59.628886200501974,
+        95.98922737678232,
+        32.55079118070434
+      ],
+      "confidence": 1,
+      "text": "7. Tasks"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

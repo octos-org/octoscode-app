@@ -1,0 +1,453 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "b4ac0a60a73ed57dfc9f18eca3e5bf3123bf3cf1215669b9610dbfde4ed72732",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.15018091459959027,
+  "text": [
+    {
+      "id": "t01",
+      "expected_text": "OctosCode",
+      "requested_bounds": [
+        6.78,
+        133.01,
+        102.45,
+        28.5
+      ],
+      "status": "observed",
+      "ocr_text": "OctosCode",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        9.382352941176471,
+        134.40202275600507,
+        95.52941176470588,
+        22.56384323640961
+      ],
+      "ink_color": [
+        9,
+        9,
+        9
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        6.775456542728807,
+        133.01388389454476,
+        102.44908837711111,
+        27.911626045149955
+      ]
+    },
+    {
+      "id": "t02",
+      "expected_text": "Resume a session",
+      "requested_bounds": [
+        8.53,
+        207.72,
+        160.35,
+        27.43
+      ],
+      "status": "observed",
+      "ocr_text": "Resume a session",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        11.088235294117649,
+        208.96080910240204,
+        154.3823529411765,
+        23.544879898862202
+      ],
+      "ink_color": [
+        8,
+        8,
+        8
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        8.529412655555532,
+        207.71717165185188,
+        160.3529411764706,
+        27.434343434343443
+      ]
+    },
+    {
+      "id": "row_1_title",
+      "expected_text": "Add session fork",
+      "requested_bounds": [
+        44.29,
+        283.68,
+        128.08,
+        26.39
+      ],
+      "status": "observed",
+      "ocr_text": "Add session fork",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        48.617647058823536,
+        286.4627054361568,
+        119.41176470588236,
+        20.601769911504427
+      ],
+      "ink_color": [
+        18,
+        18,
+        19
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        44.285132531748516,
+        283.68405321989223,
+        128.07679120232078,
+        26.38946953205149
+      ]
+    },
+    {
+      "id": "row_1_meta",
+      "expected_text": "octos \u2022 2h ago \u2022 14 turns",
+      "requested_bounds": [
+        46.06,
+        331.17,
+        168.88,
+        25.47
+      ],
+      "status": "observed",
+      "ocr_text": "octos \u2022 2h ago \u2022 14 turns",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        48.617647058823536,
+        330.6093552465234,
+        163.76470588235296,
+        23.544879898862202
+      ],
+      "ink_color": [
+        134,
+        135,
+        138
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        46.05882521823528,
+        331.1717170737374,
+        168.8823529411765,
+        25.47474747474751
+      ]
+    },
+    {
+      "id": "row_2_title",
+      "expected_text": "Fix steer queue drop on reconnect",
+      "requested_bounds": [
+        46.06,
+        403.68,
+        238.82,
+        29.39
+      ],
+      "status": "observed",
+      "ocr_text": "Fix steer queue drop on reconnect",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        49.47058823529412,
+        404.1871049304678,
+        232.00000000000003,
+        25.506953223767386
+      ],
+      "ink_color": [
+        28,
+        29,
+        29
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        46.05882054411773,
+        403.67676770126263,
+        238.82352941176467,
+        29.39393939393937
+      ]
+    },
+    {
+      "id": "row_2_meta",
+      "expected_text": "octos \u2022 1d ago \u2022 23 turns",
+      "requested_bounds": [
+        46.06,
+        448.75,
+        168.88,
+        25.47
+      ],
+      "status": "observed",
+      "ocr_text": "octos \u2022 1d ago \u2022 23 turns",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        48.617647058823536,
+        448.3337547408344,
+        163.76470588235296,
+        23.544879898862202
+      ],
+      "ink_color": [
+        137,
+        138,
+        142
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        46.05882521823528,
+        448.747474649495,
+        168.8823529411765,
+        25.474747474747428
+      ]
+    },
+    {
+      "id": "row_3_title",
+      "expected_text": "Review PR #2566",
+      "requested_bounds": [
+        46.06,
+        521.25,
+        129.65,
+        25.47
+      ],
+      "status": "observed",
+      "ocr_text": "Review PR #2566",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        49.47058823529412,
+        522.8925410872314,
+        122.82352941176471,
+        20.601769911504427
+      ],
+      "ink_color": [
+        25,
+        26,
+        27
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        46.058822449019644,
+        521.2525253341752,
+        129.64705882352942,
+        25.474747474747428
+      ]
+    },
+    {
+      "id": "row_3_meta",
+      "expected_text": "octos \u2022 3d ago \u2022 17 turns",
+      "requested_bounds": [
+        46.06,
+        568.28,
+        168.88,
+        23.52
+      ],
+      "status": "observed",
+      "ocr_text": "octos \u2022 3d ago \u2022 17 turns",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        48.617647058823536,
+        567.039190897598,
+        164.61764705882354,
+        23.544879898862202
+      ],
+      "ink_color": [
+        125,
+        126,
+        131
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        46.05882362892159,
+        568.2828284787879,
+        168.88235294117646,
+        23.515151515151494
+      ]
+    },
+    {
+      "id": "row_4_title",
+      "expected_text": "Why is hydrate slow?",
+      "requested_bounds": [
+        40.94,
+        638.83,
+        163.76,
+        29.39
+      ],
+      "status": "observed",
+      "ocr_text": "Why is hydrate slow?",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        48.617647058823536,
+        640.6169405815424,
+        152.6764705882353,
+        26.487989886219978
+      ],
+      "ink_color": [
+        34,
+        35,
+        35
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        40.941174832941236,
+        638.8282828870707,
+        163.76470588235293,
+        29.39393939393946
+      ]
+    },
+    {
+      "id": "row_4_meta",
+      "expected_text": "octos \u2022 4d ago \u2022 9 turns",
+      "requested_bounds": [
+        46.06,
+        685.86,
+        158.65,
+        23.52
+      ],
+      "status": "observed",
+      "ocr_text": "octos \u2022 4d ago \u2022 9 turns",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        48.617647058823536,
+        683.7825537294565,
+        153.52941176470588,
+        23.544879898862202
+      ],
+      "ink_color": [
+        134,
+        135,
+        139
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        46.05882371705881,
+        685.8585860937374,
+        158.64705882352942,
+        23.515151515151494
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "row_1_sel",
+      "bounds": [
+        16.0,
+        269.68,
+        374.0,
+        98.96
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294506488,
+      "radius": 10.0
+    },
+    {
+      "id": "row_1_radio",
+      "bounds": [
+        20.0,
+        285.68,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "div_0",
+      "bounds": [
+        44.0,
+        372.65,
+        346.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "row_2_radio",
+      "bounds": [
+        20.0,
+        405.68,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "div_1",
+      "bounds": [
+        44.0,
+        490.22,
+        346.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "row_3_radio",
+      "bounds": [
+        20.0,
+        523.25,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "div_2",
+      "bounds": [
+        44.0,
+        607.8,
+        346.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "row_4_radio",
+      "bounds": [
+        20.0,
+        640.83,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        -5.333333206181123e-07,
+        63.919191686153184,
+        108,
+        27.96464646464647
+      ],
+      "confidence": 1,
+      "text": ". Resume"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

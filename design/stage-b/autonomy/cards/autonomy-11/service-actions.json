@@ -1,0 +1,16 @@
+{
+  "frame_id": 11,
+  "controls": {
+    "composer_input": {
+      "event": "composer.draft",
+      "source_bounds": [
+        30,
+        626,
+        300,
+        40
+      ],
+      "enabled": true
+    }
+  },
+  "source": "dark-conversation"
+}

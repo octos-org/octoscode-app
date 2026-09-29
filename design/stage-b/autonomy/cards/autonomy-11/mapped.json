@@ -1,0 +1,311 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "d33aa28a0628f5be1ea6460ad6ed34e53d4a7aae982d2ddab7f32dd7ac59ee8a",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "text",
+        "id": "t01",
+        "text": "OctosCode",
+        "x": 34.94,
+        "y": 114.84,
+        "w": 88.51,
+        "h": 21.73,
+        "size": 15.58,
+        "line_height": 18.85,
+        "weight": 600,
+        "color": 4294638330,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "user_bubble",
+        "x": 73.02,
+        "y": 173.54,
+        "w": 310.39,
+        "h": 71.84,
+        "c": [
+          {
+            "t": "text",
+            "id": "t_q1",
+            "text": "Can we add a test for preserve_pending",
+            "x": 83.68,
+            "y": 179.31,
+            "w": 290.64,
+            "h": 32.2,
+            "size": 15.01,
+            "line_height": 18.16,
+            "weight": 500,
+            "color": 4294769916,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "t_q2",
+            "text": "behavior?",
+            "x": 83.31,
+            "y": 209.93,
+            "w": 82.41,
+            "h": 29.79,
+            "size": 16.61,
+            "line_height": 20.1,
+            "weight": 500,
+            "color": 4294638330,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          }
+        ],
+        "variant": "surface",
+        "bg": 4281084974,
+        "radius": 16.0
+      },
+      {
+        "t": "text",
+        "id": "t_tool",
+        "text": "\u270e Edit crates/octos-cli/tests/steer_queue.rs",
+        "x": 34.2,
+        "y": 280.04,
+        "w": 282.8,
+        "h": 27.37,
+        "size": 10.56,
+        "line_height": 12.78,
+        "weight": 400,
+        "color": 4292796384,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "answer_surface",
+        "x": 20.0,
+        "y": 344.0,
+        "w": 366.0,
+        "h": 186.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "answer_md",
+            "text": "I added a test that simulates a reconnect and verifies pending messages are preserved. The test asserts metrics.steer_preserved increments and metrics.steer_dropped remains unchanged.",
+            "x": 30.0,
+            "y": 352.0,
+            "w": 340.0,
+            "h": 170.0,
+            "size": 16,
+            "line_height": 36.0,
+            "weight": 400,
+            "color": 4294111991,
+            "bg": 4280558630,
+            "alignx": 0,
+            "variant": "markdown",
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          }
+        ],
+        "variant": "surface",
+        "bg": 4279638301,
+        "radius": 8.0
+      },
+      {
+        "t": "stack",
+        "id": "composer",
+        "x": 26.0,
+        "y": 611.0,
+        "w": 366.0,
+        "h": 139.0,
+        "c": [
+          {
+            "t": "input",
+            "id": "composer_input",
+            "x": 39.701,
+            "y": 621.692,
+            "w": 293.583,
+            "h": 42.769,
+            "placeholder": "Ask Octos anything",
+            "size": 15,
+            "color": 4288190621,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "svg",
+            "id": "icon_plus",
+            "x": 39.701,
+            "y": 696.538,
+            "w": 17.615,
+            "h": 25.662,
+            "src": ""
+          },
+          {
+            "t": "stack",
+            "id": "approval_pill",
+            "x": 79.0,
+            "y": 692.0,
+            "w": 119.0,
+            "h": 41.0,
+            "c": [
+              {
+                "t": "text",
+                "id": "t_approval",
+                "text": "Ask for approval",
+                "x": 90.3,
+                "y": 703.09,
+                "w": 98.09,
+                "h": 23.34,
+                "size": 12.06,
+                "line_height": 14.59,
+                "weight": 400,
+                "color": 4292993763,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 0.0
+              }
+            ],
+            "variant": "surface",
+            "bg": 4279572508,
+            "radius": 20.5,
+            "border": 1,
+            "bordercolor": 4282006076
+          },
+          {
+            "t": "text",
+            "id": "t_model",
+            "text": "v4-flash \u25be",
+            "x": 218.39,
+            "y": 703.09,
+            "w": 69.34,
+            "h": 19.31,
+            "size": 13.19,
+            "line_height": 15.95,
+            "weight": 500,
+            "color": 4291283146,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "stack",
+            "id": "send_btn",
+            "x": 346.984,
+            "y": 690.123,
+            "w": 35.23,
+            "h": 38.492,
+            "c": [
+              {
+                "t": "svg",
+                "id": "icon_send",
+                "x": 356.77,
+                "y": 700.815,
+                "w": 15.658,
+                "h": 17.108,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4282006076,
+            "radius": 17.61
+          }
+        ],
+        "variant": "surface",
+        "bg": 4279572507,
+        "radius": 12.83,
+        "border": 1,
+        "bordercolor": 4282006076
+      }
+    ],
+    "variant": "surface",
+    "bg": 4280032286
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "user_bubble",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "answer_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "composer",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "composer_input",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_plus",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "approval_pill",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "send_btn",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_send",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t01",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.22040066847427256
+    },
+    {
+      "id": "t_q1",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.24415615614694347
+    },
+    {
+      "id": "t_q2",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2825095709127312
+    },
+    {
+      "id": "t_tool",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.3520709874016431
+    },
+    {
+      "id": "t_approval",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.20010640657579448
+    },
+    {
+      "id": "t_model",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.004252028820279678
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

@@ -1,0 +1,449 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "8926c7de16902db13e8eb1b0f167c7276a86ad39e900fd1a779d49d5297673cc",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.06019663552930121,
+  "text": [
+    {
+      "id": "t01",
+      "expected_text": "Settings",
+      "requested_bounds": [
+        11.84,
+        191.22,
+        73.97,
+        28.5
+      ],
+      "status": "observed",
+      "ocr_text": "Settings",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        14.561181434599156,
+        194.0,
+        68.52320675105486,
+        24.149377593360995
+      ],
+      "ink_color": [
+        249,
+        249,
+        249
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        11.839317358841239,
+        191.2190114275402,
+        73.96693356027079,
+        28.101395698009203
+      ]
+    },
+    {
+      "id": "t_conn",
+      "expected_text": "Connection",
+      "requested_bounds": [
+        20.46,
+        271.73,
+        89.28,
+        23.25
+      ],
+      "status": "observed",
+      "ocr_text": "Connection",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        23.126582278481013,
+        273.69294605809125,
+        82.22784810126582,
+        17.70954356846473
+      ],
+      "ink_color": [
+        232,
+        232,
+        234
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        20.45653735756117,
+        271.7272158074024,
+        89.28101838188333,
+        23.25096302903051
+      ]
+    },
+    {
+      "id": "t_live",
+      "expected_text": "\u25cf Live \u203a",
+      "requested_bounds": [
+        306.45,
+        268.3,
+        91.17,
+        28.5
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_ws",
+      "expected_text": "Workspace",
+      "requested_bounds": [
+        20.5,
+        344.38,
+        87.47,
+        27.67
+      ],
+      "status": "observed",
+      "ocr_text": "Workspace",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        22.270042194092827,
+        346.9460580912863,
+        81.37130801687763,
+        21.734439834024897
+      ],
+      "ink_color": [
+        243,
+        244,
+        244
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        20.503889222813942,
+        344.3807535030045,
+        87.47323469974825,
+        27.67002871818066
+      ]
+    },
+    {
+      "id": "t_wsval",
+      "expected_text": "octos",
+      "requested_bounds": [
+        325.49,
+        347.75,
+        41.11,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "octos",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        327.19831223628694,
+        348.5560165975104,
+        35.974683544303794,
+        15.29460580912863
+      ],
+      "ink_color": [
+        234,
+        236,
+        236
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        325.4852319940928,
+        347.7510372064019,
+        41.1139240506329,
+        19.319502074688728
+      ]
+    },
+    {
+      "id": "t_prof",
+      "expected_text": "Profile",
+      "requested_bounds": [
+        20.56,
+        418.59,
+        49.68,
+        22.5
+      ],
+      "status": "observed",
+      "ocr_text": "Profile",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        23.126582278481013,
+        419.3941908713693,
+        43.68354430379747,
+        17.70954356846473
+      ],
+      "ink_color": [
+        242,
+        243,
+        243
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        20.556962301312705,
+        418.5892115556478,
+        49.679324894514764,
+        20.929460580912874
+      ]
+    },
+    {
+      "id": "t_profval",
+      "expected_text": "octos-dev",
+      "requested_bounds": [
+        291.12,
+        418.27,
+        75.58,
+        21.58
+      ],
+      "status": "observed",
+      "ocr_text": "octos-dev",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        293.7932489451477,
+        419.3941908713693,
+        69.37974683544304,
+        17.70954356846473
+      ],
+      "ink_color": [
+        240,
+        241,
+        242
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        291.12321054500995,
+        418.26520182169,
+        75.57636396190789,
+        21.577479872960758
+      ]
+    },
+    {
+      "id": "t_notif",
+      "expected_text": "Desktop notifications",
+      "requested_bounds": [
+        20.52,
+        505.33,
+        152.54,
+        26.15
+      ],
+      "status": "observed",
+      "ocr_text": "Desktop notifications",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        23.126582278481013,
+        507.1369294605809,
+        145.61181434599155,
+        21.734439834024897
+      ],
+      "ink_color": [
+        240,
+        241,
+        242
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        20.520065755473635,
+        505.3326693701251,
+        152.53792691130178,
+        26.147939784892845
+      ]
+    },
+    {
+      "id": "t_diag",
+      "expected_text": "Copy diagnostics",
+      "requested_bounds": [
+        20.51,
+        577.74,
+        123.45,
+        24.62
+      ],
+      "status": "observed",
+      "ocr_text": "Copy diagnostics",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        22.270042194092827,
+        579.5850622406639,
+        118.20253164556962,
+        21.734439834024897
+      ],
+      "ink_color": [
+        235,
+        236,
+        238
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        20.505003861615226,
+        577.7384868618407,
+        123.44568984920969,
+        24.622611208080766
+      ]
+    },
+    {
+      "id": "t_disconnect",
+      "expected_text": "Disconnect",
+      "requested_bounds": [
+        20.49,
+        666.28,
+        89.21,
+        22.5
+      ],
+      "status": "observed",
+      "ocr_text": "Disconnect",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        23.126582278481013,
+        667.3278008298755,
+        82.22784810126582,
+        17.70954356846473
+      ],
+      "ink_color": [
+        233,
+        62,
+        55
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        20.492312929849255,
+        666.2770745902155,
+        89.20946795628545,
+        21.420954423326684
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4279835679
+    },
+    {
+      "id": "settings_card",
+      "bounds": [
+        20.0,
+        250.0,
+        350.0,
+        260.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280098595,
+      "radius": 12.0
+    },
+    {
+      "id": "div_1",
+      "bounds": [
+        24.0,
+        330.0,
+        342.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "div_2",
+      "bounds": [
+        24.0,
+        404.0,
+        342.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "toggle1",
+      "bounds": [
+        320.0,
+        498.0,
+        50.0,
+        30.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280098595,
+      "radius": 15.0
+    },
+    {
+      "id": "toggle1_knob",
+      "bounds": [
+        344.0,
+        501.0,
+        24.0,
+        24.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4281495536,
+      "radius": 12.0
+    },
+    {
+      "id": "toggle2",
+      "bounds": [
+        320.0,
+        570.0,
+        50.0,
+        30.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280033058,
+      "radius": 15.0
+    },
+    {
+      "id": "toggle2_knob",
+      "bounds": [
+        323.0,
+        573.0,
+        24.0,
+        24.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280033058,
+      "radius": 12.0
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        -0.4566836518968387,
+        69.63133121590596,
+        266.83007812500006,
+        36.1514434814453
+      ],
+      "confidence": 1,
+      "text": "12. Dark mode settings"
+    },
+    {
+      "bounds": [
+        13.864227824144308,
+        145.4348983008104,
+        106.27154541015625,
+        27.130203247070344
+      ],
+      "confidence": 1,
+      "text": "OctosCode"
+    },
+    {
+      "bounds": [
+        357.7794603274535,
+        333.2994273235062,
+        106.44107818603514,
+        35.401145935058665
+      ],
+      "confidence": 1,
+      "text": "\u2022 Live >"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

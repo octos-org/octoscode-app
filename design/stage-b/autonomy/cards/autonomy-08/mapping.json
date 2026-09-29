@@ -1,0 +1,354 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textfcb2eb7dbf93",
+      "semantic_role": "text",
+      "bounds": [
+        8.5,
+        132.4,
+        99.53,
+        26.56
+      ],
+      "text": "OctosCode",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 17.61
+    },
+    {
+      "source_id": "t02",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text41023ffaefeb",
+      "semantic_role": "text",
+      "bounds": [
+        9.79,
+        206.96,
+        158.38,
+        27.54
+      ],
+      "text": "Resume a session",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 17.75
+    },
+    {
+      "source_id": "row_1_sel",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface4f9736f8906e",
+      "semantic_role": "layout",
+      "bounds": [
+        16.0,
+        269.68,
+        374.0,
+        98.96
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "row_1_radio",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        20.0,
+        285.68,
+        18.0,
+        18.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "row_1_title",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text0177018fb723",
+      "semantic_role": "text",
+      "bounds": [
+        48.25,
+        284.46,
+        123.41,
+        24.6
+      ],
+      "text": "Add session fork",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 14.8
+    },
+    {
+      "source_id": "row_1_meta",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textc58a4eeac572",
+      "semantic_role": "text",
+      "bounds": [
+        47.92,
+        328.61,
+        167.76,
+        27.54
+      ],
+      "text": "octos \u2022 2h ago \u2022 14 turns",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13.79
+    },
+    {
+      "source_id": "div_0",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfacec4c38149242a",
+      "semantic_role": "layout",
+      "bounds": [
+        44.0,
+        372.65,
+        346.0,
+        1.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "row_2_radio",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        20.0,
+        405.68,
+        18.0,
+        18.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "row_2_title",
+      "native_id": "beauty_0_8",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text868a8f68c4a6",
+      "semantic_role": "text",
+      "bounds": [
+        48.34,
+        402.19,
+        236.0,
+        29.51
+      ],
+      "text": "Fix steer queue drop on reconnect",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 14.09
+    },
+    {
+      "source_id": "row_2_meta",
+      "native_id": "beauty_0_9",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texta0eea85a2447",
+      "semantic_role": "text",
+      "bounds": [
+        47.92,
+        446.33,
+        167.76,
+        27.54
+      ],
+      "text": "octos \u2022 1d ago \u2022 23 turns",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13.79
+    },
+    {
+      "source_id": "div_1",
+      "native_id": "beauty_0_10",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfacec4c38149242a",
+      "semantic_role": "layout",
+      "bounds": [
+        44.0,
+        490.22,
+        346.0,
+        1.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "row_3_radio",
+      "native_id": "beauty_0_11",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        20.0,
+        523.25,
+        18.0,
+        18.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "row_3_title",
+      "native_id": "beauty_0_12",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text65f1ab64df38",
+      "semantic_role": "text",
+      "bounds": [
+        48.3,
+        520.89,
+        126.82,
+        24.6
+      ],
+      "text": "Review PR #2566",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 14.59
+    },
+    {
+      "source_id": "row_3_meta",
+      "native_id": "beauty_0_13",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text519b5eba0b6b",
+      "semantic_role": "text",
+      "bounds": [
+        47.91,
+        565.04,
+        168.62,
+        27.54
+      ],
+      "text": "octos \u2022 3d ago \u2022 17 turns",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13.92
+    },
+    {
+      "source_id": "div_2",
+      "native_id": "beauty_0_14",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfacec4c38149242a",
+      "semantic_role": "layout",
+      "bounds": [
+        44.0,
+        607.8,
+        346.0,
+        1.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "row_4_radio",
+      "native_id": "beauty_0_15",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        20.0,
+        640.83,
+        18.0,
+        18.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "row_4_title",
+      "native_id": "beauty_0_16",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text36925dab64ae",
+      "semantic_role": "text",
+      "bounds": [
+        48.24,
+        638.62,
+        156.68,
+        30.49
+      ],
+      "text": "Why is hydrate slow?",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 14.97
+    },
+    {
+      "source_id": "row_4_meta",
+      "native_id": "beauty_0_17",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texteedb438bd616",
+      "semantic_role": "text",
+      "bounds": [
+        47.94,
+        681.78,
+        157.53,
+        27.54
+      ],
+      "text": "octos \u2022 4d ago \u2022 9 turns",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13.35
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "f327fd9e5908b92d10c1b09f17805a8a1c3a3b43b2dbdb42815c2a8f1a531cd0",
+  "mapping_basis": "mapped.json"
+}

@@ -136,7 +136,7 @@
           "markdown": "Fixed `steer_dropped` handling."
         },
         "long": {
-          "markdown": "Queued steers now survive a reconnect.\n\n\u2022 Updated `ui_protocol_transport.rs` to persist queued steers.\n\n\u2022 All tests pass: `12 passed`."
+          "markdown": "Queued steers now survive a reconnect.\n\n• Updated `ui_protocol_transport.rs` to persist queued steers.\n\n• All tests pass: `12 passed`."
         }
       },
       "artboard": [
@@ -162,10 +162,10 @@
       ],
       "variants": {
         "short": {
-          "label": "Worked for 3s \u203a"
+          "label": "Worked for 3s ›"
         },
         "long": {
-          "label": "Worked for 3m 4s \u203a"
+          "label": "Worked for 3m 4s ›"
         }
       },
       "artboard": [
@@ -230,7 +230,7 @@
         "long": {
           "summary": "Ran cargo test -p octos-cli",
           "status": "ok",
-          "output": "running 12 tests\u2026 12 passed"
+          "output": "running 12 tests… 12 passed"
         }
       },
       "artboard": [
@@ -392,14 +392,14 @@
       ],
       "variants": {
         "short": {
-          "title": "Plan \u00b7 1 of 2",
+          "title": "Plan · 1 of 2",
           "steps": [
             "Reproduce reconnect drop",
             "Implement durable queue"
           ]
         },
         "long": {
-          "title": "Plan \u00b7 3 of 5",
+          "title": "Plan · 3 of 5",
           "steps": [
             "Reproduce reconnect drop",
             "Trace steer queue lifecycle",
@@ -434,11 +434,11 @@
       ],
       "variants": {
         "short": {
-          "goal": "Goal \u00b7 Fix steer queue",
+          "goal": "Goal · Fix steer queue",
           "elapsed": "2m"
         },
         "long": {
-          "goal": "Goal \u00b7 Fix steer queue on reconnect",
+          "goal": "Goal · Fix steer queue on reconnect",
           "elapsed": "18m"
         }
       },
@@ -468,11 +468,11 @@
       "variants": {
         "short": {
           "file": "ui_protocol.rs  +9 -1",
-          "folded": "\u22ee 88 unmodified lines \u22ee"
+          "folded": "⋮ 88 unmodified lines ⋮"
         },
         "long": {
           "file": "ui_protocol_transport.rs  +31 -4",
-          "folded": "\u22ee 412 unmodified lines \u22ee"
+          "folded": "⋮ 412 unmodified lines ⋮"
         }
       },
       "artboard": [
@@ -517,6 +517,66 @@
       "data": "design/components/settings-group/page.data.json",
       "render": [
         "design/components/settings-group/reference.png"
+      ]
+    },
+    {
+      "id": "task-card",
+      "source_scene": "autonomy-07",
+      "extracted_from": "scene 7 root 'run_card'",
+      "owner": "autonomy",
+      "bindings": [
+        "command",
+        "status",
+        "duration",
+        "log",
+        "action:cancel"
+      ],
+      "variants": {
+        "short": {
+          "command": "› cargo clippy -p octos-cli"
+        },
+        "long": {
+          "command": "› cargo test -p octos-cli steer_queue -- --nocapture"
+        }
+      },
+      "artboard": [
+        344.0,
+        340.0
+      ],
+      "nodes": 14,
+      "native_controls": 1,
+      "card": "design/components/task-card/page.card",
+      "data": "design/components/task-card/page.data.json",
+      "render": [
+        "design/components/task-card/review-short.png",
+        "design/components/task-card/review-long.png"
+      ]
+    },
+    {
+      "id": "attachment-card",
+      "source_scene": "autonomy-09",
+      "extracted_from": "scene 9 root 'att_1'",
+      "owner": "autonomy",
+      "bindings": [
+        "thumbnail",
+        "size",
+        "action:remove"
+      ],
+      "variants": {
+        "short": {},
+        "long": {}
+      },
+      "artboard": [
+        178.0,
+        240.0
+      ],
+      "nodes": 4,
+      "native_controls": 1,
+      "card": "design/components/attachment-card/page.card",
+      "data": "design/components/attachment-card/page.data.json",
+      "render": [
+        "design/components/attachment-card/review-short.png",
+        "design/components/attachment-card/review-long.png"
       ]
     }
   ]

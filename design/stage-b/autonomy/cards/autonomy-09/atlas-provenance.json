@@ -1,0 +1,29 @@
+{
+  "id": "9",
+  "design_id": "autonomy-09",
+  "surface": "app",
+  "declared_scene": {
+    "id": "9",
+    "design_id": "autonomy-09",
+    "directory": "cards/autonomy-09",
+    "crop": [
+      28,
+      2035,
+      471,
+      897
+    ],
+    "surface": "app",
+    "title": "Attachments"
+  },
+  "crop": [
+    28,
+    2035,
+    471,
+    897
+  ],
+  "crop_image": "cards/autonomy-09/reference.png",
+  "reference_image": "cards/autonomy-09/reference.png",
+  "crop_sha256": "a8361d691033b222d61a8cb803d8ab4a0fa0faa3a33b356d0677de5c5c72ae18",
+  "crop_resampled": false,
+  "crop_mode": "RGB"
+}

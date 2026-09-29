@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "user_bubble",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfacec3b9824e8fe7",
+      "semantic_role": "layout",
+      "bounds": [
+        115.0,
+        148.0,
+        289.0,
+        90.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_q1",
+      "native_id": "beauty_0_0_0",
+      "parent": "user_bubble",
+      "kind": "text",
+      "component": "Text430ac9625de5",
+      "semantic_role": "text",
+      "bounds": [
+        129.93,
+        167.4,
+        240.69,
+        24.97
+      ],
+      "text": "Why is the steer queue dropping",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 15.18
+    },
+    {
+      "source_id": "t_q2",
+      "native_id": "beauty_0_0_1",
+      "parent": "user_bubble",
+      "kind": "text",
+      "component": "Textedf0d082ced9",
+      "semantic_role": "text",
+      "bounds": [
+        130.12,
+        198.86,
+        182.18,
+        25.78
+      ],
+      "text": "messages on reconnect?",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 14.85
+    },
+    {
+      "source_id": "tool_row",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        14.0,
+        258.2,
+        320.0,
+        49.88
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_tool",
+      "native_id": "beauty_0_1_0",
+      "parent": "tool_row",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        14.0,
+        266.2,
+        20.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_tool_done",
+      "native_id": "beauty_0_1_1",
+      "parent": "tool_row",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        330.0,
+        268.2,
+        16.0,
+        16.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_tool",
+      "native_id": "beauty_0_1_2",
+      "parent": "tool_row",
+      "kind": "text",
+      "component": "Text012b54cc7942",
+      "semantic_role": "text",
+      "bounds": [
+        21.21,
+        269.04,
+        300.08,
+        27.39
+      ],
+      "text": "Read crates/octos-core/src/ui_protocol.rs",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 12.03
+    },
+    {
+      "source_id": "aside_card",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface8938b292c8f9",
+      "semantic_role": "layout",
+      "bounds": [
+        14.0,
+        333.0,
+        388.0,
+        261.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_aside",
+      "native_id": "beauty_0_2_0",
+      "parent": "aside_card",
+      "kind": "text",
+      "component": "Text3cbbf758384b",
+      "semantic_role": "text",
+      "bounds": [
+        30.58,
+        357.77,
+        108.6,
+        21.93
+      ],
+      "text": "Aside \u00b7 /btw",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 18.12
+    },
+    {
+      "source_id": "icon_dismiss",
+      "native_id": "beauty_0_2_1",
+      "parent": "aside_card",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        285.652,
+        355.728,
+        14.524,
+        14.616
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_dismiss",
+      "native_id": "beauty_0_2_2",
+      "parent": "aside_card",
+      "kind": "text",
+      "component": "Text83acff2ac648",
+      "semantic_role": "text",
+      "bounds": [
+        298.51,
+        359.38,
+        86.44,
+        18.52
+      ],
+      "text": "Dismiss aside",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12.73
+    },
+    {
+      "source_id": "t_qtitle",
+      "native_id": "beauty_0_2_3",
+      "parent": "aside_card",
+      "kind": "text",
+      "component": "Text1b37d8bcae21",
+      "semantic_role": "text",
+      "bounds": [
+        29.77,
+        402.94,
+        247.78,
+        24.97
+      ],
+      "text": "What does steer_dropped mean?",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 15.28
+    },
+    {
+      "source_id": "aside_answer",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text974d2475b0aa",
+      "semantic_role": "text",
+      "bounds": [
+        26.0,
+        452.0,
+        330.0,
+        130.0
+      ],
+      "text": "It's a metric that increments when messages are dropped from the steer queue due to a reconnect or protocol error. It helps track message loss.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15
+    },
+    {
+      "source_id": "composer",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfaceebeaffab57cc",
+      "semantic_role": "layout",
+      "bounds": [
+        16.0,
+        622.0,
+        374.0,
+        130.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "composer_input",
+      "native_id": "beauty_0_4_0",
+      "parent": "composer",
+      "kind": "input",
+      "component": "Input51499e46eddf",
+      "semantic_role": "input",
+      "bounds": [
+        26.0,
+        632.0,
+        300.0,
+        40.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15
+    },
+    {
+      "source_id": "icon_plus",
+      "native_id": "beauty_0_4_1",
+      "parent": "composer",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        26.0,
+        692.0,
+        18.0,
+        24.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "approval_pill",
+      "native_id": "beauty_0_4_2",
+      "parent": "composer",
+      "kind": "stack",
+      "component": "Surfaceacfa023c155f",
+      "semantic_role": "layout",
+      "bounds": [
+        67.0,
+        690.0,
+        120.0,
+        38.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_approval",
+      "native_id": "beauty_0_4_2_0",
+      "parent": "approval_pill",
+      "kind": "text",
+      "component": "Text501e29c8d84e",
+      "semantic_role": "text",
+      "bounds": [
+        71.47,
+        700.59,
+        105.94,
+        28.2
+      ],
+      "text": "Ask for approval",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13.06
+    },
+    {
+      "source_id": "t_model",
+      "native_id": "beauty_0_4_3",
+      "parent": "composer",
+      "kind": "text",
+      "component": "Textb5c5d18dd96d",
+      "semantic_role": "text",
+      "bounds": [
+        206.24,
+        699.79,
+        70.48,
+        19.33
+      ],
+      "text": "v4-flash \u25be",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 13.42
+    },
+    {
+      "source_id": "send_btn",
+      "native_id": "beauty_0_4_4",
+      "parent": "composer",
+      "kind": "stack",
+      "component": "Surface12c1b4d26f2d",
+      "semantic_role": "layout",
+      "bounds": [
+        344.0,
+        686.0,
+        36.0,
+        36.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_send",
+      "native_id": "beauty_0_4_4_0",
+      "parent": "send_btn",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        354.0,
+        696.0,
+        16.0,
+        16.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "4c40d2c88c950268e337dacb3cb8ba8456a6c53cee875f47b82176c7edd94b5c",
+  "mapping_basis": "mapped.json"
+}

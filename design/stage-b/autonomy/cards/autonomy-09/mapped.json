@@ -1,0 +1,410 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "a8361d691033b222d61a8cb803d8ab4a0fa0faa3a33b356d0677de5c5c72ae18",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "stack",
+        "id": "att_1",
+        "x": 11.0,
+        "y": 187.0,
+        "w": 178.0,
+        "h": 234.0,
+        "c": [
+          {
+            "t": "svg",
+            "id": "att_1_img",
+            "x": 88.0,
+            "y": 274.75,
+            "w": 24.0,
+            "h": 23.4,
+            "src": ""
+          },
+          {
+            "t": "stack",
+            "id": "att_1_close_bg",
+            "x": 157.0,
+            "y": 192.85,
+            "w": 24.0,
+            "h": 23.4,
+            "c": [
+              {
+                "t": "svg",
+                "id": "att_1_close",
+                "x": 162.0,
+                "y": 197.725,
+                "w": 14.0,
+                "h": 13.65,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294572794,
+            "radius": 11.7
+          }
+        ],
+        "variant": "surface",
+        "bg": 4279967265,
+        "radius": 12.0,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "stack",
+        "id": "att_2",
+        "x": 204.0,
+        "y": 187.0,
+        "w": 179.0,
+        "h": 234.0,
+        "c": [
+          {
+            "t": "svg",
+            "id": "att_2_img",
+            "x": 281.433,
+            "y": 274.75,
+            "w": 24.135,
+            "h": 23.4,
+            "src": ""
+          },
+          {
+            "t": "stack",
+            "id": "att_2_close_bg",
+            "x": 350.82,
+            "y": 192.85,
+            "w": 24.135,
+            "h": 23.4,
+            "c": [
+              {
+                "t": "svg",
+                "id": "att_2_close",
+                "x": 355.848,
+                "y": 197.725,
+                "w": 14.079,
+                "h": 13.65,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294638330,
+            "radius": 11.7
+          },
+          {
+            "t": "svg",
+            "id": "att2_ring",
+            "x": 266.348,
+            "y": 276.7,
+            "w": 52.292,
+            "h": 50.7,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "att2_pct",
+            "text": "68%",
+            "x": 275.04,
+            "y": 294.73,
+            "w": 40.2,
+            "h": 24.76,
+            "size": 15.85,
+            "line_height": 19.18,
+            "weight": 600,
+            "color": 4294507001,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf",
+            "tracking": 0.0
+          }
+        ],
+        "variant": "surface",
+        "bg": 4279111698,
+        "radius": 12.07,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "text",
+        "id": "t_sz1",
+        "text": "1.2 MB",
+        "x": 16.52,
+        "y": 435.74,
+        "w": 53.13,
+        "h": 22.17,
+        "size": 15.5,
+        "line_height": 18.75,
+        "weight": 500,
+        "color": 4284045920,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t_sz2",
+        "text": "1.2 MB",
+        "x": 210.46,
+        "y": 436.61,
+        "w": 54.0,
+        "h": 21.3,
+        "size": 15.77,
+        "line_height": 19.08,
+        "weight": 500,
+        "color": 4283387991,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t_caption",
+        "text": "2 of 4 images \u2022 20 MB max",
+        "x": 16.12,
+        "y": 499.76,
+        "w": 197.09,
+        "h": 26.49,
+        "size": 14.92,
+        "line_height": 18.05,
+        "weight": 400,
+        "color": 4287269519,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "composer",
+        "x": 16.0,
+        "y": 616.0,
+        "w": 374.0,
+        "h": 130.0,
+        "c": [
+          {
+            "t": "input",
+            "id": "composer_input",
+            "x": 28.0,
+            "y": 626.0,
+            "w": 300.0,
+            "h": 40.0,
+            "placeholder": "Ask Octos anything",
+            "size": 15,
+            "color": 4285427315,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "svg",
+            "id": "icon_plus",
+            "x": 26.0,
+            "y": 726.0,
+            "w": 18.0,
+            "h": 24.0,
+            "src": ""
+          },
+          {
+            "t": "stack",
+            "id": "approval_pill",
+            "x": 64.0,
+            "y": 729.0,
+            "w": 120.0,
+            "h": 44.0,
+            "c": [
+              {
+                "t": "text",
+                "id": "t_approval",
+                "text": "Ask for approval",
+                "x": 75.55,
+                "y": 742.86,
+                "w": 97.96,
+                "h": 23.03,
+                "size": 12.04,
+                "line_height": 14.57,
+                "weight": 400,
+                "color": 4280361506,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 0.0
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294769916,
+            "radius": 22.0,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "text",
+            "id": "t_model",
+            "text": "v4-flash \u25be",
+            "x": 207.44,
+            "y": 741.99,
+            "w": 71.24,
+            "h": 19.57,
+            "size": 13.57,
+            "line_height": 16.42,
+            "weight": 500,
+            "color": 4281019950,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "svg",
+            "id": "icon_mic",
+            "x": 306.0,
+            "y": 726.0,
+            "w": 16.0,
+            "h": 26.0,
+            "src": ""
+          },
+          {
+            "t": "stack",
+            "id": "send_btn",
+            "x": 344.0,
+            "y": 724.0,
+            "w": 36.0,
+            "h": 36.0,
+            "c": [
+              {
+                "t": "svg",
+                "id": "icon_send",
+                "x": 354.0,
+                "y": 734.0,
+                "w": 16.0,
+                "h": 16.0,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4278848528,
+            "radius": 18.0
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 12.0,
+        "border": 1,
+        "bordercolor": 4293256679
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "att_1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "att_1_img",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "att_1_close_bg",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "att_1_close",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "att_2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "att_2_img",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "att_2_close_bg",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "att_2_close",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "att2_ring",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "composer",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "composer_input",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_plus",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "approval_pill",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_mic",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "send_btn",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_send",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "att2_pct",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.4118518372203244
+    },
+    {
+      "id": "t_sz1",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.21187455978057898
+    },
+    {
+      "id": "t_sz2",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.18431634709451333
+    },
+    {
+      "id": "t_caption",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1851604926828029
+    },
+    {
+      "id": "t_approval",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.19551241994339383
+    },
+    {
+      "id": "t_model",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": 0.0018955203929118662
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

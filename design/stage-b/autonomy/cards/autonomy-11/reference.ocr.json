@@ -1,0 +1,138 @@
+{
+  "height": 963,
+  "observations": [
+    {
+      "bounds": [
+        21.99999672000007,
+        67.92946062087137,
+        328,
+        31.966804979253105
+      ],
+      "confidence": 1,
+      "text": "11. Dark mode conversation"
+    },
+    {
+      "bounds": [
+        37.88859483735362,
+        143.3980551937623,
+        104.22280883789062,
+        26.87816365823707
+      ],
+      "confidence": 1,
+      "text": "OctosCode"
+    },
+    {
+      "bounds": [
+        99.99999820000005,
+        227.76348510256747,
+        324,
+        29.968879668049688
+      ],
+      "confidence": 1,
+      "text": "Can we add a test for preserve_pending"
+    },
+    {
+      "bounds": [
+        99.8796992878955,
+        265.3303951186868,
+        84.24060058593749,
+        26.76037177604273
+      ],
+      "confidence": 1,
+      "text": "behavior?"
+    },
+    {
+      "bounds": [
+        39.616606010998225,
+        349.3183648304447,
+        324.7534790039062,
+        33.43485831027205
+      ],
+      "confidence": 1,
+      "text": "*Edit crates/octos-cli/tests/steer_queue.rs"
+    },
+    {
+      "bounds": [
+        32.000001899999944,
+        439.5435686978215,
+        411.99999999999994,
+        27.970954356846587
+      ],
+      "confidence": 1,
+      "text": "I added a test that simulates a reconnect and verifies"
+    },
+    {
+      "bounds": [
+        36.00000321666661,
+        483.497925211307,
+        386.00000000000006,
+        27.97095435684648
+      ],
+      "confidence": 1,
+      "text": "pending messages are preserved. The test asserts"
+    },
+    {
+      "bounds": [
+        44.000001174999966,
+        533.4460576917013,
+        358,
+        31.966804979253105
+      ],
+      "confidence": 1,
+      "text": "metrics. steer_preserved increments and"
+    },
+    {
+      "bounds": [
+        44.000001259999976,
+        583.3941905517012,
+        370,
+        31.96680497925321
+      ],
+      "confidence": 1,
+      "text": "metrics. steer_dropped remains unchanged."
+    },
+    {
+      "bounds": [
+        45.931464315241826,
+        782.8405458597204,
+        150.13706970214847,
+        30.66123207970781
+      ],
+      "confidence": 1,
+      "text": "Ask Octos anything"
+    },
+    {
+      "bounds": [
+        46.0000001,
+        867.0995853191167,
+        29.999999999999993,
+        35.96265560165973
+      ],
+      "confidence": 1,
+      "text": "+"
+    },
+    {
+      "bounds": [
+        101.92700904105004,
+        874.7677589784142,
+        114.14598083496092,
+        26.62008318960414
+      ],
+      "confidence": 1,
+      "text": "Ask for approval"
+    },
+    {
+      "bounds": [
+        248.00000057142861,
+        875.0912862071577,
+        79.99999999999996,
+        21.977178423236438
+      ],
+      "confidence": 1,
+      "text": "v4-flash v"
+    }
+  ],
+  "width": 466,
+  "image_sha256": "d33aa28a0628f5be1ea6460ad6ed34e53d4a7aae982d2ddab7f32dd7ac59ee8a",
+  "engine": "Apple Vision VNRecognizeTextRequest accurate, en-US"
+}

@@ -1,0 +1,36 @@
+{
+  "frame_id": 9,
+  "controls": {
+    "att_1_close": {
+      "event": "attachment.remove.1",
+      "source_bounds": [
+        162,
+        194,
+        24,
+        24
+      ],
+      "enabled": true
+    },
+    "att_2_close": {
+      "event": "attachment.remove.2",
+      "source_bounds": [
+        358,
+        194,
+        24,
+        24
+      ],
+      "enabled": true
+    },
+    "composer_input": {
+      "event": "composer.draft",
+      "source_bounds": [
+        28,
+        626,
+        300,
+        40
+      ],
+      "enabled": true
+    }
+  },
+  "source": "attachments"
+}

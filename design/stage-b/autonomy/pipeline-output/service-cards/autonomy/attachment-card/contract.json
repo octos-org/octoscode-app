@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "id": "attachment-card",
+  "app": "octoscode",
+  "number": 9,
+  "title": "Attachments",
+  "structure": "Native component reconstructed from the approved autonomy atlas",
+  "artboard": [
+    178.0,
+    234.0
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a autonomy atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "att_1",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 178.0,
+    "h": 234.0,
+    "c": [
+      {
+        "t": "svg",
+        "id": "att_1_img",
+        "x": 77.0,
+        "y": 87.75,
+        "w": 24.0,
+        "h": 23.4,
+        "src": ""
+      },
+      {
+        "t": "stack",
+        "id": "att_1_close_bg",
+        "x": 146.0,
+        "y": 5.849999999999994,
+        "w": 24.0,
+        "h": 23.4,
+        "c": [
+          {
+            "t": "svg",
+            "id": "att_1_close",
+            "x": 151.0,
+            "y": 10.724999999999994,
+            "w": 14.0,
+            "h": 13.65,
+            "src": ""
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294572794,
+        "radius": 11.7
+      }
+    ],
+    "variant": "surface",
+    "bg": 4279967265,
+    "radius": 12.0,
+    "border": 1,
+    "bordercolor": 4293256679
+  },
+  "standalone_service_card": true
+}

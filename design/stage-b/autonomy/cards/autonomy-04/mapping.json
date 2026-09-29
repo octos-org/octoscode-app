@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texte12ba50eced4",
+      "semantic_role": "text",
+      "bounds": [
+        6.02,
+        36.09,
+        97.96,
+        23.49
+      ],
+      "text": "OctosCode",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 17.32
+    },
+    {
+      "source_id": "t02",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text1d89604ff58c",
+      "semantic_role": "text",
+      "bounds": [
+        5.17,
+        114.93,
+        60.89,
+        32.35
+      ],
+      "text": "Loops",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 19.59
+    },
+    {
+      "source_id": "t03",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texte6d942019b8a",
+      "semantic_role": "text",
+      "bounds": [
+        13.21,
+        209.72,
+        110.89,
+        23.49
+      ],
+      "text": "Run Cl smoke",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 16.45
+    },
+    {
+      "source_id": "t04",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text06abea0238a5",
+      "semantic_role": "text",
+      "bounds": [
+        13.92,
+        258.44,
+        89.34,
+        26.15
+      ],
+      "text": "every 15 min",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14.37
+    },
+    {
+      "source_id": "t05",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text125236df264e",
+      "semantic_role": "text",
+      "bounds": [
+        87.41,
+        348.79,
+        12.18,
+        29.69
+      ],
+      "text": "Sync main",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 1.66
+    },
+    {
+      "source_id": "t06",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textf6e47a638035",
+      "semantic_role": "text",
+      "bounds": [
+        13.94,
+        398.4,
+        91.06,
+        25.26
+      ],
+      "text": "every 30 min",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14.07
+    },
+    {
+      "source_id": "t07",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text37ea71680808",
+      "semantic_role": "text",
+      "bounds": [
+        13.17,
+        489.64,
+        118.65,
+        29.69
+      ],
+      "text": "Nightly review",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 16.91
+    },
+    {
+      "source_id": "t08",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text25cd6f758ee4",
+      "semantic_role": "text",
+      "bounds": [
+        13.95,
+        538.37,
+        120.37,
+        26.15
+      ],
+      "text": "every day \u2022 01:00",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13.86
+    },
+    {
+      "source_id": "t09",
+      "native_id": "beauty_0_8",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textad212f4a0386",
+      "semantic_role": "text",
+      "bounds": [
+        204.77,
+        236.29,
+        13.48,
+        20.4
+      ],
+      "text": "\u2022",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 16.86
+    },
+    {
+      "source_id": "t10",
+      "native_id": "beauty_0_9",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text9d6c531836f1",
+      "semantic_role": "text",
+      "bounds": [
+        291.46,
+        117.59,
+        96.23,
+        28.8
+      ],
+      "text": "+ New loop",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 16.98
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "fcf11be71ca426ab6c702713046bc2127ca13804f6a8e2e356536cf59b365b59",
+  "mapping_basis": "mapped.json"
+}

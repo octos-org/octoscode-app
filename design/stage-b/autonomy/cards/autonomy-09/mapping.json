@@ -1,0 +1,426 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "att_1",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfaceea6370641130",
+      "semantic_role": "layout",
+      "bounds": [
+        11.0,
+        187.0,
+        178.0,
+        234.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "att_1_img",
+      "native_id": "beauty_0_0_0",
+      "parent": "att_1",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        88.0,
+        274.75,
+        24.0,
+        23.4
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "att_1_close_bg",
+      "native_id": "beauty_0_0_1",
+      "parent": "att_1",
+      "kind": "stack",
+      "component": "Surface84061080c8dc",
+      "semantic_role": "layout",
+      "bounds": [
+        157.0,
+        192.85,
+        24.0,
+        23.4
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "att_1_close",
+      "native_id": "beauty_0_0_1_0",
+      "parent": "att_1_close_bg",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        162.0,
+        197.725,
+        14.0,
+        13.65
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "att_2",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfacec86a8f690fbd",
+      "semantic_role": "layout",
+      "bounds": [
+        204.0,
+        187.0,
+        179.0,
+        234.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "att_2_img",
+      "native_id": "beauty_0_1_0",
+      "parent": "att_2",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        281.433,
+        274.75,
+        24.135,
+        23.4
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "att_2_close_bg",
+      "native_id": "beauty_0_1_1",
+      "parent": "att_2",
+      "kind": "stack",
+      "component": "Surfacebd12216ed43c",
+      "semantic_role": "layout",
+      "bounds": [
+        350.82,
+        192.85,
+        24.135,
+        23.4
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "att_2_close",
+      "native_id": "beauty_0_1_1_0",
+      "parent": "att_2_close_bg",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        355.848,
+        197.725,
+        14.079,
+        13.65
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "att2_ring",
+      "native_id": "beauty_0_1_2",
+      "parent": "att_2",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        266.348,
+        276.7,
+        52.292,
+        50.7
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "att2_pct",
+      "native_id": "beauty_0_1_3",
+      "parent": "att_2",
+      "kind": "text",
+      "component": "Text5c1b81679a13",
+      "semantic_role": "text",
+      "bounds": [
+        275.04,
+        294.73,
+        40.2,
+        24.76
+      ],
+      "text": "68%",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 15.85
+    },
+    {
+      "source_id": "t_sz1",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text8a95be22d912",
+      "semantic_role": "text",
+      "bounds": [
+        16.52,
+        435.74,
+        53.13,
+        22.17
+      ],
+      "text": "1.2 MB",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 15.5
+    },
+    {
+      "source_id": "t_sz2",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text5cf710de1563",
+      "semantic_role": "text",
+      "bounds": [
+        210.46,
+        436.61,
+        54.0,
+        21.3
+      ],
+      "text": "1.2 MB",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 15.77
+    },
+    {
+      "source_id": "t_caption",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text69d5fe2c492a",
+      "semantic_role": "text",
+      "bounds": [
+        16.12,
+        499.76,
+        197.09,
+        26.49
+      ],
+      "text": "2 of 4 images \u2022 20 MB max",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14.92
+    },
+    {
+      "source_id": "composer",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfaceebeaffab57cc",
+      "semantic_role": "layout",
+      "bounds": [
+        16.0,
+        616.0,
+        374.0,
+        130.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "composer_input",
+      "native_id": "beauty_0_5_0",
+      "parent": "composer",
+      "kind": "input",
+      "component": "Input51499e46eddf",
+      "semantic_role": "input",
+      "bounds": [
+        28.0,
+        626.0,
+        300.0,
+        40.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15
+    },
+    {
+      "source_id": "icon_plus",
+      "native_id": "beauty_0_5_1",
+      "parent": "composer",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        26.0,
+        726.0,
+        18.0,
+        24.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "approval_pill",
+      "native_id": "beauty_0_5_2",
+      "parent": "composer",
+      "kind": "stack",
+      "component": "Surface43ce61531354",
+      "semantic_role": "layout",
+      "bounds": [
+        64.0,
+        729.0,
+        120.0,
+        44.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_approval",
+      "native_id": "beauty_0_5_2_0",
+      "parent": "approval_pill",
+      "kind": "text",
+      "component": "Texta5589c5e8789",
+      "semantic_role": "text",
+      "bounds": [
+        75.55,
+        742.86,
+        97.96,
+        23.03
+      ],
+      "text": "Ask for approval",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12.04
+    },
+    {
+      "source_id": "t_model",
+      "native_id": "beauty_0_5_3",
+      "parent": "composer",
+      "kind": "text",
+      "component": "Text163d4dbc805c",
+      "semantic_role": "text",
+      "bounds": [
+        207.44,
+        741.99,
+        71.24,
+        19.57
+      ],
+      "text": "v4-flash \u25be",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 13.57
+    },
+    {
+      "source_id": "icon_mic",
+      "native_id": "beauty_0_5_4",
+      "parent": "composer",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        306.0,
+        726.0,
+        16.0,
+        26.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "send_btn",
+      "native_id": "beauty_0_5_5",
+      "parent": "composer",
+      "kind": "stack",
+      "component": "Surface623923efdef0",
+      "semantic_role": "layout",
+      "bounds": [
+        344.0,
+        724.0,
+        36.0,
+        36.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_send",
+      "native_id": "beauty_0_5_5_0",
+      "parent": "send_btn",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        354.0,
+        734.0,
+        16.0,
+        16.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "4530c71cb2b30dd9fea10f4dba9fcb75de3d117721096c6c6557bdf269b95b0a",
+  "mapping_basis": "mapped.json"
+}

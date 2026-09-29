@@ -1,0 +1,170 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surfaceca778635ab8e",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "t01": {
+        "component": "Texta67f5f0ad0ab",
+        "layout": {
+          "x": 13.77,
+          "y": 192.0,
+          "w": 72.52,
+          "h": 28.15
+        }
+      },
+      "settings_card": {
+        "component": "Surface70ddf71261f3",
+        "layout": {
+          "x": 20.0,
+          "y": 250.0,
+          "w": 350.0,
+          "h": 260.0
+        }
+      },
+      "t_conn": {
+        "component": "Texte5b866e3c6d9",
+        "layout": {
+          "x": 22.3,
+          "y": 271.69,
+          "w": 86.23,
+          "h": 21.71
+        }
+      },
+      "t_live": {
+        "component": "Text8839aec3fb92",
+        "layout": {
+          "x": 306.45,
+          "y": 268.3,
+          "w": 91.17,
+          "h": 28.5
+        }
+      },
+      "t_ws": {
+        "component": "Text1a8be12bc3a5",
+        "layout": {
+          "x": 21.9,
+          "y": 344.95,
+          "w": 85.37,
+          "h": 25.73
+        }
+      },
+      "t_wsval": {
+        "component": "Text52b015715674",
+        "layout": {
+          "x": 326.57,
+          "y": 346.56,
+          "w": 39.97,
+          "h": 19.29
+        }
+      },
+      "t_prof": {
+        "component": "Textdf050818beb5",
+        "layout": {
+          "x": 21.99,
+          "y": 417.39,
+          "w": 47.68,
+          "h": 21.71
+        }
+      },
+      "t_profval": {
+        "component": "Text7ca184431fa8",
+        "layout": {
+          "x": 293.13,
+          "y": 417.39,
+          "w": 73.38,
+          "h": 21.71
+        }
+      },
+      "div_1": {
+        "component": "Surfacecb0bd28db118",
+        "layout": {
+          "x": 24.0,
+          "y": 330.0,
+          "w": 342.0,
+          "h": 1.0
+        }
+      },
+      "div_2": {
+        "component": "Surfacecb0bd28db118",
+        "layout": {
+          "x": 24.0,
+          "y": 404.0,
+          "w": 342.0,
+          "h": 1.0
+        }
+      },
+      "t_notif": {
+        "component": "Textc95132dba0b1",
+        "layout": {
+          "x": 21.97,
+          "y": 505.14,
+          "w": 149.61,
+          "h": 25.73
+        }
+      },
+      "t_diag": {
+        "component": "Textef7151973db2",
+        "layout": {
+          "x": 21.48,
+          "y": 577.59,
+          "w": 122.2,
+          "h": 25.73
+        }
+      },
+      "toggle1": {
+        "component": "Surfacec366cb079903",
+        "layout": {
+          "x": 320.0,
+          "y": 498.0,
+          "w": 50.0,
+          "h": 30.0
+        }
+      },
+      "toggle1_knob": {
+        "component": "Surfaceacf19aface21",
+        "layout": {
+          "x": 344.0,
+          "y": 501.0,
+          "w": 24.0,
+          "h": 24.0
+        }
+      },
+      "toggle2": {
+        "component": "Surface7ad7b3d91dd6",
+        "layout": {
+          "x": 320.0,
+          "y": 570.0,
+          "w": 50.0,
+          "h": 30.0
+        }
+      },
+      "toggle2_knob": {
+        "component": "Surface92fd86e0d67b",
+        "layout": {
+          "x": 323.0,
+          "y": 573.0,
+          "w": 24.0,
+          "h": 24.0
+        }
+      },
+      "t_disconnect": {
+        "component": "Text7877f20e84d0",
+        "layout": {
+          "x": 21.9,
+          "y": 665.33,
+          "w": 86.23,
+          "h": 21.71
+        }
+      }
+    },
+    "bindings": []
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "provider": "openai",
+  "model": "gpt-image-2",
+  "derived_from": "cards/autonomy-07/reference.png",
+  "derived_from_sha256": "f3e6bb77e8933fe4ebe6658ca11d11aaa3bf0b23847e7a6f563d250482146c6b",
+  "source_region_pixels": [
+    27,
+    271,
+    413,
+    395
+  ],
+  "image_sha256": "df3bb10940b0d58987ee8955dbf6566c7874183126a469a3f39ff737c680459e",
+  "original_prompt_sha256": "6f8e52d2b806c138375ed1ad6917548715f803da8ec2c8872a3bbcc0c357b329",
+  "new_image_generation": false
+}
