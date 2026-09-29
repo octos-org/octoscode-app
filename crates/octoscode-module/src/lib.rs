@@ -92,6 +92,10 @@ script_mod! {
                         draw_bg.color: #00000000
                         draw_bg.color_hover: #00000010
                         draw_bg.color_down: #00000020
+                        draw_bg.border_size: 0.0
+                        draw_bg.color_2: #00000000
+                        draw_bg.border_color: #00000000
+                        draw_bg.border_color_2: #00000000
                     }
                 }
                 // Card #21c item 6: one #16 `thread-row` per session (selected
@@ -108,6 +112,10 @@ script_mod! {
                             draw_bg.color: #00000000
                             draw_bg.color_hover: #00000012
                             draw_bg.color_down: #00000022
+                            draw_bg.border_size: 0.0
+                            draw_bg.color_2: #00000000
+                            draw_bg.border_color: #00000000
+                            draw_bg.border_color_2: #00000000
                         }
                     }
                 }
@@ -137,6 +145,10 @@ script_mod! {
                             draw_bg.color: #00000000
                             draw_bg.color_hover: #00000010
                             draw_bg.color_down: #00000020
+                            draw_bg.border_size: 0.0
+                            draw_bg.color_2: #00000000
+                            draw_bg.border_color: #00000000
+                            draw_bg.border_color_2: #00000000
                         }
                     }
                 }
@@ -158,6 +170,10 @@ script_mod! {
                             draw_bg.color: #00000000
                             draw_bg.color_hover: #00000010
                             draw_bg.color_down: #00000020
+                            draw_bg.border_size: 0.0
+                            draw_bg.color_2: #00000000
+                            draw_bg.border_color: #00000000
+                            draw_bg.border_color_2: #00000000
                         }
                         mic_hit := Button {
                             width: 36 height: 36 text: ""
@@ -165,6 +181,10 @@ script_mod! {
                             draw_bg.color: #00000000
                             draw_bg.color_hover: #00000010
                             draw_bg.color_down: #00000020
+                            draw_bg.border_size: 0.0
+                            draw_bg.color_2: #00000000
+                            draw_bg.border_color: #00000000
+                            draw_bg.border_color_2: #00000000
                         }
                         send_hit := Button {
                             width: 44 height: 44 text: ""
@@ -172,6 +192,10 @@ script_mod! {
                             draw_bg.color: #00000000
                             draw_bg.color_hover: #00000010
                             draw_bg.color_down: #00000020
+                            draw_bg.border_size: 0.0
+                            draw_bg.color_2: #00000000
+                            draw_bg.border_color: #00000000
+                            draw_bg.border_color_2: #00000000
                         }
                     }
                 }
@@ -456,6 +480,21 @@ impl OctoscodeView {
         let composer_splash = self.view.splash(cx, ids!(composer_splash));
         if let Err(e) = self.mounts.mount(cx, &composer_splash, &composer) {
             makepad_widgets::log!("[octoscode] composer mount: {e}");
+        }
+        // Card #21d item 5: the `new-chat` component (#16) is the thread
+        // column's first row. The row existed but was never mounted, so it
+        // rendered as an empty pill (no label, no compose icon).
+        let new_chat = {
+            let mut cache = std::mem::take(&mut self.cache);
+            let c = cache
+                .lower(&bridge, components::ItemKind::NewChat, 0)
+                .unwrap_or_default();
+            self.cache = cache;
+            c
+        };
+        let new_chat_splash = self.view.splash(cx, ids!(new_chat_splash));
+        if let Err(e) = self.mounts.mount(cx, &new_chat_splash, &new_chat) {
+            makepad_widgets::log!("[octoscode] new-chat mount: {e}");
         }
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
     }

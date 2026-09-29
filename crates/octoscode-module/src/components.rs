@@ -504,26 +504,185 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
     // becomes `Fit`, so each node takes its content's height. Chrome kinds
     // (buttons, the composer dock) keep their measured box.
     let ui = match kind {
-        ItemKind::UserBubble
-        | ItemKind::AssistantProse
+        ItemKind::UserBubble => bubble_live_layout(&ui),
+        // Card #21d item 5: a session title is live and unbounded, so the row's
+        // single-line label must ELLIPSIZE rather than hard-clip ("…print").
+        ItemKind::ThreadRow => ellipsize_single_line(&ui),
+        // Card #21d item 5: scene 01's new-chat row carries a compose icon at
+        // its right edge (beauty-host renders it too: 446 ink px in the
+        // component's own right 20%). The #16 ledger omits the node, so add it.
+        ItemKind::NewChat => new_chat_with_compose_icon(&ui),
+        ItemKind::AssistantProse
         | ItemKind::WorkedFor
         | ItemKind::AnswerActions
         | ItemKind::WorkingRow
         | ItemKind::ToolCell => fit_heights(&ui),
         _ => ui,
     };
-    // Card #21c item 4: the person's bubble is RIGHT-aligned in the column
-    // (scene 01/03). The component's own root is a left-anchored artboard, so it
-    // is wrapped in a full-width `Down` view with `align: Align{x: 1.0}` — the
-    // cross-axis alignment for a `Down` flow — which right-aligns the measured
-    // bubble (284 of the 518 column = 55%, inside the ~80% cap). The wrapper's
-    // `Fit` height keeps the row content-driven (item 3).
-    let ui = if kind == ItemKind::UserBubble {
-        format!("user_align := View{{width:Fill height:Fit flow:Down align: Align{{x: 1.0}} {ui}}}")
-    } else {
-        ui
-    };
+    // Card #21d item 6: resolve every emitted `http_resource(…)` icon to the
+    // component's own file on disk, so the app needs no dev asset server.
+    let ui = localize_asset_resources(&ui);
     Ok(ui)
+}
+
+/// Card #21d item 3 — the person's bubble must hug its text up to ~80% of the
+/// column, WRAP a long line, and grow in height.
+///
+/// The component's artboard fixes the bubble at 284 px and each label at
+/// `flow: Right` (no wrap), so a live message longer than the two-line fixture
+/// hard-clips ("One wo…"). Let the boxes hug (`width: Fit`) and the labels wrap,
+/// and cap the whole bubble at 80% of the column. The `user_align` wrapper
+/// right-aligns it (card #21c item 4).
+fn bubble_live_layout(ui: &str) -> String {
+    // Heights hug (card #21c); the ROOT also hugs, capped at 80% of the column,
+    // so a long message widens to the cap then wraps. Inner boxes keep the
+    // measured widths the artboard gave them (`Fill` under a `Fit` root collapses
+    // to the minimum — measured: a 16px-wide bubble), and the labels WRAP.
+    let s = fit_heights(ui);
+    let s = set_first_width_fit_capped(&s, "80%");
+    let mut s = s.replace("flow: Right\n", "flow: Right{wrap: true}\n");
+    s = s.replace("flow: Right ", "flow: Right{wrap: true} ");
+    format!("user_align := View{{width:Fill height:Fit flow:Down align: Align{{x: 1.0}} {s}}}")
+}
+
+/// Card #21d item 5 — scene 01's new-chat row carries a compose icon at its
+/// right edge (beauty-host renders it too: 446 ink px in the component's own
+/// right 20%), but the #16 ledger ships no icon node. Add one, bound to the
+/// component's own `assets/icon_compose.svg` (no asset server).
+///
+/// Geometry is the scene's own measured chrome: the icon sits at x=331..355 of
+/// the 374px row (scene `icon_compose` 347,130,24,28 minus the row origin 16,109).
+fn new_chat_with_compose_icon(ui: &str) -> String {
+    let icon = components_dir().join("new-chat/assets/icon_compose.svg");
+    let icon = std::fs::canonicalize(&icon).unwrap_or(icon);
+    // A FIXED-size wrapper with a `left` margin — the same idiom the label uses
+    // (`View{width: 86 height: 23 margin: Inset{left: 21.04 …}}`). A `Fill`
+    // wrapper under the component's `Overlay` root resolves to 0 (measured: the
+    // node mounted but seated at [0,0,0,0]). The scene's icon is at x=347 of a
+    // 374px row, but the app's thread column is 220 (lib.rs:81), so the left is
+    // the row width minus the icon and its scene-proportional right inset.
+    const ROW_W: f64 = 220.0; // `threads_column` width (lib.rs:81)
+    const ICON_W: f64 = 24.0;
+    const RIGHT_INSET: f64 = 4.0;
+    let left = ROW_W - ICON_W - RIGHT_INSET;
+    let node = format!(
+        "View {{width: {ICON_W} height: 28 margin: Inset{{left: {left} top: 21 right: 0 bottom: 0}} \
+         flow: Overlay padding: 0 clip_x: false clip_y: false\n\
+         i0_newchat_icon := Svg {{\nwidth: {ICON_W} height: 28\nmargin: 0\n\
+         animating: false draw_svg.svg: file_resource({:?}) \
+         draw_svg.preserve_viewbox: true draw_svg.preserve_aspect: false\n}}\n}}\n",
+        icon.to_string_lossy()
+    );
+    match ui.rfind('}') {
+        Some(at) => format!("{}{}{}", &ui[..at], node, &ui[at..]),
+        None => ui.to_owned(),
+    }
+}
+
+/// Card #21d item 5 — a thread row's title is live and unbounded, so its
+/// single-line label must ELLIPSIZE rather than hard-clip ("…print").
+///
+/// The lowering emits a bare `flow: Right` for a measured single-line label
+/// (`design.rs:685`); the renderer only adds the ellipsis pair when the node
+/// fills its slot (`design.rs:683`, at `fillw == 1`). A `PortalList` row binds a
+/// title of any length into that measured box, so add the pair here.
+fn ellipsize_single_line(ui: &str) -> String {
+    // The component is authored for the 406px scene panel (row 379, label 302);
+    // the app's column is 220px. A `Fill` chain lets the label take the column's
+    // real width so the ellipsis fires, instead of laying out at 302 and being
+    // clipped by the parent. (Measured: label ink fills the whole 197px box.)
+    let ul = fill_widths(ui);
+    ul.replacen(
+        "flow: Right\n",
+        "flow: Right max_lines: 1 text_overflow: TextOverflow.Ellipsis\n",
+        1,
+    )
+}
+
+/// Rewrite every `width: <number>` to `width: Fill`, so a component authored for
+/// one panel width adopts the slot it is mounted in. Boundary-checked, so
+/// `max_width`/`min_width` are untouched, and a non-numeric value is kept.
+fn fill_widths(ui: &str) -> String {
+    const KEY: &str = "width: ";
+    let mut out = String::with_capacity(ui.len());
+    let bytes = ui.as_bytes();
+    let mut i = 0;
+    while i < ui.len() {
+        let prev_ok = i == 0 || !(bytes[i - 1].is_ascii_alphanumeric() || bytes[i - 1] == b'_');
+        if prev_ok && ui[i..].starts_with(KEY) {
+            let mut j = i + KEY.len();
+            let start = j;
+            while j < ui.len() && (bytes[j].is_ascii_digit() || bytes[j] == b'.') {
+                j += 1;
+            }
+            if j > start {
+                out.push_str(KEY);
+                out.push_str("Fill");
+                i = j;
+                continue;
+            }
+        }
+        let ch = ui[i..].chars().next().unwrap();
+        out.push(ch);
+        i += ch.len_utf8();
+    }
+    out
+}
+
+/// Rewrite only the FIRST `width: <number>` to `width: Fit max_width: "<cap>"`,
+/// leaving the rest for a later pass. The first width in a lowered component is
+/// its root surface — the box that must hug and be capped.
+fn set_first_width_fit_capped(ui: &str, cap: &str) -> String {
+    const KEY: &str = "width: ";
+    if let Some(at) = ui.find(KEY) {
+        let after = &ui[at + KEY.len()..];
+        let digits = after
+            .find(|c: char| !(c.is_ascii_digit() || c == '.'))
+            .unwrap_or(after.len());
+        if digits > 0 {
+            return format!(
+                "{}width: Fit max_width: {:?}{}",
+                &ui[..at],
+                cap,
+                &after[digits..]
+            );
+        }
+    }
+    ui.to_owned()
+}
+
+/// Card #21d item 6 — rewrite every `http_resource("<loopback>/ux-images/<rest>")`
+/// the lowering emits for an SVG/image `src` into a `file_resource("<abs>")`
+/// pointing at the component's own asset on disk (`<components_dir>/<rest>`).
+///
+/// The lowering hard-codes an HTTP wrapper (`design.rs:743,764`) because a
+/// design card may only name a loopback asset URL (`design_asset_allowed`), and
+/// the recorded fixtures name the design lab's ad-hoc `:8170` server — which is
+/// not ours to run. The bytes are already on disk beside the component, so bind
+/// the file directly and the icons load with no asset server at all.
+fn localize_asset_resources(ui: &str) -> String {
+    const MARK: &str = "http_resource(\"";
+    let root = components_dir();
+    let mut out = String::with_capacity(ui.len());
+    let mut rest = ui;
+    while let Some(at) = rest.find(MARK) {
+        let (head, tail) = rest.split_at(at);
+        out.push_str(head);
+        let after = &tail[MARK.len()..];
+        let Some(endq) = after.find('"') else {
+            out.push_str(tail);
+            return out;
+        };
+        let url = &after[..endq];
+        let rel = url.split_once("/ux-images/").map(|(_, r)| r).unwrap_or(url);
+        // Absolute, because the launched app's cwd is not the repo root.
+        let abs = std::fs::canonicalize(root.join(rel)).unwrap_or_else(|_| root.join(rel));
+        out.push_str(&format!("file_resource({:?})", abs.to_string_lossy()));
+        // Continue after the original call's closing quote, dropping its `)`.
+        rest = after[endq + 1..].strip_prefix(')').unwrap_or(&after[endq + 1..]);
+    }
+    out.push_str(rest);
+    out
 }
 
 /// Rewrite every `height: <number>` in a lowered DSL to `height: Fit` (card #21c
