@@ -489,7 +489,12 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
     let prepared = octoscript_makepad::l0::prepare(&src, &component.data, &component.kit_dir)?;
     let mut tree = prepared.tree;
     octoscript_makepad::l0::inspectable(&mut tree);
-    let ui = octoscript_makepad::design::to_makepad_ui(&tree)?;
+    // Card #21b: a component mounted into a SLOT must be laid out relative to its
+    // parent. `to_makepad_ui` positions the tree with the card's own artboard
+    // `abs_pos`, which makepad applies at the WINDOW origin — right for the
+    // Gate-B renders (the card IS the window) but wrong for an item at (300,219),
+    // whose nodes would pin to (0,0) and be clipped away by the slot.
+    let ui = octoscript_makepad::design::to_makepad_ui_in_slot(&tree)?;
     Ok(ui.replace("beauty_0", &format!("i{token}_{}", kind.id().replace('-', ""))))
 }
 

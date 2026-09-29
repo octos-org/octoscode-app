@@ -1,0 +1,43 @@
+diff --git a/crates/octoscript-makepad/src/design.rs b/crates/octoscript-makepad/src/design.rs
+index 675ab65..d1a9d5c 100644
+--- a/crates/octoscript-makepad/src/design.rs
++++ b/crates/octoscript-makepad/src/design.rs
+@@ -108,6 +108,29 @@ pub fn prepare(source: &str) -> Result<UiNode, String> {
+ }
+ 
+ pub fn to_makepad_ui(tree: &UiNode) -> Result<String, String> {
++    to_makepad_ui_seeded(tree, None)
++}
++
++/// Like [`to_makepad_ui`], but the component is laid out **relative to its
++/// parent** instead of at the window origin.
++///
++/// `to_makepad_ui` positions the tree with the card's own artboard `abs_pos`,
++/// and makepad applies `abs_pos` at the WINDOW origin (`begin_turtle_with_guard`
++/// takes `walk.abs_pos` as the outer origin; makepad's own test seats
++/// `Walk::fixed(..).with_abs_pos(dvec2(5,20))` at window (5,20)). That is right
++/// when the card IS the window — the Gate-B renders, card-host and beauty-host
++/// all mount at (0,0) — but a card mounted into a SLOT anywhere else pins its
++/// nodes to (0,0) and the slot's clip discards them.
++///
++/// Seeding `flow_origin = Some((0,0))` switches the SAME tree onto the renderer's
++/// parent-relative path: the root and every descendant emit a flow `margin`
++/// relative to their parent instead of `abs_pos`. The card's look is unchanged;
++/// only its coordinate frame is.
++pub fn to_makepad_ui_in_slot(tree: &UiNode) -> Result<String, String> {
++    to_makepad_ui_seeded(tree, Some((0.0, 0.0)))
++}
++
++fn to_makepad_ui_seeded(tree: &UiNode, seed: Option<(f64, f64)>) -> Result<String, String> {
+     // `in_flow` is set by a flowing parent (Row/Column): this node's position is
+     // the parent's job, so it emits neither `abs_pos` nor a positioning wrapper.
+     // Card #16b.
+@@ -748,7 +771,7 @@ pub fn to_makepad_ui(tree: &UiNode) -> Result<String, String> {
+     }
+     let mut out = String::new();
+     let root_w = tree.attrs.w.unwrap_or(0.) as f64;
+-    emit(tree, &mut out, None, false, root_w)?;
++    emit(tree, &mut out, seed, false, root_w)?;
+     Ok(out)
+ }
+ 

@@ -30,6 +30,9 @@ PATCHES=(
   "$REPO/patches/octoscript-makepad/0004-16d.patch"
   "$REPO/patches/octoscript-makepad/0005-16e.patch"
   "$REPO/patches/octoscript-makepad/0006-18e-padright.patch"
+  # Card #21b: `to_makepad_ui_in_slot` — lower a component parent-relative when
+  # it is mounted into a slot rather than at the window origin.
+  "$REPO/patches/octoscript-makepad/0007-in-slot.patch"
 )
 
 command -v git >/dev/null || { echo "prepare-octoscript-makepad-fork: git not found" >&2; exit 1; }

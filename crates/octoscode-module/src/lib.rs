@@ -37,12 +37,14 @@ pub mod components;
 pub mod fallback;
 pub mod l0_host;
 pub mod flow;
+pub mod mount;
 pub mod screen;
 
 use flow::{Conversation, FlowUi};
 // A top-level `::` path is not a `#[rust]` field type the `Script` derive's
 // parser accepts (its `eat_type` reads one ident + optional generics), so the
-// cache type is aliased to a bare ident here.
+// cache types are aliased to bare idents here.
+use mount::MountCache as ComponentMounts;
 use screen::Cache as ScreenCache;
 
 script_mod! {
@@ -210,6 +212,12 @@ pub struct OctoscodeView {
     /// frame). See [`screen::Cache`].
     #[rust]
     cache: ScreenCache,
+    /// Card #21b: the per-`Splash` mounted components. Each visible row's
+    /// lowered DSL is evaluated in the app's VM and made the Splash's own
+    /// `view` (`mount`), memoised by the widget uid so a `PortalList` that
+    /// re-instantiates its rows every frame does not re-evaluate them.
+    #[rust]
+    mounts: ComponentMounts,
     /// The two virtualized lists' widget uids (0 = not captured yet), so
     /// `draw_walk` can tell which `PortalList` a draw step belongs to.
     #[rust]
@@ -405,16 +413,22 @@ impl OctoscodeView {
             .set_text(cx, &format!("sessions: {sessions}"));
         // The #16 `composer` component is the dock's look. It is NOT virtualized
         // (one instance), so it is lowered here rather than in `draw_walk`; its
-        // two live slots are the draft and the idle placeholder.
+        // two live slots are the draft and the idle placeholder. Card #21b: it is
+        // MOUNTED (evaluated in our VM + `mem::replace` + deep insert), not
+        // `set_text` — the latter mints a standalone tree that never seats.
         let bridge = self.bridge.clone();
-        let mut cache = std::mem::take(&mut self.cache);
-        let composer = cache
-            .lower(&bridge, components::ItemKind::Composer, 0)
-            .unwrap_or_default();
-        self.cache = cache;
-        self.view
-            .splash(cx, ids!(composer_splash))
-            .set_text(cx, &composer);
+        let composer = {
+            let mut cache = std::mem::take(&mut self.cache);
+            let c = cache
+                .lower(&bridge, components::ItemKind::Composer, 0)
+                .unwrap_or_default();
+            self.cache = cache;
+            c
+        };
+        let composer_splash = self.view.splash(cx, ids!(composer_splash));
+        if let Err(e) = self.mounts.mount(cx, &composer_splash, &composer) {
+            makepad_widgets::log!("[octoscode] composer mount: {e}");
+        }
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
     }
 
@@ -429,9 +443,11 @@ impl Widget for OctoscodeView {
             self.timeline_uid = self.view.portal_list(cx, ids!(timeline_list)).widget_uid().0;
         }
         let (thread_uid, timeline_uid) = (self.thread_uid, self.timeline_uid);
-        // The cache is taken OUT of self so the loop body borrows only `bridge`
-        // (a local Arc) — `self.view.draw_walk` already holds `self.view`.
+        // Both the lowering cache and the mount cache are taken OUT of self so the
+        // loop body borrows only `bridge` (a local Arc) — `self.view.draw_walk`
+        // already holds `self.view`.
         let mut cache = std::mem::take(&mut self.cache);
+        let mut mounts = std::mem::take(&mut self.mounts);
         let bridge = self.bridge.clone();
 
         while let Some(step) = self.view.draw_walk(cx, scope, walk).step() {
@@ -451,7 +467,10 @@ impl Widget for OctoscodeView {
                         let body = cache
                             .lower(&bridge, components::ItemKind::ThreadRow, id)
                             .unwrap_or_default();
-                        item.splash(cx, ids!(thread_splash)).set_text(cx, &body);
+                        let splash = item.splash(cx, ids!(thread_splash));
+                        if let Err(e) = mounts.mount(cx, &splash, &body) {
+                            makepad_widgets::log!("[octoscode] thread-row mount: {e}");
+                        }
                         item.draw_all_unscoped(cx);
                     }
                 } else if uid == timeline_uid {
@@ -473,13 +492,17 @@ impl Widget for OctoscodeView {
                         let item = list.item(cx, id, id!(TimelineItemTpl));
                         item.label(cx, ids!(item_kind)).set_text(cx, row.kind.id());
                         let body = cache.lower(&bridge, row.kind, row.index).unwrap_or_default();
-                        item.splash(cx, ids!(item_splash)).set_text(cx, &body);
+                        let splash = item.splash(cx, ids!(item_splash));
+                        if let Err(e) = mounts.mount(cx, &splash, &body) {
+                            makepad_widgets::log!("[octoscode] {} mount: {e}", row.kind.id());
+                        }
                         item.draw_all_unscoped(cx);
                     }
                 }
             }
         }
         self.cache = cache;
+        self.mounts = mounts;
         DrawStep::done()
     }
 
@@ -595,9 +618,18 @@ impl AppModule for OctoscodeModule {
     }
     fn register(&self, vm: &mut ScriptVm) {
         script_mod(vm);
-        // Card #15b: the L0 vocabulary every lowered card names
-        // (`DesignSurface`, `DesignNativeButton`, …). Process-wide, exactly as
-        // card-host registers it (`host.rs:206-215`).
+        // Card #21b: the design/kit vocabulary every lowered #16 component names
+        // (`DesignSurface`, `KitButton`, …) must be in THIS VM — the isolate the
+        // shell hosts the module in (`module_host.rs:133` allocates it, then
+        // calls `register(vm)`/`create(vm, ..)` inside it). `register_vocabulary`
+        // below uses `register_splash_isolate_mod`, which only reaches isolates
+        // allocated AFTER it, so it cannot reach ours; register directly, exactly
+        // as `beauty-host` does in the App's own `script_mod`
+        // (`beauty.rs:356-364`).
+        octoscript_widgets::design::script_mod(vm);
+        octoscript_widgets::kit::script_mod(vm);
+        // Card #15b: the same vocabulary, process-wide, for any OTHER isolate
+        // (the tests and the card probes lower there).
         l0_host::register_vocabulary();
         // Card #21b: log what the RUNNING app resolves at startup
         // (`id -> path -> on-disk|placeholder`), so a capture's `/log` proves
