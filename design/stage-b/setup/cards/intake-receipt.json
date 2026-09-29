@@ -1,0 +1,1673 @@
+{
+  "schema_version": 1,
+  "id": "octoscode-setup-board2",
+  "kind": "single-atlas-multi-scene-intake",
+  "created_at": "2026-09-29T19:22:37.114914+00:00",
+  "input_fingerprint": "c0790073e59384d6b2bc1c9494d364fafc6b8efa2194bcfdc68f9cb26837aaa3",
+  "inputs": {
+    "manifest_sha256": "4d058b18ff05b61f115e935c0f16b31db10811f8e0e72fd51171ffa9df4154c0",
+    "atlas_sha256": "6803654f5cffba2720a050317d70a29cbb78c3d22b3db606252bfe9eca1e5fea",
+    "prompt_sha256": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146"
+  },
+  "originals": {
+    "atlas": "original/atlas.png",
+    "prompt": "original/prompt.txt",
+    "manifest": "original/manifest.json"
+  },
+  "generation": {
+    "provider": "openai",
+    "model": "gpt-image-2",
+    "requested_size": [
+      2048,
+      3072
+    ],
+    "quality": "high",
+    "actual_size": [
+      2048,
+      3072
+    ],
+    "requested_size_matches_actual": true,
+    "atlas_count": 1,
+    "performed_by_intake": false,
+    "provenance": "Provider/model/requested settings are caller declarations; dimensions and hashes are measured from the supplied bytes"
+  },
+  "artboard": [
+    406,
+    776
+  ],
+  "pixel_ratio": 2,
+  "source_pixel_matrix": {
+    "format": "PNG",
+    "mode": "RGB",
+    "size": [
+      2048,
+      3072
+    ],
+    "exif_orientation": 1,
+    "orientation_applied": false
+  },
+  "intake_tool_sha256": "176cd64e554ed95536c0cc00f42ec5344addf116624b8dd253294c2477027b08",
+  "scenes": [
+    {
+      "id": "1",
+      "design_id": "pad-01",
+      "surface": "app",
+      "declared_scene": {
+        "id": "1",
+        "design_id": "pad-01",
+        "directory": "cards/pad-01",
+        "crop": [
+          34,
+          23,
+          459,
+          987
+        ],
+        "surface": "app",
+        "title": "placeholder (other lane's screen)"
+      },
+      "crop": [
+        34,
+        23,
+        459,
+        987
+      ],
+      "crop_image": "scenes/pad-01/crop.png",
+      "reference_image": "scenes/pad-01/reference.png",
+      "provenance": "scenes/pad-01/provenance.json",
+      "crop_sha256": "8e737358c5869097bbc954816b7868eab5156ef1a51ebfcffe8d56319e7402e7",
+      "reference_sha256": "bbcfd4b01c45eea4a6b7104e943bb8272c28b86485d88572302f3d291ba0ff1e",
+      "source_atlas_sha256": "6803654f5cffba2720a050317d70a29cbb78c3d22b3db606252bfe9eca1e5fea",
+      "source_prompt_sha256": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146",
+      "crop_resampled": false,
+      "crop_mode": "RGB",
+      "transform": {
+        "coordinate_convention": "continuous top-left pixel-boundary coordinates; affine arrays are [a,b,c,d,e,f]",
+        "method": "uniform affine contain",
+        "resampler": "Pillow BICUBIC",
+        "source_crop_pixels": [
+          34,
+          23,
+          459,
+          987
+        ],
+        "source_crop_size": [
+          459,
+          987
+        ],
+        "artboard": [
+          406,
+          776
+        ],
+        "pixel_ratio": 2,
+        "reference_size": [
+          812,
+          1552
+        ],
+        "uniform_scale": 1.5724417426545085,
+        "offset_pixels": [
+          45.12462006079028,
+          0.0
+        ],
+        "content_bounds_pixels": [
+          45.12462006079028,
+          0.0,
+          721.7507598784194,
+          1552.0
+        ],
+        "crop_to_reference_pixels": [
+          1.5724417426545085,
+          0,
+          45.12462006079028,
+          0,
+          1.5724417426545085,
+          0.0
+        ],
+        "reference_pixels_to_crop": [
+          0.6359536082474228,
+          0,
+          -28.697164948453615,
+          0,
+          0.6359536082474228,
+          -0.0
+        ],
+        "atlas_to_reference_pixels": [
+          1.5724417426545085,
+          0,
+          -8.338399189463011,
+          0,
+          1.5724417426545085,
+          -36.1661600810537
+        ],
+        "reference_pixels_to_atlas": [
+          0.6359536082474228,
+          0,
+          5.302835051546385,
+          0,
+          0.6359536082474228,
+          23.0
+        ],
+        "atlas_to_logical": [
+          0.7862208713272543,
+          0,
+          -4.169199594731506,
+          0,
+          0.7862208713272543,
+          -18.08308004052685
+        ],
+        "logical_to_atlas": [
+          1.2719072164948455,
+          0,
+          5.302835051546385,
+          0,
+          1.2719072164948455,
+          23.0
+        ],
+        "matte_rgb": [
+          240,
+          245,
+          242
+        ],
+        "stretched": false,
+        "reference_resampled": true
+      },
+      "source_review": {
+        "status": "not_reviewed",
+        "reviewer": null
+      },
+      "native_mapping": {
+        "status": "not_started",
+        "automatic": false
+      }
+    },
+    {
+      "id": "2",
+      "design_id": "pad-02",
+      "surface": "app",
+      "declared_scene": {
+        "id": "2",
+        "design_id": "pad-02",
+        "directory": "cards/pad-02",
+        "crop": [
+          538,
+          21,
+          454,
+          989
+        ],
+        "surface": "app",
+        "title": "placeholder (other lane's screen)"
+      },
+      "crop": [
+        538,
+        21,
+        454,
+        989
+      ],
+      "crop_image": "scenes/pad-02/crop.png",
+      "reference_image": "scenes/pad-02/reference.png",
+      "provenance": "scenes/pad-02/provenance.json",
+      "crop_sha256": "f3ac901f0557d443322743a71a0276e1ea0035732cde3bd60c36c15ba10ee830",
+      "reference_sha256": "52337faf0eff5663eae6fbdb1483a7b454553afa7ad7fa457309933ead1516d1",
+      "source_atlas_sha256": "6803654f5cffba2720a050317d70a29cbb78c3d22b3db606252bfe9eca1e5fea",
+      "source_prompt_sha256": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146",
+      "crop_resampled": false,
+      "crop_mode": "RGB",
+      "transform": {
+        "coordinate_convention": "continuous top-left pixel-boundary coordinates; affine arrays are [a,b,c,d,e,f]",
+        "method": "uniform affine contain",
+        "resampler": "Pillow BICUBIC",
+        "source_crop_pixels": [
+          538,
+          21,
+          454,
+          989
+        ],
+        "source_crop_size": [
+          454,
+          989
+        ],
+        "artboard": [
+          406,
+          776
+        ],
+        "pixel_ratio": 2,
+        "reference_size": [
+          812,
+          1552
+        ],
+        "uniform_scale": 1.5692618806875631,
+        "offset_pixels": [
+          49.77755308392318,
+          0.0
+        ],
+        "content_bounds_pixels": [
+          49.77755308392318,
+          0.0,
+          712.4448938321536,
+          1552.0
+        ],
+        "crop_to_reference_pixels": [
+          1.5692618806875631,
+          0,
+          49.77755308392318,
+          0,
+          1.5692618806875631,
+          0.0
+        ],
+        "reference_pixels_to_crop": [
+          0.6372422680412372,
+          0,
+          -31.720360824742286,
+          0,
+          0.6372422680412372,
+          -0.0
+        ],
+        "atlas_to_reference_pixels": [
+          1.5692618806875631,
+          0,
+          -794.4853387259858,
+          0,
+          1.5692618806875631,
+          -32.95449949443883
+        ],
+        "reference_pixels_to_atlas": [
+          0.6372422680412372,
+          0,
+          506.2796391752577,
+          0,
+          0.6372422680412372,
+          21.0
+        ],
+        "atlas_to_logical": [
+          0.7846309403437816,
+          0,
+          -397.2426693629929,
+          0,
+          0.7846309403437816,
+          -16.477249747219414
+        ],
+        "logical_to_atlas": [
+          1.2744845360824744,
+          0,
+          506.2796391752577,
+          0,
+          1.2744845360824744,
+          21.0
+        ],
+        "matte_rgb": [
+          240,
+          245,
+          242
+        ],
+        "stretched": false,
+        "reference_resampled": true
+      },
+      "source_review": {
+        "status": "not_reviewed",
+        "reviewer": null
+      },
+      "native_mapping": {
+        "status": "not_started",
+        "automatic": false
+      }
+    },
+    {
+      "id": "3",
+      "design_id": "pad-03",
+      "surface": "app",
+      "declared_scene": {
+        "id": "3",
+        "design_id": "pad-03",
+        "directory": "cards/pad-03",
+        "crop": [
+          1037,
+          21,
+          499,
+          989
+        ],
+        "surface": "app",
+        "title": "placeholder (other lane's screen)"
+      },
+      "crop": [
+        1037,
+        21,
+        499,
+        989
+      ],
+      "crop_image": "scenes/pad-03/crop.png",
+      "reference_image": "scenes/pad-03/reference.png",
+      "provenance": "scenes/pad-03/provenance.json",
+      "crop_sha256": "0544ec65c934db83238911ce308a1e91553816f2c769cea7a3aeec9703aab829",
+      "reference_sha256": "a017b2c7dfe1f74f3cc3a1a376d1fff6dd67cba09a2b8af647905ae10486b09c",
+      "source_atlas_sha256": "6803654f5cffba2720a050317d70a29cbb78c3d22b3db606252bfe9eca1e5fea",
+      "source_prompt_sha256": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146",
+      "crop_resampled": false,
+      "crop_mode": "RGB",
+      "transform": {
+        "coordinate_convention": "continuous top-left pixel-boundary coordinates; affine arrays are [a,b,c,d,e,f]",
+        "method": "uniform affine contain",
+        "resampler": "Pillow BICUBIC",
+        "source_crop_pixels": [
+          1037,
+          21,
+          499,
+          989
+        ],
+        "source_crop_size": [
+          499,
+          989
+        ],
+        "artboard": [
+          406,
+          776
+        ],
+        "pixel_ratio": 2,
+        "reference_size": [
+          812,
+          1552
+        ],
+        "uniform_scale": 1.5692618806875631,
+        "offset_pixels": [
+          14.46916076845298,
+          0.0
+        ],
+        "content_bounds_pixels": [
+          14.46916076845298,
+          0.0,
+          783.061678463094,
+          1552.0
+        ],
+        "crop_to_reference_pixels": [
+          1.5692618806875631,
+          0,
+          14.46916076845298,
+          0,
+          1.5692618806875631,
+          0.0
+        ],
+        "reference_pixels_to_crop": [
+          0.6372422680412372,
+          0,
+          -9.220360824742267,
+          0,
+          0.6372422680412372,
+          -0.0
+        ],
+        "atlas_to_reference_pixels": [
+          1.5692618806875631,
+          0,
+          -1612.8554095045502,
+          0,
+          1.5692618806875631,
+          -32.95449949443883
+        ],
+        "reference_pixels_to_atlas": [
+          0.6372422680412372,
+          0,
+          1027.7796391752577,
+          0,
+          0.6372422680412372,
+          21.0
+        ],
+        "atlas_to_logical": [
+          0.7846309403437816,
+          0,
+          -806.4277047522751,
+          0,
+          0.7846309403437816,
+          -16.477249747219414
+        ],
+        "logical_to_atlas": [
+          1.2744845360824744,
+          0,
+          1027.7796391752577,
+          0,
+          1.2744845360824744,
+          21.0
+        ],
+        "matte_rgb": [
+          240,
+          245,
+          242
+        ],
+        "stretched": false,
+        "reference_resampled": true
+      },
+      "source_review": {
+        "status": "not_reviewed",
+        "reviewer": null
+      },
+      "native_mapping": {
+        "status": "not_started",
+        "automatic": false
+      }
+    },
+    {
+      "id": "4",
+      "design_id": "pad-04",
+      "surface": "app",
+      "declared_scene": {
+        "id": "4",
+        "design_id": "pad-04",
+        "directory": "cards/pad-04",
+        "crop": [
+          1536,
+          18,
+          462,
+          992
+        ],
+        "surface": "app",
+        "title": "placeholder (other lane's screen)"
+      },
+      "crop": [
+        1536,
+        18,
+        462,
+        992
+      ],
+      "crop_image": "scenes/pad-04/crop.png",
+      "reference_image": "scenes/pad-04/reference.png",
+      "provenance": "scenes/pad-04/provenance.json",
+      "crop_sha256": "cd75f8a8828b9e4291088959d4b90c70fe1bee33dec35dae3b09229a7b172966",
+      "reference_sha256": "8d1c128091bc794d44a7170b0e3e4c5217cade8ce899cc3e2bd375e5d49a3b50",
+      "source_atlas_sha256": "6803654f5cffba2720a050317d70a29cbb78c3d22b3db606252bfe9eca1e5fea",
+      "source_prompt_sha256": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146",
+      "crop_resampled": false,
+      "crop_mode": "RGB",
+      "transform": {
+        "coordinate_convention": "continuous top-left pixel-boundary coordinates; affine arrays are [a,b,c,d,e,f]",
+        "method": "uniform affine contain",
+        "resampler": "Pillow BICUBIC",
+        "source_crop_pixels": [
+          1536,
+          18,
+          462,
+          992
+        ],
+        "source_crop_size": [
+          462,
+          992
+        ],
+        "artboard": [
+          406,
+          776
+        ],
+        "pixel_ratio": 2,
+        "reference_size": [
+          812,
+          1552
+        ],
+        "uniform_scale": 1.564516129032258,
+        "offset_pixels": [
+          44.59677419354841,
+          0.0
+        ],
+        "content_bounds_pixels": [
+          44.59677419354841,
+          0.0,
+          722.8064516129032,
+          1552.0
+        ],
+        "crop_to_reference_pixels": [
+          1.564516129032258,
+          0,
+          44.59677419354841,
+          0,
+          1.564516129032258,
+          0.0
+        ],
+        "reference_pixels_to_crop": [
+          0.6391752577319588,
+          0,
+          -28.505154639175277,
+          0,
+          0.6391752577319588,
+          -0.0
+        ],
+        "atlas_to_reference_pixels": [
+          1.564516129032258,
+          0,
+          -2358.5,
+          0,
+          1.564516129032258,
+          -28.161290322580644
+        ],
+        "reference_pixels_to_atlas": [
+          0.6391752577319588,
+          0,
+          1507.4948453608247,
+          0,
+          0.6391752577319588,
+          18.0
+        ],
+        "atlas_to_logical": [
+          0.782258064516129,
+          0,
+          -1179.25,
+          0,
+          0.782258064516129,
+          -14.080645161290322
+        ],
+        "logical_to_atlas": [
+          1.2783505154639176,
+          0,
+          1507.4948453608247,
+          0,
+          1.2783505154639176,
+          18.0
+        ],
+        "matte_rgb": [
+          240,
+          245,
+          242
+        ],
+        "stretched": false,
+        "reference_resampled": true
+      },
+      "source_review": {
+        "status": "not_reviewed",
+        "reviewer": null
+      },
+      "native_mapping": {
+        "status": "not_started",
+        "automatic": false
+      }
+    },
+    {
+      "id": "5",
+      "design_id": "pad-05",
+      "surface": "app",
+      "declared_scene": {
+        "id": "5",
+        "design_id": "pad-05",
+        "directory": "cards/pad-05",
+        "crop": [
+          34,
+          1051,
+          459,
+          949
+        ],
+        "surface": "app",
+        "title": "placeholder (other lane's screen)"
+      },
+      "crop": [
+        34,
+        1051,
+        459,
+        949
+      ],
+      "crop_image": "scenes/pad-05/crop.png",
+      "reference_image": "scenes/pad-05/reference.png",
+      "provenance": "scenes/pad-05/provenance.json",
+      "crop_sha256": "1f29def9e8e5cec15afeb2999a5f62724d1c0649a4b8fc3fe87c96757315e0ad",
+      "reference_sha256": "d31f0d9de0c3184d92223a19332af3d284c3f7f7ce40965374b74f9b4a78a067",
+      "source_atlas_sha256": "6803654f5cffba2720a050317d70a29cbb78c3d22b3db606252bfe9eca1e5fea",
+      "source_prompt_sha256": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146",
+      "crop_resampled": false,
+      "crop_mode": "RGB",
+      "transform": {
+        "coordinate_convention": "continuous top-left pixel-boundary coordinates; affine arrays are [a,b,c,d,e,f]",
+        "method": "uniform affine contain",
+        "resampler": "Pillow BICUBIC",
+        "source_crop_pixels": [
+          34,
+          1051,
+          459,
+          949
+        ],
+        "source_crop_size": [
+          459,
+          949
+        ],
+        "artboard": [
+          406,
+          776
+        ],
+        "pixel_ratio": 2,
+        "reference_size": [
+          812,
+          1552
+        ],
+        "uniform_scale": 1.6354056902002108,
+        "offset_pixels": [
+          30.674394099051653,
+          0.0
+        ],
+        "content_bounds_pixels": [
+          30.674394099051653,
+          0.0,
+          750.6512118018967,
+          1552.0
+        ],
+        "crop_to_reference_pixels": [
+          1.6354056902002108,
+          0,
+          30.674394099051653,
+          0,
+          1.6354056902002108,
+          0.0
+        ],
+        "reference_pixels_to_crop": [
+          0.6114690721649485,
+          0,
+          -18.756443298969085,
+          0,
+          0.6114690721649485,
+          -0.0
+        ],
+        "atlas_to_reference_pixels": [
+          1.6354056902002108,
+          0,
+          -24.929399367755515,
+          0,
+          1.6354056902002108,
+          -1718.8113804004215
+        ],
+        "reference_pixels_to_atlas": [
+          0.6114690721649485,
+          0,
+          15.243556701030915,
+          0,
+          0.6114690721649485,
+          1051.0
+        ],
+        "atlas_to_logical": [
+          0.8177028451001054,
+          0,
+          -12.464699683877758,
+          0,
+          0.8177028451001054,
+          -859.4056902002108
+        ],
+        "logical_to_atlas": [
+          1.222938144329897,
+          0,
+          15.243556701030915,
+          0,
+          1.222938144329897,
+          1051.0
+        ],
+        "matte_rgb": [
+          240,
+          245,
+          242
+        ],
+        "stretched": false,
+        "reference_resampled": true
+      },
+      "source_review": {
+        "status": "not_reviewed",
+        "reviewer": null
+      },
+      "native_mapping": {
+        "status": "not_started",
+        "automatic": false
+      }
+    },
+    {
+      "id": "6",
+      "design_id": "pad-06",
+      "surface": "app",
+      "declared_scene": {
+        "id": "6",
+        "design_id": "pad-06",
+        "directory": "cards/pad-06",
+        "crop": [
+          538,
+          1050,
+          454,
+          950
+        ],
+        "surface": "app",
+        "title": "placeholder (other lane's screen)"
+      },
+      "crop": [
+        538,
+        1050,
+        454,
+        950
+      ],
+      "crop_image": "scenes/pad-06/crop.png",
+      "reference_image": "scenes/pad-06/reference.png",
+      "provenance": "scenes/pad-06/provenance.json",
+      "crop_sha256": "45e71aa773f23ba737008214b8b2c4d2f9ecc2639d53185e5298e70e0602ce13",
+      "reference_sha256": "ab524aae0ed481fe29ffba41ab639d292b7893052a2dffaf80fb5536d4e85e19",
+      "source_atlas_sha256": "6803654f5cffba2720a050317d70a29cbb78c3d22b3db606252bfe9eca1e5fea",
+      "source_prompt_sha256": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146",
+      "crop_resampled": false,
+      "crop_mode": "RGB",
+      "transform": {
+        "coordinate_convention": "continuous top-left pixel-boundary coordinates; affine arrays are [a,b,c,d,e,f]",
+        "method": "uniform affine contain",
+        "resampler": "Pillow BICUBIC",
+        "source_crop_pixels": [
+          538,
+          1050,
+          454,
+          950
+        ],
+        "source_crop_size": [
+          454,
+          950
+        ],
+        "artboard": [
+          406,
+          776
+        ],
+        "pixel_ratio": 2,
+        "reference_size": [
+          812,
+          1552
+        ],
+        "uniform_scale": 1.6336842105263158,
+        "offset_pixels": [
+          35.15368421052631,
+          0.0
+        ],
+        "content_bounds_pixels": [
+          35.15368421052631,
+          0.0,
+          741.6926315789474,
+          1552.0
+        ],
+        "crop_to_reference_pixels": [
+          1.6336842105263158,
+          0,
+          35.15368421052631,
+          0,
+          1.6336842105263158,
+          0.0
+        ],
+        "reference_pixels_to_crop": [
+          0.6121134020618556,
+          0,
+          -21.518041237113394,
+          0,
+          0.6121134020618556,
+          -0.0
+        ],
+        "atlas_to_reference_pixels": [
+          1.6336842105263158,
+          0,
+          -843.7684210526317,
+          0,
+          1.6336842105263158,
+          -1715.3684210526317
+        ],
+        "reference_pixels_to_atlas": [
+          0.6121134020618556,
+          0,
+          516.4819587628866,
+          0,
+          0.6121134020618556,
+          1050.0
+        ],
+        "atlas_to_logical": [
+          0.8168421052631579,
+          0,
+          -421.8842105263158,
+          0,
+          0.8168421052631579,
+          -857.6842105263158
+        ],
+        "logical_to_atlas": [
+          1.2242268041237112,
+          0,
+          516.4819587628866,
+          0,
+          1.2242268041237112,
+          1050.0
+        ],
+        "matte_rgb": [
+          240,
+          245,
+          242
+        ],
+        "stretched": false,
+        "reference_resampled": true
+      },
+      "source_review": {
+        "status": "not_reviewed",
+        "reviewer": null
+      },
+      "native_mapping": {
+        "status": "not_started",
+        "automatic": false
+      }
+    },
+    {
+      "id": "7",
+      "design_id": "setup-07",
+      "surface": "app",
+      "declared_scene": {
+        "id": "7",
+        "design_id": "setup-07",
+        "directory": "cards/setup-07",
+        "crop": [
+          1039,
+          1118,
+          497,
+          882
+        ],
+        "surface": "app",
+        "title": "Model settings"
+      },
+      "crop": [
+        1039,
+        1118,
+        497,
+        882
+      ],
+      "crop_image": "scenes/setup-07/crop.png",
+      "reference_image": "scenes/setup-07/reference.png",
+      "provenance": "scenes/setup-07/provenance.json",
+      "crop_sha256": "b2132525d1fee7e4db0a9e67c8a668b87b90baa7aba76dcea377127b52d0b52d",
+      "reference_sha256": "eea4879ae6d0cd6b624faf40165083cab6a008b8fc393afd6670a5c88fe6f3f5",
+      "source_atlas_sha256": "6803654f5cffba2720a050317d70a29cbb78c3d22b3db606252bfe9eca1e5fea",
+      "source_prompt_sha256": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146",
+      "crop_resampled": false,
+      "crop_mode": "RGB",
+      "transform": {
+        "coordinate_convention": "continuous top-left pixel-boundary coordinates; affine arrays are [a,b,c,d,e,f]",
+        "method": "uniform affine contain",
+        "resampler": "Pillow BICUBIC",
+        "source_crop_pixels": [
+          1039,
+          1118,
+          497,
+          882
+        ],
+        "source_crop_size": [
+          497,
+          882
+        ],
+        "artboard": [
+          406,
+          776
+        ],
+        "pixel_ratio": 2,
+        "reference_size": [
+          812,
+          1552
+        ],
+        "uniform_scale": 1.6338028169014085,
+        "offset_pixels": [
+          0.0,
+          55.49295774647885
+        ],
+        "content_bounds_pixels": [
+          0.0,
+          55.49295774647885,
+          812.0,
+          1441.0140845070423
+        ],
+        "crop_to_reference_pixels": [
+          1.6338028169014085,
+          0,
+          0.0,
+          0,
+          1.6338028169014085,
+          55.49295774647885
+        ],
+        "reference_pixels_to_crop": [
+          0.6120689655172413,
+          0,
+          -0.0,
+          0,
+          0.6120689655172413,
+          -33.965517241379295
+        ],
+        "atlas_to_reference_pixels": [
+          1.6338028169014085,
+          0,
+          -1697.5211267605634,
+          0,
+          1.6338028169014085,
+          -1771.0985915492959
+        ],
+        "reference_pixels_to_atlas": [
+          0.6120689655172413,
+          0,
+          1039.0,
+          0,
+          0.6120689655172413,
+          1084.0344827586207
+        ],
+        "atlas_to_logical": [
+          0.8169014084507042,
+          0,
+          -848.7605633802817,
+          0,
+          0.8169014084507042,
+          -885.5492957746479
+        ],
+        "logical_to_atlas": [
+          1.2241379310344827,
+          0,
+          1039.0,
+          0,
+          1.2241379310344827,
+          1084.0344827586207
+        ],
+        "matte_rgb": [
+          240,
+          245,
+          242
+        ],
+        "stretched": false,
+        "reference_resampled": true
+      },
+      "source_review": {
+        "status": "not_reviewed",
+        "reviewer": null
+      },
+      "native_mapping": {
+        "status": "not_started",
+        "automatic": false
+      }
+    },
+    {
+      "id": "8",
+      "design_id": "setup-08",
+      "surface": "app",
+      "declared_scene": {
+        "id": "8",
+        "design_id": "setup-08",
+        "directory": "cards/setup-08",
+        "crop": [
+          1536,
+          1119,
+          462,
+          881
+        ],
+        "surface": "app",
+        "title": "Command palette"
+      },
+      "crop": [
+        1536,
+        1119,
+        462,
+        881
+      ],
+      "crop_image": "scenes/setup-08/crop.png",
+      "reference_image": "scenes/setup-08/reference.png",
+      "provenance": "scenes/setup-08/provenance.json",
+      "crop_sha256": "4525fbce35199e8fe7b832a7dbfd9b2be1caeb4c3f41a366ad1379c8fccd34eb",
+      "reference_sha256": "46c19d4f5e04161120a74be51d2814daf77b431da734b51e4276912bd0b57f6b",
+      "source_atlas_sha256": "6803654f5cffba2720a050317d70a29cbb78c3d22b3db606252bfe9eca1e5fea",
+      "source_prompt_sha256": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146",
+      "crop_resampled": false,
+      "crop_mode": "RGB",
+      "transform": {
+        "coordinate_convention": "continuous top-left pixel-boundary coordinates; affine arrays are [a,b,c,d,e,f]",
+        "method": "uniform affine contain",
+        "resampler": "Pillow BICUBIC",
+        "source_crop_pixels": [
+          1536,
+          1119,
+          462,
+          881
+        ],
+        "source_crop_size": [
+          462,
+          881
+        ],
+        "artboard": [
+          406,
+          776
+        ],
+        "pixel_ratio": 2,
+        "reference_size": [
+          812,
+          1552
+        ],
+        "uniform_scale": 1.7575757575757576,
+        "offset_pixels": [
+          0.0,
+          1.7878787878787534
+        ],
+        "content_bounds_pixels": [
+          0.0,
+          1.7878787878787534,
+          812.0,
+          1548.4242424242425
+        ],
+        "crop_to_reference_pixels": [
+          1.7575757575757576,
+          0,
+          0.0,
+          0,
+          1.7575757575757576,
+          1.7878787878787534
+        ],
+        "reference_pixels_to_crop": [
+          0.5689655172413793,
+          0,
+          -0.0,
+          0,
+          0.5689655172413793,
+          -1.0172413793103252
+        ],
+        "atlas_to_reference_pixels": [
+          1.7575757575757576,
+          0,
+          -2699.6363636363635,
+          0,
+          1.7575757575757576,
+          -1964.939393939394
+        ],
+        "reference_pixels_to_atlas": [
+          0.5689655172413793,
+          0,
+          1536.0,
+          0,
+          0.5689655172413793,
+          1117.9827586206898
+        ],
+        "atlas_to_logical": [
+          0.8787878787878788,
+          0,
+          -1349.8181818181818,
+          0,
+          0.8787878787878788,
+          -982.469696969697
+        ],
+        "logical_to_atlas": [
+          1.1379310344827587,
+          0,
+          1536.0,
+          0,
+          1.1379310344827587,
+          1117.9827586206898
+        ],
+        "matte_rgb": [
+          240,
+          245,
+          242
+        ],
+        "stretched": false,
+        "reference_resampled": true
+      },
+      "source_review": {
+        "status": "not_reviewed",
+        "reviewer": null
+      },
+      "native_mapping": {
+        "status": "not_started",
+        "automatic": false
+      }
+    },
+    {
+      "id": "9",
+      "design_id": "setup-09",
+      "surface": "app",
+      "declared_scene": {
+        "id": "9",
+        "design_id": "setup-09",
+        "directory": "cards/setup-09",
+        "crop": [
+          34,
+          2111,
+          458,
+          927
+        ],
+        "surface": "app",
+        "title": "Context panel"
+      },
+      "crop": [
+        34,
+        2111,
+        458,
+        927
+      ],
+      "crop_image": "scenes/setup-09/crop.png",
+      "reference_image": "scenes/setup-09/reference.png",
+      "provenance": "scenes/setup-09/provenance.json",
+      "crop_sha256": "7e1c4aa832c6c40da801d69a3c29e4d4ce9b4445cf6491597f55d13cb424f391",
+      "reference_sha256": "5c08d9fc4a83f0e3a62d3a2098042c7651586fb065eef494aab64d625711f019",
+      "source_atlas_sha256": "6803654f5cffba2720a050317d70a29cbb78c3d22b3db606252bfe9eca1e5fea",
+      "source_prompt_sha256": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146",
+      "crop_resampled": false,
+      "crop_mode": "RGB",
+      "transform": {
+        "coordinate_convention": "continuous top-left pixel-boundary coordinates; affine arrays are [a,b,c,d,e,f]",
+        "method": "uniform affine contain",
+        "resampler": "Pillow BICUBIC",
+        "source_crop_pixels": [
+          34,
+          2111,
+          458,
+          927
+        ],
+        "source_crop_size": [
+          458,
+          927
+        ],
+        "artboard": [
+          406,
+          776
+        ],
+        "pixel_ratio": 2,
+        "reference_size": [
+          812,
+          1552
+        ],
+        "uniform_scale": 1.674217907227616,
+        "offset_pixels": [
+          22.604099244875954,
+          0.0
+        ],
+        "content_bounds_pixels": [
+          22.604099244875954,
+          0.0,
+          766.7918015102481,
+          1552.0
+        ],
+        "crop_to_reference_pixels": [
+          1.674217907227616,
+          0,
+          22.604099244875954,
+          0,
+          1.674217907227616,
+          0.0
+        ],
+        "reference_pixels_to_crop": [
+          0.5972938144329897,
+          0,
+          -13.50128865979382,
+          0,
+          0.5972938144329897,
+          -0.0
+        ],
+        "atlas_to_reference_pixels": [
+          1.674217907227616,
+          0,
+          -34.31930960086299,
+          0,
+          1.674217907227616,
+          -3534.2740021574973
+        ],
+        "reference_pixels_to_atlas": [
+          0.5972938144329897,
+          0,
+          20.498711340206178,
+          0,
+          0.5972938144329897,
+          2111.0
+        ],
+        "atlas_to_logical": [
+          0.837108953613808,
+          0,
+          -17.159654800431493,
+          0,
+          0.837108953613808,
+          -1767.1370010787487
+        ],
+        "logical_to_atlas": [
+          1.1945876288659794,
+          0,
+          20.498711340206178,
+          0,
+          1.1945876288659794,
+          2111.0
+        ],
+        "matte_rgb": [
+          240,
+          245,
+          242
+        ],
+        "stretched": false,
+        "reference_resampled": true
+      },
+      "source_review": {
+        "status": "not_reviewed",
+        "reviewer": null
+      },
+      "native_mapping": {
+        "status": "not_started",
+        "automatic": false
+      }
+    },
+    {
+      "id": "10",
+      "design_id": "setup-10",
+      "surface": "app",
+      "declared_scene": {
+        "id": "10",
+        "design_id": "setup-10",
+        "directory": "cards/setup-10",
+        "crop": [
+          539,
+          2111,
+          452,
+          927
+        ],
+        "surface": "app",
+        "title": "Skills"
+      },
+      "crop": [
+        539,
+        2111,
+        452,
+        927
+      ],
+      "crop_image": "scenes/setup-10/crop.png",
+      "reference_image": "scenes/setup-10/reference.png",
+      "provenance": "scenes/setup-10/provenance.json",
+      "crop_sha256": "0bbd5b42d4ca202a24e1af27dcb86f7f76fe063e443e2c205fce10a162a122d5",
+      "reference_sha256": "4f6487df5abf26921604ebb014617c33d9034590363270f350b0a035054c69d3",
+      "source_atlas_sha256": "6803654f5cffba2720a050317d70a29cbb78c3d22b3db606252bfe9eca1e5fea",
+      "source_prompt_sha256": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146",
+      "crop_resampled": false,
+      "crop_mode": "RGB",
+      "transform": {
+        "coordinate_convention": "continuous top-left pixel-boundary coordinates; affine arrays are [a,b,c,d,e,f]",
+        "method": "uniform affine contain",
+        "resampler": "Pillow BICUBIC",
+        "source_crop_pixels": [
+          539,
+          2111,
+          452,
+          927
+        ],
+        "source_crop_size": [
+          452,
+          927
+        ],
+        "artboard": [
+          406,
+          776
+        ],
+        "pixel_ratio": 2,
+        "reference_size": [
+          812,
+          1552
+        ],
+        "uniform_scale": 1.674217907227616,
+        "offset_pixels": [
+          27.626752966558797,
+          0.0
+        ],
+        "content_bounds_pixels": [
+          27.626752966558797,
+          0.0,
+          756.7464940668824,
+          1552.0
+        ],
+        "crop_to_reference_pixels": [
+          1.674217907227616,
+          0,
+          27.626752966558797,
+          0,
+          1.674217907227616,
+          0.0
+        ],
+        "reference_pixels_to_crop": [
+          0.5972938144329897,
+          0,
+          -16.50128865979382,
+          0,
+          0.5972938144329897,
+          -0.0
+        ],
+        "atlas_to_reference_pixels": [
+          1.674217907227616,
+          0,
+          -874.7766990291262,
+          0,
+          1.674217907227616,
+          -3534.2740021574973
+        ],
+        "reference_pixels_to_atlas": [
+          0.5972938144329897,
+          0,
+          522.4987113402062,
+          0,
+          0.5972938144329897,
+          2111.0
+        ],
+        "atlas_to_logical": [
+          0.837108953613808,
+          0,
+          -437.3883495145631,
+          0,
+          0.837108953613808,
+          -1767.1370010787487
+        ],
+        "logical_to_atlas": [
+          1.1945876288659794,
+          0,
+          522.4987113402062,
+          0,
+          1.1945876288659794,
+          2111.0
+        ],
+        "matte_rgb": [
+          240,
+          245,
+          242
+        ],
+        "stretched": false,
+        "reference_resampled": true
+      },
+      "source_review": {
+        "status": "not_reviewed",
+        "reviewer": null
+      },
+      "native_mapping": {
+        "status": "not_started",
+        "automatic": false
+      }
+    },
+    {
+      "id": "11",
+      "design_id": "setup-11",
+      "surface": "app",
+      "declared_scene": {
+        "id": "11",
+        "design_id": "setup-11",
+        "directory": "cards/setup-11",
+        "crop": [
+          1039,
+          2111,
+          497,
+          927
+        ],
+        "surface": "app",
+        "title": "Error screen"
+      },
+      "crop": [
+        1039,
+        2111,
+        497,
+        927
+      ],
+      "crop_image": "scenes/setup-11/crop.png",
+      "reference_image": "scenes/setup-11/reference.png",
+      "provenance": "scenes/setup-11/provenance.json",
+      "crop_sha256": "879e28684b22310a1220216ac33305ee825612c8ef5cce1105a099d1ae1861bb",
+      "reference_sha256": "a7336e5e9009742569caa7357497db715dd76b141fb3b35bdbfaea132bf88f93",
+      "source_atlas_sha256": "6803654f5cffba2720a050317d70a29cbb78c3d22b3db606252bfe9eca1e5fea",
+      "source_prompt_sha256": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146",
+      "crop_resampled": false,
+      "crop_mode": "RGB",
+      "transform": {
+        "coordinate_convention": "continuous top-left pixel-boundary coordinates; affine arrays are [a,b,c,d,e,f]",
+        "method": "uniform affine contain",
+        "resampler": "Pillow BICUBIC",
+        "source_crop_pixels": [
+          1039,
+          2111,
+          497,
+          927
+        ],
+        "source_crop_size": [
+          497,
+          927
+        ],
+        "artboard": [
+          406,
+          776
+        ],
+        "pixel_ratio": 2,
+        "reference_size": [
+          812,
+          1552
+        ],
+        "uniform_scale": 1.6338028169014085,
+        "offset_pixels": [
+          0.0,
+          18.732394366197127
+        ],
+        "content_bounds_pixels": [
+          0.0,
+          18.732394366197127,
+          812.0,
+          1514.5352112676057
+        ],
+        "crop_to_reference_pixels": [
+          1.6338028169014085,
+          0,
+          0.0,
+          0,
+          1.6338028169014085,
+          18.732394366197127
+        ],
+        "reference_pixels_to_crop": [
+          0.6120689655172413,
+          0,
+          -0.0,
+          0,
+          0.6120689655172413,
+          -11.465517241379276
+        ],
+        "atlas_to_reference_pixels": [
+          1.6338028169014085,
+          0,
+          -1697.5211267605634,
+          0,
+          1.6338028169014085,
+          -3430.225352112676
+        ],
+        "reference_pixels_to_atlas": [
+          0.6120689655172413,
+          0,
+          1039.0,
+          0,
+          0.6120689655172413,
+          2099.534482758621
+        ],
+        "atlas_to_logical": [
+          0.8169014084507042,
+          0,
+          -848.7605633802817,
+          0,
+          0.8169014084507042,
+          -1715.112676056338
+        ],
+        "logical_to_atlas": [
+          1.2241379310344827,
+          0,
+          1039.0,
+          0,
+          1.2241379310344827,
+          2099.534482758621
+        ],
+        "matte_rgb": [
+          240,
+          245,
+          242
+        ],
+        "stretched": false,
+        "reference_resampled": true
+      },
+      "source_review": {
+        "status": "not_reviewed",
+        "reviewer": null
+      },
+      "native_mapping": {
+        "status": "not_started",
+        "automatic": false
+      }
+    },
+    {
+      "id": "12",
+      "design_id": "setup-12",
+      "surface": "app",
+      "declared_scene": {
+        "id": "12",
+        "design_id": "setup-12",
+        "directory": "cards/setup-12",
+        "crop": [
+          1536,
+          2111,
+          455,
+          928
+        ],
+        "surface": "app",
+        "title": "Loading and reconnecting"
+      },
+      "crop": [
+        1536,
+        2111,
+        455,
+        928
+      ],
+      "crop_image": "scenes/setup-12/crop.png",
+      "reference_image": "scenes/setup-12/reference.png",
+      "provenance": "scenes/setup-12/provenance.json",
+      "crop_sha256": "16dc2f1fba6d87b1c0df3a2fbc2b956123726b9a42c1b5e165a9f994d494339d",
+      "reference_sha256": "fb936b73852b6bdf407c8d75e674be0574aff1963fcd512b488ce59aca61a713",
+      "source_atlas_sha256": "6803654f5cffba2720a050317d70a29cbb78c3d22b3db606252bfe9eca1e5fea",
+      "source_prompt_sha256": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146",
+      "crop_resampled": false,
+      "crop_mode": "RGB",
+      "transform": {
+        "coordinate_convention": "continuous top-left pixel-boundary coordinates; affine arrays are [a,b,c,d,e,f]",
+        "method": "uniform affine contain",
+        "resampler": "Pillow BICUBIC",
+        "source_crop_pixels": [
+          1536,
+          2111,
+          455,
+          928
+        ],
+        "source_crop_size": [
+          455,
+          928
+        ],
+        "artboard": [
+          406,
+          776
+        ],
+        "pixel_ratio": 2,
+        "reference_size": [
+          812,
+          1552
+        ],
+        "uniform_scale": 1.6724137931034482,
+        "offset_pixels": [
+          25.525862068965523,
+          0.0
+        ],
+        "content_bounds_pixels": [
+          25.525862068965523,
+          0.0,
+          760.948275862069,
+          1552.0
+        ],
+        "crop_to_reference_pixels": [
+          1.6724137931034482,
+          0,
+          25.525862068965523,
+          0,
+          1.6724137931034482,
+          0.0
+        ],
+        "reference_pixels_to_crop": [
+          0.5979381443298969,
+          0,
+          -15.262886597938147,
+          0,
+          0.5979381443298969,
+          -0.0
+        ],
+        "atlas_to_reference_pixels": [
+          1.6724137931034482,
+          0,
+          -2543.3017241379307,
+          0,
+          1.6724137931034482,
+          -3530.465517241379
+        ],
+        "reference_pixels_to_atlas": [
+          0.5979381443298969,
+          0,
+          1520.7371134020618,
+          0,
+          0.5979381443298969,
+          2111.0
+        ],
+        "atlas_to_logical": [
+          0.8362068965517241,
+          0,
+          -1271.6508620689654,
+          0,
+          0.8362068965517241,
+          -1765.2327586206895
+        ],
+        "logical_to_atlas": [
+          1.1958762886597938,
+          0,
+          1520.7371134020618,
+          0,
+          1.1958762886597938,
+          2111.0
+        ],
+        "matte_rgb": [
+          240,
+          245,
+          242
+        ],
+        "stretched": false,
+        "reference_resampled": true
+      },
+      "source_review": {
+        "status": "not_reviewed",
+        "reviewer": null
+      },
+      "native_mapping": {
+        "status": "not_started",
+        "automatic": false
+      }
+    }
+  ],
+  "review_status": "not_reviewed",
+  "native_mapping_status": "not_started",
+  "limitations": [
+    "No image generation executed",
+    "No manual or automatic visual review claimed",
+    "No semantic mapping or native Makepad components generated",
+    "Crop coordinates address the stored atlas pixel matrix without EXIF rotation"
+  ],
+  "files": {
+    "original/atlas.png": "6803654f5cffba2720a050317d70a29cbb78c3d22b3db606252bfe9eca1e5fea",
+    "original/manifest.json": "4d058b18ff05b61f115e935c0f16b31db10811f8e0e72fd51171ffa9df4154c0",
+    "original/prompt.txt": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146",
+    "scenes/pad-01/crop.png": "8e737358c5869097bbc954816b7868eab5156ef1a51ebfcffe8d56319e7402e7",
+    "scenes/pad-01/provenance.json": "2bace80943e8a2839ecae3aed657f5acb7e260b7ecabe258e1d38463bb5d7f08",
+    "scenes/pad-01/reference.png": "bbcfd4b01c45eea4a6b7104e943bb8272c28b86485d88572302f3d291ba0ff1e",
+    "scenes/pad-02/crop.png": "f3ac901f0557d443322743a71a0276e1ea0035732cde3bd60c36c15ba10ee830",
+    "scenes/pad-02/provenance.json": "b382e48b9e6981db9d7f5b149442a1e81b9a68ced7f878e4dd16bc45f569de3d",
+    "scenes/pad-02/reference.png": "52337faf0eff5663eae6fbdb1483a7b454553afa7ad7fa457309933ead1516d1",
+    "scenes/pad-03/crop.png": "0544ec65c934db83238911ce308a1e91553816f2c769cea7a3aeec9703aab829",
+    "scenes/pad-03/provenance.json": "a65d8ff7bfe15fe88e213cbb37d8d1e74231a9094446a7a2b35348a264845c96",
+    "scenes/pad-03/reference.png": "a017b2c7dfe1f74f3cc3a1a376d1fff6dd67cba09a2b8af647905ae10486b09c",
+    "scenes/pad-04/crop.png": "cd75f8a8828b9e4291088959d4b90c70fe1bee33dec35dae3b09229a7b172966",
+    "scenes/pad-04/provenance.json": "e2fc93507b0203591a1516238efc3d505654d6862b930e88e96fff36c29e78cd",
+    "scenes/pad-04/reference.png": "8d1c128091bc794d44a7170b0e3e4c5217cade8ce899cc3e2bd375e5d49a3b50",
+    "scenes/pad-05/crop.png": "1f29def9e8e5cec15afeb2999a5f62724d1c0649a4b8fc3fe87c96757315e0ad",
+    "scenes/pad-05/provenance.json": "f973fb7a6b330d57699d25ad953daad1e6bcfdb8183e5dc67efddc789d6945e5",
+    "scenes/pad-05/reference.png": "d31f0d9de0c3184d92223a19332af3d284c3f7f7ce40965374b74f9b4a78a067",
+    "scenes/pad-06/crop.png": "45e71aa773f23ba737008214b8b2c4d2f9ecc2639d53185e5298e70e0602ce13",
+    "scenes/pad-06/provenance.json": "1cb21fc771587b532ad7e0baef524f6a7d34e0b1d97f6492463e74c90ef0fe86",
+    "scenes/pad-06/reference.png": "ab524aae0ed481fe29ffba41ab639d292b7893052a2dffaf80fb5536d4e85e19",
+    "scenes/setup-07/crop.png": "b2132525d1fee7e4db0a9e67c8a668b87b90baa7aba76dcea377127b52d0b52d",
+    "scenes/setup-07/provenance.json": "33827426516565d3d2542aaa6ed05618ee60b187262a842e912cd3e9f2a0745e",
+    "scenes/setup-07/reference.png": "eea4879ae6d0cd6b624faf40165083cab6a008b8fc393afd6670a5c88fe6f3f5",
+    "scenes/setup-08/crop.png": "4525fbce35199e8fe7b832a7dbfd9b2be1caeb4c3f41a366ad1379c8fccd34eb",
+    "scenes/setup-08/provenance.json": "c90465e44e031c04f582aac5368d19c974acee11c33a3d7c9dcbf825f15dbc27",
+    "scenes/setup-08/reference.png": "46c19d4f5e04161120a74be51d2814daf77b431da734b51e4276912bd0b57f6b",
+    "scenes/setup-09/crop.png": "7e1c4aa832c6c40da801d69a3c29e4d4ce9b4445cf6491597f55d13cb424f391",
+    "scenes/setup-09/provenance.json": "b8d33d79a30f45eb510449141039d706e297240f2d830d3c201e93b9bf4e8b0f",
+    "scenes/setup-09/reference.png": "5c08d9fc4a83f0e3a62d3a2098042c7651586fb065eef494aab64d625711f019",
+    "scenes/setup-10/crop.png": "0bbd5b42d4ca202a24e1af27dcb86f7f76fe063e443e2c205fce10a162a122d5",
+    "scenes/setup-10/provenance.json": "cd02b6f293f2602bb8e5c790c7ecc4a9e08749a7864c10bed668b65c29c504a8",
+    "scenes/setup-10/reference.png": "4f6487df5abf26921604ebb014617c33d9034590363270f350b0a035054c69d3",
+    "scenes/setup-11/crop.png": "879e28684b22310a1220216ac33305ee825612c8ef5cce1105a099d1ae1861bb",
+    "scenes/setup-11/provenance.json": "e34a3a2174cc43dd1393d4e486021c103e62dc1413c3945ef3815302826f3c65",
+    "scenes/setup-11/reference.png": "a7336e5e9009742569caa7357497db715dd76b141fb3b35bdbfaea132bf88f93",
+    "scenes/setup-12/crop.png": "16dc2f1fba6d87b1c0df3a2fbc2b956123726b9a42c1b5e165a9f994d494339d",
+    "scenes/setup-12/provenance.json": "0d2299f149749289d3763ceb482b347b075a467d60473d60a28d9f2a4d17fca2",
+    "scenes/setup-12/reference.png": "fb936b73852b6bdf407c8d75e674be0574aff1963fcd512b488ce59aca61a713"
+  }
+}
