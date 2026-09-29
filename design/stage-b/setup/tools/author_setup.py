@@ -21,6 +21,7 @@ AV_PATH = HERE.parent.parent / "conversation" / "tools" / "author_v2.py"
 spec = importlib.util.spec_from_file_location("author_v2", AV_PATH)
 av = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(av)
+av.C["d2"] = 0xFFD2D2D7        # entry: inputs are white with a 1px #D2D2D7 border
 
 ROOT = HERE.parent
 OCR = ROOT / "ocr"
@@ -61,6 +62,39 @@ def svg_node(sc, id, content, x, y, w, h):
     return {"t": "svg", "id": id, "x": av.r(x), "y": av.r(y), "w": av.r(w), "h": av.r(h), "src": ""}
 
 
+# Round-2 v9: the map stage's fit sizes are loose Vision ink boxes, and blanket
+# ratios overshoot (v8 labels ~21px vs atlas ~15). Sizes are per text class.
+TYPE_SIZE_EXACT = {
+    "t_hint": 13, "t_keyhint": 13, "t_saved": 13,
+    "t_error": 14, "t_last": 14, "t_local": 14, "retry_label": 14,
+    "t_sb_b": 14, "t_sb_r": 14,
+    "t_server": 15, "t_token": 15, "t_pname": 15, "t_provider": 15,
+    "t_apikey": 15, "t_model": 15, "t_perm": 15, "t_sandbox": 15,
+    "t_recent": 15, "t_sfolder": 15, "t_notif": 15, "t_diag": 15,
+    "t_disconnect": 15,
+}
+TITLE_SIZE = {1: 27, 2: 27, 3: 24, 4: 26, 5: 26, 6: 27}
+
+
+def apply_type_scale(sc, num):
+    """Stamp the per-class sizes onto the authored tree (called in build())."""
+    def rec(n):
+        yield n
+        for c in n.get("c", []):
+            yield from rec(c)
+    for n in [x for k in sc.kids for x in rec(k)]:
+        if n.get("t") != "text":
+            continue
+        if n["id"] == "t_title":
+            n["size"] = TITLE_SIZE.get(num, 27)
+        elif n["id"] in TYPE_SIZE_EXACT:
+            n["size"] = TYPE_SIZE_EXACT[n["id"]]
+        elif n["id"].startswith("t_g1_r"):
+            n["size"] = 15
+        elif n["id"].endswith("_label"):
+            n["size"] = 16
+
+
 def load_rows(num):
     d = json.loads((OCR / f"setup-{num:02d}.ocr.json").read_text())
     sx, sy = 406 / d["width"], 776 / d["height"]
@@ -75,29 +109,35 @@ def load_rows(num):
 
 
 def titled_box(sc, id, box_i, *, icon_name=None, eye=False, chevron=False, value=None,
-               bordercolor="hair"):
+               bordercolor="d2"):
     """A panel input: bordered surface + input showing the measured value (dark ink)."""
     s, x, y, w, h = sc.rows[box_i]
     bx, by, bw, bh = 46, y - 12, 314, h + 24
-    field = av.input_node(id + "_field", bx + 14, by + (bh - h) / 2, bw - 28, h, s)
+    field = av.input_node(id + "_field", bx + 14, by + (bh - h) / 2, bw - 28, h, s, size=16)
     if value is not None:
         field["text"] = value
         field["placeholder"] = ""
         field["color"] = av.C["ink"]
     kids = [field]
     if chevron:
-        kids.append(av.icon(id + "_chev", "chevron_down", bx + bw - 30, by + (bh - 20) / 2, 20, 20, color="muted"))
+        kids.append(av.text(id + "_caret", "▾", bx + bw - 30, by + (bh - 22) / 2, 20, 22,
+                            size=18, weight=600, color="ink"))
     if eye:
         kids.append({"t": "svg", "id": id + "_eye", "x": av.r(bx + bw - 32),
                      "y": av.r(by + (bh - 20) / 2), "w": av.r(20), "h": av.r(20), "src": ""})
         sc.icons[id + "_eye"] = EYE_SVG
-    sc.put(av.surface(id, bx, by, bw, bh, bg="panel", radius=8, border=1,
+    sc.put(av.surface(id, bx, by, bw, bh, bg="white", radius=8, border=1,
                       bordercolor=bordercolor, kids=kids))
     sc.inputs[id + "_field"] = ("input." + id, [int(bx), int(by), int(bw), int(bh)])
 
 
-def black_pill(sc, id, label_i, *, cx=None, event=None, bg="black", color="white"):
+def black_pill(sc, id, label_i, *, cx=None, event=None, bg="black", color="white", full=False):
     s, x, y, w, h = sc.rows[label_i]
+    if full:
+        sc.add_control(id, 46, y - 10, 314, 44, label_i, bg=bg, radius=999,
+                       color=color, weight=600, event=event or id,
+                       lx=46 + (314 - w) / 2, ly=y - 10 + (44 - h) / 2, lw=w, lh=h)
+        return
     cw, ch = w + 42, h + 20
     cx = x + w / 2 if cx is None else cx
     sc.add_control(id, cx - cw / 2, y - 10, cw, ch, label_i, bg=bg, radius=999,
@@ -106,12 +146,12 @@ def black_pill(sc, id, label_i, *, cx=None, event=None, bg="black", color="white
 
 def build_01(sc):
     sc.add_text("t_title", 0, weight=600, size=20)
-    sc.add_text("t_server", 1, size=14, color="muted")
+    sc.add_text("t_server", 1, size=14, color="ink")
     titled_box(sc, "server", 2, value=sc.rows[2][0])
-    sc.add_text("t_token", 3, size=14, color="muted")
-    titled_box(sc, "token", 4, eye=False, value="•" * 19)
+    sc.add_text("t_token", 3, size=14, color="ink")
+    titled_box(sc, "token", 4, eye=False, value="•" * 20)
     sc.add_text("t_hint", 5, size=13, color="muted")
-    black_pill(sc, "connect", 6)
+    black_pill(sc, "connect", 6, full=True)
     s, x, y, w, h = sc.rows[7]
     sc.put(av.text("t_local", s, x, y, w, h, size=13, color="blue", weight=500))
     sc.controls["local_solo"] = ("connect.use_local_solo", [int(x) - 8, int(y) - 6, int(w) + 16, int(h) + 12], True)
@@ -119,22 +159,21 @@ def build_01(sc):
 
 def build_02(sc):
     sc.add_text("t_title", 0, weight=600, size=20)
-    sc.add_text("t_server", 1, size=14, color="muted")
+    sc.add_text("t_server", 1, size=14, color="ink")
     titled_box(sc, "server", 2, value=sc.rows[2][0])
-    sc.add_text("t_token", 3, size=14, color="muted")
-    titled_box(sc, "token", 4, eye=True, value="•" * 19, bordercolor="red")
+    sc.add_text("t_token", 3, size=14, color="ink")
+    titled_box(sc, "token", 4, eye=True, value="•" * 20, bordercolor="red")
     s, x, y, w, h = sc.rows[5]
-    sc.put(av.surface("error_band", 46, y - 8, 314, h + 16, bg="redbg", radius=8,
-                      kids=[av.text("t_error", s, x, y, w, h, size=13, color="red", weight=500)]))
+    sc.put(av.text("t_error", s, x, y, w, h, size=13, color="red", weight=500))
     s, x, y, w, h = sc.rows[6]
     pre, _, post = s.partition("· Retry")
-    sc.put(av.text("t_last", pre.rstrip(), x, y, w, h, size=13, color="muted"))
-    rx = x + 150
-    sc.add_control("retry", rx, y - 7, 62, h + 14, 6, bg="white", radius=8, border=1,
-                   bordercolor="hair", event="connect.retry",
-                   lx=rx + 10, ly=y, lw=42, lh=h)
+    sc.put(av.text("t_last", pre.rstrip() + " ·", x, y, w, h, size=13, color="muted"))
+    rx = x + (len(pre.rstrip()) + 2) * 7.5
+    sc.add_control("retry", rx - 4, y - 6, 52, h + 12, 6, bg="white", radius=0, border=0,
+                   event="connect.retry", color="blue", weight=600,
+                   lx=rx, ly=y, lw=44, lh=h)
     sc.kids[-1]["c"][-1]["text"] = "Retry"
-    black_pill(sc, "connect", 7)
+    black_pill(sc, "connect", 7, full=True)
     s, x, y, w, h = sc.rows[8]
     sc.put(av.text("t_local", s, x, y, w, h, size=13, color="blue", weight=500))
     sc.controls["local_solo"] = ("connect.use_local_solo", [int(x) - 8, int(y) - 6, int(w) + 16, int(h) + 12], True)
@@ -142,22 +181,22 @@ def build_02(sc):
 
 def build_03(sc):
     sc.add_text("t_title", 0, weight=600, size=22)
-    sc.add_text("t_pname", 1, size=14, color="muted")
+    sc.add_text("t_pname", 1, size=14, color="ink")
     titled_box(sc, "profile", 2, value=sc.rows[2][0])
-    sc.add_text("t_provider", 3, size=14, color="muted")
+    sc.add_text("t_provider", 3, size=14, color="ink")
     for k, (name_i, rid, on) in enumerate([(5, "deepseek", True), (6, "kimi", False), (7, "glm", False)]):
         s, x, y, w, h = sc.rows[name_i]
         sc.put(av.surface(f"provider_{rid}", 46, y - 10, 314, h + 20,
                           bg="sel" if on else "white", radius=10,
                           kids=[av.icon(f"radio_{rid}", "radio_on" if on else "radio_off",
-                                        62, y + (h - 20) / 2, 20, 20,
+                                        62, y + (h - 22) / 2, 22, 22,
                                         color="blue" if on else "muted"),
                                 av.text(f"t_prov_{rid}", s, 92, y, 250, h, size=14, weight=500)]))
         sc.controls[f"provider_{rid}"] = (f"onboarding.provider.{rid}", [46, int(y) - 10, 314, int(h) + 20], True)
-    sc.add_text("t_apikey", 4, size=14, color="muted")
-    titled_box(sc, "apikey", 8, eye=True)
+    sc.add_text("t_apikey", 4, size=14, color="ink")
+    titled_box(sc, "apikey", 8, eye=True, value="•" * 20)
     sc.add_text("t_keyhint", 9, size=13, color="muted")
-    black_pill(sc, "create_profile", 10)
+    black_pill(sc, "create_profile", 10, full=True)
 
 
 def build_04(sc):
@@ -170,11 +209,12 @@ def build_04(sc):
     box_h = (vy + vh) - ly + 26
     sc.put(av.surface("folder", 46, ly - 14, 314, box_h, bg="panel", radius=8,
                       border=1, bordercolor="hair",
-                      kids=[svg_node(sc, "folder_icon", FOLDER_SVG, 62, ly + (lh - 20) / 2, 20, 20),
+                      kids=[svg_node(sc, "folder_icon", FOLDER_SVG, 62, ly + (lh - 22) / 2, 22, 22),
                             av.text("t_sfolder", ls, 92, ly, 200, lh, size=14, weight=500, color="ink"),
                             fld,
                             av.icon("folder_chev", "chevron_right", 334, ly - 14 + box_h / 2 - 9, 18, 18, color="muted")]))
     sc.inputs["folder_field"] = ("input.folder", [46, int(ly) - 14, 314, int(box_h)])
+    sc.add_text("t_recent", 3, weight=600, size=15)
     pairs = [(4, 5), (6, 7), (8, 9), (10, 11)]
     g_kids = []
     g_top = sc.rows[4][2] - 14
@@ -185,7 +225,7 @@ def build_04(sc):
             prev = sc.rows[pairs[k - 1][1]]
             g_kids.append(av.surface(f"hair_ws{k}", 58, (prev[2] + prev[4] + ny) / 2, 290, 1,
                                      bg="hair", radius=0))
-        g_kids.append(svg_node(sc, f"ws_icon{k}", FOLDER_SVG, 60, ny + (nh - 18) / 2, 18, 18))
+        g_kids.append(svg_node(sc, f"ws_icon{k}", FOLDER_SVG, 60, ny + (nh - 20) / 2, 20, 20))
         g_kids.append(av.text(f"t_ws{k}_name", ns, nx, ny, nw, nh, size=14, weight=500))
         g_kids.append(av.text(f"t_ws{k}_path", ps, nx, py, 240, ph, size=12, color="muted"))
         sc.controls[f"ws_row{k}"] = ("workspace.open", [46, int(ny) - 14, 314, int(nh + ph + 24)], True)
@@ -193,7 +233,7 @@ def build_04(sc):
     g_bot = last[2] + last[4] + 14
     sc.put(av.surface("recent_group", 46, g_top, 314, g_bot - g_top, bg="white", radius=10,
                       border=1, bordercolor="hair", kids=g_kids))
-    black_pill(sc, "browse", 12, bg="white", color="ink")
+    black_pill(sc, "browse", 12, bg="white", color="ink", full=True)
     sc.kids[-1]["c"][0]["border"] = 1
     sc.kids[-1]["c"][0]["bordercolor"] = av.C["ink"]
     ns, nx, ny, nw, nh = sc.rows[13]
@@ -204,7 +244,7 @@ def build_04(sc):
 def build_05(sc):
     sc.add_text("t_title", 0, weight=600, size=20)
     xs, ys, ws, hs = sc.rows[1][1:]
-    sc.put(av.text("t_close", "✕", xs, ys, ws, hs, size=16, weight=500, color="ink"))
+    sc.put(av.text("t_close", "✕", xs, ys, ws, hs, size=24, weight=500, color="ink"))
     sc.controls["close"] = ("settings.close", [int(xs) - 8, int(ys) - 8, int(ws) + 16, int(hs) + 16], True)
     sc.add_text("t_model", 2, size=14, color="ink")
     titled_box(sc, "model", 3, chevron=True, value=sc.rows[3][0])
@@ -229,7 +269,10 @@ def build_05(sc):
     s, x, y, w, h = sc.rows[10]
     sc.put(av.surface("sandbox_box", 46, y - 10, 314, h + 20, bg="white", radius=8, border=1,
                       bordercolor="hair",
-                      kids=[av.text("t_sandbox_v", s, x, y, w, h, size=13, color="ink")]))
+                      kids=[av.text("t_sb_b", s.partition(" · ")[0], x, y, 76, h,
+                                    size=14, weight=700, color="ink"),
+                            av.text("t_sb_r", (" · " + s.partition(" · ")[2]).strip(),
+                                    x + 80, y, 230, h, size=14, color="ink")]))
 
 
 def build_06(sc):
@@ -244,10 +287,10 @@ def build_06(sc):
         if k == 0:
             card.append(av.surface("live_dot", vx - 16, vy + (vh - 8) / 2, 8, 8, bg="green", radius=999))
             card.append(av.text("t_g1_v0", vs, vx, vy, vw, vh, size=13, color="green"))
-            card.append(av.icon("chev_g1_r0", "chevron_right", vx + vw + 6, vy + (vh - 16) / 2, 16, 16, color="muted"))
+            card.append(av.icon("chev_g1_r0", "chevron_right", gx + gw - 26, vy + (vh - 16) / 2, 16, 16, color="muted"))
         else:
             card.append(av.text(f"t_g1_v{k}", vs, vx, vy, vw, vh, size=13, color="muted"))
-            card.append(av.icon(f"chev_g1_r{k}", "chevron_right", vx + vw + 6, vy + (vh - 16) / 2, 16, 16, color="muted"))
+            card.append(av.icon(f"chev_g1_r{k}", "chevron_right", gx + gw - 26, vy + (vh - 16) / 2, 16, 16, color="muted"))
         if k:
             pli = rows[k - 1][0]
             pbottom = sc.rows[pli][2] + sc.rows[pli][4]
@@ -257,18 +300,18 @@ def build_06(sc):
     sc.put(av.surface("group1", gx, gy, gw, 196, bg="white", radius=12, border=1,
                       bordercolor="hair", kids=card))
     ns, nx, ny, nw, nh = sc.rows[7]
-    sc.put(av.surface("group2", gx, 370, gw, 62, bg="white", radius=12, border=1,
+    sc.put(av.surface("group2", gx, 370, gw, 76, bg="white", radius=12, border=1,
                       bordercolor="hair",
                       kids=[av.text("t_notif", ns, nx, ny, nw, nh, size=14, weight=500),
                             av.surface("toggle1", 268, ny - 6, 50, 30, bg="blue", radius=999,
                                        kids=[av.surface("toggle1_knob", 294, ny - 3, 24, 24, bg="white", radius=999)])]))
-    sc.controls["notif_toggle"] = ("settings.notifications", [gx, 370, gw, 62], True)
+    sc.controls["notif_toggle"] = ("settings.notifications", [gx, 370, gw, 76], True)
     cs, cx, cy, cw, ch = sc.rows[8]
-    sc.put(av.surface("group3", gx, 462, gw, 76, bg="white", radius=12, border=1,
+    sc.put(av.surface("group3", gx, 462, gw, 90, bg="white", radius=12, border=1,
                       bordercolor="hair",
                       kids=[av.text("t_diag", cs, cx, cy, cw, ch, size=14, weight=500),
-                            av.icon("copy_diag", "copy", gx + gw - 30, cy + (ch - 18) / 2, 18, 18, color="muted")]))
-    sc.controls["copy_diag"] = ("settings.copy_diagnostics", [gx, 462, gw, 56], True)
+                            av.icon("copy_diag", "copy", gx + gw - 34, cy + (ch - 22) / 2, 22, 22, color="muted")]))
+    sc.controls["copy_diag"] = ("settings.copy_diagnostics", [gx, 462, gw, 90], True)
     ds, dx, dy, dw, dh = sc.rows[9]
     sc.put(av.surface("disconnect", gx, dy - 14, gw, dh + 28, bg="white", radius=12,
                       border=1, bordercolor="hair",
@@ -289,6 +332,7 @@ def build_generic(sc):
 def build(num):
     sc = av.Scene(num, load_rows(num))
     (BUILDERS.get(num, build_generic))(sc)
+    apply_type_scale(sc, num)
     if num <= 6:
         # every target screen draws ONE enclosing rounded hairline card
         kids = sc.kids

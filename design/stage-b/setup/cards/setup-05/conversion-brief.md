@@ -52,7 +52,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.0,
     "text": "Session settings",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 20,
+    "size": 26,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -65,10 +65,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 341.72,
     "y": 75.57,
     "w": 20.3,
-    "h": 24.0,
+    "h": 36.0,
     "text": "\u2715",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 16,
+    "size": 24,
     "weight": 500,
     "role": "text",
     "native_candidates": [
@@ -84,7 +84,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 21.43,
     "text": "Model",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 15,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -111,7 +111,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 26.12,
     "text": "deepseek-v4-flash",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15,
+    "size": 16,
     "weight": 400,
     "role": "input",
     "native_candidates": [
@@ -120,13 +120,20 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "model_chev",
+    "id": "model_caret",
     "x": 330.0,
-    "y": 216.06,
+    "y": 215.06,
     "w": 20.0,
-    "h": 20.0,
-    "role": "unknown",
-    "native_candidates": []
+    "h": 27.0,
+    "text": "\u25be",
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 18,
+    "weight": 600,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
   },
   {
     "id": "t_saved",
@@ -152,7 +159,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 21.0,
     "text": "Permissions",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 15,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -260,7 +267,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 21.0,
     "text": "Sandbox",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 15,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -280,14 +287,30 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t_sandbox_v",
+    "id": "t_sb_b",
     "x": 58.64,
     "y": 627.0,
-    "w": 294.35,
+    "w": 76.0,
     "h": 22.67,
-    "text": "Enabled \u00b7 Network off \u00b7 Workspace write",
+    "text": "Enabled",
+    "font_src": "self:resources/ux/Inter-700.ttf",
+    "size": 14,
+    "weight": 700,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_sb_r",
+    "x": 138.64,
+    "y": 627.0,
+    "w": 230.0,
+    "h": 22.67,
+    "text": "\u00b7 Network off \u00b7 Workspace write",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 13,
+    "size": 14,
     "weight": 400,
     "role": "text",
     "native_candidates": [

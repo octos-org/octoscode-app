@@ -107,9 +107,9 @@
       "id": "folder_icon",
       "bounds": [
         48.172,
-        146.811,
-        21.465,
-        21.665
+        145.728,
+        23.611,
+        23.831
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -153,9 +153,9 @@
       "id": "ws_icon0",
       "bounds": [
         42.293,
-        284.175,
-        19.662,
-        18.384
+        283.154,
+        21.847,
+        20.426
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -175,9 +175,9 @@
       "id": "ws_icon1",
       "bounds": [
         42.293,
-        359.048,
-        19.662,
-        18.384
+        358.027,
+        21.847,
+        20.426
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -197,9 +197,9 @@
       "id": "ws_icon2",
       "bounds": [
         42.293,
-        432.777,
-        19.662,
-        18.384
+        431.756,
+        21.847,
+        20.426
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -219,9 +219,9 @@
       "id": "ws_icon3",
       "bounds": [
         42.293,
-        508.222,
-        19.662,
-        18.384
+        507.201,
+        21.847,
+        20.426
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false

@@ -52,7 +52,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 33.0,
     "text": "Set up a local profile",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 22,
+    "size": 24,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -68,7 +68,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 21.0,
     "text": "Profile name",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 15,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -92,10 +92,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 60.0,
     "y": 205.16,
     "w": 286.0,
-    "h": 22.5,
+    "h": 24.0,
     "text": "octos-dev",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15,
+    "size": 16,
     "weight": 400,
     "role": "input",
     "native_candidates": [
@@ -111,7 +111,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 21.0,
     "text": "Provider",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 15,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -133,9 +133,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "radio_deepseek",
     "x": 62.0,
-    "y": 331.24,
-    "w": 20.0,
-    "h": 20.0,
+    "y": 330.24,
+    "w": 22.0,
+    "h": 22.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -169,9 +169,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "radio_kimi",
     "x": 62.0,
-    "y": 383.64,
-    "w": 20.0,
-    "h": 20.0,
+    "y": 382.64,
+    "w": 22.0,
+    "h": 22.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -205,9 +205,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "radio_glm",
     "x": 62.0,
-    "y": 437.78,
-    "w": 20.0,
-    "h": 20.0,
+    "y": 436.78,
+    "w": 22.0,
+    "h": 22.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -235,7 +235,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 22.59,
     "text": "API key",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 15,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -259,10 +259,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 60.0,
     "y": 553.8,
     "w": 286.0,
-    "h": 22.5,
-    "text": "",
+    "h": 24.0,
+    "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15,
+    "size": 16,
     "weight": 400,
     "role": "input",
     "native_candidates": [
@@ -297,10 +297,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "create_profile",
-    "x": 104.18,
+    "x": 46.0,
     "y": 680.28,
-    "w": 160.42,
-    "h": 45.94,
+    "w": 314.0,
+    "h": 44.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -309,10 +309,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "create_profile_surface",
-    "x": 104.18,
+    "x": 46.0,
     "y": 680.28,
-    "w": 160.42,
-    "h": 45.94,
+    "w": 314.0,
+    "h": 44.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -320,10 +320,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "create_profile_control",
-    "x": 104.18,
+    "x": 46.0,
     "y": 680.28,
-    "w": 160.42,
-    "h": 45.94,
+    "w": 314.0,
+    "h": 44.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -332,13 +332,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "create_profile_label",
-    "x": 125.18,
-    "y": 690.28,
+    "x": 143.79,
+    "y": 689.31,
     "w": 118.42,
     "h": 25.94,
     "text": "Create profile",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 17.29,
+    "size": 16,
     "weight": 600,
     "role": "text",
     "native_candidates": [

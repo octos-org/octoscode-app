@@ -4,10 +4,10 @@
     "connect": {
       "event": "connect",
       "source_bounds": [
-        137,
+        46,
         565,
-        124,
-        43
+        314,
+        44
       ],
       "enabled": true
     },

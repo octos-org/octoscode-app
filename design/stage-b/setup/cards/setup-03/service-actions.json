@@ -34,10 +34,10 @@
     "create_profile": {
       "event": "create_profile",
       "source_bounds": [
-        104,
+        46,
         680,
-        160,
-        45
+        314,
+        44
       ],
       "enabled": true
     },

@@ -142,7 +142,7 @@
     {
       "id": "chev_g1_r0",
       "bounds": [
-        330.969,
+        345.817,
         147.658,
         15.497,
         17.633
@@ -153,7 +153,7 @@
     {
       "id": "chev_g1_r1",
       "bounds": [
-        356.965,
+        345.817,
         224.051,
         15.497,
         17.633
@@ -175,7 +175,7 @@
     {
       "id": "chev_g1_r2",
       "bounds": [
-        331.957,
+        345.817,
         304.28,
         15.497,
         17.633
@@ -205,7 +205,7 @@
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4294901246,
-      "radius": 14.52
+      "radius": 11.84
     },
     {
       "id": "toggle1",
@@ -244,15 +244,15 @@
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4294901502,
-      "radius": 12.16
+      "radius": 10.27
     },
     {
       "id": "copy_diag",
       "bounds": [
-        341.943,
-        532.327,
-        17.434,
-        18.237
+        338.069,
+        522.631,
+        21.309,
+        18.822
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false

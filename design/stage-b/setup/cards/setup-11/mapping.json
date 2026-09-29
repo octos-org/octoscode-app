@@ -24,12 +24,12 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "text",
-      "component": "Text8ed29d098ff6",
+      "component": "Textdff3c12dd0ad",
       "semantic_role": "text",
       "bounds": [
         29.0,
         187.5,
-        293.22,
+        381.19,
         35.6
       ],
       "text": "Something went wrong",
@@ -42,12 +42,12 @@
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "text",
-      "component": "Textf05f6b03959c",
+      "component": "Text5d9757a986bf",
       "semantic_role": "text",
       "bounds": [
         43.98,
         250.4,
-        258.26,
+        335.74,
         26.1
       ],
       "text": "OctosCode hit an unexpected",
@@ -60,12 +60,12 @@
       "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "text",
-      "component": "Text74b09770253e",
+      "component": "Texta83bd04cbcd7",
       "semantic_role": "text",
       "bounds": [
         53.01,
         284.0,
-        240.22,
+        312.29,
         23.0
       ],
       "text": "error. Your sessions are safe",
@@ -78,12 +78,12 @@
       "native_id": "beauty_0_3",
       "parent": "page",
       "kind": "text",
-      "component": "Textd4c7193543be",
+      "component": "Text106c4efc0f04",
       "semantic_role": "text",
       "bounds": [
         111.52,
         318.96,
-        119.99,
+        155.99,
         21.2
       ],
       "text": "on the server.",
@@ -96,12 +96,12 @@
       "native_id": "beauty_0_4",
       "parent": "page",
       "kind": "text",
-      "component": "Text3e2bc4cf1a70",
+      "component": "Text6cd50347b15b",
       "semantic_role": "text",
       "bounds": [
         140.91,
         410.36,
-        70.05,
+        91.06,
         22.95
       ],
       "text": "Reload",
@@ -114,12 +114,12 @@
       "native_id": "beauty_0_5",
       "parent": "page",
       "kind": "text",
-      "component": "Textda1df1e471b3",
+      "component": "Texta23d8baad481",
       "semantic_role": "text",
       "bounds": [
         90.11,
         490.87,
-        164.57,
+        213.94,
         33.53
       ],
       "text": "Copy diagnostics",
@@ -132,12 +132,12 @@
       "native_id": "beauty_0_6",
       "parent": "page",
       "kind": "text",
-      "component": "Textd65aff48079e",
+      "component": "Text28f528bc5db2",
       "semantic_role": "text",
       "bounds": [
         122.93,
         570.5,
-        109.39,
+        142.21,
         24.0
       ],
       "text": "Report issue",

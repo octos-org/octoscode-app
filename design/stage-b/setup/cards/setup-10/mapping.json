@@ -24,12 +24,12 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "text",
-      "component": "Textfe0b97eafab5",
+      "component": "Text7fde3152b682",
       "semantic_role": "text",
       "bounds": [
         40.6,
         39.48,
-        63.16,
+        82.11,
         27.0
       ],
       "text": "Skills",
@@ -42,12 +42,12 @@
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text57d55d4310bf",
       "semantic_role": "text",
       "bounds": [
         51.88,
         103.77,
-        16.92,
+        22.0,
         21.0
       ],
       "text": "Q",
@@ -60,12 +60,12 @@
       "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "text",
-      "component": "Text1ca25795bba9",
+      "component": "Text42ae1ed28616",
       "semantic_role": "text",
       "bounds": [
         82.26,
         103.35,
-        128.71,
+        167.32,
         23.4
       ],
       "text": "Search registry",
@@ -78,12 +78,12 @@
       "native_id": "beauty_0_3",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Textfd2d772cfbae",
       "semantic_role": "text",
       "bounds": [
         36.09,
         172.57,
-        69.92,
+        90.9,
         21.0
       ],
       "text": "Installed",
@@ -96,12 +96,12 @@
       "native_id": "beauty_0_4",
       "parent": "page",
       "kind": "text",
-      "component": "Textb12d64a18ac5",
+      "component": "Textab500615b72d",
       "semantic_role": "text",
       "bounds": [
         51.73,
         227.07,
-        99.55,
+        129.41,
         21.83
       ],
       "text": "rust-review",
@@ -114,12 +114,12 @@
       "native_id": "beauty_0_5",
       "parent": "page",
       "kind": "text",
-      "component": "Text04649d3427e5",
+      "component": "Text96604389ba05",
       "semantic_role": "text",
       "bounds": [
         50.75,
         291.0,
-        86.84,
+        112.89,
         23.69
       ],
       "text": "git-helper",
@@ -132,12 +132,12 @@
       "native_id": "beauty_0_6",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text62e96c7eee24",
       "semantic_role": "text",
       "bounds": [
         51.88,
         354.16,
-        99.24,
+        129.01,
         21.0
       ],
       "text": "docs-writer",
@@ -150,12 +150,12 @@
       "native_id": "beauty_0_7",
       "parent": "page",
       "kind": "text",
-      "component": "Texta0a4304abf09",
+      "component": "Text48b5bfa294b5",
       "semantic_role": "text",
       "bounds": [
         192.85,
         225.58,
-        43.98,
+        57.17,
         24.81
       ],
       "text": "1.2.0",
@@ -168,12 +168,12 @@
       "native_id": "beauty_0_8",
       "parent": "page",
       "kind": "text",
-      "component": "Texta0a4304abf09",
+      "component": "Text0d152e692026",
       "semantic_role": "text",
       "bounds": [
         193.98,
         288.74,
-        43.98,
+        57.17,
         24.81
       ],
       "text": "0.9.1",
@@ -186,12 +186,12 @@
       "native_id": "beauty_0_9",
       "parent": "page",
       "kind": "text",
-      "component": "Text8a6a98d84b1a",
+      "component": "Text77971de813b6",
       "semantic_role": "text",
       "bounds": [
         193.98,
         351.91,
-        43.98,
+        57.17,
         25.94
       ],
       "text": "2.0.0",
@@ -204,12 +204,12 @@
       "native_id": "beauty_0_10",
       "parent": "page",
       "kind": "text",
-      "component": "Textb247edfab016",
+      "component": "Text900f8962fb14",
       "semantic_role": "text",
       "bounds": [
         35.73,
         425.33,
-        69.5,
+        90.35,
         26.85
       ],
       "text": "Registry",
@@ -222,12 +222,12 @@
       "native_id": "beauty_0_11",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Textae384f6a3279",
       "semantic_role": "text",
       "bounds": [
         50.73,
         487.17,
-        93.64,
+        121.73,
         21.0
       ],
       "text": "code-linter",
@@ -240,12 +240,12 @@
       "native_id": "beauty_0_12",
       "parent": "page",
       "kind": "text",
-      "component": "Texta0a4304abf09",
+      "component": "Text1975fb9449be",
       "semantic_role": "text",
       "bounds": [
         190.59,
         483.87,
-        42.86,
+        55.72,
         24.81
       ],
       "text": "1.1.0",
@@ -258,12 +258,12 @@
       "native_id": "beauty_0_13",
       "parent": "page",
       "kind": "text",
-      "component": "Text8484581f934d",
+      "component": "Text0bb68fb82072",
       "semantic_role": "text",
       "bounds": [
         50.51,
         555.09,
-        81.69,
+        106.2,
         23.36
       ],
       "text": "api-client",
@@ -276,12 +276,12 @@
       "native_id": "beauty_0_14",
       "parent": "page",
       "kind": "text",
-      "component": "Text04649d3427e5",
+      "component": "Textc84e32877000",
       "semantic_role": "text",
       "bounds": [
         189.47,
         554.93,
-        45.11,
+        58.64,
         23.69
       ],
       "text": "0.4.2",
@@ -294,12 +294,12 @@
       "native_id": "beauty_0_15",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text2764dc8e1416",
       "semantic_role": "text",
       "bounds": [
         294.33,
         228.9,
-        58.68,
+        76.28,
         21.0
       ],
       "text": "Remove",
@@ -312,12 +312,12 @@
       "native_id": "beauty_0_16",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text0ff5a566392d",
       "semantic_role": "text",
       "bounds": [
         294.24,
         291.75,
-        58.87,
+        76.53,
         21.0
       ],
       "text": "Remove",
@@ -330,12 +330,12 @@
       "native_id": "beauty_0_17",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Textc17931f73eef",
       "semantic_role": "text",
       "bounds": [
         294.25,
         356.06,
-        58.85,
+        76.51,
         21.0
       ],
       "text": "Remove",
@@ -348,12 +348,12 @@
       "native_id": "beauty_0_18",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text89dd3d4b608b",
       "semantic_role": "text",
       "bounds": [
         285.33,
         488.38,
-        53.01,
+        68.91,
         21.0
       ],
       "text": "Install",
@@ -366,12 +366,12 @@
       "native_id": "beauty_0_19",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text25e0f0968280",
       "semantic_role": "text",
       "bounds": [
         287.58,
         558.31,
-        50.75,
+        65.98,
         21.0
       ],
       "text": "Install",

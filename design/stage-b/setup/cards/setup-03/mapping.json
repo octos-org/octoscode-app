@@ -42,43 +42,43 @@
       "native_id": "beauty_0_0_0",
       "parent": "outer_card",
       "kind": "text",
-      "component": "Textde98fde59a53",
+      "component": "Textf85e886e09bb",
       "semantic_role": "text",
       "bounds": [
         57.52,
         94.5,
-        241.34,
-        33.0
+        313.74,
+        36.0
       ],
       "text": "Set up a local profile",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 22
+      "size": 24
     },
     {
       "source_id": "t_pname",
       "native_id": "beauty_0_0_1",
       "parent": "outer_card",
       "kind": "text",
-      "component": "Textc6cd0ea2df1a",
+      "component": "Text0b928d994de3",
       "semantic_role": "text",
       "bounds": [
         31.52,
         156.45,
-        98.24,
-        21.0
+        127.71,
+        22.5
       ],
       "text": "Profile name",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14
+      "size": 15
     },
     {
       "source_id": "profile",
       "native_id": "beauty_0_0_2",
       "parent": "outer_card",
       "kind": "stack",
-      "component": "Surface382f80774fa6",
+      "component": "Surfacebc08397a72a6",
       "semantic_role": "layout",
       "bounds": [
         46.0,
@@ -96,36 +96,36 @@
       "native_id": "beauty_0_0_2_0",
       "parent": "profile",
       "kind": "input",
-      "component": "Input79296ad18745",
+      "component": "Inputbd0f96148a43",
       "semantic_role": "input",
       "bounds": [
         60.0,
         205.16,
         286.0,
-        22.5
+        24.0
       ],
       "text": "octos-dev",
       "enabled": 1,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 15
+      "size": 16
     },
     {
       "source_id": "t_provider",
       "native_id": "beauty_0_0_3",
       "parent": "outer_card",
       "kind": "text",
-      "component": "Textc6cd0ea2df1a",
+      "component": "Text91fae47769cf",
       "semantic_role": "text",
       "bounds": [
         31.4,
         280.19,
-        66.89,
-        21.0
+        86.96,
+        22.5
       ],
       "text": "Provider",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14
+      "size": 15
     },
     {
       "source_id": "provider_deepseek",
@@ -154,9 +154,9 @@
       "semantic_role": "icon",
       "bounds": [
         62.0,
-        331.24,
-        20.0,
-        20.0
+        330.24,
+        22.0,
+        22.0
       ],
       "text": null,
       "enabled": null,
@@ -168,12 +168,12 @@
       "native_id": "beauty_0_0_4_1",
       "parent": "provider_deepseek",
       "kind": "text",
-      "component": "Textb5929a1e0eb3",
+      "component": "Text5845c2b38043",
       "semantic_role": "text",
       "bounds": [
         92.0,
         330.48,
-        250.0,
+        325.0,
         21.52
       ],
       "text": "DeepSeek \u2022 Official API",
@@ -208,9 +208,9 @@
       "semantic_role": "icon",
       "bounds": [
         62.0,
-        383.64,
-        20.0,
-        20.0
+        382.64,
+        22.0,
+        22.0
       ],
       "text": null,
       "enabled": null,
@@ -222,12 +222,12 @@
       "native_id": "beauty_0_0_5_1",
       "parent": "provider_kimi",
       "kind": "text",
-      "component": "Text2873159a6d77",
+      "component": "Text2f665e198ea4",
       "semantic_role": "text",
       "bounds": [
         92.0,
         381.49,
-        250.0,
+        325.0,
         24.29
       ],
       "text": "Kimi Coding Plan",
@@ -262,9 +262,9 @@
       "semantic_role": "icon",
       "bounds": [
         62.0,
-        437.78,
-        20.0,
-        20.0
+        436.78,
+        22.0,
+        22.0
       ],
       "text": null,
       "enabled": null,
@@ -276,12 +276,12 @@
       "native_id": "beauty_0_0_6_1",
       "parent": "provider_glm",
       "kind": "text",
-      "component": "Text869ee9b954f6",
+      "component": "Text53fce0316d7d",
       "semantic_role": "text",
       "bounds": [
         92.0,
         435.9,
-        250.0,
+        325.0,
         23.75
       ],
       "text": "GLM Coding Plan",
@@ -294,25 +294,25 @@
       "native_id": "beauty_0_0_7",
       "parent": "outer_card",
       "kind": "text",
-      "component": "Text46862cf853be",
+      "component": "Text048e64989bba",
       "semantic_role": "text",
       "bounds": [
         30.45,
         498.5,
-        62.03,
+        80.64,
         22.59
       ],
       "text": "API key",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14
+      "size": 15
     },
     {
       "source_id": "apikey",
       "native_id": "beauty_0_0_8",
       "parent": "outer_card",
       "kind": "stack",
-      "component": "Surface382f80774fa6",
+      "component": "Surfacebc08397a72a6",
       "semantic_role": "layout",
       "bounds": [
         46.0,
@@ -330,18 +330,18 @@
       "native_id": "beauty_0_0_8_0",
       "parent": "apikey",
       "kind": "input",
-      "component": "Inputb47d265fdc33",
+      "component": "Inputbd0f96148a43",
       "semantic_role": "input",
       "bounds": [
         60.0,
         553.8,
         286.0,
-        22.5
+        24.0
       ],
-      "text": "",
+      "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
       "enabled": 1,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 15
+      "size": 16
     },
     {
       "source_id": "apikey_eye",
@@ -366,12 +366,12 @@
       "native_id": "beauty_0_0_9",
       "parent": "outer_card",
       "kind": "text",
-      "component": "Text1ecea821a1dd",
+      "component": "Textd525be2d0937",
       "semantic_role": "text",
       "bounds": [
         31.58,
         603.43,
-        252.62,
+        328.41,
         21.57
       ],
       "text": "Your key never leaves this machine",
@@ -387,10 +387,10 @@
       "component": "KitButton2c6804b990a5",
       "semantic_role": "button",
       "bounds": [
-        104.18,
+        46.0,
         680.28,
-        160.42,
-        45.94
+        314.0,
+        44.0
       ],
       "text": null,
       "enabled": null,
@@ -405,10 +405,10 @@
       "component": "Surface8d834e17f854",
       "semantic_role": "layout",
       "bounds": [
-        104.18,
+        46.0,
         680.28,
-        160.42,
-        45.94
+        314.0,
+        44.0
       ],
       "text": null,
       "enabled": null,
@@ -423,10 +423,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        104.18,
+        46.0,
         680.28,
-        160.42,
-        45.94
+        314.0,
+        44.0
       ],
       "text": null,
       "enabled": 1,
@@ -438,18 +438,18 @@
       "native_id": "beauty_0_0_10_2",
       "parent": "create_profile",
       "kind": "text",
-      "component": "Text58e52d66d240",
+      "component": "Textb4e41541d5f2",
       "semantic_role": "text",
       "bounds": [
-        125.18,
-        690.28,
-        118.42,
+        143.79,
+        689.31,
+        153.95,
         25.94
       ],
       "text": "Create profile",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 17.29
+      "size": 16
     }
   ],
   "fonts": {
@@ -457,6 +457,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "6054568cd5f5529df71cc680a1191f9e975a763472cca4063731470fedc6c3d6",
+  "contract_sha256": "8361bfa795d3cff9470be7a3f06789ffad9c3856868f747b3e00e43824de9598",
   "mapping_basis": "mapped.json"
 }

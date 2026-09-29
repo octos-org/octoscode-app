@@ -24,12 +24,12 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "text",
-      "component": "Textfe0b97eafab5",
+      "component": "Textb48189854f0b",
       "semantic_role": "text",
       "bounds": [
         14.66,
         -0.0,
-        257.13,
+        334.27,
         27.0
       ],
       "text": "O. VUIVNIAN TALLIL",
@@ -42,12 +42,12 @@
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "text",
-      "component": "Textb983cf091fea",
+      "component": "Textcc194fc05660",
       "semantic_role": "text",
       "bounds": [
         57.52,
         159.0,
-        56.39,
+        73.31,
         25.0
       ],
       "text": "/ mo",
@@ -60,12 +60,12 @@
       "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "text",
-      "component": "Textbe309ea3e66b",
+      "component": "Text280710aff6cf",
       "semantic_role": "text",
       "bounds": [
         54.89,
         234.47,
-        72.93,
+        94.81,
         25.09
       ],
       "text": "/ model",
@@ -78,12 +78,12 @@
       "native_id": "beauty_0_3",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text1281af490679",
       "semantic_role": "text",
       "bounds": [
         58.61,
         297.63,
-        88.03,
+        114.44,
         21.0
       ],
       "text": "/ monitor",
@@ -96,12 +96,12 @@
       "native_id": "beauty_0_4",
       "parent": "page",
       "kind": "text",
-      "component": "Text0ae0d3ef9325",
+      "component": "Text18ef01af74ca",
       "semantic_role": "text",
       "bounds": [
         56.2,
         359.25,
-        61.28,
+        79.66,
         22.53
       ],
       "text": "/ mode",
@@ -114,12 +114,12 @@
       "native_id": "beauty_0_5",
       "parent": "page",
       "kind": "text",
-      "component": "Textc753f203f5cb",
+      "component": "Textf55dfa4686eb",
       "semantic_role": "text",
       "bounds": [
         58.57,
         422.68,
-        88.11,
+        114.54,
         23.13
       ],
       "text": "/ compact",
@@ -132,12 +132,12 @@
       "native_id": "beauty_0_6",
       "parent": "page",
       "kind": "text",
-      "component": "Text2e470f825ed2",
+      "component": "Textd183bdfa65d4",
       "semantic_role": "text",
       "bounds": [
         57.52,
         485.0,
-        46.24,
+        60.11,
         21.43
       ],
       "text": "/btw",
@@ -150,12 +150,12 @@
       "native_id": "beauty_0_7",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text3ce97ddff410",
       "semantic_role": "text",
       "bounds": [
         58.6,
         547.99,
-        77.9,
+        101.27,
         21.0
       ],
       "text": "/ resume",
@@ -168,12 +168,12 @@
       "native_id": "beauty_0_8",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text61933cbe5afd",
       "semantic_role": "text",
       "bounds": [
         248.0,
         236.21,
-        99.47,
+        129.31,
         21.0
       ],
       "text": "Switch model",
@@ -186,12 +186,12 @@
       "native_id": "beauty_0_9",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Textd9e00b2bf24e",
       "semantic_role": "text",
       "bounds": [
         242.39,
         298.38,
-        103.93,
+        135.11,
         21.0
       ],
       "text": "Add a monitor",
@@ -204,12 +204,12 @@
       "native_id": "beauty_0_10",
       "parent": "page",
       "kind": "text",
-      "component": "Text09489ee9849e",
+      "component": "Text273ea8a5a3e2",
       "semantic_role": "text",
       "bounds": [
         199.62,
         360.93,
-        145.48,
+        189.12,
         21.57
       ],
       "text": "Change permissions",
@@ -222,12 +222,12 @@
       "native_id": "beauty_0_11",
       "parent": "page",
       "kind": "text",
-      "component": "Textf01fdf208f13",
+      "component": "Textc528c578d18f",
       "semantic_role": "text",
       "bounds": [
         223.22,
         424.7,
-        123.1,
+        160.03,
         21.35
       ],
       "text": "Compact context",
@@ -240,12 +240,12 @@
       "native_id": "beauty_0_12",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Textfd397368a79e",
       "semantic_role": "text",
       "bounds": [
         206.38,
         487.26,
-        137.59,
+        178.87,
         21.0
       ],
       "text": "Ask a side question",
@@ -258,12 +258,12 @@
       "native_id": "beauty_0_13",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Textd585f55f41cd",
       "semantic_role": "text",
       "bounds": [
         215.41,
         549.29,
-        128.57,
+        167.14,
         21.0
       ],
       "text": "Resume a session",
@@ -276,12 +276,12 @@
       "native_id": "beauty_0_14",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Textb4a587406ae3",
       "semantic_role": "text",
       "bounds": [
         76.69,
         625.99,
-        237.96,
+        309.35,
         21.0
       ],
       "text": "Tv to move \u2022 \u00ab torun \u2022 esc",

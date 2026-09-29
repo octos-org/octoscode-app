@@ -115,17 +115,6 @@
       "reviewed": false
     },
     {
-      "id": "model_chev",
-      "bounds": [
-        337.854,
-        211.029,
-        20.764,
-        23.943
-      ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
-      "reviewed": false
-    },
-    {
       "id": "segments",
       "bounds": [
         43.0,

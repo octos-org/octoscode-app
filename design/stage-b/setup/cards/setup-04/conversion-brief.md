@@ -52,7 +52,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.0,
     "text": "Open a workspace",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 20,
+    "size": 26,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -74,9 +74,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "folder_icon",
     "x": 62.0,
-    "y": 149.6,
-    "w": 20.0,
-    "h": 20.0,
+    "y": 148.6,
+    "w": 22.0,
+    "h": 22.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -88,7 +88,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 21.0,
     "text": "Server folder",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 14,
+    "size": 15,
     "weight": 500,
     "role": "text",
     "native_candidates": [
@@ -122,6 +122,22 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "native_candidates": []
   },
   {
+    "id": "t_recent",
+    "x": 30.45,
+    "y": 243.63,
+    "w": 56.39,
+    "h": 22.5,
+    "text": "Recent",
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 15,
+    "weight": 600,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
     "id": "recent_group",
     "x": 46.0,
     "y": 277.0,
@@ -135,9 +151,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "ws_icon0",
     "x": 60.0,
-    "y": 289.9,
-    "w": 18.0,
-    "h": 18.0,
+    "y": 288.9,
+    "w": 20.0,
+    "h": 20.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -187,9 +203,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "ws_icon1",
     "x": 60.0,
-    "y": 363.21,
-    "w": 18.0,
-    "h": 18.0,
+    "y": 362.21,
+    "w": 20.0,
+    "h": 20.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -239,9 +255,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "ws_icon2",
     "x": 60.0,
-    "y": 435.4,
-    "w": 18.0,
-    "h": 18.0,
+    "y": 434.4,
+    "w": 20.0,
+    "h": 20.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -291,9 +307,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "ws_icon3",
     "x": 60.0,
-    "y": 509.27,
-    "w": 18.0,
-    "h": 18.0,
+    "y": 508.27,
+    "w": 20.0,
+    "h": 20.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -331,10 +347,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "browse",
-    "x": 101.93,
+    "x": 46.0,
     "y": 605.84,
-    "w": 179.59,
-    "h": 40.3,
+    "w": 314.0,
+    "h": 44.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -343,10 +359,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "browse_surface",
-    "x": 101.93,
+    "x": 46.0,
     "y": 605.84,
-    "w": 179.59,
-    "h": 40.3,
+    "w": 314.0,
+    "h": 44.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -354,10 +370,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "browse_control",
-    "x": 101.93,
+    "x": 46.0,
     "y": 605.84,
-    "w": 179.59,
-    "h": 40.3,
+    "w": 314.0,
+    "h": 44.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -366,13 +382,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "browse_label",
-    "x": 122.93,
-    "y": 615.84,
+    "x": 134.21,
+    "y": 617.69,
     "w": 137.59,
     "h": 20.3,
     "text": "Browse folders\u2026",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 13.53,
+    "size": 16,
     "weight": 600,
     "role": "text",
     "native_candidates": [

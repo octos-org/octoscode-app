@@ -23,6 +23,8 @@ def walk(n):
         yield from walk(c)
 
 
+WIDEN_SKIP = {"t_last", "retry_label", "t_sb_b", "t_sb_r"}
+
 changed = 0
 for d in sorted(ROOT.glob("setup-*")):
     contract = d / "contract.json"
@@ -42,13 +44,22 @@ for d in sorted(ROOT.glob("setup-*")):
             # So: keep the fit size (clamped), keep the authored geometry, and
             # restate line_height/h from the size invariant so preflight's
             # box>=line-box check holds while the glyphs grow to match the target.
-            fit = n.get("size")
-            size = fit if isinstance(fit, (int, float)) and 12 <= fit <= 28 else a.get("size", fit)
-            n["size"] = size
+            # outer-loop round 2: the fit sizes track the reference but render
+            # 15-20% small, so scale the kept fit size up and restate the box.
+            # round-2 v9: the authored sizes ARE the class-correct targets
+            # (apply_type_scale); the fit sizes are loose Vision boxes and any
+            # blanket ratio overshoots (v8 labels ~21px vs atlas ~15).
+            size = a.get("size") or n.get("size")
+            if size:
+                n["size"] = size
             lh = max(float(size) * 1.5, float(a.get("line_height") or 0))
             n["line_height"] = lh
             n["h"] = max(float(a.get("h") or 0), lh)
-            for k in ("x", "y", "w"):
+            # glyphs got 18% wider: widen the single-line box or the label clips
+            # at its own box edge (v7: "Serv", "Conne", "Token rejected by t").
+            if n["id"] not in WIDEN_SKIP:
+                n["w"] = round(float(a.get("w") or 0) * 1.3, 2)
+            for k in ("x", "y"):
                 if k in a:
                     n[k] = a[k]
             for k in FIT_KEYS:

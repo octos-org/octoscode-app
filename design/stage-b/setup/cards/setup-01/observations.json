@@ -140,8 +140,8 @@
       "id": "connect_label",
       "expected_text": "Connect",
       "requested_bounds": [
-        158.78,
-        575.43,
+        161.6,
+        575.78,
         82.79,
         23.3
       ],
@@ -246,7 +246,7 @@
         61.777,
         221.357,
         281.446,
-        26.919
+        28.713
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -270,7 +270,7 @@
         61.822,
         350.678,
         282.357,
-        36.896
+        39.356
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -278,34 +278,34 @@
     {
       "id": "connect",
       "bounds": [
-        140.145,
-        577.205,
-        120.264,
-        42.269
+        46.0,
+        556.0,
+        313.0,
+        62.0
       ],
-      "method": "inferred semantic extent from observed parent",
+      "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false
     },
     {
       "id": "connect_surface",
       "bounds": [
-        140.145,
-        577.205,
-        120.264,
-        42.269
+        46.0,
+        556.0,
+        313.0,
+        62.0
       ],
-      "method": "surface contour unresolved; requested geometry retained",
+      "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
-      "bg": 4279243025,
-      "radius": 21.13
+      "bg": 4279242769,
+      "radius": 31.0
     },
     {
       "id": "connect_control",
       "bounds": [
-        140.145,
-        577.205,
-        120.264,
-        42.269
+        46.0,
+        556.0,
+        313.0,
+        62.0
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false

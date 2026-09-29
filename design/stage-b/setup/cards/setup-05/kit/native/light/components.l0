@@ -4,29 +4,29 @@ component Surface156d085f4ff5(instance: text) {
 component Surface28a1c2e54e11(instance: text) {
   view Kit(component: "Surface28a1c2e54e11", instance: instance) { slot }
 }
-component Textd66023eede35(instance: text, text: text) {
-  view Kit(component: "Textd66023eede35", instance: instance, text: text)
+component Texta874b8608484(instance: text, text: text) {
+  view Kit(component: "Texta874b8608484", instance: instance, text: text)
 }
-component Texteeea64e1d14e(instance: text, text: text) {
-  view Kit(component: "Texteeea64e1d14e", instance: instance, text: text)
+component Text3403f2e38992(instance: text, text: text) {
+  view Kit(component: "Text3403f2e38992", instance: instance, text: text)
 }
-component Text2e470f825ed2(instance: text, text: text) {
-  view Kit(component: "Text2e470f825ed2", instance: instance, text: text)
+component Textbbee5f4d4025(instance: text, text: text) {
+  view Kit(component: "Textbbee5f4d4025", instance: instance, text: text)
 }
-component Surface382f80774fa6(instance: text) {
-  view Kit(component: "Surface382f80774fa6", instance: instance) { slot }
+component Surfacebc08397a72a6(instance: text) {
+  view Kit(component: "Surfacebc08397a72a6", instance: instance) { slot }
 }
-component Input373e8574a2d7(instance: text, text: text, placeholder: text, enabled: bool) {
-  view Kit(component: "Input373e8574a2d7", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+component Input40dfb0b2dc25(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Input40dfb0b2dc25", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
 }
-component Vectore0a378fde04f(instance: text) {
-  view Kit(component: "Vectore0a378fde04f", instance: instance)
+component Textfe0b97eafab5(instance: text, text: text) {
+  view Kit(component: "Textfe0b97eafab5", instance: instance, text: text)
 }
-component Text2cbbbbbe52a9(instance: text, text: text) {
-  view Kit(component: "Text2cbbbbbe52a9", instance: instance, text: text)
+component Text4ca76db8fb6d(instance: text, text: text) {
+  view Kit(component: "Text4ca76db8fb6d", instance: instance, text: text)
 }
-component Text840a7f555cd2(instance: text, text: text) {
-  view Kit(component: "Text840a7f555cd2", instance: instance, text: text)
+component Textdf31566c02d1(instance: text, text: text) {
+  view Kit(component: "Textdf31566c02d1", instance: instance, text: text)
 }
 component Surface5e76d82e8b78(instance: text) {
   view Kit(component: "Surface5e76d82e8b78", instance: instance) { slot }
@@ -34,18 +34,27 @@ component Surface5e76d82e8b78(instance: text) {
 component Surfacefcfdbbddc65b(instance: text) {
   view Kit(component: "Surfacefcfdbbddc65b", instance: instance) { slot }
 }
-component Text1693d826aa0c(instance: text, text: text) {
-  view Kit(component: "Text1693d826aa0c", instance: instance, text: text)
+component Textc1ca2c3cdb0e(instance: text, text: text) {
+  view Kit(component: "Textc1ca2c3cdb0e", instance: instance, text: text)
 }
-component Text6d1c12998f89(instance: text, text: text) {
-  view Kit(component: "Text6d1c12998f89", instance: instance, text: text)
+component Text6192e9229250(instance: text, text: text) {
+  view Kit(component: "Text6192e9229250", instance: instance, text: text)
+}
+component Text63edcc63ac7e(instance: text, text: text) {
+  view Kit(component: "Text63edcc63ac7e", instance: instance, text: text)
 }
 component Surfacec4c38149242a(instance: text) {
   view Kit(component: "Surfacec4c38149242a", instance: instance) { slot }
 }
+component Text266373d7c3a7(instance: text, text: text) {
+  view Kit(component: "Text266373d7c3a7", instance: instance, text: text)
+}
 component Surfaceec2e0f41be2a(instance: text) {
   view Kit(component: "Surfaceec2e0f41be2a", instance: instance) { slot }
 }
-component Texte37ac11ac666(instance: text, text: text) {
-  view Kit(component: "Texte37ac11ac666", instance: instance, text: text)
+component Text1e88c409830c(instance: text, text: text) {
+  view Kit(component: "Text1e88c409830c", instance: instance, text: text)
+}
+component Text48f5e967e862(instance: text, text: text) {
+  view Kit(component: "Text48f5e967e862", instance: instance, text: text)
 }

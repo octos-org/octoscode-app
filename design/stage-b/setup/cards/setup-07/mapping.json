@@ -24,12 +24,12 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "text",
-      "component": "Textfe0b97eafab5",
+      "component": "Text7fde3152b682",
       "semantic_role": "text",
       "bounds": [
         7.89,
         10.0,
-        218.79,
+        284.43,
         27.0
       ],
       "text": "1\u2022 IIVULL JLIIIIVUO",
@@ -42,12 +42,12 @@
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "text",
-      "component": "Texte85f69285226",
+      "component": "Text32d1dfc94e99",
       "semantic_role": "text",
       "bounds": [
         28.14,
         81.03,
-        77.93,
+        101.31,
         24.05
       ],
       "text": "Models",
@@ -60,12 +60,12 @@
       "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "text",
-      "component": "Texta0a4304abf09",
+      "component": "Textaa2e03476040",
       "semantic_role": "text",
       "bounds": [
         38.34,
         156.78,
-        200.74,
+        260.96,
         24.81
       ],
       "text": "DeepSeek \u2022 Official API",
@@ -78,12 +78,12 @@
       "native_id": "beauty_0_3",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text343e77a578a6",
       "semantic_role": "text",
       "bounds": [
         38.34,
         192.87,
-        71.05,
+        92.36,
         21.0
       ],
       "text": "3 models",
@@ -96,12 +96,12 @@
       "native_id": "beauty_0_4",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text6054de07abc5",
       "semantic_role": "text",
       "bounds": [
         277.43,
         157.91,
-        19.17,
+        24.92,
         21.0
       ],
       "text": "\u2022",
@@ -114,12 +114,12 @@
       "native_id": "beauty_0_5",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text46f8e3e0dca1",
       "semantic_role": "text",
       "bounds": [
         312.39,
         159.03,
-        15.79,
+        20.53,
         21.0
       ],
       "text": "^",
@@ -132,12 +132,12 @@
       "native_id": "beauty_0_6",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text2a21c2c3f11d",
       "semantic_role": "text",
       "bounds": [
         49.62,
         254.91,
-        199.62,
+        259.51,
         21.0
       ],
       "text": "deepseek-v4-flash (default)",
@@ -150,12 +150,12 @@
       "native_id": "beauty_0_7",
       "parent": "page",
       "kind": "text",
-      "component": "Text2beda45d1f6d",
+      "component": "Text8129c2d8951b",
       "semantic_role": "text",
       "bounds": [
         49.54,
         315.31,
-        125.34,
+        162.94,
         21.31
       ],
       "text": "deepseek-v4-pro",
@@ -168,12 +168,12 @@
       "native_id": "beauty_0_8",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text2be08f69e94f",
       "semantic_role": "text",
       "bounds": [
         67.63,
         386.7,
-        75.64,
+        98.33,
         21.0
       ],
       "text": "Test route",
@@ -186,12 +186,12 @@
       "native_id": "beauty_0_9",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Texta313a5a6634f",
       "semantic_role": "text",
       "bounds": [
         209.77,
         385.5,
-        109.39,
+        142.21,
         21.0
       ],
       "text": "Discover models",
@@ -204,12 +204,12 @@
       "native_id": "beauty_0_10",
       "parent": "page",
       "kind": "text",
-      "component": "Text6d5e9ac923e2",
+      "component": "Text0ca75cae2b78",
       "semantic_role": "text",
       "bounds": [
         38.26,
         481.1,
-        140.01,
+        182.01,
         24.71
       ],
       "text": "Kimi Coding Plan",
@@ -222,12 +222,12 @@
       "native_id": "beauty_0_11",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Textb5ca36ae2a42",
       "semantic_role": "text",
       "bounds": [
         38.25,
         515.08,
-        67.85,
+        88.2,
         21.0
       ],
       "text": "3 models",
@@ -240,12 +240,12 @@
       "native_id": "beauty_0_12",
       "parent": "page",
       "kind": "text",
-      "component": "Textfcfe9889c437",
+      "component": "Text6fe36bc6cd4c",
       "semantic_role": "text",
       "bounds": [
         37.13,
         602.88,
-        144.53,
+        187.89,
         24.79
       ],
       "text": "GLM Coding Plan",
@@ -258,12 +258,12 @@
       "native_id": "beauty_0_13",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Textbc058d558782",
       "semantic_role": "text",
       "bounds": [
         37.22,
         639.5,
-        68.79,
+        89.43,
         21.0
       ],
       "text": "3 models",

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "3342b2c2baf3229253fa11d5226d9a21cc73ae72c6faea8ec49f0724b4695709",
+  "contract_sha256": "7c8ab3d7872fb1facef1ea395d89d761d181c35ce2960639dff199229c6681d0",
   "reference_sha256": "cfdf9b000c01ce80655ea736e8e844eeab922eac92a1a29a8b99d9d127bb0ecb",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -93,13 +93,6 @@
         "clip": true,
         "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
       }
-    },
-    {
-      "id": "error_band",
-      "role": "layout",
-      "basis": "authored stack node",
-      "confidence": 1.0,
-      "decision": "declared"
     },
     {
       "id": "t_error",

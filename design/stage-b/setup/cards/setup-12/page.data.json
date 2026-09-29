@@ -12,29 +12,29 @@
         }
       },
       "t00": {
-        "component": "Textfe0b97eafab5",
+        "component": "Textfb1d54978e9d",
         "layout": {
           "x": 42.86,
           "y": 31.5,
-          "w": 305.63,
+          "w": 397.32,
           "h": 27.0
         }
       },
       "t01": {
-        "component": "Texta696e2ef078d",
+        "component": "Text3b0c706d6edf",
         "layout": {
           "x": 109.17,
           "y": 509.45,
-          "w": 154.96,
+          "w": 201.45,
           "h": 27.81
         }
       },
       "t02": {
-        "component": "Text840a7f555cd2",
+        "component": "Text23269b208f3f",
         "layout": {
           "x": 159.02,
           "y": 570.72,
-          "w": 58.64,
+          "w": 76.23,
           "h": 21.0
         }
       }

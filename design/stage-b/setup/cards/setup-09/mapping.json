@@ -24,12 +24,12 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "text",
-      "component": "Textfe0b97eafab5",
+      "component": "Text7fde3152b682",
       "semantic_role": "text",
       "bounds": [
         43.98,
         40.6,
-        91.35,
+        118.75,
         27.0
       ],
       "text": "Context",
@@ -42,12 +42,12 @@
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Textaae1b7d0a9e5",
       "semantic_role": "text",
       "bounds": [
         45.11,
         101.5,
-        161.27,
+        209.65,
         21.0
       ],
       "text": "124k of 200k tokens",
@@ -60,12 +60,12 @@
       "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text930509deb770",
       "semantic_role": "text",
       "bounds": [
         323.67,
         101.51,
-        37.22,
+        48.39,
         21.0
       ],
       "text": "62%",
@@ -78,12 +78,12 @@
       "native_id": "beauty_0_3",
       "parent": "page",
       "kind": "text",
-      "component": "Text9bc69450bf61",
+      "component": "Text5297bb743975",
       "semantic_role": "text",
       "bounds": [
         47.37,
         212.05,
-        58.64,
+        76.23,
         22.56
       ],
       "text": "System",
@@ -96,12 +96,12 @@
       "native_id": "beauty_0_4",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text930509deb770",
       "semantic_role": "text",
       "bounds": [
         46.14,
         265.64,
-        105.08,
+        136.6,
         21.0
       ],
       "text": "Conversation",
@@ -114,12 +114,12 @@
       "native_id": "beauty_0_5",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Texta313a5a6634f",
       "semantic_role": "text",
       "bounds": [
         45.11,
         318.07,
-        43.98,
+        57.17,
         21.0
       ],
       "text": "Tools",
@@ -132,12 +132,12 @@
       "native_id": "beauty_0_6",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text87ae4f0fcca0",
       "semantic_role": "text",
       "bounds": [
         339.46,
         212.05,
-        21.43,
+        27.86,
         21.0
       ],
       "text": "8k",
@@ -150,12 +150,12 @@
       "native_id": "beauty_0_7",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text0399ba8702a4",
       "semantic_role": "text",
       "bounds": [
         327.06,
         266.19,
-        34.96,
+        45.45,
         21.0
       ],
       "text": "96k",
@@ -168,12 +168,12 @@
       "native_id": "beauty_0_8",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Textaddf9c5590cb",
       "semantic_role": "text",
       "bounds": [
         327.06,
         318.07,
-        33.83,
+        43.98,
         21.0
       ],
       "text": "20k",
@@ -186,12 +186,12 @@
       "native_id": "beauty_0_9",
       "parent": "page",
       "kind": "text",
-      "component": "Text5c8bee5e366f",
+      "component": "Text25f26275ff0b",
       "semantic_role": "text",
       "bounds": [
         43.95,
         428.47,
-        97.05,
+        126.17,
         21.69
       ],
       "text": "Compaction:",
@@ -204,12 +204,12 @@
       "native_id": "beauty_0_10",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text8a2f38d43970",
       "semantic_role": "text",
       "bounds": [
         190.59,
         428.6,
-        39.47,
+        51.31,
         21.0
       ],
       "text": "LLM",
@@ -222,12 +222,12 @@
       "native_id": "beauty_0_11",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Texteb3001da87bb",
       "semantic_role": "text",
       "bounds": [
         283.07,
         428.6,
-        67.67,
+        87.97,
         21.0
       ],
       "text": "Heuristic",
@@ -240,12 +240,12 @@
       "native_id": "beauty_0_12",
       "parent": "page",
       "kind": "text",
-      "component": "Text1ca25795bba9",
+      "component": "Text6854fa4ed356",
       "semantic_role": "text",
       "bounds": [
         136.38,
         533.08,
-        118.57,
+        154.14,
         23.4
       ],
       "text": "Compact now",
@@ -258,12 +258,12 @@
       "native_id": "beauty_0_13",
       "parent": "page",
       "kind": "text",
-      "component": "Text4cf215bd2c0f",
+      "component": "Textfaed30de339a",
       "semantic_role": "text",
       "bounds": [
         108.27,
         594.41,
-        170.29,
+        221.38,
         22.59
       ],
       "text": "Keeps the last 4 turns",

@@ -1,12 +1,12 @@
 component Surface156d085f4ff5(instance: text) {
   view Kit(component: "Surface156d085f4ff5", instance: instance) { slot }
 }
-component Textfe0b97eafab5(instance: text, text: text) {
-  view Kit(component: "Textfe0b97eafab5", instance: instance, text: text)
+component Textfb1d54978e9d(instance: text, text: text) {
+  view Kit(component: "Textfb1d54978e9d", instance: instance, text: text)
 }
-component Texta696e2ef078d(instance: text, text: text) {
-  view Kit(component: "Texta696e2ef078d", instance: instance, text: text)
+component Text3b0c706d6edf(instance: text, text: text) {
+  view Kit(component: "Text3b0c706d6edf", instance: instance, text: text)
 }
-component Text840a7f555cd2(instance: text, text: text) {
-  view Kit(component: "Text840a7f555cd2", instance: instance, text: text)
+component Text23269b208f3f(instance: text, text: text) {
+  view Kit(component: "Text23269b208f3f", instance: instance, text: text)
 }

@@ -52,7 +52,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 33.0,
     "text": "Settings",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 22,
+    "size": 27,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -79,7 +79,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 21.0,
     "text": "Connection",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 14,
+    "size": 15,
     "weight": 500,
     "role": "text",
     "native_candidates": [
@@ -116,7 +116,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "chev_g1_r0",
-    "x": 336.67,
+    "x": 352.0,
     "y": 158.93,
     "w": 16.0,
     "h": 16.0,
@@ -131,7 +131,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 21.88,
     "text": "Workspace",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 14,
+    "size": 15,
     "weight": 500,
     "role": "text",
     "native_candidates": [
@@ -157,7 +157,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "chev_g1_r1",
-    "x": 363.51,
+    "x": 352.0,
     "y": 228.25,
     "w": 16.0,
     "h": 16.0,
@@ -183,7 +183,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 21.0,
     "text": "Profile",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 14,
+    "size": 15,
     "weight": 500,
     "role": "text",
     "native_candidates": [
@@ -209,7 +209,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "chev_g1_r2",
-    "x": 337.69,
+    "x": 352.0,
     "y": 301.05,
     "w": 16.0,
     "h": 16.0,
@@ -232,7 +232,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 28.0,
     "y": 370.0,
     "w": 350.0,
-    "h": 62.0,
+    "h": 76.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -246,7 +246,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 22.58,
     "text": "Desktop notifications",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 14,
+    "size": 15,
     "weight": 500,
     "role": "text",
     "native_candidates": [
@@ -281,7 +281,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 28.0,
     "y": 462.0,
     "w": 350.0,
-    "h": 76.0,
+    "h": 90.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -295,7 +295,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 24.77,
     "text": "Copy diagnostics",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 14,
+    "size": 15,
     "weight": 500,
     "role": "text",
     "native_candidates": [
@@ -305,10 +305,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "copy_diag",
-    "x": 348.0,
-    "y": 512.66,
-    "w": 18.0,
-    "h": 18.0,
+    "x": 344.0,
+    "y": 510.66,
+    "w": 22.0,
+    "h": 22.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -331,7 +331,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 21.0,
     "text": "Disconnect",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 14,
+    "size": 15,
     "weight": 600,
     "role": "text",
     "native_candidates": [

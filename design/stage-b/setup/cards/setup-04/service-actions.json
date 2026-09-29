@@ -44,10 +44,10 @@
     "browse": {
       "event": "browse",
       "source_bounds": [
-        101,
+        46,
         605,
-        179,
-        40
+        314,
+        44
       ],
       "enabled": true
     },

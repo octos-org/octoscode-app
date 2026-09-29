@@ -21,25 +21,25 @@
         }
       },
       "t_title": {
-        "component": "Textd66023eede35",
+        "component": "Textc54ba87d5a24",
         "layout": {
           "x": 78.94,
           "y": 102.5,
-          "w": 226.68,
-          "h": 30.0
+          "w": 294.68,
+          "h": 40.5
         }
       },
       "t_server": {
-        "component": "Textc6cd0ea2df1a",
+        "component": "Textf2c37abaa6b0",
         "layout": {
           "x": 47.3,
           "y": 175.76,
-          "w": 52.01,
-          "h": 21.0
+          "w": 67.61,
+          "h": 22.5
         }
       },
       "server": {
-        "component": "Surface382f80774fa6",
+        "component": "Surfacebc08397a72a6",
         "layout": {
           "x": 46.0,
           "y": 213.58,
@@ -48,25 +48,25 @@
         }
       },
       "server_field": {
-        "component": "Input79296ad18745",
+        "component": "Inputbd0f96148a43",
         "layout": {
           "x": 60.0,
           "y": 225.58,
           "w": 286.0,
-          "h": 22.5
+          "h": 24.0
         }
       },
       "t_token": {
-        "component": "Textc6cd0ea2df1a",
+        "component": "Textbd0c9af89d35",
         "layout": {
           "x": 48.45,
           "y": 299.77,
-          "w": 104.97,
-          "h": 21.0
+          "w": 136.46,
+          "h": 22.5
         }
       },
       "token": {
-        "component": "Surface382f80774fa6",
+        "component": "Surfacebc08397a72a6",
         "layout": {
           "x": 46.0,
           "y": 343.29,
@@ -75,66 +75,66 @@
         }
       },
       "token_field": {
-        "component": "Input79296ad18745",
+        "component": "Inputbd0f96148a43",
         "layout": {
           "x": 60.0,
           "y": 355.29,
           "w": 286.0,
-          "h": 22.5
+          "h": 24.0
         }
       },
       "t_hint": {
-        "component": "Text0c2e2a4f4b4f",
+        "component": "Text157fd7b9a442",
         "layout": {
           "x": 47.14,
           "y": 403.53,
-          "w": 184.31,
+          "w": 239.6,
           "h": 21.82
         }
       },
       "connect": {
         "component": "KitButton2c6804b990a5",
         "layout": {
-          "x": 137.78,
+          "x": 46.0,
           "y": 565.43,
-          "w": 124.79,
-          "h": 43.3
+          "w": 314.0,
+          "h": 44.0
         }
       },
       "connect_surface": {
         "component": "Surface8d834e17f854",
         "layout": {
-          "x": 137.78,
+          "x": 46.0,
           "y": 565.43,
-          "w": 124.79,
-          "h": 43.3
+          "w": 314.0,
+          "h": 44.0
         }
       },
       "connect_control": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 137.78,
+          "x": 46.0,
           "y": 565.43,
-          "w": 124.79,
-          "h": 43.3
+          "w": 314.0,
+          "h": 44.0
         }
       },
       "connect_label": {
-        "component": "Text67189f9f4343",
+        "component": "Text8c6d82980e26",
         "layout": {
-          "x": 158.78,
-          "y": 575.43,
-          "w": 82.79,
-          "h": 23.3
+          "x": 161.6,
+          "y": 575.78,
+          "w": 107.63,
+          "h": 24.0
         }
       },
       "t_local": {
-        "component": "Text17cebe08f043",
+        "component": "Textb467c60de9bc",
         "layout": {
           "x": 118.42,
           "y": 662.0,
-          "w": 166.91,
-          "h": 19.5
+          "w": 216.98,
+          "h": 21.0
         }
       }
     },

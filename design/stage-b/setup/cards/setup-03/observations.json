@@ -268,8 +268,8 @@
       "id": "create_profile_label",
       "expected_text": "Create profile",
       "requested_bounds": [
-        125.18,
-        690.28,
+        143.79,
+        689.31,
         118.42,
         25.94
       ],
@@ -342,7 +342,7 @@
         45.643,
         202.084,
         278.713,
-        28.283
+        30.168
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -364,9 +364,9 @@
       "id": "radio_deepseek",
       "bounds": [
         53.363,
-        349.467,
-        18.601,
-        19.392
+        348.497,
+        20.461,
+        21.331
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -388,9 +388,9 @@
       "id": "radio_kimi",
       "bounds": [
         53.363,
-        400.273,
-        18.601,
-        19.392
+        399.303,
+        20.461,
+        21.331
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -412,9 +412,9 @@
       "id": "radio_glm",
       "bounds": [
         53.363,
-        452.766,
-        18.601,
-        19.392
+        451.796,
+        20.461,
+        21.331
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -438,7 +438,7 @@
         45.643,
         550.624,
         278.713,
-        36.796
+        39.249
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false

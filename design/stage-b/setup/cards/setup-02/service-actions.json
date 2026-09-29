@@ -4,19 +4,19 @@
     "retry": {
       "event": "connect.retry",
       "source_bounds": [
-        198,
-        458,
-        62,
-        36
+        194,
+        459,
+        52,
+        34
       ],
       "enabled": true
     },
     "connect": {
       "event": "connect",
       "source_bounds": [
-        138,
+        46,
         564,
-        123,
+        314,
         44
       ],
       "enabled": true

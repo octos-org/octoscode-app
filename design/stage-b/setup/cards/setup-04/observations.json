@@ -73,6 +73,38 @@
       ]
     },
     {
+      "id": "t_recent",
+      "expected_text": "Recent",
+      "requested_bounds": [
+        30.45,
+        243.63,
+        56.39,
+        22.5
+      ],
+      "status": "observed",
+      "ocr_text": "Recent",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        31.5,
+        245.5,
+        52.0,
+        15.5
+      ],
+      "ink_color": [
+        19,
+        19,
+        19
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        30.44999929185016,
+        243.62790733946184,
+        56.38888931274415,
+        19.174417495727532
+      ]
+    },
+    {
       "id": "t_ws0_name",
       "expected_text": "octos",
       "requested_bounds": [
@@ -332,8 +364,8 @@
       "id": "browse_label",
       "expected_text": "Browse folders\u2026",
       "requested_bounds": [
-        122.93,
-        615.84,
+        134.21,
+        617.69,
         137.59,
         20.3
       ],
@@ -436,9 +468,9 @@
       "id": "folder_icon",
       "bounds": [
         48.172,
-        146.811,
-        21.465,
-        21.665
+        145.728,
+        23.611,
+        23.831
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -482,9 +514,9 @@
       "id": "ws_icon0",
       "bounds": [
         42.293,
-        284.175,
-        19.662,
-        18.384
+        283.154,
+        21.847,
+        20.426
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -504,9 +536,9 @@
       "id": "ws_icon1",
       "bounds": [
         42.293,
-        359.048,
-        19.662,
-        18.384
+        358.027,
+        21.847,
+        20.426
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -526,9 +558,9 @@
       "id": "ws_icon2",
       "bounds": [
         42.293,
-        432.777,
-        19.662,
-        18.384
+        431.756,
+        21.847,
+        20.426
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -548,9 +580,9 @@
       "id": "ws_icon3",
       "bounds": [
         42.293,
-        508.222,
-        19.662,
-        18.384
+        507.201,
+        21.847,
+        20.426
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -601,16 +633,6 @@
       ],
       "confidence": 1,
       "text": "~/home/octos"
-    },
-    {
-      "bounds": [
-        60.89999858370032,
-        487.2558146789237,
-        112.7777786254883,
-        38.348834991455064
-      ],
-      "confidence": 1,
-      "text": "Recent"
     }
   ],
   "non_text_ocr": [],

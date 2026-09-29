@@ -47,7 +47,7 @@
         341.72,
         75.57,
         20.3,
-        24.0
+        36.0
       ],
       "status": "missing_or_ocr_unresolved"
     },
@@ -82,6 +82,17 @@
         53.00555419921875,
         21.430233001709006
       ]
+    },
+    {
+      "id": "model_caret",
+      "expected_text": "\u25be",
+      "requested_bounds": [
+        330.0,
+        215.06,
+        20.0,
+        27.0
+      ],
+      "status": "missing_or_ocr_unresolved"
     },
     {
       "id": "t_saved",
@@ -276,18 +287,29 @@
       ]
     },
     {
-      "id": "t_sandbox_v",
-      "expected_text": "Enabled \u00b7 Network off \u00b7 Workspace write",
+      "id": "t_sb_b",
+      "expected_text": "Enabled",
       "requested_bounds": [
         58.64,
         627.0,
-        294.35,
+        76.0,
+        22.67
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_sb_r",
+      "expected_text": "\u00b7 Network off \u00b7 Workspace write",
+      "requested_bounds": [
+        138.64,
+        627.0,
+        230.0,
         22.67
       ],
       "status": "observed",
       "ocr_text": "Enabled \u2022 Network off \u2022 Workspace write",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.8857142857142857,
       "ink_bounds": [
         60.0,
         628.0,
@@ -356,17 +378,6 @@
         31.269
       ],
       "method": "inferred semantic extent from observed parent",
-      "reviewed": false
-    },
-    {
-      "id": "model_chev",
-      "bounds": [
-        337.854,
-        211.029,
-        20.764,
-        23.943
-      ],
-      "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
     },
     {

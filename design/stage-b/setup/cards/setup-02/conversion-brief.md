@@ -52,7 +52,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.0,
     "text": "Connect to Octos",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 20,
+    "size": 27,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -68,7 +68,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 21.0,
     "text": "Server",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 15,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -92,10 +92,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 60.0,
     "y": 225.58,
     "w": 286.0,
-    "h": 22.5,
+    "h": 24.0,
     "text": "http://127.0.0.1:50190",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15,
+    "size": 16,
     "weight": 400,
     "role": "input",
     "native_candidates": [
@@ -111,7 +111,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 21.0,
     "text": "Access token",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 15,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -135,10 +135,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 60.0,
     "y": 356.42,
     "w": 286.0,
-    "h": 22.5,
-    "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+    "h": 24.0,
+    "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15,
+    "size": 16,
     "weight": 400,
     "role": "input",
     "native_candidates": [
@@ -156,17 +156,6 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "native_candidates": []
   },
   {
-    "id": "error_band",
-    "x": 46.0,
-    "y": 396.92,
-    "w": 314.0,
-    "h": 37.58,
-    "role": "layout",
-    "native_candidates": [
-      "View"
-    ]
-  },
-  {
     "id": "t_error",
     "x": 47.37,
     "y": 404.92,
@@ -174,7 +163,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 21.58,
     "text": "Token rejected by the server",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 13,
+    "size": 14,
     "weight": 500,
     "role": "text",
     "native_candidates": [
@@ -188,9 +177,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 465.83,
     "w": 207.51,
     "h": 22.67,
-    "text": "Last tried 9:41 PM",
+    "text": "Last tried 9:41 PM \u00b7",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 13,
+    "size": 14,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -200,10 +189,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "retry",
-    "x": 198.49,
-    "y": 458.83,
-    "w": 62.0,
-    "h": 36.67,
+    "x": 194.49,
+    "y": 459.83,
+    "w": 52.0,
+    "h": 34.67,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -212,10 +201,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "retry_surface",
-    "x": 198.49,
-    "y": 458.83,
-    "w": 62.0,
-    "h": 36.67,
+    "x": 194.49,
+    "y": 459.83,
+    "w": 52.0,
+    "h": 34.67,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -223,10 +212,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "retry_control",
-    "x": 198.49,
-    "y": 458.83,
-    "w": 62.0,
-    "h": 36.67,
+    "x": 194.49,
+    "y": 459.83,
+    "w": 52.0,
+    "h": 34.67,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -235,14 +224,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "retry_label",
-    "x": 208.49,
+    "x": 198.49,
     "y": 465.83,
-    "w": 42.0,
+    "w": 44.0,
     "h": 22.68,
     "text": "Retry",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.12,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 14,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -251,10 +240,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "connect",
-    "x": 138.79,
+    "x": 46.0,
     "y": 564.94,
-    "w": 123.9,
-    "h": 44.27,
+    "w": 314.0,
+    "h": 44.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -263,10 +252,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "connect_surface",
-    "x": 138.79,
+    "x": 46.0,
     "y": 564.94,
-    "w": 123.9,
-    "h": 44.27,
+    "w": 314.0,
+    "h": 44.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -274,10 +263,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "connect_control",
-    "x": 138.79,
+    "x": 46.0,
     "y": 564.94,
-    "w": 123.9,
-    "h": 44.27,
+    "w": 314.0,
+    "h": 44.0,
     "role": "button",
     "native_candidates": [
       "Button",
@@ -286,13 +275,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "connect_label",
-    "x": 159.79,
-    "y": 574.94,
+    "x": 162.05,
+    "y": 574.81,
     "w": 81.9,
     "h": 24.27,
     "text": "Connect",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 16.18,
+    "size": 16,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -308,7 +297,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 19.5,
     "text": "Use local solo server",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 13,
+    "size": 14,
     "weight": 500,
     "role": "text",
     "native_candidates": [

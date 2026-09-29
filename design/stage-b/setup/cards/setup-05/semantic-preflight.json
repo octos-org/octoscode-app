@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "ff5ac6d2363d0121313367afdb24496b155981f802df294aa03564becefead20",
+  "manifest_sha256": "271192ac51272997772f2fa49b4fd14ff11f9c061f7f98b8bc85db5bb9e92f36",
   "reference_sha256": "d98822b963f51fdc9fd89328834d8f255a4e29d07a1b0a079117e8829024d440",
   "id": "setup-05",
   "round": null,
@@ -93,17 +93,16 @@
       "repair": "Use a native input with editable value, focus and validation state."
     },
     {
-      "id": "model_chev",
-      "role": "icon",
-      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "id": "model_caret",
+      "role": "text",
+      "basis": "authored text node",
       "expected_widgets": [
-        "Svg",
-        "Icon",
-        "Image"
+        "Label",
+        "TextFlow"
       ],
       "actual_widget": null,
       "issues": [],
-      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
       "id": "t_saved",
@@ -233,7 +232,19 @@
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
-      "id": "t_sandbox_v",
+      "id": "t_sb_b",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "t_sb_r",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [

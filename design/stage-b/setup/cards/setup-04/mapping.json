@@ -42,18 +42,18 @@
       "native_id": "beauty_0_0_0",
       "parent": "outer_card",
       "kind": "text",
-      "component": "Textd66023eede35",
+      "component": "Texta874b8608484",
       "semantic_role": "text",
       "bounds": [
         78.94,
         80.0,
-        227.81,
-        30.0
+        296.15,
+        39.0
       ],
       "text": "Open a workspace",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 20
+      "size": 26
     },
     {
       "source_id": "folder",
@@ -82,9 +82,9 @@
       "semantic_role": "icon",
       "bounds": [
         62.0,
-        149.6,
-        20.0,
-        20.0
+        148.6,
+        22.0,
+        22.0
       ],
       "text": null,
       "enabled": null,
@@ -96,18 +96,18 @@
       "native_id": "beauty_0_0_1_1",
       "parent": "folder",
       "kind": "text",
-      "component": "Text404646513d4f",
+      "component": "Textab9c0f8422c1",
       "semantic_role": "text",
       "bounds": [
         92.0,
         150.85,
-        200.0,
-        21.0
+        260.0,
+        22.5
       ],
       "text": "Server folder",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14
+      "size": 15
     },
     {
       "source_id": "folder_field",
@@ -146,8 +146,26 @@
       "size": null
     },
     {
-      "source_id": "recent_group",
+      "source_id": "t_recent",
       "native_id": "beauty_0_0_2",
+      "parent": "outer_card",
+      "kind": "text",
+      "component": "Text2601e2349c5a",
+      "semantic_role": "text",
+      "bounds": [
+        30.45,
+        243.63,
+        73.31,
+        22.5
+      ],
+      "text": "Recent",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 15
+    },
+    {
+      "source_id": "recent_group",
+      "native_id": "beauty_0_0_3",
       "parent": "outer_card",
       "kind": "stack",
       "component": "Surface7a7bef822439",
@@ -165,16 +183,16 @@
     },
     {
       "source_id": "ws_icon0",
-      "native_id": "beauty_0_0_2_0",
+      "native_id": "beauty_0_0_3_0",
       "parent": "recent_group",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
         60.0,
-        289.9,
-        18.0,
-        18.0
+        288.9,
+        20.0,
+        20.0
       ],
       "text": null,
       "enabled": null,
@@ -183,15 +201,15 @@
     },
     {
       "source_id": "t_ws0_name",
-      "native_id": "beauty_0_0_2_1",
+      "native_id": "beauty_0_0_3_1",
       "parent": "recent_group",
       "kind": "text",
-      "component": "Text404646513d4f",
+      "component": "Text8bc0157f7441",
       "semantic_role": "text",
       "bounds": [
         94.73,
         291.0,
-        45.11,
+        58.64,
         21.0
       ],
       "text": "octos",
@@ -201,15 +219,15 @@
     },
     {
       "source_id": "t_ws0_path",
-      "native_id": "beauty_0_0_2_2",
+      "native_id": "beauty_0_0_3_2",
       "parent": "recent_group",
       "kind": "text",
-      "component": "Textfd6a3ee4835f",
+      "component": "Textaaed2a066a2a",
       "semantic_role": "text",
       "bounds": [
         94.73,
         314.05,
-        240.0,
+        312.0,
         19.31
       ],
       "text": "~/home/octos",
@@ -219,7 +237,7 @@
     },
     {
       "source_id": "hair_ws1",
-      "native_id": "beauty_0_0_2_3",
+      "native_id": "beauty_0_0_3_3",
       "parent": "recent_group",
       "kind": "stack",
       "component": "Surfacec4c38149242a",
@@ -237,16 +255,16 @@
     },
     {
       "source_id": "ws_icon1",
-      "native_id": "beauty_0_0_2_4",
+      "native_id": "beauty_0_0_3_4",
       "parent": "recent_group",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
         60.0,
-        363.21,
-        18.0,
-        18.0
+        362.21,
+        20.0,
+        20.0
       ],
       "text": null,
       "enabled": null,
@@ -255,15 +273,15 @@
     },
     {
       "source_id": "t_ws1_name",
-      "native_id": "beauty_0_0_2_5",
+      "native_id": "beauty_0_0_3_5",
       "parent": "recent_group",
       "kind": "text",
-      "component": "Texta90b9b77c268",
+      "component": "Textca4e265d163c",
       "semantic_role": "text",
       "bounds": [
         94.64,
         361.49,
-        118.6,
+        154.18,
         21.43
       ],
       "text": "octoscode-app",
@@ -273,15 +291,15 @@
     },
     {
       "source_id": "t_ws1_path",
-      "native_id": "beauty_0_0_2_6",
+      "native_id": "beauty_0_0_3_6",
       "parent": "recent_group",
       "kind": "text",
-      "component": "Textfd1c766318fb",
+      "component": "Text8f7dd13f13b8",
       "semantic_role": "text",
       "bounds": [
         94.64,
         388.0,
-        240.0,
+        312.0,
         19.17
       ],
       "text": "~/home/octos/octoscode-app",
@@ -291,7 +309,7 @@
     },
     {
       "source_id": "hair_ws2",
-      "native_id": "beauty_0_0_2_7",
+      "native_id": "beauty_0_0_3_7",
       "parent": "recent_group",
       "kind": "stack",
       "component": "Surfacec4c38149242a",
@@ -309,16 +327,16 @@
     },
     {
       "source_id": "ws_icon2",
-      "native_id": "beauty_0_0_2_8",
+      "native_id": "beauty_0_0_3_8",
       "parent": "recent_group",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
         60.0,
-        435.4,
-        18.0,
-        18.0
+        434.4,
+        20.0,
+        20.0
       ],
       "text": null,
       "enabled": null,
@@ -327,15 +345,15 @@
     },
     {
       "source_id": "t_ws2_name",
-      "native_id": "beauty_0_0_2_9",
+      "native_id": "beauty_0_0_3_9",
       "parent": "recent_group",
       "kind": "text",
-      "component": "Text404646513d4f",
+      "component": "Textc1b2a0f84c80",
       "semantic_role": "text",
       "bounds": [
         93.61,
         435.37,
-        58.64,
+        76.23,
         21.0
       ],
       "text": "robrix2",
@@ -345,15 +363,15 @@
     },
     {
       "source_id": "t_ws2_path",
-      "native_id": "beauty_0_0_2_10",
+      "native_id": "beauty_0_0_3_10",
       "parent": "recent_group",
       "kind": "text",
-      "component": "Text2cf7aad1d558",
+      "component": "Text93ef24aad2d5",
       "semantic_role": "text",
       "bounds": [
         93.61,
         461.31,
-        240.0,
+        312.0,
         18.05
       ],
       "text": "~/home/octos/robrix2",
@@ -363,7 +381,7 @@
     },
     {
       "source_id": "hair_ws3",
-      "native_id": "beauty_0_0_2_11",
+      "native_id": "beauty_0_0_3_11",
       "parent": "recent_group",
       "kind": "stack",
       "component": "Surfacec4c38149242a",
@@ -381,16 +399,16 @@
     },
     {
       "source_id": "ws_icon3",
-      "native_id": "beauty_0_0_2_12",
+      "native_id": "beauty_0_0_3_12",
       "parent": "recent_group",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
         60.0,
-        509.27,
-        18.0,
-        18.0
+        508.27,
+        20.0,
+        20.0
       ],
       "text": null,
       "enabled": null,
@@ -399,15 +417,15 @@
     },
     {
       "source_id": "t_ws3_name",
-      "native_id": "beauty_0_0_2_13",
+      "native_id": "beauty_0_0_3_13",
       "parent": "recent_group",
       "kind": "text",
-      "component": "Text404646513d4f",
+      "component": "Text43efa5e1266e",
       "semantic_role": "text",
       "bounds": [
         94.64,
         509.35,
-        85.89,
+        111.66,
         21.0
       ],
       "text": "octos-web",
@@ -417,15 +435,15 @@
     },
     {
       "source_id": "t_ws3_path",
-      "native_id": "beauty_0_0_2_14",
+      "native_id": "beauty_0_0_3_14",
       "parent": "recent_group",
       "kind": "text",
-      "component": "Text2cf7aad1d558",
+      "component": "Textc97586fdfb03",
       "semantic_role": "text",
       "bounds": [
         94.64,
         535.76,
-        240.0,
+        312.0,
         18.05
       ],
       "text": "~/home/octos/octos-web",
@@ -435,16 +453,16 @@
     },
     {
       "source_id": "browse",
-      "native_id": "beauty_0_0_3",
+      "native_id": "beauty_0_0_4",
       "parent": "outer_card",
       "kind": "stack",
       "component": "KitButton2c6804b990a5",
       "semantic_role": "button",
       "bounds": [
-        101.93,
+        46.0,
         605.84,
-        179.59,
-        40.3
+        314.0,
+        44.0
       ],
       "text": null,
       "enabled": null,
@@ -453,16 +471,16 @@
     },
     {
       "source_id": "browse_surface",
-      "native_id": "beauty_0_0_3_0",
+      "native_id": "beauty_0_0_4_0",
       "parent": "browse",
       "kind": "stack",
       "component": "Surface4164e262a5bc",
       "semantic_role": "layout",
       "bounds": [
-        101.93,
+        46.0,
         605.84,
-        179.59,
-        40.3
+        314.0,
+        44.0
       ],
       "text": null,
       "enabled": null,
@@ -471,16 +489,16 @@
     },
     {
       "source_id": "browse_control",
-      "native_id": "beauty_0_0_3_1",
+      "native_id": "beauty_0_0_4_1",
       "parent": "browse",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        101.93,
+        46.0,
         605.84,
-        179.59,
-        40.3
+        314.0,
+        44.0
       ],
       "text": null,
       "enabled": 1,
@@ -489,33 +507,33 @@
     },
     {
       "source_id": "browse_label",
-      "native_id": "beauty_0_0_3_2",
+      "native_id": "beauty_0_0_4_2",
       "parent": "browse",
       "kind": "text",
-      "component": "Texta8c715dc4265",
+      "component": "Textb06c847b0371",
       "semantic_role": "text",
       "bounds": [
-        122.93,
-        615.84,
-        137.59,
-        20.3
+        134.21,
+        617.69,
+        178.87,
+        24.0
       ],
       "text": "Browse folders\u2026",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 13.53
+      "size": 16
     },
     {
       "source_id": "t_newfolder",
-      "native_id": "beauty_0_0_4",
+      "native_id": "beauty_0_0_5",
       "parent": "outer_card",
       "kind": "text",
-      "component": "Text404646513d4f",
+      "component": "Textf86cefb55bf4",
       "semantic_role": "text",
       "bounds": [
         142.1,
         676.5,
-        92.48,
+        120.22,
         21.0
       ],
       "text": "New folder",
@@ -529,6 +547,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "ea3d7710a023088f56ab39af1087edf49767afdfe50aff1830a2234e2fc0cf84",
+  "contract_sha256": "2de1ba6a3fb48654a9cb1a59e8b564248fa56e12a064589d948c8d5d6015d7f7",
   "mapping_basis": "mapped.json"
 }

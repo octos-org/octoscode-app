@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "ea3d7710a023088f56ab39af1087edf49767afdfe50aff1830a2234e2fc0cf84",
+  "contract_sha256": "2de1ba6a3fb48654a9cb1a59e8b564248fa56e12a064589d948c8d5d6015d7f7",
   "reference_sha256": "adeccfea7aa57e90e193de92bd3169cbeddc4a856364fee2a74faf6c3e23c995",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -83,6 +83,13 @@
         "clip": true,
         "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
       }
+    },
+    {
+      "id": "t_recent",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
     },
     {
       "id": "recent_group",

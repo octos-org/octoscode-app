@@ -24,12 +24,12 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "text",
-      "component": "Textfe0b97eafab5",
+      "component": "Textfb1d54978e9d",
       "semantic_role": "text",
       "bounds": [
         42.86,
         31.5,
-        305.63,
+        397.32,
         27.0
       ],
       "text": "Reconnecting... attempt 2 \u2022 Retry now",
@@ -42,12 +42,12 @@
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "text",
-      "component": "Texta696e2ef078d",
+      "component": "Text3b0c706d6edf",
       "semantic_role": "text",
       "bounds": [
         109.17,
         509.45,
-        154.96,
+        201.45,
         27.81
       ],
       "text": "Loading session...",
@@ -60,12 +60,12 @@
       "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "text",
-      "component": "Text840a7f555cd2",
+      "component": "Text23269b208f3f",
       "semantic_role": "text",
       "bounds": [
         159.02,
         570.72,
-        58.64,
+        76.23,
         21.0
       ],
       "text": "Cancel",

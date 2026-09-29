@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "e7686342c42ba304008b232ce3ca7997729bf606f12ecced0cd76bd1cefb9801",
+  "contract_sha256": "8d364401c1c519f9d54a01e08fee2bee2cc4ae3eac0bf60014cb2cc84ec2e94b",
   "reference_sha256": "d98822b963f51fdc9fd89328834d8f255a4e29d07a1b0a079117e8829024d440",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -60,20 +60,11 @@
       }
     },
     {
-      "id": "model_chev",
-      "role": "icon",
-      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "id": "model_caret",
+      "role": "text",
+      "basis": "authored text node",
       "confidence": 1.0,
-      "decision": "reviewed",
-      "asset": {
-        "path": "assets/model_chev.svg",
-        "sha256": "a742d013f8749957ad814680e16e2b20f48758592c8865be385020b662bbab72",
-        "method": "reference_svg",
-        "reference_sha256": "d98822b963f51fdc9fd89328834d8f255a4e29d07a1b0a079117e8829024d440",
-        "fit": "stretch",
-        "clip": true,
-        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
-      }
+      "decision": "declared"
     },
     {
       "id": "t_saved",
@@ -153,7 +144,14 @@
       "decision": "declared"
     },
     {
-      "id": "t_sandbox_v",
+      "id": "t_sb_b",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_sb_r",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,

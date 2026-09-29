@@ -19,35 +19,38 @@ component Surface156d085f4ff5(instance: text) {
 component Surface28a1c2e54e11(instance: text) {
   view Kit(component: "Surface28a1c2e54e11", instance: instance) { slot }
 }
-component Textde98fde59a53(instance: text, text: text) {
-  view Kit(component: "Textde98fde59a53", instance: instance, text: text)
+component Textc54ba87d5a24(instance: text, text: text) {
+  view Kit(component: "Textc54ba87d5a24", instance: instance, text: text)
 }
 component Surface6cd31c06adc5(instance: text) {
   view Kit(component: "Surface6cd31c06adc5", instance: instance) { slot }
 }
-component Text404646513d4f(instance: text, text: text) {
-  view Kit(component: "Text404646513d4f", instance: instance, text: text)
+component Text3287021b9274(instance: text, text: text) {
+  view Kit(component: "Text3287021b9274", instance: instance, text: text)
 }
 component Surfaced11bb9bd8a66(instance: text) {
   view Kit(component: "Surfaced11bb9bd8a66", instance: instance) { slot }
 }
-component Texte590a3155d62(instance: text, text: text) {
-  view Kit(component: "Texte590a3155d62", instance: instance, text: text)
+component Text120bce270049(instance: text, text: text) {
+  view Kit(component: "Text120bce270049", instance: instance, text: text)
 }
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
-component Texte87ddd679e9f(instance: text, text: text) {
-  view Kit(component: "Texte87ddd679e9f", instance: instance, text: text)
+component Text0e0a5afd4043(instance: text, text: text) {
+  view Kit(component: "Text0e0a5afd4043", instance: instance, text: text)
 }
-component Text6d1c12998f89(instance: text, text: text) {
-  view Kit(component: "Text6d1c12998f89", instance: instance, text: text)
+component Text10829a4ef378(instance: text, text: text) {
+  view Kit(component: "Text10829a4ef378", instance: instance, text: text)
 }
 component Surfacec4c38149242a(instance: text) {
   view Kit(component: "Surfacec4c38149242a", instance: instance) { slot }
 }
-component Text7d595ac36aa0(instance: text, text: text) {
-  view Kit(component: "Text7d595ac36aa0", instance: instance, text: text)
+component Text403c34ab46e6(instance: text, text: text) {
+  view Kit(component: "Text403c34ab46e6", instance: instance, text: text)
+}
+component Textcbac1a2e2337(instance: text, text: text) {
+  view Kit(component: "Textcbac1a2e2337", instance: instance, text: text)
 }
 component Surfaceb137a51eded7(instance: text) {
   view Kit(component: "Surfaceb137a51eded7", instance: instance) { slot }
@@ -55,38 +58,38 @@ component Surfaceb137a51eded7(instance: text) {
 component Surfaceab0895dcdf57(instance: text) {
   view Kit(component: "Surfaceab0895dcdf57", instance: instance) { slot }
 }
-component Textf45305e7e41b(instance: text, text: text) {
-  view Kit(component: "Textf45305e7e41b", instance: instance, text: text)
+component Text8d2990ef2ebd(instance: text, text: text) {
+  view Kit(component: "Text8d2990ef2ebd", instance: instance, text: text)
 }
-component Text09b694432d71(instance: text, text: text) {
-  view Kit(component: "Text09b694432d71", instance: instance, text: text)
+component Textcdf604602ec5(instance: text, text: text) {
+  view Kit(component: "Textcdf604602ec5", instance: instance, text: text)
 }
 
 view root Surface156d085f4ff5(instance: "page") {
   Surface28a1c2e54e11(instance: "outer_card") {
-    Textde98fde59a53(instance: "t_title", text: copy.t_title_text)
+    Textc54ba87d5a24(instance: "t_title", text: copy.t_title_text)
     Surface6cd31c06adc5(instance: "group1") {
-      Text404646513d4f(instance: "t_g1_r0", text: copy.t_g1_r0_text)
+      Text3287021b9274(instance: "t_g1_r0", text: copy.t_g1_r0_text)
       Surfaced11bb9bd8a66(instance: "live_dot") {
 
       }
-      Texte590a3155d62(instance: "t_g1_v0", text: copy.t_g1_v0_text)
+      Text120bce270049(instance: "t_g1_v0", text: copy.t_g1_v0_text)
       Vectore0a378fde04f(instance: "chev_g1_r0")
-      Texte87ddd679e9f(instance: "t_g1_r1", text: copy.t_g1_r1_text)
-      Text6d1c12998f89(instance: "t_g1_v1", text: copy.t_g1_v1_text)
+      Text0e0a5afd4043(instance: "t_g1_r1", text: copy.t_g1_r1_text)
+      Text10829a4ef378(instance: "t_g1_v1", text: copy.t_g1_v1_text)
       Vectore0a378fde04f(instance: "chev_g1_r1")
       Surfacec4c38149242a(instance: "hair_g1_1") {
 
       }
-      Text404646513d4f(instance: "t_g1_r2", text: copy.t_g1_r2_text)
-      Text6d1c12998f89(instance: "t_g1_v2", text: copy.t_g1_v2_text)
+      Text0e0a5afd4043(instance: "t_g1_r2", text: copy.t_g1_r2_text)
+      Text403c34ab46e6(instance: "t_g1_v2", text: copy.t_g1_v2_text)
       Vectore0a378fde04f(instance: "chev_g1_r2")
       Surfacec4c38149242a(instance: "hair_g1_2") {
 
       }
     }
     Surface6cd31c06adc5(instance: "group2") {
-      Text7d595ac36aa0(instance: "t_notif", text: copy.t_notif_text)
+      Textcbac1a2e2337(instance: "t_notif", text: copy.t_notif_text)
       Surfaceb137a51eded7(instance: "toggle1") {
         Surfaceab0895dcdf57(instance: "toggle1_knob") {
 
@@ -94,11 +97,11 @@ view root Surface156d085f4ff5(instance: "page") {
       }
     }
     Surface6cd31c06adc5(instance: "group3") {
-      Textf45305e7e41b(instance: "t_diag", text: copy.t_diag_text)
+      Text8d2990ef2ebd(instance: "t_diag", text: copy.t_diag_text)
       Vectore0a378fde04f(instance: "copy_diag")
     }
     Surface6cd31c06adc5(instance: "disconnect") {
-      Text09b694432d71(instance: "t_disconnect", text: copy.t_disconnect_text)
+      Textcdf604602ec5(instance: "t_disconnect", text: copy.t_disconnect_text)
     }
   }
 }

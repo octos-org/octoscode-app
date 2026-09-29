@@ -42,43 +42,43 @@
       "native_id": "beauty_0_0_0",
       "parent": "outer_card",
       "kind": "text",
-      "component": "Textd66023eede35",
+      "component": "Textc54ba87d5a24",
       "semantic_role": "text",
       "bounds": [
         82.33,
         102.5,
-        225.56,
-        30.0
+        293.23,
+        40.5
       ],
       "text": "Connect to Octos",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 20
+      "size": 27
     },
     {
       "source_id": "t_server",
       "native_id": "beauty_0_0_1",
       "parent": "outer_card",
       "kind": "text",
-      "component": "Textc6cd0ea2df1a",
+      "component": "Text78f817830549",
       "semantic_role": "text",
       "bounds": [
         48.49,
         177.08,
-        53.01,
-        21.0
+        68.91,
+        22.5
       ],
       "text": "Server",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14
+      "size": 15
     },
     {
       "source_id": "server",
       "native_id": "beauty_0_0_2",
       "parent": "outer_card",
       "kind": "stack",
-      "component": "Surface382f80774fa6",
+      "component": "Surfacebc08397a72a6",
       "semantic_role": "layout",
       "bounds": [
         46.0,
@@ -96,43 +96,43 @@
       "native_id": "beauty_0_0_2_0",
       "parent": "server",
       "kind": "input",
-      "component": "Input79296ad18745",
+      "component": "Inputbd0f96148a43",
       "semantic_role": "input",
       "bounds": [
         60.0,
         225.58,
         286.0,
-        22.5
+        24.0
       ],
       "text": "http://127.0.0.1:50190",
       "enabled": 1,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 15
+      "size": 16
     },
     {
       "source_id": "t_token",
       "native_id": "beauty_0_0_3",
       "parent": "outer_card",
       "kind": "text",
-      "component": "Textc6cd0ea2df1a",
+      "component": "Texta2d809cd0da7",
       "semantic_role": "text",
       "bounds": [
         48.47,
         300.98,
-        106.07,
-        21.0
+        137.89,
+        22.5
       ],
       "text": "Access token",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14
+      "size": 15
     },
     {
       "source_id": "token",
       "native_id": "beauty_0_0_4",
       "parent": "outer_card",
       "kind": "stack",
-      "component": "Surface2da59a09e281",
+      "component": "Surface60f9f67a8293",
       "semantic_role": "layout",
       "bounds": [
         46.0,
@@ -150,18 +150,18 @@
       "native_id": "beauty_0_0_4_0",
       "parent": "token",
       "kind": "input",
-      "component": "Input79296ad18745",
+      "component": "Inputbd0f96148a43",
       "semantic_role": "input",
       "bounds": [
         60.0,
         356.42,
         286.0,
-        22.5
+        24.0
       ],
-      "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+      "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
       "enabled": 1,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 15
+      "size": 16
     },
     {
       "source_id": "token_eye",
@@ -182,58 +182,40 @@
       "size": null
     },
     {
-      "source_id": "error_band",
+      "source_id": "t_error",
       "native_id": "beauty_0_0_5",
       "parent": "outer_card",
-      "kind": "stack",
-      "component": "Surfacef547a10f859d",
-      "semantic_role": "layout",
-      "bounds": [
-        46.0,
-        396.92,
-        314.0,
-        37.58
-      ],
-      "text": null,
-      "enabled": null,
-      "font": null,
-      "size": null
-    },
-    {
-      "source_id": "t_error",
-      "native_id": "beauty_0_0_5_0",
-      "parent": "error_band",
       "kind": "text",
-      "component": "Text58cf66c80d76",
+      "component": "Text8640c23bcac7",
       "semantic_role": "text",
       "bounds": [
         47.37,
         404.92,
-        207.51,
+        269.76,
         21.58
       ],
       "text": "Token rejected by the server",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 13
+      "size": 14
     },
     {
       "source_id": "t_last",
       "native_id": "beauty_0_0_6",
       "parent": "outer_card",
       "kind": "text",
-      "component": "Text9153f9b81b11",
+      "component": "Text82d806245345",
       "semantic_role": "text",
       "bounds": [
         48.49,
         465.83,
-        207.51,
+        159.5,
         22.67
       ],
-      "text": "Last tried 9:41 PM",
+      "text": "Last tried 9:41 PM \u00b7",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 13
+      "size": 14
     },
     {
       "source_id": "retry",
@@ -243,10 +225,10 @@
       "component": "KitButton2c6804b990a5",
       "semantic_role": "button",
       "bounds": [
-        198.49,
-        458.83,
-        62.0,
-        36.67
+        194.49,
+        459.83,
+        52.0,
+        34.67
       ],
       "text": null,
       "enabled": null,
@@ -258,13 +240,13 @@
       "native_id": "beauty_0_0_7_0",
       "parent": "retry",
       "kind": "stack",
-      "component": "Surfaceec2e0f41be2a",
+      "component": "Surfacef468f03a0025",
       "semantic_role": "layout",
       "bounds": [
-        198.49,
-        458.83,
-        62.0,
-        36.67
+        194.49,
+        459.83,
+        52.0,
+        34.67
       ],
       "text": null,
       "enabled": null,
@@ -279,10 +261,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        198.49,
-        458.83,
-        62.0,
-        36.67
+        194.49,
+        459.83,
+        52.0,
+        34.67
       ],
       "text": null,
       "enabled": 1,
@@ -294,18 +276,18 @@
       "native_id": "beauty_0_0_7_2",
       "parent": "retry",
       "kind": "text",
-      "component": "Texte7e36b0d5eb5",
+      "component": "Text727329dab8a0",
       "semantic_role": "text",
       "bounds": [
-        208.49,
+        198.49,
         465.83,
-        42.0,
+        44.0,
         22.68
       ],
       "text": "Retry",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 15.12
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 14
     },
     {
       "source_id": "connect",
@@ -315,10 +297,10 @@
       "component": "KitButton2c6804b990a5",
       "semantic_role": "button",
       "bounds": [
-        138.79,
+        46.0,
         564.94,
-        123.9,
-        44.27
+        314.0,
+        44.0
       ],
       "text": null,
       "enabled": null,
@@ -333,10 +315,10 @@
       "component": "Surface8d834e17f854",
       "semantic_role": "layout",
       "bounds": [
-        138.79,
+        46.0,
         564.94,
-        123.9,
-        44.27
+        314.0,
+        44.0
       ],
       "text": null,
       "enabled": null,
@@ -351,10 +333,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        138.79,
+        46.0,
         564.94,
-        123.9,
-        44.27
+        314.0,
+        44.0
       ],
       "text": null,
       "enabled": 1,
@@ -366,36 +348,36 @@
       "native_id": "beauty_0_0_8_2",
       "parent": "connect",
       "kind": "text",
-      "component": "Text30f12eee0685",
+      "component": "Textedd135149ebf",
       "semantic_role": "text",
       "bounds": [
-        159.79,
-        574.94,
-        81.9,
+        162.05,
+        574.81,
+        106.47,
         24.27
       ],
       "text": "Connect",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 16.18
+      "size": 16
     },
     {
       "source_id": "t_local",
       "native_id": "beauty_0_0_9",
       "parent": "outer_card",
       "kind": "text",
-      "component": "Text17cebe08f043",
+      "component": "Text0a85cce70c51",
       "semantic_role": "text",
       "bounds": [
         118.42,
         662.0,
-        168.04,
-        19.5
+        218.45,
+        21.0
       ],
       "text": "Use local solo server",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 13
+      "size": 14
     }
   ],
   "fonts": {
@@ -403,6 +385,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "3342b2c2baf3229253fa11d5226d9a21cc73ae72c6faea8ec49f0724b4695709",
+  "contract_sha256": "7c8ab3d7872fb1facef1ea395d89d761d181c35ce2960639dff199229c6681d0",
   "mapping_basis": "mapped.json"
 }

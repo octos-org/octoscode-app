@@ -4,8 +4,8 @@ component Surface156d085f4ff5(instance: text) {
 component Surface28a1c2e54e11(instance: text) {
   view Kit(component: "Surface28a1c2e54e11", instance: instance) { slot }
 }
-component Textd66023eede35(instance: text, text: text) {
-  view Kit(component: "Textd66023eede35", instance: instance, text: text)
+component Texta874b8608484(instance: text, text: text) {
+  view Kit(component: "Texta874b8608484", instance: instance, text: text)
 }
 component Surface382f80774fa6(instance: text) {
   view Kit(component: "Surface382f80774fa6", instance: instance) { slot }
@@ -13,29 +13,44 @@ component Surface382f80774fa6(instance: text) {
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
-component Text404646513d4f(instance: text, text: text) {
-  view Kit(component: "Text404646513d4f", instance: instance, text: text)
+component Textab9c0f8422c1(instance: text, text: text) {
+  view Kit(component: "Textab9c0f8422c1", instance: instance, text: text)
 }
 component Inputb47d265fdc33(instance: text, text: text, placeholder: text, enabled: bool) {
   view Kit(component: "Inputb47d265fdc33", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
 }
+component Text2601e2349c5a(instance: text, text: text) {
+  view Kit(component: "Text2601e2349c5a", instance: instance, text: text)
+}
 component Surface7a7bef822439(instance: text) {
   view Kit(component: "Surface7a7bef822439", instance: instance) { slot }
 }
-component Textfd6a3ee4835f(instance: text, text: text) {
-  view Kit(component: "Textfd6a3ee4835f", instance: instance, text: text)
+component Text8bc0157f7441(instance: text, text: text) {
+  view Kit(component: "Text8bc0157f7441", instance: instance, text: text)
+}
+component Textaaed2a066a2a(instance: text, text: text) {
+  view Kit(component: "Textaaed2a066a2a", instance: instance, text: text)
 }
 component Surfacec4c38149242a(instance: text) {
   view Kit(component: "Surfacec4c38149242a", instance: instance) { slot }
 }
-component Texta90b9b77c268(instance: text, text: text) {
-  view Kit(component: "Texta90b9b77c268", instance: instance, text: text)
+component Textca4e265d163c(instance: text, text: text) {
+  view Kit(component: "Textca4e265d163c", instance: instance, text: text)
 }
-component Textfd1c766318fb(instance: text, text: text) {
-  view Kit(component: "Textfd1c766318fb", instance: instance, text: text)
+component Text8f7dd13f13b8(instance: text, text: text) {
+  view Kit(component: "Text8f7dd13f13b8", instance: instance, text: text)
 }
-component Text2cf7aad1d558(instance: text, text: text) {
-  view Kit(component: "Text2cf7aad1d558", instance: instance, text: text)
+component Textc1b2a0f84c80(instance: text, text: text) {
+  view Kit(component: "Textc1b2a0f84c80", instance: instance, text: text)
+}
+component Text93ef24aad2d5(instance: text, text: text) {
+  view Kit(component: "Text93ef24aad2d5", instance: instance, text: text)
+}
+component Text43efa5e1266e(instance: text, text: text) {
+  view Kit(component: "Text43efa5e1266e", instance: instance, text: text)
+}
+component Textc97586fdfb03(instance: text, text: text) {
+  view Kit(component: "Textc97586fdfb03", instance: instance, text: text)
 }
 component KitButton2c6804b990a5(instance: text) {
   view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
@@ -46,6 +61,9 @@ component Surface4164e262a5bc(instance: text) {
 component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
   view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
 }
-component Texta8c715dc4265(instance: text, text: text) {
-  view Kit(component: "Texta8c715dc4265", instance: instance, text: text)
+component Textb06c847b0371(instance: text, text: text) {
+  view Kit(component: "Textb06c847b0371", instance: instance, text: text)
+}
+component Textf86cefb55bf4(instance: text, text: text) {
+  view Kit(component: "Textf86cefb55bf4", instance: instance, text: text)
 }

@@ -42,18 +42,18 @@
       "native_id": "beauty_0_0_0",
       "parent": "outer_card",
       "kind": "text",
-      "component": "Textde98fde59a53",
+      "component": "Textc54ba87d5a24",
       "semantic_role": "text",
       "bounds": [
         43.82,
         77.29,
-        92.81,
-        33.0
+        120.65,
+        40.5
       ],
       "text": "Settings",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 22
+      "size": 27
     },
     {
       "source_id": "group1",
@@ -78,18 +78,18 @@
       "native_id": "beauty_0_0_1_0",
       "parent": "group1",
       "kind": "text",
-      "component": "Text404646513d4f",
+      "component": "Text3287021b9274",
       "semantic_role": "text",
       "bounds": [
         52.99,
         156.69,
-        91.39,
-        21.0
+        118.81,
+        22.5
       ],
       "text": "Connection",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14
+      "size": 15
     },
     {
       "source_id": "live_dot",
@@ -114,12 +114,12 @@
       "native_id": "beauty_0_0_1_2",
       "parent": "group1",
       "kind": "text",
-      "component": "Texte590a3155d62",
+      "component": "Text120bce270049",
       "semantic_role": "text",
       "bounds": [
         267.05,
         156.04,
-        63.61,
+        82.69,
         21.78
       ],
       "text": "Live",
@@ -135,7 +135,7 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        336.67,
+        352.0,
         158.93,
         16.0,
         16.0
@@ -150,30 +150,30 @@
       "native_id": "beauty_0_0_1_4",
       "parent": "group1",
       "kind": "text",
-      "component": "Texte87ddd679e9f",
+      "component": "Text0e0a5afd4043",
       "semantic_role": "text",
       "bounds": [
         52.54,
         227.9,
-        89.76,
-        21.88
+        116.69,
+        22.5
       ],
       "text": "Workspace",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14
+      "size": 15
     },
     {
       "source_id": "t_g1_v1",
       "native_id": "beauty_0_0_1_5",
       "parent": "group1",
       "kind": "text",
-      "component": "Text6d1c12998f89",
+      "component": "Text10829a4ef378",
       "semantic_role": "text",
       "bounds": [
         283.07,
         226.5,
-        74.43,
+        96.76,
         19.5
       ],
       "text": "octos",
@@ -189,7 +189,7 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        363.51,
+        352.0,
         228.25,
         16.0,
         16.0
@@ -222,30 +222,30 @@
       "native_id": "beauty_0_0_1_8",
       "parent": "group1",
       "kind": "text",
-      "component": "Text404646513d4f",
+      "component": "Text0e0a5afd4043",
       "semantic_role": "text",
       "bounds": [
         51.88,
         298.9,
-        53.01,
-        21.0
+        68.91,
+        22.5
       ],
       "text": "Profile",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14
+      "size": 15
     },
     {
       "source_id": "t_g1_v2",
       "native_id": "beauty_0_0_1_9",
       "parent": "group1",
       "kind": "text",
-      "component": "Text6d1c12998f89",
+      "component": "Text403c34ab46e6",
       "semantic_role": "text",
       "bounds": [
         249.12,
         299.44,
-        82.57,
+        107.34,
         19.5
       ],
       "text": "octos-dev",
@@ -261,7 +261,7 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        337.69,
+        352.0,
         301.05,
         16.0,
         16.0
@@ -300,7 +300,7 @@
         28.0,
         370.0,
         350.0,
-        62.0
+        76.0
       ],
       "text": null,
       "enabled": null,
@@ -312,18 +312,18 @@
       "native_id": "beauty_0_0_2_0",
       "parent": "group2",
       "kind": "text",
-      "component": "Text7d595ac36aa0",
+      "component": "Textcbac1a2e2337",
       "semantic_role": "text",
       "bounds": [
         54.13,
         404.92,
-        164.66,
+        214.06,
         22.58
       ],
       "text": "Desktop notifications",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14
+      "size": 15
     },
     {
       "source_id": "toggle1",
@@ -372,7 +372,7 @@
         28.0,
         462.0,
         350.0,
-        76.0
+        90.0
       ],
       "text": null,
       "enabled": null,
@@ -384,18 +384,18 @@
       "native_id": "beauty_0_0_3_0",
       "parent": "group3",
       "kind": "text",
-      "component": "Textf45305e7e41b",
+      "component": "Text8d2990ef2ebd",
       "semantic_role": "text",
       "bounds": [
         51.78,
         509.27,
-        134.39,
+        174.71,
         24.77
       ],
       "text": "Copy diagnostics",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14
+      "size": 15
     },
     {
       "source_id": "copy_diag",
@@ -405,10 +405,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        348.0,
-        512.66,
-        18.0,
-        18.0
+        344.0,
+        510.66,
+        22.0,
+        22.0
       ],
       "text": null,
       "enabled": null,
@@ -438,18 +438,18 @@
       "native_id": "beauty_0_0_4_0",
       "parent": "disconnect",
       "kind": "text",
-      "component": "Text09b694432d71",
+      "component": "Textcdf604602ec5",
       "semantic_role": "text",
       "bounds": [
         152.21,
         626.94,
-        93.68,
-        21.0
+        121.78,
+        22.5
       ],
       "text": "Disconnect",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 14
+      "size": 15
     }
   ],
   "fonts": {
@@ -457,6 +457,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "b797960a762a3d781e3e0514b7d206cfc600b6dd759f2a91212d8a9d9d2e1afd",
+  "contract_sha256": "0c621c86a0a7de23dbe3370ce3c0456cd11a5d70bac37e15aa7185a7044a84c9",
   "mapping_basis": "mapped.json"
 }
