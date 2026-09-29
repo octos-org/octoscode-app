@@ -474,10 +474,32 @@ script_mod! {
         // Connect card comes from board 2 mapping in Stage C). This replaces
         // `base` (`base.set_visible(false)` while `store.is_live()` is false).
         first_run := View {
-            width: Fill height: Fill flow: Down
+            width: Fill height: Fill flow: Right
             visible: false
             draw_bg.color: #FFFFFF
-            align: Align{x: 0.5 y: 0.5}
+            // Board 4 frame 4: the sidebar is still there but EMPTY — only
+            // "OctosCode" and a grey "No threads yet".
+            first_run_sidebar := View {
+                width: 260 height: Fill flow: Down spacing: 6
+                draw_bg.color: #F7F7F8
+                padding: Inset{left: 12 right: 10 top: 12 bottom: 12}
+                Label {
+                    width: Fill height: Fit text: "OctosCode"
+                    draw_text.text_style.font_size: 13
+                }
+                Label {
+                    width: Fill height: Fit text: "No threads yet"
+                    draw_text.text_style.font_size: 13
+                    draw_text.color: #6E6E73
+                }
+            }
+            first_run_rule := View {
+                width: 1 height: Fill
+                draw_bg.color: #E5E5E7
+            }
+            first_run_center := View {
+                width: Fill height: Fill flow: Down
+                align: Align{x: 0.5 y: 0.5}
             first_run_card := RoundedView {
                 width: 480 height: Fit flow: Down spacing: 10
                 draw_bg +: {color: #FFFFFF border_radius: 12.0 border_size: 1.0 border_color: #E5E5E7}
@@ -502,7 +524,18 @@ script_mod! {
                     draw_bg.color: #000000
                     draw_bg.border_radius: 999.0
                 }
+                Label {
+                    width: Fill height: Fit text: "Stored for this server only"
+                    draw_text.text_style.font_size: 11
+                    draw_text.color: #6E6E73
+                }
+                Label {
+                    width: Fill height: Fit text: "Use local solo server"
+                    draw_text.text_style.font_size: 13
+                    draw_text.color: #2F6FEB
+                }
             }
+        }
         }
     }
 }
