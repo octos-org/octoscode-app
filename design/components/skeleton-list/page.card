@@ -11,7 +11,7 @@ component Surfaceb1747ab6b098(instance: text) {
   view Kit(component: "Surfaceb1747ab6b098", instance: instance) { slot }
 }
 
-view root Surfacef468f03a0025(instance: "skeleton-list") {
+view root Surfacef468f03a0025(instance: "skeleton_list_root") {
   Surfaceb1747ab6b098(instance: "skel0") {
 
   }

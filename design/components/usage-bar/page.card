@@ -21,7 +21,7 @@ component Surface260f5fd1c16f(instance: text) {
   view Kit(component: "Surface260f5fd1c16f", instance: instance) { slot }
 }
 
-view root Surfacef468f03a0025(instance: "usage-bar") {
+view root Surfacef468f03a0025(instance: "usage_bar_root") {
   Text840a7f555cd2(instance: "t_usage", text: copy.t_usage_text)
   Text3ccc8c684a1d(instance: "t_pct", text: copy.t_pct_text)
   Surface17544640ea84(instance: "bar_track") {

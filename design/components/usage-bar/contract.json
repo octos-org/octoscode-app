@@ -22,7 +22,7 @@
   "graphics": {},
   "tree": {
     "t": "stack",
-    "id": "usage-bar",
+    "id": "usage_bar_root",
     "x": 0.0,
     "y": 0.0,
     "w": 360.0,

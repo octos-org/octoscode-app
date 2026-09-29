@@ -21,7 +21,7 @@ component Textc6cd0ea2df1a(instance: text, text: text) {
   view Kit(component: "Textc6cd0ea2df1a", instance: instance, text: text)
 }
 
-view root Surfacef468f03a0025(instance: "segmented-control") {
+view root Surfacef468f03a0025(instance: "segmented_control_root") {
   Surface9c33ea9ef48a(instance: "seg_box") {
 
   }

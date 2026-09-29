@@ -2,7 +2,7 @@
   "$kit": {
     "theme": "light",
     "placements": {
-      "segmented-control": {
+      "segmented_control_root": {
         "component": "Surfacef468f03a0025",
         "layout": {
           "x": 0.0,

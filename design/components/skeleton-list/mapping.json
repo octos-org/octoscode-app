@@ -2,7 +2,7 @@
   "schema_version": 1,
   "elements": [
     {
-      "source_id": "skeleton-list",
+      "source_id": "skeleton_list_root",
       "native_id": "beauty_0",
       "parent": null,
       "kind": "stack",
@@ -22,7 +22,7 @@
     {
       "source_id": "skel0",
       "native_id": "beauty_0_0",
-      "parent": "skeleton-list",
+      "parent": "skeleton_list_root",
       "kind": "stack",
       "component": "Surfaceb1747ab6b098",
       "semantic_role": "layout",
@@ -40,7 +40,7 @@
     {
       "source_id": "skel1",
       "native_id": "beauty_0_1",
-      "parent": "skeleton-list",
+      "parent": "skeleton_list_root",
       "kind": "stack",
       "component": "Surfaceb1747ab6b098",
       "semantic_role": "layout",
@@ -58,7 +58,7 @@
     {
       "source_id": "skel2",
       "native_id": "beauty_0_2",
-      "parent": "skeleton-list",
+      "parent": "skeleton_list_root",
       "kind": "stack",
       "component": "Surfaceb1747ab6b098",
       "semantic_role": "layout",
@@ -76,7 +76,7 @@
     {
       "source_id": "skel3",
       "native_id": "beauty_0_3",
-      "parent": "skeleton-list",
+      "parent": "skeleton_list_root",
       "kind": "stack",
       "component": "Surfaceb1747ab6b098",
       "semantic_role": "layout",
@@ -93,6 +93,6 @@
     }
   ],
   "fonts": {},
-  "contract_sha256": "1244389f32e3473985f70fb5fa6431051d60ea148aa7ae5b3ba575dac5fc265c",
+  "contract_sha256": "47253bb95578a470f6484e2b49964450097170d06f8583ba7d77b420cf802868",
   "mapping_basis": "mapped.json"
 }

@@ -22,7 +22,7 @@
   "graphics": {},
   "tree": {
     "t": "stack",
-    "id": "segmented-control",
+    "id": "segmented_control_root",
     "x": 0.0,
     "y": 0.0,
     "w": 207.5,

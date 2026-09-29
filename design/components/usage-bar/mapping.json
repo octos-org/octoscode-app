@@ -2,7 +2,7 @@
   "schema_version": 1,
   "elements": [
     {
-      "source_id": "usage-bar",
+      "source_id": "usage_bar_root",
       "native_id": "beauty_0",
       "parent": null,
       "kind": "stack",
@@ -22,7 +22,7 @@
     {
       "source_id": "t_usage",
       "native_id": "beauty_0_0",
-      "parent": "usage-bar",
+      "parent": "usage_bar_root",
       "kind": "text",
       "component": "Text840a7f555cd2",
       "semantic_role": "text",
@@ -40,7 +40,7 @@
     {
       "source_id": "t_pct",
       "native_id": "beauty_0_1",
-      "parent": "usage-bar",
+      "parent": "usage_bar_root",
       "kind": "text",
       "component": "Text3ccc8c684a1d",
       "semantic_role": "text",
@@ -58,7 +58,7 @@
     {
       "source_id": "bar_track",
       "native_id": "beauty_0_2",
-      "parent": "usage-bar",
+      "parent": "usage_bar_root",
       "kind": "stack",
       "component": "Surface17544640ea84",
       "semantic_role": "layout",
@@ -76,7 +76,7 @@
     {
       "source_id": "bar_fill",
       "native_id": "beauty_0_3",
-      "parent": "usage-bar",
+      "parent": "usage_bar_root",
       "kind": "stack",
       "component": "Surface260f5fd1c16f",
       "semantic_role": "layout",
@@ -95,6 +95,6 @@
   "fonts": {
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "33f6670c360f30aa7472e73a74cfdb39fb65bfd3fb296b7c09ef93a080f75528",
+  "contract_sha256": "3bced71d1fe265eb0f60c1ef754443cba24343751ff0bd9e8a47f6f3e55b0645",
   "mapping_basis": "mapped.json"
 }

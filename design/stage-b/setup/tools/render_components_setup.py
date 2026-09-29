@@ -237,7 +237,8 @@ if __name__ == "__main__":
                                "ink": "#1D1D1F", "muted": "#6E6E73", "accent": "#2F6FEB"},
                    "content_source": "Approved stage-a board-2 atlas (Gate A 2026-09-29) + Apple Vision OCR",
                    "graphics": {},
-                   "tree": A.surface(comp, 0, 0, cw, ch, bg="white", radius=0, kids=kids)}
+                   "tree": A.surface(comp.replace("-", "_") + "_root", 0, 0, cw, ch,
+                                  bg="white", radius=0, kids=kids)}
             (d / "contract.json").write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
             (d / "mapped.json").write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n")
             (d / "service-actions.json").write_text(json.dumps({"frame_id": 0, "controls": {}, "source": "setup board"}, indent=2) + "\n")
@@ -254,8 +255,8 @@ if __name__ == "__main__":
                     ("short", False, cw, ch, kids), ("long", True, cw_l, ch_l, kids_l)):
                 nm, w_, h_, ks, _ = BUILDERS[comp](long=tree_kw)
                 vdoc = json.loads(json.dumps(doc))
-                vdoc["tree"] = A.surface(comp, 0, 0, w_, chv if vname else h_, bg="white",
-                                         radius=0, kids=ks)
+                vdoc["tree"] = A.surface(comp.replace("-", "_") + "_root", 0, 0, w_,
+                                         chv if vname else h_, bg="white", radius=0, kids=ks)
                 vdoc["artboard"] = [max(w_, 360), (chv if vname else h_) + 16]
                 # compile_page consumes mapped.json - both files must carry the
                 # variant tree, or the long variant renders identical to short.

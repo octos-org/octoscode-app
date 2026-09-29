@@ -22,7 +22,7 @@
   "graphics": {},
   "tree": {
     "t": "stack",
-    "id": "skeleton-list",
+    "id": "skeleton_list_root",
     "x": 0.0,
     "y": 0.0,
     "w": 340.0,
