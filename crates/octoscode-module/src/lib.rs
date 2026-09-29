@@ -151,24 +151,24 @@ script_mod! {
                     width: Fill height: Fit flow: Overlay
                     composer_splash := Splash { width: Fill height: 190 }
                     composer_hits := View {
-                        width: Fill height: Fill flow: Overlay
+                        width: Fill height: 190 flow: Overlay
                         plus_hit := Button {
-                            width: 40 height: 40 text: ""
-                            align: {x: 0.0, y: 1.0} margin: {left: 12.0 bottom: 24.0}
+                            width: 36 height: 36 text: ""
+                            margin: Inset{left: 5.0 top: 123.0}
                             draw_bg.color: #00000000
                             draw_bg.color_hover: #00000010
                             draw_bg.color_down: #00000020
                         }
                         mic_hit := Button {
-                            width: 40 height: 40 text: ""
-                            align: {x: 1.0, y: 1.0} margin: {right: 60.0 bottom: 24.0}
+                            width: 36 height: 36 text: ""
+                            margin: Inset{left: 280.0 top: 121.0}
                             draw_bg.color: #00000000
                             draw_bg.color_hover: #00000010
                             draw_bg.color_down: #00000020
                         }
                         send_hit := Button {
-                            width: 48 height: 48 text: ""
-                            align: {x: 1.0, y: 1.0} margin: {right: 6.0 bottom: 20.0}
+                            width: 44 height: 44 text: ""
+                            margin: Inset{left: 324.0 top: 115.0}
                             draw_bg.color: #00000000
                             draw_bg.color_hover: #00000010
                             draw_bg.color_down: #00000020

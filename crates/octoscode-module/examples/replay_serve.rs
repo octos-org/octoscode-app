@@ -69,6 +69,9 @@ fn scenario_fixture(name: &str) -> (&'static str, &'static str) {
         // `turn/start` twice reproduces the live "second turn never appears".
         "two-turn" => ("two-turn", "live-two-turn-a6ea8505.jsonl"),
         "approval" => ("approval", "r5-turn-a6ea8505.jsonl"),
+        // Card #21c item 8: the same recording carries a real TOOL_CALL
+        // (`tool_start`/`tool_progress`/`tool_end`), so a `tool-cell` row renders.
+        "tool" | "tool-cell" => ("tool", "r5-turn-a6ea8505.jsonl"),
         "autonomy" => ("autonomy", "r1-autonomy-a6ea8505.jsonl"),
         "task" => ("task", "r4-task-a6ea8505.jsonl"),
         "peer" => ("peer", "r6-peer-a6ea8505.jsonl"),

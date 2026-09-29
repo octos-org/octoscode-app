@@ -45,11 +45,15 @@ use makepad_widgets::makepad_script::ScriptMod;
 /// The DSL prelude: name the design/kit vocabulary, then return the component's
 /// own root inside a wrapper `View`.
 ///
-/// `Fill/Fill`, the shape `beauty-host` evaluates (`beauty.rs:127`). The host
-/// owns the slot — each `Splash` is declared with an explicit height
-/// (`Splash{height:56}` / `190`) — so `Fill` gives the component exactly the box
-/// the host reserved.
-const PRELUDE: &str = "use mod.prelude.widgets.*\nreturn View{width:Fill height:Fill flow:Overlay ";
+/// Card #21c item 3: the wrapper is `flow: Down height: Fit`, not `Overlay`.
+/// `Overlay` gives a `Fit`-height slot no measurable content height, so a
+/// component whose root is a plain `View`/`DesignSurface` (the user-bubble,
+/// measured `284x85`) collapsed to `[0,0,0,0]` and painted nothing, while a
+/// `Markdown` root (intrinsic height) seated. A stacking flow measures its one
+/// child, so every slot's height comes from its component. The host still owns
+/// the box: `MountCache::mount` copies the Splash's declared walk onto the
+/// evaluated view, so a `Splash{height:190}` (the composer dock) still gets 190.
+const PRELUDE: &str = "use mod.prelude.widgets.*\nreturn View{width:Fill height:Fit flow:Down ";
 
 /// One mounted slot: the DSL it was mounted from, and the view it displaced.
 ///
@@ -254,12 +258,16 @@ mod tests {
 
     #[test]
     fn the_prelude_wraps_the_component_in_a_slot_sized_view() {
-        // The host declares the slot's height (`Splash{height:56}` / `190`), so the
-        // wrapper fills it. `Fit` would measure 0: every component positions its
-        // children by `abs_pos`, which contributes nothing to a `Fit`.
-        let code = format!("{PRELUDE}i0_x := View{{width:Fill height:Fill}}}}");
+        // Card #21c item 3: the wrapper is a stacking (`Down`) `Fit` view, so a
+        // slot's height comes from its component. `Overlay` (the #21b shape) gave
+        // a `Fit` slot no measurable content height, so a component whose root is
+        // a plain `View`/`DesignSurface` (user-bubble, measured 284x85) collapsed
+        // to [0,0,0,0] and painted nothing. The host still owns the box:
+        // `MountCache::mount` copies the Splash's declared walk onto the view, so
+        // `Splash{height:190}` (the composer dock) still gets 190.
+        let code = format!("{PRELUDE}i0_x := View{{width:Fill height:Fit}}}}");
         assert!(code.starts_with("use mod.prelude.widgets.*\nreturn View{"));
         assert!(code.ends_with("}}"));
-        assert!(code.contains("width:Fill height:Fill flow:Overlay"));
+        assert!(code.contains("width:Fill height:Fit flow:Down"));
     }
 }
