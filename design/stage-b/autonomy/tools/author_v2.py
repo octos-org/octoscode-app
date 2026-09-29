@@ -254,9 +254,18 @@ def build_01(sc):
         body = code(f"dl_{i}", body_text, gx + 66, y, 280, rowh - 4, color=color)
         row_kids = [gutter] + ([marker] if marker else []) + [body]
         # This atlas draws diff rows on WHITE (measured #fefefe over the full row
-        # band) with only the marker/code text coloured red/green — no band fill,
-        # unlike conversation board 1. Emit flat rows.
-        rows.extend(row_kids)
+        # band) with only the marker coloured red/green — no band fill, unlike
+        # conversation board 1. Emit flat rows. Rows 130/132 carry a token chip
+        # (pink behind `queue.drop_pending();`, green behind
+        # `queue.preserve_pending();`), measured on the reference.
+        if num == "130":
+            rows.append(surface("chip_130", gx + 108, y - 3, 170, rowh - 2,
+                                bg="redbg", radius=6, kids=row_kids))
+        elif num == "132":
+            rows.append(surface("chip_132", gx + 108, y - 3, 196, rowh - 2,
+                                bg="greenbg", radius=6, kids=row_kids))
+        else:
+            rows.extend(row_kids)
     sc.put(stack("diff_rows", 20, gy - 10, 366, rowh * 8 + 20, rows))
     sc.flows["diff_rows"] = ("diff.rows", 20, gy - 10, 366, rowh * 8 + 20)
     # folded row: '⋮ 412 unmodified lines ⋮' on the grey band.

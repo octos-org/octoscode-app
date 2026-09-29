@@ -206,6 +206,14 @@
       "value": 4281874745,
       "property": "color"
     },
+    "bg_cfc8c60a5fe5": {
+      "value": 4294831340,
+      "property": "bg"
+    },
+    "radius_e7f6c011776e": {
+      "value": 6,
+      "property": "radius"
+    },
     "size_798f2bcc3306": {
       "value": 11.84,
       "property": "size"
@@ -234,6 +242,10 @@
       "value": 15.56,
       "property": "line_height"
     },
+    "color_4a3345d342e0": {
+      "value": 4281281581,
+      "property": "color"
+    },
     "color_4fa1c6a6ca8a": {
       "value": 4282795846,
       "property": "color"
@@ -245,6 +257,14 @@
     "line_height_d54c14fd43ae": {
       "value": 15.92,
       "property": "line_height"
+    },
+    "color_69af636ede72": {
+      "value": 4283582278,
+      "property": "color"
+    },
+    "bg_6923f860fbad": {
+      "value": 4293326058,
+      "property": "bg"
     },
     "color_0f88db466c51": {
       "value": 4281677366,
@@ -258,6 +278,10 @@
       "value": 15.82,
       "property": "line_height"
     },
+    "color_1be8e013b6e9": {
+      "value": 4281415732,
+      "property": "color"
+    },
     "color_c28b838ae62c": {
       "value": 4282072122,
       "property": "color"
@@ -269,6 +293,10 @@
     "line_height_d4140ee9e424": {
       "value": 15.77,
       "property": "line_height"
+    },
+    "color_88b16fa88aec": {
+      "value": 4282927176,
+      "property": "color"
     },
     "color_74fca0abb923": {
       "value": 4284506208,
@@ -289,6 +317,10 @@
     "line_height_34e398960921": {
       "value": 15.39,
       "property": "line_height"
+    },
+    "color_5ce1f8d263e8": {
+      "value": 4283190347,
+      "property": "color"
     },
     "color_958e6f346d3d": {
       "value": 4283321933,
@@ -916,6 +948,20 @@
       },
       "slot": false
     },
+    "Surfacec0f3a4a0f759": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_cfc8c60a5fe5"
+        },
+        "radius": {
+          "$token": "radius_e7f6c011776e"
+        }
+      },
+      "props": {},
+      "slot": true
+    },
     "Textb2b9ceda7216": {
       "style": {
         "t": "text",
@@ -974,7 +1020,7 @@
       },
       "slot": false
     },
-    "Textec4a6dbeaecf": {
+    "Text7fda885ba21a": {
       "style": {
         "t": "text",
         "size": {
@@ -987,7 +1033,7 @@
           "$token": "weight_26d228663f13"
         },
         "color": {
-          "$token": "color_ab6fe2047f74"
+          "$token": "color_4a3345d342e0"
         },
         "variant": "single_line",
         "alignx": 0,
@@ -1032,7 +1078,7 @@
       },
       "slot": false
     },
-    "Text8ed951d9ace2": {
+    "Text73a001f04e3f": {
       "style": {
         "t": "text",
         "size": {
@@ -1045,7 +1091,7 @@
           "$token": "weight_26d228663f13"
         },
         "color": {
-          "$token": "color_ab6fe2047f74"
+          "$token": "color_69af636ede72"
         },
         "variant": "single_line",
         "alignx": 0,
@@ -1060,6 +1106,20 @@
         "text": "text"
       },
       "slot": false
+    },
+    "Surface06fa9ad1c7ee": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_6923f860fbad"
+        },
+        "radius": {
+          "$token": "radius_e7f6c011776e"
+        }
+      },
+      "props": {},
+      "slot": true
     },
     "Text7783c7d5f51c": {
       "style": {
@@ -1119,7 +1179,7 @@
       },
       "slot": false
     },
-    "Textf5c1d2cc6c9c": {
+    "Textf4b46a4bf938": {
       "style": {
         "t": "text",
         "size": {
@@ -1132,7 +1192,7 @@
           "$token": "weight_26d228663f13"
         },
         "color": {
-          "$token": "color_d3727bcbe31e"
+          "$token": "color_1be8e013b6e9"
         },
         "variant": "single_line",
         "alignx": 0,
@@ -1177,7 +1237,7 @@
       },
       "slot": false
     },
-    "Text13b84f8b066a": {
+    "Texte80f6bb19e44": {
       "style": {
         "t": "text",
         "size": {
@@ -1190,7 +1250,7 @@
           "$token": "weight_26d228663f13"
         },
         "color": {
-          "$token": "color_d3727bcbe31e"
+          "$token": "color_88b16fa88aec"
         },
         "variant": "single_line",
         "alignx": 0,
@@ -1261,7 +1321,7 @@
       },
       "slot": false
     },
-    "Text0d791da9c590": {
+    "Texted328412a3b1": {
       "style": {
         "t": "text",
         "size": {
@@ -1274,7 +1334,7 @@
           "$token": "weight_26d228663f13"
         },
         "color": {
-          "$token": "color_d3727bcbe31e"
+          "$token": "color_5ce1f8d263e8"
         },
         "variant": "single_line",
         "alignx": 0,

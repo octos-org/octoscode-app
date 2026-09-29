@@ -460,6 +460,17 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "chip_130",
+    "x": 126.76,
+    "y": 480.48,
+    "w": 170.0,
+    "h": 32.96,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "ln_2",
     "x": 18.76,
     "y": 483.48,
@@ -553,6 +564,17 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "native_candidates": [
       "Label",
       "TextFlow"
+    ]
+  },
+  {
+    "id": "chip_132",
+    "x": 126.76,
+    "y": 550.4,
+    "w": 196.0,
+    "h": 32.96,
+    "role": "layout",
+    "native_candidates": [
+      "View"
     ]
   },
   {

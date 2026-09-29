@@ -112,20 +112,26 @@ component Text7eb2b65d944f(instance: text, text: text) {
 component Text98b7147f8843(instance: text, text: text) {
   view Kit(component: "Text98b7147f8843", instance: instance, text: text)
 }
+component Surfacec0f3a4a0f759(instance: text) {
+  view Kit(component: "Surfacec0f3a4a0f759", instance: instance) { slot }
+}
 component Textb2b9ceda7216(instance: text, text: text) {
   view Kit(component: "Textb2b9ceda7216", instance: instance, text: text)
 }
 component Text7bfee83f9e4f(instance: text, text: text) {
   view Kit(component: "Text7bfee83f9e4f", instance: instance, text: text)
 }
-component Textec4a6dbeaecf(instance: text, text: text) {
-  view Kit(component: "Textec4a6dbeaecf", instance: instance, text: text)
+component Text7fda885ba21a(instance: text, text: text) {
+  view Kit(component: "Text7fda885ba21a", instance: instance, text: text)
 }
 component Texte2ebfd0e0c07(instance: text, text: text) {
   view Kit(component: "Texte2ebfd0e0c07", instance: instance, text: text)
 }
-component Text8ed951d9ace2(instance: text, text: text) {
-  view Kit(component: "Text8ed951d9ace2", instance: instance, text: text)
+component Text73a001f04e3f(instance: text, text: text) {
+  view Kit(component: "Text73a001f04e3f", instance: instance, text: text)
+}
+component Surface06fa9ad1c7ee(instance: text) {
+  view Kit(component: "Surface06fa9ad1c7ee", instance: instance) { slot }
 }
 component Text7783c7d5f51c(instance: text, text: text) {
   view Kit(component: "Text7783c7d5f51c", instance: instance, text: text)
@@ -133,14 +139,14 @@ component Text7783c7d5f51c(instance: text, text: text) {
 component Text4149e8f1504a(instance: text, text: text) {
   view Kit(component: "Text4149e8f1504a", instance: instance, text: text)
 }
-component Textf5c1d2cc6c9c(instance: text, text: text) {
-  view Kit(component: "Textf5c1d2cc6c9c", instance: instance, text: text)
+component Textf4b46a4bf938(instance: text, text: text) {
+  view Kit(component: "Textf4b46a4bf938", instance: instance, text: text)
 }
 component Text3dc6577ffa6c(instance: text, text: text) {
   view Kit(component: "Text3dc6577ffa6c", instance: instance, text: text)
 }
-component Text13b84f8b066a(instance: text, text: text) {
-  view Kit(component: "Text13b84f8b066a", instance: instance, text: text)
+component Texte80f6bb19e44(instance: text, text: text) {
+  view Kit(component: "Texte80f6bb19e44", instance: instance, text: text)
 }
 component Text5d53723f5006(instance: text, text: text) {
   view Kit(component: "Text5d53723f5006", instance: instance, text: text)
@@ -148,8 +154,8 @@ component Text5d53723f5006(instance: text, text: text) {
 component Text1713c86d885a(instance: text, text: text) {
   view Kit(component: "Text1713c86d885a", instance: instance, text: text)
 }
-component Text0d791da9c590(instance: text, text: text) {
-  view Kit(component: "Text0d791da9c590", instance: instance, text: text)
+component Texted328412a3b1(instance: text, text: text) {
+  view Kit(component: "Texted328412a3b1", instance: instance, text: text)
 }
 component Text708e0b3c3880(instance: text, text: text) {
   view Kit(component: "Text708e0b3c3880", instance: instance, text: text)
@@ -201,21 +207,25 @@ view root Surface16fae9a63e16(instance: "page") {
       Textbd31eef74fbf(instance: "dl_0", text: copy.dl_0_text)
       Text7eb2b65d944f(instance: "ln_1", text: copy.ln_1_text)
       Text98b7147f8843(instance: "dl_1", text: copy.dl_1_text)
-      Textb2b9ceda7216(instance: "ln_2", text: copy.ln_2_text)
-      Text7bfee83f9e4f(instance: "mk_2", text: copy.mk_2_text)
-      Textec4a6dbeaecf(instance: "dl_2", text: copy.dl_2_text)
+      Surfacec0f3a4a0f759(instance: "chip_130") {
+        Textb2b9ceda7216(instance: "ln_2", text: copy.ln_2_text)
+        Text7bfee83f9e4f(instance: "mk_2", text: copy.mk_2_text)
+        Text7fda885ba21a(instance: "dl_2", text: copy.dl_2_text)
+      }
       Texte2ebfd0e0c07(instance: "ln_3", text: copy.ln_3_text)
       Text7bfee83f9e4f(instance: "mk_3", text: copy.mk_3_text)
-      Text8ed951d9ace2(instance: "dl_3", text: copy.dl_3_text)
-      Text7783c7d5f51c(instance: "ln_4", text: copy.ln_4_text)
-      Text4149e8f1504a(instance: "mk_4", text: copy.mk_4_text)
-      Textf5c1d2cc6c9c(instance: "dl_4", text: copy.dl_4_text)
+      Text73a001f04e3f(instance: "dl_3", text: copy.dl_3_text)
+      Surface06fa9ad1c7ee(instance: "chip_132") {
+        Text7783c7d5f51c(instance: "ln_4", text: copy.ln_4_text)
+        Text4149e8f1504a(instance: "mk_4", text: copy.mk_4_text)
+        Textf4b46a4bf938(instance: "dl_4", text: copy.dl_4_text)
+      }
       Text3dc6577ffa6c(instance: "ln_5", text: copy.ln_5_text)
       Text4149e8f1504a(instance: "mk_5", text: copy.mk_5_text)
-      Text13b84f8b066a(instance: "dl_5", text: copy.dl_5_text)
+      Texte80f6bb19e44(instance: "dl_5", text: copy.dl_5_text)
       Text5d53723f5006(instance: "ln_6", text: copy.ln_6_text)
       Text1713c86d885a(instance: "mk_6", text: copy.mk_6_text)
-      Text0d791da9c590(instance: "dl_6", text: copy.dl_6_text)
+      Texted328412a3b1(instance: "dl_6", text: copy.dl_6_text)
       Text708e0b3c3880(instance: "ln_7", text: copy.ln_7_text)
       Text0f6e5644fb1b(instance: "dl_7", text: copy.dl_7_text)
     }

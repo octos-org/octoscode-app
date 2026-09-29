@@ -295,6 +295,15 @@
           "h": 18.73
         }
       },
+      "chip_130": {
+        "component": "Surfacec0f3a4a0f759",
+        "layout": {
+          "x": 126.76,
+          "y": 480.48,
+          "w": 170.0,
+          "h": 32.96
+        }
+      },
       "ln_2": {
         "component": "Textb2b9ceda7216",
         "layout": {
@@ -314,7 +323,7 @@
         }
       },
       "dl_2": {
-        "component": "Textec4a6dbeaecf",
+        "component": "Text7fda885ba21a",
         "layout": {
           "x": 132.19,
           "y": 481.74,
@@ -341,12 +350,21 @@
         }
       },
       "dl_3": {
-        "component": "Text8ed951d9ace2",
+        "component": "Text73a001f04e3f",
         "layout": {
           "x": 131.57,
           "y": 516.63,
           "w": 217.24,
           "h": 20.28
+        }
+      },
+      "chip_132": {
+        "component": "Surface06fa9ad1c7ee",
+        "layout": {
+          "x": 126.76,
+          "y": 550.4,
+          "w": 196.0,
+          "h": 32.96
         }
       },
       "ln_4": {
@@ -368,7 +386,7 @@
         }
       },
       "dl_4": {
-        "component": "Textf5c1d2cc6c9c",
+        "component": "Textf4b46a4bf938",
         "layout": {
           "x": 132.18,
           "y": 549.96,
@@ -395,7 +413,7 @@
         }
       },
       "dl_5": {
-        "component": "Text13b84f8b066a",
+        "component": "Texte80f6bb19e44",
         "layout": {
           "x": 131.58,
           "y": 585.62,
@@ -422,7 +440,7 @@
         }
       },
       "dl_6": {
-        "component": "Text0d791da9c590",
+        "component": "Texted328412a3b1",
         "layout": {
           "x": 133.26,
           "y": 619.73,

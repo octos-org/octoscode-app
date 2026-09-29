@@ -74,7 +74,7 @@ def stage(name, d):
 def main():
     stages = sys.argv[1:] or ["all"]
     if stages == ["all"]:
-        stages = ["observe", "measure", "map", "fix_map", "fix_metrics", "fix_surfaces",
+        stages = ["observe", "measure", "map", "fix_metrics", "fix_map", "fix_surfaces",
                   "finalize", "semantic", "compile"]
     for s in stages:
         for d in SCENES:

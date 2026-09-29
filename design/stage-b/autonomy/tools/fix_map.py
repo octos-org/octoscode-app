@@ -24,13 +24,16 @@ ROOT = Path(__file__).resolve().parents[1] / "cards"
 # side-by-side vs the atlas crop): map's median-ink rewrite lands near-black on
 # every row either way, so restore each node's authored color.
 COLOR_KEEP = {
-    1: {"mk_2", "mk_3", "mk_4", "mk_5", "mk_6", "dl_2", "dl_3", "dl_4", "dl_5",
-        "dl_6", "dl_7"},
+    # markers: keep the authored red/green. Code lines (dl_*): NOT listed, so the
+    # map stage's measured dark ink stands (atlas draws code dark, markers coloured).
+    1: {"mk_2", "mk_3", "mk_4", "mk_5", "mk_6",
+        # dl_7 '}': single-glyph OCR ink samples the antialiased edge (#cacaca);
+        # the atlas draws it dark (#4f4d51 measured). Restore the authored ink.
+        "dl_7"},
 }
-# node id -> extra logical-x shift (icon occupies the first ~20px of the OCR ink)
-X_SHIFT = {
-    1: {"file_1_path": 20.0, "file_2_path": 20.0, "file_3_path": 20.0},
-}
+# node id -> extra logical-x shift. With fix_map running AFTER fix_metrics (the
+# ink-fit), the fitted x already clears the leading icon — no shift needed.
+X_SHIFT = {}
 
 
 def walk(n):

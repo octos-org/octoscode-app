@@ -578,9 +578,27 @@
       "size": 12.98
     },
     {
-      "source_id": "ln_2",
+      "source_id": "chip_130",
       "native_id": "beauty_0_0_9_4",
       "parent": "diff_rows",
+      "kind": "stack",
+      "component": "Surfacec0f3a4a0f759",
+      "semantic_role": "layout",
+      "bounds": [
+        126.76,
+        480.48,
+        170.0,
+        32.96
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "ln_2",
+      "native_id": "beauty_0_0_9_4_0",
+      "parent": "chip_130",
       "kind": "text",
       "component": "Textb2b9ceda7216",
       "semantic_role": "text",
@@ -597,8 +615,8 @@
     },
     {
       "source_id": "mk_2",
-      "native_id": "beauty_0_0_9_5",
-      "parent": "diff_rows",
+      "native_id": "beauty_0_0_9_4_1",
+      "parent": "chip_130",
       "kind": "text",
       "component": "Text7bfee83f9e4f",
       "semantic_role": "text",
@@ -615,10 +633,10 @@
     },
     {
       "source_id": "dl_2",
-      "native_id": "beauty_0_0_9_6",
-      "parent": "diff_rows",
+      "native_id": "beauty_0_0_9_4_2",
+      "parent": "chip_130",
       "kind": "text",
-      "component": "Textec4a6dbeaecf",
+      "component": "Text7fda885ba21a",
       "semantic_role": "text",
       "bounds": [
         132.19,
@@ -633,7 +651,7 @@
     },
     {
       "source_id": "ln_3",
-      "native_id": "beauty_0_0_9_7",
+      "native_id": "beauty_0_0_9_5",
       "parent": "diff_rows",
       "kind": "text",
       "component": "Texte2ebfd0e0c07",
@@ -651,7 +669,7 @@
     },
     {
       "source_id": "mk_3",
-      "native_id": "beauty_0_0_9_8",
+      "native_id": "beauty_0_0_9_6",
       "parent": "diff_rows",
       "kind": "text",
       "component": "Text7bfee83f9e4f",
@@ -669,10 +687,10 @@
     },
     {
       "source_id": "dl_3",
-      "native_id": "beauty_0_0_9_9",
+      "native_id": "beauty_0_0_9_7",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Text8ed951d9ace2",
+      "component": "Text73a001f04e3f",
       "semantic_role": "text",
       "bounds": [
         131.57,
@@ -686,9 +704,27 @@
       "size": 13.16
     },
     {
-      "source_id": "ln_4",
-      "native_id": "beauty_0_0_9_10",
+      "source_id": "chip_132",
+      "native_id": "beauty_0_0_9_8",
       "parent": "diff_rows",
+      "kind": "stack",
+      "component": "Surface06fa9ad1c7ee",
+      "semantic_role": "layout",
+      "bounds": [
+        126.76,
+        550.4,
+        196.0,
+        32.96
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "ln_4",
+      "native_id": "beauty_0_0_9_8_0",
+      "parent": "chip_132",
       "kind": "text",
       "component": "Text7783c7d5f51c",
       "semantic_role": "text",
@@ -705,8 +741,8 @@
     },
     {
       "source_id": "mk_4",
-      "native_id": "beauty_0_0_9_11",
-      "parent": "diff_rows",
+      "native_id": "beauty_0_0_9_8_1",
+      "parent": "chip_132",
       "kind": "text",
       "component": "Text4149e8f1504a",
       "semantic_role": "text",
@@ -723,10 +759,10 @@
     },
     {
       "source_id": "dl_4",
-      "native_id": "beauty_0_0_9_12",
-      "parent": "diff_rows",
+      "native_id": "beauty_0_0_9_8_2",
+      "parent": "chip_132",
       "kind": "text",
-      "component": "Textf5c1d2cc6c9c",
+      "component": "Textf4b46a4bf938",
       "semantic_role": "text",
       "bounds": [
         132.18,
@@ -741,7 +777,7 @@
     },
     {
       "source_id": "ln_5",
-      "native_id": "beauty_0_0_9_13",
+      "native_id": "beauty_0_0_9_9",
       "parent": "diff_rows",
       "kind": "text",
       "component": "Text3dc6577ffa6c",
@@ -759,7 +795,7 @@
     },
     {
       "source_id": "mk_5",
-      "native_id": "beauty_0_0_9_14",
+      "native_id": "beauty_0_0_9_10",
       "parent": "diff_rows",
       "kind": "text",
       "component": "Text4149e8f1504a",
@@ -777,10 +813,10 @@
     },
     {
       "source_id": "dl_5",
-      "native_id": "beauty_0_0_9_15",
+      "native_id": "beauty_0_0_9_11",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Text13b84f8b066a",
+      "component": "Texte80f6bb19e44",
       "semantic_role": "text",
       "bounds": [
         131.58,
@@ -795,7 +831,7 @@
     },
     {
       "source_id": "ln_6",
-      "native_id": "beauty_0_0_9_16",
+      "native_id": "beauty_0_0_9_12",
       "parent": "diff_rows",
       "kind": "text",
       "component": "Text5d53723f5006",
@@ -813,7 +849,7 @@
     },
     {
       "source_id": "mk_6",
-      "native_id": "beauty_0_0_9_17",
+      "native_id": "beauty_0_0_9_13",
       "parent": "diff_rows",
       "kind": "text",
       "component": "Text1713c86d885a",
@@ -831,10 +867,10 @@
     },
     {
       "source_id": "dl_6",
-      "native_id": "beauty_0_0_9_18",
+      "native_id": "beauty_0_0_9_14",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Text0d791da9c590",
+      "component": "Texted328412a3b1",
       "semantic_role": "text",
       "bounds": [
         133.26,
@@ -849,7 +885,7 @@
     },
     {
       "source_id": "ln_7",
-      "native_id": "beauty_0_0_9_19",
+      "native_id": "beauty_0_0_9_15",
       "parent": "diff_rows",
       "kind": "text",
       "component": "Text708e0b3c3880",
@@ -867,7 +903,7 @@
     },
     {
       "source_id": "dl_7",
-      "native_id": "beauty_0_0_9_20",
+      "native_id": "beauty_0_0_9_16",
       "parent": "diff_rows",
       "kind": "text",
       "component": "Text0f6e5644fb1b",
@@ -926,6 +962,6 @@
     "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "091bba1a9c4f08586a5c51aacc0029b4f59d4f2f3aed41704ea7dd25e2ba8c4a",
+  "contract_sha256": "41377339f7f820b2cfc9bdba7b128827b2009ca7419d289b75a907a417d97b46",
   "mapping_basis": "mapped.json"
 }
