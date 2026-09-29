@@ -1,0 +1,472 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "d33aa28a0628f5be1ea6460ad6ed34e53d4a7aae982d2ddab7f32dd7ac59ee8a",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.07509885466701449,
+  "text": [
+    {
+      "id": "t_q1",
+      "expected_text": "Can we add a test for preserve_pending",
+      "requested_bounds": [
+        87.12,
+        183.54,
+        282.28,
+        24.15
+      ],
+      "status": "observed",
+      "ocr_text": "Can we add a test for preserve_pending",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        84.5107296137339,
+        181.30841121495325,
+        286.63948497854074,
+        28.203530633437175
+      ],
+      "ink_color": [
+        252,
+        252,
+        252
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        87.124461951073,
+        183.53526940767637,
+        282.2832618025751,
+        24.14937759336091
+      ]
+    },
+    {
+      "id": "t_q2",
+      "expected_text": "behavior?",
+      "requested_bounds": [
+        87.02,
+        213.81,
+        73.39,
+        21.57
+      ],
+      "status": "observed",
+      "ocr_text": "behavior?",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        84.5107296137339,
+        211.9293873312565,
+        78.41201716738198,
+        25.786085150571132
+      ],
+      "ink_color": [
+        250,
+        250,
+        250
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        87.01965216928235,
+        213.80725504891063,
+        73.39417132594554,
+        21.56391328993682
+      ]
+    },
+    {
+      "id": "t_tool",
+      "expected_text": "Edit crates/octos-cli/tests/steer_queue.rs",
+      "requested_bounds": [
+        52.0,
+        281.49,
+        270.0,
+        26.94
+      ],
+      "status": "observed",
+      "ocr_text": "*Edit crates/octos-cli/tests/steer_queue.rs",
+      "confidence": 1,
+      "text_similarity": 0.9882352941176471,
+      "ink_bounds": [
+        34.84978540772532,
+        282.03530633437174,
+        278.79828326180257,
+        23.36863966770509
+      ],
+      "ink_color": [
+        222,
+        223,
+        224
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        34.51575545164223,
+        281.4860343805037,
+        282.93972634245904,
+        26.94231573081112
+      ]
+    },
+    {
+      "id": "answer_md",
+      "expected_text": "I added a test that simulates a reconnect and verifies pending messages are preserved. The test asserts `metrics.steer_preserved` increments and `metrics.steer_dropped` remains unchanged.",
+      "requested_bounds": [
+        30.0,
+        352.0,
+        340.0,
+        170.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_approval",
+      "expected_text": "Ask for approval",
+      "requested_bounds": [
+        74.0,
+        680.0,
+        104.0,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "Ask for approval",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        90.60944206008584,
+        705.0882658359294,
+        94.09442060085837,
+        19.339563862928348
+      ],
+      "ink_color": [
+        225,
+        226,
+        227
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        88.80335980829682,
+        704.9011224997398,
+        99.44907343131788,
+        21.45086662007561
+      ]
+    },
+    {
+      "id": "t_model",
+      "expected_text": "v4-flash \u25be",
+      "requested_bounds": [
+        216.0,
+        680.0,
+        69.7,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "v4-flash v",
+      "confidence": 1,
+      "text_similarity": 0.9,
+      "ink_bounds": [
+        218.6824034334764,
+        705.0882658359294,
+        65.34334763948497,
+        15.31048805815161
+      ],
+      "ink_color": [
+        199,
+        200,
+        202
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        216.0686700257511,
+        705.1618256456431,
+        69.6995708154506,
+        17.709543568464667
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "user_bubble",
+      "bounds": [
+        73.02,
+        173.54,
+        310.39,
+        71.84
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 16.0
+    },
+    {
+      "id": "tool_card",
+      "bounds": [
+        25.0,
+        268.0,
+        355.0,
+        53.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4280098595,
+      "radius": 11.29
+    },
+    {
+      "id": "icon_tool",
+      "bounds": [
+        34.492,
+        279.291,
+        15.187,
+        18.066
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_tool_done",
+      "bounds": [
+        349.626,
+        280.42,
+        15.187,
+        18.066
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "answer_surface",
+      "bounds": [
+        20.0,
+        344.0,
+        366.0,
+        186.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4279638301,
+      "radius": 8.0
+    },
+    {
+      "id": "answer_actions",
+      "bounds": [
+        30.0,
+        546.0,
+        120.0,
+        28.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "icon_up",
+      "bounds": [
+        30.0,
+        544.0,
+        24.0,
+        24.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_down",
+      "bounds": [
+        66.0,
+        544.0,
+        24.0,
+        24.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "composer",
+      "bounds": [
+        26.0,
+        611.0,
+        366.0,
+        139.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279572507,
+      "radius": 11.42
+    },
+    {
+      "id": "composer_input",
+      "bounds": [
+        39.701,
+        618.616,
+        293.583,
+        34.274
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "control_row",
+      "bounds": [
+        39.701,
+        660.507,
+        336.642,
+        38.082
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "icon_plus",
+      "bounds": [
+        39.701,
+        668.123,
+        17.615,
+        22.849
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "approval_pill",
+      "bounds": [
+        76.0,
+        689.0,
+        124.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279572507,
+      "radius": 23.0
+    },
+    {
+      "id": "icon_mic",
+      "bounds": [
+        301.968,
+        668.123,
+        15.658,
+        24.753
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "send_btn",
+      "bounds": [
+        341.112,
+        662.411,
+        35.23,
+        34.274
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4279572251,
+      "radius": 17.14
+    },
+    {
+      "id": "icon_send",
+      "bounds": [
+        350.898,
+        671.932,
+        15.658,
+        15.233
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        21.99999672000007,
+        67.92946062087137,
+        328,
+        31.966804979253105
+      ],
+      "confidence": 1,
+      "text": "11. Dark mode conversation"
+    },
+    {
+      "bounds": [
+        37.88859483735362,
+        143.3980551937623,
+        104.22280883789062,
+        26.87816365823707
+      ],
+      "confidence": 1,
+      "text": "OctosCode"
+    },
+    {
+      "bounds": [
+        32.000001899999944,
+        439.5435686978215,
+        411.99999999999994,
+        27.970954356846587
+      ],
+      "confidence": 1,
+      "text": "I added a test that simulates a reconnect and verifies"
+    },
+    {
+      "bounds": [
+        36.00000321666661,
+        483.497925211307,
+        386.00000000000006,
+        27.97095435684648
+      ],
+      "confidence": 1,
+      "text": "pending messages are preserved. The test asserts"
+    },
+    {
+      "bounds": [
+        44.000001174999966,
+        533.4460576917013,
+        358,
+        31.966804979253105
+      ],
+      "confidence": 1,
+      "text": "metrics. steer_preserved increments and"
+    },
+    {
+      "bounds": [
+        44.000001259999976,
+        583.3941905517012,
+        370,
+        31.96680497925321
+      ],
+      "confidence": 1,
+      "text": "metrics. steer_dropped remains unchanged."
+    },
+    {
+      "bounds": [
+        45.931464315241826,
+        782.8405458597204,
+        150.13706970214847,
+        30.66123207970781
+      ],
+      "confidence": 1,
+      "text": "Ask Octos anything"
+    },
+    {
+      "bounds": [
+        46.0000001,
+        867.0995853191167,
+        29.999999999999993,
+        35.96265560165973
+      ],
+      "confidence": 1,
+      "text": "+"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "frame_id": 7,
+  "controls": {
+    "run_card": {
+      "event": "task.open.running",
+      "source_bounds": [
+        24,
+        264,
+        360,
+        284
+      ],
+      "enabled": true
+    }
+  },
+  "source": "tasks",
+  "owner": "autonomy"
+}

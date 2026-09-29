@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t01",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text3fe6dbba4348",
+      "semantic_role": "text",
+      "bounds": [
+        -0.18,
+        59.73,
+        116.54,
+        27.52
+      ],
+      "text": "5. Monitors",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 20.48
+    },
+    {
+      "source_id": "t02",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text7a303d430319",
+      "semantic_role": "text",
+      "bounds": [
+        14.57,
+        133.21,
+        94.03,
+        24.58
+      ],
+      "text": "OctosCode",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 16.94
+    },
+    {
+      "source_id": "t03",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textf044fd1510c5",
+      "semantic_role": "text",
+      "bounds": [
+        14.79,
+        211.6,
+        82.78,
+        26.54
+      ],
+      "text": "Monitors",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 18.9
+    },
+    {
+      "source_id": "t04",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texte96cf97f0c30",
+      "semantic_role": "text",
+      "bounds": [
+        25.9,
+        314.47,
+        116.54,
+        25.56
+      ],
+      "text": "cargo test -q",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 18.38
+    },
+    {
+      "source_id": "t05",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textd8489a9fed0a",
+      "semantic_role": "text",
+      "bounds": [
+        25.82,
+        365.42,
+        60.27,
+        24.58
+      ],
+      "text": "fired 3x",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15.51
+    },
+    {
+      "source_id": "t06",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text841c0d759655",
+      "semantic_role": "text",
+      "bounds": [
+        219.02,
+        365.42,
+        29.1,
+        24.58
+      ],
+      "text": "30s",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14.13
+    },
+    {
+      "source_id": "t07",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textfe7b83a88ec9",
+      "semantic_role": "text",
+      "bounds": [
+        26.65,
+        498.68,
+        159.82,
+        26.54
+      ],
+      "text": "tail -n 50 app.log",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 19.43
+    },
+    {
+      "source_id": "t08",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textea0fa0ca8123",
+      "semantic_role": "text",
+      "bounds": [
+        25.71,
+        547.67,
+        76.72,
+        30.45
+      ],
+      "text": "no change",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14.59
+    },
+    {
+      "source_id": "t09",
+      "native_id": "beauty_0_8",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text18f6e7119644",
+      "semantic_role": "text",
+      "bounds": [
+        219.02,
+        547.67,
+        29.1,
+        24.58
+      ],
+      "text": "30s",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14.13
+    },
+    {
+      "source_id": "t10",
+      "native_id": "beauty_0_9",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textd914d3d2914e",
+      "semantic_role": "text",
+      "bounds": [
+        54.98,
+        665.24,
+        272.36,
+        29.47
+      ],
+      "text": "Monitors fire when the output changes",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14.65
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "493574abc35e60cb7aab3d714c3ae6acafa3d9cfbc298f0604414164d62801d8",
+  "mapping_basis": "mapped.json"
+}

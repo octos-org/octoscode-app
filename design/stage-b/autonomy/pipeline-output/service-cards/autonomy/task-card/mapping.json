@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "run_card",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surfacee81dee70a29b",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        360.0,
+        387.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_cmd",
+      "native_id": "beauty_0_0",
+      "parent": "run_card",
+      "kind": "text",
+      "component": "Text68eb463dd2ca",
+      "semantic_role": "text",
+      "bounds": [
+        12.600000000000001,
+        31.45999999999998,
+        229.26,
+        23.57
+      ],
+      "text": "\u203a cargo test -p octos-cli steer_queue",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 10.15
+    },
+    {
+      "source_id": "run_pill",
+      "native_id": "beauty_0_1",
+      "parent": "run_card",
+      "kind": "stack",
+      "component": "Surfaceec5e698cce2f",
+      "semantic_role": "layout",
+      "bounds": [
+        250.0,
+        20.0,
+        63.0,
+        42.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_run",
+      "native_id": "beauty_0_1_0",
+      "parent": "run_pill",
+      "kind": "text",
+      "component": "Text97dbc02c6f15",
+      "semantic_role": "text",
+      "bounds": [
+        259.78,
+        31.45999999999998,
+        45.91,
+        23.57
+      ],
+      "text": "Running",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 10.68
+    },
+    {
+      "source_id": "t_run_dur",
+      "native_id": "beauty_0_2",
+      "parent": "run_card",
+      "kind": "text",
+      "component": "Text1e0cc765bf27",
+      "semantic_role": "text",
+      "bounds": [
+        317.33,
+        34.06,
+        24.0,
+        21.5
+      ],
+      "text": "2m",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12
+    },
+    {
+      "source_id": "console",
+      "native_id": "beauty_0_3",
+      "parent": "run_card",
+      "kind": "stack",
+      "component": "Surfacef9797a8e8795",
+      "semantic_role": "layout",
+      "bounds": [
+        11.0,
+        86.0,
+        339.0,
+        197.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_log0",
+      "native_id": "beauty_0_3_0",
+      "parent": "console",
+      "kind": "text",
+      "component": "Textce2d17e95a24",
+      "semantic_role": "text",
+      "bounds": [
+        20.89,
+        114.63999999999999,
+        320.94,
+        21.61
+      ],
+      "text": "Compiling octos-cli v0.24.1 (/workspace/crates/octos-cli)",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 9.27
+    },
+    {
+      "source_id": "t_log1",
+      "native_id": "beauty_0_3_1",
+      "parent": "console",
+      "kind": "text",
+      "component": "Textd88f1a0ef5f8",
+      "semantic_role": "text",
+      "bounds": [
+        21.409999999999997,
+        155.74,
+        320.94,
+        21.61
+      ],
+      "text": "Finished test [unoptimized + debuginfo] target(s) in 1.23s",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 9.11
+    },
+    {
+      "source_id": "t_log2",
+      "native_id": "beauty_0_3_2",
+      "parent": "console",
+      "kind": "text",
+      "component": "Textc641b90cbae2",
+      "semantic_role": "text",
+      "bounds": [
+        21.57,
+        196.83999999999997,
+        321.82,
+        20.64
+      ],
+      "text": "Running unittests src/lib.rs (target/debug/deps/octos_cli\u2026)",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 8.98
+    },
+    {
+      "source_id": "t_log3",
+      "native_id": "beauty_0_3_3",
+      "parent": "console",
+      "kind": "text",
+      "component": "Text5ea49b9c7968",
+      "semantic_role": "text",
+      "bounds": [
+        21.04,
+        234.01999999999998,
+        116.63,
+        27.49
+      ],
+      "text": "running 12 tests \u2026",
+      "enabled": null,
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 10.43
+    },
+    {
+      "source_id": "cancel_row",
+      "native_id": "beauty_0_4",
+      "parent": "run_card",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        13.0,
+        309.0,
+        225.0,
+        55.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "cancel_surface",
+      "native_id": "beauty_0_4_0",
+      "parent": "cancel_row",
+      "kind": "stack",
+      "component": "Surfaceff776c252975",
+      "semantic_role": "layout",
+      "bounds": [
+        13.0,
+        309.0,
+        225.0,
+        55.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "cancel_control",
+      "native_id": "beauty_0_4_1",
+      "parent": "cancel_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        13.0,
+        309.0,
+        225.0,
+        55.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "cancel_label",
+      "native_id": "beauty_0_4_2",
+      "parent": "cancel_row",
+      "kind": "text",
+      "component": "Text6f1917ec00eb",
+      "semantic_role": "text",
+      "bounds": [
+        103.65,
+        325.03,
+        45.91,
+        21.61
+      ],
+      "text": "Cancel",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 12.63
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "4495e850c4b7e8e353761ceea6375bbdf8e9381cc2b1a84fcfbf4c270ebb9a29",
+  "mapping_basis": "mapped.json"
+}

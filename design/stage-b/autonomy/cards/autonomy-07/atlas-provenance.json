@@ -1,0 +1,29 @@
+{
+  "id": "7",
+  "design_id": "autonomy-07",
+  "surface": "app",
+  "declared_scene": {
+    "id": "7",
+    "design_id": "autonomy-07",
+    "directory": "cards/autonomy-07",
+    "crop": [
+      1022,
+      1091,
+      465,
+      793
+    ],
+    "surface": "app",
+    "title": "Tasks"
+  },
+  "crop": [
+    1022,
+    1091,
+    465,
+    793
+  ],
+  "crop_image": "cards/autonomy-07/reference.png",
+  "reference_image": "cards/autonomy-07/reference.png",
+  "crop_sha256": "f3e6bb77e8933fe4ebe6658ca11d11aaa3bf0b23847e7a6f563d250482146c6b",
+  "crop_resampled": false,
+  "crop_mode": "RGB"
+}

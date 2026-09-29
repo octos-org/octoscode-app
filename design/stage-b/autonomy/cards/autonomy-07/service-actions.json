@@ -1,0 +1,26 @@
+{
+  "frame_id": 7,
+  "controls": {
+    "cancel": {
+      "event": "task.cancel",
+      "source_bounds": [
+        40,
+        552,
+        288,
+        44
+      ],
+      "enabled": true
+    },
+    "run_card": {
+      "event": "task.open.running",
+      "source_bounds": [
+        24,
+        264,
+        360,
+        284
+      ],
+      "enabled": true
+    }
+  },
+  "source": "tasks"
+}

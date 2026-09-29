@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/yuechen/home/oa.noindex/p0-proto/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py", line 103, in <module>
+    main()
+  File "/Users/yuechen/home/oa.noindex/p0-proto/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py", line 54, in main
+    raise ValueError(f'{scene["design_id"]}: review and author measured native mapping first; missing {missing}')
+ValueError: autonomy-01: review and author measured native mapping first; missing ['reference.png', 'contract.json']

@@ -1,0 +1,12 @@
+{"scene": "1", "stage": "map", "result": {"id": "autonomy-01", "texts": 30, "matched": 30, "extra_ocr": 0, "opaque": true}}
+{"scene": "2", "stage": "map", "result": {"id": "autonomy-02", "texts": 13, "matched": 13, "extra_ocr": 0, "opaque": true}}
+{"scene": "3", "stage": "map", "result": {"id": "autonomy-03", "texts": 10, "matched": 10, "extra_ocr": 0, "opaque": true}}
+{"scene": "4", "stage": "map", "result": {"id": "autonomy-04", "texts": 10, "matched": 10, "extra_ocr": 0, "opaque": true}}
+{"scene": "5", "stage": "map", "result": {"id": "autonomy-05", "texts": 10, "matched": 10, "extra_ocr": 0, "opaque": true}}
+{"scene": "6", "stage": "map", "result": {"id": "autonomy-06", "texts": 16, "matched": 16, "extra_ocr": 0, "opaque": true}}
+{"scene": "7", "stage": "map", "result": {"id": "autonomy-07", "texts": 13, "matched": 12, "extra_ocr": 1, "opaque": true}}
+{"scene": "8", "stage": "map", "result": {"id": "autonomy-08", "texts": 10, "matched": 10, "extra_ocr": 1, "opaque": true}}
+{"scene": "9", "stage": "map", "result": {"id": "autonomy-09", "texts": 6, "matched": 6, "extra_ocr": 23, "opaque": true}}
+{"scene": "10", "stage": "map", "result": {"id": "autonomy-10", "texts": 9, "matched": 8, "extra_ocr": 8, "opaque": true}}
+{"scene": "11", "stage": "map", "result": {"id": "autonomy-11", "texts": 7, "matched": 6, "extra_ocr": 7, "opaque": true}}
+{"scene": "12", "stage": "map", "result": {"id": "autonomy-12", "texts": 10, "matched": 9, "extra_ocr": 3, "opaque": true}}

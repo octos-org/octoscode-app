@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "policy_version": "1.1.0",
+  "contract_sha256": "e470ba676daecf6e0b937094a98d64e49f4d37ffe35c6b6a4b949f245b323a3a",
+  "reference_sha256": "85fcd1e6e9f1ab1539c417cde61932e4342ef8a4fee8a21d44d2b567e2b2728c",
+  "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
+  "elements": [
+    {
+      "id": "page",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "user_bubble",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_q1",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_q2",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "tool_card",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "icon_tool",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_tool.svg",
+        "sha256": "40eda8f649906b595b5dbcc44f212b20f095fa244580e0d917c31cf197646088",
+        "method": "reference_svg",
+        "reference_sha256": "85fcd1e6e9f1ab1539c417cde61932e4342ef8a4fee8a21d44d2b567e2b2728c",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "t_tool",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "icon_tool_done",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_tool_done.svg",
+        "sha256": "4b2ffeb0c612b6ac5d6eab283e75e2e6fa93faeb288385b664af75f20d257415",
+        "method": "reference_svg",
+        "reference_sha256": "85fcd1e6e9f1ab1539c417cde61932e4342ef8a4fee8a21d44d2b567e2b2728c",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "aside_card",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_aside",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_dismiss",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "icon_dismiss",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_dismiss.svg",
+        "sha256": "d5b17784afca5465059339956fc6b505a8c5c1fcc95208b6978592f9457ae5c8",
+        "method": "reference_svg",
+        "reference_sha256": "85fcd1e6e9f1ab1539c417cde61932e4342ef8a4fee8a21d44d2b567e2b2728c",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "t_qtitle",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "aside_answer",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "composer",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "composer_input",
+      "role": "input",
+      "basis": "authored input node",
+      "confidence": 1.0,
+      "decision": "declared",
+      "behavior": {
+        "event": "changed",
+        "target": "composer_input",
+        "property": "text"
+      }
+    },
+    {
+      "id": "icon_plus",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_plus.svg",
+        "sha256": "06052c31254fb04b4af57ac289ddf9d8bb9bfde266fc2115343d39e977c417dc",
+        "method": "reference_svg",
+        "reference_sha256": "85fcd1e6e9f1ab1539c417cde61932e4342ef8a4fee8a21d44d2b567e2b2728c",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "approval_pill",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_approval",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_model",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "send_btn",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "icon_send",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_send.svg",
+        "sha256": "3fe1783d764e9fc45946b981d0f1916002bee25cd4f372339740edc4d6dd47c9",
+        "method": "reference_svg",
+        "reference_sha256": "85fcd1e6e9f1ab1539c417cde61932e4342ef8a4fee8a21d44d2b567e2b2728c",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "icon_mic",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/icon_mic.svg",
+        "sha256": "94bc5db4a153ef0a47d50557e4110c80233e4ec2974a592cd0c798402d672d4b",
+        "method": "reference_svg",
+        "reference_sha256": "85fcd1e6e9f1ab1539c417cde61932e4342ef8a4fee8a21d44d2b567e2b2728c",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    }
+  ]
+}

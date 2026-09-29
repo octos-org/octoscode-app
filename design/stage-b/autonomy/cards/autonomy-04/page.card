@@ -1,0 +1,61 @@
+# ledger autonomy-04@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t01_text { class: user-copy, en: "OctosCode" }
+copy t02_text { class: user-copy, en: "Loops" }
+copy t03_text { class: user-copy, en: "Run Cl smoke" }
+copy t04_text { class: user-copy, en: "every 15 min" }
+copy t05_text { class: user-copy, en: "Sync main" }
+copy t06_text { class: user-copy, en: "every 30 min" }
+copy t07_text { class: user-copy, en: "Nightly review" }
+copy t08_text { class: user-copy, en: "every day • 01:00" }
+copy t09_text { class: user-copy, en: "•" }
+copy t10_text { class: user-copy, en: "+ New loop" }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Texte12ba50eced4(instance: text, text: text) {
+  view Kit(component: "Texte12ba50eced4", instance: instance, text: text)
+}
+component Text1d89604ff58c(instance: text, text: text) {
+  view Kit(component: "Text1d89604ff58c", instance: instance, text: text)
+}
+component Texte6d942019b8a(instance: text, text: text) {
+  view Kit(component: "Texte6d942019b8a", instance: instance, text: text)
+}
+component Text06abea0238a5(instance: text, text: text) {
+  view Kit(component: "Text06abea0238a5", instance: instance, text: text)
+}
+component Text125236df264e(instance: text, text: text) {
+  view Kit(component: "Text125236df264e", instance: instance, text: text)
+}
+component Textf6e47a638035(instance: text, text: text) {
+  view Kit(component: "Textf6e47a638035", instance: instance, text: text)
+}
+component Text37ea71680808(instance: text, text: text) {
+  view Kit(component: "Text37ea71680808", instance: instance, text: text)
+}
+component Text25cd6f758ee4(instance: text, text: text) {
+  view Kit(component: "Text25cd6f758ee4", instance: instance, text: text)
+}
+component Textad212f4a0386(instance: text, text: text) {
+  view Kit(component: "Textad212f4a0386", instance: instance, text: text)
+}
+component Text9d6c531836f1(instance: text, text: text) {
+  view Kit(component: "Text9d6c531836f1", instance: instance, text: text)
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Texte12ba50eced4(instance: "t01", text: copy.t01_text)
+  Text1d89604ff58c(instance: "t02", text: copy.t02_text)
+  Texte6d942019b8a(instance: "t03", text: copy.t03_text)
+  Text06abea0238a5(instance: "t04", text: copy.t04_text)
+  Text125236df264e(instance: "t05", text: copy.t05_text)
+  Textf6e47a638035(instance: "t06", text: copy.t06_text)
+  Text37ea71680808(instance: "t07", text: copy.t07_text)
+  Text25cd6f758ee4(instance: "t08", text: copy.t08_text)
+  Textad212f4a0386(instance: "t09", text: copy.t09_text)
+  Text9d6c531836f1(instance: "t10", text: copy.t10_text)
+}

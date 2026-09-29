@@ -1,0 +1,17 @@
+{
+  "provider": "openai",
+  "model": "gpt-image-2",
+  "prompt": "image-prompt.md",
+  "image": "reference.png",
+  "image_sha256": "f3e6bb77e8933fe4ebe6658ca11d11aaa3bf0b23847e7a6f563d250482146c6b",
+  "prompt_sha256": "6f8e52d2b806c138375ed1ad6917548715f803da8ec2c8872a3bbcc0c357b329",
+  "dimensions": [
+    465,
+    793
+  ],
+  "requested_logical_artboard": [
+    406,
+    776
+  ],
+  "original_filename": "atlas.png"
+}

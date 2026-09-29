@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "flow": "octoscode-autonomy",
+  "status": "completed",
+  "scope": "Only explicitly executed stages; no automatic visual or production acceptance",
+  "inputs": {
+    "sha256": "04668f6f82db5e2d934de8ca0b7ec47d121313b2e49ded984b0a23daf62f350c",
+    "files": {
+      "image-to-appcard-flow.json": "7c3b7304ef1184f32231708b4cc52cdfc8ffbc9927c39a8820050deadea0b9ae",
+      "source/atlas.png": "0017d69d3c38e810bdc6955c89175c91cee78409be9925a9addb674c8b48149c",
+      "source/prompt.txt": "6f8e52d2b806c138375ed1ad6917548715f803da8ec2c8872a3bbcc0c357b329",
+      "cards/autonomy-01/contract.json": "4f603ecca675596932cbb4281bed59c39de2884d8801380a57a80f81cd6d0e68",
+      "cards/autonomy-01/mapped.json": null,
+      "cards/autonomy-01/semantic-map.json": null,
+      "cards/autonomy-01/service-actions.json": "fc259aada0ec26c2f79f150b37f2dea074d86a09260ffc4f208fc1043fb565c2",
+      "cards/autonomy-02/contract.json": "c7d4f9ec06d8031f6a9f426606fcb595fe7313269bd210bc543891a4a63c9b9d",
+      "cards/autonomy-02/mapped.json": null,
+      "cards/autonomy-02/semantic-map.json": null,
+      "cards/autonomy-02/service-actions.json": "87a86796a5e98ed5a01dd3ddb4448f26fda8d4f64c0f233b38edb530a7f01254",
+      "cards/autonomy-03/contract.json": "ada42d67b88db6972435c06a2c014b145d6b62177acaa8ddaf5101046d69ecf5",
+      "cards/autonomy-03/mapped.json": null,
+      "cards/autonomy-03/semantic-map.json": null,
+      "cards/autonomy-03/service-actions.json": "6a8bae36a85689a6824998b20e3d88a70e049cac2e39fe2f1da23942988619dd",
+      "cards/autonomy-04/contract.json": "fcf11be71ca426ab6c702713046bc2127ca13804f6a8e2e356536cf59b365b59",
+      "cards/autonomy-04/mapped.json": null,
+      "cards/autonomy-04/semantic-map.json": null,
+      "cards/autonomy-04/service-actions.json": "018e195c22026be4b8c107de38276943fa2a70beb61097da5bcf122f838d4a62",
+      "cards/autonomy-05/contract.json": "493574abc35e60cb7aab3d714c3ae6acafa3d9cfbc298f0604414164d62801d8",
+      "cards/autonomy-05/mapped.json": null,
+      "cards/autonomy-05/semantic-map.json": null,
+      "cards/autonomy-05/service-actions.json": "2552447dafbba16f57015c39b44c5ea5498b99e233bd277666a60eff6137ef2f",
+      "cards/autonomy-06/contract.json": "39de7ddd71633228e1bbe0919647879aae1a48eac514155146e44194cf78a6a0",
+      "cards/autonomy-06/mapped.json": null,
+      "cards/autonomy-06/semantic-map.json": null,
+      "cards/autonomy-06/service-actions.json": "18ea076a3f96d1aa8fcb32f7bf9664550a2e00d5dbe921b7161e7a1aad8363b5",
+      "cards/autonomy-07/contract.json": "e8529798bdd7f3f64986ad061de94d6f652c57c41186c9bdc268c22dc72827b0",
+      "cards/autonomy-07/mapped.json": null,
+      "cards/autonomy-07/semantic-map.json": null,
+      "cards/autonomy-07/service-actions.json": "3f3fbbb7566697e8f2e9f0eea22cb24489bc47553f9a6e15295ce8700bd25169",
+      "cards/autonomy-08/contract.json": "f5bf71616aa0dbf3bc14fb1282387db62b8af08b3e0333f8547d17595c56030b",
+      "cards/autonomy-08/mapped.json": null,
+      "cards/autonomy-08/semantic-map.json": null,
+      "cards/autonomy-08/service-actions.json": "af6cffe6c3acd0c10a094c37f6df155c4ee5b91f9430fa3b903645f9d8d2771f",
+      "cards/autonomy-09/contract.json": "ad5caf3b4f691a18b6efcfbeb417570af481f69c0ae621e058e0a17ba0589ee4",
+      "cards/autonomy-09/mapped.json": null,
+      "cards/autonomy-09/semantic-map.json": null,
+      "cards/autonomy-09/service-actions.json": "9a5e94f58d1240ff4d873b97c18d6e91b6c6712d7ac19a698d2044f50aa86388",
+      "cards/autonomy-10/contract.json": "1cda346161797ba9e00e2a51616a872824b40cf1368cd988f0c3511c60262fd9",
+      "cards/autonomy-10/mapped.json": null,
+      "cards/autonomy-10/semantic-map.json": null,
+      "cards/autonomy-10/service-actions.json": "a2918e63f31aae4a81af4f5e6d5d988945714770cb0791dacbbe95843ee96442",
+      "cards/autonomy-11/contract.json": "801a54c6c958591215ce5bbdc11dcd00ee9aec887c4f84e8abe2ee510b72eff6",
+      "cards/autonomy-11/mapped.json": null,
+      "cards/autonomy-11/semantic-map.json": null,
+      "cards/autonomy-11/service-actions.json": "09adbd91c94f9e2db978f39f4e90e62fb75c385c17befe49686746b6a1a49d9d",
+      "cards/autonomy-12/contract.json": "5c65c91d1011c49941ed87e714bb704e47a0197b42441a1168da8eb225bba95f",
+      "cards/autonomy-12/mapped.json": null,
+      "cards/autonomy-12/semantic-map.json": null,
+      "cards/autonomy-12/service-actions.json": "b37a045f4c5d32d62210abfef80dce8d611f555217d12a19e39a4e0f02c37ae9",
+      "wizard/service.mjs": null,
+      "wizard/render.mjs": null,
+      "wizard/wizard.mjs": null
+    }
+  },
+  "stages": [
+    {
+      "stage": "observe",
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "/Users/yuechen/miniconda3/bin/python3",
+            "/Users/yuechen/home/oa.noindex/p0-proto/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
+            "--project",
+            "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy",
+            "--manifest",
+            "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy/image-to-appcard-flow.json",
+            "--stage",
+            "observe"
+          ],
+          "cwd": "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy"
+        }
+      ],
+      "logs": [
+        {
+          "path": "observe-0.log",
+          "sha256": "0928344d150ec203be9f1bb2939d47420259721cac08ee87bd182c98801cf4fb",
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "stage": "measure",
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "/Users/yuechen/miniconda3/bin/python3",
+            "/Users/yuechen/home/oa.noindex/p0-proto/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
+            "--project",
+            "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy",
+            "--manifest",
+            "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy/image-to-appcard-flow.json",
+            "--stage",
+            "measure"
+          ],
+          "cwd": "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy"
+        }
+      ],
+      "logs": [
+        {
+          "path": "measure-0.log",
+          "sha256": "7634ea0cafd2590d109cb0e580abcaf26cfe90817e62d43ce64085287b1ca12c",
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "stage": "map",
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "/Users/yuechen/miniconda3/bin/python3",
+            "/Users/yuechen/home/oa.noindex/p0-proto/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
+            "--project",
+            "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy",
+            "--manifest",
+            "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy/image-to-appcard-flow.json",
+            "--stage",
+            "map"
+          ],
+          "cwd": "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy"
+        }
+      ],
+      "logs": [
+        {
+          "path": "map-0.log",
+          "sha256": "b59af597523f3f668e29ae084baf5f0f01a5103232d9871f01e4c50f75ff7d2f",
+          "exit_code": 0
+        }
+      ]
+    }
+  ],
+  "not_run": [
+    "intake",
+    "prepare",
+    "semantic",
+    "compile",
+    "capture",
+    "gate",
+    "extract",
+    "bundle",
+    "service-test",
+    "wasm",
+    "integrate",
+    "web-test",
+    "hosted-test"
+  ],
+  "finished_at": "2026-09-29T20:22:55.968940+00:00"
+}

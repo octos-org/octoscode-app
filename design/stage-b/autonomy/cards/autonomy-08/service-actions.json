@@ -1,0 +1,66 @@
+{
+  "frame_id": 8,
+  "controls": {
+    "row_1": {
+      "event": "session.resume.row_1",
+      "source_bounds": [
+        16,
+        269,
+        374,
+        98
+      ],
+      "enabled": true
+    },
+    "row_2": {
+      "event": "session.resume.row_2",
+      "source_bounds": [
+        16,
+        389,
+        374,
+        96
+      ],
+      "enabled": true
+    },
+    "row_3": {
+      "event": "session.resume.row_3",
+      "source_bounds": [
+        16,
+        507,
+        374,
+        96
+      ],
+      "enabled": true
+    },
+    "row_4": {
+      "event": "session.resume.row_4",
+      "source_bounds": [
+        16,
+        624,
+        374,
+        96
+      ],
+      "enabled": true
+    },
+    "confirm_resume": {
+      "event": "session.resume.confirm",
+      "source_bounds": [
+        226,
+        742,
+        74,
+        34
+      ],
+      "enabled": true
+    },
+    "confirm_cancel": {
+      "event": "session.resume.cancel",
+      "source_bounds": [
+        314,
+        747,
+        52,
+        32
+      ],
+      "enabled": true
+    }
+  },
+  "source": "resume"
+}

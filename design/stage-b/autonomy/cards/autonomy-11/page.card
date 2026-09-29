@@ -1,0 +1,93 @@
+# ledger autonomy-11@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_q1_text { class: user-copy, en: "Can we add a test for preserve_pending" }
+copy t_q2_text { class: user-copy, en: "behavior?" }
+copy t_tool_text { class: user-copy, en: "Edit crates/octos-cli/tests/steer_queue.rs" }
+copy answer_md_text { class: user-copy, en: "I added a test that simulates a reconnect and verifies pending messages are preserved. The test asserts `metrics.steer_preserved` increments and `metrics.steer_dropped` remains unchanged." }
+copy composer_input_placeholder { class: user-copy, en: "Ask Octos anything" }
+copy t_approval_text { class: user-copy, en: "Ask for approval" }
+copy t_model_text { class: user-copy, en: "v4-flash ▾" }
+component Surface430cd19400f4(instance: text) {
+  view Kit(component: "Surface430cd19400f4", instance: instance) { slot }
+}
+component Surface8f75dd049682(instance: text) {
+  view Kit(component: "Surface8f75dd049682", instance: instance) { slot }
+}
+component Text9097f8882d07(instance: text, text: text) {
+  view Kit(component: "Text9097f8882d07", instance: instance, text: text)
+}
+component Text217374c44ad9(instance: text, text: text) {
+  view Kit(component: "Text217374c44ad9", instance: instance, text: text)
+}
+component Surface5c09226d39f3(instance: text) {
+  view Kit(component: "Surface5c09226d39f3", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Textd563609b793c(instance: text, text: text) {
+  view Kit(component: "Textd563609b793c", instance: instance, text: text)
+}
+component Surfacefc2f16a6fb9b(instance: text) {
+  view Kit(component: "Surfacefc2f16a6fb9b", instance: instance) { slot }
+}
+component Textdc4305206aee(instance: text, text: text) {
+  view Kit(component: "Textdc4305206aee", instance: instance, text: text)
+}
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Surfaceebaff3349490(instance: text) {
+  view Kit(component: "Surfaceebaff3349490", instance: instance) { slot }
+}
+component Inputfa788caf1350(instance: text, placeholder: text) {
+  view Kit(component: "Inputfa788caf1350", instance: instance, placeholder: placeholder)
+}
+component Surfacee1f6f7dd0a15(instance: text) {
+  view Kit(component: "Surfacee1f6f7dd0a15", instance: instance) { slot }
+}
+component Texte2130f18a6e8(instance: text, text: text) {
+  view Kit(component: "Texte2130f18a6e8", instance: instance, text: text)
+}
+component Text78558d644fe5(instance: text, text: text) {
+  view Kit(component: "Text78558d644fe5", instance: instance, text: text)
+}
+component Surface7736f8a447e4(instance: text) {
+  view Kit(component: "Surface7736f8a447e4", instance: instance) { slot }
+}
+
+view root Surface430cd19400f4(instance: "page") {
+  Surface8f75dd049682(instance: "user_bubble") {
+    Text9097f8882d07(instance: "t_q1", text: copy.t_q1_text)
+    Text217374c44ad9(instance: "t_q2", text: copy.t_q2_text)
+  }
+  Surface5c09226d39f3(instance: "tool_card") {
+    Vectore0a378fde04f(instance: "icon_tool")
+    Textd563609b793c(instance: "t_tool", text: copy.t_tool_text)
+    Vectore0a378fde04f(instance: "icon_tool_done")
+  }
+  Surfacefc2f16a6fb9b(instance: "answer_surface") {
+    Textdc4305206aee(instance: "answer_md", text: copy.answer_md_text)
+  }
+  Group3d2637879433(instance: "answer_actions") {
+    Vectore0a378fde04f(instance: "icon_up")
+    Vectore0a378fde04f(instance: "icon_down")
+  }
+  Surfaceebaff3349490(instance: "composer") {
+    Inputfa788caf1350(instance: "composer_input", placeholder: copy.composer_input_placeholder)
+    Group3d2637879433(instance: "control_row") {
+      Vectore0a378fde04f(instance: "icon_plus")
+      Surfacee1f6f7dd0a15(instance: "approval_pill") {
+        Texte2130f18a6e8(instance: "t_approval", text: copy.t_approval_text)
+      }
+      Text78558d644fe5(instance: "t_model", text: copy.t_model_text)
+      Vectore0a378fde04f(instance: "icon_mic")
+      Surface7736f8a447e4(instance: "send_btn") {
+        Vectore0a378fde04f(instance: "icon_send")
+      }
+    }
+  }
+}

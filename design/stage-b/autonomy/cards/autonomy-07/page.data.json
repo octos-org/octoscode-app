@@ -1,0 +1,235 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "tasks_card": {
+        "component": "Surfaceb4ab38079b26",
+        "layout": {
+          "x": 12.0,
+          "y": 108.0,
+          "w": 372.0,
+          "h": 648.0
+        }
+      },
+      "done_card": {
+        "component": "Surfaceed7038384cce",
+        "layout": {
+          "x": 20.0,
+          "y": 690.0,
+          "w": 350.0,
+          "h": 49.0
+        }
+      },
+      "t02": {
+        "component": "Texte9bb098090a8",
+        "layout": {
+          "x": 34.24,
+          "y": 206.43,
+          "w": 52.89,
+          "h": 28.46
+        }
+      },
+      "run_card": {
+        "component": "Surfacee81dee70a29b",
+        "layout": {
+          "x": 20.0,
+          "y": 265.0,
+          "w": 350.0,
+          "h": 387.0
+        }
+      },
+      "icon_run_task": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 33.0,
+          "y": 299.0,
+          "w": 18.0,
+          "h": 18.212,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-07/assets/icon_run_task-852a6d619912.svg"
+        }
+      },
+      "t_cmd": {
+        "component": "Textfda4b2da12b8",
+        "layout": {
+          "x": 53.0,
+          "y": 297.0,
+          "w": 222.0,
+          "h": 20.0
+        }
+      },
+      "run_pill": {
+        "component": "Surfaceec5e698cce2f",
+        "layout": {
+          "x": 274.0,
+          "y": 285.0,
+          "w": 63.0,
+          "h": 42.0
+        }
+      },
+      "t_run": {
+        "component": "Text97dbc02c6f15",
+        "layout": {
+          "x": 283.78,
+          "y": 296.46,
+          "w": 45.91,
+          "h": 23.57
+        }
+      },
+      "t_run_dur": {
+        "component": "Text1e0cc765bf27",
+        "layout": {
+          "x": 341.33,
+          "y": 299.06,
+          "w": 24.0,
+          "h": 21.5
+        }
+      },
+      "console": {
+        "component": "Surfacef9797a8e8795",
+        "layout": {
+          "x": 35.0,
+          "y": 351.0,
+          "w": 339.0,
+          "h": 197.0
+        }
+      },
+      "t_log0": {
+        "component": "Texte890c3523ee8",
+        "layout": {
+          "x": 40.0,
+          "y": 381.0,
+          "w": 310.0,
+          "h": 41.0
+        }
+      },
+      "t_log1": {
+        "component": "Texte890c3523ee8",
+        "layout": {
+          "x": 40.0,
+          "y": 422.0,
+          "w": 310.0,
+          "h": 41.0
+        }
+      },
+      "t_log2": {
+        "component": "Textf26085efae71",
+        "layout": {
+          "x": 40.0,
+          "y": 463.0,
+          "w": 310.0,
+          "h": 41.0
+        }
+      },
+      "t_log3": {
+        "component": "Textd49e66b4cabb",
+        "layout": {
+          "x": 40.0,
+          "y": 504.0,
+          "w": 310.0,
+          "h": 15.0
+        }
+      },
+      "cancel_row": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 37.0,
+          "y": 574.0,
+          "w": 225.0,
+          "h": 55.0
+        }
+      },
+      "cancel_surface": {
+        "component": "Surfaceff776c252975",
+        "layout": {
+          "x": 37.0,
+          "y": 574.0,
+          "w": 225.0,
+          "h": 55.0
+        }
+      },
+      "cancel_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 37.0,
+          "y": 574.0,
+          "w": 225.0,
+          "h": 55.0
+        }
+      },
+      "cancel_label": {
+        "component": "Text6f1917ec00eb",
+        "layout": {
+          "x": 127.65,
+          "y": 590.03,
+          "w": 45.91,
+          "h": 21.61
+        }
+      },
+      "icon_done_task": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 29.0,
+          "y": 706.0,
+          "w": 16.0,
+          "h": 16.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-07/assets/icon_done_task-852a6d619912.svg"
+        }
+      },
+      "t_done_cmd": {
+        "component": "Textd55469de8b8b",
+        "layout": {
+          "x": 49.0,
+          "y": 705.0,
+          "w": 222.0,
+          "h": 20.0
+        }
+      },
+      "done_pill": {
+        "component": "Surfaceffa407c932d5",
+        "layout": {
+          "x": 271.0,
+          "y": 692.0,
+          "w": 54.0,
+          "h": 43.0
+        }
+      },
+      "t_done": {
+        "component": "Text4cb0e7db43f8",
+        "layout": {
+          "x": 282.0,
+          "y": 705.0,
+          "w": 31.94,
+          "h": 18.68
+        }
+      },
+      "t_dur": {
+        "component": "Textc440e7c590d3",
+        "layout": {
+          "x": 349.55,
+          "y": 705.0,
+          "w": 19.72,
+          "h": 18.68
+        }
+      },
+      "t_cursor": {
+        "component": "Text60155355f2e8",
+        "layout": {
+          "x": 155.0,
+          "y": 500.0,
+          "w": 6.0,
+          "h": 22.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

@@ -1,0 +1,324 @@
+{
+  "schema_version": 1,
+  "id": "autonomy-09",
+  "app": "octoscode",
+  "number": 9,
+  "title": "Attachments",
+  "structure": "Native component reconstructed from the approved autonomy atlas",
+  "artboard": [
+    406,
+    776
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a autonomy atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
+    "c": [
+      {
+        "t": "stack",
+        "id": "att_1",
+        "x": 16.0,
+        "y": 190.0,
+        "w": 178.0,
+        "h": 240.0,
+        "c": [
+          {
+            "t": "image",
+            "id": "att_1_thumb",
+            "x": 12.0,
+            "y": 188.0,
+            "w": 176.0,
+            "h": 231.0,
+            "src": "assets/thumb_code.png"
+          },
+          {
+            "t": "stack",
+            "id": "att_1_close_bg",
+            "x": 162.0,
+            "y": 196.0,
+            "w": 24.0,
+            "h": 24.0,
+            "c": [
+              {
+                "t": "svg",
+                "id": "att_1_close",
+                "x": 167.0,
+                "y": 201.0,
+                "w": 14.0,
+                "h": 14.0,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 999
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294375159,
+        "radius": 12,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "stack",
+        "id": "att_2",
+        "x": 212.0,
+        "y": 190.0,
+        "w": 178.0,
+        "h": 240.0,
+        "c": [
+          {
+            "t": "image",
+            "id": "att_2_thumb",
+            "x": 205.0,
+            "y": 188.0,
+            "w": 176.0,
+            "h": 231.0,
+            "src": "assets/thumb_code.png"
+          },
+          {
+            "t": "stack",
+            "id": "att_2_close_bg",
+            "x": 358.0,
+            "y": 196.0,
+            "w": 24.0,
+            "h": 24.0,
+            "c": [
+              {
+                "t": "svg",
+                "id": "att_2_close",
+                "x": 363.0,
+                "y": 201.0,
+                "w": 14.0,
+                "h": 14.0,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 999
+          },
+          {
+            "t": "svg",
+            "id": "att2_ring",
+            "x": 287.0,
+            "y": 249.5,
+            "w": 52.0,
+            "h": 52.0,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "att2_pct",
+            "text": "68%",
+            "x": 275.0,
+            "y": 294.7,
+            "w": 40.2,
+            "h": 24.8,
+            "size": 15.85,
+            "line_height": 19.2,
+            "weight": 600,
+            "color": 4294967295,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf"
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294375159,
+        "radius": 12,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "text",
+        "id": "t_sz1",
+        "text": "1.2 MB",
+        "x": 13.76,
+        "y": 435.53,
+        "w": 56.77,
+        "h": 25.92,
+        "size": 13,
+        "line_height": 25.92,
+        "weight": 500,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t_sz2",
+        "text": "1.2 MB",
+        "x": 208.16,
+        "y": 435.53,
+        "w": 56.77,
+        "h": 24.2,
+        "size": 13,
+        "line_height": 24.2,
+        "weight": 500,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t_caption",
+        "text": "2 of 4 images • 20 MB max",
+        "x": 15.48,
+        "y": 501.2,
+        "w": 196.12,
+        "h": 24.2,
+        "size": 13,
+        "line_height": 24.2,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "stack",
+        "id": "composer",
+        "x": 16.0,
+        "y": 616.0,
+        "w": 374.0,
+        "h": 146.0,
+        "c": [
+          {
+            "t": "input",
+            "id": "composer_input",
+            "x": 28.0,
+            "y": 624.0,
+            "w": 300.0,
+            "h": 36.0,
+            "placeholder": "Ask Octos anything",
+            "size": 15,
+            "color": 4285427315,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "stack",
+            "id": "control_row",
+            "x": 28.0,
+            "y": 668.0,
+            "w": 346.0,
+            "h": 40.0,
+            "c": [
+              {
+                "t": "svg",
+                "id": "icon_plus",
+                "x": 32.0,
+                "y": 674.0,
+                "w": 28.0,
+                "h": 28.0,
+                "src": ""
+              },
+              {
+                "t": "stack",
+                "id": "approval_pill",
+                "x": 67.0,
+                "y": 672.0,
+                "w": 128.0,
+                "h": 32.0,
+                "c": [
+                  {
+                    "t": "text",
+                    "id": "t_approval",
+                    "text": "Ask for approval",
+                    "x": 79.0,
+                    "y": 680.0,
+                    "w": 104.0,
+                    "h": 19.5,
+                    "size": 13,
+                    "line_height": 19.5,
+                    "weight": 400,
+                    "color": 4285427315,
+                    "variant": "single_line",
+                    "alignx": 0,
+                    "font_src": "self:resources/ux/Inter-400.ttf"
+                  }
+                ],
+                "variant": "surface",
+                "bg": 4294967295,
+                "radius": 999,
+                "border": 1,
+                "bordercolor": 4293256679
+              },
+              {
+                "t": "text",
+                "id": "t_model",
+                "text": "v4-flash ▾",
+                "x": 221.0,
+                "y": 680.0,
+                "w": 72.64,
+                "h": 19.5,
+                "size": 13,
+                "line_height": 19.5,
+                "weight": 500,
+                "color": 4280098079,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf"
+              },
+              {
+                "t": "svg",
+                "id": "icon_mic",
+                "x": 303.0,
+                "y": 673.0,
+                "w": 20.0,
+                "h": 32.0,
+                "src": ""
+              },
+              {
+                "t": "stack",
+                "id": "send_btn",
+                "x": 338.0,
+                "y": 670.0,
+                "w": 36.0,
+                "h": 36.0,
+                "c": [
+                  {
+                    "t": "svg",
+                    "id": "icon_send",
+                    "x": 348.0,
+                    "y": 680.0,
+                    "w": 16.0,
+                    "h": 16.0,
+                    "src": ""
+                  }
+                ],
+                "variant": "surface",
+                "bg": 4278190080,
+                "radius": 999
+              }
+            ]
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294440952,
+        "radius": 12,
+        "border": 1,
+        "bordercolor": 4293256679
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294967295
+  }
+}

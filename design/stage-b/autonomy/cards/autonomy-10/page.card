@@ -1,0 +1,100 @@
+# ledger autonomy-10@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_q1_text { class: user-copy, en: "Why is the steer queue dropping" }
+copy t_q2_text { class: user-copy, en: "messages on reconnect?" }
+copy t_tool_text { class: user-copy, en: "Read crates/octos-core/src/ui_protocol.rs" }
+copy t_aside_text { class: user-copy, en: "Aside · /btw" }
+copy t_dismiss_text { class: user-copy, en: "Dismiss aside" }
+copy t_qtitle_text { class: user-copy, en: "What does steer_dropped mean?" }
+copy aside_answer_text { class: user-copy, en: "It's a metric that increments when messages are dropped from the steer queue due to a reconnect or protocol error. It helps track message loss." }
+copy composer_input_placeholder { class: user-copy, en: "Ask Octos anything" }
+copy t_approval_text { class: user-copy, en: "Ask for approval" }
+copy t_model_text { class: user-copy, en: "v4-flash ▾" }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Surfacec3b9824e8fe7(instance: text) {
+  view Kit(component: "Surfacec3b9824e8fe7", instance: instance) { slot }
+}
+component Text430ac9625de5(instance: text, text: text) {
+  view Kit(component: "Text430ac9625de5", instance: instance, text: text)
+}
+component Textedf0d082ced9(instance: text, text: text) {
+  view Kit(component: "Textedf0d082ced9", instance: instance, text: text)
+}
+component Surfacebdb4a7f0da35(instance: text) {
+  view Kit(component: "Surfacebdb4a7f0da35", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Textca908b50c827(instance: text, text: text) {
+  view Kit(component: "Textca908b50c827", instance: instance, text: text)
+}
+component Surface8938b292c8f9(instance: text) {
+  view Kit(component: "Surface8938b292c8f9", instance: instance) { slot }
+}
+component Text3cbbf758384b(instance: text, text: text) {
+  view Kit(component: "Text3cbbf758384b", instance: instance, text: text)
+}
+component Text83acff2ac648(instance: text, text: text) {
+  view Kit(component: "Text83acff2ac648", instance: instance, text: text)
+}
+component Text1b37d8bcae21(instance: text, text: text) {
+  view Kit(component: "Text1b37d8bcae21", instance: instance, text: text)
+}
+component Text15ed7064d520(instance: text, text: text) {
+  view Kit(component: "Text15ed7064d520", instance: instance, text: text)
+}
+component Surfaceebeaffab57cc(instance: text) {
+  view Kit(component: "Surfaceebeaffab57cc", instance: instance) { slot }
+}
+component Input51499e46eddf(instance: text, placeholder: text) {
+  view Kit(component: "Input51499e46eddf", instance: instance, placeholder: placeholder)
+}
+component Surfaceacfa023c155f(instance: text) {
+  view Kit(component: "Surfaceacfa023c155f", instance: instance) { slot }
+}
+component Text501e29c8d84e(instance: text, text: text) {
+  view Kit(component: "Text501e29c8d84e", instance: instance, text: text)
+}
+component Textb5c5d18dd96d(instance: text, text: text) {
+  view Kit(component: "Textb5c5d18dd96d", instance: instance, text: text)
+}
+component Surface12c1b4d26f2d(instance: text) {
+  view Kit(component: "Surface12c1b4d26f2d", instance: instance) { slot }
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Surfacec3b9824e8fe7(instance: "user_bubble") {
+    Text430ac9625de5(instance: "t_q1", text: copy.t_q1_text)
+    Textedf0d082ced9(instance: "t_q2", text: copy.t_q2_text)
+  }
+  Surfacebdb4a7f0da35(instance: "tool_card") {
+    Vectore0a378fde04f(instance: "icon_tool")
+    Textca908b50c827(instance: "t_tool", text: copy.t_tool_text)
+    Vectore0a378fde04f(instance: "icon_tool_done")
+  }
+  Surface8938b292c8f9(instance: "aside_card") {
+    Text3cbbf758384b(instance: "t_aside", text: copy.t_aside_text)
+    Text83acff2ac648(instance: "t_dismiss", text: copy.t_dismiss_text)
+    Vectore0a378fde04f(instance: "icon_dismiss")
+    Text1b37d8bcae21(instance: "t_qtitle", text: copy.t_qtitle_text)
+  }
+  Text15ed7064d520(instance: "aside_answer", text: copy.aside_answer_text)
+  Surfaceebeaffab57cc(instance: "composer") {
+    Input51499e46eddf(instance: "composer_input", placeholder: copy.composer_input_placeholder)
+    Vectore0a378fde04f(instance: "icon_plus")
+    Surfaceacfa023c155f(instance: "approval_pill") {
+      Text501e29c8d84e(instance: "t_approval", text: copy.t_approval_text)
+    }
+    Textb5c5d18dd96d(instance: "t_model", text: copy.t_model_text)
+    Surface12c1b4d26f2d(instance: "send_btn") {
+      Vectore0a378fde04f(instance: "icon_send")
+    }
+    Vectore0a378fde04f(instance: "icon_mic")
+  }
+}

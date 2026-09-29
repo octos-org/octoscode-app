@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "8926c7de16902db13e8eb1b0f167c7276a86ad39e900fd1a779d49d5297673cc",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4279835679
+    },
+    {
+      "id": "settings_card",
+      "bounds": [
+        20.0,
+        250.0,
+        350.0,
+        376.36
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280098595,
+      "radius": 12.0
+    },
+    {
+      "id": "chev_ws",
+      "bounds": [
+        356.0,
+        346.38,
+        14.0,
+        14.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "chev_prof",
+      "bounds": [
+        356.0,
+        420.59,
+        14.0,
+        14.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "toggle_notif",
+      "bounds": [
+        320.0,
+        502.33,
+        50.0,
+        30.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280098596,
+      "radius": 15.0
+    },
+    {
+      "id": "toggle_notif_knob",
+      "bounds": [
+        344.0,
+        505.33,
+        24.0,
+        24.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4281430000,
+      "radius": 12.0
+    },
+    {
+      "id": "icon_copy",
+      "bounds": [
+        350.0,
+        579.74,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "div_1",
+      "bounds": [
+        24.0,
+        330.0,
+        342.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "div_2",
+      "bounds": [
+        24.0,
+        404.0,
+        342.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "div_3",
+      "bounds": [
+        24.0,
+        478.0,
+        342.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "disconnect_card",
+      "bounds": [
+        20.0,
+        652.28,
+        350.0,
+        49.42
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280033058,
+      "radius": 12.0
+    },
+    {
+      "id": "icon_power",
+      "bounds": [
+        346.0,
+        666.28,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    }
+  ]
+}

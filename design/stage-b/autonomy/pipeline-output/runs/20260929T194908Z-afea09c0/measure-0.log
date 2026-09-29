@@ -1,0 +1,12 @@
+{"scene": "1", "stage": "measure", "result": {"id": "autonomy-01", "surfaces_found": 0, "nontext": 1, "candidates": 3}}
+{"scene": "2", "stage": "measure", "result": {"id": "autonomy-02", "surfaces_found": 0, "nontext": 1, "candidates": 7}}
+{"scene": "3", "stage": "measure", "result": {"id": "autonomy-03", "surfaces_found": 0, "nontext": 1, "candidates": 6}}
+{"scene": "4", "stage": "measure", "result": {"id": "autonomy-04", "surfaces_found": 0, "nontext": 1, "candidates": 0}}
+{"scene": "5", "stage": "measure", "result": {"id": "autonomy-05", "surfaces_found": 0, "nontext": 1, "candidates": 4}}
+{"scene": "6", "stage": "measure", "result": {"id": "autonomy-06", "surfaces_found": 0, "nontext": 1, "candidates": 3}}
+{"scene": "7", "stage": "measure", "result": {"id": "autonomy-07", "surfaces_found": 6, "nontext": 10, "candidates": 11}}
+{"scene": "8", "stage": "measure", "result": {"id": "autonomy-08", "surfaces_found": 0, "nontext": 10, "candidates": 0}}
+{"scene": "9", "stage": "measure", "result": {"id": "autonomy-09", "surfaces_found": 3, "nontext": 17, "candidates": 3}}
+{"scene": "10", "stage": "measure", "result": {"id": "autonomy-10", "surfaces_found": 3, "nontext": 13, "candidates": 5}}
+{"scene": "11", "stage": "measure", "result": {"id": "autonomy-11", "surfaces_found": 4, "nontext": 16, "candidates": 10}}
+{"scene": "12", "stage": "measure", "result": {"id": "autonomy-12", "surfaces_found": 0, "nontext": 13, "candidates": 0}}

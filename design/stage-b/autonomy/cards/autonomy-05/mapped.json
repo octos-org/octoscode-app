@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "d4137d6f8395626beacb88da2e020ff40d2a8428c140fed5ab2d3dbc97bec8b8",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "text",
+        "id": "t01",
+        "text": "5. Monitors",
+        "x": -0.18,
+        "y": 59.73,
+        "w": 116.54,
+        "h": 27.52,
+        "size": 20.48,
+        "line_height": 24.78,
+        "weight": 600,
+        "color": 4278584838,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t02",
+        "text": "OctosCode",
+        "x": 14.57,
+        "y": 133.21,
+        "w": 94.03,
+        "h": 24.58,
+        "size": 16.94,
+        "line_height": 20.49,
+        "weight": 400,
+        "color": 4278584838,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t03",
+        "text": "Monitors",
+        "x": 14.79,
+        "y": 211.6,
+        "w": 82.78,
+        "h": 26.54,
+        "size": 18.9,
+        "line_height": 22.87,
+        "weight": 400,
+        "color": 4278650632,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t04",
+        "text": "cargo test -q",
+        "x": 25.9,
+        "y": 314.47,
+        "w": 116.54,
+        "h": 25.56,
+        "size": 18.38,
+        "line_height": 22.24,
+        "weight": 400,
+        "color": 4281085229,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t05",
+        "text": "fired 3x",
+        "x": 25.82,
+        "y": 365.42,
+        "w": 60.27,
+        "h": 24.58,
+        "size": 15.51,
+        "line_height": 18.76,
+        "weight": 400,
+        "color": 4285690746,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t06",
+        "text": "30s",
+        "x": 219.02,
+        "y": 365.42,
+        "w": 29.1,
+        "h": 24.58,
+        "size": 14.13,
+        "line_height": 17.1,
+        "weight": 400,
+        "color": 4286085760,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t07",
+        "text": "tail -n 50 app.log",
+        "x": 26.65,
+        "y": 498.68,
+        "w": 159.82,
+        "h": 26.54,
+        "size": 19.43,
+        "line_height": 23.51,
+        "weight": 400,
+        "color": 4280756264,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t08",
+        "text": "no change",
+        "x": 25.71,
+        "y": 547.67,
+        "w": 76.72,
+        "h": 30.45,
+        "size": 14.59,
+        "line_height": 17.66,
+        "weight": 400,
+        "color": 4286019709,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t09",
+        "text": "30s",
+        "x": 219.02,
+        "y": 547.67,
+        "w": 29.1,
+        "h": 24.58,
+        "size": 14.13,
+        "line_height": 17.1,
+        "weight": 400,
+        "color": 4286151297,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t10",
+        "text": "Monitors fire when the output changes",
+        "x": 54.98,
+        "y": 665.24,
+        "w": 272.36,
+        "h": 29.47,
+        "size": 14.65,
+        "line_height": 17.73,
+        "weight": 400,
+        "color": 4286217086,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t01",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1702340699650908
+    },
+    {
+      "id": "t02",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.24126809800451787
+    },
+    {
+      "id": "t03",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1944943189644441
+    },
+    {
+      "id": "t04",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.11160536116133259
+    },
+    {
+      "id": "t05",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.21032540469089048
+    },
+    {
+      "id": "t06",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.37582200038845265
+    },
+    {
+      "id": "t07",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.0732812066272664
+    },
+    {
+      "id": "t08",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.28298660468497566
+    },
+    {
+      "id": "t09",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.37582200038845265
+    },
+    {
+      "id": "t10",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.21895839669444345
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

@@ -1,0 +1,656 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "a8361d691033b222d61a8cb803d8ab4a0fa0faa3a33b356d0677de5c5c72ae18",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.003608086066856586,
+  "text": [
+    {
+      "id": "att2_pct",
+      "expected_text": "68%",
+      "requested_bounds": [
+        275.0,
+        258.0,
+        52.0,
+        24.0
+      ],
+      "status": "observed",
+      "ocr_text": "68%",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        275.8386411889596,
+        296.73132664437014,
+        36.203821656050955,
+        20.762541806020067
+      ],
+      "ink_color": [
+        248,
+        249,
+        249
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        271.81355936504235,
+        293.8084630680401,
+        44.72881355932205,
+        29.380846325167038
+      ]
+    },
+    {
+      "id": "t_sz1",
+      "expected_text": "1.2 MB",
+      "requested_bounds": [
+        13.76,
+        435.53,
+        56.77,
+        25.92
+      ],
+      "status": "observed",
+      "ocr_text": "1.2 MB",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        17.239915074309977,
+        437.7435897435898,
+        49.13375796178344,
+        18.16722408026756
+      ],
+      "ink_color": [
+        89,
+        90,
+        96
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        13.76271182754237,
+        435.52783982882596,
+        56.77118644067795,
+        25.92427616926509
+      ]
+    },
+    {
+      "id": "t_sz2",
+      "expected_text": "1.2 MB",
+      "requested_bounds": [
+        208.16,
+        435.53,
+        56.77,
+        24.2
+      ],
+      "status": "observed",
+      "ocr_text": "1.2 MB",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        211.18895966029723,
+        438.60869565217394,
+        49.995753715498935,
+        17.30211817168339
+      ],
+      "ink_color": [
+        79,
+        80,
+        87
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        208.16101669110165,
+        435.5278394016927,
+        56.77118644067799,
+        24.195991091314035
+      ]
+    },
+    {
+      "id": "t_caption",
+      "expected_text": "2 of 4 images \u2022 20 MB max",
+      "requested_bounds": [
+        15.48,
+        501.2,
+        196.12,
+        24.2
+      ],
+      "status": "observed",
+      "ocr_text": "2 of 4 images \u2022 20 MB max",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        17.239915074309977,
+        501.76142697881835,
+        193.08704883227176,
+        22.492753623188406
+      ],
+      "ink_color": [
+        138,
+        138,
+        143
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        15.483050560734464,
+        501.20267280742394,
+        196.1186440677966,
+        24.195991091314035
+      ]
+    },
+    {
+      "id": "t_approval",
+      "expected_text": "Ask for approval",
+      "requested_bounds": [
+        70.0,
+        680.0,
+        104.0,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "Ask for approval",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        75.8556263269639,
+        744.85618729097,
+        93.95753715498938,
+        19.03232998885173
+      ],
+      "ink_color": [
+        33,
+        34,
+        34
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        72.25423751751411,
+        743.162583706162,
+        103.22033898305084,
+        22.467706013363063
+      ]
+    },
+    {
+      "id": "t_model",
+      "expected_text": "v4-flash \u25be",
+      "requested_bounds": [
+        212.0,
+        680.0,
+        72.64,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "v4-flash7",
+      "confidence": 1,
+      "text_similarity": 0.8421052631578947,
+      "ink_bounds": [
+        207.74097664543524,
+        743.9910813823858,
+        67.23566878980891,
+        15.571906354515052
+      ],
+      "ink_color": [
+        43,
+        46,
+        46
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        204.52691760897477,
+        744.0344882830544,
+        72.64108124425853,
+        18.995611263011742
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "att_1",
+      "bounds": [
+        11.0,
+        187.0,
+        178.0,
+        234.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279967265,
+      "radius": 12.0
+    },
+    {
+      "id": "att_1_thumb",
+      "bounds": [
+        15.0,
+        190.9,
+        170.0,
+        175.5
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "att_1_close_bg",
+      "bounds": [
+        157.0,
+        192.85,
+        24.0,
+        23.4
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294572794,
+      "radius": 11.7
+    },
+    {
+      "id": "att_1_close",
+      "bounds": [
+        162.0,
+        197.725,
+        14.0,
+        13.65
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "att_2",
+      "bounds": [
+        204.0,
+        187.0,
+        179.0,
+        234.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279111698,
+      "radius": 12.07
+    },
+    {
+      "id": "att_2_thumb",
+      "bounds": [
+        208.022,
+        190.9,
+        170.955,
+        175.5
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "att_2_close_bg",
+      "bounds": [
+        350.82,
+        192.85,
+        24.135,
+        23.4
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294638330,
+      "radius": 11.7
+    },
+    {
+      "id": "att_2_close",
+      "bounds": [
+        355.848,
+        197.725,
+        14.079,
+        13.65
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "att2_ring",
+      "bounds": [
+        267.354,
+        235.75,
+        52.292,
+        50.7
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "composer",
+      "bounds": [
+        16.0,
+        616.0,
+        374.0,
+        146.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 12.0
+    },
+    {
+      "id": "composer_input",
+      "bounds": [
+        28.0,
+        624.0,
+        300.0,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "control_row",
+      "bounds": [
+        28.0,
+        668.0,
+        346.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "icon_plus",
+      "bounds": [
+        28.0,
+        676.0,
+        18.0,
+        24.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "approval_pill",
+      "bounds": [
+        64.0,
+        729.0,
+        120.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294769916,
+      "radius": 22.0
+    },
+    {
+      "id": "icon_mic",
+      "bounds": [
+        296.0,
+        676.0,
+        16.0,
+        26.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "send_btn",
+      "bounds": [
+        338.0,
+        670.0,
+        36.0,
+        36.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 18.0
+    },
+    {
+      "id": "icon_send",
+      "bounds": [
+        348.0,
+        680.0,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        -0.2556074101534605,
+        68.46144304921198,
+        186.11714540901832,
+        36.88335043178639
+      ],
+      "confidence": 1,
+      "text": "9. Attachments"
+    },
+    {
+      "bounds": [
+        17.92990078697692,
+        145.70635410186247,
+        105.8393520258241,
+        26.233171386548836
+      ],
+      "confidence": 1,
+      "text": "OctosCode"
+    },
+    {
+      "bounds": [
+        19.957626187288163,
+        223.7505568927616,
+        55.8813559322034,
+        9.988864142538997
+      ],
+      "confidence": 0.30000001192092896,
+      "text": "I\u043d Moreci:"
+    },
+    {
+      "bounds": [
+        45.90254562332876,
+        239.73273980892154,
+        57.87711483745251,
+        5.993318009217155
+      ],
+      "confidence": 0.30000001192092896,
+      "text": "BEEEEEAICONCH"
+    },
+    {
+      "bounds": [
+        19.95762696896187,
+        261.7082406094376,
+        11.974576271186438,
+        9.988864142538997
+      ],
+      "confidence": 0.30000001192092896,
+      "text": "180"
+    },
+    {
+      "bounds": [
+        245.47881238681146,
+        235.73719383883633,
+        93.80084745762713,
+        9.988864142538997
+      ],
+      "confidence": 0.30000001192092896,
+      "text": "\u0421\u0435\u0437\u043e\u0446\u043a\u0434\u043a\u0438\u0441\u0435\u0432\u0441\u044f 1!"
+    },
+    {
+      "bounds": [
+        245.47881485656777,
+        247.72383066005006,
+        103.77966101694913,
+        9.988864142538997
+      ],
+      "confidence": 0.30000001192092896,
+      "text": "Docut.gruscaretrtcE"
+    },
+    {
+      "bounds": [
+        243.48305337542365,
+        259.7104676061248,
+        151.67796610169492,
+        9.988864142538997
+      ],
+      "confidence": 0.30000001192092896,
+      "text": "boratzOk gecekenadotalaselsanl el"
+    },
+    {
+      "bounds": [
+        51.88983013426908,
+        275.6926504089922,
+        29.9364406779661,
+        9.988864142538898
+      ],
+      "confidence": 1,
+      "text": "cauln"
+    },
+    {
+      "bounds": [
+        57.87711824491528,
+        287.6792874050111,
+        23.949152542372882,
+        9.988864142538997
+      ],
+      "confidence": 1,
+      "text": "sanl:"
+    },
+    {
+      "bounds": [
+        65.8601711380296,
+        349.6102449139476,
+        131.72033898305085,
+        9.988864142538997
+      ],
+      "confidence": 0.30000001192092896,
+      "text": "I\u0430\u0442\u0435n\u0435\u0432\u0430n\u0442\u043d\u0435\u043a \u0428U\u043a \u0441 N\u0441\u0435\u0442:"
+    },
+    {
+      "bounds": [
+        19.9576272932733,
+        417.5345210832127,
+        13.970338983050846,
+        9.988864142538898
+      ],
+      "confidence": 1,
+      "text": "1H"
+    },
+    {
+      "bounds": [
+        57.87711854427967,
+        419.53229397183867,
+        53.88559322033899,
+        7.991091314031237
+      ],
+      "confidence": 0.30000001192092896,
+      "text": "DEMACIRACCT:"
+    },
+    {
+      "bounds": [
+        65.86016982415252,
+        431.51893112416485,
+        35.923728813559315,
+        9.988864142538997
+      ],
+      "confidence": 0.30000001192092896,
+      "text": "tut 0:"
+    },
+    {
+      "bounds": [
+        19.9576272184322,
+        455.49220502463805,
+        11.974576271186441,
+        9.988864142538997
+      ],
+      "confidence": 1,
+      "text": "18"
+    },
+    {
+      "bounds": [
+        19.957626919067803,
+        467.47884197071266,
+        11.974576271186441,
+        9.988864142538997
+      ],
+      "confidence": 1,
+      "text": "18"
+    },
+    {
+      "bounds": [
+        245.47881646051104,
+        403.55011125868606,
+        59.87287754931691,
+        9.988864142538898
+      ],
+      "confidence": 0.30000001192092896,
+      "text": "\u0421O\u043bR\u0442L IE 1E\u0421\u0430\u0421\u0410"
+    },
+    {
+      "bounds": [
+        251.46610374057195,
+        429.52115805425944,
+        163.65254237288138,
+        9.988864142538898
+      ],
+      "confidence": 0.30000001192092896,
+      "text": "soce bdruseitnocsicmitrociosduotel"
+    },
+    {
+      "bounds": [
+        257.4533927316975,
+        453.49443200467704,
+        59.87287754931691,
+        11.986636971046757
+      ],
+      "confidence": 0.30000001192092896,
+      "text": "1oc t BIcEID."
+    },
+    {
+      "bounds": [
+        257.4533907691974,
+        465.4810691422049,
+        57.87711483745251,
+        9.988864142538898
+      ],
+      "confidence": 0.5,
+      "text": "sra l: cloatd."
+    },
+    {
+      "bounds": [
+        19.7422348597526,
+        728.0221635535518,
+        156.10027856341864,
+        32.29643257370509
+      ],
+      "confidence": 1,
+      "text": "Ask Octos anything"
+    },
+    {
+      "bounds": [
+        27.940677855225992,
+        853.0489975841499,
+        27.940677966101696,
+        33.962138084632514
+      ],
+      "confidence": 1,
+      "text": "+"
+    },
+    {
+      "bounds": [
+        397.1567797497175,
+        847.0556795536748,
+        39.91525423728813,
+        47.946547884187126
+      ],
+      "confidence": 1,
+      "text": "\u2192"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

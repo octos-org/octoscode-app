@@ -1,0 +1,138 @@
+{
+  "height": 874,
+  "observations": [
+    {
+      "bounds": [
+        27.84421901096769,
+        37.33991555783487,
+        116.31156158447264,
+        29.32016944885254
+      ],
+      "confidence": 1,
+      "text": "OctosCode"
+    },
+    {
+      "bounds": [
+        25.999999162500018,
+        126.00000009999998,
+        134,
+        28.000000000000007
+      ],
+      "confidence": 1,
+      "text": "Code review"
+    },
+    {
+      "bounds": [
+        321.71411222672987,
+        124.7560853250366,
+        108.57177734374999,
+        28.48783016204832
+      ],
+      "confidence": 1,
+      "text": "Start review"
+    },
+    {
+      "bounds": [
+        91.99999887500002,
+        238.00000035000002,
+        262,
+        28.000000000000007
+      ],
+      "confidence": 1,
+      "text": "Reviewing 3 files \u2022 2 specialists"
+    },
+    {
+      "bounds": [
+        92.0000024833333,
+        284.00000000000006,
+        298,
+        27.99999999999991
+      ],
+      "confidence": 1,
+      "text": "Analyzing changes and code quality..."
+    },
+    {
+      "bounds": [
+        45.999999728571424,
+        417.9999998,
+        42,
+        28.000000000000007
+      ],
+      "confidence": 1,
+      "text": "High"
+    },
+    {
+      "bounds": [
+        38.000003266666596,
+        479.9999998833333,
+        392,
+        26.000000000000014
+      ],
+      "confidence": 1,
+      "text": "crates/octos-cli/src/api/ui_protocol_transport.rs"
+    },
+    {
+      "bounds": [
+        38.000002122222185,
+        529.9999999333334,
+        382.00000000000006,
+        24.00000000000002
+      ],
+      "confidence": 1,
+      "text": "Potential message loss when reconnecting: pending"
+    },
+    {
+      "bounds": [
+        37.91731409914608,
+        565.5140816395246,
+        150.16537475585938,
+        26.97183799743654
+      ],
+      "confidence": 1,
+      "text": "queue was dropped."
+    },
+    {
+      "bounds": [
+        44.00000005,
+        700.000000275,
+        39.99999999999999,
+        21.99999999999993
+      ],
+      "confidence": 1,
+      "text": "Low"
+    },
+    {
+      "bounds": [
+        38.00000005000001,
+        759.9999997,
+        300,
+        24.00000000000002
+      ],
+      "confidence": 1,
+      "text": "crates/octos-core/src/ui_protocol.rs"
+    },
+    {
+      "bounds": [
+        37.99999771250003,
+        812.0000000625,
+        366.00000000000006,
+        26.000000000000014
+      ],
+      "confidence": 1,
+      "text": "Missing documentation for new preserve_pending"
+    },
+    {
+      "bounds": [
+        35.75838877548284,
+        849.228820531544,
+        68.48322296142578,
+        23.542358398437486
+      ],
+      "confidence": 1,
+      "text": "behavior."
+    }
+  ],
+  "width": 466,
+  "image_sha256": "5456a3455332ebeb386d048efcd4cf9bfe9f5dd133f195aa9bc7f397dfbc193d",
+  "engine": "Apple Vision VNRecognizeTextRequest accurate, en-US"
+}
