@@ -1,0 +1,10 @@
+window,components_root,item_index,component,placeholder_dsl,kind_label_hits_on_screen,item_splash_dark_px,verdict
+1280x800,p0-build/design/components (9 on-disk),0,i0_userbubble,0,3,0,real-dsl
+1280x800,p0-build/design/components (9 on-disk),1,i2_assistantprose,0,3,0,real-dsl
+1280x800,p0-build/design/components (9 on-disk),2,i0_workedfor,0,3,0,real-dsl
+900x800,p0-build/design/components (9 on-disk),0,i0_workedfor,0,3,850,real-dsl
+900x800,p0-build/design/components (9 on-disk),1,i0_userbubble,0,3,1651,real-dsl
+900x800,p0-build/design/components (9 on-disk),2,i2_assistantprose,0,3,236,real-dsl
+1280x800 CONTROL,tmp/f21b-placeholder-root (9 placeholder),0,i0_userbubble,1,3,0,placeholder
+1280x800 CONTROL,tmp/f21b-placeholder-root (9 placeholder),1,i0_workedfor,1,3,0,placeholder
+1280x800 CONTROL,tmp/f21b-placeholder-root (9 placeholder),2,i2_assistantprose,1,3,0,placeholder

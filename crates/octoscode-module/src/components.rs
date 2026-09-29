@@ -247,14 +247,68 @@ pub fn builtin(kind: ItemKind) -> Component {
 /// under the CWD, else beside this crate (so a test run from anywhere finds a
 /// dropped-in component set).
 pub fn components_dir() -> PathBuf {
+    components_dir_candidates()
+        .into_iter()
+        .find(|p| p.is_dir())
+        .unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("../../design/components"))
+}
+
+/// The candidate roots for `design/components/`, most-specific first (card #21b).
+///
+/// The #21 captures painted placeholders because the *launched* app resolved a
+/// directory that holds only the shared placeholder kit
+/// (`design/components/native/light/kit.json`) and no per-id component dirs —
+/// the tests passed only because they run from the repo root (RULES: a value
+/// that only a test sees is worth nothing). These candidates make the running
+/// app find the real components whatever its cwd:
+/// 1. `OCTOSCODE_COMPONENTS_DIR` (the launcher sets it),
+/// 2. `design/components` under the CWD (the authored / repo-root layout),
+/// 3. `<CARGO_MANIFEST_DIR>/../../design/components` (the in-repo crate layout),
+/// 4. `design/components` walking up from the executable (the installed app).
+pub fn components_dir_candidates() -> Vec<PathBuf> {
+    let mut out = Vec::new();
     if let Ok(dir) = std::env::var("OCTOSCODE_COMPONENTS_DIR") {
-        return PathBuf::from(dir);
+        out.push(PathBuf::from(dir));
     }
-    let cwd = PathBuf::from("design/components");
-    if cwd.is_dir() {
-        return cwd;
+    out.push(PathBuf::from("design/components"));
+    out.push(Path::new(env!("CARGO_MANIFEST_DIR")).join("../../design/components"));
+    if let Ok(exe) = std::env::current_exe() {
+        let mut p = exe.parent().map(|p| p.to_path_buf()).unwrap_or_default();
+        for _ in 0..6 {
+            out.push(p.join("design/components"));
+            match p.parent() {
+                Some(parent) => p = parent.to_path_buf(),
+                None => break,
+            }
+        }
     }
-    Path::new(env!("CARGO_MANIFEST_DIR")).join("../../design/components")
+    out
+}
+
+/// Log every component this process resolves at startup (card #21b step 1):
+/// `id -> path -> on-disk|placeholder`, so a capture's log proves which root the
+/// running app used. Returns the lines (also emitted through `log::info!`).
+pub fn log_resolutions() -> Vec<String> {
+    let dir = components_dir();
+    let mut lines = vec![format!("[components] root = {}", dir.display())];
+    for kind in ItemKind::ALL {
+        let (c, on_disk) = resolve(*kind);
+        let id = kind.id();
+        let path = dir.join(id).join("page.card");
+        lines.push(format!(
+            "[components] {id} -> {} -> {}",
+            path.display(),
+            if on_disk { "on-disk" } else { "placeholder" }
+        ));
+        debug_assert!(c.id == id);
+    }
+    // Makepad's own `log!` (the shell's `wm:` lines reach `/log` this way); the
+    // `log` crate has no logger installed in this runtime, so `log::info!` was
+    // a silent no-op and the capture's `/log` showed nothing (card #21b step 1).
+    for l in &lines {
+        makepad_widgets::log!("{l}");
+    }
+    lines
 }
 
 /// The recorded asset-server base card #16's `page.data.json` files name

@@ -599,6 +599,11 @@ impl AppModule for OctoscodeModule {
         // (`DesignSurface`, `DesignNativeButton`, …). Process-wide, exactly as
         // card-host registers it (`host.rs:206-215`).
         l0_host::register_vocabulary();
+        // Card #21b: log what the RUNNING app resolves at startup
+        // (`id -> path -> on-disk|placeholder`), so a capture's `/log` proves
+        // which components root the launched process used — the test harness
+        // passing from the repo root proved nothing.
+        components::log_resolutions();
     }
     fn open_schema(&self) -> OpenSchema {
         OpenSchema::new(1)
