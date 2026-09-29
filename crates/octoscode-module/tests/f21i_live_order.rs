@@ -88,7 +88,7 @@ fn item_i_the_prose_row_binding_carries_the_whole_paragraph() {
     let ui = screen::flow_ui();
     let copies = {
         let ctx = Ctx::new(&store, &ui);
-        components::item_copies(ItemKind::AssistantProse, &ctx, prose.index)
+        components::item_copies(ItemKind::AssistantProse, &ctx, prose.index, prose.turn.as_deref())
             .expect("the prose row's binding resolves")
     };
     let text = copies

@@ -51,6 +51,10 @@ pub struct Row {
     pub kind: ItemKind,
     /// The binding index (`timeline.entries[index]`, or `tools[index]`).
     pub index: usize,
+    /// The turn this row belongs to (**card #21j**). The settled tail rows
+    /// (`worked-for`, `answer-actions`) render from THEIR OWN turn's terminal,
+    /// so a later turn can never relabel an earlier one.
+    pub turn: Option<String>,
 }
 
 /// The left column's rows, from the store's session list.
@@ -94,7 +98,7 @@ pub fn timeline_rows(store: &Arc<Store>, live: bool) -> Vec<Row> {
 
         // user-bubble: the FIRST user message of the turn.
         if let Some((i, _, _)) = group.iter().find(|(_, k, _)| *k == EntryKind::USER_MESSAGE) {
-            out.push(Row { kind: ItemKind::UserBubble, index: *i });
+            out.push(Row { kind: ItemKind::UserBubble, index: *i, turn: turn_of(turn) });
         }
         // assistant-prose: the turn's FINAL assistant text (deltas folded).
         if let Some((i, _, _)) = group
@@ -102,24 +106,57 @@ pub fn timeline_rows(store: &Arc<Store>, live: bool) -> Vec<Row> {
             .filter(|(_, k, t)| *k == EntryKind::ASSISTANT_TEXT && !t.is_empty())
             .next_back()
         {
-            out.push(Row { kind: ItemKind::AssistantProse, index: *i });
+            out.push(Row { kind: ItemKind::AssistantProse, index: *i, turn: turn_of(turn) });
         }
         // tool-cell × N: the turn's tool calls, in order. The `index` is the
         // tool's ordinal within the turn (the `tools[]` binding's own index).
         let tool_calls = group.iter().filter(|(_, k, _)| *k == EntryKind::TOOL_CALL).count();
         for k in 0..tool_calls {
-            out.push(Row { kind: ItemKind::ToolCell, index: k });
+            out.push(Row { kind: ItemKind::ToolCell, index: k, turn: turn_of(turn) });
         }
         // tail: a live last turn shows the activity row; a settled turn shows
         // the worked-for disclosure + the answer actions.
         if is_last && live {
-            out.push(Row { kind: ItemKind::WorkingRow, index: 0 });
-        } else if !group.is_empty() {
-            out.push(Row { kind: ItemKind::WorkedFor, index: 0 });
-            out.push(Row { kind: ItemKind::AnswerActions, index: 0 });
+            out.push(Row { kind: ItemKind::WorkingRow, index: 0, turn: turn_of(turn) });
+        // **Card #21j**: the settled tail discloses a turn's OWN terminal, so it
+        // renders only when that turn actually settled or produced a reply. A
+        // turn with neither (e.g. a prompt whose `turn/start` never came back —
+        // a replay-driven capture mints such a group) has nothing to disclose;
+        // before #21j it rendered a blank pill carrying another turn's label.
+        } else if !group.is_empty() && turn_settled_or_replied(store, turn, group) {
+            out.push(Row { kind: ItemKind::WorkedFor, index: 0, turn: turn_of(turn) });
+            out.push(Row { kind: ItemKind::AnswerActions, index: 0, turn: turn_of(turn) });
         }
     }
     out
+}
+
+/// Did `turn` record a terminal, or produce a reply (answer text / a tool call)?
+///
+/// The settled tail is a turn's outcome disclosure (**card #21j**), so a turn
+/// that neither settled nor replied has nothing to show. A lone user message is
+/// not a reply — that is the group a never-answered dispatch leaves behind.
+fn turn_settled_or_replied(
+    store: &Arc<Store>,
+    turn: &str,
+    group: &[(usize, EntryKind, String)],
+) -> bool {
+    if !turn.is_empty() && store.domains.turn.terminal(turn).is_some() {
+        return true;
+    }
+    group.iter().any(|(_, kind, text)| {
+        (*kind == EntryKind::ASSISTANT_TEXT && !text.is_empty()) || *kind == EntryKind::TOOL_CALL
+    })
+}
+
+/// A grouped turn's key is its id; `""` (an entry with no `turn_id`) maps to
+/// `None`, which the bindings read as "no per-turn value" (**card #21j**).
+fn turn_of(turn: &str) -> Option<String> {
+    if turn.is_empty() {
+        None
+    } else {
+        Some(turn.to_owned())
+    }
 }
 
 /// A memoised lowering: `(kind, index, values-json)` → the Splash DSL.
@@ -138,16 +175,26 @@ impl Cache {
     ///
     /// `Err` names the reason the item fell back (a missing component, or a
     /// binding that does not resolve).
-    pub fn lower(&mut self, bridge: &Arc<Mutex<Bridge>>, kind: ItemKind, index: usize) -> Result<String, String> {
+    /// Lower one item. `turn` is the row's own turn id (**card #21j**), so a
+    /// settled tail renders from its own terminal; it is part of the cache key
+    /// (two rows of the same kind+index can differ only by turn).
+    pub fn lower(
+        &mut self,
+        bridge: &Arc<Mutex<Bridge>>,
+        kind: ItemKind,
+        index: usize,
+        turn: Option<&str>,
+    ) -> Result<String, String> {
         let copies = {
             let b = bridge.lock().unwrap();
             let ctx = crate::bindings::Ctx::new(&b.store, &b.ui);
-            components::item_copies(kind, &ctx, index)?
+            components::item_copies(kind, &ctx, index, turn)?
         };
         let key = format!(
-            "{}:{}:{}",
+            "{}:{}:{}:{}",
             kind.id(),
             index,
+            turn.unwrap_or(""),
             serde_json::to_string(&copies).unwrap_or_default()
         );
         if let Some(hit) = self.map.get(&key) {
@@ -317,12 +364,12 @@ mod tests {
         }
         let mut cache = Cache::default();
         for i in 0..3 {
-            assert!(cache.lower(&b, ItemKind::ToolCell, i).is_ok());
+            assert!(cache.lower(&b, ItemKind::ToolCell, i, None).is_ok());
         }
         let after_first = cache.len();
         assert_eq!(after_first, 3, "one entry per distinct item");
         for i in 0..3 {
-            assert!(cache.lower(&b, ItemKind::ToolCell, i).is_ok());
+            assert!(cache.lower(&b, ItemKind::ToolCell, i, None).is_ok());
         }
         assert_eq!(cache.len(), after_first, "a redraw is a cache hit");
     }
