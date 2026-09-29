@@ -190,7 +190,7 @@
       "semantic_role": "layout",
       "bounds": [
         30.0,
-        521.0,
+        531.0,
         120.0,
         26.0
       ],
@@ -208,7 +208,7 @@
       "semantic_role": "icon",
       "bounds": [
         37.0,
-        523.0,
+        533.0,
         22.0,
         22.0
       ],
@@ -226,7 +226,7 @@
       "semantic_role": "icon",
       "bounds": [
         80.0,
-        523.0,
+        533.0,
         22.0,
         22.0
       ],
@@ -297,7 +297,7 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        32.0,
+        42.0,
         662.0,
         28.0,
         28.0
@@ -420,6 +420,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "03475ca9ab78c84324329536dfd8b0d3268ef12c664d64c5976fbbede2f27fd8",
+  "contract_sha256": "d0d560690916e33e25975d06025effe26c91c0ef68dff48052ef128155c38821",
   "mapping_basis": "mapped.json"
 }

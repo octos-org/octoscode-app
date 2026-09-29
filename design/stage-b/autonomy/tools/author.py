@@ -487,7 +487,7 @@ def build_11(sc):
                    bordercolor="hair", kids=[
         input_node("composer_input", 30, 624, 300, 36, sc.t(9)),
         stack("control_row", 30, 668, 344, 40, [
-            icon("icon_plus", "plus", 30, 676, 18, 24, color="muted"),
+            icon("icon_plus", "plus", 42, 676, 18, 24, color="muted"),  # #28b6: card_x + 16
             surface("approval_pill", 62, 672, 128, 32,
                     bg="page", radius=999, border=1, bordercolor="hair",
                     kids=[text("t_approval", sc.t(11), 74, 680, 104, 16, size=13, color="muted")]),
@@ -503,6 +503,8 @@ def build_11(sc):
 # The composer (+/mic/pill +9, send 338), 07 card widths and 11 thumbs fixes live in
 # contract.json/mapped.json — build_07/09/10/11 here are STALE vs the reviewed renders;
 # do NOT rebuild those cards from this file until it is re-based on the reviewed state.
+# #28b6: build_11's plus literal now carries card_x + 16; build_11 is otherwise still stale
+# (thumbs rects/circled-plus asset live only in contract.json/mapped.json).
 def build_12(sc):
     """DARK SETTINGS. Dark token set: title 'Settings', grouped card (Connection
     ● Live › / Workspace octos › / Profile octos-dev › / Desktop notifications with

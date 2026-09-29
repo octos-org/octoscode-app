@@ -98,7 +98,7 @@
         "component": "Group3d2637879433",
         "layout": {
           "x": 30.0,
-          "y": 521.0,
+          "y": 531.0,
           "w": 120.0,
           "h": 26.0
         }
@@ -107,7 +107,7 @@
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 37.0,
-          "y": 523.0,
+          "y": 533.0,
           "w": 22.0,
           "h": 22.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-11/assets/icon_up-a50298319ef3.svg"
@@ -117,7 +117,7 @@
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 80.0,
-          "y": 523.0,
+          "y": 533.0,
           "w": 22.0,
           "h": 22.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-11/assets/icon_down-7356365e4c4d.svg"
@@ -153,7 +153,7 @@
       "icon_plus": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 32.0,
+          "x": 42.0,
           "y": 662.0,
           "w": 28.0,
           "h": 28.0,
