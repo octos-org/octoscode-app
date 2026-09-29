@@ -1,0 +1,26 @@
+{
+ "provider": "openai",
+ "model": "gpt-image-2",
+ "requested_size": [
+  2048,
+  3072
+ ],
+ "quality": "high",
+ "prompt": "atlas-prompt.md",
+ "atlas": "atlas.png",
+ "sha256": "3d019d81606194011783c3b0ea6462bf427b4ef27de9e288e01ed96e2a50315a",
+ "seconds": 109.3,
+ "usage": {
+  "input_tokens": 1681,
+  "input_tokens_details": {
+   "image_tokens": 0,
+   "text_tokens": 1681
+  },
+  "output_tokens": 12736,
+  "output_tokens_details": {
+   "image_tokens": 12736,
+   "text_tokens": 0
+  },
+  "total_tokens": 14417
+ }
+}
