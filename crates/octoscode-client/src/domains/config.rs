@@ -230,9 +230,17 @@ impl Method for ServerShutdown {
 // ---------------------------------------------------------------------------
 
 /// `protocol/replay_lossy` — durable notifications were dropped under
-/// backpressure (`ReplayLossyEvent`, octos-core `ui_protocol.rs:6324`). The
-/// store keeps the last loss per session so a UI can diverge its cursor and
-/// rehydrate (`session/open`).
+/// backpressure (`ReplayLossyEvent`, octos-core `ui_protocol.rs:6324`).
+///
+/// Card #22 §1: this is more than a notice. The web's `DurableSessionProjection`
+/// marks the session `phase="lossy"` with a human detail and returns
+/// `{kind:"recover"}` (`src-web/apps/web/src/features/session/durable-session.ts:127-135`),
+/// which `active-session-runtime.ts:1239-1260` turns into a resync: it clears no
+/// buffer for a lossy event and calls `#hydrate(authority, "recovery")`. So the
+/// handler must **mark the session lossy and raise a resync**, not just record a
+/// count. We raise it as store state ([`octoscode_store::domains::config::RecoveryState::resync_pending`])
+/// because the transport (and thus the `session/hydrate` call) lives above this
+/// crate — see [`crate::domains::session::SessionHydrate`].
 pub struct ReplayLossyHandler {
     pub store: Arc<Store>,
 }
@@ -242,17 +250,14 @@ impl NotificationHandler for ReplayLossyHandler {
     fn handle(&self, notification: &UiNotification) {
         if let UiNotification::ReplayLossy(event) = notification {
             self.store.note_seen(Self::METHOD);
-            self.store.domains.config.note_replay_loss(
-                &event.session_id.0,
-                ReplayLoss {
-                    session_id: event.session_id.0.clone(),
-                    dropped_count: event.dropped_count,
-                    last_durable_cursor: event
-                        .last_durable_cursor
-                        .as_ref()
-                        .and_then(|c| serde_json::to_value(c).ok()),
-                },
-            );
+            self.store.domains.config.observe_replay_lossy(ReplayLoss {
+                session_id: event.session_id.0.clone(),
+                dropped_count: event.dropped_count,
+                last_durable_cursor: event
+                    .last_durable_cursor
+                    .as_ref()
+                    .and_then(|c| serde_json::to_value(c).ok()),
+            });
         }
     }
 }

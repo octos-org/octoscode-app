@@ -79,6 +79,44 @@ pub struct ReplayLoss {
     pub last_durable_cursor: Option<serde_json::Value>,
 }
 
+/// Card #22 §1: the session's durable-replay recovery phase.
+///
+/// Mirrors the web's `SessionRecoveryPhase` (`durable-session.ts:12-20`). A
+/// `protocol/replay_lossy` moves the session to [`LossyPhase::Lossy`] and raises
+/// a resync request (the web's `{kind:"recover"}`, `durable-session.ts:132-134`,
+/// which `active-session-runtime.ts:1239-1260` turns into a `session/hydrate`).
+/// The resync request is consumed by whoever owns the transport (the module), so
+/// the state — not a side effect — is what this domain exposes.
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct RecoveryState {
+    /// `healthy` | `lossy`; `healthy` is the default for a session never marked.
+    pub phase: LossyPhase,
+    /// The human detail the web composes (`durable-session.ts:133`), e.g.
+    /// `"3 durable events dropped"`.
+    pub detail: String,
+    /// A resync (hydrate/reopen) is owed for this session and not yet taken.
+    pub resync_pending: bool,
+}
+
+/// The recovery phase a `protocol/replay_lossy` drives (card #22 §1).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum LossyPhase {
+    /// No loss observed (the web's `"healthy"`, `durable-session.ts:104`).
+    #[default]
+    Healthy,
+    /// Durable notifications were dropped; a resync is owed.
+    Lossy,
+}
+
+impl LossyPhase {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Healthy => "healthy",
+            Self::Lossy => "lossy",
+        }
+    }
+}
+
 /// The config domain.
 #[derive(Debug, Default)]
 pub struct Config {
@@ -96,6 +134,8 @@ struct Inner {
     warnings: std::collections::HashMap<String, WarningNotice>,
     /// The last `protocol/replay_lossy` per session.
     replay_loss: std::collections::HashMap<String, ReplayLoss>,
+    /// Card #22 §1: the per-session durable-replay recovery phase.
+    recovery: std::collections::HashMap<String, RecoveryState>,
 }
 
 impl Config {
@@ -181,5 +221,72 @@ impl Config {
     /// The last `protocol/replay_lossy` for a session, if any.
     pub fn replay_loss(&self, session: &str) -> Option<ReplayLoss> {
         self.inner.lock().unwrap().replay_loss.get(session).cloned()
+    }
+
+    // ---- card #22 §1: the lossy -> resync recovery state --------------------
+
+    /// Card #22 §1: mark `session` lossy and raise a resync, folding the
+    /// `protocol/replay_lossy` event. Mirrors the web's `observe` returning
+    /// `{kind:"recover"}` and setting `phase="lossy"` (`durable-session.ts:127-135`),
+    /// which `active-session-runtime.ts:1239-1260` turns into a `session/hydrate`.
+    /// Also records the [`ReplayLoss`] itself (kept for the existing tests).
+    pub fn observe_replay_lossy(&self, loss: ReplayLoss) {
+        let detail = format!(
+            "{} durable event{} dropped",
+            loss.dropped_count,
+            if loss.dropped_count == 1 { "" } else { "s" }
+        );
+        let mut inner = self.inner.lock().unwrap();
+        inner.recovery.insert(
+            loss.session_id.clone(),
+            RecoveryState {
+                phase: LossyPhase::Lossy,
+                detail,
+                resync_pending: true,
+            },
+        );
+        inner.replay_loss.insert(loss.session_id.clone(), loss);
+    }
+
+    /// Card #22 §1: the recovery state for `session` (`healthy` when never seen).
+    pub fn recovery(&self, session: &str) -> RecoveryState {
+        self.inner
+            .lock()
+            .unwrap()
+            .recovery
+            .get(session)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    /// Card #22 §1: whether a resync (hydrate/reopen) is owed for `session`.
+    pub fn resync_pending(&self, session: &str) -> bool {
+        self.recovery(session).resync_pending
+    }
+
+    /// Card #22 §1: consume the pending resync for `session` (returns whether one
+    /// was outstanding). The caller issues the `session/hydrate`; the web hydrates
+    /// once per lossy observation (`active-session-runtime.ts:1256`).
+    pub fn take_resync(&self, session: &str) -> bool {
+        let mut inner = self.inner.lock().unwrap();
+        match inner.recovery.get_mut(session) {
+            Some(state) if state.resync_pending => {
+                state.resync_pending = false;
+                true
+            }
+            _ => false,
+        }
+    }
+
+    /// Card #22 §1: an authoritative hydrate completed — reset the session to
+    /// `healthy` (the web's `commitHydrate` → `phase="healthy"`,
+    /// `durable-session.ts:104-107`).
+    pub fn mark_recovered(&self, session: &str) {
+        let mut inner = self.inner.lock().unwrap();
+        if let Some(state) = inner.recovery.get_mut(session) {
+            state.phase = LossyPhase::Healthy;
+            state.detail.clear();
+            state.resync_pending = false;
+        }
     }
 }

@@ -127,6 +127,25 @@ impl Method for SessionFilesList {
     type Result = octos_core::ui_protocol::SessionFilesListResult;
 }
 
+/// `session/hydrate` — the authoritative resync (octos-core `ui_protocol.rs:1050`
+/// method const, `SessionHydrateParams` / `SessionHydrateResult`). Web call site
+/// `packages/client/src/client.ts:480`; the recovery path issues it from
+/// `src-web/apps/web/src/features/session/active-session-runtime.ts:1256`
+/// (`#hydrate(authority, "recovery")`) after a `protocol/replay_lossy`.
+///
+/// Card #22 §1: this is the call that *acts on* the resync that
+/// [`crate::domains::config::ReplayLossyHandler`] raises — the handler marks the
+/// session lossy (`store.domains.config.recovery(session).resync_pending`), and
+/// whoever owns the transport (the module, above this crate) issues this Method
+/// and then calls [`octoscode_store::domains::config::Config::mark_recovered`].
+pub struct SessionHydrate;
+
+impl Method for SessionHydrate {
+    const NAME: &'static str = methods::SESSION_HYDRATE;
+    type Params = octos_core::ui_protocol::SessionHydrateParams;
+    type Result = octos_core::ui_protocol::SessionHydrateResult;
+}
+
 /// `session/fork` — branch a new session off an existing one (octos-core
 /// `ui_protocol.rs:3025`). Web call site `packages/client/src/history.ts:239`
 /// (`{session_id, new_chat_id, copy_messages?}`).

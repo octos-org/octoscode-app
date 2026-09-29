@@ -47,5 +47,60 @@ pub fn register_all(registry: &mut Registry, store: Arc<Store>) {
     peer::register(registry, store.clone());
     profile::register(registry, store.clone());
     media::register(registry, store.clone());
-    config::register(registry, store);
+    config::register(registry, store.clone());
+    // Card #22 §2: the no-silent-drops guard records unhandled kinds here.
+    registry.set_store(store);
+    register_ignored(registry);
+}
+
+/// Card #22 §2: the core notification kinds octos can push unprompted that the
+/// web **ignores**, each with the reason it is deliberately not acted on. An
+/// entry here is a decision (the guard does not count it) and is the source of
+/// `docs/cards/22-ignored.csv`. Every method here has NO handler and NO web
+/// consumer outside `packages/client/src/generated/core-contract.ts`.
+///
+/// - `router/status`, `router/failover` — the adaptive router's lane
+///   snapshots (`RouterStatusEvent` `ui_protocol.rs:6409`, `RouterFailoverEvent`
+///   `:6432`). The web renders no routing pill and subscribes to neither; we
+///   surface routing only in logs.
+/// - `queue/state` — `QueueStateEvent` (`ui_protocol.rs:6452`); its own doc says
+///   "Client-manufactured today — server never emits this." Nothing to consume.
+/// - `background/activity` — `BackgroundActivityEvent` (`ui_protocol.rs:6551`);
+///   gated by `event.background_activity.v1`, which our feature set does not
+///   negotiate. We never receive it; if we did, it is a human-facing wake
+///   notice with no store projection yet.
+/// - `turn/spawn_complete` — the **legacy** pre-v2 child-completion notification
+///   (`TurnSpawnCompleteEvent` `ui_protocol.rs:3794`). Superseded by the v2
+///   `background/spawn_complete` `PayloadV2`, which rides `projection/envelope`
+///   and IS handled (`turn.rs`, `PayloadV2::BackgroundChildCompleted`). The
+///   legacy bare frame has no web consumer.
+/// - `agent/output/delta`, `agent/artifact/updated` — the M15 agent tail
+///   (`AgentOutputDeltaEvent` `ui_protocol.rs:5905`, `AgentArtifactUpdatedEvent`
+///   `:5913`). The web ignores both. We *do* handle `agent/updated` (the agent
+///   lifecycle snapshot, `autonomy.rs`); these two are high-frequency tails with
+///   no consumer — the artifact metadata that matters arrives via
+///   `agent/artifact/list`, which autonomy owns.
+/// - `skill/action/job/updated` — `SkillActionJobUpdatedEvent`
+///   `ui_protocol.rs:6464`. No web consumer; job state is read on demand.
+pub fn register_ignored(registry: &mut Registry) {
+    registry.ignore("router/status", "web ignores; routing shown in logs only");
+    registry.ignore("router/failover", "web ignores; routing shown in logs only");
+    registry.ignore("queue/state", "client-manufactured; server never emits it");
+    registry.ignore(
+        "background/activity",
+        "feature not negotiated; no store projection yet",
+    );
+    registry.ignore(
+        "turn/spawn_complete",
+        "legacy pre-v2; superseded by projection/envelope background/spawn_complete (handled)",
+    );
+    registry.ignore("agent/output/delta", "web ignores; agent tail has no consumer");
+    registry.ignore(
+        "agent/artifact/updated",
+        "web ignores; artifact metadata read via agent/artifact/list",
+    );
+    registry.ignore(
+        "skill/action/job/updated",
+        "web ignores; job state read on demand",
+    );
 }
