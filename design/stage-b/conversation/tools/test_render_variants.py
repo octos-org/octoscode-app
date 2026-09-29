@@ -67,7 +67,8 @@ class Relativize(unittest.TestCase):
         }
         relativize(tree)
         note = tree["c"][0]["c"][0]
-        self.assertEqual((note["x"], note["y"]), (21.828, 427.8))
+        # still parent-relative (NOT 21.828 - 7.0), just normalised to 2 decimals
+        self.assertEqual((note["x"], note["y"]), (21.83, 427.8))
         self.assertIsNone(note.get("padright"))
 
 

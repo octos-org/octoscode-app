@@ -572,6 +572,11 @@ def relativize(tree):
                 c["y"] = round(cy - oy, 2)
                 if pw is not None and cw is not None:
                     c["padright"] = round(pw - ((cx - ox) + cw), 2)
+            elif c.get("t") == "input":
+                # Not wrapped: keep it absolute, but normalise the emitted
+                # precision exactly as the #18c/#18e path did, so components that
+                # only contain a pass-through input (composer) are byte-identical.
+                c["x"], c["y"] = round(cx, 2), round(cy, 2)
             rec(c, cx, cy, cw)
     rec(tree, 0, 0, None)
     return tree
