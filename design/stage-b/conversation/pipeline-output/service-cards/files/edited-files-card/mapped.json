@@ -116,7 +116,7 @@
             "bg": 4294704123,
             "radius": 23.0,
             "border": 1,
-            "bordercolor": 4293256679
+            "bordercolor": 4280098079
           },
           {
             "t": "button",
@@ -418,7 +418,7 @@
   "changes": [
     {
       "source": "cards/conversation-07/mapped.json",
-      "source_sha256": "1a7fee2f12988029faf0051d99c2ad0eca16f6024b971d5a8c232d420fc3c37d",
+      "source_sha256": "1c727728a66bd3636b5a39a7456fe80986c5a1c9a5c7d9f1a35f0b4b834a0bde",
       "operation": "Extract native subtree and translate origin",
       "source_root": "edited_files_card",
       "translation": [

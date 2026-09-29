@@ -168,7 +168,7 @@
       "native_id": "beauty_0_0_4_0",
       "parent": "review",
       "kind": "stack",
-      "component": "Surface03c877f6732d",
+      "component": "Surface5daed35c890e",
       "semantic_role": "layout",
       "bounds": [
         309.0,
@@ -529,6 +529,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "1396139a118835c4dc01438c97523c161b3af94153c4115f69f78337a6aad0e7",
+  "contract_sha256": "bfa13a9571eb882c98e473f92990f79d951a7b189b7248a3a90caad1c61e1a85",
   "mapping_basis": "mapped.json"
 }

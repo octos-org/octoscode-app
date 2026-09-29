@@ -46,8 +46,8 @@ component Vectore0a378fde04f(instance: text) {
 component KitButton2c6804b990a5(instance: text) {
   view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
 }
-component Surface03c877f6732d(instance: text) {
-  view Kit(component: "Surface03c877f6732d", instance: instance) { slot }
+component Surface5daed35c890e(instance: text) {
+  view Kit(component: "Surface5daed35c890e", instance: instance) { slot }
 }
 component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
   view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
@@ -110,7 +110,7 @@ view root Surface13b18c6e4e55(instance: "edited_files_card") {
     Vectore0a378fde04f(instance: "icon_undo")
   }
   KitButton2c6804b990a5(instance: "review") {
-    Surface03c877f6732d(instance: "review_surface") {
+    Surface5daed35c890e(instance: "review_surface") {
 
     }
     NativeButton02f1d1bd99b4(instance: "review_control", enabled: review_control_enabled)

@@ -600,8 +600,12 @@ def build_07(sc):
     sc.put(stack("undo_group", 210, uy, 74, uh, [
         text("t_undo", "Undo", 210, uy, 54, uh, weight=500, size=14),
         icon("icon_undo", "undo", 266, uy + 2, 18, 18, color="ink")]))
+    # Card #18f item 2: the atlas draws this pill with a DARK 1px outline (reference
+    # core samples 0..37, i.e. `ink` #1D1D1F), unlike the faint `hair` outlines on
+    # scope_pill / files_card (which the atlas leaves invisible). With `hair` the
+    # pill's border vanished on a white card, so the header read as an unboxed label.
     sc.add_control("review", 296, 78, 76, 40, 3, bg="white", radius=999, weight=500,
-                   border=1, bordercolor="hair", lx=299, ly=88, lw=70, lh=24,
+                   border=1, bordercolor="ink", lx=299, ly=88, lw=70, lh=24,
                    event="files.review")
     rows = [(4, 5, 6, "file_1"), (7, 8, 9, "file_2"), (10, 11, 12, "file_3")]
     # ref z7-07: the three file rows are ONE card (measured hairlines at its top

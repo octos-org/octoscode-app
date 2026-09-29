@@ -375,7 +375,7 @@
       "props": {},
       "slot": true
     },
-    "Surface03c877f6732d": {
+    "Surface5daed35c890e": {
       "style": {
         "t": "stack",
         "variant": "surface",
@@ -386,7 +386,7 @@
           "$token": "radius_c22cd1ea7268"
         },
         "border": 1,
-        "bordercolor": 4293256679
+        "bordercolor": 4280098079
       },
       "props": {},
       "slot": true
