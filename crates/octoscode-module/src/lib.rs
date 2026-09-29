@@ -61,7 +61,11 @@ script_mod! {
         // card). The first-run frame hides it (`base.set_visible(false)`).
         base := View {
         width: Fill height: Fill
-        flow: Down padding: 16 spacing: 10
+        // Card #28e (board 4): no global padding — the sidebar is flush with
+        // the window edge (#F7F7F8, 260 px) and the review drawer is flush
+        // right; each column carries its own inset.
+        padding: 0
+        flow: Down spacing: 10
         // Card #21c item 7: the debug header is GONE from the visible UI. The
         // connection state / session count stay as 1px labels so `/g` still
         // carries them and `sync_labels` keeps a target (board: "connection
@@ -87,6 +91,10 @@ script_mod! {
 
             threads_column := View {
                 width: 260 height: Fill flow: Down spacing: 6
+                // Card #28e item 1 (board 4): the sidebar is flush with the
+                // window edge on #F7F7F8 (the base no longer pads it).
+                draw_bg.color: #F7F7F8
+                padding: Inset{left: 12 right: 10 top: 12 bottom: 12}
                 // Card #28e item 1 (board 4): the sidebar is 260 px with an
                 // `OctosCode ▾` header above `New chat`, then THREADS, then the
                 // autonomy sections (GOALS / LOOPS / FLEET) — native shell rows
@@ -194,6 +202,12 @@ script_mod! {
                         fleet_row_3 := Label { width: Fill height: 32 text: "" draw_text.text_style.font_size: 13 }
                     }
                 }
+            }
+            // Card #28e item 1 (board 4): the 1 px hairline between the
+            // sidebar and the conversation column.
+            sidebar_rule := View {
+                width: 1 height: Fill
+                draw_bg.color: #E5E5E7
             }
 
             conversation_column := View {
@@ -332,7 +346,7 @@ script_mod! {
             } // conversation_inner
         }
 
-            // Card #28e item 3 (board 4): the 560 px Review panel, toggled by the
+            // Card #28e item 3 (board 4 frame 1): the 560 px Review panel, toggled by the
             // Review affordance (an "Edited files" card later; the header pill
             // works today). Empty for now — the header + scope pill only.
             review_panel := SolidView {
@@ -377,9 +391,10 @@ script_mod! {
                 }
             }
 
-            // Card #28e item 4 (board 4): the 420 px Session-settings drawer,
-            // toggled from the model picker / a settings action. Content comes in
-            // Stage C; this is the drawer shell (header + close + section labels).
+            // Card #28e item 4 (board 4 frame 2): the 420 px Session-settings
+            // drawer, docked right INSIDE the columns Right-flow (hidden = no
+            // space, visible = the center narrows, as in board 4 frame 2).
+            // Content comes in Stage C; this is the drawer shell (title + close).
             settings_drawer := SolidView {
                 width: 420 height: Fill flow: Down spacing: 10
                 visible: false
@@ -446,7 +461,7 @@ script_mod! {
                 draw_text.text_style.font_size: 10
                 draw_text.color: #6E6E73
             }
-        }
+        } // palette
 
         // Card #28e item 6 (board 4 frame 4): the first-run screen. Before a
         // connection the window shows only a centered 480-wide card area (the
