@@ -504,26 +504,94 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
     // becomes `Fit`, so each node takes its content's height. Chrome kinds
     // (buttons, the composer dock) keep their measured box.
     let ui = match kind {
-        ItemKind::UserBubble
-        | ItemKind::AssistantProse
+        ItemKind::UserBubble => bubble_live_layout(&ui),
+        ItemKind::AssistantProse
         | ItemKind::WorkedFor
         | ItemKind::AnswerActions
         | ItemKind::WorkingRow
         | ItemKind::ToolCell => fit_heights(&ui),
         _ => ui,
     };
-    // Card #21c item 4: the person's bubble is RIGHT-aligned in the column
-    // (scene 01/03). The component's own root is a left-anchored artboard, so it
-    // is wrapped in a full-width `Down` view with `align: Align{x: 1.0}` — the
-    // cross-axis alignment for a `Down` flow — which right-aligns the measured
-    // bubble (284 of the 518 column = 55%, inside the ~80% cap). The wrapper's
-    // `Fit` height keeps the row content-driven (item 3).
-    let ui = if kind == ItemKind::UserBubble {
-        format!("user_align := View{{width:Fill height:Fit flow:Down align: Align{{x: 1.0}} {ui}}}")
-    } else {
-        ui
-    };
+    // Card #21d item 6: resolve every emitted `http_resource(…)` icon to the
+    // component's own file on disk, so the app needs no dev asset server.
+    let ui = localize_asset_resources(&ui);
     Ok(ui)
+}
+
+/// Card #21d item 3 — the person's bubble must hug its text up to ~80% of the
+/// column, WRAP a long line, and grow in height.
+///
+/// The component's artboard fixes the bubble at 284 px and each label at
+/// `flow: Right` (no wrap), so a live message longer than the two-line fixture
+/// hard-clips ("One wo…"). Let the boxes hug (`width: Fit`) and the labels wrap,
+/// and cap the whole bubble at 80% of the column. The `user_align` wrapper
+/// right-aligns it (card #21c item 4).
+fn bubble_live_layout(ui: &str) -> String {
+    // Heights hug (card #21c); the ROOT also hugs, capped at 80% of the column,
+    // so a long message widens to the cap then wraps. Inner boxes keep the
+    // measured widths the artboard gave them (`Fill` under a `Fit` root collapses
+    // to the minimum — measured: a 16px-wide bubble), and the labels WRAP.
+    let s = fit_heights(ui);
+    let s = set_first_width_fit_capped(&s, "80%");
+    let mut s = s.replace("flow: Right\n", "flow: Right{wrap: true}\n");
+    s = s.replace("flow: Right ", "flow: Right{wrap: true} ");
+    format!("user_align := View{{width:Fill height:Fit flow:Down align: Align{{x: 1.0}} {s}}}")
+}
+
+/// Rewrite only the FIRST `width: <number>` to `width: Fit max_width: "<cap>"`,
+/// leaving the rest for a later pass. The first width in a lowered component is
+/// its root surface — the box that must hug and be capped.
+fn set_first_width_fit_capped(ui: &str, cap: &str) -> String {
+    const KEY: &str = "width: ";
+    if let Some(at) = ui.find(KEY) {
+        let after = &ui[at + KEY.len()..];
+        let digits = after
+            .find(|c: char| !(c.is_ascii_digit() || c == '.'))
+            .unwrap_or(after.len());
+        if digits > 0 {
+            return format!(
+                "{}width: Fit max_width: {:?}{}",
+                &ui[..at],
+                cap,
+                &after[digits..]
+            );
+        }
+    }
+    ui.to_owned()
+}
+
+/// Card #21d item 6 — rewrite every `http_resource("<loopback>/ux-images/<rest>")`
+/// the lowering emits for an SVG/image `src` into a `file_resource("<abs>")`
+/// pointing at the component's own asset on disk (`<components_dir>/<rest>`).
+///
+/// The lowering hard-codes an HTTP wrapper (`design.rs:743,764`) because a
+/// design card may only name a loopback asset URL (`design_asset_allowed`), and
+/// the recorded fixtures name the design lab's ad-hoc `:8170` server — which is
+/// not ours to run. The bytes are already on disk beside the component, so bind
+/// the file directly and the icons load with no asset server at all.
+fn localize_asset_resources(ui: &str) -> String {
+    const MARK: &str = "http_resource(\"";
+    let root = components_dir();
+    let mut out = String::with_capacity(ui.len());
+    let mut rest = ui;
+    while let Some(at) = rest.find(MARK) {
+        let (head, tail) = rest.split_at(at);
+        out.push_str(head);
+        let after = &tail[MARK.len()..];
+        let Some(endq) = after.find('"') else {
+            out.push_str(tail);
+            return out;
+        };
+        let url = &after[..endq];
+        let rel = url.split_once("/ux-images/").map(|(_, r)| r).unwrap_or(url);
+        // Absolute, because the launched app's cwd is not the repo root.
+        let abs = std::fs::canonicalize(root.join(rel)).unwrap_or_else(|_| root.join(rel));
+        out.push_str(&format!("file_resource({:?})", abs.to_string_lossy()));
+        // Continue after the original call's closing quote, dropping its `)`.
+        rest = after[endq + 1..].strip_prefix(')').unwrap_or(&after[endq + 1..]);
+    }
+    out.push_str(rest);
+    out
 }
 
 /// Rewrite every `height: <number>` in a lowered DSL to `height: Fit` (card #21c
