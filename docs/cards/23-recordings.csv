@@ -1,0 +1,27 @@
+domain,method_or_kind,model_turns,recorded_frames,notes
+turn,turn/start,1,6 out; 10 in (turn/started),turn 1 (reasoning) + reused by every later turn; the typed generic request
+turn,turn/started,0,10,notifications for the 11 recorded turns (one turn/started raced the result)
+turn,projection/envelope,11,1202,"the real v2 lane: assistant_delta, reasoning_delta, tool_*, turn_terminal, user_message"
+reasoning,projection/envelope:reasoning_delta,1,628,turn 1 asked for visible thinking; folds to EntryKind::REASONING
+message,projection/envelope:assistant_delta + assistant_persisted,11,338 + 11,"the streamed answer text, folded into ONE assistant entry per turn"
+tool,projection/envelope:tool_start/tool_end,5,7 + 7,bash (turn 2) + the approval/question turns' bash + ask_user_question (turn 6)
+plan,plan/updated,1,1,turn 9 with an explicit update_plan request (the tool emits it)
+approval,approval/requested,1,2,"turn 7 (approve) + turn 8 (deny); approval_policy=ask, command `sudo -n true` (SafePolicy Ask)"
+approval,approval/respond,1,2 out,"the client's decision frames (approve, deny)"
+approval,approval/decided,0,2,"the server's settled lifecycle, one per decision"
+approval,approval/cancelled,0,0,NOT recorded - needs an interrupt while an approval is pending
+approval,approval/auto_resolved,0,0,NOT recorded - needs a policy to resolve without a person
+user_question,user_question/requested,1,1,turn 6 asked to invoke the ask-user tool
+user_question,user_question/respond,0,1 out,"answered with free_text ""blue""; the model echoed it"
+turn,turn/steer,1,2 out,turn 10 (no live turn -> null) + turn 11 (steered:true)
+turn,turn/interrupt,1,2 out,turn 10 (already completed) + turn 11 (interrupted:true)
+turn,turn/steer_dropped,1,1,"turn 11: a steer left in the buffer when the interrupt landed; reason ""interrupted"""
+turn,turn/error,0,0,NOT recorded - needs a provider/rate-limit failure (out of the card's spend)
+turn,turn/state/get,0,1,pre-turn read-only probe
+turn,turn/steer_dropped,0,0,(see above)
+progress,progress/updated,11,104,per-turn progress metadata (the turn domain keeps the last per session)
+context,context/normalization_reported,11,10,the context lifecycle (feature context.lifecycle.v1)
+inspection,thread/graph/get,0,1,pre-turn read-only probe (request/response; no store sender)
+permission,permission/profile/list,0,1,pre-turn read-only probe
+permission,permission/profile/set,1,3 out,set approval_policy=ask (for the approvals) then =never (to clear it)
+session,session/open,0,2 out,one per recording pass (the transport handshake)
