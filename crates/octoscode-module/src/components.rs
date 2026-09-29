@@ -519,9 +519,8 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
         ItemKind::AssistantProse => no_wrap_code(&fit_heights(&ui)),
         // Card #21e item 3: the send control is a flat black disc.
         ItemKind::Composer => flat_send_button(&ui),
-        // Card #21e item 1: an interrupted turn's tail is the settled
-        // `worked-for` row (below), which shows the marker.
-        ItemKind::WorkingRow => fit_heights(&ui),
+        // Card #21e item 8: the activity row's spinner keeps its 18px box.
+        ItemKind::WorkingRow => working_row_layout(&ui),
         ItemKind::WorkedFor | ItemKind::ToolCell => fit_heights(&ui),
         _ => ui,
     };
@@ -554,19 +553,50 @@ fn bubble_live_layout(ui: &str) -> String {
     format!("user_align := View{{width:Fill height:Fit flow:Down align: Align{{x: 1.0}} {s}}}")
 }
 
+/// Card #21e item 8 — the activity row's spinner keeps its own 18px box.
+///
+/// The atlas's `working-row` is a 29.5px row whose spinner is 18×18 (scene-03
+/// `icon_spinner` at 198..216). `fit_heights` leaves the `Svg` at `height: Fit`,
+/// and its `preserve_aspect: false` then stretches the 24×24 viewBox to the
+/// label's 24px line box (measured live: the icon occupied y211..235 in a
+/// 206..235 row), so the glyph drew past its own box. Pin both the wrapper and
+/// the `Svg` to the measured 18px.
+fn working_row_layout(ui: &str) -> String {
+    let s = fit_heights(ui);
+    let s = s.replace(
+        "View {width: 18 height: Fit margin: Inset{left: 0 top: 5",
+        "View {width: 18 height: 18 margin: Inset{left: 0 top: 5",
+    );
+    s.replace("width: 18 height: Fit", "width: 18 height: 18")
+}
+
+/// Card #21e item 1 — a settled turn whose terminal was `interrupted` shows the
+/// marker (`answer.worked_for`); the `working-row` component itself is only ever
+/// the LIVE tail (`screen.rs:113-116`), so it keeps its spinner.
+///
 /// Card #21e item 5 — the answer-actions timestamp sits mid-column.
 ///
-/// The artboard places it at `x=243.64` of a 364px row (`answer-actions/
-/// mapped.json`), which is correct for the 406px scene panel but mid-column once
-/// the mounted row fills the app's 404px column. Widen the trailing block to the
-/// row and right-align its label, so it hugs the column's right edge.
+/// The artboard places the timestamp flush with its row's right edge
+/// (`answer-actions/mapped.json`: t11 x=267.64 w=121.5 → right 389.14, row right
+/// 388.11). The app's row is only 364px inside a 404px column, so even at its
+/// authored x the label stops ~40px short of the column edge, and a short
+/// timestamp (`now`) reads mid-column. Widen the row to its slot, seat the
+/// label's wrapper at the column's right (a 16px inset, matching the atlas's own
+/// gap), and right-align the run — an `align` on a child of an Overlay is a
+/// no-op (`design.rs:164-174`), the wrapper must be the filled, aligned one.
 fn right_align_timestamp(ui: &str) -> String {
-    // Row inner width is 364.11 - the label keeps its own 121.5 and is seated so
-    // its right edge sits at the row's right (364.11 - 121.5 - 13.6 ~= 229).
-    ui.replace(
-        "margin: Inset{left: 243.64 top: 1.5",
-        "margin: Inset{left: 229 top: 1.5",
-    )
+    let s = fit_heights(ui);
+    // 1. the row spans its slot (the artboard's 364px left a gutter).
+    let s = s.replace("width: 364.11", "width: Fill");
+    // 2. both the label wrapper and the label itself become Fill so the run can
+    //    reach the column edge; the wrapper keeps a 16px right inset.
+    let s = s.replace("width: 121.5", "width: Fill");
+    let s = s.replace(
+        "margin: Inset{left: 268 top: 1.5 right: 0 bottom: 0}",
+        "margin: Inset{left: 0 top: 1.5 right: 16 bottom: 0}",
+    );
+    // 3. right-align the label's own text run.
+    s.replace("align: Align{x: 0 y: 0.5}", "align: Align{x: 1.0 y: 0.5}")
 }
 
 /// Card #21e item 6 — a fenced code block must not soft-wrap its lines.
