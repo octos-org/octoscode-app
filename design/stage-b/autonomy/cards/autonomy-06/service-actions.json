@@ -1,0 +1,36 @@
+{
+  "frame_id": 6,
+  "controls": {
+    "peer_1_steer": {
+      "event": "peer.steer",
+      "source_bounds": [
+        319,
+        270,
+        62,
+        31
+      ],
+      "enabled": true
+    },
+    "peer_2_steer": {
+      "event": "peer.steer",
+      "source_bounds": [
+        319,
+        396,
+        62,
+        34
+      ],
+      "enabled": true
+    },
+    "peer_3_steer": {
+      "event": "peer.steer",
+      "source_bounds": [
+        319,
+        524,
+        60,
+        29
+      ],
+      "enabled": true
+    }
+  },
+  "source": "design/stage-a/autonomy/atlas.png"
+}

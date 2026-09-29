@@ -1,0 +1,295 @@
+{
+  "schema_version": 1,
+  "id": "autonomy-05",
+  "app": "octoscode",
+  "number": 5,
+  "title": "Monitors",
+  "structure": "Native component reconstructed from the approved autonomy atlas",
+  "artboard": [
+    406,
+    776
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a autonomy atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
+    "c": [
+      {
+        "t": "stack",
+        "id": "monitors_screen",
+        "x": 0.0,
+        "y": 0.0,
+        "w": 406.0,
+        "h": 776.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t01",
+            "text": "OctosCode",
+            "x": 16.95,
+            "y": 21.48,
+            "w": 94.05,
+            "h": 28.5,
+            "size": 19,
+            "line_height": 28.5,
+            "weight": 600,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf"
+          },
+          {
+            "t": "text",
+            "id": "t_title",
+            "text": "Monitors",
+            "x": 18.62,
+            "y": 94.66,
+            "w": 82.17,
+            "h": 28.5,
+            "size": 19,
+            "line_height": 28.5,
+            "weight": 600,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf"
+          },
+          {
+            "t": "stack",
+            "id": "mon_1",
+            "x": 16.0,
+            "y": 175.1,
+            "w": 374.0,
+            "h": 106.67,
+            "c": [
+              {
+                "t": "text",
+                "id": "mon_1_cmd",
+                "text": "cargo test -q",
+                "x": 27.11,
+                "y": 191.1,
+                "w": 116.36,
+                "h": 25.92,
+                "size": 14,
+                "line_height": 25.92,
+                "weight": 500,
+                "color": 4280098079,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/LiberationMono-Regular.ttf"
+              },
+              {
+                "t": "text",
+                "id": "mon_1_state",
+                "text": "fired 3×",
+                "x": 25.52,
+                "y": 239.53,
+                "w": 63.26,
+                "h": 24.23,
+                "size": 13,
+                "line_height": 24.23,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf"
+              },
+              {
+                "t": "svg",
+                "id": "mon_1_clock",
+                "x": 190.94,
+                "y": 236.92,
+                "w": 18.0,
+                "h": 18.0,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "mon_1_int",
+                "text": "30s",
+                "x": 214.94,
+                "y": 237.92,
+                "w": 35.82,
+                "h": 27.45,
+                "size": 13,
+                "line_height": 27.45,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf"
+              },
+              {
+                "t": "svg",
+                "id": "mon_1_pause",
+                "x": 296.0,
+                "y": 233.53,
+                "w": 18.0,
+                "h": 20.0,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "mon_1_trash",
+                "x": 348.7,
+                "y": 233.53,
+                "w": 18.0,
+                "h": 20.0,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 12,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "stack",
+            "id": "mon_2",
+            "x": 16.0,
+            "y": 348.21,
+            "w": 374.0,
+            "h": 105.58,
+            "c": [
+              {
+                "t": "text",
+                "id": "mon_2_cmd",
+                "text": "tail -n 50 app.log",
+                "x": 27.29,
+                "y": 364.21,
+                "w": 158.65,
+                "h": 25.62,
+                "size": 14,
+                "line_height": 25.62,
+                "weight": 500,
+                "color": 4280098079,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/LiberationMono-Regular.ttf"
+              },
+              {
+                "t": "text",
+                "id": "mon_2_state",
+                "text": "no change",
+                "x": 26.93,
+                "y": 413.34,
+                "w": 77.79,
+                "h": 22.46,
+                "size": 13,
+                "line_height": 22.46,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf"
+              },
+              {
+                "t": "svg",
+                "id": "mon_2_clock",
+                "x": 192.65,
+                "y": 408.96,
+                "w": 18.0,
+                "h": 18.0,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "mon_2_int",
+                "text": "30s",
+                "x": 216.65,
+                "y": 409.96,
+                "w": 32.41,
+                "h": 23.79,
+                "size": 13,
+                "line_height": 23.79,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf"
+              },
+              {
+                "t": "svg",
+                "id": "mon_2_pause",
+                "x": 296.0,
+                "y": 407.34,
+                "w": 18.0,
+                "h": 20.0,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "mon_2_trash",
+                "x": 348.7,
+                "y": 407.34,
+                "w": 18.0,
+                "h": 20.0,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 12,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "stack",
+            "id": "monitors_footer",
+            "x": 16.0,
+            "y": 506.68,
+            "w": 374.0,
+            "h": 50.62,
+            "c": [
+              {
+                "t": "svg",
+                "id": "monitors_footer_icon",
+                "x": 29.66,
+                "y": 516.68,
+                "w": 20.0,
+                "h": 20.0,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "monitors_footer_label",
+                "text": "Monitors fire when the output changes",
+                "x": 57.66,
+                "y": 516.68,
+                "w": 268.53,
+                "h": 30.62,
+                "size": 13,
+                "line_height": 30.62,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf"
+              }
+            ]
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294967295,
+        "radius": 0
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294967295
+  }
+}

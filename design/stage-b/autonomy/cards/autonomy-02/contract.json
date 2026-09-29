@@ -1,0 +1,323 @@
+{
+  "schema_version": 1,
+  "id": "autonomy-02",
+  "app": "octoscode",
+  "number": 2,
+  "title": "Code review run",
+  "structure": "Native component reconstructed from the approved autonomy atlas",
+  "artboard": [
+    406,
+    776
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a autonomy atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
+    "c": [
+      {
+        "t": "stack",
+        "id": "review_run",
+        "x": 0.0,
+        "y": 0.0,
+        "w": 406.0,
+        "h": 776.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t01",
+            "text": "OctosCode",
+            "x": 23.77,
+            "y": 19.68,
+            "w": 100.86,
+            "h": 28.5,
+            "size": 19,
+            "line_height": 28.5,
+            "weight": 600,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf"
+          },
+          {
+            "t": "text",
+            "id": "t_title",
+            "text": "Code review",
+            "x": 23.83,
+            "y": 86.53,
+            "w": 114.4,
+            "h": 28.5,
+            "size": 19,
+            "line_height": 28.5,
+            "weight": 600,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf"
+          },
+          {
+            "t": "stack",
+            "id": "start_review",
+            "x": 262.23,
+            "y": 78.3,
+            "w": 118.66,
+            "h": 38.56,
+            "c": [
+              {
+                "t": "stack",
+                "id": "start_review_surface",
+                "x": 262.23,
+                "y": 78.3,
+                "w": 118.66,
+                "h": 38.56,
+                "c": [],
+                "variant": "surface",
+                "bg": 4278190080,
+                "radius": 999
+              },
+              {
+                "t": "button",
+                "id": "start_review_control",
+                "x": 262.23,
+                "y": 78.3,
+                "w": 118.66,
+                "h": 38.56,
+                "enabled": 1
+              },
+              {
+                "t": "text",
+                "id": "start_review_label",
+                "text": "Start review",
+                "x": 276.23,
+                "y": 86.3,
+                "w": 90.66,
+                "h": 22.56,
+                "size": 15.04,
+                "line_height": 22.56,
+                "weight": 600,
+                "color": 4294967295,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-600.ttf"
+              }
+            ],
+            "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+          },
+          {
+            "t": "stack",
+            "id": "progress_card",
+            "x": 18.0,
+            "y": 157.48,
+            "w": 370.0,
+            "h": 89.31,
+            "c": [
+              {
+                "t": "text",
+                "id": "t_progress",
+                "text": "Reviewing 3 files · 2 specialists",
+                "x": 80.18,
+                "y": 173.48,
+                "w": 223.47,
+                "h": 21.68,
+                "size": 14,
+                "line_height": 21.68,
+                "weight": 500,
+                "color": 4280098079,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf"
+              },
+              {
+                "t": "text",
+                "id": "t_progress_sub",
+                "text": "Analyzing changes and code quality...",
+                "x": 80.18,
+                "y": 210.65,
+                "w": 254.18,
+                "h": 20.14,
+                "size": 13,
+                "line_height": 20.14,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf"
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294440952,
+            "radius": 12
+          },
+          {
+            "t": "stack",
+            "id": "finding_high",
+            "x": 18.0,
+            "y": 300.43,
+            "w": 370.0,
+            "h": 167.21,
+            "c": [
+              {
+                "t": "stack",
+                "id": "finding_high_badge",
+                "x": 30.94,
+                "y": 310.43,
+                "w": 55.82,
+                "h": 29.68,
+                "c": [
+                  {
+                    "t": "text",
+                    "id": "finding_high_badge_label",
+                    "text": "High",
+                    "x": 40.94,
+                    "y": 314.43,
+                    "w": 35.82,
+                    "h": 21.68,
+                    "size": 13,
+                    "line_height": 21.68,
+                    "weight": 600,
+                    "color": 4291764782,
+                    "variant": "single_line",
+                    "alignx": 0,
+                    "font_src": "self:resources/ux/Inter-600.ttf"
+                  }
+                ],
+                "variant": "surface",
+                "bg": 4294831340,
+                "radius": 999
+              },
+              {
+                "t": "text",
+                "id": "finding_high_path",
+                "text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
+                "x": 32.41,
+                "y": 359.35,
+                "w": 339.47,
+                "h": 23.23,
+                "size": 12,
+                "line_height": 23.23,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/LiberationMono-Regular.ttf"
+              },
+              {
+                "t": "text",
+                "id": "finding_high_text",
+                "text": "Potential message loss when reconnecting: pending queue was dropped.",
+                "x": 32.41,
+                "y": 399.62,
+                "w": 327.53,
+                "h": 50.02,
+                "size": 14,
+                "line_height": 20.3,
+                "weight": 400,
+                "color": 4280098079,
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf"
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 12,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "stack",
+            "id": "finding_low",
+            "x": 18.0,
+            "y": 518.82,
+            "w": 370.0,
+            "h": 167.19,
+            "c": [
+              {
+                "t": "stack",
+                "id": "finding_low_badge",
+                "x": 27.53,
+                "y": 528.82,
+                "w": 54.12,
+                "h": 25.04,
+                "c": [
+                  {
+                    "t": "text",
+                    "id": "finding_low_badge_label",
+                    "text": "Low",
+                    "x": 37.53,
+                    "y": 532.82,
+                    "w": 34.12,
+                    "h": 19.5,
+                    "size": 13,
+                    "line_height": 19.5,
+                    "weight": 600,
+                    "color": 4285427315,
+                    "variant": "single_line",
+                    "alignx": 0,
+                    "font_src": "self:resources/ux/Inter-600.ttf"
+                  }
+                ],
+                "variant": "surface",
+                "bg": 4294243573,
+                "radius": 999
+              },
+              {
+                "t": "text",
+                "id": "finding_low_path",
+                "text": "crates/octos-core/src/ui_protocol.rs",
+                "x": 32.41,
+                "y": 579.29,
+                "w": 257.59,
+                "h": 20.14,
+                "size": 12,
+                "line_height": 20.14,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/LiberationMono-Regular.ttf"
+              },
+              {
+                "t": "text",
+                "id": "finding_low_text",
+                "text": "Missing documentation for new preserve_pending behavior.",
+                "x": 32.41,
+                "y": 618.01,
+                "w": 313.88,
+                "h": 50.0,
+                "size": 14,
+                "line_height": 20.3,
+                "weight": 400,
+                "color": 4280098079,
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf"
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 12,
+            "border": 1,
+            "bordercolor": 4293256679
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294967295,
+        "radius": 0
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294967295
+  }
+}

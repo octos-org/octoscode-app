@@ -1,0 +1,377 @@
+{
+  "schema_version": 1,
+  "id": "autonomy-04",
+  "app": "octoscode",
+  "number": 4,
+  "title": "Loops",
+  "structure": "Native component reconstructed from the approved autonomy atlas",
+  "artboard": [
+    406,
+    776
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a autonomy atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
+    "c": [
+      {
+        "t": "stack",
+        "id": "loops_screen",
+        "x": 0.0,
+        "y": 0.0,
+        "w": 406.0,
+        "h": 776.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t01",
+            "text": "OctosCode",
+            "x": 22.31,
+            "y": 18.3,
+            "w": 92.85,
+            "h": 28.5,
+            "size": 19,
+            "line_height": 28.5,
+            "weight": 600,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf"
+          },
+          {
+            "t": "text",
+            "id": "t_title",
+            "text": "Loops",
+            "x": 18.49,
+            "y": 87.18,
+            "w": 63.71,
+            "h": 31.75,
+            "size": 19,
+            "line_height": 31.75,
+            "weight": 600,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf"
+          },
+          {
+            "t": "stack",
+            "id": "new_loop",
+            "x": 271.76,
+            "y": 83.34,
+            "w": 119.77,
+            "h": 39.26,
+            "c": [
+              {
+                "t": "stack",
+                "id": "new_loop_surface",
+                "x": 271.76,
+                "y": 83.34,
+                "w": 119.77,
+                "h": 39.26,
+                "c": [],
+                "variant": "surface",
+                "bg": 4294967295,
+                "radius": 8
+              },
+              {
+                "t": "button",
+                "id": "new_loop_control",
+                "x": 271.76,
+                "y": 83.34,
+                "w": 119.77,
+                "h": 39.26,
+                "enabled": 1
+              },
+              {
+                "t": "svg",
+                "id": "new_loop_icon",
+                "x": 281.76,
+                "y": 93.97,
+                "w": 18.0,
+                "h": 18.0,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "new_loop_label",
+                "text": "+ New loop",
+                "x": 283.76,
+                "y": 89.34,
+                "w": 95.77,
+                "h": 27.27,
+                "size": 18.18,
+                "line_height": 27.27,
+                "weight": 600,
+                "color": 4281298923,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-600.ttf"
+              }
+            ],
+            "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [3]}}"
+          },
+          {
+            "t": "stack",
+            "id": "loop_1",
+            "x": 16.0,
+            "y": 155.24,
+            "w": 374.0,
+            "h": 121.82,
+            "c": [
+              {
+                "t": "svg",
+                "id": "loop_1_dot",
+                "x": 204.5,
+                "y": 167.24,
+                "w": 20.0,
+                "h": 26.0,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "loop_1_name",
+                "text": "Run CI smoke",
+                "x": 23.85,
+                "y": 171.24,
+                "w": 110.55,
+                "h": 22.5,
+                "size": 15,
+                "line_height": 22.5,
+                "weight": 500,
+                "color": 4280098079,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf"
+              },
+              {
+                "t": "text",
+                "id": "loop_1_cad",
+                "text": "every 15 min",
+                "x": 28.75,
+                "y": 215.22,
+                "w": 83.16,
+                "h": 21.83,
+                "size": 13,
+                "line_height": 21.83,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf"
+              },
+              {
+                "t": "svg",
+                "id": "loop_1_pause",
+                "x": 257.2,
+                "y": 251.06,
+                "w": 18.0,
+                "h": 20.0,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "loop_1_play",
+                "x": 306.9,
+                "y": 251.06,
+                "w": 18.0,
+                "h": 20.0,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "loop_1_trash",
+                "x": 356.2,
+                "y": 251.06,
+                "w": 18.0,
+                "h": 20.0,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 12,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "stack",
+            "id": "loop_2",
+            "x": 16.0,
+            "y": 278.29,
+            "w": 374.0,
+            "h": 121.06,
+            "c": [
+              {
+                "t": "svg",
+                "id": "loop_2_dot",
+                "x": 204.5,
+                "y": 290.29,
+                "w": 20.0,
+                "h": 26.0,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "loop_2_name",
+                "text": "Sync main",
+                "x": 22.38,
+                "y": 294.29,
+                "w": 87.91,
+                "h": 23.23,
+                "size": 15,
+                "line_height": 23.23,
+                "weight": 500,
+                "color": 4280098079,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf"
+              },
+              {
+                "t": "text",
+                "id": "loop_2_cad",
+                "text": "every 30 min",
+                "x": 22.38,
+                "y": 336.11,
+                "w": 94.31,
+                "h": 23.23,
+                "size": 13,
+                "line_height": 23.23,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf"
+              },
+              {
+                "t": "svg",
+                "id": "loop_2_pause",
+                "x": 257.2,
+                "y": 373.35,
+                "w": 18.0,
+                "h": 20.0,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "loop_2_play",
+                "x": 306.9,
+                "y": 373.35,
+                "w": 18.0,
+                "h": 20.0,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "loop_2_trash",
+                "x": 356.2,
+                "y": 373.35,
+                "w": 18.0,
+                "h": 20.0,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 12,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "stack",
+            "id": "loop_3",
+            "x": 16.0,
+            "y": 400.43,
+            "w": 374.0,
+            "h": 121.28,
+            "c": [
+              {
+                "t": "svg",
+                "id": "loop_3_dot",
+                "x": 204.5,
+                "y": 412.43,
+                "w": 20.0,
+                "h": 26.0,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "loop_3_name",
+                "text": "Nightly review",
+                "x": 22.33,
+                "y": 416.43,
+                "w": 118.38,
+                "h": 25.23,
+                "size": 15,
+                "line_height": 25.23,
+                "weight": 500,
+                "color": 4280098079,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf"
+              },
+              {
+                "t": "text",
+                "id": "loop_3_cad",
+                "text": "every day · 01:00",
+                "x": 22.38,
+                "y": 460.02,
+                "w": 118.28,
+                "h": 21.68,
+                "size": 13,
+                "line_height": 21.68,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf"
+              },
+              {
+                "t": "svg",
+                "id": "loop_3_play",
+                "x": 306.9,
+                "y": 495.71,
+                "w": 18.0,
+                "h": 20.0,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "loop_3_trash",
+                "x": 356.2,
+                "y": 495.71,
+                "w": 18.0,
+                "h": 20.0,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 12,
+            "border": 1,
+            "bordercolor": 4293256679
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294967295,
+        "radius": 0
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294967295
+  }
+}
