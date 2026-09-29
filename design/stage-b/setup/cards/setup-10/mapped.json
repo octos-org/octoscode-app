@@ -63,6 +63,30 @@
         "radius": 0
       },
       {
+        "t": "stack",
+        "id": "hair_installed_end",
+        "x": 0.0,
+        "y": 393.0,
+        "w": 406.0,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294046193,
+        "radius": 0
+      },
+      {
+        "t": "stack",
+        "id": "hair_registry_top",
+        "x": 0.0,
+        "y": 459.0,
+        "w": 406.0,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294046193,
+        "radius": 0
+      },
+      {
         "t": "svg",
         "id": "icon_search",
         "x": 60.0,
@@ -560,6 +584,14 @@
     },
     {
       "id": "hair_registry",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "hair_installed_end",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "hair_registry_top",
       "source": "observed non-text annotation"
     },
     {

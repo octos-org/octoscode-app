@@ -152,6 +152,8 @@ def build_10(sc):
     sc.put(A.surface("search_pill", 51, 100.5, 158, 22, bg="s10_pill", radius=11))
     sc.put(A.surface("hair_installed", 0, 204, 406, 1, bg="s10_hair", radius=0))
     sc.put(A.surface("hair_registry", 0, 602, 406, 1, bg="s10_hair", radius=0))
+    sc.put(A.surface("hair_installed_end", 0, 393, 406, 1, bg="s10_hair", radius=0))
+    sc.put(A.surface("hair_registry_top", 0, 459, 406, 1, bg="s10_hair", radius=0))
     sc.put(A.icon("icon_search", "search", 60, 102, 16, 16, color="s10_plight"))
     sc.put(A.text("t_search", sc.rows[1][0], 83, 104, 128, 18, color="s10_plight", size=12))
     sc.add_text("t_inst_head", 2, weight=600, size=15)

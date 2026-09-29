@@ -120,6 +120,12 @@ view root Surface156d085f4ff5(instance: "page") {
   Surface88c878e5338b(instance: "hair_registry") {
 
   }
+  Surface88c878e5338b(instance: "hair_installed_end") {
+
+  }
+  Surface88c878e5338b(instance: "hair_registry_top") {
+
+  }
   Vectore0a378fde04f(instance: "icon_search")
   Text9f86d4b7b170(instance: "t_search", text: copy.t_search_text)
   Text265dc3539b60(instance: "t_inst_head", text: copy.t_inst_head_text)

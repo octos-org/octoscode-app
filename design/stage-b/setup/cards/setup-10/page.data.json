@@ -47,6 +47,24 @@
           "h": 1.0
         }
       },
+      "hair_installed_end": {
+        "component": "Surface88c878e5338b",
+        "layout": {
+          "x": 0.0,
+          "y": 393.0,
+          "w": 406.0,
+          "h": 1.0
+        }
+      },
+      "hair_registry_top": {
+        "component": "Surface88c878e5338b",
+        "layout": {
+          "x": 0.0,
+          "y": 459.0,
+          "w": 406.0,
+          "h": 1.0
+        }
+      },
       "icon_search": {
         "component": "Vectore0a378fde04f",
         "layout": {

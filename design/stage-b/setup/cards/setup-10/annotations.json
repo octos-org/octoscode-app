@@ -143,6 +143,28 @@
       "reviewed": false
     },
     {
+      "id": "hair_installed_end",
+      "bounds": [
+        0.0,
+        393.0,
+        406.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "hair_registry_top",
+      "bounds": [
+        0.0,
+        459.0,
+        406.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
       "id": "icon_search",
       "bounds": [
         60.0,

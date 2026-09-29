@@ -83,6 +83,28 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "hair_installed_end",
+    "x": 0.0,
+    "y": 393.0,
+    "w": 406.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "hair_registry_top",
+    "x": 0.0,
+    "y": 459.0,
+    "w": 406.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "icon_search",
     "x": 60.0,
     "y": 102.0,
