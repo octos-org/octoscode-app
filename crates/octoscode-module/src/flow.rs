@@ -908,6 +908,12 @@ impl FlowUi {
         self.end_turn(&id, ok);
     }
 
+    /// End the turn named by `turn_id` (test support; the L1 gate's own entry).
+    /// A terminal for a DIFFERENT turn must leave the live turn untouched.
+    pub fn end_turn_for_test(&mut self, turn_id: &str, ok: bool) {
+        self.end_turn(turn_id, ok);
+    }
+
     /// Note a tool starting (test support; the event path uses this too).
     pub fn note_tool_started_for_test(&mut self, call_id: &str, name: &str) {
         self.note_tool_started(call_id, name);

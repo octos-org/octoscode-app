@@ -117,6 +117,12 @@ script_mod! {
                 // click with the item id (`tool.toggle`, `answer.copy`).
                 timeline_list := PortalList {
                     width: Fill height: Fill flow: Down drag_scrolling: true
+                    // Card #21c L2: tail the newest item so a newly appended
+                    // turn scrolls into view. Without it the list stayed pinned
+                    // to row 0 and turn 2 (`Worked for` alone changed) never
+                    // showed. `auto_tail` only tails while already at the end
+                    // (portal_list.rs:770), so scrolling up to read is preserved.
+                    auto_tail: true
                     TimelineItemTpl := View {
                         width: Fill height: Fit flow: Overlay
                         item_body := View {
