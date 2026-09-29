@@ -92,10 +92,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 60.0,
     "y": 225.58,
     "w": 286.0,
-    "h": 24.0,
+    "h": 25.5,
     "text": "http://127.0.0.1:50190",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16,
+    "size": 17,
     "weight": 400,
     "role": "input",
     "native_candidates": [
@@ -135,15 +135,31 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 60.0,
     "y": 355.29,
     "w": 286.0,
-    "h": 24.0,
-    "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+    "h": 25.5,
+    "text": "",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16,
+    "size": 17,
     "weight": 400,
     "role": "input",
     "native_candidates": [
       "TextInput",
       "KitFormField"
+    ]
+  },
+  {
+    "id": "token_dots",
+    "x": 60.0,
+    "y": 349.37,
+    "w": 220.0,
+    "h": 22.5,
+    "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+    "font_src": "self:resources/ux/Inter-700.ttf",
+    "size": 15,
+    "weight": 700,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
     ]
   },
   {

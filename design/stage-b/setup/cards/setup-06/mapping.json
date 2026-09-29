@@ -312,18 +312,18 @@
       "native_id": "beauty_0_0_2_0",
       "parent": "group2",
       "kind": "text",
-      "component": "Textcbac1a2e2337",
+      "component": "Text739d693858ad",
       "semantic_role": "text",
       "bounds": [
         54.13,
         404.92,
         214.06,
-        22.58
+        24.0
       ],
       "text": "Desktop notifications",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 15
+      "size": 16
     },
     {
       "source_id": "toggle1",
@@ -333,7 +333,7 @@
       "component": "Surfaceb137a51eded7",
       "semantic_role": "layout",
       "bounds": [
-        268.0,
+        312.0,
         398.92,
         50.0,
         30.0
@@ -351,7 +351,7 @@
       "component": "Surfaceab0895dcdf57",
       "semantic_role": "layout",
       "bounds": [
-        294.0,
+        338.0,
         401.92,
         24.0,
         24.0
@@ -372,7 +372,7 @@
         28.0,
         462.0,
         350.0,
-        90.0
+        76.0
       ],
       "text": null,
       "enabled": null,
@@ -384,7 +384,7 @@
       "native_id": "beauty_0_0_3_0",
       "parent": "group3",
       "kind": "text",
-      "component": "Text8d2990ef2ebd",
+      "component": "Text4da9dcc73b92",
       "semantic_role": "text",
       "bounds": [
         51.78,
@@ -395,7 +395,7 @@
       "text": "Copy diagnostics",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 15
+      "size": 16
     },
     {
       "source_id": "copy_diag",
@@ -405,10 +405,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        344.0,
-        510.66,
-        22.0,
-        22.0
+        338.0,
+        506.66,
+        30.0,
+        30.0
       ],
       "text": null,
       "enabled": null,
@@ -457,6 +457,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "0c621c86a0a7de23dbe3370ce3c0456cd11a5d70bac37e15aa7185a7044a84c9",
+  "contract_sha256": "bd1d7ad794b54d44c57196fbf2d62915b9751975c1e58b889dbeb312df0dc66b",
   "mapping_basis": "mapped.json"
 }

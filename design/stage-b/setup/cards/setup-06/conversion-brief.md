@@ -246,7 +246,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 22.58,
     "text": "Desktop notifications",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 15,
+    "size": 16,
     "weight": 500,
     "role": "text",
     "native_candidates": [
@@ -256,7 +256,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "toggle1",
-    "x": 268.0,
+    "x": 312.0,
     "y": 398.92,
     "w": 50.0,
     "h": 30.0,
@@ -267,7 +267,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "toggle1_knob",
-    "x": 294.0,
+    "x": 338.0,
     "y": 401.92,
     "w": 24.0,
     "h": 24.0,
@@ -281,7 +281,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 28.0,
     "y": 462.0,
     "w": 350.0,
-    "h": 90.0,
+    "h": 76.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -295,7 +295,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 24.77,
     "text": "Copy diagnostics",
     "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 15,
+    "size": 16,
     "weight": 500,
     "role": "text",
     "native_candidates": [
@@ -305,10 +305,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "copy_diag",
-    "x": 344.0,
-    "y": 510.66,
-    "w": 22.0,
-    "h": 22.0,
+    "x": 338.0,
+    "y": 506.66,
+    "w": 30.0,
+    "h": 30.0,
     "role": "unknown",
     "native_candidates": []
   },

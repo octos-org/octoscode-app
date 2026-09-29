@@ -292,7 +292,7 @@
       "requested_bounds": [
         58.64,
         627.0,
-        76.0,
+        54.0,
         22.67
       ],
       "status": "missing_or_ocr_unresolved"
@@ -301,9 +301,9 @@
       "id": "t_sb_r",
       "expected_text": "\u00b7 Network off \u00b7 Workspace write",
       "requested_bounds": [
-        138.64,
+        114.64,
         627.0,
-        230.0,
+        250.0,
         22.67
       ],
       "status": "observed",

@@ -49,8 +49,8 @@ component Surfacec4c38149242a(instance: text) {
 component Text403c34ab46e6(instance: text, text: text) {
   view Kit(component: "Text403c34ab46e6", instance: instance, text: text)
 }
-component Textcbac1a2e2337(instance: text, text: text) {
-  view Kit(component: "Textcbac1a2e2337", instance: instance, text: text)
+component Text739d693858ad(instance: text, text: text) {
+  view Kit(component: "Text739d693858ad", instance: instance, text: text)
 }
 component Surfaceb137a51eded7(instance: text) {
   view Kit(component: "Surfaceb137a51eded7", instance: instance) { slot }
@@ -58,8 +58,8 @@ component Surfaceb137a51eded7(instance: text) {
 component Surfaceab0895dcdf57(instance: text) {
   view Kit(component: "Surfaceab0895dcdf57", instance: instance) { slot }
 }
-component Text8d2990ef2ebd(instance: text, text: text) {
-  view Kit(component: "Text8d2990ef2ebd", instance: instance, text: text)
+component Text4da9dcc73b92(instance: text, text: text) {
+  view Kit(component: "Text4da9dcc73b92", instance: instance, text: text)
 }
 component Textcdf604602ec5(instance: text, text: text) {
   view Kit(component: "Textcdf604602ec5", instance: instance, text: text)
@@ -89,7 +89,7 @@ view root Surface156d085f4ff5(instance: "page") {
       }
     }
     Surface6cd31c06adc5(instance: "group2") {
-      Textcbac1a2e2337(instance: "t_notif", text: copy.t_notif_text)
+      Text739d693858ad(instance: "t_notif", text: copy.t_notif_text)
       Surfaceb137a51eded7(instance: "toggle1") {
         Surfaceab0895dcdf57(instance: "toggle1_knob") {
 
@@ -97,7 +97,7 @@ view root Surface156d085f4ff5(instance: "page") {
       }
     }
     Surface6cd31c06adc5(instance: "group3") {
-      Text8d2990ef2ebd(instance: "t_diag", text: copy.t_diag_text)
+      Text4da9dcc73b92(instance: "t_diag", text: copy.t_diag_text)
       Vectore0a378fde04f(instance: "copy_diag")
     }
     Surface6cd31c06adc5(instance: "disconnect") {

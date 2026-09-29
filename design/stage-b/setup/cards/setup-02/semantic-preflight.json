@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "9f6ab9616b435db71e2da7fb07e4c1fab44e4e179c88571f10cdf535d8d17f6a",
+  "manifest_sha256": "e883b8c55932e796cf13184f92e04b81561032dc70c446b5bda7889f795b7da3",
   "reference_sha256": "cfdf9b000c01ce80655ea736e8e844eeab922eac92a1a29a8b99d9d127bb0ecb",
   "id": "setup-02",
   "round": null,
@@ -114,6 +114,18 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Use a native input with editable value, focus and validation state."
+    },
+    {
+      "id": "token_dots",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
       "id": "token_eye",

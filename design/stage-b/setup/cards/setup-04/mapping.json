@@ -60,7 +60,7 @@
       "native_id": "beauty_0_0_1",
       "parent": "outer_card",
       "kind": "stack",
-      "component": "Surface382f80774fa6",
+      "component": "Surfaceec2e0f41be2a",
       "semantic_role": "layout",
       "bounds": [
         46.0,
@@ -82,9 +82,9 @@
       "semantic_role": "icon",
       "bounds": [
         62.0,
-        148.6,
-        22.0,
-        22.0
+        144.6,
+        30.0,
+        30.0
       ],
       "text": null,
       "enabled": null,
@@ -96,18 +96,18 @@
       "native_id": "beauty_0_0_1_1",
       "parent": "folder",
       "kind": "text",
-      "component": "Textab9c0f8422c1",
+      "component": "Text416a1d98b983",
       "semantic_role": "text",
       "bounds": [
         92.0,
         150.85,
         260.0,
-        22.5
+        24.0
       ],
       "text": "Server folder",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 15
+      "size": 16
     },
     {
       "source_id": "folder_field",
@@ -190,9 +190,9 @@
       "semantic_role": "icon",
       "bounds": [
         60.0,
-        288.9,
-        20.0,
-        20.0
+        284.9,
+        28.0,
+        28.0
       ],
       "text": null,
       "enabled": null,
@@ -204,36 +204,36 @@
       "native_id": "beauty_0_0_3_1",
       "parent": "recent_group",
       "kind": "text",
-      "component": "Text8bc0157f7441",
+      "component": "Text2ddedf4ed2f9",
       "semantic_role": "text",
       "bounds": [
         94.73,
         291.0,
         58.64,
-        21.0
+        24.0
       ],
       "text": "octos",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14
+      "size": 16
     },
     {
       "source_id": "t_ws0_path",
       "native_id": "beauty_0_0_3_2",
       "parent": "recent_group",
       "kind": "text",
-      "component": "Textaaed2a066a2a",
+      "component": "Text8de4c8ce743d",
       "semantic_role": "text",
       "bounds": [
         94.73,
         314.05,
         312.0,
-        19.31
+        19.5
       ],
       "text": "~/home/octos",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 12
+      "size": 13
     },
     {
       "source_id": "hair_ws1",
@@ -262,9 +262,9 @@
       "semantic_role": "icon",
       "bounds": [
         60.0,
-        362.21,
-        20.0,
-        20.0
+        358.21,
+        28.0,
+        28.0
       ],
       "text": null,
       "enabled": null,
@@ -276,36 +276,36 @@
       "native_id": "beauty_0_0_3_5",
       "parent": "recent_group",
       "kind": "text",
-      "component": "Textca4e265d163c",
+      "component": "Text7046df6afbb9",
       "semantic_role": "text",
       "bounds": [
         94.64,
         361.49,
         154.18,
-        21.43
+        24.0
       ],
       "text": "octoscode-app",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14
+      "size": 16
     },
     {
       "source_id": "t_ws1_path",
       "native_id": "beauty_0_0_3_6",
       "parent": "recent_group",
       "kind": "text",
-      "component": "Text8f7dd13f13b8",
+      "component": "Textfccd408f30d5",
       "semantic_role": "text",
       "bounds": [
         94.64,
         388.0,
         312.0,
-        19.17
+        19.5
       ],
       "text": "~/home/octos/octoscode-app",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 12
+      "size": 13
     },
     {
       "source_id": "hair_ws2",
@@ -334,9 +334,9 @@
       "semantic_role": "icon",
       "bounds": [
         60.0,
-        434.4,
-        20.0,
-        20.0
+        430.4,
+        28.0,
+        28.0
       ],
       "text": null,
       "enabled": null,
@@ -348,36 +348,36 @@
       "native_id": "beauty_0_0_3_9",
       "parent": "recent_group",
       "kind": "text",
-      "component": "Textc1b2a0f84c80",
+      "component": "Text7bf960131281",
       "semantic_role": "text",
       "bounds": [
         93.61,
         435.37,
         76.23,
-        21.0
+        24.0
       ],
       "text": "robrix2",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14
+      "size": 16
     },
     {
       "source_id": "t_ws2_path",
       "native_id": "beauty_0_0_3_10",
       "parent": "recent_group",
       "kind": "text",
-      "component": "Text93ef24aad2d5",
+      "component": "Text2167f2515124",
       "semantic_role": "text",
       "bounds": [
         93.61,
         461.31,
         312.0,
-        18.05
+        19.5
       ],
       "text": "~/home/octos/robrix2",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 12
+      "size": 13
     },
     {
       "source_id": "hair_ws3",
@@ -406,9 +406,9 @@
       "semantic_role": "icon",
       "bounds": [
         60.0,
-        508.27,
-        20.0,
-        20.0
+        504.27,
+        28.0,
+        28.0
       ],
       "text": null,
       "enabled": null,
@@ -420,36 +420,36 @@
       "native_id": "beauty_0_0_3_13",
       "parent": "recent_group",
       "kind": "text",
-      "component": "Text43efa5e1266e",
+      "component": "Texte71436a69934",
       "semantic_role": "text",
       "bounds": [
         94.64,
         509.35,
         111.66,
-        21.0
+        24.0
       ],
       "text": "octos-web",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14
+      "size": 16
     },
     {
       "source_id": "t_ws3_path",
       "native_id": "beauty_0_0_3_14",
       "parent": "recent_group",
       "kind": "text",
-      "component": "Textc97586fdfb03",
+      "component": "Text5adeb708ccbf",
       "semantic_role": "text",
       "bounds": [
         94.64,
         535.76,
         312.0,
-        18.05
+        19.5
       ],
       "text": "~/home/octos/octos-web",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 12
+      "size": 13
     },
     {
       "source_id": "browse",
@@ -547,6 +547,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "2de1ba6a3fb48654a9cb1a59e8b564248fa56e12a064589d948c8d5d6015d7f7",
+  "contract_sha256": "b4196d341a4b2bb73406280d25d36b91cfe16eb9315e02494ec2a7de18d233e2",
   "mapping_basis": "mapped.json"
 }

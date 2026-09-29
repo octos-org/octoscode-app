@@ -8,8 +8,9 @@ copy t_server_text { class: user-copy, en: "Server" }
 copy server_field_text { class: user-copy, en: "http://127.0.0.1:50190" }
 copy server_field_placeholder { class: user-copy, en: "" }
 copy t_token_text { class: user-copy, en: "Access token" }
-copy token_field_text { class: user-copy, en: "••••••••••••••••••••" }
+copy token_field_text { class: user-copy, en: "" }
 copy token_field_placeholder { class: user-copy, en: "" }
+copy token_dots_text { class: user-copy, en: "••••••••••••••••••••" }
 copy t_error_text { class: user-copy, en: "Token rejected by the server" }
 copy t_last_text { class: user-copy, en: "Last tried 9:41 PM ·" }
 copy retry_label_text { class: user-copy, en: "Retry" }
@@ -34,14 +35,20 @@ component Text78f817830549(instance: text, text: text) {
 component Surfacebc08397a72a6(instance: text) {
   view Kit(component: "Surfacebc08397a72a6", instance: instance) { slot }
 }
-component Inputbd0f96148a43(instance: text, text: text, placeholder: text, enabled: bool) {
-  view Kit(component: "Inputbd0f96148a43", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+component Input832dfe529a64(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Input832dfe529a64", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
 }
 component Texta2d809cd0da7(instance: text, text: text) {
   view Kit(component: "Texta2d809cd0da7", instance: instance, text: text)
 }
 component Surface60f9f67a8293(instance: text) {
   view Kit(component: "Surface60f9f67a8293", instance: instance) { slot }
+}
+component Input4d0dff503fef(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Input4d0dff503fef", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+}
+component Text8a96838bcf2a(instance: text, text: text) {
+  view Kit(component: "Text8a96838bcf2a", instance: instance, text: text)
 }
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
@@ -79,15 +86,16 @@ view root Surface156d085f4ff5(instance: "page") {
     Textc54ba87d5a24(instance: "t_title", text: copy.t_title_text)
     Text78f817830549(instance: "t_server", text: copy.t_server_text)
     Surfacebc08397a72a6(instance: "server") {
-      Inputbd0f96148a43(instance: "server_field", text: copy.server_field_text, placeholder: copy.server_field_placeholder, enabled: server_field_enabled) {
+      Input832dfe529a64(instance: "server_field", text: copy.server_field_text, placeholder: copy.server_field_placeholder, enabled: server_field_enabled) {
 
       }
     }
     Texta2d809cd0da7(instance: "t_token", text: copy.t_token_text)
     Surface60f9f67a8293(instance: "token") {
-      Inputbd0f96148a43(instance: "token_field", text: copy.token_field_text, placeholder: copy.token_field_placeholder, enabled: token_field_enabled) {
+      Input4d0dff503fef(instance: "token_field", text: copy.token_field_text, placeholder: copy.token_field_placeholder, enabled: token_field_enabled) {
 
       }
+      Text8a96838bcf2a(instance: "token_dots", text: copy.token_dots_text)
       Vectore0a378fde04f(instance: "token_eye")
     }
     Text8640c23bcac7(instance: "t_error", text: copy.t_error_text)

@@ -96,18 +96,18 @@
       "native_id": "beauty_0_0_2_0",
       "parent": "server",
       "kind": "input",
-      "component": "Inputbd0f96148a43",
+      "component": "Input832dfe529a64",
       "semantic_role": "input",
       "bounds": [
         60.0,
         225.58,
         286.0,
-        24.0
+        25.5
       ],
       "text": "http://127.0.0.1:50190",
       "enabled": 1,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 16
+      "size": 17
     },
     {
       "source_id": "t_token",
@@ -150,22 +150,40 @@
       "native_id": "beauty_0_0_4_0",
       "parent": "token",
       "kind": "input",
-      "component": "Inputbd0f96148a43",
+      "component": "Input4d0dff503fef",
       "semantic_role": "input",
       "bounds": [
         60.0,
         356.42,
         286.0,
-        24.0
+        25.5
       ],
-      "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+      "text": "",
       "enabled": 1,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 16
+      "size": 17
+    },
+    {
+      "source_id": "token_dots",
+      "native_id": "beauty_0_0_4_1",
+      "parent": "token",
+      "kind": "text",
+      "component": "Text8a96838bcf2a",
+      "semantic_role": "text",
+      "bounds": [
+        60.0,
+        350.49,
+        286.0,
+        22.5
+      ],
+      "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-700.ttf",
+      "size": 15
     },
     {
       "source_id": "token_eye",
-      "native_id": "beauty_0_0_4_1",
+      "native_id": "beauty_0_0_4_2",
       "parent": "token",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -383,8 +401,9 @@
   "fonts": {
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
+    "self:resources/ux/Inter-700.ttf": "b6e29575c0d0aff9c4c8f89763994876000a09fa9d0d1da32133aea5fdbfe0e5",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "7c8ab3d7872fb1facef1ea395d89d761d181c35ce2960639dff199229c6681d0",
+  "contract_sha256": "036ffed56f3ca577e1f096da04b67b6ad7a9974f6da1f78ca9aa7ae8b5c4df00",
   "mapping_basis": "mapped.json"
 }

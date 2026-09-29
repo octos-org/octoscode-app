@@ -30,20 +30,16 @@
       "value": "self:resources/ux/Inter-600.ttf",
       "property": "font_src"
     },
-    "bg_ced343610738": {
-      "value": 4294440952,
-      "property": "bg"
-    },
     "radius_2c624232cdd2": {
       "value": 8,
       "property": "radius"
     },
-    "size_e629fa6598d7": {
-      "value": 15,
+    "size_b17ef6d19c7a": {
+      "value": 16,
       "property": "size"
     },
-    "line_height_9cda9ecc682b": {
-      "value": 22.5,
+    "line_height_dce81cca4840": {
+      "value": 24.0,
       "property": "line_height"
     },
     "weight_0604cd3138fe": {
@@ -57,6 +53,14 @@
     "font_src_cb352dc03af3": {
       "value": "self:resources/ux/Inter-500.ttf",
       "property": "font_src"
+    },
+    "size_e629fa6598d7": {
+      "value": 15,
+      "property": "size"
+    },
+    "line_height_9cda9ecc682b": {
+      "value": 22.5,
+      "property": "line_height"
     },
     "weight_26d228663f13": {
       "value": 400,
@@ -78,24 +82,16 @@
       "value": 10,
       "property": "radius"
     },
-    "size_8527a891e224": {
-      "value": 14,
-      "property": "size"
-    },
-    "line_height_e4658389f3e9": {
-      "value": 21.0,
-      "property": "line_height"
-    },
     "color_6377b51ccda9": {
       "value": 4278782474,
       "property": "color"
     },
-    "size_6b51d431df5d": {
-      "value": 12,
+    "size_3fdba35f04dc": {
+      "value": 13,
       "property": "size"
     },
-    "line_height_af548c16e90c": {
-      "value": 19.31,
+    "line_height_553beed538e6": {
+      "value": 19.5,
       "property": "line_height"
     },
     "color_2297d0173cd2": {
@@ -110,17 +106,9 @@
       "value": 0,
       "property": "radius"
     },
-    "line_height_84a3f624503a": {
-      "value": 21.43,
-      "property": "line_height"
-    },
     "color_93f687360264": {
       "value": 4279506196,
       "property": "color"
-    },
-    "line_height_2fa857edb9df": {
-      "value": 19.17,
-      "property": "line_height"
     },
     "color_d52cd77c4816": {
       "value": 4285624690,
@@ -129,10 +117,6 @@
     "color_da306b75571b": {
       "value": 4279834649,
       "property": "color"
-    },
-    "line_height_4859f5f978a9": {
-      "value": 18.05,
-      "property": "line_height"
     },
     "color_d2ea721802d3": {
       "value": 4285690482,
@@ -150,17 +134,17 @@
       "value": 999,
       "property": "radius"
     },
-    "size_b17ef6d19c7a": {
-      "value": 16,
-      "property": "size"
-    },
-    "line_height_dce81cca4840": {
-      "value": 24.0,
-      "property": "line_height"
-    },
     "color_5539f3fae1c4": {
       "value": 4278650631,
       "property": "color"
+    },
+    "size_8527a891e224": {
+      "value": 14,
+      "property": "size"
+    },
+    "line_height_e4658389f3e9": {
+      "value": 21.0,
+      "property": "line_height"
     },
     "color_014316630850": {
       "value": 4278847753,
@@ -221,12 +205,12 @@
       },
       "slot": false
     },
-    "Surface382f80774fa6": {
+    "Surfaceec2e0f41be2a": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_ced343610738"
+          "$token": "bg_f807212b6748"
         },
         "radius": {
           "$token": "radius_2c624232cdd2"
@@ -244,14 +228,14 @@
       "props": {},
       "slot": false
     },
-    "Textab9c0f8422c1": {
+    "Text416a1d98b983": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_e629fa6598d7"
+          "$token": "size_b17ef6d19c7a"
         },
         "line_height": {
-          "$token": "line_height_9cda9ecc682b"
+          "$token": "line_height_dce81cca4840"
         },
         "weight": {
           "$token": "weight_0604cd3138fe"
@@ -340,14 +324,14 @@
       "props": {},
       "slot": true
     },
-    "Text8bc0157f7441": {
+    "Text2ddedf4ed2f9": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_8527a891e224"
+          "$token": "size_b17ef6d19c7a"
         },
         "line_height": {
-          "$token": "line_height_e4658389f3e9"
+          "$token": "line_height_dce81cca4840"
         },
         "weight": {
           "$token": "weight_0604cd3138fe"
@@ -366,14 +350,14 @@
       },
       "slot": false
     },
-    "Textaaed2a066a2a": {
+    "Text8de4c8ce743d": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_6b51d431df5d"
+          "$token": "size_3fdba35f04dc"
         },
         "line_height": {
-          "$token": "line_height_af548c16e90c"
+          "$token": "line_height_553beed538e6"
         },
         "weight": {
           "$token": "weight_26d228663f13"
@@ -406,14 +390,14 @@
       "props": {},
       "slot": true
     },
-    "Textca4e265d163c": {
+    "Text7046df6afbb9": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_8527a891e224"
+          "$token": "size_b17ef6d19c7a"
         },
         "line_height": {
-          "$token": "line_height_84a3f624503a"
+          "$token": "line_height_dce81cca4840"
         },
         "weight": {
           "$token": "weight_0604cd3138fe"
@@ -432,14 +416,14 @@
       },
       "slot": false
     },
-    "Text8f7dd13f13b8": {
+    "Textfccd408f30d5": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_6b51d431df5d"
+          "$token": "size_3fdba35f04dc"
         },
         "line_height": {
-          "$token": "line_height_2fa857edb9df"
+          "$token": "line_height_553beed538e6"
         },
         "weight": {
           "$token": "weight_26d228663f13"
@@ -458,14 +442,14 @@
       },
       "slot": false
     },
-    "Textc1b2a0f84c80": {
+    "Text7bf960131281": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_8527a891e224"
+          "$token": "size_b17ef6d19c7a"
         },
         "line_height": {
-          "$token": "line_height_e4658389f3e9"
+          "$token": "line_height_dce81cca4840"
         },
         "weight": {
           "$token": "weight_0604cd3138fe"
@@ -484,14 +468,14 @@
       },
       "slot": false
     },
-    "Text93ef24aad2d5": {
+    "Text2167f2515124": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_6b51d431df5d"
+          "$token": "size_3fdba35f04dc"
         },
         "line_height": {
-          "$token": "line_height_4859f5f978a9"
+          "$token": "line_height_553beed538e6"
         },
         "weight": {
           "$token": "weight_26d228663f13"
@@ -510,14 +494,14 @@
       },
       "slot": false
     },
-    "Text43efa5e1266e": {
+    "Texte71436a69934": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_8527a891e224"
+          "$token": "size_b17ef6d19c7a"
         },
         "line_height": {
-          "$token": "line_height_e4658389f3e9"
+          "$token": "line_height_dce81cca4840"
         },
         "weight": {
           "$token": "weight_0604cd3138fe"
@@ -536,14 +520,14 @@
       },
       "slot": false
     },
-    "Textc97586fdfb03": {
+    "Text5adeb708ccbf": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_6b51d431df5d"
+          "$token": "size_3fdba35f04dc"
         },
         "line_height": {
-          "$token": "line_height_4859f5f978a9"
+          "$token": "line_height_553beed538e6"
         },
         "weight": {
           "$token": "weight_26d228663f13"

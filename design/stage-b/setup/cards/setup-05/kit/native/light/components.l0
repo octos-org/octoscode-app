@@ -16,8 +16,8 @@ component Textbbee5f4d4025(instance: text, text: text) {
 component Surfacebc08397a72a6(instance: text) {
   view Kit(component: "Surfacebc08397a72a6", instance: instance) { slot }
 }
-component Input40dfb0b2dc25(instance: text, text: text, placeholder: text, enabled: bool) {
-  view Kit(component: "Input40dfb0b2dc25", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+component Inputc54128acf65f(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Inputc54128acf65f", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
 }
 component Textfe0b97eafab5(instance: text, text: text) {
   view Kit(component: "Textfe0b97eafab5", instance: instance, text: text)
@@ -28,11 +28,11 @@ component Text4ca76db8fb6d(instance: text, text: text) {
 component Textdf31566c02d1(instance: text, text: text) {
   view Kit(component: "Textdf31566c02d1", instance: instance, text: text)
 }
-component Surface5e76d82e8b78(instance: text) {
-  view Kit(component: "Surface5e76d82e8b78", instance: instance) { slot }
+component Surfaceec2e0f41be2a(instance: text) {
+  view Kit(component: "Surfaceec2e0f41be2a", instance: instance) { slot }
 }
-component Surfacefcfdbbddc65b(instance: text) {
-  view Kit(component: "Surfacefcfdbbddc65b", instance: instance) { slot }
+component Surface5245d50005d8(instance: text) {
+  view Kit(component: "Surface5245d50005d8", instance: instance) { slot }
 }
 component Textc1ca2c3cdb0e(instance: text, text: text) {
   view Kit(component: "Textc1ca2c3cdb0e", instance: instance, text: text)
@@ -48,9 +48,6 @@ component Surfacec4c38149242a(instance: text) {
 }
 component Text266373d7c3a7(instance: text, text: text) {
   view Kit(component: "Text266373d7c3a7", instance: instance, text: text)
-}
-component Surfaceec2e0f41be2a(instance: text) {
-  view Kit(component: "Surfaceec2e0f41be2a", instance: instance) { slot }
 }
 component Text1e88c409830c(instance: text, text: text) {
   view Kit(component: "Text1e88c409830c", instance: instance, text: text)

@@ -48,12 +48,12 @@
         }
       },
       "server_field": {
-        "component": "Inputbd0f96148a43",
+        "component": "Input832dfe529a64",
         "layout": {
           "x": 60.0,
           "y": 225.58,
           "w": 286.0,
-          "h": 24.0
+          "h": 25.5
         }
       },
       "t_token": {
@@ -75,12 +75,21 @@
         }
       },
       "token_field": {
-        "component": "Inputbd0f96148a43",
+        "component": "Input4d0dff503fef",
         "layout": {
           "x": 60.0,
           "y": 356.42,
           "w": 286.0,
-          "h": 24.0
+          "h": 25.5
+        }
+      },
+      "token_dots": {
+        "component": "Text8a96838bcf2a",
+        "layout": {
+          "x": 60.0,
+          "y": 350.49,
+          "w": 286.0,
+          "h": 22.5
         }
       },
       "token_eye": {

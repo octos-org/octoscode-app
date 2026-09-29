@@ -111,7 +111,7 @@
         94.73,
         291.0,
         45.11,
-        21.0
+        24.0
       ],
       "status": "observed",
       "ocr_text": "octos",
@@ -143,7 +143,7 @@
         94.73,
         314.05,
         240.0,
-        19.31
+        19.5
       ],
       "status": "observed",
       "ocr_text": "~/home/octos",
@@ -175,7 +175,7 @@
         94.64,
         361.49,
         118.6,
-        21.43
+        24.0
       ],
       "status": "observed",
       "ocr_text": "octoscode-app",
@@ -207,7 +207,7 @@
         94.64,
         388.0,
         240.0,
-        19.17
+        19.5
       ],
       "status": "observed",
       "ocr_text": "~/home/octos/octoscode-app",
@@ -239,7 +239,7 @@
         93.61,
         435.37,
         58.64,
-        21.0
+        24.0
       ],
       "status": "observed",
       "ocr_text": "robrix2",
@@ -271,7 +271,7 @@
         93.61,
         461.31,
         240.0,
-        18.05
+        19.5
       ],
       "status": "observed",
       "ocr_text": "~/home/octos/robrix2",
@@ -303,7 +303,7 @@
         94.64,
         509.35,
         85.89,
-        21.0
+        24.0
       ],
       "status": "observed",
       "ocr_text": "octos-web",
@@ -335,7 +335,7 @@
         94.64,
         535.76,
         240.0,
-        18.05
+        19.5
       ],
       "status": "observed",
       "ocr_text": "~/home/octos/octos-web",
@@ -468,9 +468,9 @@
       "id": "folder_icon",
       "bounds": [
         48.172,
-        145.728,
-        23.611,
-        23.831
+        141.395,
+        32.197,
+        32.497
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -514,9 +514,9 @@
       "id": "ws_icon0",
       "bounds": [
         42.293,
-        283.154,
-        21.847,
-        20.426
+        279.068,
+        30.586,
+        28.597
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -536,9 +536,9 @@
       "id": "ws_icon1",
       "bounds": [
         42.293,
-        358.027,
-        21.847,
-        20.426
+        353.941,
+        30.586,
+        28.597
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -558,9 +558,9 @@
       "id": "ws_icon2",
       "bounds": [
         42.293,
-        431.756,
-        21.847,
-        20.426
+        427.671,
+        30.586,
+        28.597
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false
@@ -580,9 +580,9 @@
       "id": "ws_icon3",
       "bounds": [
         42.293,
-        507.201,
-        21.847,
-        20.426
+        503.116,
+        30.586,
+        28.597
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false

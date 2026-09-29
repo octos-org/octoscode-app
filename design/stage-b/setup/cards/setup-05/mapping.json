@@ -114,7 +114,7 @@
       "native_id": "beauty_0_0_3_0",
       "parent": "model",
       "kind": "input",
-      "component": "Input40dfb0b2dc25",
+      "component": "Inputc54128acf65f",
       "semantic_role": "input",
       "bounds": [
         60.0,
@@ -125,7 +125,7 @@
       "text": "deepseek-v4-flash",
       "enabled": 1,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 16
+      "size": 17
     },
     {
       "source_id": "model_caret",
@@ -186,7 +186,7 @@
       "native_id": "beauty_0_0_6",
       "parent": "outer_card",
       "kind": "stack",
-      "component": "Surface5e76d82e8b78",
+      "component": "Surfaceec2e0f41be2a",
       "semantic_role": "layout",
       "bounds": [
         46.0,
@@ -204,7 +204,7 @@
       "native_id": "beauty_0_0_6_0",
       "parent": "segments",
       "kind": "stack",
-      "component": "Surfacefcfdbbddc65b",
+      "component": "Surface5245d50005d8",
       "semantic_role": "layout",
       "bounds": [
         48.54,
@@ -353,7 +353,7 @@
       "bounds": [
         58.64,
         627.0,
-        76.0,
+        54.0,
         22.67
       ],
       "text": "Enabled",
@@ -369,7 +369,7 @@
       "component": "Text48f5e967e862",
       "semantic_role": "text",
       "bounds": [
-        138.64,
+        114.64,
         627.0,
         295.0,
         22.67
@@ -386,6 +386,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-700.ttf": "b6e29575c0d0aff9c4c8f89763994876000a09fa9d0d1da32133aea5fdbfe0e5"
   },
-  "contract_sha256": "8d364401c1c519f9d54a01e08fee2bee2cc4ae3eac0bf60014cb2cc84ec2e94b",
+  "contract_sha256": "4ab33aca148b6a474a9fff87882985565a9499b234916c54ea5fab1c27e55ed4",
   "mapping_basis": "mapped.json"
 }

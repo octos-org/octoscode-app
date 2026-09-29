@@ -105,6 +105,17 @@
       ]
     },
     {
+      "id": "token_dots",
+      "expected_text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+      "requested_bounds": [
+        60.0,
+        349.37,
+        220.0,
+        22.5
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
       "id": "t_hint",
       "expected_text": "Stored for this server only",
       "requested_bounds": [
@@ -246,7 +257,7 @@
         61.777,
         221.357,
         281.446,
-        28.713
+        30.508
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -270,7 +281,7 @@
         61.822,
         350.678,
         282.357,
-        39.356
+        41.816
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false

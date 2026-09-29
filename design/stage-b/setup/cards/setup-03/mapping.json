@@ -96,18 +96,18 @@
       "native_id": "beauty_0_0_2_0",
       "parent": "profile",
       "kind": "input",
-      "component": "Inputbd0f96148a43",
+      "component": "Input832dfe529a64",
       "semantic_role": "input",
       "bounds": [
         60.0,
         205.16,
         286.0,
-        24.0
+        25.5
       ],
       "text": "octos-dev",
       "enabled": 1,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 16
+      "size": 17
     },
     {
       "source_id": "t_provider",
@@ -132,7 +132,7 @@
       "native_id": "beauty_0_0_4",
       "parent": "outer_card",
       "kind": "stack",
-      "component": "Surfaced4707dd25870",
+      "component": "Surface409a8dfb0311",
       "semantic_role": "layout",
       "bounds": [
         46.0,
@@ -168,18 +168,18 @@
       "native_id": "beauty_0_0_4_1",
       "parent": "provider_deepseek",
       "kind": "text",
-      "component": "Text5845c2b38043",
+      "component": "Text684c870f921b",
       "semantic_role": "text",
       "bounds": [
         92.0,
         330.48,
         325.0,
-        21.52
+        24.0
       ],
       "text": "DeepSeek \u2022 Official API",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14
+      "size": 16
     },
     {
       "source_id": "provider_kimi",
@@ -222,7 +222,7 @@
       "native_id": "beauty_0_0_5_1",
       "parent": "provider_kimi",
       "kind": "text",
-      "component": "Text2f665e198ea4",
+      "component": "Textfe983b7a369c",
       "semantic_role": "text",
       "bounds": [
         92.0,
@@ -233,7 +233,7 @@
       "text": "Kimi Coding Plan",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14
+      "size": 16
     },
     {
       "source_id": "provider_glm",
@@ -276,18 +276,18 @@
       "native_id": "beauty_0_0_6_1",
       "parent": "provider_glm",
       "kind": "text",
-      "component": "Text53fce0316d7d",
+      "component": "Text684c870f921b",
       "semantic_role": "text",
       "bounds": [
         92.0,
         435.9,
         325.0,
-        23.75
+        24.0
       ],
       "text": "GLM Coding Plan",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14
+      "size": 16
     },
     {
       "source_id": "t_apikey",
@@ -330,22 +330,40 @@
       "native_id": "beauty_0_0_8_0",
       "parent": "apikey",
       "kind": "input",
-      "component": "Inputbd0f96148a43",
+      "component": "Input4d0dff503fef",
       "semantic_role": "input",
       "bounds": [
         60.0,
         553.8,
         286.0,
-        24.0
+        25.5
       ],
-      "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+      "text": "",
       "enabled": 1,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 16
+      "size": 17
+    },
+    {
+      "source_id": "apikey_dots",
+      "native_id": "beauty_0_0_8_1",
+      "parent": "apikey",
+      "kind": "text",
+      "component": "Text8a96838bcf2a",
+      "semantic_role": "text",
+      "bounds": [
+        60.0,
+        547.31,
+        286.0,
+        22.5
+      ],
+      "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-700.ttf",
+      "size": 15
     },
     {
       "source_id": "apikey_eye",
-      "native_id": "beauty_0_0_8_1",
+      "native_id": "beauty_0_0_8_2",
       "parent": "apikey",
       "kind": "svg",
       "component": "Vectore0a378fde04f",
@@ -455,8 +473,9 @@
   "fonts": {
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
-    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/Inter-700.ttf": "b6e29575c0d0aff9c4c8f89763994876000a09fa9d0d1da32133aea5fdbfe0e5"
   },
-  "contract_sha256": "8361bfa795d3cff9470be7a3f06789ffad9c3856868f747b3e00e43824de9598",
+  "contract_sha256": "639cd41c995b47a2ddd2a7bfd13aa708b2fe3aa767dc943de2d6399c1ea8f963",
   "mapping_basis": "mapped.json"
 }

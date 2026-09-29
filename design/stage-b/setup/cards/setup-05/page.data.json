@@ -57,7 +57,7 @@
         }
       },
       "model_field": {
-        "component": "Input40dfb0b2dc25",
+        "component": "Inputc54128acf65f",
         "layout": {
           "x": 60.0,
           "y": 213.0,
@@ -93,7 +93,7 @@
         }
       },
       "segments": {
-        "component": "Surface5e76d82e8b78",
+        "component": "Surfaceec2e0f41be2a",
         "layout": {
           "x": 46.0,
           "y": 426.21,
@@ -102,7 +102,7 @@
         }
       },
       "seg_sel": {
-        "component": "Surfacefcfdbbddc65b",
+        "component": "Surface5245d50005d8",
         "layout": {
           "x": 48.54,
           "y": 430.21,
@@ -178,14 +178,14 @@
         "layout": {
           "x": 58.64,
           "y": 627.0,
-          "w": 76.0,
+          "w": 54.0,
           "h": 22.67
         }
       },
       "t_sb_r": {
         "component": "Text48f5e967e862",
         "layout": {
-          "x": 138.64,
+          "x": 114.64,
           "y": 627.0,
           "w": 295.0,
           "h": 22.67

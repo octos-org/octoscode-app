@@ -74,8 +74,8 @@
       "value": 8,
       "property": "radius"
     },
-    "size_b17ef6d19c7a": {
-      "value": 16,
+    "size_4523540f1504": {
+      "value": 17,
       "property": "size"
     },
     "line_height_63a4b0ea4b13": {
@@ -105,10 +105,6 @@
     "color_39ad9e68cd36": {
       "value": 4279111182,
       "property": "color"
-    },
-    "bg_da6da7821846": {
-      "value": 4294111991,
-      "property": "bg"
     },
     "radius_7902699be42c": {
       "value": 7,
@@ -289,11 +285,11 @@
       "props": {},
       "slot": true
     },
-    "Input40dfb0b2dc25": {
+    "Inputc54128acf65f": {
       "style": {
         "t": "input",
         "size": {
-          "$token": "size_b17ef6d19c7a"
+          "$token": "size_4523540f1504"
         },
         "line_height": {
           "$token": "line_height_63a4b0ea4b13"
@@ -395,12 +391,12 @@
       },
       "slot": false
     },
-    "Surface5e76d82e8b78": {
+    "Surfaceec2e0f41be2a": {
       "style": {
         "t": "stack",
         "variant": "surface",
         "bg": {
-          "$token": "bg_da6da7821846"
+          "$token": "bg_f807212b6748"
         },
         "radius": {
           "$token": "radius_2c624232cdd2"
@@ -411,7 +407,7 @@
       "props": {},
       "slot": true
     },
-    "Surfacefcfdbbddc65b": {
+    "Surface5245d50005d8": {
       "style": {
         "t": "stack",
         "variant": "surface",
@@ -420,7 +416,9 @@
         },
         "radius": {
           "$token": "radius_7902699be42c"
-        }
+        },
+        "border": 1,
+        "bordercolor": 4280098079
       },
       "props": {},
       "slot": true
@@ -542,22 +540,6 @@
         "text": "text"
       },
       "slot": false
-    },
-    "Surfaceec2e0f41be2a": {
-      "style": {
-        "t": "stack",
-        "variant": "surface",
-        "bg": {
-          "$token": "bg_f807212b6748"
-        },
-        "radius": {
-          "$token": "radius_2c624232cdd2"
-        },
-        "border": 1,
-        "bordercolor": 4293256679
-      },
-      "props": {},
-      "slot": true
     },
     "Text1e88c409830c": {
       "style": {

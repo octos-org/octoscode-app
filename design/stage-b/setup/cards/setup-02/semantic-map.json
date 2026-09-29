@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "7c8ab3d7872fb1facef1ea395d89d761d181c35ce2960639dff199229c6681d0",
+  "contract_sha256": "036ffed56f3ca577e1f096da04b67b6ad7a9974f6da1f78ca9aa7ae8b5c4df00",
   "reference_sha256": "cfdf9b000c01ce80655ea736e8e844eeab922eac92a1a29a8b99d9d127bb0ecb",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -77,6 +77,13 @@
         "target": "token_field",
         "property": "text"
       }
+    },
+    {
+      "id": "token_dots",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
     },
     {
       "id": "token_eye",

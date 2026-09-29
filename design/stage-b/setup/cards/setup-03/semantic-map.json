@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "8361bfa795d3cff9470be7a3f06789ffad9c3856868f747b3e00e43824de9598",
+  "contract_sha256": "639cd41c995b47a2ddd2a7bfd13aa708b2fe3aa767dc943de2d6399c1ea8f963",
   "reference_sha256": "33f5f3c529151411246085a86d2a91b8475ba2a7a449207b6c47eda4c636abbe",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -174,6 +174,13 @@
         "target": "apikey_field",
         "property": "text"
       }
+    },
+    {
+      "id": "apikey_dots",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
     },
     {
       "id": "apikey_eye",

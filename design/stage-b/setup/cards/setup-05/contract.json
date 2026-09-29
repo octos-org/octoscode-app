@@ -101,7 +101,7 @@
                 "y": 213.0,
                 "w": 286.0,
                 "h": 26.12,
-                "size": 16,
+                "size": 17,
                 "line_height": 26.12,
                 "weight": 400,
                 "color": 4280098079,
@@ -184,7 +184,9 @@
                 "c": [],
                 "variant": "surface",
                 "bg": 4294967295,
-                "radius": 7
+                "radius": 7,
+                "border": 1,
+                "bordercolor": 4280098079
               },
               {
                 "t": "text",
@@ -260,7 +262,7 @@
               }
             ],
             "variant": "surface",
-            "bg": 4294111991,
+            "bg": 4294967295,
             "radius": 8,
             "border": 1,
             "bordercolor": 4293256679
@@ -295,7 +297,7 @@
                 "text": "Enabled",
                 "x": 58.64,
                 "y": 627.0,
-                "w": 76.0,
+                "w": 54.0,
                 "h": 22.67,
                 "size": 14,
                 "line_height": 22.67,
@@ -309,9 +311,9 @@
                 "t": "text",
                 "id": "t_sb_r",
                 "text": "· Network off · Workspace write",
-                "x": 138.64,
+                "x": 114.64,
                 "y": 627.0,
-                "w": 230.0,
+                "w": 250.0,
                 "h": 22.67,
                 "size": 14,
                 "line_height": 22.67,

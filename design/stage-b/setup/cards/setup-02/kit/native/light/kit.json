@@ -54,12 +54,12 @@
       "value": 8,
       "property": "radius"
     },
-    "size_b17ef6d19c7a": {
-      "value": 16,
+    "size_4523540f1504": {
+      "value": 17,
       "property": "size"
     },
-    "line_height_dce81cca4840": {
-      "value": 24.0,
+    "line_height_c2068c8abdd8": {
+      "value": 25.5,
       "property": "line_height"
     },
     "color_e0ccdd36059a": {
@@ -69,6 +69,18 @@
     "color_79ac99cbdb18": {
       "value": 4280953643,
       "property": "color"
+    },
+    "color_5e6b06fd707a": {
+      "value": 4285427315,
+      "property": "color"
+    },
+    "weight_99ee50221221": {
+      "value": 700,
+      "property": "weight"
+    },
+    "font_src_37b1248eceeb": {
+      "value": "self:resources/ux/Inter-700.ttf",
+      "property": "font_src"
     },
     "size_8527a891e224": {
       "value": 14,
@@ -117,6 +129,10 @@
     "radius_83cf8b609de6": {
       "value": 999,
       "property": "radius"
+    },
+    "size_b17ef6d19c7a": {
+      "value": 16,
+      "property": "size"
     },
     "line_height_9481b1d96930": {
       "value": 24.27,
@@ -231,14 +247,14 @@
       "props": {},
       "slot": true
     },
-    "Inputbd0f96148a43": {
+    "Input832dfe529a64": {
       "style": {
         "t": "input",
         "size": {
-          "$token": "size_b17ef6d19c7a"
+          "$token": "size_4523540f1504"
         },
         "line_height": {
-          "$token": "line_height_dce81cca4840"
+          "$token": "line_height_c2068c8abdd8"
         },
         "weight": {
           "$token": "weight_26d228663f13"
@@ -300,6 +316,60 @@
       },
       "props": {},
       "slot": true
+    },
+    "Input4d0dff503fef": {
+      "style": {
+        "t": "input",
+        "size": {
+          "$token": "size_4523540f1504"
+        },
+        "line_height": {
+          "$token": "line_height_c2068c8abdd8"
+        },
+        "weight": {
+          "$token": "weight_26d228663f13"
+        },
+        "color": {
+          "$token": "color_5e6b06fd707a"
+        },
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_86ab34a300f7"
+        }
+      },
+      "props": {
+        "text": "text",
+        "placeholder": "placeholder",
+        "enabled": "enabled"
+      },
+      "slot": true
+    },
+    "Text8a96838bcf2a": {
+      "style": {
+        "t": "text",
+        "size": {
+          "$token": "size_e629fa6598d7"
+        },
+        "line_height": {
+          "$token": "line_height_9cda9ecc682b"
+        },
+        "weight": {
+          "$token": "weight_99ee50221221"
+        },
+        "color": {
+          "$token": "color_e0ccdd36059a"
+        },
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_37b1248eceeb"
+        }
+      },
+      "props": {
+        "text": "text"
+      },
+      "slot": false
     },
     "Vectore0a378fde04f": {
       "style": {

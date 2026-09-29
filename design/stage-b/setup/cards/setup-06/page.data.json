@@ -159,18 +159,18 @@
         }
       },
       "t_notif": {
-        "component": "Textcbac1a2e2337",
+        "component": "Text739d693858ad",
         "layout": {
           "x": 54.13,
           "y": 404.92,
           "w": 214.06,
-          "h": 22.58
+          "h": 24.0
         }
       },
       "toggle1": {
         "component": "Surfaceb137a51eded7",
         "layout": {
-          "x": 268.0,
+          "x": 312.0,
           "y": 398.92,
           "w": 50.0,
           "h": 30.0
@@ -179,7 +179,7 @@
       "toggle1_knob": {
         "component": "Surfaceab0895dcdf57",
         "layout": {
-          "x": 294.0,
+          "x": 338.0,
           "y": 401.92,
           "w": 24.0,
           "h": 24.0
@@ -191,11 +191,11 @@
           "x": 28.0,
           "y": 462.0,
           "w": 350.0,
-          "h": 90.0
+          "h": 76.0
         }
       },
       "t_diag": {
-        "component": "Text8d2990ef2ebd",
+        "component": "Text4da9dcc73b92",
         "layout": {
           "x": 51.78,
           "y": 509.27,
@@ -206,10 +206,10 @@
       "copy_diag": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 344.0,
-          "y": 510.66,
-          "w": 22.0,
-          "h": 22.0,
+          "x": 338.0,
+          "y": 506.66,
+          "w": 30.0,
+          "h": 30.0,
           "src": "http://127.0.0.1:8170/ux-images/setup-06/assets/copy_diag-e71cb744fd09.svg"
         }
       },

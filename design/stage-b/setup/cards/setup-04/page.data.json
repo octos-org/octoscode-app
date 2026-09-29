@@ -30,7 +30,7 @@
         }
       },
       "folder": {
-        "component": "Surface382f80774fa6",
+        "component": "Surfaceec2e0f41be2a",
         "layout": {
           "x": 46.0,
           "y": 136.85,
@@ -42,19 +42,19 @@
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 62.0,
-          "y": 148.6,
-          "w": 22.0,
-          "h": 22.0,
+          "y": 144.6,
+          "w": 30.0,
+          "h": 30.0,
           "src": "http://127.0.0.1:8170/ux-images/setup-04/assets/folder_icon-cba5fa12f954.svg"
         }
       },
       "t_sfolder": {
-        "component": "Textab9c0f8422c1",
+        "component": "Text416a1d98b983",
         "layout": {
           "x": 92.0,
           "y": 150.85,
           "w": 260.0,
-          "h": 22.5
+          "h": 24.0
         }
       },
       "folder_field": {
@@ -98,28 +98,28 @@
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 60.0,
-          "y": 288.9,
-          "w": 20.0,
-          "h": 20.0,
+          "y": 284.9,
+          "w": 28.0,
+          "h": 28.0,
           "src": "http://127.0.0.1:8170/ux-images/setup-04/assets/ws_icon0-cba5fa12f954.svg"
         }
       },
       "t_ws0_name": {
-        "component": "Text8bc0157f7441",
+        "component": "Text2ddedf4ed2f9",
         "layout": {
           "x": 94.73,
           "y": 291.0,
           "w": 58.64,
-          "h": 21.0
+          "h": 24.0
         }
       },
       "t_ws0_path": {
-        "component": "Textaaed2a066a2a",
+        "component": "Text8de4c8ce743d",
         "layout": {
           "x": 94.73,
           "y": 314.05,
           "w": 312.0,
-          "h": 19.31
+          "h": 19.5
         }
       },
       "hair_ws1": {
@@ -135,28 +135,28 @@
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 60.0,
-          "y": 362.21,
-          "w": 20.0,
-          "h": 20.0,
+          "y": 358.21,
+          "w": 28.0,
+          "h": 28.0,
           "src": "http://127.0.0.1:8170/ux-images/setup-04/assets/ws_icon1-cba5fa12f954.svg"
         }
       },
       "t_ws1_name": {
-        "component": "Textca4e265d163c",
+        "component": "Text7046df6afbb9",
         "layout": {
           "x": 94.64,
           "y": 361.49,
           "w": 154.18,
-          "h": 21.43
+          "h": 24.0
         }
       },
       "t_ws1_path": {
-        "component": "Text8f7dd13f13b8",
+        "component": "Textfccd408f30d5",
         "layout": {
           "x": 94.64,
           "y": 388.0,
           "w": 312.0,
-          "h": 19.17
+          "h": 19.5
         }
       },
       "hair_ws2": {
@@ -172,28 +172,28 @@
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 60.0,
-          "y": 434.4,
-          "w": 20.0,
-          "h": 20.0,
+          "y": 430.4,
+          "w": 28.0,
+          "h": 28.0,
           "src": "http://127.0.0.1:8170/ux-images/setup-04/assets/ws_icon2-cba5fa12f954.svg"
         }
       },
       "t_ws2_name": {
-        "component": "Textc1b2a0f84c80",
+        "component": "Text7bf960131281",
         "layout": {
           "x": 93.61,
           "y": 435.37,
           "w": 76.23,
-          "h": 21.0
+          "h": 24.0
         }
       },
       "t_ws2_path": {
-        "component": "Text93ef24aad2d5",
+        "component": "Text2167f2515124",
         "layout": {
           "x": 93.61,
           "y": 461.31,
           "w": 312.0,
-          "h": 18.05
+          "h": 19.5
         }
       },
       "hair_ws3": {
@@ -209,28 +209,28 @@
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 60.0,
-          "y": 508.27,
-          "w": 20.0,
-          "h": 20.0,
+          "y": 504.27,
+          "w": 28.0,
+          "h": 28.0,
           "src": "http://127.0.0.1:8170/ux-images/setup-04/assets/ws_icon3-cba5fa12f954.svg"
         }
       },
       "t_ws3_name": {
-        "component": "Text43efa5e1266e",
+        "component": "Texte71436a69934",
         "layout": {
           "x": 94.64,
           "y": 509.35,
           "w": 111.66,
-          "h": 21.0
+          "h": 24.0
         }
       },
       "t_ws3_path": {
-        "component": "Textc97586fdfb03",
+        "component": "Text5adeb708ccbf",
         "layout": {
           "x": 94.64,
           "y": 535.76,
           "w": 312.0,
-          "h": 18.05
+          "h": 19.5
         }
       },
       "browse": {

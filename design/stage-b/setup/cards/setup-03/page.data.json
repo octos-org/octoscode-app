@@ -48,12 +48,12 @@
         }
       },
       "profile_field": {
-        "component": "Inputbd0f96148a43",
+        "component": "Input832dfe529a64",
         "layout": {
           "x": 60.0,
           "y": 205.16,
           "w": 286.0,
-          "h": 24.0
+          "h": 25.5
         }
       },
       "t_provider": {
@@ -66,7 +66,7 @@
         }
       },
       "provider_deepseek": {
-        "component": "Surfaced4707dd25870",
+        "component": "Surface409a8dfb0311",
         "layout": {
           "x": 46.0,
           "y": 320.48,
@@ -85,12 +85,12 @@
         }
       },
       "t_prov_deepseek": {
-        "component": "Text5845c2b38043",
+        "component": "Text684c870f921b",
         "layout": {
           "x": 92.0,
           "y": 330.48,
           "w": 325.0,
-          "h": 21.52
+          "h": 24.0
         }
       },
       "provider_kimi": {
@@ -113,7 +113,7 @@
         }
       },
       "t_prov_kimi": {
-        "component": "Text2f665e198ea4",
+        "component": "Textfe983b7a369c",
         "layout": {
           "x": 92.0,
           "y": 381.49,
@@ -141,12 +141,12 @@
         }
       },
       "t_prov_glm": {
-        "component": "Text53fce0316d7d",
+        "component": "Text684c870f921b",
         "layout": {
           "x": 92.0,
           "y": 435.9,
           "w": 325.0,
-          "h": 23.75
+          "h": 24.0
         }
       },
       "t_apikey": {
@@ -168,12 +168,21 @@
         }
       },
       "apikey_field": {
-        "component": "Inputbd0f96148a43",
+        "component": "Input4d0dff503fef",
         "layout": {
           "x": 60.0,
           "y": 553.8,
           "w": 286.0,
-          "h": 24.0
+          "h": 25.5
+        }
+      },
+      "apikey_dots": {
+        "component": "Text8a96838bcf2a",
+        "layout": {
+          "x": 60.0,
+          "y": 547.31,
+          "w": 286.0,
+          "h": 22.5
         }
       },
       "apikey_eye": {

@@ -244,15 +244,15 @@
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
       "bg": 4294901502,
-      "radius": 10.27
+      "radius": 12.16
     },
     {
       "id": "copy_diag",
       "bounds": [
-        338.069,
-        522.631,
-        21.309,
-        18.822
+        332.257,
+        526.248,
+        29.057,
+        30.395
       ],
       "method": "graphic extent projected from observed parent; visual annotation needed",
       "reviewed": false

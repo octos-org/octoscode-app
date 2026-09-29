@@ -105,6 +105,17 @@
       ]
     },
     {
+      "id": "token_dots",
+      "expected_text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+      "requested_bounds": [
+        60.0,
+        350.49,
+        220.0,
+        22.5
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
       "id": "t_error",
       "expected_text": "Token rejected by the server",
       "requested_bounds": [
@@ -289,7 +300,7 @@
         61.777,
         221.0,
         281.446,
-        27.999
+        29.749
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
@@ -313,7 +324,7 @@
         60.822,
         350.678,
         282.357,
-        39.356
+        41.816
       ],
       "method": "inferred semantic extent from observed parent",
       "reviewed": false
