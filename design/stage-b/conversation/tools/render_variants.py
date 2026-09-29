@@ -679,7 +679,12 @@ def apply_variant(tree, comp, variant):
             continue
         y0 = min(k["y"] for k in kids)
         h = max(k["h"] for k in kids)
-        row = {"t": "stack", "id": row_id, "x": 0.0, "y": y0, "w": parent.get("w", 0.0),
+        # Card #18f item 3: author the row at the PARENT's absolute x. `relativize`
+        # rebases a wrapped child by its parent's absolute origin, so x=0.0 landed
+        # the row at -12 and dragged the whole right-anchored cluster left until the
+        # collapsing fill spacer left only 8.5px between the label and the value.
+        row = {"t": "stack", "id": row_id, "x": parent.get("x", 0.0), "y": y0,
+               "w": parent.get("w", 0.0),
                "h": h, "fillw": 1, "variant": "row", "c": []}
         row["c"].append({"t": "stack", "id": row_id + "_spacer", "x": 0.0,
                          "y": 0.0, "w": 8.0, "h": h, "fillw": 1})
