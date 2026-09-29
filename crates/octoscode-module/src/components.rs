@@ -588,11 +588,17 @@ fn right_align_timestamp(ui: &str) -> String {
     // 1. the row spans its slot (the artboard's 364px left a gutter).
     let s = s.replace("width: 364.11", "width: Fill");
     // 2. both the label wrapper and the label itself become Fill so the run can
-    //    reach the column edge; the wrapper keeps a 16px right inset.
+    //    reach the column edge. The wrapper keeps a right inset that clears the
+    //    PortalList's scrollbar: `ScrollBar { bar_size: 10, bar_side_margin: 3 }`
+    //    (scroll_bar.rs:25-27) draws a ~13px handle over the list's last pixels,
+    //    and the #21e flush-right push put `now`/`Sep 29, 8:17 AM` under it.
+    //    The emitted wrapper margin is the artboard's own `left: 243.64`
+    //    (NOT the `268` an earlier revision anchored on, which never matched) —
+    //    anchor on the real text.
     let s = s.replace("width: 121.5", "width: Fill");
     let s = s.replace(
-        "margin: Inset{left: 268 top: 1.5 right: 0 bottom: 0}",
-        "margin: Inset{left: 0 top: 1.5 right: 16 bottom: 0}",
+        "margin: Inset{left: 243.64 top: 1.5 right: 0 bottom: 0}",
+        "margin: Inset{left: 0 top: 1.5 right: 20 bottom: 0}",
     );
     // 3. right-align the label's own text run.
     s.replace("align: Align{x: 0 y: 0.5}", "align: Align{x: 1.0 y: 0.5}")
@@ -632,10 +638,18 @@ fn symmetric_bubble_padding(ui: &str) -> String {
         "margin: Inset{left: 15.72 top: 11.090000000000003 right: 0 bottom: 0}",
         "margin: 0",
     );
-    // The cleared second line is a spacer: a small gap above, none below.
+    // The cleared second line is bound to `@clear` for live data — the whole
+    // message rides `t01` (which wraps). An empty `Label` still reserves its
+    // line box, which read as ~29px of dead black under the last text line
+    // (`g3-completed.png`), so collapse the label and let its `Fit` wrapper
+    // shrink to zero with it.
     s.replace(
         "margin: Inset{left: 15.790000000000006 top: 48.59 right: 0 bottom: 0}",
-        "margin: Inset{left: 0 top: 4 right: 0 bottom: 0}",
+        "margin: 0",
+    )
+    .replace(
+        "i0_userbubble_1 := Label {\nwidth: 224.5 height: Fit",
+        "i0_userbubble_1 := Label {\nwidth: 224.5 height: 0",
     )
 }
 

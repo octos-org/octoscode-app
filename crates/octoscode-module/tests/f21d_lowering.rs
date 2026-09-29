@@ -99,3 +99,43 @@ fn item6_icons_resolve_to_a_file_not_an_asset_server() {
         "the icon file must be an absolute on-disk path; got:\n{dsl}"
     );
 }
+
+// ---- card #21f: three live-capture defects --------------------------------
+
+/// Card #21f item 3 — the answer-actions timestamp must stay inside the content
+/// width so the timeline's scrollbar cannot overlap it.
+///
+/// `ScrollBar { bar_size: 10, bar_side_margin: 3 }` (`scroll_bar.rs:25-27`) draws
+/// a ~13px handle over the list's last pixels. The #21e revision anchored its
+/// margin rewrite on `left: 268`, but the emitted wrapper carries the artboard's
+/// own `left: 243.64` — so that replace never fired and the flush-right push put
+/// `now` under the handle (`g4-interrupted.png`). Anchor on the real text and
+/// leave a right inset wider than the handle.
+#[test]
+fn item3_the_timestamp_clears_the_scrollbar() {
+    let dsl = components::lower(ItemKind::AnswerActions, "0", &copies(ItemKind::AnswerActions, "now"))
+        .expect("the answer-actions lowers");
+    assert!(
+        !dsl.contains("left: 243.64"),
+        "the artboard's absolute left must not survive into the mounted row; got:\n{dsl}"
+    );
+    assert!(
+        dsl.contains("right: 20") && dsl.contains("align: Align{x: 1.0"),
+        "the timestamp must be right-aligned inside a 20px right inset; got:\n{dsl}"
+    );
+}
+
+/// Card #21f item 2 — the cleared second bubble line must not reserve a line box.
+///
+/// The component's `t02` is bound to `@clear` (the whole message rides the
+/// wrapping `t01`), but an empty `Label` still measured one line (~29px), which
+/// read as a dead black band under the text (`g3-completed.png`).
+#[test]
+fn item2_the_cleared_bubble_line_does_not_reserve_height() {
+    let dsl = components::lower(ItemKind::UserBubble, "0", &copies(ItemKind::UserBubble, "hi"))
+        .expect("the bubble lowers");
+    assert!(
+        dsl.contains("i0_userbubble_1 := Label {\nwidth: 224.5 height: 0"),
+        "the cleared second label must collapse to height 0; got:\n{dsl}"
+    );
+}

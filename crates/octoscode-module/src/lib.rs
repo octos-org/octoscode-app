@@ -178,6 +178,22 @@ script_mod! {
                             draw_bg.color_2: #00000000
                             draw_bg.border_color: #00000000
                             draw_bg.border_color_2: #00000000
+                            draw_bg.color_hover: #00000000
+                            draw_bg.color_down: #00000000
+                            draw_bg.color_focus: #00000000
+                            draw_bg.color_disabled: #00000000
+                            draw_bg.color_2_hover: #00000000
+                            draw_bg.color_2_down: #00000000
+                            draw_bg.color_2_focus: #00000000
+                            draw_bg.color_2_disabled: #00000000
+                            draw_bg.border_color_hover: #00000000
+                            draw_bg.border_color_down: #00000000
+                            draw_bg.border_color_focus: #00000000
+                            draw_bg.border_color_disabled: #00000000
+                            draw_bg.border_color_2_hover: #00000000
+                            draw_bg.border_color_2_down: #00000000
+                            draw_bg.border_color_2_focus: #00000000
+                            draw_bg.border_color_2_disabled: #00000000
                         }
                         mic_hit := Button {
                             width: 36 height: 36 text: ""
@@ -189,6 +205,22 @@ script_mod! {
                             draw_bg.color_2: #00000000
                             draw_bg.border_color: #00000000
                             draw_bg.border_color_2: #00000000
+                            draw_bg.color_hover: #00000000
+                            draw_bg.color_down: #00000000
+                            draw_bg.color_focus: #00000000
+                            draw_bg.color_disabled: #00000000
+                            draw_bg.color_2_hover: #00000000
+                            draw_bg.color_2_down: #00000000
+                            draw_bg.color_2_focus: #00000000
+                            draw_bg.color_2_disabled: #00000000
+                            draw_bg.border_color_hover: #00000000
+                            draw_bg.border_color_down: #00000000
+                            draw_bg.border_color_focus: #00000000
+                            draw_bg.border_color_disabled: #00000000
+                            draw_bg.border_color_2_hover: #00000000
+                            draw_bg.border_color_2_down: #00000000
+                            draw_bg.border_color_2_focus: #00000000
+                            draw_bg.border_color_2_disabled: #00000000
                         }
                         send_hit := Button {
                             width: 44 height: 44 text: ""
@@ -200,6 +232,22 @@ script_mod! {
                             draw_bg.color_2: #00000000
                             draw_bg.border_color: #00000000
                             draw_bg.border_color_2: #00000000
+                            draw_bg.color_hover: #00000000
+                            draw_bg.color_down: #00000000
+                            draw_bg.color_focus: #00000000
+                            draw_bg.color_disabled: #00000000
+                            draw_bg.color_2_hover: #00000000
+                            draw_bg.color_2_down: #00000000
+                            draw_bg.color_2_focus: #00000000
+                            draw_bg.color_2_disabled: #00000000
+                            draw_bg.border_color_hover: #00000000
+                            draw_bg.border_color_down: #00000000
+                            draw_bg.border_color_focus: #00000000
+                            draw_bg.border_color_disabled: #00000000
+                            draw_bg.border_color_2_hover: #00000000
+                            draw_bg.border_color_2_down: #00000000
+                            draw_bg.border_color_2_focus: #00000000
+                            draw_bg.border_color_2_disabled: #00000000
                         }
                     }
                 }
@@ -473,6 +521,13 @@ impl OctoscodeView {
         // MOUNTED (evaluated in our VM + `mem::replace` + deep insert), not
         // `set_text` — the latter mints a standalone tree that never seats.
         let bridge = self.bridge.clone();
+        let composer_live = {
+            let b = self.bridge.lock().unwrap();
+            let ctx = bindings::Ctx::new(&b.store, &b.ui);
+            bindings::query(&ctx, "turn.active")
+                .and_then(|v| v.as_bool())
+                .unwrap_or(false)
+        };
         let composer = {
             let mut cache = std::mem::take(&mut self.cache);
             let c = cache
@@ -480,6 +535,20 @@ impl OctoscodeView {
                 .unwrap_or_default();
             self.cache = cache;
             c
+        };
+        // Card #21f item 1b: while a turn runs the SAME dock is the STOP control
+        // (atlas conversation-08 `stop2`, a white 12×12 rounded square on the flat
+        // black disc). The composer component carries one send glyph, so swap it
+        // for the stop asset — otherwise the arrow persists through the whole
+        // running turn (`g3b-turn2-running.png`). The mount cache compares the DSL
+        // string, so the swap also forces exactly one repaint when `turn.active`
+        // flips either way.
+        let composer = if composer_live {
+            composer
+                .replace("icon_send-3fe1783d764e.svg", "icon_stop.svg")
+                .replace("icon_send.svg", "icon_stop.svg")
+        } else {
+            composer
         };
         let composer_splash = self.view.splash(cx, ids!(composer_splash));
         if let Err(e) = self.mounts.mount(cx, &composer_splash, &composer) {
