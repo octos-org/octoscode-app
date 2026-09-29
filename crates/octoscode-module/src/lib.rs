@@ -54,50 +54,55 @@ script_mod! {
         width: Fill height: Fill
         draw_bg.color: theme.color_bg_app
         flow: Down padding: 16 spacing: 10
-        header := View {
-            width: Fill height: Fit
-            flow: Right spacing: 10
-            heading := Label {
-                text: "OctosCode"
-                draw_text.text_style.font_size: 20
-            }
-            status := Label { width: Fill draw_text.wrap: Words text: "conn: (connecting…)" }
-            sessions := Label { width: Fit text: "sessions: 0" }
-            refresh := Button { text: "session/list" }
-            new_chat := Button { text: "New chat" }
+        // Card #21c item 7: the debug header is GONE from the visible UI. The
+        // connection state / session count stay as 1px labels so `/g` still
+        // carries them and `sync_labels` keeps a target (board: "connection
+        // state can go to /g metadata").
+        header_meta := View {
+            width: 0 height: 0 flow: Right
+            status := Label { width: 0 height: 0 draw_text.text_style.font_size: 1 text: "" }
+            sessions := Label { width: 0 height: 0 draw_text.text_style.font_size: 1 text: "" }
         }
         // Card #17 (D12): native columns + virtualized L0 items. The host owns
         // structure + scale; each list item's LOOK comes from an L0 component
         // lowered in-process (`components.rs`, the same chain as a card). Left =
         // thread list, center = timeline with the composer docked at its bottom,
-        // right = the review slot (empty for now). The #15b tab switcher and the
-        // fallback composer are GONE.
+        // right = the review slot (empty for now).
         //
-        // A row is a native `Label` (the kind tag, always present so the snap
-        // names the row) + a `Splash` carrying that row's lowered component.
-        // `Splash::set_text("")` tears the instance down and the `Fit` row takes
-        // no space (Splash docs), so an empty body costs nothing.
+        // Card #21c items 2/3/6: the component IS the item — no native `kind`
+        // label, no row chrome, and each row's height comes from its lowered
+        // component (`Splash height: Fit`), so a bubble hugs its text and prose
+        // is not clipped.
         columns := View {
             width: Fill height: Fill
             flow: Right spacing: 10
 
             threads_column := View {
                 width: 220 height: Fill flow: Down spacing: 6
-                Label { width: Fill height: Fit text: "Threads" draw_text.text_style.font_size: 14 }
-                // One `thread-row` component per session (virtualized). A
-                // transparent `row_hit` button overlays the row so the HOST sees
-                // the click and routes it with the item id (`thread.open`); the
-                // #16 component's own inner button lives in the Splash isolate and
-                // never reports to the host.
+                // Card #21c item 7: `New chat` is #16's own `new-chat` component
+                // at the top of the thread column (scene 01). A transparent hit
+                // target overlays it so the HOST routes `session.new` — the
+                // component's own button lives in the Splash isolate and never
+                // reports to the host (the `row_hit` pattern, below).
+                new_chat_row := View {
+                    width: Fill height: Fit flow: Overlay
+                    new_chat_splash := Splash { width: Fill height: 44 }
+                    new_chat_hit := Button {
+                        width: Fill height: Fill text: ""
+                        draw_bg.color: #00000000
+                        draw_bg.color_hover: #00000010
+                        draw_bg.color_down: #00000020
+                    }
+                }
+                // Card #21c item 6: one #16 `thread-row` per session (selected
+                // state, ellipsized title) — the component draws its own label,
+                // so no native title Label sits under it. A transparent `row_hit`
+                // routes the click with the item id (`thread.open`).
                 thread_list := PortalList {
                     width: Fill height: Fill flow: Down drag_scrolling: true
                     ThreadRowTpl := View {
                         width: Fill height: Fit flow: Overlay
-                        thread_body := View {
-                            width: Fill height: Fit flow: Down padding: 2
-                            thread_name := Label { width: Fill height: Fit draw_text.wrap: Words draw_text.text_style.font_size: 13 text: "(thread)" }
-                            thread_splash := Splash { width: Fill height: 34 }
-                        }
+                        thread_splash := Splash { width: Fill height: Fit }
                         row_hit := Button {
                             width: Fill height: Fill text: ""
                             draw_bg.color: #00000000
@@ -110,11 +115,9 @@ script_mod! {
 
             conversation_column := View {
                 width: Fill height: Fill flow: Down spacing: 6
-                Label { width: Fill height: Fit text: "Conversation" draw_text.text_style.font_size: 14 }
-                // One L0 component per timeline entry, in DISPLAY order (user
-                // first, reasoning folded, answer, tools, worked-for). A
-                // transparent `row_hit` overlays each row so the host routes the
-                // click with the item id (`tool.toggle`, `answer.copy`).
+                // Card #21c item 2: the component IS the item. No native `kind`
+                // label and no row chrome — the row is just the lowered
+                // component plus a transparent hit target.
                 timeline_list := PortalList {
                     width: Fill height: Fill flow: Down drag_scrolling: true
                     // Card #21c L2: tail the newest item so a newly appended
@@ -124,12 +127,11 @@ script_mod! {
                     // (portal_list.rs:770), so scrolling up to read is preserved.
                     auto_tail: true
                     TimelineItemTpl := View {
+                        // Card #21c item 3: the row height comes from the lowered
+                        // component (`Splash height: Fit` measures its root), so a
+                        // bubble hugs its text and prose is not clipped.
                         width: Fill height: Fit flow: Overlay
-                        item_body := View {
-                            width: Fill height: Fit flow: Down
-                            item_kind := Label { width: Fill height: Fit draw_text.text_style.font_size: 9 text: "" }
-                            item_splash := Splash { width: Fill height: 56 }
-                        }
+                        item_splash := Splash { width: Fill height: Fit }
                         row_hit := Button {
                             width: Fill height: Fill text: ""
                             draw_bg.color: #00000000
@@ -138,19 +140,39 @@ script_mod! {
                         }
                     }
                 }
-                // The composer docked at the center column's bottom. The #16
-                // `composer` component IS the look (idle: input + pills + send);
-                // the host controls beside it emit the declared action ids
-                // (`composer.submit`, `turn.steer`, `turn.interrupt`).
+                // Card #21c item 5: ONE composer — the #16 `composer` component is
+                // the whole input surface (its own input + `+` + mic + send). The
+                // old native TextInput + `Steer now / Send / ×` row is GONE. The
+                // component's own controls live in the Splash isolate and do not
+                // report to the host, so transparent host hit targets are laid
+                // over its fixed control rects (fixed chrome, RULES: measured
+                // layout is for chrome) and routed to the declared action ids.
                 composer_row := View {
-                    width: Fill height: Fit flow: Down spacing: 4
+                    width: Fill height: Fit flow: Overlay
                     composer_splash := Splash { width: Fill height: 190 }
-                    composer_controls := View {
-                        width: Fill height: Fit flow: Right spacing: 8
-                        draft := TextInput { width: Fill height: Fit empty_text: "Ask Octos anything" }
-                        steer := Button { text: "Steer now" }
-                        send := Button { text: "Send" }
-                        stop := Button { text: "×" }
+                    composer_hits := View {
+                        width: Fill height: Fill flow: Overlay
+                        plus_hit := Button {
+                            width: 40 height: 40 text: ""
+                            align: {x: 0.0, y: 1.0} margin: {left: 12.0 bottom: 24.0}
+                            draw_bg.color: #00000000
+                            draw_bg.color_hover: #00000010
+                            draw_bg.color_down: #00000020
+                        }
+                        mic_hit := Button {
+                            width: 40 height: 40 text: ""
+                            align: {x: 1.0, y: 1.0} margin: {right: 60.0 bottom: 24.0}
+                            draw_bg.color: #00000000
+                            draw_bg.color_hover: #00000010
+                            draw_bg.color_down: #00000020
+                        }
+                        send_hit := Button {
+                            width: 48 height: 48 text: ""
+                            align: {x: 1.0, y: 1.0} margin: {right: 6.0 bottom: 20.0}
+                            draw_bg.color: #00000000
+                            draw_bg.color_hover: #00000010
+                            draw_bg.color_down: #00000020
+                        }
                     }
                 }
             }
@@ -467,9 +489,8 @@ impl Widget for OctoscodeView {
                     };
                     list.set_item_range(cx, 0, rows.len());
                     while let Some(id) = list.next_visible_item(cx) {
-                        let Some(row) = rows.get(id) else { continue };
+                        let Some(_row) = rows.get(id) else { continue };
                         let item = list.item(cx, id, id!(ThreadRowTpl));
-                        item.label(cx, ids!(thread_name)).set_text(cx, &row.title);
                         let body = cache
                             .lower(&bridge, components::ItemKind::ThreadRow, id)
                             .unwrap_or_default();
@@ -496,7 +517,8 @@ impl Widget for OctoscodeView {
                     while let Some(id) = list.next_visible_item(cx) {
                         let Some(row) = rows.get(id) else { continue };
                         let item = list.item(cx, id, id!(TimelineItemTpl));
-                        item.label(cx, ids!(item_kind)).set_text(cx, row.kind.id());
+                        // Card #21c item 2: no native kind label on screen; the
+                        // kind is carried by the component's own node ids in `/g`.
                         let body = cache.lower(&bridge, row.kind, row.index).unwrap_or_default();
                         let splash = item.splash(cx, ids!(item_splash));
                         if let Err(e) = mounts.mount(cx, &splash, &body) {
@@ -522,50 +544,45 @@ impl Widget for OctoscodeView {
         match event {
             Event::Signal => self.sync_labels(cx),
             Event::Actions(actions) => {
-                // The composer draft is the input's `changed` value — how the
-                // web binds `composer.draft` (`bindings.json` composer.draft
-                // note: behavior.event='changed' updates it).
-                if let Some(text) = self.view.text_input(cx, ids!(draft)).changed(actions) {
+                // Card #21c item 5: the ONE composer is the mounted #16
+                // component. Its own input is a real `TextInput` (id
+                // `i0_composer_0` inside the mounted tree); its `changed` action
+                // is the `composer.draft` binding (the component's own
+                // `service-actions.json` declares exactly that behavior).
+                if let Some(text) = self
+                    .view
+                    .text_input(cx, &[live_id!(i0_composer_0)])
+                    .changed(actions)
+                {
                     self.bridge.lock().unwrap().ui.lock().unwrap().set_draft_inner(text);
                 }
-                // Header + composer controls emit BINDING ACTION ids.
                 if self.view.button(cx, ids!(refresh)).clicked(actions) {
                     self.perform_action("session.refresh", 0);
                 }
-                if self.view.button(cx, ids!(new_chat)).clicked(actions) {
+                // The #16 `new-chat` component overlaid by a host hit target.
+                if self.view.button(cx, ids!(new_chat_hit)).clicked(actions) {
                     self.perform_action(bindings::ACTION_NEW_CHAT, 0);
                 }
-                if self.view.button(cx, ids!(send)).clicked(actions) {
-                    // Card #13 §4: the draft clears on send. The flow clears
-                    // it in the STORE (`start_turn`), but the widget keeps its
-                    // own text, so clear the widget too — otherwise the sent
-                    // prompt stays visible in the composer.
-                    let len = self
-                        .bridge
-                        .lock()
-                        .unwrap()
-                        .ui
-                        .lock()
-                        .unwrap()
-                        .draft()
-                        .len();
-                    self.perform_action(bindings::ACTION_SUBMIT, 0);
-                    if len > 0 {
-                        let _ = self.view.text_input(cx, ids!(draft)).replace_range(
-                            cx,
-                            0..len,
-                            "",
-                            makepad_widgets::text_input::UndoGroup::New,
-                        );
+                // The composer's send control. While a turn is running the same
+                // control is STOP (scene 08 / Codex) and sends `turn/interrupt`
+                // (the L1 fix); otherwise it submits the draft.
+                if self.view.button(cx, ids!(send_hit)).clicked(actions) {
+                    let live = {
+                        let b = self.bridge.lock().unwrap();
+                        let ctx = bindings::Ctx::new(&b.store, &b.ui);
+                        bindings::query(&ctx, "turn.active")
+                            .and_then(|v| v.as_bool())
+                            .unwrap_or(false)
+                    };
+                    if live {
+                        self.perform_action(bindings::ACTION_INTERRUPT, 0);
+                    } else {
+                        self.perform_action(bindings::ACTION_SUBMIT, 0);
                     }
                 }
-                if self.view.button(cx, ids!(stop)).clicked(actions) {
-                    self.perform_action(bindings::ACTION_INTERRUPT, 0);
-                }
-                if self.view.button(cx, ids!(steer)).clicked(actions) {
-                    // "Steer now": send the queued draft into the live turn.
-                    self.perform_action("turn.steer", 0);
-                }
+                // `+` (attach) and the mic are not wired to a protocol method
+                // yet; they are present as hit targets so the component's own
+                // chrome stays clickable and the ids exist for a later card.
                 // Card #21 §3 — the per-item controls. A row click is routed
                 // WITH its item id (the same `items_with_actions` contract the
                 // makepad examples use).
