@@ -175,6 +175,21 @@ impl Turns {
         self.inner.lock().unwrap().envelopes.last_seq.get(thread_id).copied()
     }
 
+    /// Card #26 §2: fold a `session/hydrate` result's continuation checkpoints —
+    /// reset the per-thread ordering window to `projection_thread_sequences`.
+    ///
+    /// The web's `commitHydrate` seeds `#threadSeq` from exactly this map
+    /// (`src-web/apps/web/src/features/session/durable-session.ts:101-103`) so a
+    /// resumed live stream continues from the authoritative snapshot rather than
+    /// re-applying envelopes it already contains. Only the threads the server
+    /// named are touched; an absent map leaves the window as-is.
+    pub fn fold_hydrate(&self, thread_seqs: &std::collections::BTreeMap<String, u64>) {
+        let mut i = self.inner.lock().unwrap();
+        for (thread, seq) in thread_seqs {
+            i.envelopes.last_seq.insert(thread.clone(), *seq);
+        }
+    }
+
     /// Frames dropped for a non-increasing `seq`, in arrival order.
     pub fn dropped_envelopes(&self) -> Vec<(String, u64)> {
         self.inner.lock().unwrap().envelopes.dropped.clone()

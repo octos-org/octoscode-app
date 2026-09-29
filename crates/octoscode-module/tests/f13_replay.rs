@@ -235,7 +235,13 @@ async fn the_recorded_real_turn_folds_through_the_live_path() {
         .expect("connect");
 
     conv.open_workspace(None).await.expect("session/open");
-    conv.start_turn(&prompt).await.expect("turn/start");
+    // Card #26 §1: drive with the RECORDED turn id (the web mints the id
+    // client-side and sends it, `client.ts:488`), so the server's replayed
+    // `user_message` envelope dedups into the optimistic row the flow inserts
+    // on submit — exactly one user row for the turn.
+    conv.start_turn_with_id(&prompt, turn_id.clone())
+        .await
+        .expect("turn/start");
 
     let mut saw = Vec::new();
     for _ in 0..120 {
