@@ -521,7 +521,8 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
         ItemKind::Composer => flat_send_button(&ui),
         // Card #21e item 8: the activity row's spinner keeps its 18px box.
         ItemKind::WorkingRow => working_row_layout(&ui),
-        ItemKind::WorkedFor | ItemKind::ToolCell => fit_heights(&ui),
+        ItemKind::WorkedFor => worked_for_style(&ui),
+        ItemKind::ToolCell => fit_heights(&ui),
     };
     // Card #21d item 6: resolve every emitted `http_resource(…)` icon to the
     // component's own file on disk, so the app needs no dev asset server.
@@ -813,6 +814,26 @@ fn localize_asset_resources(ui: &str) -> String {
 /// Rewrite every `height: <number>` in a lowered DSL to `height: Fit` (card #21c
 /// item 3). The numbers are the compiled fixture's measured artboard metrics;
 /// `Fit` lets each node take its live content's height instead.
+/// Card #21g item 1 — the worked-for row: small secondary-grey label over a
+/// hairline rule.
+///
+/// The supervisor's yardstick is Codex (`outer/codex-refs/03-worked.png`,
+/// "Worked for 3m 4s ⌄"): ~0.85× the prose body size, weight 400, secondary
+/// grey `#6b6b6b`, a small chevron after it (the row IS the disclosure toggle,
+/// appended by `flow.rs::worked_for`), and a 1px light divider under the row
+/// across the column. The size/weight/colour live in the component's OWN kit
+/// tokens (`design/components/worked-for/kit/native/light/kit.json`), so this
+/// only appends the rule the #16 ledger does not draw — as a SIBLING after the
+/// root (the mount wrapper is `flow: Down`), the same append idiom
+/// `new_chat_with_compose_icon` uses for chrome the ledger omits.
+fn worked_for_style(ui: &str) -> String {
+    let ui = fit_heights(ui);
+    // `#ececec` — the light rule Codex draws under the settled row.
+    let rule = "View {width: Fill height: 1 margin: Inset{left: 0 top: 0 right: 0 bottom: 0} \
+                show_bg: true draw_bg.color: #ecececff}\n";
+    format!("{ui}{rule}")
+}
+
 fn fit_heights(ui: &str) -> String {
     const KEY: &str = "height: ";
     let mut out = String::with_capacity(ui.len());
