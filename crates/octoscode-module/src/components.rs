@@ -512,11 +512,17 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
         // its right edge (beauty-host renders it too: 446 ink px in the
         // component's own right 20%). The #16 ledger omits the node, so add it.
         ItemKind::NewChat => new_chat_with_compose_icon(&ui),
-        ItemKind::AssistantProse
-        | ItemKind::WorkedFor
-        | ItemKind::AnswerActions
-        | ItemKind::WorkingRow
-        | ItemKind::ToolCell => fit_heights(&ui),
+        // Card #21e item 5: the timestamp sits at the artboard's own x=243.64 in a
+        // 364px row, which lands mid-column once mounted in a wider slot.
+        ItemKind::AnswerActions => right_align_timestamp(&ui),
+        // Card #21e item 6: fenced code must not soft-wrap.
+        ItemKind::AssistantProse => no_wrap_code(&fit_heights(&ui)),
+        // Card #21e item 3: the send control is a flat black disc.
+        ItemKind::Composer => flat_send_button(&ui),
+        // Card #21e item 1: an interrupted turn's tail is the settled
+        // `worked-for` row (below), which shows the marker.
+        ItemKind::WorkingRow => fit_heights(&ui),
+        ItemKind::WorkedFor | ItemKind::ToolCell => fit_heights(&ui),
         _ => ui,
     };
     // Card #21d item 6: resolve every emitted `http_resource(…)` icon to the
@@ -539,10 +545,86 @@ fn bubble_live_layout(ui: &str) -> String {
     // measured widths the artboard gave them (`Fill` under a `Fit` root collapses
     // to the minimum — measured: a 16px-wide bubble), and the labels WRAP.
     let s = fit_heights(ui);
+    // Card #21e item 7: symmetric vertical padding (the artboard's absolute tops
+    // leave the last wrapped line on the bottom edge).
+    let s = symmetric_bubble_padding(&s);
     let s = set_first_width_fit_capped(&s, "80%");
     let mut s = s.replace("flow: Right\n", "flow: Right{wrap: true}\n");
     s = s.replace("flow: Right ", "flow: Right{wrap: true} ");
     format!("user_align := View{{width:Fill height:Fit flow:Down align: Align{{x: 1.0}} {s}}}")
+}
+
+/// Card #21e item 5 — the answer-actions timestamp sits mid-column.
+///
+/// The artboard places it at `x=243.64` of a 364px row (`answer-actions/
+/// mapped.json`), which is correct for the 406px scene panel but mid-column once
+/// the mounted row fills the app's 404px column. Widen the trailing block to the
+/// row and right-align its label, so it hugs the column's right edge.
+fn right_align_timestamp(ui: &str) -> String {
+    // Row inner width is 364.11 - the label keeps its own 121.5 and is seated so
+    // its right edge sits at the row's right (364.11 - 121.5 - 13.6 ~= 229).
+    ui.replace(
+        "margin: Inset{left: 243.64 top: 1.5",
+        "margin: Inset{left: 229 top: 1.5",
+    )
+}
+
+/// Card #21e item 6 — a fenced code block must not soft-wrap its lines.
+///
+/// `Markdown` folds fenced code into the body text flow
+/// (`widgets/src/markdown.rs:219` `use_code_block_widget` defaults false), whose
+/// `code_layout.flow` is `Flow.Right{wrap: true}` (`text_flow.rs:192-196`) — so a
+/// code line breaks mid-token (`// 0` spilling onto a `—`-prefixed line). Pin the
+/// code block's flow non-wrapping; the block then clips long lines in its mono
+/// block like the atlas's grey code block.
+fn no_wrap_code(ui: &str) -> String {
+    // The DSL's flow vocabulary is bare (`flow: Overlay`, `flow: Right{wrap: true}`);
+    // `Flow.Right` is the Rust enum path, not a DSL value.
+    ui.replace(
+        " := Markdown {",
+        " := Markdown {\ncode_layout: Layout{flow: Right}",
+    )
+}
+
+/// Card #21e item 7 — the person's bubble needs symmetric vertical padding.
+///
+/// The lowered bubble is an `Overlay` whose `Fit` height is the tallest child's
+/// bottom edge; the two label wrappers carry the artboard's absolute tops
+/// (11.09 / 48.59), so once `t01` wraps past the second wrapper the last line
+/// lands exactly on the bottom edge (measured: label bottom == bubble bottom).
+/// Stack the wrappers in a `Down` flow inside symmetric padding instead.
+fn symmetric_bubble_padding(ui: &str) -> String {
+    let s = ui.replacen(
+        "flow: Overlay padding: 0 clip_x: false clip_y: false",
+        "flow: Down padding: Inset{left: 15.72 top: 12 right: 15.72 bottom: 12} clip_x: false clip_y: false",
+        1,
+    );
+    let s = s.replace(
+        "margin: Inset{left: 15.72 top: 11.090000000000003 right: 0 bottom: 0}",
+        "margin: 0",
+    );
+    // The cleared second line is a spacer: a small gap above, none below.
+    s.replace(
+        "margin: Inset{left: 15.790000000000006 top: 48.59 right: 0 bottom: 0}",
+        "margin: Inset{left: 0 top: 4 right: 0 bottom: 0}",
+    )
+}
+
+/// Card #21e item 3 — the send control is a flat black disc, never a gloss.
+///
+/// The shell/kit surface skin fills with a second stop and a bevel on top of
+/// `color` (the #21d item-1 lesson), which reads as a glossy radial gradient
+/// around the white arrow. Force one flat black fill and no second stop/bevel.
+fn flat_send_button(ui: &str) -> String {
+    let s = ui.replace(
+        "draw_bg.radius: 18 draw_bg.ellipse: 0 draw_bg.border_width: 0 draw_bg.border_position: 0 draw_bg.border_color: #00000000",
+        "draw_bg.radius: 18 draw_bg.ellipse: 0 draw_bg.border_width: 0 draw_bg.border_position: 0 \
+         draw_bg.border_color: #00000000 draw_bg.color2: #00000000 draw_bg.gradient: 0.0",
+    );
+    s.replace(
+        "show_bg: true draw_bg.color: #040303ff",
+        "show_bg: true draw_bg.color: #000000ff",
+    )
 }
 
 /// Card #21d item 5 — scene 01's new-chat row carries a compose icon at its

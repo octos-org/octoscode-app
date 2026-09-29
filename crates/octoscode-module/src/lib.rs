@@ -86,7 +86,11 @@ script_mod! {
                 // reports to the host (the `row_hit` pattern, below).
                 new_chat_row := View {
                     width: Fill height: Fit flow: Overlay
-                    new_chat_splash := Splash { width: Fill height: 44 }
+                    // Card #21e item 2: the #16 `new-chat` component's artboard is
+                    // 374x76 (scene-01 `mapped.json`); a fixed 44px slot clipped its
+                    // bottom edge flat under the label. `Fit` takes the component's
+                    // own measured height (the same idiom `thread_splash` uses).
+                    new_chat_splash := Splash { width: Fill height: Fit }
                     new_chat_hit := Button {
                         width: Fill height: Fill text: ""
                         draw_bg.color: #00000000
