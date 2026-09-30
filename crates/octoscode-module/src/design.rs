@@ -220,7 +220,12 @@ pub fn dir(rel: &str) -> PathBuf {
 /// byte-identical), else the materialized design root (`ux/…` rides in the
 /// embed).
 pub fn with_fonts(lowered: Result<String, String>) -> Result<String, String> {
-    const NEEDLE: &str = "crate_resource(\"self:resources/ux/";
+    // Generalised (#32g, outer loop device evidence): rewrite EVERY
+    // crate_resource("self:resources/…") — the kit faces AND the kit/icon
+    // svgs — to the materialized root's absolute path. The needle captures
+    // the full relative path after self:resources/ (ux/Inter-400.ttf,
+    // icons/chevron_down.svg, …).
+    const NEEDLE: &str = "crate_resource(\"self:resources/";
     let dsl = lowered?;
     if !dsl.contains(NEEDLE) {
         return Ok(dsl);
@@ -234,19 +239,14 @@ pub fn with_fonts(lowered: Result<String, String>) -> Result<String, String> {
             out.push_str(NEEDLE);
             break;
         };
-        let name = &rest[..end];
-        // The needle consumed the `ux/` prefix — the faces live in
-        // resources/ux/ (the checkout) and <root>/ux/ (the embed). b408a89
-        // sought them at the ROOT (device log: ".../design/Inter-600.ttf is
-        // not available in this build") and the family rendered EMPTY — no
-        // text at all.
-        let path = font_file(&format!("ux/{name}"));
+        let rel = &rest[..end];
         // Skip past the quoted name FIRST — the original crate_resource's
         // closing `)` follows the quote. (The previous strip ran BEFORE the
         // skip: a silent no-op, the `)` survived, and the doubled `))`
         // broke the DSL parse — "Expected } not found" — the whole card
         // drew nothing.)
         rest = &rest[end + 1..];
+        let path = font_file(rel);
         if path.is_file() {
             // (b) the absolute, packaged path; consume the original `)`.
             out.push_str(&format!("file_resource({path:?})"));
@@ -256,12 +256,23 @@ pub fn with_fonts(lowered: Result<String, String>) -> Result<String, String> {
             // broken materialization degrades to the mono fallback, not an
             // empty family); the `)` in rest closes it.
             out.push_str(NEEDLE);
-            out.push_str(name);
+            out.push_str(rel);
             out.push('"');
         }
     }
     out.push_str(rest);
     Ok(out)
+}
+
+/// The resource STRING for one of the module's own icons
+/// (`icons/<file>.svg`) — the spliced value for the script_mod! literals
+/// (`draw_svg.svg: #(crate::design::icon_resource("chevron_down.svg"))`):
+/// a literal `crate_resource("self:…")` resolves against the BUILD
+/// machine's manifest path (script/res.rs:1067 concatenates
+/// ScriptMod::cargo_manifest_path), which does not exist on the phone; the
+/// spliced runtime value carries the materialized root's absolute path.
+pub fn icon_resource(name: &str) -> String {
+    font_file(&format!("icons/{name}")).display().to_string()
 }
 
 /// The absolute file for a kit face (`ux/<file>.ttf`): the MATERIALIZED
