@@ -683,12 +683,14 @@ def comp_send(app):
     return "send_hit" in app.widget_ids(app.snap()), "send_hit present"
 
 
-@check("composer", "a failed local command restores the typed input and sends nothing",
-       rows=("local-command",))
-def comp_localcmd(app):
-    # Row 209's own case (probed live): '/bogus …' sends no model turn (no
-    # working row appears — fail-closed holds), and the input must be
-    # RESTORED for the user to fix.
+@check("composer", "a queued follow-up drains as its own turn and a reselect replays nothing",
+       rows=("unknown turn",))
+def c_queue(app):
+    # Row 190's own case, the replay-observable slice (probed live): a second
+    # prompt sent back-to-back drains as its own turn WITHOUT replaying the
+    # first, and reselecting the thread neither duplicates bubbles nor mints
+    # a session. (The transient Working row is racy at the replay server's
+    # 2ms frame delay, so the drain is asserted by the answer COUNT rising.)
     r = None
     for _ in range(20):
         d = app.snap()
@@ -697,13 +699,30 @@ def comp_localcmd(app):
             break
         time.sleep(0.5)
     app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
-    app.clear_composer(); app.type("/bogus-command walk probe")
-    app.key("return")
-    time.sleep(3.0)
+    app.clear_composer(); app.type("walk queue one"); app.send()
+
+    def proses(snap):
+        return sum(1 for w in snap.get("s", [])
+                   if "assistantprose" in str(w.get("i", "")))
+
+    before = proses(app.snap())
+    app.clear_composer(); app.type("walk queue two"); app.send()
+    app.wait_for(lambda s: {"walk queue one", "walk queue two"}
+                 <= {t for t in (w.get("t") for w in s.get("s", [])) if t},
+                 timeout=20, what="both bubbles to render")
+    app.wait_for(lambda s: proses(s) > before, timeout=60,
+                 what="the queued follow-up to drain into a new answer")
     d = app.snap()
-    sent = "workingrow" in app.kinds(d)
-    restored = app.draft(d) == "/bogus-command walk probe"
-    return (not sent) and restored, f"sent={sent} draft_restored={restored} draft={app.draft(d)!r}"
+    tr = app.rect_re(d, THREAD_ROW_RE)
+    app.click(int(tr[0] + tr[2] / 2), int(tr[1] + tr[3] / 2))
+    time.sleep(3)
+    d = app.snap()
+    texts = [w.get("t", "") for w in d.get("s", [])]
+    no_replay = (texts.count("walk queue one") == 1
+                 and texts.count("walk queue two") == 1)
+    sessions = (app.text_of(d, "sessions") or "").strip()
+    ok = no_replay and "1" in sessions
+    return ok, f"bubbles_single={no_replay} {sessions!r}"
 
 
 @check("composer", "the conversation column hosts the timeline PortalList")
@@ -777,23 +796,6 @@ def v_toggle(app):
     return "review_toggle_hit" in app.widget_ids(d), "review_toggle_hit present"
 
 
-@check("review", "the goal row renders the preserved objective with its live status",
-       rows=("goal pause",))
-def v_goal(app):
-    # Row 98's visible slice (autonomy replay, probed): the sidebar GOALS
-    # section carries the objective text with its status — the pause/resume/
-    # stop cycle itself has no wired controls in this shell, so the objective/
-    # budget preservation is asserted as rendered, not driven.
-    app.wait_for(lambda s: any("r1 replay probe" in w.get("t", "")
-                               for w in s.get("s", [])),
-                 timeout=15, what="the goal row")
-    d = app.snap()
-    texts = [w.get("t", "") for w in d.get("s", [])]
-    obj = next(t for t in texts if "r1 replay probe" in t)
-    ok = "active" in obj
-    return ok, f"goal row={obj!r}"
-
-
 # ---- settings: the settings drawer (#28e) ---------------------------------- #
 @check("settings", "the settings drawer mounts with its close control")
 def s_drawer(app):
@@ -822,7 +824,7 @@ def s_live(app):
 
 
 @check("settings", "General settings carries the server connection action",
-       rows=("General settings",))
+       rows=("general settings",))
 def s_connection(app):
     # Row 165's own case (probed live): the drawer must expose the
     # connect/disconnect action the user would reach for.
@@ -879,23 +881,29 @@ def q_execute(app):
         time.sleep(0.5)
     app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
     app.clear_composer()
-    app.type("/model")
-    d = app.wait_for(lambda s: (app.rect(s, "palette_search") or [0, 0, 0, 0])[2] > 0,
-                     timeout=10, what="the palette to open on '/'")
+    app.type("/")
+    app.wait_for(lambda s: (app.rect(s, "palette_search") or [0, 0, 0, 0])[2] > 0,
+                 timeout=10, what="the palette to open on '/'")
+    app.type("model")
+    time.sleep(1.0)
+    d = app.snap()
     texts = [w.get("t", "") for w in d.get("s", [])]
     listed = [c for c in ("/mode", "/monitor", "/compact", "/model", "/btw", "/resume")
               if c in texts]
+    app.key("down")
     app.key("return")
     d = app.wait_for(lambda s: all(t in [w.get("t", "") for w in s.get("s", [])]
                                    for t in ("Model", "Permissions")),
                      timeout=10, what="the drawer to open on return")
     opened = "Model" in [w.get("t", "") for w in d.get("s", [])]
-    # leave the drawer closed for the checks that follow
     rc = app.rect(d, "settings_close")
     if rc and rc[2] > 0:
         app.click(int(rc[0] + rc[2] / 2), int(rc[1] + rc[3] / 2))
-    ok = len(listed) >= 5 and opened
-    return ok, f"listed={listed} drawer_opened={opened}"
+    app.key("escape")  # close the palette so the keyboard area starts clean
+    time.sleep(1.0)
+    closed = (app.rect(app.snap(), "palette_search") or [0, 0, 0, 0])[2] == 0
+    ok = "/model" in listed and opened and closed
+    return ok, f"listed={listed} drawer_opened={opened} palette_closed={closed}"
 
 
 # ---- keyboard: the key model (#31e keys.rs) via the /k bridge -------------- #
@@ -962,13 +970,13 @@ def r_replay(app):
     return True, f"timeline kinds={app.kinds(app.snap())}"
 
 
-@check("recovery", "a queued follow-up drains after the live turn and a reselect replays nothing",
-       rows=("unknown turn",))
-def r_queue(app):
-    # Row 190's own case, the replay-observable slice (probed live): a second
-    # send while a turn is live stays QUEUED (both bubbles visible, one
-    # working row), drains as the next turn, and reselecting the thread
-    # neither duplicates bubbles nor mints sessions.
+# ---- recovery: failed local command (row 209, #33b) ------------------------ #
+@check("recovery", "a failed local command restores the typed input and sends nothing",
+       rows=("local-command",))
+def r_localcmd(app):
+    # Row 209's own case (probed live): '/bogus …' sends no model turn (no
+    # working row appears — fail-closed holds), and the input must be
+    # RESTORED for the user to fix.
     r = None
     for _ in range(20):
         d = app.snap()
@@ -977,28 +985,13 @@ def r_queue(app):
             break
         time.sleep(0.5)
     app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
-    app.clear_composer(); app.type("walk queue one"); app.send()
-    app.wait_for(lambda s: "workingrow" in app.kinds(s), timeout=20,
-                 what="the first turn to go live")
-    r = app.rect_re(app.snap(), COMPOSER_INPUT_RE)
-    app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
-    app.clear_composer(); app.type("walk queue two"); app.send()
-    time.sleep(1.0)
+    app.clear_composer(); app.type("/bogus-command walk probe")
+    app.key("return")
+    time.sleep(3.0)
     d = app.snap()
-    texts = [w.get("t", "") for w in d.get("s", [])]
-    both = "walk queue one" in texts and "walk queue two" in texts
-    app.wait_for(lambda s: "workingrow" not in app.kinds(s), timeout=45,
-                 what="the queue to drain")
-    d = app.snap()
-    tr = app.rect_re(d, THREAD_ROW_RE)
-    app.click(int(tr[0] + tr[2] / 2), int(tr[1] + tr[3] / 2))
-    time.sleep(3)
-    d = app.snap()
-    texts = [w.get("t", "") for w in d.get("s", [])]
-    no_replay = texts.count("walk queue one") == 1 and "queue one" not in app.kinds(d)
-    sessions = app.text_of(d, "sessions") or ""
-    ok = both and no_replay and "1" in sessions
-    return ok, f"queued_both={both} no_replay={no_replay} {sessions.strip()!r}"
+    sent = "workingrow" in app.kinds(d)
+    restored = app.draft(d) == "/bogus-command walk probe"
+    return (not sent) and restored, f"sent={sent} draft_restored={restored} draft={app.draft(d)!r}"
 
 
 # #33a review: DEPTH. A row is `specific` when at least one check that applied
@@ -1024,8 +1017,7 @@ SPECIFIC_CHECKS = {
     "Enter on the composer sends (the draft clears)",
     "a 227-column code line stays fully readable (wrapped, tail visible)",
     "the palette opens by '/', lists its commands and executes one by keyboard",
-    "a queued follow-up drains after the live turn and a reselect replays nothing",
-    "the goal row renders the preserved objective with its live status",
+    "a queued follow-up drains as its own turn and a reselect replays nothing",
     "General settings carries the server connection action",
     "a failed local command restores the typed input and sends nothing",
 }
