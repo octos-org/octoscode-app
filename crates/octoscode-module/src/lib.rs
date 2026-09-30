@@ -610,7 +610,7 @@ script_mod! {
                 Label { width: Fill height: Fit text: "Sandbox" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
                 Label { width: Fill height: Fit text: "Context" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
             }
-        }        }
+        }
 
         // Card #28e item 5 (board 4 frame 3): the floating 560 px command
         // palette, near the top of the window. Cmd+K and "/" in an empty
@@ -761,6 +761,7 @@ script_mod! {
                     draw_text.color: #2F6FEB
                 }
             }
+        }
         }
     }
 }
