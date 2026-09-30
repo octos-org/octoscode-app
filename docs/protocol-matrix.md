@@ -144,3 +144,22 @@ and the store consumes it at `crates/octos-app-store/src/state.rs:383`. **Native
   variant and no matching `<Camel>Params`/`<Camel>Result` struct (75 methods — the
   notification family and the name-only requests). Wire params for those are inline
   `serde_json::Value`, not a named struct.
+
+
+## #31b regeneration (2026-09-30, task/31b)
+
+`docs/phase0/protocol-matrix.py` extended: the native leg scans **this repo's `crates/**`** (the octoscode
+port; production paths only — a match only in `tests/` or `examples/` keeps the row out of `handled`, per
+RULES "production path"), and the contract source is the octos rev THIS repo pins (`a6ea8505`).
+
+- Contract methods **125** (requests 71, notifications 49).
+- Web-used **83**: handled 83 · decoded-only 0 · absent 0.
+- All statuses: {'handled': 99, 'absent': 26}.
+- The supervisor's "6 missing notifications" (`message/reasoning_delta`, `approval/auto_resolved`,
+  `approval/cancelled`, `context/compaction_started`, `context/compaction_completed`, `monitor/expired`)
+  were **never missing**: the handlers match on typed variants + `methods::*` constants, which the
+  wire-literal string check cannot see. All six are `handled` with `path:line` — decode → handler → store →
+  binding pinned by `crates/octoscode-module/tests/f31b_notifications.rs` (compaction pair on the RECORDED
+  `r3-session` frames; the other four on wire-exact bodies through the same serde tag + Registry pipeline).
+- Downstream refresh: `docs/parity-matrix.{csv,md}` 106 rows missing→partial (each with an explicit note);
+  `docs/walk-rows.{csv,md}` `natively_handled` re-derived.
