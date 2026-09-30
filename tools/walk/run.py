@@ -395,8 +395,12 @@ class Procs:
         self.app = self.app_port
         # Wait for the bridge to serve a snapshot with the module mounted — never
         # a fixed sleep (a slow first frame must not time out the first click).
+        # #33a: 120s — on this shared host the module mounts at ~35-60s (fonts,
+        # assets, 20-lane load); run1's 30s timed out ALL 114 selected rows
+        # before a single check ran ("timed out after 30s waiting for the
+        # module to mount", results.csv).
         app = App(self.app_port)
-        app.wait_for(lambda s: "heading" in app.widget_ids(s), timeout=30.0,
+        app.wait_for(lambda s: "heading" in app.widget_ids(s), timeout=120.0,
                      what="the module to mount after launch")
 
     def stop_app(self):
