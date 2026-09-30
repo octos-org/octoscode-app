@@ -36,6 +36,17 @@ pub struct Peer {
     pub cwd: Option<String>,
     /// Fence branch (`peer/<slug>`) when a worktree was created.
     pub worktree_branch: Option<String>,
+    /// When the roster first saw the peer (ms epoch) — the fleet row's
+    /// elapsed segment (`formatElapsed`, peer-row-view.ts:127; #32c item 11).
+    pub staged_at_ms: u64,
+}
+
+/// Wall-clock now in ms (falls back to 0 if the clock is before the epoch).
+pub fn now_ms() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0)
 }
 
 impl Peer {
@@ -50,6 +61,7 @@ impl Peer {
             brief_path: None,
             cwd: None,
             worktree_branch: None,
+            staged_at_ms: now_ms(),
         }
     }
 }

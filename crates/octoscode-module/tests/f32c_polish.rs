@@ -54,6 +54,13 @@ fn monitor_rows_render_atlas_sized_and_ellipsize_only_when_needed() {
         l.dsl.contains("loop_1_play"),
         "the paused row must reference the play (resume) asset"
     );
+    if let Some(i) = l.dsl.find("mon_2_pause-") {
+        eprintln!(
+            "RESIDUAL[{}..]: {:?}",
+            i,
+            &l.dsl[i.saturating_sub(160)..(i + 160).min(l.dsl.len())]
+        );
+    }
     assert!(
         !l.dsl.contains("mon_2_pause-"),
         "the paused row must not keep the pause icon"
@@ -97,9 +104,11 @@ fn icon_size(l: &au::Lowered) -> (f64, f64) {
 }
 
 fn node_text(l: &au::Lowered, id: &str) -> String {
+    // the inventory keys nodes by their ORIGINAL card id (`l0::inspectable`;
+    // f30b's `at()` precedent reads `original_id`).
     l.inventory
         .iter()
-        .find(|n| n["id"] == serde_json::json!(id))
+        .find(|n| n["original_id"] == serde_json::json!(id))
         .map(|n| n["text"].as_str().unwrap_or_default().to_owned())
         .unwrap_or_default()
 }
@@ -237,10 +246,13 @@ fn fleet_rows_carry_the_elapsed_tokens_meta_line_and_done_is_grey() {
         src.contains("· —"),
         "the meta line shows the web's dash for token-less rows"
     );
-    // Done wears the web's terminal grey (#61666b), not the design's green.
+    // Done wears the web's terminal grey (#61666b, theme.css:82) — visible
+    // only in the fully-lowered DSL (kit tokens resolve there).
+    let dsl = fleet::lower("autonomy-06", &ctx).expect("fleet lowers");
     assert!(
-        src.contains("61666B") || src.contains("61666b"),
-        "the Done badge text uses the web's terminal grey"
+        dsl.contains("61666b"),
+        "the Done badge text uses the web's terminal grey, got: {}",
+        snippet(&dsl, "Done")
     );
 }
 
