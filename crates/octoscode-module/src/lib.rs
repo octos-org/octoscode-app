@@ -38,8 +38,8 @@ pub mod fallback;
 pub mod l0_host;
 pub mod flow;
 pub mod mount;
-pub mod screens;
 pub mod screen;
+pub mod screens;
 
 use flow::{Conversation, FlowUi};
 // A top-level `::` path is not a `#[rust]` field type the `Script` derive's
@@ -283,6 +283,10 @@ pub(crate) struct Bridge {
     pub(crate) store: Arc<Store>,
     /// The flow UI, for the same reason.
     pub(crate) ui: Arc<Mutex<FlowUi>>,
+    /// #29a: the board-2 screens' state (2.1/2.2/2.3 drafts + validation +
+    /// classification + onboarding results). The card reads it through
+    /// `screens::connect::copies`; the action path writes it.
+    pub(crate) screens: Arc<Mutex<screens::connect::ConnectUi>>,
 }
 
 /// Seed a store with `n` synthetic timeline rows and one session, for the
@@ -416,6 +420,18 @@ impl OctoscodeView {
             b.ui = conv.ui();
             b.conv = Some(conv.clone());
         }
+        // Entry #29c: the stage-C screens fold their three profile reads once
+        // at startup, behind the temporary-mount flag (until #28e's shell).
+        if std::env::var_os("OCTOSCODE_STAGE_C_SCREENS").is_some() {
+            let drv = conv.clone();
+            runtime.spawn(async move {
+                match screens::models::refresh(&drv, &drv.store).await {
+                    Ok(n) => ::log::info!("octoscode: screens: {n} profile reads folded"),
+                    Err(e) => ::log::warn!("octoscode: screens refresh: {e}"),
+                }
+                SignalToUI::set_ui_signal();
+            });
+        }
 
         // Drive the conversation: open the workspace, then drain events.
         let drv = conv.clone();
@@ -432,6 +448,9 @@ impl OctoscodeView {
                 }
             }
             while let Some(evt) = evt_rx.recv().await {
+                // #29c: the screens' occupancy window folds from the
+                // token_cost_update progress payloads (workspace-events.ts:6-10).
+                screens::models::note_transport_event(&evt);
                 let e = drv.on_event(evt);
                 ::log::debug!("[octoscode] {e:?}");
                 SignalToUI::set_ui_signal();
@@ -445,6 +464,36 @@ impl OctoscodeView {
     /// The mapping is the pure [`actions::resolve`]; this only performs the
     /// resulting effect (off the UI thread).
     fn perform_action(&self, action: &str, index: usize) {
+        // #29b: board-2 (setup screens 04/05/06) actions route through the
+        // screens table first; the conversation router never sees them.
+        if screens::workspace::is_action(action) {
+            let (store, ui, conv) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.ui.clone(), b.conv.clone())
+            };
+            let effect = {
+                let ctx = bindings::Ctx::new(&store, &ui);
+                screens::workspace::resolve(action, index, &ctx)
+            };
+            if let screens::workspace::Effect::Unhandled(id) = &effect {
+                ::log::warn!("octoscode: unhandled screen action {id:?}");
+                return;
+            }
+            if matches!(effect, screens::workspace::Effect::Close | screens::workspace::Effect::CopyDiagnostics) {
+                return; // UI-local until #28e mounts the overlay
+            }
+            if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                screens::workspace::spawn(effect, rt, conv);
+            }
+            return;
+        }
+        // #29a: the board-2 screens' own ids are not conversation actions, so
+        // they route to the screens' table FIRST — the conversation router
+        // must never see them (the one-owner rule, LESSONS).
+        if screens::connect::is_action(action) {
+            self.perform_screen_action(action, None);
+            return;
+        }
         let (store, ui, conv) = {
             let b = self.bridge.lock().unwrap();
             (b.store.clone(), b.ui.clone(), b.conv.clone())
@@ -522,6 +571,18 @@ impl OctoscodeView {
         let Some(conv) = conv else {
             return;
         };
+        // Entry #29c: the stage-C screens own their action ids (the cards'
+        // service-actions events); route them through the production client.
+        if screens::models::owns(action) {
+            let action = action.to_string();
+            let store = store.clone();
+            rt.spawn(async move {
+                if let Err(e) = screens::models::perform(&conv, &action, &store).await {
+                    ::log::warn!("octoscode: screens: {action:?}: {e}");
+                }
+            });
+            return;
+        }
         match effect {
             actions::Effect::Refresh => {
                 rt.spawn(async move {
@@ -603,6 +664,140 @@ impl OctoscodeView {
                 | crate::screens::palette::Effect::Unhandled(_) => {}
                 crate::screens::palette::Effect::Retry => {}
             },
+        }
+    }
+
+    /// #29a: run one board-2 screen action (`screens::connect::ACTIONS`).
+    /// `value` carries an `input.*` payload (the field's live text) when the
+    /// caller has one; without it the input effects no-op (the L0 input
+    /// wiring lands with #28e's containers).
+    fn perform_screen_action(&self, action: &str, value: Option<&str>) {
+        let (bridge, store, conv, screens) = {
+            let b = self.bridge.lock().unwrap();
+            (self.bridge.clone(), b.store.clone(), b.conv.clone(), b.screens.clone())
+        };
+        let effect = screens::connect::resolve(action, value);
+        if value.is_none() && matches!(effect, screens::connect::Effect::Input { .. }) {
+            return;
+        }
+        // UI-local half: the field texts, live validation, the radio.
+        let transport = {
+            let mut ui = screens.lock().unwrap();
+            screens::connect::apply(&mut ui, effect)
+        };
+        let Some(transport) = transport else { return };
+        let Some(rt) = self.runtime.as_ref() else {
+            ::log::warn!("octoscode: screen action {action}: no runtime");
+            return;
+        };
+        // The shared connect-and-take-over path: a fresh `Conversation` on the
+        // typed address, the event drain re-attached (the same shape as
+        // `start`'s), the store's connection row and the screens' failure
+        // classification kept current either way.
+        let connect_now = move |handle: tokio::runtime::Handle,
+                                bridge: Arc<Mutex<Bridge>>,
+                                store: Arc<Store>,
+                                screens: Arc<Mutex<screens::connect::ConnectUi>>,
+                                server: String,
+                                token: String,
+                                profile: String| {
+            let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
+            let waker: Arc<dyn Fn() + Send + Sync> = Arc::new(|| SignalToUI::set_ui_signal());
+            handle.spawn(async move {
+                match Conversation::connect(&server, &token, &profile, cwd, Some(waker.clone())) {
+                    Ok((conv, evt_rx)) => {
+                        let conv = Arc::new(conv);
+                        let mut evt_rx = evt_rx;
+                        store.set_connection("Live".to_owned(), true);
+                        if let Ok(mut b) = bridge.lock() {
+                            b.conv = Some(conv.clone());
+                        }
+                        if let Ok(mut ui) = screens.lock() {
+                            ui.failure = None;
+                            ui.raw_error = None;
+                            ui.endpoint_error = None;
+                        }
+                        // Take over the new transport's event drain.
+                        let drv = conv.clone();
+                        tokio::spawn(async move {
+                            while let Some(evt) = evt_rx.recv().await {
+                                let _ = drv.on_event(evt);
+                                SignalToUI::set_ui_signal();
+                            }
+                        });
+                    }
+                    Err(e) => {
+                        store.set_connection("Offline".to_owned(), false);
+                        if let Ok(mut ui) = screens.lock() {
+                            ui.note_connect_error(&e, &screens::connect::clock_12h());
+                        }
+                    }
+                }
+                waker();
+            });
+        };
+        let handle = rt.handle().clone();
+        match transport {
+            screens::connect::Effect::Connect { server, token } => {
+                let profile =
+                    std::env::var("OCTOS_PROFILE_ID").unwrap_or_else(|_| "octoscode".to_string());
+                connect_now(handle, bridge, store, screens, server, token, profile);
+            }
+            // The web's `onConfigured` (`onboarding-submission.ts:126`): once
+            // the provider is saved, open the canonical session — here a
+            // reconnect under the server-assigned profile id.
+            screens::connect::Effect::CreateProfile => {
+                let Some(conv) = conv else {
+                    if let Ok(mut ui) = screens.lock() {
+                        ui.onboarding_error = Some("Connect to a server first.".to_owned());
+                    }
+                    return;
+                };
+                let (id, api_key, provider, server) = {
+                    let ui = screens.lock().unwrap();
+                    (
+                        ui.profile_name.trim().to_owned(),
+                        ui.api_key.clone(),
+                        ui.provider,
+                        ui.server.clone(),
+                    )
+                };
+                let client = conv.client().clone();
+                let screens2 = screens.clone();
+                let store2 = store.clone();
+                rt.spawn(async move {
+                    match screens::connect::run_onboarding(
+                        &client, &id, &id, &api_key, provider, None,
+                    )
+                    .await
+                    {
+                        Ok(out) => {
+                            if let Ok(mut ui) = screens2.lock() {
+                                ui.onboarding_error = None;
+                                ui.created_profile = Some(out.profile_id.clone());
+                            }
+                            connect_now(
+                                handle, bridge, store2, screens2, server,
+                                String::new(), out.profile_id,
+                            );
+                        }
+                        Err(e) => {
+                            ::log::warn!("octoscode: create_profile: {e}");
+                            if let Ok(mut ui) = screens2.lock() {
+                                ui.onboarding_error = Some(e);
+                            }
+                            SignalToUI::set_ui_signal();
+                        }
+                    }
+                });
+            }
+            // Consumed in `apply`; Unhandled logged there would be noise here.
+            screens::connect::Effect::Retry
+            | screens::connect::Effect::Input { .. }
+            | screens::connect::Effect::SelectProvider(_) => {}
+            screens::connect::Effect::Unhandled(id) => {
+                ::log::warn!("octoscode: screen action unhandled {id:?}");
+            }
         }
     }
 
@@ -914,6 +1109,7 @@ impl AppModule for OctoscodeModule {
             conv: None,
             store: Arc::new(Store::new()),
             ui: Arc::new(Mutex::new(FlowUi::default())),
+            screens: Arc::new(Mutex::new(screens::connect::ConnectUi::default())),
         }));
         if let Some(mut view) = root.borrow_mut::<OctoscodeView>() {
             view.bridge = bridge;
