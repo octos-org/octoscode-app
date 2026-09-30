@@ -202,7 +202,12 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
         "approval.pending" => json!(ui.approval_pending()),
         "question.pending" => json!(ui.question_pending()),
 
-        _ => return None,
+        // #29b: board-2 data slots answer from the screens table before the
+        // conversation table declines the id.
+        other => match crate::screens::workspace::query(ctx, other) {
+            Some(v) => v,
+            None => return None,
+        },
     })
 }
 
