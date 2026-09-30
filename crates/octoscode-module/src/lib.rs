@@ -205,14 +205,22 @@ script_mod! {
                     }
                     fleet_list := View {
                         width: Fill height: Fit flow: Down spacing: 2
-                        // #28e2 item 3: the Blocked row shows the board's
-                        // yellow dot (sync_labels toggles it by status text).
+                        // #28e3 item 2: every fleet row reserves the SAME
+                        // 14px status slot, so all rows share one text inset
+                        // (the #28e2 dots collapsed when hidden and pushed
+                        // only the Blocked row's text). The dot itself is a
+                        // RoundedView — a plain View never paints draw_bg —
+                        // and sync_labels shows it on the Blocked row only.
                         fleet_wrap_1 := View {
                             width: Fill height: 32 flow: Right spacing: 6
-                            fleet_dot_1 := View {
-                                width: 8 height: 8 margin: Inset{top: 4}
-                                draw_bg +: {color: #E5B800 border_radius: 4.0}
-                                visible: false
+                            fleet_slot_1 := View {
+                                width: 14 height: 14 flow: Overlay
+                                fleet_dot_1 := RoundedView {
+                                    width: 8 height: 8
+                                    margin: Inset{left: 3 top: 3}
+                                    draw_bg +: {color: #E5B800 border_radius: 4.0}
+                                    visible: false
+                                }
                             }
                             fleet_row_1 := Label {
                                 width: Fill height: Fit text: ""
@@ -222,10 +230,14 @@ script_mod! {
                         }
                         fleet_wrap_2 := View {
                             width: Fill height: 32 flow: Right spacing: 6
-                            fleet_dot_2 := View {
-                                width: 8 height: 8 margin: Inset{top: 4}
-                                draw_bg +: {color: #E5B800 border_radius: 4.0}
-                                visible: false
+                            fleet_slot_2 := View {
+                                width: 14 height: 14 flow: Overlay
+                                fleet_dot_2 := RoundedView {
+                                    width: 8 height: 8
+                                    margin: Inset{left: 3 top: 3}
+                                    draw_bg +: {color: #E5B800 border_radius: 4.0}
+                                    visible: false
+                                }
                             }
                             fleet_row_2 := Label {
                                 width: Fill height: Fit text: ""
@@ -235,10 +247,14 @@ script_mod! {
                         }
                         fleet_wrap_3 := View {
                             width: Fill height: 32 flow: Right spacing: 6
-                            fleet_dot_3 := View {
-                                width: 8 height: 8 margin: Inset{top: 4}
-                                draw_bg +: {color: #E5B800 border_radius: 4.0}
-                                visible: false
+                            fleet_slot_3 := View {
+                                width: 14 height: 14 flow: Overlay
+                                fleet_dot_3 := RoundedView {
+                                    width: 8 height: 8
+                                    margin: Inset{left: 3 top: 3}
+                                    draw_bg +: {color: #E5B800 border_radius: 4.0}
+                                    visible: false
+                                }
                             }
                             fleet_row_3 := Label {
                                 width: Fill height: Fit text: ""
