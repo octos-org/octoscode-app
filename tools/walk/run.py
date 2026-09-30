@@ -721,9 +721,14 @@ def c_queue(app):
     app.click(int(tr[0] + tr[2] / 2), int(tr[1] + tr[3] / 2))
     time.sleep(3)
     d = app.snap()
-    texts = [w.get("t", "") for w in d.get("s", [])]
-    no_replay = (texts.count("walk queue one") == 1
-                 and texts.count("walk queue two") == 1)
+    # Count TIMELINE bubbles only: the sidebar thread row carries the prompt
+    # as its title and renders it in TWO widget instances (probed: i0_threadrow
+    # and i0_threadrow_2 share the text), so a raw text count double-counts.
+    def bubbles(snap, text):
+        return sum(1 for w in snap.get("s", [])
+                   if (m := INSTANCE_KIND_RE.match(str(w.get("i", ""))))
+                   and m.group(1) == "userbubble" and w.get("t") == text)
+    no_replay = bubbles(d, "walk queue one") == 1 and bubbles(d, "walk queue two") == 1
     sessions = (app.text_of(d, "sessions") or "").strip()
     ok = no_replay and "1" in sessions
     return ok, f"turns_own_no_replay={no_replay} {sessions!r}"
