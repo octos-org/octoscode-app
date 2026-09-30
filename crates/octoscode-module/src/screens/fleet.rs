@@ -807,13 +807,16 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
         let done_y0 = 265.0 + runs.len() as f64 * (RUN_H + 8.0) + 8.0;
         for (j, t) in dones.iter().enumerate() {
             let y = done_y0 + j as f64 * 56.0;
+            // The done container's kit component is slot=false (the authored
+            // card uses it as a SELF-CLOSING backdrop with the content as
+            // SIBLINGS — nesting children gets them silently dropped).
             body.push_str(&format!(
-                "    Surfaceed7038384cce(instance: \"done_r{j}\") {{\n      \
+                "    Surfaceed7038384cce(instance: \"done_r{j}\")\n      \
                  Vectore0a378fde04f(instance: \"done_r{j}_icon\")\n      \
                  Textd55469de8b8b(instance: \"done_r{j}_cmd\", text: copy.done_r{j}_cmd_text)\n      \
                  Surfaceffa407c932d5(instance: \"done_r{j}_pill\") {{\n        \
                  Text4cb0e7db43f8(instance: \"done_r{j}_status\", text: copy.done_r{j}_status_text)\n      }}\n      \
-                 Textc440e7c590d3(instance: \"done_r{j}_dur\", text: copy.done_r{j}_dur_text)\n    }}\n"
+                 Textc440e7c590d3(instance: \"done_r{j}_dur\", text: copy.done_r{j}_dur_text)\n"
             ));
             placed.push((format!("done_r{j}"), DONE, 20.0, y, 350.0, 49.0));
             placed.push((format!("done_r{j}_icon"), ICON, 29.0, y + 16.0, 16.0, 16.0));
