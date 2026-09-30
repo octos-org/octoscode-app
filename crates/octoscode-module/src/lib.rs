@@ -460,6 +460,7 @@ script_mod! {
                 width: 420 height: Fill
                 visible: false
             }
+        } // columns
 
         } // base
 
@@ -760,7 +761,6 @@ script_mod! {
                     draw_text.color: #2F6FEB
                 }
             }
-        }
         }
     }
 }
