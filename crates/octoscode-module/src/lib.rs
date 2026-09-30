@@ -1717,7 +1717,17 @@ impl OctoscodeView {
             };
             match lowered {
                 Ok(dsl) => {
-                    if let Err(e) = self.mounts.mount(cx, &splash, &dsl) {
+                    // #31a item 3: centre the card in the first-run area (not
+                    // over the sidebar header, no left clipping — the arm-A
+                    // probe had it at x=12). A plain View wrapper carries the
+                    // slot's Fill walk and centers the natural-size card via
+                    // align; the lowered string itself stays byte-identical
+                    // (the f21/f29a replay tests assert on it).
+                    let centered = format!(
+                        "View {{\nwidth: Fill height: Fill\nflow: Overlay\nalign: Align{{x: 0.5 y: 0.5}}\n{}\n}}",
+                        dsl
+                    );
+                    if let Err(e) = self.mounts.mount(cx, &splash, &centered) {
                         makepad_widgets::log!("[octoscode] connect mount: {e}");
                     }
                 }
