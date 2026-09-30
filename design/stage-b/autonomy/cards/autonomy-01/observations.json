@@ -1,63 +1,31 @@
 {
   "schema_version": 1,
-  "reference_sha256": "44de6bf87710ca45ff8793c08c1b1cb45d65b4f77fc6ed6ae9c959a32154a140",
+  "reference_sha256": "f1d385b756812379d4d1537b2668f37824e3cca12123b02399a555ab3c102add",
   "artboard": [
     406,
     776
   ],
   "opaque": true,
-  "aspect_error": 0.030018825173879105,
+  "aspect_error": 0.09111578077095328,
   "text": [
     {
-      "id": "t01",
-      "expected_text": "OctosCode",
-      "requested_bounds": [
-        15.48,
-        33.74,
-        101.5,
-        24.86
-      ],
-      "status": "observed",
-      "ocr_text": "OctosCode",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        18.101910828025478,
-        35.51487414187643,
-        95.68152866242038,
-        18.645308924485125
-      ],
-      "ink_color": [
-        8,
-        7,
-        8
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        15.483050122457634,
-        33.73913051088594,
-        101.49999999999999,
-        24.860411899313508
-      ]
-    },
-    {
-      "id": "t02",
+      "id": "t_title",
       "expected_text": "Review",
       "requested_bounds": [
-        17.2,
-        102.99,
-        73.97,
-        26.64
+        20.45,
+        80.48,
+        73.4,
+        28.5
       ],
       "status": "observed",
       "ocr_text": "Review",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        20.687898089171973,
-        103.88100686498856,
-        67.23566878980891,
-        23.08466819221968
+        23.88235294117647,
+        80.62337662337661,
+        66.52941176470588,
+        20.155844155844154
       ],
       "ink_color": [
         5,
@@ -66,318 +34,278 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        17.20338927139832,
-        102.9931347894737,
-        73.97457627118644,
-        26.63615560640732
+        20.445439768577984,
+        80.4772956322335,
+        73.40323706234203,
+        23.36477016974347
       ]
     },
     {
-      "id": "t03",
-      "expected_text": "Last turn -",
+      "id": "scope_label",
+      "expected_text": "Last turn \u25be",
       "requested_bounds": [
-        202.96,
-        109.93,
-        86.09,
-        19.88
+        204.55,
+        86.08,
+        69.9,
+        21.0
       ],
       "status": "observed",
       "ocr_text": "Last turn -",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9090909090909091,
       "ink_bounds": [
-        206.87898089171972,
-        110.09610983981693,
-        78.4416135881104,
-        16.869565217391305
+        208.11764705882354,
+        86.04995004995004,
+        77.61764705882354,
+        14.729270729270729
       ],
       "ink_color": [
-        21,
+        20,
         22,
         22
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        202.964590609234,
-        109.92859890209948,
-        86.08776587146819,
-        19.86820385057819
+        204.54868969547508,
+        86.0783498515628,
+        83.90262199850646,
+        18.358270154027917
       ]
     },
     {
-      "id": "t04",
-      "expected_text": "+62 -5",
+      "id": "t_add",
+      "expected_text": "+62",
       "requested_bounds": [
-        324.84,
-        109.05,
-        60.82,
-        21.62
+        325.82,
+        85.19,
+        34.0,
+        22.5
       ],
-      "status": "observed",
-      "ocr_text": "+62 -5",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        328.4203821656051,
-        110.09610983981693,
-        26.721868365180466,
-        16.869565217391305
-      ],
-      "ink_color": [
-        73,
-        165,
-        92
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        324.84242850133165,
-        109.05487306588954,
-        60.81514200113586,
-        21.61565456783202
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
-      "id": "t05",
+      "id": "t_del",
+      "expected_text": "-5",
+      "requested_bounds": [
+        365.82,
+        85.19,
+        24.0,
+        22.5
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "file_1_path",
       "expected_text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
       "requested_bounds": [
-        48.17,
-        195.33,
-        275.25,
-        21.32
+        53.0,
+        154.89,
+        281.0,
+        24.78
       ],
       "status": "observed",
-      "ocr_text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
+      "ocr_text": "\u2022 crates/octos-cli/src/api/ui_protocol_transportrs +31-4",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9142857142857143,
       "ink_bounds": [
-        49.995753715498935,
-        196.2196796338673,
-        272.39065817409767,
-        17.757437070938217
+        24.73529411764706,
+        155.04495504495503,
+        297.6764705882353,
+        25.58241758241758
       ],
       "ink_color": [
-        74,
-        74,
-        75
+        87,
+        87,
+        87
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        48.16949169745761,
-        195.33180751395878,
-        275.2542372881355,
-        21.30892448512588
+        23.882348569853065,
+        154.89021925109776,
+        359.9411764705883,
+        24.78243512974057
       ]
     },
     {
-      "id": "t06",
-      "expected_text": "+31-4",
+      "id": "file_1_add",
+      "expected_text": "+31",
       "requested_bounds": [
-        335.47,
-        195.33,
-        48.17,
-        17.76
+        338.0,
+        154.89,
+        30.0,
+        24.78
       ],
-      "status": "observed",
-      "ocr_text": "+31-4",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        338.7643312101911,
-        194.44393592677346,
-        21.54989384288747,
-        15.981693363844395
-      ],
-      "ink_color": [
-        98,
-        172,
-        112
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        335.46610163235744,
-        195.33180773996258,
-        48.16949152542373,
-        17.75743707093816
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
-      "id": "t07",
+      "id": "file_1_del",
+      "expected_text": "-4",
+      "requested_bounds": [
+        371.0,
+        154.89,
+        17.0,
+        24.78
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "file_2_path",
       "expected_text": "crates/octos-core/src/ui_protocol.rs",
       "requested_bounds": [
-        48.17,
-        266.36,
-        213.32,
-        21.32
+        53.0,
+        218.4,
+        280.0,
+        24.78
       ],
       "status": "observed",
-      "ocr_text": "crates/octos-core/src/ui_protocol.rs",
+      "ocr_text": "L crates/octos-core/src/ui_protocol.rs",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.972972972972973,
       "ink_bounds": [
-        49.995753715498935,
-        267.24942791762015,
-        209.46496815286622,
-        17.757437070938217
+        23.88235294117647,
+        216.28771228771228,
+        236.26470588235296,
+        26.357642357642355
       ],
       "ink_color": [
-        60,
-        61,
-        61
+        63,
+        63,
+        63
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        48.16949227090394,
-        266.3615562416476,
-        213.32203389830508,
-        21.30892448512579
+        22.17646792279419,
+        218.39520989061873,
+        240.5294117647059,
+        24.78243512974057
       ]
     },
     {
-      "id": "t08",
-      "expected_text": "+9 -1",
+      "id": "file_2_add",
+      "expected_text": "+9",
       "requested_bounds": [
-        335.47,
-        266.36,
-        48.17,
-        19.53
+        333.33,
+        219.97,
+        30.0,
+        21.08
       ],
-      "status": "observed",
-      "ocr_text": "+9 -1",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        342.21231422505303,
-        269.9130434782609,
-        12.929936305732483,
-        9.766590389016018
-      ],
-      "ink_color": [
-        116,
-        182,
-        128
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        335.4661016088983,
-        266.361556308238,
-        48.16949152542369,
-        19.533180778031973
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
-      "id": "t09",
+      "id": "file_2_del",
+      "expected_text": "-1",
+      "requested_bounds": [
+        367.33,
+        219.97,
+        24.0,
+        21.08
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "file_3_path",
       "expected_text": "crates/octos-cli/tests/steer_queue.rs",
       "requested_bounds": [
-        47.9,
-        336.84,
-        217.32,
-        25.01
+        53.0,
+        286.55,
+        280.0,
+        18.59
       ],
       "status": "observed",
       "ocr_text": "crates/octos-cli/tests/steer_queue.rs",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        49.995753715498935,
-        339.1670480549199,
-        212.05095541401272,
-        17.757437070938217
+        52.88235294117648,
+        286.05794205794206,
+        209.82352941176472,
+        15.504495504495504
       ],
       "ink_color": [
-        83,
-        83,
-        83
+        77,
+        77,
+        78
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        47.90286532725484,
-        336.84262781273435,
-        217.3163435984466,
-        25.011167286189796
+        49.47058554852949,
+        286.5469062650698,
+        214.94117647058826,
+        18.586826347305365
       ]
     },
     {
-      "id": "t10",
-      "expected_text": "+22 -0",
+      "id": "file_3_add",
+      "expected_text": "+22",
       "requested_bounds": [
-        328.58,
-        337.39,
-        56.77,
-        19.53
+        329.16,
+        283.27,
+        30.0,
+        19.5
       ],
-      "status": "observed",
-      "ocr_text": "+22 -0",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        331.8683651804671,
-        337.39130434782606,
-        24.997876857749468,
-        15.093821510297483
-      ],
-      "ink_color": [
-        88,
-        169,
-        101
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        328.5847461682203,
-        337.3913042590389,
-        56.77118644067795,
-        19.533180778031973
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
-      "id": "t11",
+      "id": "file_3_del",
+      "expected_text": "-0",
+      "requested_bounds": [
+        363.16,
+        283.27,
+        24.0,
+        19.5
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "diff_file_path",
       "expected_text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
       "requested_bounds": [
-        15.48,
-        424.4,
-        307.94,
-        21.32
+        44.76,
+        359.35,
+        305.35,
+        21.68
       ],
       "status": "observed",
       "ocr_text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        18.101910828025478,
-        423.5148741418764,
-        303.4225053078556,
-        20.42105263157895
+        21.323529411764707,
+        359.7042957042957,
+        300.2352941176471,
+        17.83016983016983
       ],
       "ink_color": [
-        26,
-        27,
-        27
+        32,
+        33,
+        32
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        15.483048281285361,
-        424.40274608421055,
-        307.9406779661017,
-        21.30892448512579
+        18.764706070000006,
+        359.3453091643912,
+        305.3529411764706,
+        21.68463073852301
       ]
     },
     {
-      "id": "t12",
+      "id": "ln_0",
       "expected_text": "128",
       "requested_bounds": [
-        15.48,
-        484.78,
-        25.81,
-        17.76
+        18.76,
+        413.56,
+        22.0,
+        30.96
       ],
       "status": "observed",
       "ocr_text": "128",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        18.963906581740975,
-        485.66590389016017,
-        20.687898089171973,
-        14.205949656750573
+        22.176470588235297,
+        413.97002997002994,
+        20.47058823529412,
+        12.403596403596403
       ],
       "ink_color": [
         67,
@@ -386,62 +314,126 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        15.483050954978813,
-        484.7780318146453,
-        25.80508474576271,
-        17.757437070938245
+        18.76470574019608,
+        413.55688629638496,
+        25.58823529411765,
+        15.4890219560878
       ]
     },
     {
-      "id": "t13",
+      "id": "dl_0",
+      "expected_text": "let msg = read_message().await?;",
+      "requested_bounds": [
+        84.76,
+        413.56,
+        280.0,
+        30.96
+      ],
+      "status": "observed",
+      "ocr_text": "let msg = read_message().await?;",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        91.26470588235294,
+        413.19480519480516,
+        243.94117647058826,
+        16.27972027972028
+      ],
+      "ink_color": [
+        72,
+        74,
+        73
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        86.99999747529417,
+        413.556886243034,
+        252.47058823529414,
+        20.135728542914187
+      ]
+    },
+    {
+      "id": "ln_1",
       "expected_text": "129",
       "requested_bounds": [
-        15.48,
-        527.4,
-        25.81,
-        15.98
+        18.76,
+        448.52,
+        22.0,
+        30.96
       ],
       "status": "observed",
       "ocr_text": "129",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        18.101910828025478,
-        527.395881006865,
-        20.687898089171973,
-        13.31807780320366
+        21.323529411764707,
+        450.4055944055944,
+        20.47058823529412,
+        11.628371628371628
       ],
       "ink_color": [
+        69,
         68,
-        68,
-        69
+        70
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        15.483050761440683,
-        527.3958809535926,
-        25.80508474576271,
-        15.981693363844428
+        18.656567467422413,
+        450.5544487263556,
+        27.51039516224581,
+        14.292299967326079
       ]
     },
     {
-      "id": "t14",
+      "id": "dl_1",
+      "expected_text": "if !connected {",
+      "requested_bounds": [
+        84.76,
+        448.52,
+        280.0,
+        30.96
+      ],
+      "status": "observed",
+      "ocr_text": "if !connected {",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        91.26470588235294,
+        448.85514485514483,
+        116.8529411764706,
+        14.729270729270729
+      ],
+      "ink_color": [
+        56,
+        57,
+        57
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        80.1764689463236,
+        449.1816367846307,
+        131.35294117647058,
+        17.037924151696625
+      ]
+    },
+    {
+      "id": "ln_2",
       "expected_text": "130",
       "requested_bounds": [
-        15.48,
-        566.46,
-        25.81,
-        17.76
+        18.76,
+        483.48,
+        22.0,
+        30.96
       ],
       "status": "observed",
       "ocr_text": "130",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        18.101910828025478,
-        567.350114416476,
-        21.54989384288747,
-        13.31807780320366
+        21.323529411764707,
+        485.2907092907093,
+        21.323529411764707,
+        11.628371628371628
       ],
       "ink_color": [
         62,
@@ -450,254 +442,30 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        15.483051008739404,
-        566.4622424741418,
-        25.80508474576271,
-        17.757437070938245
+        18.76470596196078,
+        483.25748508673314,
+        27.294117647058826,
+        17.037924151696625
       ]
     },
     {
-      "id": "t15",
-      "expected_text": "131",
-      "requested_bounds": [
-        15.48,
-        605.53,
-        25.81,
-        17.76
-      ],
-      "status": "observed",
-      "ocr_text": "131",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        18.101910828025478,
-        606.4164759725401,
-        21.54989384288747,
-        13.31807780320366
-      ],
-      "ink_color": [
-        70,
-        71,
-        70
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        15.48305103177966,
-        605.5286040428898,
-        25.80508474576271,
-        17.757437070938245
-      ]
-    },
-    {
-      "id": "t16",
-      "expected_text": "132",
-      "requested_bounds": [
-        15.48,
-        644.59,
-        25.81,
-        17.76
-      ],
-      "status": "observed",
-      "ocr_text": "132",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        18.101910828025478,
-        645.4828375286041,
-        20.687898089171973,
-        13.31807780320366
-      ],
-      "ink_color": [
-        53,
-        54,
-        54
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        15.483051008739404,
-        644.59496558627,
-        25.80508474576271,
-        17.757437070938245
-      ]
-    },
-    {
-      "id": "t17",
-      "expected_text": "133",
-      "requested_bounds": [
-        15.48,
-        685.44,
-        25.81,
-        15.98
-      ],
-      "status": "observed",
-      "ocr_text": "133",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        18.101910828025478,
-        684.5491990846682,
-        20.687898089171973,
-        14.205949656750573
-      ],
-      "ink_color": [
-        58,
-        59,
-        58
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        15.483050761440683,
-        685.4370708849427,
-        25.80508474576271,
-        15.981693363844428
-      ]
-    },
-    {
-      "id": "t18",
-      "expected_text": "134",
-      "requested_bounds": [
-        15.48,
-        724.5,
-        25.81,
-        17.76
-      ],
-      "status": "observed",
-      "ocr_text": "134",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        18.101910828025478,
-        725.3913043478261,
-        21.54989384288747,
-        13.31807780320366
-      ],
-      "ink_color": [
-        93,
-        94,
-        92
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        15.483050954978813,
-        724.5034322723112,
-        25.80508474576271,
-        17.757437070938245
-      ]
-    },
-    {
-      "id": "t19",
-      "expected_text": "125",
-      "requested_bounds": [
-        17.2,
-        765.35,
-        24.08,
-        15.0
-      ],
-      "status": "observed",
-      "ocr_text": "125",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        18.101910828025478,
-        766.233409610984,
-        20.687898089171973,
-        9.766590389016018
-      ],
-      "ink_color": [
-        65,
-        67,
-        64
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        17.20339013156779,
-        765.3455376908466,
-        24.08474576271186,
-        8.87871853546908
-      ]
-    },
-    {
-      "id": "t20",
-      "expected_text": "let msg = read_message().await?;",
-      "requested_bounds": [
-        82.58,
-        484.78,
-        256.33,
-        21.32
-      ],
-      "status": "observed",
-      "ocr_text": "let msg = read_message().await?;",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        88.78556263269638,
-        484.7780320366133,
-        246.53078556263267,
-        18.645308924485125
-      ],
-      "ink_color": [
-        71,
-        72,
-        72
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        82.57626798230939,
-        484.7780320810068,
-        256.3305084745762,
-        21.30892448512588
-      ]
-    },
-    {
-      "id": "t21",
-      "expected_text": "connected (",
-      "requested_bounds": [
-        104.94,
-        527.4,
-        104.94,
-        15.98
-      ],
-      "status": "observed",
-      "ocr_text": "connected (",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        115.50743099787685,
-        525.6201372997712,
-        91.37154989384288,
-        16.869565217391305
-      ],
-      "ink_color": [
-        48,
-        49,
-        49
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        104.94067665434325,
-        527.3958810734554,
-        104.94067796610167,
-        15.981693363844343
-      ]
-    },
-    {
-      "id": "t22",
+      "id": "mk_2",
       "expected_text": "-",
       "requested_bounds": [
-        68.81,
-        571.79,
-        15.48,
-        15.0
+        75.76,
+        483.48,
+        12.0,
+        30.96
       ],
       "status": "observed",
       "ocr_text": "-",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        67.23566878980891,
-        570.0137299771167,
-        13.791932059447982,
-        13.31807780320366
+        72.5,
+        486.065934065934,
+        11.088235294117649,
+        14.729270729270729
       ],
       "ink_color": [
         253,
@@ -706,30 +474,30 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        68.81355906398306,
-        571.7894737138064,
-        15.48305084745762,
-        8.878718535469165
+        73.3529411125,
+        487.90419148123755,
+        11.941176470588227,
+        10.842315369261504
       ]
     },
     {
-      "id": "t23",
-      "expected_text": "queue. drop_pending();",
+      "id": "dl_2",
+      "expected_text": "queue.drop_pending();",
       "requested_bounds": [
-        127.31,
-        566.46,
-        172.03,
-        21.32
+        84.76,
+        483.48,
+        280.0,
+        30.96
       ],
       "status": "observed",
       "ocr_text": "queue. drop_pending();",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9767441860465116,
       "ink_bounds": [
-        131.02335456475583,
-        565.5743707093822,
-        163.77919320594478,
-        19.533180778032037
+        133.05882352941177,
+        483.7402597402597,
+        162.05882352941177,
+        17.054945054945055
       ],
       "ink_color": [
         47,
@@ -738,30 +506,62 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        127.30508259533902,
-        566.4622426961098,
-        172.03389830508473,
-        21.30892448512588
+        127.94117433823536,
+        484.80638734171646,
+        170.58823529411765,
+        18.58682634730545
       ]
     },
     {
-      "id": "t24",
+      "id": "ln_3",
+      "expected_text": "131",
+      "requested_bounds": [
+        18.76,
+        518.44,
+        22.0,
+        30.96
+      ],
+      "status": "observed",
+      "ocr_text": "131",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        21.323529411764707,
+        519.4005994005994,
+        21.323529411764707,
+        11.628371628371628
+      ],
+      "ink_color": [
+        70,
+        71,
+        70
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        18.76470574019608,
+        518.8822355977823,
+        25.58823529411765,
+        15.4890219560878
+      ]
+    },
+    {
+      "id": "mk_3",
       "expected_text": "-",
       "requested_bounds": [
-        72.25,
-        610.86,
-        12.04,
-        15.0
+        75.76,
+        518.44,
+        12.0,
+        30.96
       ],
       "status": "observed",
       "ocr_text": "-",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        69.82165605095541,
-        610.8558352402746,
-        16.37791932059448,
-        11.54233409610984
+        73.3529411764706,
+        523.2767232767233,
+        14.500000000000002,
+        10.077922077922077
       ],
       "ink_color": [
         254,
@@ -770,30 +570,30 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        72.2542373526483,
-        610.8558353512586,
-        12.042372881355933,
-        8.878718535469165
+        75.05882359764708,
+        521.9800400130937,
+        10.235294117647056,
+        9.293413173652683
       ]
     },
     {
-      "id": "t25",
+      "id": "dl_3",
       "expected_text": "metrics.steer_dropped += 1;",
       "requested_bounds": [
-        127.31,
-        605.53,
-        221.92,
-        23.09
+        84.76,
+        518.44,
+        280.0,
+        30.96
       ],
       "status": "observed",
       "ocr_text": "metrics.steer_dropped += 1;",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        130.16135881104034,
-        605.5286041189931,
-        215.4989384288747,
-        18.645308924485125
+        132.2058823529412,
+        518.6253746253745,
+        213.23529411764707,
+        16.27972027972028
       ],
       "ink_color": [
         82,
@@ -802,126 +602,190 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        127.30508481027543,
-        605.5286044075515,
-        221.92372881355925,
-        23.08466819221969
+        129.6470569897059,
+        518.8822355934798,
+        220.0588235294118,
+        20.135728542914187
       ]
     },
     {
-      "id": "t26",
-      "expected_text": "queue. preserve_pending();",
+      "id": "ln_4",
+      "expected_text": "132",
       "requested_bounds": [
-        123.86,
-        644.59,
-        209.88,
-        21.32
+        18.76,
+        553.4,
+        22.0,
+        30.96
+      ],
+      "status": "observed",
+      "ocr_text": "132",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        21.323529411764707,
+        553.5104895104895,
+        20.47058823529412,
+        11.628371628371628
+      ],
+      "ink_color": [
+        53,
+        54,
+        54
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        18.764706042279414,
+        552.9580837548901,
+        25.58823529411765,
+        15.4890219560878
+      ]
+    },
+    {
+      "id": "mk_4",
+      "expected_text": "+",
+      "requested_bounds": [
+        75.76,
+        553.4,
+        12.0,
+        30.96
+      ],
+      "status": "observed",
+      "ocr_text": "+",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        71.64705882352942,
+        555.0609390609391,
+        12.794117647058824,
+        11.628371628371628
+      ],
+      "ink_color": [
+        250,
+        251,
+        250
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        71.64705875529411,
+        554.5069858885429,
+        13.64705882352941,
+        13.940119760479066
+      ]
+    },
+    {
+      "id": "dl_4",
+      "expected_text": "queue.preserve_pending();",
+      "requested_bounds": [
+        84.76,
+        553.4,
+        280.0,
+        30.96
       ],
       "status": "observed",
       "ocr_text": "queue. preserve_pending();",
       "confidence": 1,
-      "text_similarity": 1.0,
+      "text_similarity": 0.9803921568627451,
       "ink_bounds": [
-        131.02335456475583,
-        643.7070938215103,
-        198.25902335456473,
-        19.533180778032037
+        133.05882352941177,
+        551.9600399600399,
+        196.1764705882353,
+        17.054945054945055
       ],
       "ink_color": [
-        46,
-        54,
-        50
+        49,
+        56,
+        52
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        123.86440940317787,
-        644.5949655862701,
-        209.88135593220335,
-        21.30892448512588
+        129.64706076397053,
+        551.4091813850299,
+        203.00000000000003,
+        20.135728542914187
       ]
     },
     {
-      "id": "t27",
+      "id": "ln_5",
+      "expected_text": "133",
+      "requested_bounds": [
+        18.76,
+        588.36,
+        22.0,
+        30.96
+      ],
+      "status": "observed",
+      "ocr_text": "133",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        21.323529411764707,
+        587.6203796203796,
+        20.47058823529412,
+        12.403596403596403
+      ],
+      "ink_color": [
+        59,
+        60,
+        58
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        18.764705933529413,
+        587.0339319808382,
+        25.58823529411765,
+        15.489021956087889
+      ]
+    },
+    {
+      "id": "mk_5",
       "expected_text": "+",
       "requested_bounds": [
-        70.53,
-        685.44,
-        13.76,
-        15.98
+        75.76,
+        588.36,
+        12.0,
+        30.96
       ],
       "status": "observed",
       "ocr_text": "+",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        74.1316348195329,
-        687.212814645309,
-        7.75796178343949,
-        10.654462242562929
+        71.64705882352942,
+        586.8451548451548,
+        17.911764705882355,
+        20.93106893106893
       ],
       "ink_color": [
-        198,
-        228,
-        202
+        253,
+        253,
+        253
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        70.5338982190678,
-        685.4370707384439,
-        13.762711864406786,
-        15.981693363844343
+        71.64705893014707,
+        588.5828345443115,
+        15.352941176470592,
+        17.037924151696537
       ]
     },
     {
-      "id": "t28",
-      "expected_text": "+",
-      "requested_bounds": [
-        70.53,
-        728.05,
-        12.04,
-        15.0
-      ],
-      "status": "observed",
-      "ocr_text": "+",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        74.1316348195329,
-        731.6064073226545,
-        6.895966029723991,
-        2.663615560640732
-      ],
-      "ink_color": [
-        157,
-        205,
-        170
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        70.53389818466101,
-        728.0549199794966,
-        12.042372881355933,
-        14.205949656750613
-      ]
-    },
-    {
-      "id": "t29",
+      "id": "dl_5",
       "expected_text": "metrics.steer_preserved += 1;",
       "requested_bounds": [
-        127.31,
-        683.66,
-        235.69,
-        23.09
+        84.76,
+        588.36,
+        280.0,
+        30.96
       ],
       "status": "observed",
       "ocr_text": "metrics.steer_preserved += 1;",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        130.16135881104034,
-        684.5491990846682,
-        229.2908704883227,
-        18.645308924485125
+        132.2058823529412,
+        587.6203796203796,
+        226.8823529411765,
+        16.27972027972028
       ],
       "ink_color": [
         72,
@@ -930,42 +794,181 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        127.30508265985175,
-        683.6613269425629,
-        235.6864406779661,
-        23.08466819221969
+        129.64705736286768,
+        587.0339322228542,
+        233.7058823529412,
+        20.135728542914187
       ]
     },
     {
-      "id": "t30",
-      "expected_text": "reconnect().await?;",
+      "id": "ln_6",
+      "expected_text": "134",
       "requested_bounds": [
-        128.7,
-        720.96,
-        153.92,
-        25.07
+        18.76,
+        623.32,
+        22.0,
+        30.96
       ],
       "status": "observed",
-      "ocr_text": "reconnect().await?;",
+      "ocr_text": "134",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        132.74734607218682,
-        723.6155606407323,
-        146.5392781316348,
-        18.645308924485125
+        21.323529411764707,
+        623.2807192807193,
+        21.323529411764707,
+        11.628371628371628
       ],
       "ink_color": [
-        74,
-        75,
-        74
+        96,
+        96,
+        96
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        128.69791010869548,
-        720.9559683897246,
-        153.92405972238313,
-        25.06766689833028
+        18.764705967647057,
+        622.6586824411177,
+        27.294117647058826,
+        15.4890219560878
+      ]
+    },
+    {
+      "id": "mk_6",
+      "expected_text": "+",
+      "requested_bounds": [
+        75.76,
+        623.32,
+        12.0,
+        30.96
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "dl_6",
+      "expected_text": "reconnect().await?;",
+      "requested_bounds": [
+        84.76,
+        623.32,
+        280.0,
+        30.96
+      ],
+      "status": "observed",
+      "ocr_text": "reconnect (). await?;",
+      "confidence": 1,
+      "text_similarity": 0.95,
+      "ink_bounds": [
+        134.76470588235296,
+        621.7302697302697,
+        145.0,
+        16.27972027972028
+      ],
+      "ink_color": [
+        76,
+        76,
+        75
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        127.65894348760953,
+        619.4915494694916,
+        155.95921909107884,
+        21.93737006425385
+      ]
+    },
+    {
+      "id": "ln_7",
+      "expected_text": "135",
+      "requested_bounds": [
+        18.76,
+        658.28,
+        22.0,
+        30.96
+      ],
+      "status": "observed",
+      "ocr_text": "135",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        21.323529411764707,
+        658.1658341658341,
+        20.47058823529412,
+        12.403596403596403
+      ],
+      "ink_color": [
+        78,
+        78,
+        77
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        18.76470618941176,
+        658.2834330407983,
+        30.705882352941178,
+        15.4890219560878
+      ]
+    },
+    {
+      "id": "dl_7",
+      "expected_text": "}",
+      "requested_bounds": [
+        84.76,
+        658.28,
+        280.0,
+        30.96
+      ],
+      "status": "observed",
+      "ocr_text": "}",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        90.41176470588236,
+        656.6153846153845,
+        5.970588235294118,
+        16.27972027972028
+      ],
+      "ink_color": [
+        202,
+        202,
+        202
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        86.9999999147059,
+        656.7345307522554,
+        11.941176470588239,
+        18.586826347305365
+      ]
+    },
+    {
+      "id": "t_fold",
+      "expected_text": "\u22ee 412 unmodified lines \u22ee",
+      "requested_bounds": [
+        88.71,
+        720.24,
+        197.88,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": ": 412 unmodified lines :",
+      "confidence": 1,
+      "text_similarity": 0.9166666666666666,
+      "ink_bounds": [
+        93.82352941176471,
+        719.4085914085914,
+        188.50000000000003,
+        18.605394605394604
+      ],
+      "ink_color": [
+        120,
+        120,
+        123
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        88.70588457058818,
+        720.2395207257484,
+        197.88235294117646,
+        18.586826347305365
       ]
     }
   ],
@@ -981,9 +984,229 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4294901502
+    },
+    {
+      "id": "review_panel",
+      "bounds": [
+        14.0,
+        92.0,
+        378.0,
+        660.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.0
+    },
+    {
+      "id": "scope_pill",
+      "bounds": [
+        195.0,
+        77.0,
+        100.0,
+        35.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294769916,
+      "radius": 17.5
+    },
+    {
+      "id": "scope_chev",
+      "bounds": [
+        274.644,
+        87.186,
+        11.874,
+        16.298
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "file_1",
+      "bounds": [
+        11.0,
+        136.0,
+        382.0,
+        60.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294440952,
+      "radius": 14.71
+    },
+    {
+      "id": "file_1_icon",
+      "bounds": [
+        23.134,
+        149.242,
+        16.342,
+        26.484
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "file_2",
+      "bounds": [
+        16.0,
+        210.4,
+        374.0,
+        40.78
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "file_2_icon",
+      "bounds": [
+        26.18,
+        219.4,
+        16.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "file_3",
+      "bounds": [
+        16.0,
+        278.55,
+        374.0,
+        34.59
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "file_3_icon",
+      "bounds": [
+        53.47,
+        287.55,
+        16.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "diff_file_header",
+      "bounds": [
+        20.0,
+        351.35,
+        366.0,
+        37.68
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294440952,
+      "radius": 8.0
+    },
+    {
+      "id": "diff_file_icon",
+      "bounds": [
+        24.76,
+        360.35,
+        16.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "diff_rows",
+      "bounds": [
+        20.0,
+        403.56,
+        366.0,
+        299.68
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "chip_130",
+      "bounds": [
+        178.3,
+        480.48,
+        99.0,
+        32.96
+      ],
+      "method": "word chip behind the changed token only (ref x[209,325] /1.1722 logical); #28a2",
+      "reviewed": false,
+      "bg": 4294831340,
+      "radius": 6.0
+    },
+    {
+      "id": "chip_132",
+      "bounds": [
+        178.3,
+        550.4,
+        133.1,
+        32.96
+      ],
+      "method": "word chip behind the changed token only (ref x[209,365] /1.1722 logical); #28a2",
+      "reviewed": false,
+      "bg": 4293326058,
+      "radius": 6.0
+    },
+    {
+      "id": "folded",
+      "bounds": [
+        1.0,
+        699.0,
+        400.0,
+        60.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294506489,
+      "radius": 13.88
     }
   ],
-  "unmapped_ocr": [],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        21.999999016666678,
+        25.9740519794578,
+        117.99999999999999,
+        25.97405189620749
+      ],
+      "confidence": 1,
+      "text": "OctosCode"
+    },
+    {
+      "bounds": [
+        382.00000045999997,
+        109.89021932111778,
+        70.00000000000001,
+        23.976047904191585
+      ],
+      "confidence": 1,
+      "text": "+62 -5"
+    },
+    {
+      "bounds": [
+        390.8044905898943,
+        283.7524837901432,
+        58.894386291503885,
+        27.186326550390394
+      ],
+      "confidence": 1,
+      "text": "+9 -1"
+    },
+    {
+      "bounds": [
+        385.91502730317984,
+        365.39928251283277,
+        66.16994476318361,
+        24.446944360485553
+      ],
+      "confidence": 1,
+      "text": "+22 -0"
+    }
+  ],
   "non_text_ocr": [],
   "limits": [
     "OCR cannot prove font family, hierarchy or control behavior.",

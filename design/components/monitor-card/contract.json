@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "id": "monitor-card",
+  "app": "octoscode",
+  "title": "Monitor card: mono command, fired state, interval clock, pause/trash",
+  "artboard": [
+    378.0,
+    151.0
+  ],
+  "font_family": "Inter",
+  "content_source": "extracted from autonomy-05 root 'mon_1'",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "mon_1",
+    "x": 12.0,
+    "y": 156.0,
+    "w": 378.0,
+    "h": 151.0,
+    "c": [
+      {
+        "t": "text",
+        "id": "mon_1_cmd",
+        "text": "cargo test -q",
+        "x": 29.8,
+        "y": 191.08,
+        "w": 114.88,
+        "h": 24.13,
+        "size": 14.21,
+        "line_height": 17.2,
+        "weight": 500,
+        "color": 4281085229,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "mon_1_state",
+        "text": "fired 3×",
+        "x": 29.71,
+        "y": 238.67,
+        "w": 59.44,
+        "h": 23.22,
+        "size": 14.81,
+        "line_height": 17.91,
+        "weight": 400,
+        "color": 4285822075,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "svg",
+        "id": "mon_1_clock",
+        "x": 188.811,
+        "y": 243.511,
+        "w": 18.193,
+        "h": 25.48,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "mon_1_int",
+        "text": "30s",
+        "x": 220.06,
+        "y": 238.67,
+        "w": 28.74,
+        "h": 23.22,
+        "size": 13.92,
+        "line_height": 16.85,
+        "weight": 400,
+        "color": 4286348419,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "svg",
+        "id": "mon_1_pause",
+        "x": 294.995,
+        "y": 238.712,
+        "w": 18.193,
+        "h": 28.312,
+        "src": ""
+      },
+      {
+        "t": "svg",
+        "id": "mon_1_trash",
+        "x": 348.258,
+        "y": 238.712,
+        "w": 18.193,
+        "h": 28.312,
+        "src": ""
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502,
+    "radius": 16.99,
+    "border": 1,
+    "bordercolor": 4293256679
+  }
+}

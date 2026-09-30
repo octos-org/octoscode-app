@@ -3,159 +3,243 @@
 # profile: ui/l0
 # Static design fixture, runtime native Kit composition.
 theme light
-copy t01_text { class: user-copy, en: "OctosCode" }
-copy t02_text { class: user-copy, en: "Review" }
-copy t03_text { class: user-copy, en: "Last turn -" }
-copy t04_text { class: user-copy, en: "+62 -5" }
-copy t05_text { class: user-copy, en: "crates/octos-cli/src/api/ui_protocol_transport.rs" }
-copy t06_text { class: user-copy, en: "+31-4" }
-copy t07_text { class: user-copy, en: "crates/octos-core/src/ui_protocol.rs" }
-copy t08_text { class: user-copy, en: "+9 -1" }
-copy t09_text { class: user-copy, en: "crates/octos-cli/tests/steer_queue.rs" }
-copy t10_text { class: user-copy, en: "+22 -0" }
-copy t11_text { class: user-copy, en: "crates/octos-cli/src/api/ui_protocol_transport.rs" }
-copy t12_text { class: user-copy, en: "128" }
-copy t13_text { class: user-copy, en: "129" }
-copy t14_text { class: user-copy, en: "130" }
-copy t15_text { class: user-copy, en: "131" }
-copy t16_text { class: user-copy, en: "132" }
-copy t17_text { class: user-copy, en: "133" }
-copy t18_text { class: user-copy, en: "134" }
-copy t19_text { class: user-copy, en: "125" }
-copy t20_text { class: user-copy, en: "let msg = read_message().await?;" }
-copy t21_text { class: user-copy, en: "connected (" }
-copy t22_text { class: user-copy, en: "-" }
-copy t23_text { class: user-copy, en: "queue. drop_pending();" }
-copy t24_text { class: user-copy, en: "-" }
-copy t25_text { class: user-copy, en: "metrics.steer_dropped += 1;" }
-copy t26_text { class: user-copy, en: "queue. preserve_pending();" }
-copy t27_text { class: user-copy, en: "+" }
-copy t28_text { class: user-copy, en: "+" }
-copy t29_text { class: user-copy, en: "metrics.steer_preserved += 1;" }
-copy t30_text { class: user-copy, en: "reconnect().await?;" }
+copy t_title_text { class: user-copy, en: "Review" }
+copy scope_label_text { class: user-copy, en: "Last turn ▾" }
+copy t_add_text { class: user-copy, en: "+62" }
+copy t_del_text { class: user-copy, en: "-5" }
+copy file_1_path_text { class: user-copy, en: "crates/octos-cli/src/api/ui_protocol_transport.rs" }
+copy file_1_add_text { class: user-copy, en: "+31" }
+copy file_1_del_text { class: user-copy, en: "-4" }
+copy file_2_path_text { class: user-copy, en: "crates/octos-core/src/ui_protocol.rs" }
+copy file_2_add_text { class: user-copy, en: "+9" }
+copy file_2_del_text { class: user-copy, en: "-1" }
+copy file_3_path_text { class: user-copy, en: "crates/octos-cli/tests/steer_queue.rs" }
+copy file_3_add_text { class: user-copy, en: "+22" }
+copy file_3_del_text { class: user-copy, en: "-0" }
+copy diff_file_path_text { class: user-copy, en: "crates/octos-cli/src/api/ui_protocol_transport.rs" }
+copy ln_0_text { class: user-copy, en: "128" }
+copy dl_0_text { class: user-copy, en: "let msg = read_message().await?;" }
+copy ln_1_text { class: user-copy, en: "129" }
+copy dl_1_text { class: user-copy, en: "if !connected {" }
+copy ln_2_text { class: user-copy, en: "130" }
+copy mk_2_text { class: user-copy, en: "-" }
+copy dl_2_text { class: user-copy, en: "queue.drop_pending();" }
+copy ln_3_text { class: user-copy, en: "131" }
+copy mk_3_text { class: user-copy, en: "-" }
+copy dl_3_text { class: user-copy, en: "metrics.steer_dropped += 1;" }
+copy ln_4_text { class: user-copy, en: "132" }
+copy mk_4_text { class: user-copy, en: "+" }
+copy dl_4_text { class: user-copy, en: "queue.preserve_pending();" }
+copy ln_5_text { class: user-copy, en: "133" }
+copy mk_5_text { class: user-copy, en: "+" }
+copy dl_5_text { class: user-copy, en: "metrics.steer_preserved += 1;" }
+copy ln_6_text { class: user-copy, en: "134" }
+copy mk_6_text { class: user-copy, en: "+" }
+copy dl_6_text { class: user-copy, en: "reconnect().await?;" }
+copy ln_7_text { class: user-copy, en: "135" }
+copy dl_7_text { class: user-copy, en: "}" }
+copy t_fold_text { class: user-copy, en: "⋮ 412 unmodified lines ⋮" }
 component Surface16fae9a63e16(instance: text) {
   view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
 }
-component Text4cc80a24dd5e(instance: text, text: text) {
-  view Kit(component: "Text4cc80a24dd5e", instance: instance, text: text)
+component Surface03c9bd7cb6ef(instance: text) {
+  view Kit(component: "Surface03c9bd7cb6ef", instance: instance) { slot }
 }
-component Text2fee8bdb2584(instance: text, text: text) {
-  view Kit(component: "Text2fee8bdb2584", instance: instance, text: text)
+component Text19ef13797c2c(instance: text, text: text) {
+  view Kit(component: "Text19ef13797c2c", instance: instance, text: text)
 }
-component Text021d8c4467e4(instance: text, text: text) {
-  view Kit(component: "Text021d8c4467e4", instance: instance, text: text)
+component Surfacee183ddf27483(instance: text) {
+  view Kit(component: "Surfacee183ddf27483", instance: instance) { slot }
 }
-component Text31055290dcea(instance: text, text: text) {
-  view Kit(component: "Text31055290dcea", instance: instance, text: text)
+component Texta1bf1faac5d2(instance: text, text: text) {
+  view Kit(component: "Texta1bf1faac5d2", instance: instance, text: text)
 }
-component Textc46906d07ceb(instance: text, text: text) {
-  view Kit(component: "Textc46906d07ceb", instance: instance, text: text)
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
-component Text4f2ed480ce0f(instance: text, text: text) {
-  view Kit(component: "Text4f2ed480ce0f", instance: instance, text: text)
+component Text98953305a681(instance: text, text: text) {
+  view Kit(component: "Text98953305a681", instance: instance, text: text)
 }
-component Text430b0dfe59be(instance: text, text: text) {
-  view Kit(component: "Text430b0dfe59be", instance: instance, text: text)
+component Text5abfe3ea15d7(instance: text, text: text) {
+  view Kit(component: "Text5abfe3ea15d7", instance: instance, text: text)
 }
-component Text1a9aa5b9f39d(instance: text, text: text) {
-  view Kit(component: "Text1a9aa5b9f39d", instance: instance, text: text)
+component Surfaceace044beb034(instance: text) {
+  view Kit(component: "Surfaceace044beb034", instance: instance) { slot }
 }
-component Textd81e3c1d2053(instance: text, text: text) {
-  view Kit(component: "Textd81e3c1d2053", instance: instance, text: text)
+component Text301803b5e5ee(instance: text, text: text) {
+  view Kit(component: "Text301803b5e5ee", instance: instance, text: text)
 }
-component Text3d062b65e430(instance: text, text: text) {
-  view Kit(component: "Text3d062b65e430", instance: instance, text: text)
+component Text0c4023efb8b6(instance: text, text: text) {
+  view Kit(component: "Text0c4023efb8b6", instance: instance, text: text)
 }
-component Text8360ae6fc8a3(instance: text, text: text) {
-  view Kit(component: "Text8360ae6fc8a3", instance: instance, text: text)
+component Textf9396463453b(instance: text, text: text) {
+  view Kit(component: "Textf9396463453b", instance: instance, text: text)
 }
-component Text0cf92510928a(instance: text, text: text) {
-  view Kit(component: "Text0cf92510928a", instance: instance, text: text)
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
 }
-component Text6e1c04d39b40(instance: text, text: text) {
-  view Kit(component: "Text6e1c04d39b40", instance: instance, text: text)
+component Texte6908eb6f019(instance: text, text: text) {
+  view Kit(component: "Texte6908eb6f019", instance: instance, text: text)
 }
-component Texta8a88abaddf1(instance: text, text: text) {
-  view Kit(component: "Texta8a88abaddf1", instance: instance, text: text)
+component Text751c8871d67b(instance: text, text: text) {
+  view Kit(component: "Text751c8871d67b", instance: instance, text: text)
 }
-component Text56fa7039bc66(instance: text, text: text) {
-  view Kit(component: "Text56fa7039bc66", instance: instance, text: text)
+component Text7059958dbfb5(instance: text, text: text) {
+  view Kit(component: "Text7059958dbfb5", instance: instance, text: text)
 }
-component Text17f8ba9bdc89(instance: text, text: text) {
-  view Kit(component: "Text17f8ba9bdc89", instance: instance, text: text)
+component Textaf13d5878d48(instance: text, text: text) {
+  view Kit(component: "Textaf13d5878d48", instance: instance, text: text)
 }
-component Text8b4b532de524(instance: text, text: text) {
-  view Kit(component: "Text8b4b532de524", instance: instance, text: text)
+component Surfacec4c38149242a(instance: text) {
+  view Kit(component: "Surfacec4c38149242a", instance: instance) { slot }
 }
-component Text715582cba1de(instance: text, text: text) {
-  view Kit(component: "Text715582cba1de", instance: instance, text: text)
+component Surface56a4cad53e67(instance: text) {
+  view Kit(component: "Surface56a4cad53e67", instance: instance) { slot }
 }
-component Texta6e046d9bd5c(instance: text, text: text) {
-  view Kit(component: "Texta6e046d9bd5c", instance: instance, text: text)
+component Textd631f11f941f(instance: text, text: text) {
+  view Kit(component: "Textd631f11f941f", instance: instance, text: text)
 }
-component Text2f84104d5365(instance: text, text: text) {
-  view Kit(component: "Text2f84104d5365", instance: instance, text: text)
+component Textd6b85f1bbf60(instance: text, text: text) {
+  view Kit(component: "Textd6b85f1bbf60", instance: instance, text: text)
 }
-component Textbb5f915d5070(instance: text, text: text) {
-  view Kit(component: "Textbb5f915d5070", instance: instance, text: text)
+component Textbd31eef74fbf(instance: text, text: text) {
+  view Kit(component: "Textbd31eef74fbf", instance: instance, text: text)
 }
-component Text1da8af2c2d8d(instance: text, text: text) {
-  view Kit(component: "Text1da8af2c2d8d", instance: instance, text: text)
+component Text7eb2b65d944f(instance: text, text: text) {
+  view Kit(component: "Text7eb2b65d944f", instance: instance, text: text)
 }
-component Text777feb2c5971(instance: text, text: text) {
-  view Kit(component: "Text777feb2c5971", instance: instance, text: text)
+component Text98b7147f8843(instance: text, text: text) {
+  view Kit(component: "Text98b7147f8843", instance: instance, text: text)
 }
-component Text33e482b7840e(instance: text, text: text) {
-  view Kit(component: "Text33e482b7840e", instance: instance, text: text)
+component Surface4db4e42a8189(instance: text) {
+  view Kit(component: "Surface4db4e42a8189", instance: instance) { slot }
 }
-component Textb6612cdb23c2(instance: text, text: text) {
-  view Kit(component: "Textb6612cdb23c2", instance: instance, text: text)
+component Text1eead614118f(instance: text, text: text) {
+  view Kit(component: "Text1eead614118f", instance: instance, text: text)
 }
-component Text388524c35554(instance: text, text: text) {
-  view Kit(component: "Text388524c35554", instance: instance, text: text)
+component Text9ac4cebca82f(instance: text, text: text) {
+  view Kit(component: "Text9ac4cebca82f", instance: instance, text: text)
 }
-component Text1d73927ad820(instance: text, text: text) {
-  view Kit(component: "Text1d73927ad820", instance: instance, text: text)
+component Text0ac44d04eeea(instance: text, text: text) {
+  view Kit(component: "Text0ac44d04eeea", instance: instance, text: text)
 }
-component Textbab1fc8dfde4(instance: text, text: text) {
-  view Kit(component: "Textbab1fc8dfde4", instance: instance, text: text)
+component Surfacec0f3a4a0f759(instance: text) {
+  view Kit(component: "Surfacec0f3a4a0f759", instance: instance) { slot }
 }
-component Textac3227c3da39(instance: text, text: text) {
-  view Kit(component: "Textac3227c3da39", instance: instance, text: text)
+component Textf8d983ee6a93(instance: text, text: text) {
+  view Kit(component: "Textf8d983ee6a93", instance: instance, text: text)
 }
-component Texta1acaacba21d(instance: text, text: text) {
-  view Kit(component: "Texta1acaacba21d", instance: instance, text: text)
+component Textab8c4cac735d(instance: text, text: text) {
+  view Kit(component: "Textab8c4cac735d", instance: instance, text: text)
+}
+component Surface04a27fc304ff(instance: text) {
+  view Kit(component: "Surface04a27fc304ff", instance: instance) { slot }
+}
+component Text90ff5f3e7b35(instance: text, text: text) {
+  view Kit(component: "Text90ff5f3e7b35", instance: instance, text: text)
+}
+component Text3349daa3095a(instance: text, text: text) {
+  view Kit(component: "Text3349daa3095a", instance: instance, text: text)
+}
+component Text6d68fc1c53dd(instance: text, text: text) {
+  view Kit(component: "Text6d68fc1c53dd", instance: instance, text: text)
+}
+component Texta8dc154e99fa(instance: text, text: text) {
+  view Kit(component: "Texta8dc154e99fa", instance: instance, text: text)
+}
+component Text376c4a9afae1(instance: text, text: text) {
+  view Kit(component: "Text376c4a9afae1", instance: instance, text: text)
+}
+component Text22be8f0aebd3(instance: text, text: text) {
+  view Kit(component: "Text22be8f0aebd3", instance: instance, text: text)
+}
+component Textf867abe37804(instance: text, text: text) {
+  view Kit(component: "Textf867abe37804", instance: instance, text: text)
+}
+component Text4b1569aa7651(instance: text, text: text) {
+  view Kit(component: "Text4b1569aa7651", instance: instance, text: text)
+}
+component Text708e0b3c3880(instance: text, text: text) {
+  view Kit(component: "Text708e0b3c3880", instance: instance, text: text)
+}
+component Text0f6e5644fb1b(instance: text, text: text) {
+  view Kit(component: "Text0f6e5644fb1b", instance: instance, text: text)
+}
+component Surface46bc82a7ba2c(instance: text) {
+  view Kit(component: "Surface46bc82a7ba2c", instance: instance) { slot }
+}
+component Text2d89da387558(instance: text, text: text) {
+  view Kit(component: "Text2d89da387558", instance: instance, text: text)
 }
 
 view root Surface16fae9a63e16(instance: "page") {
-  Text4cc80a24dd5e(instance: "t01", text: copy.t01_text)
-  Text2fee8bdb2584(instance: "t02", text: copy.t02_text)
-  Text021d8c4467e4(instance: "t03", text: copy.t03_text)
-  Text31055290dcea(instance: "t04", text: copy.t04_text)
-  Textc46906d07ceb(instance: "t05", text: copy.t05_text)
-  Text4f2ed480ce0f(instance: "t06", text: copy.t06_text)
-  Text430b0dfe59be(instance: "t07", text: copy.t07_text)
-  Text1a9aa5b9f39d(instance: "t08", text: copy.t08_text)
-  Textd81e3c1d2053(instance: "t09", text: copy.t09_text)
-  Text3d062b65e430(instance: "t10", text: copy.t10_text)
-  Text8360ae6fc8a3(instance: "t11", text: copy.t11_text)
-  Text0cf92510928a(instance: "t12", text: copy.t12_text)
-  Text6e1c04d39b40(instance: "t13", text: copy.t13_text)
-  Texta8a88abaddf1(instance: "t14", text: copy.t14_text)
-  Text56fa7039bc66(instance: "t15", text: copy.t15_text)
-  Text17f8ba9bdc89(instance: "t16", text: copy.t16_text)
-  Text8b4b532de524(instance: "t17", text: copy.t17_text)
-  Text715582cba1de(instance: "t18", text: copy.t18_text)
-  Texta6e046d9bd5c(instance: "t19", text: copy.t19_text)
-  Text2f84104d5365(instance: "t20", text: copy.t20_text)
-  Textbb5f915d5070(instance: "t21", text: copy.t21_text)
-  Text1da8af2c2d8d(instance: "t22", text: copy.t22_text)
-  Text777feb2c5971(instance: "t23", text: copy.t23_text)
-  Text33e482b7840e(instance: "t24", text: copy.t24_text)
-  Textb6612cdb23c2(instance: "t25", text: copy.t25_text)
-  Text388524c35554(instance: "t26", text: copy.t26_text)
-  Text1d73927ad820(instance: "t27", text: copy.t27_text)
-  Textbab1fc8dfde4(instance: "t28", text: copy.t28_text)
-  Textac3227c3da39(instance: "t29", text: copy.t29_text)
-  Texta1acaacba21d(instance: "t30", text: copy.t30_text)
+  Surface03c9bd7cb6ef(instance: "review_panel") {
+    Text19ef13797c2c(instance: "t_title", text: copy.t_title_text)
+    Surfacee183ddf27483(instance: "scope_pill") {
+      Texta1bf1faac5d2(instance: "scope_label", text: copy.scope_label_text)
+      Vectore0a378fde04f(instance: "scope_chev")
+    }
+    Text98953305a681(instance: "t_add", text: copy.t_add_text)
+    Text5abfe3ea15d7(instance: "t_del", text: copy.t_del_text)
+    Surfaceace044beb034(instance: "file_1") {
+      Vectore0a378fde04f(instance: "file_1_icon")
+      Text301803b5e5ee(instance: "file_1_path", text: copy.file_1_path_text)
+      Text0c4023efb8b6(instance: "file_1_add", text: copy.file_1_add_text)
+      Textf9396463453b(instance: "file_1_del", text: copy.file_1_del_text)
+    }
+    Group3d2637879433(instance: "file_2") {
+      Vectore0a378fde04f(instance: "file_2_icon")
+      Text301803b5e5ee(instance: "file_2_path", text: copy.file_2_path_text)
+      Texte6908eb6f019(instance: "file_2_add", text: copy.file_2_add_text)
+      Text751c8871d67b(instance: "file_2_del", text: copy.file_2_del_text)
+    }
+    Group3d2637879433(instance: "file_3") {
+      Vectore0a378fde04f(instance: "file_3_icon")
+      Text301803b5e5ee(instance: "file_3_path", text: copy.file_3_path_text)
+      Text7059958dbfb5(instance: "file_3_add", text: copy.file_3_add_text)
+      Textaf13d5878d48(instance: "file_3_del", text: copy.file_3_del_text)
+    }
+    Surfacec4c38149242a(instance: "diff_band_rule_top") {
+
+    }
+    Surface56a4cad53e67(instance: "diff_file_header") {
+      Vectore0a378fde04f(instance: "diff_file_icon")
+      Textd631f11f941f(instance: "diff_file_path", text: copy.diff_file_path_text)
+    }
+    Surfacec4c38149242a(instance: "diff_band_rule_bottom") {
+
+    }
+    Group3d2637879433(instance: "diff_rows") {
+      Textd6b85f1bbf60(instance: "ln_0", text: copy.ln_0_text)
+      Textbd31eef74fbf(instance: "dl_0", text: copy.dl_0_text)
+      Text7eb2b65d944f(instance: "ln_1", text: copy.ln_1_text)
+      Text98b7147f8843(instance: "dl_1", text: copy.dl_1_text)
+      Surface4db4e42a8189(instance: "chip_130") {
+        Text1eead614118f(instance: "ln_2", text: copy.ln_2_text)
+        Text9ac4cebca82f(instance: "mk_2", text: copy.mk_2_text)
+        Text0ac44d04eeea(instance: "dl_2", text: copy.dl_2_text)
+      }
+      Surfacec0f3a4a0f759(instance: "chip_131") {
+        Textf8d983ee6a93(instance: "ln_3", text: copy.ln_3_text)
+        Text9ac4cebca82f(instance: "mk_3", text: copy.mk_3_text)
+        Textab8c4cac735d(instance: "dl_3", text: copy.dl_3_text)
+      }
+      Surface04a27fc304ff(instance: "chip_132") {
+        Text90ff5f3e7b35(instance: "ln_4", text: copy.ln_4_text)
+        Text3349daa3095a(instance: "mk_4", text: copy.mk_4_text)
+        Text6d68fc1c53dd(instance: "dl_4", text: copy.dl_4_text)
+      }
+      Texta8dc154e99fa(instance: "ln_5", text: copy.ln_5_text)
+      Text3349daa3095a(instance: "mk_5", text: copy.mk_5_text)
+      Text376c4a9afae1(instance: "dl_5", text: copy.dl_5_text)
+      Text22be8f0aebd3(instance: "ln_6", text: copy.ln_6_text)
+      Textf867abe37804(instance: "mk_6", text: copy.mk_6_text)
+      Text4b1569aa7651(instance: "dl_6", text: copy.dl_6_text)
+      Text708e0b3c3880(instance: "ln_7", text: copy.ln_7_text)
+      Text0f6e5644fb1b(instance: "dl_7", text: copy.dl_7_text)
+    }
+    Surface46bc82a7ba2c(instance: "folded") {
+      Text2d89da387558(instance: "t_fold", text: copy.t_fold_text)
+    }
+  }
 }

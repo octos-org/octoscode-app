@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "id": "peer-row",
+  "app": "octoscode",
+  "title": "Peer row: status pill badge, name, elapsed·tokens, Steer link",
+  "artboard": [
+    377.0,
+    128.0
+  ],
+  "font_family": "Inter",
+  "content_source": "extracted from autonomy-06 root 'peer_1'",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "peer_1",
+    "x": 14.0,
+    "y": 220.0,
+    "w": 377.0,
+    "h": 128.0,
+    "c": [
+      {
+        "t": "stack",
+        "id": "peer_1_badge",
+        "x": 28.0,
+        "y": 255.0,
+        "w": 86.0,
+        "h": 52.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "peer_1_status",
+            "text": "Running",
+            "x": 41.91,
+            "y": 269.78,
+            "w": 58.93,
+            "h": 26.88,
+            "size": 13.78,
+            "line_height": 16.67,
+            "weight": 600,
+            "color": 4281172286,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf",
+            "tracking": 0.0
+          }
+        ],
+        "variant": "surface",
+        "bg": 4293326570,
+        "radius": 26.0
+      },
+      {
+        "t": "text",
+        "id": "peer_1_name",
+        "text": "tests",
+        "x": 147.48,
+        "y": 256.06,
+        "w": 42.63,
+        "h": 22.3,
+        "size": 16.47,
+        "line_height": 19.93,
+        "weight": 500,
+        "color": 4279506712,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "peer_1_meta",
+        "text": "18m · 41k tokens",
+        "x": 146.97,
+        "y": 299.07,
+        "w": 114.73,
+        "h": 21.39,
+        "size": 14.17,
+        "line_height": 17.15,
+        "weight": 400,
+        "color": 4286217086,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "peer_1_steer",
+        "text": "Steer",
+        "x": 329.77,
+        "y": 274.36,
+        "w": 42.63,
+        "h": 24.13,
+        "size": 14.95,
+        "line_height": 18.09,
+        "weight": 600,
+        "color": 4281299178,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": 0.0
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502,
+    "radius": 18.77,
+    "border": 1,
+    "bordercolor": 4293256679
+  }
+}

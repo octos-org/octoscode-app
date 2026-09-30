@@ -1,0 +1,396 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
+  "tree": {
+    "t": "stack",
+    "id": "loops_card",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 386.0,
+    "h": 370.0,
+    "c": [
+      {
+        "t": "svg",
+        "id": "loop_1_dot",
+        "x": 200.22,
+        "y": 25.34,
+        "w": 14.449,
+        "h": 14.78,
+        "src": "",
+        "c": []
+      },
+      {
+        "t": "text",
+        "id": "loop_1_name",
+        "text": "Run CI smoke",
+        "x": 19.95,
+        "y": 29.1,
+        "w": 103.1,
+        "h": 21.83,
+        "size": 15.09,
+        "line_height": 18.26,
+        "weight": 500,
+        "color": 4279176975,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0,
+        "c": []
+      },
+      {
+        "t": "text",
+        "id": "loop_1_cad",
+        "text": "every 15 min",
+        "x": 20.49,
+        "y": 72.51,
+        "w": 83.12,
+        "h": 23.38,
+        "size": 13.32,
+        "line_height": 16.12,
+        "weight": 400,
+        "color": 4287006606,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0,
+        "c": []
+      },
+      {
+        "t": "svg",
+        "id": "loop_1_pause",
+        "x": 248.94,
+        "y": 22.17,
+        "w": 18.578,
+        "h": 21.115,
+        "src": "",
+        "c": []
+      },
+      {
+        "t": "svg",
+        "id": "loop_1_play",
+        "x": 300.23,
+        "y": 22.17,
+        "w": 18.578,
+        "h": 21.115,
+        "src": "",
+        "c": []
+      },
+      {
+        "t": "svg",
+        "id": "loop_1_trash",
+        "x": 351.12,
+        "y": 22.17,
+        "w": 18.578,
+        "h": 21.115,
+        "src": "",
+        "c": []
+      },
+      {
+        "t": "stack",
+        "id": "loop_2_divider",
+        "x": 8.26,
+        "y": 138.35,
+        "w": 369.487,
+        "h": 1.056,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 0
+      },
+      {
+        "t": "svg",
+        "id": "loop_2_dot",
+        "x": 200.22,
+        "y": 155.24,
+        "w": 14.449,
+        "h": 14.78,
+        "src": "",
+        "c": []
+      },
+      {
+        "t": "text",
+        "id": "loop_2_name",
+        "text": "Sync main",
+        "x": 19.58,
+        "y": 151.59,
+        "w": 79.93,
+        "h": 26.48,
+        "size": 15.26,
+        "line_height": 18.46,
+        "weight": 500,
+        "color": 4279374611,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0,
+        "c": []
+      },
+      {
+        "t": "text",
+        "id": "loop_2_cad",
+        "text": "every 30 min",
+        "x": 20.51,
+        "y": 195.0,
+        "w": 84.72,
+        "h": 22.61,
+        "size": 13.05,
+        "line_height": 15.79,
+        "weight": 400,
+        "color": 4286019967,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0,
+        "c": []
+      },
+      {
+        "t": "svg",
+        "id": "loop_2_pause",
+        "x": 248.94,
+        "y": 152.08,
+        "w": 18.578,
+        "h": 21.115,
+        "src": "",
+        "c": []
+      },
+      {
+        "t": "svg",
+        "id": "loop_2_play",
+        "x": 300.23,
+        "y": 152.08,
+        "w": 18.578,
+        "h": 21.115,
+        "src": "",
+        "c": []
+      },
+      {
+        "t": "svg",
+        "id": "loop_2_trash",
+        "x": 351.12,
+        "y": 152.08,
+        "w": 18.578,
+        "h": 21.115,
+        "src": "",
+        "c": []
+      },
+      {
+        "t": "stack",
+        "id": "loop_3_divider",
+        "x": 8.26,
+        "y": 267.3,
+        "w": 369.487,
+        "h": 1.056,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 0
+      },
+      {
+        "t": "svg",
+        "id": "loop_3_dot",
+        "x": 200.22,
+        "y": 284.19,
+        "w": 14.449,
+        "h": 14.78,
+        "src": "",
+        "c": []
+      },
+      {
+        "t": "text",
+        "id": "loop_3_name",
+        "text": "Nightly review",
+        "x": 19.92,
+        "y": 274.85,
+        "w": 110.3,
+        "h": 26.48,
+        "size": 15.45,
+        "line_height": 18.69,
+        "weight": 500,
+        "color": 4279571990,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0,
+        "c": []
+      },
+      {
+        "t": "text",
+        "id": "loop_3_cad",
+        "text": "every day \u00b7 01:00",
+        "x": 20.49,
+        "y": 317.48,
+        "w": 111.89,
+        "h": 23.38,
+        "size": 13.28,
+        "line_height": 16.07,
+        "weight": 400,
+        "color": 4285690746,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0,
+        "c": []
+      },
+      {
+        "t": "svg",
+        "id": "loop_3_play",
+        "x": 300.23,
+        "y": 281.02,
+        "w": 18.578,
+        "h": 21.115,
+        "src": "",
+        "c": []
+      },
+      {
+        "t": "svg",
+        "id": "loop_3_trash",
+        "x": 351.12,
+        "y": 281.02,
+        "w": 18.578,
+        "h": 21.115,
+        "src": "",
+        "c": []
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502,
+    "radius": 12.67,
+    "border": 1,
+    "bordercolor": 4293256679
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loops_screen",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "new_loop",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "new_loop_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "new_loop_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loops_card",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_1_dot",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_1_pause",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_1_play",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_1_trash",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_2_divider",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_2_dot",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_2_pause",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_2_play",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_2_trash",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_3_divider",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_3_dot",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_3_play",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_3_trash",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t01",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.18851681314550905
+    },
+    {
+      "id": "t_title",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.21532975354842215
+    },
+    {
+      "id": "new_loop_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.18506399889365024
+    },
+    {
+      "id": "loop_1_name",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.20735929144169377
+    },
+    {
+      "id": "loop_1_cad",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1720889430210095
+    },
+    {
+      "id": "loop_2_name",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.19919427202374765
+    },
+    {
+      "id": "loop_2_cad",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.17235197402776978
+    },
+    {
+      "id": "loop_3_name",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.16720209748943546
+    },
+    {
+      "id": "loop_3_cad",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.17178677127620448
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

@@ -1,5 +1,16 @@
 {
   "frame_id": 2,
-  "controls": {},
-  "source": "autonomy-btw"
+  "controls": {
+    "start_review": {
+      "event": "review.start",
+      "source_bounds": [
+        262,
+        78,
+        118,
+        38
+      ],
+      "enabled": true
+    }
+  },
+  "source": "design/stage-a/autonomy/atlas.png"
 }

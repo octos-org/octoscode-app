@@ -1,0 +1,419 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "99d08af1b9d6df1091568092017a43d7267e90a4b0ed74cdadd14c5b948e091c",
+  "tree": {
+    "t": "stack",
+    "id": "goal_card",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 374.0,
+    "h": 617.0,
+    "c": [
+      {
+        "t": "text",
+        "id": "t_goal_title",
+        "text": "Goal",
+        "x": 19.78,
+        "y": 26.8,
+        "w": 49.82,
+        "h": 25.27,
+        "size": 20.89,
+        "line_height": 25.27,
+        "weight": 600,
+        "color": 4278584838,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": 0.0,
+        "c": []
+      },
+      {
+        "t": "text",
+        "id": "t_goal",
+        "text": "Fix steer queue on reconnect",
+        "x": 20.51,
+        "y": 92.76,
+        "w": 240.45,
+        "h": 25.73,
+        "size": 16.78,
+        "line_height": 20.3,
+        "weight": 400,
+        "color": 4279637526,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": 0.0,
+        "c": []
+      },
+      {
+        "t": "stack",
+        "id": "goal_badge",
+        "x": 18.0,
+        "y": 137.0,
+        "w": 72.0,
+        "h": 42.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "goal_badge_label",
+            "text": "Active",
+            "x": 31.47,
+            "y": 148.63,
+            "w": 48.91,
+            "h": 18.74,
+            "size": 14.47,
+            "line_height": 17.51,
+            "weight": 600,
+            "color": 4280844091,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf",
+            "tracking": 0.0,
+            "c": []
+          }
+        ],
+        "variant": "surface",
+        "bg": 4293326570,
+        "radius": 21.0
+      },
+      {
+        "t": "text",
+        "id": "t_budget",
+        "text": "Token budget",
+        "x": 19.16,
+        "y": 244.86,
+        "w": 107.56,
+        "h": 24.95,
+        "size": 15.72,
+        "line_height": 19.02,
+        "weight": 400,
+        "color": 4279571733,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0,
+        "c": []
+      },
+      {
+        "t": "text",
+        "id": "t_budget_val",
+        "text": "41k of 100k",
+        "x": 260.0,
+        "y": 242.53,
+        "w": 95.65,
+        "h": 20.49,
+        "size": 16.93,
+        "line_height": 20.49,
+        "weight": 500,
+        "color": 4279506196,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0,
+        "c": []
+      },
+      {
+        "t": "stack",
+        "id": "bar_track",
+        "x": 15.09,
+        "y": 289.36,
+        "w": 330.0,
+        "h": 10.986,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 5.49
+      },
+      {
+        "t": "stack",
+        "id": "bar_fill",
+        "x": 15.09,
+        "y": 289.36,
+        "w": 135.3,
+        "h": 10.986,
+        "c": [],
+        "variant": "surface",
+        "bg": 4281298923,
+        "radius": 5.49
+      },
+      {
+        "t": "text",
+        "id": "t_elapsed",
+        "text": "Elapsed",
+        "x": 19.45,
+        "y": 354.27,
+        "w": 62.65,
+        "h": 25.73,
+        "size": 15.68,
+        "line_height": 18.97,
+        "weight": 400,
+        "color": 4281874745,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0,
+        "c": []
+      },
+      {
+        "t": "text",
+        "id": "t_elapsed_val",
+        "text": "18m",
+        "x": 321.62,
+        "y": 353.5,
+        "w": 34.24,
+        "h": 20.3,
+        "size": 15.65,
+        "line_height": 18.93,
+        "weight": 500,
+        "color": 4283124811,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0,
+        "c": []
+      },
+      {
+        "t": "stack",
+        "id": "pause_btn",
+        "x": 20.0,
+        "y": 452.0,
+        "w": 149.0,
+        "h": 55.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "pause_btn_surface",
+            "x": 20.0,
+            "y": 452.0,
+            "w": 149.0,
+            "h": 55.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 27.5,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "button",
+            "id": "pause_btn_control",
+            "x": 20.0,
+            "y": 452.0,
+            "w": 149.0,
+            "h": 55.0,
+            "enabled": 1,
+            "c": []
+          },
+          {
+            "t": "text",
+            "id": "pause_btn_label",
+            "text": "Pause",
+            "x": 69.16,
+            "y": 469.12,
+            "w": 50.74,
+            "h": 21.07,
+            "size": 15.73,
+            "line_height": 19.03,
+            "weight": 600,
+            "color": 4278848012,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf",
+            "tracking": 0.0,
+            "c": []
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      {
+        "t": "stack",
+        "id": "stop_btn",
+        "x": 195.0,
+        "y": 452.0,
+        "w": 149.0,
+        "h": 55.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "stop_btn_surface",
+            "x": 195.0,
+            "y": 452.0,
+            "w": 149.0,
+            "h": 55.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294835709,
+            "radius": 27.5,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "button",
+            "id": "stop_btn_control",
+            "x": 195.0,
+            "y": 452.0,
+            "w": 149.0,
+            "h": 55.0,
+            "enabled": 1,
+            "c": []
+          },
+          {
+            "t": "text",
+            "id": "stop_btn_label",
+            "text": "Stop",
+            "x": 249.19,
+            "y": 468.34,
+            "w": 40.66,
+            "h": 26.5,
+            "size": 16.39,
+            "line_height": 19.83,
+            "weight": 600,
+            "color": 4279374097,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf",
+            "tracking": 0.0,
+            "c": []
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502,
+    "radius": 12.0,
+    "border": 1,
+    "bordercolor": 4293256679
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "goal_screen",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "goal_card",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "goal_badge",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "bar_track",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "bar_fill",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "pause_btn",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "pause_btn_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "pause_btn_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "stop_btn",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "stop_btn_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "stop_btn_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "clear_goal",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "clear_goal_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "clear_goal_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t01",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.11893972539586684
+    },
+    {
+      "id": "t_goal_title",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12536384516685814
+    },
+    {
+      "id": "t_goal",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12901205548657588
+    },
+    {
+      "id": "goal_badge_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.13627286186507062
+    },
+    {
+      "id": "t_budget",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1688770162598942
+    },
+    {
+      "id": "t_budget_val",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.09991652444684108
+    },
+    {
+      "id": "t_elapsed",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.17670601596983038
+    },
+    {
+      "id": "t_elapsed_val",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.21373747270142937
+    },
+    {
+      "id": "pause_btn_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.20869725547883697
+    },
+    {
+      "id": "stop_btn_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2044721983951869
+    },
+    {
+      "id": "clear_goal_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.14810621684214026
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

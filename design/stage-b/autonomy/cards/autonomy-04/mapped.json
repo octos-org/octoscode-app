@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reference_sha256": "d15a9ef22d455c57d6d0994b252f2bedb8d0134a71e5c5b9a9c157a83e9f768d",
+  "reference_sha256": "ff2fcaf0468169119916372a064d37e5331918ed73a8b7a69951a95f5de2a901",
   "tree": {
     "t": "stack",
     "id": "page",
@@ -10,174 +10,323 @@
     "h": 776,
     "c": [
       {
-        "t": "text",
-        "id": "t01",
-        "text": "OctosCode",
-        "x": 6.02,
-        "y": 36.09,
-        "w": 97.96,
-        "h": 23.49,
-        "size": 17.32,
-        "line_height": 20.96,
-        "weight": 600,
-        "color": 4278716424,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-600.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t02",
-        "text": "Loops",
-        "x": 5.17,
-        "y": 114.93,
-        "w": 60.89,
-        "h": 32.35,
-        "size": 19.59,
-        "line_height": 23.7,
-        "weight": 400,
-        "color": 4278584838,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t03",
-        "text": "Run Cl smoke",
-        "x": 13.21,
-        "y": 209.72,
-        "w": 110.89,
-        "h": 23.49,
-        "size": 16.45,
-        "line_height": 19.91,
-        "weight": 400,
-        "color": 4279176975,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t04",
-        "text": "every 15 min",
-        "x": 13.92,
-        "y": 258.44,
-        "w": 89.34,
-        "h": 26.15,
-        "size": 14.37,
-        "line_height": 17.39,
-        "weight": 400,
-        "color": 4286941069,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t05",
-        "text": "Sync main",
-        "x": 87.41,
-        "y": 348.79,
-        "w": 12.18,
-        "h": 29.69,
-        "size": 1.66,
-        "line_height": 2.01,
-        "weight": 400,
-        "color": 4279374611,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t06",
-        "text": "every 30 min",
-        "x": 13.94,
-        "y": 398.4,
-        "w": 91.06,
-        "h": 25.26,
-        "size": 14.07,
-        "line_height": 17.03,
-        "weight": 400,
-        "color": 4285953917,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t07",
-        "text": "Nightly review",
-        "x": 13.17,
-        "y": 489.64,
-        "w": 118.65,
-        "h": 29.69,
-        "size": 16.91,
-        "line_height": 20.47,
-        "weight": 400,
-        "color": 4279571990,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t08",
-        "text": "every day \u2022 01:00",
-        "x": 13.95,
-        "y": 538.37,
-        "w": 120.37,
-        "h": 26.15,
-        "size": 13.86,
-        "line_height": 16.77,
-        "weight": 400,
-        "color": 4285493110,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t09",
-        "text": "\u2022",
-        "x": 204.77,
-        "y": 236.29,
-        "w": 13.48,
-        "h": 20.4,
-        "size": 16.86,
-        "line_height": 20.4,
-        "weight": 400,
-        "color": 4280259894,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
-      },
-      {
-        "t": "text",
-        "id": "t10",
-        "text": "+ New loop",
-        "x": 291.46,
-        "y": 117.59,
-        "w": 96.23,
-        "h": 28.8,
-        "size": 16.98,
-        "line_height": 20.54,
-        "weight": 400,
-        "color": 4281167592,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "tracking": 0.0
+        "t": "stack",
+        "id": "loops_screen",
+        "x": 1.0,
+        "y": 1.0,
+        "w": 405.0,
+        "h": 775.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t_title",
+            "text": "Loops",
+            "x": 22.67,
+            "y": 87.93,
+            "w": 56.75,
+            "h": 28.81,
+            "size": 17.84,
+            "line_height": 21.59,
+            "weight": 600,
+            "color": 4278584838,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "stack",
+            "id": "new_loop",
+            "x": 272.091,
+            "y": 84.233,
+            "w": 119.475,
+            "h": 39.209,
+            "c": [
+              {
+                "t": "stack",
+                "id": "new_loop_surface",
+                "x": 272.091,
+                "y": 84.233,
+                "w": 119.475,
+                "h": 39.209,
+                "c": [],
+                "variant": "surface",
+                "bg": 4294835710,
+                "radius": 7.99
+              },
+              {
+                "t": "button",
+                "id": "new_loop_control",
+                "x": 272.091,
+                "y": 84.233,
+                "w": 119.475,
+                "h": 39.209,
+                "enabled": 1
+              },
+              {
+                "t": "text",
+                "id": "new_loop_label",
+                "text": "+ New loop",
+                "x": 287.89,
+                "y": 90.25,
+                "w": 89.52,
+                "h": 25.71,
+                "size": 15.63,
+                "line_height": 18.92,
+                "weight": 600,
+                "color": 4281233128,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-600.ttf",
+                "tracking": 0.0
+              }
+            ],
+            "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+          },
+          {
+            "t": "stack",
+            "id": "loops_card",
+            "x": 10.0,
+            "y": 141.0,
+            "w": 386.0,
+            "h": 370.0,
+            "c": [
+              {
+                "t": "svg",
+                "id": "loop_1_dot",
+                "x": 208.0,
+                "y": 195.6,
+                "w": 24.0,
+                "h": 24.0,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "loop_1_name",
+                "text": "Run CI smoke",
+                "x": 23.85,
+                "y": 170.5,
+                "w": 110.55,
+                "h": 22.5,
+                "size": 15,
+                "line_height": 22.5,
+                "weight": 500,
+                "color": 4279176975,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf",
+                "tracking": 0.0
+              },
+              {
+                "t": "text",
+                "id": "loop_1_cad",
+                "text": "every 15 min",
+                "x": 28.75,
+                "y": 216.1,
+                "w": 83.16,
+                "h": 21.83,
+                "size": 13,
+                "line_height": 21.83,
+                "weight": 400,
+                "color": 4287006606,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 0.0
+              },
+              {
+                "t": "svg",
+                "id": "loop_1_pause",
+                "x": 253.65,
+                "y": 188.1,
+                "w": 30.0,
+                "h": 30.0,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "loop_1_play",
+                "x": 303.3,
+                "y": 188.6,
+                "w": 29.0,
+                "h": 29.0,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "loop_1_trash",
+                "x": 337.2,
+                "y": 181.1,
+                "w": 44.0,
+                "h": 44.0,
+                "src": ""
+              },
+              {
+                "t": "stack",
+                "id": "loop_2_divider",
+                "x": 18.257,
+                "y": 279.353,
+                "w": 369.487,
+                "h": 1.056,
+                "c": [],
+                "variant": "surface",
+                "bg": 4293256679,
+                "radius": 0
+              },
+              {
+                "t": "svg",
+                "id": "loop_2_dot",
+                "x": 208.0,
+                "y": 317.85,
+                "w": 24.0,
+                "h": 24.0,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "loop_2_name",
+                "text": "Sync main",
+                "x": 22.38,
+                "y": 292.75,
+                "w": 87.91,
+                "h": 23.23,
+                "size": 15,
+                "line_height": 23.23,
+                "weight": 500,
+                "color": 4279374611,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf",
+                "tracking": 0.0
+              },
+              {
+                "t": "text",
+                "id": "loop_2_cad",
+                "text": "every 30 min",
+                "x": 22.38,
+                "y": 338.35,
+                "w": 94.31,
+                "h": 23.23,
+                "size": 13,
+                "line_height": 23.23,
+                "weight": 400,
+                "color": 4286019967,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 0.0
+              },
+              {
+                "t": "svg",
+                "id": "loop_2_pause",
+                "x": 253.65,
+                "y": 310.35,
+                "w": 30.0,
+                "h": 30.0,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "loop_2_play",
+                "x": 303.3,
+                "y": 310.85,
+                "w": 29.0,
+                "h": 29.0,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "loop_2_trash",
+                "x": 337.2,
+                "y": 303.35,
+                "w": 44.0,
+                "h": 44.0,
+                "src": ""
+              },
+              {
+                "t": "stack",
+                "id": "loop_3_divider",
+                "x": 18.257,
+                "y": 408.299,
+                "w": 369.487,
+                "h": 1.056,
+                "c": [],
+                "variant": "surface",
+                "bg": 4293256679,
+                "radius": 0
+              },
+              {
+                "t": "svg",
+                "id": "loop_3_dot",
+                "x": 208.0,
+                "y": 440.1,
+                "w": 24.0,
+                "h": 24.0,
+                "src": ""
+              },
+              {
+                "t": "text",
+                "id": "loop_3_name",
+                "text": "Nightly review",
+                "x": 22.33,
+                "y": 415.0,
+                "w": 118.38,
+                "h": 25.23,
+                "size": 15,
+                "line_height": 25.23,
+                "weight": 500,
+                "color": 4279571990,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf",
+                "tracking": 0.0
+              },
+              {
+                "t": "text",
+                "id": "loop_3_cad",
+                "text": "every day \u00b7 01:00",
+                "x": 22.38,
+                "y": 460.6,
+                "w": 118.28,
+                "h": 21.68,
+                "size": 13,
+                "line_height": 21.68,
+                "weight": 400,
+                "color": 4285690746,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 0.0
+              },
+              {
+                "t": "svg",
+                "id": "loop_3_play",
+                "x": 303.3,
+                "y": 433.1,
+                "w": 29.0,
+                "h": 29.0,
+                "src": ""
+              },
+              {
+                "t": "svg",
+                "id": "loop_3_trash",
+                "x": 337.2,
+                "y": 425.6,
+                "w": 44.0,
+                "h": 44.0,
+                "src": ""
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294901502,
+            "radius": 12.67,
+            "border": 1,
+            "bordercolor": 4293256679
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 0
       }
     ],
     "variant": "surface",
@@ -189,64 +338,124 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "t01",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.2153421264128878
+      "id": "loops_screen",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t02",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.22432813194155174
+      "id": "new_loop",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t03",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.20466057568809018
+      "id": "new_loop_surface",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t04",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.19207623113833358
+      "id": "new_loop_control",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t05",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.21565135865885
+      "id": "loops_card",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t06",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.19359267373157577
+      "id": "loop_1_dot",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t07",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.17992491117970777
+      "id": "loop_1_pause",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t08",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.20739919111525
+      "id": "loop_1_play",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t09",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.10344034202836697
+      "id": "loop_1_trash",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t10",
+      "id": "loop_2_divider",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_2_dot",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_2_pause",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_2_play",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_2_trash",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_3_divider",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_3_dot",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_3_play",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "loop_3_trash",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t_title",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.202474642335347
+      "tracking_em": -0.21532975354842215
+    },
+    {
+      "id": "new_loop_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.18506399889365024
+    },
+    {
+      "id": "loop_1_name",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.20735929144169377
+    },
+    {
+      "id": "loop_1_cad",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1720889430210095
+    },
+    {
+      "id": "loop_2_name",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.19919427202374765
+    },
+    {
+      "id": "loop_2_cad",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.17235197402776978
+    },
+    {
+      "id": "loop_3_name",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.16720209748943546
+    },
+    {
+      "id": "loop_3_cad",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.17178677127620448
     }
   ],
   "limits": [

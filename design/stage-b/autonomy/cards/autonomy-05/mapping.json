@@ -20,190 +20,299 @@
       "size": null
     },
     {
-      "source_id": "t01",
+      "source_id": "monitors_screen",
       "native_id": "beauty_0_0",
       "parent": "page",
-      "kind": "text",
-      "component": "Text3fe6dbba4348",
-      "semantic_role": "text",
+      "kind": "stack",
+      "component": "Surfaceb4206391250d",
+      "semantic_role": "layout",
       "bounds": [
-        -0.18,
-        59.73,
-        116.54,
-        27.52
+        0.0,
+        0.0,
+        406.0,
+        776.0
       ],
-      "text": "5. Monitors",
+      "text": null,
       "enabled": null,
-      "font": "self:resources/ux/Inter-600.ttf",
-      "size": 20.48
+      "font": null,
+      "size": null
     },
     {
-      "source_id": "t02",
-      "native_id": "beauty_0_1",
-      "parent": "page",
+      "source_id": "t_title",
+      "native_id": "beauty_0_0_0",
+      "parent": "monitors_screen",
       "kind": "text",
-      "component": "Text7a303d430319",
+      "component": "Textb3d75e5843e2",
       "semantic_role": "text",
       "bounds": [
-        14.57,
-        133.21,
-        94.03,
-        24.58
-      ],
-      "text": "OctosCode",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 16.94
-    },
-    {
-      "source_id": "t03",
-      "native_id": "beauty_0_2",
-      "parent": "page",
-      "kind": "text",
-      "component": "Textf044fd1510c5",
-      "semantic_role": "text",
-      "bounds": [
-        14.79,
-        211.6,
-        82.78,
-        26.54
+        19.15,
+        95.0,
+        81.62,
+        25.05
       ],
       "text": "Monitors",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 18.9
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 18.0
     },
     {
-      "source_id": "t04",
-      "native_id": "beauty_0_3",
-      "parent": "page",
+      "source_id": "mon_1",
+      "native_id": "beauty_0_0_1",
+      "parent": "monitors_screen",
+      "kind": "stack",
+      "component": "Surfacee69029f3071c",
+      "semantic_role": "layout",
+      "bounds": [
+        12.0,
+        156.0,
+        378.0,
+        151.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "mon_1_cmd",
+      "native_id": "beauty_0_0_1_0",
+      "parent": "mon_1",
       "kind": "text",
-      "component": "Texte96cf97f0c30",
+      "component": "Text670e937f3612",
       "semantic_role": "text",
       "bounds": [
-        25.9,
-        314.47,
-        116.54,
-        25.56
+        29.8,
+        191.08,
+        114.88,
+        24.13
       ],
       "text": "cargo test -q",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 18.38
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 14.21
     },
     {
-      "source_id": "t05",
-      "native_id": "beauty_0_4",
-      "parent": "page",
+      "source_id": "mon_1_state",
+      "native_id": "beauty_0_0_1_1",
+      "parent": "mon_1",
       "kind": "text",
-      "component": "Textd8489a9fed0a",
+      "component": "Text33733e78bb16",
       "semantic_role": "text",
       "bounds": [
-        25.82,
-        365.42,
-        60.27,
-        24.58
+        25.52,
+        239.53,
+        63.26,
+        24.23
       ],
-      "text": "fired 3x",
+      "text": "fired 3\u00d7",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 15.51
+      "size": 14
     },
     {
-      "source_id": "t06",
-      "native_id": "beauty_0_5",
-      "parent": "page",
+      "source_id": "mon_1_int",
+      "native_id": "beauty_0_0_1_2",
+      "parent": "mon_1",
       "kind": "text",
-      "component": "Text841c0d759655",
+      "component": "Text8c0b95d5be07",
       "semantic_role": "text",
       "bounds": [
-        219.02,
-        365.42,
-        29.1,
-        24.58
+        214.94,
+        237.92,
+        35.82,
+        27.45
       ],
       "text": "30s",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14.13
+      "size": 14
     },
     {
-      "source_id": "t07",
-      "native_id": "beauty_0_6",
-      "parent": "page",
+      "source_id": "mon_1_pause",
+      "native_id": "beauty_0_0_1_3",
+      "parent": "mon_1",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        296.0,
+        230.53,
+        24.0,
+        24.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "mon_1_trash",
+      "native_id": "beauty_0_0_1_4",
+      "parent": "mon_1",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        348.7,
+        230.53,
+        24.0,
+        24.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "mon_2",
+      "native_id": "beauty_0_0_2",
+      "parent": "monitors_screen",
+      "kind": "stack",
+      "component": "Surfacee26805a602b5",
+      "semantic_role": "layout",
+      "bounds": [
+        12.0,
+        328.0,
+        378.0,
+        149.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "mon_2_cmd",
+      "native_id": "beauty_0_0_2_0",
+      "parent": "mon_2",
       "kind": "text",
-      "component": "Textfe7b83a88ec9",
+      "component": "Text23962a7cd7ff",
       "semantic_role": "text",
       "bounds": [
-        26.65,
-        498.68,
-        159.82,
-        26.54
+        29.39,
+        363.12,
+        157.53,
+        25.05
       ],
       "text": "tail -n 50 app.log",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 19.43
+      "font": "self:resources/ux/LiberationMono-Regular.ttf",
+      "size": 14.21
     },
     {
-      "source_id": "t08",
-      "native_id": "beauty_0_7",
-      "parent": "page",
+      "source_id": "mon_2_state",
+      "native_id": "beauty_0_0_2_1",
+      "parent": "mon_2",
       "kind": "text",
-      "component": "Textea0fa0ca8123",
+      "component": "Text5b96e686bbca",
       "semantic_role": "text",
       "bounds": [
-        25.71,
-        547.67,
-        76.72,
-        30.45
+        26.93,
+        413.34,
+        77.79,
+        22.46
       ],
       "text": "no change",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14.59
+      "size": 14
     },
     {
-      "source_id": "t09",
-      "native_id": "beauty_0_8",
-      "parent": "page",
+      "source_id": "mon_2_int",
+      "native_id": "beauty_0_0_2_2",
+      "parent": "mon_2",
       "kind": "text",
-      "component": "Text18f6e7119644",
+      "component": "Texte5c634ece956",
       "semantic_role": "text",
       "bounds": [
-        219.02,
-        547.67,
-        29.1,
-        24.58
+        216.65,
+        409.96,
+        32.41,
+        23.79
       ],
       "text": "30s",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14.13
+      "size": 14
     },
     {
-      "source_id": "t10",
-      "native_id": "beauty_0_9",
-      "parent": "page",
+      "source_id": "mon_2_pause",
+      "native_id": "beauty_0_0_2_3",
+      "parent": "mon_2",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        296.0,
+        404.34,
+        24.0,
+        24.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "mon_2_trash",
+      "native_id": "beauty_0_0_2_4",
+      "parent": "mon_2",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        348.7,
+        404.34,
+        24.0,
+        24.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "monitors_footer",
+      "native_id": "beauty_0_0_3",
+      "parent": "monitors_screen",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        16.921,
+        529.627,
+        372.158,
+        46.119
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "monitors_footer_label",
+      "native_id": "beauty_0_0_3_0",
+      "parent": "monitors_footer",
       "kind": "text",
-      "component": "Textd914d3d2914e",
+      "component": "Text57902c202dfd",
       "semantic_role": "text",
       "bounds": [
-        54.98,
-        665.24,
-        272.36,
-        29.47
+        58.44,
+        518.69,
+        268.41,
+        27.79
       ],
       "text": "Monitors fire when the output changes",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14.65
+      "size": 14.43
     }
   ],
   "fonts": {
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "493574abc35e60cb7aab3d714c3ae6acafa3d9cfbc298f0604414164d62801d8",
+  "contract_sha256": "10579d8e4c4be34329a741d30d60c126eb8f7ab360d56a9140f7d95ab0b3ca30",
   "mapping_basis": "mapped.json"
 }

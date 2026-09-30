@@ -1,5 +1,36 @@
 {
   "frame_id": 3,
-  "controls": {},
-  "source": "context"
+  "controls": {
+    "pause_btn": {
+      "event": "goal.pause",
+      "source_bounds": [
+        30,
+        559,
+        143,
+        53
+      ],
+      "enabled": true
+    },
+    "stop_btn": {
+      "event": "goal.stop",
+      "source_bounds": [
+        193,
+        559,
+        142,
+        53
+      ],
+      "enabled": true
+    },
+    "clear_goal": {
+      "event": "goal.clear",
+      "source_bounds": [
+        148,
+        654,
+        87,
+        25
+      ],
+      "enabled": true
+    }
+  },
+  "source": "design/stage-a/autonomy/atlas.png"
 }

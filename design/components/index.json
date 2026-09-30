@@ -744,6 +744,86 @@
    "card": "design/components/skeleton-list/page.card",
    "data": "design/components/skeleton-list/page.data.json",
    "render": "design/components/skeleton-list/review-long.png"
+  },
+  {
+   "id": "goal-card",
+   "source_scene": "autonomy-03",
+   "extracted_from": "scene 3 root 'goal_card'",
+   "owner": "autonomy",
+   "bindings": [
+    "title",
+    "active",
+    "budget_used",
+    "budget_total",
+    "elapsed",
+    "action:pause",
+    "action:stop",
+    "action:clear"
+   ],
+   "variants": "not-rendered (budget); structure extracted",
+   "artboard": [
+    374.0,
+    617.0
+   ],
+   "card": "design/components/goal-card/contract.json"
+  },
+  {
+   "id": "loop-row",
+   "source_scene": "autonomy-04",
+   "extracted_from": "scene 4 root 'loops_card'",
+   "owner": "autonomy",
+   "bindings": [
+    "name",
+    "cadence",
+    "active",
+    "action:toggle",
+    "action:run",
+    "action:delete"
+   ],
+   "variants": "not-rendered (budget); structure extracted",
+   "artboard": [
+    386.0,
+    370.0
+   ],
+   "card": "design/components/loop-row/contract.json"
+  },
+  {
+   "id": "monitor-card",
+   "source_scene": "autonomy-05",
+   "extracted_from": "scene 5 root 'mon_1'",
+   "owner": "autonomy",
+   "bindings": [
+    "command",
+    "state",
+    "interval",
+    "action:pause",
+    "action:delete"
+   ],
+   "variants": "not-rendered (budget); structure extracted",
+   "artboard": [
+    378.0,
+    151.0
+   ],
+   "card": "design/components/monitor-card/contract.json"
+  },
+  {
+   "id": "peer-row",
+   "source_scene": "autonomy-06",
+   "extracted_from": "scene 6 root 'peer_1'",
+   "owner": "autonomy",
+   "bindings": [
+    "status",
+    "name",
+    "elapsed",
+    "tokens",
+    "action:steer"
+   ],
+   "variants": "not-rendered (budget); structure extracted",
+   "artboard": [
+    377.0,
+    128.0
+   ],
+   "card": "design/components/peer-row/contract.json"
   }
  ]
 }

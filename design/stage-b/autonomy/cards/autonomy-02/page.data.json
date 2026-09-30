@@ -11,121 +11,185 @@
           "h": 776
         }
       },
-      "t01": {
-        "component": "Text3f09c2e3ff4b",
+      "review_run": {
+        "component": "Surfaceb4206391250d",
         "layout": {
-          "x": 25.25,
-          "y": 33.51,
-          "w": 99.84,
-          "h": 23.53
+          "x": 0.0,
+          "y": 0.0,
+          "w": 406.0,
+          "h": 775.0
         }
       },
-      "t02": {
-        "component": "Texte2e69097680e",
+      "t_title": {
+        "component": "Text17d36e66429f",
         "layout": {
-          "x": 24.15,
-          "y": 110.76,
-          "w": 115.52,
-          "h": 25.31
+          "x": 24.74,
+          "y": 32.88,
+          "w": 113.41,
+          "h": 22.61
         }
       },
-      "t03": {
-        "component": "Text5161655d958a",
+      "start_review": {
+        "component": "KitButton2c6804b990a5",
         "layout": {
-          "x": 276.94,
-          "y": 106.32,
-          "w": 103.32,
-          "h": 34.19
+          "x": 260.0,
+          "y": 22.5,
+          "w": 123.0,
+          "h": 44.0
         }
       },
-      "t04": {
-        "component": "Text92862dc9909d",
+      "start_review_surface": {
+        "component": "Surfaceb5124380b3ee",
         "layout": {
-          "x": 82.33,
-          "y": 208.43,
-          "w": 227.04,
-          "h": 27.08
+          "x": 260.0,
+          "y": 22.5,
+          "w": 123.0,
+          "h": 44.0
         }
       },
-      "t05": {
-        "component": "Textd88fa772081c",
+      "start_review_control": {
+        "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 81.54,
-          "y": 250.16,
-          "w": 259.27,
-          "h": 26.2
+          "x": 260.0,
+          "y": 22.5,
+          "w": 123.0,
+          "h": 44.0
         }
       },
-      "t06": {
-        "component": "Textb575bdeb99aa",
+      "start_review_label": {
+        "component": "Text2579fcd137a7",
         "layout": {
-          "x": 41.47,
-          "y": 370.91,
-          "w": 34.49,
-          "h": 25.31
+          "x": 278.83,
+          "y": 33.65,
+          "w": 88.62,
+          "h": 19.5
         }
       },
-      "t07": {
-        "component": "Textf76d92979c95",
+      "run_status_card": {
+        "component": "Surface3cc526438404",
         "layout": {
-          "x": 34.96,
-          "y": 423.29,
-          "w": 340.3,
-          "h": 25.31
+          "x": 18.0,
+          "y": 90.5,
+          "w": 367.0,
+          "h": 114.0
         }
       },
-      "t08": {
-        "component": "Texta61aecd7e679",
+      "status_spinner": {
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 34.55,
-          "y": 467.68,
-          "w": 332.46,
-          "h": 25.31
+          "x": 51.18,
+          "y": 117.98,
+          "w": 24.0,
+          "h": 24.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-02/assets/status_spinner-a144d4d03dc2.svg"
         }
       },
-      "t09": {
-        "component": "Text77e5e8bb564d",
+      "t_status": {
+        "component": "Text35832fe48287",
         "layout": {
-          "x": 34.19,
-          "y": 500.54,
-          "w": 129.46,
-          "h": 25.31
+          "x": 81.73,
+          "y": 118.15,
+          "w": 222.81,
+          "h": 24.16
         }
       },
-      "t10": {
-        "component": "Text3ecfce5d1b3f",
+      "t_status_sub": {
+        "component": "Text565da94791fb",
         "layout": {
-          "x": 41.46,
-          "y": 618.62,
-          "w": 31.88,
-          "h": 21.76
+          "x": 80.85,
+          "y": 154.59,
+          "w": 254.44,
+          "h": 23.38
         }
       },
-      "t11": {
-        "component": "Text0ec967fe36b1",
+      "finding_high": {
+        "component": "Surface74f4b416b605",
         "layout": {
-          "x": 34.09,
-          "y": 671.89,
-          "w": 261.89,
-          "h": 26.2
+          "x": 18.0,
+          "y": 228.5,
+          "w": 367.0,
+          "h": 193.0
         }
       },
-      "t12": {
-        "component": "Text31d9642d085e",
+      "finding_high_badge": {
+        "component": "Surface07bfcd994a43",
         "layout": {
-          "x": 33.68,
-          "y": 718.06,
-          "w": 320.26,
-          "h": 26.2
+          "x": 33.94,
+          "y": 256.68,
+          "w": 49.82,
+          "h": 28.0
         }
       },
-      "t13": {
-        "component": "Text3ca384f9387b",
+      "finding_high_badge_label": {
+        "component": "Textcadbe86c8627",
         "layout": {
-          "x": 33.91,
-          "y": 753.58,
-          "w": 58.02,
-          "h": 19.98
+          "x": 40.94,
+          "y": 260.93,
+          "w": 49.82,
+          "h": 21.68
+        }
+      },
+      "finding_high_path": {
+        "component": "Text1f418777307c",
+        "layout": {
+          "x": 32.41,
+          "y": 305.85,
+          "w": 339.47,
+          "h": 23.23
+        }
+      },
+      "finding_high_text": {
+        "component": "Text8720892a9a35",
+        "layout": {
+          "x": 34.20840166979862,
+          "y": 344.52,
+          "w": 327.53,
+          "h": 50.02
+        }
+      },
+      "finding_low": {
+        "component": "Surfacef4c109c9d8f7",
+        "layout": {
+          "x": 18.0,
+          "y": 445.5,
+          "w": 367.0,
+          "h": 194.0
+        }
+      },
+      "finding_low_badge": {
+        "component": "Surfacecd525e141ac3",
+        "layout": {
+          "x": 30.53,
+          "y": 475.07,
+          "w": 48.12,
+          "h": 28.0
+        }
+      },
+      "finding_low_badge_label": {
+        "component": "Text72cb0c72d94b",
+        "layout": {
+          "x": 37.53,
+          "y": 479.32,
+          "w": 48.12,
+          "h": 21.0
+        }
+      },
+      "finding_low_path": {
+        "component": "Texte8b947a52b60",
+        "layout": {
+          "x": 32.41,
+          "y": 525.79,
+          "w": 257.59,
+          "h": 22.5
+        }
+      },
+      "finding_low_text": {
+        "component": "Texte9eae90b87dd",
+        "layout": {
+          "x": 33.30169729529107,
+          "y": 563.13,
+          "w": 313.88,
+          "h": 50.0
         }
       }
     },

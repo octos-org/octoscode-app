@@ -34,14 +34,25 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t01",
-    "x": 1.28,
-    "y": 57.12,
-    "w": 82.91,
-    "h": 34.68,
-    "text": "6. Fleet",
+    "id": "fleet_screen",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t_title",
+    "x": 21.96,
+    "y": 95.99,
+    "w": 149.82,
+    "h": 31.48,
+    "text": "Fleet \u00b7 3 peers",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 23.12,
+    "size": 19,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -50,47 +61,26 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t02",
-    "x": 21.32,
-    "y": 136.94,
-    "w": 105.15,
-    "h": 25.94,
-    "text": "OctosCode",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 17.29,
-    "weight": 400,
-    "role": "text",
+    "id": "fleet_goal",
+    "x": 16.0,
+    "y": 164.5,
+    "w": 374.0,
+    "h": 49.17,
+    "role": "layout",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "View"
     ]
   },
   {
-    "id": "t03",
-    "x": 26.63,
-    "y": 211.21,
-    "w": 153.3,
-    "h": 36.13,
-    "text": "Fleet \u2022 3 peers",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 24.09,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t04",
-    "x": 28.53,
-    "y": 296.55,
-    "w": 117.83,
-    "h": 28.02,
+    "id": "fleet_goal_label",
+    "x": 25.32,
+    "y": 176.5,
+    "w": 112.06,
+    "h": 25.17,
     "text": "Fix steer queue",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 18.68,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -98,15 +88,48 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t05",
-    "x": 44.52,
-    "y": 397.8,
-    "w": 62.32,
-    "h": 29.4,
+    "id": "fleet_card",
+    "x": 16.0,
+    "y": 246.27,
+    "w": 374.0,
+    "h": 356.24,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "peer_1",
+    "x": 16.0,
+    "y": 256.27,
+    "w": 374.0,
+    "h": 81.84,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "peer_1_badge",
+    "x": 31.96,
+    "y": 269.27,
+    "w": 76.54,
+    "h": 30.64,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "peer_1_status",
+    "x": 40.96,
+    "y": 272.27,
+    "w": 58.54,
+    "h": 24.64,
     "text": "Running",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 19.6,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 13,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -114,14 +137,30 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t06",
-    "x": 151.36,
-    "y": 384.08,
-    "w": 48.08,
-    "h": 23.52,
+    "id": "peer_1_name",
+    "x": 143.69,
+    "y": 255.71,
+    "w": 46.68,
+    "h": 23.0,
     "text": "tests",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "peer_1_meta",
+    "x": 143.9,
+    "y": 301.98,
+    "w": 116.49,
+    "h": 20.13,
+    "text": "18m \u00b7 41k tokens",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.68,
+    "size": 12,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -130,31 +169,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t07",
-    "x": 151.36,
-    "y": 433.07,
-    "w": 121.09,
-    "h": 21.56,
-    "text": "18m \u2022 41k tokens",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14.37,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t08",
-    "x": 340.11,
-    "y": 405.64,
-    "w": 46.3,
-    "h": 23.52,
+    "id": "peer_1_steer",
+    "x": 327.2,
+    "y": 274.53,
+    "w": 46.25,
+    "h": 23.79,
     "text": "Steer",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.68,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 14,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -162,15 +185,57 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t09",
-    "x": 44.52,
-    "y": 536.93,
-    "w": 60.54,
-    "h": 25.47,
+    "id": "peer_divider_1",
+    "x": 24.0,
+    "y": 374.98,
+    "w": 358.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "peer_2",
+    "x": 16.0,
+    "y": 382.98,
+    "w": 374.0,
+    "h": 82.06,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "peer_2_attn",
+    "x": 108.49,
+    "y": 392.48,
+    "w": 36.8,
+    "h": 36.8,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "peer_2_badge",
+    "x": 32.11,
+    "y": 395.98,
+    "w": 76.24,
+    "h": 29.79,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "peer_2_status",
+    "x": 41.11,
+    "y": 398.98,
+    "w": 58.24,
+    "h": 23.79,
     "text": "Blocked",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.98,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 13,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -178,14 +243,30 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t10",
-    "x": 151.36,
-    "y": 521.25,
-    "w": 44.52,
-    "h": 23.52,
+    "id": "peer_2_name",
+    "x": 145.61,
+    "y": 382.51,
+    "w": 42.83,
+    "h": 23.79,
     "text": "docs",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "peer_2_meta",
+    "x": 143.8,
+    "y": 427.62,
+    "w": 108.13,
+    "h": 21.41,
+    "text": "7m \u00b7 12k tokens",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.68,
+    "size": 12,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -194,31 +275,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t11",
-    "x": 151.33,
-    "y": 568.11,
-    "w": 110.46,
-    "h": 21.91,
-    "text": "7m \u2022 12k tokens",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14.6,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t12",
-    "x": 340.11,
-    "y": 538.89,
-    "w": 48.08,
-    "h": 25.47,
+    "id": "peer_2_steer",
+    "x": 327.06,
+    "y": 400.52,
+    "w": 46.53,
+    "h": 26.2,
     "text": "Steer",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.98,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 14,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -226,15 +291,48 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t13",
-    "x": 44.52,
-    "y": 674.1,
-    "w": 40.96,
-    "h": 23.52,
+    "id": "peer_divider_2",
+    "x": 24.0,
+    "y": 502.53,
+    "w": 358.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "peer_3",
+    "x": 16.0,
+    "y": 510.53,
+    "w": 374.0,
+    "h": 81.98,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "peer_3_badge",
+    "x": 31.84,
+    "y": 523.53,
+    "w": 57.94,
+    "h": 29.09,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "peer_3_status",
+    "x": 40.84,
+    "y": 526.53,
+    "w": 39.94,
+    "h": 23.09,
     "text": "Done",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.68,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 13,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -242,14 +340,30 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t14",
-    "x": 151.36,
-    "y": 656.46,
-    "w": 56.98,
-    "h": 23.52,
+    "id": "peer_3_name",
+    "x": 145.56,
+    "y": 510.48,
+    "w": 54.93,
+    "h": 24.08,
     "text": "review",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "peer_3_meta",
+    "x": 143.9,
+    "y": 556.38,
+    "w": 128.48,
+    "h": 20.13,
+    "text": "24m \u00b7 28k tokens",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.68,
+    "size": 12,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -258,31 +372,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t15",
-    "x": 151.36,
-    "y": 703.49,
-    "w": 133.55,
-    "h": 23.52,
-    "text": "24m \u2022 28k tokens",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.68,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t16",
-    "x": 341.8,
-    "y": 675.85,
-    "w": 44.7,
-    "h": 23.94,
+    "id": "peer_3_steer",
+    "x": 327.2,
+    "y": 528.92,
+    "w": 44.54,
+    "h": 21.96,
     "text": "Steer",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.96,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 14,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",

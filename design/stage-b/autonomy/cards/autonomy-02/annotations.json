@@ -1,49 +1,79 @@
 {
   "schema_version": 1,
-  "reference_sha256": "5456a3455332ebeb386d048efcd4cf9bfe9f5dd133f195aa9bc7f397dfbc193d",
+  "reference_sha256": "065d17c8a2484d93dbc746890fe961cb1b30f964b00d23acbc99b5fc498af9db",
   "method": "automatic proposals; unreviewed source-image measurements",
   "candidate_rectangles": [
     [
       29.0,
-      605.0,
-      55.0,
-      49.0
+      518.0,
+      54.0,
+      43.0
+    ],
+    [
+      18.0,
+      499.0,
+      367.0,
+      194.0
+    ],
+    [
+      15.0,
+      497.0,
+      373.0,
+      199.0
     ],
     [
       29.0,
-      356.0,
+      301.0,
+      57.0,
+      43.0
+    ],
+    [
+      18.0,
+      282.0,
+      367.0,
+      193.0
+    ],
+    [
+      15.0,
+      279.0,
+      373.0,
+      198.0
+    ],
+    [
+      18.0,
+      144.0,
+      367.0,
+      114.0
+    ],
+    [
+      15.0,
+      141.0,
+      373.0,
+      120.0
+    ],
+    [
+      260.0,
+      76.0,
+      123.0,
+      44.0
+    ],
+    [
+      1.0,
       58.0,
-      49.0
+      404.0,
+      717.0
     ],
     [
-      17.0,
-      334.0,
-      375.0,
-      221.0
+      1.0,
+      1.0,
+      404.0,
+      56.0
     ],
     [
-      15.0,
-      332.0,
-      380.0,
-      226.0
-    ],
-    [
-      17.0,
-      176.0,
-      375.0,
-      131.0
-    ],
-    [
-      15.0,
-      173.0,
-      380.0,
-      137.0
-    ],
-    [
-      264.0,
-      99.0,
-      125.0,
-      49.0
+      0.0,
+      0.0,
+      406.0,
+      775.0
     ]
   ],
   "elements": [
@@ -58,6 +88,129 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4294901502
+    },
+    {
+      "id": "review_run",
+      "bounds": [
+        0.0,
+        0.0,
+        406.0,
+        775.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "start_review",
+      "bounds": [
+        260.0,
+        76.0,
+        123.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "start_review_surface",
+      "bounds": [
+        260.0,
+        76.0,
+        123.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4278848528,
+      "radius": 22.0
+    },
+    {
+      "id": "start_review_control",
+      "bounds": [
+        260.0,
+        76.0,
+        123.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "run_status_card",
+      "bounds": [
+        18.0,
+        144.0,
+        367.0,
+        114.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 15.32
+    },
+    {
+      "id": "status_spinner",
+      "bounds": [
+        53.887,
+        165.7,
+        17.854,
+        22.976
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "finding_high",
+      "bounds": [
+        18.0,
+        282.0,
+        367.0,
+        193.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.85
+    },
+    {
+      "id": "finding_high_badge",
+      "bounds": [
+        29.0,
+        301.0,
+        57.0,
+        43.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294829797,
+      "radius": 21.5
+    },
+    {
+      "id": "finding_low",
+      "bounds": [
+        18.0,
+        499.0,
+        367.0,
+        194.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.92
+    },
+    {
+      "id": "finding_low_badge",
+      "bounds": [
+        29.0,
+        518.0,
+        54.0,
+        43.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294309367,
+      "radius": 21.5
     }
   ]
 }

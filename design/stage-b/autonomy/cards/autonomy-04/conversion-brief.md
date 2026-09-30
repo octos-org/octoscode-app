@@ -34,14 +34,25 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t01",
-    "x": 4.96,
-    "y": 36.23,
-    "w": 100.19,
-    "h": 24.98,
-    "text": "OctosCode",
+    "id": "loops_screen",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t_title",
+    "x": 18.49,
+    "y": 87.18,
+    "w": 63.71,
+    "h": 31.75,
+    "text": "Loops",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 16.65,
+    "size": 19,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -50,15 +61,50 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t02",
-    "x": -0.0,
-    "y": 116.93,
-    "w": 67.09,
-    "h": 30.12,
-    "text": "Loops",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 20.08,
-    "weight": 400,
+    "id": "new_loop",
+    "x": 271.76,
+    "y": 83.34,
+    "w": 119.77,
+    "h": 39.26,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "new_loop_surface",
+    "x": 271.76,
+    "y": 83.34,
+    "w": 119.77,
+    "h": 39.26,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "new_loop_control",
+    "x": 271.76,
+    "y": 83.34,
+    "w": 119.77,
+    "h": 39.26,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "new_loop_label",
+    "x": 283.76,
+    "y": 89.34,
+    "w": 95.77,
+    "h": 27.27,
+    "text": "+ New loop",
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 18.18,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -66,15 +112,35 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t03",
-    "x": 12.02,
-    "y": 210.72,
-    "w": 113.58,
-    "h": 23.25,
-    "text": "Run Cl smoke",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.5,
-    "weight": 400,
+    "id": "loops_card",
+    "x": 16.0,
+    "y": 149.24,
+    "w": 374.0,
+    "h": 350.47,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "loop_1_dot",
+    "x": 208.0,
+    "y": 195.6,
+    "w": 24.0,
+    "h": 24.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "loop_1_name",
+    "x": 23.85,
+    "y": 170.5,
+    "w": 110.55,
+    "h": 22.5,
+    "text": "Run CI smoke",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 15,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -82,14 +148,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t04",
-    "x": 11.96,
-    "y": 260.1,
-    "w": 89.62,
-    "h": 23.71,
+    "id": "loop_1_cad",
+    "x": 28.75,
+    "y": 216.1,
+    "w": 83.16,
+    "h": 21.83,
     "text": "every 15 min",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.81,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -98,15 +164,62 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t05",
-    "x": 11.87,
-    "y": 350.16,
-    "w": 88.09,
-    "h": 27.84,
+    "id": "loop_1_pause",
+    "x": 253.65,
+    "y": 188.1,
+    "w": 30.0,
+    "h": 30.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "loop_1_play",
+    "x": 303.3,
+    "y": 188.6,
+    "w": 29.0,
+    "h": 29.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "loop_1_trash",
+    "x": 337.2,
+    "y": 181.1,
+    "w": 44.0,
+    "h": 44.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "loop_2_divider",
+    "x": 24.0,
+    "y": 264.15,
+    "w": 358.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "loop_2_dot",
+    "x": 208.0,
+    "y": 317.85,
+    "w": 24.0,
+    "h": 24.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "loop_2_name",
+    "x": 22.38,
+    "y": 292.75,
+    "w": 87.91,
+    "h": 23.23,
     "text": "Sync main",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 18.56,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 15,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -114,14 +227,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t06",
-    "x": 11.89,
-    "y": 399.81,
-    "w": 91.47,
-    "h": 25.98,
+    "id": "loop_2_cad",
+    "x": 22.38,
+    "y": 338.35,
+    "w": 94.31,
+    "h": 23.23,
     "text": "every 30 min",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 17.32,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -130,14 +243,77 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t07",
-    "x": 11.8,
-    "y": 489.63,
-    "w": 120.91,
-    "h": 30.62,
+    "id": "loop_2_pause",
+    "x": 253.65,
+    "y": 310.35,
+    "w": 30.0,
+    "h": 30.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "loop_2_play",
+    "x": 303.3,
+    "y": 310.85,
+    "w": 29.0,
+    "h": 29.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "loop_2_trash",
+    "x": 337.2,
+    "y": 303.35,
+    "w": 44.0,
+    "h": 44.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "loop_3_divider",
+    "x": 24.0,
+    "y": 386.4,
+    "w": 358.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "loop_3_dot",
+    "x": 208.0,
+    "y": 440.1,
+    "w": 24.0,
+    "h": 24.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "loop_3_name",
+    "x": 22.33,
+    "y": 415.0,
+    "w": 118.38,
+    "h": 25.23,
     "text": "Nightly review",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 15,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "loop_3_cad",
+    "x": 22.38,
+    "y": 460.6,
+    "w": 118.28,
+    "h": 21.68,
+    "text": "every day \u00b7 01:00",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 20.41,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -146,52 +322,22 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t08",
-    "x": 11.9,
-    "y": 539.54,
-    "w": 120.71,
-    "h": 24.68,
-    "text": "every day \u2022 01:00",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.45,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
+    "id": "loop_3_play",
+    "x": 303.3,
+    "y": 433.1,
+    "w": 29.0,
+    "h": 29.0,
+    "role": "unknown",
+    "native_candidates": []
   },
   {
-    "id": "t09",
-    "x": 199.56,
-    "y": 232.09,
-    "w": 24.08,
-    "h": 31.89,
-    "text": "\u2022",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 21.26,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t10",
-    "x": 287.15,
-    "y": 116.35,
-    "w": 101.8,
-    "h": 29.51,
-    "text": "+ New loop",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 19.67,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
+    "id": "loop_3_trash",
+    "x": 337.2,
+    "y": 425.6,
+    "w": 44.0,
+    "h": 44.0,
+    "role": "unknown",
+    "native_candidates": []
   }
 ]
 ```
