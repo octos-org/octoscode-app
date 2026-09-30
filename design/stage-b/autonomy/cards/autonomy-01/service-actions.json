@@ -1,5 +1,16 @@
 {
   "frame_id": 1,
-  "controls": {},
-  "source": "review-panel"
+  "controls": {
+    "scope_pill": {
+      "event": "diff.scope",
+      "source_bounds": [
+        196,
+        78,
+        117,
+        34
+      ],
+      "enabled": true
+    }
+  },
+  "source": "design/stage-a/autonomy/atlas.png"
 }

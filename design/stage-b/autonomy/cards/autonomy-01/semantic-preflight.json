@@ -3,8 +3,8 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "8307103a3a56e2706cb8e8e3d0d327491f249818dff6f711117169bc1b0ef1e1",
-  "reference_sha256": "44de6bf87710ca45ff8793c08c1b1cb45d65b4f77fc6ed6ae9c959a32154a140",
+  "manifest_sha256": "5c5f215b5643257b8371305a6841339a7efc2d170966317c9fd3ce11d2d303d8",
+  "reference_sha256": "f1d385b756812379d4d1537b2668f37824e3cca12123b02399a555ab3c102add",
   "id": "autonomy-01",
   "round": null,
   "phase": "preflight",
@@ -23,7 +23,18 @@
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
-      "id": "t01",
+      "id": "review_panel",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "t_title",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -35,7 +46,18 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t02",
+      "id": "scope_pill",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "scope_label",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -47,7 +69,20 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t03",
+      "id": "scope_chev",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "t_add",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -59,7 +94,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t04",
+      "id": "t_del",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -71,7 +106,31 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t05",
+      "id": "file_1",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "file_1_icon",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "file_1_path",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -83,7 +142,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t06",
+      "id": "file_1_add",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -95,7 +154,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t07",
+      "id": "file_1_del",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -107,7 +166,31 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t08",
+      "id": "file_2",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "file_2_icon",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "file_2_path",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -119,7 +202,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t09",
+      "id": "file_2_add",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -131,7 +214,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t10",
+      "id": "file_2_del",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -143,7 +226,31 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t11",
+      "id": "file_3",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "file_3_icon",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "file_3_path",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -155,7 +262,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t12",
+      "id": "file_3_add",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -167,7 +274,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t13",
+      "id": "file_3_del",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -179,7 +286,42 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t14",
+      "id": "diff_band_rule_top",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "diff_file_header",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "diff_file_icon",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "diff_file_path",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -191,7 +333,29 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t15",
+      "id": "diff_band_rule_bottom",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "diff_rows",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "ln_0",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -203,7 +367,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t16",
+      "id": "dl_0",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -215,7 +379,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t17",
+      "id": "ln_1",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -227,7 +391,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t18",
+      "id": "dl_1",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -239,7 +403,18 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t19",
+      "id": "chip_130",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "ln_2",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -251,7 +426,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t20",
+      "id": "mk_2",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -263,7 +438,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t21",
+      "id": "dl_2",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -275,7 +450,18 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t22",
+      "id": "chip_131",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "ln_3",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -287,7 +473,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t23",
+      "id": "mk_3",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -299,7 +485,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t24",
+      "id": "dl_3",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -311,7 +497,18 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t25",
+      "id": "chip_132",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "ln_4",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -323,7 +520,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t26",
+      "id": "mk_4",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -335,7 +532,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t27",
+      "id": "dl_4",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -347,7 +544,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t28",
+      "id": "ln_5",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -359,7 +556,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t29",
+      "id": "mk_5",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -371,7 +568,90 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t30",
+      "id": "dl_5",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "ln_6",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "mk_6",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "dl_6",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "ln_7",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "dl_7",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "folded",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "t_fold",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [

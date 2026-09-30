@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "ada42d67b88db6972435c06a2c014b145d6b62177acaa8ddaf5101046d69ecf5",
-  "reference_sha256": "7a6ed6b71273425222fa0fd182b7a942cd52b6c4f087760be708f157b8bde0f9",
+  "contract_sha256": "0415ba81dc026174fc5276214ffd5ebdbe3fc9b0b9999476b3f26dfcb26b8fc7",
+  "reference_sha256": "99d08af1b9d6df1091568092017a43d7267e90a4b0ed74cdadd14c5b948e091c",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
     {
@@ -13,70 +13,147 @@
       "decision": "declared"
     },
     {
-      "id": "t01",
+      "id": "goal_screen",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "goal_card",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_goal_title",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t02",
+      "id": "t_goal",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t03",
+      "id": "goal_badge",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "goal_badge_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t04",
+      "id": "t_budget",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t05",
+      "id": "t_budget_val",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t06",
+      "id": "bar_track",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "bar_fill",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_elapsed",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t07",
+      "id": "t_elapsed_val",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t08",
+      "id": "pause_btn",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "pause_btn_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "pause_btn_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "pause_btn_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t09",
+      "id": "stop_btn",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "stop_btn_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "stop_btn_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "stop_btn_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t10",
+      "id": "clear_goal",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,

@@ -11,94 +11,193 @@
           "h": 776
         }
       },
-      "t01": {
-        "component": "Text032ad140ee62",
+      "goal_screen": {
+        "component": "Surfaceb4206391250d",
         "layout": {
-          "x": 28.74,
-          "y": 37.02,
-          "w": 98.97,
-          "h": 23.51
+          "x": 1.0,
+          "y": 59.0,
+          "w": 404.0,
+          "h": 716.0
         }
       },
-      "t02": {
-        "component": "Text3ac51f0e83a8",
+      "goal_card": {
+        "component": "Surfaceebeaffab57cc",
         "layout": {
-          "x": 39.74,
-          "y": 167.39,
-          "w": 47.56,
-          "h": 27.06
+          "x": 14.0,
+          "y": 107.0,
+          "w": 374.0,
+          "h": 617.0
         }
       },
-      "t03": {
-        "component": "Text2859f6d65b01",
+      "t_goal_title": {
+        "component": "Text340535f16f5a",
         "layout": {
-          "x": 40.39,
-          "y": 242.77,
-          "w": 228.78,
-          "h": 28.83
+          "x": 33.78,
+          "y": 133.8,
+          "w": 49.82,
+          "h": 25.27
         }
       },
-      "t04": {
-        "component": "Text9b391609a62a",
+      "t_goal": {
+        "component": "Textfce030d8c465",
         "layout": {
-          "x": 51.04,
-          "y": 306.63,
-          "w": 46.69,
-          "h": 20.85
+          "x": 34.24,
+          "y": 199.76,
+          "w": 240.45,
+          "h": 25.73
         }
       },
-      "t05": {
-        "component": "Textff8cf9205df8",
+      "goal_badge": {
+        "component": "Surface061d79961e7a",
         "layout": {
-          "x": 39.36,
-          "y": 416.6,
-          "w": 102.45,
-          "h": 27.06
+          "x": 32.0,
+          "y": 244.0,
+          "w": 72.0,
+          "h": 42.0
         }
       },
-      "t06": {
-        "component": "Text30334e2fb3f3",
+      "goal_badge_label": {
+        "component": "Textb7495c5c5d4f",
         "layout": {
-          "x": 268.26,
-          "y": 413.94,
-          "w": 91.12,
-          "h": 22.62
+          "x": 45.47,
+          "y": 255.63,
+          "w": 48.91,
+          "h": 18.74
         }
       },
-      "t07": {
-        "component": "Text2105bfdd9116",
+      "t_budget": {
+        "component": "Text8aa5895fa45e",
         "layout": {
-          "x": 39.64,
-          "y": 541.64,
-          "w": 59.76,
-          "h": 28.83
+          "x": 33.16,
+          "y": 351.86,
+          "w": 107.56,
+          "h": 24.95
         }
       },
-      "t08": {
-        "component": "Textf8ebfe9c06c3",
+      "t_budget_val": {
+        "component": "Text8944a89c950f",
         "layout": {
-          "x": 326.88,
-          "y": 540.76,
-          "w": 32.75,
-          "h": 22.62
+          "x": 274.0,
+          "y": 349.53,
+          "w": 95.65,
+          "h": 20.49
         }
       },
-      "t09": {
-        "component": "Text6fb9a7e24d0d",
+      "bar_track": {
+        "component": "Surface6217c11b5650",
         "layout": {
-          "x": 87.55,
-          "y": 672.9,
-          "w": 47.56,
-          "h": 23.51
+          "x": 29.09,
+          "y": 396.364,
+          "w": 330.0,
+          "h": 10.986
         }
       },
-      "t10": {
-        "component": "Text399040d2238c",
+      "bar_fill": {
+        "component": "Surface07a4c38fa722",
         "layout": {
-          "x": 257.85,
-          "y": 672.01,
-          "w": 38.85,
-          "h": 29.72
+          "x": 29.09,
+          "y": 396.364,
+          "w": 135.3,
+          "h": 10.986
+        }
+      },
+      "t_elapsed": {
+        "component": "Textbdc8ea81e9d3",
+        "layout": {
+          "x": 33.45,
+          "y": 461.27,
+          "w": 62.65,
+          "h": 25.73
+        }
+      },
+      "t_elapsed_val": {
+        "component": "Textdb2041b71827",
+        "layout": {
+          "x": 335.62,
+          "y": 460.5,
+          "w": 34.24,
+          "h": 20.3
+        }
+      },
+      "pause_btn": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 34.0,
+          "y": 559.0,
+          "w": 149.0,
+          "h": 55.0
+        }
+      },
+      "pause_btn_surface": {
+        "component": "Surface1f0616179e77",
+        "layout": {
+          "x": 34.0,
+          "y": 559.0,
+          "w": 149.0,
+          "h": 55.0
+        }
+      },
+      "pause_btn_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 34.0,
+          "y": 559.0,
+          "w": 149.0,
+          "h": 55.0
+        }
+      },
+      "pause_btn_label": {
+        "component": "Text19dba5000243",
+        "layout": {
+          "x": 83.16,
+          "y": 576.12,
+          "w": 50.74,
+          "h": 21.07
+        }
+      },
+      "stop_btn": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 209.0,
+          "y": 559.0,
+          "w": 149.0,
+          "h": 55.0
+        }
+      },
+      "stop_btn_surface": {
+        "component": "Surface611f07322ed9",
+        "layout": {
+          "x": 209.0,
+          "y": 559.0,
+          "w": 149.0,
+          "h": 55.0
+        }
+      },
+      "stop_btn_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 209.0,
+          "y": 559.0,
+          "w": 149.0,
+          "h": 55.0
+        }
+      },
+      "stop_btn_label": {
+        "component": "Textafcbbfd1a4df",
+        "layout": {
+          "x": 263.19,
+          "y": 575.34,
+          "w": 40.66,
+          "h": 26.5
+        }
+      },
+      "clear_goal": {
+        "component": "Text196673905202",
+        "layout": {
+          "x": 149.39,
+          "y": 653.72,
+          "w": 83.73,
+          "h": 26.5
         }
       }
     },

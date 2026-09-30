@@ -451,7 +451,9 @@ script_mod! {
             // docked panels' room (the panels themselves paint in right-aligned
             // overlay docks exactly over the spacer); on narrow windows the
             // spacers hide and the panels overlay with the dimmer, so the
-            // center keeps its 420px minimum.
+            // center keeps its 420px minimum. The #29d screen mount slot moved
+            // to the first-run card area (#28e4): the #28e shell owns the
+            // review panel now, and the entry mounts the screens there.
             columns_review_spacer := View {
                 width: 560 height: Fill
                 visible: false
@@ -958,7 +960,21 @@ pub struct OctoscodeView {
 }
 
 impl OctoscodeView {
+    // #28e4 merge: the #28e2 signature (cx — the palette search field is
+    // pre-filled through it) carries main's #29d error-screen seed.
     fn start(&mut self, cx: &mut Cx) {
+        // #29d — seed the error screen the way the host's crash boundary would
+        // (`OCTOSCODE_ERROR_SEED`; the `OCTOSCODE_SYNTHETIC_TIMELINE` precedent:
+        // a proof-only seed, no transport). The sample carries secrets so the
+        // capture proves the redaction boundary renders.
+        if std::env::var("OCTOSCODE_ERROR_SEED").is_ok() {
+            crate::screens::palette::report_error(
+                "Render panicked: bad connection state\n\
+                 GET https://octos.example/ws?token=abc123&x=1\n\
+                 Authorization: Bearer sk-test-9f8e7d6c"
+                    .to_owned(),
+            );
+        }
         // The 2,000-entry synthetic timeline (the virtualization proof): no
         // transport at all — a store with 2,000 rows and a session, so the
         // window draws the virtualized list on its own (`/g` then shows the
@@ -1121,6 +1137,64 @@ impl OctoscodeView {
             self.perform_screen_action(action, None);
             return;
         }
+        // #30d: board-3 (autonomy-08/09/10) actions route through the screens
+        // table first; the conversation router never sees them (one-owner).
+        if screens::sessions::is_action(action) {
+            let (store, ui, conv) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.ui.clone(), b.conv.clone())
+            };
+            let effect = {
+                let ctx = bindings::Ctx::new(&store, &ui);
+                screens::sessions::resolve(action, index, &ctx)
+            };
+            if let screens::sessions::Effect::Unhandled(id) = &effect {
+                ::log::warn!("octoscode: unhandled screen action {id:?}");
+                return;
+            }
+            // UI-local effects (stage/cancel/remove/dismiss) were already
+            // applied inside resolve; only the protocol effects spawn.
+            if matches!(
+                effect,
+                screens::sessions::Effect::ResumeStage(_)
+                    | screens::sessions::Effect::ResumeCancel
+                    | screens::sessions::Effect::AttachmentRemove(_)
+                    | screens::sessions::Effect::AsideDismiss
+            ) {
+                return;
+            }
+            if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                screens::sessions::spawn(effect, rt, conv);
+            }
+            return;
+        }
+        // #30e — the theme preference's own action id (one-owner rule): the
+        // sidebar's single theme button cycles system -> dark -> light ->
+        // system (use-theme.ts:44-49) and re-resolves the mounted card set
+        // app-wide. UI-local: no protocol method carries a display theme
+        // (parity row preferences/g-timeline, model.ts:1 — browser storage).
+        if screens::theme::is_action(action) {
+            let (store, ui) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.ui.clone())
+            };
+            let effect = {
+                let ctx = bindings::Ctx::new(&store, &ui);
+                screens::theme::resolve(action, index, &ctx)
+            };
+            match effect {
+                screens::theme::Effect::Cycle { preference, resolved } => {
+                    ::log::info!(
+                        "octoscode: theme -> {preference} (resolves {resolved}); \
+                         the next mount lowers the {resolved} card set"
+                    );
+                }
+                screens::theme::Effect::Unhandled(id) => {
+                    ::log::warn!("octoscode: unhandled screen action {id:?}");
+                }
+            }
+            return;
+        }
         let (store, ui, conv) = {
             let b = self.bridge.lock().unwrap();
             (b.store.clone(), b.ui.clone(), b.conv.clone())
@@ -1157,11 +1231,62 @@ impl OctoscodeView {
                 ::log::warn!("octoscode: unhandled action id {id:?}");
                 return;
             }
+            // #29d — UI-local screen effects (resolve already applied them):
+            // selection/query feed, and the report copy (the host owns the
+            // clipboard exactly like `answer.copy`; its write needs `cx`).
+            actions::Effect::Screen(
+                crate::screens::palette::Effect::Move(_)
+                | crate::screens::palette::Effect::QuerySet
+                | crate::screens::palette::Effect::CopyReport(_),
+            ) => return,
             _ => {}
         }
         let Some(rt) = self.runtime.as_ref() else {
             return;
         };
+        // #29d — `connection.retry` replays the production handshake. It must
+        // run BEFORE the conv guard: a retry is exactly for the case where the
+        // initial connect failed and `bridge.conv` is still None.
+        if let actions::Effect::Screen(crate::screens::palette::Effect::Retry) = effect {
+            let bridge = self.bridge.clone();
+            let base =
+                std::env::var("OCTOS_BASE_URL").unwrap_or_else(|_| "http://127.0.0.1:50082".into());
+            let bearer = std::env::var("OCTOS_BEARER").unwrap_or_default();
+            let profile =
+                std::env::var("OCTOS_PROFILE_ID").unwrap_or_else(|_| "octoscode".to_string());
+            let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
+            let connected = {
+                let _guard = rt.enter();
+                crate::flow::Conversation::connect(
+                    &base,
+                    &bearer,
+                    &profile,
+                    cwd.clone(),
+                    Some(Arc::new(|| SignalToUI::set_ui_signal())),
+                )
+            };
+            match connected {
+                Ok((conv, mut evt_rx)) => {
+                    let conv = Arc::new(conv);
+                    {
+                        let mut b = bridge.lock().unwrap();
+                        b.store = conv.store.clone();
+                        b.ui = conv.ui();
+                        b.conv = Some(conv.clone());
+                    }
+                    ::log::info!("octoscode: connection.retry connected");
+                    rt.spawn(async move {
+                        while let Some(evt) = evt_rx.recv().await {
+                            let e = conv.on_event(evt);
+                            ::log::debug!("[octoscode] {e:?}");
+                            SignalToUI::set_ui_signal();
+                        }
+                    });
+                }
+                Err(e) => ::log::warn!("octoscode: connection.retry: {e}"),
+            }
+            return;
+        }
         let Some(conv) = conv else {
             return;
         };
@@ -1226,11 +1351,39 @@ impl OctoscodeView {
                     }
                 });
             }
+            // #29d — palette commands route to the EXISTING production effects
+            // (fail closed: only commands with a native effect and an advertised
+            // feature reach here, or they resolved to Unhandled).
+            actions::Effect::Screen(crate::screens::palette::Effect::Run(effect_id, name)) => {
+                match effect_id {
+                    Some("session.refresh") => {
+                        rt.spawn(async move {
+                            if let Err(e) = conv.refresh_sessions().await {
+                                ::log::warn!("octoscode: palette.run {name}: session.refresh: {e}");
+                            }
+                        });
+                    }
+                    // Fail closed with the command's own name: the table only
+                    // ships effects the native client can actually perform, so
+                    // this names a wiring gap, never a silent no-op.
+                    other => ::log::warn!(
+                        "octoscode: palette.run {name}: no native effect ({other:?})"
+                    ),
+                }
+            }
             // Handled above / needs `cx` (copy).
             actions::Effect::ToggleTool(_)
             | actions::Effect::Unhandled(_)
             | actions::Effect::UiChrome(_)
             | actions::Effect::CopyAnswer => {}
+            actions::Effect::Screen(other) => match other {
+                crate::screens::palette::Effect::Run(..) => unreachable!("matched above"),
+                crate::screens::palette::Effect::Move(_)
+                | crate::screens::palette::Effect::QuerySet
+                | crate::screens::palette::Effect::CopyReport(_)
+                | crate::screens::palette::Effect::Unhandled(_) => {}
+                crate::screens::palette::Effect::Retry => {}
+            },
         }
     }
 
@@ -1419,6 +1572,34 @@ impl OctoscodeView {
         let composer_splash = self.view.splash(cx, ids!(composer_splash));
         if let Err(e) = self.mounts.mount(cx, &composer_splash, &composer) {
             makepad_widgets::log!("[octoscode] composer mount: {e}");
+        }
+        // #29d — the Stage C screens (board 2.8/2.11/2.12) mount into the review
+        // column's temporary slot while #28e's shell (drawer + palette overlay)
+        // is pending. OCTOSCODE_SCREEN=palette|error|loading names one; unset
+        // leaves the screen exactly as before this card. The mount cache
+        // compares the DSL string, so live-slot flips repaint exactly once.
+        if let Ok(which) = std::env::var("OCTOSCODE_SCREEN") {
+            let screen_splash = self.view.splash(cx, ids!(screen_splash));
+            let store = { self.bridge.lock().unwrap().store.clone() };
+            // #30e — OCTOSCODE_THEME seeds the preference (system default),
+            // and the theme-wired card names lower through screens::theme,
+            // which selects the dark Stage B card or its light twin by the
+            // CURRENT resolved preference. Unset theme = system = dark set,
+            // byte-identical to the pre-#30e behaviour for palette|error|
+            // loading names.
+            if let Ok(pref) = std::env::var("OCTOSCODE_THEME") {
+                screens::theme::set_preference(&pref);
+            }
+            let r = if screens::theme::card_for(&which).is_some() {
+                screens::theme::mount(&mut self.mounts, cx, screen_splash, &which, &store)
+            } else {
+                crate::screens::palette::mount_screen(
+                    &mut self.mounts, cx, screen_splash, &which, &store,
+                )
+            };
+            if let Err(e) = r {
+                makepad_widgets::log!("[octoscode] screen mount: {e}");
+            }
         }
         // Card #21d item 5: the `new-chat` component (#16) is the thread
         // column's first row. The row existed but was never mounted, so it

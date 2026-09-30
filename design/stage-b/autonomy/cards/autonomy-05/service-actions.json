@@ -1,5 +1,26 @@
 {
   "frame_id": 5,
-  "controls": {},
-  "source": "product-controls"
+  "controls": {
+    "mon_1": {
+      "event": "monitor.toggle",
+      "source_bounds": [
+        16,
+        175,
+        374,
+        106
+      ],
+      "enabled": true
+    },
+    "mon_2": {
+      "event": "monitor.toggle",
+      "source_bounds": [
+        16,
+        348,
+        374,
+        105
+      ],
+      "enabled": true
+    }
+  },
+  "source": "design/stage-a/autonomy/atlas.png"
 }

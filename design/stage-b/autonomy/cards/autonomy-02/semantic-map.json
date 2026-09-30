@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "c7d4f9ec06d8031f6a9f426606fcb595fe7313269bd210bc543891a4a63c9b9d",
-  "reference_sha256": "5456a3455332ebeb386d048efcd4cf9bfe9f5dd133f195aa9bc7f397dfbc193d",
+  "contract_sha256": "739657247284f0463192964e05b2206af75b78b26c6975f1cd9393875ab61f9b",
+  "reference_sha256": "065d17c8a2484d93dbc746890fe961cb1b30f964b00d23acbc99b5fc498af9db",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
     {
@@ -13,91 +13,149 @@
       "decision": "declared"
     },
     {
-      "id": "t01",
+      "id": "review_run",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_title",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t02",
+      "id": "start_review",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "start_review_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "start_review_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "start_review_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t03",
+      "id": "run_status_card",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "status_spinner",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/status_spinner.svg",
+        "sha256": "a144d4d03dc24301951df7cc9e91b4c7924491fb568e682deab6de4f3408aeae",
+        "method": "reference_svg",
+        "reference_sha256": "065d17c8a2484d93dbc746890fe961cb1b30f964b00d23acbc99b5fc498af9db",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "t_status",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t04",
+      "id": "t_status_sub",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t05",
+      "id": "finding_high",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "finding_high_badge",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "finding_high_badge_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t06",
+      "id": "finding_high_path",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t07",
+      "id": "finding_high_text",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t08",
+      "id": "finding_low",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "finding_low_badge",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "finding_low_badge_label",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t09",
+      "id": "finding_low_path",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,
       "decision": "declared"
     },
     {
-      "id": "t10",
-      "role": "text",
-      "basis": "authored text node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "t11",
-      "role": "text",
-      "basis": "authored text node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "t12",
-      "role": "text",
-      "basis": "authored text node",
-      "confidence": 1.0,
-      "decision": "declared"
-    },
-    {
-      "id": "t13",
+      "id": "finding_low_text",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,

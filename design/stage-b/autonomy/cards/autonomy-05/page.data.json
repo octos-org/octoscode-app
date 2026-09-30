@@ -11,94 +11,152 @@
           "h": 776
         }
       },
-      "t01": {
-        "component": "Text3fe6dbba4348",
+      "monitors_screen": {
+        "component": "Surfaceb4206391250d",
         "layout": {
-          "x": -0.18,
-          "y": 59.73,
-          "w": 116.54,
-          "h": 27.52
+          "x": 0.0,
+          "y": 0.0,
+          "w": 406.0,
+          "h": 776.0
         }
       },
-      "t02": {
-        "component": "Text7a303d430319",
+      "t_title": {
+        "component": "Textb3d75e5843e2",
         "layout": {
-          "x": 14.57,
-          "y": 133.21,
-          "w": 94.03,
-          "h": 24.58
+          "x": 19.15,
+          "y": 95.0,
+          "w": 81.62,
+          "h": 25.05
         }
       },
-      "t03": {
-        "component": "Textf044fd1510c5",
+      "mon_1": {
+        "component": "Surfacee69029f3071c",
         "layout": {
-          "x": 14.79,
-          "y": 211.6,
-          "w": 82.78,
-          "h": 26.54
+          "x": 12.0,
+          "y": 156.0,
+          "w": 378.0,
+          "h": 151.0
         }
       },
-      "t04": {
-        "component": "Texte96cf97f0c30",
+      "mon_1_cmd": {
+        "component": "Text670e937f3612",
         "layout": {
-          "x": 25.9,
-          "y": 314.47,
-          "w": 116.54,
-          "h": 25.56
+          "x": 29.8,
+          "y": 191.08,
+          "w": 114.88,
+          "h": 24.13
         }
       },
-      "t05": {
-        "component": "Textd8489a9fed0a",
+      "mon_1_state": {
+        "component": "Text33733e78bb16",
         "layout": {
-          "x": 25.82,
-          "y": 365.42,
-          "w": 60.27,
-          "h": 24.58
+          "x": 25.52,
+          "y": 239.53,
+          "w": 63.26,
+          "h": 24.23
         }
       },
-      "t06": {
-        "component": "Text841c0d759655",
+      "mon_1_int": {
+        "component": "Text8c0b95d5be07",
         "layout": {
-          "x": 219.02,
-          "y": 365.42,
-          "w": 29.1,
-          "h": 24.58
+          "x": 214.94,
+          "y": 237.92,
+          "w": 35.82,
+          "h": 27.45
         }
       },
-      "t07": {
-        "component": "Textfe7b83a88ec9",
+      "mon_1_pause": {
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 26.65,
-          "y": 498.68,
-          "w": 159.82,
-          "h": 26.54
+          "x": 296.0,
+          "y": 230.53,
+          "w": 24.0,
+          "h": 24.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-05/assets/mon_1_pause-5880d2f68cc6.svg"
         }
       },
-      "t08": {
-        "component": "Textea0fa0ca8123",
+      "mon_1_trash": {
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 25.71,
-          "y": 547.67,
-          "w": 76.72,
-          "h": 30.45
+          "x": 348.7,
+          "y": 230.53,
+          "w": 24.0,
+          "h": 24.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-05/assets/mon_1_trash-931b99768271.svg"
         }
       },
-      "t09": {
-        "component": "Text18f6e7119644",
+      "mon_2": {
+        "component": "Surfacee26805a602b5",
         "layout": {
-          "x": 219.02,
-          "y": 547.67,
-          "w": 29.1,
-          "h": 24.58
+          "x": 12.0,
+          "y": 328.0,
+          "w": 378.0,
+          "h": 149.0
         }
       },
-      "t10": {
-        "component": "Textd914d3d2914e",
+      "mon_2_cmd": {
+        "component": "Text23962a7cd7ff",
         "layout": {
-          "x": 54.98,
-          "y": 665.24,
-          "w": 272.36,
-          "h": 29.47
+          "x": 29.39,
+          "y": 363.12,
+          "w": 157.53,
+          "h": 25.05
+        }
+      },
+      "mon_2_state": {
+        "component": "Text5b96e686bbca",
+        "layout": {
+          "x": 26.93,
+          "y": 413.34,
+          "w": 77.79,
+          "h": 22.46
+        }
+      },
+      "mon_2_int": {
+        "component": "Texte5c634ece956",
+        "layout": {
+          "x": 216.65,
+          "y": 409.96,
+          "w": 32.41,
+          "h": 23.79
+        }
+      },
+      "mon_2_pause": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 296.0,
+          "y": 404.34,
+          "w": 24.0,
+          "h": 24.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-05/assets/mon_2_pause-5880d2f68cc6.svg"
+        }
+      },
+      "mon_2_trash": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 348.7,
+          "y": 404.34,
+          "w": 24.0,
+          "h": 24.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-05/assets/mon_2_trash-931b99768271.svg"
+        }
+      },
+      "monitors_footer": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 16.921,
+          "y": 529.627,
+          "w": 372.158,
+          "h": 46.119
+        }
+      },
+      "monitors_footer_label": {
+        "component": "Text57902c202dfd",
+        "layout": {
+          "x": 58.44,
+          "y": 518.69,
+          "w": 268.41,
+          "h": 27.79
         }
       }
     },

@@ -34,14 +34,36 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t01",
-    "x": 27.84,
-    "y": 37.05,
-    "w": 101.14,
-    "h": 25.11,
-    "text": "OctosCode",
+    "id": "goal_screen",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "goal_card",
+    "x": 16.0,
+    "y": 182.21,
+    "w": 374.0,
+    "h": 449.31,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t_goal_title",
+    "x": 31.09,
+    "y": 133.47,
+    "w": 54.86,
+    "h": 26.38,
+    "text": "Goal",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 16.74,
+    "size": 17,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -50,30 +72,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t02",
-    "x": 36.59,
-    "y": 168.31,
-    "w": 52.27,
-    "h": 28.35,
-    "text": "Goal",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 18.9,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t03",
-    "x": 38.33,
-    "y": 246.26,
-    "w": 230.01,
-    "h": 24.81,
+    "id": "t_goal",
+    "x": 31.09,
+    "y": 200.21,
+    "w": 245.06,
+    "h": 24.83,
     "text": "Fix steer queue on reconnect",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.54,
+    "size": 15,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -82,15 +88,26 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t04",
-    "x": 50.42,
-    "y": 306.24,
-    "w": 47.27,
-    "h": 21.78,
+    "id": "goal_badge",
+    "x": 33.68,
+    "y": 251.66,
+    "w": 71.62,
+    "h": 27.46,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "goal_badge_label",
+    "x": 43.68,
+    "y": 255.66,
+    "w": 51.62,
+    "h": 19.5,
     "text": "Active",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14.52,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 13,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -98,14 +115,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t05",
-    "x": 39.99,
-    "y": 419.41,
-    "w": 97.76,
-    "h": 20.45,
+    "id": "t_budget",
+    "x": 30.91,
+    "y": 351.71,
+    "w": 111.91,
+    "h": 26.01,
     "text": "Token budget",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 13.63,
+    "size": 14,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -114,15 +131,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t06",
-    "x": 266.6,
-    "y": 414.58,
-    "w": 94.09,
-    "h": 23.03,
+    "id": "t_budget_val",
+    "x": 272.5,
+    "y": 350.75,
+    "w": 98.76,
+    "h": 21.0,
     "text": "41k of 100k",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.35,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -130,14 +147,36 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t07",
-    "x": 38.33,
-    "y": 542.14,
-    "w": 60.99,
-    "h": 26.58,
+    "id": "bar_track",
+    "x": 31.09,
+    "y": 392.93,
+    "w": 330.0,
+    "h": 8.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "bar_fill",
+    "x": 31.09,
+    "y": 392.93,
+    "w": 135.3,
+    "h": 8.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t_elapsed",
+    "x": 29.26,
+    "y": 460.94,
+    "w": 67.67,
+    "h": 24.83,
     "text": "Elapsed",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 17.72,
+    "size": 14,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -146,15 +185,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t08",
-    "x": 324.1,
-    "y": 540.37,
-    "w": 36.59,
-    "h": 23.03,
+    "id": "t_elapsed_val",
+    "x": 331.02,
+    "y": 460.94,
+    "w": 40.23,
+    "h": 21.0,
     "text": "18m",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.35,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -162,15 +201,50 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t09",
-    "x": 85.38,
-    "y": 675.01,
-    "w": 52.27,
-    "h": 21.26,
+    "id": "pause_btn",
+    "x": 30.0,
+    "y": 559.79,
+    "w": 143.0,
+    "h": 53.73,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "pause_btn_surface",
+    "x": 30.0,
+    "y": 559.79,
+    "w": 143.0,
+    "h": 53.73,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "pause_btn_control",
+    "x": 30.0,
+    "y": 559.79,
+    "w": 143.0,
+    "h": 53.73,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "pause_btn_label",
+    "x": 82.3,
+    "y": 575.79,
+    "w": 53.04,
+    "h": 21.73,
     "text": "Pause",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14.17,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 14,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -178,15 +252,66 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t10",
-    "x": 254.4,
-    "y": 673.24,
-    "w": 43.56,
-    "h": 28.35,
+    "id": "stop_btn",
+    "x": 193.0,
+    "y": 559.79,
+    "w": 142.0,
+    "h": 53.73,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "stop_btn_surface",
+    "x": 193.0,
+    "y": 559.79,
+    "w": 142.0,
+    "h": 53.73,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "stop_btn_control",
+    "x": 193.0,
+    "y": 559.79,
+    "w": 142.0,
+    "h": 53.73,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "stop_btn_label",
+    "x": 257.86,
+    "y": 577.34,
+    "w": 45.72,
+    "h": 26.38,
     "text": "Stop",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 18.9,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 14,
+    "weight": 600,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "clear_goal",
+    "x": 148.06,
+    "y": 654.75,
+    "w": 87.93,
+    "h": 25.21,
+    "text": "Clear goal",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",

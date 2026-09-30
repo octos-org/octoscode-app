@@ -34,14 +34,25 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t01",
-    "x": 24.26,
-    "y": 33.15,
-    "w": 101.34,
-    "h": 26.04,
-    "text": "OctosCode",
+    "id": "review_run",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t_title",
+    "x": 23.83,
+    "y": 86.53,
+    "w": 114.4,
+    "h": 28.5,
+    "text": "Code review",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 17.36,
+    "size": 19,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -50,31 +61,50 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t02",
-    "x": 22.65,
-    "y": 111.87,
-    "w": 116.75,
-    "h": 24.86,
-    "text": "Code review",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.57,
-    "weight": 400,
-    "role": "text",
+    "id": "start_review",
+    "x": 262.23,
+    "y": 78.3,
+    "w": 118.66,
+    "h": 38.56,
+    "role": "button",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "Button",
+      "KitButton"
     ]
   },
   {
-    "id": "t03",
-    "x": 280.29,
-    "y": 110.77,
-    "w": 94.59,
-    "h": 25.29,
+    "id": "start_review_surface",
+    "x": 262.23,
+    "y": 78.3,
+    "w": 118.66,
+    "h": 38.56,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "start_review_control",
+    "x": 262.23,
+    "y": 78.3,
+    "w": 118.66,
+    "h": 38.56,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "start_review_label",
+    "x": 276.23,
+    "y": 86.3,
+    "w": 90.66,
+    "h": 22.56,
     "text": "Start review",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.86,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 15.04,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -82,15 +112,35 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t04",
-    "x": 80.15,
-    "y": 211.31,
-    "w": 228.27,
-    "h": 24.86,
-    "text": "Reviewing 3 files \u2022 2 specialists",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.57,
-    "weight": 400,
+    "id": "run_status_card",
+    "x": 18.0,
+    "y": 157.48,
+    "w": 370.0,
+    "h": 89.31,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "status_spinner",
+    "x": 51.18,
+    "y": 171.48,
+    "w": 24.0,
+    "h": 24.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "t_status",
+    "x": 80.18,
+    "y": 173.48,
+    "w": 223.47,
+    "h": 21.68,
+    "text": "Reviewing 3 files \u00b7 2 specialists",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -98,14 +148,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t05",
-    "x": 80.15,
-    "y": 252.16,
-    "w": 259.63,
-    "h": 24.86,
+    "id": "t_status_sub",
+    "x": 80.18,
+    "y": 210.65,
+    "w": 254.18,
+    "h": 20.14,
     "text": "Analyzing changes and code quality...",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.57,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -114,15 +164,37 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t06",
-    "x": 40.08,
-    "y": 371.13,
-    "w": 36.59,
-    "h": 24.86,
+    "id": "finding_high",
+    "x": 18.0,
+    "y": 300.43,
+    "w": 370.0,
+    "h": 167.21,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "finding_high_badge",
+    "x": 33.94,
+    "y": 310.18,
+    "w": 49.82,
+    "h": 28.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "finding_high_badge_label",
+    "x": 40.94,
+    "y": 314.43,
+    "w": 49.82,
+    "h": 21.68,
     "text": "High",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 16.57,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 14,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -130,14 +202,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t07",
-    "x": 33.11,
-    "y": 426.18,
-    "w": 341.53,
-    "h": 23.09,
+    "id": "finding_high_path",
+    "x": 32.41,
+    "y": 359.35,
+    "w": 339.47,
+    "h": 23.23,
     "text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.39,
+    "size": 15.0,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -146,14 +218,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t08",
-    "x": 33.11,
-    "y": 470.57,
-    "w": 332.82,
-    "h": 21.32,
-    "text": "Potential message loss when reconnecting: pending",
+    "id": "finding_high_text",
+    "x": 32.41,
+    "y": 399.62,
+    "w": 327.53,
+    "h": 50.02,
+    "text": "Potential message loss when reconnecting: pending queue was dropped.",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14.21,
+    "size": 14,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -162,31 +234,37 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t09",
-    "x": 33.04,
-    "y": 502.1,
-    "w": 130.83,
-    "h": 23.96,
-    "text": "queue was dropped.",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.97,
-    "weight": 400,
-    "role": "text",
+    "id": "finding_low",
+    "x": 18.0,
+    "y": 518.82,
+    "w": 370.0,
+    "h": 167.19,
+    "role": "layout",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "View"
     ]
   },
   {
-    "id": "t10",
-    "x": 38.33,
-    "y": 621.51,
-    "w": 34.85,
-    "h": 19.53,
+    "id": "finding_low_badge",
+    "x": 30.53,
+    "y": 528.57,
+    "w": 48.12,
+    "h": 28.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "finding_low_badge_label",
+    "x": 37.53,
+    "y": 532.82,
+    "w": 48.12,
+    "h": 21.0,
     "text": "Low",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 13.02,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 14,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -194,14 +272,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t11",
-    "x": 33.11,
-    "y": 674.78,
-    "w": 261.37,
-    "h": 21.32,
+    "id": "finding_low_path",
+    "x": 32.41,
+    "y": 579.29,
+    "w": 257.59,
+    "h": 22.5,
     "text": "crates/octos-core/src/ui_protocol.rs",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14.21,
+    "size": 15.0,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -210,30 +288,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t12",
-    "x": 33.11,
-    "y": 720.95,
-    "w": 318.88,
-    "h": 23.09,
-    "text": "Missing documentation for new preserve_pending",
+    "id": "finding_low_text",
+    "x": 32.41,
+    "y": 618.01,
+    "w": 313.88,
+    "h": 50.0,
+    "text": "Missing documentation for new preserve_pending behavior.",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 15.39,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t13",
-    "x": 31.15,
-    "y": 754.01,
-    "w": 59.67,
-    "h": 20.91,
-    "text": "behavior.",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 13.94,
+    "size": 14,
     "weight": 400,
     "role": "text",
     "native_candidates": [

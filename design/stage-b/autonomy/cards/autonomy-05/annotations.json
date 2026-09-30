@@ -1,31 +1,43 @@
 {
   "schema_version": 1,
-  "reference_sha256": "d4137d6f8395626beacb88da2e020ff40d2a8428c140fed5ab2d3dbc97bec8b8",
+  "reference_sha256": "29638e4fd903df503f18080c9d8ad5472e2620cae5f7e2c267a675a0a32e7287",
   "method": "automatic proposals; unreviewed source-image measurements",
   "candidate_rectangles": [
     [
-      8.0,
-      461.0,
+      12.0,
+      328.0,
+      378.0,
+      149.0
+    ],
+    [
+      9.0,
+      325.0,
       383.0,
-      159.0
+      155.0
     ],
     [
-      5.0,
-      458.0,
-      389.0,
-      165.0
+      12.0,
+      156.0,
+      378.0,
+      151.0
     ],
     [
-      7.0,
-      276.0,
+      9.0,
+      153.0,
       384.0,
-      163.0
+      157.0
     ],
     [
-      5.0,
-      274.0,
-      389.0,
-      167.0
+      1.0,
+      68.0,
+      404.0,
+      707.0
+    ],
+    [
+      1.0,
+      1.0,
+      404.0,
+      66.0
     ]
   ],
   "elements": [
@@ -40,6 +52,99 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4294901502
+    },
+    {
+      "id": "monitors_screen",
+      "bounds": [
+        1.0,
+        68.0,
+        404.0,
+        707.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "mon_1",
+      "bounds": [
+        12.0,
+        156.0,
+        378.0,
+        151.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 16.99
+    },
+    {
+      "id": "mon_1_pause",
+      "bounds": [
+        294.995,
+        238.712,
+        18.193,
+        28.312
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "mon_1_trash",
+      "bounds": [
+        348.258,
+        238.712,
+        18.193,
+        28.312
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "mon_2",
+      "bounds": [
+        12.0,
+        328.0,
+        378.0,
+        149.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 16.94
+    },
+    {
+      "id": "mon_2_pause",
+      "bounds": [
+        294.995,
+        411.447,
+        18.193,
+        28.225
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "mon_2_trash",
+      "bounds": [
+        348.258,
+        411.447,
+        18.193,
+        28.225
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "monitors_footer",
+      "bounds": [
+        16.921,
+        529.627,
+        372.158,
+        46.119
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
     }
   ]
 }

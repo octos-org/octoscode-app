@@ -1,0 +1,235 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "e6870a9defd294295b03acbb4b23e729bf7cca8bafd2460a132e26f41e5e3802",
+  "tree": {
+    "t": "stack",
+    "id": "peer_1",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 377.0,
+    "h": 128.0,
+    "c": [
+      {
+        "t": "stack",
+        "id": "peer_1_badge",
+        "x": 14.0,
+        "y": 35.0,
+        "w": 86.0,
+        "h": 52.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "peer_1_status",
+            "text": "Running",
+            "x": 27.91,
+            "y": 49.78,
+            "w": 58.93,
+            "h": 26.88,
+            "size": 13.78,
+            "line_height": 16.67,
+            "weight": 600,
+            "color": 4281172286,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf",
+            "tracking": 0.0,
+            "c": []
+          }
+        ],
+        "variant": "surface",
+        "bg": 4293326570,
+        "radius": 26.0
+      },
+      {
+        "t": "text",
+        "id": "peer_1_name",
+        "text": "tests",
+        "x": 133.48,
+        "y": 36.06,
+        "w": 42.63,
+        "h": 22.3,
+        "size": 16.47,
+        "line_height": 19.93,
+        "weight": 500,
+        "color": 4279506712,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0,
+        "c": []
+      },
+      {
+        "t": "text",
+        "id": "peer_1_meta",
+        "text": "18m \u00b7 41k tokens",
+        "x": 132.97,
+        "y": 79.07,
+        "w": 114.73,
+        "h": 21.39,
+        "size": 14.17,
+        "line_height": 17.15,
+        "weight": 400,
+        "color": 4286217086,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0,
+        "c": []
+      },
+      {
+        "t": "text",
+        "id": "peer_1_steer",
+        "text": "Steer",
+        "x": 315.77,
+        "y": 54.36,
+        "w": 42.63,
+        "h": 24.13,
+        "size": 14.95,
+        "line_height": 18.09,
+        "weight": 600,
+        "color": 4281299178,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": 0.0,
+        "c": []
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502,
+    "radius": 18.77,
+    "border": 1,
+    "bordercolor": 4293256679
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "fleet_screen",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "fleet_goal",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "peer_1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "peer_1_badge",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "peer_2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "peer_2_badge",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "peer_3",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "peer_3_badge",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t01",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.22761799009215075
+    },
+    {
+      "id": "t_title",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.16760466235927068
+    },
+    {
+      "id": "fleet_goal_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.22400220410383598
+    },
+    {
+      "id": "peer_1_status",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.24969713585938802
+    },
+    {
+      "id": "peer_1_name",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.21002839131819961
+    },
+    {
+      "id": "peer_1_meta",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.19634656374087456
+    },
+    {
+      "id": "peer_1_steer",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2702339219361916
+    },
+    {
+      "id": "peer_2_status",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2681101271155272
+    },
+    {
+      "id": "peer_2_name",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2970613902837536
+    },
+    {
+      "id": "peer_2_meta",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.20131387295609696
+    },
+    {
+      "id": "peer_2_steer",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.27821255613622065
+    },
+    {
+      "id": "peer_3_status",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.3214060509172734
+    },
+    {
+      "id": "peer_3_name",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2392028540318069
+    },
+    {
+      "id": "peer_3_meta",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.20465535686635908
+    },
+    {
+      "id": "peer_3_steer",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.25313684865041497
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

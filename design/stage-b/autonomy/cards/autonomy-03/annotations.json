@@ -1,43 +1,61 @@
 {
   "schema_version": 1,
-  "reference_sha256": "7a6ed6b71273425222fa0fd182b7a942cd52b6c4f087760be708f157b8bde0f9",
+  "reference_sha256": "99d08af1b9d6df1091568092017a43d7267e90a4b0ed74cdadd14c5b948e091c",
   "method": "automatic proposals; unreviewed source-image measurements",
   "candidate_rectangles": [
     [
-      207.0,
-      653.0,
-      141.0,
-      63.0
+      209.0,
+      559.0,
+      149.0,
+      55.0
     ],
     [
-      40.0,
-      653.0,
-      142.0,
-      63.0
+      34.0,
+      559.0,
+      149.0,
+      55.0
     ],
     [
-      204.0,
-      651.0,
-      146.0,
-      67.0
+      206.0,
+      557.0,
+      154.0,
+      59.0
     ],
     [
-      37.0,
-      651.0,
-      148.0,
-      67.0
+      31.0,
+      557.0,
+      155.0,
+      59.0
     ],
     [
-      38.0,
-      293.0,
-      69.0,
-      48.0
+      32.0,
+      244.0,
+      72.0,
+      42.0
     ],
     [
-      9.0,
-      16.0,
-      384.0,
-      64.0
+      14.0,
+      107.0,
+      374.0,
+      617.0
+    ],
+    [
+      12.0,
+      105.0,
+      379.0,
+      622.0
+    ],
+    [
+      1.0,
+      59.0,
+      404.0,
+      716.0
+    ],
+    [
+      1.0,
+      1.0,
+      404.0,
+      56.0
     ]
   ],
   "elements": [
@@ -52,6 +70,140 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4294901502
+    },
+    {
+      "id": "goal_screen",
+      "bounds": [
+        1.0,
+        59.0,
+        404.0,
+        716.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "goal_card",
+      "bounds": [
+        14.0,
+        107.0,
+        374.0,
+        617.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 12.0
+    },
+    {
+      "id": "goal_badge",
+      "bounds": [
+        32.0,
+        244.0,
+        72.0,
+        42.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293326570,
+      "radius": 21.0
+    },
+    {
+      "id": "bar_track",
+      "bounds": [
+        29.09,
+        396.364,
+        330.0,
+        10.986
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 5.49
+    },
+    {
+      "id": "bar_fill",
+      "bounds": [
+        29.09,
+        396.364,
+        135.3,
+        10.986
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835710,
+      "radius": 5.49
+    },
+    {
+      "id": "pause_btn",
+      "bounds": [
+        34.0,
+        559.0,
+        149.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "pause_btn_surface",
+      "bounds": [
+        34.0,
+        559.0,
+        149.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 27.5
+    },
+    {
+      "id": "pause_btn_control",
+      "bounds": [
+        34.0,
+        559.0,
+        149.0,
+        55.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "stop_btn",
+      "bounds": [
+        209.0,
+        559.0,
+        149.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "stop_btn_surface",
+      "bounds": [
+        209.0,
+        559.0,
+        149.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 27.5
+    },
+    {
+      "id": "stop_btn_control",
+      "bounds": [
+        209.0,
+        559.0,
+        149.0,
+        55.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
     }
   ]
 }

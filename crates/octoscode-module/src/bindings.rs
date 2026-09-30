@@ -105,7 +105,17 @@ pub const ACTIONS: &[(&str, &str)] = &[
     ("thread.open", "open the clicked thread row's session (`row.id`)"),
     ("answer.copy", "copy the answer text (UI-local; the clipboard is the host's)"),
     ("tool.toggle", "toggle a tool cell's output disclosure (UI-local)"),
-    // Card #28e — the board-4 chrome toggles (all UI-local).
+    // Screen actions (#29d palette, #29a/#29c workspace/connect/models) are NOT
+    // declared here: each screen owns its own table (the one-owner rule,
+    // #29d3) — `screens::palette::owns_action` and its siblings.
+    // Card #28e/#28e4 — the board-4 shell/chrome toggles are NOT here either
+    // (ACTIONS stays pinned at 9): they own the small table below.
+];
+
+/// Card #28e — the board-4 shell/chrome toggles (all UI-local; no protocol
+/// method). A separate small table so the conversation `ACTIONS` stays the
+/// pinned 9-row contract the tests assert.
+pub const CHROME_ACTIONS: &[(&str, &str)] = &[
     ("review.toggle", "toggle the 560 px Review panel (UI-local)"),
     ("settings.toggle", "toggle the 420 px Session-settings drawer (UI-local)"),
     ("palette.toggle", "toggle the floating '/' command palette (UI-local)"),
@@ -153,6 +163,11 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
         "session.active" => json!(store.active_session()),
         "caps.count" => json!(store.capabilities().len()),
         "summary" => json!(store.summary()),
+
+        // #29d — Stage C screens (board 2.8/2.11/2.12); prefix-disjoint ids.
+        _ if crate::screens::palette::owns_binding(id) => {
+            return crate::screens::palette::query(ctx, id);
+        }
 
         // ---- conversation-01: THREAD LIST ---------------------------------
         "threads" => json!(rows_json(store)),
@@ -215,7 +230,11 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
         // conversation table declines the id.
         other => match crate::screens::workspace::query(ctx, other) {
             Some(v) => v,
-            None => return None,
+            // #30d: board-3 data slots answer from the sessions table.
+            None => match crate::screens::sessions::query(ctx, other) {
+                Some(v) => v,
+                None => return None,
+            },
         },
     })
 }

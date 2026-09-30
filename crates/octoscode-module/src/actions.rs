@@ -39,6 +39,9 @@ pub enum Effect {
     /// A declared id with no resolvable target (a missing row), or an id this
     /// router does not own. Logged by name, never fatal (LESSONS 6).
     Unhandled(String),
+    /// #29d — a Stage C screen action (palette / error / reconnect), resolved
+    /// by [`crate::screens::palette`].
+    Screen(crate::screens::palette::Effect),
 }
 
 /// The board-4 chrome surfaces a view can toggle (card #28e).
@@ -74,6 +77,10 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             None => Effect::Unhandled(format!("{action}[{index}]")),
         },
         "answer.copy" => Effect::CopyAnswer,
+        // #29d — the Stage C screens own their ids (palette/error/reconnect).
+        _ if crate::screens::palette::owns_action(action) => {
+            Effect::Screen(crate::screens::palette::resolve(action, index, ctx))
+        }
         // Card #28e — board-4 chrome toggles. UI-local (no protocol method):
         // the view flips its own FlowUi flags and redraws.
         "review.toggle" => Effect::UiChrome(UiChrome::ReviewToggle),
@@ -95,9 +102,9 @@ pub const ROUTED: &[&str] = &[
     "thread.open",
     "tool.toggle",
     "answer.copy",
-    "review.toggle",
-    "settings.toggle",
-    "palette.toggle",
+    // Screen actions route through their own screens::* resolvers (the
+    // one-owner rule, #29d3), and the #28e chrome toggles are UI-local —
+    // neither widens this conversation ROUTED contract (pinned at 8).
 ];
 
 /// Whether `id` is a routed action id.

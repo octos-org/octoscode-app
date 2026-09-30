@@ -3,59 +3,98 @@
 # profile: ui/l0
 # Static design fixture, runtime native Kit composition.
 theme light
-copy t01_text { class: user-copy, en: "OctosCode" }
-copy t02_text { class: user-copy, en: "Loops" }
-copy t03_text { class: user-copy, en: "Run Cl smoke" }
-copy t04_text { class: user-copy, en: "every 15 min" }
-copy t05_text { class: user-copy, en: "Sync main" }
-copy t06_text { class: user-copy, en: "every 30 min" }
-copy t07_text { class: user-copy, en: "Nightly review" }
-copy t08_text { class: user-copy, en: "every day • 01:00" }
-copy t09_text { class: user-copy, en: "•" }
-copy t10_text { class: user-copy, en: "+ New loop" }
+copy t_title_text { class: user-copy, en: "Loops" }
+copy new_loop_label_text { class: user-copy, en: "+ New loop" }
+copy loop_1_name_text { class: user-copy, en: "Run CI smoke" }
+copy loop_1_cad_text { class: user-copy, en: "every 15 min" }
+copy loop_2_name_text { class: user-copy, en: "Sync main" }
+copy loop_2_cad_text { class: user-copy, en: "every 30 min" }
+copy loop_3_name_text { class: user-copy, en: "Nightly review" }
+copy loop_3_cad_text { class: user-copy, en: "every day · 01:00" }
+state new_loop_control_enabled { shape: bool, initial: true }
 component Surface16fae9a63e16(instance: text) {
   view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
 }
-component Texte12ba50eced4(instance: text, text: text) {
-  view Kit(component: "Texte12ba50eced4", instance: instance, text: text)
+component Surfaceb4206391250d(instance: text) {
+  view Kit(component: "Surfaceb4206391250d", instance: instance) { slot }
 }
-component Text1d89604ff58c(instance: text, text: text) {
-  view Kit(component: "Text1d89604ff58c", instance: instance, text: text)
+component Textea62f42f8d83(instance: text, text: text) {
+  view Kit(component: "Textea62f42f8d83", instance: instance, text: text)
 }
-component Texte6d942019b8a(instance: text, text: text) {
-  view Kit(component: "Texte6d942019b8a", instance: instance, text: text)
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
 }
-component Text06abea0238a5(instance: text, text: text) {
-  view Kit(component: "Text06abea0238a5", instance: instance, text: text)
+component Surfacecbeea5da301d(instance: text) {
+  view Kit(component: "Surfacecbeea5da301d", instance: instance) { slot }
 }
-component Text125236df264e(instance: text, text: text) {
-  view Kit(component: "Text125236df264e", instance: instance, text: text)
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
 }
-component Textf6e47a638035(instance: text, text: text) {
-  view Kit(component: "Textf6e47a638035", instance: instance, text: text)
+component Textcab5ef52407e(instance: text, text: text) {
+  view Kit(component: "Textcab5ef52407e", instance: instance, text: text)
 }
-component Text37ea71680808(instance: text, text: text) {
-  view Kit(component: "Text37ea71680808", instance: instance, text: text)
+component Surface07eaedee1d73(instance: text) {
+  view Kit(component: "Surface07eaedee1d73", instance: instance) { slot }
 }
-component Text25cd6f758ee4(instance: text, text: text) {
-  view Kit(component: "Text25cd6f758ee4", instance: instance, text: text)
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
-component Textad212f4a0386(instance: text, text: text) {
-  view Kit(component: "Textad212f4a0386", instance: instance, text: text)
+component Text66972c636d1b(instance: text, text: text) {
+  view Kit(component: "Text66972c636d1b", instance: instance, text: text)
 }
-component Text9d6c531836f1(instance: text, text: text) {
-  view Kit(component: "Text9d6c531836f1", instance: instance, text: text)
+component Text1e2398e7ce1f(instance: text, text: text) {
+  view Kit(component: "Text1e2398e7ce1f", instance: instance, text: text)
+}
+component Surfacec4c38149242a(instance: text) {
+  view Kit(component: "Surfacec4c38149242a", instance: instance) { slot }
+}
+component Text053d5f9aad22(instance: text, text: text) {
+  view Kit(component: "Text053d5f9aad22", instance: instance, text: text)
+}
+component Text90fc976c9375(instance: text, text: text) {
+  view Kit(component: "Text90fc976c9375", instance: instance, text: text)
+}
+component Text4b1254e58635(instance: text, text: text) {
+  view Kit(component: "Text4b1254e58635", instance: instance, text: text)
+}
+component Text14ced133f86f(instance: text, text: text) {
+  view Kit(component: "Text14ced133f86f", instance: instance, text: text)
 }
 
 view root Surface16fae9a63e16(instance: "page") {
-  Texte12ba50eced4(instance: "t01", text: copy.t01_text)
-  Text1d89604ff58c(instance: "t02", text: copy.t02_text)
-  Texte6d942019b8a(instance: "t03", text: copy.t03_text)
-  Text06abea0238a5(instance: "t04", text: copy.t04_text)
-  Text125236df264e(instance: "t05", text: copy.t05_text)
-  Textf6e47a638035(instance: "t06", text: copy.t06_text)
-  Text37ea71680808(instance: "t07", text: copy.t07_text)
-  Text25cd6f758ee4(instance: "t08", text: copy.t08_text)
-  Textad212f4a0386(instance: "t09", text: copy.t09_text)
-  Text9d6c531836f1(instance: "t10", text: copy.t10_text)
+  Surfaceb4206391250d(instance: "loops_screen") {
+    Textea62f42f8d83(instance: "t_title", text: copy.t_title_text)
+    KitButton2c6804b990a5(instance: "new_loop") {
+      Surfacecbeea5da301d(instance: "new_loop_surface") {
+
+      }
+      NativeButton02f1d1bd99b4(instance: "new_loop_control", enabled: new_loop_control_enabled)
+      Textcab5ef52407e(instance: "new_loop_label", text: copy.new_loop_label_text)
+    }
+    Surface07eaedee1d73(instance: "loops_card") {
+      Vectore0a378fde04f(instance: "loop_1_dot")
+      Text66972c636d1b(instance: "loop_1_name", text: copy.loop_1_name_text)
+      Text1e2398e7ce1f(instance: "loop_1_cad", text: copy.loop_1_cad_text)
+      Vectore0a378fde04f(instance: "loop_1_pause")
+      Vectore0a378fde04f(instance: "loop_1_play")
+      Vectore0a378fde04f(instance: "loop_1_trash")
+      Surfacec4c38149242a(instance: "loop_2_divider") {
+
+      }
+      Vectore0a378fde04f(instance: "loop_2_dot")
+      Text053d5f9aad22(instance: "loop_2_name", text: copy.loop_2_name_text)
+      Text90fc976c9375(instance: "loop_2_cad", text: copy.loop_2_cad_text)
+      Vectore0a378fde04f(instance: "loop_2_pause")
+      Vectore0a378fde04f(instance: "loop_2_play")
+      Vectore0a378fde04f(instance: "loop_2_trash")
+      Surfacec4c38149242a(instance: "loop_3_divider") {
+
+      }
+      Vectore0a378fde04f(instance: "loop_3_dot")
+      Text4b1254e58635(instance: "loop_3_name", text: copy.loop_3_name_text)
+      Text14ced133f86f(instance: "loop_3_cad", text: copy.loop_3_cad_text)
+      Vectore0a378fde04f(instance: "loop_3_play")
+      Vectore0a378fde04f(instance: "loop_3_trash")
+    }
+  }
 }

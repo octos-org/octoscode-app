@@ -11,94 +11,249 @@
           "h": 776
         }
       },
-      "t01": {
-        "component": "Texte12ba50eced4",
+      "loops_screen": {
+        "component": "Surfaceb4206391250d",
         "layout": {
-          "x": 6.02,
-          "y": 36.09,
-          "w": 97.96,
-          "h": 23.49
+          "x": 1.0,
+          "y": 1.0,
+          "w": 405.0,
+          "h": 775.0
         }
       },
-      "t02": {
-        "component": "Text1d89604ff58c",
+      "t_title": {
+        "component": "Textea62f42f8d83",
         "layout": {
-          "x": 5.17,
-          "y": 114.93,
-          "w": 60.89,
-          "h": 32.35
+          "x": 22.67,
+          "y": 87.93,
+          "w": 56.75,
+          "h": 28.81
         }
       },
-      "t03": {
-        "component": "Texte6d942019b8a",
+      "new_loop": {
+        "component": "KitButton2c6804b990a5",
         "layout": {
-          "x": 13.21,
-          "y": 209.72,
-          "w": 110.89,
-          "h": 23.49
+          "x": 272.091,
+          "y": 84.233,
+          "w": 119.475,
+          "h": 39.209
         }
       },
-      "t04": {
-        "component": "Text06abea0238a5",
+      "new_loop_surface": {
+        "component": "Surfacecbeea5da301d",
         "layout": {
-          "x": 13.92,
-          "y": 258.44,
-          "w": 89.34,
-          "h": 26.15
+          "x": 272.091,
+          "y": 84.233,
+          "w": 119.475,
+          "h": 39.209
         }
       },
-      "t05": {
-        "component": "Text125236df264e",
+      "new_loop_control": {
+        "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 87.41,
-          "y": 348.79,
-          "w": 12.18,
-          "h": 29.69
+          "x": 272.091,
+          "y": 84.233,
+          "w": 119.475,
+          "h": 39.209
         }
       },
-      "t06": {
-        "component": "Textf6e47a638035",
+      "new_loop_label": {
+        "component": "Textcab5ef52407e",
         "layout": {
-          "x": 13.94,
-          "y": 398.4,
-          "w": 91.06,
-          "h": 25.26
+          "x": 287.89,
+          "y": 90.25,
+          "w": 89.52,
+          "h": 25.71
         }
       },
-      "t07": {
-        "component": "Text37ea71680808",
+      "loops_card": {
+        "component": "Surface07eaedee1d73",
         "layout": {
-          "x": 13.17,
-          "y": 489.64,
-          "w": 118.65,
-          "h": 29.69
+          "x": 10.0,
+          "y": 141.0,
+          "w": 386.0,
+          "h": 370.0
         }
       },
-      "t08": {
-        "component": "Text25cd6f758ee4",
+      "loop_1_dot": {
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 13.95,
-          "y": 538.37,
-          "w": 120.37,
-          "h": 26.15
+          "x": 208.0,
+          "y": 195.6,
+          "w": 24.0,
+          "h": 24.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_1_dot-47612be73ffb.svg"
         }
       },
-      "t09": {
-        "component": "Textad212f4a0386",
+      "loop_1_name": {
+        "component": "Text66972c636d1b",
         "layout": {
-          "x": 204.77,
-          "y": 236.29,
-          "w": 13.48,
-          "h": 20.4
+          "x": 23.85,
+          "y": 170.5,
+          "w": 110.55,
+          "h": 22.5
         }
       },
-      "t10": {
-        "component": "Text9d6c531836f1",
+      "loop_1_cad": {
+        "component": "Text1e2398e7ce1f",
         "layout": {
-          "x": 291.46,
-          "y": 117.59,
-          "w": 96.23,
-          "h": 28.8
+          "x": 28.75,
+          "y": 216.1,
+          "w": 83.16,
+          "h": 21.83
+        }
+      },
+      "loop_1_pause": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 253.65,
+          "y": 188.1,
+          "w": 30.0,
+          "h": 30.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_1_pause-5880d2f68cc6.svg"
+        }
+      },
+      "loop_1_play": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 303.3,
+          "y": 188.6,
+          "w": 29.0,
+          "h": 29.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_1_play-7d9f31b010d1.svg"
+        }
+      },
+      "loop_1_trash": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 337.2,
+          "y": 181.1,
+          "w": 44.0,
+          "h": 44.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_1_trash-931b99768271.svg"
+        }
+      },
+      "loop_2_divider": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 18.257,
+          "y": 279.353,
+          "w": 369.487,
+          "h": 1.056
+        }
+      },
+      "loop_2_dot": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 208.0,
+          "y": 317.85,
+          "w": 24.0,
+          "h": 24.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_2_dot-47612be73ffb.svg"
+        }
+      },
+      "loop_2_name": {
+        "component": "Text053d5f9aad22",
+        "layout": {
+          "x": 22.38,
+          "y": 292.75,
+          "w": 87.91,
+          "h": 23.23
+        }
+      },
+      "loop_2_cad": {
+        "component": "Text90fc976c9375",
+        "layout": {
+          "x": 22.38,
+          "y": 338.35,
+          "w": 94.31,
+          "h": 23.23
+        }
+      },
+      "loop_2_pause": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 253.65,
+          "y": 310.35,
+          "w": 30.0,
+          "h": 30.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_2_pause-5880d2f68cc6.svg"
+        }
+      },
+      "loop_2_play": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 303.3,
+          "y": 310.85,
+          "w": 29.0,
+          "h": 29.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_2_play-7d9f31b010d1.svg"
+        }
+      },
+      "loop_2_trash": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 337.2,
+          "y": 303.35,
+          "w": 44.0,
+          "h": 44.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_2_trash-931b99768271.svg"
+        }
+      },
+      "loop_3_divider": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 18.257,
+          "y": 408.299,
+          "w": 369.487,
+          "h": 1.056
+        }
+      },
+      "loop_3_dot": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 208.0,
+          "y": 440.1,
+          "w": 24.0,
+          "h": 24.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_3_dot-e51db8e14b1f.svg"
+        }
+      },
+      "loop_3_name": {
+        "component": "Text4b1254e58635",
+        "layout": {
+          "x": 22.33,
+          "y": 415.0,
+          "w": 118.38,
+          "h": 25.23
+        }
+      },
+      "loop_3_cad": {
+        "component": "Text14ced133f86f",
+        "layout": {
+          "x": 22.38,
+          "y": 460.6,
+          "w": 118.28,
+          "h": 21.68
+        }
+      },
+      "loop_3_play": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 303.3,
+          "y": 433.1,
+          "w": 29.0,
+          "h": 29.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_3_play-7d9f31b010d1.svg"
+        }
+      },
+      "loop_3_trash": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 337.2,
+          "y": 425.6,
+          "w": 44.0,
+          "h": 44.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_3_trash-931b99768271.svg"
         }
       }
     },

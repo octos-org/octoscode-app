@@ -1,25 +1,61 @@
 {
   "schema_version": 1,
-  "reference_sha256": "44de6bf87710ca45ff8793c08c1b1cb45d65b4f77fc6ed6ae9c959a32154a140",
+  "reference_sha256": "f1d385b756812379d4d1537b2668f37824e3cca12123b02399a555ab3c102add",
   "method": "automatic proposals; unreviewed source-image measurements",
   "candidate_rectangles": [
     [
-      5.0,
-      165.0,
-      391.0,
-      74.0
+      1.0,
+      699.0,
+      400.0,
+      60.0
     ],
     [
-      194.0,
-      99.0,
-      101.0,
-      41.0
+      1.0,
+      392.0,
+      404.0,
+      383.0
     ],
     [
-      191.0,
-      97.0,
-      106.0,
-      45.0
+      11.0,
+      136.0,
+      382.0,
+      60.0
+    ],
+    [
+      8.0,
+      134.0,
+      388.0,
+      65.0
+    ],
+    [
+      195.0,
+      77.0,
+      100.0,
+      35.0
+    ],
+    [
+      192.0,
+      74.0,
+      105.0,
+      40.0
+    ],
+    [
+      1.0,
+      58.0,
+      403.0,
+      276.0
+    ],
+    [
+      2.0,
+      1.0,
+      403.0,
+      56.0
+    ],
+    [
+      0.0,
+      1.0,
+      406.0,
+      333.0
     ]
   ],
   "elements": [
@@ -34,6 +70,185 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4294901502
+    },
+    {
+      "id": "review_panel",
+      "bounds": [
+        14.0,
+        92.0,
+        378.0,
+        660.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.0
+    },
+    {
+      "id": "scope_pill",
+      "bounds": [
+        195.0,
+        77.0,
+        100.0,
+        35.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294769916,
+      "radius": 17.5
+    },
+    {
+      "id": "scope_chev",
+      "bounds": [
+        274.644,
+        87.186,
+        11.874,
+        16.298
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "file_1",
+      "bounds": [
+        11.0,
+        136.0,
+        382.0,
+        60.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294440952,
+      "radius": 14.71
+    },
+    {
+      "id": "file_1_icon",
+      "bounds": [
+        23.134,
+        149.242,
+        16.342,
+        26.484
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "file_2",
+      "bounds": [
+        16.0,
+        210.4,
+        374.0,
+        40.78
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "file_2_icon",
+      "bounds": [
+        26.18,
+        219.4,
+        16.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "file_3",
+      "bounds": [
+        16.0,
+        278.55,
+        374.0,
+        34.59
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "file_3_icon",
+      "bounds": [
+        53.47,
+        287.55,
+        16.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "diff_file_header",
+      "bounds": [
+        20.0,
+        351.35,
+        366.0,
+        37.68
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294440952,
+      "radius": 8.0
+    },
+    {
+      "id": "diff_file_icon",
+      "bounds": [
+        24.76,
+        360.35,
+        16.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "diff_rows",
+      "bounds": [
+        20.0,
+        403.56,
+        366.0,
+        299.68
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "chip_130",
+      "bounds": [
+        178.3,
+        480.48,
+        99.0,
+        32.96
+      ],
+      "method": "word chip behind the changed token only (ref x[209,325] /1.1722 logical); #28a2",
+      "reviewed": false,
+      "bg": 4294831340,
+      "radius": 6.0
+    },
+    {
+      "id": "chip_132",
+      "bounds": [
+        178.3,
+        550.4,
+        133.1,
+        32.96
+      ],
+      "method": "word chip behind the changed token only (ref x[209,365] /1.1722 logical); #28a2",
+      "reviewed": false,
+      "bg": 4293326058,
+      "radius": 6.0
+    },
+    {
+      "id": "folded",
+      "bounds": [
+        1.0,
+        699.0,
+        400.0,
+        60.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294506489,
+      "radius": 13.88
     }
   ]
 }

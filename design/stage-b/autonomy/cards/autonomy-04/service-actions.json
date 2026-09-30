@@ -1,5 +1,16 @@
 {
   "frame_id": 4,
-  "controls": {},
-  "source": "models"
+  "controls": {
+    "new_loop": {
+      "event": "loop.new",
+      "source_bounds": [
+        271,
+        83,
+        119,
+        39
+      ],
+      "enabled": true
+    }
+  },
+  "source": "design/stage-a/autonomy/atlas.png"
 }

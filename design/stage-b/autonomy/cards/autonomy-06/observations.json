@@ -1,95 +1,31 @@
 {
   "schema_version": 1,
-  "reference_sha256": "bb720882afd5996a282ce1926d60eb7bb86a13ee38d3c2a7f9788e32557a4933",
+  "reference_sha256": "e6870a9defd294295b03acbb4b23e729bf7cca8bafd2460a132e26f41e5e3802",
   "artboard": [
     406,
     776
   ],
   "opaque": true,
-  "aspect_error": 0.10185398541473356,
+  "aspect_error": 0.06610744492982601,
   "text": [
     {
-      "id": "t01",
-      "expected_text": "6. Fleet",
+      "id": "t_title",
+      "expected_text": "Fleet \u00b7 3 peers",
       "requested_bounds": [
-        1.28,
-        57.12,
-        82.91,
-        34.68
-      ],
-      "status": "observed",
-      "ocr_text": "6. Fleet",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        4.451754385964913,
-        59.843236409608096,
-        75.6798245614035,
-        24.525916561314794
-      ],
-      "ink_color": [
-        5,
-        5,
-        5
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        1.2796646747725382,
-        57.124018932112016,
-        82.91435338739764,
-        34.68125437726883
-      ]
-    },
-    {
-      "id": "t02",
-      "expected_text": "OctosCode",
-      "requested_bounds": [
-        21.32,
-        136.94,
-        105.15,
-        25.94
-      ],
-      "status": "observed",
-      "ocr_text": "OctosCode",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        24.039473684210527,
-        138.32616940581542,
-        97.93859649122807,
-        21.58280657395702
-      ],
-      "ink_color": [
-        7,
-        6,
-        7
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        21.322502123836646,
-        136.94038007662397,
-        105.15324268006442,
-        25.937421548246036
-      ]
-    },
-    {
-      "id": "t03",
-      "expected_text": "Fleet \u2022 3 peers",
-      "requested_bounds": [
-        26.63,
-        211.21,
-        153.3,
-        36.13
+        21.96,
+        95.99,
+        149.82,
+        31.48
       ],
       "status": "observed",
       "ocr_text": "Fleet \u2022 3 peers",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        30.271929824561404,
-        212.8849557522124,
-        146.01754385964912,
-        32.37420986093553
+        27.467230443974632,
+        97.00000000000001,
+        140.76955602536998,
+        30.198113207547173
       ],
       "ink_color": [
         6,
@@ -98,30 +34,30 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        26.630058814551173,
-        211.2083264542424,
-        153.30128679777448,
-        36.128804004553544
+        21.957842448884755,
+        95.99277302069693,
+        149.8174031575521,
+        31.47966557628705
       ]
     },
     {
-      "id": "t04",
+      "id": "fleet_goal_label",
       "expected_text": "Fix steer queue",
       "requested_bounds": [
-        28.53,
-        296.55,
-        117.83,
-        28.02
+        25.32,
+        176.5,
+        112.06,
+        25.17
       ],
       "status": "observed",
       "ocr_text": "Fix steer queue",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        32.94298245614035,
-        296.2730720606827,
-        109.51315789473685,
-        26.487989886219978
+        30.042283298097253,
+        174.78301886792454,
+        105.57716701902748,
+        24.707547169811324
       ],
       "ink_color": [
         89,
@@ -130,62 +66,62 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        28.52785663122835,
-        296.5481659900502,
-        117.83183047645969,
-        28.014388517899928
+        25.321866946367553,
+        176.50220595307945,
+        112.06097090193995,
+        25.168943828007002
       ]
     },
     {
-      "id": "t05",
+      "id": "peer_1_status",
       "expected_text": "Running",
       "requested_bounds": [
-        44.52,
-        397.8,
-        62.32,
-        29.4
+        40.96,
+        272.27,
+        58.54,
+        24.64
       ],
       "status": "observed",
       "ocr_text": "Running",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        46.29824561403509,
-        400.2629582806574,
-        56.98245614035088,
-        24.525916561314794
+        42.91754756871036,
+        271.78301886792457,
+        54.934460887949264,
+        22.87735849056604
       ],
       "ink_color": [
         45,
-        130,
-        64
+        129,
+        62
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        44.51754434934209,
-        397.7979800429293,
-        62.32456140350876,
-        29.39393939393937
+        40.96472343804304,
+        272.27475436727553,
+        58.5431280659221,
+        24.639170970556822
       ]
     },
     {
-      "id": "t06",
+      "id": "peer_1_name",
       "expected_text": "tests",
       "requested_bounds": [
-        151.36,
-        384.08,
-        48.08,
-        23.52
+        143.69,
+        255.71,
+        46.68,
+        23.0
       ],
       "status": "observed",
       "ocr_text": "tests",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        154.92105263157896,
-        385.54740834386854,
-        40.06578947368421,
-        19.620733249051835
+        147.63636363636365,
+        258.0566037735849,
+        38.625792811839325,
+        18.301886792452834
       ],
       "ink_color": [
         20,
@@ -194,30 +130,30 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        151.35964877938596,
-        384.08080816479077,
-        48.07894736842105,
-        23.515151515151583
+        143.6875574404951,
+        255.7089081632157,
+        46.67551726329175,
+        22.99727821350098
       ]
     },
     {
-      "id": "t07",
-      "expected_text": "18m \u2022 41k tokens",
+      "id": "peer_1_meta",
+      "expected_text": "18m \u00b7 41k tokens",
       "requested_bounds": [
-        151.36,
-        433.07,
-        121.09,
-        21.56
+        143.9,
+        301.98,
+        116.49,
+        20.13
       ],
       "status": "observed",
       "ocr_text": "18m \u2022 41k tokens",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        154.92105263157896,
-        431.65613147914036,
-        114.85526315789474,
-        18.639696586599243
+        147.63636363636365,
+        301.0660377358491,
+        110.72727272727273,
+        17.38679245283019
       ],
       "ink_color": [
         122,
@@ -226,30 +162,30 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        151.3596499877193,
-        433.0707070007215,
-        121.08771929824562,
-        21.555555555555568
+        143.89873320646979,
+        301.98113215172964,
+        116.4894514767933,
+        20.13207547169809
       ]
     },
     {
-      "id": "t08",
+      "id": "peer_1_steer",
       "expected_text": "Steer",
       "requested_bounds": [
-        340.11,
-        405.64,
-        46.3,
-        23.52
+        327.2,
+        274.53,
+        46.25,
+        23.79
       ],
       "status": "observed",
       "ocr_text": "Steer",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        344.5657894736842,
-        405.1681415929204,
-        40.06578947368421,
-        21.58280657395702
+        330.4651162790698,
+        276.35849056603774,
+        38.625792811839325,
+        20.132075471698116
       ],
       "ink_color": [
         47,
@@ -258,30 +194,30 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        340.11403450899127,
-        405.63636368535356,
-        46.298245614035096,
-        23.515151515151583
+        327.19831177375534,
+        274.52830194169815,
+        46.253164556962005,
+        23.792452830188697
       ]
     },
     {
-      "id": "t09",
+      "id": "peer_2_status",
       "expected_text": "Blocked",
       "requested_bounds": [
-        44.52,
-        536.93,
-        60.54,
-        25.47
+        41.11,
+        398.98,
+        58.24,
+        23.79
       ],
       "status": "observed",
       "ocr_text": "Blocked",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        46.29824561403509,
-        538.5891276864728,
-        55.20175438596491,
-        19.620733249051835
+        42.91754756871036,
+        400.81132075471703,
+        53.217758985200845,
+        18.301886792452834
       ],
       "ink_color": [
         177,
@@ -290,94 +226,94 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        44.517543584449776,
-        536.9292930094582,
-        60.543859649122794,
-        25.47474747474751
+        41.11392380794656,
+        398.98113215935535,
+        58.24472573839664,
+        23.792452830188697
       ]
     },
     {
-      "id": "t10",
+      "id": "peer_2_name",
       "expected_text": "docs",
       "requested_bounds": [
-        151.36,
-        521.25,
-        44.52,
-        23.52
+        145.61,
+        382.51,
+        42.83,
+        23.79
       ],
       "status": "observed",
       "ocr_text": "docs",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        154.92105263157896,
-        519.9494310998737,
-        38.28508771929825,
-        21.58280657395702
+        147.63636363636365,
+        383.4245283018868,
+        36.909090909090914,
+        20.132075471698116
       ],
       "ink_color": [
-        45,
-        45,
-        44
+        47,
+        48,
+        47
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        151.35964856633774,
-        521.2525253505049,
-        44.51754385964912,
-        23.515151515151583
+        145.61181406455697,
+        382.50943379231813,
+        42.827004219409304,
+        23.792452830188697
       ]
     },
     {
-      "id": "t11",
-      "expected_text": "7m \u2022 12k tokens",
+      "id": "peer_2_meta",
+      "expected_text": "7m \u00b7 12k tokens",
       "requested_bounds": [
-        151.33,
-        568.11,
-        110.46,
-        21.91
+        143.8,
+        427.62,
+        108.13,
+        21.41
       ],
       "status": "observed",
       "ocr_text": "7m \u2022 12k tokens",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        154.03070175438597,
-        568.0202275600506,
-        105.95175438596492,
-        18.639696586599243
+        146.77801268498942,
+        428.26415094339626,
+        102.14376321353066,
+        17.38679245283019
       ],
       "ink_color": [
         115,
-        115,
+        116,
         120
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        151.33165652712134,
-        568.1078051641273,
-        110.45949534366004,
-        21.90560260926835
+        143.7974247980206,
+        427.62449873358025,
+        108.12667119150925,
+        21.411379760166426
       ]
     },
     {
-      "id": "t12",
+      "id": "peer_2_steer",
       "expected_text": "Steer",
       "requested_bounds": [
-        340.11,
-        538.89,
-        48.08,
-        25.47
+        327.06,
+        400.52,
+        46.53,
+        26.2
       ],
       "status": "observed",
       "ocr_text": "Steer",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        345.4561403508772,
-        540.551201011378,
-        39.175438596491226,
-        21.58280657395702
+        331.323467230444,
+        402.6415094339623,
+        37.76744186046512,
+        20.132075471698116
       ],
       "ink_color": [
         39,
@@ -386,30 +322,30 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        340.11403460692986,
-        538.8888889868687,
-        48.07894736842107,
-        25.47474747474751
+        327.0604429893505,
+        400.52489847404615,
+        46.52890391289435,
+        26.195486572553556
       ]
     },
     {
-      "id": "t13",
+      "id": "peer_3_status",
       "expected_text": "Done",
       "requested_bounds": [
-        44.52,
-        674.1,
-        40.96,
-        23.52
+        40.84,
+        526.53,
+        39.94,
+        23.09
       ],
       "status": "observed",
       "ocr_text": "Done",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        46.29824561403509,
-        673.9721871049305,
-        37.39473684210527,
-        19.620733249051835
+        42.91754756871036,
+        527.0943396226415,
+        36.0507399577167,
+        18.301886792452834
       ],
       "ink_color": [
         31,
@@ -418,30 +354,30 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        44.517543485701765,
-        674.1010098658586,
-        40.9561403508772,
-        23.515151515151494
+        40.84269825093626,
+        526.5281783212491,
+        39.94329465391264,
+        23.094586228424692
       ]
     },
     {
-      "id": "t14",
+      "id": "peer_3_name",
       "expected_text": "review",
       "requested_bounds": [
-        151.36,
-        656.46,
-        56.98,
-        23.52
+        145.56,
+        510.48,
+        54.93,
+        24.08
       ],
       "status": "observed",
       "ocr_text": "review",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        155.81140350877195,
-        657.2945638432365,
-        49.85964912280702,
-        20.601769911504427
+        148.49471458773786,
+        511.5377358490567,
+        48.0676532769556,
+        19.216981132075475
       ],
       "ink_color": [
         24,
@@ -450,30 +386,30 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        151.35964907828944,
-        656.464646170707,
-        56.982456140350855,
-        23.515151515151583
+        145.55754205035552,
+        510.4791892084796,
+        54.927109794777664,
+        24.079357093235185
       ]
     },
     {
-      "id": "t15",
-      "expected_text": "24m \u2022 28k tokens",
+      "id": "peer_3_meta",
+      "expected_text": "24m \u00b7 28k tokens",
       "requested_bounds": [
-        151.36,
-        703.49,
-        133.55,
-        23.52
+        143.9,
+        556.38,
+        128.48,
+        20.13
       ],
       "status": "observed",
       "ocr_text": "24m \u2022 28k tokens",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        154.92105263157896,
-        704.3843236409608,
-        127.3201754385965,
-        19.620733249051835
+        147.63636363636365,
+        555.4622641509435,
+        122.74418604651163,
+        18.301886792452834
       ],
       "ink_color": [
         98,
@@ -482,30 +418,30 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        151.35964878892543,
-        703.4949492010101,
-        133.55263157894737,
-        23.515151515151494
+        143.89873257120257,
+        556.3773585591981,
+        128.48101265822785,
+        20.13207547169809
       ]
     },
     {
-      "id": "t16",
+      "id": "peer_3_steer",
       "expected_text": "Steer",
       "requested_bounds": [
-        341.8,
-        675.85,
-        44.7,
-        23.94
+        327.2,
+        528.92,
+        44.54,
+        21.96
       ],
       "status": "observed",
       "ocr_text": "Steer",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        344.5657894736842,
-        675.9342604298357,
-        40.06578947368421,
-        20.601769911504427
+        330.4651162790698,
+        528.9245283018869,
+        38.625792811839325,
+        19.216981132075475
       ],
       "ink_color": [
         37,
@@ -514,10 +450,10 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        341.8019700369922,
-        675.846417985782,
-        44.70307664703906,
-        23.94352720241354
+        327.1983116795359,
+        528.9245283476415,
+        44.540084388185655,
+        21.96226415094339
       ]
     }
   ],
@@ -533,9 +469,161 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4294901502
+    },
+    {
+      "id": "fleet_screen",
+      "bounds": [
+        0.0,
+        1.0,
+        406.0,
+        775.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "fleet_goal",
+      "bounds": [
+        16.0,
+        165.288,
+        374.0,
+        49.107
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "fleet_card",
+      "bounds": [
+        11.0,
+        217.0,
+        383.0,
+        389.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 12.9
+    },
+    {
+      "id": "peer_1",
+      "bounds": [
+        11.0,
+        227.92,
+        383.0,
+        89.366
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "peer_1_badge",
+      "bounds": [
+        28.0,
+        255.0,
+        86.0,
+        52.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293326570,
+      "radius": 26.0
+    },
+    {
+      "id": "peer_divider_1",
+      "bounds": [
+        19.193,
+        357.546,
+        366.615,
+        1.092
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "peer_2",
+      "bounds": [
+        11.0,
+        366.282,
+        383.0,
+        89.606
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "peer_2_attn",
+      "bounds": [
+        12.137,
+        384.845,
+        14.337,
+        15.287
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "peer_2_badge",
+      "bounds": [
+        28.0,
+        384.0,
+        85.0,
+        52.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294899428,
+      "radius": 26.0
+    },
+    {
+      "id": "peer_divider_2",
+      "bounds": [
+        19.193,
+        496.826,
+        366.615,
+        1.092
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "peer_3",
+      "bounds": [
+        11.0,
+        505.561,
+        383.0,
+        89.519
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "peer_3_badge",
+      "bounds": [
+        28.0,
+        510.0,
+        69.0,
+        52.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293326569,
+      "radius": 26.0
     }
   ],
-  "unmapped_ocr": [],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        21.904735030794686,
+        27.79223929174539,
+        117.84875631533595,
+        28.415521621704137
+      ],
+      "confidence": 1,
+      "text": "OctosCode"
+    }
+  ],
   "non_text_ocr": [],
   "limits": [
     "OCR cannot prove font family, hierarchy or control behavior.",
