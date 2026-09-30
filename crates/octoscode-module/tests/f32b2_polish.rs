@@ -55,6 +55,28 @@ fn aside_user_bubble_hugs_its_content() {
         "the bubble surface must hug its content (was the authored 90)"
     );
     assert!(!aside.contains("height: 90"), "no fixed 90 may remain");
+    // Review v3: symmetric padding AND the label must join the flow — an
+    // abs_pos child ignored the Down flow and the Fit surface collapsed
+    // (the after2 capture: a thin bar, text below it).
+    assert!(
+        aside.contains(
+            "flow: Down padding: Inset{left: 14.93 top: 12 right: 14.93 bottom: 12} clip_x: false clip_y: false"
+        ),
+        "the bubble pads symmetrically (14.93 = the authored label inset)"
+    );
+    assert!(
+        !aside.contains("vec2(129.93, 167.4)"),
+        "the label's abs seat must go — it ignores the Down flow"
+    );
+    assert!(
+        aside.contains("t_q1 := Label {\nwidth: Fill height: Fit"),
+        "the label fills the padded box so a long question wraps"
+    );
+    assert!(
+        aside.contains("t_q1 := Label {\nwidth: Fill height: Fit\n\nflow: Right{wrap: true}")
+            || aside.contains("flow: Right{wrap: true}"),
+        "the run wraps instead of hard-clipping"
+    );
 }
 
 /// Item 3: the "68%" label centres in the progress ring's hole (the authored
@@ -65,14 +87,17 @@ fn attachments_pct_label_centres_in_the_ring() {
     store.domains.session.set_active(Some("dsflash:main".into()));
     octoscode_module::screens::sessions::seed_attachments(vec![("a.png", 1024), ("b.png", 2048)]);
     let att = octoscode_module::screens::sessions::lower_screen("attachments", &store).unwrap();
+    // Review v2: the ~21px run fits the ~34px hole once the TEXT centres in
+    // its box (authored align x:0 seated the run on the ink arc). Box centred
+    // on the ring centre, run centred in the box.
     assert!(
         att.contains(
             "att2_pct := Label {\nwidth: 40.2 height: 24.76\nabs_pos: vec2(292.9, 263.12)"
         ),
-        "the 68% label must centre in the ring hole"
+        "the label box centres on the ring centre"
     );
     assert!(
-        !att.contains("vec2(275.04, 294.73)"),
-        "the authored overlapping position must be gone"
+        !att.contains("vec2(275.04, 294.73)") && !att.contains("vec2(292.9, 295)"),
+        "neither the authored nor the below-ring position may remain"
     );
 }
