@@ -6,12 +6,17 @@
     "goal.objective",
     "goal.status",
     "goal.budget",
+    "goal.fill",
     "goal.elapsed",
     "goal.can_transition",
     "goal.available",
     "loops",
+    "loops.count",
+    "loops.empty",
     "loops.available",
     "monitors",
+    "monitors.count",
+    "monitors.empty",
     "monitors.available",
     "monitors.footer"
   ],
@@ -43,13 +48,37 @@
     {
       "card": "autonomy-04",
       "injected": 6,
-      "png": "30b-live-loops.png",
+      "png": "30b-live-loops-0.png",
+      "rendered": true
+    },
+    {
+      "card": "autonomy-04",
+      "injected": 6,
+      "png": "30b-live-loops-1.png",
+      "rendered": true
+    },
+    {
+      "card": "autonomy-04",
+      "injected": 6,
+      "png": "30b-live-loops-3.png",
       "rendered": true
     },
     {
       "card": "autonomy-05",
       "injected": 7,
-      "png": "30b-live-monitors.png",
+      "png": "30b-live-monitors-0.png",
+      "rendered": true
+    },
+    {
+      "card": "autonomy-05",
+      "injected": 7,
+      "png": "30b-live-monitors-1.png",
+      "rendered": true
+    },
+    {
+      "card": "autonomy-05",
+      "injected": 10,
+      "png": "30b-live-monitors-3.png",
       "rendered": true
     }
   ]

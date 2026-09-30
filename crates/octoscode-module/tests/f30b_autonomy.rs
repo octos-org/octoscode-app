@@ -308,6 +308,11 @@ async fn goal_refresh_projects_the_recorded_goal() {
         serde_json::json!("0 / 100M"),
         "model.ts:126/129-136 formatTokens; the ' tokens' suffix is dropped (the card's label names the unit) to fit the measured slot"
     );
+    assert_eq!(
+        au::query(&c, "goal.fill").unwrap(),
+        serde_json::json!(0.0),
+        "#30b2: the bar's fill is bound to used/budget (0 of the recorded 100M)"
+    );
     assert_eq!(au::query(&c, "goal.can_transition").unwrap(), serde_json::json!(true));
     assert_eq!(au::query(&c, "goal.elapsed").unwrap(), serde_json::json!("0s"));
 }
@@ -406,7 +411,9 @@ async fn loop_rows_route_with_the_recorded_ids() {
     let loops = au::query(&c, "loops").unwrap();
     let row = &loops.as_array().unwrap()[0];
     assert_eq!(row["id"], serde_json::json!("loop_01"));
-    assert_eq!(row["cadence"], serde_json::json!("every 3600s"));
+    assert_eq!(row["cadence"], serde_json::json!("hourly"), "the web interval ladder (model.ts:138-146)");
+    assert_eq!(au::query(&c, "loops.count").unwrap(), serde_json::json!(1));
+    assert_eq!(au::query(&c, "loops.empty").unwrap(), serde_json::json!(""));
     assert_eq!(row["name"], serde_json::json!("r1 replay probe"));
 
     au::apply(au::resolve("loop.pause", 0, None, &c), &conv)
@@ -525,4 +532,91 @@ async fn every_declared_id_is_live() {
     for (id, _) in au::BINDINGS {
         assert!(au::query(&c, id).is_some(), "binding {id} resolves None");
     }
+}
+
+/// #30b2 — rows follow the data: 0 items show the empty line, 1 shows one
+/// row, 3 show three; the footer pluralizes; the command is ellipsized and
+/// the interval uses the web's ladder (model.ts:138-146).
+#[test]
+fn row_counts_follow_the_data_and_strings_use_the_web_formats() {
+    let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+    au::reset_state();
+    let store = Arc::new(Store::new());
+    let ui = Mutex::new(FlowUi::default());
+    let c = ctx(&store, &ui);
+    let monitor = |name: &str, argv: &str| {
+        serde_json::json!({
+            "monitor_id": format!("mon_{name}"), "name": name,
+            "argv": [argv], "status": "active", "interval_seconds": 3600,
+        })
+    };
+
+    // 0 items: the atlas empty-state line, no rows.
+    au::update_state(|st| st.monitors.clear());
+    assert_eq!(au::query(&c, "monitors.count").unwrap(), serde_json::json!(0));
+    assert_eq!(
+        au::query(&c, "monitors.empty").unwrap(),
+        serde_json::json!("No monitors in this session."),
+        "AutonomyPanel.tsx:338"
+    );
+
+    // 1 item: exactly one row, pluralized footer, web interval, ellipsized cmd.
+    au::update_state(|st| st.monitors = vec![monitor("a", "./scripts/watch.sh")]);
+    let rows = au::query(&c, "monitors").unwrap().as_array().unwrap().clone();
+    assert_eq!(rows.len(), 1, "exactly the store's items");
+    assert_eq!(
+        au::query(&c, "monitors.footer").unwrap(),
+        serde_json::json!("1 monitor · 1 active")
+    );
+    assert_eq!(
+        rows[0]["interval"],
+        serde_json::json!("1h"),
+        "the compact ladder the entry names (model.ts:138-146 steps)"
+    );
+    assert_eq!(
+        rows[0]["cmd"],
+        serde_json::json!("./scripts/wa…"),
+        "ellipsized to the narrow slot, never mid-word clipped"
+    );
+
+    // 3 items: three rows, plural footer.
+    let three: Vec<serde_json::Value> =
+        (0..3).map(|k| monitor(&format!("m{k}"), "echo")).collect();
+    au::update_state(|st| st.monitors = three);
+    assert_eq!(au::query(&c, "monitors.count").unwrap(), serde_json::json!(3));
+    assert_eq!(
+        au::query(&c, "monitors.footer").unwrap(),
+        serde_json::json!("3 monitors · 3 active")
+    );
+
+    // Loops: the same count contract.
+    au::update_state(|st| st.loops.clear());
+    assert_eq!(
+        au::query(&c, "loops.empty").unwrap(),
+        serde_json::json!("No loops in this session."),
+        "AutonomyPanel.tsx:238"
+    );
+}
+
+/// #30b2 — the budget bar's fill is the used/budget binding (the design's
+/// static ~40% fill was the bug).
+#[test]
+fn budget_fill_binds_used_over_budget() {
+    let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+    au::reset_state();
+    let store = Arc::new(Store::new());
+    let ui = Mutex::new(FlowUi::default());
+    let c = ctx(&store, &ui);
+    au::update_state(|st| {
+        st.goal = Some(serde_json::json!({
+            "tokens_used": 40000000u64, "token_budget": 100000000u64,
+            "status": "active", "time_used_seconds": 2400u64,
+        }))
+    });
+    assert_eq!(au::query(&c, "goal.fill").unwrap(), serde_json::json!(0.4));
+    assert_eq!(
+        au::query(&c, "goal.elapsed").unwrap(),
+        serde_json::json!("40m"),
+        "atlas-granular elapsed"
+    );
 }

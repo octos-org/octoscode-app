@@ -46,15 +46,20 @@ use crate::flow::{Conversation, Direction};
 pub const BINDINGS: &[(&str, &str)] = &[
     ("goal.objective", "text: the active goal's objective (t_goal); null when none"),
     ("goal.status", "text: active | paused | complete"),
-    ("goal.budget", "text: 'used / budget tokens' (model.ts:126); null without a goal"),
-    ("goal.elapsed", "text: the goal's time_used_seconds, '0s'-style"),
+    ("goal.budget", "text: 'used / budget' with formatTokens (model.ts:126,129-136); null without a goal"),
+    ("goal.fill", "number: tokens_used/token_budget (0..1) — the budget bar's fill; null without a goal"),
+    ("goal.elapsed", "text: time_used_seconds at the atlas granularity ('0s'/'18m'/'1h 30m'; the web has no elapsed formatter — implemented per entry #30b2)"),
     ("goal.can_transition", "bool: status is active|paused (goalCanTransition — pause/resume/stop enabled)"),
     ("goal.available", "bool: the session advertised session/goal/get (fail closed)"),
-    ("loops", "list: [{id,name,cadence,status}] from loop/list"),
+    ("loops", "list: [{id,name,cadence,status}] — EXACTLY the store's items; rows instantiate per item (the #17 pattern)"),
+    ("loops.count", "int: the loop count (the mounted row count follows it)"),
+    ("loops.empty", "text: 'No loops in this session.' when 0 (AutonomyPanel.tsx:238), else ''"),
     ("loops.available", "bool: the session advertised loop/list"),
-    ("monitors", "list: [{id,name,cmd,status,interval}] from monitor/list"),
+    ("monitors", "list: [{id,name,cmd,status,interval}] — exactly the store's items; cmd ellipsized, never mid-word clipped"),
+    ("monitors.count", "int: the monitor count"),
+    ("monitors.empty", "text: 'No monitors in this session.' when 0 (AutonomyPanel.tsx:338), else ''"),
     ("monitors.available", "bool: the session advertised monitor/list"),
-    ("monitors.footer", "text: 'N monitors · M active' summary line"),
+    ("monitors.footer", "text: the pluralized count line ('1 monitor · N active')"),
 ];
 
 /// The autonomy action ids. Owned ONLY by this table (one-owner rule).
@@ -128,6 +133,13 @@ fn state() -> MutexGuard<'static, AutonomyState> {
 /// legitimately start from an empty slate).
 pub fn reset_state() {
     *state() = AutonomyState::default();
+}
+
+/// Fold into the screen cache — the production entry for the
+/// `loop/updated`/`monitor/updated` notifications, and the test seam for
+/// seeding 0/1/3-item stores.
+pub fn update_state(f: impl FnOnce(&mut AutonomyState)) {
+    f(&mut state());
 }
 
 fn advertised(store: &Store, method: &str) -> bool {
@@ -480,11 +492,68 @@ fn format_tokens(value: u64) -> String {
     }
 }
 
-fn cadence(loop_row: &Value) -> String {    match loop_row["mode"].as_str() {
-        Some("fixed_interval") => format!("every {}s", loop_row["interval_seconds"].as_u64().unwrap_or(0)),
-        Some(other) => other.to_owned(),
-        None => "unknown".to_owned(),
+/// The web's interval ladder (model.ts:138-146): "every Ns"/"every Nm"/
+/// "hourly"/"every Nh"/"every minute"/"self-paced".
+fn format_interval(seconds: Option<u64>) -> String {
+    let Some(seconds) = seconds else {
+        return "self-paced".to_owned();
+    };
+    if seconds % 60 == 0 {
+        let minutes = seconds / 60;
+        if minutes % 60 == 0 {
+            let hours = minutes / 60;
+            return if hours == 1 { "hourly".to_owned() } else { format!("every {hours}h") };
+        }
+        return if minutes == 1 { "every minute".to_owned() } else { format!("every {minutes}m") };
     }
+    format!("every {seconds}s")
+}
+
+fn cadence(loop_row: &Value) -> String {
+    format_interval(loop_row["interval_seconds"].as_u64())
+}
+
+/// The compact ladder for the monitor row's narrow slot: "1h"/"30m"/"30s".
+fn interval_short(seconds: Option<u64>) -> String {
+    let Some(seconds) = seconds else {
+        return "self-paced".to_owned();
+    };
+    if seconds % 3600 == 0 {
+        format!("{}h", seconds / 3600)
+    } else if seconds % 60 == 0 {
+        format!("{}m", seconds / 60)
+    } else {
+        format!("{seconds}s")
+    }
+}
+
+/// Atlas-granular elapsed ('0s'/'18m'/'1h 30m'); the web renders no elapsed
+/// formatter, so this is implemented per entry #30b2 (no cite).
+fn elapsed_atlas(seconds: u64) -> String {
+    if seconds < 60 {
+        return format!("{seconds}s");
+    }
+    let minutes = seconds / 60;
+    if minutes < 60 {
+        return format!("{minutes}m");
+    }
+    let hours = minutes / 60;
+    let rest = minutes % 60;
+    if rest == 0 {
+        format!("{hours}h")
+    } else {
+        format!("{hours}h {rest}m")
+    }
+}
+
+/// Ellipsize past `max` chars to `max-1` + '…' (a display string, so the
+/// card's measured slot keeps the text off its edge).
+fn ellipsize(text: String, max: usize) -> String {
+    if text.chars().count() <= max {
+        return text;
+    }
+    let head: String = text.chars().take(max - 1).collect();
+    format!("{head}…")
 }
 
 /// Resolve an autonomy binding id. `None` when undeclared. Always JSON.
@@ -503,8 +572,15 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
             let budget = g["token_budget"].as_u64().filter(|b| *b > 0)?;
             Some(format!("{} / {}", format_tokens(used), format_tokens(budget)))
         })),
+        // The card shows used vs budget on a bar: the FILL is the binding.
+        "goal.fill" => json!(st.goal.as_ref().and_then(|g| {
+            let budget = g["token_budget"].as_u64().filter(|b| *b > 0)?;
+            Some(g["tokens_used"].as_u64().unwrap_or(0) as f64 / budget as f64)
+        })),
+        // Atlas granularity ('0s'/'18m'/'1h 30m'); the web renders no elapsed
+        // formatter, so this is implemented per entry #30b2 (no cite).
         "goal.elapsed" => json!(st.goal.as_ref().map(|g| {
-            format!("{}s", g["time_used_seconds"].as_u64().unwrap_or(0))
+            elapsed_atlas(g["time_used_seconds"].as_u64().unwrap_or(0))
         })),
         "goal.can_transition" => json!(st
             .goal
@@ -522,6 +598,8 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
                 "status": l["status"],
             }))
             .collect::<Vec<Value>>()),
+        "loops.count" => json!(st.loops.len()),
+        "loops.empty" => json!(if st.loops.is_empty() { "No loops in this session." } else { "" }),
         "loops.available" => json!(advertised(store, "loop/list")),
         "monitors" => json!(st
             .monitors
@@ -529,11 +607,21 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
             .map(|m| json!({
                 "id": m["monitor_id"],
                 "name": m["name"],
-                "cmd": m["argv"],
+                "cmd": ellipsize(
+                    m["argv"].as_array().map(|a| {
+                        a.iter().filter_map(|v| v.as_str()).collect::<Vec<_>>().join(" ")
+                    }).unwrap_or_default(),
+                    13,
+                ),
                 "status": m["status"],
-                "interval": format!("{}s", m["interval_seconds"].as_u64().unwrap_or(0)),
+                // The monitor card's interval slot is narrow (the atlas shows
+                // "30s"): the compact ladder the entry names — "1h"/"30m"/"30s"
+                // (the minutes/seconds steps of formatInterval, model.ts:138-146).
+                "interval": interval_short(m["interval_seconds"].as_u64()),
             }))
             .collect::<Vec<Value>>()),
+        "monitors.count" => json!(st.monitors.len()),
+        "monitors.empty" => json!(if st.monitors.is_empty() { "No monitors in this session." } else { "" }),
         "monitors.available" => json!(advertised(store, "monitor/list")),
         "monitors.footer" => {
             let total = st.monitors.len();
@@ -542,7 +630,10 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
                 .iter()
                 .filter(|m| m["status"].as_str() == Some("active"))
                 .count();
-            json!(format!("{total} monitors · {active} active"))
+            json!(format!(
+                "{total} {} · {active} active",
+                if total == 1 { "monitor" } else { "monitors" }
+            ))
         }
         _ => return None,
     })
