@@ -1268,6 +1268,18 @@ impl OctoscodeView {
             &[live_id!(fleet_row_1), live_id!(fleet_row_2), live_id!(fleet_row_3)],
             &fleet,
         );
+        // #28e2 item 3: the Blocked row carries the board's yellow status dot.
+        for (i, dot) in [
+            live_id!(fleet_dot_1),
+            live_id!(fleet_dot_2),
+            live_id!(fleet_dot_3),
+        ]
+        .iter()
+        .enumerate()
+        {
+            let blocked = fleet.get(i).map(|t| t.contains("Blocked")).unwrap_or(false);
+            self.view.widget(cx, &[*dot]).set_visible(cx, blocked);
+        }
     }
 
 }
