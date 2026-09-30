@@ -48,10 +48,19 @@ X_OVERRIDE = {}
 #             (the atlas draws both runs large). Authored as two explicit nodes.
 #   07 t_undo — "Undo 9" merged the ↺ glyph into the label; fitting "Undo" into
 #             the run's 61.5px ink box pushed it to 24pt (the atlas is ~14pt).
-SIZE_KEEP = {}
+SIZE_KEEP = {
+    # #28a4 (outer-diagnosed root cause): the generic path below sets
+    # y = ink_top - 2. For a single '-' the ink top is the DASH's middle and for
+    # '+' ~1/4 down the glyph, so every mk_* box was pushed BELOW its code line
+    # by the glyph's internal offset — three rounds of author_v2 geometry edits
+    # never moved it because this stage re-pinned y afterwards. Restore the
+    # authored row-aligned box (same y as the row's ln_/dl_, size 13).
+    (1, "mk_2"), (1, "mk_3"), (1, "mk_4"), (1, "mk_5"), (1, "mk_6"),
+}
 # single-glyph '+'/'-' ink fits over-size the marker (18-30pt from a
-# 10-20px ink box) and the glyph clips out of its row; cap markers at 15pt.
-SIZE_CLAMP = {"mk_2": 15.0, "mk_3": 15.0, "mk_4": 15.0, "mk_5": 15.0, "mk_6": 15.0}
+# 10-20px ink box). #28a4: the mk_* ids are handled by SIZE_KEEP above (which
+# `continue`s before this table is reached), so the clamp list is empty.
+SIZE_CLAMP = {}
 
 # Card #18d item 4: the OCR row MERGED the trailing chevron GLYPH into the label,
 # so the ink-width fit ran the text under the icon ("Last turn v" fitted across

@@ -167,11 +167,19 @@ def load_ocr(num):
     d = json.loads((OCR / f"autonomy-{num:02d}.ocr.json").read_text())
     w, h = d["width"], d["height"]
     sx, sy = 406 / w, 776 / h
+    # #28a4: collapse the atlas's "OctosCode" title-strip band on the scenes that
+    # still reserve it (the app shell draws its own title). Measured on the s01
+    # reference: strip ink top y30, screen-title ink top y104 -> band = 74 ref px
+    # = 57.4 logical; every OCR-derived y shifts up by that amount.
+    strip = STRIP_SHIFT.get(num, 0.0)
     out = []
     for o in d["observations"]:
         x, y, ww, hh = o["bounds"]
-        out.append((FIX.get(o["text"], o["text"]), x * sx, y * sy, ww * sx, hh * sy))
+        out.append((FIX.get(o["text"], o["text"]), x * sx, y * sy - strip, ww * sx, hh * sy))
     return out
+
+# per-scene upward shift that removes the atlas's OctosCode strip reserve.
+STRIP_SHIFT = {1: 57.4}
 
 # OCR glyph confusions corrected against the approved prompt (source/prompt.txt).
 FIX = {
@@ -242,17 +250,19 @@ def build_01(sc):
             kids.append(text(fid + "_add", a, sx2, sy2, 30, sh2, size=13, weight=500, color="green"))
             kids.append(text(fid + "_del", dl, sx2 + 34, sy2, 24, sh2, size=13, weight=500, color="red"))
         sc.put(stack(fid, 16, y - 8, 374, h + 16, kids))
-    # Diff section header (#28a3): a FULL-WIDTH grey band with hairline rules at
-    # its top and bottom edges (atlas ref y431/432 and 504/505 darker lines span
-    # the whole frame width incl. margins; band interior y433..503 -> logical
-    # 334.1 / 335.7 / 390.7 at ky=1.29). The round-2 card-width island lost the
-    # band's top edge and the section's outer rules.
+    # Diff section header (#28a3/#28a4): a FULL-WIDTH grey band with hairline
+    # rules at its top and bottom edges (atlas ref y431/432 and 504/505 span the
+    # whole frame width; logical = ref/1.29 minus the STRIP_SHIFT[1] collapse,
+    # so the band moves with every OCR-derived node above it).
     _, dx, dy, dw, dh = sc.rows[9]
-    sc.put(surface("diff_band_rule_top", 0, 334.1, 406, 1.2, bg="hair", radius=0))
-    sc.put(surface("diff_file_header", 0, 335.4, 406, 54.9, bg="panel", radius=0, kids=[
+    sc.put(surface("diff_band_rule_top", 0, r(334.1 - STRIP_SHIFT[1]), 406, 1.2,
+                   bg="hair", radius=0))
+    sc.put(surface("diff_file_header", 0, r(335.4 - STRIP_SHIFT[1]), 406, 54.9,
+                   bg="panel", radius=0, kids=[
         icon("diff_file_icon", "file", dx + 6, dy + 1, 16, 18, color="muted"),
         text("diff_file_path", sc.t(9), dx + 26, dy, dw, dh, size=13, weight=500)]))
-    sc.put(surface("diff_band_rule_bottom", 0, 390.3, 406, 1.2, bg="hair", radius=0))
+    sc.put(surface("diff_band_rule_bottom", 0, r(390.3 - STRIP_SHIFT[1]), 406, 1.2,
+                   bg="hair", radius=0))
     # diff card for file 1 (OCR rows 9..29): gutter | marker | code, red/green bands.
     diff_lines = [
         ("128", "let msg = read_message().await?;", "ctx"),
