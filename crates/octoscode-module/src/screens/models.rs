@@ -613,6 +613,79 @@ pub fn lower_card_src(screen_id: &str, ctx: &Ctx<'_>) -> Result<(String, Value, 
                 {
                     *h = json!(0.0);
                 }
+                // #32d item 6: the OUTER card sizes to its content too. The
+                // authored card holds two model rows (inner_card 213..339)
+                // with the route buttons at y356; with the rows gone the
+                // buttons keep their authored 17px gap and the card ends at
+                // their bottom — no blank band above Test route/Discover.
+                let delta = 126.0_f64 - 63.5;
+                if let Some(h) = placements
+                    .get_mut("card_deepseek")
+                    .and_then(|c| c.get_mut("layout"))
+                    .and_then(|l| l.get_mut("h"))
+                {
+                    if h.as_f64() == Some(290.0) {
+                        *h = json!(290.0 - delta + 12.0); // 12px bottom padding below the buttons
+                    }
+                }
+                let keys: Vec<String> = placements
+                    .as_object()
+                    .map(|o| o.keys().cloned().collect())
+                    .unwrap_or_default();
+                for key in keys {
+                    if !(key.starts_with("btn_test") || key.starts_with("btn_discover")) {
+                        continue;
+                    }
+                    if let Some(y) = placements
+                        .get_mut(&key)
+                        .and_then(|c| c.get_mut("layout"))
+                        .and_then(|l| l.get_mut("y"))
+                    {
+                        // The whole button band moves together: the pill
+                        // surfaces sit at y356 AND their labels at y369 (+13,
+                        // the authored in-button offset). Matching only 356
+                        // left the labels behind — empty pills with text
+                        // floating outside the card (the first live capture).
+                        if y.as_f64().is_some_and(|v| v >= 356.0 && v <= 370.0) {
+                            *y = json!(y.as_f64().unwrap() - delta);
+                        }
+                    }
+                }
+                // #32d r2 (outer review): the FOLLOWING cards ride the same
+                // delta — kimi (y442) and glm (y565) with their heads, counts,
+                // dots and chevrons — or the shrunk card leaves a ~200px
+                // empty band above Kimi. Same <=370 style guard: heads sit
+                // +23 above their card, counts +57 below it (authored
+                // in-card offsets around y465/y499 and y587/y623).
+                let follow: Vec<String> = placements
+                    .as_object()
+                    .map(|o| {
+                        o.keys()
+                            .filter(|k| {
+                                let k = k.as_str();
+                                ["card_kimi", "t_kimi", "dot_kimi", "icon_chev_kimi",
+                                 "card_glm", "t_glm", "dot_glm", "icon_chev_glm"]
+                                    .iter()
+                                    .any(|p| k.starts_with(p))
+                            })
+                            .cloned()
+                            .collect()
+                    })
+                    .unwrap_or_default();
+                let net = delta - 12.0; // the card bottom rose 50.5, not 62.5 —
+                // 12px of the shrink came back as bottom padding, so the
+                // followers ride 50.5 to keep the authored 42px list gap.
+                for key in follow {
+                    if let Some(y) = placements
+                        .get_mut(&key)
+                        .and_then(|c| c.get_mut("layout"))
+                        .and_then(|l| l.get_mut("y"))
+                    {
+                        if let Some(v) = y.as_f64() {
+                            *y = json!(v - net);
+                        }
+                    }
+                }
             }
         }
     }
