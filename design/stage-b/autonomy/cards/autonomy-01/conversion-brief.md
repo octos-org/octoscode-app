@@ -409,7 +409,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.96,
     "text": "128",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -425,7 +425,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.96,
     "text": "let msg = read_message().await?;",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -441,7 +441,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.96,
     "text": "129",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -457,7 +457,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.96,
     "text": "if !connected {",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -484,7 +484,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.96,
     "text": "130",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -516,7 +516,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.96,
     "text": "queue.drop_pending();",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -543,7 +543,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.96,
     "text": "131",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -575,7 +575,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.96,
     "text": "metrics.steer_dropped += 1;",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -602,7 +602,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.96,
     "text": "132",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -634,7 +634,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.96,
     "text": "queue.preserve_pending();",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -650,7 +650,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.96,
     "text": "133",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -682,7 +682,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.96,
     "text": "metrics.steer_preserved += 1;",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -698,7 +698,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.96,
     "text": "134",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -730,7 +730,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.96,
     "text": "reconnect().await?;",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -746,7 +746,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.96,
     "text": "135",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -762,7 +762,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 30.96,
     "text": "}",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [

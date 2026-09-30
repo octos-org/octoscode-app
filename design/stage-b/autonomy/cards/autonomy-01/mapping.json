@@ -618,31 +618,31 @@
       "native_id": "beauty_0_0_10_4_0",
       "parent": "chip_130",
       "kind": "text",
-      "component": "Textb2b9ceda7216",
+      "component": "Text1eead614118f",
       "semantic_role": "text",
       "bounds": [
-        20.47,
-        425.89,
-        25.32,
-        15.63
+        20.085400634067582,
+        426.08,
+        25.323529411764707,
+        30.96
       ],
       "text": "130",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 11.84
+      "size": 13
     },
     {
       "source_id": "mk_2",
       "native_id": "beauty_0_0_10_4_1",
       "parent": "chip_130",
       "kind": "text",
-      "component": "Text68ec0a8de9aa",
+      "component": "Text9ac4cebca82f",
       "semantic_role": "text",
       "bounds": [
         75.76,
-        424.34,
+        426.08,
         12.0,
-        21.05
+        30.96
       ],
       "text": "-",
       "enabled": null,
@@ -654,18 +654,18 @@
       "native_id": "beauty_0_0_10_4_2",
       "parent": "chip_130",
       "kind": "text",
-      "component": "Text7fda885ba21a",
+      "component": "Text0ac44d04eeea",
       "semantic_role": "text",
       "bounds": [
-        132.19,
-        424.34,
-        166.06,
-        21.05
+        131.82593593507838,
+        426.08,
+        166.0830928277343,
+        30.96
       ],
       "text": "queue.drop_pending();",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 12.86
+      "size": 13
     },
     {
       "source_id": "chip_131",
@@ -690,31 +690,31 @@
       "native_id": "beauty_0_0_10_5_0",
       "parent": "chip_131",
       "kind": "text",
-      "component": "Texte2ebfd0e0c07",
+      "component": "Textf8d983ee6a93",
       "semantic_role": "text",
       "bounds": [
-        20.47,
-        460.0,
-        25.32,
-        15.63
+        20.085400634067582,
+        461.04,
+        25.323529411764707,
+        30.96
       ],
       "text": "131",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 11.84
+      "size": 13
     },
     {
       "source_id": "mk_3",
       "native_id": "beauty_0_0_10_5_1",
       "parent": "chip_131",
       "kind": "text",
-      "component": "Text506ea66b18af",
+      "component": "Text9ac4cebca82f",
       "semantic_role": "text",
       "bounds": [
         75.76,
-        459.23,
+        461.04,
         12.0,
-        20.28
+        30.96
       ],
       "text": "-",
       "enabled": null,
@@ -726,18 +726,18 @@
       "native_id": "beauty_0_0_10_5_2",
       "parent": "chip_131",
       "kind": "text",
-      "component": "Text73a001f04e3f",
+      "component": "Textab8c4cac735d",
       "semantic_role": "text",
       "bounds": [
-        131.57,
-        459.23,
-        217.24,
-        20.28
+        131.36162236986507,
+        461.04,
+        217.35266618119337,
+        30.96
       ],
       "text": "metrics.steer_dropped += 1;",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 13.16
+      "size": 13
     },
     {
       "source_id": "chip_132",
@@ -762,31 +762,31 @@
       "native_id": "beauty_0_0_10_6_0",
       "parent": "chip_132",
       "kind": "text",
-      "component": "Text7783c7d5f51c",
+      "component": "Text90ff5f3e7b35",
       "semantic_role": "text",
       "bounds": [
-        20.5,
-        494.11,
-        24.47,
-        15.63
+        20.085400634067582,
+        496.0,
+        24.47058823529412,
+        30.96
       ],
       "text": "132",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 11.37
+      "size": 13
     },
     {
       "source_id": "mk_4",
       "native_id": "beauty_0_0_10_6_1",
       "parent": "chip_132",
       "kind": "text",
-      "component": "Textbf5ffcff1948",
+      "component": "Text3349daa3095a",
       "semantic_role": "text",
       "bounds": [
         75.76,
-        492.56,
+        496.0,
         12.0,
-        21.05
+        30.96
       ],
       "text": "+",
       "enabled": null,
@@ -798,49 +798,49 @@
       "native_id": "beauty_0_0_10_6_2",
       "parent": "chip_132",
       "kind": "text",
-      "component": "Textf4b46a4bf938",
+      "component": "Text6d68fc1c53dd",
       "semantic_role": "text",
       "bounds": [
-        132.18,
-        492.56,
-        200.18,
-        21.05
+        131.82593593507838,
+        496.0,
+        200.3200617455347,
+        30.96
       ],
       "text": "queue.preserve_pending();",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 13.08
+      "size": 13
     },
     {
       "source_id": "ln_5",
       "native_id": "beauty_0_0_10_7",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Text3dc6577ffa6c",
+      "component": "Texta8dc154e99fa",
       "semantic_role": "text",
       "bounds": [
-        20.5,
-        528.22,
-        24.47,
-        16.4
+        20.002858715554442,
+        530.96,
+        24.47058823529412,
+        30.96
       ],
       "text": "133",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 11.37
+      "size": 13
     },
     {
       "source_id": "mk_5",
       "native_id": "beauty_0_0_10_8",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Texte6eacc59390a",
+      "component": "Text3349daa3095a",
       "semantic_role": "text",
       "bounds": [
         75.76,
-        528.22,
+        530.96,
         12.0,
-        20.28
+        30.96
       ],
       "text": "+",
       "enabled": null,
@@ -852,49 +852,49 @@
       "native_id": "beauty_0_0_10_9",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Texte80f6bb19e44",
+      "component": "Text376c4a9afae1",
       "semantic_role": "text",
       "bounds": [
-        131.58,
-        528.22,
-        230.88,
-        20.28
+        131.36162236986507,
+        530.96,
+        230.91740391460758,
+        30.96
       ],
       "text": "metrics.steer_preserved += 1;",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 13.04
+      "size": 13
     },
     {
       "source_id": "ln_6",
       "native_id": "beauty_0_0_10_10",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Text5d53723f5006",
+      "component": "Text22be8f0aebd3",
       "semantic_role": "text",
       "bounds": [
-        20.47,
-        563.88,
-        25.32,
-        15.63
+        20.085400634067582,
+        565.92,
+        25.323529411764707,
+        30.96
       ],
       "text": "134",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 11.84
+      "size": 13
     },
     {
       "source_id": "mk_6",
       "native_id": "beauty_0_0_10_11",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Textd12b0ea08a71",
+      "component": "Textf867abe37804",
       "semantic_role": "text",
       "bounds": [
         75.76,
-        562.33,
+        565.92,
         12.0,
-        20.28
+        30.96
       ],
       "text": "+",
       "enabled": null,
@@ -906,18 +906,18 @@
       "native_id": "beauty_0_0_10_12",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Texted328412a3b1",
+      "component": "Text4b1569aa7651",
       "semantic_role": "text",
       "bounds": [
-        133.26,
-        562.33,
-        149.0,
-        20.28
+        132.70095925705579,
+        565.92,
+        150.15865814530036,
+        30.96
       ],
       "text": "reconnect().await?;",
       "enabled": null,
       "font": "self:resources/ux/LiberationMono-Regular.ttf",
-      "size": 12.72
+      "size": 13
     },
     {
       "source_id": "ln_7",
@@ -998,6 +998,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045"
   },
-  "contract_sha256": "d35149d2b3bc83a1972dd70a834ffc6461fc52b5c0f1c7d03aa0850474c21757",
+  "contract_sha256": "7368c91077657b23766764b7cc6b0d25b7f9f4386a2c5fab846cf60c1efe3d9f",
   "mapping_basis": "mapped.json"
 }

@@ -99,14 +99,10 @@ BG_KEEP = {
 STYLE_KEEP = {
     2: {"run_status_card", "finding_high", "finding_low"},
 }
-
-# #28a4: markers share their code line's INK-FITTED band (y/h/line_height from
-# the fitted dl_*) so the vertical centres match exactly. The authored marker
-# row box is ~2x taller than the fitted line box, so same-box ≠ same-centre
-# (that over-restoration, via X_RESTORE_FULL on ln_/dl_, blew the code text up
-# to ~22pt — their ink-fit was correct all along). mk x/w/size stay as
-# fix_metrics SIZE_KEEP pinned them (13pt at gx+57).
-MARKER_ALIGN = {1: [(f"mk_{i}", f"dl_{i}") for i in range(2, 7)]}
+# #28a5: MARKER_ALIGN (band copy from dl_*) is RETIRED — the outer's r4 PNG
+# review showed markers ~5px above their code lines, and the alignment now
+# happens upstream in fix_metrics: SIZE_KEEP (mk_*) and ROW_KEEP (ln_/dl_) pin
+# all three nodes of a row to the SAME authored row box + explicit size 13.
 
 # #28a4: per-scene upward shift (logical px) that removes the atlas's OctosCode
 # title strip. Measured off each reference: s01 strip ink y30 / title ink y104
@@ -167,20 +163,6 @@ def fix_scene(d, scene_no):
                 if k in authored[nid]:
                     n[k] = authored[nid][k]
             changed += 1
-    # #28a4: markers share their code line's INK-FITTED band (y/h/line_height
-    # from the fitted dl_*) so the vertical centres match exactly. dl's ink-fit
-    # is correct (12.86pt at y=iy-2); mk keeps the SIZE_KEEP-pinned x/w/size.
-    # Idempotent under the 6x re-entrant fix_scene: copies dl's CURRENT band,
-    # and collapse_shift applies to both equally afterwards.
-    if MARKER_ALIGN.get(scene_no):
-        by_id = {n["id"]: n for n in walk(doc["tree"]) if "id" in n}
-        for mk_id, dl_id in MARKER_ALIGN[scene_no]:
-            mk, dl = by_id.get(mk_id), by_id.get(dl_id)
-            if mk and dl:
-                for k in ("y", "h", "line_height"):
-                    if k in dl:
-                        mk[k] = dl[k]
-                changed += 1
     if changed:
         mpath.write_text(json.dumps(doc, indent=2) + "\n")
     return changed

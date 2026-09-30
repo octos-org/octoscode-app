@@ -57,6 +57,17 @@ SIZE_KEEP = {
     # authored row-aligned box (same y as the row's ln_/dl_, size 13).
     (1, "mk_2"), (1, "mk_3"), (1, "mk_4"), (1, "mk_5"), (1, "mk_6"),
 }
+# #28a5 (outer): rows 130-134 must draw number | marker | code on ONE baseline.
+# ln_/mk_/dl_ of a row share the authored row y and an explicit size=13
+# (author_v2), so pinning the ROW box of ln_/dl_ (mk_* already in SIZE_KEEP)
+# puts all three on the same baseline. x/w stay INK-FITTED on purpose: the
+# authored code column (gx+66 = 84.76) sits ~48px left of the atlas code ink
+# (132.2) — restoring authored x would shift the whole code block; the map
+# stage's x-fit is what keeps the column atlas-true.
+ROW_KEEP = {
+    (1, "ln_2"), (1, "dl_2"), (1, "ln_3"), (1, "dl_3"), (1, "ln_4"),
+    (1, "dl_4"), (1, "ln_5"), (1, "dl_5"), (1, "ln_6"), (1, "dl_6"),
+}
 # single-glyph '+'/'-' ink fits over-size the marker (18-30pt from a
 # 10-20px ink box). #28a4: the mk_* ids are handled by SIZE_KEEP above (which
 # `continue`s before this table is reached), so the clamp list is empty.
@@ -172,6 +183,24 @@ def fix_scene(d, scene_no):
         if (scene_no, n["id"]) in X_RIGHT:
             # cap the ink's right edge (the merged chevron is a separate icon)
             iw = X_RIGHT[(scene_no, n["id"])] - ix
+        if (scene_no, n["id"]) in ROW_KEEP:
+            # #28a5: pin the row box (y/h/line_height/size) but keep the ink-fit
+            # x/w — see the ROW_KEEP table comment. Also drop the map stage's
+            # per-glyph font_asc/font_desc (the generic path pops them below):
+            # a single-glyph '-' measured asc=-0.52/desc=+0.52 while the code
+            # line measured ~0, and the renderer baselines from these — same y
+            # still drew the marker ~5px high (the #28a5 r4 PNG symptom).
+            a = authored.get(n["id"])
+            if a:
+                n["y"] = a["y"]
+                n["h"] = a["h"]
+                n["size"] = a["size"]
+                n["line_height"] = a.get("line_height", n.get("line_height"))
+                n["tracking"] = a.get("tracking", 0.0)
+                n.pop("font_asc", None)
+                n.pop("font_desc", None)
+                changed += 1
+            continue
         if (scene_no, n["id"]) in SIZE_KEEP:
             # The OCR row merged a glyph into the text, so the ink-width fit is
             # wrong for this node: restore the AUTHORED size/box instead of leaving
@@ -185,6 +214,8 @@ def fix_scene(d, scene_no):
                 n["size"] = a["size"]
                 n["line_height"] = a.get("line_height", n.get("line_height"))
                 n["tracking"] = a.get("tracking", 0.0)
+                n.pop("font_asc", None)
+                n.pop("font_desc", None)
                 changed += 1
             continue
         size = iw / advance                      # width-fit => tracking 0

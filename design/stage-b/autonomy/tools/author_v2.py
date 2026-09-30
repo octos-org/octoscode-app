@@ -276,7 +276,7 @@ def build_01(sc):
     for i, (num, line, kind) in enumerate(diff_lines):
         y = gy + i * rowh
         color = {"del": "red", "add": "green", "ctx": "ink"}[kind]
-        gutter = code(f"ln_{i}", num, gx, y, 22, rowh - 4, color="muted")
+        gutter = code(f"ln_{i}", num, gx, y, 22, rowh - 4, color="muted", size=13)
         marker = None
         body_text = line
         if kind in ("del", "add"):
@@ -288,7 +288,8 @@ def build_01(sc):
             marker = code(f"mk_{i}", line[:1], gx + 57, y, 12, rowh - 4, color=color,
                           size=13)
             body_text = line[2:]
-        body = code(f"dl_{i}", body_text, gx + 66, y, 280, rowh - 4, color="ink")
+        body = code(f"dl_{i}", body_text, gx + 66, y, 280, rowh - 4, color="ink",
+                    size=13)
         row_kids = [gutter] + ([marker] if marker else []) + [body]
         # This atlas draws diff rows on WHITE (measured #fefefe over the full row
         # band) with only the marker coloured red/green — no band fill, unlike
