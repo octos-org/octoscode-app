@@ -1,0 +1,48 @@
+component Surface430cd19400f4(instance: text) {
+  view Kit(component: "Surface430cd19400f4", instance: instance) { slot }
+}
+component Surface8f75dd049682(instance: text) {
+  view Kit(component: "Surface8f75dd049682", instance: instance) { slot }
+}
+component Text9097f8882d07(instance: text, text: text) {
+  view Kit(component: "Text9097f8882d07", instance: instance, text: text)
+}
+component Text217374c44ad9(instance: text, text: text) {
+  view Kit(component: "Text217374c44ad9", instance: instance, text: text)
+}
+component Surface5c09226d39f3(instance: text) {
+  view Kit(component: "Surface5c09226d39f3", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Textd563609b793c(instance: text, text: text) {
+  view Kit(component: "Textd563609b793c", instance: instance, text: text)
+}
+component Surfacefc2f16a6fb9b(instance: text) {
+  view Kit(component: "Surfacefc2f16a6fb9b", instance: instance) { slot }
+}
+component Textdc4305206aee(instance: text, text: text) {
+  view Kit(component: "Textdc4305206aee", instance: instance, text: text)
+}
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Surfaceebaff3349490(instance: text) {
+  view Kit(component: "Surfaceebaff3349490", instance: instance) { slot }
+}
+component Inputfa788caf1350(instance: text, placeholder: text) {
+  view Kit(component: "Inputfa788caf1350", instance: instance, placeholder: placeholder)
+}
+component Surfacee1f6f7dd0a15(instance: text) {
+  view Kit(component: "Surfacee1f6f7dd0a15", instance: instance) { slot }
+}
+component Texte2130f18a6e8(instance: text, text: text) {
+  view Kit(component: "Texte2130f18a6e8", instance: instance, text: text)
+}
+component Text78558d644fe5(instance: text, text: text) {
+  view Kit(component: "Text78558d644fe5", instance: instance, text: text)
+}
+component Surface7736f8a447e4(instance: text) {
+  view Kit(component: "Surface7736f8a447e4", instance: instance) { slot }
+}

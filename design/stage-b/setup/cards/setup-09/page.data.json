@@ -1,0 +1,206 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface156d085f4ff5",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "t_title": {
+        "component": "Text0613b6d69582",
+        "layout": {
+          "x": 43.86,
+          "y": 36.0,
+          "w": 91.0,
+          "h": 27.53
+        }
+      },
+      "t_usage": {
+        "component": "Textd3dc9077806e",
+        "layout": {
+          "x": 45.73,
+          "y": 97.5,
+          "w": 161.5,
+          "h": 20.5
+        }
+      },
+      "t_pct": {
+        "component": "Text9d3c405bfb1a",
+        "layout": {
+          "x": 327.14,
+          "y": 97.5,
+          "w": 36.0,
+          "h": 20.5
+        }
+      },
+      "bar_track": {
+        "component": "Surface6a61f4419111",
+        "layout": {
+          "x": 45.0,
+          "y": 142.5,
+          "w": 317.0,
+          "h": 15.5
+        }
+      },
+      "bar_fill": {
+        "component": "Surfacedc00833cbd78",
+        "layout": {
+          "x": 45.0,
+          "y": 142.5,
+          "w": 205.0,
+          "h": 15.5
+        }
+      },
+      "t_row3": {
+        "component": "Texta53b445856cc",
+        "layout": {
+          "x": 46.08,
+          "y": 209.0,
+          "w": 61.0,
+          "h": 25.5
+        }
+      },
+      "t_val6": {
+        "component": "Text397da4e13284",
+        "layout": {
+          "x": 342.66,
+          "y": 209.0,
+          "w": 20.5,
+          "h": 21.0
+        }
+      },
+      "t_row4": {
+        "component": "Text67928b0d5dda",
+        "layout": {
+          "x": 45.53,
+          "y": 263.5,
+          "w": 106.5,
+          "h": 21.0
+        }
+      },
+      "t_val7": {
+        "component": "Textc7a835814a6d",
+        "layout": {
+          "x": 331.07,
+          "y": 263.5,
+          "w": 32.0,
+          "h": 21.0
+        }
+      },
+      "t_row5": {
+        "component": "Text4be1c44c41b2",
+        "layout": {
+          "x": 45.26,
+          "y": 316.5,
+          "w": 44.5,
+          "h": 21.0
+        }
+      },
+      "t_val8": {
+        "component": "Text8f6ab1e5e5bc",
+        "layout": {
+          "x": 330.3,
+          "y": 316.5,
+          "w": 32.5,
+          "h": 21.0
+        }
+      },
+      "t_comp": {
+        "component": "Textcb1852baeae2",
+        "layout": {
+          "x": 42.57,
+          "y": 427.0,
+          "w": 97.5,
+          "h": 25.5
+        }
+      },
+      "seg_box": {
+        "component": "Surface4016170e5b33",
+        "layout": {
+          "x": 159.0,
+          "y": 410.0,
+          "w": 210.0,
+          "h": 55.0
+        }
+      },
+      "seg_div": {
+        "component": "Surface04d980ce2c9b",
+        "layout": {
+          "x": 266.0,
+          "y": 414.0,
+          "w": 1.5,
+          "h": 46.0
+        }
+      },
+      "t_llm": {
+        "component": "Texte71ceccda95f",
+        "layout": {
+          "x": 192.66,
+          "y": 428.0,
+          "w": 38.0,
+          "h": 21.0
+        }
+      },
+      "t_heur": {
+        "component": "Text4c99b4981022",
+        "layout": {
+          "x": 284.65,
+          "y": 428.5,
+          "w": 68.5,
+          "h": 20.5
+        }
+      },
+      "btn_compact": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 35.0,
+          "y": 516.0,
+          "w": 328.0,
+          "h": 58.0
+        }
+      },
+      "btn_compact_surface": {
+        "component": "Surface1757f24326c9",
+        "layout": {
+          "x": 60.0,
+          "y": 513.0,
+          "w": 290.0,
+          "h": 44.0
+        }
+      },
+      "btn_compact_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 35.0,
+          "y": 516.0,
+          "w": 328.0,
+          "h": 58.0
+        }
+      },
+      "btn_compact_label": {
+        "component": "Textdda9f039bac2",
+        "layout": {
+          "x": 135.61,
+          "y": 533.5,
+          "w": 122.0,
+          "h": 26.0
+        }
+      },
+      "t_keep": {
+        "component": "Text58dcafa96ef4",
+        "layout": {
+          "x": 107.06,
+          "y": 595.0,
+          "w": 173.0,
+          "h": 25.5
+        }
+      }
+    },
+    "bindings": []
+  }
+}

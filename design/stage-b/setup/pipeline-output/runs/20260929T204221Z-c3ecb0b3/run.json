@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "flow": "octoscode-setup",
+  "status": "completed",
+  "scope": "Only explicitly executed stages; no automatic visual or production acceptance",
+  "inputs": {
+    "sha256": "f96d8717d534b9104c98bfea5abc8ec1a657388d9ff26142a319415ef02fa22f",
+    "files": {
+      "image-to-appcard-flow.json": "c1b104ae3b4a5fba2d296b14539da46e2b613aa4f595c93f8156f8fe6773c1c4",
+      "source/atlas.png": "6803654f5cffba2720a050317d70a29cbb78c3d22b3db606252bfe9eca1e5fea",
+      "source/prompt.txt": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146",
+      "cards/setup-01/contract.json": "38bf6789e5ee77feb5687183208ebc204bb00e44d18edb174abf369e9934d4ab",
+      "cards/setup-01/mapped.json": "d0b6eee65cc2848400ca363a0c4b4678fced1fdef1568a5e2a9b91dd8131f0a0",
+      "cards/setup-01/semantic-map.json": "e066cae84828deaeb4881345f4c6af41942c257a77983ccdb66d8d4297912409",
+      "cards/setup-01/service-actions.json": "1e362c170f014d352c11ab21b7a8b78a1399dd1f1d9a6a70f37b4d987416b3c2",
+      "cards/setup-02/contract.json": "3342b2c2baf3229253fa11d5226d9a21cc73ae72c6faea8ec49f0724b4695709",
+      "cards/setup-02/mapped.json": "ae9f728e7ce82ace4904de73a551735c8635a9511a8662b9226713ef7c41f498",
+      "cards/setup-02/semantic-map.json": "fcb6c9d293cdca9e65d922fa69045fecead37be78931d6b3ac86222b138236eb",
+      "cards/setup-02/service-actions.json": "9c9b079da3961c64cf220bf8bc08ad56b51d4a3b2412657ddc4da81f142095f5",
+      "cards/setup-03/contract.json": "6054568cd5f5529df71cc680a1191f9e975a763472cca4063731470fedc6c3d6",
+      "cards/setup-03/mapped.json": "da243ff65d6e42f3468b6c4bde42763163f94b2b86a448e99a935280c0492d78",
+      "cards/setup-03/semantic-map.json": "614180ddfeaa684aa244de1de9ba1ef6831d53b106e11be7be7704e5a74be62a",
+      "cards/setup-03/service-actions.json": "f2fc0c180059756f6a2761830e878012e9d558a49625fa2e15e8d1fa617a6a4c",
+      "cards/setup-04/contract.json": "ea3d7710a023088f56ab39af1087edf49767afdfe50aff1830a2234e2fc0cf84",
+      "cards/setup-04/mapped.json": "996c1da742f811fa79c338eabcd0b2da1a8ea448611f7602b04db6badd5d68eb",
+      "cards/setup-04/semantic-map.json": "5e452156c57256635c4520175d0258ed191d9b03a95889e3338a8d1c211d1206",
+      "cards/setup-04/service-actions.json": "0710d43547bd3ed2b5c5bba83c4884841ed31eed99820bbcca1c452060a767a8",
+      "cards/setup-05/contract.json": "e7686342c42ba304008b232ce3ca7997729bf606f12ecced0cd76bd1cefb9801",
+      "cards/setup-05/mapped.json": "0fd79e9d4c4d356234fe18f4115bda935259f73abb8550eec487b474c9225f8a",
+      "cards/setup-05/semantic-map.json": "ff5ac6d2363d0121313367afdb24496b155981f802df294aa03564becefead20",
+      "cards/setup-05/service-actions.json": "ea0e598e44b11c2e0060ad93e9cb3fcb63637706a3e97e2f5ba440b633fe7a64",
+      "cards/setup-06/contract.json": "b797960a762a3d781e3e0514b7d206cfc600b6dd759f2a91212d8a9d9d2e1afd",
+      "cards/setup-06/mapped.json": "6f97a183ca93bd96034ee4aa7b88f0d7b34d73e9d5eec5e646a2a9c1dd3c94cd",
+      "cards/setup-06/semantic-map.json": "d9cb4426ea30496921e82bf52c898b190cd8ee39b5aaba70d169361429c6a3f6",
+      "cards/setup-06/service-actions.json": "572c9ad6f2713391adfef4f0464beac780ecbfe1fc356576006ce4f61be74a81",
+      "cards/setup-07/contract.json": "79de2ead5fabce2db0854ada7df3044c5ed7536cf4e04de3da30a54e077dfd16",
+      "cards/setup-07/mapped.json": "61e5cbda1fd7b960b13424997f28dead514cd1b24d89e5a1c65537dc290c6375",
+      "cards/setup-07/semantic-map.json": "d3655b93974a92a2cab084f72bfb797e0c57f7381c6a14cfbb4415272a557b47",
+      "cards/setup-07/service-actions.json": "c8fd6392f48a2f89b50144acf190367505cbd44fd9b0cf6489ccaa914110506b",
+      "cards/setup-08/contract.json": "f389991b322199518c8abd77ff8aa58c13e2c303539b4a90f1a6ff4360183ea5",
+      "cards/setup-08/mapped.json": "7a4a44639b485760ad24d010da889b25682ab5e1cf158bd033252244f004e186",
+      "cards/setup-08/semantic-map.json": "8d842bd76b4c851d93f5d82c48dce5e6852bf5d333674a314321f3daf6fec96a",
+      "cards/setup-08/service-actions.json": "5043ad69c2af527a91973fb7338246b642158ff78372fe1c70fb1ca64b0d40b4",
+      "cards/setup-09/contract.json": "fc76e79d791c6fb18a03ff907d4a9df44213540a66042d13ddb31e688ccdca05",
+      "cards/setup-09/mapped.json": "c5ab715441be0ee54247d5ad168239d6957e23a259e4a419eff15466d53a2d50",
+      "cards/setup-09/semantic-map.json": "f50a85f751d9fa31e9bc3ec1b77431c0f3e33269ed73a3711f8e0a0cfee01507",
+      "cards/setup-09/service-actions.json": "ce948a955dcfc88ffe8ea0a37d0c5ad75ce8af4365444aba11f4060a08be966a",
+      "cards/setup-10/contract.json": "297124571cf638f5a91889651bd6137e53c052958362871525c37cff46090166",
+      "cards/setup-10/mapped.json": "0778646ffb12f9eceaf9de9a7ae37768a9880d36a310091cf7ff4d9848cc647a",
+      "cards/setup-10/semantic-map.json": "3002ca8f73c14f775db3630d07c8f50bc4bdd343d359c43b7572ea5ad1c3f78e",
+      "cards/setup-10/service-actions.json": "2461bd898057a8010b4fdd5e8dddd90c44aba158fc6477807a896dcfb80427b9",
+      "cards/setup-11/contract.json": "6208cf595218b30e2c78e58e4c79edea6e57e4292184c689b7678eaf31508375",
+      "cards/setup-11/mapped.json": "4a27044f7cc355a8c274cfd49caa021a3366c97b49c42c476d877ed3050205e0",
+      "cards/setup-11/semantic-map.json": "c8b64cea3f1ee96f67bdc94b057e542d0c9fdee324709b8039ae24ca7ba94337",
+      "cards/setup-11/service-actions.json": "bfedce1d6437f9dbdaebb5d240e08ea76771edcdd89f20782d94d2db6bc9f4f8",
+      "cards/setup-12/contract.json": "325cc28b85cc3146125122b54bd5f978ebe63ff6f2246579dbb90c2212af4fdd",
+      "cards/setup-12/mapped.json": "85aae180b97ed8fc26afcbf8799a923c51016e7169ba54320890fca44e79af9c",
+      "cards/setup-12/semantic-map.json": "f1843668a3c6bbd3a60ca281f243ed9cb55c0dfef8e1c7309100b0966de0b560",
+      "cards/setup-12/service-actions.json": "103f9e1693bef75a7e86f083edef5ffb6b843dc2ebf59965ab9b4a48f61a7093"
+    }
+  },
+  "stages": [
+    {
+      "stage": "extract",
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "/Users/yuechen/miniconda3/bin/python3",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/extract.py",
+            "--project",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup",
+            "--manifest",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup/image-to-appcard-flow.json",
+            "--output",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup/pipeline-output/service-cards"
+          ],
+          "cwd": "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup"
+        }
+      ],
+      "logs": [
+        {
+          "path": "extract-0.log",
+          "sha256": "1e66e52338c8788814d3c31f492514fde1dcf40a951a5c517bf3fbc9de3c3a9e",
+          "exit_code": 0
+        }
+      ]
+    }
+  ],
+  "not_run": [
+    "intake",
+    "prepare",
+    "observe",
+    "measure",
+    "map",
+    "semantic",
+    "compile",
+    "capture",
+    "gate",
+    "bundle",
+    "service-test",
+    "wasm",
+    "integrate",
+    "web-test",
+    "hosted-test"
+  ],
+  "finished_at": "2026-09-29T20:42:21.348016+00:00"
+}

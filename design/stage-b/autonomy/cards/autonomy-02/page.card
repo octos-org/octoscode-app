@@ -1,0 +1,76 @@
+# ledger autonomy-02@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t01_text { class: user-copy, en: "OctosCode" }
+copy t02_text { class: user-copy, en: "Code review" }
+copy t03_text { class: user-copy, en: "Start review" }
+copy t04_text { class: user-copy, en: "Reviewing 3 files • 2 specialists" }
+copy t05_text { class: user-copy, en: "Analyzing changes and code quality..." }
+copy t06_text { class: user-copy, en: "High" }
+copy t07_text { class: user-copy, en: "crates/octos-cli/src/api/ui_protocol_transport.rs" }
+copy t08_text { class: user-copy, en: "Potential message loss when reconnecting: pending" }
+copy t09_text { class: user-copy, en: "queue was dropped." }
+copy t10_text { class: user-copy, en: "Low" }
+copy t11_text { class: user-copy, en: "crates/octos-core/src/ui_protocol.rs" }
+copy t12_text { class: user-copy, en: "Missing documentation for new preserve_pending" }
+copy t13_text { class: user-copy, en: "behavior." }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Text3f09c2e3ff4b(instance: text, text: text) {
+  view Kit(component: "Text3f09c2e3ff4b", instance: instance, text: text)
+}
+component Texte2e69097680e(instance: text, text: text) {
+  view Kit(component: "Texte2e69097680e", instance: instance, text: text)
+}
+component Text5161655d958a(instance: text, text: text) {
+  view Kit(component: "Text5161655d958a", instance: instance, text: text)
+}
+component Text92862dc9909d(instance: text, text: text) {
+  view Kit(component: "Text92862dc9909d", instance: instance, text: text)
+}
+component Textd88fa772081c(instance: text, text: text) {
+  view Kit(component: "Textd88fa772081c", instance: instance, text: text)
+}
+component Textb575bdeb99aa(instance: text, text: text) {
+  view Kit(component: "Textb575bdeb99aa", instance: instance, text: text)
+}
+component Textf76d92979c95(instance: text, text: text) {
+  view Kit(component: "Textf76d92979c95", instance: instance, text: text)
+}
+component Texta61aecd7e679(instance: text, text: text) {
+  view Kit(component: "Texta61aecd7e679", instance: instance, text: text)
+}
+component Text77e5e8bb564d(instance: text, text: text) {
+  view Kit(component: "Text77e5e8bb564d", instance: instance, text: text)
+}
+component Text3ecfce5d1b3f(instance: text, text: text) {
+  view Kit(component: "Text3ecfce5d1b3f", instance: instance, text: text)
+}
+component Text0ec967fe36b1(instance: text, text: text) {
+  view Kit(component: "Text0ec967fe36b1", instance: instance, text: text)
+}
+component Text31d9642d085e(instance: text, text: text) {
+  view Kit(component: "Text31d9642d085e", instance: instance, text: text)
+}
+component Text3ca384f9387b(instance: text, text: text) {
+  view Kit(component: "Text3ca384f9387b", instance: instance, text: text)
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Text3f09c2e3ff4b(instance: "t01", text: copy.t01_text)
+  Texte2e69097680e(instance: "t02", text: copy.t02_text)
+  Text5161655d958a(instance: "t03", text: copy.t03_text)
+  Text92862dc9909d(instance: "t04", text: copy.t04_text)
+  Textd88fa772081c(instance: "t05", text: copy.t05_text)
+  Textb575bdeb99aa(instance: "t06", text: copy.t06_text)
+  Textf76d92979c95(instance: "t07", text: copy.t07_text)
+  Texta61aecd7e679(instance: "t08", text: copy.t08_text)
+  Text77e5e8bb564d(instance: "t09", text: copy.t09_text)
+  Text3ecfce5d1b3f(instance: "t10", text: copy.t10_text)
+  Text0ec967fe36b1(instance: "t11", text: copy.t11_text)
+  Text31d9642d085e(instance: "t12", text: copy.t12_text)
+  Text3ca384f9387b(instance: "t13", text: copy.t13_text)
+}

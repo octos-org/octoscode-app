@@ -1,0 +1,153 @@
+# ledger setup-07@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Models" }
+copy t_ds_head_text { class: user-copy, en: "DeepSeek • Official API" }
+copy t_ds_count_text { class: user-copy, en: "3 models" }
+copy t_flash_text { class: user-copy, en: "deepseek-v4-flash (default)" }
+copy t_pro_text { class: user-copy, en: "deepseek-v4-pro" }
+copy btn_test_label_text { class: user-copy, en: "Test route" }
+copy btn_discover_label_text { class: user-copy, en: "Discover models" }
+copy t_kimi_head_text { class: user-copy, en: "Kimi Coding Plan" }
+copy t_kimi_count_text { class: user-copy, en: "3 models" }
+copy t_glm_head_text { class: user-copy, en: "GLM Coding Plan" }
+copy t_glm_count_text { class: user-copy, en: "3 models" }
+state btn_test_control_enabled { shape: bool, initial: true }
+state btn_discover_control_enabled { shape: bool, initial: true }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Surface8e5ec20f13ed(instance: text) {
+  view Kit(component: "Surface8e5ec20f13ed", instance: instance) { slot }
+}
+component Surface9ee69c2cfe83(instance: text) {
+  view Kit(component: "Surface9ee69c2cfe83", instance: instance) { slot }
+}
+component Surface6ac8942dbfa9(instance: text) {
+  view Kit(component: "Surface6ac8942dbfa9", instance: instance) { slot }
+}
+component Surfaceb5be1093af4a(instance: text) {
+  view Kit(component: "Surfaceb5be1093af4a", instance: instance) { slot }
+}
+component Textefc81a410676(instance: text, text: text) {
+  view Kit(component: "Textefc81a410676", instance: instance, text: text)
+}
+component Text9d99f2224598(instance: text, text: text) {
+  view Kit(component: "Text9d99f2224598", instance: instance, text: text)
+}
+component Textd2de94ec13a5(instance: text, text: text) {
+  view Kit(component: "Textd2de94ec13a5", instance: instance, text: text)
+}
+component Surfacea7406a4ae43d(instance: text) {
+  view Kit(component: "Surfacea7406a4ae43d", instance: instance) { slot }
+}
+component Surface32251c2d6d0c(instance: text) {
+  view Kit(component: "Surface32251c2d6d0c", instance: instance) { slot }
+}
+component Surfacec5da2fb3c7c1(instance: text) {
+  view Kit(component: "Surfacec5da2fb3c7c1", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Textecbf6c315357(instance: text, text: text) {
+  view Kit(component: "Textecbf6c315357", instance: instance, text: text)
+}
+component Text947ba4ca257a(instance: text, text: text) {
+  view Kit(component: "Text947ba4ca257a", instance: instance, text: text)
+}
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surface26d3b1b7b376(instance: text) {
+  view Kit(component: "Surface26d3b1b7b376", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Text23d6ea84e7c8(instance: text, text: text) {
+  view Kit(component: "Text23d6ea84e7c8", instance: instance, text: text)
+}
+component Surfacea8acf25b8347(instance: text) {
+  view Kit(component: "Surfacea8acf25b8347", instance: instance) { slot }
+}
+component Text6b0ef02921d8(instance: text, text: text) {
+  view Kit(component: "Text6b0ef02921d8", instance: instance, text: text)
+}
+component Textaa1186c45b59(instance: text, text: text) {
+  view Kit(component: "Textaa1186c45b59", instance: instance, text: text)
+}
+component Texta813d34bcd90(instance: text, text: text) {
+  view Kit(component: "Texta813d34bcd90", instance: instance, text: text)
+}
+component Surface1cfef960ffc3(instance: text) {
+  view Kit(component: "Surface1cfef960ffc3", instance: instance) { slot }
+}
+component Textf4212b9678a4(instance: text, text: text) {
+  view Kit(component: "Textf4212b9678a4", instance: instance, text: text)
+}
+component Texta3258eaad970(instance: text, text: text) {
+  view Kit(component: "Texta3258eaad970", instance: instance, text: text)
+}
+component Surface854f2bc4be10(instance: text) {
+  view Kit(component: "Surface854f2bc4be10", instance: instance) { slot }
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Surface8e5ec20f13ed(instance: "card_deepseek") {
+
+  }
+  Surface9ee69c2cfe83(instance: "card_kimi") {
+
+  }
+  Surface6ac8942dbfa9(instance: "card_glm") {
+
+  }
+  Surfaceb5be1093af4a(instance: "vline") {
+
+  }
+  Textefc81a410676(instance: "t_title", text: copy.t_title_text)
+  Text9d99f2224598(instance: "t_ds_head", text: copy.t_ds_head_text)
+  Textd2de94ec13a5(instance: "t_ds_count", text: copy.t_ds_count_text)
+  Surfacea7406a4ae43d(instance: "inner_card") {
+
+  }
+  Surface32251c2d6d0c(instance: "inner_div") {
+
+  }
+  Surfacec5da2fb3c7c1(instance: "dot_ds") {
+
+  }
+  Vectore0a378fde04f(instance: "icon_chev_ds")
+  Textecbf6c315357(instance: "t_flash", text: copy.t_flash_text)
+  Text947ba4ca257a(instance: "t_pro", text: copy.t_pro_text)
+  Vectore0a378fde04f(instance: "icon_check")
+  KitButton2c6804b990a5(instance: "btn_test") {
+    Surface26d3b1b7b376(instance: "btn_test_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "btn_test_control", enabled: btn_test_control_enabled)
+    Text23d6ea84e7c8(instance: "btn_test_label", text: copy.btn_test_label_text)
+  }
+  KitButton2c6804b990a5(instance: "btn_discover") {
+    Surfacea8acf25b8347(instance: "btn_discover_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "btn_discover_control", enabled: btn_discover_control_enabled)
+    Text6b0ef02921d8(instance: "btn_discover_label", text: copy.btn_discover_label_text)
+  }
+  Textaa1186c45b59(instance: "t_kimi_head", text: copy.t_kimi_head_text)
+  Texta813d34bcd90(instance: "t_kimi_count", text: copy.t_kimi_count_text)
+  Surface1cfef960ffc3(instance: "dot_kimi") {
+
+  }
+  Vectore0a378fde04f(instance: "icon_chev_kimi")
+  Textf4212b9678a4(instance: "t_glm_head", text: copy.t_glm_head_text)
+  Texta3258eaad970(instance: "t_glm_count", text: copy.t_glm_count_text)
+  Surface854f2bc4be10(instance: "dot_glm") {
+
+  }
+  Vectore0a378fde04f(instance: "icon_chev_glm")
+}

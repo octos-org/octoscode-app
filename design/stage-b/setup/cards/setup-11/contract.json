@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "id": "setup-11",
+  "app": "octoscode",
+  "number": 11,
+  "title": "Error screen",
+  "structure": "Native component reconstructed from the approved stage-a board-2 atlas",
+  "artboard": [
+    406,
+    776
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a board-2 atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
+    "c": [
+      {
+        "t": "svg",
+        "id": "icon_warning",
+        "x": 130.0,
+        "y": 80.0,
+        "w": 72.0,
+        "h": 77.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t_title",
+        "text": "Something went wrong",
+        "x": 29.32,
+        "y": 188.36,
+        "w": 289.84,
+        "h": 33.0,
+        "size": 22,
+        "line_height": 33.0,
+        "weight": 600,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t_msg1",
+        "text": "OctosCode hit an unexpected",
+        "x": 40.6,
+        "y": 250.4,
+        "w": 261.64,
+        "h": 24.81,
+        "size": 14,
+        "line_height": 24.81,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t_msg2",
+        "text": "error. Your sessions are safe",
+        "x": 50.55,
+        "y": 280.9,
+        "w": 241.69,
+        "h": 25.3,
+        "size": 14,
+        "line_height": 25.3,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "text",
+        "id": "t_msg3",
+        "text": "on the server.",
+        "x": 109.32,
+        "y": 319.18,
+        "w": 121.03,
+        "h": 21.0,
+        "size": 14,
+        "line_height": 21.0,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "stack",
+        "id": "btn_reload",
+        "x": 26.0,
+        "y": 387.0,
+        "w": 303.0,
+        "h": 65.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "btn_reload_surface",
+            "x": 26.0,
+            "y": 387.0,
+            "w": 303.0,
+            "h": 65.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4279243024,
+            "radius": 32
+          },
+          {
+            "t": "button",
+            "id": "btn_reload_control",
+            "x": 26.0,
+            "y": 387.0,
+            "w": 303.0,
+            "h": 65.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "btn_reload_label",
+            "text": "Reload",
+            "x": 141.0,
+            "y": 410.0,
+            "w": 68.0,
+            "h": 25.01,
+            "size": 16.67,
+            "line_height": 25.01,
+            "weight": 600,
+            "color": 4294967295,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf"
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      {
+        "t": "stack",
+        "id": "btn_diag",
+        "x": 26.0,
+        "y": 473.0,
+        "w": 303.0,
+        "h": 63.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "btn_diag_surface",
+            "x": 26.0,
+            "y": 473.0,
+            "w": 303.0,
+            "h": 63.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 31,
+            "border": 1,
+            "bordercolor": 4278190082
+          },
+          {
+            "t": "button",
+            "id": "btn_diag_control",
+            "x": 26.0,
+            "y": 473.0,
+            "w": 303.0,
+            "h": 63.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "btn_diag_label",
+            "text": "Copy diagnostics",
+            "x": 87.0,
+            "y": 491.0,
+            "w": 164.0,
+            "h": 33.0,
+            "size": 22.0,
+            "line_height": 33.0,
+            "weight": 500,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf"
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      {
+        "t": "text",
+        "id": "t_report",
+        "text": "Report issue",
+        "x": 120.67,
+        "y": 571.85,
+        "w": 109.39,
+        "h": 24.81,
+        "size": 14,
+        "line_height": 24.81,
+        "weight": 500,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf"
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294967295
+  }
+}

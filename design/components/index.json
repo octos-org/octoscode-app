@@ -1,523 +1,749 @@
 {
-  "schema_version": 1,
-  "kind": "octoscode-l0-components",
-  "note": "Reusable per-item components compiled from the approved conversation scenes (card #18). Width-responsive: fill the slot width, height from content.",
-  "components": [
-    {
-      "id": "thread-row",
-      "source_scene": "conversation-01",
-      "extracted_from": "scene 1 root 'thread_1'",
-      "owner": "threads",
-      "bindings": [
-        "title",
-        "selected",
-        "forked",
-        "action:open"
-      ],
-      "variants": {
-        "short": {
-          "title": "Add session fork",
-          "selected": false
-        },
-        "long": {
-          "title": "Bump octos-core to a6ea8505 and re-verify the steer queue timeout",
-          "selected": true
-        }
-      },
-      "artboard": [
-        379.0,
-        78.0
-      ],
-      "nodes": 4,
-      "native_controls": 1,
-      "card": "design/components/thread-row/page.card",
-      "data": "design/components/thread-row/page.data.json",
-      "render": [
-        "design/components/thread-row/reference.png"
-      ]
+ "schema_version": 1,
+ "kind": "octoscode-l0-components",
+ "note": "Reusable per-item components compiled from the approved conversation (card #18) and setup (card #28c) scenes. Width-responsive: fill the slot width, height from content.",
+ "components": [
+  {
+   "id": "thread-row",
+   "source_scene": "conversation-01",
+   "extracted_from": "scene 1 root 'thread_1'",
+   "owner": "threads",
+   "bindings": [
+    "title",
+    "selected",
+    "forked",
+    "action:open"
+   ],
+   "variants": {
+    "short": {
+     "title": "Add session fork",
+     "selected": false
     },
-    {
-      "id": "new-chat",
-      "source_scene": "conversation-01",
-      "extracted_from": "scene 1 root 'new_chat'",
-      "owner": "threads",
-      "bindings": [
-        "action:new_chat"
-      ],
-      "variants": {
-        "short": {
-          "label": "New chat"
-        },
-        "long": {
-          "label": "New chat"
-        }
-      },
-      "artboard": [
-        374.0,
-        76.0
-      ],
-      "nodes": 4,
-      "native_controls": 1,
-      "card": "design/components/new-chat/page.card",
-      "data": "design/components/new-chat/page.data.json",
-      "render": [
-        "design/components/new-chat/reference.png"
-      ]
-    },
-    {
-      "id": "user-bubble",
-      "source_scene": "conversation-03",
-      "extracted_from": "scene 3 root 'user_bubble'",
-      "owner": "timeline",
-      "bindings": [
-        "text"
-      ],
-      "variants": {
-        "short": {
-          "text": "Retry the build"
-        },
-        "long": {
-          "text": "Fix the steer queue so queued steers survive a reconnect"
-        }
-      },
-      "artboard": [
-        284.01,
-        85.09
-      ],
-      "nodes": 3,
-      "native_controls": 0,
-      "card": "design/components/user-bubble/page.card",
-      "data": "design/components/user-bubble/page.data.json",
-      "render": [
-        "design/components/user-bubble/reference.png"
-      ]
-    },
-    {
-      "id": "working-row",
-      "source_scene": "conversation-03",
-      "extracted_from": "scene 3 root 'working_row'",
-      "owner": "timeline",
-      "bindings": [
-        "label",
-        "elapsed"
-      ],
-      "variants": {
-        "short": {
-          "label": "Working",
-          "elapsed": "3s"
-        },
-        "long": {
-          "label": "Working",
-          "elapsed": "12s"
-        }
-      },
-      "artboard": [
-        145.55,
-        29.5
-      ],
-      "nodes": 3,
-      "native_controls": 0,
-      "card": "design/components/working-row/page.card",
-      "data": "design/components/working-row/page.data.json",
-      "render": [
-        "design/components/working-row/reference.png"
-      ]
-    },
-    {
-      "id": "assistant-prose",
-      "source_scene": "conversation-09",
-      "extracted_from": "scene 9 root 'answer_prose'",
-      "owner": "timeline",
-      "bindings": [
-        "markdown"
-      ],
-      "variants": {
-        "short": {
-          "markdown": "Fixed `steer_dropped` handling."
-        },
-        "long": {
-          "markdown": "Queued steers now survive a reconnect.\n\n\u2022 Updated `ui_protocol_transport.rs` to persist queued steers.\n\n\u2022 All tests pass: `12 passed`."
-        }
-      },
-      "artboard": [
-        356.0,
-        492.0
-      ],
-      "nodes": 2,
-      "native_controls": 0,
-      "card": "design/components/assistant-prose/page.card",
-      "data": "design/components/assistant-prose/page.data.json",
-      "render": [
-        "design/components/assistant-prose/reference.png"
-      ]
-    },
-    {
-      "id": "worked-for",
-      "source_scene": "conversation-09",
-      "extracted_from": "scene 9 root 'worked_row'",
-      "owner": "timeline",
-      "bindings": [
-        "label",
-        "action:toggle"
-      ],
-      "variants": {
-        "short": {
-          "label": "Worked for 3s \u203a"
-        },
-        "long": {
-          "label": "Worked for 3m 4s \u203a"
-        }
-      },
-      "artboard": [
-        374.0,
-        44.0
-      ],
-      "nodes": 4,
-      "native_controls": 1,
-      "card": "design/components/worked-for/page.card",
-      "data": "design/components/worked-for/page.data.json",
-      "render": [
-        "design/components/worked-for/reference.png"
-      ]
-    },
-    {
-      "id": "answer-actions",
-      "source_scene": "conversation-09",
-      "extracted_from": "scene 9 root 'answer_actions'",
-      "owner": "timeline",
-      "bindings": [
-        "timestamp",
-        "actions"
-      ],
-      "variants": {
-        "short": {
-          "timestamp": "now"
-        },
-        "long": {
-          "timestamp": "Sep 28, 9:41 PM"
-        }
-      },
-      "artboard": [
-        364.11,
-        29.05
-      ],
-      "nodes": 5,
-      "native_controls": 0,
-      "card": "design/components/answer-actions/page.card",
-      "data": "design/components/answer-actions/page.data.json",
-      "render": [
-        "design/components/answer-actions/reference.png"
-      ]
-    },
-    {
-      "id": "tool-cell",
-      "source_scene": "conversation-04",
-      "extracted_from": "scene 4 root 'tool_1'",
-      "owner": "tools",
-      "bindings": [
-        "kind",
-        "summary",
-        "detail",
-        "status",
-        "expanded",
-        "output"
-      ],
-      "variants": {
-        "short": {
-          "summary": "Read steer_queue.rs",
-          "status": "ok"
-        },
-        "long": {
-          "summary": "Ran cargo test -p octos-cli",
-          "status": "ok",
-          "output": "running 12 tests\u2026 12 passed"
-        }
-      },
-      "artboard": [
-        371.0,
-        105.0
-      ],
-      "nodes": 5,
-      "native_controls": 0,
-      "card": "design/components/tool-cell/page.card",
-      "data": "design/components/tool-cell/page.data.json",
-      "render": [
-        "design/components/tool-cell/reference.png"
-      ]
-    },
-    {
-      "id": "composer",
-      "source_scene": "conversation-08",
-      "extracted_from": "scene 8 root 'composer_idle'",
-      "owner": "composer",
-      "bindings": [
-        "draft",
-        "model",
-        "running",
-        "queued",
-        "action:submit",
-        "action:interrupt",
-        "action:steer"
-      ],
-      "variants": {
-        "short": {
-          "model": "v4-flash"
-        },
-        "long": {
-          "model": "v4-flash",
-          "queued": true
-        }
-      },
-      "artboard": [
-        374.0,
-        190.0
-      ],
-      "nodes": 9,
-      "native_controls": 0,
-      "card": "design/components/composer/page.card",
-      "data": "design/components/composer/page.data.json",
-      "render": [
-        "design/components/composer/reference.png"
-      ]
-    },
-    {
-      "id": "approval-card",
-      "source_scene": "conversation-05",
-      "extracted_from": "scene 5 root 'approval_card'",
-      "owner": "approval",
-      "bindings": [
-        "command",
-        "reason",
-        "action:approve",
-        "action:approve_session",
-        "action:deny"
-      ],
-      "variants": {
-        "short": {
-          "command": "git push origin feat/steer-queue",
-          "reason": "Push the fix branch so CI can run"
-        },
-        "long": {
-          "command": "cargo test -p octos-cli steer_queue -- --nocapture",
-          "reason": "Run the full steer-queue integration suite before pushing so a regression in the durable queue is caught locally rather than in CI"
-        }
-      },
-      "artboard": [
-        374.0,
-        622.0
-      ],
-      "nodes": 19,
-      "native_controls": 3,
-      "card": "design/components/approval-card/page.card",
-      "data": "design/components/approval-card/page.data.json",
-      "render": [
-        "design/components/approval-card/reference.png"
-      ]
-    },
-    {
-      "id": "question-card",
-      "source_scene": "conversation-06",
-      "extracted_from": "scene 6 root 'question_card'",
-      "owner": "question",
-      "bindings": [
-        "title",
-        "question",
-        "options",
-        "note",
-        "action:submit",
-        "action:skip"
-      ],
-      "variants": {
-        "short": {
-          "question": "Where should queued steers be persisted?"
-        },
-        "long": {
-          "question": "Where should queued steers be persisted so they survive both a reconnect and an app restart without losing ordering?"
-        }
-      },
-      "artboard": [
-        374.0,
-        660.0
-      ],
-      "nodes": 23,
-      "native_controls": 2,
-      "card": "design/components/question-card/page.card",
-      "data": "design/components/question-card/page.data.json",
-      "render": [
-        "design/components/question-card/reference.png"
-      ]
-    },
-    {
-      "id": "edited-files-card",
-      "source_scene": "conversation-07",
-      "extracted_from": "scene 7 root 'edited_files_card'",
-      "owner": "files",
-      "bindings": [
-        "count",
-        "totals",
-        "files",
-        "action:undo",
-        "action:review"
-      ],
-      "variants": {
-        "short": {
-          "count": "Edited 1 file",
-          "totals": "+12 -2"
-        },
-        "long": {
-          "count": "Edited 3 files",
-          "totals": "+62 -5"
-        }
-      },
-      "artboard": [
-        374.0,
-        580.0
-      ],
-      "nodes": 28,
-      "native_controls": 1,
-      "card": "design/components/edited-files-card/page.card",
-      "data": "design/components/edited-files-card/page.data.json",
-      "render": [
-        "design/components/edited-files-card/reference.png"
-      ]
-    },
-    {
-      "id": "plan-card",
-      "source_scene": "conversation-10",
-      "extracted_from": "scene 10 root 'plan_card'",
-      "owner": "plan",
-      "bindings": [
-        "title",
-        "steps"
-      ],
-      "variants": {
-        "short": {
-          "title": "Plan \u00b7 1 of 2",
-          "steps": [
-            "Reproduce reconnect drop",
-            "Implement durable queue"
-          ]
-        },
-        "long": {
-          "title": "Plan \u00b7 3 of 5",
-          "steps": [
-            "Reproduce reconnect drop",
-            "Trace steer queue lifecycle",
-            "Write failing test",
-            "Implement durable queue",
-            "Run full suite and push"
-          ]
-        }
-      },
-      "artboard": [
-        374.0,
-        500.0
-      ],
-      "nodes": 13,
-      "native_controls": 0,
-      "card": "design/components/plan-card/page.card",
-      "data": "design/components/plan-card/page.data.json",
-      "render": [
-        "design/components/plan-card/reference.png"
-      ]
-    },
-    {
-      "id": "goal-strip",
-      "source_scene": "conversation-10",
-      "extracted_from": "scene 10 root 'goal_strip'",
-      "owner": "plan",
-      "bindings": [
-        "goal",
-        "elapsed",
-        "action:pause",
-        "action:stop"
-      ],
-      "variants": {
-        "short": {
-          "goal": "Goal \u00b7 Fix steer queue",
-          "elapsed": "2m"
-        },
-        "long": {
-          "goal": "Goal \u00b7 Fix steer queue on reconnect",
-          "elapsed": "18m"
-        }
-      },
-      "artboard": [
-        374.0,
-        40.0
-      ],
-      "nodes": 4,
-      "native_controls": 0,
-      "card": "design/components/goal-strip/page.card",
-      "data": "design/components/goal-strip/page.data.json",
-      "render": [
-        "design/components/goal-strip/reference.png"
-      ]
-    },
-    {
-      "id": "diff-view",
-      "source_scene": "conversation-11",
-      "extracted_from": "scene 11 root 'diff_view'",
-      "owner": "review",
-      "bindings": [
-        "scope",
-        "file",
-        "rows",
-        "folded"
-      ],
-      "variants": {
-        "short": {
-          "file": "ui_protocol.rs  +9 -1",
-          "folded": "\u22ee 88 unmodified lines \u22ee"
-        },
-        "long": {
-          "file": "ui_protocol_transport.rs  +31 -4",
-          "folded": "\u22ee 412 unmodified lines \u22ee"
-        }
-      },
-      "artboard": [
-        362.0,
-        566.0
-      ],
-      "nodes": 43,
-      "native_controls": 0,
-      "card": "design/components/diff-view/page.card",
-      "data": "design/components/diff-view/page.data.json",
-      "render": [
-        "design/components/diff-view/reference.png"
-      ]
-    },
-    {
-      "id": "settings-group",
-      "source_scene": "conversation-12",
-      "extracted_from": "scene 12 root 'settings_group'",
-      "owner": "settings",
-      "bindings": [
-        "section",
-        "rows",
-        "model"
-      ],
-      "variants": {
-        "short": {
-          "section": "Permissions",
-          "model": "deepseek-v4-flash"
-        },
-        "long": {
-          "section": "Permissions and defaults",
-          "model": "deepseek-v4-flash"
-        }
-      },
-      "artboard": [
-        374.0,
-        620.0
-      ],
-      "nodes": 17,
-      "native_controls": 0,
-      "card": "design/components/settings-group/page.card",
-      "data": "design/components/settings-group/page.data.json",
-      "render": [
-        "design/components/settings-group/reference.png"
-      ]
+    "long": {
+     "title": "Bump octos-core to a6ea8505 and re-verify the steer queue timeout",
+     "selected": true
     }
-  ]
+   },
+   "artboard": [
+    379.0,
+    78.0
+   ],
+   "nodes": 4,
+   "native_controls": 1,
+   "card": "design/components/thread-row/page.card",
+   "data": "design/components/thread-row/page.data.json",
+   "render": [
+    "design/components/thread-row/reference.png"
+   ]
+  },
+  {
+   "id": "new-chat",
+   "source_scene": "conversation-01",
+   "extracted_from": "scene 1 root 'new_chat'",
+   "owner": "threads",
+   "bindings": [
+    "action:new_chat"
+   ],
+   "variants": {
+    "short": {
+     "label": "New chat"
+    },
+    "long": {
+     "label": "New chat"
+    }
+   },
+   "artboard": [
+    374.0,
+    76.0
+   ],
+   "nodes": 4,
+   "native_controls": 1,
+   "card": "design/components/new-chat/page.card",
+   "data": "design/components/new-chat/page.data.json",
+   "render": [
+    "design/components/new-chat/reference.png"
+   ]
+  },
+  {
+   "id": "user-bubble",
+   "source_scene": "conversation-03",
+   "extracted_from": "scene 3 root 'user_bubble'",
+   "owner": "timeline",
+   "bindings": [
+    "text"
+   ],
+   "variants": {
+    "short": {
+     "text": "Retry the build"
+    },
+    "long": {
+     "text": "Fix the steer queue so queued steers survive a reconnect"
+    }
+   },
+   "artboard": [
+    284.01,
+    85.09
+   ],
+   "nodes": 3,
+   "native_controls": 0,
+   "card": "design/components/user-bubble/page.card",
+   "data": "design/components/user-bubble/page.data.json",
+   "render": [
+    "design/components/user-bubble/reference.png"
+   ]
+  },
+  {
+   "id": "working-row",
+   "source_scene": "conversation-03",
+   "extracted_from": "scene 3 root 'working_row'",
+   "owner": "timeline",
+   "bindings": [
+    "label",
+    "elapsed"
+   ],
+   "variants": {
+    "short": {
+     "label": "Working",
+     "elapsed": "3s"
+    },
+    "long": {
+     "label": "Working",
+     "elapsed": "12s"
+    }
+   },
+   "artboard": [
+    145.55,
+    29.5
+   ],
+   "nodes": 3,
+   "native_controls": 0,
+   "card": "design/components/working-row/page.card",
+   "data": "design/components/working-row/page.data.json",
+   "render": [
+    "design/components/working-row/reference.png"
+   ]
+  },
+  {
+   "id": "assistant-prose",
+   "source_scene": "conversation-09",
+   "extracted_from": "scene 9 root 'answer_prose'",
+   "owner": "timeline",
+   "bindings": [
+    "markdown"
+   ],
+   "variants": {
+    "short": {
+     "markdown": "Fixed `steer_dropped` handling."
+    },
+    "long": {
+     "markdown": "Queued steers now survive a reconnect.\n\n\u2022 Updated `ui_protocol_transport.rs` to persist queued steers.\n\n\u2022 All tests pass: `12 passed`."
+    }
+   },
+   "artboard": [
+    356.0,
+    492.0
+   ],
+   "nodes": 2,
+   "native_controls": 0,
+   "card": "design/components/assistant-prose/page.card",
+   "data": "design/components/assistant-prose/page.data.json",
+   "render": [
+    "design/components/assistant-prose/reference.png"
+   ]
+  },
+  {
+   "id": "worked-for",
+   "source_scene": "conversation-09",
+   "extracted_from": "scene 9 root 'worked_row'",
+   "owner": "timeline",
+   "bindings": [
+    "label",
+    "action:toggle"
+   ],
+   "variants": {
+    "short": {
+     "label": "Worked for 3s \u203a"
+    },
+    "long": {
+     "label": "Worked for 3m 4s \u203a"
+    }
+   },
+   "artboard": [
+    374.0,
+    44.0
+   ],
+   "nodes": 4,
+   "native_controls": 1,
+   "card": "design/components/worked-for/page.card",
+   "data": "design/components/worked-for/page.data.json",
+   "render": [
+    "design/components/worked-for/reference.png"
+   ]
+  },
+  {
+   "id": "answer-actions",
+   "source_scene": "conversation-09",
+   "extracted_from": "scene 9 root 'answer_actions'",
+   "owner": "timeline",
+   "bindings": [
+    "timestamp",
+    "actions"
+   ],
+   "variants": {
+    "short": {
+     "timestamp": "now"
+    },
+    "long": {
+     "timestamp": "Sep 28, 9:41 PM"
+    }
+   },
+   "artboard": [
+    364.11,
+    29.05
+   ],
+   "nodes": 5,
+   "native_controls": 0,
+   "card": "design/components/answer-actions/page.card",
+   "data": "design/components/answer-actions/page.data.json",
+   "render": [
+    "design/components/answer-actions/reference.png"
+   ]
+  },
+  {
+   "id": "tool-cell",
+   "source_scene": "conversation-04",
+   "extracted_from": "scene 4 root 'tool_1'",
+   "owner": "tools",
+   "bindings": [
+    "kind",
+    "summary",
+    "detail",
+    "status",
+    "expanded",
+    "output"
+   ],
+   "variants": {
+    "short": {
+     "summary": "Read steer_queue.rs",
+     "status": "ok"
+    },
+    "long": {
+     "summary": "Ran cargo test -p octos-cli",
+     "status": "ok",
+     "output": "running 12 tests\u2026 12 passed"
+    }
+   },
+   "artboard": [
+    371.0,
+    105.0
+   ],
+   "nodes": 5,
+   "native_controls": 0,
+   "card": "design/components/tool-cell/page.card",
+   "data": "design/components/tool-cell/page.data.json",
+   "render": [
+    "design/components/tool-cell/reference.png"
+   ]
+  },
+  {
+   "id": "composer",
+   "source_scene": "conversation-08",
+   "extracted_from": "scene 8 root 'composer_idle'",
+   "owner": "composer",
+   "bindings": [
+    "draft",
+    "model",
+    "running",
+    "queued",
+    "action:submit",
+    "action:interrupt",
+    "action:steer"
+   ],
+   "variants": {
+    "short": {
+     "model": "v4-flash"
+    },
+    "long": {
+     "model": "v4-flash",
+     "queued": true
+    }
+   },
+   "artboard": [
+    374.0,
+    190.0
+   ],
+   "nodes": 9,
+   "native_controls": 0,
+   "card": "design/components/composer/page.card",
+   "data": "design/components/composer/page.data.json",
+   "render": [
+    "design/components/composer/reference.png"
+   ]
+  },
+  {
+   "id": "approval-card",
+   "source_scene": "conversation-05",
+   "extracted_from": "scene 5 root 'approval_card'",
+   "owner": "approval",
+   "bindings": [
+    "command",
+    "reason",
+    "action:approve",
+    "action:approve_session",
+    "action:deny"
+   ],
+   "variants": {
+    "short": {
+     "command": "git push origin feat/steer-queue",
+     "reason": "Push the fix branch so CI can run"
+    },
+    "long": {
+     "command": "cargo test -p octos-cli steer_queue -- --nocapture",
+     "reason": "Run the full steer-queue integration suite before pushing so a regression in the durable queue is caught locally rather than in CI"
+    }
+   },
+   "artboard": [
+    374.0,
+    622.0
+   ],
+   "nodes": 19,
+   "native_controls": 3,
+   "card": "design/components/approval-card/page.card",
+   "data": "design/components/approval-card/page.data.json",
+   "render": [
+    "design/components/approval-card/reference.png"
+   ]
+  },
+  {
+   "id": "question-card",
+   "source_scene": "conversation-06",
+   "extracted_from": "scene 6 root 'question_card'",
+   "owner": "question",
+   "bindings": [
+    "title",
+    "question",
+    "options",
+    "note",
+    "action:submit",
+    "action:skip"
+   ],
+   "variants": {
+    "short": {
+     "question": "Where should queued steers be persisted?"
+    },
+    "long": {
+     "question": "Where should queued steers be persisted so they survive both a reconnect and an app restart without losing ordering?"
+    }
+   },
+   "artboard": [
+    374.0,
+    660.0
+   ],
+   "nodes": 23,
+   "native_controls": 2,
+   "card": "design/components/question-card/page.card",
+   "data": "design/components/question-card/page.data.json",
+   "render": [
+    "design/components/question-card/reference.png"
+   ]
+  },
+  {
+   "id": "edited-files-card",
+   "source_scene": "conversation-07",
+   "extracted_from": "scene 7 root 'edited_files_card'",
+   "owner": "files",
+   "bindings": [
+    "count",
+    "totals",
+    "files",
+    "action:undo",
+    "action:review"
+   ],
+   "variants": {
+    "short": {
+     "count": "Edited 1 file",
+     "totals": "+12 -2"
+    },
+    "long": {
+     "count": "Edited 3 files",
+     "totals": "+62 -5"
+    }
+   },
+   "artboard": [
+    374.0,
+    580.0
+   ],
+   "nodes": 28,
+   "native_controls": 1,
+   "card": "design/components/edited-files-card/page.card",
+   "data": "design/components/edited-files-card/page.data.json",
+   "render": [
+    "design/components/edited-files-card/reference.png"
+   ]
+  },
+  {
+   "id": "plan-card",
+   "source_scene": "conversation-10",
+   "extracted_from": "scene 10 root 'plan_card'",
+   "owner": "plan",
+   "bindings": [
+    "title",
+    "steps"
+   ],
+   "variants": {
+    "short": {
+     "title": "Plan \u00b7 1 of 2",
+     "steps": [
+      "Reproduce reconnect drop",
+      "Implement durable queue"
+     ]
+    },
+    "long": {
+     "title": "Plan \u00b7 3 of 5",
+     "steps": [
+      "Reproduce reconnect drop",
+      "Trace steer queue lifecycle",
+      "Write failing test",
+      "Implement durable queue",
+      "Run full suite and push"
+     ]
+    }
+   },
+   "artboard": [
+    374.0,
+    500.0
+   ],
+   "nodes": 13,
+   "native_controls": 0,
+   "card": "design/components/plan-card/page.card",
+   "data": "design/components/plan-card/page.data.json",
+   "render": [
+    "design/components/plan-card/reference.png"
+   ]
+  },
+  {
+   "id": "goal-strip",
+   "source_scene": "conversation-10",
+   "extracted_from": "scene 10 root 'goal_strip'",
+   "owner": "plan",
+   "bindings": [
+    "goal",
+    "elapsed",
+    "action:pause",
+    "action:stop"
+   ],
+   "variants": {
+    "short": {
+     "goal": "Goal \u00b7 Fix steer queue",
+     "elapsed": "2m"
+    },
+    "long": {
+     "goal": "Goal \u00b7 Fix steer queue on reconnect",
+     "elapsed": "18m"
+    }
+   },
+   "artboard": [
+    374.0,
+    40.0
+   ],
+   "nodes": 4,
+   "native_controls": 0,
+   "card": "design/components/goal-strip/page.card",
+   "data": "design/components/goal-strip/page.data.json",
+   "render": [
+    "design/components/goal-strip/reference.png"
+   ]
+  },
+  {
+   "id": "diff-view",
+   "source_scene": "conversation-11",
+   "extracted_from": "scene 11 root 'diff_view'",
+   "owner": "review",
+   "bindings": [
+    "scope",
+    "file",
+    "rows",
+    "folded"
+   ],
+   "variants": {
+    "short": {
+     "file": "ui_protocol.rs  +9 -1",
+     "folded": "\u22ee 88 unmodified lines \u22ee"
+    },
+    "long": {
+     "file": "ui_protocol_transport.rs  +31 -4",
+     "folded": "\u22ee 412 unmodified lines \u22ee"
+    }
+   },
+   "artboard": [
+    362.0,
+    566.0
+   ],
+   "nodes": 43,
+   "native_controls": 0,
+   "card": "design/components/diff-view/page.card",
+   "data": "design/components/diff-view/page.data.json",
+   "render": [
+    "design/components/diff-view/reference.png"
+   ]
+  },
+  {
+   "id": "settings-group",
+   "source_scene": "conversation-12",
+   "extracted_from": "scene 12 root 'settings_group'",
+   "owner": "settings",
+   "bindings": [
+    "section",
+    "rows",
+    "model"
+   ],
+   "variants": {
+    "short": {
+     "section": "Permissions",
+     "model": "deepseek-v4-flash"
+    },
+    "long": {
+     "section": "Permissions and defaults",
+     "model": "deepseek-v4-flash"
+    }
+   },
+   "artboard": [
+    374.0,
+    620.0
+   ],
+   "nodes": 17,
+   "native_controls": 0,
+   "card": "design/components/settings-group/page.card",
+   "data": "design/components/settings-group/page.data.json",
+   "render": [
+    "design/components/settings-group/reference.png"
+   ]
+  },
+  {
+   "id": "labeled-input",
+   "source_scene": "01",
+   "extracted_from": "scene 1 root 'server'",
+   "owner": "setup",
+   "bindings": [
+    "label",
+    "value",
+    "action:submit"
+   ],
+   "artboard": [
+    314.0,
+    44.3
+   ],
+   "nodes": 2,
+   "native_controls": 0,
+   "card": "design/components/labeled-input/page.card",
+   "data": "design/components/labeled-input/page.data.json",
+   "render": [
+    "design/components/labeled-input/reference.png"
+   ]
+  },
+  {
+   "id": "provider-row",
+   "source_scene": "03",
+   "extracted_from": "scene 3 root 'provider_deepseek'",
+   "owner": "setup",
+   "bindings": [
+    "label",
+    "selected",
+    "action:pick"
+   ],
+   "artboard": [
+    314.0,
+    41.52
+   ],
+   "nodes": 3,
+   "native_controls": 0,
+   "card": "design/components/provider-row/page.card",
+   "data": "design/components/provider-row/page.data.json",
+   "render": [
+    "design/components/provider-row/reference.png"
+   ]
+  },
+  {
+   "id": "ws-group",
+   "source_scene": "04",
+   "extracted_from": "scene 4 root 'recent_group'",
+   "owner": "setup",
+   "bindings": [
+    "rows",
+    "action:open"
+   ],
+   "artboard": [
+    314.0,
+    290.8
+   ],
+   "nodes": 16,
+   "native_controls": 0,
+   "card": "design/components/ws-group/page.card",
+   "data": "design/components/ws-group/page.data.json",
+   "render": [
+    "design/components/ws-group/reference.png"
+   ]
+  },
+  {
+   "id": "seg-control",
+   "source_scene": "05",
+   "extracted_from": "scene 5 root 'segments'",
+   "owner": "setup",
+   "bindings": [
+    "options",
+    "selected",
+    "action:pick"
+   ],
+   "artboard": [
+    314.0,
+    38.0
+   ],
+   "nodes": 7,
+   "native_controls": 0,
+   "card": "design/components/seg-control/page.card",
+   "data": "design/components/seg-control/page.data.json",
+   "render": [
+    "design/components/seg-control/reference.png"
+   ]
+  },
+  {
+   "id": "settings-toggle-row",
+   "source_scene": "06",
+   "extracted_from": "scene 6 root 'group2'",
+   "owner": "setup",
+   "bindings": [
+    "label",
+    "on",
+    "action:toggle"
+   ],
+   "artboard": [
+    350.0,
+    62.0
+   ],
+   "nodes": 4,
+   "native_controls": 0,
+   "card": "design/components/settings-toggle-row/page.card",
+   "data": "design/components/settings-toggle-row/page.data.json",
+   "render": [
+    "design/components/settings-toggle-row/reference.png"
+   ]
+  },
+  {
+   "id": "task-card",
+   "source_scene": "autonomy-07",
+   "extracted_from": "scene 7 root 'run_card'",
+   "owner": "autonomy",
+   "bindings": [
+    "command",
+    "status",
+    "duration",
+    "log",
+    "action:cancel"
+   ],
+   "variants": {
+    "short": {
+     "command": "\u203a cargo clippy -p octos-cli"
+    },
+    "long": {
+     "command": "\u203a cargo test -p octos-cli steer_queue -- --nocapture"
+    }
+   },
+   "artboard": [
+    344.0,
+    340.0
+   ],
+   "nodes": 14,
+   "native_controls": 1,
+   "card": "design/components/task-card/page.card",
+   "data": "design/components/task-card/page.data.json",
+   "render": [
+    "design/components/task-card/review-short.png",
+    "design/components/task-card/review-long.png"
+   ]
+  },
+  {
+   "id": "attachment-card",
+   "source_scene": "autonomy-09",
+   "extracted_from": "scene 9 root 'att_1'",
+   "owner": "autonomy",
+   "bindings": [
+    "thumbnail",
+    "size",
+    "action:remove"
+   ],
+   "variants": {
+    "short": {},
+    "long": {}
+   },
+   "artboard": [
+    178.0,
+    240.0
+   ],
+   "nodes": 4,
+   "native_controls": 1,
+   "card": "design/components/attachment-card/page.card",
+   "data": "design/components/attachment-card/page.data.json",
+   "render": [
+    "design/components/attachment-card/review-short.png",
+    "design/components/attachment-card/review-long.png"
+   ]
+  },
+  {
+   "id": "usage-bar",
+   "source_scene": "setup-09",
+   "extracted_from": "design/stage-b/setup (#28d, p0-map-f)",
+   "owner": "p0-map-f",
+   "bindings": [],
+   "variants": [
+    "long-360.png",
+    "long-540.png",
+    "short-360.png",
+    "short-540.png"
+   ],
+   "artboard": null,
+   "nodes": null,
+   "native_controls": [],
+   "card": "design/components/usage-bar/page.card",
+   "data": "design/components/usage-bar/page.data.json",
+   "render": "design/components/usage-bar/review-long.png"
+  },
+  {
+   "id": "segmented-control",
+   "source_scene": "setup-09",
+   "extracted_from": "design/stage-b/setup (#28d, p0-map-f)",
+   "owner": "p0-map-f",
+   "bindings": [],
+   "variants": [
+    "long-360.png",
+    "long-540.png",
+    "short-360.png",
+    "short-540.png"
+   ],
+   "artboard": null,
+   "nodes": null,
+   "native_controls": [],
+   "card": "design/components/segmented-control/page.card",
+   "data": "design/components/segmented-control/page.data.json",
+   "render": "design/components/segmented-control/review-long.png"
+  },
+  {
+   "id": "skeleton-list",
+   "source_scene": "setup-12",
+   "extracted_from": "design/stage-b/setup (#28d, p0-map-f)",
+   "owner": "p0-map-f",
+   "bindings": [],
+   "variants": [
+    "long-360.png",
+    "long-540.png",
+    "short-360.png",
+    "short-540.png"
+   ],
+   "artboard": null,
+   "nodes": null,
+   "native_controls": [],
+   "card": "design/components/skeleton-list/page.card",
+   "data": "design/components/skeleton-list/page.data.json",
+   "render": "design/components/skeleton-list/review-long.png"
+  }
+ ]
 }

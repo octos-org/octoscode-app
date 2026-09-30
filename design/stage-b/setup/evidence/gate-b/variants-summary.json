@@ -1,0 +1,102 @@
+[
+  {
+    "component": "labeled-input",
+    "variant": "short",
+    "right_edge_ok": true,
+    "spreads": {
+      "360": 0,
+      "540": 0
+    },
+    "review": "design/components/labeled-input/review-short.png"
+  },
+  {
+    "component": "labeled-input",
+    "variant": "long",
+    "right_edge_ok": true,
+    "spreads": {
+      "360": 0,
+      "540": 0
+    },
+    "review": "design/components/labeled-input/review-long.png"
+  },
+  {
+    "component": "provider-row",
+    "variant": "short",
+    "right_edge_ok": true,
+    "spreads": {
+      "360": 0,
+      "540": 0
+    },
+    "review": "design/components/provider-row/review-short.png"
+  },
+  {
+    "component": "provider-row",
+    "variant": "long",
+    "right_edge_ok": true,
+    "spreads": {
+      "360": 0,
+      "540": 0
+    },
+    "review": "design/components/provider-row/review-long.png"
+  },
+  {
+    "component": "ws-group",
+    "variant": "short",
+    "right_edge_ok": true,
+    "spreads": {
+      "360": 0,
+      "540": 0
+    },
+    "review": "design/components/ws-group/review-short.png"
+  },
+  {
+    "component": "ws-group",
+    "variant": "long",
+    "right_edge_ok": true,
+    "spreads": {
+      "360": 0,
+      "540": 0
+    },
+    "review": "design/components/ws-group/review-long.png"
+  },
+  {
+    "component": "seg-control",
+    "variant": "short",
+    "right_edge_ok": true,
+    "spreads": {
+      "360": 0,
+      "540": 0
+    },
+    "review": "design/components/seg-control/review-short.png"
+  },
+  {
+    "component": "seg-control",
+    "variant": "long",
+    "right_edge_ok": true,
+    "spreads": {
+      "360": 0,
+      "540": 0
+    },
+    "review": "design/components/seg-control/review-long.png"
+  },
+  {
+    "component": "settings-toggle-row",
+    "variant": "short",
+    "right_edge_ok": true,
+    "spreads": {
+      "360": 0,
+      "540": 0
+    },
+    "review": "design/components/settings-toggle-row/review-short.png"
+  },
+  {
+    "component": "settings-toggle-row",
+    "variant": "long",
+    "right_edge_ok": true,
+    "spreads": {
+      "360": 0,
+      "540": 0
+    },
+    "review": "design/components/settings-toggle-row/review-long.png"
+  }
+]

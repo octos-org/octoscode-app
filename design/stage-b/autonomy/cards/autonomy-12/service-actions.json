@@ -1,0 +1,46 @@
+{
+  "frame_id": 12,
+  "controls": {
+    "conn_row": {
+      "event": "settings.connection",
+      "source_bounds": [
+        20,
+        250,
+        350,
+        84
+      ],
+      "enabled": true
+    },
+    "toggle_notif": {
+      "event": "settings.notifications",
+      "source_bounds": [
+        320,
+        502,
+        50,
+        30
+      ],
+      "enabled": true
+    },
+    "copy_diag": {
+      "event": "settings.copy_diagnostics",
+      "source_bounds": [
+        20,
+        565,
+        350,
+        48
+      ],
+      "enabled": true
+    },
+    "disconnect": {
+      "event": "settings.disconnect",
+      "source_bounds": [
+        20,
+        652,
+        350,
+        49
+      ],
+      "enabled": true
+    }
+  },
+  "source": "dark-settings"
+}

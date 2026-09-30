@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "policy_version": "1.1.0",
+  "contract_sha256": "502c12498e73c25a66b176b314f6c00d47f61c76a0a6fad439373725c18dbc90",
+  "reference_sha256": "87d7bdcca3653bc8ea229816541ad9992a0b78b41b9f4ffee527790fd31c6df1",
+  "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
+  "elements": [
+    {
+      "id": "provider_deepseek",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "radio_deepseek",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/radio_deepseek.svg",
+        "sha256": "2a1f67c04b5928da5c9ce8ac75e0134c2f9ab0d3cead9cffaeb04b637632b9d6",
+        "method": "reference_svg",
+        "reference_sha256": "87d7bdcca3653bc8ea229816541ad9992a0b78b41b9f4ffee527790fd31c6df1",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "t_prov_deepseek",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    }
+  ]
+}

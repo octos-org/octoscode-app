@@ -1,0 +1,324 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "5456a3455332ebeb386d048efcd4cf9bfe9f5dd133f195aa9bc7f397dfbc193d",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "text",
+        "id": "t01",
+        "text": "OctosCode",
+        "x": 25.25,
+        "y": 33.51,
+        "w": 99.84,
+        "h": 23.53,
+        "size": 17.67,
+        "line_height": 21.38,
+        "weight": 600,
+        "color": 4278716424,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t02",
+        "text": "Code review",
+        "x": 24.15,
+        "y": 110.76,
+        "w": 115.52,
+        "h": 25.31,
+        "size": 18.67,
+        "line_height": 22.6,
+        "weight": 400,
+        "color": 4278650631,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t03",
+        "text": "Start review",
+        "x": 276.94,
+        "y": 106.32,
+        "w": 103.32,
+        "h": 34.19,
+        "size": 17.49,
+        "line_height": 21.16,
+        "weight": 400,
+        "color": 4278782735,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t04",
+        "text": "Reviewing 3 files \u2022 2 specialists",
+        "x": 82.33,
+        "y": 208.43,
+        "w": 227.04,
+        "h": 27.08,
+        "size": 14.86,
+        "line_height": 17.98,
+        "weight": 400,
+        "color": 4280295456,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t05",
+        "text": "Analyzing changes and code quality...",
+        "x": 81.54,
+        "y": 250.16,
+        "w": 259.27,
+        "h": 26.2,
+        "size": 14.23,
+        "line_height": 17.21,
+        "weight": 400,
+        "color": 4285822331,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t06",
+        "text": "High",
+        "x": 41.47,
+        "y": 370.91,
+        "w": 34.49,
+        "h": 25.31,
+        "size": 13.92,
+        "line_height": 16.85,
+        "weight": 400,
+        "color": 4289795094,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t07",
+        "text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
+        "x": 34.96,
+        "y": 423.29,
+        "w": 340.3,
+        "h": 25.31,
+        "size": 14.89,
+        "line_height": 18.02,
+        "weight": 400,
+        "color": 4279703576,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t08",
+        "text": "Potential message loss when reconnecting: pending",
+        "x": 34.55,
+        "y": 467.68,
+        "w": 332.46,
+        "h": 25.31,
+        "size": 13.33,
+        "line_height": 16.13,
+        "weight": 400,
+        "color": 4284440678,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t09",
+        "text": "queue was dropped.",
+        "x": 34.19,
+        "y": 500.54,
+        "w": 129.46,
+        "h": 25.31,
+        "size": 12.9,
+        "line_height": 15.61,
+        "weight": 400,
+        "color": 4284440678,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t10",
+        "text": "Low",
+        "x": 41.46,
+        "y": 618.62,
+        "w": 31.88,
+        "h": 21.76,
+        "size": 14.06,
+        "line_height": 17.01,
+        "weight": 400,
+        "color": 4281348144,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t11",
+        "text": "crates/octos-core/src/ui_protocol.rs",
+        "x": 34.09,
+        "y": 671.89,
+        "w": 261.89,
+        "h": 26.2,
+        "size": 15.05,
+        "line_height": 18.22,
+        "weight": 400,
+        "color": 4280032541,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t12",
+        "text": "Missing documentation for new preserve_pending",
+        "x": 33.68,
+        "y": 718.06,
+        "w": 320.26,
+        "h": 26.2,
+        "size": 13.35,
+        "line_height": 16.15,
+        "weight": 400,
+        "color": 4284835178,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t13",
+        "text": "behavior.",
+        "x": 33.91,
+        "y": 753.58,
+        "w": 58.02,
+        "h": 19.98,
+        "size": 12.23,
+        "line_height": 14.8,
+        "weight": 400,
+        "color": 4284243554,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t01",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.207369556817738
+    },
+    {
+      "id": "t02",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.18838421229287422
+    },
+    {
+      "id": "t03",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.27955941434992415
+    },
+    {
+      "id": "t04",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.16946636291263562
+    },
+    {
+      "id": "t05",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.18652983742811777
+    },
+    {
+      "id": "t06",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.21356499455249636
+    },
+    {
+      "id": "t07",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.15090868232054577
+    },
+    {
+      "id": "t08",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.19936669750453773
+    },
+    {
+      "id": "t09",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.24196884304637742
+    },
+    {
+      "id": "t10",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.35033310542122037
+    },
+    {
+      "id": "t11",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.16594668614536656
+    },
+    {
+      "id": "t12",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.21323065638189245
+    },
+    {
+      "id": "t13",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2098018575594567
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

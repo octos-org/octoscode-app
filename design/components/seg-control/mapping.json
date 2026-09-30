@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "segments",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface5e76d82e8b78",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        314.0,
+        38.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "seg_sel",
+      "native_id": "beauty_0_0",
+      "parent": "segments",
+      "kind": "stack",
+      "component": "Surfacefcfdbbddc65b",
+      "semantic_role": "layout",
+      "bounds": [
+        2.539999999999999,
+        4.0,
+        104.79,
+        30.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_seg0",
+      "native_id": "beauty_0_1",
+      "parent": "segments",
+      "kind": "text",
+      "component": "Text1693d826aa0c",
+      "semantic_role": "text",
+      "bounds": [
+        12.54,
+        11.0,
+        84.79,
+        22.27
+      ],
+      "text": "On request",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 13
+    },
+    {
+      "source_id": "t_seg1",
+      "native_id": "beauty_0_2",
+      "parent": "segments",
+      "kind": "text",
+      "component": "Text6d1c12998f89",
+      "semantic_role": "text",
+      "bounds": [
+        125.38999999999999,
+        11.28000000000003,
+        73.38,
+        19.5
+      ],
+      "text": "On failure",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13
+    },
+    {
+      "source_id": "t_seg2",
+      "native_id": "beauty_0_3",
+      "parent": "segments",
+      "kind": "text",
+      "component": "Text6d1c12998f89",
+      "semantic_role": "text",
+      "bounds": [
+        244.92000000000002,
+        11.310000000000002,
+        45.2,
+        19.5
+      ],
+      "text": "Never",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13
+    },
+    {
+      "source_id": "segdiv1",
+      "native_id": "beauty_0_4",
+      "parent": "segments",
+      "kind": "stack",
+      "component": "Surfacec4c38149242a",
+      "semantic_role": "layout",
+      "bounds": [
+        111.36000000000001,
+        4.0,
+        1.0,
+        30.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "segdiv2",
+      "native_id": "beauty_0_5",
+      "parent": "segments",
+      "kind": "stack",
+      "component": "Surfacec4c38149242a",
+      "semantic_role": "layout",
+      "bounds": [
+        221.83999999999997,
+        4.0,
+        1.0,
+        30.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "ccda2e65d224ba6ac4e4d8e7b0454692f398e6f476f551727b3ef3efe65f0a9d",
+  "mapping_basis": "mapped.json"
+}

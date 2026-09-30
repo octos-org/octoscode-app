@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "id": "octoscode-autonomy",
+  "artboard": [
+    406,
+    776
+  ],
+  "locales": [
+    "en",
+    "cn"
+  ],
+  "generation": {
+    "atlas": "source/atlas.png",
+    "prompt": "source/prompt.txt",
+    "provider": "openai",
+    "model": "gpt-image-2",
+    "requested_size": [
+      2048,
+      3072
+    ],
+    "quality": "high"
+  },
+  "scenes": [
+    {
+      "id": "1",
+      "design_id": "autonomy-01",
+      "directory": "cards/autonomy-01",
+      "crop": [
+        28,
+        80,
+        471,
+        874
+      ],
+      "surface": "app",
+      "title": "Review panel"
+    },
+    {
+      "id": "2",
+      "design_id": "autonomy-02",
+      "directory": "cards/autonomy-02",
+      "crop": [
+        529,
+        80,
+        466,
+        874
+      ],
+      "surface": "app",
+      "title": "Autonomy btw"
+    },
+    {
+      "id": "3",
+      "design_id": "autonomy-03",
+      "directory": "cards/autonomy-03",
+      "crop": [
+        1025,
+        77,
+        466,
+        875
+      ],
+      "surface": "app",
+      "title": "Context"
+    },
+    {
+      "id": "4",
+      "design_id": "autonomy-04",
+      "directory": "cards/autonomy-04",
+      "crop": [
+        1532,
+        77,
+        471,
+        876
+      ],
+      "surface": "app",
+      "title": "Models"
+    },
+    {
+      "id": "5",
+      "design_id": "autonomy-05",
+      "directory": "cards/autonomy-05",
+      "crop": [
+        28,
+        1090,
+        469,
+        792
+      ],
+      "surface": "app",
+      "title": "Product controls"
+    },
+    {
+      "id": "6",
+      "design_id": "autonomy-06",
+      "directory": "cards/autonomy-06",
+      "crop": [
+        528,
+        1091,
+        456,
+        791
+      ],
+      "surface": "app",
+      "title": "Review"
+    },
+    {
+      "id": "7",
+      "design_id": "autonomy-07",
+      "directory": "cards/autonomy-07",
+      "crop": [
+        1022,
+        1091,
+        465,
+        793
+      ],
+      "surface": "app",
+      "title": "Tasks"
+    },
+    {
+      "id": "8",
+      "design_id": "autonomy-08",
+      "directory": "cards/autonomy-08",
+      "crop": [
+        1526,
+        1091,
+        476,
+        791
+      ],
+      "surface": "app",
+      "title": "Resume"
+    },
+    {
+      "id": "9",
+      "design_id": "autonomy-09",
+      "directory": "cards/autonomy-09",
+      "crop": [
+        28,
+        2035,
+        471,
+        897
+      ],
+      "surface": "app",
+      "title": "Attachments"
+    },
+    {
+      "id": "10",
+      "design_id": "autonomy-10",
+      "directory": "cards/autonomy-10",
+      "crop": [
+        530,
+        2039,
+        458,
+        962
+      ],
+      "surface": "app",
+      "title": "Side question"
+    },
+    {
+      "id": "11",
+      "design_id": "autonomy-11",
+      "directory": "cards/autonomy-11",
+      "crop": [
+        1017,
+        2038,
+        466,
+        963
+      ],
+      "surface": "app",
+      "title": "Dark conversation"
+    },
+    {
+      "id": "12",
+      "design_id": "autonomy-12",
+      "directory": "cards/autonomy-12",
+      "crop": [
+        1523,
+        2036,
+        474,
+        964
+      ],
+      "surface": "app",
+      "title": "Dark settings"
+    }
+  ],
+  "artwork": {
+    "source_prefix": "http://127.0.0.1:8170/ux-images/",
+    "root": "artwork"
+  },
+  "outputs": {
+    "intake": "pipeline-output/intake",
+    "cards": "pipeline-output/service-cards",
+    "bundle": "wizard/card-bundle",
+    "wasm": "wizard/wasm-dist",
+    "runs": "pipeline-output/runs"
+  },
+  "browser_modules": [
+    "wizard/service.mjs",
+    "wizard/render.mjs",
+    "wizard/wizard.mjs"
+  ],
+  "cards": [
+    {
+      "id": "task-card",
+      "scene": "7",
+      "root": "run_card",
+      "owner": "autonomy"
+    },
+    {
+      "id": "attachment-card",
+      "scene": "9",
+      "root": "att_1",
+      "owner": "autonomy"
+    }
+  ],
+  "checks": {
+    "service-test": [
+      {
+        "argv": [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "service",
+          "-p",
+          "test_*.py"
+        ],
+        "cwd": "."
+      },
+      {
+        "argv": [
+          "{node}",
+          "--test",
+          "wizard/service.test.mjs"
+        ],
+        "cwd": "."
+      }
+    ]
+  }
+}

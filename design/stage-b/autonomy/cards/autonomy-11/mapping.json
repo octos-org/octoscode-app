@@ -1,0 +1,425 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface430cd19400f4",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "user_bubble",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface8f75dd049682",
+      "semantic_role": "layout",
+      "bounds": [
+        73.02,
+        173.54,
+        310.39,
+        71.84
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_q1",
+      "native_id": "beauty_0_0_0",
+      "parent": "user_bubble",
+      "kind": "text",
+      "component": "Text9097f8882d07",
+      "semantic_role": "text",
+      "bounds": [
+        83.68,
+        179.31,
+        290.64,
+        32.2
+      ],
+      "text": "Can we add a test for preserve_pending",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 15.01
+    },
+    {
+      "source_id": "t_q2",
+      "native_id": "beauty_0_0_1",
+      "parent": "user_bubble",
+      "kind": "text",
+      "component": "Text217374c44ad9",
+      "semantic_role": "text",
+      "bounds": [
+        83.31,
+        209.93,
+        82.41,
+        29.79
+      ],
+      "text": "behavior?",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 16.61
+    },
+    {
+      "source_id": "tool_card",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface5c09226d39f3",
+      "semantic_role": "layout",
+      "bounds": [
+        25.0,
+        268.0,
+        355.0,
+        53.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_tool",
+      "native_id": "beauty_0_1_0",
+      "parent": "tool_card",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        30.0,
+        276.0,
+        20.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_tool",
+      "native_id": "beauty_0_1_1",
+      "parent": "tool_card",
+      "kind": "text",
+      "component": "Textd563609b793c",
+      "semantic_role": "text",
+      "bounds": [
+        52.0,
+        279.5,
+        261.0,
+        18.0
+      ],
+      "text": "Edit crates/octos-cli/tests/steer_queue.rs",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13.0
+    },
+    {
+      "source_id": "icon_tool_done",
+      "native_id": "beauty_0_1_2",
+      "parent": "tool_card",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        344.0,
+        282.0,
+        18.0,
+        18.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "answer_surface",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfacefc2f16a6fb9b",
+      "semantic_role": "layout",
+      "bounds": [
+        20.0,
+        344.0,
+        366.0,
+        177.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "answer_md",
+      "native_id": "beauty_0_2_0",
+      "parent": "answer_surface",
+      "kind": "text",
+      "component": "Textdc4305206aee",
+      "semantic_role": "text",
+      "bounds": [
+        30.0,
+        352.0,
+        340.0,
+        165.0
+      ],
+      "text": "I added a test that simulates a reconnect and verifies pending messages are preserved. The test asserts `metrics.steer_preserved` increments and `metrics.steer_dropped` remains unchanged.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 16
+    },
+    {
+      "source_id": "answer_actions",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        30.0,
+        531.0,
+        120.0,
+        26.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_up",
+      "native_id": "beauty_0_3_0",
+      "parent": "answer_actions",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        37.0,
+        533.0,
+        22.0,
+        22.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_down",
+      "native_id": "beauty_0_3_1",
+      "parent": "answer_actions",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        80.0,
+        533.0,
+        22.0,
+        22.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "composer",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfaceebaff3349490",
+      "semantic_role": "layout",
+      "bounds": [
+        26.0,
+        616.0,
+        366.0,
+        146.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "composer_input",
+      "native_id": "beauty_0_4_0",
+      "parent": "composer",
+      "kind": "input",
+      "component": "Inputfa788caf1350",
+      "semantic_role": "input",
+      "bounds": [
+        39.701,
+        623.62,
+        293.583,
+        34.274
+      ],
+      "text": null,
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15
+    },
+    {
+      "source_id": "control_row",
+      "native_id": "beauty_0_4_1",
+      "parent": "composer",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        39.701,
+        660.507,
+        336.642,
+        38.082
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_plus",
+      "native_id": "beauty_0_4_1_0",
+      "parent": "control_row",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        42.0,
+        662.0,
+        28.0,
+        28.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "approval_pill",
+      "native_id": "beauty_0_4_1_1",
+      "parent": "control_row",
+      "kind": "stack",
+      "component": "Surfacee1f6f7dd0a15",
+      "semantic_role": "layout",
+      "bounds": [
+        71.0,
+        672.0,
+        128.0,
+        32.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_approval",
+      "native_id": "beauty_0_4_1_1_0",
+      "parent": "approval_pill",
+      "kind": "text",
+      "component": "Texte2130f18a6e8",
+      "semantic_role": "text",
+      "bounds": [
+        83.0,
+        680.0,
+        104.0,
+        19.5
+      ],
+      "text": "Ask for approval",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13
+    },
+    {
+      "source_id": "t_model",
+      "native_id": "beauty_0_4_1_2",
+      "parent": "control_row",
+      "kind": "text",
+      "component": "Text78558d644fe5",
+      "semantic_role": "text",
+      "bounds": [
+        225.0,
+        680.0,
+        69.7,
+        19.5
+      ],
+      "text": "v4-flash \u25be",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 13
+    },
+    {
+      "source_id": "icon_mic",
+      "native_id": "beauty_0_4_1_3",
+      "parent": "control_row",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        301.0,
+        665.0,
+        20.0,
+        32.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "send_btn",
+      "native_id": "beauty_0_4_1_4",
+      "parent": "control_row",
+      "kind": "stack",
+      "component": "Surface7736f8a447e4",
+      "semantic_role": "layout",
+      "bounds": [
+        338.0,
+        662.411,
+        35.23,
+        34.274
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_send",
+      "native_id": "beauty_0_4_1_4_0",
+      "parent": "send_btn",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        348.0,
+        671.932,
+        15.658,
+        15.233
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "d0d560690916e33e25975d06025effe26c91c0ef68dff48052ef128155c38821",
+  "mapping_basis": "mapped.json"
+}

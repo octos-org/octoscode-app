@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "policy_version": "1.1.0",
+  "contract_sha256": "944a67b3893ae870d0ee51258a9f89ad60df758ca9880037a0cfd46f6703a44b",
+  "reference_sha256": "bb7ee785d255cda1ebde174791ea947ec7e46f89f5fd28e5838454fc6f81d99f",
+  "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
+  "elements": [
+    {
+      "id": "server",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "server_field",
+      "role": "input",
+      "basis": "authored input node",
+      "confidence": 1.0,
+      "decision": "declared",
+      "behavior": {
+        "event": "changed",
+        "target": "server_field",
+        "property": "text"
+      }
+    }
+  ]
+}

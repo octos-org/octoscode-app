@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "policy_version": "1.1.0",
+  "contract_sha256": "ecdc47d090f36fac6696a9a5af953f834d6647d29218af9945b8a5732aa7c30c",
+  "reference_sha256": "d89b505e5f3ad44c210449a6fbb50b29f643b03dafbdf07cedfd88a4b2c09a78",
+  "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
+  "elements": [
+    {
+      "id": "att_1",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "att_1_img",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/att_1_img.svg",
+        "sha256": "837d9108b5e18eb8daa4360b11c551359aca5dec5558c710564f10fc902bfff7",
+        "method": "reference_svg",
+        "reference_sha256": "d89b505e5f3ad44c210449a6fbb50b29f643b03dafbdf07cedfd88a4b2c09a78",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "att_1_close_bg",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "att_1_close",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/att_1_close.svg",
+        "sha256": "584d3d6cc099d1dd03308499006b48b300b882a8e31650c8e8beb601bb1c7687",
+        "method": "reference_svg",
+        "reference_sha256": "d89b505e5f3ad44c210449a6fbb50b29f643b03dafbdf07cedfd88a4b2c09a78",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    }
+  ]
+}

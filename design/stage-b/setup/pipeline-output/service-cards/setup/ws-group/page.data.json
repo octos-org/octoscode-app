@@ -1,0 +1,156 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "recent_group": {
+        "component": "Surface7a7bef822439",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 314.0,
+          "h": 290.8
+        }
+      },
+      "ws_icon0": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 14.0,
+          "y": 12.899999999999977,
+          "w": 18.0,
+          "h": 18.0,
+          "src": "http://127.0.0.1:8170/ux-images/ws-group/assets/ws_icon0-cba5fa12f954.svg"
+        }
+      },
+      "t_ws0_name": {
+        "component": "Text404646513d4f",
+        "layout": {
+          "x": 48.730000000000004,
+          "y": 14.0,
+          "w": 45.11,
+          "h": 21.0
+        }
+      },
+      "t_ws0_path": {
+        "component": "Textfd6a3ee4835f",
+        "layout": {
+          "x": 48.730000000000004,
+          "y": 37.05000000000001,
+          "w": 240.0,
+          "h": 19.31
+        }
+      },
+      "hair_ws1": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 12.0,
+          "y": 70.43,
+          "w": 290.0,
+          "h": 1.0
+        }
+      },
+      "ws_icon1": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 14.0,
+          "y": 86.20999999999998,
+          "w": 18.0,
+          "h": 18.0,
+          "src": "http://127.0.0.1:8170/ux-images/ws-group/assets/ws_icon1-cba5fa12f954.svg"
+        }
+      },
+      "t_ws1_name": {
+        "component": "Texta90b9b77c268",
+        "layout": {
+          "x": 48.64,
+          "y": 84.49000000000001,
+          "w": 118.6,
+          "h": 21.43
+        }
+      },
+      "t_ws1_path": {
+        "component": "Textfd1c766318fb",
+        "layout": {
+          "x": 48.64,
+          "y": 111.0,
+          "w": 240.0,
+          "h": 19.17
+        }
+      },
+      "hair_ws2": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 12.0,
+          "y": 144.26999999999998,
+          "w": 290.0,
+          "h": 1.0
+        }
+      },
+      "ws_icon2": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 14.0,
+          "y": 158.39999999999998,
+          "w": 18.0,
+          "h": 18.0,
+          "src": "http://127.0.0.1:8170/ux-images/ws-group/assets/ws_icon2-cba5fa12f954.svg"
+        }
+      },
+      "t_ws2_name": {
+        "component": "Text404646513d4f",
+        "layout": {
+          "x": 47.61,
+          "y": 158.37,
+          "w": 58.64,
+          "h": 21.0
+        }
+      },
+      "t_ws2_path": {
+        "component": "Text2cf7aad1d558",
+        "layout": {
+          "x": 47.61,
+          "y": 184.31,
+          "w": 240.0,
+          "h": 18.05
+        }
+      },
+      "hair_ws3": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 12.0,
+          "y": 217.35000000000002,
+          "w": 290.0,
+          "h": 1.0
+        }
+      },
+      "ws_icon3": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 14.0,
+          "y": 232.26999999999998,
+          "w": 18.0,
+          "h": 18.0,
+          "src": "http://127.0.0.1:8170/ux-images/ws-group/assets/ws_icon3-cba5fa12f954.svg"
+        }
+      },
+      "t_ws3_name": {
+        "component": "Text404646513d4f",
+        "layout": {
+          "x": 48.64,
+          "y": 232.35000000000002,
+          "w": 85.89,
+          "h": 21.0
+        }
+      },
+      "t_ws3_path": {
+        "component": "Text2cf7aad1d558",
+        "layout": {
+          "x": 48.64,
+          "y": 258.76,
+          "w": 240.0,
+          "h": 18.05
+        }
+      }
+    },
+    "bindings": []
+  }
+}

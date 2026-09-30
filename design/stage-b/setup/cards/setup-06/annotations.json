@@ -1,0 +1,274 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "3d7b4292eea6e581bb223e6bd810ed674773028569a9096115b2b3131ab844f0",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      35.0,
+      601.0,
+      333.0,
+      72.0
+    ],
+    [
+      32.0,
+      599.0,
+      339.0,
+      77.0
+    ],
+    [
+      35.0,
+      484.0,
+      333.0,
+      71.0
+    ],
+    [
+      32.0,
+      481.0,
+      339.0,
+      77.0
+    ],
+    [
+      294.0,
+      395.0,
+      56.0,
+      36.0
+    ],
+    [
+      35.0,
+      378.0,
+      333.0,
+      70.0
+    ],
+    [
+      32.0,
+      376.0,
+      339.0,
+      75.0
+    ],
+    [
+      35.0,
+      272.0,
+      333.0,
+      70.0
+    ],
+    [
+      35.0,
+      201.0,
+      333.0,
+      70.0
+    ],
+    [
+      35.0,
+      200.0,
+      333.0,
+      142.0
+    ],
+    [
+      35.0,
+      132.0,
+      333.0,
+      67.0
+    ],
+    [
+      32.0,
+      129.0,
+      339.0,
+      216.0
+    ],
+    [
+      15.0,
+      39.0,
+      375.0,
+      732.0
+    ],
+    [
+      13.0,
+      36.0,
+      380.0,
+      737.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4293981682
+    },
+    {
+      "id": "outer_card",
+      "bounds": [
+        13.0,
+        36.0,
+        380.0,
+        737.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.78
+    },
+    {
+      "id": "group1",
+      "bounds": [
+        32.0,
+        129.0,
+        339.0,
+        216.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.22
+    },
+    {
+      "id": "live_dot",
+      "bounds": [
+        248.04,
+        152.066,
+        7.749,
+        8.816
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "radius": 3.87
+    },
+    {
+      "id": "chev_g1_r0",
+      "bounds": [
+        345.817,
+        147.658,
+        15.497,
+        17.633
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "chev_g1_r1",
+      "bounds": [
+        345.817,
+        224.051,
+        15.497,
+        17.633
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "hair_g1_1",
+      "bounds": [
+        47.497,
+        195.089,
+        308.006,
+        1.102
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "chev_g1_r2",
+      "bounds": [
+        345.817,
+        304.28,
+        15.497,
+        17.633
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "hair_g1_2",
+      "bounds": [
+        47.497,
+        274.844,
+        308.006,
+        1.102
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "group2",
+      "bounds": [
+        32.0,
+        376.0,
+        339.0,
+        75.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 11.84
+    },
+    {
+      "id": "toggle1",
+      "bounds": [
+        294.0,
+        395.0,
+        56.0,
+        36.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4281299186,
+      "radius": 18.0
+    },
+    {
+      "id": "toggle1_knob",
+      "bounds": [
+        323.12,
+        398.6,
+        26.88,
+        28.8
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294638589,
+      "radius": 13.44
+    },
+    {
+      "id": "group3",
+      "bounds": [
+        32.0,
+        481.0,
+        339.0,
+        77.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 12.16
+    },
+    {
+      "id": "copy_diag",
+      "bounds": [
+        332.257,
+        504.303,
+        29.057,
+        30.395
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "disconnect",
+      "bounds": [
+        35.0,
+        601.0,
+        333.0,
+        72.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 17.76
+    }
+  ]
+}

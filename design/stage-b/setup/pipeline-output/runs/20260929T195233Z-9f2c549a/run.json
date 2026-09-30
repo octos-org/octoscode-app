@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "flow": "octoscode-setup",
+  "status": "completed",
+  "scope": "Only explicitly executed stages; no automatic visual or production acceptance",
+  "inputs": {
+    "sha256": "68100c2f7994932b6585b8fdf6699434814b2bbe55e591f7f148ee843bc30833",
+    "files": {
+      "image-to-appcard-flow.json": "1110cc7ac5c4eab4eebac4e0cf89295a8d65bcb385113d0b5d31ae491f3074e5",
+      "source/atlas.png": "6803654f5cffba2720a050317d70a29cbb78c3d22b3db606252bfe9eca1e5fea",
+      "source/prompt.txt": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146",
+      "cards/setup-01/contract.json": "dcd9e099805914567a2d44cfa8d05b55eaea34b8d6a94bd0a5e8d9220d2312f7",
+      "cards/setup-01/mapped.json": null,
+      "cards/setup-01/semantic-map.json": null,
+      "cards/setup-01/service-actions.json": "1e362c170f014d352c11ab21b7a8b78a1399dd1f1d9a6a70f37b4d987416b3c2",
+      "cards/setup-02/contract.json": "f8137566a85e7afa50f4f10f6cfc8974705c3bea0bb6dc879c9f9d2efc55a177",
+      "cards/setup-02/mapped.json": null,
+      "cards/setup-02/semantic-map.json": null,
+      "cards/setup-02/service-actions.json": "9c9b079da3961c64cf220bf8bc08ad56b51d4a3b2412657ddc4da81f142095f5",
+      "cards/setup-03/contract.json": "48bda357b619c3ebcc66e2dd3554b513adc435ed3f7c40655ad3d3cd04aa8fb1",
+      "cards/setup-03/mapped.json": null,
+      "cards/setup-03/semantic-map.json": null,
+      "cards/setup-03/service-actions.json": "f2fc0c180059756f6a2761830e878012e9d558a49625fa2e15e8d1fa617a6a4c",
+      "cards/setup-04/contract.json": "f87004701508871d8d2e1109e8e1c176bec7caf4791c13edbfa616de06ac165c",
+      "cards/setup-04/mapped.json": null,
+      "cards/setup-04/semantic-map.json": null,
+      "cards/setup-04/service-actions.json": "934f546f3214434e34f625e4eb5e178f70889f3198bb4ca2075408fe092889f4",
+      "cards/setup-05/contract.json": "0beed57509e6a902aba4526c48f4684fb5037ea3e688270817960ca9cd380a29",
+      "cards/setup-05/mapped.json": null,
+      "cards/setup-05/semantic-map.json": null,
+      "cards/setup-05/service-actions.json": "ea0e598e44b11c2e0060ad93e9cb3fcb63637706a3e97e2f5ba440b633fe7a64",
+      "cards/setup-06/contract.json": "bd9800b942f5990910506651e985001ce1f08016bddbf2707adf63327722dcee",
+      "cards/setup-06/mapped.json": null,
+      "cards/setup-06/semantic-map.json": null,
+      "cards/setup-06/service-actions.json": "572c9ad6f2713391adfef4f0464beac780ecbfe1fc356576006ce4f61be74a81",
+      "cards/setup-07/contract.json": "79de2ead5fabce2db0854ada7df3044c5ed7536cf4e04de3da30a54e077dfd16",
+      "cards/setup-07/mapped.json": null,
+      "cards/setup-07/semantic-map.json": null,
+      "cards/setup-07/service-actions.json": "c8fd6392f48a2f89b50144acf190367505cbd44fd9b0cf6489ccaa914110506b",
+      "cards/setup-08/contract.json": "f389991b322199518c8abd77ff8aa58c13e2c303539b4a90f1a6ff4360183ea5",
+      "cards/setup-08/mapped.json": null,
+      "cards/setup-08/semantic-map.json": null,
+      "cards/setup-08/service-actions.json": "5043ad69c2af527a91973fb7338246b642158ff78372fe1c70fb1ca64b0d40b4",
+      "cards/setup-09/contract.json": "fc76e79d791c6fb18a03ff907d4a9df44213540a66042d13ddb31e688ccdca05",
+      "cards/setup-09/mapped.json": null,
+      "cards/setup-09/semantic-map.json": null,
+      "cards/setup-09/service-actions.json": "ce948a955dcfc88ffe8ea0a37d0c5ad75ce8af4365444aba11f4060a08be966a",
+      "cards/setup-10/contract.json": "297124571cf638f5a91889651bd6137e53c052958362871525c37cff46090166",
+      "cards/setup-10/mapped.json": null,
+      "cards/setup-10/semantic-map.json": null,
+      "cards/setup-10/service-actions.json": "2461bd898057a8010b4fdd5e8dddd90c44aba158fc6477807a896dcfb80427b9",
+      "cards/setup-11/contract.json": "6208cf595218b30e2c78e58e4c79edea6e57e4292184c689b7678eaf31508375",
+      "cards/setup-11/mapped.json": null,
+      "cards/setup-11/semantic-map.json": null,
+      "cards/setup-11/service-actions.json": "bfedce1d6437f9dbdaebb5d240e08ea76771edcdd89f20782d94d2db6bc9f4f8",
+      "cards/setup-12/contract.json": "325cc28b85cc3146125122b54bd5f978ebe63ff6f2246579dbb90c2212af4fdd",
+      "cards/setup-12/mapped.json": null,
+      "cards/setup-12/semantic-map.json": null,
+      "cards/setup-12/service-actions.json": "103f9e1693bef75a7e86f083edef5ffb6b843dc2ebf59965ab9b4a48f61a7093"
+    }
+  },
+  "stages": [
+    {
+      "stage": "observe",
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "/Users/yuechen/miniconda3/bin/python3",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
+            "--project",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup",
+            "--manifest",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup/image-to-appcard-flow.json",
+            "--stage",
+            "observe"
+          ],
+          "cwd": "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup"
+        }
+      ],
+      "logs": [
+        {
+          "path": "observe-0.log",
+          "sha256": "6b205e90506901e82b84d47f6903d5bb0d189d14babc8d02bd894602a13dfda6",
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "stage": "measure",
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "/Users/yuechen/miniconda3/bin/python3",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
+            "--project",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup",
+            "--manifest",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup/image-to-appcard-flow.json",
+            "--stage",
+            "measure"
+          ],
+          "cwd": "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup"
+        }
+      ],
+      "logs": [
+        {
+          "path": "measure-0.log",
+          "sha256": "a367bf48d128ddbbe4f6a308c75720894b07e971def030d5e656e0a0daefc0ec",
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "stage": "map",
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "/Users/yuechen/miniconda3/bin/python3",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
+            "--project",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup",
+            "--manifest",
+            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup/image-to-appcard-flow.json",
+            "--stage",
+            "map"
+          ],
+          "cwd": "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup"
+        }
+      ],
+      "logs": [
+        {
+          "path": "map-0.log",
+          "sha256": "41d48ddbde0ea5a440cdc65200b74c917d4c4d7dada4dc76760703094639ba55",
+          "exit_code": 0
+        }
+      ]
+    }
+  ],
+  "not_run": [
+    "intake",
+    "prepare",
+    "semantic",
+    "compile",
+    "capture",
+    "gate",
+    "extract",
+    "bundle",
+    "service-test",
+    "wasm",
+    "integrate",
+    "web-test",
+    "hosted-test"
+  ],
+  "finished_at": "2026-09-29T19:52:36.061051+00:00"
+}

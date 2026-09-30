@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "bb7ee785d255cda1ebde174791ea947ec7e46f89f5fd28e5838454fc6f81d99f",
+  "tree": {
+    "t": "stack",
+    "id": "server",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 314.0,
+    "h": 44.3,
+    "c": [
+      {
+        "t": "input",
+        "id": "server_field",
+        "text": "http://127.0.0.1:50190",
+        "placeholder": "",
+        "x": 14.0,
+        "y": 12.0,
+        "w": 286.0,
+        "h": 22.5,
+        "size": 15,
+        "line_height": 22.5,
+        "weight": 400,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "enabled": 1,
+        "c": []
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294440952,
+    "radius": 8,
+    "border": 1,
+    "bordercolor": 4293256679
+  },
+  "changes": [
+    {
+      "source": "cards/setup-01/mapped.json",
+      "source_sha256": "d0b6eee65cc2848400ca363a0c4b4678fced1fdef1568a5e2a9b91dd8131f0a0",
+      "operation": "Extract native subtree and translate origin",
+      "source_root": "server",
+      "translation": [
+        -46.0,
+        -213.58
+      ]
+    }
+  ]
+}

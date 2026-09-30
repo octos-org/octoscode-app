@@ -1,0 +1,71 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "segments": {
+        "component": "Surface5e76d82e8b78",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 314.0,
+          "h": 38.0
+        }
+      },
+      "seg_sel": {
+        "component": "Surfacefcfdbbddc65b",
+        "layout": {
+          "x": 2.539999999999999,
+          "y": 4.0,
+          "w": 104.79,
+          "h": 30.0
+        }
+      },
+      "t_seg0": {
+        "component": "Text1693d826aa0c",
+        "layout": {
+          "x": 12.54,
+          "y": 11.0,
+          "w": 84.79,
+          "h": 22.27
+        }
+      },
+      "t_seg1": {
+        "component": "Text6d1c12998f89",
+        "layout": {
+          "x": 125.38999999999999,
+          "y": 11.28000000000003,
+          "w": 73.38,
+          "h": 19.5
+        }
+      },
+      "t_seg2": {
+        "component": "Text6d1c12998f89",
+        "layout": {
+          "x": 244.92000000000002,
+          "y": 11.310000000000002,
+          "w": 45.2,
+          "h": 19.5
+        }
+      },
+      "segdiv1": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 111.36000000000001,
+          "y": 4.0,
+          "w": 1.0,
+          "h": 30.0
+        }
+      },
+      "segdiv2": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 221.83999999999997,
+          "y": 4.0,
+          "w": 1.0,
+          "h": 30.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

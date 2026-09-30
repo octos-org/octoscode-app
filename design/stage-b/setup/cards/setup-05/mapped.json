@@ -1,0 +1,420 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "d98822b963f51fdc9fd89328834d8f255a4e29d07a1b0a079117e8829024d440",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "stack",
+        "id": "outer_card",
+        "x": 10.0,
+        "y": 10.0,
+        "w": 386.0,
+        "h": 756.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t_title",
+            "text": "Session settings",
+            "x": 82.24,
+            "y": 80.66,
+            "w": 236.26,
+            "h": 39.0,
+            "size": 26,
+            "line_height": 39.0,
+            "weight": 600,
+            "color": 4278190080,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf"
+          },
+          {
+            "t": "text",
+            "id": "t_close",
+            "text": "\u2715",
+            "x": 341.72,
+            "y": 75.57,
+            "w": 26.39,
+            "h": 36.0,
+            "size": 24,
+            "line_height": 36.0,
+            "weight": 500,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf"
+          },
+          {
+            "t": "text",
+            "id": "t_model",
+            "text": "Model",
+            "x": 42.86,
+            "y": 155.65,
+            "w": 68.91,
+            "h": 22.5,
+            "size": 15,
+            "line_height": 22.5,
+            "weight": 400,
+            "color": 4278979339,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "stack",
+            "id": "model",
+            "x": 46.0,
+            "y": 201.0,
+            "w": 314.0,
+            "h": 50.12,
+            "c": [
+              {
+                "t": "input",
+                "id": "model_field",
+                "text": "deepseek-v4-flash",
+                "placeholder": "",
+                "x": 60.0,
+                "y": 213.0,
+                "w": 286.0,
+                "h": 26.12,
+                "size": 17,
+                "line_height": 26.12,
+                "weight": 400,
+                "color": 4280098079,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "enabled": 1,
+                "c": []
+              },
+              {
+                "t": "text",
+                "id": "model_caret",
+                "text": "\u25be",
+                "x": 330.0,
+                "y": 215.06,
+                "w": 26.0,
+                "h": 27.0,
+                "size": 18,
+                "line_height": 27.0,
+                "weight": 600,
+                "color": 4280098079,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-600.ttf"
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 8,
+            "border": 1,
+            "bordercolor": 4292006615
+          },
+          {
+            "t": "text",
+            "id": "t_saved",
+            "text": "Saved for this profile",
+            "x": 43.98,
+            "y": 274.0,
+            "w": 196.46,
+            "h": 21.51,
+            "size": 13,
+            "line_height": 21.51,
+            "weight": 400,
+            "color": 4285493104,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "text",
+            "id": "t_perm",
+            "text": "Permissions",
+            "x": 43.93,
+            "y": 376.41,
+            "w": 130.64,
+            "h": 22.5,
+            "size": 15,
+            "line_height": 22.5,
+            "weight": 400,
+            "color": 4279111182,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "stack",
+            "id": "segments",
+            "x": 46.0,
+            "y": 426.21,
+            "w": 314.0,
+            "h": 38.0,
+            "c": [
+              {
+                "t": "stack",
+                "id": "seg_sel",
+                "x": 48.54,
+                "y": 430.21,
+                "w": 104.79,
+                "h": 30.0,
+                "c": [],
+                "variant": "surface",
+                "bg": 4294967295,
+                "radius": 7,
+                "border": 1,
+                "bordercolor": 4280098079
+              },
+              {
+                "t": "text",
+                "id": "t_seg0",
+                "text": "On request",
+                "x": 58.54,
+                "y": 437.21,
+                "w": 110.23,
+                "h": 22.27,
+                "size": 13,
+                "line_height": 22.27,
+                "weight": 600,
+                "color": 4278584582,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-600.ttf"
+              },
+              {
+                "t": "text",
+                "id": "t_seg1",
+                "text": "On failure",
+                "x": 171.39,
+                "y": 437.49,
+                "w": 95.39,
+                "h": 19.5,
+                "size": 13,
+                "line_height": 19.5,
+                "weight": 400,
+                "color": 4279966491,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf"
+              },
+              {
+                "t": "text",
+                "id": "t_seg2",
+                "text": "Never",
+                "x": 290.92,
+                "y": 437.52,
+                "w": 58.76,
+                "h": 19.5,
+                "size": 13,
+                "line_height": 19.5,
+                "weight": 400,
+                "color": 4280690214,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf"
+              },
+              {
+                "t": "stack",
+                "id": "segdiv1",
+                "x": 157.36,
+                "y": 430.21,
+                "w": 1.0,
+                "h": 30.0,
+                "c": [],
+                "variant": "surface",
+                "bg": 4293256679,
+                "radius": 0
+              },
+              {
+                "t": "stack",
+                "id": "segdiv2",
+                "x": 267.84,
+                "y": 430.21,
+                "w": 1.0,
+                "h": 30.0,
+                "c": [],
+                "variant": "surface",
+                "bg": 4293256679,
+                "radius": 0
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 8,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "text",
+            "id": "t_sandbox",
+            "text": "Sandbox",
+            "x": 43.86,
+            "y": 566.87,
+            "w": 95.61,
+            "h": 22.5,
+            "size": 15,
+            "line_height": 22.5,
+            "weight": 400,
+            "color": 4279243025,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "stack",
+            "id": "sandbox_box",
+            "x": 46.0,
+            "y": 617.0,
+            "w": 314.0,
+            "h": 42.67,
+            "c": [
+              {
+                "t": "text",
+                "id": "t_sb_b",
+                "text": "Enabled",
+                "x": 58.64,
+                "y": 627.0,
+                "w": 54.0,
+                "h": 22.67,
+                "size": 14,
+                "line_height": 22.67,
+                "weight": 700,
+                "color": 4280098079,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-700.ttf"
+              },
+              {
+                "t": "text",
+                "id": "t_sb_r",
+                "text": "\u00b7 Network off \u00b7 Workspace write",
+                "x": 114.64,
+                "y": 627.0,
+                "w": 295.0,
+                "h": 22.67,
+                "size": 14,
+                "line_height": 22.67,
+                "weight": 400,
+                "color": 4282400833,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf"
+              }
+            ],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 8,
+            "border": 1,
+            "bordercolor": 4293256679
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294967295,
+        "radius": 14,
+        "border": 1,
+        "bordercolor": 4293256679
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294967295
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "outer_card",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "model",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "model_field",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "segments",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "seg_sel",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "segdiv1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "segdiv2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "sandbox_box",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t_title",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.0828682141426282
+    },
+    {
+      "id": "t_model",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1774543313419118
+    },
+    {
+      "id": "t_saved",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12324102492559519
+    },
+    {
+      "id": "t_perm",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.11312588778409091
+    },
+    {
+      "id": "t_seg0",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1761649940718157
+    },
+    {
+      "id": "t_seg1",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.11641395049283154
+    },
+    {
+      "id": "t_seg2",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.224853515625
+    },
+    {
+      "id": "t_sandbox",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.148977568655303
+    },
+    {
+      "id": "t_sb_r",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.04018634082825208
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

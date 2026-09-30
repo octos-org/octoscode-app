@@ -1,0 +1,33 @@
+# ledger segmented-control@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_llm_text { class: user-copy, en: "LLM" }
+copy t_heur_text { class: user-copy, en: "Heuristic" }
+component Surfacef468f03a0025(instance: text) {
+  view Kit(component: "Surfacef468f03a0025", instance: instance) { slot }
+}
+component Surface9c33ea9ef48a(instance: text) {
+  view Kit(component: "Surface9c33ea9ef48a", instance: instance) { slot }
+}
+component Surface04d980ce2c9b(instance: text) {
+  view Kit(component: "Surface04d980ce2c9b", instance: instance) { slot }
+}
+component Text404646513d4f(instance: text, text: text) {
+  view Kit(component: "Text404646513d4f", instance: instance, text: text)
+}
+component Textc6cd0ea2df1a(instance: text, text: text) {
+  view Kit(component: "Textc6cd0ea2df1a", instance: instance, text: text)
+}
+
+view root Surfacef468f03a0025(instance: "segmented_control_root") {
+  Surface9c33ea9ef48a(instance: "seg_box") {
+
+  }
+  Surface04d980ce2c9b(instance: "seg_div") {
+
+  }
+  Text404646513d4f(instance: "t_llm", text: copy.t_llm_text)
+  Textc6cd0ea2df1a(instance: "t_heur", text: copy.t_heur_text)
+}

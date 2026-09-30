@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "d89b505e5f3ad44c210449a6fbb50b29f643b03dafbdf07cedfd88a4b2c09a78",
+  "tree": {
+    "t": "stack",
+    "id": "att_1",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 178.0,
+    "h": 234.0,
+    "c": [
+      {
+        "t": "svg",
+        "id": "att_1_img",
+        "x": 77.0,
+        "y": 87.75,
+        "w": 24.0,
+        "h": 23.4,
+        "src": ""
+      },
+      {
+        "t": "stack",
+        "id": "att_1_close_bg",
+        "x": 146.0,
+        "y": 5.849999999999994,
+        "w": 24.0,
+        "h": 23.4,
+        "c": [
+          {
+            "t": "svg",
+            "id": "att_1_close",
+            "x": 151.0,
+            "y": 10.724999999999994,
+            "w": 14.0,
+            "h": 13.65,
+            "src": ""
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294572794,
+        "radius": 11.7
+      }
+    ],
+    "variant": "surface",
+    "bg": 4279967265,
+    "radius": 12.0,
+    "border": 1,
+    "bordercolor": 4293256679
+  },
+  "changes": [
+    {
+      "source": "cards/autonomy-09/mapped.json",
+      "source_sha256": "7d7952436f7e08a2fae0990c6c59b6ba7f4a07f1fa81ffe825e27ffb9b03aa58",
+      "operation": "Extract native subtree and translate origin",
+      "source_root": "att_1",
+      "translation": [
+        -11.0,
+        -187.0
+      ]
+    }
+  ]
+}

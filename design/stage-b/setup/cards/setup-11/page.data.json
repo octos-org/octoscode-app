@@ -1,0 +1,144 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "icon_warning": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 130.0,
+          "y": 80.0,
+          "w": 72.0,
+          "h": 77.0,
+          "src": "http://127.0.0.1:8170/ux-images/setup-11/assets/icon_warning-a852908599b0.svg"
+        }
+      },
+      "t_title": {
+        "component": "Texta5445c6e2aa8",
+        "layout": {
+          "x": 29.81,
+          "y": 187.0,
+          "w": 291.5,
+          "h": 33.5
+        }
+      },
+      "t_msg1": {
+        "component": "Text209c8b4b11ac",
+        "layout": {
+          "x": 41.41,
+          "y": 248.5,
+          "w": 261.5,
+          "h": 27.0
+        }
+      },
+      "t_msg2": {
+        "component": "Text0ea29b87f985",
+        "layout": {
+          "x": 50.61,
+          "y": 282.0,
+          "w": 243.0,
+          "h": 22.0
+        }
+      },
+      "t_msg3": {
+        "component": "Text69b0f8fd6511",
+        "layout": {
+          "x": 110.61,
+          "y": 317.0,
+          "w": 119.0,
+          "h": 22.0
+        }
+      },
+      "btn_reload": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 26.0,
+          "y": 387.0,
+          "w": 304.0,
+          "h": 66.0
+        }
+      },
+      "btn_reload_surface": {
+        "component": "Surface881ca262529c",
+        "layout": {
+          "x": 26.0,
+          "y": 387.0,
+          "w": 304.0,
+          "h": 66.0
+        }
+      },
+      "btn_reload_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 26.0,
+          "y": 387.0,
+          "w": 304.0,
+          "h": 66.0
+        }
+      },
+      "btn_reload_label": {
+        "component": "Textef1f7f5a159c",
+        "layout": {
+          "x": 143.13,
+          "y": 409.0,
+          "w": 66.0,
+          "h": 23.5
+        }
+      },
+      "btn_diag": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 25.0,
+          "y": 472.0,
+          "w": 306.0,
+          "h": 65.0
+        }
+      },
+      "btn_diag_surface": {
+        "component": "Surface29c8b9492b90",
+        "layout": {
+          "x": 25.0,
+          "y": 472.0,
+          "w": 306.0,
+          "h": 65.0
+        }
+      },
+      "btn_diag_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 25.0,
+          "y": 472.0,
+          "w": 306.0,
+          "h": 65.0
+        }
+      },
+      "btn_diag_label": {
+        "component": "Text1e282cb6b1b4",
+        "layout": {
+          "x": 92.97,
+          "y": 494.0,
+          "w": 158.5,
+          "h": 28.0
+        }
+      },
+      "t_report": {
+        "component": "Text1d5b7c8d06a0",
+        "layout": {
+          "x": 120.06,
+          "y": 570.5,
+          "w": 111.0,
+          "h": 28.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

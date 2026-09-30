@@ -1,0 +1,235 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface430cd19400f4",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "user_bubble": {
+        "component": "Surface8f75dd049682",
+        "layout": {
+          "x": 73.02,
+          "y": 173.54,
+          "w": 310.39,
+          "h": 71.84
+        }
+      },
+      "t_q1": {
+        "component": "Text9097f8882d07",
+        "layout": {
+          "x": 83.68,
+          "y": 179.31,
+          "w": 290.64,
+          "h": 32.2
+        }
+      },
+      "t_q2": {
+        "component": "Text217374c44ad9",
+        "layout": {
+          "x": 83.31,
+          "y": 209.93,
+          "w": 82.41,
+          "h": 29.79
+        }
+      },
+      "tool_card": {
+        "component": "Surface5c09226d39f3",
+        "layout": {
+          "x": 25.0,
+          "y": 268.0,
+          "w": 355.0,
+          "h": 53.0
+        }
+      },
+      "icon_tool": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 30.0,
+          "y": 276.0,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-11/assets/icon_tool-24aa7508520e.svg"
+        }
+      },
+      "t_tool": {
+        "component": "Textd563609b793c",
+        "layout": {
+          "x": 52.0,
+          "y": 279.5,
+          "w": 261.0,
+          "h": 18.0
+        }
+      },
+      "icon_tool_done": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 344.0,
+          "y": 282.0,
+          "w": 18.0,
+          "h": 18.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-11/assets/icon_tool_done-4b2ffeb0c612.svg"
+        }
+      },
+      "answer_surface": {
+        "component": "Surfacefc2f16a6fb9b",
+        "layout": {
+          "x": 20.0,
+          "y": 344.0,
+          "w": 366.0,
+          "h": 177.0
+        }
+      },
+      "answer_md": {
+        "component": "Textdc4305206aee",
+        "layout": {
+          "x": 30.0,
+          "y": 352.0,
+          "w": 340.0,
+          "h": 165.0
+        }
+      },
+      "answer_actions": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 30.0,
+          "y": 531.0,
+          "w": 120.0,
+          "h": 26.0
+        }
+      },
+      "icon_up": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 37.0,
+          "y": 533.0,
+          "w": 22.0,
+          "h": 22.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-11/assets/icon_up-a50298319ef3.svg"
+        }
+      },
+      "icon_down": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 80.0,
+          "y": 533.0,
+          "w": 22.0,
+          "h": 22.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-11/assets/icon_down-7356365e4c4d.svg"
+        }
+      },
+      "composer": {
+        "component": "Surfaceebaff3349490",
+        "layout": {
+          "x": 26.0,
+          "y": 616.0,
+          "w": 366.0,
+          "h": 146.0
+        }
+      },
+      "composer_input": {
+        "component": "Inputfa788caf1350",
+        "layout": {
+          "x": 39.701,
+          "y": 623.62,
+          "w": 293.583,
+          "h": 34.274
+        }
+      },
+      "control_row": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 39.701,
+          "y": 660.507,
+          "w": 336.642,
+          "h": 38.082
+        }
+      },
+      "icon_plus": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 42.0,
+          "y": 662.0,
+          "w": 28.0,
+          "h": 28.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-11/assets/icon_plus-9ad6db167e0f.svg"
+        }
+      },
+      "approval_pill": {
+        "component": "Surfacee1f6f7dd0a15",
+        "layout": {
+          "x": 71.0,
+          "y": 672.0,
+          "w": 128.0,
+          "h": 32.0
+        }
+      },
+      "t_approval": {
+        "component": "Texte2130f18a6e8",
+        "layout": {
+          "x": 83.0,
+          "y": 680.0,
+          "w": 104.0,
+          "h": 19.5
+        }
+      },
+      "t_model": {
+        "component": "Text78558d644fe5",
+        "layout": {
+          "x": 225.0,
+          "y": 680.0,
+          "w": 69.7,
+          "h": 19.5
+        }
+      },
+      "icon_mic": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 301.0,
+          "y": 665.0,
+          "w": 20.0,
+          "h": 32.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-11/assets/icon_mic-4013adb44a9f.svg"
+        }
+      },
+      "send_btn": {
+        "component": "Surface7736f8a447e4",
+        "layout": {
+          "x": 338.0,
+          "y": 662.411,
+          "w": 35.23,
+          "h": 34.274
+        }
+      },
+      "icon_send": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 348.0,
+          "y": 671.932,
+          "w": 15.658,
+          "h": 15.233,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-11/assets/icon_send-1b6d622a38e9.svg"
+        }
+      }
+    },
+    "bindings": [
+      {
+        "id": "composer_input",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "composer_input",
+          "property": "text"
+        }
+      }
+    ]
+  }
+}

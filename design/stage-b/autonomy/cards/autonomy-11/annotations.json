@@ -1,0 +1,269 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "d33aa28a0628f5be1ea6460ad6ed34e53d4a7aae982d2ddab7f32dd7ac59ee8a",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      79.0,
+      692.0,
+      119.0,
+      41.0
+    ],
+    [
+      76.0,
+      689.0,
+      124.0,
+      46.0
+    ],
+    [
+      26.0,
+      611.0,
+      366.0,
+      139.0
+    ],
+    [
+      24.0,
+      608.0,
+      371.0,
+      144.0
+    ],
+    [
+      31.0,
+      462.0,
+      189.0,
+      39.0
+    ],
+    [
+      31.0,
+      421.0,
+      203.0,
+      39.0
+    ],
+    [
+      25.0,
+      268.0,
+      355.0,
+      53.0
+    ],
+    [
+      22.0,
+      265.0,
+      361.0,
+      59.0
+    ],
+    [
+      74.0,
+      165.0,
+      310.0,
+      88.0
+    ],
+    [
+      17.0,
+      97.0,
+      385.0,
+      678.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "user_bubble",
+      "bounds": [
+        73.02,
+        173.54,
+        310.39,
+        71.84
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 16.0
+    },
+    {
+      "id": "tool_card",
+      "bounds": [
+        25.0,
+        268.0,
+        355.0,
+        53.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4280098595,
+      "radius": 11.29
+    },
+    {
+      "id": "icon_tool",
+      "bounds": [
+        34.492,
+        279.291,
+        15.187,
+        18.066
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_tool_done",
+      "bounds": [
+        349.626,
+        280.42,
+        15.187,
+        18.066
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "answer_surface",
+      "bounds": [
+        20.0,
+        344.0,
+        366.0,
+        186.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4279638301,
+      "radius": 8.0
+    },
+    {
+      "id": "answer_actions",
+      "bounds": [
+        30.0,
+        546.0,
+        120.0,
+        28.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "icon_up",
+      "bounds": [
+        30.0,
+        544.0,
+        24.0,
+        24.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_down",
+      "bounds": [
+        66.0,
+        544.0,
+        24.0,
+        24.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "composer",
+      "bounds": [
+        26.0,
+        611.0,
+        366.0,
+        139.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279572507,
+      "radius": 11.42
+    },
+    {
+      "id": "composer_input",
+      "bounds": [
+        39.701,
+        618.616,
+        293.583,
+        34.274
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "control_row",
+      "bounds": [
+        39.701,
+        660.507,
+        336.642,
+        38.082
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "icon_plus",
+      "bounds": [
+        39.701,
+        668.123,
+        17.615,
+        22.849
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "approval_pill",
+      "bounds": [
+        76.0,
+        689.0,
+        124.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279572507,
+      "radius": 23.0
+    },
+    {
+      "id": "icon_mic",
+      "bounds": [
+        301.968,
+        668.123,
+        15.658,
+        24.753
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "send_btn",
+      "bounds": [
+        341.112,
+        662.411,
+        35.23,
+        34.274
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4279572251,
+      "radius": 17.14
+    },
+    {
+      "id": "icon_send",
+      "bounds": [
+        350.898,
+        671.932,
+        15.658,
+        15.233
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+ "segmented-control": {
+  "short-360": {
+   "png": "/Users/yuechen/home/oa.noindex/p0-map-f/design/components/segmented-control/variants/short-360.png",
+   "rightmost4px_ok": true,
+   "mean": [
+    255,
+    255,
+    255
+   ]
+  },
+  "short-540": {
+   "png": "/Users/yuechen/home/oa.noindex/p0-map-f/design/components/segmented-control/variants/short-540.png",
+   "rightmost4px_ok": true,
+   "mean": [
+    255,
+    255,
+    255
+   ]
+  },
+  "long-360": {
+   "png": "/Users/yuechen/home/oa.noindex/p0-map-f/design/components/segmented-control/variants/long-360.png",
+   "rightmost4px_ok": true,
+   "mean": [
+    255,
+    255,
+    255
+   ]
+  },
+  "long-540": {
+   "png": "/Users/yuechen/home/oa.noindex/p0-map-f/design/components/segmented-control/variants/long-540.png",
+   "rightmost4px_ok": true,
+   "mean": [
+    255,
+    255,
+    255
+   ]
+  }
+ },
+ "skeleton-list": {
+  "short-360": {
+   "png": "/Users/yuechen/home/oa.noindex/p0-map-f/design/components/skeleton-list/variants/short-360.png",
+   "rightmost4px_ok": true,
+   "mean": [
+    255,
+    255,
+    255
+   ]
+  },
+  "short-540": {
+   "png": "/Users/yuechen/home/oa.noindex/p0-map-f/design/components/skeleton-list/variants/short-540.png",
+   "rightmost4px_ok": true,
+   "mean": [
+    255,
+    255,
+    255
+   ]
+  },
+  "long-360": {
+   "png": "/Users/yuechen/home/oa.noindex/p0-map-f/design/components/skeleton-list/variants/long-360.png",
+   "rightmost4px_ok": true,
+   "mean": [
+    255,
+    255,
+    255
+   ]
+  },
+  "long-540": {
+   "png": "/Users/yuechen/home/oa.noindex/p0-map-f/design/components/skeleton-list/variants/long-540.png",
+   "rightmost4px_ok": true,
+   "mean": [
+    255,
+    255,
+    255
+   ]
+  }
+ },
+ "usage-bar": {
+  "short-360": {
+   "png": "/Users/yuechen/home/oa.noindex/p0-map-f/design/components/usage-bar/variants/short-360.png",
+   "rightmost4px_ok": true,
+   "mean": [
+    255,
+    255,
+    255
+   ]
+  },
+  "short-540": {
+   "png": "/Users/yuechen/home/oa.noindex/p0-map-f/design/components/usage-bar/variants/short-540.png",
+   "rightmost4px_ok": true,
+   "mean": [
+    255,
+    255,
+    255
+   ]
+  },
+  "long-360": {
+   "png": "/Users/yuechen/home/oa.noindex/p0-map-f/design/components/usage-bar/variants/long-360.png",
+   "rightmost4px_ok": true,
+   "mean": [
+    255,
+    255,
+    255
+   ]
+  },
+  "long-540": {
+   "png": "/Users/yuechen/home/oa.noindex/p0-map-f/design/components/usage-bar/variants/long-540.png",
+   "rightmost4px_ok": true,
+   "mean": [
+    255,
+    255,
+    255
+   ]
+  }
+ }
+}

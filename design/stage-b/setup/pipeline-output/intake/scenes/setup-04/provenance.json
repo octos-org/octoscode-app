@@ -1,0 +1,131 @@
+{
+  "id": "4",
+  "design_id": "setup-04",
+  "surface": "app",
+  "declared_scene": {
+    "id": "4",
+    "design_id": "setup-04",
+    "directory": "cards/setup-04",
+    "crop": [
+      1536,
+      50,
+      466,
+      964
+    ],
+    "surface": "app",
+    "title": "Workspace picker"
+  },
+  "crop": [
+    1536,
+    50,
+    466,
+    964
+  ],
+  "crop_image": "scenes/setup-04/crop.png",
+  "reference_image": "scenes/setup-04/reference.png",
+  "provenance": "scenes/setup-04/provenance.json",
+  "crop_sha256": "073394dc8a46c707f4bc41927de8f6e3ea959101a4c23d9e8f7ac0f0d86d1473",
+  "reference_sha256": "adeccfea7aa57e90e193de92bd3169cbeddc4a856364fee2a74faf6c3e23c995",
+  "source_atlas_sha256": "6803654f5cffba2720a050317d70a29cbb78c3d22b3db606252bfe9eca1e5fea",
+  "source_prompt_sha256": "5c9c8bbe03a404eb9f323d40bf7e7553fcfe8652deaca64514057b8c46a1f146",
+  "crop_resampled": false,
+  "crop_mode": "RGB",
+  "transform": {
+    "coordinate_convention": "continuous top-left pixel-boundary coordinates; affine arrays are [a,b,c,d,e,f]",
+    "method": "uniform affine contain",
+    "resampler": "Pillow BICUBIC",
+    "source_crop_pixels": [
+      1536,
+      50,
+      466,
+      964
+    ],
+    "source_crop_size": [
+      466,
+      964
+    ],
+    "artboard": [
+      406,
+      776
+    ],
+    "pixel_ratio": 2,
+    "reference_size": [
+      812,
+      1552
+    ],
+    "uniform_scale": 1.6099585062240664,
+    "offset_pixels": [
+      30.879668049792542,
+      0.0
+    ],
+    "content_bounds_pixels": [
+      30.879668049792542,
+      0.0,
+      750.2406639004149,
+      1552.0
+    ],
+    "crop_to_reference_pixels": [
+      1.6099585062240664,
+      0,
+      30.879668049792542,
+      0,
+      1.6099585062240664,
+      0.0
+    ],
+    "reference_pixels_to_crop": [
+      0.6211340206185567,
+      0,
+      -19.18041237113403,
+      0,
+      0.6211340206185567,
+      -0.0
+    ],
+    "atlas_to_reference_pixels": [
+      1.6099585062240664,
+      0,
+      -2442.0165975103737,
+      0,
+      1.6099585062240664,
+      -80.49792531120332
+    ],
+    "reference_pixels_to_atlas": [
+      0.6211340206185567,
+      0,
+      1516.819587628866,
+      0,
+      0.6211340206185567,
+      50.0
+    ],
+    "atlas_to_logical": [
+      0.8049792531120332,
+      0,
+      -1221.0082987551868,
+      0,
+      0.8049792531120332,
+      -40.24896265560166
+    ],
+    "logical_to_atlas": [
+      1.2422680412371134,
+      0,
+      1516.819587628866,
+      0,
+      1.2422680412371134,
+      50.0
+    ],
+    "matte_rgb": [
+      240,
+      245,
+      242
+    ],
+    "stretched": false,
+    "reference_resampled": true
+  },
+  "source_review": {
+    "status": "not_reviewed",
+    "reviewer": null
+  },
+  "native_mapping": {
+    "status": "not_started",
+    "automatic": false
+  }
+}

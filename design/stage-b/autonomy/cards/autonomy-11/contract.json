@@ -1,0 +1,312 @@
+{
+  "schema_version": 1,
+  "id": "autonomy-11",
+  "app": "octoscode",
+  "number": 11,
+  "title": "Dark conversation",
+  "structure": "Native component reconstructed from the approved autonomy atlas",
+  "artboard": [
+    406,
+    776
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode-dark",
+    "page": "#1C1C1E",
+    "panel": "#2C2C2E",
+    "ink": "#F2F2F7",
+    "muted": "#98989D",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a autonomy atlas + measured Apple Vision OCR bounds",
+  "graphics": {},
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
+    "c": [
+      {
+        "t": "stack",
+        "id": "user_bubble",
+        "x": 73.02,
+        "y": 173.54,
+        "w": 310.39,
+        "h": 71.84,
+        "c": [
+          {
+            "t": "text",
+            "id": "t_q1",
+            "text": "Can we add a test for preserve_pending",
+            "x": 87.12,
+            "y": 183.54,
+            "w": 282.28,
+            "h": 24.15,
+            "size": 16.1,
+            "line_height": 24.15,
+            "weight": 500,
+            "color": 4294111991,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf"
+          },
+          {
+            "t": "text",
+            "id": "t_q2",
+            "text": "behavior?",
+            "x": 87.02,
+            "y": 213.81,
+            "w": 73.39,
+            "h": 21.57,
+            "size": 14.38,
+            "line_height": 21.57,
+            "weight": 500,
+            "color": 4294111991,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf"
+          }
+        ],
+        "variant": "surface",
+        "bg": 4281084974,
+        "radius": 16
+      },
+      {
+        "t": "stack",
+        "id": "tool_card",
+        "x": 16.0,
+        "y": 271.49,
+        "w": 374.0,
+        "h": 46.94,
+        "c": [
+          {
+            "t": "svg",
+            "id": "icon_tool",
+            "x": 30.0,
+            "y": 276.0,
+            "w": 20.0,
+            "h": 20.0,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "t_tool",
+            "text": "Edit crates/octos-cli/tests/steer_queue.rs",
+            "x": 52.0,
+            "y": 279.5,
+            "w": 261.0,
+            "h": 18.0,
+            "size": 13.0,
+            "line_height": 18.0,
+            "weight": 400,
+            "color": 4288190621,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "svg",
+            "id": "icon_tool_done",
+            "x": 344.0,
+            "y": 282.0,
+            "w": 18.0,
+            "h": 18.0,
+            "src": ""
+          }
+        ],
+        "variant": "surface",
+        "bg": 4281084974,
+        "radius": 10,
+        "border": 1,
+        "bordercolor": 4282006076
+      },
+      {
+        "t": "stack",
+        "id": "answer_surface",
+        "x": 20.0,
+        "y": 344.0,
+        "w": 366.0,
+        "h": 177.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "answer_md",
+            "text": "I added a test that simulates a reconnect and verifies pending messages are preserved. The test asserts `metrics.steer_preserved` increments and `metrics.steer_dropped` remains unchanged.",
+            "x": 30.0,
+            "y": 352.0,
+            "w": 340.0,
+            "h": 165.0,
+            "size": 16,
+            "line_height": 36.0,
+            "weight": 400,
+            "color": 4294111991,
+            "bg": 4282006076,
+            "alignx": 0,
+            "variant": "markdown",
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          }
+        ],
+        "variant": "surface",
+        "bg": 4280032286,
+        "radius": 8
+      },
+      {
+        "t": "stack",
+        "id": "answer_actions",
+        "x": 30.0,
+        "y": 531.0,
+        "w": 120.0,
+        "h": 26.0,
+        "c": [
+          {
+            "t": "svg",
+            "id": "icon_up",
+            "x": 37.0,
+            "y": 533.0,
+            "w": 22.0,
+            "h": 22.0,
+            "src": ""
+          },
+          {
+            "t": "svg",
+            "id": "icon_down",
+            "x": 80.0,
+            "y": 533.0,
+            "w": 22.0,
+            "h": 22.0,
+            "src": ""
+          }
+        ]
+      },
+      {
+        "t": "stack",
+        "id": "composer",
+        "x": 16.0,
+        "y": 616.0,
+        "w": 374.0,
+        "h": 146.0,
+        "c": [
+          {
+            "t": "input",
+            "id": "composer_input",
+            "x": 30.0,
+            "y": 624.0,
+            "w": 300.0,
+            "h": 36.0,
+            "placeholder": "Ask Octos anything",
+            "size": 15,
+            "color": 4288190621,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          },
+          {
+            "t": "stack",
+            "id": "control_row",
+            "x": 30.0,
+            "y": 668.0,
+            "w": 344.0,
+            "h": 40.0,
+            "c": [
+              {
+                "t": "svg",
+                "id": "icon_plus",
+                "x": 42.0,
+                "y": 662.0,
+                "w": 28.0,
+                "h": 28.0,
+                "src": ""
+              },
+              {
+                "t": "stack",
+                "id": "approval_pill",
+                "x": 71.0,
+                "y": 672.0,
+                "w": 128.0,
+                "h": 32.0,
+                "c": [
+                  {
+                    "t": "text",
+                    "id": "t_approval",
+                    "text": "Ask for approval",
+                    "x": 83.0,
+                    "y": 680.0,
+                    "w": 104.0,
+                    "h": 19.5,
+                    "size": 13,
+                    "line_height": 19.5,
+                    "weight": 400,
+                    "color": 4288190621,
+                    "variant": "single_line",
+                    "alignx": 0,
+                    "font_src": "self:resources/ux/Inter-400.ttf"
+                  }
+                ],
+                "variant": "surface",
+                "bg": 4280032286,
+                "radius": 999,
+                "border": 1,
+                "bordercolor": 4282006076
+              },
+              {
+                "t": "text",
+                "id": "t_model",
+                "text": "v4-flash ▾",
+                "x": 225.0,
+                "y": 680.0,
+                "w": 69.7,
+                "h": 19.5,
+                "size": 13,
+                "line_height": 19.5,
+                "weight": 500,
+                "color": 4294111991,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf"
+              },
+              {
+                "t": "svg",
+                "id": "icon_mic",
+                "x": 301.0,
+                "y": 665.0,
+                "w": 20.0,
+                "h": 32.0,
+                "src": ""
+              },
+              {
+                "t": "stack",
+                "id": "send_btn",
+                "x": 338.0,
+                "y": 670.0,
+                "w": 36.0,
+                "h": 36.0,
+                "c": [
+                  {
+                    "t": "svg",
+                    "id": "icon_send",
+                    "x": 348.0,
+                    "y": 680.0,
+                    "w": 16.0,
+                    "h": 16.0,
+                    "src": ""
+                  }
+                ],
+                "variant": "surface",
+                "bg": 4294967295,
+                "radius": 999
+              }
+            ]
+          }
+        ],
+        "variant": "surface",
+        "bg": 4281084974,
+        "radius": 12,
+        "border": 1,
+        "bordercolor": 4282006076
+      }
+    ],
+    "variant": "surface",
+    "bg": 4280032286
+  }
+}

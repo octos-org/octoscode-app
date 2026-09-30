@@ -98,6 +98,20 @@ pub(crate) fn set_copy(card_src: &str, copy_id: &str, value: &str) -> Option<Str
     Some(out)
 }
 
+/// Apply a whole batch of live copy rewrites (the per-screen lists
+/// [`crate::screens::connect::copies`] builds). Each rewrite targets its own
+/// `copy <id> {` line, so the order does not matter; an id the card does not
+/// author is skipped (the same leniency as [`live_copies`]).
+pub(crate) fn apply_copies(card_src: &str, values: &[(String, String)]) -> String {
+    let mut src = card_src.to_owned();
+    for (id, value) in values {
+        if let Some(next) = set_copy(&src, id, value) {
+            src = next;
+        }
+    }
+    src
+}
+
 /// The live `copy` rewrites for one slot, from the binding values.
 ///
 /// `values` is the module's binding resolver, so the mapping stays declarative:

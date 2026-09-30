@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "fb936b73852b6bdf407c8d75e674be0574aff1963fcd512b488ce59aca61a713",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      81.0,
+      275.0,
+      195.0,
+      44.0
+    ],
+    [
+      81.0,
+      183.0,
+      275.0,
+      54.0
+    ],
+    [
+      81.0,
+      104.0,
+      275.0,
+      44.0
+    ],
+    [
+      12.0,
+      68.0,
+      382.0,
+      706.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4293981682
+    },
+    {
+      "id": "banner",
+      "bounds": [
+        81.0,
+        104.0,
+        275.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293980658
+    },
+    {
+      "id": "skel0",
+      "bounds": [
+        30.0,
+        98.0,
+        70.0,
+        50.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293783280,
+      "radius": 8.0
+    },
+    {
+      "id": "skel1",
+      "bounds": [
+        81.0,
+        275.0,
+        195.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293980402,
+      "radius": 8.0
+    },
+    {
+      "id": "skel2",
+      "bounds": [
+        30.0,
+        180.0,
+        70.0,
+        56.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293914866,
+      "radius": 8.0
+    },
+    {
+      "id": "skel3",
+      "bounds": [
+        81.0,
+        183.0,
+        275.0,
+        54.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293980658,
+      "radius": 8.31
+    },
+    {
+      "id": "skel4",
+      "bounds": [
+        30.0,
+        270.0,
+        70.0,
+        49.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293783280,
+      "radius": 8.0
+    },
+    {
+      "id": "skel5",
+      "bounds": [
+        100.0,
+        275.0,
+        176.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293980402,
+      "radius": 8.0
+    },
+    {
+      "id": "divider",
+      "bounds": [
+        24.0,
+        392.0,
+        358.0,
+        2.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "icon_spin",
+      "bounds": [
+        178.0,
+        441.0,
+        30.0,
+        36.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    }
+  ]
+}

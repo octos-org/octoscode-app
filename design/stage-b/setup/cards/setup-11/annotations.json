@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "a7336e5e9009742569caa7357497db715dd76b141fb3b35bdbfaea132bf88f93",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      28.0,
+      475.0,
+      300.0,
+      59.0
+    ],
+    [
+      25.0,
+      472.0,
+      306.0,
+      65.0
+    ],
+    [
+      26.0,
+      387.0,
+      304.0,
+      66.0
+    ],
+    [
+      1.0,
+      11.0,
+      363.0,
+      755.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "icon_warning",
+      "bounds": [
+        130.0,
+        80.0,
+        72.0,
+        77.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "btn_reload",
+      "bounds": [
+        26.0,
+        387.0,
+        304.0,
+        66.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "btn_reload_surface",
+      "bounds": [
+        26.0,
+        387.0,
+        304.0,
+        66.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279243026,
+      "radius": 32.49
+    },
+    {
+      "id": "btn_reload_control",
+      "bounds": [
+        26.0,
+        387.0,
+        304.0,
+        66.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_diag",
+      "bounds": [
+        25.0,
+        472.0,
+        306.0,
+        65.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "btn_diag_surface",
+      "bounds": [
+        25.0,
+        472.0,
+        306.0,
+        65.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294769916,
+      "radius": 31.98
+    },
+    {
+      "id": "btn_diag_control",
+      "bounds": [
+        25.0,
+        472.0,
+        306.0,
+        65.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ]
+}

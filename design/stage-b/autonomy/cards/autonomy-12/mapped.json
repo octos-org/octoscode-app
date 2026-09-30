@@ -1,0 +1,425 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "8926c7de16902db13e8eb1b0f167c7276a86ad39e900fd1a779d49d5297673cc",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "text",
+        "id": "t01",
+        "text": "Settings",
+        "x": 13.77,
+        "y": 192.0,
+        "w": 72.52,
+        "h": 28.15,
+        "size": 17.15,
+        "line_height": 20.75,
+        "weight": 600,
+        "color": 4294572537,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "settings_card",
+        "x": 20.0,
+        "y": 250.0,
+        "w": 350.0,
+        "h": 376.36,
+        "c": [
+          {
+            "t": "text",
+            "id": "t_conn",
+            "text": "Connection",
+            "x": 22.3,
+            "y": 271.69,
+            "w": 86.23,
+            "h": 21.71,
+            "size": 14.94,
+            "line_height": 18.08,
+            "weight": 500,
+            "color": 4293454058,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "t_live",
+            "text": "● Live ›",
+            "x": 236.83,
+            "y": 268.3,
+            "w": 91.17,
+            "h": 28.5,
+            "size": 14,
+            "line_height": 28.5,
+            "weight": 500,
+            "color": 4280256573,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf"
+          },
+          {
+            "t": "text",
+            "id": "t_ws",
+            "text": "Workspace",
+            "x": 21.9,
+            "y": 344.95,
+            "w": 85.37,
+            "h": 25.73,
+            "size": 14.95,
+            "line_height": 18.09,
+            "weight": 500,
+            "color": 4294178036,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "t_wsval",
+            "text": "octos",
+            "x": 286.89,
+            "y": 347.75,
+            "w": 41.11,
+            "h": 21.0,
+            "size": 14,
+            "line_height": 21.0,
+            "weight": 500,
+            "color": 4288190621,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0,
+            "font_asc": -0.20313162345699942,
+            "font_desc": 0.14014334220699945
+          },
+          {
+            "t": "svg",
+            "id": "chev_ws",
+            "x": 336.0,
+            "y": 346.0,
+            "w": 18.0,
+            "h": 18.0,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "t_prof",
+            "text": "Profile",
+            "x": 21.99,
+            "y": 417.39,
+            "w": 47.68,
+            "h": 21.71,
+            "size": 14.08,
+            "line_height": 17.03,
+            "weight": 500,
+            "color": 4294112243,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "t_profval",
+            "text": "octos-dev",
+            "x": 252.42,
+            "y": 418.27,
+            "w": 75.58,
+            "h": 21.58,
+            "size": 14,
+            "line_height": 21.58,
+            "weight": 500,
+            "color": 4288190621,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0,
+            "font_asc": -0.1577791394534911,
+            "font_desc": 0.14654867070349112
+          },
+          {
+            "t": "svg",
+            "id": "chev_prof",
+            "x": 336.0,
+            "y": 420.0,
+            "w": 18.0,
+            "h": 18.0,
+            "src": ""
+          },
+          {
+            "t": "text",
+            "id": "t_notif",
+            "text": "Desktop notifications",
+            "x": 21.97,
+            "y": 505.14,
+            "w": 149.61,
+            "h": 25.73,
+            "size": 14.35,
+            "line_height": 17.36,
+            "weight": 500,
+            "color": 4293980658,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "stack",
+            "id": "toggle_notif",
+            "x": 304.0,
+            "y": 502.33,
+            "w": 50.0,
+            "h": 30.0,
+            "c": [
+              {
+                "t": "stack",
+                "id": "toggle_notif_knob",
+                "x": 328.0,
+                "y": 505.33,
+                "w": 24.0,
+                "h": 24.0,
+                "c": [],
+                "variant": "surface",
+                "bg": 4294967295,
+                "radius": 12.0
+              }
+            ],
+            "variant": "surface",
+            "bg": 4281298923,
+            "radius": 15.0
+          },
+          {
+            "t": "text",
+            "id": "t_diag",
+            "text": "Copy diagnostics",
+            "x": 21.48,
+            "y": 577.59,
+            "w": 122.2,
+            "h": 25.73,
+            "size": 14.23,
+            "line_height": 17.22,
+            "weight": 500,
+            "color": 4293651694,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "svg",
+            "id": "icon_copy",
+            "x": 336.0,
+            "y": 574.0,
+            "w": 18.0,
+            "h": 27.0,
+            "src": ""
+          }
+        ],
+        "variant": "surface",
+        "bg": 4280098595,
+        "radius": 12.0,
+        "border": 1,
+        "bordercolor": 4282006076
+      },
+      {
+        "t": "stack",
+        "id": "div_1",
+        "x": 24.0,
+        "y": 330.0,
+        "w": 342.0,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4282006076,
+        "radius": 0
+      },
+      {
+        "t": "stack",
+        "id": "div_2",
+        "x": 24.0,
+        "y": 404.0,
+        "w": 342.0,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4282006076,
+        "radius": 0
+      },
+      {
+        "t": "stack",
+        "id": "div_3",
+        "x": 24.0,
+        "y": 478.0,
+        "w": 342.0,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4282006076,
+        "radius": 0
+      },
+      {
+        "t": "stack",
+        "id": "disconnect_card",
+        "x": 20.0,
+        "y": 652.28,
+        "w": 350.0,
+        "h": 49.42,
+        "c": [
+          {
+            "t": "text",
+            "id": "t_disconnect",
+            "text": "Disconnect",
+            "x": 24.0,
+            "y": 666.28,
+            "w": 89.21,
+            "h": 22.5,
+            "size": 15,
+            "line_height": 22.5,
+            "weight": 500,
+            "color": 4291764782,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0,
+            "font_asc": -0.12517366704252575,
+            "font_desc": 0.14324007329252578
+          },
+          {
+            "t": "svg",
+            "id": "icon_power",
+            "x": 332.0,
+            "y": 662.0,
+            "w": 22.0,
+            "h": 29.0,
+            "src": ""
+          }
+        ],
+        "variant": "surface",
+        "bg": 4280033058,
+        "radius": 12.0,
+        "border": 1,
+        "bordercolor": 4282006076
+      }
+    ],
+    "variant": "surface",
+    "bg": 4279835679
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "settings_card",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "chev_ws",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "chev_prof",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "toggle_notif",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "toggle_notif_knob",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_copy",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "div_1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "div_2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "div_3",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "disconnect_card",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_power",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t01",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1619378900917804
+    },
+    {
+      "id": "t_conn",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.20102780558772676
+    },
+    {
+      "id": "t_ws",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.23545298686356564
+    },
+    {
+      "id": "t_wsval",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.23896156119824757
+    },
+    {
+      "id": "t_prof",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.17840709258391307
+    },
+    {
+      "id": "t_profval",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.24283444365671258
+    },
+    {
+      "id": "t_notif",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.17749543284992986
+    },
+    {
+      "id": "t_diag",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.19445078475409136
+    },
+    {
+      "id": "t_disconnect",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.192781277809949
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

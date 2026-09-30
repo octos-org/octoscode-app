@@ -1,0 +1,448 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "5456a3455332ebeb386d048efcd4cf9bfe9f5dd133f195aa9bc7f397dfbc193d",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.019084442741035268,
+  "text": [
+    {
+      "id": "t01",
+      "expected_text": "OctosCode",
+      "requested_bounds": [
+        24.26,
+        33.15,
+        101.34,
+        26.04
+      ],
+      "status": "observed",
+      "ocr_text": "OctosCode",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        26.13733905579399,
+        35.51487414187643,
+        95.83690987124463,
+        19.533180778032037
+      ],
+      "ink_color": [
+        8,
+        8,
+        8
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        24.259126434448245,
+        33.15306003761998,
+        101.33582404140749,
+        26.03255319486221
+      ]
+    },
+    {
+      "id": "t02",
+      "expected_text": "Code review",
+      "requested_bounds": [
+        22.65,
+        111.87,
+        116.75,
+        24.86
+      ],
+      "status": "observed",
+      "ocr_text": "Code review",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        25.266094420600858,
+        112.75972540045767,
+        111.51931330472102,
+        21.308924485125857
+      ],
+      "ink_color": [
+        7,
+        7,
+        7
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        22.652359785354093,
+        111.87185363569792,
+        116.74678111587983,
+        24.860411899313508
+      ]
+    },
+    {
+      "id": "t03",
+      "expected_text": "Start review",
+      "requested_bounds": [
+        280.29,
+        110.77,
+        94.59,
+        25.29
+      ],
+      "status": "observed",
+      "ocr_text": "Start review",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        277.92703862660943,
+        108.32036613272311,
+        99.32188841201716,
+        30.187643020594965
+      ],
+      "ink_color": [
+        9,
+        11,
+        15
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        280.29169434345994,
+        110.7674167187968,
+        94.59257854412552,
+        25.29354256950743
+      ]
+    },
+    {
+      "id": "t04",
+      "expected_text": "Reviewing 3 files \u2022 2 specialists",
+      "requested_bounds": [
+        80.15,
+        211.31,
+        228.27,
+        24.86
+      ],
+      "status": "observed",
+      "ocr_text": "Reviewing 3 files \u2022 2 specialists",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        83.63948497854076,
+        210.42562929061785,
+        223.03862660944205,
+        23.08466819221968
+      ],
+      "ink_color": [
+        32,
+        32,
+        32
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        80.15450545761804,
+        211.31350145491993,
+        228.26609442060084,
+        24.860411899313508
+      ]
+    },
+    {
+      "id": "t05",
+      "expected_text": "Analyzing changes and code quality...",
+      "requested_bounds": [
+        80.15,
+        252.16,
+        259.63,
+        24.86
+      ],
+      "status": "observed",
+      "ocr_text": "Analyzing changes and code quality...",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        81.8969957081545,
+        252.15560640732267,
+        255.27467811158797,
+        22.19679633867277
+      ],
+      "ink_color": [
+        116,
+        117,
+        123
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        80.15450860135905,
+        252.1556064073227,
+        259.6309012875536,
+        24.860411899313423
+      ]
+    },
+    {
+      "id": "t06",
+      "expected_text": "High",
+      "requested_bounds": [
+        40.08,
+        371.13,
+        36.59,
+        24.86
+      ],
+      "status": "observed",
+      "ocr_text": "High",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        42.69098712446352,
+        372.90617848970254,
+        30.493562231759654,
+        21.308924485125857
+      ],
+      "ink_color": [
+        177,
+        20,
+        22
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        40.07725298240343,
+        371.13043460503434,
+        36.592274678111586,
+        24.860411899313508
+      ]
+    },
+    {
+      "id": "t07",
+      "expected_text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
+      "requested_bounds": [
+        33.11,
+        426.18,
+        341.53,
+        23.09
+      ],
+      "status": "observed",
+      "ocr_text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        35.72103004291846,
+        425.29061784897027,
+        336.30042918454933,
+        21.308924485125857
+      ],
+      "ink_color": [
+        23,
+        24,
+        24
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        33.1072989834048,
+        426.1784895989321,
+        341.52789699570815,
+        23.08466819221969
+      ]
+    },
+    {
+      "id": "t08",
+      "expected_text": "Potential message loss when reconnecting: pending",
+      "requested_bounds": [
+        33.11,
+        470.57,
+        332.82,
+        21.32
+      ],
+      "status": "observed",
+      "ocr_text": "Potential message loss when reconnecting: pending",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        35.72103004291846,
+        469.6842105263158,
+        328.45922746781116,
+        21.308924485125857
+      ],
+      "ink_color": [
+        95,
+        96,
+        102
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        33.107297986313746,
+        470.57208232067126,
+        332.81545064377684,
+        21.30892448512588
+      ]
+    },
+    {
+      "id": "t09",
+      "expected_text": "queue was dropped.",
+      "requested_bounds": [
+        33.04,
+        502.1,
+        130.83,
+        23.96
+      ],
+      "status": "observed",
+      "ocr_text": "queue was dropped.",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        34.84978540772532,
+        502.5354691075515,
+        125.45922746781116,
+        21.308924485125857
+      ],
+      "ink_color": [
+        95,
+        96,
+        102
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        33.03525648981397,
+        502.10403587216376,
+        130.83077714780882,
+        23.94753579635098
+      ]
+    },
+    {
+      "id": "t10",
+      "expected_text": "Low",
+      "requested_bounds": [
+        38.33,
+        621.51,
+        34.85,
+        19.53
+      ],
+      "status": "observed",
+      "ocr_text": "Low",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        42.69098712446352,
+        620.6224256292907,
+        27.879828326180256,
+        17.757437070938217
+      ],
+      "ink_color": [
+        48,
+        48,
+        48
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        38.33476399206008,
+        621.5102977270024,
+        34.849785407725314,
+        19.533180778031973
+      ]
+    },
+    {
+      "id": "t11",
+      "expected_text": "crates/octos-core/src/ui_protocol.rs",
+      "requested_bounds": [
+        33.11,
+        674.78,
+        261.37,
+        21.32
+      ],
+      "status": "observed",
+      "ocr_text": "crates/octos-core/src/ui_protocol.rs",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        34.84978540772532,
+        673.8947368421053,
+        257.88841201716735,
+        22.19679633867277
+      ],
+      "ink_color": [
+        28,
+        29,
+        29
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        33.107296180901294,
+        674.7826084292906,
+        261.3733905579399,
+        21.30892448512588
+      ]
+    },
+    {
+      "id": "t12",
+      "expected_text": "Missing documentation for new preserve_pending",
+      "requested_bounds": [
+        33.11,
+        720.95,
+        318.88,
+        23.09
+      ],
+      "status": "observed",
+      "ocr_text": "Missing documentation for new preserve_pending",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        34.84978540772532,
+        720.0640732265447,
+        316.2618025751073,
+        22.19679633867277
+      ],
+      "ink_color": [
+        101,
+        101,
+        106
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        33.10729414436698,
+        720.9519451355835,
+        318.8755364806867,
+        23.08466819221969
+      ]
+    },
+    {
+      "id": "t13",
+      "expected_text": "behavior.",
+      "requested_bounds": [
+        31.15,
+        754.01,
+        59.67,
+        20.91
+      ],
+      "status": "observed",
+      "ocr_text": "behavior.",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        34.84978540772532,
+        755.578947368421,
+        54.01716738197425,
+        15.981693363844395
+      ],
+      "ink_color": [
+        92,
+        94,
+        98
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        31.15430438378977,
+        754.0063669707988,
+        59.66564060587739,
+        20.90259738808637
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    }
+  ],
+  "unmapped_ocr": [],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

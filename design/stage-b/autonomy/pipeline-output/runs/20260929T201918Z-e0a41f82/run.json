@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "flow": "octoscode-autonomy",
+  "status": "completed",
+  "scope": "Only explicitly executed stages; no automatic visual or production acceptance",
+  "inputs": {
+    "sha256": "ee640ab505de354f039250a563ae3cfc95492fe4bc3c1fba0cc6563d25c5302e",
+    "files": {
+      "image-to-appcard-flow.json": "7c3b7304ef1184f32231708b4cc52cdfc8ffbc9927c39a8820050deadea0b9ae",
+      "source/atlas.png": "0017d69d3c38e810bdc6955c89175c91cee78409be9925a9addb674c8b48149c",
+      "source/prompt.txt": "6f8e52d2b806c138375ed1ad6917548715f803da8ec2c8872a3bbcc0c357b329",
+      "cards/autonomy-01/contract.json": "4f603ecca675596932cbb4281bed59c39de2884d8801380a57a80f81cd6d0e68",
+      "cards/autonomy-01/mapped.json": "2e7ba6c53f30b1ea1a54b7006872d6979255d094dd105e453177c3ffaba22452",
+      "cards/autonomy-01/semantic-map.json": "8307103a3a56e2706cb8e8e3d0d327491f249818dff6f711117169bc1b0ef1e1",
+      "cards/autonomy-01/service-actions.json": "fc259aada0ec26c2f79f150b37f2dea074d86a09260ffc4f208fc1043fb565c2",
+      "cards/autonomy-02/contract.json": "c7d4f9ec06d8031f6a9f426606fcb595fe7313269bd210bc543891a4a63c9b9d",
+      "cards/autonomy-02/mapped.json": "a3e0580a14460874252786b7bc3884bb5fa9477321e23a08249822a70cfe6649",
+      "cards/autonomy-02/semantic-map.json": "7642318619e1877e33a5a781a29255ab8b4643da4683748f4856d4b53158681d",
+      "cards/autonomy-02/service-actions.json": "87a86796a5e98ed5a01dd3ddb4448f26fda8d4f64c0f233b38edb530a7f01254",
+      "cards/autonomy-03/contract.json": "ada42d67b88db6972435c06a2c014b145d6b62177acaa8ddaf5101046d69ecf5",
+      "cards/autonomy-03/mapped.json": "06f300439cf72726ffbb1eea323de48f380de888f71f9b2f5086627aa9d45db5",
+      "cards/autonomy-03/semantic-map.json": "dc16c36c12a66417f74055bb3e95922130782ce2287655a9cc63619194b04750",
+      "cards/autonomy-03/service-actions.json": "6a8bae36a85689a6824998b20e3d88a70e049cac2e39fe2f1da23942988619dd",
+      "cards/autonomy-04/contract.json": "fcf11be71ca426ab6c702713046bc2127ca13804f6a8e2e356536cf59b365b59",
+      "cards/autonomy-04/mapped.json": "4775d6b548f13a956b35e6e58bb3e44b3f87e0f9311a7a03fcc7a2c8683311c3",
+      "cards/autonomy-04/semantic-map.json": "51f1973ad70b8deed4ea151ea4b8627b837323e9eea95b2a23cfc039cf18af33",
+      "cards/autonomy-04/service-actions.json": "018e195c22026be4b8c107de38276943fa2a70beb61097da5bcf122f838d4a62",
+      "cards/autonomy-05/contract.json": "493574abc35e60cb7aab3d714c3ae6acafa3d9cfbc298f0604414164d62801d8",
+      "cards/autonomy-05/mapped.json": "371489fb1dc2b7927bbf2e8083c9b50b951c1364413225c65ede1a64749620b4",
+      "cards/autonomy-05/semantic-map.json": "425c7c059366c825aba80f50ba5b43377fc1922084d31975157fd5fe5fb4e977",
+      "cards/autonomy-05/service-actions.json": "2552447dafbba16f57015c39b44c5ea5498b99e233bd277666a60eff6137ef2f",
+      "cards/autonomy-06/contract.json": "39de7ddd71633228e1bbe0919647879aae1a48eac514155146e44194cf78a6a0",
+      "cards/autonomy-06/mapped.json": "9706339bffeffc98146bfe7065a15632125631530fccc0419679194e2996a520",
+      "cards/autonomy-06/semantic-map.json": "9dfa7a3621023c7598ef23362f41ce37a435ec85ae3c7a6c633b103e80b45c7c",
+      "cards/autonomy-06/service-actions.json": "18ea076a3f96d1aa8fcb32f7bf9664550a2e00d5dbe921b7161e7a1aad8363b5",
+      "cards/autonomy-07/contract.json": "0f853022bd7ef7af093cc4087492113d97a29fc1c94a1d542bb5376d42a339c2",
+      "cards/autonomy-07/mapped.json": "1e2b405585c0742d60bd0422728904619e0069a91f398f9c1e78e3cd6bc13741",
+      "cards/autonomy-07/semantic-map.json": "48c879c277b847e10c231fd4f11bebcd74b1321c685efaba05a6dedc5ba64a0a",
+      "cards/autonomy-07/service-actions.json": "3f3fbbb7566697e8f2e9f0eea22cb24489bc47553f9a6e15295ce8700bd25169",
+      "cards/autonomy-08/contract.json": "f5bf71616aa0dbf3bc14fb1282387db62b8af08b3e0333f8547d17595c56030b",
+      "cards/autonomy-08/mapped.json": "84cfa3dfba888c54f36472035dbe60047d65e1cb4b4c5f4896d0d60bb4e3af8d",
+      "cards/autonomy-08/semantic-map.json": "e5ac6bf102c1b30bcd07cc42d8f1a9ad124412046b1a7add3169b9f4d0549786",
+      "cards/autonomy-08/service-actions.json": "af6cffe6c3acd0c10a094c37f6df155c4ee5b91f9430fa3b903645f9d8d2771f",
+      "cards/autonomy-09/contract.json": "39b2a83a16f323f3edc2e452e3c4a414976250590e865291316cd144708e37c1",
+      "cards/autonomy-09/mapped.json": "0c3b76bef490a8cf3e226c260feb16c60d183ea15441b7ad7bfaad777e56f752",
+      "cards/autonomy-09/semantic-map.json": "8f5c5e111107f2aae3e820df3aaf2c7d4db616e23abba1ad436e4cd567d72532",
+      "cards/autonomy-09/service-actions.json": "9a5e94f58d1240ff4d873b97c18d6e91b6c6712d7ac19a698d2044f50aa86388",
+      "cards/autonomy-10/contract.json": "1cda346161797ba9e00e2a51616a872824b40cf1368cd988f0c3511c60262fd9",
+      "cards/autonomy-10/mapped.json": "73dae147d7c7da58f011c700b45955b3f44b6691a6d609f28f9a254342f4ea68",
+      "cards/autonomy-10/semantic-map.json": "38986af7a7570197b538d0c9c1ddcfb8be813c4bd00df9b44a98ca52f1fc83b5",
+      "cards/autonomy-10/service-actions.json": "a2918e63f31aae4a81af4f5e6d5d988945714770cb0791dacbbe95843ee96442",
+      "cards/autonomy-11/contract.json": "452d48702ad6e34dada125435f6d16b82de7d05967646efdf9e7a25629d8bb39",
+      "cards/autonomy-11/mapped.json": "c3838523722620820fd122f9cd71bf0be41e2e6d3345363dbe5ce70c13dd796f",
+      "cards/autonomy-11/semantic-map.json": "43af73dc0f05b0ba8ae36caa23f99c5617155aa13ad3a6fceada8fbfff60e5c8",
+      "cards/autonomy-11/service-actions.json": "09adbd91c94f9e2db978f39f4e90e62fb75c385c17befe49686746b6a1a49d9d",
+      "cards/autonomy-12/contract.json": "5c65c91d1011c49941ed87e714bb704e47a0197b42441a1168da8eb225bba95f",
+      "cards/autonomy-12/mapped.json": "3dc51cdb70dbb38cef3375ea9332aafc5d7c0f8ca6a9580ee93c683efe736567",
+      "cards/autonomy-12/semantic-map.json": "143499ca45a757799b11343e7f9f9eb26adb8b8711c8d493829a1e8b6e83dae1",
+      "cards/autonomy-12/service-actions.json": "b37a045f4c5d32d62210abfef80dce8d611f555217d12a19e39a4e0f02c37ae9",
+      "wizard/service.mjs": null,
+      "wizard/render.mjs": null,
+      "wizard/wizard.mjs": null
+    }
+  },
+  "stages": [
+    {
+      "stage": "semantic",
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "/Users/yuechen/miniconda3/bin/python3",
+            "/Users/yuechen/home/oa.noindex/p0-proto/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
+            "--project",
+            "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy",
+            "--manifest",
+            "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy/image-to-appcard-flow.json",
+            "--stage",
+            "semantic"
+          ],
+          "cwd": "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy"
+        }
+      ],
+      "logs": [
+        {
+          "path": "semantic-0.log",
+          "sha256": "2dc9335fd3af6928356f88583d5c5e587aecc768fcd9ce54b706ea17e597664b",
+          "exit_code": 0
+        }
+      ]
+    },
+    {
+      "stage": "compile",
+      "status": "passed",
+      "commands": [
+        {
+          "argv": [
+            "/Users/yuechen/miniconda3/bin/python3",
+            "/Users/yuechen/home/oa.noindex/p0-proto/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
+            "--project",
+            "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy",
+            "--manifest",
+            "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy/image-to-appcard-flow.json",
+            "--stage",
+            "compile"
+          ],
+          "cwd": "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy"
+        }
+      ],
+      "logs": [
+        {
+          "path": "compile-0.log",
+          "sha256": "55efc108276f1425c070a5cdaa12d49edb7da32b6a9c159908bfbac233ea04cc",
+          "exit_code": 0
+        }
+      ]
+    }
+  ],
+  "not_run": [
+    "intake",
+    "prepare",
+    "observe",
+    "measure",
+    "map",
+    "capture",
+    "gate",
+    "extract",
+    "bundle",
+    "service-test",
+    "wasm",
+    "integrate",
+    "web-test",
+    "hosted-test"
+  ],
+  "finished_at": "2026-09-29T20:19:18.829867+00:00"
+}

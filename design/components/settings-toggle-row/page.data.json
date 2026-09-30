@@ -1,0 +1,44 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "group2": {
+        "component": "Surface6cd31c06adc5",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 350.0,
+          "h": 62.0
+        }
+      },
+      "t_notif": {
+        "component": "Text7d595ac36aa0",
+        "layout": {
+          "x": 26.130000000000003,
+          "y": 34.920000000000016,
+          "w": 164.66,
+          "h": 22.58
+        }
+      },
+      "toggle1": {
+        "component": "Surfaceb137a51eded7",
+        "layout": {
+          "x": 240.0,
+          "y": 28.920000000000016,
+          "w": 50.0,
+          "h": 30.0
+        }
+      },
+      "toggle1_knob": {
+        "component": "Surfaceab0895dcdf57",
+        "layout": {
+          "x": 266.0,
+          "y": 31.920000000000016,
+          "w": 24.0,
+          "h": 24.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

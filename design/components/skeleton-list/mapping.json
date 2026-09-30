@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "skeleton_list_root",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surfacef468f03a0025",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        340.0,
+        158.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "skel0",
+      "native_id": "beauty_0_0",
+      "parent": "skeleton_list_root",
+      "kind": "stack",
+      "component": "Surfaceb1747ab6b098",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        0.0,
+        70.0,
+        50.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "skel1",
+      "native_id": "beauty_0_1",
+      "parent": "skeleton_list_root",
+      "kind": "stack",
+      "component": "Surfaceb1747ab6b098",
+      "semantic_role": "layout",
+      "bounds": [
+        70.0,
+        6.0,
+        255.0,
+        44.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "skel2",
+      "native_id": "beauty_0_2",
+      "parent": "skeleton_list_root",
+      "kind": "stack",
+      "component": "Surfaceb1747ab6b098",
+      "semantic_role": "layout",
+      "bounds": [
+        0.0,
+        82.0,
+        70.0,
+        56.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "skel3",
+      "native_id": "beauty_0_3",
+      "parent": "skeleton_list_root",
+      "kind": "stack",
+      "component": "Surfaceb1747ab6b098",
+      "semantic_role": "layout",
+      "bounds": [
+        70.0,
+        86.0,
+        255.0,
+        52.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    }
+  ],
+  "fonts": {},
+  "contract_sha256": "47253bb95578a470f6484e2b49964450097170d06f8583ba7d77b420cf802868",
+  "mapping_basis": "mapped.json"
+}

@@ -1,0 +1,1 @@
+{t:"stack",id:"server",x:0.0,y:0.0,w:314.0,h:44.3,c:[{t:"input",id:"server_field",text:"http://127.0.0.1:50190",placeholder:"",x:14.0,y:12.0,w:286.0,h:22.5,size:15,line_height:22.5,weight:400,color:4280098079,variant:"single_line",alignx:0,font_src:"self:resources/ux/Inter-400.ttf",enabled:1,c:[]}],variant:"surface",bg:4294440952,radius:8,border:1,bordercolor:4293256679}

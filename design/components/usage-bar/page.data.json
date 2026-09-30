@@ -1,0 +1,53 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "usage_bar_root": {
+        "component": "Surfacef468f03a0025",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 360.0,
+          "h": 80.0
+        }
+      },
+      "t_usage": {
+        "component": "Text840a7f555cd2",
+        "layout": {
+          "x": 12.9,
+          "y": 9.3,
+          "w": 200.0,
+          "h": 21.0
+        }
+      },
+      "t_pct": {
+        "component": "Text3ccc8c684a1d",
+        "layout": {
+          "x": 294.8,
+          "y": 9.3,
+          "w": 40.0,
+          "h": 20.0
+        }
+      },
+      "bar_track": {
+        "component": "Surface17544640ea84",
+        "layout": {
+          "x": 15.0,
+          "y": 52.5,
+          "w": 317.0,
+          "h": 15.5
+        }
+      },
+      "bar_fill": {
+        "component": "Surface260f5fd1c16f",
+        "layout": {
+          "x": 15.0,
+          "y": 52.5,
+          "w": 205.0,
+          "h": 15.5
+        }
+      }
+    },
+    "bindings": []
+  }
+}

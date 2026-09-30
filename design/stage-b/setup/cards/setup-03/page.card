@@ -1,0 +1,120 @@
+# ledger setup-03@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Set up a local profile" }
+copy t_pname_text { class: user-copy, en: "Profile name" }
+copy profile_field_text { class: user-copy, en: "octos-dev" }
+copy profile_field_placeholder { class: user-copy, en: "" }
+copy t_provider_text { class: user-copy, en: "Provider" }
+copy t_prov_deepseek_text { class: user-copy, en: "DeepSeek • Official API" }
+copy t_prov_kimi_text { class: user-copy, en: "Kimi Coding Plan" }
+copy t_prov_glm_text { class: user-copy, en: "GLM Coding Plan" }
+copy t_apikey_text { class: user-copy, en: "API key" }
+copy apikey_field_text { class: user-copy, en: "" }
+copy apikey_field_placeholder { class: user-copy, en: "" }
+copy apikey_dots_text { class: user-copy, en: "••••••••••••••••••••" }
+copy t_keyhint_text { class: user-copy, en: "Your key never leaves this machine" }
+copy create_profile_label_text { class: user-copy, en: "Create profile" }
+state profile_field_enabled { shape: bool, initial: true }
+state apikey_field_enabled { shape: bool, initial: true }
+state create_profile_control_enabled { shape: bool, initial: true }
+component Surface156d085f4ff5(instance: text) {
+  view Kit(component: "Surface156d085f4ff5", instance: instance) { slot }
+}
+component Surface28a1c2e54e11(instance: text) {
+  view Kit(component: "Surface28a1c2e54e11", instance: instance) { slot }
+}
+component Textf85e886e09bb(instance: text, text: text) {
+  view Kit(component: "Textf85e886e09bb", instance: instance, text: text)
+}
+component Text0b928d994de3(instance: text, text: text) {
+  view Kit(component: "Text0b928d994de3", instance: instance, text: text)
+}
+component Surfacebc08397a72a6(instance: text) {
+  view Kit(component: "Surfacebc08397a72a6", instance: instance) { slot }
+}
+component Input832dfe529a64(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Input832dfe529a64", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+}
+component Text91fae47769cf(instance: text, text: text) {
+  view Kit(component: "Text91fae47769cf", instance: instance, text: text)
+}
+component Surface409a8dfb0311(instance: text) {
+  view Kit(component: "Surface409a8dfb0311", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Text684c870f921b(instance: text, text: text) {
+  view Kit(component: "Text684c870f921b", instance: instance, text: text)
+}
+component Textfe983b7a369c(instance: text, text: text) {
+  view Kit(component: "Textfe983b7a369c", instance: instance, text: text)
+}
+component Text048e64989bba(instance: text, text: text) {
+  view Kit(component: "Text048e64989bba", instance: instance, text: text)
+}
+component Input4d0dff503fef(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Input4d0dff503fef", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+}
+component Text8a96838bcf2a(instance: text, text: text) {
+  view Kit(component: "Text8a96838bcf2a", instance: instance, text: text)
+}
+component Textd525be2d0937(instance: text, text: text) {
+  view Kit(component: "Textd525be2d0937", instance: instance, text: text)
+}
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surface8d834e17f854(instance: text) {
+  view Kit(component: "Surface8d834e17f854", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Textb4e41541d5f2(instance: text, text: text) {
+  view Kit(component: "Textb4e41541d5f2", instance: instance, text: text)
+}
+
+view root Surface156d085f4ff5(instance: "page") {
+  Surface28a1c2e54e11(instance: "outer_card") {
+    Textf85e886e09bb(instance: "t_title", text: copy.t_title_text)
+    Text0b928d994de3(instance: "t_pname", text: copy.t_pname_text)
+    Surfacebc08397a72a6(instance: "profile") {
+      Input832dfe529a64(instance: "profile_field", text: copy.profile_field_text, placeholder: copy.profile_field_placeholder, enabled: profile_field_enabled) {
+
+      }
+    }
+    Text91fae47769cf(instance: "t_provider", text: copy.t_provider_text)
+    Surface409a8dfb0311(instance: "provider_deepseek") {
+      Vectore0a378fde04f(instance: "radio_deepseek")
+      Text684c870f921b(instance: "t_prov_deepseek", text: copy.t_prov_deepseek_text)
+    }
+    Surface409a8dfb0311(instance: "provider_kimi") {
+      Vectore0a378fde04f(instance: "radio_kimi")
+      Textfe983b7a369c(instance: "t_prov_kimi", text: copy.t_prov_kimi_text)
+    }
+    Surface409a8dfb0311(instance: "provider_glm") {
+      Vectore0a378fde04f(instance: "radio_glm")
+      Text684c870f921b(instance: "t_prov_glm", text: copy.t_prov_glm_text)
+    }
+    Text048e64989bba(instance: "t_apikey", text: copy.t_apikey_text)
+    Surfacebc08397a72a6(instance: "apikey") {
+      Input4d0dff503fef(instance: "apikey_field", text: copy.apikey_field_text, placeholder: copy.apikey_field_placeholder, enabled: apikey_field_enabled) {
+
+      }
+      Text8a96838bcf2a(instance: "apikey_dots", text: copy.apikey_dots_text)
+      Vectore0a378fde04f(instance: "apikey_eye")
+    }
+    Textd525be2d0937(instance: "t_keyhint", text: copy.t_keyhint_text)
+    KitButton2c6804b990a5(instance: "create_profile") {
+      Surface8d834e17f854(instance: "create_profile_surface") {
+
+      }
+      NativeButton02f1d1bd99b4(instance: "create_profile_control", enabled: create_profile_control_enabled)
+      Textb4e41541d5f2(instance: "create_profile_label", text: copy.create_profile_label_text)
+    }
+  }
+}
