@@ -166,7 +166,10 @@ fn build_preview() -> serde_json::Value {
     }
     fn added_run(start: u32, n: u32, stem: &str) -> Vec<serde_json::Value> {
         (0..n)
-            .map(|i| line("added", &format!("{stem} {start + i}"), None, Some(start + i)))
+            .map(|i| {
+                let ln = start + i; // format strings take identifiers, not expressions
+                line("added", &format!("{stem} {ln}"), None, Some(ln))
+            })
             .collect()
     }
     let file1_lines: Vec<serde_json::Value> = [
