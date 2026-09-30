@@ -260,6 +260,7 @@ mod tests {
             conv: None,
             store,
             ui: flow_ui(),
+            screens: Arc::new(Mutex::new(crate::screens::connect::ConnectUi::default())),
         }))
     }
 
