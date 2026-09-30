@@ -702,8 +702,11 @@ script_mod! {
             width: Fill height: Fill
             align: Align{x: 1.0 y: 0.0}
             visible: false
+            // Fill/Fill: the reference host (screens_probe.rs:147) gives the
+            // screen the full window; a Fit slot collapsed the mounted tree
+            // to 0x0 (/snap-probed after the move out of review_column).
             screen_splash := Splash {
-                width: Fit height: Fit
+                width: Fill height: Fill
             }
         }
 
