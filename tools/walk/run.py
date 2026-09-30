@@ -272,7 +272,7 @@ class App:
         return None
 
     def click(self, x, y):
-        return self._get(f"/click?x={x}&y={y}&wait=1")
+        return self._get_retry(f"/click?x={x}&y={y}&wait=1")
 
     def click_id(self, snap: dict, ident: str):
         r = self.rect(snap, ident)
@@ -326,7 +326,9 @@ class App:
         if not r or r[2] <= 0:
             raise AssertionError("the composer input (i*_composer_0) never laid out")
         x, y, w, h = r
-        return self.click(int(x + w - 2), int(y + h / 2))
+        self.click(int(x + w * 0.5), int(y + h * 0.5))
+        self.key("end")
+        return None
 
     def clear_composer(self):
         """Empty the composer: focus at the end, then backspace it away.
