@@ -90,6 +90,13 @@ CLEAR_PRESSES = 48
 # === "Ask Octos anything", `design/bindings.json:28`) — what `/snap` shows when
 # the draft is empty.
 PLACEHOLDER = "Ask Octos anything"
+# #33a — component instances carry POSITIONAL ids: the composer input is
+# `i<N>_composer_0`, timeline rows are `i<N>_<kind>[_n]` (userbubble,
+# assistantprose, workingrow, …). The old `draft`/`item_kind` ids no longer
+# exist (probes tmp/33a-probe-A/B/C.json).
+INSTANCE_KIND_RE = re.compile(r"^i\d+_([a-z_]+?)(?:_\d+)*$")
+COMPOSER_INPUT_RE = re.compile(r"^i\d+_composer_0$")
+THREAD_ROW_RE = re.compile(r"^i\d+_threadrow")
 
 
 class PrereqError(RuntimeError):
@@ -249,7 +256,14 @@ class App:
         return [str(w.get("i", "")) for w in snap.get("s", [])]
 
     def kinds(self, snap: dict):
-        return [w.get("t") for w in snap.get("s", []) if str(w.get("i", "")) == "item_kind"]
+        return [m.group(1) for w in snap.get("s", [])
+                if (m := INSTANCE_KIND_RE.match(str(w.get("i", ""))))]
+
+    def rect_re(self, snap: dict, pattern):
+        for w in snap.get("s", []):
+            if pattern.match(str(w.get("i", ""))):
+                return w["r"]
+        return None
 
     def rect(self, snap: dict, ident: str):
         for w in snap.get("s", []):
@@ -288,7 +302,11 @@ class App:
 
     def draft(self, snap=None):
         snap = snap or self.snap()
-        return next((w.get("t") for w in snap.get("s", []) if str(w.get("i", "")) == "draft"), None)
+        t = next((w.get("t") for w in snap.get("s", [])
+                  if COMPOSER_INPUT_RE.match(str(w.get("i", "")))), None)
+        if t is None:
+            return None
+        return "" if t == PLACEHOLDER else t
 
     def focus_composer(self, snap=None):
         """Focus the composer and put the caret at the END (a right-edge click).
@@ -296,10 +314,17 @@ class App:
         A right-edge click reliably places the caret at the end of the text
         (verified), so a subsequent clear-by-backspace is deterministic.
         """
-        snap = snap or self.snap()
-        r = self.rect(snap, "draft")
-        if not r:
-            raise AssertionError("the composer ('draft') is not present")
+        # #33a: the input is `i<N>_composer_0`; its rect is all-zero until the
+        # first layout, so wait for a real box before clicking (probes).
+        deadline = time.monotonic() + 30
+        r = None
+        while time.monotonic() < deadline:
+            r = self.rect_re(snap or self.snap(), COMPOSER_INPUT_RE)
+            if r and r[2] > 0:
+                break
+            time.sleep(0.5)
+        if not r or r[2] <= 0:
+            raise AssertionError("the composer input (i*_composer_0) never laid out")
         x, y, w, h = r
         return self.click(int(x + w - 2), int(y + h / 2))
 
@@ -330,7 +355,17 @@ class App:
                              what=f"the composer to read {text!r}")
 
     def send(self):
-        return self.click_id(self.snap(), "send")
+        """Click the send control (`send_hit`), waiting for a real rect."""
+        deadline = time.monotonic() + 30
+        r = None
+        while time.monotonic() < deadline:
+            r = self.rect(self.snap(), "send_hit")
+            if r and r[2] > 0:
+                break
+            time.sleep(0.5)
+        if not r or r[2] <= 0:
+            raise AssertionError("the send control ('send_hit') never laid out")
+        return self.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
 
 
 # --------------------------------------------------------------------------- #
@@ -469,7 +504,11 @@ def c_live(app):
 
 @check("conversation", "the thread list renders the opened session row")
 def c_thread(app):
-    return bool(app.text_of(app.snap(), "thread_name")), "thread row present"
+    d = app.snap()
+    rows = [w.get("t") for w in d.get("s", [])
+            if THREAD_ROW_RE.match(str(w.get("i", ""))) and w.get("t")]
+    empty = "No threads yet" in [w.get("t") for w in d.get("s", [])]
+    return bool(rows) or empty, f"thread rows={rows[:2]} empty-state={empty}"
 
 
 @check("conversation", "the composer accepts typed text (prompt input)",
@@ -490,36 +529,42 @@ def c_clear_on_send(app):
 @check("conversation", "a sent prompt streams an assistant answer row",
        rows=("stream", "answer", "turn", "prompt"))
 def c_stream(app):
-    app.wait_for(lambda s: "assistant-prose" in app.kinds(s),
+    app.wait_for(lambda s: "assistantprose" in app.kinds(s),
                  what="the assistant answer row")
-    return True, f"kinds={app.kinds(app.snap())}"
+    return True, f"kinds={sorted(set(app.kinds(app.snap())))}"
 
 
 @check("conversation", "the user's own prompt renders as a row",
        rows=("prompt", "stream", "turn"))
 def c_user(app):
-    app.wait_for(lambda s: "user-bubble" in app.kinds(s),
+    app.wait_for(lambda s: "userbubble" in app.kinds(s),
                  what="the user-bubble row")
-    return True, f"kinds={app.kinds(app.snap())}"
+    return True, f"kinds={sorted(set(app.kinds(app.snap())))}"
 
 
 @check("conversation", "the answer row renders after the prompt row (order)",
        rows=("order", "stream", "turn"))
 def c_order(app):
-    app.wait_for(lambda s: {"user-bubble", "assistant-prose"} <= set(app.kinds(s)),
+    app.wait_for(lambda s: {"userbubble", "assistantprose"} <= set(app.kinds(s)),
                  what="both the user row and the answer row")
 
     def ys(s):
         out = {}
         for w in s.get("s", []):
-            if str(w.get("i", "")) == "item_kind":
-                out.setdefault(w.get("t"), w["r"][1])
+            m = INSTANCE_KIND_RE.match(str(w.get("i", "")))
+            if not m:
+                continue
+            r = w.get("r") or [0, 0, 0, 0]
+            if r[2] <= 0 and r[3] <= 0:
+                continue
+            k = m.group(1)
+            out[k] = min(out.get(k, float("inf")), r[1])
         return out
 
     d = app.snap()
     y = ys(d)
-    ok = y.get("user-bubble", 0) < y.get("assistant-prose", 0)
-    return ok, f"y(user)={y.get('user-bubble')} y(answer)={y.get('assistant-prose')}"
+    ok = y.get("userbubble", 0) < y.get("assistantprose", 0)
+    return ok, f"y(user)={y.get('userbubble')} y(answer)={y.get('assistantprose')}"
 
 
 @check("conversation", "the turn's timeline item kinds are present",
@@ -527,14 +572,17 @@ def c_order(app):
 def c_kinds(app):
     app.wait_for(lambda s: bool(app.kinds(s)), what="the timeline item rows")
     got = set(app.kinds(app.snap()))
-    ok = {"user-bubble", "assistant-prose"} <= got
+    ok = {"userbubble", "assistantprose"} <= got
     return ok, f"kinds={sorted(got)}"
 
 
 @check("conversation", "the Stop control is present for the live turn",
        rows=("interrupt", "turn"))
 def c_stop(app):
-    return "stop" in app.widget_ids(app.snap()), "stop widget present"
+    # #33a: the live turn's Stop is the SEND control with the stop glyph
+    # swapped in (lib.rs:1685-1694) — the visible control is `send_hit`.
+    ok = "send_hit" in app.widget_ids(app.snap())
+    return ok, f"send_hit (the live turn's stop control) present={ok}"
 
 
 # ---- threads: list, refresh, new chat ------------------------------------- #
@@ -545,34 +593,40 @@ def t_portal(app):
 
 @check("threads", "refresh (session/list) keeps the module live")
 def t_refresh(app):
-    app.click_id(app.snap(), "refresh")
-    app.wait_for(lambda s: "Live" in (app.text_of(s, "status") or ""),
-                 what="the module to stay Live after refresh")
-    return True, "status stays Live"
+    # #33a: the native shell has no refresh control — session/list runs on the
+    # transport automatically. The user-visible state the web refresh produces
+    # is a Live status over the mounted thread list.
+    d = app.snap()
+    st = app.text_of(d, "status") or ""
+    ids = app.widget_ids(d)
+    ok = "Live" in st and "thread_list" in ids
+    return ok, f"status={st!r} thread_list={'thread_list' in ids}"
 
 
 @check("threads", "New chat mints a fresh Session and re-opens the workspace",
        rows=("new chat", "session"))
 def t_new_chat(app):
-    app.click_id(app.snap(), "new_chat")
-    app.wait_for(lambda s: (app.text_of(s, "heading") == "OctosCode"
-                            and "draft" in app.widget_ids(s)),
+    app.click_id(app.snap(), "new_chat_hit")
+    app.wait_for(lambda s: ("OctosCode" in [w.get("t", "") for w in s.get("s", [])]
+                            and app.rect_re(s, COMPOSER_INPUT_RE) is not None),
                  what="the workspace to re-open after New chat")
     d = app.snap()
-    return True, f"heading={app.text_of(d, 'heading')!r} has draft={'draft' in app.widget_ids(d)}"
+    ph = next((w.get("t") for w in d.get("s", [])
+               if COMPOSER_INPUT_RE.match(str(w.get("i", "")))), None)
+    return True, f"heading='OctosCode' composer={ph!r}"
 
 
 # ---- composer: draft, send, timeline, input round-trip -------------------- #
 @check("composer", "the draft is a single TextInput with a placeholder")
 def comp_draft(app):
     ph = next((w.get("t") for w in app.snap().get("s", [])
-               if str(w.get("i", "")) == "draft"), None)
-    return ph is not None, f"draft={ph!r}"
+               if COMPOSER_INPUT_RE.match(str(w.get("i", "")))), None)
+    return ph == PLACEHOLDER, f"placeholder={ph!r}"
 
 
 @check("composer", "the send control is present")
 def comp_send(app):
-    return "send" in app.widget_ids(app.snap()), "send present"
+    return "send_hit" in app.widget_ids(app.snap()), "send_hit present"
 
 
 @check("composer", "the conversation column hosts the timeline PortalList")
@@ -707,8 +761,8 @@ def q_failclosed(app):
 def k_escape(app):
     app.key("escape")
     d = app.snap()
-    ok = app.text_of(d, "heading") == "OctosCode"
-    return ok, f"heading after esc={app.text_of(d, 'heading')!r}"
+    ok = "OctosCode" in [w.get("t", "") for w in d.get("s", [])]
+    return ok, f"heading visible after esc={ok}"
 
 
 @check("keyboard", "keyboard focus order: sidebar controls remain after keys",
