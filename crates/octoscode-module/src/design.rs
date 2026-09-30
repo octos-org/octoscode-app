@@ -264,14 +264,35 @@ pub fn with_fonts(lowered: Result<String, String>) -> Result<String, String> {
     Ok(out)
 }
 
-/// The absolute file for a kit face (`ux/<file>.ttf`): the dev checkout's
-/// own resources first, else the materialized design root.
+/// The absolute file for a kit face (`ux/<file>.ttf`): the MATERIALIZED
+/// design root first — it exists on every target (desktop: `$HOME`/host
+/// files dir; phone: the app's own storage, device-verified in #32f) and is
+/// what the outer loop's device log demanded (`font member` must never name
+/// the build machine: 9394a44 resolved the checkout path, which only exists
+/// where the APK was built). The dev checkout is the LAST resort. The first
+/// resolution is logged once — the device log then shows which tree won.
 pub fn font_file(rel: &str) -> PathBuf {
-    let own = Path::new(manifest_dir()).join("resources").join(rel);
-    if own.is_file() {
-        return own;
-    }
-    root().join(rel)
+    let resolved = {
+        let from_root = root().join(rel);
+        if from_root.is_file() {
+            from_root
+        } else {
+            let own = Path::new(manifest_dir()).join("resources").join(rel);
+            if own.is_file() {
+                own
+            } else {
+                from_root
+            }
+        }
+    };
+    static LOGGED: OnceLock<()> = OnceLock::new();
+    LOGGED.get_or_init(|| {
+        makepad_widgets::log!(
+            "[octoscode] font faces resolve under {}",
+            resolved.display()
+        );
+    });
+    resolved
 }
 
 #[cfg(test)]
