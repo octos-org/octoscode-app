@@ -813,11 +813,11 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
             "    Textd55469de8b8b(instance: \"tasks_empty\", text: copy.tasks_empty_text)\n",
         );
         minted.push(("tasks_empty_text".to_owned(), TASKS_EMPTY.to_owned()));
-        placed.push(("tasks_empty".to_owned(), DCMD, 32.0, 285.0, 342.0, 44.0));
+        placed.push(("tasks_empty".to_owned(), DCMD, 32.0, 208.5, 342.0, 44.0));
     } else {
         const RUN_H: f64 = 387.0;
         for (i, t) in runs.iter().enumerate() {
-            let y = 265.0 + i as f64 * (RUN_H + 8.0);
+            let y = 188.5 + i as f64 * (RUN_H + 8.0);
             body.push_str(&format!(
                 "    Surfacee81dee70a29b(instance: \"run_r{i}\") {{\n      \
                  Vectore0a378fde04f(instance: \"run_r{i}_icon\")\n      \
@@ -842,7 +842,7 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
             placed.push((format!("run_r{i}_pill"), PILL, 274.0, y + 20.0, 63.0, 42.0));
             placed.push((format!("run_r{i}_status"), PILL_TXT, 283.78, y + 31.46, 45.91, 23.57));
             placed.push((format!("run_r{i}_dur"), DUR, 341.33, y + 34.06, 24.0, 21.5));
-            placed.push((format!("run_r{i}_console"), CONSOLE, 35.0, y + 86.0, 339.0, 197.0));
+            placed.push((format!("run_r{i}_console"), CONSOLE, 35.0, y + 86.0, 320.0, 197.0));
             for (k, comp) in [LOG01, LOG01, LOG2, LOG3].iter().enumerate() {
                 let ly = y + 116.0 + 41.0 * k as f64;
                 let lh = if k == 3 { 15.0 } else { 41.0 };
@@ -871,7 +871,7 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
                 minted.push((format!("run_r{i}_log{k}_text"), text));
             }
         }
-        let done_y0 = 265.0 + runs.len() as f64 * (RUN_H + 8.0) + 8.0;
+        let done_y0 = 188.5 + runs.len() as f64 * (RUN_H + 8.0) + 8.0;
         for (j, t) in dones.iter().enumerate() {
             let y = done_y0 + j as f64 * 56.0;
             // The done container's kit component is slot=false (the authored
@@ -904,12 +904,12 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
         let runs_bottom = if runs.is_empty() {
             0.0
         } else {
-            265.0 + (runs.len() - 1) as f64 * (387.0 + 8.0) + 387.0
+            188.5 + (runs.len() - 1) as f64 * (387.0 + 8.0) + 387.0
         };
         let done_bottom = if dones.is_empty() {
             0.0
         } else {
-            let done_y0c = 265.0 + runs.len() as f64 * (387.0 + 8.0) + 8.0;
+            let done_y0c = 188.5 + runs.len() as f64 * (387.0 + 8.0) + 8.0;
             done_y0c + (dones.len() - 1) as f64 * 56.0 + 49.0
         };
         runs_bottom.max(done_bottom)
@@ -922,6 +922,9 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
         372.0,
         content_bottom + 17.0 - 108.0,
     ));
+    // #32c2 item 3: the heading sits at normal top padding (the card's 22px
+    // inset), not the authored y=206.43 that left ~200 device px dead above.
+    placed.push(("t02".to_owned(), "Texte9bb098090a8", 34.24, 130.0, 52.89, 28.46));
     put_placements(data, &placed);
     // Re-attach the SVG srcs: Vector nodes lower to `http_resource(src)` —
     // a placement without one fails to_makepad_ui.
