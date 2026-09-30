@@ -336,6 +336,12 @@ pub fn query(_ctx: &Ctx<'_>, id: &str) -> Option<Value> {
                     return Some(b.to_owned());
                 }
                 match st.agents {
+                    // "Reviewing {files} files · {agents} specialists": the
+                    // file count is the folded preview's, the specialist count
+                    // the accepted review/start receipt's (agent_count).
+                    Some(a) if !st.files.is_empty() => {
+                        Some(format!("Reviewing {} files · {a} specialists", st.files.len()))
+                    }
                     Some(a) => Some(format!("Reviewing · {a} specialists")),
                     None => None,
                 }?
