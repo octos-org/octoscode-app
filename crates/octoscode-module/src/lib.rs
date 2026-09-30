@@ -466,6 +466,39 @@ script_mod! {
 
         } // base
 
+        // #31a: below 760 px the sidebar hides (Codex-style); this
+        // top-left hit brings it back OVER the content. The wrapper is
+        // Overlay so only the 36x36 button takes clicks; sync_chrome
+        // shows it only while the sidebar is hidden by WIDTH (a user
+        // toggle keeps it visible even at this size).
+        sidebar_toggle := View {
+            width: Fill height: Fill
+            flow: Overlay
+            visible: false
+            sidebar_toggle_wrap := View {
+                width: 36 height: 36
+                margin: Inset{left: 8 top: 8}
+                flow: Overlay
+                menu_icon := Svg {
+                    width: 16 height: 16
+                    align: Align{x: 0.5 y: 0.5}
+                    animating: false
+                    draw_svg.svg: crate_resource("self:resources/icons/icon_menu.svg")
+                    draw_svg.preserve_viewbox: true
+                }
+                sidebar_toggle_hit := Button {
+                    width: Fill height: Fill text: ""
+                    draw_bg.color: #00000000
+                    draw_bg.color_hover: #00000010
+                    draw_bg.color_down: #00000020
+                    draw_bg.border_size: 0.0
+                    draw_bg.color_2: #00000000
+                    draw_bg.border_color: #00000000
+                    draw_bg.border_color_2: #00000000
+                }
+            }
+        }
+
         // Card #28e item 5 (board 4 frame 3): a dimmer between the base chrome
         // and the floating palette (the "conversation dimmed slightly" layer).
         dimmer := SolidView {
@@ -853,7 +886,13 @@ fn seed_synthetic_live(store: &Arc<Store>) {
     store.domains.turn.started("t1");
     store.domains.turn.set_terminal("t1", "completed");
 
-    // GOALS / LOOPS / FLEET (board 4 frame 3).
+    // GOALS / LOOPS / FLEET (board 4 frame 3). #31a item 2: an EMPTY session
+    // must show only THREADS — OCTOSCODE_SYNTHETIC_EMPTY=1 skips the autonomy
+    // seed so the sections' data-driven visibility is provable (live store,
+    // no goal/loops/fleet).
+    if std::env::var("OCTOSCODE_SYNTHETIC_EMPTY").is_ok() {
+        return;
+    }
     store.domains.autonomy.set_goal(
         &first,
         GoalState {
@@ -939,6 +978,10 @@ pub struct OctoscodeView {
     /// `WindowGeomChange` (0 = no event yet — treated as wide).
     #[rust]
     window_w: f64,
+    /// #31a: the <760 sidebar toggle — once the window hid the sidebar there
+    /// was no way back; this flip shows it over the content (Codex-style).
+    #[rust]
+    sidebar_open: bool,
 }
 
 impl OctoscodeView {
@@ -1681,7 +1724,17 @@ impl OctoscodeView {
             };
             match lowered {
                 Ok(dsl) => {
-                    if let Err(e) = self.mounts.mount(cx, &splash, &dsl) {
+                    // #31a item 3: centre the card in the first-run area (not
+                    // over the sidebar header, no left clipping — the arm-A
+                    // probe had it at x=12). A plain View wrapper carries the
+                    // slot's Fill walk and centers the natural-size card via
+                    // align; the lowered string itself stays byte-identical
+                    // (the f21/f29a replay tests assert on it).
+                    let centered = format!(
+                        "View {{\nwidth: Fill height: Fill\nflow: Overlay\nalign: Align{{x: 0.5 y: 0.5}}\n{}\n}}",
+                        dsl
+                    );
+                    if let Err(e) = self.mounts.mount(cx, &splash, &centered) {
                         makepad_widgets::log!("[octoscode] connect mount: {e}");
                     }
                 }
@@ -1748,10 +1801,23 @@ impl OctoscodeView {
         // (Codex-style). A panel's dock wrapper hides with it (a visible
         // Fill/Fill overlay would shadow the composer's buttons).
         let wide = self.window_w == 0.0 || self.window_w >= 1260.0;
-        let show_sidebar = self.window_w == 0.0 || self.window_w >= 760.0;
+        // #31a: below 760 the sidebar hides but the toggle can bring it back.
+        let width_hides_sidebar = self.window_w != 0.0 && self.window_w < 760.0;
+        let show_sidebar = !width_hides_sidebar || self.sidebar_open;
         self.view.widget(cx, ids!(base)).set_visible(cx, live);
         self.view.widget(cx, ids!(first_run)).set_visible(cx, !live);
         self.view.widget(cx, ids!(threads_column)).set_visible(cx, show_sidebar);
+        // The toggle itself only exists while WIDTH hides the sidebar (and the
+        // shell is live — the first-run screen has its own chrome).
+        self.view.widget(cx, ids!(sidebar_toggle)).set_visible(cx, live && width_hides_sidebar);
+        // #31a: below 760 the toggle OPENS the sidebar as a drill-down screen
+        // and the conversation hides — showing both split the Right flow and
+        // left the conversation 385px, where the user bubble clipped at the
+        // window edge (the exact g3 defect class; 31a-toggle-after.png). The
+        // same icon closes, so nothing is ever clipped.
+        self.view
+            .widget(cx, ids!(conversation_column))
+            .set_visible(cx, !(width_hides_sidebar && self.sidebar_open));
         self.view.widget(cx, ids!(review_dock)).set_visible(cx, review);
         self.view.widget(cx, ids!(review_panel)).set_visible(cx, review);
         self.view
@@ -2070,6 +2136,11 @@ impl Widget for OctoscodeView {
                 }
                 if self.view.button(cx, ids!(settings_close)).clicked(actions) {
                     self.perform_action("settings.toggle", 0);
+                }
+                // #31a: the <760 sidebar toggle.
+                if self.view.button(cx, ids!(sidebar_toggle_hit)).clicked(actions) {
+                    self.sidebar_open = !self.sidebar_open;
+                    self.sync_chrome(cx);
                 }
                 self.sync_labels(cx);
             }

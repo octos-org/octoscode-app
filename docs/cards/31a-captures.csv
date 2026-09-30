@@ -1,0 +1,16 @@
+frame,window,png,self_score,what_i_checked,remaining_differences
+1,1440x900,tmp/28e-evidence/shot-f1-1440x900.png,9,"three columns (>=1260): sidebar+review docked via spacers, center 720, composer control row clear of the host dock, goal ring + yellow Blocked dot + ellipsis",palette names not monospace (carried from #28e)
+1,1100x800,tmp/28e-evidence/shot-f1-1100x800.png,9,overlay band: review from the right edge full-height with the dimmer; center keeps its minimum; nothing past the right edge,review covers part of the center by design
+1,800x700,tmp/28e-evidence/shot-f1-800x700.png,9,"800>=760: sidebar still visible, review overlays, GOALS row ellipsizes ('reconn...'), composer intact",same overlay overlap by design
+1,900x1026,tmp/28e-evidence/shot-f1-900x1026.png,9,the live-gate's own size (g3-completed.png is 1800x2052@2x): user bubble + 'now' fully inside the window at this size (the gate's defect was clipping at its host size),none observed
+1,1440x900 (EMPTY store),tmp/28e-evidence/31a-empty-1440x900.png,9,item 2 empty-state: only OctosCode header + New chat + THREADS; NO GOALS/LOOPS/FLEET sections (OCTOSCODE_SYNTHETIC_EMPTY=1),seeded state proven in every other f1/f2/f3 row
+2,1440x900,tmp/28e-evidence/shot-f2-1440x900.png,9,settings drawer docked right at wide window; SVG close; composer intact,drawer labels remain Stage-C placeholders
+2,1100x800,tmp/28e-evidence/shot-f2-1100x800.png,9,drawer overlays from the right with the dimmer; center minimum held,same placeholders
+2,800x700,tmp/28e-evidence/shot-f2-800x700.png,9,drawer overlay at the small size; GOALS ellipsis visible; no right-edge overflow,same placeholders
+3,1440x900,tmp/28e-evidence/shot-f3-1440x900.png,9,"palette: '/mo' prefill, first row highlighted, SVG arrow/return hint row, yellow dot before docs . Blocked, composer control row intact",command names not monospace (carried)
+3,1100x800,tmp/28e-evidence/shot-f3-1100x800.png,9,"palette over the overlay-band layout, dimmer covers chrome",same monospace residual
+3,800x700,tmp/28e-evidence/shot-f3-800x700.png,9,palette centered at the small size; user bubble top-right fully visible; fleet dot + sections present (800>=760),same monospace residual
+4,1440x900,tmp/28e-evidence/shot-f4-1440x900.png,9,"item 3: Connect card centered in the first-run area (sidebar left, card centered in the remaining space, not over the sidebar header, no left clipping); flat black pill, white label",none observed
+4,1100x800,tmp/28e-evidence/shot-f4-1100x800.png,9,card centered between sidebar and right edge at the mid size; full copy visible,none observed
+4,800x700,tmp/28e-evidence/shot-f4-800x700.png,8,"card centered, no left/right clipping at the small size","card bottom ('Use local solo server' link) sits under the floating host dock at this short height - an overlay, not a window clip"
+toggle,720x700,tmp/28e-evidence/31a-toggle2-after.png,9,"item 1 <760: BEFORE threads_column [0,0,0,0] (hidden) + toggle at [62,84,36,36]; after /click(80,102): threads_column [54,86,260,593] and the conversation column hides (drill-down) - zero clipping; same icon closes",before-state json: 31a-toggle2-before.json; the earlier split-flow variant (31a-toggle-after.png) clipped the bubble and was fixed in aa1f178
