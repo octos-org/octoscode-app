@@ -179,6 +179,8 @@ async fn perform(conv: &Conversation, effect: &Effect) {
             let _ = conv.open_session(session, None).await;
         }
         Effect::ToggleTool(_) | Effect::CopyAnswer | Effect::Unhandled(_) => {}
+        // #29d — screen effects are performed by the module's Screen arm.
+        Effect::Screen(_) => {}
     }
 }
 

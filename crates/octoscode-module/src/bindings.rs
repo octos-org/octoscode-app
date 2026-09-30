@@ -105,6 +105,9 @@ pub const ACTIONS: &[(&str, &str)] = &[
     ("thread.open", "open the clicked thread row's session (`row.id`)"),
     ("answer.copy", "copy the answer text (UI-local; the clipboard is the host's)"),
     ("tool.toggle", "toggle a tool cell's output disclosure (UI-local)"),
+    // Screen actions (#29d palette, #29a/#29c workspace/connect/models) are NOT
+    // declared here: each screen owns its own table (the one-owner rule,
+    // #29d3) — `screens::palette::owns_action` and its siblings.
 ];
 
 /// The conversation action ids the fallback view emits (its buttons map to
@@ -149,6 +152,11 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
         "session.active" => json!(store.active_session()),
         "caps.count" => json!(store.capabilities().len()),
         "summary" => json!(store.summary()),
+
+        // #29d — Stage C screens (board 2.8/2.11/2.12); prefix-disjoint ids.
+        _ if crate::screens::palette::owns_binding(id) => {
+            return crate::screens::palette::query(ctx, id);
+        }
 
         // ---- conversation-01: THREAD LIST ---------------------------------
         "threads" => json!(rows_json(store)),
