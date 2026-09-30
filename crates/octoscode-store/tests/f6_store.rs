@@ -21,6 +21,7 @@ fn a_staged_peer_carries_its_routing_facts() {
         brief_path: Some("/tmp/peers/edison/brief.md".into()),
         cwd: Some("/tmp/peers/edison".into()),
         worktree_branch: Some("peer/edison".into()),
+        staged_at_ms: 0,
     });
     let row = store.domains.peer.get("edison").expect("the staged peer");
     assert_eq!(row.topic.as_deref(), Some("peer-edison"));
