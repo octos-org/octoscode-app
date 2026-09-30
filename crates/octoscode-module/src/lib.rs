@@ -100,9 +100,20 @@ script_mod! {
                 // autonomy sections (GOALS / LOOPS / FLEET) — native shell rows
                 // for now, L0 components only where one exists (thread-row,
                 // new-chat).
-                sidebar_header := Label {
-                    width: Fill height: Fit text: "OctosCode ▾"
-                    draw_text.text_style.font_size: 13
+                // #28e2 item 1: "▾" rendered as tofu (Inter lacks the glyph);
+                // the chevron is the kit's own SVG asset now.
+                sidebar_header := View {
+                    width: Fill height: Fit flow: Right spacing: 4
+                    Label {
+                        width: Fit height: Fit text: "OctosCode"
+                        draw_text.text_style.font_size: 13
+                    }
+                    Svg {
+                        width: 10 height: 10
+                        animating: false
+                        draw_svg.svg: crate_resource("self:resources/icons/chevron_down.svg")
+                        draw_svg.preserve_viewbox: true
+                    }
                 }
                 // Card #21c item 7: `New chat` is #16's own `new-chat` component
                 // at the top of the thread column (scene 01). A transparent hit
@@ -145,8 +156,28 @@ script_mod! {
                     }
                     goals_list := View {
                         width: Fill height: Fit flow: Down spacing: 2
-                        goal_row_1 := Label { width: Fill height: 32 text: "" draw_text.text_style.font_size: 13 }
-                        goal_row_2 := Label { width: Fill height: 32 text: "" draw_text.text_style.font_size: 13 }
+                        // #28e2 item 3: the goal row carries the board's
+                        // progress ring; rows ellipsize with "…" instead of
+                        // clipping mid-word.
+                        goal_wrap_1 := View {
+                            width: Fill height: 32 flow: Right spacing: 6
+                            goal_ring := Svg {
+                                width: 14 height: 14
+                                animating: false
+                                draw_svg.svg: crate_resource("self:resources/icons/icon_ring.svg")
+                                draw_svg.preserve_viewbox: true
+                            }
+                            goal_row_1 := Label {
+                                width: Fill height: Fit text: ""
+                                draw_text.text_style.font_size: 13
+                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                            }
+                        }
+                        goal_row_2 := Label {
+                            width: Fill height: 32 text: ""
+                            draw_text.text_style.font_size: 13
+                            max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                        }
                     }
                     Label {
                         width: Fill height: Fit text: "LOOPS"
@@ -155,8 +186,16 @@ script_mod! {
                     }
                     loops_list := View {
                         width: Fill height: Fit flow: Down spacing: 2
-                        loop_row_1 := Label { width: Fill height: 32 text: "" draw_text.text_style.font_size: 13 }
-                        loop_row_2 := Label { width: Fill height: 32 text: "" draw_text.text_style.font_size: 13 }
+                        loop_row_1 := Label {
+                            width: Fill height: 32 text: ""
+                            draw_text.text_style.font_size: 13
+                            max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                        }
+                        loop_row_2 := Label {
+                            width: Fill height: 32 text: ""
+                            draw_text.text_style.font_size: 13
+                            max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                        }
                     }
                     Label {
                         width: Fill height: Fit text: "FLEET"
@@ -165,9 +204,47 @@ script_mod! {
                     }
                     fleet_list := View {
                         width: Fill height: Fit flow: Down spacing: 2
-                        fleet_row_1 := Label { width: Fill height: 32 text: "" draw_text.text_style.font_size: 13 }
-                        fleet_row_2 := Label { width: Fill height: 32 text: "" draw_text.text_style.font_size: 13 }
-                        fleet_row_3 := Label { width: Fill height: 32 text: "" draw_text.text_style.font_size: 13 }
+                        // #28e2 item 3: the Blocked row shows the board's
+                        // yellow dot (sync_labels toggles it by status text).
+                        fleet_wrap_1 := View {
+                            width: Fill height: 32 flow: Right spacing: 6
+                            fleet_dot_1 := View {
+                                width: 8 height: 8 margin: Inset{top: 4}
+                                draw_bg.color: #E5B800 border_radius: 4.0
+                                visible: false
+                            }
+                            fleet_row_1 := Label {
+                                width: Fill height: Fit text: ""
+                                draw_text.text_style.font_size: 13
+                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                            }
+                        }
+                        fleet_wrap_2 := View {
+                            width: Fill height: 32 flow: Right spacing: 6
+                            fleet_dot_2 := View {
+                                width: 8 height: 8 margin: Inset{top: 4}
+                                draw_bg.color: #E5B800 border_radius: 4.0
+                                visible: false
+                            }
+                            fleet_row_2 := Label {
+                                width: Fill height: Fit text: ""
+                                draw_text.text_style.font_size: 13
+                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                            }
+                        }
+                        fleet_wrap_3 := View {
+                            width: Fill height: 32 flow: Right spacing: 6
+                            fleet_dot_3 := View {
+                                width: 8 height: 8 margin: Inset{top: 4}
+                                draw_bg.color: #E5B800 border_radius: 4.0
+                                visible: false
+                            }
+                            fleet_row_3 := Label {
+                                width: Fill height: Fit text: ""
+                                draw_text.text_style.font_size: 13
+                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                            }
+                        }
                     }
                 }
                 // Card #21c item 6: one #16 `thread-row` per session (selected
