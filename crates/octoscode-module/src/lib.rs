@@ -39,6 +39,7 @@ pub mod l0_host;
 pub mod flow;
 pub mod mount;
 pub mod screen;
+pub mod screens;
 
 use flow::{Conversation, FlowUi};
 // A top-level `::` path is not a `#[rust]` field type the `Script` derive's
@@ -455,6 +456,18 @@ impl OctoscodeView {
         let Some(conv) = conv else {
             return;
         };
+        // Entry #29c: the stage-C screens own their action ids (the cards'
+        // service-actions events); route them through the production client.
+        if screens::models::owns(action) {
+            let action = action.to_string();
+            let store = store.clone();
+            rt.spawn(async move {
+                if let Err(e) = screens::models::perform(&conv, &action, &store).await {
+                    ::log::warn!("octoscode: screens: {action:?}: {e}");
+                }
+            });
+            return;
+        }
         match effect {
             actions::Effect::Refresh => {
                 rt.spawn(async move {

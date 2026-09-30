@@ -133,6 +133,11 @@ impl<'a> Ctx<'a> {
 /// Resolve a binding id. `None` when the id is not declared. Always returns
 /// JSON — a card never receives a Rust type.
 pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
+    // Entry #29c: the stage-C screens' ids (`models.*`, `context.*`,
+    // `skills.*`) resolve in their own module; conversation ids fall through.
+    if let Some(v) = crate::screens::models::query_binding(ctx, id) {
+        return Some(v);
+    }
     let store = ctx.store;
     let ui = ctx.ui.lock().unwrap();
     Some(match id {
@@ -251,7 +256,7 @@ fn tools_json(ui: &FlowUi) -> Vec<Value> {
 
 /// Whether `id` is a declared action (the module performs it).
 pub fn is_action(id: &str) -> bool {
-    ACTIONS.iter().any(|(a, _)| *a == id)
+    ACTIONS.iter().any(|(a, _)| *a == id) || crate::screens::models::owns(id)
 }
 
 #[cfg(test)]
