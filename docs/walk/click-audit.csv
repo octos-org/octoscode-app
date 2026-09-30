@@ -1,0 +1,35 @@
+screen,instance,widget,rect,text,expected_action,observed
+connect-first-run,beauty_0_0_2_0,TextInput,"[352, 226, 286, 26]",http://127.0.0.1:50190,,nothing
+connect-first-run,beauty_0_0_4_0,TextInput,"[352, 355, 286, 26]",,,nothing
+connect-first-run,beauty_0_0_6,KitButton,"[338, 565, 314, 44]",Connect,connect,nothing
+dock-palette,i0_newchat,KitButton,"[66, 139, 225, 76]",New chat,session.new,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+dock-palette,i0_threadrow,KitButton,"[66, 257, 225, 78]",Why does main.rs print 5?,thread.open,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+dock-palette,i0_composer_0,TextInput,"[349, 403, 300, 42]",Ask Octos anything,,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+dock-palette,plus_hit,Button,"[340, 516, 36, 36]",,(unwired),"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+dock-palette,mic_hit,Button,"[615, 514, 36, 36]",,(unwired),"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+dock-palette,send_hit,Button,"[659, 508, 44, 44]",,composer.submit,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+dock-error,i0_newchat,KitButton,"[66, 139, 225, 76]",New chat,session.new,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+dock-error,i0_threadrow,KitButton,"[66, 257, 225, 78]",Why does main.rs print 5?,thread.open,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+dock-error,i0_composer_0,TextInput,"[349, 403, 300, 42]",Ask Octos anything,,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+dock-error,plus_hit,Button,"[340, 516, 36, 36]",,(unwired),"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+dock-error,mic_hit,Button,"[615, 514, 36, 36]",,(unwired),"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+dock-error,send_hit,Button,"[659, 508, 44, 44]",,composer.submit,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+dock-error,btn_reload,KitButton,"[54, 387, 276, 66]",Reload,error.reload,nothing
+dock-error,btn_diag,KitButton,"[54, 472, 277, 65]",Copy diagnostics,error.copy_diagnostics,nothing
+dock-loading,i0_newchat,KitButton,"[66, 139, 225, 76]",New chat,session.new,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+dock-loading,i0_threadrow,KitButton,"[66, 257, 225, 78]",Why does main.rs print 5?,thread.open,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+dock-loading,i0_composer_0,TextInput,"[349, 403, 300, 42]",Ask Octos anything,,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+dock-loading,plus_hit,Button,"[340, 516, 36, 36]",,(unwired),"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+dock-loading,mic_hit,Button,"[615, 514, 36, 36]",,(unwired),"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+dock-loading,send_hit,Button,"[659, 508, 44, 44]",,composer.submit,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+chrome-review,i0_newchat,KitButton,"[66, 139, 225, 76]",New chat,session.new,nothing
+chrome-review,i0_threadrow,KitButton,"[66, 257, 225, 78]",Why does main.rs print 5?,thread.open,nothing
+chrome-review,i0_composer_0,TextInput,"[349, 403, 125, 42]",Ask Octos anything,,nothing
+chrome-review,plus_hit,Button,"[340, 516, 36, 36]",,(unwired),nothing
+chrome-review,review_toggle_hit,Button,"[636, 79, 105, 34]",,review.toggle,"log: design root: ~/.octoscode/design"",""[I] apps/octoscode/module/src/design.rs:301:9 - [oct"
+chrome-review,review_close,Button,"[749, 79, 28, 22]",,review.toggle,nothing
+chrome-settings,i0_newchat,KitButton,"[66, 139, 225, 76]",New chat,session.new,nothing
+chrome-settings,i0_threadrow,KitButton,"[66, 257, 225, 78]",Why does main.rs print 5?,thread.open,nothing
+chrome-settings,i0_composer_0,TextInput,"[349, 403, 265, 42]",Ask Octos anything,,nothing
+chrome-settings,plus_hit,Button,"[340, 516, 36, 36]",,(unwired),nothing
+chrome-settings,settings_close,Button,"[1016, 79, 28, 22]",,settings.toggle,"log: design root: ~/.octoscode/design"",""[I] apps/octoscode/module/src/design.rs:301:9 - [oct"

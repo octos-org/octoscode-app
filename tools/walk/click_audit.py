@@ -21,6 +21,7 @@ import argparse
 import csv
 import json
 import os
+import re
 import pathlib
 import subprocess
 import time
@@ -36,8 +37,23 @@ CLICKABLE = {"KitButton", "Button", "TextInput", "Input"}
 SCENARIO_PORT = 8387  # this lane's documented block (8380–8389)
 DEAD_URL = "http://127.0.0.1:8399"  # nothing listens — the app stays first-run
 
-# expected action per control, from each screen's ACTIONS table (screens/*.rs).
-# Keyed by lowercase substring of (instance id + text). "" = unmapped.
+ACTION_LOG = re.compile(
+    r"\[octoscode\].*(clicked|perform|route|draft synced|->)")
+
+# Host-chrome controls are the same on every docked screen; their actions come
+# from lib.rs's host arms (cited), NOT from a screen ACTIONS table.
+CHROME: list[tuple[str, str]] = [
+    ("newchat", "session.new"),        # lib.rs:2129-2131 ACTION_NEW_CHAT
+    ("new chat", "session.new"),
+    ("threadrow", "thread.open"),      # lib.rs:2147-2150 row_hit
+    ("row_hit", "thread.open"),
+    ("send_hit", "composer.submit"),   # lib.rs:2124-2139 (turn.interrupt when live)
+    ("composer_0", ""),                # the draft TextInput: focus only
+    ("plus_hit", "(unwired)"),         # lib.rs:2140-2142: hit targets only, ids
+    ("mic_hit", "(unwired)"),          # reserved "for a later card"
+]
+
+# Per-screen expectations, from each screen's ACTIONS table (screens/*.rs).
 EXPECTED: dict[str, list[tuple[str, str]]] = {
     "connect-first-run": [
         ("retry", "connect.retry"),
@@ -53,20 +69,41 @@ EXPECTED: dict[str, list[tuple[str, str]]] = {
         ("connect", "connect"),
         ("create", "create_profile"),
     ],
+    "dock-error": [
+        ("btn_reload", "error.reload"),           # palette.rs:295
+        ("btn_diag", "error.copy_diagnostics"),   # palette.rs:282
+    ],
+    "chrome-review": [
+        ("review_toggle_hit", "review.toggle"),   # lib.rs:2179-2182
+        ("review_close", "review.toggle"),
+    ],
     "chrome-settings": [
-        ("refresh", "ws.refresh"),
+        ("settings_close", "settings.toggle"),    # lib.rs:2186-2188
+        ("refresh", "session.refresh"),           # lib.rs:2117-2119
         ("browse", "ws.browse"),
         ("create", "ws.create_folder"),
         ("copy", "set.diagnostics.copy"),
-        ("close", "settings.close"),
     ],
-    "chrome-review": [
-        ("last turn", "diff.scope"),
-        ("review", "review.start"),
-        ("start", "review.start"),
-    ],
-    "dock-palette": [("palette", "palette.query.set")],
+    "dock-palette": [],
+    "dock-loading": [],
 }
+
+
+SHADOWED_BY_DOCK = {
+    "i0_newchat", "i0_threadrow", "i0_composer_0",
+    "plus_hit", "mic_hit", "send_hit", "row_hit", "new_chat_hit",
+}
+
+
+def expected_for(screen: str, ident: str, text: str) -> str:
+    hay = f"{ident} {text}".lower().strip()
+    for needle, action in CHROME:
+        if needle in hay:
+            return action
+    for needle, action in EXPECTED.get(screen, []):
+        if needle in hay:
+            return action
+    return ""
 
 
 class Http:
@@ -136,14 +173,6 @@ def clickables(snap: dict):
     return out
 
 
-def expected_for(screen: str, ident: str, text: str) -> str:
-    hay = f"{ident} {text}".lower().strip()
-    for needle, action in EXPECTED.get(screen, []):
-        if needle in hay:
-            return action
-    return ""
-
-
 def snapshot_fingerprint(snap: dict) -> set:
     return {(str(w.get("i", "")), str(w.get("t", "")), tuple(w.get("r") or []))
             for w in snap.get("s", [])}
@@ -186,37 +215,61 @@ def run_screen(cfg: dict, bin_path: pathlib.Path, app_port: int, rows: list) -> 
         time.sleep(1.5)  # let the first full layout settle
 
         before_snap = app.snap()
+        # forensics: keep the audited snapshot so a "0 controls" run can be
+        # post-mortemed (ty/rect shapes, mount timing) without a rerun
+        (sdir / "snap.json").write_text(json.dumps(before_snap, indent=1))
         before_log = app.log()
         before_fp = snapshot_fingerprint(before_snap)
         for ident, ty, rect, text in clickables(before_snap):
+            # An earlier click may have dismissed the surface this control
+            # lives on (review_close after review_toggle) — a stale-rect click
+            # must not read as "dead".
+            cur = app.snap()
+            live_rect = next((w.get("r") for w in cur.get("s", [])
+                              if str(w.get("i", "")) == ident), None)
+            if not live_rect or tuple(live_rect) == (0, 0, 0, 0):
+                rows.append([name, ident, ty, json.dumps(rect), text,
+                             expected_for(name, ident, text),
+                             "dismissed: by an earlier click (present while the surface was open)"])
+                before_fp = snapshot_fingerprint(cur)
+                continue
+            rect = live_rect
+            exp = expected_for(name, ident, text)
             cx, cy = int(rect[0] + rect[2] / 2), int(rect[1] + rect[3] / 2)
             try:
                 app.click(cx, cy)
             except AssertionError as e:
                 rows.append([name, ident, ty, json.dumps(rect), text,
-                             expected_for(name, ident, text), f"click-failed: {e}"[:120]])
+                             exp, f"click-failed: {e}"[:120]])
                 continue
             time.sleep(0.6)
             after_log = app.log()
-            new_log = after_log[len(before_log):] if after_log.startswith(before_log[:200]) \
-                and len(after_log) > len(before_log) else ""
-            # /log is a ring buffer; diff by lines not present before
+            # /log diff, but only NAMED action evidence — a bare redraw log
+            # line ("design root: …") fires on any repaint and is not a click
+            # effect (the first run's false "respond" rows).
+            before_lines = set(before_log.splitlines())
             new_lines = [l for l in after_log.splitlines()
-                         if l not in before_log.splitlines() and "[octoscode]" in l]
+                         if l not in before_lines and ACTION_LOG.search(l)]
             action_line = next((l.split("[octoscode]", 1)[1].strip()[:100]
                                 for l in reversed(new_lines)), "")
             after_snap = app.snap()
             changed = len(snapshot_fingerprint(after_snap) ^ before_fp)
             before_fp = snapshot_fingerprint(after_snap)
             before_log = after_log
-            if action_line:
+            if cfg.get("shadow_chrome") and ident in SHADOWED_BY_DOCK:
+                observed = ("shadowed: the visible dock overlays the chrome "
+                            "(by design) — click lands on the dock, not the control")
+            elif action_line:
                 observed = f"log: {action_line}"
             elif changed:
                 observed = f"state: {changed} widget deltas"
+            elif ty in ("TextInput", "Input") and exp.startswith("input."):
+                observed = "nothing (focus-only: a live-text binding, not a dispatched action)"
             else:
                 observed = "nothing"
-            rows.append([name, ident, ty, json.dumps(rect), text,
-                         expected_for(name, ident, text), observed])
+            observed = observed.replace(os.path.expanduser("~"), "~")
+            observed = re.sub(r'/Users/[^\s,"]*', '~', observed)
+            rows.append([name, ident, ty, json.dumps(rect), text, exp, observed])
     finally:
         subprocess.run(["bash", str(HEADLESS), "stop", str(app_port)],
                        cwd=str(ROOT), capture_output=True, timeout=60)
@@ -235,11 +288,11 @@ def main() -> int:
     SCREENS = [
         {"name": "connect-first-run", "env": {}, "serve": None},
         {"name": "dock-palette", "env": {"OCTOSCODE_SCREEN": "palette"},
-         "serve": "conversation"},
+         "serve": "conversation", "shadow_chrome": True},
         {"name": "dock-error", "env": {"OCTOSCODE_SCREEN": "error"},
-         "serve": "conversation"},
+         "serve": "conversation", "shadow_chrome": True},
         {"name": "dock-loading", "env": {"OCTOSCODE_SCREEN": "loading"},
-         "serve": "conversation"},
+         "serve": "conversation", "shadow_chrome": True},
         {"name": "chrome-review", "env": {"OCTOSCODE_CHROME": "review"},
          "serve": "conversation"},
         {"name": "chrome-settings", "env": {"OCTOSCODE_CHROME": "settings"},
@@ -266,12 +319,17 @@ def main() -> int:
               flush=True)
 
     total = len(rows)
-    expected_rows = [r for r in rows if r[5]]
-    respond = sum(1 for r in expected_rows if not r[6].startswith(("nothing", "click-failed")))
-    dead = sum(1 for r in expected_rows if r[6] == "nothing")
-    print(f"SURFACE: {total} controls, {len(expected_rows)} with an expected action, "
-          f"{respond} respond, {dead} dead "
-          f"(+{total - len(expected_rows)} unmapped)", flush=True)
+    real = [r for r in rows if r[5] and not r[5].startswith("(")]
+    unwired = sum(1 for r in rows if r[5] == "(unwired)")
+    respond = sum(1 for r in real if r[6].startswith(("log:", "state:")))
+    dead = sum(1 for r in real if r[6] == "nothing")
+    dismissed = sum(1 for r in real if r[6].startswith("dismissed:"))
+    shadowed = sum(1 for r in real if r[6].startswith("shadowed:"))
+    focus = sum(1 for r in real if r[6].startswith("nothing (focus-only"))
+    print(f"SURFACE: {total} controls, {len(real)} with an expected action: "
+          f"{respond} respond, {dead} dead, {dismissed} dismissed-by-earlier-click, "
+          f"{shadowed} shadowed-by-dock, {focus} focus-only-bindings, "
+          f"{unwired} documented-unwired (+{total - len(real) - unwired} unmapped)", flush=True)
     return 0
 
 
