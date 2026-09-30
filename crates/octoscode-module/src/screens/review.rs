@@ -887,5 +887,8 @@ pub fn lower_screen(card: &str, ctx: &Ctx<'_>) -> Result<String, String> {
     let ui = octoscript_makepad::design::to_makepad_ui(&tree)
         .map_err(|e| format!("to_makepad_ui {card}: {e}"))?;
     let prefix = format!("scr_{}", card.trim_start_matches("autonomy-"));
-    Ok(ui.replace("beauty_0", &prefix))
+    // #31d workflow 1: the review cards are LIGHT-authored (autonomy-01 bg
+    // #fcfcfc) — the app-wide token set rewrites them in dark mode. (The
+    // dark-atlas faces autonomy-03/04/05 keep their literals — see theme.rs.)
+    Ok(crate::screens::theme::retint_dsl(&ui.replace("beauty_0", &prefix)))
 }

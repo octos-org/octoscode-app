@@ -50,6 +50,10 @@ use screen::Cache as ScreenCache;
 
 script_mod! {
     use mod.prelude.widgets.*
+    // #31d — assign the theme roles BEFORE this class body dereferences any
+    // `theme.*` ref (class defaults capture at evaluation; the wm_theme bridge
+    // documents the same ordering constraint). Loads the persisted preference.
+    #(screens::theme::eval_roles(vm))
     mod.widgets.OctoscodeView = set_type_default() do #(OctoscodeView::register_widget(vm)) {
         ..mod.widgets.RectView
         width: Fill height: Fill
@@ -94,7 +98,7 @@ script_mod! {
                 width: 260 height: Fill flow: Down spacing: 6
                 // Card #28e item 1 (board 4): the sidebar is flush with the
                 // window edge on #F7F7F8 (the base no longer pads it).
-                draw_bg.color: #F7F7F8
+                draw_bg.color: theme.color_bg_odd
                 padding: Inset{left: 12 right: 10 top: 12 bottom: 12}
                 // Card #28e item 1 (board 4): the sidebar is 260 px with an
                 // `OctosCode ▾` header above `New chat`, then THREADS, then the
@@ -153,7 +157,7 @@ script_mod! {
                     Label {
                         width: Fill height: Fit text: "GOALS"
                         draw_text.text_style.font_size: 10
-                        draw_text.color: #6E6E73
+                        draw_text.color: theme.color_text_muted
                     }
                     goals_list := View {
                         width: Fill height: Fit flow: Down spacing: 2
@@ -183,7 +187,7 @@ script_mod! {
                     Label {
                         width: Fill height: Fit text: "LOOPS"
                         draw_text.text_style.font_size: 10
-                        draw_text.color: #6E6E73
+                        draw_text.color: theme.color_text_muted
                     }
                     loops_list := View {
                         width: Fill height: Fit flow: Down spacing: 2
@@ -201,7 +205,7 @@ script_mod! {
                     Label {
                         width: Fill height: Fit text: "FLEET"
                         draw_text.text_style.font_size: 10
-                        draw_text.color: #6E6E73
+                        draw_text.color: theme.color_text_muted
                     }
                     fleet_list := View {
                         width: Fill height: Fit flow: Down spacing: 2
@@ -273,7 +277,7 @@ script_mod! {
                 Label {
                     width: Fill height: Fit text: "THREADS"
                     draw_text.text_style.font_size: 10
-                    draw_text.color: #6E6E73
+                    draw_text.color: theme.color_text_muted
                 }
                 thread_list := PortalList {
                     width: Fill height: Fill flow: Down drag_scrolling: true
@@ -301,7 +305,7 @@ script_mod! {
             // sidebar and the conversation column.
             sidebar_rule := View {
                 width: 1 height: Fill
-                draw_bg.color: #E5E5E7
+                draw_bg.color: theme.color_outset_1
             }
 
             conversation_column := View {
@@ -494,7 +498,7 @@ script_mod! {
             review_panel := SolidView {
                 width: 560 height: Fill flow: Down spacing: 6
                 visible: true
-                draw_bg.color: #FFFFFF
+                draw_bg.color: theme.color_bg_app
                 review_header := View {
                     width: Fill height: Fit flow: Right spacing: 8
                     Label {
@@ -506,14 +510,14 @@ script_mod! {
                     Label {
                         width: Fit height: Fit text: "+62 −5"
                         draw_text.text_style.font_size: 11
-                        draw_text.color: #6E6E73
+                        draw_text.color: theme.color_text_muted
                     }
                     review_scope := View {
                         width: Fit height: Fit flow: Overlay
                         review_scope_pill := RoundedView {
                             width: Fit height: Fit flow: Right spacing: 4
                             padding: Inset{left: 10 right: 10 top: 4 bottom: 4}
-                            draw_bg +: {color: #F0F0F2 border_radius: 999.0}
+                            draw_bg +: {color: theme.color_bg_even border_radius: 999.0}
                             // #28e2 item 1: "▾" was tofu (Inter lacks it) —
                             // the kit chevron SVG instead.
                             Label {
@@ -577,7 +581,7 @@ script_mod! {
             settings_drawer := SolidView {
                 width: 420 height: Fill flow: Down spacing: 10
                 visible: true
-                draw_bg.color: #FFFFFF
+                draw_bg.color: theme.color_bg_app
                 settings_header := View {
                     width: Fill height: Fit flow: Right spacing: 8
                     Label {
@@ -607,10 +611,10 @@ script_mod! {
                         }
                     }
                 }
-                Label { width: Fill height: Fit text: "Model" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
-                Label { width: Fill height: Fit text: "Permissions" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
-                Label { width: Fill height: Fit text: "Sandbox" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
-                Label { width: Fill height: Fit text: "Context" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
+                Label { width: Fill height: Fit text: "Model" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
+                Label { width: Fill height: Fit text: "Permissions" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
+                Label { width: Fill height: Fit text: "Sandbox" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
+                Label { width: Fill height: Fit text: "Context" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
             }
         }
 
@@ -632,7 +636,7 @@ script_mod! {
             width: 560 height: Fit flow: Down spacing: 4
             visible: false
             margin: Inset{top: 120}
-            draw_bg +: {color: #FFFFFF border_radius: 12.0 border_size: 1.0 border_color: #E5E5E7}
+            draw_bg +: {color: #FFFFFF border_radius: 12.0 border_size: 1.0 border_color: theme.color_outset_1}
             padding: Inset{left: 8 right: 8 top: 8 bottom: 8}
             palette_search := TextInput {
                 width: Fill height: 34 text: ""
@@ -652,14 +656,14 @@ script_mod! {
                     palette_row_bg := RoundedView {
                         width: Fill height: Fill
                         margin: Inset{left: 2 right: 2}
-                        draw_bg +: {color: #F0F0F2 border_radius: 8.0}
+                        draw_bg +: {color: theme.color_bg_even border_radius: 8.0}
                         visible: false
                     }
                     palette_row_inner := View {
                         width: Fill height: Fill flow: Right spacing: 8
                         padding: Inset{left: 6 top: 8}
                         palette_row_name := Label { width: 150 height: Fit text: "" draw_text.text_style.font_size: 13 }
-                        palette_row_desc := Label { width: Fill height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
+                        palette_row_desc := Label { width: Fill height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
                     }
                 }
             }
@@ -679,16 +683,16 @@ script_mod! {
                     draw_svg.svg: crate_resource("self:resources/icons/icon_arrow_down.svg")
                     draw_svg.preserve_viewbox: true
                 }
-                Label { width: Fit height: Fit text: "move" draw_text.text_style.font_size: 10 draw_text.color: #6E6E73 }
-                Label { width: Fit height: Fit text: "·" draw_text.text_style.font_size: 10 draw_text.color: #6E6E73 }
+                Label { width: Fit height: Fit text: "move" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
+                Label { width: Fit height: Fit text: "·" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
                 Svg {
                     width: 9 height: 9
                     animating: false
                     draw_svg.svg: crate_resource("self:resources/icons/icon_return.svg")
                     draw_svg.preserve_viewbox: true
                 }
-                Label { width: Fit height: Fit text: "run" draw_text.text_style.font_size: 10 draw_text.color: #6E6E73 }
-                Label { width: Fit height: Fit text: "· esc" draw_text.text_style.font_size: 10 draw_text.color: #6E6E73 }
+                Label { width: Fit height: Fit text: "run" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
+                Label { width: Fit height: Fit text: "· esc" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
             }
         } // palette
         } // palette_dock
@@ -700,12 +704,12 @@ script_mod! {
         first_run := View {
             width: Fill height: Fill flow: Right
             visible: false
-            draw_bg.color: #FFFFFF
+            draw_bg.color: theme.color_bg_app
             // Board 4 frame 4: the sidebar is still there but EMPTY — only
             // "OctosCode" and a grey "No threads yet".
             first_run_sidebar := View {
                 width: 260 height: Fill flow: Down spacing: 6
-                draw_bg.color: #F7F7F8
+                draw_bg.color: theme.color_bg_odd
                 padding: Inset{left: 12 right: 10 top: 12 bottom: 12}
                 Label {
                     width: Fill height: Fit text: "OctosCode"
@@ -714,12 +718,12 @@ script_mod! {
                 Label {
                     width: Fill height: Fit text: "No threads yet"
                     draw_text.text_style.font_size: 13
-                    draw_text.color: #6E6E73
+                    draw_text.color: theme.color_text_muted
                 }
             }
             first_run_rule := View {
                 width: 1 height: Fill
-                draw_bg.color: #E5E5E7
+                draw_bg.color: theme.color_outset_1
             }
             first_run_center := View {
                 // #28e6: the card area IS the screen_dock (the Overlay sibling
