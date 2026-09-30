@@ -153,13 +153,16 @@ def check_prereqs(build_replay: bool = True) -> tuple[pathlib.Path, pathlib.Path
 
 APP_PORT = 8370
 SCENARIO_PORTS = {"conversation": 8380, "approval": 8381, "task": 8382,
-                  "autonomy": 8383, "peer": 8384, "session": 8385}
+                  "autonomy": 8383, "peer": 8384, "session": 8385,
+                  "longcodeline": 8386}
 
 # Areas the card names → the walk rows they cover. Order matters: `area_of`
 # returns the FIRST match, so the more specific areas come first. `conversation`
 # deliberately omits a bare `\border\b` — it falsely swallowed thread rows like
 # "switches sessions by keyboard and preserves sidebar focus order".
 AREA_PATTERNS = {
+    "longcode": re.compile(
+        r"syntax grammar|plain code|code copy|long code(?: line)?|120 columns", re.I),
     "threads": re.compile(
         r"thread|new chat|switch(es)? sessions?\b|rapid session|session list|"
         r"selects? a new session|selected session", re.I),
@@ -199,12 +202,14 @@ LIVE_ONLY_PATTERNS = [
 AREA_SCRIPTABLE = {"conversation": True, "threads": True, "composer": True,
                    "recovery": True, "approval": False,
                    "peer": True, "review": True, "settings": True,
-                   "palette": True, "keyboard": True, "connect": False}
+                   "palette": True, "keyboard": True, "connect": False,
+                   "longcode": True}
 AREA_SCENARIO = {"conversation": "conversation", "threads": "conversation",
                  "composer": "conversation", "recovery": "conversation",
                  "approval": "approval", "peer": "peer", "review": "autonomy",
                  "settings": "session", "palette": "conversation",
-                 "keyboard": "conversation", "connect": "session"}
+                 "keyboard": "conversation", "connect": "session",
+                 "longcode": "longcodeline"}
 def scenario_for(area: str) -> str:
     """The area's replay scenario, or a WALK_SCENARIO override (negative control).
 
@@ -678,6 +683,57 @@ def comp_send(app):
     return "send_hit" in app.widget_ids(app.snap()), "send_hit present"
 
 
+@check("composer", "a follow-up drains as its own turn and a reselect replays nothing",
+       rows=("unknown turn",))
+def c_queue(app):
+    # Row 190's drivable slice. While a turn is live the send control IS the
+    # stop control (lib.rs:1685-1694 swaps the glyph AND the action), so a
+    # second prompt cannot be driven through the window mid-turn — the two
+    # prompts are driven sequentially and the assertions cover the
+    # replay-observable slices: each follow-up becomes its own turn, neither
+    # bubble duplicates, and reselecting the thread replays nothing (the
+    # queued-mid-turn slice needs a keyboard-queue path this card did not
+    # probe out; the retest server log saw ONE turn/start for the mid-turn
+    # second send — it was an interrupt, not a send).
+    def proses(snap):
+        return sum(1 for w in snap.get("s", [])
+                   if "assistantprose" in str(w.get("i", "")))
+
+    r = None
+    for _ in range(20):
+        d = app.snap()
+        r = app.rect_re(d, COMPOSER_INPUT_RE)
+        if r and r[2] > 0:
+            break
+        time.sleep(0.5)
+    app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
+    base = proses(app.snap())
+    app.clear_composer(); app.type("walk queue one"); app.send()
+    app.wait_for(lambda s: proses(s) > base, timeout=60,
+                 what="queue one's own answer")
+    r = app.rect_re(app.snap(), COMPOSER_INPUT_RE)
+    app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
+    app.clear_composer(); app.type("walk queue two"); app.send()
+    app.wait_for(lambda s: proses(s) > base + 1, timeout=60,
+                 what="queue two's own answer")
+    d = app.snap()
+    tr = app.rect_re(d, THREAD_ROW_RE)
+    app.click(int(tr[0] + tr[2] / 2), int(tr[1] + tr[3] / 2))
+    time.sleep(3)
+    d = app.snap()
+    # Count TIMELINE bubbles only: the sidebar thread row carries the prompt
+    # as its title and renders it in TWO widget instances (probed: i0_threadrow
+    # and i0_threadrow_2 share the text), so a raw text count double-counts.
+    def bubbles(snap, text):
+        return sum(1 for w in snap.get("s", [])
+                   if (m := INSTANCE_KIND_RE.match(str(w.get("i", ""))))
+                   and m.group(1) == "userbubble" and w.get("t") == text)
+    no_replay = bubbles(d, "walk queue one") == 1 and bubbles(d, "walk queue two") == 1
+    sessions = (app.text_of(d, "sessions") or "").strip()
+    ok = no_replay and "1" in sessions
+    return ok, f"turns_own_no_replay={no_replay} {sessions!r}"
+
+
 @check("composer", "the conversation column hosts the timeline PortalList")
 def comp_timeline(app):
     return "timeline_list" in app.widget_ids(app.snap()), "timeline_list present"
@@ -776,6 +832,19 @@ def s_live(app):
     return "Live" in s, f"status={s!r}"
 
 
+@check("settings", "General settings carries the server connection action",
+       rows=("general settings",))
+def s_connection(app):
+    # Row 165's own case (probed live): the drawer must expose the
+    # connect/disconnect action the user would reach for.
+    d = app.snap()
+    texts = [w.get("t", "") for w in d.get("s", [])]
+    action = next((t for t in texts if t in ("Disconnect", "Connect",
+                                             "Disconnect server", "Server connection")),
+                  None)
+    return action is not None, f"connection action in drawer={action!r}"
+
+
 # ---- palette: the command palette overlay (#28e) --------------------------- #
 @check("palette", "the command palette overlay is mounted with search and list")
 def q_mount(app):
@@ -803,6 +872,47 @@ def q_failclosed(app):
     # sends a draft when the search is not a command (visible: draft empty).
     d = app.snap()
     return (app.draft(d) or "") in ("", PLACEHOLDER), f"draft={app.draft(d)!r}"
+
+
+@check("palette", "the palette opens by '/', lists its commands and executes one by keyboard",
+       rows=("keyboard only",))
+def q_execute(app):
+    # Row 68's own case: opens, navigates, and executes by keyboard. Probed
+    # live: the entry is typing '/' in the composer (palette_dock has no rect),
+    # the list carries /mode /monitor /compact /model /btw /resume, and
+    # return on /model opens the settings drawer at its Model section.
+    r = None
+    for _ in range(20):
+        d = app.snap()
+        r = app.rect_re(d, COMPOSER_INPUT_RE)
+        if r and r[2] > 0:
+            break
+        time.sleep(0.5)
+    app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
+    app.clear_composer()
+    app.type("/")
+    app.wait_for(lambda s: (app.rect(s, "palette_search") or [0, 0, 0, 0])[2] > 0,
+                 timeout=10, what="the palette to open on '/'")
+    app.type("model")
+    time.sleep(1.0)
+    d = app.snap()
+    texts = [w.get("t", "") for w in d.get("s", [])]
+    listed = [c for c in ("/mode", "/monitor", "/compact", "/model", "/btw", "/resume")
+              if c in texts]
+    app.key("down")
+    app.key("return")
+    d = app.wait_for(lambda s: all(t in [w.get("t", "") for w in s.get("s", [])]
+                                   for t in ("Model", "Permissions")),
+                     timeout=10, what="the drawer to open on return")
+    opened = "Model" in [w.get("t", "") for w in d.get("s", [])]
+    rc = app.rect(d, "settings_close")
+    if rc and rc[2] > 0:
+        app.click(int(rc[0] + rc[2] / 2), int(rc[1] + rc[3] / 2))
+    app.key("escape")  # close the palette so the keyboard area starts clean
+    time.sleep(1.0)
+    closed = (app.rect(app.snap(), "palette_search") or [0, 0, 0, 0])[2] == 0
+    ok = "/model" in listed and opened and closed
+    return ok, f"listed={listed} drawer_opened={opened} palette_closed={closed}"
 
 
 # ---- keyboard: the key model (#31e keys.rs) via the /k bridge -------------- #
@@ -834,6 +944,26 @@ def k_enter(app):
     return True, "draft cleared after Enter"
 
 
+# ---- longcode: the long-code-line render (#32b3) --------------------------- #
+@check("longcode", "a 227-column code line stays fully readable (wrapped, tail visible)",
+       rows=("grammar", "plain code", "code copy", "long code"))
+def l_reachable(app):
+    # The web oracle WRAPS code (`white-space: pre-wrap; overflow-wrap:
+    # anywhere`, Timeline.module.css:340-341) — no horizontal scroll — and the
+    # native theme wraps the same way (reachable_code restored the wrapping
+    # layout). Reachability is proven in the RENDER: the line's tail must be
+    # visible text the user can read, not clipped at the column edge.
+    app.type_into_composer(
+        "Render one code block whose single line is longer than 120 columns.")
+    app.send()
+    s = app.wait_for(lambda s: "assistantprose" in app.kinds(s),
+                     timeout=40, what="the long-code answer row")
+    texts = [w.get("t", "") for w in s.get("s", [])]
+    head = any("pub fn reachability_probe()" in t for t in texts)
+    tail = any("proves reachability of the long code line" in t for t in texts)
+    return head and tail, f"head={head} tail={tail} (wrap per the web's pre-wrap oracle)"
+
+
 # ---- recovery: reconnect, replay ------------------------------------------ #
 @check("recovery", "the module reaches conn: Live")
 def r_live(app):
@@ -847,6 +977,30 @@ def r_replay(app):
     _compose_and_send(app, "walk: replay a turn")
     app.wait_for(lambda s: bool(app.kinds(s)), what="the replayed timeline")
     return True, f"timeline kinds={app.kinds(app.snap())}"
+
+
+# ---- recovery: failed local command (row 209, #33b) ------------------------ #
+@check("recovery", "a failed local command restores the typed input and sends nothing",
+       rows=("local-command",))
+def r_localcmd(app):
+    # Row 209's own case (probed live): '/bogus …' sends no model turn (no
+    # working row appears — fail-closed holds), and the input must be
+    # RESTORED for the user to fix.
+    r = None
+    for _ in range(20):
+        d = app.snap()
+        r = app.rect_re(d, COMPOSER_INPUT_RE)
+        if r and r[2] > 0:
+            break
+        time.sleep(0.5)
+    app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
+    app.clear_composer(); app.type("/bogus-command walk probe")
+    app.key("return")
+    time.sleep(3.0)
+    d = app.snap()
+    sent = "workingrow" in app.kinds(d)
+    restored = app.draft(d) == "/bogus-command walk probe"
+    return (not sent) and restored, f"sent={sent} draft_restored={restored} draft={app.draft(d)!r}"
 
 
 # #33a review: DEPTH. A row is `specific` when at least one check that applied
@@ -870,6 +1024,11 @@ SPECIFIC_CHECKS = {
     "the fold receipt renders the unmodified-lines count",
     "an unknown command fails closed (fail-closed receipt visible)",
     "Enter on the composer sends (the draft clears)",
+    "a 227-column code line stays fully readable (wrapped, tail visible)",
+    "the palette opens by '/', lists its commands and executes one by keyboard",
+    "a queued follow-up drains as its own turn and a reselect replays nothing",
+    "General settings carries the server connection action",
+    "a failed local command restores the typed input and sends nothing",
 }
 for _c in CHECKS:
     _c["specific"] = _c["name"] in SPECIFIC_CHECKS
@@ -951,7 +1110,8 @@ def select_targets(limit: int | None):
         if area and AREA_SCRIPTABLE[area]:
             eligible[area].append((i, area, row))
     order = [a for a in ("conversation", "threads", "composer", "recovery",
-                         "peer", "review", "settings", "palette", "keyboard")
+                         "peer", "review", "settings", "palette", "keyboard",
+                         "longcode")
              if AREA_SCRIPTABLE[a]]
     picked, cursors = [], {a: 0 for a in order}
     while limit is None or len(picked) < limit:
