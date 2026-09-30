@@ -1054,6 +1054,10 @@ impl OctoscodeView {
                     Ok(n) => ::log::info!("octoscode: screens: {n} profile reads folded"),
                     Err(e) => ::log::warn!("octoscode: screens refresh: {e}"),
                 }
+                match screens::fleet::refresh(&drv, &drv.store).await {
+                    Ok(n) => ::log::info!("octoscode: fleet: {n} fleet reads folded"),
+                    Err(e) => ::log::warn!("octoscode: fleet refresh: {e}"),
+                }
                 SignalToUI::set_ui_signal();
             });
         }
@@ -1076,6 +1080,7 @@ impl OctoscodeView {
                 // #29c: the screens' occupancy window folds from the
                 // token_cost_update progress payloads (workspace-events.ts:6-10).
                 screens::models::note_transport_event(&evt);
+                screens::review::note_transport_event(&evt);
                 let e = drv.on_event(evt);
                 ::log::debug!("[octoscode] {e:?}");
                 SignalToUI::set_ui_signal();
@@ -1089,6 +1094,48 @@ impl OctoscodeView {
     /// The mapping is the pure [`actions::resolve`]; this only performs the
     /// resulting effect (off the UI thread).
     fn perform_action(&self, action: &str, index: usize) {
+        // #30b: board-3 autonomy actions route through their own table first
+        // (one-owner rule); no other router sees these ids. `goal.set` /
+        // `monitor.create` carry the composer draft as their entry text.
+        if screens::autonomy::is_action(action) {
+            let (store, ui, conv) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.ui.clone(), b.conv.clone())
+            };
+            let value = ui.lock().unwrap().draft();
+            let effect = {
+                let ctx = bindings::Ctx::new(&store, &ui);
+                screens::autonomy::resolve(action, index, Some(&value), &ctx)
+            };
+            if let screens::autonomy::Effect::Unhandled(id) = &effect {
+                ::log::warn!("octoscode: unhandled autonomy action {id:?}");
+                return;
+            }
+            if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                screens::autonomy::spawn(effect, rt, conv);
+            }
+            return;
+        }
+        // #30c: board-3 (Fleet/Tasks) actions route through the screens table
+        // first; the conversation router never sees them (one-owner rule).
+        if screens::fleet::is_action(action) {
+            let (store, ui, conv) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.ui.clone(), b.conv.clone())
+            };
+            let effect = {
+                let ctx = bindings::Ctx::new(&store, &ui);
+                screens::fleet::resolve(action, index, &ctx)
+            };
+            if let screens::fleet::Effect::Unhandled(id) = &effect {
+                ::log::warn!("octoscode: unhandled screen action {id:?}");
+                return;
+            }
+            if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                screens::fleet::spawn(effect, rt, &conv, &ui, &store);
+            }
+            return;
+        }
         // #29b: board-2 (setup screens 04/05/06) actions route through the
         // screens table first; the conversation router never sees them.
         if screens::workspace::is_action(action) {
@@ -1109,6 +1156,26 @@ impl OctoscodeView {
             }
             if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
                 screens::workspace::spawn(effect, rt, conv);
+            }
+            return;
+        }
+        // #30a: the board-3 review screens' ids route through their own table
+        // first (one-owner rule); the conversation router never sees them.
+        if screens::review::is_action(action) {
+            let (store, ui, conv) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.ui.clone(), b.conv.clone())
+            };
+            let effect = {
+                let ctx = bindings::Ctx::new(&store, &ui);
+                screens::review::resolve(action, index, &ctx)
+            };
+            if let screens::review::Effect::Unhandled(id) = &effect {
+                ::log::warn!("octoscode: unhandled screen action {id:?}");
+                return;
+            }
+            if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                screens::review::spawn(effect, rt, conv);
             }
             return;
         }
