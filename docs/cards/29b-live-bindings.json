@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "card": "29b",
+  "source_fixture": "crates/octoscode-client/tests/fixtures/r2-profile-a6ea8505.jsonl",
+  "bindings": [
+    "w",
+    "w",
+    "w",
+    "w",
+    "w",
+    "s",
+    "s",
+    "s",
+    "s",
+    "s",
+    "s",
+    "s"
+  ],
+  "actions": [
+    "w",
+    "w",
+    "w",
+    "w",
+    "s",
+    "s",
+    "s",
+    "s"
+  ],
+  "captures": [
+    {
+      "card": "setup-04",
+      "injected": 9,
+      "png": "29b-live-workspace-picker.png",
+      "rendered": true
+    },
+    {
+      "card": "setup-05",
+      "injected": 3,
+      "png": "29b-live-session-settings.png",
+      "rendered": true
+    },
+    {
+      "card": "setup-06",
+      "injected": 3,
+      "png": "29b-live-general-settings.png",
+      "rendered": true
+    }
+  ]
+}

@@ -39,6 +39,7 @@ pub mod l0_host;
 pub mod flow;
 pub mod mount;
 pub mod screen;
+pub mod screens;
 
 use flow::{Conversation, FlowUi};
 // A top-level `::` path is not a `#[rust]` field type the `Script` derive's
@@ -429,6 +430,29 @@ impl OctoscodeView {
     /// The mapping is the pure [`actions::resolve`]; this only performs the
     /// resulting effect (off the UI thread).
     fn perform_action(&self, action: &str, index: usize) {
+        // #29b: board-2 (setup screens 04/05/06) actions route through the
+        // screens table first; the conversation router never sees them.
+        if screens::workspace::is_action(action) {
+            let (store, ui, conv) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.ui.clone(), b.conv.clone())
+            };
+            let effect = {
+                let ctx = bindings::Ctx::new(&store, &ui);
+                screens::workspace::resolve(action, index, &ctx)
+            };
+            if let screens::workspace::Effect::Unhandled(id) = &effect {
+                ::log::warn!("octoscode: unhandled screen action {id:?}");
+                return;
+            }
+            if matches!(effect, screens::workspace::Effect::Close | screens::workspace::Effect::CopyDiagnostics) {
+                return; // UI-local until #28e mounts the overlay
+            }
+            if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                screens::workspace::spawn(effect, rt, conv);
+            }
+            return;
+        }
         let (store, ui, conv) = {
             let b = self.bridge.lock().unwrap();
             (b.store.clone(), b.ui.clone(), b.conv.clone())
