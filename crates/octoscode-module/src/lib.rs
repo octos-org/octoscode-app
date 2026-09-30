@@ -693,6 +693,20 @@ script_mod! {
         } // palette
         } // palette_dock
 
+        // #28e4: the #29d proof screens (palette|error|loading) mount into
+        // this root overlay slot — their main-side home (the 200px
+        // review_column) is gone with #28e's shell, which owns the right
+        // edge. Hidden unless OCTOSCODE_SCREEN names one (sync_chrome), so
+        // the Fill/Fill wrapper never shadows clicks by default.
+        screen_dock := View {
+            width: Fill height: Fill
+            align: Align{x: 1.0 y: 0.0}
+            visible: false
+            screen_splash := Splash {
+                width: Fit height: Fit
+            }
+        }
+
         // Card #28e item 6 (board 4 frame 4): the first-run screen. Before a
         // connection the window shows only a centered 480-wide card area (the
         // Connect card comes from board 2 mapping in Stage C). This replaces
@@ -724,44 +738,13 @@ script_mod! {
             first_run_center := View {
                 width: Fill height: Fill flow: Down
                 align: Align{x: 0.5 y: 0.5}
-            first_run_card := RoundedView {
-                width: 480 height: Fit flow: Down spacing: 10
-                draw_bg +: {color: #FFFFFF border_radius: 12.0 border_size: 1.0 border_color: #E5E5E7}
-                padding: Inset{left: 24 right: 24 top: 24 bottom: 24}
-                Label {
-                    width: Fill height: Fit text: "Connect to Octos"
-                    draw_text.text_style.font_size: 16
-                }
-                Label { width: Fill height: Fit text: "Server" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
-                server_input := TextInput {
-                    width: Fill height: 36 text: "http://127.0.0.1:50190"
-                    draw_text.text_style.font_size: 13
-                }
-                Label { width: Fill height: Fit text: "Access token" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
-                token_input := TextInput {
-                    width: Fill height: 36 text: ""
-                    empty_text: "••••••••"
-                    draw_text.text_style.font_size: 13
-                }
-                connect_button := Button {
-                    width: Fill height: 40 text: "Connect"
-                    // #28e3 item 3: the shell's button skin gradients to a
-                    // light end stop; pinning `color_2` to the same black
-                    // gives the board's flat pill.
-                    draw_bg.color: #000000
-                    draw_bg.color_2: #000000
-                    draw_bg.border_radius: 999.0
-                }
-                Label {
-                    width: Fill height: Fit text: "Stored for this server only"
-                    draw_text.text_style.font_size: 11
-                    draw_text.color: #6E6E73
-                }
-                Label {
-                    width: Fill height: Fit text: "Use local solo server"
-                    draw_text.text_style.font_size: 13
-                    draw_text.color: #2F6FEB
-                }
+            // #28e4 item 2: the REAL board-2 Connect screen (setup-01, #29a)
+            // mounts here — `screens::connect::lower_screen` lowers the authored
+            // Stage B card, so the label contrast is the design's own and
+            // Connect is wired for real. The native placeholder card (the
+            // black-on-black "Connect" label) is retired.
+            first_run_card := Splash {
+                width: Fit height: Fit
             }
         }
         }
@@ -1578,7 +1561,13 @@ impl OctoscodeView {
         // is pending. OCTOSCODE_SCREEN=palette|error|loading names one; unset
         // leaves the screen exactly as before this card. The mount cache
         // compares the DSL string, so live-slot flips repaint exactly once.
-        if let Ok(which) = std::env::var("OCTOSCODE_SCREEN") {
+        if let Some(which) = std::env::var("OCTOSCODE_SCREEN")
+            .ok()
+            .filter(|v| !matches!(v.as_str(), "connect" | "connect_failed" | "onboarding"))
+        {
+            // #28e4: the board-2 setup screens are NOT docked here — connect
+            // mounts into the first-run card area (below); the other two have
+            // no home yet. The dock keeps the #29d proof screens only.
             let screen_splash = self.view.splash(cx, ids!(screen_splash));
             let store = { self.bridge.lock().unwrap().store.clone() };
             // #30e — OCTOSCODE_THEME seeds the preference (system default),
@@ -1599,6 +1588,30 @@ impl OctoscodeView {
             };
             if let Err(e) = r {
                 makepad_widgets::log!("[octoscode] screen mount: {e}");
+            }
+        }
+        // #28e4 item 2: the first-run card area mounts the REAL board-2
+        // Connect screen (setup-01, #29a) — `screens::connect::lower_screen`
+        // lowers the authored Stage B card with the ConnectUi copies applied,
+        // so the label contrast is the design's own and Connect routes for
+        // real (`screens::connect::is_action` -> `resolve`, handled in this
+        // file's action path). The mount cache dedupes, so this is cheap
+        // while the first run is showing.
+        let live = { self.bridge.lock().unwrap().store.is_live() };
+        if !live {
+            let splash = self.view.splash(cx, ids!(first_run_card));
+            let lowered = {
+                let b = self.bridge.lock().unwrap();
+                let ui = b.screens.lock().unwrap();
+                screens::connect::lower_screen(screens::connect::Screen::Connect, &ui)
+            };
+            match lowered {
+                Ok(dsl) => {
+                    if let Err(e) = self.mounts.mount(cx, &splash, &dsl) {
+                        makepad_widgets::log!("[octoscode] connect mount: {e}");
+                    }
+                }
+                Err(e) => makepad_widgets::log!("[octoscode] connect lower: {e}"),
             }
         }
         // Card #21d item 5: the `new-chat` component (#16) is the thread
@@ -1680,6 +1693,16 @@ impl OctoscodeView {
         self.view
             .widget(cx, ids!(dimmer))
             .set_visible(cx, palette || settings || (review && !wide));
+        // #28e4: the #29d proof-screen dock is visible only when
+        // OCTOSCODE_SCREEN names one of them — a visible Fill/Fill wrapper
+        // shadows the clicks under it. `connect` is NOT docked: it mounts in
+        // the first-run card area (sync_labels).
+        let screen_dock_shown = std::env::var("OCTOSCODE_SCREEN")
+            .map(|v| matches!(v.as_str(), "palette" | "error" | "loading"))
+            .unwrap_or(false);
+        self.view
+            .widget(cx, ids!(screen_dock))
+            .set_visible(cx, screen_dock_shown);
 
         // GOALS / LOOPS / FLEET rows (board 4 frame 3): visible only when the
         // session has them.
