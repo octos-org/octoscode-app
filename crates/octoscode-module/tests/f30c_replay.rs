@@ -364,22 +364,33 @@ fn the_bindings_cover_the_cards_and_the_lowered_cards_carry_the_live_values() {
     );
     // `review` sorts to row 2 (docs, review, tests) and the model closed it —
     // the one terminal word the store owns.
+    // GENERATED rows (#30c2): the sorted roster docs(0), review(1, closed),
+    // tests(2) — styles are chosen per item in the row builder; the bindings
+    // carry each item's text.
     assert_eq!(
-        fleet::query_binding(&ctx, "fleet.peer2.status").unwrap(),
+        fleet::query_binding(&ctx, "fleet.peer_r0.name").unwrap(),
+        serde_json::json!("docs")
+    );
+    assert_eq!(
+        fleet::query_binding(&ctx, "fleet.peer_r1.status").unwrap(),
         serde_json::json!("Done")
     );
-    assert!(fleet::query_binding(&ctx, "fleet.peer3.status").unwrap().is_null());
-    assert!(fleet::query_binding(&ctx, "fleet.peer1.meta").unwrap().is_null());
+    assert!(fleet::query_binding(&ctx, "fleet.peer_r2.status").unwrap().is_null());
+    assert!(fleet::query_binding(&ctx, "fleet.peer_r0.meta").unwrap().is_null());
 
     // The Tasks values: the running/settled commands and the four output
     // lines the store accumulated.
     assert_eq!(
-        fleet::query_binding(&ctx, "tasks.run_cmd").unwrap(),
+        fleet::query_binding(&ctx, "tasks.run_r0.cmd").unwrap(),
         serde_json::json!("cargo test -p octos-cli steer_queue")
     );
     assert_eq!(
-        fleet::query_binding(&ctx, "tasks.log3").unwrap(),
+        fleet::query_binding(&ctx, "tasks.run_r0.log3").unwrap(),
         serde_json::json!("running 12 tests …")
+    );
+    assert_eq!(
+        fleet::query_binding(&ctx, "tasks.done_r0.status").unwrap(),
+        serde_json::json!("Done")
     );
 
     // Card agreement: the LOWERED cards carry the live strings (the capture
@@ -400,4 +411,148 @@ fn the_bindings_cover_the_cards_and_the_lowered_cards_carry_the_live_values() {
     ] {
         assert!(tasks_dsl.contains(needle), "tasks DSL must carry {needle:?}");
     }
+}
+
+// ------------------------------------------ 5. data-driven rows (#30c2, RED first)
+
+fn count_str(hay: &str, needle: &str) -> usize {
+    hay.matches(needle).count()
+}
+
+fn peers_store(rows: &[(&str, bool)]) -> Arc<Store> {
+    let store = Arc::new(Store::new());
+    store.domains.session.set_active(Some("dsflash:main".into()));
+    for (name, closed) in rows {
+        store
+            .domains
+            .peer
+            .upsert(octoscode_store::domains::peer::Peer::named(*name));
+        if *closed {
+            store.domains.peer.mark_closed(name);
+        }
+    }
+    store
+}
+
+fn tasks_store(running: &[&str], done: &[&str], lines: &[&str]) -> Arc<Store> {
+    let store = Arc::new(Store::new());
+    store.domains.session.set_active(Some("dsflash:main".into()));
+    let snap = |id: &str, label: &str, state: &str| {
+        octoscode_store::domains::task::TaskSnapshot::from_list_row(
+            id.to_owned(),
+            label.to_owned(),
+            state.to_owned(),
+            state.to_owned(),
+            Some(label.to_owned()),
+            None,
+            None,
+            None,
+            0,
+            Vec::new(),
+            None,
+            None,
+        )
+    };
+    for (i, label) in running.iter().enumerate() {
+        store.domains.task.upsert_snapshot(snap(&format!("run-{i}"), label, "running"));
+        for line in lines {
+            store
+                .domains
+                .task
+                .append_output(&format!("run-{i}"), &format!("{line}\n"));
+        }
+    }
+    for (i, label) in done.iter().enumerate() {
+        store.domains.task.upsert_snapshot(snap(&format!("done-{i}"), label, "done"));
+    }
+    store
+}
+
+#[test]
+fn fleet_rows_are_one_per_item_with_status_styles_and_zero_is_the_empty_state() {
+    let ui = Mutex::new(FlowUi::default());
+
+    // 0 peers → the web's empty state, NO rows (authored sample rows gone).
+    let store = peers_store(&[]);
+    let ctx = Ctx::new(&store, &ui);
+    let (src, _, _) = fleet::lower_card_src("autonomy-06", &ctx).expect("fleet lowers");
+    assert!(
+        src.contains("No peers yet"),
+        "0 peers must show the web's empty state (FleetView.tsx:537-540)"
+    );
+    assert_eq!(count_str(&src, "Group3d2637879433(instance: \"peer_r"), 0, "no generated rows");
+    assert!(!src.contains("instance: \"peer_1\""), "authored sample rows removed");
+
+    // 1 open peer → exactly ONE row, the ACTIVE badge (green), its name.
+    let store = peers_store(&[("docs", false)]);
+    let ctx = Ctx::new(&store, &ui);
+    let (src, _, _) = fleet::lower_card_src("autonomy-06", &ctx).expect("fleet lowers");
+    assert_eq!(count_str(&src, "Group3d2637879433(instance: \"peer_r"), 1, "one row per item");
+    assert!(
+        src.contains("Surface46bf93b36e13(instance: \"peer_r0_badge\")"),
+        "the open peer wears the ACTIVE badge (chosen from the item)"
+    );
+    assert!(
+        !src.contains("Surfacef7d1de35cc6f(instance: \"peer_r"),
+        "the design's position-bound amber badge must not be used"
+    );
+    assert!(src.contains("copy.peer_r0_name"), "row text binds the item");
+    assert!(!src.contains("instance: \"peer_2\""), "authored rows removed");
+
+    // 3 peers (docs, review*, tests) → three rows whose STYLES come from each
+    // item: closed review wears the terminal badge + Done, the open two wear
+    // the active badge — NOT the design's position-bound row styles.
+    let store = peers_store(&[("tests", false), ("docs", false), ("review", true)]);
+    let ctx = Ctx::new(&store, &ui);
+    let (src, _, _) = fleet::lower_card_src("autonomy-06", &ctx).expect("fleet lowers");
+    assert_eq!(count_str(&src, "Group3d2637879433(instance: \"peer_r"), 3, "one row per item");
+    assert!(
+        src.contains("Surfacefe8deb6b02b9(instance: \"peer_r1_badge\")"),
+        "exactly the CLOSED item (review, sorted to row 1) wears the terminal badge"
+    );
+    assert!(
+        !src.contains("Surfacefe8deb6b02b9(instance: \"peer_r0_badge\")")
+            && !src.contains("Surfacefe8deb6b02b9(instance: \"peer_r2_badge\")"),
+        "the open items wear the active badge, not the terminal one"
+    );
+    assert!(src.contains("copy.peer_r1_status"), "rows carry per-row status slots");
+}
+
+#[test]
+fn tasks_rows_are_one_per_item_and_zero_is_the_empty_state() {
+    let ui = Mutex::new(FlowUi::default());
+
+    // 0 tasks → the web's empty state, neither fixed card renders.
+    let store = tasks_store(&[], &[], &[]);
+    let ctx = Ctx::new(&store, &ui);
+    let (src, _, _) = fleet::lower_card_src("autonomy-07", &ctx).expect("tasks lowers");
+    assert!(
+        src.contains("No background tasks in this session."),
+        "0 tasks must show the web's empty state (SessionTrajectory.tsx:137-139)"
+    );
+    assert!(!src.contains("instance: \"run_card\""), "authored run card removed");
+    assert!(!src.contains("instance: \"done_card\""), "authored done card removed");
+
+    // 1 running + 2 done → one block per item: the running item in the run
+    // block (with its own output lines), each terminal item in a done block.
+    let store = tasks_store(
+        &["cargo test -p octos-cli steer_queue"],
+        &["cargo clippy -p octos-cli", "cargo fmt --check"],
+        &["Compiling octos-cli v0.24.1 (/workspace/crates/octos-cli)", "running 12 tests …"],
+    );
+    let ctx = Ctx::new(&store, &ui);
+    let (src, _, _) = fleet::lower_card_src("autonomy-07", &ctx).expect("tasks lowers");
+    assert_eq!(
+        count_str(&src, "Surfacee81dee70a29b(instance: \"run_r"),
+        1,
+        "one run block per running item"
+    );
+    assert_eq!(
+        count_str(&src, "Surfaceed7038384cce(instance: \"done_r"),
+        2,
+        "one done block per terminal item"
+    );
+    assert!(src.contains("copy.run_r0_cmd"), "run block binds the item");
+    assert!(src.contains("copy.done_r1_cmd"), "done blocks bind their items");
+    assert!(src.contains("copy.run_r0_log0"), "the running item's output lines ride the block");
 }

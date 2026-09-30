@@ -69,29 +69,14 @@ pub const SCREENS: &[(&str, &str)] = &[("autonomy-06", "Fleet"), ("autonomy-07",
 /// off each card's authored `page.card`. Rows the store cannot derive map to a
 /// binding whose arm returns `Null` — the authored copy stays.
 pub const COPY_SLOTS: &[(&str, &str)] = &[
-    // autonomy-06 Fleet
+    // autonomy-06 Fleet — the STATIC slots. The peer/task rows are GENERATED
+    // per data item (#30c2, LESSONS "list screens must render per item"):
+    // their copy slots (`copy.peer_r{i}_*_text`, `copy.run_r{i}_*_text`,
+    // `copy.done_r{i}_*_text`) are minted with the rows and filled through
+    // the dynamic binding ids (`fleet.peer_r{i}.*`, `tasks.run_r{i}.*`,
+    // `tasks.done_r{i}.*`) in `lower_card_src` — the f30c row tests pin them.
     ("t_title_text", "fleet.title"),
     ("fleet_goal_label_text", "fleet.goal"),
-    ("peer_1_name_text", "fleet.peer1.name"),
-    ("peer_1_status_text", "fleet.peer1.status"),
-    ("peer_1_meta_text", "fleet.peer1.meta"),
-    ("peer_2_name_text", "fleet.peer2.name"),
-    ("peer_2_status_text", "fleet.peer2.status"),
-    ("peer_2_meta_text", "fleet.peer2.meta"),
-    ("peer_3_name_text", "fleet.peer3.name"),
-    ("peer_3_status_text", "fleet.peer3.status"),
-    ("peer_3_meta_text", "fleet.peer3.meta"),
-    // autonomy-07 Tasks
-    ("t_cmd_text", "tasks.run_cmd"),
-    ("t_run_text", "tasks.run_status"),
-    ("t_run_dur_text", "tasks.run_dur"),
-    ("t_log0_text", "tasks.log0"),
-    ("t_log1_text", "tasks.log1"),
-    ("t_log2_text", "tasks.log2"),
-    ("t_log3_text", "tasks.log3"),
-    ("t_done_cmd_text", "tasks.done_cmd"),
-    ("t_done_text", "tasks.done_status"),
-    ("t_dur_text", "tasks.done_dur"),
 ];
 
 /// The control events `service-actions.json` declares for the two cards
@@ -124,22 +109,39 @@ fn peer_rows(store: &Store) -> Vec<Peer> {
     rows
 }
 
-fn running_task(store: &Store) -> Option<TaskSnapshot> {
-    store
+/// Running tasks in a STABLE order (id-sorted) — row `i` must always be the
+/// same item (the steer/cancel targets depend on it).
+fn running_tasks(store: &Store) -> Vec<TaskSnapshot> {
+    let mut rows: Vec<TaskSnapshot> = store
         .domains
         .task
         .snapshots()
         .into_iter()
-        .find(|t| t.state == "running")
+        .filter(|t| t.state == "running")
+        .collect();
+    rows.sort_by(|a, b| a.id.cmp(&b.id));
+    rows
+}
+
+/// Terminal (non-running) tasks, same stability contract.
+fn settled_tasks(store: &Store) -> Vec<TaskSnapshot> {
+    let mut rows: Vec<TaskSnapshot> = store
+        .domains
+        .task
+        .snapshots()
+        .into_iter()
+        .filter(|t| t.state != "running")
+        .collect();
+    rows.sort_by(|a, b| a.id.cmp(&b.id));
+    rows
+}
+
+fn running_task(store: &Store) -> Option<TaskSnapshot> {
+    running_tasks(store).into_iter().next()
 }
 
 fn settled_task(store: &Store) -> Option<TaskSnapshot> {
-    store
-        .domains
-        .task
-        .snapshots()
-        .into_iter()
-        .find(|t| t.state != "running")
+    settled_tasks(store).into_iter().next()
 }
 
 /// The wire runtime state → the design's status word. The web maps wire
@@ -185,12 +187,10 @@ pub fn query_binding(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
         // The roster count: every staged peer this session ("…stay for the
         // session's lifetime", fleet-model.ts:20-24; peer-manager.ts:763).
         "fleet.title" => {
+            // LIVE at every count (#30c2): 0 must not show the design's
+            // sample "Fleet · 3 peers".
             let n = peer_rows(store).len();
-            if n == 0 {
-                Value::Null
-            } else {
-                json!(format!("Fleet · {n} peer{}", if n == 1 { "" } else { "s" }))
-            }
+            json!(format!("Fleet · {n} peer{}", if n == 1 { "" } else { "s" }))
         }
         "fleet.goal" => match store
             .active_session()
@@ -199,43 +199,55 @@ pub fn query_binding(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
             Some(g) => json!(g.objective),
             None => Value::Null,
         },
-        // peer_{N}_* — the store's staged order (the web orders by status rank,
-        // parity row 111; the native store cannot rank what it cannot see yet).
-        other @ ("fleet.peer1.name"
-        | "fleet.peer2.name"
-        | "fleet.peer3.name"
-        | "fleet.peer1.status"
-        | "fleet.peer2.status"
-        | "fleet.peer3.status"
-        | "fleet.peer1.meta"
-        | "fleet.peer2.meta"
-        | "fleet.peer3.meta") => {
-            let row: usize = other.trim_start_matches("fleet.peer").chars().next()?.to_digit(10)? as usize - 1;
-            let p = peer_rows(store).into_iter().nth(row)?;
-            match other.rsplit('.').next()? {
+        // peer_r{i}_* — GENERATED rows (#30c2): row i of the slug-ordered
+        // roster; the badge/status style is chosen per item in the row
+        // builder, the bindings only carry the item's text.
+        other if other.starts_with("fleet.peer_r") => {
+            let rest = other.trim_start_matches("fleet.peer_r");
+            let (idx, field) = rest.split_once('.')?;
+            let i: usize = idx.parse().ok()?;
+            let p = peer_rows(store).into_iter().nth(i)?;
+            match field {
                 "name" => json!(p.name),
-                // Closed by the model → the one terminal word the store owns.
                 "status" if p.closed => json!("Done"),
-                // Open peers: the remaining §4.3 words need phase facts the
-                // native store does not carry (parity row 110) — authored stays.
+                // The remaining §4.3 words need phase facts the native store
+                // does not carry (parity row 110) — authored (empty) stays.
                 "status" => Value::Null,
-                // Elapsed/tokens are not in `Peer` — authored stays.
+                // Elapsed/tokens are not in `Peer` — authored (empty) stays.
                 _ => Value::Null,
             }
         }
-        // ---- autonomy-07 Tasks ------------------------------------------------
-        "tasks.run_cmd" => running_task(store).map_or(Value::Null, |t| json!(task_label(&t))),
-        "tasks.run_status" => running_task(store).map_or(Value::Null, |t| json!(status_word(&t.state))),
-        // No wall-clock durations in the store — authored stays.
-        "tasks.run_dur" | "tasks.done_dur" => Value::Null,
-        "tasks.done_cmd" => settled_task(store).map_or(Value::Null, |t| json!(task_label(&t))),
-        "tasks.done_status" => settled_task(store).map_or(Value::Null, |t| json!(status_word(&t.state))),
-        other @ ("tasks.log0" | "tasks.log1" | "tasks.log2" | "tasks.log3") => {
-            let line: usize = other.trim_start_matches("tasks.log").parse().ok()?;
-            let t = running_task(store).or_else(|| settled_task(store))?;
-            match output_line(store, &t.id, line) {
-                Some(l) => json!(l),
-                None => Value::Null,
+        // ---- autonomy-07 Tasks — GENERATED blocks (#30c2): run block i of
+        // the id-sorted running items, done block i of the terminal items.
+        other if other.starts_with("tasks.run_r") => {
+            let rest = other.trim_start_matches("tasks.run_r");
+            let (idx, field) = rest.split_once('.')?;
+            let i: usize = idx.parse().ok()?;
+            let t = running_tasks(store).into_iter().nth(i)?;
+            match field {
+                "cmd" => json!(task_label(&t)),
+                "status" => json!(status_word(&t.state)),
+                // No wall-clock durations in the store — authored stays.
+                "dur" => Value::Null,
+                f if f.starts_with("log") => {
+                    let line: usize = f.trim_start_matches("log").parse().ok()?;
+                    match output_line(store, &t.id, line) {
+                        Some(l) => json!(l),
+                        None => Value::Null,
+                    }
+                }
+                _ => Value::Null,
+            }
+        }
+        other if other.starts_with("tasks.done_r") => {
+            let rest = other.trim_start_matches("tasks.done_r");
+            let (idx, field) = rest.split_once('.')?;
+            let i: usize = idx.parse().ok()?;
+            let t = settled_tasks(store).into_iter().nth(i)?;
+            match field {
+                "cmd" => json!(task_label(&t)),
+                "status" => json!(status_word(&t.state)),
+                _ => Value::Null,
             }
         }
         _ => return None,
@@ -491,7 +503,7 @@ pub fn lower_card_src(screen_id: &str, ctx: &Ctx<'_>) -> Result<(String, Value, 
         std::fs::read_to_string(dir.join(rel)).map_err(|e| format!("read {screen_id}/{rel}: {e}"))
     };
     let mut card_src = read("page.card")?;
-    let data: Value = serde_json::from_str(&read("page.data.json")?)
+    let mut data: Value = serde_json::from_str(&read("page.data.json")?)
         .map_err(|e| format!("parse {screen_id} data: {e}"))?;
     // Only this screen's namespace may write its copies (the models.rs
     // namespace guard — `t_title_text`-style collisions across cards).
@@ -508,9 +520,336 @@ pub fn lower_card_src(screen_id: &str, ctx: &Ctx<'_>) -> Result<(String, Value, 
             }
         }
     }
+    // #30c2: the authored card's rows are the DESIGN's fixed sample rows —
+    // replace them with GENERATED rows, one per data item (LESSONS "list
+    // screens must render per item"), 0 → the web's empty state.
+    let card_src = rewrite_rows(screen_id, card_src, &mut data, ctx);
     Ok((card_src, data, dir.join("kit")))
 }
 
+// ------------------------------------------------- generated rows (#30c2)
+
+/// The web's empty-state copy, verbatim: "No peers yet"
+/// (`FleetView.tsx:537-540`) and "No background tasks in this session."
+/// (`SessionTrajectory.tsx:137-139`).
+const FLEET_EMPTY: &str = "No peers yet";
+const TASKS_EMPTY: &str = "No background tasks in this session.";
+
+/// First-index..past-last-index of the `{…}` block whose text starts at
+/// `anchor` (the anchor's own opening brace included).
+fn block_span(src: &str, anchor: &str) -> Option<(usize, usize)> {
+    let start = src.find(anchor)?;
+    let open = src[start..].find('{')? + start;
+    let mut depth = 0usize;
+    for (i, ch) in src[open..].char_indices() {
+        match ch {
+            '{' => depth += 1,
+            '}' => {
+                depth -= 1;
+                if depth == 0 {
+                    return Some((start, open + i + 1));
+                }
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+/// Mint `copy <id> { class: user-copy, en: <value> }` declarations after the
+/// card's LAST authored copy line (the L0 copy table).
+fn mint_copies(card_src: &str, minted: &[(String, String)]) -> String {
+    let mut lines: Vec<String> = card_src.lines().map(str::to_owned).collect();
+    let Some(pos) = lines.iter().rposition(|l| l.trim_start().starts_with("copy ")) else {
+        return card_src.to_owned();
+    };
+    let mut out: Vec<String> = Vec::with_capacity(lines.len() + minted.len());
+    out.extend_from_slice(&lines[..=pos]);
+    for (id, en) in minted {
+        out.push(format!("copy {id} {{ class: user-copy, en: {en:?} }}"));
+    }
+    out.extend_from_slice(&lines[pos + 1..]);
+    out.join("\n") + "\n"
+}
+
+/// Keep only the STATIC placements (the authored row placements describe the
+/// design's sample rows and must not survive the rewrite).
+fn retain_static_placements(data: &mut Value, keep: &[&str]) {
+    if let Some(map) = data
+        .get_mut("$kit")
+        .and_then(|k| k.get_mut("placements"))
+        .and_then(|p| p.as_object_mut())
+    {
+        map.retain(|k, _| keep.contains(&k.as_str()));
+    }
+}
+
+/// Insert generated placements. `component` MUST be the exact kit id the DSL
+/// instantiates for that instance — `l0::prepare` pairs them by name and
+/// rejects a mismatch ("component/placement mismatch", the failure the
+/// component-less first cut hit).
+fn put_placements(data: &mut Value, rows: &[(String, &'static str, f64, f64, f64, f64)]) {
+    if let Some(map) = data
+        .get_mut("$kit")
+        .and_then(|k| k.get_mut("placements"))
+        .and_then(|p| p.as_object_mut())
+    {
+        for (name, component, x, y, w, h) in rows {
+            map.insert(
+                name.clone(),
+                serde_json::json!({
+                    "component": component,
+                    "layout": {"x": x, "y": y, "w": w, "h": h},
+                }),
+            );
+        }
+    }
+}
+
+fn rewrite_rows(screen_id: &str, card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> String {
+    match screen_id {
+        "autonomy-06" => rewrite_fleet_rows(card_src, data, ctx),
+        "autonomy-07" => rewrite_tasks_rows(card_src, data, ctx),
+        _ => card_src,
+    }
+}
+
+/// autonomy-06: one peer row per item, the badge + status component chosen
+/// FROM THE ITEM (closed → the terminal gray badge `Surfacefe8deb6b02b9` +
+/// `Textda5b0618c4a3` + "Done"; open → the active green badge
+/// `Surface46bf93b36e13` + `Text0ee31649c829` + "Working" — the design bound
+/// them to ROW POSITION instead, the flagged defect). Names get a widened
+/// column (the authored 42px clipped "review" to "reviev"). 0 peers → the
+/// empty-state text, no rows.
+fn rewrite_fleet_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> String {
+    retain_static_placements(
+        data,
+        &["page", "fleet_screen", "fleet_card", "t_title", "fleet_goal", "fleet_goal_label"],
+    );
+    let peers = peer_rows(ctx.store);
+    let Some((fs, _fe)) = block_span(&card_src, "Surface5fa5be74391b(instance: \"fleet_card\") {")
+    else {
+        return card_src;
+    };
+    let line_end = card_src[fs..].find('\n').map(|i| fs + i + 1).unwrap_or(card_src.len());
+    const ROW: &str = "Group3d2637879433";
+    const NAME: &str = "Text6965a34baa9d";
+    const STEER: &str = "Text05c2e4254ba7";
+    const DIV: &str = "Surfacec4c38149242a";
+    const BADGE_ON: &str = "Surface46bf93b36e13";
+    const BADGE_ON_T: &str = "Text0ee31649c829";
+    const BADGE_OFF: &str = "Surfacefe8deb6b02b9";
+    const BADGE_OFF_T: &str = "Textda5b0618c4a3";
+    let mut body = String::new();
+    let mut minted: Vec<(String, String)> = Vec::new();
+    let mut placed: Vec<(String, &'static str, f64, f64, f64, f64)> = Vec::new();
+
+    if peers.is_empty() {
+        body.push_str(
+            "      Text6965a34baa9d(instance: \"fleet_empty\", text: copy.fleet_empty_text)\n",
+        );
+        minted.push(("fleet_empty_text".to_owned(), FLEET_EMPTY.to_owned()));
+        placed.push(("fleet_empty".to_owned(), NAME, 32.0, 240.0, 340.0, 24.0));
+    } else {
+        const Y0: f64 = 227.92;
+        const PITCH: f64 = 138.36;
+        for (i, p) in peers.iter().enumerate() {
+            let y = Y0 + i as f64 * PITCH;
+            let (badge, status_comp, badge_w, status) = if p.closed {
+                (BADGE_OFF, BADGE_OFF_T, 69.0, "Done")
+            } else {
+                // An open peer is live on the roster's activity axis
+                // (peer-roster.ts:40-42) → the §4.3 word "Working".
+                (BADGE_ON, BADGE_ON_T, 86.0, "Working")
+            };
+            body.push_str(&format!(
+                "      Group3d2637879433(instance: \"peer_r{i}\") {{\n        \
+                 {badge}(instance: \"peer_r{i}_badge\") {{\n          \
+                 {status_comp}(instance: \"peer_r{i}_status\", text: copy.peer_r{i}_status_text)\n        }}\n        \
+                 Text6965a34baa9d(instance: \"peer_r{i}_name\", text: copy.peer_r{i}_name_text)\n        \
+                 Text05c2e4254ba7(instance: \"peer_r{i}_steer\", text: copy.peer_r{i}_steer_text)\n      }}\n"
+            ));
+            if i + 1 < peers.len() {
+                body.push_str(&format!(
+                    "      Surfacec4c38149242a(instance: \"peer_divider_r{i}\") {{\n\n      }}\n"
+                ));
+                placed.push((format!("peer_divider_r{i}"), DIV, 19.19, y + 129.63, 366.62, 1.09));
+            }
+            placed.push((format!("peer_r{i}"), ROW, 11.0, y, 383.0, 89.37));
+            placed.push((format!("peer_r{i}_badge"), badge, 28.0, y + 27.08, badge_w, 52.0));
+            placed.push((format!("peer_r{i}_status"), status_comp, 41.91, y + 41.86, 58.93, 26.88));
+            // WIDENED: the authored 42px name column clipped longer slugs.
+            placed.push((format!("peer_r{i}_name"), NAME, 147.48, y + 28.14, 160.0, 22.3));
+            placed.push((format!("peer_r{i}_steer"), STEER, 329.77, y + 46.44, 42.63, 24.13));
+            minted.push((format!("peer_r{i}_status_text"), status.to_owned()));
+            minted.push((format!("peer_r{i}_name_text"), p.name.clone()));
+            minted.push((format!("peer_r{i}_steer_text"), "Steer".to_owned()));
+        }
+    }
+    put_placements(data, &placed);
+    let card_src = format!("{}{}    }}\n  }}\n}}\n", &card_src[..line_end], body);
+    mint_copies(&card_src, &minted)
+}
+
+/// autonomy-07: one run block per RUNNING item (the console's four output
+/// lines are the item's own), one done block per TERMINAL item — the authored
+/// card fixed exactly one of each (the flagged defect). 0 items → the
+/// empty-state text. The authored fixed cards (the done_card self-closing
+/// line + the run_card block) are REMOVED — the generated blocks hang
+/// directly under tasks_card.
+fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> String {
+    // The authored icon placements carry the capture-time SVG srcs (a kit
+    // Vector node cannot lower without one — "design SVG resource required");
+    // capture them before the static retain drops the authored rows.
+    let icon_run_src = data["$kit"]["placements"]["icon_run_task"]["src"]
+        .as_str()
+        .unwrap_or_default()
+        .to_owned();
+    let icon_done_src = data["$kit"]["placements"]["icon_done_task"]["src"]
+        .as_str()
+        .unwrap_or_default()
+        .to_owned();
+    retain_static_placements(data, &["page", "tasks_card", "t02"]);
+    let runs = running_tasks(ctx.store);
+    let dones = settled_tasks(ctx.store);
+    // 1. drop the authored done_card LINE (self-closing, before the run block).
+    let card_src = card_src
+        .lines()
+        .filter(|l| !l.contains("Surfaceed7038384cce(instance: \"done_card\")"))
+        .map(|l| format!("{l}\n"))
+        .collect::<String>();
+    // 2. cut the authored run_card BLOCK: keep the source up to the run_card
+    //    anchor line, append the generated body + the card's closers.
+    let Some((rs, _re)) = block_span(&card_src, "Surfacee81dee70a29b(instance: \"run_card\") {")
+    else {
+        return card_src;
+    };
+    let line_end = card_src[rs..].find('\n').map(|i| rs + i + 1).unwrap_or(card_src.len());
+    const RUN: &str = "Surfacee81dee70a29b";
+    const ICON: &str = "Vectore0a378fde04f";
+    const CMD: &str = "Textfda4b2da12b8";
+    const PILL: &str = "Surfaceec5e698cce2f";
+    const PILL_TXT: &str = "Text97dbc02c6f15";
+    const DUR: &str = "Text1e0cc765bf27";
+    const CONSOLE: &str = "Surfacef9797a8e8795";
+    const LOG01: &str = "Texte890c3523ee8";
+    const LOG2: &str = "Textf26085efae71";
+    const LOG3: &str = "Textd49e66b4cabb";
+    const CURSOR: &str = "Text60155355f2e8";
+    const GRP: &str = "Group3d2637879433";
+    const CANCEL_S: &str = "Surfaceff776c252975";
+    const CANCEL_B: &str = "NativeButton02f1d1bd99b4";
+    const CANCEL_T: &str = "Text6f1917ec00eb";
+    const DONE: &str = "Surfaceed7038384cce";
+    const DCMD: &str = "Textd55469de8b8b";
+    const DPILL: &str = "Surfaceffa407c932d5";
+    const DPILL_TXT: &str = "Text4cb0e7db43f8";
+    const DDUR: &str = "Textc440e7c590d3";
+    let mut body = String::new();
+    let mut minted: Vec<(String, String)> = Vec::new();
+    let mut placed: Vec<(String, &'static str, f64, f64, f64, f64)> = Vec::new();
+
+    if runs.is_empty() && dones.is_empty() {
+        body.push_str(
+            "    Textd55469de8b8b(instance: \"tasks_empty\", text: copy.tasks_empty_text)\n",
+        );
+        minted.push(("tasks_empty_text".to_owned(), TASKS_EMPTY.to_owned()));
+        placed.push(("tasks_empty".to_owned(), DCMD, 32.0, 285.0, 342.0, 44.0));
+    } else {
+        const RUN_H: f64 = 387.0;
+        for (i, t) in runs.iter().enumerate() {
+            let y = 265.0 + i as f64 * (RUN_H + 8.0);
+            body.push_str(&format!(
+                "    Surfacee81dee70a29b(instance: \"run_r{i}\") {{\n      \
+                 Vectore0a378fde04f(instance: \"run_r{i}_icon\")\n      \
+                 Textfda4b2da12b8(instance: \"run_r{i}_cmd\", text: copy.run_r{i}_cmd_text)\n      \
+                 Surfaceec5e698cce2f(instance: \"run_r{i}_pill\") {{\n        \
+                 Text97dbc02c6f15(instance: \"run_r{i}_status\", text: copy.run_r{i}_status_text)\n      }}\n      \
+                 Text1e0cc765bf27(instance: \"run_r{i}_dur\", text: copy.run_r{i}_dur_text)\n      \
+                 Surfacef9797a8e8795(instance: \"run_r{i}_console\") {{\n        \
+                 Texte890c3523ee8(instance: \"run_r{i}_log0\", text: copy.run_r{i}_log0_text)\n        \
+                 Texte890c3523ee8(instance: \"run_r{i}_log1\", text: copy.run_r{i}_log1_text)\n        \
+                 Textf26085efae71(instance: \"run_r{i}_log2\", text: copy.run_r{i}_log2_text)\n        \
+                 Textd49e66b4cabb(instance: \"run_r{i}_log3\", text: copy.run_r{i}_log3_text)\n        \
+                 Text60155355f2e8(instance: \"run_r{i}_cursor\", text: copy.t_cursor_text)\n      }}\n      \
+                 Group3d2637879433(instance: \"run_r{i}_cancel\") {{\n        \
+                 Surfaceff776c252975(instance: \"run_r{i}_cancel_surface\") {{\n\n        }}\n        \
+                 NativeButton02f1d1bd99b4(instance: \"run_r{i}_cancel_control\", enabled: cancel_control_enabled)\n        \
+                 Text6f1917ec00eb(instance: \"run_r{i}_cancel_label\", text: copy.cancel_label_text)\n      }}\n    }}\n"
+            ));
+            placed.push((format!("run_r{i}"), RUN, 20.0, y, 350.0, RUN_H));
+            placed.push((format!("run_r{i}_icon"), ICON, 33.0, y + 34.0, 18.0, 18.2));
+            placed.push((format!("run_r{i}_cmd"), CMD, 53.0, y + 32.0, 260.0, 20.0));
+            placed.push((format!("run_r{i}_pill"), PILL, 274.0, y + 20.0, 63.0, 42.0));
+            placed.push((format!("run_r{i}_status"), PILL_TXT, 283.78, y + 31.46, 45.91, 23.57));
+            placed.push((format!("run_r{i}_dur"), DUR, 341.33, y + 34.06, 24.0, 21.5));
+            placed.push((format!("run_r{i}_console"), CONSOLE, 35.0, y + 86.0, 339.0, 197.0));
+            for (k, comp) in [LOG01, LOG01, LOG2, LOG3].iter().enumerate() {
+                let ly = y + 116.0 + 41.0 * k as f64;
+                let lh = if k == 3 { 15.0 } else { 41.0 };
+                placed.push((format!("run_r{i}_log{k}"), comp, 40.0, ly, 310.0, lh));
+            }
+            placed.push((format!("run_r{i}_cursor"), CURSOR, 155.0, y + 235.0, 6.0, 22.0));
+            placed.push((format!("run_r{i}_cancel"), GRP, 37.0, y + 309.0, 225.0, 55.0));
+            placed.push((format!("run_r{i}_cancel_surface"), CANCEL_S, 37.0, y + 309.0, 225.0, 55.0));
+            placed.push((format!("run_r{i}_cancel_control"), CANCEL_B, 37.0, y + 309.0, 225.0, 55.0));
+            placed.push((format!("run_r{i}_cancel_label"), CANCEL_T, 127.65, y + 325.03, 45.91, 21.61));
+            minted.push((format!("run_r{i}_cmd_text"), task_label(t)));
+            minted.push((format!("run_r{i}_status_text"), status_word(&t.state)));
+            minted.push((format!("run_r{i}_dur_text"), String::new()));
+            for k in 0..4 {
+                let line = output_line(ctx.store, &t.id, k).unwrap_or_default();
+                minted.push((format!("run_r{i}_log{k}_text"), line));
+            }
+        }
+        let done_y0 = 265.0 + runs.len() as f64 * (RUN_H + 8.0) + 8.0;
+        for (j, t) in dones.iter().enumerate() {
+            let y = done_y0 + j as f64 * 56.0;
+            body.push_str(&format!(
+                "    Surfaceed7038384cce(instance: \"done_r{j}\") {{\n      \
+                 Vectore0a378fde04f(instance: \"done_r{j}_icon\")\n      \
+                 Textd55469de8b8b(instance: \"done_r{j}_cmd\", text: copy.done_r{j}_cmd_text)\n      \
+                 Surfaceffa407c932d5(instance: \"done_r{j}_pill\") {{\n        \
+                 Text4cb0e7db43f8(instance: \"done_r{j}_status\", text: copy.done_r{j}_status_text)\n      }}\n      \
+                 Textc440e7c590d3(instance: \"done_r{j}_dur\", text: copy.done_r{j}_dur_text)\n    }}\n"
+            ));
+            placed.push((format!("done_r{j}"), DONE, 20.0, y, 350.0, 49.0));
+            placed.push((format!("done_r{j}_icon"), ICON, 29.0, y + 16.0, 16.0, 16.0));
+            placed.push((format!("done_r{j}_cmd"), DCMD, 49.0, y + 15.0, 260.0, 20.0));
+            placed.push((format!("done_r{j}_pill"), DPILL, 271.0, y + 2.0, 54.0, 43.0));
+            placed.push((format!("done_r{j}_status"), DPILL_TXT, 282.0, y + 15.0, 31.94, 18.68));
+            placed.push((format!("done_r{j}_dur"), DDUR, 349.55, y + 15.0, 19.72, 18.68));
+            minted.push((format!("done_r{j}_cmd_text"), task_label(t)));
+            minted.push((format!("done_r{j}_status_text"), status_word(&t.state)));
+            minted.push((format!("done_r{j}_dur_text"), String::new()));
+        }
+    }
+    put_placements(data, &placed);
+    // Re-attach the SVG srcs: Vector nodes lower to `http_resource(src)` —
+    // a placement without one fails to_makepad_ui.
+    if let Some(map) = data
+        .get_mut("$kit")
+        .and_then(|k| k.get_mut("placements"))
+        .and_then(|p| p.as_object_mut())
+    {
+        for (name, entry) in map.iter_mut() {
+            let src = if name.starts_with("run_r") && name.ends_with("_icon") {
+                icon_run_src.as_str()
+            } else if name.starts_with("done_r") && name.ends_with("_icon") {
+                icon_done_src.as_str()
+            } else {
+                continue;
+            };
+            entry["src"] = serde_json::json!(src);
+        }
+    }
+    // Cut AT the anchor start: the authored run_card line (with its `{`) and
+    // everything after it go; the generated blocks hang directly under
+    // tasks_card and the two closers below close tasks_card + root.
+    let _ = line_end;
+    let card_src = format!("{}{}  }}\n}}\n", &card_src[..rs], body);
+    mint_copies(&card_src, &minted)
+}
 /// Lower one screen card to Splash DSL with the CURRENT store values — the
 /// module's own L0 chain (`l0::prepare` → `to_makepad_ui`), renamed per
 /// screen like models.rs.
