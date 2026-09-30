@@ -693,7 +693,13 @@ pub fn lower_screen(screen: Screen, ui: &ConnectUi) -> Result<String, String> {
     .map_err(|e| format!("l0::prepare: {e}"))?;
     let mut tree = prepared.tree;
     octoscript_makepad::l0::inspectable(&mut tree);
-    octoscript_makepad::design::to_makepad_ui(&tree).map_err(|e| format!("to_makepad_ui: {e}"))
+    // #28e4: emit the FLOWING kit tree, not the measured abs_pos one. The
+    // measured emit mis-seats in THIS app VM (the mounted DSL dumped
+    // byte-correct 406x776 while the seated root measured 133x700 across six
+    // probed slot/wrapper/walk variants); the same mount path seats the
+    // palette screen's tree fine, and lower_probe proves this branch
+    // evaluates (L0KIT: 8119 bytes, nodes=43).
+    Ok(octoscript_makepad::to_makepad_l0_ui(&tree))
 }
 
 #[cfg(test)]
