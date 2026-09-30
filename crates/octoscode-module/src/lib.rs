@@ -429,6 +429,9 @@ impl OctoscodeView {
                 }
             }
             while let Some(evt) = evt_rx.recv().await {
+                // #29c: the screens' occupancy window folds from the
+                // token_cost_update progress payloads (workspace-events.ts:6-10).
+                screens::models::note_transport_event(&evt);
                 let e = drv.on_event(evt);
                 ::log::debug!("[octoscode] {e:?}");
                 SignalToUI::set_ui_signal();

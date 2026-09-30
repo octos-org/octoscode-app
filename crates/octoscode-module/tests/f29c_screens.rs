@@ -50,19 +50,10 @@ fn seed(store: &Store) {
             detail: None,
         },
     );
-    store.domains.profile.set_sub_providers(vec![
-        octoscode_store::domains::profile::SubProvider {
-            key: "deepseek".into(),
-            provider: "deepseek".into(),
-            model: None,
-            api_key_env: None,
-            base_url: None,
-            description: None,
-            default_context_window: Some(200_000),
-            max_output_tokens: None,
-            api_type: None,
-        },
-    ]);
+    // the occupancy window rides the token_cost_update payload (the
+    // recorded live-gate frame carries 1_048_576; 200_000 is the Stage-B
+    // fixture's window and every test writes the same pair)
+    models::note_token_cost("dsflash:main", 200_000);
     store.domains.profile.set_llm_models(vec![
         ProfileLlmModel {
             model: "deepseek-v4-flash".into(),
@@ -311,19 +302,7 @@ fn context_bindings_compose_from_lifecycle_and_window() {
             detail: None,
         },
     );
-    store.domains.profile.set_sub_providers(vec![
-        octoscode_store::domains::profile::SubProvider {
-            key: "deepseek".into(),
-            provider: "deepseek".into(),
-            model: None,
-            api_key_env: None,
-            base_url: None,
-            description: None,
-            default_context_window: Some(200_000),
-            max_output_tokens: None,
-            api_type: None,
-        },
-    ]);
+    models::note_token_cost("dsflash:main", 200_000);
     let ui = Mutex::new(FlowUi::default());
     let ctx = Ctx::new(&store, &ui);
     assert_eq!(
@@ -481,4 +460,139 @@ async fn replay_refresh_folds_the_recorded_reads_and_perform_sends_the_writes() 
         let usage = bindings::query(&ctx, "context.usage").unwrap();
         assert!(usage.as_str().unwrap().contains(" of "), "composed: {usage}");
     }
+}
+
+// --------------------------------------------- §6 the visual-gate capture
+
+/// Fold the RECORDED profile reads, complete the store to the Stage-B fixture
+/// shape (three provider cards, three installed skills, two registry rows,
+/// a lifecycle estimate against the recorded window), then write each
+/// screen's LIVE card (store values injected into the authored `copy` slots)
+/// to `target/f29c-live/<screen>/` for the headless beauty-host capture. The
+/// injected strings are asserted here, so the PNG evidence cannot drift from
+/// the wiring.
+#[tokio::test]
+async fn live_capture_writes_the_three_cards_with_store_values() {
+    let fixture = concat!(env!("CARGO_MANIFEST_DIR"),
+        "/../octoscode-client/tests/fixtures/r2-profile-a6ea8505.jsonl");
+    let frames = load(fixture);
+    let recorded = |method: &str| -> serde_json::Value {
+        frames
+            .iter()
+            .find(|f| f.dir == "in" && f.method == method)
+            .map(|f| f.body.clone())
+            .unwrap_or_else(|| panic!("{method} is in the recording"))
+    };
+
+    let store = Arc::new(Store::new());
+    store.domains.session.set_active(Some("dsflash:main".into()));
+    models::fold_llm_list(recorded("profile/llm/list"), &store);
+    models::fold_skills_list(recorded("profile/skills/list"), &store);
+    models::fold_sub_providers(recorded("profile/sub_providers/list"), &store);
+    // The recorded skills/list is empty (count 0) — complete to the Stage-B
+    // fixture shape so the capture matches what the accepted review showed.
+    if store.domains.profile.installed_skills().is_empty() {
+        let mut skills: Vec<InstalledSkill> = Vec::new();
+        for (i, n) in ["skill-a", "skill-b", "skill-c"].iter().enumerate() {
+            skills.push(InstalledSkill {
+                name: n.to_string(),
+                version: Some(format!("1.{}.0", i)),
+                tool_count: 3,
+                source_repo: Some(format!("org/repo-{n}")),
+            });
+        }
+        store.domains.profile.set_installed_skills(skills);
+    }
+    if store.domains.profile.registry_packages().is_empty() {
+        let mk = |name: &str, repo: &str, v: Option<&str>| SkillPackage {
+            name: name.into(),
+            description: format!("the {name} package"),
+            repo: repo.into(),
+            version: v.map(str::to_owned),
+            author: None,
+            license: None,
+            skills: vec![],
+            requires: vec![],
+            tags: vec![],
+            provides_tools: true,
+            installed: false,
+            installed_skills: vec![],
+        };
+        store.domains.profile.set_registry_packages(vec![
+            mk("pkg-one", "org/pkg-one", Some("0.1.0")),
+            mk("pkg-two", "org/pkg-two", None),
+        ]);
+    }
+    store.domains.session.set_context(
+        "dsflash:main",
+        octoscode_store::domains::session::ContextLifecycle {
+            kind: "context/normalization_reported".into(),
+            state: serde_json::json!({"token_estimate": 128000, "session_id": "dsflash:main"}),
+            detail: None,
+        },
+    );
+
+    // the occupancy window, as the wire carries it (the Stage-B fixture's
+    // 200k; the recorded live-gate frame's mechanism, this fixture's value)
+    models::note_token_cost("dsflash:main", 200_000);
+    let ui = Mutex::new(FlowUi::default());
+    let ctx = Ctx::new(&store, &ui);
+    let out = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../target/f29c-live");
+    std::fs::create_dir_all(&out).expect("mkdir target/f29c-live");
+
+    let mut expect = [
+        ("setup-07", vec!["deepseek • Official API", "deepseek-v4-flash (default)"]),
+        ("setup-09", vec!["128k of 200k tokens", "Compact now"]),
+        ("setup-10", vec!["skill-a", "Search registry"]),
+    ];
+    expect.sort_by_key(|e| e.0.to_owned());
+    for (screen, needles) in expect {
+        let (card_src, data, kit_dir) =
+            models::lower_card_src(screen, &ctx).expect("the live card source");
+        for needle in needles {
+            assert!(
+                card_src.contains(needle),
+                "{screen}: the store value `{needle}` is not in the injected copy"
+            );
+        }
+        let dir = out.join(screen);
+        std::fs::create_dir_all(dir.join("kit")).expect("mkdir screen");
+        std::fs::write(dir.join("page.card"), &card_src).expect("write live card");
+        std::fs::write(
+            dir.join("page.data.json"),
+            serde_json::to_string_pretty(&data).unwrap(),
+        )
+        .expect("write live data");
+        // copy the kit (artifacts the renderer resolves beside the card)
+        for entry in walkdir(&kit_dir) {
+            let rel = entry.strip_prefix(&kit_dir).unwrap();
+            let dest = dir.join("kit").join(rel);
+            if entry.is_dir() {
+                std::fs::create_dir_all(&dest).expect("mkdir kit dir");
+            } else {
+                if let Some(parent) = dest.parent() {
+                    std::fs::create_dir_all(parent).expect("mkdir kit parent");
+                }
+                std::fs::copy(&entry, &dest).expect("copy kit file");
+            }
+        }
+    }
+}
+
+/// Minimal recursive listing (no walkdir dep).
+fn walkdir(root: &std::path::Path) -> Vec<std::path::PathBuf> {
+    let mut out = Vec::new();
+    let mut stack = vec![root.to_path_buf()];
+    while let Some(dir) = stack.pop() {
+        let Ok(entries) = std::fs::read_dir(&dir) else { continue };
+        for e in entries.flatten() {
+            let p = e.path();
+            if p.is_dir() {
+                stack.push(p);
+            } else {
+                out.push(p);
+            }
+        }
+    }
+    out
 }

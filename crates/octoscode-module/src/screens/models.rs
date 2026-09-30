@@ -157,6 +157,47 @@ fn version_text(v: &Option<String>) -> String {
     v.clone().unwrap_or_else(|| "—".to_owned())
 }
 
+/// The context-occupancy WINDOW, exactly where the web gets it: the
+/// `progress/updated` payload whose `metadata.kind == "token_cost_update"`
+/// carries `token_cost.context_window` (`workspace-events.ts:6-10` —
+/// `parseTokenCostUpdate` listens on PROGRESS_UPDATED; live-gate fixture
+/// frame: 1048576 for deepseek-v4-flash). Guarded by session id the way the
+/// panel guards `usage.sessionId === sessionId` (`ContextPanel.tsx:39`,
+/// `model.ts:25`). UI-adjacent state with no store field, so it lives here;
+/// every test writes the SAME (session, 200_000) pair, so parallel-test
+/// races converge on one value.
+static WINDOW: std::sync::Mutex<Option<(String, u64)>> = std::sync::Mutex::new(None);
+
+/// Record a token_cost window for a session (the wire fold; also the test
+/// seam — the recorded live-gate value is 1_048_576).
+pub fn note_token_cost(session: &str, window: u64) {
+    *WINDOW.lock().unwrap() = Some((session.to_owned(), window));
+}
+
+/// Fold one transport event if it carries a token_cost_update.
+pub fn note_transport_event(evt: &octos_app_transport::TransportEvent) {
+    use octos_app_transport::TransportEvent;
+    let payload = match evt {
+        TransportEvent::DurableNotification { payload, .. }
+        | TransportEvent::EphemeralNotification { payload } => payload,
+        _ => return,
+    };
+    if payload.method() != "progress/updated" {
+        return;
+    }
+    let body = octoscode_client::trace::wire_params(payload);
+    if body["metadata"]["kind"] != "token_cost_update" {
+        return;
+    }
+    let (Some(window), Some(session)) = (
+        body["metadata"]["token_cost"]["context_window"].as_u64(),
+        body["session_id"].as_str(),
+    ) else {
+        return;
+    };
+    note_token_cost(session, window);
+}
+
 /// Resolve one binding id against the store. `None` = not declared here.
 pub fn query_binding(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
     let store = ctx.store;
@@ -170,13 +211,10 @@ pub fn query_binding(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
         .session
         .context(&session)
         .and_then(|l| l.state.get("token_estimate").and_then(|v| v.as_u64()));
-    let window = store
-        .domains
-        .profile
-        .sub_providers()
-        .iter()
-        .find_map(|sp| sp.default_context_window)
-        .map(|w| w as u64);   // the store keeps u32; the composition is u64
+    let window = match WINDOW.lock().unwrap().as_ref() {
+        Some((s, w)) if *s == session => Some(*w),
+        _ => None,
+    };
     let models = store.domains.profile.llm_models();
     let skills = store.domains.profile.installed_skills();
     let registry = store.domains.profile.registry_packages();
@@ -405,7 +443,7 @@ pub fn fold_llm_list(v: Value, store: &Store) {
     }
 }
 
-fn fold_skills_list(v: Value, store: &Store) {
+pub fn fold_skills_list(v: Value, store: &Store) {
     let skills = v
         .get("skills")
         .and_then(|s| s.as_array())
@@ -433,7 +471,7 @@ fn opt_u32(s: &Value, key: &str) -> Option<u32> {
     s.get(key).and_then(|v| v.as_u64()).map(|w| w as u32)
 }
 
-fn fold_sub_providers(v: Value, store: &Store) {
+pub fn fold_sub_providers(v: Value, store: &Store) {
     let subs = v
         .get("sub_providers")
         .and_then(|s| s.as_array())
