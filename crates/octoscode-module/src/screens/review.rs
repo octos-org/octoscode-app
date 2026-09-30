@@ -80,6 +80,8 @@ pub const BINDINGS: &[(&str, &str)] = &[
     ("review.finding_high.text", "high finding's text (empty until a review result)"),
     ("review.finding_low.path", "low finding's path (empty until a review result)"),
     ("review.finding_low.text", "low finding's text (empty until a review result)"),
+    ("review.finding_high.badge", "High badge chrome (empty until a review result)"),
+    ("review.finding_low.badge", "Low badge chrome (empty until a review result)"),
 ];
 
 /// The action ids the cards' `service-actions.json` declare. ONE OWNER: these
@@ -147,11 +149,19 @@ impl Line {
             _ => "",
         }
     }
-    /// The gutter number the web shows: the new side, else the old side.
-    pub fn num(&self) -> String {
-        match (self.new_line, self.old_line) {
-            (Some(n), _) => n.to_string(),
-            (None, Some(o)) => o.to_string(),
+    /// The gutter pair the web renders — OLD|NEW columns, empty half when
+    /// the line has no number on that side (`DiffReviewDialog.tsx:152` the
+    /// "Old line" columnheader, `:195` the `old_line` cell, `:161` the row
+    /// key carrying BOTH old_line and new_line). One string here, two
+    /// columns there: a removed line keeps its old number ("2|"), the added
+    /// replacement takes the new one ("|2") — never a duplicate.
+    pub fn gutter(&self) -> String {
+        // (old, new) — the match head must agree with the arms' bindings
+        // (the original num() matched (new, old), which inverted every arm).
+        match (self.old_line, self.new_line) {
+            (Some(o), Some(n)) => format!("{o}|{n}"),
+            (Some(o), None) => format!("{o}|"),
+            (None, Some(n)) => format!("|{n}"),
             _ => String::new(),
         }
     }
@@ -351,7 +361,7 @@ pub fn query(_ctx: &Ctx<'_>, id: &str) -> Option<Value> {
             }
             other if other.starts_with("review.num") => {
                 let i: usize = other.trim_start_matches("review.num").parse().ok()?;
-                st.lines.get(i).map(Line::num)?
+                st.lines.get(i).map(Line::gutter)?
             }
             other if other.starts_with("review.mark") => {
                 let i: usize = other.trim_start_matches("review.mark").parse().ok()?;
@@ -375,6 +385,8 @@ pub fn query(_ctx: &Ctx<'_>, id: &str) -> Option<Value> {
             // web's running/empty state), never a fake finding.
             "review.finding_high.path"
             | "review.finding_high.text"
+            | "review.finding_high.badge"
+            | "review.finding_low.badge"
             | "review.finding_low.path"
             | "review.finding_low.text" => String::new(),
             // 3.2's status row: the typed blocked reason wins
@@ -627,6 +639,8 @@ pub const COPY_SLOTS: &[(&str, &str)] = &[
     ("finding_high_text_text", "review.finding_high.text"),
     ("finding_low_path_text", "review.finding_low.path"),
     ("finding_low_text_text", "review.finding_low.text"),
+    ("finding_high_badge_label_text", "review.finding_high.badge"),
+    ("finding_low_badge_label_text", "review.finding_low.badge"),
 ];
 
 fn cards_root() -> std::path::PathBuf {
@@ -767,6 +781,8 @@ pub fn lower_screen(card: &str, ctx: &Ctx<'_>) -> Result<String, String> {
             });
             let ln_y = pl["layout"]["y"].as_f64().unwrap_or(353.79);
             pl["component"] = json!(ln_c);
+            // room for the old|new pair ("12|12" at the design's code size)
+            pl["layout"]["w"] = json!(40.0);
             obj.insert(ln_key, pl);
             // dl: authored position, REAL content width (no mid-token clip)
             let dl_key = format!("dl_{i}");
@@ -775,6 +791,11 @@ pub fn lower_screen(card: &str, ctx: &Ctx<'_>) -> Result<String, String> {
                     "x": 90.43, "y": 353.0 + (*i as f64) * 34.96, "w": 247.94, "h": 20.28}})
             });
             pl["component"] = json!(dl_c);
+            // #30a3 ②: ONE shared left edge for every code row — the authored
+            // x drifted 90/131/133 across row kinds (the outer note's "some
+            // rows start further right"). Content stays verbatim; code
+            // indentation now comes only from the text itself.
+            pl["layout"]["x"] = json!(90.43);
             pl["layout"]["w"] = json!(((*chars as f64) * 8.0 + 24.0).clamp(48.0, 300.0));
             obj.insert(dl_key, pl);
             if kind != "context" {
@@ -813,6 +834,28 @@ pub fn lower_screen(card: &str, ctx: &Ctx<'_>) -> Result<String, String> {
             {
                 l["x"] = json!(231.0);
                 l["w"] = json!(136.0);
+            }
+            // #30a3 ③: no findings source exists on the wire (native-review
+            // .ts:63 — a server-owned workflow), so the EMPTY state is the
+            // web's: NO findings section at all. Zero the sample cards'
+            // surfaces AND every child (an unclipped makepad parent does not
+            // hide its children) and blank the badge chrome — never an empty
+            // High/Low card. The composed status row above stays the
+            // running state.
+            if matches!(query(ctx, "review.finding_high.path"),
+                        Some(Value::String(ref s)) if s.is_empty())
+            {
+                for k in [
+                    "finding_high", "finding_high_badge", "finding_high_badge_label",
+                    "finding_high_path", "finding_high_text",
+                    "finding_low", "finding_low_badge", "finding_low_badge_label",
+                    "finding_low_path", "finding_low_text",
+                ] {
+                    if let Some(c) = pl.get_mut(k).and_then(|c| c.get_mut("layout")) {
+                        c["w"] = json!(0.0);
+                        c["h"] = json!(0.0);
+                    }
+                }
             }
         }
     }

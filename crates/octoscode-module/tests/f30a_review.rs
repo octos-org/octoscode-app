@@ -281,8 +281,8 @@ fn the_preview_folds_counts_lines_marks_numbers() {
     assert_eq!(st.lines[0].mark(), "", "context lines carry no mark");
     assert_eq!(st.lines[1].mark(), "-");
     assert_eq!(st.lines[2].mark(), "+");
-    assert_eq!(st.lines[2].num(), "2", "the gutter shows the new side");
-    assert_eq!(st.lines[1].num(), "2", "…else the old side");
+    assert_eq!(st.lines[2].gutter(), "|2", "added takes the NEW column");
+    assert_eq!(st.lines[1].gutter(), "2|", "removed keeps its OLD number");
     assert_eq!(st.lines[3].mark(), "+", "file 1's second added line");
 }
 
@@ -299,7 +299,7 @@ fn the_folded_values_reach_the_card_slots() {
     assert_eq!(bindings::query(&ctx, "review.file1.add").unwrap(), serde_json::json!("+2"));
     assert_eq!(bindings::query(&ctx, "review.line1").unwrap(), serde_json::json!("    run(old);"));
     assert_eq!(bindings::query(&ctx, "review.mark3").unwrap(), serde_json::json!("+"));
-    assert_eq!(bindings::query(&ctx, "review.num3").unwrap(), serde_json::json!("3"));
+    assert_eq!(bindings::query(&ctx, "review.num3").unwrap(), serde_json::json!("|3"));
     // #30a2: header = the selected file; fold = the real count; findings stay
     // empty until a review result exists.
     assert_eq!(bindings::query(&ctx, "review.file_path").unwrap(),
@@ -396,7 +396,7 @@ fn the_window_anchors_the_first_change_with_two_context_lines() {
     assert_eq!(st.lines.len(), 8);
     assert_eq!(st.hidden, 6);
     assert_eq!(st.lines[2].kind, "added", "the first change is IN the window");
-    assert_eq!(st.lines[0].num(), "5", "two context lines above the change");
+    assert_eq!(st.lines[0].gutter(), "5|5", "context shows both columns");
 }
 
 #[test]
@@ -459,6 +459,30 @@ fn the_diff_rows_rebuild_with_the_real_chips() {
     let start = out0.find("Group3d2637879433").expect("the group stays");
     let seg = &out0[start..start + 140];
     assert!(seg.contains('}'), "empty group right after its open brace");
+}
+
+#[test]
+fn the_gutter_never_duplicates_on_a_removed_added_pair() {
+    let _seq = review::test_lock();
+    review::reset();
+    // The entry's case: a removed line followed by its added replacement.
+    // The web renders old|new columns (DiffReviewDialog.tsx:152/:195/:161);
+    // here each row prints ONE "old|new" string — never a duplicate.
+    review::fold_preview(&serde_json::json!({"preview": {"files": [
+        {"path": "pair.rs", "status": "modified", "hunks": [{"header": "@@", "lines": [
+            {"kind": "context", "content": "a;", "old_line": 1, "new_line": 1},
+            {"kind": "removed", "content": "old;", "old_line": 2},
+            {"kind": "added", "content": "new;", "new_line": 2},
+            {"kind": "context", "content": "b;", "old_line": 3, "new_line": 3}
+        ]}]}]}}));
+    let st = review::ui();
+    let g: Vec<String> = st.lines.iter().map(|l| l.gutter()).collect();
+    assert_eq!(g, vec!["1|1", "2|", "|2", "3|3"]);
+    for i in 0..g.len() {
+        for j in (i + 1)..g.len() {
+            assert_ne!(g[i], g[j], "duplicate gutter string at rows {i}/{j}");
+        }
+    }
 }
 
 // --------------------------------------------------------------- §5 replay
