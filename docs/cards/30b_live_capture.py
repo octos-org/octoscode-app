@@ -70,10 +70,10 @@ LOOPS_SETS = {
 }
 MONITORS_SETS = {
     "0": {
-        "mon_1_cmd": {"text": "No monitors in this session.", "w": 280},
-        "mon_1_state": {"text": ""}, "mon_1_int": {"text": ""},
-        "mon_2_cmd": {"text": ""}, "mon_2_state": {"text": ""}, "mon_2_int": {"text": ""},
-        "monitors_footer_label": {"text": ""},
+        # The command slot is monospace; the footer label is the body-font
+        # muted text (the web's empty <p class=styles.empty>,
+        # AutonomyPanel.tsx:338) — so the 0-item line renders THERE.
+        "monitors_footer_label": {"text": "No monitors in this session."},
     },
     "1": {
         "mon_1_cmd": {"text": "./scripts/wa…"},
@@ -107,20 +107,36 @@ PRUNE = {
         "loop_1_cad", "loop_1_dot", "loop_1_pause", "loop_1_play", "loop_1_trash",
         "loop_2_divider", "loop_2_dot", "loop_2_name", "loop_2_cad",
         "loop_2_pause", "loop_2_play", "loop_2_trash",
-        "loop_3_dot", "loop_3_name", "loop_3_cad", "loop_3_play", "loop_3_trash",
+        "loop_3_divider", "loop_3_dot", "loop_3_name", "loop_3_cad",
+        "loop_3_play", "loop_3_trash",
     ],
     ("autonomy-04", "loops-1"): [
         "loop_2_divider", "loop_2_dot", "loop_2_name", "loop_2_cad",
         "loop_2_pause", "loop_2_play", "loop_2_trash",
-        "loop_3_dot", "loop_3_name", "loop_3_cad", "loop_3_play", "loop_3_trash",
+        "loop_3_divider", "loop_3_dot", "loop_3_name", "loop_3_cad",
+        "loop_3_play", "loop_3_trash",
     ],
     ("autonomy-05", "monitors-0"): [
-        "mon_1_state", "mon_1_int", "mon_1_pause", "mon_1_trash",
+        "mon_1", "mon_1_cmd", "mon_1_state", "mon_1_int", "mon_1_pause", "mon_1_trash",
         "mon_2", "mon_2_cmd", "mon_2_state", "mon_2_int", "mon_2_pause", "mon_2_trash",
     ],
     ("autonomy-05", "monitors-1"): [
         "mon_2", "mon_2_cmd", "mon_2_state", "mon_2_int", "mon_2_pause", "mon_2_trash",
     ],
+}
+
+# Entry item 1: the CARD sizes to its rows (the design's static 3-row height
+# is the bug). Measured on the mapped tree: loops_card y141 h370, row-1 bottom
+# ~219.6; mon_1 y156 h151; footer stack y529.6.
+RESIZE = {
+    ("autonomy-04", "loops-1"): {"loops_card": 110},   # 141+110=251 (row+31 pad)
+    ("autonomy-04", "loops-0"): {"loops_card": 90},    # empty line only
+}
+FOOTER_MOVE = {
+    # stack y -> mon_1 bottom + 16 (label keeps its -10.9 offset to the stack)
+    ("autonomy-05", "monitors-1"): -206.6,
+    # stack y -> the mon_1 slot (both cards gone; the label IS the empty state)
+    ("autonomy-05", "monitors-0"): -373.6,
 }
 
 
@@ -137,10 +153,12 @@ def prune(card: str, suffix: str, tree: dict) -> int:
         nonlocal hit
         if n["id"] in drop:
             # Width 0 only: preflight rejects a text box whose HEIGHT drops
-            # under its line box ("height 0 is under its line box (21.8)"),
-            # and w=0 clips the glyphs horizontally (the same clip Stage B
-            # measured), so the row leaves the composition visually while
-            # every semantic id stays present.
+            # under its line box ("height 0 is under its line box (21.8)").
+            # A TEXT node must also drop its string — content + w=0 fails as
+            # "text box width 0 draws nothing" (the #30b2 loop rows passed
+            # because their strings were blanked first).
+            if "text" in n and n.get("text"):
+                n["text"] = ""
             n["w"] = 0
             hit += 1
         for k in n.get("c", []):
@@ -300,6 +318,26 @@ def main():
                         smap_p.write_text(json.dumps(smap, indent=2) + "\n")
             hit = inject(rules, mapped["tree"])
             prune(card, suffix, mapped["tree"])
+
+            def find_node(n, nid):
+                if n["id"] == nid:
+                    return n
+                for k in n.get("c", []):
+                    r = find_node(k, nid)
+                    if r is not None:
+                        return r
+                return None
+
+            for nid, new_h in RESIZE.get((card, suffix), {}).items():
+                node = find_node(mapped["tree"], nid)
+                if node is not None:
+                    node["h"] = new_h
+            shift = FOOTER_MOVE.get((card, suffix))
+            if shift:
+                for nid in ("monitors_footer", "monitors_footer_label"):
+                    fn = find_node(mapped["tree"], nid)
+                    if fn is not None:
+                        fn["y"] = fn["y"] + shift
             if card == "autonomy-03":
                 # The bar's fill follows the goal.fill binding (used/budget);
                 # the recorded run has 0 used, so the static Stage B fill
