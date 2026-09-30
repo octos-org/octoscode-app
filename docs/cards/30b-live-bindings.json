@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "card": "30b4",
+  "host": "examples/screen_shot_autonomy.rs (the production lower_screen)",
+  "source_fixture": "crates/octoscode-client/tests/fixtures/r1-autonomy-a6ea8505.jsonl",
+  "bindings": [
+    "goal.objective",
+    "goal.status",
+    "goal.budget",
+    "goal.fill",
+    "goal.elapsed",
+    "goal.can_transition",
+    "goal.available",
+    "loops",
+    "loops.count",
+    "loops.empty",
+    "loops.available",
+    "monitors",
+    "monitors.count",
+    "monitors.empty",
+    "monitors.available",
+    "monitors.footer"
+  ],
+  "actions": [
+    "goal.refresh",
+    "goal.set",
+    "goal.clear",
+    "goal.pause",
+    "goal.resume",
+    "goal.stop",
+    "loops.refresh",
+    "loop.pause",
+    "loop.resume",
+    "loop.delete",
+    "loop.fire_now",
+    "monitors.refresh",
+    "monitor.pause",
+    "monitor.resume",
+    "monitor.delete",
+    "monitor.create"
+  ],
+  "captures": [
+    {
+      "screen": "goal",
+      "store": 1,
+      "png": "30b-live-goal.png",
+      "rendered": true
+    },
+    {
+      "screen": "loops",
+      "store": 0,
+      "png": "30b-live-loops-0.png",
+      "rendered": true
+    },
+    {
+      "screen": "loops",
+      "store": 1,
+      "png": "30b-live-loops-1.png",
+      "rendered": true
+    },
+    {
+      "screen": "loops",
+      "store": 3,
+      "png": "30b-live-loops-3.png",
+      "rendered": true
+    },
+    {
+      "screen": "monitors",
+      "store": 0,
+      "png": "30b-live-monitors-0.png",
+      "rendered": true
+    },
+    {
+      "screen": "monitors",
+      "store": 1,
+      "png": "30b-live-monitors-1.png",
+      "rendered": true
+    },
+    {
+      "screen": "monitors",
+      "store": 3,
+      "png": "30b-live-monitors-3.png",
+      "rendered": true
+    }
+  ]
+}
