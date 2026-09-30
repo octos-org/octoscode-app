@@ -1589,7 +1589,17 @@ impl OctoscodeView {
             if let Ok(pref) = std::env::var("OCTOSCODE_THEME") {
                 screens::theme::set_preference(&pref);
             }
-            let r = if screens::theme::card_for(&which).is_some() {
+            let r = if which == "connect_probe" {
+                // #28e6 arm A (the approved swap probe): mount the Connect
+                // card's DSL into the dock slot that seats the palette fine —
+                // does the defect follow the card or the slot?
+                let lowered = {
+                    let b = self.bridge.lock().unwrap();
+                    let ui = b.screens.lock().unwrap();
+                    screens::connect::lower_screen(screens::connect::Screen::Connect, &ui)
+                };
+                lowered.and_then(|dsl| self.mounts.mount(cx, &screen_splash, &dsl))
+            } else if screens::theme::card_for(&which).is_some() {
                 screens::theme::mount(&mut self.mounts, cx, screen_splash, &which, &store)
             } else {
                 crate::screens::palette::mount_screen(
@@ -1610,7 +1620,13 @@ impl OctoscodeView {
         let live = { self.bridge.lock().unwrap().store.is_live() };
         if !live {
             let splash = self.view.splash(cx, ids!(first_run_card));
-            let lowered = {
+            // #28e6 arm B (the approved swap probe): OCTOSCODE_FIRSTRUN_PALETTE=1
+            // mounts the palette card's DSL into the first-run slot instead —
+            // does the mis-seat follow the card or the slot?
+            let lowered = if std::env::var("OCTOSCODE_FIRSTRUN_PALETTE").as_deref() == Ok("1") {
+                let store = { self.bridge.lock().unwrap().store.clone() };
+                crate::screens::palette::lower_screen("palette", &store)
+            } else {
                 let b = self.bridge.lock().unwrap();
                 let ui = b.screens.lock().unwrap();
                 screens::connect::lower_screen(screens::connect::Screen::Connect, &ui)
@@ -1708,7 +1724,7 @@ impl OctoscodeView {
         // shadows the clicks under it. `connect` is NOT docked: it mounts in
         // the first-run card area (sync_labels).
         let screen_dock_shown = std::env::var("OCTOSCODE_SCREEN")
-            .map(|v| matches!(v.as_str(), "palette" | "error" | "loading"))
+            .map(|v| matches!(v.as_str(), "palette" | "error" | "loading" | "connect_probe"))
             .unwrap_or(false);
         self.view
             .widget(cx, ids!(screen_dock))
