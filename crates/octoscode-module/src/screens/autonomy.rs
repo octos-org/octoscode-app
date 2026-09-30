@@ -461,8 +461,26 @@ pub fn spawn(effect: Effect, rt: &tokio::runtime::Runtime, conv: Arc<Conversatio
     });
 }
 
-fn cadence(loop_row: &Value) -> String {
-    match loop_row["mode"].as_str() {
+/// The web's `formatTokens` (model.ts:129-136): ≥1M → "…M", ≥1k → "…k",
+/// one decimal only when the division is fractional.
+fn format_tokens(value: u64) -> String {
+    let trim = |v: f64| {
+        if v.fract() == 0.0 {
+            format!("{}", v as u64)
+        } else {
+            format!("{v:.1}")
+        }
+    };
+    if value >= 1_000_000 {
+        format!("{}M", trim(value as f64 / 1_000_000.0))
+    } else if value >= 1_000 {
+        format!("{}k", trim(value as f64 / 1_000.0))
+    } else {
+        value.to_string()
+    }
+}
+
+fn cadence(loop_row: &Value) -> String {    match loop_row["mode"].as_str() {
         Some("fixed_interval") => format!("every {}s", loop_row["interval_seconds"].as_u64().unwrap_or(0)),
         Some(other) => other.to_owned(),
         None => "unknown".to_owned(),
@@ -476,11 +494,14 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
     Some(match id {
         "goal.objective" => json!(st.goal.as_ref().map(|g| g["objective"].clone())),
         "goal.status" => json!(st.goal.as_ref().map(|g| g["status"].clone())),
-        // model.ts:126 — 'used / budget tokens'; a non-positive budget hides it.
+        // model.ts:126/129-136 — 'used / budget' with formatTokens (≥1M → M,
+        // ≥1k → k). The card's label already names the unit ("Token budget"),
+        // so the web's " tokens" suffix is dropped to fit the measured Stage B
+        // slot (the raw 19-char string clipped: 30b-live-goal.png round 1).
         "goal.budget" => json!(st.goal.as_ref().and_then(|g| {
             let used = g["tokens_used"].as_u64()?;
             let budget = g["token_budget"].as_u64().filter(|b| *b > 0)?;
-            Some(format!("{used} / {budget} tokens"))
+            Some(format!("{} / {}", format_tokens(used), format_tokens(budget)))
         })),
         "goal.elapsed" => json!(st.goal.as_ref().map(|g| {
             format!("{}s", g["time_used_seconds"].as_u64().unwrap_or(0))

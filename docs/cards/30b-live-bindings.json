@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "card": "30b",
+  "source_fixture": "crates/octoscode-client/tests/fixtures/r1-autonomy-a6ea8505.jsonl",
+  "bindings": [
+    "goal.objective",
+    "goal.status",
+    "goal.budget",
+    "goal.elapsed",
+    "goal.can_transition",
+    "goal.available",
+    "loops",
+    "loops.available",
+    "monitors",
+    "monitors.available",
+    "monitors.footer"
+  ],
+  "actions": [
+    "goal.refresh",
+    "goal.set",
+    "goal.clear",
+    "goal.pause",
+    "goal.resume",
+    "goal.stop",
+    "loops.refresh",
+    "loop.pause",
+    "loop.resume",
+    "loop.delete",
+    "loop.fire_now",
+    "monitors.refresh",
+    "monitor.pause",
+    "monitor.resume",
+    "monitor.delete",
+    "monitor.create"
+  ],
+  "captures": [
+    {
+      "card": "autonomy-03",
+      "injected": 4,
+      "png": "30b-live-goal.png",
+      "rendered": true
+    },
+    {
+      "card": "autonomy-04",
+      "injected": 6,
+      "png": "30b-live-loops.png",
+      "rendered": true
+    },
+    {
+      "card": "autonomy-05",
+      "injected": 7,
+      "png": "30b-live-monitors.png",
+      "rendered": true
+    }
+  ]
+}

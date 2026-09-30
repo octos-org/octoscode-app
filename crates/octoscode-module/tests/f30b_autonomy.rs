@@ -305,8 +305,8 @@ async fn goal_refresh_projects_the_recorded_goal() {
     assert_eq!(au::query(&c, "goal.status").unwrap(), serde_json::json!("active"));
     assert_eq!(
         au::query(&c, "goal.budget").unwrap(),
-        serde_json::json!("0 / 100000000 tokens"),
-        "model.ts:126 'used / budget tokens' from the recorded budget"
+        serde_json::json!("0 / 100M"),
+        "model.ts:126/129-136 formatTokens; the ' tokens' suffix is dropped (the card's label names the unit) to fit the measured slot"
     );
     assert_eq!(au::query(&c, "goal.can_transition").unwrap(), serde_json::json!(true));
     assert_eq!(au::query(&c, "goal.elapsed").unwrap(), serde_json::json!("0s"));
