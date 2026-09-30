@@ -2407,7 +2407,11 @@ impl AppModule for OctoscodeModule {
         OpenSchema::new(1)
     }
     fn capabilities(&self) -> &'static [&'static str] {
-        &[]
+        // The host honours these as grants (AppCard declares the same pair,
+        // apps/appcard/module/src/lib.rs): the module holds the WebSocket to
+        // the octos serve (net), and its state — sessions, settings, the
+        // trace — lives on disk under the instance's storage jail (storage).
+        &["storage", "net"]
     }
     fn create(
         &self,
