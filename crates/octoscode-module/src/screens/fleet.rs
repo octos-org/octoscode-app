@@ -959,14 +959,27 @@ pub fn lower(screen_id: &str, ctx: &Ctx<'_>) -> Result<String, String> {
     let prepared = octoscript_makepad::l0::prepare(&card_src, &data, &kit_dir)
         .map_err(|e| format!("prepare {screen_id}: {e}"))?;
     let mut tree = prepared.tree;
-    // #32c item 11: the fleet's Done rows wear the web's terminal grey
-    // (`--dsw-alias-label-secondary`, theme.css:82 #61666b) — the design kit's
-    // third-row status ink is greenish, and the backlog names the web colour.
+    // #32c item 11 + #32c2 item 4: the fleet's Done rows wear the web's
+    // terminal state — GREY TEXT ON A GREY PILL (`--dsw-alias-label-secondary`
+    // #61666b, theme.css:82; the kit badge surface bg_fa0d0938e19f is
+    // greenish #E6F6E9). The surface is the text node's parent (peer_rN_badge
+    // → peer_rN_status), so the pass carries the parent down.
     if screen_id == "autonomy-06" {
+        // Grey text on a grey pill: the badge SURFACE (id `peer_rN_badge`)
+        // and the Done TEXT (id `peer_rN_status`) are both directly
+        // addressable — no parent tracking needed.
         let mut work = vec![&mut tree];
         while let Some(n) = work.pop() {
             if n.attrs.text.as_deref() == Some("Done") {
                 n.attrs.color = Some(0xFF61_66_6B);
+            }
+            if n
+                .attrs
+                .id
+                .as_deref()
+                .is_some_and(|id| id.ends_with("_badge"))
+            {
+                n.attrs.bg = Some(0xFFE9_EA_EC);
             }
             for c in &mut n.children {
                 work.push(c);
