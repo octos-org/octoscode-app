@@ -880,6 +880,14 @@ pub fn lower_screen(card: &str, ctx: &Ctx<'_>) -> Result<String, String> {
             }
         }
     }
+    // #31d2 ③: the LIVE diff-row texts (the same values the copies above
+    // injected) — the ellipsis post-pass locates the code-row labels by their
+    // text literal, because the lowered DSL names instances POSITIONALLY
+    // (scr_01_0_x := Label — a dump proved no dl_ id survives lowering).
+    let code_texts: Vec<String> = (0..8)
+        .filter_map(|i| query(ctx, &format!("review.line{i}")))
+        .filter_map(|v| if let Value::String(t) = v { Some(t) } else { None })
+        .collect();
     let prepared = octoscript_makepad::l0::prepare(&card_src, &data, &kit_dir)
         .map_err(|e| format!("prepare {card}: {e}"))?;
     let mut tree = prepared.tree;
@@ -890,5 +898,38 @@ pub fn lower_screen(card: &str, ctx: &Ctx<'_>) -> Result<String, String> {
     // #31d workflow 1: the review cards are LIGHT-authored (autonomy-01 bg
     // #fcfcfc) — the app-wide token set rewrites them in dark mode. (The
     // dark-atlas faces autonomy-03/04/05 keep their literals — see theme.rs.)
-    Ok(crate::screens::theme::retint_dsl(&ui.replace("beauty_0", &prefix)))
+    // #31d2 ③: the live rebuild estimates each code row's box from chars*8
+    // (the authored mono ratio); live Inter runs wider, so a long line clips
+    // mid-glyph at the box edge. Ellipsize the diff code rows (the entry's
+    // "ellipsize or scroll like light mode") — depth-tracked instance scan,
+    // the same production-DSL idiom components.rs uses.
+    Ok(crate::screens::theme::retint_dsl(&diff_row_ellipsis(
+        &ui.replace("beauty_0", &prefix),
+        &code_texts,
+    )))
+}
+
+/// Append `max_lines: 1 text_overflow: TextOverflow.Ellipsis` to every diff
+/// code-row label, located by its LIVE TEXT literal (the lowering names
+/// instances positionally — `scr_01_0_x := Label` — so an id-based matcher
+/// never hits; a dump proved it). The live rebuild sizes each code box from
+/// chars*8 (the authored mono ratio) while live Inter runs wider, so a long
+/// line clips mid-glyph; the entry's "ellipsize or scroll like light mode".
+/// Idempotent: a literal already carrying the property is skipped.
+fn diff_row_ellipsis(ui: &str, code_texts: &[String]) -> String {
+    const PROP: &str = "max_lines: 1 text_overflow: TextOverflow.Ellipsis";
+    let mut out = ui.to_owned();
+    for t in code_texts {
+        if t.trim().is_empty() {
+            continue;
+        }
+        let lit = format!(
+            "text: \"{}\"",
+            t.replace('\\', "\\\\").replace('"', "\\\"")
+        );
+        if out.contains(&lit) && !out.contains(&format!("{lit} {PROP}")) {
+            out = out.replace(&lit, &format!("{lit} {PROP}"));
+        }
+    }
+    out
 }

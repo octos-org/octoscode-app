@@ -272,6 +272,13 @@ impl Widget for ReviewProbe {
             // THIS host's asset server (the authored origin is the design
             // flow's 8170, held by a process RULES forbid touching).
             let r = review::lower_screen(card, &ctx).map(|dsl| {
+                // #31d2 verification dump (capture plumbing; untracked tmp/):
+                // the lowered DSL around the dl_ rows, to confirm where the
+                // ellipsis property landed.
+                if let Ok(mark) = std::env::var("SCREENS_PROBE_DUMP_DSL") {
+                    let _ = std::fs::write(&mark, &dsl);
+                    makepad_widgets::log!("[review_probe] dumped DSL to {mark}");
+                }
                 dsl.replace(
                     "http://127.0.0.1:8170/ux-images/",
                     &format!("http://127.0.0.1:{}/ux-images/", asset_port()),

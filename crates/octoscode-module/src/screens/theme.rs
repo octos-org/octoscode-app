@@ -348,8 +348,25 @@ const TOKENS: &[(&str, &str)] = &[
     ("#d4d4d7", "#38383a"),
     ("#d3d4d6", "#38383a"),
     ("#d5d6d8", "#38383a"),
-    ("#fdecec", "#3a2426"),
-    ("#e6f4ea", "#223a2b"),
+    // #31d2: the review diff rows take their OWN dark fills (the outer's
+    // prescription ~#12261A added / ~#2D1417 removed) and LIGHT text — the
+    // first capture round left the near-black code inks unmapped, so the
+    // added rows' text vanished against the dark green. Markers stay green/red
+    // (#1f883d/#cf222e are accents, unmapped by design).
+    ("#fdecec", "#2d1417"),
+    ("#e6f4ea", "#12261a"),
+    // the fold band ("⋮ N unmodified lines ⋮") surface — authored #f8f7f9,
+    // unmapped in the first round, which kept the card WHITE in dark mode.
+    ("#f8f7f9", "#232629"),
+    // the diff rows' near-black code inks + gutter greys (kit values).
+    ("#353636", "#e8e8ea"),
+    ("#313834", "#e8e8ea"),
+    ("#3b3c3a", "#e8e8ea"),
+    ("#484848", "#e8e8ea"),
+    ("#4c4c4b", "#e8e8ea"),
+    ("#4e4e4d", "#e8e8ea"),
+    ("#606060", "#98989d"),
+    ("#78787b", "#98989d"),
 ];
 
 /// Retint ONE lowered DSL string to the resolved palette. LIGHT is the byte
