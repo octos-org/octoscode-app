@@ -254,22 +254,31 @@ fn fleet_rows_carry_the_elapsed_tokens_meta_line_and_done_is_grey() {
         "the Done badge text uses the web's terminal grey, got: {}",
         snippet(&dsl, "Done")
     );
+    // #32c2 review: ONLY the terminal pill goes grey — the seed has exactly
+    // one closed peer, so the neutral surface colour must appear exactly
+    // once (the two Working badges keep the kit's green surface).
+    assert_eq!(
+        dsl.matches("e9eaec").count(),
+        1,
+        "the grey pill surface lands on the one Done badge only"
+    );
 }
 
 #[test]
 fn tasks_card_sizes_to_its_content_and_empty_output_waits() {
     let ui = Mutex::new(FlowUi::default());
 
-    // 1 running (WITH output) + 2 done → the card grows to the content:
-    // run block 265..652, done rows 668..717 and 724..773 → content bottom
-    // 773 + authored pad 17 (756−739) − card y 108 = 682; the fixed 648 is
-    // gone (and 3 items no longer overflow it).
+    // 1 running (WITH output) + 2 done → the card grows to the content
+    // (#32c2 item 3 moved the block up: run 188.5..575.5, done 591.5..696.5
+    // → 696.5 + pad 17 − card y 108 = 605.5; the fixed 648 is gone).
     let store = tasks_store(&[("cargo test -p octos-cli", "running 12 tests …")], &["cargo clippy", "cargo fmt"]);
     let ctx = Ctx::new(&store, &ui);
     let (src, data, _) = fleet::lower_card_src("autonomy-07", &ctx).expect("tasks lowers");
     let pl = data["$kit"]["placements"].as_object().unwrap();
     let h = pl["tasks_card"]["layout"]["h"].as_f64().unwrap();
-    assert!((h - 682.0).abs() < 0.5, "tasks_card sizes to content (682), got {h}");
+    assert!((h - 605.5).abs() < 0.5, "tasks_card sizes to content (605.5), got {h}");
+    // The heading rides the placements at normal top padding (not 206.43).
+    assert_eq!(pl["t02"]["layout"]["y"], serde_json::json!(130.0), "heading at normal top padding");
 
     // A running task whose output has not arrived shows the waiting line —
     // never the design's sample log lines.

@@ -813,11 +813,11 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
             "    Textd55469de8b8b(instance: \"tasks_empty\", text: copy.tasks_empty_text)\n",
         );
         minted.push(("tasks_empty_text".to_owned(), TASKS_EMPTY.to_owned()));
-        placed.push(("tasks_empty".to_owned(), DCMD, 32.0, 285.0, 342.0, 44.0));
+        placed.push(("tasks_empty".to_owned(), DCMD, 32.0, 208.5, 342.0, 44.0));
     } else {
         const RUN_H: f64 = 387.0;
         for (i, t) in runs.iter().enumerate() {
-            let y = 265.0 + i as f64 * (RUN_H + 8.0);
+            let y = 188.5 + i as f64 * (RUN_H + 8.0);
             body.push_str(&format!(
                 "    Surfacee81dee70a29b(instance: \"run_r{i}\") {{\n      \
                  Vectore0a378fde04f(instance: \"run_r{i}_icon\")\n      \
@@ -842,7 +842,7 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
             placed.push((format!("run_r{i}_pill"), PILL, 274.0, y + 20.0, 63.0, 42.0));
             placed.push((format!("run_r{i}_status"), PILL_TXT, 283.78, y + 31.46, 45.91, 23.57));
             placed.push((format!("run_r{i}_dur"), DUR, 341.33, y + 34.06, 24.0, 21.5));
-            placed.push((format!("run_r{i}_console"), CONSOLE, 35.0, y + 86.0, 339.0, 197.0));
+            placed.push((format!("run_r{i}_console"), CONSOLE, 35.0, y + 86.0, 320.0, 197.0));
             for (k, comp) in [LOG01, LOG01, LOG2, LOG3].iter().enumerate() {
                 let ly = y + 116.0 + 41.0 * k as f64;
                 let lh = if k == 3 { 15.0 } else { 41.0 };
@@ -871,7 +871,7 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
                 minted.push((format!("run_r{i}_log{k}_text"), text));
             }
         }
-        let done_y0 = 265.0 + runs.len() as f64 * (RUN_H + 8.0) + 8.0;
+        let done_y0 = 188.5 + runs.len() as f64 * (RUN_H + 8.0) + 8.0;
         for (j, t) in dones.iter().enumerate() {
             let y = done_y0 + j as f64 * 56.0;
             // The done container's kit component is slot=false (the authored
@@ -904,12 +904,12 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
         let runs_bottom = if runs.is_empty() {
             0.0
         } else {
-            265.0 + (runs.len() - 1) as f64 * (387.0 + 8.0) + 387.0
+            188.5 + (runs.len() - 1) as f64 * (387.0 + 8.0) + 387.0
         };
         let done_bottom = if dones.is_empty() {
             0.0
         } else {
-            let done_y0c = 265.0 + runs.len() as f64 * (387.0 + 8.0) + 8.0;
+            let done_y0c = 188.5 + runs.len() as f64 * (387.0 + 8.0) + 8.0;
             done_y0c + (dones.len() - 1) as f64 * 56.0 + 49.0
         };
         runs_bottom.max(done_bottom)
@@ -922,6 +922,9 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
         372.0,
         content_bottom + 17.0 - 108.0,
     ));
+    // #32c2 item 3: the heading sits at normal top padding (the card's 22px
+    // inset), not the authored y=206.43 that left ~200 device px dead above.
+    placed.push(("t02".to_owned(), "Texte9bb098090a8", 34.24, 130.0, 52.89, 28.46));
     put_placements(data, &placed);
     // Re-attach the SVG srcs: Vector nodes lower to `http_resource(src)` —
     // a placement without one fails to_makepad_ui.
@@ -956,14 +959,37 @@ pub fn lower(screen_id: &str, ctx: &Ctx<'_>) -> Result<String, String> {
     let prepared = octoscript_makepad::l0::prepare(&card_src, &data, &kit_dir)
         .map_err(|e| format!("prepare {screen_id}: {e}"))?;
     let mut tree = prepared.tree;
-    // #32c item 11: the fleet's Done rows wear the web's terminal grey
-    // (`--dsw-alias-label-secondary`, theme.css:82 #61666b) — the design kit's
-    // third-row status ink is greenish, and the backlog names the web colour.
+    // #32c item 11 + #32c2 item 4: the fleet's Done rows wear the web's
+    // terminal state — GREY TEXT ON A GREY PILL (`--dsw-alias-label-secondary`
+    // #61666b, theme.css:82; the kit badge surface bg_fa0d0938e19f is
+    // greenish #E6F6E9). The surface is the text node's parent (peer_rN_badge
+    // → peer_rN_status), so the pass carries the parent down.
     if screen_id == "autonomy-06" {
+        // Grey text on a grey pill: the badge SURFACE (id `peer_rN_badge`)
+        // and the Done TEXT (id `peer_rN_status`) are both directly
+        // addressable — no parent tracking needed.
         let mut work = vec![&mut tree];
         while let Some(n) = work.pop() {
             if n.attrs.text.as_deref() == Some("Done") {
                 n.attrs.color = Some(0xFF61_66_6B);
+            }
+            if n
+                .attrs
+                .id
+                .as_deref()
+                .is_some_and(|id| id.ends_with("_badge"))
+            {
+                // Only the TERMINAL pill goes grey (the #32c2 item-4 review):
+                // decide from the badge's OWN status text child — "Done" (and
+                // the other terminal words) take the neutral surface, a
+                // "Working" pill keeps the kit's green one.
+                let terminal = n
+                    .children
+                    .iter()
+                    .any(|c| matches!(c.attrs.text.as_deref(), Some("Done")));
+                if terminal {
+                    n.attrs.bg = Some(0xFFE9_EA_EC);
+                }
             }
             for c in &mut n.children {
                 work.push(c);

@@ -343,10 +343,9 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
                             .join(" ")
                     })
                     .unwrap_or_default();
-                let slot = g(&format!("mon_{}_cmd", i + 1)).1;
                 texts.push((
                     format!("mon_{}_cmd", i + 1),
-                    fit_cmd(argv, slot, 14.21),
+                    fit_cmd(argv, MON_CMD_W, 14.21),
                     None,
                 ));
                 let mut state_txt = m["status"].as_str().unwrap_or_default().to_owned();
@@ -373,7 +372,7 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
                         a.iter().filter_map(|v| v.as_str()).collect::<Vec<_>>().join(" ")
                     })
                     .unwrap_or_default();
-                texts.push(("mon_3_cmd".into(), fit_cmd(argv, g("mon_2_cmd").1, 14.21), None));
+                texts.push(("mon_3_cmd".into(), fit_cmd(argv, MON_CMD_W, 14.21), None));
                 texts.push((
                     "mon_3_state".into(),
                     m3["status"].as_str().unwrap_or_default().to_owned(),
@@ -476,6 +475,11 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
     // monitors card only ever authored pause). Icons re-centre on growth.
     const PLAY_SRC: &str =
         "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_1_play-7d9f31b010d1.svg";
+    // #32c2 item 2: ONE width budget for every monitor command — the free
+    // space from the cmd column to the interval column (mon_1_int x 214.94 −
+    // an 8px gap − cmd x 29.8). The authored boxes were uneven (114.88 vs
+    // 157.53), so row 1 ellipsized while rows 2-3 showed the same string.
+    const MON_CMD_W: f64 = 177.0;
     if screen == Screen3::Loops || screen == Screen3::Monitors {
         let mut work = vec![&mut *tree];
         while let Some(n) = work.pop() {
@@ -490,19 +494,29 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
                     }
                     // The name/cadence boxes are authored to the SMALLER font
                     // (and unevenly per row — the after capture clipped
-                    // "r1 replay probe" mid-word on row 2); widen them to the
-                    // status-dot column (loop_N_dot x=208 in the card's
-                    // placements) so the atlas-size text fits unclipped.
+                    // "r1 replay probe" mid-word on row 2, and row 1 sat
+                    // 3-13px right of rows 2-3: authored name x 23.85/22.38/
+                    // 22.33, cad x 28.75/22.38/22.38). #32c2 item 1: ONE left
+                    // edge — x=22.38 (rows 2-3's authored edge), width to the
+                    // status-dot column (loop_N_dot x=208).
                     if screen == Screen3::Loops
                         && (id.ends_with("_name") || id.ends_with("_cad"))
                     {
-                        let x = n.attrs.x.unwrap_or(30.0);
-                        n.attrs.w = Some((208.0 - 12.0 - x) as f32);
+                        n.attrs.x = Some(22.38);
+                        n.attrs.w = Some((208.0 - 12.0 - 22.38) as f32);
+                    }
+                    if screen == Screen3::Monitors && id.ends_with("_cmd") {
+                        n.attrs.w = Some(MON_CMD_W as f32);
                     }
                     let icon = ["dot", "pause", "play", "trash", "clock"]
                         .iter()
                         .any(|k| id.contains(k));
                     if icon {
+                        // #32c2 item 5: re-centre by the ACTUAL growth
+                        // (Δ = 0.1·w, not a flat 1.2px) — the 44px trash
+                        // needs 2.2px or its right side crosses the card's
+                        // inner edge (384) and clips.
+                        let (ow, oh) = (n.attrs.w.unwrap_or(0.0), n.attrs.h.unwrap_or(0.0));
                         if let Some(w) = n.attrs.w.as_mut() {
                             *w *= 1.1;
                         }
@@ -510,10 +524,10 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
                             *h *= 1.1;
                         }
                         if let Some(x) = n.attrs.x.as_mut() {
-                            *x -= 1.2;
+                            *x -= f64::from(ow * 0.05);
                         }
                         if let Some(y) = n.attrs.y.as_mut() {
-                            *y -= 1.2;
+                            *y -= f64::from(oh * 0.05);
                         }
                     }
                     if id.ends_with("_pause") && play_ids.iter().any(|p| p == &id) {
