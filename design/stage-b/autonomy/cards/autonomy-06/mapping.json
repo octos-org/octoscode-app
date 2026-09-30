@@ -261,7 +261,7 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        101.01,
+        108.49,
         392.48,
         36.8,
         36.8
@@ -493,6 +493,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "06576d32277dcecd8f16290b2b9c1e75c43baa135ac8d5f2d5ac9034c95a890c",
+  "contract_sha256": "ba45b94b47282be75d65c5e8f3e4ed831b073c03f5dc761f5a401f262a9d9f34",
   "mapping_basis": "mapped.json"
 }

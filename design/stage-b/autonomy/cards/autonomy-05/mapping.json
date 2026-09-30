@@ -27,10 +27,10 @@
       "component": "Surfaceb4206391250d",
       "semantic_role": "layout",
       "bounds": [
-        1.0,
-        68.0,
-        404.0,
-        707.0
+        0.0,
+        0.0,
+        406.0,
+        776.0
       ],
       "text": null,
       "enabled": null,
@@ -96,36 +96,36 @@
       "native_id": "beauty_0_0_1_1",
       "parent": "mon_1",
       "kind": "text",
-      "component": "Text6f9706a2ec32",
+      "component": "Text33733e78bb16",
       "semantic_role": "text",
       "bounds": [
-        29.71,
-        238.67,
-        59.44,
-        23.22
+        25.52,
+        239.53,
+        63.26,
+        24.23
       ],
       "text": "fired 3\u00d7",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14.81
+      "size": 14
     },
     {
       "source_id": "mon_1_int",
       "native_id": "beauty_0_0_1_2",
       "parent": "mon_1",
       "kind": "text",
-      "component": "Text41c3bfc672d1",
+      "component": "Text8c0b95d5be07",
       "semantic_role": "text",
       "bounds": [
-        220.06,
-        238.67,
-        28.74,
-        23.22
+        214.94,
+        237.92,
+        35.82,
+        27.45
       ],
       "text": "30s",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 13.92
+      "size": 14
     },
     {
       "source_id": "mon_1_pause",
@@ -135,10 +135,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        294.995,
-        238.712,
-        18.193,
-        28.312
+        296.0,
+        230.53,
+        24.0,
+        24.0
       ],
       "text": null,
       "enabled": null,
@@ -153,10 +153,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        348.258,
-        238.712,
-        18.193,
-        28.312
+        348.7,
+        230.53,
+        24.0,
+        24.0
       ],
       "text": null,
       "enabled": null,
@@ -204,36 +204,36 @@
       "native_id": "beauty_0_0_2_1",
       "parent": "mon_2",
       "kind": "text",
-      "component": "Text9a59c3190d6a",
+      "component": "Text5b96e686bbca",
       "semantic_role": "text",
       "bounds": [
-        29.6,
-        408.88,
-        75.65,
-        28.71
+        26.93,
+        413.34,
+        77.79,
+        22.46
       ],
       "text": "no change",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14.38
+      "size": 14
     },
     {
       "source_id": "mon_2_int",
       "native_id": "beauty_0_0_2_2",
       "parent": "mon_2",
       "kind": "text",
-      "component": "Text91c571e0ba0f",
+      "component": "Texte5c634ece956",
       "semantic_role": "text",
       "bounds": [
-        220.06,
-        408.88,
-        28.74,
-        23.22
+        216.65,
+        409.96,
+        32.41,
+        23.79
       ],
       "text": "30s",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 13.92
+      "size": 14
     },
     {
       "source_id": "mon_2_pause",
@@ -243,10 +243,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        294.995,
-        411.447,
-        18.193,
-        28.225
+        296.0,
+        404.34,
+        24.0,
+        24.0
       ],
       "text": null,
       "enabled": null,
@@ -261,10 +261,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        348.258,
-        411.447,
-        18.193,
-        28.225
+        348.7,
+        404.34,
+        24.0,
+        24.0
       ],
       "text": null,
       "enabled": null,
@@ -313,6 +313,6 @@
     "self:resources/ux/LiberationMono-Regular.ttf": "3e396ddd3d1c7d3dca1fb16dd64802b32f295f856ac10c0c1f2ab1c738196045",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "c9815d0bd80099ac30e8a1a379d79ef23d88dec5a64ab6cf9167b4f09e15c43a",
+  "contract_sha256": "10579d8e4c4be34329a741d30d60c126eb8f7ab360d56a9140f7d95ab0b3ca30",
   "mapping_basis": "mapped.json"
 }

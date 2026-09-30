@@ -17,6 +17,7 @@ Run:  python3 tools/author_v2.py     # writes contract.json + assets/*.svg +
                                    # service-actions.json for all 6 screens
 """
 import json
+import math
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -25,11 +26,14 @@ OCR = ROOT / "ocr"
 C = {"white": 0xFFFFFFFF, "panel": 0xFFF7F7F8, "hair": 0xFFE5E5E7, "ink": 0xFF1D1D1F,
      "muted": 0xFF6E6E73, "black": 0xFF000000, "blue": 0xFF2F6FEB, "green": 0xFF1F883D,
      "greenbg": 0xFFE6F4EA, "red": 0xFFCF222E, "redbg": 0xFFFDECEC, "box": 0xFFF4F4F5,
-     "amber": 0xFF9A6700, "amberbg": 0xFFFDF6E3}
+     "amber": 0xFF9A6700, "amberbg": 0xFFFDF6E3,
+     # #28a3: measured card-edge luminance on the atlas finding cards (~220):
+     # one step darker than the hair line so the border survives on white cards.
+     "cardline": 0xFFDCDCDC}
 C_HEX = {"white": "#FFFFFF", "panel": "#F7F7F8", "hair": "#E5E5E7", "ink": "#1D1D1F",
          "muted": "#6E6E73", "black": "#000000", "blue": "#2F6FEB", "green": "#1F883D",
          "greenbg": "#E6F4EA", "red": "#CF222E", "redbg": "#FDECEC", "box": "#F4F4F5",
-         "amber": "#9A6700", "amberbg": "#FDF6E3"}
+         "amber": "#9A6700", "amberbg": "#FDF6E3", "cardline": "#DCDCDC"}
 FONT = {400: "self:resources/ux/Inter-400.ttf", 500: "self:resources/ux/Inter-500.ttf",
         600: "self:resources/ux/Inter-600.ttf", 700: "self:resources/ux/Inter-700.ttf"}
 # The kit bundles a monospace face (see conversation/tools/rebuild.sh): the host
@@ -41,7 +45,12 @@ TITLES = {1: "Review panel", 2: "Code review run", 3: "Goal",
 
 ICONS = {
     "chevron_down": '<path d="M6 9l6 6 6-6"/>',
-    "spinner": '<path d="M12 3a9 9 0 1 0 9 9"/>',
+    "spinner": '<g>' + "".join(
+        f'<line x1="{12 + 9.2 * math.cos(math.radians(30 * k)):.2f}" '
+        f'y1="{12 + 9.2 * math.sin(math.radians(30 * k)):.2f}" '
+        f'x2="{12 + 5.4 * math.cos(math.radians(30 * k)):.2f}" '
+        f'y2="{12 + 5.4 * math.sin(math.radians(30 * k)):.2f}"/>'
+        for k in range(12)) + "</g>",
     "pause": '<circle cx="12" cy="12" r="9"/><rect x="9" y="8" width="2.4" height="8" rx="0.8" fill="#6E6E73" stroke="none"/>'
              '<rect x="12.6" y="8" width="2.4" height="8" rx="0.8" fill="#6E6E73" stroke="none"/>',
     "play": '<circle cx="12" cy="12" r="9"/><path d="M10 8.2v7.6l6-3.8z"/>',
@@ -233,12 +242,17 @@ def build_01(sc):
             kids.append(text(fid + "_add", a, sx2, sy2, 30, sh2, size=13, weight=500, color="green"))
             kids.append(text(fid + "_del", dl, sx2 + 34, sy2, 24, sh2, size=13, weight=500, color="red"))
         sc.put(stack(fid, 16, y - 8, 374, h + 16, kids))
-    # diff card title row (OCR row 9): grey band behind the file header (#28a2).
+    # Diff section header (#28a3): a FULL-WIDTH grey band with hairline rules at
+    # its top and bottom edges (atlas ref y431/432 and 504/505 darker lines span
+    # the whole frame width incl. margins; band interior y433..503 -> logical
+    # 334.1 / 335.7 / 390.7 at ky=1.29). The round-2 card-width island lost the
+    # band's top edge and the section's outer rules.
     _, dx, dy, dw, dh = sc.rows[9]
-    sc.put(surface("diff_file_header", 20, dy - 8, 366, dh + 16, bg="panel",
-                   radius=8, kids=[
+    sc.put(surface("diff_band_rule_top", 0, 334.1, 406, 1.2, bg="hair", radius=0))
+    sc.put(surface("diff_file_header", 0, 335.4, 406, 54.9, bg="panel", radius=0, kids=[
         icon("diff_file_icon", "file", dx + 6, dy + 1, 16, 18, color="muted"),
         text("diff_file_path", sc.t(9), dx + 26, dy, dw, dh, size=13, weight=500)]))
+    sc.put(surface("diff_band_rule_bottom", 0, 390.3, 406, 1.2, bg="hair", radius=0))
     # diff card for file 1 (OCR rows 9..29): gutter | marker | code, red/green bands.
     diff_lines = [
         ("128", "let msg = read_message().await?;", "ctx"),
@@ -260,7 +274,13 @@ def build_01(sc):
         marker = None
         body_text = line
         if kind in ("del", "add"):
-            marker = code(f"mk_{i}", line[:1], gx + 46, y, 12, rowh - 4, color=color)
+            # #28a3: same row box as the code line (number | marker | code), at the
+            # atlas marker column: ink x[91,97] ref / kx=1.1722 (s01 ref 476 px :
+            # artboard 406; confirmed by dl_2 132.19 = 155/1.1722) -> 77.6 = gx+57,
+            # and the SAME size as the code text so baselines align (SIZE_KEEP
+            # pins 13; the ink re-anchor is undone by X_RESTORE_FULL).
+            marker = code(f"mk_{i}", line[:1], gx + 57, y, 12, rowh - 4, color=color,
+                          size=13)
             body_text = line[2:]
         body = code(f"dl_{i}", body_text, gx + 66, y, 280, rowh - 4, color="ink")
         row_kids = [gutter] + ([marker] if marker else []) + [body]
@@ -289,7 +309,11 @@ def build_01(sc):
     _, ux, uy, uw, uh = sc.rows[30]
     sc.put(surface("folded", gx - 8, uy - 8, 366, uh + 16, bg="box", radius=8, kids=[
         text("t_fold", sc.t(30), ux, uy, uw, uh, size=13, color="muted")]))
-    sc.wrap_card("review_panel", 14, 92, 378, 660)
+    # #28a3: root at y0 like every sibling scene — the atlas's OctosCode strip
+    # (ink y23-38 logical) is simply not drawn; the authored children are
+    # OCR-derived atlas-true positions (title ink 80.6 ≈ t_title 78.62), so any
+    # non-zero root y re-inserts the strip reserve as a global offset.
+    sc.wrap("review_panel", 0, 0, 406, 776)
 
 # ---------------------------------------------------------------- screen 2
 def build_02(sc):
@@ -308,8 +332,8 @@ def build_02(sc):
     _, x4, y4, w4, h4 = sc.rows[4]
     cy, ch = y3 - 16, (y4 + h4) - (y3 - 16) + 16
     sc.put(surface("run_status_card", 18, cy, 370, ch, bg="panel", radius=12,
-                   border=1, bordercolor="hair", kids=[
-        icon("status_spinner", "spinner", x3 - 26, y3 + 1, 18, 18, color="muted"),
+                   border=1, bordercolor="cardline", kids=[
+        icon("status_spinner", "spinner", x3 - 29, y3 - 2, 24, 24, color="muted"),
         text("t_status", sc.t(3), x3, y3, w3, h3, size=14, weight=500),
         text("t_status_sub", sc.t(4), x4, y4, w4, h4, size=13, color="muted")]))
     # finding cards: badge pill + mono path + flowing finding text.
@@ -320,12 +344,21 @@ def build_02(sc):
         _, l2x, l2y, l2w, l2h = sc.rows[line2_i]
         cy2, ch2 = by2 - 14, (l2y + l2h) - (by2 - 14) + 18
         sc.put(surface(fid, 18, cy2, 370, ch2, bg="white", radius=12, border=1,
-                       bordercolor="hair", kids=[
+                       bordercolor="cardline", kids=[
             surface(fid + "_badge", bx2 - 10, by2 - 4, bw2 + 20, bh2 + 8, bg=bg,
                     radius=999, kids=[
-                text(fid + "_badge_label", badge, bx2, by2, bw2, bh2, size=13,
+                # #28a3: badge label at the atlas ink height (20.2 logical) needs
+                # ~45px for "High" — the OCR label box (34px) CLIPPED it to "Hig"
+                # (single_line clips at box width). Widen the label box to the
+                # pill's inner width; the pill itself is unchanged.
+                text(fid + "_badge_label", badge, bx2, by2, bw2 + 20, bh2, size=20.5,
                      weight=600, color=fg)]),
-            text(fid + "_path", sc.t(path_i), pxx, pyy, pw2, ph2, size=12, color="muted"),
+            # #28a3: atlas path ink is 18.6 logical tall but only 334px wide for
+            # 48 chars — no Inter size satisfies both (19.4pt would need 430px
+            # and single_line clips; even 15.5pt clipped the final "s": 430 ×
+            # 15.5/19.4 = 343 > 334). Width wins: 15.0pt = 332px ≤ 334, no
+            # truncation; still visibly larger than the round-2 12pt.
+            text(fid + "_path", sc.t(path_i), pxx, pyy, pw2, ph2, size=15.0, color="ink"),
             flow_text(fid + "_text", sc.t(line_i) + " " + sc.t(line2_i),
                       lx, ly, max(lw, l2w), (l2y + l2h) - ly, size=14)]))
     finding(5, 6, 7, 8, "finding_high", "High", "redbg", "red")
@@ -416,25 +449,37 @@ def build_04(sc):
         (4, 5, "loop_2", "dot_green", True),    # Sync main, every 30 min
         (6, 7, "loop_3", "dot_grey", False),    # Nightly review, paused
     ]
-    # icon x positions from the pixel scan (atlas px -> logical /1.252).
-    ic = {"pause": 257.2, "play": 306.9, "trash": 356.2}
+    # #28a3: row structure from the atlas's own dividers (s04 kx=508/406=1.2512,
+    # ky=1.29): rules at ref y[183,341,498,657] -> three uniform 122.25-logical
+    # row bands (mids 203.1/325.2/447.7). Text and icons are CENTRED in the row
+    # (atlas rings ink-centre y260 ref = logical 201.7 ≈ mid). Circled icons at
+    # atlas scale: ring ink d22.4/21.6 (ref x[322,350]/[384,411]) -> boxes 30/29
+    # (ring = 18/24 of the viewBox); trash ink x[431,468] = 29.6 logical wide ->
+    # box 44 (path ink = 16/24 of the box).
+    ic = {"pause": (253.65, 30.0), "play": (303.3, 29.0), "trash": (337.2, 44.0)}
     kids = []
     first_top = None
     last_bottom = None
     for idx, (name_i, cad_i, rid, dot, active) in enumerate(rows):
         _, x, y, w, h = sc.rows[name_i]
         _, cx2, cy2, cw2, ch2 = sc.rows[cad_i]
-        iy = r(y - 1)                                   # icons centred on the name line
+        mid = 203.1 + 122.25 * idx
         if idx > 0:
-            kids.append(surface(rid + "_divider", 24, r(y - 14), 358, 1,
+            kids.append(surface(rid + "_divider", 24, r(141.9 + 122.25 * idx), 358, 1,
                                 bg="hair", radius=0))
-        kids.append(icon(rid + "_dot", dot, 208.0, r(y), 18, 18))
-        kids.append(text(rid + "_name", sc.t(name_i), x, y, w, h, size=15, weight=500))
-        kids.append(text(rid + "_cad", sc.t(cad_i), cx2, cy2, cw2, ch2, size=13, color="muted"))
+        kids.append(icon(rid + "_dot", dot, 208.0, r(mid - 4.5), 18, 18))
+        # #28a3: text ink centres straddle the row mid in the atlas (name ink
+        # centre mid-21.4, cadence ink centre mid+22.7, pixel-scanned) -> boxes
+        # at mid-32.6 / mid+13 (box centre ~= ink centre for single_line).
+        kids.append(text(rid + "_name", sc.t(name_i), x, r(mid - 32.6), w, h, size=15, weight=500))
+        kids.append(text(rid + "_cad", sc.t(cad_i), cx2, r(mid + 13.0), cw2, ch2, size=13, color="muted"))
         if active:
-            kids.append(icon(rid + "_pause", "pause", ic["pause"], iy, 18, 20, color="muted"))
-        kids.append(icon(rid + "_play", "play", ic["play"], iy, 18, 20, color="muted"))
-        kids.append(icon(rid + "_trash", "trash", ic["trash"], iy, 18, 20, color="muted"))
+            kids.append(icon(rid + "_pause", "pause", ic["pause"][0],
+                             r(mid - ic["pause"][1] / 2), 30, 30, color="muted"))
+        kids.append(icon(rid + "_play", "play", ic["play"][0],
+                         r(mid - ic["play"][1] / 2), 29, 29, color="muted"))
+        kids.append(icon(rid + "_trash", "trash", ic["trash"][0],
+                         r(mid - ic["trash"][1] / 2), 44, 44, color="muted"))
         if first_top is None:
             first_top = r(y - 22)
         last_bottom = r(cy2 + ch2 + 18)
@@ -455,10 +500,15 @@ def build_05(sc):
         _, sx2, sy2, sw2, sh2 = sc.rows[state_i]
         _, ix, iy, iw, ih = sc.rows[int_i]
         kids = [code(cid + "_cmd", sc.t(cmd_i), x, y, w, h, size=14, weight=500),
-                text(cid + "_state", sc.t(state_i), sx2, sy2, sw2, sh2, size=13, color="muted"),
-                text(cid + "_int", sc.t(int_i), ix, iy, iw, ih, size=13, color="muted"),
-                icon(cid + "_pause", "pause", 296.0, sy2 - 6, 18, 20, color="muted"),
-                icon(cid + "_trash", "trash", 348.7, sy2 - 6, 18, 20, color="muted")]
+                # #28a3: state and interval sit in the SAME atlas ink band
+                # (identical y[263,283] ref) — author both at 14 and pin via
+                # fix_map X_RESTORE so the ink-fit can't split them again.
+                text(cid + "_state", sc.t(state_i), sx2, sy2, sw2, sh2, size=14, color="muted"),
+                # #28a3: the atlas draws '30s' in the SAME band as 'fired 3×'
+                # (identical ink y[263,283] ref) — same size so baselines align.
+                text(cid + "_int", sc.t(int_i), ix, iy, iw, ih, size=14, color="muted"),
+                icon(cid + "_pause", "pause", 296.0, sy2 - 9, 24, 24, color="muted"),
+                icon(cid + "_trash", "trash", 348.7, sy2 - 9, 24, 24, color="muted")]
         top = r(y - 16)
         sc.put(surface(cid, 16, top, 374, r((sy2 + sh2 + 18) - top), bg="white",
                        radius=12, border=1, bordercolor="hair", kids=kids))
@@ -494,13 +544,13 @@ def build_06(sc):
         row_kids = []
         if pid == "peer_2":
             # the Blocked row carries a yellow attention dot RIGHT of the badge
-            # (ref: badge pale bg x[33,130], dot x[134,152] y[438,457] → logical
-            # left 114.3, diameter 15.35). The dot_amber SVG disc fills 10/24 of
-            # the icon box (r=5 in a 24 viewBox), so the box is 36.8 logical and
-            # the disc's 7/24 inset puts its left edge at badge_right + 3.4.
-            # The earlier sx2-24 put it left of the badge — wrong side.
+            # with a 6px gap: the badge renders from annotations at [28,113]
+            # (right 113), atlas disc ink x[134,152] -> logical left 117.8... the
+            # round-2 render measured the disc at [104.2,119.5] for box 93.43, so
+            # disc-left = box + 10.73 (7/24 of 36.8). Target disc left 119 ->
+            # box 108.27 = sx2+sw2 (99.14) + 9.13. Round-2's +1.65 overlapped.
             row_kids.append(icon(pid + "_attn", "dot_amber",
-                                 sx2 + sw2 + 1.65, sy2 + sh2 / 2 - 18.4, 36.8, 36.8))
+                                 sx2 + sw2 + 9.13, sy2 + sh2 / 2 - 18.4, 36.8, 36.8))
         row_kids += [
             surface(pid + "_badge", sx2 - 9, sy2 - 3, sw2 + 18, sh2 + 6, bg=stbg,
                     radius=999, kids=[

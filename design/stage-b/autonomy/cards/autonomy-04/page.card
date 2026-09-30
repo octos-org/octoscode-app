@@ -39,26 +39,26 @@ component Surface07eaedee1d73(instance: text) {
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
-component Textf6e73b6022fa(instance: text, text: text) {
-  view Kit(component: "Textf6e73b6022fa", instance: instance, text: text)
+component Text66972c636d1b(instance: text, text: text) {
+  view Kit(component: "Text66972c636d1b", instance: instance, text: text)
 }
-component Texte06a7986aeb3(instance: text, text: text) {
-  view Kit(component: "Texte06a7986aeb3", instance: instance, text: text)
+component Text1e2398e7ce1f(instance: text, text: text) {
+  view Kit(component: "Text1e2398e7ce1f", instance: instance, text: text)
 }
 component Surfacec4c38149242a(instance: text) {
   view Kit(component: "Surfacec4c38149242a", instance: instance) { slot }
 }
-component Text868d676e5c7e(instance: text, text: text) {
-  view Kit(component: "Text868d676e5c7e", instance: instance, text: text)
+component Text053d5f9aad22(instance: text, text: text) {
+  view Kit(component: "Text053d5f9aad22", instance: instance, text: text)
 }
-component Text13cbcfb2da49(instance: text, text: text) {
-  view Kit(component: "Text13cbcfb2da49", instance: instance, text: text)
+component Text90fc976c9375(instance: text, text: text) {
+  view Kit(component: "Text90fc976c9375", instance: instance, text: text)
 }
-component Textc1510682d715(instance: text, text: text) {
-  view Kit(component: "Textc1510682d715", instance: instance, text: text)
+component Text4b1254e58635(instance: text, text: text) {
+  view Kit(component: "Text4b1254e58635", instance: instance, text: text)
 }
-component Text12a70321f4ca(instance: text, text: text) {
-  view Kit(component: "Text12a70321f4ca", instance: instance, text: text)
+component Text14ced133f86f(instance: text, text: text) {
+  view Kit(component: "Text14ced133f86f", instance: instance, text: text)
 }
 
 view root Surface16fae9a63e16(instance: "page") {
@@ -73,8 +73,8 @@ view root Surface16fae9a63e16(instance: "page") {
     }
     Surface07eaedee1d73(instance: "loops_card") {
       Vectore0a378fde04f(instance: "loop_1_dot")
-      Textf6e73b6022fa(instance: "loop_1_name", text: copy.loop_1_name_text)
-      Texte06a7986aeb3(instance: "loop_1_cad", text: copy.loop_1_cad_text)
+      Text66972c636d1b(instance: "loop_1_name", text: copy.loop_1_name_text)
+      Text1e2398e7ce1f(instance: "loop_1_cad", text: copy.loop_1_cad_text)
       Vectore0a378fde04f(instance: "loop_1_pause")
       Vectore0a378fde04f(instance: "loop_1_play")
       Vectore0a378fde04f(instance: "loop_1_trash")
@@ -82,8 +82,8 @@ view root Surface16fae9a63e16(instance: "page") {
 
       }
       Vectore0a378fde04f(instance: "loop_2_dot")
-      Text868d676e5c7e(instance: "loop_2_name", text: copy.loop_2_name_text)
-      Text13cbcfb2da49(instance: "loop_2_cad", text: copy.loop_2_cad_text)
+      Text053d5f9aad22(instance: "loop_2_name", text: copy.loop_2_name_text)
+      Text90fc976c9375(instance: "loop_2_cad", text: copy.loop_2_cad_text)
       Vectore0a378fde04f(instance: "loop_2_pause")
       Vectore0a378fde04f(instance: "loop_2_play")
       Vectore0a378fde04f(instance: "loop_2_trash")
@@ -91,8 +91,8 @@ view root Surface16fae9a63e16(instance: "page") {
 
       }
       Vectore0a378fde04f(instance: "loop_3_dot")
-      Textc1510682d715(instance: "loop_3_name", text: copy.loop_3_name_text)
-      Text12a70321f4ca(instance: "loop_3_cad", text: copy.loop_3_cad_text)
+      Text4b1254e58635(instance: "loop_3_name", text: copy.loop_3_name_text)
+      Text14ced133f86f(instance: "loop_3_cad", text: copy.loop_3_cad_text)
       Vectore0a378fde04f(instance: "loop_3_play")
       Vectore0a378fde04f(instance: "loop_3_trash")
     }

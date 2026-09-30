@@ -95,7 +95,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 24.23,
     "text": "fired 3\u00d7",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 13,
+    "size": 14,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -111,7 +111,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 27.45,
     "text": "30s",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 13,
+    "size": 14,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -122,18 +122,18 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "mon_1_pause",
     "x": 296.0,
-    "y": 233.53,
-    "w": 18.0,
-    "h": 20.0,
+    "y": 230.53,
+    "w": 24.0,
+    "h": 24.0,
     "role": "unknown",
     "native_candidates": []
   },
   {
     "id": "mon_1_trash",
     "x": 348.7,
-    "y": 233.53,
-    "w": 18.0,
-    "h": 20.0,
+    "y": 230.53,
+    "w": 24.0,
+    "h": 24.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -172,7 +172,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 22.46,
     "text": "no change",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 13,
+    "size": 14,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -188,7 +188,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 23.79,
     "text": "30s",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 13,
+    "size": 14,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -199,18 +199,18 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "mon_2_pause",
     "x": 296.0,
-    "y": 407.34,
-    "w": 18.0,
-    "h": 20.0,
+    "y": 404.34,
+    "w": 24.0,
+    "h": 24.0,
     "role": "unknown",
     "native_candidates": []
   },
   {
     "id": "mon_2_trash",
     "x": 348.7,
-    "y": 407.34,
-    "w": 18.0,
-    "h": 20.0,
+    "y": 404.34,
+    "w": 24.0,
+    "h": 24.0,
     "role": "unknown",
     "native_candidates": []
   },

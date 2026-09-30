@@ -132,7 +132,7 @@
       "native_id": "beauty_0_0_2",
       "parent": "review_run",
       "kind": "stack",
-      "component": "Surface70f9b0c64b16",
+      "component": "Surface0309757e05b6",
       "semantic_role": "layout",
       "bounds": [
         18.0,
@@ -153,10 +153,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        53.887,
-        165.7,
-        17.854,
-        22.976
+        51.18,
+        171.48,
+        24.0,
+        24.0
       ],
       "text": null,
       "enabled": null,
@@ -204,7 +204,7 @@
       "native_id": "beauty_0_0_3",
       "parent": "review_run",
       "kind": "stack",
-      "component": "Surface3c28f63bd9cb",
+      "component": "Surface74f4b416b605",
       "semantic_role": "layout",
       "bounds": [
         18.0,
@@ -240,36 +240,36 @@
       "native_id": "beauty_0_0_3_0_0",
       "parent": "finding_high_badge",
       "kind": "text",
-      "component": "Textc17fad1468b3",
+      "component": "Text5c05a5d945d1",
       "semantic_role": "text",
       "bounds": [
-        41.76,
-        313.52,
-        33.92,
-        22.61
+        40.94,
+        314.43,
+        55.82,
+        30.75
       ],
       "text": "High",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 13.32
+      "size": 20.5
     },
     {
       "source_id": "finding_high_path",
       "native_id": "beauty_0_0_3_1",
       "parent": "finding_high",
       "kind": "text",
-      "component": "Text62b7e087256c",
+      "component": "Text1f418777307c",
       "semantic_role": "text",
       "bounds": [
-        35.16,
-        359.25,
-        333.93,
-        22.61
+        32.41,
+        359.35,
+        339.47,
+        23.23
       ],
       "text": "crates/octos-cli/src/api/ui_protocol_transport.rs",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14.61
+      "size": 15.0
     },
     {
       "source_id": "finding_high_text",
@@ -294,7 +294,7 @@
       "native_id": "beauty_0_0_4",
       "parent": "review_run",
       "kind": "stack",
-      "component": "Surface3e704917e596",
+      "component": "Surfacef4c109c9d8f7",
       "semantic_role": "layout",
       "bounds": [
         18.0,
@@ -330,36 +330,36 @@
       "native_id": "beauty_0_0_4_0_0",
       "parent": "finding_low_badge",
       "kind": "text",
-      "component": "Textd563e48aa973",
+      "component": "Text843bcc2d6f00",
       "semantic_role": "text",
       "bounds": [
-        41.74,
-        529.8,
-        31.35,
-        19.5
+        37.53,
+        532.82,
+        54.12,
+        30.75
       ],
       "text": "Low",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 13.58
+      "size": 20.5
     },
     {
       "source_id": "finding_low_path",
       "native_id": "beauty_0_0_4_1",
       "parent": "finding_low",
       "kind": "text",
-      "component": "Text8a147ee026b8",
+      "component": "Texte8b947a52b60",
       "semantic_role": "text",
       "bounds": [
-        34.29,
-        576.32,
-        257.0,
-        23.38
+        32.41,
+        579.29,
+        257.59,
+        22.5
       ],
       "text": "crates/octos-core/src/ui_protocol.rs",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14.77
+      "size": 15.0
     },
     {
       "source_id": "finding_low_text",
@@ -385,6 +385,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "615037ea2256cc75805d004fb5068a5615d5390463b5899b24a71edc06870f4b",
+  "contract_sha256": "b7e383575b7174c0959cc1d1c8d1d435214bbe84162eba9a49cad6025f294460",
   "mapping_basis": "mapped.json"
 }

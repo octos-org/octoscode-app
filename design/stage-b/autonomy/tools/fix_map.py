@@ -29,13 +29,40 @@ COLOR_KEEP = {
     1: {"mk_2", "mk_3", "mk_4", "mk_5", "mk_6",
         # dl_7 '}': single-glyph OCR ink samples the antialiased edge (#cacaca);
         # the atlas draws it dark (#4f4d51 measured). Restore the authored ink.
-        "dl_7"},
+        "dl_7",
+        # #28a3: the map stage's median-ink rewrite lands on the file rows'
+        # ANTI-ALIASED grey (median 149) — the atlas path ink is near-black
+        # (dark-core 73-84 measured). Restore the authored ink colour.
+        "file_1_path", "file_2_path", "file_3_path", "diff_file_path"},
 }
 # node id -> restore the AUTHORED geometry (x, y, w, h) from the contract.
 # Same disease as X_RESTORE but the map stage also re-anchors y/h on these
 # single-row icons (it fits them to the row's OCR ink box), so restore the full
 # authored box.
 X_RESTORE_FULL = {
+    1: {"review_panel", "mk_2", "mk_3", "mk_4", "mk_5", "mk_6",
+        # #28a3 full-width band + rules: their authored geometry is measured off
+        # the atlas (y 334.1/335.4/390.3, x0 w406) — do not let the map stage
+        # re-anchor them to OCR/annotation bands.
+        "diff_file_header", "diff_file_icon",
+        "diff_band_rule_top", "diff_band_rule_bottom"},
+    2: {"status_spinner",
+        # #28a3 measured sizes (ink-height ratio): badge ~20.5, path ~19.5 —
+        # pin the authored boxes so the ink-fit can't re-shrink them.
+        "finding_high_badge_label", "finding_high_path",
+        "finding_low_badge_label", "finding_low_path"},
+    4: {"loop_1_pause", "loop_1_play", "loop_1_trash",
+        "loop_2_pause", "loop_2_play", "loop_2_trash",
+        "loop_3_play", "loop_3_trash",
+        "loop_1_dot", "loop_2_dot", "loop_3_dot",
+        # row text is CENTRED in the 122.25-logical row bands (name mid-10.4,
+        # cadence mid+2.6) — the ink-fit re-pins y to the OCR box, undoing it.
+        "loop_1_name", "loop_1_cad", "loop_2_name", "loop_2_cad",
+        "loop_3_name", "loop_3_cad"},
+    5: {"monitors_screen", "mon_1_pause", "mon_1_trash",
+        "mon_2_pause", "mon_2_trash",
+        # state and interval share one atlas ink band — both authored at 14.
+        "mon_1_state", "mon_1_int", "mon_2_state", "mon_2_int"},
     6: {"peer_2_attn"},
 }
 # node id -> restore the AUTHORED geometry (x, w, size) from the contract.
@@ -45,13 +72,11 @@ X_RESTORE_FULL = {
 # verbatim — self-healing, so re-running the stage never accumulates shifts
 # (the earlier += shift form double-applied when mapped.json was retained).
 X_RESTORE = {
-    1: {"file_1_path", "file_2_path", "file_3_path", "diff_file_path",
-        # the map stage re-anchors each icon to its row's OCR ink start; row 3's
+    1: {"file_1_path", "file_2_path", "file_3_path", "diff_file_path",        # the map stage re-anchors each icon to its row's OCR ink start; row 3's
         # OCR box is indented, so its icon landed ON the path start (v-r2 crop).
         # Icons are authored at the measured x[28,46] ref band on every row —
         # restore that, not the per-row ink anchor.
-        "file_1_icon", "file_2_icon", "file_3_icon", "diff_file_icon"},
-}
+        "file_1_icon", "file_2_icon", "file_3_icon", "diff_file_icon"},}
 # node id -> max font size. The map stage's ink-fit over-sizes single-glyph
 # markers; fix_metrics clamps mk_2..mk_5 but the 134-row marker (mk_6) slips
 # through the map stage oversized. Clamp it here (fix_map runs after fix_metrics).
@@ -64,6 +89,13 @@ SIZE_CLAMP = {1: {"mk_6": 15.0, "mk_2": 15.0, "mk_3": 15.0, "mk_4": 15.0, "mk_5"
 BG_KEEP = {
     2: {"start_review_surface"},
     3: {"bar_track", "bar_fill", "pause_btn_surface"},
+}
+# node id -> restore the AUTHORED card style (bg/border/bordercolor). The round-2
+# finding cards' border was invisible because measure rewrote the white/panel
+# card bg to near-white and kept the hair border colour, which vanishes on it;
+# the atlas card-edge luminance is ~220 = one step darker ("cardline").
+STYLE_KEEP = {
+    2: {"run_status_card", "finding_high", "finding_low"},
 }
 
 
@@ -103,7 +135,12 @@ def fix_scene(d, scene_no):
                 n["h"] = max(n.get("h", 0), n["line_height"])
             changed += 1
         if nid in X_RESTORE_FULL.get(scene_no, set()) and nid in authored:
-            for k in ("x", "y", "w", "h"):
+            for k in ("x", "y", "w", "h", "size", "line_height"):
+                if k in authored[nid]:
+                    n[k] = authored[nid][k]
+            changed += 1
+        if nid in STYLE_KEEP.get(scene_no, set()) and nid in authored:
+            for k in ("bg", "border", "bordercolor"):
                 if k in authored[nid]:
                     n[k] = authored[nid][k]
             changed += 1

@@ -12,12 +12,12 @@
         }
       },
       "review_panel": {
-        "component": "Surfaceb4ab38079b26",
+        "component": "Surface03c9bd7cb6ef",
         "layout": {
-          "x": 14.0,
-          "y": 92.0,
-          "w": 378.0,
-          "h": 660.0
+          "x": 0.0,
+          "y": 0.0,
+          "w": 406.0,
+          "h": 776.0
         }
       },
       "t_title": {
@@ -95,7 +95,7 @@
         }
       },
       "file_1_path": {
-        "component": "Text9951960ecd92",
+        "component": "Text301803b5e5ee",
         "layout": {
           "x": 53.0,
           "y": 153.04,
@@ -141,7 +141,7 @@
         }
       },
       "file_2_path": {
-        "component": "Textfba5276b7896",
+        "component": "Text301803b5e5ee",
         "layout": {
           "x": 53.0,
           "y": 214.29,
@@ -187,7 +187,7 @@
         }
       },
       "file_3_path": {
-        "component": "Textdd7df2dbf162",
+        "component": "Text301803b5e5ee",
         "layout": {
           "x": 53.0,
           "y": 284.06,
@@ -213,13 +213,22 @@
           "h": 19.5
         }
       },
+      "diff_band_rule_top": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 0.0,
+          "y": 334.1,
+          "w": 406.0,
+          "h": 1.2
+        }
+      },
       "diff_file_header": {
         "component": "Surface56a4cad53e67",
         "layout": {
-          "x": 20.0,
-          "y": 351.35,
-          "w": 366.0,
-          "h": 37.68
+          "x": 0.0,
+          "y": 335.4,
+          "w": 406.0,
+          "h": 54.9
         }
       },
       "diff_file_icon": {
@@ -233,12 +242,21 @@
         }
       },
       "diff_file_path": {
-        "component": "Text0c978d2cd22b",
+        "component": "Textd631f11f941f",
         "layout": {
           "x": 44.76,
           "y": 357.7,
           "w": 305.35,
           "h": 21.83
+        }
+      },
+      "diff_band_rule_bottom": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 0.0,
+          "y": 390.3,
+          "w": 406.0,
+          "h": 1.2
         }
       },
       "diff_rows": {
@@ -305,12 +323,12 @@
         }
       },
       "mk_2": {
-        "component": "Text7bfee83f9e4f",
+        "component": "Text9ac4cebca82f",
         "layout": {
-          "x": 70.05,
-          "y": 484.07,
-          "w": 15.09,
-          "h": 18.73
+          "x": 75.76,
+          "y": 483.48,
+          "w": 12.0,
+          "h": 30.96
         }
       },
       "dl_2": {
@@ -341,12 +359,12 @@
         }
       },
       "mk_3": {
-        "component": "Text7bfee83f9e4f",
+        "component": "Text9ac4cebca82f",
         "layout": {
-          "x": 70.91,
-          "y": 521.28,
-          "w": 18.5,
-          "h": 18.15
+          "x": 75.76,
+          "y": 518.44,
+          "w": 12.0,
+          "h": 30.96
         }
       },
       "dl_3": {
@@ -377,12 +395,12 @@
         }
       },
       "mk_4": {
-        "component": "Text4149e8f1504a",
+        "component": "Text3349daa3095a",
         "layout": {
-          "x": 70.8,
-          "y": 553.06,
-          "w": 16.79,
-          "h": 18.15
+          "x": 75.76,
+          "y": 553.4,
+          "w": 12.0,
+          "h": 30.96
         }
       },
       "dl_4": {
@@ -404,12 +422,12 @@
         }
       },
       "mk_5": {
-        "component": "Text4149e8f1504a",
+        "component": "Text3349daa3095a",
         "layout": {
-          "x": 70.8,
-          "y": 584.85,
-          "w": 21.91,
-          "h": 24.93
+          "x": 75.76,
+          "y": 588.36,
+          "w": 12.0,
+          "h": 30.96
         }
       },
       "dl_5": {
@@ -431,9 +449,9 @@
         }
       },
       "mk_6": {
-        "component": "Textcef0be9d8e2a",
+        "component": "Textf867abe37804",
         "layout": {
-          "x": 64.76,
+          "x": 75.76,
           "y": 623.32,
           "w": 12.0,
           "h": 30.96

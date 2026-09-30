@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "3c291f6c171805ca19e7eb3a4bced686118b405ed9a7d2e44279178af12fd56c",
+  "contract_sha256": "d35149d2b3bc83a1972dd70a834ffc6461fc52b5c0f1c7d03aa0850474c21757",
   "reference_sha256": "f1d385b756812379d4d1537b2668f37824e3cca12123b02399a555ab3c102add",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -203,6 +203,13 @@
       "decision": "declared"
     },
     {
+      "id": "diff_band_rule_top",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "diff_file_header",
       "role": "layout",
       "basis": "authored stack node",
@@ -229,6 +236,13 @@
       "id": "diff_file_path",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "diff_band_rule_bottom",
+      "role": "layout",
+      "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },

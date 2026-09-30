@@ -26,11 +26,11 @@ component Surfacee69029f3071c(instance: text) {
 component Text670e937f3612(instance: text, text: text) {
   view Kit(component: "Text670e937f3612", instance: instance, text: text)
 }
-component Text6f9706a2ec32(instance: text, text: text) {
-  view Kit(component: "Text6f9706a2ec32", instance: instance, text: text)
+component Text33733e78bb16(instance: text, text: text) {
+  view Kit(component: "Text33733e78bb16", instance: instance, text: text)
 }
-component Text41c3bfc672d1(instance: text, text: text) {
-  view Kit(component: "Text41c3bfc672d1", instance: instance, text: text)
+component Text8c0b95d5be07(instance: text, text: text) {
+  view Kit(component: "Text8c0b95d5be07", instance: instance, text: text)
 }
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
@@ -41,11 +41,11 @@ component Surfacee26805a602b5(instance: text) {
 component Text23962a7cd7ff(instance: text, text: text) {
   view Kit(component: "Text23962a7cd7ff", instance: instance, text: text)
 }
-component Text9a59c3190d6a(instance: text, text: text) {
-  view Kit(component: "Text9a59c3190d6a", instance: instance, text: text)
+component Text5b96e686bbca(instance: text, text: text) {
+  view Kit(component: "Text5b96e686bbca", instance: instance, text: text)
 }
-component Text91c571e0ba0f(instance: text, text: text) {
-  view Kit(component: "Text91c571e0ba0f", instance: instance, text: text)
+component Texte5c634ece956(instance: text, text: text) {
+  view Kit(component: "Texte5c634ece956", instance: instance, text: text)
 }
 component Group3d2637879433(instance: text) {
   view Kit(component: "Group3d2637879433", instance: instance) { slot }
@@ -59,15 +59,15 @@ view root Surface16fae9a63e16(instance: "page") {
     Textb3d75e5843e2(instance: "t_title", text: copy.t_title_text)
     Surfacee69029f3071c(instance: "mon_1") {
       Text670e937f3612(instance: "mon_1_cmd", text: copy.mon_1_cmd_text)
-      Text6f9706a2ec32(instance: "mon_1_state", text: copy.mon_1_state_text)
-      Text41c3bfc672d1(instance: "mon_1_int", text: copy.mon_1_int_text)
+      Text33733e78bb16(instance: "mon_1_state", text: copy.mon_1_state_text)
+      Text8c0b95d5be07(instance: "mon_1_int", text: copy.mon_1_int_text)
       Vectore0a378fde04f(instance: "mon_1_pause")
       Vectore0a378fde04f(instance: "mon_1_trash")
     }
     Surfacee26805a602b5(instance: "mon_2") {
       Text23962a7cd7ff(instance: "mon_2_cmd", text: copy.mon_2_cmd_text)
-      Text9a59c3190d6a(instance: "mon_2_state", text: copy.mon_2_state_text)
-      Text91c571e0ba0f(instance: "mon_2_int", text: copy.mon_2_int_text)
+      Text5b96e686bbca(instance: "mon_2_state", text: copy.mon_2_state_text)
+      Texte5c634ece956(instance: "mon_2_int", text: copy.mon_2_int_text)
       Vectore0a378fde04f(instance: "mon_2_pause")
       Vectore0a378fde04f(instance: "mon_2_trash")
     }

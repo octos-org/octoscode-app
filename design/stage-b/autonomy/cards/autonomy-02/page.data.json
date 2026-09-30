@@ -66,7 +66,7 @@
         }
       },
       "run_status_card": {
-        "component": "Surface70f9b0c64b16",
+        "component": "Surface0309757e05b6",
         "layout": {
           "x": 18.0,
           "y": 144.0,
@@ -77,11 +77,11 @@
       "status_spinner": {
         "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 53.887,
-          "y": 165.7,
-          "w": 17.854,
-          "h": 22.976,
-          "src": "http://127.0.0.1:8170/ux-images/autonomy-02/assets/status_spinner-68949e64fa67.svg"
+          "x": 51.18,
+          "y": 171.48,
+          "w": 24.0,
+          "h": 24.0,
+          "src": "http://127.0.0.1:8170/ux-images/autonomy-02/assets/status_spinner-a144d4d03dc2.svg"
         }
       },
       "t_status": {
@@ -103,7 +103,7 @@
         }
       },
       "finding_high": {
-        "component": "Surface3c28f63bd9cb",
+        "component": "Surface74f4b416b605",
         "layout": {
           "x": 18.0,
           "y": 282.0,
@@ -121,21 +121,21 @@
         }
       },
       "finding_high_badge_label": {
-        "component": "Textc17fad1468b3",
+        "component": "Text5c05a5d945d1",
         "layout": {
-          "x": 41.76,
-          "y": 313.52,
-          "w": 33.92,
-          "h": 22.61
+          "x": 40.94,
+          "y": 314.43,
+          "w": 55.82,
+          "h": 30.75
         }
       },
       "finding_high_path": {
-        "component": "Text62b7e087256c",
+        "component": "Text1f418777307c",
         "layout": {
-          "x": 35.16,
-          "y": 359.25,
-          "w": 333.93,
-          "h": 22.61
+          "x": 32.41,
+          "y": 359.35,
+          "w": 339.47,
+          "h": 23.23
         }
       },
       "finding_high_text": {
@@ -148,7 +148,7 @@
         }
       },
       "finding_low": {
-        "component": "Surface3e704917e596",
+        "component": "Surfacef4c109c9d8f7",
         "layout": {
           "x": 18.0,
           "y": 499.0,
@@ -166,21 +166,21 @@
         }
       },
       "finding_low_badge_label": {
-        "component": "Textd563e48aa973",
+        "component": "Text843bcc2d6f00",
         "layout": {
-          "x": 41.74,
-          "y": 529.8,
-          "w": 31.35,
-          "h": 19.5
+          "x": 37.53,
+          "y": 532.82,
+          "w": 54.12,
+          "h": 30.75
         }
       },
       "finding_low_path": {
-        "component": "Text8a147ee026b8",
+        "component": "Texte8b947a52b60",
         "layout": {
-          "x": 34.29,
-          "y": 576.32,
-          "w": 257.0,
-          "h": 23.38
+          "x": 32.41,
+          "y": 579.29,
+          "w": 257.59,
+          "h": 22.5
         }
       },
       "finding_low_text": {

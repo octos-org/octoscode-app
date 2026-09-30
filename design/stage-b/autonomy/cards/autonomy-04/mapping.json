@@ -153,10 +153,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        208.16,
-        164.226,
-        18.578,
-        19.003
+        208.0,
+        198.6,
+        18.0,
+        18.0
       ],
       "text": null,
       "enabled": null,
@@ -168,36 +168,36 @@
       "native_id": "beauty_0_0_2_1",
       "parent": "loops_card",
       "kind": "text",
-      "component": "Textf6e73b6022fa",
+      "component": "Text66972c636d1b",
       "semantic_role": "text",
       "bounds": [
-        29.95,
-        170.1,
-        103.1,
-        21.83
+        23.85,
+        170.5,
+        110.55,
+        22.5
       ],
       "text": "Run CI smoke",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 15.09
+      "size": 15
     },
     {
       "source_id": "loop_1_cad",
       "native_id": "beauty_0_0_2_2",
       "parent": "loops_card",
       "kind": "text",
-      "component": "Texte06a7986aeb3",
+      "component": "Text1e2398e7ce1f",
       "semantic_role": "text",
       "bounds": [
-        30.49,
-        213.51,
-        83.12,
-        23.38
+        28.75,
+        216.1,
+        83.16,
+        21.83
       ],
       "text": "every 15 min",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 13.32
+      "size": 13
     },
     {
       "source_id": "loop_1_pause",
@@ -207,10 +207,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        258.939,
-        163.17,
-        18.578,
-        21.115
+        253.65,
+        188.1,
+        30.0,
+        30.0
       ],
       "text": null,
       "enabled": null,
@@ -225,10 +225,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        310.234,
-        163.17,
-        18.578,
-        21.115
+        303.3,
+        188.6,
+        29.0,
+        29.0
       ],
       "text": null,
       "enabled": null,
@@ -243,10 +243,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        361.116,
-        163.17,
-        18.578,
-        21.115
+        337.2,
+        181.1,
+        44.0,
+        44.0
       ],
       "text": null,
       "enabled": null,
@@ -279,10 +279,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        208.16,
-        294.133,
-        18.578,
-        19.003
+        208.0,
+        320.85,
+        18.0,
+        18.0
       ],
       "text": null,
       "enabled": null,
@@ -294,36 +294,36 @@
       "native_id": "beauty_0_0_2_8",
       "parent": "loops_card",
       "kind": "text",
-      "component": "Text868d676e5c7e",
+      "component": "Text053d5f9aad22",
       "semantic_role": "text",
       "bounds": [
-        29.58,
-        292.59,
-        79.93,
-        26.48
+        22.38,
+        292.75,
+        87.91,
+        23.23
       ],
       "text": "Sync main",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 15.26
+      "size": 15
     },
     {
       "source_id": "loop_2_cad",
       "native_id": "beauty_0_0_2_9",
       "parent": "loops_card",
       "kind": "text",
-      "component": "Text13cbcfb2da49",
+      "component": "Text90fc976c9375",
       "semantic_role": "text",
       "bounds": [
-        30.51,
-        336.0,
-        84.72,
-        22.61
+        22.38,
+        338.35,
+        94.31,
+        23.23
       ],
       "text": "every 30 min",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 13.05
+      "size": 13
     },
     {
       "source_id": "loop_2_pause",
@@ -333,10 +333,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        258.939,
-        293.077,
-        18.578,
-        21.115
+        253.65,
+        310.35,
+        30.0,
+        30.0
       ],
       "text": null,
       "enabled": null,
@@ -351,10 +351,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        310.234,
-        293.077,
-        18.578,
-        21.115
+        303.3,
+        310.85,
+        29.0,
+        29.0
       ],
       "text": null,
       "enabled": null,
@@ -369,10 +369,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        361.116,
-        293.077,
-        18.578,
-        21.115
+        337.2,
+        303.35,
+        44.0,
+        44.0
       ],
       "text": null,
       "enabled": null,
@@ -405,10 +405,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        208.16,
-        423.079,
-        18.578,
-        19.003
+        208.0,
+        443.1,
+        18.0,
+        18.0
       ],
       "text": null,
       "enabled": null,
@@ -420,36 +420,36 @@
       "native_id": "beauty_0_0_2_15",
       "parent": "loops_card",
       "kind": "text",
-      "component": "Textc1510682d715",
+      "component": "Text4b1254e58635",
       "semantic_role": "text",
       "bounds": [
-        29.92,
-        415.85,
-        110.3,
-        26.48
+        22.33,
+        415.0,
+        118.38,
+        25.23
       ],
       "text": "Nightly review",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 15.45
+      "size": 15
     },
     {
       "source_id": "loop_3_cad",
       "native_id": "beauty_0_0_2_16",
       "parent": "loops_card",
       "kind": "text",
-      "component": "Text12a70321f4ca",
+      "component": "Text14ced133f86f",
       "semantic_role": "text",
       "bounds": [
-        30.49,
-        458.48,
-        111.89,
-        23.38
+        22.38,
+        460.6,
+        118.28,
+        21.68
       ],
       "text": "every day \u00b7 01:00",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 13.28
+      "size": 13
     },
     {
       "source_id": "loop_3_play",
@@ -459,10 +459,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        310.234,
-        422.023,
-        18.578,
-        21.115
+        303.3,
+        433.1,
+        29.0,
+        29.0
       ],
       "text": null,
       "enabled": null,
@@ -477,10 +477,10 @@
       "component": "Vectore0a378fde04f",
       "semantic_role": "icon",
       "bounds": [
-        361.116,
-        422.023,
-        18.578,
-        21.115
+        337.2,
+        425.6,
+        44.0,
+        44.0
       ],
       "text": null,
       "enabled": null,
@@ -493,6 +493,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "e236bb4c575ef843f9d896fc92c84e505b8ce5c186ae1d3b273c0f90c8dcee91",
+  "contract_sha256": "1e1e2251efc5ab4c6a6cabb23cdd5f88e1b58e65710b0650453a6b8f3953db6c",
   "mapping_basis": "mapped.json"
 }

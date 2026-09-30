@@ -208,7 +208,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "peer_2_attn",
-    "x": 101.01,
+    "x": 108.49,
     "y": 392.48,
     "w": 36.8,
     "h": 36.8,

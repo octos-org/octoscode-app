@@ -77,7 +77,7 @@
       "expected_text": "Run CI smoke",
       "requested_bounds": [
         23.85,
-        171.24,
+        170.5,
         110.55,
         22.5
       ],
@@ -109,7 +109,7 @@
       "expected_text": "every 15 min",
       "requested_bounds": [
         28.75,
-        215.22,
+        216.1,
         83.16,
         21.83
       ],
@@ -141,7 +141,7 @@
       "expected_text": "Sync main",
       "requested_bounds": [
         22.38,
-        294.29,
+        292.75,
         87.91,
         23.23
       ],
@@ -173,7 +173,7 @@
       "expected_text": "every 30 min",
       "requested_bounds": [
         22.38,
-        336.11,
+        338.35,
         94.31,
         23.23
       ],
@@ -205,7 +205,7 @@
       "expected_text": "Nightly review",
       "requested_bounds": [
         22.33,
-        416.43,
+        415.0,
         118.38,
         25.23
       ],
@@ -237,7 +237,7 @@
       "expected_text": "every day \u00b7 01:00",
       "requested_bounds": [
         22.38,
-        460.02,
+        460.6,
         118.28,
         21.68
       ],

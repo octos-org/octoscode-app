@@ -142,8 +142,8 @@
       "requested_bounds": [
         40.94,
         314.43,
-        35.82,
-        21.68
+        55.82,
+        30.75
       ],
       "status": "observed",
       "ocr_text": "High",
@@ -238,8 +238,8 @@
       "requested_bounds": [
         37.53,
         532.82,
-        34.12,
-        19.5
+        54.12,
+        30.75
       ],
       "status": "observed",
       "ocr_text": "Low",
@@ -271,7 +271,7 @@
         32.41,
         579.29,
         257.59,
-        20.14
+        22.5
       ],
       "status": "observed",
       "ocr_text": "crates/octos-core/src/ui_protocol.rs",

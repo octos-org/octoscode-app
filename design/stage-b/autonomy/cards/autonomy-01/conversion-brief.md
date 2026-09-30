@@ -35,10 +35,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "review_panel",
-    "x": 14.0,
-    "y": 92.0,
-    "w": 378.0,
-    "h": 660.0,
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -333,11 +333,22 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "diff_band_rule_top",
+    "x": 0.0,
+    "y": 334.1,
+    "w": 406.0,
+    "h": 1.2,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
     "id": "diff_file_header",
-    "x": 20.0,
-    "y": 351.35,
-    "w": 366.0,
-    "h": 37.68,
+    "x": 0.0,
+    "y": 335.4,
+    "w": 406.0,
+    "h": 54.9,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -366,6 +377,17 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "native_candidates": [
       "Label",
       "TextFlow"
+    ]
+  },
+  {
+    "id": "diff_band_rule_bottom",
+    "x": 0.0,
+    "y": 390.3,
+    "w": 406.0,
+    "h": 1.2,
+    "role": "layout",
+    "native_candidates": [
+      "View"
     ]
   },
   {
@@ -472,13 +494,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "mk_2",
-    "x": 64.76,
+    "x": 75.76,
     "y": 483.48,
     "w": 12.0,
     "h": 30.96,
     "text": "-",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -531,13 +553,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "mk_3",
-    "x": 64.76,
+    "x": 75.76,
     "y": 518.44,
     "w": 12.0,
     "h": 30.96,
     "text": "-",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -590,13 +612,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "mk_4",
-    "x": 64.76,
+    "x": 75.76,
     "y": 553.4,
     "w": 12.0,
     "h": 30.96,
     "text": "+",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -638,13 +660,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "mk_5",
-    "x": 64.76,
+    "x": 75.76,
     "y": 588.36,
     "w": 12.0,
     "h": 30.96,
     "text": "+",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -686,13 +708,13 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "mk_6",
-    "x": 64.76,
+    "x": 75.76,
     "y": 623.32,
     "w": 12.0,
     "h": 30.96,
     "text": "+",
     "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
-    "size": 20.64,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
