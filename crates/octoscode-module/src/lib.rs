@@ -54,7 +54,19 @@ script_mod! {
         ..mod.widgets.RectView
         width: Fill height: Fill
         draw_bg.color: theme.color_bg_app
-        flow: Down padding: 16 spacing: 10
+        // Card #28e (board 4): the root is an OVERLAY — base chrome, a dimmer,
+        // and the floating command palette stack on one origin; `first_run`
+        // replaces `base` before a connection.
+        flow: Overlay
+        // The base chrome (everything except the overlays and the first-run
+        // card). The first-run frame hides it (`base.set_visible(false)`).
+        base := View {
+        width: Fill height: Fill
+        // Card #28e (board 4): no global padding — the sidebar is flush with
+        // the window edge (#F7F7F8, 260 px) and the review drawer is flush
+        // right; each column carries its own inset.
+        padding: 0
+        flow: Down spacing: 10
         // Card #21c item 7: the debug header is GONE from the visible UI. The
         // connection state / session count stay as 1px labels so `/g` still
         // carries them and `sync_labels` keeps a target (board: "connection
@@ -79,7 +91,31 @@ script_mod! {
             flow: Right spacing: 10
 
             threads_column := View {
-                width: 220 height: Fill flow: Down spacing: 6
+                width: 260 height: Fill flow: Down spacing: 6
+                // Card #28e item 1 (board 4): the sidebar is flush with the
+                // window edge on #F7F7F8 (the base no longer pads it).
+                draw_bg.color: #F7F7F8
+                padding: Inset{left: 12 right: 10 top: 12 bottom: 12}
+                // Card #28e item 1 (board 4): the sidebar is 260 px with an
+                // `OctosCode ▾` header above `New chat`, then THREADS, then the
+                // autonomy sections (GOALS / LOOPS / FLEET) — native shell rows
+                // for now, L0 components only where one exists (thread-row,
+                // new-chat).
+                // #28e2 item 1: "▾" rendered as tofu (Inter lacks the glyph);
+                // the chevron is the kit's own SVG asset now.
+                sidebar_header := View {
+                    width: Fill height: Fit flow: Right spacing: 4
+                    Label {
+                        width: Fit height: Fit text: "OctosCode"
+                        draw_text.text_style.font_size: 13
+                    }
+                    Svg {
+                        width: 10 height: 10
+                        animating: false
+                        draw_svg.svg: crate_resource("self:resources/icons/chevron_down.svg")
+                        draw_svg.preserve_viewbox: true
+                    }
+                }
                 // Card #21c item 7: `New chat` is #16's own `new-chat` component
                 // at the top of the thread column (scene 01). A transparent hit
                 // target overlays it so the HOST routes `session.new` — the
@@ -108,10 +144,137 @@ script_mod! {
                         draw_bg.border_color_2: #00000000
                     }
                 }
+                // Card #28e item 1: the autonomy sections — GOALS / LOOPS / FLEET
+                // — appear only when the session has them (board 4 frame 3).
+                // Native shell rows (no #16 component exists for these yet); the
+                // section label is small grey caps, each row 32 px.
+                autonomy_sections := View {
+                    width: Fill height: Fit flow: Down spacing: 4 visible: false
+                    Label {
+                        width: Fill height: Fit text: "GOALS"
+                        draw_text.text_style.font_size: 10
+                        draw_text.color: #6E6E73
+                    }
+                    goals_list := View {
+                        width: Fill height: Fit flow: Down spacing: 2
+                        // #28e2 item 3: the goal row carries the board's
+                        // progress ring; rows ellipsize with "…" instead of
+                        // clipping mid-word.
+                        goal_wrap_1 := View {
+                            width: Fill height: 32 flow: Right spacing: 6
+                            goal_ring := Svg {
+                                width: 14 height: 14
+                                animating: false
+                                draw_svg.svg: crate_resource("self:resources/icons/icon_ring.svg")
+                                draw_svg.preserve_viewbox: true
+                            }
+                            goal_row_1 := Label {
+                                width: Fill height: Fit text: ""
+                                draw_text.text_style.font_size: 13
+                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                            }
+                        }
+                        goal_row_2 := Label {
+                            width: Fill height: 32 text: ""
+                            draw_text.text_style.font_size: 13
+                            max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                        }
+                    }
+                    Label {
+                        width: Fill height: Fit text: "LOOPS"
+                        draw_text.text_style.font_size: 10
+                        draw_text.color: #6E6E73
+                    }
+                    loops_list := View {
+                        width: Fill height: Fit flow: Down spacing: 2
+                        loop_row_1 := Label {
+                            width: Fill height: 32 text: ""
+                            draw_text.text_style.font_size: 13
+                            max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                        }
+                        loop_row_2 := Label {
+                            width: Fill height: 32 text: ""
+                            draw_text.text_style.font_size: 13
+                            max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                        }
+                    }
+                    Label {
+                        width: Fill height: Fit text: "FLEET"
+                        draw_text.text_style.font_size: 10
+                        draw_text.color: #6E6E73
+                    }
+                    fleet_list := View {
+                        width: Fill height: Fit flow: Down spacing: 2
+                        // #28e3 item 2: every fleet row reserves the SAME
+                        // 14px status slot, so all rows share one text inset
+                        // (the #28e2 dots collapsed when hidden and pushed
+                        // only the Blocked row's text). The dot itself is a
+                        // RoundedView — a plain View never paints draw_bg —
+                        // and sync_labels shows it on the Blocked row only.
+                        fleet_wrap_1 := View {
+                            width: Fill height: 32 flow: Right spacing: 6
+                            fleet_slot_1 := View {
+                                width: 14 height: 14 flow: Overlay
+                                fleet_dot_1 := RoundedView {
+                                    width: 8 height: 8
+                                    margin: Inset{left: 3 top: 3}
+                                    draw_bg +: {color: #E5B800 border_radius: 4.0}
+                                    visible: false
+                                }
+                            }
+                            fleet_row_1 := Label {
+                                width: Fill height: Fit text: ""
+                                draw_text.text_style.font_size: 13
+                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                            }
+                        }
+                        fleet_wrap_2 := View {
+                            width: Fill height: 32 flow: Right spacing: 6
+                            fleet_slot_2 := View {
+                                width: 14 height: 14 flow: Overlay
+                                fleet_dot_2 := RoundedView {
+                                    width: 8 height: 8
+                                    margin: Inset{left: 3 top: 3}
+                                    draw_bg +: {color: #E5B800 border_radius: 4.0}
+                                    visible: false
+                                }
+                            }
+                            fleet_row_2 := Label {
+                                width: Fill height: Fit text: ""
+                                draw_text.text_style.font_size: 13
+                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                            }
+                        }
+                        fleet_wrap_3 := View {
+                            width: Fill height: 32 flow: Right spacing: 6
+                            fleet_slot_3 := View {
+                                width: 14 height: 14 flow: Overlay
+                                fleet_dot_3 := RoundedView {
+                                    width: 8 height: 8
+                                    margin: Inset{left: 3 top: 3}
+                                    draw_bg +: {color: #E5B800 border_radius: 4.0}
+                                    visible: false
+                                }
+                            }
+                            fleet_row_3 := Label {
+                                width: Fill height: Fit text: ""
+                                draw_text.text_style.font_size: 13
+                                max_lines: 1 text_overflow: TextOverflow.Ellipsis
+                            }
+                        }
+                    }
+                }
                 // Card #21c item 6: one #16 `thread-row` per session (selected
                 // state, ellipsized title) — the component draws its own label,
                 // so no native title Label sits under it. A transparent `row_hit`
                 // routes the click with the item id (`thread.open`).
+                // Card #28e item 1: the THREADS section label (small grey caps)
+                // above the list.
+                Label {
+                    width: Fill height: Fit text: "THREADS"
+                    draw_text.text_style.font_size: 10
+                    draw_text.color: #6E6E73
+                }
                 thread_list := PortalList {
                     width: Fill height: Fill flow: Down drag_scrolling: true
                     // Card #21g item 3: the rows must share the New chat card's
@@ -134,9 +297,29 @@ script_mod! {
                     }
                 }
             }
+            // Card #28e item 1 (board 4): the 1 px hairline between the
+            // sidebar and the conversation column.
+            sidebar_rule := View {
+                width: 1 height: Fill
+                draw_bg.color: #E5E5E7
+            }
 
             conversation_column := View {
                 width: Fill height: Fill flow: Down spacing: 6
+                // Card #28e item 2 (board 4): the conversation column is centered
+                // with a max width of 720 px. `align.x: 0.5` centers the
+                // `max_width: 720` child inside the Fill column.
+                align: Align{x: 0.5 y: 0.0}
+                conversation_inner := View {
+                    width: Fill height: Fill flow: Down spacing: 6
+                    max_width: 720
+                    // #28e2 item 2: the OctoSense dock floats over the window's
+                    // bottom ~90px (measured dock top y≈810 at 1440×900), which
+                    // cut the composer's control row (+ · Ask for approval ·
+                    // model · mic · send) off the captures. Reserve that strip
+                    // so the whole composer card is visible at 1440×900 and
+                    // 900×800 alike.
+                    padding: Inset{bottom: 96}
                 // Card #21c item 2: the component IS the item. No native `kind`
                 // label and no row chrome — the row is just the lowered
                 // component plus a transparent hit target.
@@ -261,16 +444,309 @@ script_mod! {
                         }
                     }
                 }
-            }
+            } // conversation_inner
+        }
 
-            review_column := View {
-                width: 200 height: Fill flow: Down spacing: 6
-                Label { width: Fill height: Fit text: "Review" draw_text.text_style.font_size: 14 }
-                // #29d: feature-flagged temporary mount (OCTOSCODE_SCREEN=palette|error|loading)
-                // until #28e's shell (drawer + palette overlay) lands.
-                screen_splash := Splash { width: Fill height: Fit }
+            // #28e3 item 1: flow spacers — at wide windows they reserve the
+            // docked panels' room (the panels themselves paint in right-aligned
+            // overlay docks exactly over the spacer); on narrow windows the
+            // spacers hide and the panels overlay with the dimmer, so the
+            // center keeps its 420px minimum. The #29d screen mount slot moved
+            // to the first-run card area (#28e4): the #28e shell owns the
+            // review panel now, and the entry mounts the screens there.
+            columns_review_spacer := View {
+                width: 560 height: Fill
+                visible: false
+            }
+            columns_settings_spacer := View {
+                width: 420 height: Fill
+                visible: false
+            }
+        } // columns
+
+        } // base
+
+        // Card #28e item 5 (board 4 frame 3): a dimmer between the base chrome
+        // and the floating palette (the "conversation dimmed slightly" layer).
+        dimmer := SolidView {
+            width: Fill height: Fill
+            visible: false
+            draw_bg.color: #1D1D1F40
+        }
+
+        // #28e3 item 1: the review panel and the settings drawer paint in
+        // right-aligned overlay docks ABOVE the base chrome (later siblings
+        // draw on top), so a narrow window overlays them with the dimmer
+        // instead of squeezing the center below its 420px minimum. Wide
+        // windows show the same docked pixels via the columns spacers.
+        review_dock := View {
+            // Fill/Fill + internal right align: the palette_dock's proven
+            // overlay pattern (a Fit-width wrapper here loses the root's
+            // overlay positioning and lands top-left). The dock hides with
+            // its panel, so it never shadows clicks while hidden.
+            width: Fill height: Fill
+            align: Align{x: 1.0 y: 0.0}
+            visible: false
+
+            // Card #28e item 3 (board 4 frame 1): the 560 px Review panel, toggled by the
+            // Review affordance (an "Edited files" card later; the header pill
+            // works today). Empty for now — the header + scope pill only.
+            review_panel := SolidView {
+                width: 560 height: Fill flow: Down spacing: 6
+                visible: true
+                draw_bg.color: #FFFFFF
+                review_header := View {
+                    width: Fill height: Fit flow: Right spacing: 8
+                    Label {
+                        width: Fit height: Fit text: "Review"
+                        draw_text.text_style.font_size: 14
+                    }
+                    // #28e2 item 4: the board's diff totals (static chrome —
+                    // `StartedReview` carries no +/- counts).
+                    Label {
+                        width: Fit height: Fit text: "+62 −5"
+                        draw_text.text_style.font_size: 11
+                        draw_text.color: #6E6E73
+                    }
+                    review_scope := View {
+                        width: Fit height: Fit flow: Overlay
+                        review_scope_pill := RoundedView {
+                            width: Fit height: Fit flow: Right spacing: 4
+                            padding: Inset{left: 10 right: 10 top: 4 bottom: 4}
+                            draw_bg +: {color: #F0F0F2 border_radius: 999.0}
+                            // #28e2 item 1: "▾" was tofu (Inter lacks it) —
+                            // the kit chevron SVG instead.
+                            Label {
+                                width: Fit height: Fit text: "Last turn"
+                                draw_text.text_style.font_size: 11
+                            }
+                            Svg {
+                                width: 8 height: 8
+                                animating: false
+                                draw_svg.svg: crate_resource("self:resources/icons/chevron_down.svg")
+                                draw_svg.preserve_viewbox: true
+                            }
+                        }
+                        // #28e2 item 4: the toggle hit target is the pill
+                        // itself now — the old transparent button carried its
+                        // own "Review" text, the duplicate the review flagged.
+                        review_toggle_hit := Button {
+                            width: Fill height: Fill text: ""
+                            draw_bg.color: #00000000
+                            draw_bg.color_hover: #00000010
+                            draw_bg.color_down: #00000020
+                            draw_bg.border_size: 0.0
+                            draw_bg.color_2: #00000000
+                            draw_bg.border_color: #00000000
+                            draw_bg.border_color_2: #00000000
+                        }
+                    }
+                    // #28e2 item 1: "✕" was tofu — the close SVG instead.
+                    review_close_wrap := View {
+                        width: 28 height: 28 flow: Overlay
+                        review_close_icon := Svg {
+                            width: 12 height: 12
+                            align: Align{x: 0.5 y: 0.5}
+                            animating: false
+                            draw_svg.svg: crate_resource("self:resources/icons/icon_close.svg")
+                            draw_svg.preserve_viewbox: true
+                        }
+                        review_close := Button {
+                            width: Fill height: Fill text: ""
+                            draw_bg.color: #00000000
+                            draw_bg.color_hover: #00000010
+                            draw_bg.color_down: #00000020
+                            draw_bg.border_size: 0.0
+                            draw_bg.color_2: #00000000
+                            draw_bg.border_color: #00000000
+                            draw_bg.border_color_2: #00000000
+                        }
+                    }
+                }
             }
         }
+        settings_dock := View {
+            width: Fill height: Fill
+            align: Align{x: 1.0 y: 0.0}
+            visible: false
+
+            // Card #28e item 4 (board 4 frame 2): the 420 px Session-settings
+            // drawer, docked right INSIDE the columns Right-flow (hidden = no
+            // space, visible = the center narrows, as in board 4 frame 2).
+            // Content comes in Stage C; this is the drawer shell (title + close).
+            settings_drawer := SolidView {
+                width: 420 height: Fill flow: Down spacing: 10
+                visible: true
+                draw_bg.color: #FFFFFF
+                settings_header := View {
+                    width: Fill height: Fit flow: Right spacing: 8
+                    Label {
+                        width: Fill height: Fit text: "Session settings"
+                        draw_text.text_style.font_size: 14
+                    }
+                    // #28e2 item 1: "✕" was tofu — the close SVG (same as the
+                    // review header's).
+                    settings_close_wrap := View {
+                        width: 28 height: 28 flow: Overlay
+                        settings_close_icon := Svg {
+                            width: 12 height: 12
+                            align: Align{x: 0.5 y: 0.5}
+                            animating: false
+                            draw_svg.svg: crate_resource("self:resources/icons/icon_close.svg")
+                            draw_svg.preserve_viewbox: true
+                        }
+                        settings_close := Button {
+                            width: Fill height: Fill text: ""
+                            draw_bg.color: #00000000
+                            draw_bg.color_hover: #00000010
+                            draw_bg.color_down: #00000020
+                            draw_bg.border_size: 0.0
+                            draw_bg.color_2: #00000000
+                            draw_bg.border_color: #00000000
+                            draw_bg.border_color_2: #00000000
+                        }
+                    }
+                }
+                Label { width: Fill height: Fit text: "Model" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
+                Label { width: Fill height: Fit text: "Permissions" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
+                Label { width: Fill height: Fit text: "Sandbox" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
+                Label { width: Fill height: Fit text: "Context" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
+            }
+        }
+
+        // Card #28e item 5 (board 4 frame 3): the floating 560 px command
+        // palette, near the top of the window. Cmd+K and "/" in an empty
+        // composer open it; Esc closes. The search field + the command rows are
+        // native shell chrome (no #16 component yet). CENTERED at any window
+        // width: the dock wrapper centers the card (the old abs_pos(440,120)
+        // was a 1440-only guess); the card's top margin keeps it near the top.
+        palette_dock := View {
+            width: Fill height: Fill
+            // Hidden WITH its child (sync_chrome toggles the wrapper): a
+            // Fill/Fill overlay wrapper that stays visible would put a draw
+            // area over the whole window even while `palette` is invisible,
+            // and headless f1 showed the composer's send click never landing.
+            visible: false
+            align: Align{x: 0.5 y: 0.0}
+        palette := RoundedView {
+            width: 560 height: Fit flow: Down spacing: 4
+            visible: false
+            margin: Inset{top: 120}
+            draw_bg +: {color: #FFFFFF border_radius: 12.0 border_size: 1.0 border_color: #E5E5E7}
+            padding: Inset{left: 8 right: 8 top: 8 bottom: 8}
+            palette_search := TextInput {
+                width: Fill height: 34 text: ""
+                empty_text: "/"
+                draw_text.text_style.font_size: 13
+            }
+            palette_list := PortalList {
+                width: Fill height: 204 flow: Down
+                // A fixed 6×34 px viewport: a PortalList under a Fit-height
+                // parent computes zero visible rows (the f3 captures showed the
+                // search field and hint row with a blank gap between them).
+                // #28e2 item 5: the first row is highlighted (board 4 frame 3)
+                // — a toggleable background layer the draw step shows for
+                // row 0 only.
+                PaletteRowTpl := View {
+                    width: Fill height: 34 flow: Overlay
+                    palette_row_bg := RoundedView {
+                        width: Fill height: Fill
+                        margin: Inset{left: 2 right: 2}
+                        draw_bg +: {color: #F0F0F2 border_radius: 8.0}
+                        visible: false
+                    }
+                    palette_row_inner := View {
+                        width: Fill height: Fill flow: Right spacing: 8
+                        padding: Inset{left: 6 top: 8}
+                        palette_row_name := Label { width: 150 height: Fit text: "" draw_text.text_style.font_size: 13 }
+                        palette_row_desc := Label { width: Fill height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
+                    }
+                }
+            }
+            // #28e2 item 1: the hint's arrows and return were tofu (Inter
+            // lacks those glyphs) — small SVGs instead of text glyphs.
+            palette_hint := View {
+                width: Fill height: Fit flow: Right spacing: 4
+                Svg {
+                    width: 9 height: 9
+                    animating: false
+                    draw_svg.svg: crate_resource("self:resources/icons/icon_arrow_up.svg")
+                    draw_svg.preserve_viewbox: true
+                }
+                Svg {
+                    width: 9 height: 9
+                    animating: false
+                    draw_svg.svg: crate_resource("self:resources/icons/icon_arrow_down.svg")
+                    draw_svg.preserve_viewbox: true
+                }
+                Label { width: Fit height: Fit text: "move" draw_text.text_style.font_size: 10 draw_text.color: #6E6E73 }
+                Label { width: Fit height: Fit text: "·" draw_text.text_style.font_size: 10 draw_text.color: #6E6E73 }
+                Svg {
+                    width: 9 height: 9
+                    animating: false
+                    draw_svg.svg: crate_resource("self:resources/icons/icon_return.svg")
+                    draw_svg.preserve_viewbox: true
+                }
+                Label { width: Fit height: Fit text: "run" draw_text.text_style.font_size: 10 draw_text.color: #6E6E73 }
+                Label { width: Fit height: Fit text: "· esc" draw_text.text_style.font_size: 10 draw_text.color: #6E6E73 }
+            }
+        } // palette
+        } // palette_dock
+
+        // Card #28e item 6 (board 4 frame 4): the first-run screen. Before a
+        // connection the window shows only a centered 480-wide card area (the
+        // Connect card comes from board 2 mapping in Stage C). This replaces
+        // `base` (`base.set_visible(false)` while `store.is_live()` is false).
+        first_run := View {
+            width: Fill height: Fill flow: Right
+            visible: false
+            draw_bg.color: #FFFFFF
+            // Board 4 frame 4: the sidebar is still there but EMPTY — only
+            // "OctosCode" and a grey "No threads yet".
+            first_run_sidebar := View {
+                width: 260 height: Fill flow: Down spacing: 6
+                draw_bg.color: #F7F7F8
+                padding: Inset{left: 12 right: 10 top: 12 bottom: 12}
+                Label {
+                    width: Fill height: Fit text: "OctosCode"
+                    draw_text.text_style.font_size: 13
+                }
+                Label {
+                    width: Fill height: Fit text: "No threads yet"
+                    draw_text.text_style.font_size: 13
+                    draw_text.color: #6E6E73
+                }
+            }
+            first_run_rule := View {
+                width: 1 height: Fill
+                draw_bg.color: #E5E5E7
+            }
+            first_run_center := View {
+                // #28e6: the card area IS the screen_dock (the Overlay sibling
+                // AFTER first_run, so it paints above this chrome) — the swap
+                // probe proved the dock seats AND renders the Connect DSL
+                // while every first-run-shaped slot mis-seated it to 133x700
+                // (both probe arms, /snap + PNG). Nothing mounts here.
+                width: Fill height: Fill flow: Down
+            }
+        }
+
+        // #28e6: the screens' dock — AND, since the swap probe, the
+        // first-run Connect card area. It sits AFTER first_run in this
+        // Overlay so it paints above the first-run chrome; visible when
+        // OCTOSCODE_SCREEN names a screen or on first run (sync_chrome).
+        screen_dock := View {
+            width: Fill height: Fill
+            align: Align{x: 1.0 y: 0.0}
+            visible: false
+            // Fill/Fill: the reference host (screens_probe.rs:147) gives the
+            // screen the full window; a Fit slot collapsed the mounted tree
+            // to 0x0 (/snap-probed after the move out of review_column).
+            screen_splash := Splash {
+                width: Fill height: Fill
+            }
+        }
+
     }
 }
 
@@ -318,6 +794,117 @@ fn seed_synthetic(store: &Arc<Store>, n: usize) {
     }
 }
 
+/// Card #28e — the board-4 fixture (`design/stage-a/desktop/atlas-prompt.md`):
+/// workspace "octos", the five thread titles, one settled turn (the "Worked
+/// for" row), a session goal, two loops and three fleet peers. Rendered by the
+/// SAME store reads the live path uses (`sync_chrome` / `timeline_rows`) — a
+/// deterministic capture seed: no transport and no clicks (the remote-click
+/// pipeline is known-red: the A/B against fb9b8ce dropped the same clicks).
+fn seed_synthetic_live(store: &Arc<Store>) {
+    use octoscode_store::Session;
+    use octoscode_store::domains::autonomy::{GoalRecord, GoalState, LoopRecord};
+    use octoscode_store::domains::peer::Peer;
+    use octoscode_store::timeline::EntryKind;
+
+    store.set_connection("Live".into(), true);
+    let titles = [
+        "Fix steer queue drop on reconnect",
+        "Add session fork",
+        "Review PR #2566",
+        "Bump octos-core to a6ea8505",
+        "Why is hydrate slow?",
+    ];
+    store.set_sessions(
+        titles
+            .iter()
+            .map(|t| Session {
+                id: format!("board:{t}"),
+                title: Some((*t).to_owned()),
+                message_count: 2,
+                updated_at: None,
+                last_prompt: None,
+                active_turn: false,
+            })
+            .collect(),
+    );
+    let first = format!("board:{}", titles[0]);
+    store.set_active(Some(first.clone()));
+
+    // The conversation column (board 4 frame 1): a user bubble, an answer
+    // paragraph, a settled turn.
+    let answer = "The queued steers were dropped because the input buffer was \
+        cleared on reconnect; `steer_queue.rs` now re-drains the buffer after \
+        the socket is re-established, so commands issued offline reach the turn.";
+    let tl = &store.domains.session.timeline;
+    tl.upsert_user_message(
+        &first,
+        "t1",
+        "Fix the steer queue so queued steers survive a reconnect",
+        serde_json::json!({}),
+    );
+    tl.append(
+        &first,
+        Some("t1".to_owned()),
+        EntryKind::ASSISTANT_TEXT,
+        answer.to_owned(),
+    );
+    tl.finalize_assistant(&first, "t1", answer);
+    tl.close_turn(&first, "t1");
+    store.domains.turn.started("t1");
+    store.domains.turn.set_terminal("t1", "completed");
+
+    // GOALS / LOOPS / FLEET (board 4 frame 3).
+    store.domains.autonomy.set_goal(
+        &first,
+        GoalState {
+            goal: Some(GoalRecord {
+                goal_id: "g1".into(),
+                objective: "Fix steer queue on reconnect".into(),
+                status: "active".into(),
+                token_budget: 0,
+                tokens_used: 0,
+                created_at_ms: 0,
+                updated_at_ms: 0,
+            }),
+            ..Default::default()
+        },
+    );
+    store.domains.autonomy.set_loops(vec![
+        LoopRecord {
+            loop_id: "l1".into(),
+            session_id: first.clone(),
+            profile_id: None,
+            prompt: "Run CI smoke".into(),
+            mode: "auto".into(),
+            status: "active".into(),
+            interval_seconds: Some(900),
+            next_run_at_ms: None,
+            expires_at_ms: 0,
+            updated_at_ms: 0,
+            fires: 0,
+        },
+        LoopRecord {
+            loop_id: "l2".into(),
+            session_id: first.clone(),
+            profile_id: None,
+            prompt: "Nightly review".into(),
+            mode: "auto".into(),
+            status: "paused".into(),
+            interval_seconds: None,
+            next_run_at_ms: None,
+            expires_at_ms: 0,
+            updated_at_ms: 0,
+            fires: 0,
+        },
+    ]);
+    for (name, topic) in [("tests", "Running"), ("docs", "Blocked"), ("review", "Done")] {
+        let mut p = Peer::named(name);
+        p.topic = Some(topic.into());
+        p.origin_session_id = Some(first.clone());
+        store.domains.peer.upsert(p);
+    }
+}
+
 #[derive(Script, ScriptHook, Widget)]
 pub struct OctoscodeView {
     #[deref]
@@ -345,10 +932,19 @@ pub struct OctoscodeView {
     thread_uid: u64,
     #[rust]
     timeline_uid: u64,
+    /// Card #28e — the command palette's `PortalList` uid (0 = not captured).
+    #[rust]
+    palette_uid: u64,
+    /// #28e3 item 1: the window's inner width, tracked from
+    /// `WindowGeomChange` (0 = no event yet — treated as wide).
+    #[rust]
+    window_w: f64,
 }
 
 impl OctoscodeView {
-    fn start(&mut self) {
+    // #28e4 merge: the #28e2 signature (cx — the palette search field is
+    // pre-filled through it) carries main's #29d error-screen seed.
+    fn start(&mut self, cx: &mut Cx) {
         // #29d — seed the error screen the way the host's crash boundary would
         // (`OCTOSCODE_ERROR_SEED`; the `OCTOSCODE_SYNTHETIC_TIMELINE` precedent:
         // a proof-only seed, no transport). The sample carries secrets so the
@@ -372,6 +968,35 @@ impl OctoscodeView {
                 seed_synthetic(&b.store, n);
             }
             ::log::info!("[octoscode] synthetic timeline: {n} entries (no transport)");
+            return;
+        }
+        // Card #28e — the board-4 capture seed: a LIVE-looking store so the
+        // window draws the full base chrome (sidebar, conversation, panels)
+        // with the board's own fixture rows. No transport.
+        if std::env::var("OCTOSCODE_SYNTHETIC_LIVE").is_ok() {
+            {
+                let b = self.bridge.lock().unwrap();
+                seed_synthetic_live(&b.store);
+                let mut u = b.ui.lock().unwrap();
+                u.begin_turn_now("t1");
+                u.end_turn_now(true);
+            }
+            // #28e2 item 5: the palette's search field shows the typed
+            // "/mo" like board 4 frame 3.
+            self.view
+                .text_input(cx, &[live_id!(palette_search)])
+                .set_text(cx, "/mo");
+            makepad_widgets::log!("[octoscode] synthetic live: board-4 seed (no transport)");
+            return;
+        }
+        // Card #28e item 6 (board 4 frame 4): the first-run frame needs NO
+        // connection, so `is_live()` stays false and the window shows only the
+        // centered 480 px card. `OCTOSCODE_NO_CONNECT`/`OCTOSCODE_FIRST_RUN`
+        // gate the transport off for that capture.
+        if std::env::var("OCTOSCODE_NO_CONNECT").is_ok()
+            || std::env::var("OCTOSCODE_FIRST_RUN").is_ok()
+        {
+            ::log::info!("[octoscode] first-run: no transport (board 4 frame 4)");
             return;
         }
         let base =
@@ -633,6 +1258,24 @@ impl OctoscodeView {
                 let _ = ui.lock().map(|mut u| u.toggle_expanded(key));
                 return;
             }
+            // Card #28e — board-4 chrome toggles. Flip the FlowUi flag; the
+            // next `sync_labels` moves it onto the view (`set_visible`).
+            actions::Effect::UiChrome(which) => {
+                if let Ok(mut u) = ui.lock() {
+                    match which {
+                        actions::UiChrome::ReviewToggle => {
+                            u.toggle_review();
+                        }
+                        actions::UiChrome::SettingsToggle => {
+                            u.toggle_settings();
+                        }
+                        actions::UiChrome::PaletteToggle => {
+                            u.toggle_palette();
+                        }
+                    }
+                }
+                return;
+            }
             actions::Effect::Unhandled(id) => {
                 ::log::warn!("octoscode: unhandled action id {id:?}");
                 return;
@@ -780,6 +1423,7 @@ impl OctoscodeView {
             // Handled above / needs `cx` (copy).
             actions::Effect::ToggleTool(_)
             | actions::Effect::Unhandled(_)
+            | actions::Effect::UiChrome(_)
             | actions::Effect::CopyAnswer => {}
             actions::Effect::Screen(other) => match other {
                 crate::screens::palette::Effect::Run(..) => unreachable!("matched above"),
@@ -983,7 +1627,13 @@ impl OctoscodeView {
         // is pending. OCTOSCODE_SCREEN=palette|error|loading names one; unset
         // leaves the screen exactly as before this card. The mount cache
         // compares the DSL string, so live-slot flips repaint exactly once.
-        if let Ok(which) = std::env::var("OCTOSCODE_SCREEN") {
+        if let Some(which) = std::env::var("OCTOSCODE_SCREEN")
+            .ok()
+            .filter(|v| !matches!(v.as_str(), "connect" | "connect_failed" | "onboarding"))
+        {
+            // #28e6: connect is NOT mounted here — on first run it mounts
+            // into THIS dock via the !live path (below); the other two setup
+            // screens have no home yet. The handler keeps the #29d screens.
             let screen_splash = self.view.splash(cx, ids!(screen_splash));
             let store = { self.bridge.lock().unwrap().store.clone() };
             // #30e — OCTOSCODE_THEME seeds the preference (system default),
@@ -1006,6 +1656,38 @@ impl OctoscodeView {
                 makepad_widgets::log!("[octoscode] screen mount: {e}");
             }
         }
+        // #28e4 item 2: the first-run card area mounts the REAL board-2
+        // Connect screen (setup-01, #29a) — `screens::connect::lower_screen`
+        // lowers the authored Stage B card with the ConnectUi copies applied,
+        // so the label contrast is the design's own and Connect routes for
+        // real (`screens::connect::is_action` -> `resolve`, handled in this
+        // file's action path). The mount cache dedupes, so this is cheap
+        // while the first run is showing.
+        // #28e6: on first run the dock IS the card area — it mounts the REAL
+        // board-2 Connect screen (setup-01, #29a) via
+        // `screens::connect::lower_screen` (ConnectUi copies applied; Connect
+        // routes for real via `is_action` -> `resolve` in the action path).
+        // The approved swap probe (73ec4a2 + e53d5ec; /snap + PNG under
+        // tmp/28e-evidence/28e6-*) proved every first-run-shaped slot
+        // mis-seats the measured DSL to 133x700 while the dock seats and
+        // renders it — so first-run mounts through the dock.
+        let live = { self.bridge.lock().unwrap().store.is_live() };
+        if !live {
+            let splash = self.view.splash(cx, ids!(screen_splash));
+            let lowered = {
+                let b = self.bridge.lock().unwrap();
+                let ui = b.screens.lock().unwrap();
+                screens::connect::lower_screen(screens::connect::Screen::Connect, &ui)
+            };
+            match lowered {
+                Ok(dsl) => {
+                    if let Err(e) = self.mounts.mount(cx, &splash, &dsl) {
+                        makepad_widgets::log!("[octoscode] connect mount: {e}");
+                    }
+                }
+                Err(e) => makepad_widgets::log!("[octoscode] connect lower: {e}"),
+            }
+        }
         // Card #21d item 5: the `new-chat` component (#16) is the thread
         // column's first row. The row existed but was never mounted, so it
         // rendered as an empty pill (no label, no compose icon).
@@ -1021,9 +1703,166 @@ impl OctoscodeView {
         if let Err(e) = self.mounts.mount(cx, &new_chat_splash, &new_chat) {
             makepad_widgets::log!("[octoscode] new-chat mount: {e}");
         }
+        self.sync_chrome(cx);
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
     }
 
+    /// Card #28e — move the chrome state (FlowUi flags + store) onto the view:
+    /// the first-run swap, the review panel / settings drawer / palette /
+    /// dimmer visibility, and the GOALS/LOOPS/FLEET sidebar sections.
+    fn sync_chrome(&mut self, cx: &mut Cx) {
+        // Card #28e — the headless-capture gate: `OCTOSCODE_CHROME=review|
+        // settings|palette` pre-opens that surface deterministically (a
+        // headless run cannot click the toggle). Parsed once per process.
+        let (env_review, env_settings, env_palette) = chrome_env();
+        let (live, review, settings, palette) = {
+            let b = self.bridge.lock().unwrap();
+            (
+                b.store.is_live(),
+                b.ui.lock().map(|u| u.review_open()).unwrap_or(false) || env_review,
+                b.ui.lock().map(|u| u.settings_open()).unwrap_or(false) || env_settings,
+                b.ui.lock().map(|u| u.palette_open()).unwrap_or(false) || env_palette,
+            )
+        };
+        // First run (board 4 frame 4): before a connection the window shows
+        // only the centered card area; the base chrome is hidden.
+        // #28e3 item 1: the authoritative window width. Hidden-window
+        // captures never fire WindowGeomChange, and the shell sizes the
+        // window FROM this env — so when present it IS the width; real
+        // windows (no env) keep the event-tracked value instead.
+        if let Ok(sz) = std::env::var("OCTOSENSE_WINDOW_SIZE") {
+            if let Some((w, _)) = sz.split_once('x') {
+                if let Ok(w) = w.parse::<f64>() {
+                    if w > 0.0 {
+                        self.window_w = w;
+                    }
+                }
+            }
+        }
+        // #28e3 item 1: the responsive layout. The center column keeps a
+        // 420 px minimum: at wide windows (>= 1260 = 260 sidebar + 2x10
+        // spacing + 420 center + 560 review) the docked panels reserve their
+        // room via the columns spacers and the overlay docks paint exactly
+        // over them; below that the spacers hide and the docks OVERLAY from
+        // the right with the dimmer. Below 760 px the sidebar hides too
+        // (Codex-style). A panel's dock wrapper hides with it (a visible
+        // Fill/Fill overlay would shadow the composer's buttons).
+        let wide = self.window_w == 0.0 || self.window_w >= 1260.0;
+        let show_sidebar = self.window_w == 0.0 || self.window_w >= 760.0;
+        self.view.widget(cx, ids!(base)).set_visible(cx, live);
+        self.view.widget(cx, ids!(first_run)).set_visible(cx, !live);
+        self.view.widget(cx, ids!(threads_column)).set_visible(cx, show_sidebar);
+        self.view.widget(cx, ids!(review_dock)).set_visible(cx, review);
+        self.view.widget(cx, ids!(review_panel)).set_visible(cx, review);
+        self.view
+            .widget(cx, ids!(columns_review_spacer))
+            .set_visible(cx, wide && review);
+        self.view.widget(cx, ids!(settings_dock)).set_visible(cx, settings);
+        self.view.widget(cx, ids!(settings_drawer)).set_visible(cx, settings);
+        self.view
+            .widget(cx, ids!(columns_settings_spacer))
+            .set_visible(cx, wide && settings);
+        self.view.widget(cx, ids!(palette)).set_visible(cx, palette);
+        self.view.widget(cx, ids!(palette_dock)).set_visible(cx, palette);
+        self.view
+            .widget(cx, ids!(dimmer))
+            .set_visible(cx, palette || settings || (review && !wide));
+        // #28e4: the #29d proof-screen dock is visible only when
+        // OCTOSCODE_SCREEN names one of them — a visible Fill/Fill wrapper
+        // shadows the clicks under it. `connect` is NOT docked: it mounts in
+        // the first-run card area (sync_labels).
+        // #28e6: on first run the dock IS the Connect card area (the swap
+        // probe proved the first-run-shaped slots mis-seat the card). A
+        // visible Fill/Fill wrapper shadows clicks under it, but on first run
+        // only the first-run chrome is under it.
+        let screen_dock_shown = std::env::var("OCTOSCODE_SCREEN")
+            .map(|v| matches!(v.as_str(), "palette" | "error" | "loading"))
+            .unwrap_or(false)
+            || !live;
+        self.view
+            .widget(cx, ids!(screen_dock))
+            .set_visible(cx, screen_dock_shown);
+
+        // GOALS / LOOPS / FLEET rows (board 4 frame 3): visible only when the
+        // session has them.
+        let (goals, loops, fleet) = {
+            let b = self.bridge.lock().unwrap();
+            let session = b.store.active_session();
+            let goal = session
+                .as_deref()
+                .and_then(|s| b.store.domains.autonomy.goal(s));
+            let goal_txt = goal
+                .map(|g| format!("{} · {}", g.objective, g.status))
+                .unwrap_or_default();
+            let loops: Vec<String> = b
+                .store
+                .domains
+                .autonomy
+                .loops()
+                .into_iter()
+                .map(|l| match l.interval_seconds {
+                    // Board 4 frame 3: "Run CI smoke · every 15 min"; a loop
+                    // without a cadence shows its status (paused).
+                    Some(s) if s % 60 == 0 => format!("{} · every {} min", l.prompt, s / 60),
+                    _ => format!("{} · {}", l.prompt, l.status),
+                })
+                .collect();
+            let fleet: Vec<String> = b
+                .store
+                .domains
+                .peer
+                .list()
+                .into_iter()
+                .map(|p| {
+                    // Board 4 frame 3: "tests · Running" — the peer's topic
+                    // when it has one, else the open/closed state.
+                    let state = p.topic.clone().unwrap_or_else(|| {
+                        if p.closed { "closed".into() } else { "open".into() }
+                    });
+                    format!("{} · {}", p.name, state)
+                })
+                .collect();
+            (goal_txt, loops, fleet)
+        };
+        let any = !goals.is_empty() || !loops.is_empty() || !fleet.is_empty();
+        self.view.widget(cx, ids!(autonomy_sections)).set_visible(cx, any);
+        self.view.label(cx, ids!(goal_row_1)).set_text(cx, &goals);
+        let mut set_rows = |ids: &[LiveId], rows: &[String]| {
+            for (i, id) in ids.iter().enumerate() {
+                let txt = rows.get(i).cloned().unwrap_or_default();
+                self.view.label(cx, &[*id]).set_text(cx, &txt);
+            }
+        };
+        set_rows(&[live_id!(loop_row_1), live_id!(loop_row_2)], &loops);
+        set_rows(
+            &[live_id!(fleet_row_1), live_id!(fleet_row_2), live_id!(fleet_row_3)],
+            &fleet,
+        );
+        // #28e2 item 3: the Blocked row carries the board's yellow status dot.
+        for (i, dot) in [
+            live_id!(fleet_dot_1),
+            live_id!(fleet_dot_2),
+            live_id!(fleet_dot_3),
+        ]
+        .iter()
+        .enumerate()
+        {
+            let blocked = fleet.get(i).map(|t| t.contains("Blocked")).unwrap_or(false);
+            self.view.widget(cx, &[*dot]).set_visible(cx, blocked);
+        }
+    }
+
+}
+
+/// Card #28e — the `OCTOSCODE_CHROME` capture gate, parsed once.
+fn chrome_env() -> (bool, bool, bool) {
+    static CHROME: std::sync::OnceLock<(bool, bool, bool)> = std::sync::OnceLock::new();
+    *CHROME.get_or_init(|| {
+        let v = std::env::var("OCTOSCODE_CHROME")
+            .unwrap_or_default()
+            .to_lowercase();
+        (v == "review", v == "settings", v == "palette")
+    })
 }
 
 impl Widget for OctoscodeView {
@@ -1033,8 +1872,10 @@ impl Widget for OctoscodeView {
         if self.thread_uid == 0 {
             self.thread_uid = self.view.portal_list(cx, ids!(thread_list)).widget_uid().0;
             self.timeline_uid = self.view.portal_list(cx, ids!(timeline_list)).widget_uid().0;
+            self.palette_uid = self.view.portal_list(cx, ids!(palette_list)).widget_uid().0;
         }
-        let (thread_uid, timeline_uid) = (self.thread_uid, self.timeline_uid);
+        let (thread_uid, timeline_uid, palette_uid) =
+            (self.thread_uid, self.timeline_uid, self.palette_uid);
         // Both the lowering cache and the mount cache are taken OUT of self so the
         // loop body borrows only `bridge` (a local Arc) — `self.view.draw_walk`
         // already holds `self.view`.
@@ -1092,6 +1933,23 @@ impl Widget for OctoscodeView {
                         }
                         item.draw_all_unscoped(cx);
                     }
+                } else if uid == palette_uid {
+                    // Card #28e — the command palette's rows: (monospace) name
+                    // + grey description, first row highlighted by the shell's
+                    // hover state.
+                    let rows = palette_commands();
+                    list.set_item_range(cx, 0, rows.len());
+                    while let Some(id) = list.next_visible_item(cx) {
+                        let Some((name, desc)) = rows.get(id) else { continue };
+                        let item = list.item(cx, id, id!(PaletteRowTpl));
+                        // #28e2 item 5: only the first row carries the
+                        // board's highlight.
+                        item.widget(cx, ids!(palette_row_bg))
+                            .set_visible(cx, id == 0);
+                        item.label(cx, ids!(palette_row_name)).set_text(cx, name);
+                        item.label(cx, ids!(palette_row_desc)).set_text(cx, desc);
+                        item.draw_all_unscoped(cx);
+                    }
                 }
             }
         }
@@ -1104,11 +1962,18 @@ impl Widget for OctoscodeView {
         self.view.handle_event(cx, event, scope);
         if !self.started {
             self.started = true;
-            self.start();
+            self.start(cx);
             self.sync_labels(cx);
         }
         match event {
             Event::Signal => self.sync_labels(cx),
+            // #28e3 item 1: track the window width — the responsive layout
+            // (center min 420, review overlay when narrow, sidebar hidden
+            // below 760) re-derives in `sync_chrome`.
+            Event::WindowGeomChange(ev) => {
+                self.window_w = ev.new_geom.inner_size.x;
+                self.sync_chrome(cx);
+            }
             Event::Actions(actions) => {
                 // Card #21c item 5: the ONE composer is the mounted #16
                 // component. Its own input is a real `TextInput` (id
@@ -1120,7 +1985,15 @@ impl Widget for OctoscodeView {
                     .text_input(cx, &[live_id!(i0_composer_0)])
                     .changed(actions)
                 {
-                    self.bridge.lock().unwrap().ui.lock().unwrap().set_draft_inner(text);
+                    // Card #28e item 5: "/" typed into an EMPTY composer opens
+                    // the command palette (board 4 frame 3).
+                    if text == "/" {
+                        if let Ok(mut u) = self.bridge.lock().unwrap().ui.lock() {
+                            u.set_palette_open(true);
+                        }
+                    }
+                    self.bridge.lock().unwrap().ui.lock().unwrap().set_draft_inner(text.clone());
+                    makepad_widgets::log!("[octoscode] draft synced: {} chars", text.len());
                 }
                 if self.view.button(cx, ids!(refresh)).clicked(actions) {
                     self.perform_action("session.refresh", 0);
@@ -1133,6 +2006,7 @@ impl Widget for OctoscodeView {
                 // control is STOP (scene 08 / Codex) and sends `turn/interrupt`
                 // (the L1 fix); otherwise it submits the draft.
                 if self.view.button(cx, ids!(send_hit)).clicked(actions) {
+                    makepad_widgets::log!("[octoscode] send_hit clicked");
                     let live = {
                         let b = self.bridge.lock().unwrap();
                         let ctx = bindings::Ctx::new(&b.store, &b.ui);
@@ -1188,7 +2062,49 @@ impl Widget for OctoscodeView {
                         }
                     }
                 }
+                // Card #28e — the board-4 chrome controls.
+                if self.view.button(cx, ids!(review_toggle_hit)).clicked(actions)
+                    || self.view.button(cx, ids!(review_close)).clicked(actions)
+                {
+                    self.perform_action("review.toggle", 0);
+                }
+                if self.view.button(cx, ids!(settings_close)).clicked(actions) {
+                    self.perform_action("settings.toggle", 0);
+                }
                 self.sync_labels(cx);
+            }
+            // Card #28e — board-4 keys. Esc closes the palette (frame 3);
+            // Cmd+K toggles it.
+            Event::KeyDown(e) => {
+                let ui = self.bridge.lock().unwrap().ui.clone();
+                let mut open_changed = false;
+                if let Ok(mut u) = ui.lock() {
+                    if e.key_code == KeyCode::Escape && u.palette_open() {
+                        u.set_palette_open(false);
+                        open_changed = true;
+                    } else if e.key_code == KeyCode::KeyK && e.modifiers.logo {
+                        u.toggle_palette();
+                        open_changed = true;
+                    } else if e.key_code == KeyCode::KeyE && e.modifiers.logo {
+                        u.toggle_review();
+                        open_changed = true;
+                    } else if e.key_code == KeyCode::Period && e.modifiers.logo {
+                        u.toggle_settings();
+                        open_changed = true;
+                    // Card #28e item 5: typing "/" in an EMPTY composer opens
+                    // the palette (board 4 frame 3). A non-empty draft keeps
+                    // the "/" as text.
+                    } else if e.key_code == KeyCode::Slash
+                        && !u.palette_open()
+                        && u.draft().is_empty()
+                    {
+                        u.set_palette_open(true);
+                        open_changed = true;
+                    }
+                }
+                if open_changed {
+                    self.sync_labels(cx);
+                }
             }
             _ => {}
         }
@@ -1197,6 +2113,20 @@ impl Widget for OctoscodeView {
 
 pub struct OctoscodeModule;
 pub static OCTOSCODE_MODULE: OctoscodeModule = OctoscodeModule;
+
+/// Card #28e — the board-4 command palette rows (frame 3): monospace name +
+/// grey description. Static shell data for now; the actions they route land
+/// with the Stage-C command surface.
+fn palette_commands() -> Vec<(&'static str, &'static str)> {
+    vec![
+        ("/model", "Switch model"),
+        ("/monitor", "Add a monitor"),
+        ("/mode", "Change permissions"),
+        ("/compact", "Compact context"),
+        ("/btw", "Ask a side question"),
+        ("/resume", "Resume a session"),
+    ]
+}
 
 impl AppModule for OctoscodeModule {
     fn id(&self) -> &'static str {

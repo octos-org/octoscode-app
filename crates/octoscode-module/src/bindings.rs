@@ -108,6 +108,17 @@ pub const ACTIONS: &[(&str, &str)] = &[
     // Screen actions (#29d palette, #29a/#29c workspace/connect/models) are NOT
     // declared here: each screen owns its own table (the one-owner rule,
     // #29d3) — `screens::palette::owns_action` and its siblings.
+    // Card #28e/#28e4 — the board-4 shell/chrome toggles are NOT here either
+    // (ACTIONS stays pinned at 9): they own the small table below.
+];
+
+/// Card #28e — the board-4 shell/chrome toggles (all UI-local; no protocol
+/// method). A separate small table so the conversation `ACTIONS` stays the
+/// pinned 9-row contract the tests assert.
+pub const CHROME_ACTIONS: &[(&str, &str)] = &[
+    ("review.toggle", "toggle the 560 px Review panel (UI-local)"),
+    ("settings.toggle", "toggle the 420 px Session-settings drawer (UI-local)"),
+    ("palette.toggle", "toggle the floating '/' command palette (UI-local)"),
 ];
 
 /// The conversation action ids the fallback view emits (its buttons map to
@@ -593,14 +604,30 @@ mod tests {
             assert!(is_action(id), "{id} must be an action");
         }
         // The four conversation actions + session.refresh + session.new
-        // (card #14 defect 4: New chat mints a fresh session id) + card #21 §3's
-        // three per-item controls (thread.open, answer.copy, tool.toggle).
+        // (card #14 defect 4: New chat mints a fresh session id) + card
+        // #21 §3's three per-item controls (thread.open, answer.copy,
+        // tool.toggle) — 9 rows. #28e4 merge: the board-4 chrome toggles are
+        // NOT here (main's f29d pins ACTIONS at 9; the one-owner rule) —
+        // they own the CHROME_ACTIONS table below, UI-local ids the router
+        // matches literally in `actions::resolve`, never through this table.
         assert_eq!(ACTIONS.len(), 9);
+        assert_eq!(CHROME_ACTIONS.len(), 3);
+        for (id, _) in CHROME_ACTIONS {
+            assert!(
+                !ACTIONS.iter().any(|(a, _)| a == id),
+                "{id} leaked into the conversation ACTIONS"
+            );
+            assert!(
+                !is_action(id),
+                "{id} is UI-local chrome — it must not be a binding action"
+            );
+        }
         assert!(is_action("composer.submit"));
         assert!(is_action("turn.interrupt"));
         assert!(is_action("turn.steer"));
         assert!(is_action("answer.expand"));
         assert!(is_action("session.new"), "New chat is a declared action");
         assert!(!is_action("session.delete"));
+        assert!(!is_action("review.toggle"));
     }
 }

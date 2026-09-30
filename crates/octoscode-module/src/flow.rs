@@ -196,6 +196,11 @@ pub struct FlowUi {
     expanded: Vec<String>,
     /// `answer.expand` state (the "worked for" disclosure).
     answer_expanded: bool,
+    /// Card #28e: UI-local chrome toggles for board 4. All UI-local — the
+    /// store/protocol never sees them (the `tools[].expanded` precedent).
+    review_open: bool,
+    settings_open: bool,
+    palette_open: bool,
 }
 
 impl FlowUi {
@@ -362,6 +367,39 @@ impl FlowUi {
     /// `answer.expand` — the "worked for" disclosure toggle.
     pub fn answer_expanded(&self) -> bool {
         self.answer_expanded
+    }
+
+    /// Card #28e — UI-local chrome state (board 4). All three are toggles the
+    /// view reads on every redraw; none reaches the protocol.
+    pub fn review_open(&self) -> bool {
+        self.review_open
+    }
+
+    pub fn toggle_review(&mut self) -> bool {
+        self.review_open = !self.review_open;
+        self.review_open
+    }
+
+    pub fn settings_open(&self) -> bool {
+        self.settings_open
+    }
+
+    pub fn toggle_settings(&mut self) -> bool {
+        self.settings_open = !self.settings_open;
+        self.settings_open
+    }
+
+    pub fn palette_open(&self) -> bool {
+        self.palette_open
+    }
+
+    pub fn set_palette_open(&mut self, open: bool) {
+        self.palette_open = open;
+    }
+
+    pub fn toggle_palette(&mut self) -> bool {
+        self.palette_open = !self.palette_open;
+        self.palette_open
     }
     pub fn toggle_answer_expanded(&mut self) -> bool {
         self.answer_expanded = !self.answer_expanded;
