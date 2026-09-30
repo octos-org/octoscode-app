@@ -512,6 +512,11 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
                         .iter()
                         .any(|k| id.contains(k));
                     if icon {
+                        // #32c2 item 5: re-centre by the ACTUAL growth
+                        // (Δ = 0.1·w, not a flat 1.2px) — the 44px trash
+                        // needs 2.2px or its right side crosses the card's
+                        // inner edge (384) and clips.
+                        let (ow, oh) = (n.attrs.w.unwrap_or(0.0), n.attrs.h.unwrap_or(0.0));
                         if let Some(w) = n.attrs.w.as_mut() {
                             *w *= 1.1;
                         }
@@ -519,10 +524,10 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
                             *h *= 1.1;
                         }
                         if let Some(x) = n.attrs.x.as_mut() {
-                            *x -= 1.2;
+                            *x -= f64::from(ow * 0.05);
                         }
                         if let Some(y) = n.attrs.y.as_mut() {
-                            *y -= 1.2;
+                            *y -= f64::from(oh * 0.05);
                         }
                     }
                     if id.ends_with("_pause") && play_ids.iter().any(|p| p == &id) {
