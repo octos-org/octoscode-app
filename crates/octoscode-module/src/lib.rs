@@ -210,7 +210,7 @@ script_mod! {
                             width: Fill height: 32 flow: Right spacing: 6
                             fleet_dot_1 := View {
                                 width: 8 height: 8 margin: Inset{top: 4}
-                                draw_bg.color: #E5B800 border_radius: 4.0
+                                draw_bg +: {color: #E5B800 border_radius: 4.0}
                                 visible: false
                             }
                             fleet_row_1 := Label {
@@ -223,7 +223,7 @@ script_mod! {
                             width: Fill height: 32 flow: Right spacing: 6
                             fleet_dot_2 := View {
                                 width: 8 height: 8 margin: Inset{top: 4}
-                                draw_bg.color: #E5B800 border_radius: 4.0
+                                draw_bg +: {color: #E5B800 border_radius: 4.0}
                                 visible: false
                             }
                             fleet_row_2 := Label {
@@ -236,7 +236,7 @@ script_mod! {
                             width: Fill height: 32 flow: Right spacing: 6
                             fleet_dot_3 := View {
                                 width: 8 height: 8 margin: Inset{top: 4}
-                                draw_bg.color: #E5B800 border_radius: 4.0
+                                draw_bg +: {color: #E5B800 border_radius: 4.0}
                                 visible: false
                             }
                             fleet_row_3 := Label {
