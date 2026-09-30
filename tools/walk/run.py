@@ -683,17 +683,22 @@ def comp_send(app):
     return "send_hit" in app.widget_ids(app.snap()), "send_hit present"
 
 
-@check("composer", "a queued follow-up is held while the turn is live and a reselect replays nothing",
+@check("composer", "a follow-up drains as its own turn and a reselect replays nothing",
        rows=("unknown turn",))
 def c_queue(app):
-    # Row 190's own case, the slices the replay fixture can carry (probed):
-    # a second prompt sent back-to-back is QUEUED while the turn is live
-    # (both bubbles render), and reselecting the thread neither duplicates
-    # bubbles nor mints a session. The DRAIN slice (the queued follow-up
-    # leaving as its own turn) is not assertable here: the live-gate fixture
-    # exists to reproduce "the second turn never appears" (#21c L2 — its
-    # recorded turn never terminates; the retest server log saw exactly ONE
-    # turn/start), so the queue-held side is the honest assertion.
+    # Row 190's drivable slice. While a turn is live the send control IS the
+    # stop control (lib.rs:1685-1694 swaps the glyph AND the action), so a
+    # second prompt cannot be driven through the window mid-turn — the two
+    # prompts are driven sequentially and the assertions cover the
+    # replay-observable slices: each follow-up becomes its own turn, neither
+    # bubble duplicates, and reselecting the thread replays nothing (the
+    # queued-mid-turn slice needs a keyboard-queue path this card did not
+    # probe out; the retest server log saw ONE turn/start for the mid-turn
+    # second send — it was an interrupt, not a send).
+    def proses(snap):
+        return sum(1 for w in snap.get("s", [])
+                   if "assistantprose" in str(w.get("i", "")))
+
     r = None
     for _ in range(20):
         d = app.snap()
@@ -702,11 +707,15 @@ def c_queue(app):
             break
         time.sleep(0.5)
     app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
+    base = proses(app.snap())
     app.clear_composer(); app.type("walk queue one"); app.send()
+    app.wait_for(lambda s: proses(s) > base, timeout=60,
+                 what="queue one's own answer")
+    r = app.rect_re(app.snap(), COMPOSER_INPUT_RE)
+    app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
     app.clear_composer(); app.type("walk queue two"); app.send()
-    app.wait_for(lambda s: {"walk queue one", "walk queue two"}
-                 <= {t for t in (w.get("t") for w in s.get("s", [])) if t},
-                 timeout=20, what="both bubbles to render")
+    app.wait_for(lambda s: proses(s) > base + 1, timeout=60,
+                 what="queue two's own answer")
     d = app.snap()
     tr = app.rect_re(d, THREAD_ROW_RE)
     app.click(int(tr[0] + tr[2] / 2), int(tr[1] + tr[3] / 2))
@@ -717,7 +726,7 @@ def c_queue(app):
                  and texts.count("walk queue two") == 1)
     sessions = (app.text_of(d, "sessions") or "").strip()
     ok = no_replay and "1" in sessions
-    return ok, f"queued_both_held={no_replay} {sessions!r}"
+    return ok, f"turns_own_no_replay={no_replay} {sessions!r}"
 
 
 @check("composer", "the conversation column hosts the timeline PortalList")
