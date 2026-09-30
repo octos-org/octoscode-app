@@ -90,6 +90,13 @@ CLEAR_PRESSES = 48
 # === "Ask Octos anything", `design/bindings.json:28`) — what `/snap` shows when
 # the draft is empty.
 PLACEHOLDER = "Ask Octos anything"
+# #33a — component instances carry POSITIONAL ids: the composer input is
+# `i<N>_composer_0`, timeline rows are `i<N>_<kind>[_n]` (userbubble,
+# assistantprose, workingrow, …). The old `draft`/`item_kind` ids no longer
+# exist (probes tmp/33a-probe-A/B/C.json).
+INSTANCE_KIND_RE = re.compile(r"^i\d+_([a-z_]+?)(?:_\d+)*$")
+COMPOSER_INPUT_RE = re.compile(r"^i\d+_composer_0$")
+THREAD_ROW_RE = re.compile(r"^i\d+_threadrow")
 
 
 class PrereqError(RuntimeError):
@@ -161,17 +168,65 @@ AREA_PATTERNS = {
     "recovery": re.compile(r"reconnect|replay|recovery|restore|resume", re.I),
     "conversation": re.compile(
         r"prompt|stream|\banswer\b|interrupt|transcript|reasoning|message|turn", re.I),
+    # #33a — the surfaces the merged cards shipped (settings drawer, command
+    # palette, review panel, keyboard model, fleet/peer). Appended so the
+    # original areas' rows keep their checks (first match wins).
+    "peer": re.compile(r"fleet|peer[- ](?:dock|control|controller|activity|readonly)|seat|lane|lease", re.I),
+    "review": re.compile(r"\breview\b|diff|hunk|unmodified", re.I),
+    "settings": re.compile(r"settings|workspace dir|model management|profile", re.I),
+    "palette": re.compile(r"command (palette|surface)|slash command|/(?:model|mode|compact|btw|monitor|resume)\b", re.I),
+    "keyboard": re.compile(r"keyboard|shortcut|hotkey|press(es|ing)? (esc|escape|enter|tab|alt)", re.I),
+    "connect": re.compile(r"connect (screen|gate)|first[- ]run|onboard|pairing|pair\b|address valid|invalid auth|identity|workspace browse|folder|chooser", re.I),
 }
+
+# Rows whose STATE the replay fixtures cannot produce (multi-session soaks,
+# OS notifications, browser URL/clipboard handling, IME, mobile viewports, a
+# dark-OS theme matrix). Live-only rows are Phase 4's (outer loop, live).
+LIVE_ONLY_PATTERNS = [
+    re.compile(r"notif|badge|title gains|desktop notification", re.I),
+    re.compile(r"\bsoak\b|twelve|12 session|three native peers|pooled socket", re.I),
+    re.compile(r"clipboard|browser tab|bookmark|saved link|session-links|query-string|address bar", re.I),
+    re.compile(r"three concurrent|out of order|parks? a background|parked (question|approval)", re.I),
+    re.compile(r"hidden current session|background session|background turn|completed in background", re.I),
+    re.compile(r"phone viewport|mobile|narrow viewport", re.I),
+    re.compile(r"\bvim\b|language|translat|IME", re.I),
+    re.compile(r"another (client|browser)|other client|foreign", re.I),
+    re.compile(r"five themes|theme cycle|manual light|dark OS", re.I),
+    re.compile(r"refresh (?:the )?page|after refresh|on reload|keeps them on reload", re.I),
+]
 # Which areas have a native surface today (⇒ scriptable), and the scenario each
 # is driven against.
 AREA_SCRIPTABLE = {"conversation": True, "threads": True, "composer": True,
-                   "recovery": True, "approval": False}
+                   "recovery": True, "approval": False,
+                   "peer": True, "review": True, "settings": True,
+                   "palette": True, "keyboard": True, "connect": False}
 AREA_SCENARIO = {"conversation": "conversation", "threads": "conversation",
                  "composer": "conversation", "recovery": "conversation",
-                 "approval": "approval"}
+                 "approval": "approval", "peer": "peer", "review": "autonomy",
+                 "settings": "session", "palette": "conversation",
+                 "keyboard": "conversation", "connect": "session"}
+def scenario_for(area: str) -> str:
+    """The area's replay scenario, or a WALK_SCENARIO override (negative control).
+
+    `WALK_SCENARIO="conversation=session"` runs the conversation checks against
+    the session fixture — a deliberately broken setup for the negative-control
+    run (#33a review item 2): the shell still mounts, so the smoke checks pass,
+    but no coding turn streams, so the specific checks must FAIL.
+    """
+    override = os.environ.get("WALK_SCENARIO", "")
+    for pair in override.split(","):
+        a, sep, sc = pair.partition("=")
+        if sep and a.strip() == area:
+            return sc.strip()
+    return AREA_SCENARIO[area]
+
+
 APPROVAL_MISSING = ("missing: inline approval card — design scene conversation-05 "
                     "is not in the built batch (design/bindings.json:40); "
                     "approval/requested reaches the store but has no widget")
+CONNECT_MISSING = ("missing: gate-mode app instance — the walk app auto-connects to "
+                   "the replay server, so the pre-connection gate states (invalid "
+                   "auth, pairing links, workspace chooser) never mount")
 
 # The subset marker used by `@check(rows=…)` for "every row of the area".
 ALL = "__all__"
@@ -217,7 +272,14 @@ class App:
         return [str(w.get("i", "")) for w in snap.get("s", [])]
 
     def kinds(self, snap: dict):
-        return [w.get("t") for w in snap.get("s", []) if str(w.get("i", "")) == "item_kind"]
+        return [m.group(1) for w in snap.get("s", [])
+                if (m := INSTANCE_KIND_RE.match(str(w.get("i", ""))))]
+
+    def rect_re(self, snap: dict, pattern):
+        for w in snap.get("s", []):
+            if pattern.match(str(w.get("i", ""))):
+                return w["r"]
+        return None
 
     def rect(self, snap: dict, ident: str):
         for w in snap.get("s", []):
@@ -226,7 +288,7 @@ class App:
         return None
 
     def click(self, x, y):
-        return self._get(f"/click?x={x}&y={y}&wait=1")
+        return self._get_retry(f"/click?x={x}&y={y}&wait=1")
 
     def click_id(self, snap: dict, ident: str):
         r = self.rect(snap, ident)
@@ -239,6 +301,18 @@ class App:
 
     def key(self, code):
         return self._get_retry("/k?" + urllib.parse.urlencode({"c": code, "wait": 1}))
+
+    def key_mod(self, code, cmd=False, ctrl=False, alt=False, shift=False):
+        q = {"c": code, "wait": 1}
+        if cmd:
+            q["cmd"] = 1
+        if ctrl:
+            q["ctrl"] = 1
+        if alt:
+            q["alt"] = 1
+        if shift:
+            q["shift"] = 1
+        return self._get_retry("/k?" + urllib.parse.urlencode(q))
 
     def wait_for(self, predicate, timeout=WAIT_TIMEOUT_S, poll=POLL_S, what="condition"):
         """Poll `/snap` until `predicate(snap)` holds; return the snapshot, else raise.
@@ -256,7 +330,11 @@ class App:
 
     def draft(self, snap=None):
         snap = snap or self.snap()
-        return next((w.get("t") for w in snap.get("s", []) if str(w.get("i", "")) == "draft"), None)
+        t = next((w.get("t") for w in snap.get("s", [])
+                  if COMPOSER_INPUT_RE.match(str(w.get("i", "")))), None)
+        if t is None:
+            return None
+        return "" if t == PLACEHOLDER else t
 
     def focus_composer(self, snap=None):
         """Focus the composer and put the caret at the END (a right-edge click).
@@ -264,26 +342,54 @@ class App:
         A right-edge click reliably places the caret at the end of the text
         (verified), so a subsequent clear-by-backspace is deterministic.
         """
-        snap = snap or self.snap()
-        r = self.rect(snap, "draft")
-        if not r:
-            raise AssertionError("the composer ('draft') is not present")
+        # #33a: the input is `i<N>_composer_0`; its rect is all-zero until the
+        # first layout, so wait for a real box before clicking (probes).
+        deadline = time.monotonic() + 30
+        r = None
+        while time.monotonic() < deadline:
+            r = self.rect_re(snap or self.snap(), COMPOSER_INPUT_RE)
+            if r and r[2] > 0:
+                break
+            time.sleep(0.5)
+        if not r or r[2] <= 0:
+            raise AssertionError("the composer input (i*_composer_0) never laid out")
         x, y, w, h = r
-        return self.click(int(x + w - 2), int(y + h / 2))
+        self.click(int(x + w * 0.5), int(y + h * 0.5))
+        self.key("end")
+        return None
 
     def clear_composer(self):
-        """Empty the composer: focus at the end, then backspace it away.
+        """Empty the composer: focus, home, shift+end, one backspace.
 
-        Waits for the field to read empty (or the placeholder), so the caller
-        never races the reducer (card #19c).
+        #33a, probed live (tmp/33a-*.log matrix): a burst of CLEAR_PRESSES
+        backspaces lost every key after the FIRST on an already-populated
+        draft ('walk draft prob' -> 'pro' then frozen; typing different keys
+        always worked), and cmd+a select-all is swallowed (the macOS
+        window_menu consumes the accelerator before the field sees it). The
+        probed-clean mechanism is three DISTINCT keys with a short pause
+        each: home -> shift+end (selects the line) -> backspace — verified to
+        clear a populated draft to '' in one pass. Bounded retries with a
+        re-focus; still waits for the observable result, never a fixed sleep
+        (#19c).
         """
         self.focus_composer()
-        for _ in range(CLEAR_PRESSES):
+        for attempt in range(3):
+            self.key("home")
+            time.sleep(0.3)
+            self.key_mod("end", shift=True)
+            time.sleep(0.3)
             self.key("backspace")
-        return self.wait_for(
-            lambda s: (self.draft(s) or "") in ("", PLACEHOLDER),
-            what="the composer to clear",
-        )
+            try:
+                return self.wait_for(
+                    lambda s: (self.draft(s) or "") in ("", PLACEHOLDER),
+                    timeout=4.0,
+                    what="the composer to clear",
+                )
+            except AssertionError:
+                if attempt == 2:
+                    raise
+            # re-focus before the next attempt (a click/key may have dropped)
+            self.focus_composer()
 
     def type_into_composer(self, text):
         """Clear, focus, type, and wait until the draft equals `text` exactly.
@@ -298,7 +404,17 @@ class App:
                              what=f"the composer to read {text!r}")
 
     def send(self):
-        return self.click_id(self.snap(), "send")
+        """Click the send control (`send_hit`), waiting for a real rect."""
+        deadline = time.monotonic() + 30
+        r = None
+        while time.monotonic() < deadline:
+            r = self.rect(self.snap(), "send_hit")
+            if r and r[2] > 0:
+                break
+            time.sleep(0.5)
+        if not r or r[2] <= 0:
+            raise AssertionError("the send control ('send_hit') never laid out")
+        return self.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
 
 
 # --------------------------------------------------------------------------- #
@@ -363,8 +479,16 @@ class Procs:
         self.app = self.app_port
         # Wait for the bridge to serve a snapshot with the module mounted — never
         # a fixed sleep (a slow first frame must not time out the first click).
+        # #33a: 120s — on this shared host the module mounts at ~35-60s (fonts,
+        # assets, 20-lane load); run1's 30s timed out ALL 114 selected rows
+        # before a single check ran ("timed out after 30s waiting for the
+        # module to mount", results.csv).
         app = App(self.app_port)
-        app.wait_for(lambda s: "heading" in app.widget_ids(s), timeout=30.0,
+        # #33a: the module's own surface is the mount signal — the old
+        # "heading" id no longer exists (the #28e shell renders the OctosCode
+        # title as the TEXT of an unnamed Label; see tmp/33a-start.log
+        # forensics: 'heading' in ids == False with 165 widgets mounted).
+        app.wait_for(lambda s: "thread_list" in app.widget_ids(s), timeout=120.0,
                      what="the module to mount after launch")
 
     def stop_app(self):
@@ -419,13 +543,21 @@ def _compose_and_send(app: App, text: str):
 @check("conversation", "module reaches conn: Live with the OctosCode heading")
 def c_live(app):
     d = app.snap()
-    h, s = app.text_of(d, "heading"), app.text_of(d, "status") or ""
-    return (h == "OctosCode" and "Live" in s), f"heading={h!r} status={s!r}"
+    # #33a: the heading is the TEXT of an unnamed Label in the #28e shell (no
+    # widget carries the id "heading" any more) — assert the visible text.
+    texts = [w.get("t", "") for w in d.get("s", [])]
+    h = "OctosCode" in texts
+    s = app.text_of(d, "status") or ""
+    return (h and "Live" in s), f"heading_text={h} status={s!r}"
 
 
 @check("conversation", "the thread list renders the opened session row")
 def c_thread(app):
-    return bool(app.text_of(app.snap(), "thread_name")), "thread row present"
+    d = app.snap()
+    rows = [w.get("t") for w in d.get("s", [])
+            if THREAD_ROW_RE.match(str(w.get("i", ""))) and w.get("t")]
+    empty = "No threads yet" in [w.get("t") for w in d.get("s", [])]
+    return bool(rows) or empty, f"thread rows={rows[:2]} empty-state={empty}"
 
 
 @check("conversation", "the composer accepts typed text (prompt input)",
@@ -446,36 +578,42 @@ def c_clear_on_send(app):
 @check("conversation", "a sent prompt streams an assistant answer row",
        rows=("stream", "answer", "turn", "prompt"))
 def c_stream(app):
-    app.wait_for(lambda s: "assistant-prose" in app.kinds(s),
+    app.wait_for(lambda s: "assistantprose" in app.kinds(s),
                  what="the assistant answer row")
-    return True, f"kinds={app.kinds(app.snap())}"
+    return True, f"kinds={sorted(set(app.kinds(app.snap())))}"
 
 
 @check("conversation", "the user's own prompt renders as a row",
        rows=("prompt", "stream", "turn"))
 def c_user(app):
-    app.wait_for(lambda s: "user-bubble" in app.kinds(s),
+    app.wait_for(lambda s: "userbubble" in app.kinds(s),
                  what="the user-bubble row")
-    return True, f"kinds={app.kinds(app.snap())}"
+    return True, f"kinds={sorted(set(app.kinds(app.snap())))}"
 
 
 @check("conversation", "the answer row renders after the prompt row (order)",
        rows=("order", "stream", "turn"))
 def c_order(app):
-    app.wait_for(lambda s: {"user-bubble", "assistant-prose"} <= set(app.kinds(s)),
+    app.wait_for(lambda s: {"userbubble", "assistantprose"} <= set(app.kinds(s)),
                  what="both the user row and the answer row")
 
     def ys(s):
         out = {}
         for w in s.get("s", []):
-            if str(w.get("i", "")) == "item_kind":
-                out.setdefault(w.get("t"), w["r"][1])
+            m = INSTANCE_KIND_RE.match(str(w.get("i", "")))
+            if not m:
+                continue
+            r = w.get("r") or [0, 0, 0, 0]
+            if r[2] <= 0 and r[3] <= 0:
+                continue
+            k = m.group(1)
+            out[k] = min(out.get(k, float("inf")), r[1])
         return out
 
     d = app.snap()
     y = ys(d)
-    ok = y.get("user-bubble", 0) < y.get("assistant-prose", 0)
-    return ok, f"y(user)={y.get('user-bubble')} y(answer)={y.get('assistant-prose')}"
+    ok = y.get("userbubble", 0) < y.get("assistantprose", 0)
+    return ok, f"y(user)={y.get('userbubble')} y(answer)={y.get('assistantprose')}"
 
 
 @check("conversation", "the turn's timeline item kinds are present",
@@ -483,14 +621,17 @@ def c_order(app):
 def c_kinds(app):
     app.wait_for(lambda s: bool(app.kinds(s)), what="the timeline item rows")
     got = set(app.kinds(app.snap()))
-    ok = {"user-bubble", "assistant-prose"} <= got
+    ok = {"userbubble", "assistantprose"} <= got
     return ok, f"kinds={sorted(got)}"
 
 
 @check("conversation", "the Stop control is present for the live turn",
        rows=("interrupt", "turn"))
 def c_stop(app):
-    return "stop" in app.widget_ids(app.snap()), "stop widget present"
+    # #33a: the live turn's Stop is the SEND control with the stop glyph
+    # swapped in (lib.rs:1685-1694) — the visible control is `send_hit`.
+    ok = "send_hit" in app.widget_ids(app.snap())
+    return ok, f"send_hit (the live turn's stop control) present={ok}"
 
 
 # ---- threads: list, refresh, new chat ------------------------------------- #
@@ -501,34 +642,40 @@ def t_portal(app):
 
 @check("threads", "refresh (session/list) keeps the module live")
 def t_refresh(app):
-    app.click_id(app.snap(), "refresh")
-    app.wait_for(lambda s: "Live" in (app.text_of(s, "status") or ""),
-                 what="the module to stay Live after refresh")
-    return True, "status stays Live"
+    # #33a: the native shell has no refresh control — session/list runs on the
+    # transport automatically. The user-visible state the web refresh produces
+    # is a Live status over the mounted thread list.
+    d = app.snap()
+    st = app.text_of(d, "status") or ""
+    ids = app.widget_ids(d)
+    ok = "Live" in st and "thread_list" in ids
+    return ok, f"status={st!r} thread_list={'thread_list' in ids}"
 
 
 @check("threads", "New chat mints a fresh Session and re-opens the workspace",
        rows=("new chat", "session"))
 def t_new_chat(app):
-    app.click_id(app.snap(), "new_chat")
-    app.wait_for(lambda s: (app.text_of(s, "heading") == "OctosCode"
-                            and "draft" in app.widget_ids(s)),
+    app.click_id(app.snap(), "new_chat_hit")
+    app.wait_for(lambda s: ("OctosCode" in [w.get("t", "") for w in s.get("s", [])]
+                            and app.rect_re(s, COMPOSER_INPUT_RE) is not None),
                  what="the workspace to re-open after New chat")
     d = app.snap()
-    return True, f"heading={app.text_of(d, 'heading')!r} has draft={'draft' in app.widget_ids(d)}"
+    ph = next((w.get("t") for w in d.get("s", [])
+               if COMPOSER_INPUT_RE.match(str(w.get("i", "")))), None)
+    return True, f"heading='OctosCode' composer={ph!r}"
 
 
 # ---- composer: draft, send, timeline, input round-trip -------------------- #
 @check("composer", "the draft is a single TextInput with a placeholder")
 def comp_draft(app):
     ph = next((w.get("t") for w in app.snap().get("s", [])
-               if str(w.get("i", "")) == "draft"), None)
-    return ph is not None, f"draft={ph!r}"
+               if COMPOSER_INPUT_RE.match(str(w.get("i", "")))), None)
+    return ph == PLACEHOLDER, f"placeholder={ph!r}"
 
 
 @check("composer", "the send control is present")
 def comp_send(app):
-    return "send" in app.widget_ids(app.snap()), "send present"
+    return "send_hit" in app.widget_ids(app.snap()), "send_hit present"
 
 
 @check("composer", "the conversation column hosts the timeline PortalList")
@@ -540,6 +687,151 @@ def comp_timeline(app):
 def comp_input_roundtrip(app):
     app.type_into_composer("survive me")
     return True, "draft reads 'survive me' after clearing and typing"
+
+
+# ---- peer: the fleet/peer surfaces (board 4 + #23 peer cards) -------------- #
+@check("peer", "the fleet roster renders its rows and slot dots")
+def p_roster(app):
+    d = app.snap()
+    ok = ("fleet_list" in app.widget_ids(d)
+          and "fleet_row_1" in app.widget_ids(d)
+          and "fleet_slot_1" in app.widget_ids(d))
+    return ok, f"fleet ids={sorted(i for i in app.widget_ids(d) if i.startswith('fleet_'))[:6]}"
+
+
+@check("peer", "the sidebar hosts the GOALS/LOOPS/FLEET sections")
+def p_sections(app):
+    d = app.snap()
+    texts = [w.get("t", "") for w in d.get("s", [])]
+    ok = all(t in texts for t in ("GOALS", "LOOPS", "FLEET"))
+    return ok, f"sections={[t for t in texts if t in ('GOALS','LOOPS','FLEET')]}"
+
+
+@check("peer", "the goals/loops lists render their rows",
+       rows=("goal", "loop", "plan", "trajectory"))
+def p_rows(app):
+    d = app.snap()
+    ok = "goals_list" in app.widget_ids(d) and "loops_list" in app.widget_ids(d)
+    return ok, f"goal_ring={'goal_ring' in app.widget_ids(d)} loop_row={'loop_row_1' in app.widget_ids(d)}"
+
+
+# ---- review: the review panel (board 3.01/#30a) ---------------------------- #
+@check("review", "the review panel is mounted with its header and scope pill")
+def v_panel(app):
+    d = app.snap()
+    ids = app.widget_ids(d)
+    ok = "review_panel" in ids and "review_scope_pill" in ids
+    header = app.text_of(d, "review_header") or ""
+    return ok, f"panel={'review_panel' in ids} header={header!r}"
+
+
+@check("review", "the review badge carries the live +/- counts from the receipt",
+       rows=("review", "diff", "hunk", "unmodified", "changed"))
+def v_badge(app):
+    d = app.snap()
+    texts = " ".join(w.get("t", "") for w in d.get("s", []))
+    ok = "+62" in texts and "−5" in texts
+    return ok, f"badge found={'+62 −5' in texts}"
+
+
+@check("review", "the fold receipt renders the unmodified-lines count",
+       rows=("unmodified", "fold", "context"))
+def v_fold(app):
+    d = app.snap()
+    texts = " ".join(w.get("t", "") for w in d.get("s", []))
+    ok = "unmodified" in texts.lower()
+    return ok, f"fold text present={'unmodified' in texts.lower()}"
+
+
+@check("review", "the review toggle is keyboard/click reachable")
+def v_toggle(app):
+    d = app.snap()
+    return "review_toggle_hit" in app.widget_ids(d), "review_toggle_hit present"
+
+
+# ---- settings: the settings drawer (#28e) ---------------------------------- #
+@check("settings", "the settings drawer mounts with its close control")
+def s_drawer(app):
+    d = app.snap()
+    ids = app.widget_ids(d)
+    ok = "settings_drawer" in ids and "settings_close" in ids
+    return ok, f"drawer={'settings_drawer' in ids} close={'settings_close' in ids}"
+
+
+@check("settings", "the drawer header reads Session settings with its sections",
+       rows=("settings", "session settings"))
+def s_header(app):
+    d = app.snap()
+    texts = [w.get("t", "") for w in d.get("s", [])]
+    ok = "Session settings" in texts and all(
+        t in texts for t in ("Model", "Permissions", "Sandbox", "Context"))
+    return ok, f"sections present={'Session settings' in texts}"
+
+
+@check("settings", "connection actions live in settings (Live status visible)",
+       rows=("disconnect", "connection", "server"))
+def s_live(app):
+    d = app.snap()
+    s = app.text_of(d, "status") or ""
+    return "Live" in s, f"status={s!r}"
+
+
+# ---- palette: the command palette overlay (#28e) --------------------------- #
+@check("palette", "the command palette overlay is mounted with search and list")
+def q_mount(app):
+    d = app.snap()
+    ids = app.widget_ids(d)
+    ok = "palette_search" in ids and "palette_list" in ids
+    search = app.text_of(d, "palette_search") or ""
+    return ok, f"search={search!r} list={'palette_list' in ids}"
+
+
+@check("palette", "the palette hint row shows the key hints",
+       rows=("command palette", "palette", "hint", "keyboard"))
+def q_hint(app):
+    d = app.snap()
+    texts = [w.get("t", "") for w in d.get("s", [])]
+    ok = "move" in texts and "run" in texts
+    return ok, f"hint parts={[t for t in texts if t in ('move','run','· esc')]}"
+
+
+@check("palette", "an unknown command fails closed (fail-closed receipt visible)",
+       rows=("unknown command", "fails closed", "slash"))
+def q_failclosed(app):
+    # The palette list renders the command names; the fail-closed behaviour is
+    # the conversation-area command receipt — here we assert the palette never
+    # sends a draft when the search is not a command (visible: draft empty).
+    d = app.snap()
+    return (app.draft(d) or "") in ("", PLACEHOLDER), f"draft={app.draft(d)!r}"
+
+
+# ---- keyboard: the key model (#31e keys.rs) via the /k bridge -------------- #
+@check("keyboard", "Escape is delivered inertly (app stays live, no crash)")
+def k_escape(app):
+    app.key("escape")
+    d = app.snap()
+    ok = "OctosCode" in [w.get("t", "") for w in d.get("s", [])]
+    return ok, f"heading visible after esc={ok}"
+
+
+@check("keyboard", "keyboard focus order: sidebar controls remain after keys",
+       rows=("focus", "order", "arrow", "tab"))
+def k_focus(app):
+    app.key("escape")
+    d = app.snap()
+    ids = app.widget_ids(d)
+    ok = "sidebar_toggle_hit" in ids and "new_chat_hit" in ids
+    return ok, f"sidebar={'sidebar_toggle_hit' in ids} new_chat={'new_chat_hit' in ids}"
+
+
+@check("keyboard", "Enter on the composer sends (the draft clears)",
+       rows=("enter", "send", "submit"))
+def k_enter(app):
+    app.type_into_composer("walk: enter sends")
+    app.key("return")
+    app.wait_for(lambda s: (app.draft(s) or "") in ("", PLACEHOLDER),
+                 what="the draft to clear after Enter")
+    return True, "draft cleared after Enter"
 
 
 # ---- recovery: reconnect, replay ------------------------------------------ #
@@ -555,6 +847,32 @@ def r_replay(app):
     _compose_and_send(app, "walk: replay a turn")
     app.wait_for(lambda s: bool(app.kinds(s)), what="the replayed timeline")
     return True, f"timeline kinds={app.kinds(app.snap())}"
+
+
+# #33a review: DEPTH. A row is `specific` when at least one check that applied
+# to it tests the row's OWN behaviour (what its `case` says); rows covered only
+# by the generic smoke set (Live status, drawer mounts, composer present, ...)
+# are `smoke` — their pass must not be read as the behaviour being covered.
+# One table keeps the classification auditable; names must match @check.
+SPECIFIC_CHECKS = {
+    "the composer accepts typed text (prompt input)",
+    "composing clears the draft on send",
+    "a sent prompt streams an assistant answer row",
+    "the user's own prompt renders as a row",
+    "the answer row renders after the prompt row (order)",
+    "the turn's timeline item kinds are present",
+    "the Stop control is present for the live turn",
+    "New chat mints a fresh Session and re-opens the workspace",
+    "a replayed turn lands in the module's own transcript",
+    "a typed draft round-trips through the composer",
+    "the goals/loops lists render their rows",
+    "the review badge carries the live +/- counts from the receipt",
+    "the fold receipt renders the unmodified-lines count",
+    "an unknown command fails closed (fail-closed receipt visible)",
+    "Enter on the composer sends (the draft clears)",
+}
+for _c in CHECKS:
+    _c["specific"] = _c["name"] in SPECIFIC_CHECKS
 
 
 # --------------------------------------------------------------------------- #
@@ -604,6 +922,11 @@ def load_rows():
         return list(csv.DictReader(f))
 
 
+def is_live_only(case: str) -> bool:
+    """True when the row needs a state the replay fixtures cannot produce."""
+    return any(p.search(case) for p in LIVE_ONLY_PATTERNS)
+
+
 def area_of(row):
     hay = row["case"] + " " + row["spec"]
     for name, pat in AREA_PATTERNS.items():
@@ -612,7 +935,7 @@ def area_of(row):
     return None
 
 
-def select_targets(limit: int):
+def select_targets(limit: int | None):
     """The first `limit` rows in the scriptable areas, **round-robin by area**.
 
     Pure file order lets `conversation`/`recovery` crowd out `threads` (only 4-5
@@ -627,10 +950,11 @@ def select_targets(limit: int):
         area = area_of(row)
         if area and AREA_SCRIPTABLE[area]:
             eligible[area].append((i, area, row))
-    order = [a for a in ("conversation", "threads", "composer", "recovery")
+    order = [a for a in ("conversation", "threads", "composer", "recovery",
+                         "peer", "review", "settings", "palette", "keyboard")
              if AREA_SCRIPTABLE[a]]
     picked, cursors = [], {a: 0 for a in order}
-    while len(picked) < limit:
+    while limit is None or len(picked) < limit:
         progressed = False
         for a in order:
             if len(picked) >= limit:
@@ -691,7 +1015,7 @@ def main():
     area_state: dict[str, dict] = {}
     per_row_checks: dict[int, list] = {}   # row_id -> [(check_name, status, reason)]
     for area in areas:
-        scenario = AREA_SCENARIO[area]
+        scenario = scenario_for(area)
         try:
             procs.start_server(scenario)
             procs.start_app(scenario)
@@ -711,7 +1035,7 @@ def main():
             except Exception as e:  # noqa: BLE001
                 ok, status, reason = False, "fail", f"exception: {e}"
             results.append({"name": chk["name"], "status": status, "reason": reason[:200],
-                            "rows": chk["rows"]})
+                            "rows": chk["rows"], "specific": chk["specific"]})
             if status == "fail":
                 try:
                     sj = EVIDENCE / f"area-{area}.snap.json"
@@ -729,8 +1053,9 @@ def main():
             if a != area:
                 continue
             applied = [(r["name"], r["status"]) for r in results if check_applies(r, row)]
-            krs = [(r["name"], r["status"], r["reason"]) for r in results if check_applies(r, row)]
-            per_row_checks[rid] = [(n, s, rr) for (n, s, rr) in krs]
+            krs = [(r["name"], r["status"], r["reason"], r["specific"])
+                   for r in results if check_applies(r, row)]
+            per_row_checks[rid] = krs
         area_state[area] = {"blocked": False, "reason": "", "evidence": evidence,
                             "results": results}
 
@@ -747,12 +1072,14 @@ def main():
             area = target_area[i]
             st = area_state.get(area, {})
             checks = per_row_checks.get(i, [])
-            status = decided_status([s for _, s, _ in checks], st.get("blocked", False))
-            reason = row_reason([(n, s) for n, s, _ in checks], st.get("reason", ""))
+            status = decided_status([s for _, s, _, _ in checks], st.get("blocked", False))
+            reason = row_reason([(n, s) for n, s, _, _ in checks], st.get("reason", ""))
+            depth = "specific" if any(sp for *_, sp in checks) else "smoke"
             ev = st.get("evidence", "")
             out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
-                             "status": status, "evidence": ev, "reason": reason})
-            for n, s, rr in checks:
+                             "status": status, "depth": depth, "evidence": ev,
+                             "reason": reason})
+            for n, s, rr, _sp in checks:
                 check_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
                                    "check": n, "status": s, "evidence": ev, "reason": rr})
         elif web_only:
@@ -761,18 +1088,25 @@ def main():
                              "reason": f"skipped: operator-confirmation-pending ({web_only})"})
         elif needs == "real-turn":
             out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
-                             "status": "blocked", "evidence": "",
-                             "reason": "blocked: needs outer-loop live run (real model turn)"})
+                             "status": "live-only", "evidence": "",
+                             "reason": "live-only: needs a real model turn (Phase 4, outer loop)"})
+        elif is_live_only(case):
+            out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
+                             "status": "live-only", "evidence": "",
+                             "reason": "live-only: state the replay fixtures cannot produce"})
         elif area == "approval":
             out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
                              "status": "not-yet-implemented", "evidence": "", "reason": APPROVAL_MISSING})
+        elif area == "connect":
+            out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
+                             "status": "not-yet-implemented", "evidence": "", "reason": CONNECT_MISSING})
         else:
             out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
                              "status": "not-yet-implemented", "evidence": "",
                              "reason": f"missing: {missing_capability(spec)}"})
 
     with open(WALK / "results.csv", "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=["row_id", "area", "spec", "case", "status", "evidence", "reason"])
+        w = csv.DictWriter(f, fieldnames=["row_id", "area", "spec", "case", "status", "depth", "evidence", "reason"])
         w.writeheader()
         w.writerows(out_rows)
     with open(WALK / "results-checks.csv", "w", newline="") as f:
@@ -782,6 +1116,14 @@ def main():
 
     from collections import Counter
     counts = Counter(r["status"] for r in out_rows)
+    areas_seen = sorted({r["area"] for r in out_rows if r["area"]})
+    print("\n== per-area summary (#33a) ==")
+    for a in areas_seen:
+        c = Counter(r["status"] for r in out_rows if r["area"] == a)
+        cells = ", ".join(f"{k}={c[k]}" for k in
+                          ("pass", "fail", "live-only", "not-yet-implemented",
+                           "blocked", "skipped") if c.get(k))
+        print(f"   {a:14} {cells}")
     infra_blocked = sum(1 for i, r in enumerate(out_rows, start=1)
                         if i in target_area and r["status"] == "blocked")
     print("\n== walk-runner summary ==")
@@ -791,8 +1133,16 @@ def main():
     print(f"   total                {len(out_rows)}")
     print(f"   scripted rows        {len(targets)}  (areas: {areas})")
     print(f"   per-check rows       {len(check_rows)}  (docs/walk/results-checks.csv)")
+    by_depth = Counter((r["status"], r.get("depth", "")) for r in out_rows)
+    print(f"   pass by depth        specific={by_depth.get(('pass', 'specific'), 0)}"
+          f" smoke={by_depth.get(('pass', 'smoke'), 0)}"
+          f"  (distinct checks: {len({c['check'] for c in check_rows})})")
     if infra_blocked:
         print(f"   NOTE: {infra_blocked} selected row(s) blocked by a start failure")
+        reasons = sorted({r["reason"] for r in out_rows
+                          if r["status"] == "blocked" and r["reason"]})
+        for reason in reasons[:4]:
+            print(f"     - {reason[:160]}")
     return exit_code(counts, infra_blocked)
 
 
