@@ -600,15 +600,30 @@ mod tests {
             assert!(is_action(id), "{id} must be an action");
         }
         // The four conversation actions + session.refresh + session.new
-        // (card #14 defect 4: New chat mints a fresh session id) + card #21 §3's
-        // three per-item controls (thread.open, answer.copy, tool.toggle) + card
-        // #28e's three board-4 chrome toggles (review/settings/palette).
-        assert_eq!(ACTIONS.len(), 12);
+        // (card #14 defect 4: New chat mints a fresh session id) + card
+        // #21 §3's three per-item controls (thread.open, answer.copy,
+        // tool.toggle) — 9 rows. #28e4 merge: the board-4 chrome toggles are
+        // NOT here (main's f29d pins ACTIONS at 9; the one-owner rule) —
+        // they own the CHROME_ACTIONS table below, UI-local ids the router
+        // matches literally in `actions::resolve`, never through this table.
+        assert_eq!(ACTIONS.len(), 9);
+        assert_eq!(CHROME_ACTIONS.len(), 3);
+        for (id, _) in CHROME_ACTIONS {
+            assert!(
+                !ACTIONS.iter().any(|(a, _)| a == id),
+                "{id} leaked into the conversation ACTIONS"
+            );
+            assert!(
+                !is_action(id),
+                "{id} is UI-local chrome — it must not be a binding action"
+            );
+        }
         assert!(is_action("composer.submit"));
         assert!(is_action("turn.interrupt"));
         assert!(is_action("turn.steer"));
         assert!(is_action("answer.expand"));
         assert!(is_action("session.new"), "New chat is a declared action");
         assert!(!is_action("session.delete"));
+        assert!(!is_action("review.toggle"));
     }
 }
