@@ -142,6 +142,11 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
+    // #31d — the capture host shows the theme as the APP draws it: assign the
+    // shell theme roles (loads the persisted preference) before this class
+    // body evaluates, exactly like lib.rs's script_mod.
+    #(octoscode_module::screens::theme::eval_roles(vm))
+
     let ProbeRoot = #(ScreensProbe::register_widget(vm)) {
         width: Fill height: Fill flow: Down
         screen_splash := Splash { width: Fill height: Fill }

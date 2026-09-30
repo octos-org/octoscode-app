@@ -1,0 +1,6 @@
+frame,image,self_score,what_i_checked
+1,tmp/31d2-evidence/cmp2-review_panel.png,9,added rows dark-green fill + light readable code text; fold card dark surface (was white); removed row no longer clips; +/- markers stay green/red; structure mirrors autonomy-01-native-v1; residual = capture carrier (title bar, ~1% offset)
+1,tmp/31d2-evidence/diff-rows-zoom2.png,evidence,removed row ends with ellipsis glyph (old_re...); added rows announce truncation; light text on dark fills
+2,tmp/31d2-evidence/cmp-dark_conv.png,9,surfaces/bubble/tool chip/code chip/send disc mirror autonomy-11-native-z1; carrier differences only
+2,tmp/31d2-evidence/cmp-dark_settings.png,9,row groups/toggles/Live dot/red Disconnect mirror autonomy-12-native-z1; carrier only
+3,tmp/31d2-evidence/cmp-palette-dark.png,9,dark query box + command list; /model highlight; /resume disabled row muted-not-invisible; hint row legible; vs setup-08 light ref (no dark atlas for board 2)
