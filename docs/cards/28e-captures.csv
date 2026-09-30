@@ -1,0 +1,9 @@
+frame,window,png,chrome_gate,self_score,remaining_differences
+1,1440x900,tmp/28e-evidence/shot-f1-1440x900.png,review,match,tofu glyphs for arrows; single-line rows clip long text
+2,1440x900,tmp/28e-evidence/shot-f2-1440x900.png,settings,match,drawer section labels are Stage-C placeholders
+3,1440x900,tmp/28e-evidence/shot-f3-1440x900.png,palette,match,command names not monospace; no progress ring/yellow dot
+4,1440x900,tmp/28e-evidence/shot-f4-1440x900.png,none (first run),match,"Connect pill renders black-to-white gradient, not solid #000"
+1,900x800,tmp/28e-evidence/shot-f1-900x800.png,review,match,same as 1440 row 1
+2,900x800,tmp/28e-evidence/shot-f2-900x800.png,settings,match,same as 1440 row 2
+3,900x800,tmp/28e-evidence/shot-f3-900x800.png,palette,match,same as 1440 row 3
+4,900x800,tmp/28e-evidence/shot-f4-900x800.png,none (first run),match,same as 1440 row 4
