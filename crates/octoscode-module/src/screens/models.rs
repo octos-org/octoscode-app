@@ -613,6 +613,39 @@ pub fn lower_card_src(screen_id: &str, ctx: &Ctx<'_>) -> Result<(String, Value, 
                 {
                     *h = json!(0.0);
                 }
+                // #32d item 6: the OUTER card sizes to its content too. The
+                // authored card holds two model rows (inner_card 213..339)
+                // with the route buttons at y356; with the rows gone the
+                // buttons keep their authored 17px gap and the card ends at
+                // their bottom — no blank band above Test route/Discover.
+                let delta = 126.0_f64 - 63.5;
+                if let Some(h) = placements
+                    .get_mut("card_deepseek")
+                    .and_then(|c| c.get_mut("layout"))
+                    .and_then(|l| l.get_mut("h"))
+                {
+                    if h.as_f64() == Some(290.0) {
+                        *h = json!(290.0 - delta);
+                    }
+                }
+                let keys: Vec<String> = placements
+                    .as_object()
+                    .map(|o| o.keys().cloned().collect())
+                    .unwrap_or_default();
+                for key in keys {
+                    if !(key.starts_with("btn_test") || key.starts_with("btn_discover")) {
+                        continue;
+                    }
+                    if let Some(y) = placements
+                        .get_mut(&key)
+                        .and_then(|c| c.get_mut("layout"))
+                        .and_then(|l| l.get_mut("y"))
+                    {
+                        if y.as_f64() == Some(356.0) {
+                            *y = json!(356.0 - delta);
+                        }
+                    }
+                }
             }
         }
     }

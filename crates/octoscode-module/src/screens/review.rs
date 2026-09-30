@@ -764,6 +764,21 @@ pub fn lower_screen(card: &str, ctx: &Ctx<'_>) -> Result<String, String> {
             .and_then(|k| k.get_mut("placements"))
             .and_then(|p| p.as_object_mut())
             .ok_or_else(|| "autonomy-01: no $kit.placements".to_string())?;
+        // #32d item 12: the authored panel starts 57.4px ABOVE the canvas
+        // (review_panel y:-57.4), so the panel — and the "Review" title row
+        // with it — renders shifted up and the title clips at the top edge
+        // (the 30a capture). Clamp the panel to the canvas top; its children
+        // keep their in-panel offsets, so the title lands at its authored
+        // 21px and the panel bottom reaches the canvas bottom.
+        if let Some(y) = obj
+            .get_mut("review_panel")
+            .and_then(|c| c.get_mut("layout"))
+            .and_then(|l| l.get_mut("y"))
+        {
+            if y.as_f64().is_some_and(|v| v < 0.0) {
+                *y = json!(0.0);
+            }
+        }
         for k in ["chip_130", "chip_131", "chip_132"] {
             obj.remove(k);
         }
