@@ -219,7 +219,11 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
         // conversation table declines the id.
         other => match crate::screens::workspace::query(ctx, other) {
             Some(v) => v,
-            None => return None,
+            // #30d: board-3 data slots answer from the sessions table.
+            None => match crate::screens::sessions::query(ctx, other) {
+                Some(v) => v,
+                None => return None,
+            },
         },
     })
 }

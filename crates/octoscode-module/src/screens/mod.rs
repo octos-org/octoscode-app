@@ -6,5 +6,6 @@
 pub mod connect;
 pub mod models;
 pub mod palette;
+pub mod sessions;
 pub mod theme;
 pub mod workspace;

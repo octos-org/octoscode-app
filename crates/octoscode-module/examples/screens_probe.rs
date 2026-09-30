@@ -1,6 +1,7 @@
 //! Card #29d — the headless capture host for the three Stage C screens.
 //!
 //! Mounts one Stage B screen card (`OCTOSCODE_SCREEN=palette|error|loading`,
+//! or the board-3 `resume|attachments|aside`),
 //! default `palette`) through the SAME path the module uses
 //! ([`octoscode_module::screens::palette::mount_screen`]), with live slots:
 //!
@@ -45,12 +46,18 @@ fn asset_port() -> u16 {
 fn start_asset_server() {
     static ONCE: std::sync::Once = std::sync::Once::new();
     ONCE.call_once(|| {
-        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../design/stage-b");
-        let Ok(root) = root.canonicalize() else {
-            makepad_widgets::log!("[screens_probe] asset root missing");
+        // Both Stage B card trees serve (#30d2/#30e): setup, conversation AND
+        // autonomy cards — first existing file wins. The port is THIS lane's
+        // block (env-overridable, default 8384).
+        let base = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../design/stage-b");
+        let roots: Vec<std::path::PathBuf> = ["setup/cards", "conversation/cards", "autonomy/cards"]
+            .iter()
+            .filter_map(|r| base.join(r).canonicalize().ok())
+            .collect();
+        if roots.is_empty() {
+            makepad_widgets::log!("[screens_probe] asset roots missing");
             return;
-        };
+        }
         let listener = match std::net::TcpListener::bind(("127.0.0.1", asset_port())) {
             Ok(l) => l,
             Err(e) => {
@@ -74,16 +81,15 @@ fn start_asset_server() {
                     && segs[2] == "assets"
                     && segs.iter().all(|s| *s != "..")
                 {
-                    ["setup", "conversation", "autonomy"]
+                    roots
                         .iter()
-                        .map(|stage| root.join(stage).join("cards").join(segs[1]).join("assets").join(segs[3]))
-                        .find(|p| p.exists())
-                        .unwrap_or_else(|| root.join("__missing__"))
+                        .map(|r| r.join(segs[1]).join("assets").join(segs[3]))
+                        .find(|f| f.exists())
                 } else {
-                    root.join("__missing__")
+                    None
                 };
-                match std::fs::read(&serve) {
-                    Ok(body) => {
+                match serve.as_deref().map(std::fs::read) {
+                    Some(Ok(body)) => {
                         let head = format!(
                             "HTTP/1.1 200 OK\r\nContent-Type: image/svg+xml\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
                             body.len()
@@ -91,7 +97,7 @@ fn start_asset_server() {
                         let _ = stream.write_all(head.as_bytes());
                         let _ = stream.write_all(&body);
                     }
-                    Err(_) => {
+                    _ => {
                         let _ = stream.write_all(b"HTTP/1.1 404 Not Found\r\n\r\n");
                     }
                 }
@@ -101,6 +107,7 @@ fn start_asset_server() {
     })
 }
 use octoscode_module::screens::palette;
+use octoscode_module::screens::sessions;
 
 pub use makepad_widgets;
 
@@ -166,20 +173,26 @@ pub struct ScreensProbe {
 
 impl Widget for ScreensProbe {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
-            if !self.mounted {
-                self.mounted = true;
-                let which =
-                    std::env::var("OCTOSCODE_SCREEN").unwrap_or_else(|_| "palette".to_owned());
-                let store = std::sync::Arc::new(octoscode_store::Store::new());
-                store.set_connection("Live".into(), true);
-                store.set_capabilities(vec!["state.session_hydrate.v1".to_owned()]);
-                let ui = std::sync::Arc::new(std::sync::Mutex::new(FlowUi::default()));
-                // #30e — seed the theme preference the same way lib.rs's mount
-                // arm does (OCTOSCODE_THEME=system|dark|light; unset = system).
-                if let Ok(pref) = std::env::var("OCTOSCODE_THEME") {
-                    octoscode_module::screens::theme::set_preference(&pref);
-                }
-                match which.as_str() {
+        if !self.mounted {
+            self.mounted = true;
+            let which =
+                std::env::var("OCTOSCODE_SCREEN").unwrap_or_else(|_| "palette".to_owned());
+            let store = std::sync::Arc::new(octoscode_store::Store::new());
+            store.set_connection("Live".into(), true);
+            store.set_capabilities(vec!["state.session_hydrate.v1".to_owned()]);
+            let ui = std::sync::Arc::new(std::sync::Mutex::new(FlowUi::default()));
+            // #30e — seed the theme preference the same way lib.rs's mount
+            // arm does (OCTOSCODE_THEME=system|dark|light; unset = system).
+            if let Ok(pref) = std::env::var("OCTOSCODE_THEME") {
+                octoscode_module::screens::theme::set_preference(&pref);
+            }
+            // The item-count variant knob (#30d2: re-capture 0/1/3 where
+            // relevant — attachments 0/1/2 tiles, resume N rows).
+            let n: usize = std::env::var("OCTOSCODE_N")
+                .ok()
+                .and_then(|v| v.parse().ok())
+                .unwrap_or(2);
+            match which.as_str() {
                 // Live data: the crash report the host would hand over — with
                 // secrets, so the rendered copy proves the redaction boundary.
                 "error" => palette::report_error(
@@ -202,6 +215,51 @@ impl Widget for ScreensProbe {
                     let ctx = Ctx::new(&store, &ui);
                     palette::resolve("palette.query.set", 0, &ctx);
                 }
+                // #30d — board 3.8: the store's live rows + a staged confirm
+                // (live data, not the authored copy).
+                "resume" => {
+                    let rows: Vec<octoscode_store::Session> = (1..=n)
+                        .map(|i| octoscode_store::Session {
+                            id: format!("dsflash:live-{i}"),
+                            title: Some(format!("Live row {i}")),
+                            message_count: 6 + i,
+                            updated_at: Some(format!("{}m ago", i * 5)),
+                            last_prompt: None,
+                            active_turn: false,
+                        })
+                        .collect();
+                    store.set_sessions(rows);
+                    let ctx = Ctx::new(&store, &ui);
+                    sessions::resolve("resume.stage", 0, &ctx);
+                }
+                // #30d — board 3.9: one live draft attachment (the count slot).
+                "attachments" => {
+                    // Real decoded previews (never a grey 404 box): the card
+                    // assets dir ships two distinct real PNGs; the 8170 origin
+                    // in the seeded URLs is rewritten to THIS host's port by
+                    // the capture plumbing below.
+                    const THUMB_A: &str = "http://127.0.0.1:8170/ux-images/autonomy-09/assets/att_1_thumb-d08ed1b523f0.png";
+                    const THUMB_B: &str = "http://127.0.0.1:8170/ux-images/autonomy-09/assets/att_1_thumb-f187c53eac2c.png";
+                    match n {
+                        0 => {}
+                        1 => sessions::seed_attachments_live(vec![(
+                            "screenshot.png".to_owned(),
+                            1_258_291,
+                            THUMB_A.to_owned(),
+                        )]),
+                        _ => sessions::seed_attachments_live(vec![
+                            ("screenshot.png".to_owned(), 1_258_291, THUMB_A.to_owned()),
+                            ("diagram.png".to_owned(), 2_621_440, THUMB_B.to_owned()),
+                        ]),
+                    }
+                }
+                // #30d — board 3.10: the answered aside (question + answer).
+                "aside" => {
+                    sessions::seed_aside(
+                        "What does steer_dropped mean?",
+                        "It's a metric that increments when messages are dropped from the steer queue due to a reconnect or protocol error. It helps track message loss.",
+                    );
+                }
                 other => ::log::warn!("screens_probe: unknown OCTOSCODE_SCREEN {other:?}"),
             }
             start_asset_server();
@@ -210,12 +268,15 @@ impl Widget for ScreensProbe {
             // Lower, then point the kit SVGs at THIS host's asset server (the
             // authored origin is the design flow's 8170, held by a process
             // RULES forbid touching). #30e: the theme-wired card names lower
-            // through screens::theme, which selects the dark Stage B card or
-            // its light twin by the CURRENT resolved preference.
-            let lowered = if octoscode_module::screens::theme::card_for(&which).is_some() {
-                octoscode_module::screens::theme::lower(&which, &store)
-            } else {
-                palette::lower_screen(&which, &store)
+            // through screens::theme (dark Stage B card vs its light twin by
+            // the CURRENT resolved preference); #30d's session screens lower
+            // through sessions::.
+            let lowered = match which.as_str() {
+                "resume" | "attachments" | "aside" => sessions::lower_screen(&which, &store),
+                _ if octoscode_module::screens::theme::card_for(&which).is_some() => {
+                    octoscode_module::screens::theme::lower(&which, &store)
+                }
+                _ => palette::lower_screen(&which, &store),
             };
             let r = lowered.map(|dsl| {
                 dsl.replace(
