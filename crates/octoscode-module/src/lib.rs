@@ -1618,7 +1618,11 @@ impl OctoscodeView {
         // file's action path). The mount cache dedupes, so this is cheap
         // while the first run is showing.
         let live = { self.bridge.lock().unwrap().store.is_live() };
-        if !live {
+        // Probe hygiene: arm A (connect_probe) must keep Connect OUT of the
+        // first-run slot, or both seats hold the card and the /snap roots
+        // (two `page` widgets) can't be attributed.
+        let arm_a = std::env::var("OCTOSCODE_SCREEN").as_deref() == Ok("connect_probe");
+        if !live && !arm_a {
             let splash = self.view.splash(cx, ids!(first_run_card));
             // #28e6 arm B (the approved swap probe): OCTOSCODE_FIRSTRUN_PALETTE=1
             // mounts the palette card's DSL into the first-run slot instead —
