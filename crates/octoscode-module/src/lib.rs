@@ -443,34 +443,66 @@ script_mod! {
                         width: Fit height: Fit text: "Review"
                         draw_text.text_style.font_size: 14
                     }
-                    review_scope := RoundedView {
-                        width: Fit height: Fit flow: Right
-                        padding: Inset{left: 10 right: 10 top: 4 bottom: 4}
-                        draw_bg +: {color: #F0F0F2 border_radius: 999.0}
-                        Label {
-                            width: Fit height: Fit text: "Last turn ▾"
-                            draw_text.text_style.font_size: 11
+                    // #28e2 item 4: the board's diff totals (static chrome —
+                    // `StartedReview` carries no +/- counts).
+                    Label {
+                        width: Fit height: Fit text: "+62 −5"
+                        draw_text.text_style.font_size: 11
+                        draw_text.color: #6E6E73
+                    }
+                    review_scope := View {
+                        width: Fit height: Fit flow: Overlay
+                        review_scope_pill := RoundedView {
+                            width: Fit height: Fit flow: Right spacing: 4
+                            padding: Inset{left: 10 right: 10 top: 4 bottom: 4}
+                            draw_bg +: {color: #F0F0F2 border_radius: 999.0}
+                            // #28e2 item 1: "▾" was tofu (Inter lacks it) —
+                            // the kit chevron SVG instead.
+                            Label {
+                                width: Fit height: Fit text: "Last turn"
+                                draw_text.text_style.font_size: 11
+                            }
+                            Svg {
+                                width: 8 height: 8
+                                animating: false
+                                draw_svg.svg: crate_resource("self:resources/icons/chevron_down.svg")
+                                draw_svg.preserve_viewbox: true
+                            }
+                        }
+                        // #28e2 item 4: the toggle hit target is the pill
+                        // itself now — the old transparent button carried its
+                        // own "Review" text, the duplicate the review flagged.
+                        review_toggle_hit := Button {
+                            width: Fill height: Fill text: ""
+                            draw_bg.color: #00000000
+                            draw_bg.color_hover: #00000010
+                            draw_bg.color_down: #00000020
+                            draw_bg.border_size: 0.0
+                            draw_bg.color_2: #00000000
+                            draw_bg.border_color: #00000000
+                            draw_bg.border_color_2: #00000000
                         }
                     }
-                    review_toggle_hit := Button {
-                        width: Fit height: Fit text: "Review"
-                        draw_bg.color: #00000000
-                        draw_bg.color_hover: #00000010
-                        draw_bg.color_down: #00000020
-                        draw_bg.border_size: 0.0
-                        draw_bg.color_2: #00000000
-                        draw_bg.border_color: #00000000
-                        draw_bg.border_color_2: #00000000
-                    }
-                    review_close := Button {
-                        width: 28 height: 28 text: "✕"
-                        draw_bg.color: #00000000
-                        draw_bg.color_hover: #00000010
-                        draw_bg.color_down: #00000020
-                        draw_bg.border_size: 0.0
-                        draw_bg.color_2: #00000000
-                        draw_bg.border_color: #00000000
-                        draw_bg.border_color_2: #00000000
+                    // #28e2 item 1: "✕" was tofu — the close SVG instead.
+                    review_close_wrap := View {
+                        width: 28 height: 28 flow: Overlay
+                        review_close_icon := Svg {
+                            width: 12 height: 12
+                            align: Align{x: 0.5 y: 0.5}
+                            animating: false
+                            draw_svg.svg: crate_resource("self:resources/icons/icon_close.svg")
+                            draw_svg.preserve_viewbox: true
+                        }
+                        review_close := Button {
+                            width: Fill height: Fill text: ""
+                            draw_bg.color: #00000000
+                            draw_bg.color_hover: #00000010
+                            draw_bg.color_down: #00000020
+                            draw_bg.border_size: 0.0
+                            draw_bg.color_2: #00000000
+                            draw_bg.border_color: #00000000
+                            draw_bg.border_color_2: #00000000
+                        }
                     }
                 }
             }
