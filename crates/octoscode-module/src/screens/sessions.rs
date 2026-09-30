@@ -548,7 +548,10 @@ pub fn lower_screen(which: &str, store: &Arc<crate::Store>) -> Result<String, St
         }
         _ => {}
     }
-    Ok(dsl)
+    // #31d workflow 1: the session screens' kits are LIGHT (#FEFEFE/#F6F6F7) —
+    // the app-wide token set rewrites them in dark mode (light-authored DSL
+    // only; see theme.rs).
+    Ok(crate::screens::theme::retint_dsl(&dsl))
 }
 
 /// Splash DSL string literals are double-quoted (`text: "..."`); escape a

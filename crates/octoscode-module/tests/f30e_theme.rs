@@ -67,26 +67,36 @@ fn f30e_set_preference_rejects_unknown() {
 fn f30e_card_selection_follows_resolved_theme() {
     let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
     theme::reset_state();
-    // Default (system) resolves dark: the follow names pick the DARK Stage B
-    // cards (board 3.11/3.12), the explicit names pin regardless.
+    // #31d: card selection is FIXED — the follow names ALWAYS select the light
+    // card (the palette every kit ships); the theme lives in retint_dsl, not
+    // card swapping. The explicit names pin their atlas card.
     for (which, card) in [
-        ("conversation", "autonomy-11"),
-        ("settings", "autonomy-12"),
-        ("dark_conv", "autonomy-11"),
-        ("dark_settings", "autonomy-12"),
+        ("conversation", "conversation-03"),
+        ("settings", "setup-06"),
         ("light_conv", "conversation-03"),
         ("light_settings", "setup-06"),
+        ("dark_conv", "autonomy-11"),
+        ("dark_settings", "autonomy-12"),
     ] {
         assert_eq!(theme::card_for(which).unwrap().0, card, "which={which}");
     }
-    // After cycling to light the FOLLOW names flip to the light twins while
-    // the explicit dark names stay pinned.
-    theme::set_preference("light");
-    assert_eq!(theme::card_for("conversation").unwrap().0, "conversation-03");
-    assert_eq!(theme::card_for("settings").unwrap().0, "setup-06");
-    assert_eq!(theme::card_for("dark_conv").unwrap().0, "autonomy-11");
-    // Unknown names never resolve.
     assert!(theme::card_for("palette").is_none());
+    // The FOLLOW lowers carry the RESOLVED palette: system (no reader) falls
+    // back to dark, so the light card's DSL comes back retinted to dark
+    // tokens; pinned names stay verbatim.
+    let conv = theme::lower("conversation", ctx().store).expect("conversation lowers");
+    assert!(
+        conv.contains("#1c1f22") || conv.contains("#1c1c1e"),
+        "conversation under system should retint to dark tokens"
+    );
+    let pinned = theme::lower("dark_conv", ctx().store).expect("dark_conv lowers");
+    assert!(pinned.contains("#1c1c1e"), "dark_conv stays the dark atlas card");
+    theme::set_preference("light");
+    let conv_light = theme::lower("conversation", ctx().store).expect("light lowers");
+    assert!(
+        conv_light.contains("#fefefe"),
+        "conversation under light is the byte-identical light card"
+    );
     theme::reset_state();
 }
 

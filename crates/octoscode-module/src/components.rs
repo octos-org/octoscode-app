@@ -544,6 +544,10 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
     // Card #21d item 6: resolve every emitted `http_resource(…)` icon to the
     // component's own file on disk, so the app needs no dev asset server.
     let ui = localize_asset_resources(&ui);
+    // #31d workflow 1: EVERY mounted component reads the app-wide token set —
+    // `retint_dsl` is the byte passthrough in light (no repaint churn) and the
+    // token rewrite in dark.
+    let ui = crate::screens::theme::retint_dsl(&ui);
     Ok(ui)
 }
 
