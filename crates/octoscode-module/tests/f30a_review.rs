@@ -272,6 +272,27 @@ fn the_folded_values_reach_the_card_slots() {
 }
 
 #[test]
+fn the_recorded_diff_preview_request_carries_the_core_params_shape() {
+    // The committed r30a recording (a real a6ea8505 serve, zero model turns):
+    // the screen's request on the wire matches the octos-core param type
+    // (ui_protocol.rs:2483-2486) exactly, and the serve's typed answer to a
+    // preview-less session (-32103 target-not-found) is the truth the
+    // fixture pins — never fabricated.
+    let fixture = concat!(env!("CARGO_MANIFEST_DIR"),
+        "/../octoscode-client/tests/fixtures/r30a-diffpreview-a6ea8505.jsonl");
+    let frames = load(fixture);
+    let req = frames
+        .iter()
+        .find(|f| f.dir == "out" && f.method == "diff/preview/get")
+        .expect("the recording carries the screen's diff/preview/get");
+    assert_eq!(
+        req.body,
+        serde_json::json!({"session_id": "dsflash:main",
+                           "preview_id": "01920000-0000-7000-8000-0000000000f1"})
+    );
+}
+
+#[test]
 fn the_confirmed_turn_rides_the_real_terminal_envelope() {
     let _seq = review::test_lock();
     review::reset();

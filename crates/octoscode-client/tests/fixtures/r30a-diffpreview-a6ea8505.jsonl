@@ -1,0 +1,14 @@
+{"at_ms":0,"body":{"cwd":null,"profile_id":"dsflash","session_id":"dsflash:main"},"dir":"out","method":"session/open","wall_ms":1790746877217}
+{"at_ms":0,"body":{},"dir":"out","method":"session/list","wall_ms":1790746877217}
+{"at_ms":0,"body":{},"dir":"out","method":"session/list","wall_ms":1790746877217}
+{"at_ms":38,"body":{"state":"Idle"},"dir":"in","method":"state:Idle","wall_ms":1790746877255}
+{"at_ms":38,"body":{"state":"Dialing"},"dir":"in","method":"state:Dialing","wall_ms":1790746877255}
+{"at_ms":38,"body":{"state":"Handshaking"},"dir":"in","method":"state:Handshaking","wall_ms":1790746877255}
+{"at_ms":38,"body":{"code":-32602,"message":"profile 'dsflash' is not configured for this AppUI session","method":"session/open"},"dir":"in","method":"error:session/open","wall_ms":1790746877255}
+{"at_ms":190,"body":{"preview_id":"01920000-0000-7000-8000-0000000000f1","session_id":"dsflash:main"},"dir":"out","method":"diff/preview/get","wall_ms":1790746877408}
+{"at_ms":0,"dir":"flow","method":"connect","note":"features=21"}
+{"at_ms":0,"dir":"flow","method":"session/open","note":"session=dsflash:main"}
+{"at_ms":38,"dir":"flow","method":"state:Idle","note":"Connecting(\"Idle\")"}
+{"at_ms":38,"dir":"flow","method":"state:Dialing","note":"Connecting(\"Dialing\")"}
+{"at_ms":38,"dir":"flow","method":"state:Handshaking","note":"Connecting(\"Handshaking\")"}
+{"at_ms":38,"dir":"flow","method":"error:session/open","note":"Other(\"rpc-error session/open\")"}
