@@ -62,17 +62,9 @@ pub const COPY_SLOTS: &[(&str, &str)] = &[
     ("t_title_text", "context.title"),
     ("t_usage_text", "context.usage"),
     ("t_pct_text", "context.pct"),
-    ("t_row3_text", "context.row.0"),
-    ("t_row4_text", "context.row.1"),
-    ("t_row5_text", "context.row.2"),
-    ("t_val6_text", "context.val.0"),
-    ("t_val7_text", "context.val.1"),
-    ("t_val8_text", "context.val.2"),
     ("btn_compact_label_text", "context.compact_label"),
-    ("t_comp_text", "context.compact_note"),
     ("t_llm_text", "context.mode_llm"),
     ("t_heur_text", "context.mode_heur"),
-    ("t_keep_text", "context.keep"),
     // setup-10 Skills
     ("t_title_text", "skills.title"),
     ("t_inst_head_text", "skills.installed_head"),
@@ -235,7 +227,13 @@ pub fn query_binding(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
                 let mine: Vec<&ProfileLlmModel> =
                     models.iter().filter(|m| m.provider == p).collect();
                 let i = if id.ends_with("0.0") { 0 } else { 1 };
-                mine.get(i).map(|m| model_row(m))?
+                match mine.get(i) {
+                    Some(m) => model_row(m),
+                    // live count ("1 model") over a chrome-frozen second
+                    // slot: blank beats the authored demo row contradicting
+                    // the count.
+                    None => String::new(),
+                }
             }
             "models.head.1" => {
                 let p0 = models.first()?.provider.clone();
@@ -270,26 +268,11 @@ pub fn query_binding(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
             "models.test_label" => "Test route".to_owned(),
             "models.discover_label" => "Discover models".to_owned(),
             "context.title" => "Context".to_owned(),
-            "context.compact_note" => "Compaction".to_owned(),
             "context.usage" => usage_line(estimate, window),
             "context.pct" => pct_line(estimate, window),
-            "context.row.0" => "Input transcripts".to_owned(),
-            "context.row.1" => "Tool outputs".to_owned(),
-            "context.row.2" => "Reasoning traces".to_owned(),
-            "context.val.0" => estimate.map(|e| format!("{e}"))?,
-            "context.val.1" => "0".to_owned(),
-            "context.val.2" => "0".to_owned(),
             "context.compact_label" => "Compact now".to_owned(),
             "context.mode_llm" => "LLM".to_owned(),
             "context.mode_heur" => "Heuristic".to_owned(),
-            "context.keep" => window.map(|w| {
-                let kk = if w >= 1000 && w % 1000 == 0 {
-                    format!("{}k", w / 1000)
-                } else {
-                    w.to_string()
-                };
-                format!("Keep recent turns · {kk} window")
-            })?,
             "skills.title" => "Skills".to_owned(),
             "skills.installed_head" => "Installed".to_owned(),
             "skills.registry_head" => "Registry".to_owned(),
@@ -510,6 +493,16 @@ pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result
 
 // --------------------------------------------------------------------- lowering
 
+/// The binding namespace one screen owns (`setup-07` -> `models.`).
+fn screen_ns(screen_id: &str) -> &'static str {
+    match screen_id {
+        "setup-07" => "models",
+        "setup-09" => "context",
+        "setup-10" => "skills",
+        _ => "",
+    }
+}
+
 fn cards_root() -> std::path::PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../design/stage-b/setup/cards")
 }
@@ -530,7 +523,15 @@ pub fn lower_card_src(screen_id: &str, ctx: &Ctx<'_>) -> Result<(String, Value, 
     let mut card_src = read("page.card")?;
     let data: Value = serde_json::from_str(&read("page.data.json")?)
         .map_err(|e| format!("parse {screen_id} data: {e}"))?;
+    // Only this screen's namespace may write its copies: `t_title_text` is
+    // authored in all three cards and the table maps it once per screen
+    // (models.title / context.title / skills.title) — unfiltered, the LAST
+    // entry won and every screen rendered the title "Skills".
+    let ns = format!("{}.", screen_ns(screen_id));
     for (copy_id, binding) in COPY_SLOTS {
+        if !binding.starts_with(&ns) {
+            continue;
+        }
         if let Some(v) = query_binding(ctx, binding) {
             if let Value::String(s) = v {
                 if let Some(next) = crate::l0_host::set_copy(&card_src, copy_id, &s) {
