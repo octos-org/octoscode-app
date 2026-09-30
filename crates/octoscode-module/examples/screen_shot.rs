@@ -22,8 +22,74 @@ use makepad_widgets::*;
 pub use makepad_widgets;
 
 use octoscode_module::l0_host;
+use std::io::{Read, Write};
+
 use octoscode_module::mount::MountCache;
 use octoscode_module::screens::connect::{self, ConnectUi, Screen};
+
+/// The kit SVGs (radio rings, password eyes) carry the capture-time asset
+/// origin (`http://127.0.0.1:8170/ux-images/<card>/assets/*.svg` in
+/// `page.data.json`). This host serves those files itself on a port from MY
+/// headless block and rewrites the origin before mounting — the example-side
+/// equivalent of card-host's `--static ux-images=<dir>` (the app-side
+/// canonical path); it is capture plumbing, not a renderer change.
+const ASSET_PORT: u16 = 8334;
+
+/// Serve `design/stage-b/setup/cards/<card>/assets/*` at
+/// `/ux-images/<card>/assets/*` (card-host's AssetServer::start_with_static
+/// shape, in-process, loopback only).
+fn start_asset_server() {
+    static ONCE: std::sync::Once = std::sync::Once::new();
+    ONCE.call_once(|| {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../design/stage-b/setup/cards");
+        let Ok(root) = root.canonicalize() else {
+            makepad_widgets::log!("[screen_shot] asset root missing");
+            return;
+        };
+        let listener = match std::net::TcpListener::bind(("127.0.0.1", ASSET_PORT)) {
+            Ok(l) => l,
+            Err(e) => {
+                makepad_widgets::log!("[screen_shot] asset bind {ASSET_PORT}: {e}");
+                return;
+            }
+        };
+        std::thread::spawn(move || {
+            for stream in listener.incoming() {
+                let Ok(mut stream) = stream else { continue };
+                let mut buf = [0u8; 1024];
+                let n = stream.read(&mut buf).unwrap_or(0);
+                let req = String::from_utf8_lossy(&buf[..n]);
+                let Some(path) = req.split_whitespace().nth(1) else { continue };
+                // /ux-images/<card>/assets/<file> — no traversal.
+                let segs: Vec<&str> = path.split('/').filter(|s| !s.is_empty()).collect();
+                let serve = if segs.len() == 4
+                    && segs[0] == "ux-images"
+                    && segs[2] == "assets"
+                    && segs.iter().all(|s| *s != "..")
+                {
+                    root.join(segs[1]).join("assets").join(segs[3])
+                } else {
+                    root.join("__missing__")
+                };
+                match std::fs::read(&serve) {
+                    Ok(body) => {
+                        let head = format!(
+                            "HTTP/1.1 200 OK\r\nContent-Type: image/svg+xml\r\n                             Content-Length: {}\r\nConnection: close\r\n\r\n",
+                            body.len()
+                        );
+                        let _ = stream.write_all(head.as_bytes());
+                        let _ = stream.write_all(&body);
+                    }
+                    Err(_) => {
+                        let _ = stream.write_all(b"HTTP/1.1 404 Not Found\r\n\r\n");
+                    }
+                }
+                let _ = stream.flush();
+            }
+        });
+    })
+}
 
 app_main!(App);
 
@@ -122,14 +188,37 @@ impl Widget for ScreenShot {
                 Ok("typed") => ui.token = "sk-test-1234".to_owned(),
                 _ => {}
             }
+            start_asset_server();
             match connect::lower_screen(screen, &ui) {
                 Ok(dsl) => {
+                    // The kits' eye/radio SVG origins point at the capture-time
+                    // asset server; this host serves the same files (above).
+                    let dsl = dsl.replace(
+                        "http://127.0.0.1:8170/ux-images/",
+                        &format!("http://127.0.0.1:{ASSET_PORT}/ux-images/"),
+                    );
                     let splash = self.view.splash(cx, ids!(screen_splash));
                     let mut mounts = std::mem::take(&mut self.mounts);
                     let mounted = mounts.mount(cx, &splash, &dsl);
                     self.mounts = mounts;
                     if let Err(e) = mounted {
                         makepad_widgets::log!("[screen_shot] mount {screen:?}: {e}");
+                    } else {
+                        // The mounted kit inputs are real `TextInput`s; their
+                        // authored `text:` copy is a DSL property, not the edit
+                        // buffer, so the live value is pushed after the mount —
+                        // the same production accessor the composer uses
+                        // (`lib.rs:823 text_input(..)`; makepad
+                        // `TextInputRef::set_text`). The token/apikey fields
+                        // stay empty: their masked dots are the card's own row
+                        // (bind it, not paint it).
+                        let live = match screen {
+                            Screen::Connect | Screen::ConnectFailed => &ui.server,
+                            Screen::Onboarding => &ui.profile_name,
+                        };
+                        self.view
+                            .text_input(cx, &[live_id!(beauty_0_0_2_0)])
+                            .set_text(cx, live);
                     }
                 }
                 Err(e) => makepad_widgets::log!("[screen_shot] lower {screen:?}: {e}"),
