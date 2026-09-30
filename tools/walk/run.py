@@ -190,10 +190,14 @@ LIVE_ONLY_PATTERNS = [
 # Which areas have a native surface today (⇒ scriptable), and the scenario each
 # is driven against.
 AREA_SCRIPTABLE = {"conversation": True, "threads": True, "composer": True,
-                   "recovery": True, "approval": False}
+                   "recovery": True, "approval": False,
+                   "peer": True, "review": True, "settings": True,
+                   "palette": True, "keyboard": True, "connect": False}
 AREA_SCENARIO = {"conversation": "conversation", "threads": "conversation",
                  "composer": "conversation", "recovery": "conversation",
-                 "approval": "approval"}
+                 "approval": "approval", "peer": "peer", "review": "autonomy",
+                 "settings": "session", "palette": "conversation",
+                 "keyboard": "conversation", "connect": "session"}
 APPROVAL_MISSING = ("missing: inline approval card — design scene conversation-05 "
                     "is not in the built batch (design/bindings.json:40); "
                     "approval/requested reaches the store but has no widget")
