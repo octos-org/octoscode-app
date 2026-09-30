@@ -228,6 +228,24 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
         "answer.worked_for" => json!(ui.worked_for()),
         "answer.timestamp" => json!(ui.answer_timestamp()),
         "approval.pending" => json!(ui.approval_pending()),
+        // #31b: the approval-card STATES from the STORE (web `ApprovalPanel.tsx`;
+        // `session-peer-coordinator.ts:240` closes the blocked wait on
+        // decided | auto_resolved | cancelled). `FlowUi`'s bool only mirrors
+        // the live prompt; the durable row states (`decided`/`auto_resolved`/
+        // `cancelled`, `domains/approval.rs:5-20`) are exposed here.
+        "approval.rows" => json!(store
+            .domains
+            .approval
+            .pending()
+            .iter()
+            .map(|a| json!({
+                "id": a.id,
+                "target": a.target,
+                "decided": a.decided,
+                "auto_resolved": a.auto_resolved,
+                "cancelled": a.cancelled,
+            }))
+            .collect::<Vec<_>>()),
         "question.pending" => json!(ui.question_pending()),
 
         // #29b: board-2 data slots answer from the screens table before the
