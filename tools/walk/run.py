@@ -153,13 +153,16 @@ def check_prereqs(build_replay: bool = True) -> tuple[pathlib.Path, pathlib.Path
 
 APP_PORT = 8370
 SCENARIO_PORTS = {"conversation": 8380, "approval": 8381, "task": 8382,
-                  "autonomy": 8383, "peer": 8384, "session": 8385}
+                  "autonomy": 8383, "peer": 8384, "session": 8385,
+                  "longcodeline": 8386}
 
 # Areas the card names → the walk rows they cover. Order matters: `area_of`
 # returns the FIRST match, so the more specific areas come first. `conversation`
 # deliberately omits a bare `\border\b` — it falsely swallowed thread rows like
 # "switches sessions by keyboard and preserves sidebar focus order".
 AREA_PATTERNS = {
+    "longcode": re.compile(
+        r"syntax grammar|plain code|code copy|long code(?: line)?|120 columns", re.I),
     "threads": re.compile(
         r"thread|new chat|switch(es)? sessions?\b|rapid session|session list|"
         r"selects? a new session|selected session", re.I),
@@ -199,12 +202,14 @@ LIVE_ONLY_PATTERNS = [
 AREA_SCRIPTABLE = {"conversation": True, "threads": True, "composer": True,
                    "recovery": True, "approval": False,
                    "peer": True, "review": True, "settings": True,
-                   "palette": True, "keyboard": True, "connect": False}
+                   "palette": True, "keyboard": True, "connect": False,
+                   "longcode": True}
 AREA_SCENARIO = {"conversation": "conversation", "threads": "conversation",
                  "composer": "conversation", "recovery": "conversation",
                  "approval": "approval", "peer": "peer", "review": "autonomy",
                  "settings": "session", "palette": "conversation",
-                 "keyboard": "conversation", "connect": "session"}
+                 "keyboard": "conversation", "connect": "session",
+                 "longcode": "longcodeline"}
 def scenario_for(area: str) -> str:
     """The area's replay scenario, or a WALK_SCENARIO override (negative control).
 
@@ -834,6 +839,26 @@ def k_enter(app):
     return True, "draft cleared after Enter"
 
 
+# ---- longcode: the long-code-line render (#32b3) --------------------------- #
+@check("longcode", "a 227-column code line stays fully readable (wrapped, tail visible)",
+       rows=("grammar", "plain code", "code copy", "long code"))
+def l_reachable(app):
+    # The web oracle WRAPS code (`white-space: pre-wrap; overflow-wrap:
+    # anywhere`, Timeline.module.css:340-341) — no horizontal scroll — and the
+    # native theme wraps the same way (reachable_code restored the wrapping
+    # layout). Reachability is proven in the RENDER: the line's tail must be
+    # visible text the user can read, not clipped at the column edge.
+    app.type_into_composer(
+        "Render one code block whose single line is longer than 120 columns.")
+    app.send()
+    s = app.wait_for(lambda s: "assistantprose" in app.kinds(s),
+                     timeout=40, what="the long-code answer row")
+    texts = [w.get("t", "") for w in s.get("s", [])]
+    head = any("pub fn reachability_probe()" in t for t in texts)
+    tail = any("proves reachability of the long code line" in t for t in texts)
+    return head and tail, f"head={head} tail={tail} (wrap per the web's pre-wrap oracle)"
+
+
 # ---- recovery: reconnect, replay ------------------------------------------ #
 @check("recovery", "the module reaches conn: Live")
 def r_live(app):
@@ -870,6 +895,7 @@ SPECIFIC_CHECKS = {
     "the fold receipt renders the unmodified-lines count",
     "an unknown command fails closed (fail-closed receipt visible)",
     "Enter on the composer sends (the draft clears)",
+    "a 227-column code line stays fully readable (wrapped, tail visible)",
 }
 for _c in CHECKS:
     _c["specific"] = _c["name"] in SPECIFIC_CHECKS
@@ -951,7 +977,8 @@ def select_targets(limit: int | None):
         if area and AREA_SCRIPTABLE[area]:
             eligible[area].append((i, area, row))
     order = [a for a in ("conversation", "threads", "composer", "recovery",
-                         "peer", "review", "settings", "palette", "keyboard")
+                         "peer", "review", "settings", "palette", "keyboard",
+                         "longcode")
              if AREA_SCRIPTABLE[a]]
     picked, cursors = [], {a: 0 for a in order}
     while limit is None or len(picked) < limit:
