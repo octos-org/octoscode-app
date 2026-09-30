@@ -111,6 +111,8 @@ pub const ACTIONS: &[(&str, &str)] = &[
     ("palette.query.set", "feed the palette query box from the draft (UI-local)"),
     ("error.copy", "copy the redacted crash diagnostics (UI-local)"),
     ("connection.retry", "replay the production connect handshake"),
+    ("error.reload", "the error card's Reload: reconnect and re-render"),
+    ("error.copy_diagnostics", "copy the redacted crash report (the card's button id)"),
 ];
 
 /// The conversation action ids the fallback view emits (its buttons map to

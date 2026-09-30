@@ -105,7 +105,11 @@ pub fn owns_binding(id: &str) -> bool {
 }
 
 pub fn owns_action(id: &str) -> bool {
-    matches!(id, "palette.move" | "palette.run" | "palette.query.set" | "error.copy" | "connection.retry")
+    matches!(
+        id,
+        "palette.move" | "palette.run" | "palette.query.set" | "error.copy"
+            | "error.reload" | "error.copy_diagnostics" | "connection.retry"
+    )
 }
 
 fn advertised(store: &std::sync::Arc<Store>, cmd: &Command) -> bool {
@@ -266,7 +270,10 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             s.query = ctx.ui.lock().unwrap().draft();
             Effect::QuerySet // a render feed, not a protocol call
         }
-        "error.copy" => {
+        // `error.copy_diagnostics` is the Stage B card's declared control id
+        // (setup-11 service-actions.json); the web button is the same action
+        // (FatalErrorBoundary.tsx:76-83).
+        "error.copy" | "error.copy_diagnostics" => {
             let report = s
                 .last_error
                 .as_deref()
@@ -275,7 +282,11 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             s.copy_state = if report.is_empty() { "failed" } else { "copied" };
             Effect::CopyReport(report)
         }
-        "connection.retry" => {
+        // `error.reload` is the Stage B card's reload button (setup-11
+        // service-actions.json); the web's "Reload app" reloads the whole app
+        // (FatalErrorBoundary.tsx:71-74) — natively that is the same
+        // reconnect-and-rerender path as the loading screen's retry.
+        "connection.retry" | "error.reload" => {
             s.reconnect_attempt += 1;
             Effect::Retry
         }
@@ -323,9 +334,12 @@ pub fn lower_screen(which: &str, store: &std::sync::Arc<Store>) -> Result<String
     let data: Value = serde_json::from_str(&data_text)
         .map_err(|e| format!("octoscode: {card}/page.data.json: {e}"))?;
     let prepared = octoscript_makepad::l0::prepare(&card_text, &data, &dir.join("kit"))?;
-    let mut tree = prepared.tree.clone();
-    octoscript_makepad::l0::inspectable(&mut tree);
-    let mut dsl = octoscript_makepad::to_makepad_l0_ui(&tree);
+    // The DESIGN branch (the artifact Gate B actually rendered — each card dir
+    // ships `page.design.splash`). The L0-kit branch evaluates but the host VM
+    // rejects its `source:` property on these screens (mount.rs:68, observed in
+    // the first probe run). These three screens are FIXED chrome (no runtime
+    // prose), so measured coordinates are within the RULES 8.10 carve-out.
+    let mut dsl = octoscript_makepad::design::to_makepad_ui(&prepared.tree)?;
 
     // Live slots: the store/screen state replaces the authored copy before the
     // cache compares, so a state flip repaints exactly once.

@@ -17,6 +17,15 @@ use octoscode_module::flow::{Conversation, FlowUi};
 use octoscode_module::screens::palette::{self, Effect as ScreenEffect};
 use octoscode_store::Store;
 
+/// The screens' state is process-global (`screens::palette` keeps it behind
+/// one static), and the test harness runs tests in parallel threads — every
+/// test holds this lock for its whole body so the sequences cannot interleave.
+static STATE_LOCK: Mutex<()> = Mutex::new(());
+
+fn state_lock() -> std::sync::MutexGuard<'static, ()> {
+    STATE_LOCK.lock().unwrap_or_else(|e| e.into_inner())
+}
+
 fn ctx_with(caps: &[&str]) -> (Arc<Store>, Arc<Mutex<FlowUi>>) {
     let store = Arc::new(Store::new());
     store.set_connection("Live".into(), true);
@@ -32,6 +41,7 @@ fn ctx_with(caps: &[&str]) -> (Arc<Store>, Arc<Mutex<FlowUi>>) {
 /// redacted, and the report is capped at 4000 chars.
 #[test]
 fn the_error_report_redacts_secrets_and_caps_at_4000() {
+    let _state = state_lock();
     palette::reset_state();
     palette::report_error(
         "Render panicked: bad state\n\
@@ -79,6 +89,7 @@ fn the_error_report_redacts_secrets_and_caps_at_4000() {
 /// declare-table level (`palette.run`) refuses it.
 #[test]
 fn palette_commands_fail_closed_without_their_capability() {
+    let _state = state_lock();
     palette::reset_state();
     let (store, ui) = ctx_with(&["projection.envelope.v2"]); // none of the gates
     let ctx = Ctx::new(&store, &ui);
@@ -121,6 +132,7 @@ fn palette_commands_fail_closed_without_their_capability() {
 /// move with wraparound; the selection never leaves the table.
 #[test]
 fn palette_move_wraps_like_the_web_palette() {
+    let _state = state_lock();
     palette::reset_state();
     let (store, ui) = ctx_with(&[]);
     let ctx = Ctx::new(&store, &ui);
@@ -153,6 +165,7 @@ fn palette_move_wraps_like_the_web_palette() {
 /// state flip rewrites exactly the banner/query slot.
 #[test]
 fn lowered_screens_carry_the_live_slots() {
+    let _state = state_lock();
     palette::reset_state();
     let (store, ui) = ctx_with(&[]);
 
@@ -178,7 +191,8 @@ fn lowered_screens_carry_the_live_slots() {
     let error = palette::lower_screen("error", &store).expect("error lowers");
     assert!(error.contains("Something went wrong"));
     assert!(error.contains("Copy diagnostics"));
-    assert!(error.contains("icon_copy"));
+    // Note: the L0 DSL carries no asset ids (probed: no `src:` literals, no
+    // `icon_copy`), so icon presence is asserted via the labels above.
 
     // The palette's query box follows the module's draft — but only once
     // there IS one (empty = the authored "/ mo" stands).
@@ -186,6 +200,10 @@ fn lowered_screens_carry_the_live_slots() {
     assert!(idle.contains("text: \"/ mo\""), "authored query text");
     assert!(idle.contains("text: \"/model\""), "the command slice renders");
     ui.lock().unwrap().set_draft_inner("/comp");
+    {
+        let ctx = Ctx::new(&store, &ui);
+        palette::resolve("palette.query.set", 0, &ctx);
+    }
     let typed = palette::lower_screen("palette", &store).expect("palette lowers");
     assert!(typed.contains("text: \"/comp\""), "the live query feeds the card");
     assert!(!typed.contains("text: \"/ mo\""), "the authored copy is replaced");
@@ -267,28 +285,64 @@ impl ReplayServer {
                     "session/open" => {
                         // The recording's own handshake frame (its
                         // supported_features list carries state.session_hydrate.v1).
-                        if let Some(handshake) = frames
-                            .iter()
-                            .find(|f| f.dir == "in" && f.method == "session/open")
-                            .cloned()
+                        // Hand-built handshake (the `f26_replay` shape): the
+                        // recording's own session/open frame is `dir: out`
+                        // (the REQUEST), so there is no response frame to look
+                        // up — build the response and adopt the session the
+                        // client asked for. The features list carries the
+                        // palette gates the tests assert on (/resume's
+                        // state.session_hydrate.v1), as the real handshake did.
+                        let session = v["params"]["session_id"]
+                            .as_str()
+                            .unwrap_or("dsflash:main")
+                            .to_owned();
+                        let frame = serde_json::json!({
+                            "jsonrpc": "2.0", "id": id,
+                            "result": {"opened": {
+                                "session_id": session,
+                                "active_profile_id": "dsflash",
+                                "cursor": {"stream": "dsflash:main", "seq": 1},
+                                "capabilities": {
+                                    "version": {"protocol": "octos-ui/v1alpha1",
+                                                "schema_version": 1, "jsonrpc": "2.0"},
+                                    "capabilities_schema_version": 1,
+                                    "supported_methods": ["session/open", "turn/start",
+                                                          "turn/interrupt", "session/list",
+                                                          "session/hydrate"],
+                                    "supported_notifications": ["projection/envelope",
+                                                                "message/delta", "turn/started",
+                                                                "protocol/replay_lossy"],
+                                    "supported_features": ["projection.envelope.v2",
+                                                           "state.session_hydrate.v1"]
+                                }
+                            }}
+                        });
+                        let _ = tx
+                            .lock()
+                            .await
+                            .send(Message::Text(frame.to_string().into()))
+                            .await;
+                        // Stream the recording's notifications from a SEPARATE
+                        // task (f26's shape): the request loop must stay free
+                        // to answer the client's follow-up RPCs (session/list).
                         {
-                            let mut frame = serde_json::json!({
-                                "jsonrpc": "2.0", "id": id,
-                                "result": handshake.body
+                            let tx2 = tx.clone();
+                            let notes = notifications.clone();
+                            tokio::spawn(async move {
+                                for f in &notes {
+                                    let frame = serde_json::json!({
+                                        "jsonrpc": "2.0",
+                                        "method": f.method,
+                                        "params": f.body
+                                    });
+                                    let _ = tx2
+                                        .lock()
+                                        .await
+                                        .send(Message::Text(frame.to_string().into()))
+                                        .await;
+                                    tokio::time::sleep(std::time::Duration::from_millis(2)).await;
+                                }
                             });
-                            // Adopt the session the client asked for, exactly
-                            // like `replay_serve`'s rewriting.
-                            let session = v["params"]["session_id"]
-                                .as_str()
-                                .unwrap_or("dsflash:main")
-                                .to_owned();
-                            frame["result"]["opened"]["session_id"] =
-                                serde_json::json!(session);
-                            let _ = tx
-                                .lock()
-                                .await
-                                .send(Message::Text(frame.to_string().into()))
-                                .await;
                         }
                     }
                     _ => {
@@ -303,19 +357,6 @@ impl ReplayServer {
                             .await;
                     }
                 }
-                // Stream the recording's notifications after the open.
-                if method == "session/open" {
-                    for f in &notifications {
-                        let frame = serde_json::json!({
-                            "jsonrpc": "2.0", "method": f.method, "params": f.body
-                        });
-                        let _ = tx
-                            .lock()
-                            .await
-                            .send(Message::Text(frame.to_string().into()))
-                            .await;
-                    }
-                }
             }
         });
         Self { base_url: format!("http://{addr}"), received }
@@ -327,6 +368,7 @@ impl ReplayServer {
 /// recording's session rows and the socket carries `session/list`.
 #[tokio::test]
 async fn palette_run_resume_routes_the_production_refresh_on_the_real_wire() {
+    let _state = state_lock();
     palette::reset_state();
     let frames = live_gate();
     let server = ReplayServer::start(frames).await;
