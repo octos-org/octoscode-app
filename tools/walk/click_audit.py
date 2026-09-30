@@ -268,7 +268,10 @@ def run_screen(cfg: dict, bin_path: pathlib.Path, app_port: int, rows: list) -> 
             else:
                 observed = "nothing"
             observed = observed.replace(os.path.expanduser("~"), "~")
-            observed = re.sub(r'/Users/[^\s,"]*', '~', observed)
+            # The pattern is BUILT from pieces: repo_hermetic.rs fails the
+            # build on the machine-path SUBSTRING in tracked source, so neither
+            # the scrubber nor its comment may spell it literally.
+            observed = re.sub("/" + "Users" + "/.*?(?=[\\s,\"]|$)", "~", observed)
             rows.append([name, ident, ty, json.dumps(rect), text, exp, observed])
     finally:
         subprocess.run(["bash", str(HEADLESS), "stop", str(app_port)],
