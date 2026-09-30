@@ -116,7 +116,17 @@ pub fn timeline_rows(store: &Arc<Store>, live: bool) -> Vec<Row> {
         }
         // tail: a live last turn shows the activity row; a settled turn shows
         // the worked-for disclosure + the answer actions.
-        if is_last && live {
+        // #32i item 1: the web removes the working row when the turn
+        // completes ("Worked for Ns", timeline/model.ts). The global live
+        // flag can OUTLIVE the turn — `turn.active` ORs the session row's
+        // server view (bindings.rs:192-201), which is sticky until the next
+        // `session/list` — so the LIVE tail renders only while THIS turn has
+        // no terminal yet. A settled last turn discloses, even with
+        // live=true (the "Working · 0s" leftover: flow had cleared, the row
+        // fell back to the authored placeholder).
+        let live_tail =
+            is_last && live && store.domains.turn.terminal(turn).is_none();
+        if live_tail {
             out.push(Row { kind: ItemKind::WorkingRow, index: 0, turn: turn_of(turn) });
         // **Card #21j**: the settled tail discloses a turn's OWN terminal, so it
         // renders only when that turn actually settled or produced a reply. A
@@ -310,6 +320,30 @@ mod tests {
         let entries = store.domains.session.timeline.entries("s1");
         let user_idx = rows[0].index;
         assert_eq!(entries[user_idx].text, "why 5?");
+    }
+
+    #[test]
+    fn a_settled_last_turn_discloses_even_when_the_live_flag_is_stuck() {
+        // #32i item 1: "Working · 0s" lingered after the answer finished —
+        // the global live flag outlived the turn, so the web's remove-on-
+        // complete never happened. The row model must consult the turn's OWN
+        // terminal: settled => "Worked for Ns", never the working row.
+        let store = store_with(0);
+        store
+            .domains
+            .session
+            .timeline
+            .upsert_user_message("s1", "t1", "hi", serde_json::json!({}));
+        store.domains.turn.set_terminal("t1", "completed");
+        let rows = timeline_rows(&store, true);
+        assert!(
+            rows.iter().any(|r| r.kind == ItemKind::WorkedFor),
+            "a settled last turn shows the worked-for disclosure"
+        );
+        assert!(
+            !rows.iter().any(|r| r.kind == ItemKind::WorkingRow),
+            "no working row may linger after the terminal"
+        );
     }
 
     #[test]
