@@ -447,12 +447,49 @@ script_mod! {
             } // conversation_inner
         }
 
+            // #28e3 item 1: flow spacers — at wide windows they reserve the
+            // docked panels' room (the panels themselves paint in right-aligned
+            // overlay docks exactly over the spacer); on narrow windows the
+            // spacers hide and the panels overlay with the dimmer, so the
+            // center keeps its 420px minimum.
+            columns_review_spacer := View {
+                width: 560 height: Fill
+                visible: false
+            }
+            columns_settings_spacer := View {
+                width: 420 height: Fill
+                visible: false
+            }
+
+        } // base
+
+        // Card #28e item 5 (board 4 frame 3): a dimmer between the base chrome
+        // and the floating palette (the "conversation dimmed slightly" layer).
+        dimmer := SolidView {
+            width: Fill height: Fill
+            visible: false
+            draw_bg.color: #1D1D1F40
+        }
+
+        // #28e3 item 1: the review panel and the settings drawer paint in
+        // right-aligned overlay docks ABOVE the base chrome (later siblings
+        // draw on top), so a narrow window overlays them with the dimmer
+        // instead of squeezing the center below its 420px minimum. Wide
+        // windows show the same docked pixels via the columns spacers.
+        review_dock := View {
+            // Fit width: the dock is only its child's right-edge strip, so the
+            // rest of the window keeps its clicks (a visible Fill/Fill wrapper
+            // shadows what's under it — the palette_dock lesson, 321ea9c).
+            width: Fit height: Fill
+            align: Align{x: 1.0 y: 0.0}
+            visible: false
+
             // Card #28e item 3 (board 4 frame 1): the 560 px Review panel, toggled by the
             // Review affordance (an "Edited files" card later; the header pill
             // works today). Empty for now — the header + scope pill only.
             review_panel := SolidView {
                 width: 560 height: Fill flow: Down spacing: 6
-                visible: false
+                visible: true
                 draw_bg.color: #FFFFFF
                 review_header := View {
                     width: Fill height: Fit flow: Right spacing: 8
@@ -523,6 +560,11 @@ script_mod! {
                     }
                 }
             }
+        }
+        settings_dock := View {
+            width: Fit height: Fill
+            align: Align{x: 1.0 y: 0.0}
+            visible: false
 
             // Card #28e item 4 (board 4 frame 2): the 420 px Session-settings
             // drawer, docked right INSIDE the columns Right-flow (hidden = no
@@ -530,7 +572,7 @@ script_mod! {
             // Content comes in Stage C; this is the drawer shell (title + close).
             settings_drawer := SolidView {
                 width: 420 height: Fill flow: Down spacing: 10
-                visible: false
+                visible: true
                 draw_bg.color: #FFFFFF
                 settings_header := View {
                     width: Fill height: Fit flow: Right spacing: 8
@@ -566,16 +608,7 @@ script_mod! {
                 Label { width: Fill height: Fit text: "Sandbox" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
                 Label { width: Fill height: Fit text: "Context" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
             }
-        }
-        } // base
-
-        // Card #28e item 5 (board 4 frame 3): a dimmer between the base chrome
-        // and the floating palette (the "conversation dimmed slightly" layer).
-        dimmer := SolidView {
-            width: Fill height: Fill
-            visible: false
-            draw_bg.color: #1D1D1F40
-        }
+        }        }
 
         // Card #28e item 5 (board 4 frame 3): the floating 560 px command
         // palette, near the top of the window. Cmd+K and "/" in an empty
@@ -912,6 +945,10 @@ pub struct OctoscodeView {
     /// Card #28e — the command palette's `PortalList` uid (0 = not captured).
     #[rust]
     palette_uid: u64,
+    /// #28e3 item 1: the window's inner width, tracked from
+    /// `WindowGeomChange` (0 = no event yet — treated as wide).
+    #[rust]
+    window_w: f64,
 }
 
 impl OctoscodeView {
@@ -1415,15 +1452,34 @@ impl OctoscodeView {
         };
         // First run (board 4 frame 4): before a connection the window shows
         // only the centered card area; the base chrome is hidden.
+        // #28e3 item 1: the responsive layout. The center column keeps a
+        // 420 px minimum: at wide windows (>= 1260 = 260 sidebar + 2x10
+        // spacing + 420 center + 560 review) the docked panels reserve their
+        // room via the columns spacers and the overlay docks paint exactly
+        // over them; below that the spacers hide and the docks OVERLAY from
+        // the right with the dimmer. Below 760 px the sidebar hides too
+        // (Codex-style). A panel's dock wrapper hides with it (a visible
+        // Fill/Fill overlay would shadow the composer's buttons).
+        let wide = self.window_w == 0.0 || self.window_w >= 1260.0;
+        let show_sidebar = self.window_w == 0.0 || self.window_w >= 760.0;
         self.view.widget(cx, ids!(base)).set_visible(cx, live);
         self.view.widget(cx, ids!(first_run)).set_visible(cx, !live);
+        self.view.widget(cx, ids!(threads_column)).set_visible(cx, show_sidebar);
+        self.view.widget(cx, ids!(review_dock)).set_visible(cx, review);
         self.view.widget(cx, ids!(review_panel)).set_visible(cx, review);
+        self.view
+            .widget(cx, ids!(columns_review_spacer))
+            .set_visible(cx, wide && review);
+        self.view.widget(cx, ids!(settings_dock)).set_visible(cx, settings);
         self.view.widget(cx, ids!(settings_drawer)).set_visible(cx, settings);
+        self.view
+            .widget(cx, ids!(columns_settings_spacer))
+            .set_visible(cx, wide && settings);
         self.view.widget(cx, ids!(palette)).set_visible(cx, palette);
-        // The dock wrapper hides with the palette (a visible Fill/Fill overlay
-        // would shadow the composer's buttons even with the card invisible).
         self.view.widget(cx, ids!(palette_dock)).set_visible(cx, palette);
-        self.view.widget(cx, ids!(dimmer)).set_visible(cx, palette || settings);
+        self.view
+            .widget(cx, ids!(dimmer))
+            .set_visible(cx, palette || settings || (review && !wide));
 
         // GOALS / LOOPS / FLEET rows (board 4 frame 3): visible only when the
         // session has them.
@@ -1609,6 +1665,13 @@ impl Widget for OctoscodeView {
         }
         match event {
             Event::Signal => self.sync_labels(cx),
+            // #28e3 item 1: track the window width — the responsive layout
+            // (center min 420, review overlay when narrow, sidebar hidden
+            // below 760) re-derives in `sync_chrome`.
+            Event::WindowGeomChange(ev) => {
+                self.window_w = ev.new_geom.inner_size.x;
+                self.sync_chrome(cx);
+            }
             Event::Actions(actions) => {
                 // Card #21c item 5: the ONE composer is the mounted #16
                 // component. Its own input is a real `TextInput` (id
