@@ -104,6 +104,12 @@ pub fn owns_binding(id: &str) -> bool {
     id.starts_with("palette.") || id.starts_with("error.") || id.starts_with("reconnect.")
 }
 
+/// The palette's currently selected row (the shell's KeyDown ↔ draw link:
+/// the highlight follows ↑/↓, `CommandPalette.tsx:66`'s roving selection).
+pub fn selected_row() -> usize {
+    screen().lock().unwrap().selected
+}
+
 pub fn owns_action(id: &str) -> bool {
     matches!(
         id,
