@@ -1,3 +1,3 @@
-gq: {"png":["/Users/yuechen/home/oa.noindex/p0-harness/tmp/peer-tmp/makepad-remote/card-host-82391/grab-w0-00001.png"],"quit":1}
+gq: {"png":["<WORKSPACE>/p0-harness/tmp/peer-tmp/makepad-remote/card-host-82391/grab-w0-00001.png"],"quit":1}
 [headless] pid 82391 exited after /gq
 [headless] port 8301 free

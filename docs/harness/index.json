@@ -3,7 +3,7 @@
   "title": "Headless native test harness",
   "branch": "task/5",
   "base_commit": "70d1cd5",
-  "native_workspace": "/Users/yuechen/home/oa.noindex/native",
+  "native_workspace": "<WORKSPACE>/native",
   "pins": {
     "octoscript-makepad": "99c1e5ee7925060ced59c66d6f8763c22217e4ad",
     "makepad": "d0a9def5fc554a52955db21a2a5a196daccc8e3d",
@@ -73,7 +73,7 @@
       "app": "octosense",
       "port": 8302,
       "pid": 76292,
-      "binary": "/Users/yuechen/home/oa.noindex/p0-build/tmp/octosense-target/debug/octosense (read-only, not rebuilt)",
+      "binary": "<WORKSPACE>/p0-build/tmp/octosense-target/debug/octosense (read-only, not rebuilt)",
       "result": "listening line; /s sz 1400x900; /snap 13 widgets; /g PNG 2800x1800; /gq quit=1, exit 2s, port free",
       "appcard": "module linked (crates/shell/src/apps.rs:69,644; lib.rs:3890); hosts exist in tree; click-through open UNVERIFIED",
       "files": [

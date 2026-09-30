@@ -7,7 +7,7 @@
 # This script is IDEMPOTENT: run twice, the second run is a no-op.
 #
 # Usage:
-#   tools/prepare-octosense-fork.sh [target-dir]     # default ~/home/oa.noindex/octosense-fork
+#   tools/prepare-octosense-fork.sh [target-dir]     # default ../octosense-fork (or $OCTO_FORKS_DIR)
 #
 # Exit: 0 when the tree equals the fork branch (patch applied, clean);
 #       1 on any error.
@@ -15,7 +15,7 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$HERE/.." && pwd)"
-TARGET="${1:-/Users/yuechen/home/oa.noindex/octosense-fork}"
+TARGET="${1:-${OCTO_FORKS_DIR:-..}/octosense-fork}"
 PIN="6e9bfd4077cf8181878ac005ad586f908084a4bf"
 BRANCH="feat/transport-generic-request"
 PATCH="$REPO/patches/octosense/0001-transport-generic-request.patch"

@@ -14,7 +14,7 @@ Supersedes `DECISIONS-draft.md`. Every claim links to a merged artifact in this 
 | App-shape spike | `docs/spike-d9/` | #6 (pending) |
 
 ## D1. Code home: DECIDED (operator)
-Local git repo `~/home/octoscode-app`, no GitHub remote yet. The operator decides the remote later.
+Local git repo `~/octoscode-app`, no GitHub remote yet. The operator decides the remote later.
 
 ## D2. Rust vs Octoscript boundary: DECIDED (operator directive 8.5)
 Every screen goes through the design flow (image generation → ≥ 9/10 vs Codex → Octoscript-Makepad mapping). Rust
@@ -40,7 +40,7 @@ Desktop: WebSocket to `octos serve`. Android: spawned `serve --stdio`. HarmonyOS
 `a6ea8505` makes in-process AppUI available later.
 
 ## D6. Octos revision / operator WIP: DECIDED (operator)
-The stale `~/home/Octoscript-AppCard` checkout and its WIP `deb433e9` are ignored, and lanes are forbidden from
+The stale `~/Octoscript-AppCard` checkout and its WIP `deb433e9` are ignored, and lanes are forbidden from
 touching them. The native base is OctoSense `apps/appcard/app` @ `6e9bfd4` (public main has since moved; pin
 deliberately).
 

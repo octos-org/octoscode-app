@@ -50,7 +50,7 @@ VARIANTS = {
     },
     "ws-group": {
         "short": {"t_ws0_name": {"text": "octos"}, "t_ws0_path": {"text": "~/home/octos"}},
-        "long": {"t_ws0_name": {"text": "p0-proto2"}, "t_ws0_path": {"text": "~/home/oa.noindex/p0-proto2"}},
+        "long": {"t_ws0_name": {"text": "p0-proto2"}, "t_ws0_path": {"text": "~/home/octos/p0-proto2"}},
     },
     "seg-control": {
         "short": {"seg_sel": {"x": None}},   # x=None -> keep authored (first segment)

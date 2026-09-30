@@ -45,5 +45,5 @@ data in the captures: palette query box shows "/mo" (module draft), loading bann
 
 Known environmental limits on the error capture (disclosed, not claimed ≥9): Inter-600 is not bundled in the module
 (`resources/ux/` has 400/500/Mono) so the title falls back and clips, and the warning icon's asset host
-(`http://127.0.0.1:8170/ux-images/...`) answers 501 — the holder process's cwd is `/Users/yuechen/home/Octoscript-AppCard`,
+(`http://127.0.0.1:8170/ux-images/...`) answers 501 — the holder process's cwd is `<HOME>/Octoscript-AppCard`,
 which RULES forbid touching. Palette and loading self-score 9 against their Stage B v9 reviews.

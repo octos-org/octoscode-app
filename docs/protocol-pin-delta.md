@@ -4,10 +4,10 @@ Scope: the single contract file `crates/octos-core/src/ui_protocol.rs`.
 Command (both file:line citations below are from this diff and the two `git show`s):
 
 ```
-git -C /Users/yuechen/home/oa.noindex/src-octos diff 4231669 a6ea8505 \
+git -C <WORKSPACE>/src-octos diff 4231669 a6ea8505 \
   -- crates/octos-core/src/ui_protocol.rs
-git -C /Users/yuechen/home/oa.noindex/src-octos show 4231669:crates/octos-core/src/ui_protocol.rs
-git -C /Users/yuechen/home/oa.noindex/src-octos show a6ea8505:crates/octos-core/src/ui_protocol.rs
+git -C <WORKSPACE>/src-octos show 4231669:crates/octos-core/src/ui_protocol.rs
+git -C <WORKSPACE>/src-octos show a6ea8505:crates/octos-core/src/ui_protocol.rs
 ```
 
 `git diff --stat 4231669 a6ea8505 -- crates/octos-core/src/ui_protocol.rs` →
@@ -92,7 +92,7 @@ removed, or changed from optional to required.
 ## 3. In-process AppUI serving at `a6ea8505` (commit `6804ee5d`) — yes
 
 ```
-git -C /Users/yuechen/home/oa.noindex/src-octos show --stat --oneline 6804ee5d
+git -C <WORKSPACE>/src-octos show --stat --oneline 6804ee5d
    6804ee5d feat(cli): serve an AppUI connection in-process for embedding hosts
    crates/octos-cli/src/embedded.rs     | 75 ++++++++++++++++++++++++++++++++
    crates/octos-cli/src/lib.rs          |  2 ++

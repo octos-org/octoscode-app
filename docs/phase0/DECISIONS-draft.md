@@ -1,11 +1,11 @@
 # Phase 0 — §1 decisions (DRAFT, outer loop, 2026-09-27)
 
 Status: draft for supervisor + operator review. Evidence files are next to this doc.
-Web oracle is `~/home/oa.noindex/src-web` @ 70a8a1c (2026-09-28). The native base is Octoscript-AppCard @ 473b4f3.
+Web oracle is `~/src-web` @ 70a8a1c (2026-09-28). The native base is Octoscript-AppCard @ 473b4f3.
 
 ## D1. Where the code lives: OPEN (operator decides)
 The plan's default is a new crate `octoscode-app` that depends on `octos-app-transport` and the reusable screens,
-packaged as `OctoSense-mobile/apps/octoscode` (an `AppModule`) plus a desktop binary. `~/home/octoscode-app` is
+packaged as `OctoSense-mobile/apps/octoscode` (an `AppModule`) plus a desktop binary. `~/octoscode-app` is
 currently empty and not a git repo. I use it as the outer loop's control directory until D1 is decided.
 
 ## D2. Rust vs Octoscript boundary

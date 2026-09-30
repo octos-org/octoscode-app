@@ -1,11 +1,11 @@
 [I] .sources/makepad/platform/src/web_socket.rs:321:13 - studio websocket disabled: empty studio_http
-[makepad-remote] listening on 127.0.0.1:8390 pid=16813 app=octosense grabs=/Users/yuechen/home/oa.noindex/p0-build/tmp/peer-tmp/makepad-remote/octosense-16813
-[I] .sources/makepad/platform/src/remote.rs:547:9 - [makepad-remote] listening on 127.0.0.1:8390 pid=16813 app=octosense grabs=/Users/yuechen/home/oa.noindex/p0-build/tmp/peer-tmp/makepad-remote/octosense-16813
+[makepad-remote] listening on 127.0.0.1:8390 pid=16813 app=octosense grabs=<WORKSPACE>/p0-build/tmp/peer-tmp/makepad-remote/octosense-16813
+[I] .sources/makepad/platform/src/remote.rs:547:9 - [makepad-remote] listening on 127.0.0.1:8390 pid=16813 app=octosense grabs=<WORKSPACE>/p0-build/tmp/peer-tmp/makepad-remote/octosense-16813
 [I] .sources/makepad/platform/src/os/apple/metal.rs:3100:9 - retained-upload budgets: recommended_working_set_bytes=115448725504 physical_memory_bytes=137438953472 unified=true allocation_limit=17179869184 fraction=1/4 pool_fraction=1/16 residency_high_fraction=3/4 residency_low_fraction=5/8 source=physicalMemory/2
 [I] .sources/makepad/platform/src/cx.rs:687:9 - memory budget: 65536 MiB (ProcessInfo.processInfo.physicalMemory)
 [I] .sources/makepad/platform/src/thread.rs:928:9 - UI thread priority UserInteractive: Applied
-[I] crates/ai-host/src/lib.rs:223:13 - octos: no octos kernel: no kernel binary configured (OCTOS_APP_CORE_BIN); the providers are still saved under Some("/Users/yuechen/octos-home/.octos")
-[I] crates/ai-host/src/lib.rs:265:13 - llm: provider profile under /Users/yuechen/octos-home/.octos
+[I] crates/ai-host/src/lib.rs:223:13 - octos: no octos kernel: no kernel binary configured (OCTOS_APP_CORE_BIN); the providers are still saved under Some("<HOME>/octos-home/.octos")
+[I] crates/ai-host/src/lib.rs:265:13 - llm: provider profile under <HOME>/octos-home/.octos
 [I] crates/shell/src/lib.rs:4429:9 - wm: modules linked: ["rinx", "octoscode", "apphub", "card"]
 [I] .sources/makepad/libs/zune/zune-png/src/headers/readers.rs:110:9 - Width: 1672
 [I] .sources/makepad/libs/zune/zune-png/src/headers/readers.rs:111:9 - Height: 941
@@ -27,7 +27,7 @@
 [I] crates/shell/src/lib.rs:4461:13 - octosense: background app prewarming disabled
 [I] .sources/makepad/libs/zune/zune-png/src/decoder.rs:625:9 - Input Colorspace: RGB 
 [I] .sources/makepad/libs/zune/zune-png/src/decoder.rs:626:9 - Output Colorspace: RGB 
-[I] crates/shell/src/apps.rs:198:13 - news: service registered, host dir /Users/yuechen/home/oa.noindex/p0-build/tmp/d9-native/home/apps/.host
+[I] crates/shell/src/apps.rs:198:13 - news: service registered, host dir <WORKSPACE>/p0-build/tmp/d9-native/home/apps/.host
 [I] crates/shell/src/module_host.rs:156:9 - wm: module instance octoscode.1 for client 1 in isolate SplashVmId(1) (scope i1g1)
 [I] crates/shell/src/lib.rs:2117:9 - wm: launched octoscode as client 1 (in-process, octoscode)
 [I] apps/octoscode/module/src/lib.rs:184:9 - [octoscode] session: (opening…) | conn: dialing

@@ -2,9 +2,9 @@
 # live-gate.sh : Phase-1 live gate. Real octos serve (a6ea8505, dsflash) on :50190, native app hidden on :8490.
 # open workspace -> prompt -> streamed answer -> interrupt a second turn mid-stream. Evidence under $G/evidence.
 set -u
-G=/Users/yuechen/home/oa.noindex/live-gate; E=$G/evidence; P=8490; U=http://127.0.0.1:$P
-BIN=/Users/yuechen/home/oa.noindex/p0-build/tmp/octosense-target/debug/octosense
-SHELL_CWD=/Users/yuechen/home/oa.noindex/p0-build/tmp/octosense/desktop
+G="${LIVE_GATE_DIR:-../live-gate}"; E=$G/evidence; P=8490; U=http://127.0.0.1:$P
+BIN="${OCTOSENSE_BIN:-../p0-build/tmp/octosense-target/debug/octosense}"
+SHELL_CWD="${OCTOSENSE_DESKTOP:-../p0-build/tmp/octosense/desktop}"
 mkdir -p $E
 lsof -iTCP:50190 -sTCP:LISTEN -P >/dev/null || { echo "serve not listening on 50190"; exit 1; }
 cd $SHELL_CWD

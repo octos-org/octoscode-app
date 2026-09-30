@@ -12,14 +12,14 @@
 # This script is IDEMPOTENT: run twice, the second run is a no-op.
 #
 # Usage:
-#   tools/prepare-octoscript-makepad-fork.sh [target-dir]   # default ~/home/oa.noindex/octoscript-makepad-fork
+#   tools/prepare-octoscript-makepad-fork.sh [target-dir]   # default ../octoscript-makepad-fork (or $OCTO_FORKS_DIR)
 #
 # Exit: 0 when the tree equals the fork branch (patches applied, clean); 1 on error.
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$HERE/.." && pwd)"
-TARGET="${1:-/Users/yuechen/home/oa.noindex/octoscript-makepad-fork}"
+TARGET="${1:-${OCTO_FORKS_DIR:-..}/octoscript-makepad-fork}"
 PIN="6881fb6c3c3220e407633b0ba5211c3d42c7e625"
 BRANCH="feat/renderer-flow-fill"
 REMOTE="https://github.com/OctoSense-org/Octoscript-Makepad.git"

@@ -522,7 +522,7 @@ mod tests {
             Some("~/ws29b")
         );
         assert_eq!(
-            abbreviate_home("/tmp/ws29b", Some("/Users/yuechen".into())).as_deref(),
+            abbreviate_home("/tmp/ws29b", Some("/srv/demo-home".into())).as_deref(),
             Some("/tmp/ws29b"),
             "an unrelated prefix is untouched"
         );

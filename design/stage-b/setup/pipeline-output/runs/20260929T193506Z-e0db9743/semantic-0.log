@@ -1,9 +1,9 @@
 Traceback (most recent call last):
-  File "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py", line 103, in <module>
+  File "<REPO>/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py", line 103, in <module>
     main()
-  File "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py", line 77, in main
+  File "<REPO>/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py", line 77, in main
     result = preflight(directory)
              ^^^^^^^^^^^^^^^^^^^^
-  File "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-lib/semantics.py", line 341, in preflight
+  File "<REPO>/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-lib/semantics.py", line 341, in preflight
     raise ValueError('Semantic mapping blocked: ' + '; '.join(report['errors'][:4]) +
 ValueError: Semantic mapping blocked: server_field: missing event, target and state/data binding; token_field: missing event, target and state/data binding. See semantic-preflight.json and MAPPING-RULES.md.

@@ -1,7 +1,7 @@
 import re, os, sys, csv
-W=os.environ.get('SRC_WEB','/Users/yuechen/home/oa.noindex/src-web')
-N='/Users/yuechen/home/Octoscript-AppCard/app'
-CORE='/Users/yuechen/home/Octoscript-AppCard/octos/crates/octos-core/src/ui_protocol.rs'
+W=os.environ.get('SRC_WEB','../src-web')
+N=os.environ.get('APPCARD_APP','../Octoscript-AppCard/app')
+CORE=os.environ.get('CORE_UI_PROTOCOL','../Octoscript-AppCard/octos/crates/octos-core/src/ui_protocol.rs')
 src=open(f'{W}/packages/client/src/generated/core-contract.ts').read()
 def block(name):
     m=re.search(r'export const '+name+r'\b[^=]*=\s*[\[{](.*?)[\]}]\s*as const',src,re.S); return m.group(1) if m else ''
