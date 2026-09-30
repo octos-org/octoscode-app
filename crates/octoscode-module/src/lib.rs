@@ -401,6 +401,18 @@ impl OctoscodeView {
             b.ui = conv.ui();
             b.conv = Some(conv.clone());
         }
+        // Entry #29c: the stage-C screens fold their three profile reads once
+        // at startup, behind the temporary-mount flag (until #28e's shell).
+        if std::env::var_os("OCTOSCODE_STAGE_C_SCREENS").is_some() {
+            let drv = conv.clone();
+            runtime.spawn(async move {
+                match screens::models::refresh(&drv, &drv.store).await {
+                    Ok(n) => ::log::info!("octoscode: screens: {n} profile reads folded"),
+                    Err(e) => ::log::warn!("octoscode: screens refresh: {e}"),
+                }
+                SignalToUI::set_ui_signal();
+            });
+        }
 
         // Drive the conversation: open the workspace, then drain events.
         let drv = conv.clone();
@@ -417,6 +429,9 @@ impl OctoscodeView {
                 }
             }
             while let Some(evt) = evt_rx.recv().await {
+                // #29c: the screens' occupancy window folds from the
+                // token_cost_update progress payloads (workspace-events.ts:6-10).
+                screens::models::note_transport_event(&evt);
                 let e = drv.on_event(evt);
                 ::log::debug!("[octoscode] {e:?}");
                 SignalToUI::set_ui_signal();
@@ -479,6 +494,18 @@ impl OctoscodeView {
         let Some(conv) = conv else {
             return;
         };
+        // Entry #29c: the stage-C screens own their action ids (the cards'
+        // service-actions events); route them through the production client.
+        if screens::models::owns(action) {
+            let action = action.to_string();
+            let store = store.clone();
+            rt.spawn(async move {
+                if let Err(e) = screens::models::perform(&conv, &action, &store).await {
+                    ::log::warn!("octoscode: screens: {action:?}: {e}");
+                }
+            });
+            return;
+        }
         match effect {
             actions::Effect::Refresh => {
                 rt.spawn(async move {
