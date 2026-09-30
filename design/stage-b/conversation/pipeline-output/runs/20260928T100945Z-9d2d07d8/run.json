@@ -69,16 +69,16 @@
       "commands": [
         {
           "argv": [
-            "/Users/yuechen/miniconda3/bin/python3",
-            "/Users/yuechen/home/oa.noindex/p0-harness/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
+            "<HOME>/miniconda3/bin/python3",
+            "<WORKSPACE>/p0-harness/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
             "--project",
-            "/Users/yuechen/home/oa.noindex/p0-harness/design/stage-b/conversation",
+            "<WORKSPACE>/p0-harness/design/stage-b/conversation",
             "--manifest",
-            "/Users/yuechen/home/oa.noindex/p0-harness/design/stage-b/conversation/image-to-appcard-flow.json",
+            "<WORKSPACE>/p0-harness/design/stage-b/conversation/image-to-appcard-flow.json",
             "--stage",
             "observe"
           ],
-          "cwd": "/Users/yuechen/home/oa.noindex/p0-harness/design/stage-b/conversation"
+          "cwd": "<WORKSPACE>/p0-harness/design/stage-b/conversation"
         }
       ],
       "logs": [
@@ -95,16 +95,16 @@
       "commands": [
         {
           "argv": [
-            "/Users/yuechen/miniconda3/bin/python3",
-            "/Users/yuechen/home/oa.noindex/p0-harness/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
+            "<HOME>/miniconda3/bin/python3",
+            "<WORKSPACE>/p0-harness/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
             "--project",
-            "/Users/yuechen/home/oa.noindex/p0-harness/design/stage-b/conversation",
+            "<WORKSPACE>/p0-harness/design/stage-b/conversation",
             "--manifest",
-            "/Users/yuechen/home/oa.noindex/p0-harness/design/stage-b/conversation/image-to-appcard-flow.json",
+            "<WORKSPACE>/p0-harness/design/stage-b/conversation/image-to-appcard-flow.json",
             "--stage",
             "measure"
           ],
-          "cwd": "/Users/yuechen/home/oa.noindex/p0-harness/design/stage-b/conversation"
+          "cwd": "<WORKSPACE>/p0-harness/design/stage-b/conversation"
         }
       ],
       "logs": [
@@ -121,16 +121,16 @@
       "commands": [
         {
           "argv": [
-            "/Users/yuechen/miniconda3/bin/python3",
-            "/Users/yuechen/home/oa.noindex/p0-harness/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
+            "<HOME>/miniconda3/bin/python3",
+            "<WORKSPACE>/p0-harness/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
             "--project",
-            "/Users/yuechen/home/oa.noindex/p0-harness/design/stage-b/conversation",
+            "<WORKSPACE>/p0-harness/design/stage-b/conversation",
             "--manifest",
-            "/Users/yuechen/home/oa.noindex/p0-harness/design/stage-b/conversation/image-to-appcard-flow.json",
+            "<WORKSPACE>/p0-harness/design/stage-b/conversation/image-to-appcard-flow.json",
             "--stage",
             "map"
           ],
-          "cwd": "/Users/yuechen/home/oa.noindex/p0-harness/design/stage-b/conversation"
+          "cwd": "<WORKSPACE>/p0-harness/design/stage-b/conversation"
         }
       ],
       "logs": [

@@ -21,4 +21,4 @@ card: os.octoscode-script running under 2 capability(ies), 1 host(s), 67108864 b
   session :: session: octoscode:host
   status :: conn: sessions listed: 0
   refresh :: session/list
-{"png":["/Users/yuechen/home/oa.noindex/p0-build/tmp/peer-tmp/makepad-remote/octosense-59334/grab-w0-00002.png"],"quit":1}
+{"png":["<WORKSPACE>/p0-build/tmp/peer-tmp/makepad-remote/octosense-59334/grab-w0-00002.png"],"quit":1}

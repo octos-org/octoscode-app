@@ -66,16 +66,16 @@
       "commands": [
         {
           "argv": [
-            "/Users/yuechen/miniconda3/bin/python3",
-            "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
+            "<HOME>/miniconda3/bin/python3",
+            "<REPO>/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
             "--project",
-            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup",
+            "<REPO>/design/stage-b/setup",
             "--manifest",
-            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup/image-to-appcard-flow.json",
+            "<REPO>/design/stage-b/setup/image-to-appcard-flow.json",
             "--stage",
             "semantic"
           ],
-          "cwd": "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup"
+          "cwd": "<REPO>/design/stage-b/setup"
         }
       ],
       "logs": [
@@ -104,6 +104,6 @@
     "web-test",
     "hosted-test"
   ],
-  "error": "semantic failed; see /Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup/pipeline-output/runs/20260929T193506Z-e0db9743/semantic-0.log",
+  "error": "semantic failed; see <REPO>/design/stage-b/setup/pipeline-output/runs/20260929T193506Z-e0db9743/semantic-0.log",
   "finished_at": "2026-09-29T19:35:06.561734+00:00"
 }

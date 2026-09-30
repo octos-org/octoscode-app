@@ -1,9 +1,9 @@
 Traceback (most recent call last):
-  File "/Users/yuechen/home/oa.noindex/p0-map-c/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py", line 103, in <module>
+  File "<WORKSPACE>/p0-map-c/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py", line 103, in <module>
     main()
     ~~~~^^
-  File "/Users/yuechen/home/oa.noindex/p0-map-c/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py", line 58, in main
+  File "<WORKSPACE>/p0-map-c/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py", line 58, in main
     from observe import observe
-  File "/Users/yuechen/home/oa.noindex/p0-map-c/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-lib/observe.py", line 9, in <module>
+  File "<WORKSPACE>/p0-map-c/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-lib/observe.py", line 9, in <module>
     import numpy as np
 ModuleNotFoundError: No module named 'numpy'

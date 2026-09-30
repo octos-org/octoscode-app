@@ -5,7 +5,7 @@ cd "$(dirname "$0")/../../../.."   # repo root: p0-harness
 PROJ="$PWD/design/stage-b/conversation"
 CLONE="$PWD/tmp/stage-b/native-ws/OctoScript-App-Design-Flow"
 WS="$PWD/tmp/stage-b/native-ws"
-PY=/Users/yuechen/miniconda3/bin/python3
+PY="${PY:-python3}"
 
 # 1) Bundle the monospace face the kit ships into the clone's kit-host resources.
 #    `self:resources/ux/*` resolves against the host crate's own tree at BUILD time,
@@ -47,10 +47,10 @@ BEAUTY="$TARGET/release/beauty-host"
 if [ ! -x "$BEAUTY" ]; then
   (
     cd "$WS/octoscript-makepad"
-    export CARGO_HOME=/Users/yuechen/home/oa.noindex/.shared-cargo-home
+    export CARGO_HOME="${CARGO_HOME:-$HOME/.cargo}"
     export CARGO_TARGET_DIR="$TARGET"
     export CARGO_BUILD_JOBS=2
-    export PATH="$CARGO_HOME/bin:/Users/yuechen/.cargo/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    export PATH="$CARGO_HOME/bin:$HOME/.cargo/bin:/usr/bin:/bin:/usr/sbin:/sbin"
     export GIT_CONFIG_GLOBAL=/dev/null
     RUSTFLAGS='' CARGO_PROFILE_RELEASE_LTO=false cargo build --release -p kit-host --bin beauty-host
   )

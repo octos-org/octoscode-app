@@ -27,7 +27,7 @@ import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-W = os.environ.get("SRC_WEB") or os.path.expanduser("~/home/oa.noindex/src-web")
+W = os.environ.get("SRC_WEB") or os.path.join(ROOT, ".forks", "src-web")  # SRC_WEB = an octoscode-web checkout
 NATIVE_ROOT = os.path.join(ROOT, "crates")
 
 

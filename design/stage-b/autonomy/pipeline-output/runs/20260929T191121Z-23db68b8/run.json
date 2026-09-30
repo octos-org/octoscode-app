@@ -69,16 +69,16 @@
       "commands": [
         {
           "argv": [
-            "/Users/yuechen/miniconda3/bin/python3",
-            "/Users/yuechen/home/oa.noindex/p0-proto/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
+            "<HOME>/miniconda3/bin/python3",
+            "<WORKSPACE>/p0-proto/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
             "--project",
-            "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy",
+            "<WORKSPACE>/p0-proto/design/stage-b/autonomy",
             "--manifest",
-            "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy/image-to-appcard-flow.json",
+            "<WORKSPACE>/p0-proto/design/stage-b/autonomy/image-to-appcard-flow.json",
             "--stage",
             "semantic"
           ],
-          "cwd": "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy"
+          "cwd": "<WORKSPACE>/p0-proto/design/stage-b/autonomy"
         }
       ],
       "logs": [
@@ -95,16 +95,16 @@
       "commands": [
         {
           "argv": [
-            "/Users/yuechen/miniconda3/bin/python3",
-            "/Users/yuechen/home/oa.noindex/p0-proto/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
+            "<HOME>/miniconda3/bin/python3",
+            "<WORKSPACE>/p0-proto/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/native.py",
             "--project",
-            "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy",
+            "<WORKSPACE>/p0-proto/design/stage-b/autonomy",
             "--manifest",
-            "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy/image-to-appcard-flow.json",
+            "<WORKSPACE>/p0-proto/design/stage-b/autonomy/image-to-appcard-flow.json",
             "--stage",
             "compile"
           ],
-          "cwd": "/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy"
+          "cwd": "<WORKSPACE>/p0-proto/design/stage-b/autonomy"
         }
       ],
       "logs": [

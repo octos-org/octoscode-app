@@ -66,16 +66,16 @@
       "commands": [
         {
           "argv": [
-            "/Users/yuechen/miniconda3/bin/python3",
-            "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/extract.py",
+            "<HOME>/miniconda3/bin/python3",
+            "<REPO>/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/extract.py",
             "--project",
-            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup",
+            "<REPO>/design/stage-b/setup",
             "--manifest",
-            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup/image-to-appcard-flow.json",
+            "<REPO>/design/stage-b/setup/image-to-appcard-flow.json",
             "--output",
-            "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup/pipeline-output/service-cards"
+            "<REPO>/design/stage-b/setup/pipeline-output/service-cards"
           ],
-          "cwd": "/Users/yuechen/home/oa.noindex/p0-proto2/design/stage-b/setup"
+          "cwd": "<REPO>/design/stage-b/setup"
         }
       ],
       "logs": [

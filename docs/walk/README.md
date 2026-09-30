@@ -68,7 +68,7 @@ never fails with a mystery `0 pass` result.
    ```
 
    A prebuilt copy may already exist read-only at
-   `/Users/yuechen/home/oa.noindex/p0-build/tmp/octosense-target/debug/octosense`
+   `<WORKSPACE>/p0-build/tmp/octosense-target/debug/octosense`
    (set `OCTOSCODE_APP_BIN` to that instead of rebuilding). The desktop *crate*
    directory (`<fork>/desktop`) is derived from the binary's path; override it
    with `OCTOSCODE_SHELL_CWD` if your layout differs. Building it takes ~12 min.

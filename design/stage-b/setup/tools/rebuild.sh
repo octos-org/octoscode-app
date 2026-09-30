@@ -7,7 +7,7 @@ PROJ="$PWD/design/stage-b/setup"
 CLONE="$PWD/tmp/stage-b/native-ws/OctoScript-App-Design-Flow"
 WS="$PWD/tmp/stage-b/native-ws"
 PATCHES="$PWD/design/stage-b/conversation/tools"   # renderer patches are shared with board 1
-PY=/Users/yuechen/miniconda3/bin/python3
+PY="${PY:-python3}"
 
 mkdir -p "$WS/octoscript-makepad/apps/kit-host/resources/ux"
 [ -f "$WS/octoscript-makepad/apps/kit-host/resources/ux/LiberationMono-Regular.ttf" ] || \
@@ -31,10 +31,10 @@ BEAUTY="$TARGET/release/beauty-host"
 if [ ! -x "$BEAUTY" ]; then
   (
     cd "$WS/octoscript-makepad"
-    export CARGO_HOME=/Users/yuechen/home/oa.noindex/.shared-cargo-home
+    export CARGO_HOME="${CARGO_HOME:-$HOME/.cargo}"
     export CARGO_TARGET_DIR="$TARGET"
     export CARGO_BUILD_JOBS=2
-    export PATH="$CARGO_HOME/bin:/Users/yuechen/.cargo/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+    export PATH="$CARGO_HOME/bin:$HOME/.cargo/bin:/usr/bin:/bin:/usr/sbin:/sbin"
     export GIT_CONFIG_GLOBAL=/dev/null
     RUSTFLAGS='' CARGO_PROFILE_RELEASE_LTO=false cargo build --release -p kit-host --bin beauty-host
   )

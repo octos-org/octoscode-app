@@ -2,7 +2,7 @@
 
 Scope: 1 web feature dir in `src-web/apps/web/src/features/` — `autonomy` (12 src, 7 test files, 2959 LOC).
 Companion machine-readable data: `docs/parity/g-autonomy2.csv` (26 rows / 1 feature).
-Path prefixes: `src-web/` = `/Users/yuechen/home/oa.noindex/src-web/`,
+Path prefixes: `src-web/` = `<WORKSPACE>/src-web/`,
 `appcard/` = `ref/OctoSense/apps/appcard/app/`, `octosense/` = `ref/OctoSense/`.
 
 Method: one row per user-visible behaviour, cited `file:line`; unit tests from `*.test.ts[x]` in the dir;

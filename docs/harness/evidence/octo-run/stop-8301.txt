@@ -1,2 +1,2 @@
-gq: {"png":["/Users/yuechen/home/oa.noindex/p0-harness/tmp/peer-tmp/makepad-remote/card-host-81236/grab-w0-00001.png"],"quit":1}
+gq: {"png":["<WORKSPACE>/p0-harness/tmp/peer-tmp/makepad-remote/card-host-81236/grab-w0-00001.png"],"quit":1}
 pid 81236 exited

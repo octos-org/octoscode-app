@@ -14,6 +14,8 @@ members = [
     "crates/octoscode-store",
     "crates/octoscode-module",
 ]
+# Local forks (tools/prepare-*-fork.sh) live in .forks/; they are their own workspaces.
+exclude = [".forks"]
 
 [workspace.package]
 version = "0.1.0"
@@ -55,8 +57,8 @@ log = "0.4"
 # from the FORK's workspace (a path into the fork tree), so patching only the
 # transport would put two copies of `octos-app-store` in the graph.
 [patch."https://github.com/OctoSense-org/OctoSense"]
-octos-app-transport = { path = "/Users/yuechen/home/oa.noindex/octosense-fork/apps/appcard/app/crates/octos-app-transport" }
-octos-app-store = { path = "/Users/yuechen/home/oa.noindex/octosense-fork/apps/appcard/app/crates/octos-app-store" }
+octos-app-transport = { path = ".forks/octosense-fork/apps/appcard/app/crates/octos-app-transport" }
+octos-app-store = { path = ".forks/octosense-fork/apps/appcard/app/crates/octos-app-store" }
 
 # The renderer the #16/#18 components are authored against (card #21b step 1).
 # The pinned rev's `design.rs` lacks the flow/fill lowering: a `fillw` node
@@ -65,6 +67,6 @@ octos-app-store = { path = "/Users/yuechen/home/oa.noindex/octosense-fork/apps/a
 # `tools/prepare-octoscript-makepad-fork.sh` recreates that fork from this same
 # rev + `patches/octoscript-makepad/000{1..6}-*.patch`.
 [patch."https://github.com/OctoSense-org/Octoscript-Makepad.git"]
-octoscript-makepad = { path = "/Users/yuechen/home/oa.noindex/octoscript-makepad-fork/crates/octoscript-makepad" }
-octoscript-widgets = { path = "/Users/yuechen/home/oa.noindex/octoscript-makepad-fork/crates/octoscript-widgets" }
-octoscript-node = { path = "/Users/yuechen/home/oa.noindex/octoscript-makepad-fork/crates/octoscript-node" }
+octoscript-makepad = { path = ".forks/octoscript-makepad-fork/crates/octoscript-makepad" }
+octoscript-widgets = { path = ".forks/octoscript-makepad-fork/crates/octoscript-widgets" }
+octoscript-node = { path = ".forks/octoscript-makepad-fork/crates/octoscript-node" }

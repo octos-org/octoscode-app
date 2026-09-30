@@ -16,7 +16,7 @@
 #   harness/headless.sh ports                          # every port this harness started
 #
 # Environment (all optional):
-#   OCTOSENSE_NATIVE_ROOT  prepared native workspace   (default: /Users/yuechen/home/oa.noindex/native)
+#   OCTOSENSE_NATIVE_ROOT  prepared native workspace   (default: <REPO>/../native)
 #   OCTO_CARD_HOST         card-host binary            (default: <native>/OctoSense-App-Hub/target/release/card-host)
 #   HEADLESS_STATE         run-state dir (pid/log)     (default: ${TMPDIR:-/tmp}/octos-headless)
 #   HEADLESS_EVIDENCE      dir to write evidence into  (default: unset → stdout only)
@@ -29,7 +29,8 @@
 # never show/focus a window; never `pkill`; only `/quit`/`/gq` a port you started.
 set -euo pipefail
 
-NATIVE_ROOT="${OCTOSENSE_NATIVE_ROOT:-/Users/yuechen/home/oa.noindex/native}"
+ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
+NATIVE_ROOT="${OCTOSENSE_NATIVE_ROOT:-$ROOT_DIR/../native}"
 CARD_HOST="${OCTO_CARD_HOST:-$NATIVE_ROOT/OctoSense-App-Hub/target/release/card-host}"
 STATE="${HEADLESS_STATE:-${TMPDIR:-/tmp}/octos-headless}"
 EVIDENCE="${HEADLESS_EVIDENCE:-}"

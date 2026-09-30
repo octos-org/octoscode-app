@@ -1,6 +1,6 @@
-2026-09-28T02:53:35.034581Z  INFO OCTOS_HOME override active: config.json is read/written under the state dir config_home=/Users/yuechen/home/oa.noindex/p0-build/tmp/octos-serve-home
+2026-09-28T02:53:35.034581Z  INFO OCTOS_HOME override active: config.json is read/written under the state dir config_home=<WORKSPACE>/p0-build/tmp/octos-serve-home
 2026-09-28T02:53:35.034630Z  INFO no config.json found, using defaults
-2026-09-28T02:53:35.034640Z  INFO data directory resolved data_dir=/Users/yuechen/home/oa.noindex/p0-build/tmp/octos-serve-data
+2026-09-28T02:53:35.034640Z  INFO data directory resolved data_dir=<WORKSPACE>/p0-build/tmp/octos-serve-data
 2026-09-28T02:53:35.067302Z  INFO fleet-kernel boot reconcile complete interrupted=0 owner_epoch=1790564015035 attempt=1
 2026-09-28T02:53:35.067327Z  INFO fleet-kernel outbox consumer started
 2026-09-28T02:53:35.068620Z  INFO fleet outbox consumer loop started interval_secs=3
@@ -8,7 +8,7 @@
 2026-09-28T02:53:35.267559Z  INFO initializing profile store and process manager
 2026-09-28T02:53:35.267831Z  WARN bundled skill binaries missing beside the octos executable — this looks like a bare-binary install; app-skill tools (get_weather, etc.) will NOT register. Deploy the full bundle (scripts/build-local-bundle.sh / scripts/install.sh), not just the octos binary. missing=["news_fetch", "deep-search", "deep_crawl", "send_email", "account_manager", "clock", "weather", "smart_home"]
 2026-09-28T02:53:35.268051Z  WARN no bootstrapped profile runtime; fleet worker pool not built (goal_dispatch will report the pool unavailable)
-2026-09-28T02:53:35.268129Z  WARN bridge.js not found, managed WhatsApp bridges disabled path=/Users/yuechen/home/oa.noindex/p0-build/tmp/octos-serve-data/whatsapp-bridge/bridge.js
+2026-09-28T02:53:35.268129Z  WARN bridge.js not found, managed WhatsApp bridges disabled path=<WORKSPACE>/p0-build/tmp/octos-serve-data/whatsapp-bridge/bridge.js
 2026-09-28T02:53:35.286855Z  WARN no dashboard_auth.smtp configured and no usable profile SMTP email tool found — OTP codes will be logged to console only
 2026-09-28T02:53:35.287125Z  INFO loaded profiles total=0 enabled=0
 2026-09-28T02:53:35.287191Z  INFO ledger session index built (lazy recovery; events replay on first touch) target="octos::ledger" sessions_indexed=0
@@ -122,9 +122,9 @@
 2026-09-28T03:29:20.282579Z  WARN steer inbox sweep: AppState has NO profiles registered; steer wake cannot run for any session
 2026-09-28T03:29:35.281353Z  INFO ledger sweep tick target="octos::ledger" ledger.sessions.active=4 ledger.sessions.evicted=0 ledger.events.dropped=0 ledger.bytes.in_memory=54233 ledger.bytes.on_disk=54533
 2026-09-28T03:30:06.659206Z  INFO stopping all gateway child processes
-2026-09-28T03:30:09.712750Z  INFO OCTOS_HOME override active: config.json is read/written under the state dir config_home=/Users/yuechen/home/oa.noindex/p0-build/tmp/octos-serve-home
+2026-09-28T03:30:09.712750Z  INFO OCTOS_HOME override active: config.json is read/written under the state dir config_home=<WORKSPACE>/p0-build/tmp/octos-serve-home
 2026-09-28T03:30:09.713667Z  INFO no config.json found, using defaults
-2026-09-28T03:30:09.713677Z  INFO data directory resolved data_dir=/Users/yuechen/home/oa.noindex/p0-build/tmp/octos-serve-data
+2026-09-28T03:30:09.713677Z  INFO data directory resolved data_dir=<WORKSPACE>/p0-build/tmp/octos-serve-data
 2026-09-28T03:30:09.749414Z  INFO fleet-kernel boot reconcile complete interrupted=0 owner_epoch=1790566209714 attempt=1
 2026-09-28T03:30:09.749498Z  INFO fleet-kernel outbox consumer started
 2026-09-28T03:30:09.750989Z  INFO fleet outbox consumer loop started interval_secs=3
@@ -132,7 +132,7 @@
 2026-09-28T03:30:09.949731Z  INFO initializing profile store and process manager
 2026-09-28T03:30:09.950218Z  WARN bundled skill binaries missing beside the octos executable — this looks like a bare-binary install; app-skill tools (get_weather, etc.) will NOT register. Deploy the full bundle (scripts/build-local-bundle.sh / scripts/install.sh), not just the octos binary. missing=["news_fetch", "deep-search", "deep_crawl", "send_email", "account_manager", "clock", "weather", "smart_home"]
 2026-09-28T03:30:09.950439Z  WARN no bootstrapped profile runtime; fleet worker pool not built (goal_dispatch will report the pool unavailable)
-2026-09-28T03:30:09.950496Z  WARN bridge.js not found, managed WhatsApp bridges disabled path=/Users/yuechen/home/oa.noindex/p0-build/tmp/octos-serve-data/whatsapp-bridge/bridge.js
+2026-09-28T03:30:09.950496Z  WARN bridge.js not found, managed WhatsApp bridges disabled path=<WORKSPACE>/p0-build/tmp/octos-serve-data/whatsapp-bridge/bridge.js
 2026-09-28T03:30:09.978188Z  WARN no dashboard_auth.smtp configured and no usable profile SMTP email tool found — OTP codes will be logged to console only
 2026-09-28T03:30:09.978439Z  INFO loaded profiles total=2 enabled=2
 2026-09-28T03:30:09.978444Z  INFO ledger session index built (lazy recovery; events replay on first touch) target="octos::ledger" sessions_indexed=4
@@ -147,9 +147,9 @@
 2026-09-28T03:30:24.207042Z  INFO diff preview recovery complete target="octos::diff_preview" sessions_recovered=0 entries_recovered=0
 2026-09-28T03:30:24.207053Z  INFO ui protocol diff-preview store initialized with durable backing target="octos::diff_preview" sessions_recovered=0 entries_recovered=0
 2026-09-28T03:31:03.476745Z  INFO stopping all gateway child processes
-2026-09-28T03:31:06.518355Z  INFO OCTOS_HOME override active: config.json is read/written under the state dir config_home=/Users/yuechen/home/oa.noindex/p0-build/tmp/octos-serve-home
+2026-09-28T03:31:06.518355Z  INFO OCTOS_HOME override active: config.json is read/written under the state dir config_home=<WORKSPACE>/p0-build/tmp/octos-serve-home
 2026-09-28T03:31:06.518387Z  INFO no config.json found, using defaults
-2026-09-28T03:31:06.518392Z  INFO data directory resolved data_dir=/Users/yuechen/home/oa.noindex/p0-build/tmp/octos-serve-data
+2026-09-28T03:31:06.518392Z  INFO data directory resolved data_dir=<WORKSPACE>/p0-build/tmp/octos-serve-data
 2026-09-28T03:31:06.574441Z  INFO fleet-kernel boot reconcile complete interrupted=0 owner_epoch=1790566266518 attempt=1
 2026-09-28T03:31:06.574474Z  INFO fleet-kernel outbox consumer started
 2026-09-28T03:31:06.576039Z  INFO fleet outbox consumer loop started interval_secs=3
@@ -159,7 +159,7 @@
 2026-09-28T03:31:06.775139Z DEBUG skipping ProfileRuntime bootstrap: no LLM selection profile_id=octoscode
 2026-09-28T03:31:06.775144Z DEBUG skipping ProfileRuntime bootstrap: no LLM selection profile_id=spike
 2026-09-28T03:31:06.775148Z  WARN no bootstrapped profile runtime; fleet worker pool not built (goal_dispatch will report the pool unavailable)
-2026-09-28T03:31:06.775216Z  WARN bridge.js not found, managed WhatsApp bridges disabled path=/Users/yuechen/home/oa.noindex/p0-build/tmp/octos-serve-data/whatsapp-bridge/bridge.js
+2026-09-28T03:31:06.775216Z  WARN bridge.js not found, managed WhatsApp bridges disabled path=<WORKSPACE>/p0-build/tmp/octos-serve-data/whatsapp-bridge/bridge.js
 2026-09-28T03:31:06.804429Z  WARN no dashboard_auth.smtp configured and no usable profile SMTP email tool found — OTP codes will be logged to console only
 2026-09-28T03:31:06.804690Z  INFO loaded profiles total=2 enabled=2
 2026-09-28T03:31:06.804708Z  INFO ledger session index built (lazy recovery; events replay on first touch) target="octos::ledger" sessions_indexed=5

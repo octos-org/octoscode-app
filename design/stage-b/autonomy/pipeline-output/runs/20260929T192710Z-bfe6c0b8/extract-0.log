@@ -1,14 +1,14 @@
 Traceback (most recent call last):
-  File "/Users/yuechen/home/oa.noindex/p0-proto/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/extract.py", line 120, in <module>
+  File "<WORKSPACE>/p0-proto/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/extract.py", line 120, in <module>
     print(json.dumps(extract(args.manifest.resolve(), args.project.resolve(), args.output.resolve())))
                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/yuechen/home/oa.noindex/p0-proto/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/extract.py", line 95, in extract
+  File "<WORKSPACE>/p0-proto/tmp/stage-b/native-ws/OctoScript-App-Design-Flow/flows/image-to-card/extract.py", line 95, in extract
     generation = json.loads((src / 'generation.json').read_text())
                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/yuechen/miniconda3/lib/python3.12/pathlib.py", line 1027, in read_text
+  File "<HOME>/miniconda3/lib/python3.12/pathlib.py", line 1027, in read_text
     with self.open(mode='r', encoding=encoding, errors=errors) as f:
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/yuechen/miniconda3/lib/python3.12/pathlib.py", line 1013, in open
+  File "<HOME>/miniconda3/lib/python3.12/pathlib.py", line 1013, in open
     return io.open(self, mode, buffering, encoding, errors, newline)
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: '/Users/yuechen/home/oa.noindex/p0-proto/design/stage-b/autonomy/cards/autonomy-07/generation.json'
+FileNotFoundError: [Errno 2] No such file or directory: '<WORKSPACE>/p0-proto/design/stage-b/autonomy/cards/autonomy-07/generation.json'

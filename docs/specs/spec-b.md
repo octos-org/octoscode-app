@@ -1,7 +1,7 @@
 # Behaviour specs — group `spec-b` (board #9b)
 
 Behaviour specs for the 12 web capabilities the parity matrix lists with **no web unit test and no
-Playwright spec**. Written from the **web source** (`~/home/oa.noindex/src-web` @ `70a8a1c`), not
+Playwright spec**. Written from the **web source** (`~/src-web` @ `70a8a1c`), not
 from memory. No native card may claim these until a spec exists (supervisor 8.8 condition 5).
 
 Machine-readable twin: `docs/specs/spec-b.csv` (one row per `### SPEC-` block below).
