@@ -885,7 +885,13 @@ fn seed_synthetic_live(store: &Arc<Store>) {
     store.domains.turn.started("t1");
     store.domains.turn.set_terminal("t1", "completed");
 
-    // GOALS / LOOPS / FLEET (board 4 frame 3).
+    // GOALS / LOOPS / FLEET (board 4 frame 3). #31a item 2: an EMPTY session
+    // must show only THREADS — OCTOSCODE_SYNTHETIC_EMPTY=1 skips the autonomy
+    // seed so the sections' data-driven visibility is provable (live store,
+    // no goal/loops/fleet).
+    if std::env::var("OCTOSCODE_SYNTHETIC_EMPTY").is_ok() {
+        return;
+    }
     store.domains.autonomy.set_goal(
         &first,
         GoalState {
