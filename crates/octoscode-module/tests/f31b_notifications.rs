@@ -12,13 +12,18 @@
 //! - `context/compaction_started` / `context/compaction_completed`: REAL
 //!   recorded frames in `r3-session-a6ea8505.jsonl` (the only two of the six
 //!   with delivered frames anywhere);
-//! - `message/reasoning_delta`, `approval/auto_resolved`,
-//!   `approval/cancelled`, `monitor/expired`: NO fixture carries a delivered
-//!   frame (the strings in other fixtures are capabilities advertisements) —
-//!   their bodies here are hand-written to the octos-core @ a6ea8505 event
-//!   structs (`ui_protocol.rs:5181,5483,5553,6091`), decoded through the same
+//! - `monitor/expired`: RECORDED (the entry's ≤3-turn budget: a zero-model-
+//!   turn probe — `monitor/create` with `timeout_secs: 2`, the #1977 timeout
+//!   fires) into `r31b-notifications-a6ea8505.jsonl`; test 5 replays that
+//!   REAL frame through the pipeline;
+//! - `message/reasoning_delta`, `approval/auto_resolved`, `approval/cancelled`:
+//!   NOT provokable in the turn budget (the reasoning prompt produced no
+//!   thinking deltas; the escalation prompt never raised `approval/requested`
+//!   so there was nothing to cancel; auto-resolve needs a pre-persisted scope
+//!   policy) — their bodies here are hand-written to the octos-core @ a6ea8505
+//!   event structs (`ui_protocol.rs:5181,5483,5553`), decoded through the same
 //!   `#[serde(tag = "kind")]` enum the transport decodes
-//!   (`ui_protocol.rs:6579-6582`). Recording attempts are reported in
+//!   (`ui_protocol.rs:6579-6582`). The attempts are reported in
 //!   `.peer/report-31b.md`.
 
 use std::sync::{Arc, Mutex};
@@ -279,4 +284,53 @@ fn monitor_expired_marks_the_row_expired() {
         .expect("the row survives");
     assert_eq!(m.status, "expired", "MonitorExpiredHandler marks it (autonomy.rs:745-765)");
     assert_eq!(m.pause_reason.as_deref(), Some("timeout"));
+}
+
+// ----------------------------------- 5. the RECORDED monitor/expired frame
+
+/// The r31b recording (zero-model-turn probe): `monitor/create` with
+/// `timeout_secs: 2`, the server expired it ~2s in. Hermetic (`<HOME>`-style
+/// scrub; `fixtures_hermetic` covers the directory).
+const R31B: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/../octoscode-client/tests/fixtures/r31b-notifications-a6ea8505.jsonl"
+);
+
+#[test]
+fn the_recorded_monitor_expired_frame_folds_through_the_real_pipeline() {
+    let mut body = None;
+    for line in std::fs::read_to_string(R31B).unwrap().lines() {
+        let Ok(v) = serde_json::from_str::<serde_json::Value>(line) else {
+            continue;
+        };
+        if v["dir"].as_str() == Some("in") && v["method"].as_str() == Some("monitor/expired") {
+            body = Some(v["body"].clone());
+            break;
+        }
+    }
+    let body = body.expect("the r31b recording carries monitor/expired");
+
+    // The REAL frame: monitor_01, reason timeout, the full record rides along.
+    assert_eq!(body["monitor_id"], "monitor_01");
+    assert_eq!(body["reason"], "timeout");
+    assert_eq!(body["monitor"]["status"], "expired");
+
+    let store = Arc::new(Store::new());
+    store.domains.session.set_active(Some("dsflash:main".into()));
+    let mut reg = registry(&store);
+    let n = wire("monitor/expired", body);
+    assert!(reg.dispatch(&n), "a handler owns the recorded frame");
+
+    // The handler upserts the carried record AND marks the row expired
+    // (`autonomy.rs:745-765`).
+    let m = store
+        .domains
+        .autonomy
+        .monitors()
+        .into_iter()
+        .find(|m| m.monitor_id == "monitor_01")
+        .expect("the recorded monitor lands in the store");
+    assert_eq!(m.status, "expired");
+    assert_eq!(m.pause_reason.as_deref(), Some("timeout"));
+    assert_eq!(m.name, "r31b expiry probe");
 }
