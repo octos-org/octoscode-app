@@ -254,6 +254,14 @@ fn fleet_rows_carry_the_elapsed_tokens_meta_line_and_done_is_grey() {
         "the Done badge text uses the web's terminal grey, got: {}",
         snippet(&dsl, "Done")
     );
+    // #32c2 review: ONLY the terminal pill goes grey — the seed has exactly
+    // one closed peer, so the neutral surface colour must appear exactly
+    // once (the two Working badges keep the kit's green surface).
+    assert_eq!(
+        dsl.matches("e9eaec").count(),
+        1,
+        "the grey pill surface lands on the one Done badge only"
+    );
 }
 
 #[test]

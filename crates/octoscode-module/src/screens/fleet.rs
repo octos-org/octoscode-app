@@ -979,7 +979,17 @@ pub fn lower(screen_id: &str, ctx: &Ctx<'_>) -> Result<String, String> {
                 .as_deref()
                 .is_some_and(|id| id.ends_with("_badge"))
             {
-                n.attrs.bg = Some(0xFFE9_EA_EC);
+                // Only the TERMINAL pill goes grey (the #32c2 item-4 review):
+                // decide from the badge's OWN status text child — "Done" (and
+                // the other terminal words) take the neutral surface, a
+                // "Working" pill keeps the kit's green one.
+                let terminal = n
+                    .children
+                    .iter()
+                    .any(|c| matches!(c.attrs.text.as_deref(), Some("Done")));
+                if terminal {
+                    n.attrs.bg = Some(0xFFE9_EA_EC);
+                }
             }
             for c in &mut n.children {
                 work.push(c);
