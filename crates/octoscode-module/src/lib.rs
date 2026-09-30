@@ -693,23 +693,6 @@ script_mod! {
         } // palette
         } // palette_dock
 
-        // #28e4: the #29d proof screens (palette|error|loading) mount into
-        // this root overlay slot — their main-side home (the 200px
-        // review_column) is gone with #28e's shell, which owns the right
-        // edge. Hidden unless OCTOSCODE_SCREEN names one (sync_chrome), so
-        // the Fill/Fill wrapper never shadows clicks by default.
-        screen_dock := View {
-            width: Fill height: Fill
-            align: Align{x: 1.0 y: 0.0}
-            visible: false
-            // Fill/Fill: the reference host (screens_probe.rs:147) gives the
-            // screen the full window; a Fit slot collapsed the mounted tree
-            // to 0x0 (/snap-probed after the move out of review_column).
-            screen_splash := Splash {
-                width: Fill height: Fill
-            }
-        }
-
         // Card #28e item 6 (board 4 frame 4): the first-run screen. Before a
         // connection the window shows only a centered 480-wide card area (the
         // Connect card comes from board 2 mapping in Stage C). This replaces
@@ -739,25 +722,31 @@ script_mod! {
                 draw_bg.color: #E5E5E7
             }
             first_run_center := View {
+                // #28e6: the card area IS the screen_dock (the Overlay sibling
+                // AFTER first_run, so it paints above this chrome) — the swap
+                // probe proved the dock seats AND renders the Connect DSL
+                // while every first-run-shaped slot mis-seated it to 133x700
+                // (both probe arms, /snap + PNG). Nothing mounts here.
                 width: Fill height: Fill flow: Down
-                align: Align{x: 0.5 y: 0.5}
-            // #28e4 item 2: the REAL board-2 Connect screen (setup-01, #29a)
-            // mounts here — `screens::connect::lower_screen` lowers the authored
-            // Stage B card, so the label contrast is the design's own and
-            // Connect is wired for real. The native placeholder card (the
-            // black-on-black "Connect" label) is retired.
-            first_run_card := Splash {
-                // l0_host.rs:296: "the slot must give the card its own
-                // 406x776 box" — the artboard-exact frame (observations.json
-                // [406,776]). mount.rs:113 hands the slot's walk to the
-                // mounted root, so the slot IS the artboard; three non-exact
-                // slot walks (Fit / Fill / 406xFill) each misframed the tree
-                // (/snap-probed 133x700 regardless). At 900x800 the fixed
-                // artboard clips (712px content) — it does not rescale.
-                width: 406 height: 776
             }
         }
+
+        // #28e6: the screens' dock — AND, since the swap probe, the
+        // first-run Connect card area. It sits AFTER first_run in this
+        // Overlay so it paints above the first-run chrome; visible when
+        // OCTOSCODE_SCREEN names a screen or on first run (sync_chrome).
+        screen_dock := View {
+            width: Fill height: Fill
+            align: Align{x: 1.0 y: 0.0}
+            visible: false
+            // Fill/Fill: the reference host (screens_probe.rs:147) gives the
+            // screen the full window; a Fit slot collapsed the mounted tree
+            // to 0x0 (/snap-probed after the move out of review_column).
+            screen_splash := Splash {
+                width: Fill height: Fill
+            }
         }
+
     }
 }
 
@@ -1575,9 +1564,9 @@ impl OctoscodeView {
             .ok()
             .filter(|v| !matches!(v.as_str(), "connect" | "connect_failed" | "onboarding"))
         {
-            // #28e4: the board-2 setup screens are NOT docked here — connect
-            // mounts into the first-run card area (below); the other two have
-            // no home yet. The dock keeps the #29d proof screens only.
+            // #28e6: connect is NOT mounted here — on first run it mounts
+            // into THIS dock via the !live path (below); the other two setup
+            // screens have no home yet. The handler keeps the #29d screens.
             let screen_splash = self.view.splash(cx, ids!(screen_splash));
             let store = { self.bridge.lock().unwrap().store.clone() };
             // #30e — OCTOSCODE_THEME seeds the preference (system default),
@@ -1589,17 +1578,7 @@ impl OctoscodeView {
             if let Ok(pref) = std::env::var("OCTOSCODE_THEME") {
                 screens::theme::set_preference(&pref);
             }
-            let r = if which == "connect_probe" {
-                // #28e6 arm A (the approved swap probe): mount the Connect
-                // card's DSL into the dock slot that seats the palette fine —
-                // does the defect follow the card or the slot?
-                let lowered = {
-                    let b = self.bridge.lock().unwrap();
-                    let ui = b.screens.lock().unwrap();
-                    screens::connect::lower_screen(screens::connect::Screen::Connect, &ui)
-                };
-                lowered.and_then(|dsl| self.mounts.mount(cx, &screen_splash, &dsl))
-            } else if screens::theme::card_for(&which).is_some() {
+            let r = if screens::theme::card_for(&which).is_some() {
                 screens::theme::mount(&mut self.mounts, cx, screen_splash, &which, &store)
             } else {
                 crate::screens::palette::mount_screen(
@@ -1617,20 +1596,18 @@ impl OctoscodeView {
         // real (`screens::connect::is_action` -> `resolve`, handled in this
         // file's action path). The mount cache dedupes, so this is cheap
         // while the first run is showing.
+        // #28e6: on first run the dock IS the card area — it mounts the REAL
+        // board-2 Connect screen (setup-01, #29a) via
+        // `screens::connect::lower_screen` (ConnectUi copies applied; Connect
+        // routes for real via `is_action` -> `resolve` in the action path).
+        // The approved swap probe (73ec4a2 + e53d5ec; /snap + PNG under
+        // tmp/28e-evidence/28e6-*) proved every first-run-shaped slot
+        // mis-seats the measured DSL to 133x700 while the dock seats and
+        // renders it — so first-run mounts through the dock.
         let live = { self.bridge.lock().unwrap().store.is_live() };
-        // Probe hygiene: arm A (connect_probe) must keep Connect OUT of the
-        // first-run slot, or both seats hold the card and the /snap roots
-        // (two `page` widgets) can't be attributed.
-        let arm_a = std::env::var("OCTOSCODE_SCREEN").as_deref() == Ok("connect_probe");
-        if !live && !arm_a {
-            let splash = self.view.splash(cx, ids!(first_run_card));
-            // #28e6 arm B (the approved swap probe): OCTOSCODE_FIRSTRUN_PALETTE=1
-            // mounts the palette card's DSL into the first-run slot instead —
-            // does the mis-seat follow the card or the slot?
-            let lowered = if std::env::var("OCTOSCODE_FIRSTRUN_PALETTE").as_deref() == Ok("1") {
-                let store = { self.bridge.lock().unwrap().store.clone() };
-                crate::screens::palette::lower_screen("palette", &store)
-            } else {
+        if !live {
+            let splash = self.view.splash(cx, ids!(screen_splash));
+            let lowered = {
                 let b = self.bridge.lock().unwrap();
                 let ui = b.screens.lock().unwrap();
                 screens::connect::lower_screen(screens::connect::Screen::Connect, &ui)
@@ -1727,9 +1704,14 @@ impl OctoscodeView {
         // OCTOSCODE_SCREEN names one of them — a visible Fill/Fill wrapper
         // shadows the clicks under it. `connect` is NOT docked: it mounts in
         // the first-run card area (sync_labels).
+        // #28e6: on first run the dock IS the Connect card area (the swap
+        // probe proved the first-run-shaped slots mis-seat the card). A
+        // visible Fill/Fill wrapper shadows clicks under it, but on first run
+        // only the first-run chrome is under it.
         let screen_dock_shown = std::env::var("OCTOSCODE_SCREEN")
-            .map(|v| matches!(v.as_str(), "palette" | "error" | "loading" | "connect_probe"))
-            .unwrap_or(false);
+            .map(|v| matches!(v.as_str(), "palette" | "error" | "loading"))
+            .unwrap_or(false)
+            || !live;
         self.view
             .widget(cx, ids!(screen_dock))
             .set_visible(cx, screen_dock_shown);
