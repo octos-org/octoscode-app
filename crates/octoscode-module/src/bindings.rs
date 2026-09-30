@@ -157,6 +157,10 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
         _ if crate::screens::palette::owns_binding(id) => {
             return crate::screens::palette::query(ctx, id);
         }
+        // #30a — board-3 review screens; prefix-disjoint ids.
+        _ if crate::screens::review::owns_binding(id) => {
+            return crate::screens::review::query(ctx, id);
+        }
 
         // ---- conversation-01: THREAD LIST ---------------------------------
         "threads" => json!(rows_json(store)),
@@ -273,7 +277,7 @@ fn tools_json(ui: &FlowUi) -> Vec<Value> {
 
 /// Whether `id` is a declared action (the module performs it).
 pub fn is_action(id: &str) -> bool {
-    ACTIONS.iter().any(|(a, _)| *a == id) || crate::screens::models::owns(id)
+    ACTIONS.iter().any(|(a, _)| *a == id) || crate::screens::models::owns(id) || crate::screens::review::owns_action(id)
 }
 
 #[cfg(test)]

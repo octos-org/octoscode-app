@@ -9,6 +9,7 @@ pub mod connect;
 pub mod fleet;
 pub mod models;
 pub mod palette;
+pub mod workspace;
+pub mod review;
 pub mod sessions;
 pub mod theme;
-pub mod workspace;
