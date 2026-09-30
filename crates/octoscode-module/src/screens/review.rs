@@ -796,22 +796,23 @@ pub fn lower_screen(card: &str, ctx: &Ctx<'_>) -> Result<String, String> {
         }
     }
     // #30a2 ③: "Start native review" (`NativeReviewDialog.tsx:90`) is wider
-    // than the authored 123px control — widen to 153px, keep the right edge,
-    // so the label is never clipped by its own button.
+    // than the authored 123px control — widen to 168px, keep the right edge
+    // (215+168 = 383 = the authored edge), so the 19-char label is never
+    // clipped by its own button.
     if card == "autonomy-02" {
         if let Some(pl) = data.get_mut("$kit").and_then(|k| k.get_mut("placements")) {
             for k in ["start_review", "start_review_control", "start_review_surface"] {
                 if let Some(l) = pl.get_mut(k).and_then(|c| c.get_mut("layout")) {
-                    l["x"] = json!(230.0);
-                    l["w"] = json!(153.0);
+                    l["x"] = json!(215.0);
+                    l["w"] = json!(168.0);
                 }
             }
             if let Some(l) = pl
                 .get_mut("start_review_label")
                 .and_then(|c| c.get_mut("layout"))
             {
-                l["x"] = json!(246.0);
-                l["w"] = json!(121.0);
+                l["x"] = json!(231.0);
+                l["w"] = json!(136.0);
             }
         }
     }
