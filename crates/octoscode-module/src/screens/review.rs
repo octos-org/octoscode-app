@@ -669,11 +669,11 @@ const ROW_GREEN_DL: &str = "Text6d68fc1c53dd";
 /// `copy.*_text` slots; the +/- mark is baked literally — the card authors
 /// only `mk_2..mk_6`). Context rows are bare texts; changed rows get the
 /// design's chip. 0 rows -> an empty group (the honest empty diff). Returns
-/// the new source plus `(row index, content chars, is_added)` for every
-/// CHANGED row — the caller synthesises one kit placement per chip
-/// (`prepare` requires a placement per instance; the authored card only
-/// carries chip_130/131/132).
-pub fn rebuild_diff_rows(card_src: &str) -> (String, Vec<(usize, u64, bool)>) {
+/// the new source plus one `(row index, kind, content chars)` descriptor per
+/// emitted row — the caller rewrites EVERY row placement to the component
+/// the row actually emits (`prepare` requires placement-per-instance AND
+/// component agreement) and synthesises the changed rows' chip + mk.
+pub fn rebuild_diff_rows(card_src: &str) -> (String, Vec<(usize, String, u64)>) {
     let st = state();
     let open = "Group3d2637879433(instance: \"diff_rows\") {";
     let start = match card_src.find(open) {
@@ -698,7 +698,7 @@ pub fn rebuild_diff_rows(card_src: &str) -> (String, Vec<(usize, u64, bool)>) {
         }
     }
     let mut body = String::from(open);
-    let mut changed: Vec<(usize, u64, bool)> = Vec::new();
+    let mut rows: Vec<(usize, String, u64)> = Vec::new();
     body.push('\n');
     for (i, line) in st.lines.iter().enumerate() {
         match line.kind.as_str() {
@@ -709,7 +709,7 @@ pub fn rebuild_diff_rows(card_src: &str) -> (String, Vec<(usize, u64, bool)>) {
                     (ROW_GREEN, ROW_GREEN_LN, ROW_GREEN_MK, ROW_GREEN_DL)
                 };
                 let mark = if line.kind == "removed" { "-" } else { "+" };
-                changed.push((i, line.content.chars().count() as u64, mark == "+"));
+                rows.push((i, line.kind.clone(), line.content.chars().count() as u64));
                 body.push_str(&format!(
                     "      {surface}(instance: \"chip_{i}\") {{\n        \
                      {ln}(instance: \"ln_{i}\", text: copy.ln_{i}_text)\n        \
@@ -718,6 +718,7 @@ pub fn rebuild_diff_rows(card_src: &str) -> (String, Vec<(usize, u64, bool)>) {
                 ));
             }
             _ => {
+                rows.push((i, "context".to_owned(), line.content.chars().count() as u64));
                 body.push_str(&format!(
                     "      {ROW_CTX_LN}(instance: \"ln_{i}\", text: copy.ln_{i}_text)\n      \
                      {ROW_CTX_DL}(instance: \"dl_{i}\", text: copy.dl_{i}_text)\n"
@@ -726,7 +727,7 @@ pub fn rebuild_diff_rows(card_src: &str) -> (String, Vec<(usize, u64, bool)>) {
         }
     }
     body.push('}');
-    (format!("{}{}{}", &card_src[..start], body, &card_src[end..]), changed)
+    (format!("{}{}{}", &card_src[..start], body, &card_src[end..]), rows)
 }
 
 pub fn lower_screen(card: &str, ctx: &Ctx<'_>) -> Result<String, String> {
@@ -734,14 +735,16 @@ pub fn lower_screen(card: &str, ctx: &Ctx<'_>) -> Result<String, String> {
     // #30a2 ①: the diff body renders the SELECTED file's real hunks, one row
     // per line (before the copy injection, which then fills ln/dl texts).
     if card == "autonomy-01" {
-        let (src2, changed) = rebuild_diff_rows(&card_src);
+        let (src2, rows) = rebuild_diff_rows(&card_src);
         card_src = src2;
-        // prepare requires a kit placement per INSTANCE: the surgery emitted
-        // chip_<row> instances, so drop the authored chip_130/131/132
-        // placements, drop any mk placement whose row is no longer changed,
-        // and synthesise one placement per emitted chip — y from the row's
-        // own ln_i, width hugging the real content (~8px/char at the
-        // design's code size; authored dl_4: 25 chars -> 200px).
+        // prepare requires a placement per instance AND the placement's
+        // component must equal the emitted instance's component id. The
+        // surgery re-assigns components per row kind, so EVERY row placement
+        // is rewritten here: keep the authored geometry (the design's row
+        // pitch), swap the component to what the row emits, size the content
+        // width from the REAL line (chars*8px + padding — the authored
+        // dl_4 ratio: 25 chars -> 200px; no more mid-token clipping), drop
+        // the authored chips, synthesise chip + mk for the changed rows.
         let obj = data
             .get_mut("$kit")
             .and_then(|k| k.get_mut("placements"))
@@ -750,32 +753,44 @@ pub fn lower_screen(card: &str, ctx: &Ctx<'_>) -> Result<String, String> {
         for k in ["chip_130", "chip_131", "chip_132"] {
             obj.remove(k);
         }
-        let used: Vec<usize> = changed.iter().map(|(i, _, _)| *i).collect();
-        for k in 0..ROW_SLOTS {
-            if !used.contains(&k) {
-                obj.remove(&format!("mk_{k}"));
-            }
-        }
-        for (i, chars, added) in &changed {
+        for (i, kind, chars) in &rows {
+            let (ln_c, dl_c, mk_c) = match kind.as_str() {
+                "removed" => (ROW_RED_LN, ROW_RED_DL, ROW_RED_MK),
+                "added" => (ROW_GREEN_LN, ROW_GREEN_DL, ROW_GREEN_MK),
+                _ => (ROW_CTX_LN, ROW_CTX_DL, ROW_RED_MK),
+            };
+            // ln: authored geometry, emitted component
             let ln_key = format!("ln_{i}");
-            let y = obj
-                .get(&ln_key)
-                .and_then(|c| c.get("layout"))
-                .and_then(|l| l.get("y"))
-                .and_then(Value::as_f64)
-                .unwrap_or(353.79 + *i as f64 * 34.96);
-            let w = ((*chars as f64) * 8.0 + 24.0).clamp(48.0, 330.0);
-            let surface = if *added { ROW_GREEN } else { ROW_RED };
-            obj.insert(
-                format!("chip_{i}"),
-                json!({"component": surface, "layout": {"x": 76.0, "y": y - 3.0, "w": w, "h": 33.0}}),
-            );
-            let mk_key = format!("mk_{i}");
-            if !obj.contains_key(&mk_key) {
-                let mkc = if *added { ROW_GREEN_MK } else { ROW_RED_MK };
+            let mut pl = obj.remove(&ln_key).unwrap_or_else(|| {
+                json!({"component": "", "layout": {
+                    "x": 21.0, "y": 353.79 + (*i as f64) * 34.96, "w": 24.47, "h": 20.28}})
+            });
+            let ln_y = pl["layout"]["y"].as_f64().unwrap_or(353.79);
+            pl["component"] = json!(ln_c);
+            obj.insert(ln_key, pl);
+            // dl: authored position, REAL content width (no mid-token clip)
+            let dl_key = format!("dl_{i}");
+            let mut pl = obj.remove(&dl_key).unwrap_or_else(|| {
+                json!({"component": "", "layout": {
+                    "x": 90.43, "y": 353.0 + (*i as f64) * 34.96, "w": 247.94, "h": 20.28}})
+            });
+            pl["component"] = json!(dl_c);
+            pl["layout"]["w"] = json!(((*chars as f64) * 8.0 + 24.0).clamp(48.0, 300.0));
+            obj.insert(dl_key, pl);
+            if kind != "context" {
+                let mk_key = format!("mk_{i}");
+                let mut pl = obj.remove(&mk_key).unwrap_or_else(|| {
+                    json!({"component": "", "layout": {
+                        "x": 76.0, "y": ln_y, "w": 12.0, "h": 31.0}})
+                });
+                pl["component"] = json!(mk_c);
+                obj.insert(mk_key, pl);
+                let surface = if *kind == "added" { ROW_GREEN } else { ROW_RED };
+                let w = ((*chars as f64) * 8.0 + 24.0).clamp(48.0, 330.0);
                 obj.insert(
-                    mk_key,
-                    json!({"component": mkc, "layout": {"x": 76.0, "y": y, "w": 12.0, "h": 31.0}}),
+                    format!("chip_{i}"),
+                    json!({"component": surface, "layout": {
+                        "x": 76.0, "y": ln_y - 3.0, "w": w, "h": 33.0}}),
                 );
             }
         }

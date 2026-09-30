@@ -434,10 +434,15 @@ fn the_diff_rows_rebuild_with_the_real_chips() {
     review::reset();
     review::fold_preview(&serde_json::from_str::<serde_json::Value>(PREVIEW_JSON).unwrap());
     let (card_src, _data, _kit) = review::lower_card_src("autonomy-01").expect("card");
-    let (out, changed) = review::rebuild_diff_rows(&card_src);
+    let (out, rows) = review::rebuild_diff_rows(&card_src);
     // file 1's window is [ctx, removed, added, added] -> chips on rows 1/2/3
-    assert_eq!(changed.len(), 3, "the real changed rows get chips: {changed:?}");
-    assert_eq!(changed[0], (1, 13, false), "removed '    run(old);' with its char count");
+    assert_eq!(rows.len(), 4, "one descriptor per emitted row: {rows:?}");
+    // context rows carry their REAL char count too (the dl width sizing
+    // needs it — no mid-token clipping): "fn main() {" is 11 chars.
+    assert_eq!(rows[0], (0, "context".to_owned(), 11));
+    assert_eq!(rows[1], (1, "removed".to_owned(), 13), "'    run(old);' chars");
+    assert_eq!(rows[2], (2, "added".to_owned(), 13));
+    assert_eq!(rows[3], (3, "added".to_owned(), 12));
     assert!(out.contains("Surface4db4e42a8189(instance: \"chip_1\")"),
             "removed row -> the design's removed chip");
     assert!(out.contains("Surface04a27fc304ff(instance: \"chip_2\")")
@@ -449,8 +454,8 @@ fn the_diff_rows_rebuild_with_the_real_chips() {
             "the +/- marks are baked on the changed rows");
     // 0-case: an empty preview rebuilds an EMPTY group, no chips
     review::reset();
-    let (out0, changed0) = review::rebuild_diff_rows(&card_src);
-    assert!(changed0.is_empty());
+    let (out0, rows0) = review::rebuild_diff_rows(&card_src);
+    assert!(rows0.is_empty());
     let start = out0.find("Group3d2637879433").expect("the group stays");
     let seg = &out0[start..start + 140];
     assert!(seg.contains('}'), "empty group right after its open brace");
