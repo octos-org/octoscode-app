@@ -511,7 +511,7 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
     // `abs_pos`, which makepad applies at the WINDOW origin — right for the
     // Gate-B renders (the card IS the window) but wrong for an item at (300,219),
     // whose nodes would pin to (0,0) and be clipped away by the slot.
-    let ui = octoscript_makepad::design::to_makepad_ui_in_slot(&tree)?;
+    let ui = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui_in_slot(&tree))?;
     let ui = ui.replace("beauty_0", &format!("i{token}_{}", kind.id().replace('-', "")));
     // Card #21c item 3: content-driven height. Every node the component emits
     // carries the MEASURED artboard height of the fixture it was compiled from

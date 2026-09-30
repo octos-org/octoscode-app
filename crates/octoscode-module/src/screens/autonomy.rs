@@ -599,7 +599,7 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
         }
     }
     let inventory = octoscript_makepad::l0::inspectable(tree);
-    let dsl = octoscript_makepad::design::to_makepad_ui(tree)
+    let dsl = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(tree))
         .map_err(|e| format!("to_makepad_ui: {e}"))?;
     Ok(Lowered { dsl, card, inventory, measured })
 }

@@ -237,7 +237,7 @@ fn lower_card(card: &str, root: std::path::PathBuf) -> Result<String, String> {
     let data: Value = serde_json::from_str(&data_text)
         .map_err(|e| format!("octoscode: {card}/page.data.json: {e}"))?;
     let prepared = octoscript_makepad::l0::prepare(&card_text, &data, &dir.join("kit"))?;
-    octoscript_makepad::design::to_makepad_ui(&prepared.tree)
+    crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&prepared.tree))
 }
 
 /// Lower one theme-wired screen to the LIVE palette (#31d workflow 1: the

@@ -997,7 +997,7 @@ pub fn lower(screen_id: &str, ctx: &Ctx<'_>) -> Result<String, String> {
         }
     }
     octoscript_makepad::l0::inspectable(&mut tree);
-    let ui = octoscript_makepad::design::to_makepad_ui(&tree)
+    let ui = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&tree))
         .map_err(|e| format!("to_makepad_ui {screen_id}: {e}"))?;
     let prefix = format!("scr_{}", screen_id.trim_start_matches("autonomy-"));
     Ok(ui.replace("beauty_0", &prefix))
