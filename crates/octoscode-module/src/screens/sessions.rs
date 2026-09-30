@@ -393,7 +393,7 @@ pub fn lower_screen(which: &str, store: &Arc<crate::Store>) -> Result<String, St
         other => return Err(format!("octoscode: unknown screen {other:?}")),
     };
     let dir = std::path::Path::new(&std::env::var("OCTOSCODE_CARDS_DIR").unwrap_or_else(|_| {
-        concat!(env!("CARGO_MANIFEST_DIR"), "/../../design/stage-b/autonomy/cards").to_owned()
+        crate::design::dir("stage-b/autonomy/cards").to_string_lossy().to_string()
     }))
     .join(card);
     let card_text = std::fs::read_to_string(dir.join("page.card"))

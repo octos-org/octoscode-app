@@ -194,7 +194,7 @@ impl MountCache {
 pub fn eval_component(cx: &mut Cx, vm_id: SplashVmId, ui: &str) -> Result<View, String> {
     let code = format!("{PRELUDE}{ui}}}");
     let sm = ScriptMod {
-        cargo_manifest_path: env!("CARGO_MANIFEST_DIR").into(),
+        cargo_manifest_path: crate::design::manifest_dir().into(),
         module_path: module_path!().into(),
         file: file!().into(),
         line: 1,

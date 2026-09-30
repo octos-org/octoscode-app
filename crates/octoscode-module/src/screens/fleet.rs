@@ -491,7 +491,7 @@ fn screen_ns(screen_id: &str) -> &'static str {
 }
 
 fn cards_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../design/stage-b/autonomy/cards")
+    crate::design::dir("stage-b/autonomy/cards")
 }
 
 /// The card source with the CURRENT store values written into its `copy`

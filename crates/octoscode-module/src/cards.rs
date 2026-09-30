@@ -159,7 +159,7 @@ pub struct Mounted {
 /// Where the card directory is.
 ///
 /// Precedence: `OCTOSCODE_CARDS_DIR`, then `design/cards` under the CWD, then
-/// `design/cards` beside this crate (`CARGO_MANIFEST_DIR/../../design/cards` —
+/// `design/cards` beside this crate (resolved by `crate::design::dir` —
 /// so a test or a binary run from anywhere in the workspace still finds the
 /// committed manifest).
 fn cards_dir() -> PathBuf {
@@ -170,9 +170,7 @@ fn cards_dir() -> PathBuf {
     if cwd.join("index.json").is_file() {
         return cwd;
     }
-    let beside: PathBuf = Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join("../../design/cards")
-        .into();
+    let beside: PathBuf = crate::design::dir("cards");
     if beside.join("index.json").is_file() {
         return beside;
     }

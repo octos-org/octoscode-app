@@ -214,8 +214,7 @@ pub fn query(_ctx: &crate::bindings::Ctx<'_>, id: &str) -> Option<Value> {
 /// (tests/captures); `conversation`/`settings` follow the preference.
 pub fn card_for(which: &str) -> Option<(&'static str, std::path::PathBuf)> {
     fn root(stage: &str) -> std::path::PathBuf {
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join(format!("../../design/stage-b/{stage}/cards"))
+        crate::design::dir(&format!("stage-b/{stage}/cards"))
     }
     match which {
         "dark_conv" => Some((DARK_CONV_CARD, root("autonomy"))),
@@ -266,8 +265,7 @@ fn setup_root() -> std::path::PathBuf {
     stage_root("setup")
 }
 fn stage_root(stage: &str) -> std::path::PathBuf {
-    std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-        .join(format!("../../design/stage-b/{stage}/cards"))
+    crate::design::dir(&format!("stage-b/{stage}/cards"))
 }
 
 /// Mount one theme-wired card into a splash slot (the `palette::mount_screen`
@@ -588,7 +586,7 @@ pub fn eval_roles(vm: &mut makepad_widgets::ScriptVm) -> bool {
     init_persistence();
     let code = role_assignments();
     let script_mod_id = ScriptMod {
-        cargo_manifest_path: env!("CARGO_MANIFEST_DIR").to_string(),
+        cargo_manifest_path: crate::design::manifest_dir().to_string(),
         module_path: "octoscode_theme".to_string(),
         file: "octoscode_theme.splash".to_string(),
         line: 0,
