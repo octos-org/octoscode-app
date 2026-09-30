@@ -29,24 +29,33 @@ use std::io::{Read, Write};
 /// assets/*.svg` in page.data.json). This host serves those files itself on a
 /// port from MY headless block and rewrites the origin before mounting — the
 /// `screen_shot.rs` precedent (capture plumbing, not a renderer change).
-const ASSET_PORT: u16 = 8374;
+/// #30e: env-overridable (`SCREENS_PROBE_ASSET_PORT`), default 8384 — block 8
+/// (8380–8389), this lane's block (the docs' 8374 sits in p0-proto's block).
+fn asset_port() -> u16 {
+    std::env::var("SCREENS_PROBE_ASSET_PORT")
+        .ok()
+        .and_then(|p| p.parse().ok())
+        .unwrap_or(8384)
+}
 
-/// Serve `design/stage-b/setup/cards/<card>/assets/*` at
-/// `/ux-images/<card>/assets/*` (card-host's AssetServer shape, in-process,
-/// loopback only).
+/// Serve the Stage B card assets at `/ux-images/<card>/assets/*` (card-host's
+/// AssetServer shape, in-process, loopback only). #30e: the theme-wired cards
+/// live under THREE stage roots (setup/, conversation/, autonomy/), so the
+/// lookup tries each.
 fn start_asset_server() {
     static ONCE: std::sync::Once = std::sync::Once::new();
     ONCE.call_once(|| {
         let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../design/stage-b/setup/cards");
+            .join("../../design/stage-b");
         let Ok(root) = root.canonicalize() else {
             makepad_widgets::log!("[screens_probe] asset root missing");
             return;
         };
-        let listener = match std::net::TcpListener::bind(("127.0.0.1", ASSET_PORT)) {
+        let listener = match std::net::TcpListener::bind(("127.0.0.1", asset_port())) {
             Ok(l) => l,
             Err(e) => {
-                makepad_widgets::log!("[screens_probe] asset bind {ASSET_PORT}: {e}");
+                let port = asset_port();
+                makepad_widgets::log!("[screens_probe] asset bind {port}: {e}");
                 return;
             }
         };
@@ -57,14 +66,19 @@ fn start_asset_server() {
                 let n = stream.read(&mut buf).unwrap_or(0);
                 let req = String::from_utf8_lossy(&buf[..n]);
                 let Some(path) = req.split_whitespace().nth(1) else { continue };
-                // /ux-images/<card>/assets/<file> — no traversal.
+                // /ux-images/<card>/assets/<file> — no traversal; the card dir
+                // may sit under any stage root (setup/conversation/autonomy).
                 let segs: Vec<&str> = path.split('/').filter(|s| !s.is_empty()).collect();
                 let serve = if segs.len() == 4
                     && segs[0] == "ux-images"
                     && segs[2] == "assets"
                     && segs.iter().all(|s| *s != "..")
                 {
-                    root.join(segs[1]).join("assets").join(segs[3])
+                    ["setup", "conversation", "autonomy"]
+                        .iter()
+                        .map(|stage| root.join(stage).join("cards").join(segs[1]).join("assets").join(segs[3]))
+                        .find(|p| p.exists())
+                        .unwrap_or_else(|| root.join("__missing__"))
                 } else {
                     root.join("__missing__")
                 };
@@ -152,15 +166,20 @@ pub struct ScreensProbe {
 
 impl Widget for ScreensProbe {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
-        if !self.mounted {
-            self.mounted = true;
-            let which =
-                std::env::var("OCTOSCODE_SCREEN").unwrap_or_else(|_| "palette".to_owned());
-            let store = std::sync::Arc::new(octoscode_store::Store::new());
-            store.set_connection("Live".into(), true);
-            store.set_capabilities(vec!["state.session_hydrate.v1".to_owned()]);
-            let ui = std::sync::Arc::new(std::sync::Mutex::new(FlowUi::default()));
-            match which.as_str() {
+            if !self.mounted {
+                self.mounted = true;
+                let which =
+                    std::env::var("OCTOSCODE_SCREEN").unwrap_or_else(|_| "palette".to_owned());
+                let store = std::sync::Arc::new(octoscode_store::Store::new());
+                store.set_connection("Live".into(), true);
+                store.set_capabilities(vec!["state.session_hydrate.v1".to_owned()]);
+                let ui = std::sync::Arc::new(std::sync::Mutex::new(FlowUi::default()));
+                // #30e — seed the theme preference the same way lib.rs's mount
+                // arm does (OCTOSCODE_THEME=system|dark|light; unset = system).
+                if let Ok(pref) = std::env::var("OCTOSCODE_THEME") {
+                    octoscode_module::screens::theme::set_preference(&pref);
+                }
+                match which.as_str() {
                 // Live data: the crash report the host would hand over — with
                 // secrets, so the rendered copy proves the redaction boundary.
                 "error" => palette::report_error(
@@ -190,11 +209,18 @@ impl Widget for ScreensProbe {
             let mut cache = std::mem::take(&mut self.cache);
             // Lower, then point the kit SVGs at THIS host's asset server (the
             // authored origin is the design flow's 8170, held by a process
-            // RULES forbid touching).
-            let r = palette::lower_screen(&which, &store).map(|dsl| {
+            // RULES forbid touching). #30e: the theme-wired card names lower
+            // through screens::theme, which selects the dark Stage B card or
+            // its light twin by the CURRENT resolved preference.
+            let lowered = if octoscode_module::screens::theme::card_for(&which).is_some() {
+                octoscode_module::screens::theme::lower(&which, &store)
+            } else {
+                palette::lower_screen(&which, &store)
+            };
+            let r = lowered.map(|dsl| {
                 dsl.replace(
                     "http://127.0.0.1:8170/ux-images/",
-                    &format!("http://127.0.0.1:{ASSET_PORT}/ux-images/"),
+                    &format!("http://127.0.0.1:{}/ux-images/", asset_port()),
                 )
             });
             let r = match r {
