@@ -42,7 +42,8 @@ from compile import compile_page  # noqa: E402
 LIVE = {
     "setup-04": {
         "folder_field": {"text": "/tmp/ws29b"},
-        "t_sfolder": {"text": "/tmp/ws29b"},
+        # #29b2: the title node stays "Server folder" (the binding, not the
+        # capture, now decides it); only the field carries the path.
         "t_ws0_name": {"text": "crates"}, "t_ws0_path": {"text": "/tmp/ws29b/crates"},
         "t_ws1_name": {"text": "design"}, "t_ws1_path": {"text": "/tmp/ws29b/design"},
         "t_ws2_name": {"text": "docs"}, "t_ws2_path": {"text": "/tmp/ws29b/docs"},
@@ -55,7 +56,8 @@ LIVE = {
     },
     "setup-06": {
         "t_g1_v0": {"text": "Live"},
-        "t_g1_v1": {"text": "/tmp/ws29b"},
+        # #29b2: the Workspace row shows the NAME (basename), not the path.
+        "t_g1_v1": {"text": "ws29b"},
         "t_g1_v2": {"text": "dsflash"},
     },
 }

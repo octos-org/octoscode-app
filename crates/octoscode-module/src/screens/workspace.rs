@@ -41,7 +41,8 @@ use crate::flow::{Conversation, Direction};
 /// The board-2 data slots (setup cards 04/05/06).
 pub const BINDINGS: &[(&str, &str)] = &[
     ("ws.folder", "text: the picker's folder field (env OCTOS_WORKSPACE_CWD, else the server root)"),
-    ("ws.server_folder", "text: the server's working directory (first picker entry; 'path not reported' when unreported — server-working-directory.ts:2)"),
+    ("ws.server_folder", "text: the row's fixed title 'Server folder' (atlas); '(path not reported)' appended when the server did not report one — server-working-directory.ts:2-23"),
+    ("ws.server_folder_path", "text: the row's subtitle — the server's working directory with $HOME shown as '~' (server-working-directory.ts:2-23 projects label + path)"),
     ("ws.recent", "list: [{name,path}] the remembered workspaces (the last onboarding/workspace_list)"),
     ("ws.browse_visible", "bool: the Browse affordance gate — only when the session advertised onboarding.workspace_browse.v1 (fail closed, workspace-browse-adapter.ts:25)"),
     ("set.model", "text: the profile's current model (profile/llm/list primary)"),
@@ -429,12 +430,32 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
     let store = ctx.store;
     let st = state();
     Some(match id {
-        "ws.folder" | "set.workspace" => json!(
+        // #29b2: the title stays the atlas copy; only the SUBTITLE carries the
+        // path (server-working-directory.ts:2-23 projects label + path).
+        "ws.folder" => json!(
             std::env::var("OCTOS_WORKSPACE_CWD").ok().or_else(|| st.server_root.clone()).unwrap_or_default()
         ),
-        "ws.server_folder" => json!(
-            st.server_root.clone().unwrap_or_else(|| "path not reported".to_owned())
-        ),
+        "ws.server_folder" => json!(match st.server_root.as_deref() {
+            Some(_) => "Server folder",
+            None => "Server folder (path not reported)",
+        }),
+        "ws.server_folder_path" => json!(st
+            .server_root
+            .as_deref()
+            .map(|p| abbreviate_home(p, home_dir()).unwrap_or_else(|| p.to_owned()))
+            .unwrap_or_default()),
+        // #29b2: the General-settings row shows the workspace NAME (the web's
+        // display label renders workspace.name, NewSessionWorkspacePicker.tsx:242)
+        // ellipsized so it keeps a gap before the row chevron.
+        "set.workspace" => {
+            let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
+            json!(st
+                .server_root
+                .as_deref()
+                .or(cwd.as_deref())
+                .map(workspace_display)
+                .unwrap_or_default())
+        }
         "ws.recent" => json!(st
             .entries
             .iter()
@@ -455,4 +476,67 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
         "set.save_notice" => json!(st.save_notice),
         _ => return None,
     })
+}
+
+/// The HOME dir for `~` abbreviation (test seam: None disables it).
+fn home_dir() -> Option<String> {
+    std::env::var("HOME").ok().filter(|h| !h.is_empty())
+}
+
+/// Show a leading `$HOME` as `~` (the entry's display rule). Pure: a path
+/// outside $HOME passes through unchanged (Some), `home = None` disables.
+fn abbreviate_home(path: &str, home: Option<String>) -> Option<String> {
+    let home = home?;
+    if path == home {
+        return Some("~".to_owned());
+    }
+    let prefix = format!("{home}/");
+    Some(
+        path.strip_prefix(&prefix)
+            .map(|rest| format!("~/{rest}"))
+            .unwrap_or_else(|| path.to_owned()),
+    )
+}
+
+/// The workspace's display NAME: the path's basename, ellipsized past 24
+/// chars (the web renders `workspace.name`, NewSessionWorkspacePicker.tsx:242).
+fn workspace_display(path: &str) -> String {
+    let trimmed = path.trim_end_matches('/');
+    let name = trimmed.rsplit('/').next().unwrap_or(trimmed);
+    if name.chars().count() > 24 {
+        let head: String = name.chars().take(23).collect();
+        format!("{head}…")
+    } else {
+        name.to_owned()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn abbreviate_home_rewrites_only_the_home_prefix() {
+        assert_eq!(
+            abbreviate_home("/tmp/ws29b", Some("/tmp".into())).as_deref(),
+            Some("~/ws29b")
+        );
+        assert_eq!(
+            abbreviate_home("/tmp/ws29b", Some("/Users/yuechen".into())).as_deref(),
+            Some("/tmp/ws29b"),
+            "an unrelated prefix is untouched"
+        );
+        assert_eq!(abbreviate_home("/tmp", Some("/tmp".into())).as_deref(), Some("~"));
+        assert_eq!(abbreviate_home("/tmp/ws29b", None), None);
+    }
+
+    #[test]
+    fn workspace_display_is_the_basename_ellipsized() {
+        assert_eq!(workspace_display("/tmp/ws29b"), "ws29b");
+        assert_eq!(workspace_display("/tmp/ws29b/"), "ws29b");
+        let long = format!("/tmp/{}", "a-very-long-workspace-name-over-24");
+        let shown = workspace_display(&long);
+        assert_eq!(shown.chars().count(), 24);
+        assert!(shown.ends_with('…'), "{shown}");
+    }
 }

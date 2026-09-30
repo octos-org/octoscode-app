@@ -7,6 +7,7 @@
     "w",
     "w",
     "w",
+    "w",
     "s",
     "s",
     "s",
@@ -28,7 +29,7 @@
   "captures": [
     {
       "card": "setup-04",
-      "injected": 10,
+      "injected": 9,
       "png": "29b-live-workspace-picker.png",
       "rendered": true
     },

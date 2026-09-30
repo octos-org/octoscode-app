@@ -210,8 +210,13 @@ async fn refresh_reads_the_three_tables_and_the_bindings_project_them() {
     let c = ctx(&store, &ui);
     assert_eq!(
         ws::query(&c, "ws.server_folder").unwrap(),
+        serde_json::json!("Server folder"),
+        "#29b2: the title stays the atlas copy (parity 163's path lives in the subtitle)"
+    );
+    assert_eq!(
+        ws::query(&c, "ws.server_folder_path").unwrap(),
         serde_json::json!("/tmp/ws29b"),
-        "parity 163: the server root is the first picker entry"
+        "parity 163: the server root is the subtitle (unabbreviated: HOME is not a prefix)"
     );
     let recent = ws::query(&c, "ws.recent").unwrap();
     assert_eq!(
@@ -228,6 +233,11 @@ async fn refresh_reads_the_three_tables_and_the_bindings_project_them() {
         ws::query(&c, "set.model").unwrap(),
         serde_json::json!("deepseek-v4-flash"),
         "the recorded primary model"
+    );
+    assert_eq!(
+        ws::query(&c, "set.workspace").unwrap(),
+        serde_json::json!("ws29b"),
+        "#29b2: the General-settings row shows the workspace NAME"
     );
 }
 
