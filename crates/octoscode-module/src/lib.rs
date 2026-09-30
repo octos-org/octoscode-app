@@ -118,7 +118,7 @@ script_mod! {
                     Svg {
                         width: 10 height: 10
                         animating: false
-                        draw_svg.svg: crate_resource("self:resources/icons/chevron_down.svg")
+                        draw_svg.svg: file_resource(#(crate::design::icon_resource("chevron_down.svg")))
                         draw_svg.preserve_viewbox: true
                     }
                 }
@@ -171,7 +171,7 @@ script_mod! {
                             goal_ring := Svg {
                                 width: 14 height: 14
                                 animating: false
-                                draw_svg.svg: crate_resource("self:resources/icons/icon_ring.svg")
+                                draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_ring.svg")))
                                 draw_svg.preserve_viewbox: true
                             }
                             goal_row_1 := Label {
@@ -489,7 +489,7 @@ script_mod! {
                     width: 16 height: 16
                     align: Align{x: 0.5 y: 0.5}
                     animating: false
-                    draw_svg.svg: crate_resource("self:resources/icons/icon_menu.svg")
+                    draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_menu.svg")))
                     draw_svg.preserve_viewbox: true
                 }
                 sidebar_toggle_hit := Button {
@@ -562,7 +562,7 @@ script_mod! {
                             Svg {
                                 width: 8 height: 8
                                 animating: false
-                                draw_svg.svg: crate_resource("self:resources/icons/chevron_down.svg")
+                                draw_svg.svg: file_resource(#(crate::design::icon_resource("chevron_down.svg")))
                                 draw_svg.preserve_viewbox: true
                             }
                         }
@@ -587,7 +587,7 @@ script_mod! {
                             width: 12 height: 12
                             align: Align{x: 0.5 y: 0.5}
                             animating: false
-                            draw_svg.svg: crate_resource("self:resources/icons/icon_close.svg")
+                            draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_close.svg")))
                             draw_svg.preserve_viewbox: true
                         }
                         review_close := Button {
@@ -631,7 +631,7 @@ script_mod! {
                             width: 12 height: 12
                             align: Align{x: 0.5 y: 0.5}
                             animating: false
-                            draw_svg.svg: crate_resource("self:resources/icons/icon_close.svg")
+                            draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_close.svg")))
                             draw_svg.preserve_viewbox: true
                         }
                         settings_close := Button {
@@ -709,13 +709,13 @@ script_mod! {
                 Svg {
                     width: 9 height: 9
                     animating: false
-                    draw_svg.svg: crate_resource("self:resources/icons/icon_arrow_up.svg")
+                    draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_arrow_up.svg")))
                     draw_svg.preserve_viewbox: true
                 }
                 Svg {
                     width: 9 height: 9
                     animating: false
-                    draw_svg.svg: crate_resource("self:resources/icons/icon_arrow_down.svg")
+                    draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_arrow_down.svg")))
                     draw_svg.preserve_viewbox: true
                 }
                 Label { width: Fit height: Fit text: "move" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
@@ -723,7 +723,7 @@ script_mod! {
                 Svg {
                     width: 9 height: 9
                     animating: false
-                    draw_svg.svg: crate_resource("self:resources/icons/icon_return.svg")
+                    draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_return.svg")))
                     draw_svg.preserve_viewbox: true
                 }
                 Label { width: Fit height: Fit text: "run" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
@@ -1588,6 +1588,9 @@ impl OctoscodeView {
         let handle = rt.handle().clone();
         match transport {
             screens::connect::Effect::Connect { server, token } => {
+                // #32g item 6: the device must show whether the tap arrived —
+                // log the endpoint, NEVER the token.
+                ::log::info!("[octoscode] connect: {server}");
                 let profile =
                     std::env::var("OCTOS_PROFILE_ID").unwrap_or_else(|_| "octoscode".to_string());
                 connect_now(handle, bridge, store, screens, server, token, profile);

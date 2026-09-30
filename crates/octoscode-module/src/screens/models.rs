@@ -699,7 +699,7 @@ pub fn lower(screen_id: &str, ctx: &Ctx<'_>) -> Result<String, String> {
         .map_err(|e| format!("prepare {screen_id}: {e}"))?;
     let mut tree = prepared.tree;
     octoscript_makepad::l0::inspectable(&mut tree);
-    let ui = octoscript_makepad::design::to_makepad_ui(&tree)
+    let ui = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&tree))
         .map_err(|e| format!("to_makepad_ui {screen_id}: {e}"))?;
     // Same collision guard as `lower_slot`: rename `beauty_0` per screen.
     let prefix = format!("scr_{}", screen_id.trim_start_matches("setup-"));

@@ -290,7 +290,7 @@ pub fn lower_slot(
     // We use the SLOT as the prefix so all five cards coexist.
     let mut tree = prepared.tree;
     octoscript_makepad::l0::inspectable(&mut tree);
-    let ui = octoscript_makepad::design::to_makepad_ui(&tree)?;
+    let ui = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&tree))?;
     let prefix = slot_prefix(slot);
     let ui = ui.replace("beauty_0", prefix);
     // The card's ledger is a FIXED 406x776 artboard (`page := DesignSurface {

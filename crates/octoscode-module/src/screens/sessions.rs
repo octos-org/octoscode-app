@@ -403,7 +403,7 @@ pub fn lower_screen(which: &str, store: &Arc<crate::Store>) -> Result<String, St
     let data: Value =
         serde_json::from_str(&data_text).map_err(|e| format!("octoscode: {card}/page.data.json: {e}"))?;
     let prepared = octoscript_makepad::l0::prepare(&card_text, &data, &dir.join("kit"))?;
-    let mut dsl = octoscript_makepad::design::to_makepad_ui(&prepared.tree)?;
+    let mut dsl = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&prepared.tree))?;
 
     let s = state().lock().unwrap();
     // (authored probed literal, live text) — empty `to` keeps the authored copy.
