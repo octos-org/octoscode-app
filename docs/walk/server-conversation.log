@@ -24,6 +24,17 @@
 [replay-serve] client connected
 [replay-serve] <- session/open (id=0)
 [replay-serve] <- session/list (id=1)
-[replay-serve] <- session/list (id=2)
-[replay-serve] <- session/open (id=3)
-[replay-serve] <- session/list (id=4)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] <- session/list (id=1)
+[replay-serve] <- turn/start (id=2)
+[replay-serve] replaying 01a0e75b-dfb8-708a-a7ce-5d29c534f2f6 (163 recorded frames)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] <- session/list (id=1)
+[replay-serve] <- session/open (id=2)
+[replay-serve] <- session/list (id=3)
