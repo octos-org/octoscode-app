@@ -796,7 +796,10 @@ fn mask_secret_inputs(dsl: &str, screen: Screen) -> String {
                     }
                 }
             }
-            if mask_this && trimmed == "is_password: false" {
+            if mask_this && trimmed.contains("is_password: false") {
+                // The flag rides the same line as empty_text:
+                // `empty_text: "" is_password: false` — an exact-match
+                // condition never fired (the 66c865a follow-up).
                 line = l.replace("is_password: false", "is_password: true");
             }
         }

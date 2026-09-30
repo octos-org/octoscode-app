@@ -988,6 +988,14 @@ pub struct OctoscodeView {
     /// had tested the tables by calling ids directly, never by clicking).
     #[rust]
     splash_taps: Vec<(LiveId, String)>,
+    /// #32h: the 1 Hz remount guard — sync_labels runs on EVERY Signal and
+    /// the phone's transport events arrive constantly, so the first-run card
+    /// was re-lowered + re-wired each time (device log: "card events: 1
+    /// tap(s) wired" at 1 Hz), dropping taps mid-remount and unseating the
+    /// mask. The card's only live inputs are these two copies; unchanged
+    /// copies = skip the whole lower+mount.
+    #[rust]
+    connect_key: Option<(String, String)>,
     /// The memoised per-item lowerings (a `PortalList` re-instantiates its
     /// visible rows every frame; without this the CPU re-lowers them each
     /// frame). See [`screen::Cache`].
@@ -1774,20 +1782,29 @@ impl OctoscodeView {
         // renders it — so first-run mounts through the dock.
         let live = { self.bridge.lock().unwrap().store.is_live() };
         if !live {
-            let splash = self.view.splash(cx, ids!(screen_splash));
-            let lowered = {
+            let key = {
                 let b = self.bridge.lock().unwrap();
                 let ui = b.screens.lock().unwrap();
-                screens::connect::lower_screen(screens::connect::Screen::Connect, &ui)
+                (ui.server.clone(), ui.token.clone())
             };
-            match lowered {
-                Ok(dsl) => {
-                    // #32h item 1: keep the card's tap wiring — the Event::
-                    // Actions loop routes these (L4).
-                    self.splash_taps = screens::connect::wired_taps(&dsl)
-                        .into_iter()
-                        .map(|(n, e)| (LiveId::from_str(&n), e))
-                        .collect();
+            if self.connect_key.as_ref() == Some(&key) {
+                // copies unchanged: the mounted card is current.
+            } else {
+                let splash = self.view.splash(cx, ids!(screen_splash));
+                let lowered = {
+                    let b = self.bridge.lock().unwrap();
+                    let ui = b.screens.lock().unwrap();
+                    screens::connect::lower_screen(screens::connect::Screen::Connect, &ui)
+                };
+                match lowered {
+                    Ok(dsl) => {
+                        self.connect_key = Some(key);
+                        // #32h item 1: keep the card's tap wiring — the Event::
+                        // Actions loop routes these (L4).
+                        self.splash_taps = screens::connect::wired_taps(&dsl)
+                            .into_iter()
+                            .map(|(n, e)| (LiveId::from_str(&n), e))
+                            .collect();
                     // #31a item 3: centre the card in the first-run area (not
                     // over the sidebar header, no left clipping — the arm-A
                     // probe had it at x=12). A plain View wrapper carries the
@@ -1802,7 +1819,8 @@ impl OctoscodeView {
                         makepad_widgets::log!("[octoscode] connect mount: {e}");
                     }
                 }
-                Err(e) => makepad_widgets::log!("[octoscode] connect lower: {e}"),
+                    Err(e) => makepad_widgets::log!("[octoscode] connect lower: {e}"),
+                }
             }
         }
         // Card #21d item 5: the `new-chat` component (#16) is the thread
