@@ -687,6 +687,63 @@
     "design/components/attachment-card/review-short.png",
     "design/components/attachment-card/review-long.png"
    ]
+  },
+  {
+   "id": "usage-bar",
+   "source_scene": "setup-09",
+   "extracted_from": "design/stage-b/setup (#28d, p0-map-f)",
+   "owner": "p0-map-f",
+   "bindings": [],
+   "variants": [
+    "long-360.png",
+    "long-540.png",
+    "short-360.png",
+    "short-540.png"
+   ],
+   "artboard": null,
+   "nodes": null,
+   "native_controls": [],
+   "card": "design/components/usage-bar/page.card",
+   "data": "design/components/usage-bar/page.data.json",
+   "render": "design/components/usage-bar/review-long.png"
+  },
+  {
+   "id": "segmented-control",
+   "source_scene": "setup-09",
+   "extracted_from": "design/stage-b/setup (#28d, p0-map-f)",
+   "owner": "p0-map-f",
+   "bindings": [],
+   "variants": [
+    "long-360.png",
+    "long-540.png",
+    "short-360.png",
+    "short-540.png"
+   ],
+   "artboard": null,
+   "nodes": null,
+   "native_controls": [],
+   "card": "design/components/segmented-control/page.card",
+   "data": "design/components/segmented-control/page.data.json",
+   "render": "design/components/segmented-control/review-long.png"
+  },
+  {
+   "id": "skeleton-list",
+   "source_scene": "setup-12",
+   "extracted_from": "design/stage-b/setup (#28d, p0-map-f)",
+   "owner": "p0-map-f",
+   "bindings": [],
+   "variants": [
+    "long-360.png",
+    "long-540.png",
+    "short-360.png",
+    "short-540.png"
+   ],
+   "artboard": null,
+   "nodes": null,
+   "native_controls": [],
+   "card": "design/components/skeleton-list/page.card",
+   "data": "design/components/skeleton-list/page.data.json",
+   "render": "design/components/skeleton-list/review-long.png"
   }
  ]
 }

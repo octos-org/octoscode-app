@@ -34,14 +34,41 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t00",
-    "x": 42.86,
-    "y": 31.5,
-    "w": 305.63,
-    "h": 27.0,
-    "text": "Reconnecting... attempt 2 \u2022 Retry now",
+    "id": "banner",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 58.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t_banner",
+    "x": 46.2,
+    "y": 29.3,
+    "w": 222.0,
+    "h": 25.5,
+    "text": "Reconnecting\u2026 attempt 2 \u00b7",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_retry",
+    "x": 276.5,
+    "y": 29.0,
+    "w": 77.0,
+    "h": 25.0,
+    "text": "Retry now",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 18,
+    "size": 14,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -50,15 +77,101 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t01",
-    "x": 109.17,
-    "y": 509.45,
-    "w": 154.96,
-    "h": 27.81,
+    "id": "skel0",
+    "x": 30.0,
+    "y": 98.0,
+    "w": 70.0,
+    "h": 50.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "skel1",
+    "x": 100.0,
+    "y": 104.0,
+    "w": 255.0,
+    "h": 44.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "skel2",
+    "x": 30.0,
+    "y": 180.0,
+    "w": 70.0,
+    "h": 56.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "skel3",
+    "x": 100.0,
+    "y": 184.0,
+    "w": 255.0,
+    "h": 52.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "skel4",
+    "x": 30.0,
+    "y": 270.0,
+    "w": 70.0,
+    "h": 49.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "skel5",
+    "x": 100.0,
+    "y": 275.0,
+    "w": 176.0,
+    "h": 44.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "divider",
+    "x": 24.0,
+    "y": 392.0,
+    "w": 358.0,
+    "h": 2.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "icon_spin",
+    "x": 178.0,
+    "y": 441.0,
+    "w": 30.0,
+    "h": 36.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "t_loading",
+    "x": 112.78,
+    "y": 510.94,
+    "w": 160.14,
+    "h": 25.06,
     "text": "Loading session...",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 15,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -66,15 +179,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t02",
-    "x": 159.02,
-    "y": 570.72,
-    "w": 58.64,
+    "id": "t_cancel",
+    "x": 163.53,
+    "y": 571.85,
+    "w": 57.52,
     "h": 21.0,
     "text": "Cancel",
-    "font_src": "self:resources/ux/Inter-400.ttf",
+    "font_src": "self:resources/ux/Inter-500.ttf",
     "size": 14,
-    "weight": 400,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",

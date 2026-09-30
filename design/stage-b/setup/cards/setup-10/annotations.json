@@ -1,79 +1,97 @@
 {
   "schema_version": 1,
-  "reference_sha256": "75512ec1345b32638f22ed830225d0c87c5a7a05c23414ebbe5b3833981dfe4d",
+  "reference_sha256": "4f6487df5abf26921604ebb014617c33d9034590363270f350b0a035054c69d3",
   "method": "automatic proposals; unreviewed source-image measurements",
   "candidate_rectangles": [
     [
       269.0,
-      545.0,
-      87.0,
-      40.0
+      546.0,
+      88.0,
+      41.0
     ],
     [
-      266.0,
-      542.0,
-      92.0,
+      267.0,
+      544.0,
+      93.0,
       46.0
     ],
     [
-      37.0,
-      531.0,
-      331.0,
-      68.0
+      35.0,
+      532.0,
+      334.0,
+      69.0
     ],
     [
       269.0,
       476.0,
-      87.0,
-      40.0
+      88.0,
+      41.0
     ],
     [
-      266.0,
-      473.0,
-      92.0,
+      267.0,
+      474.0,
+      93.0,
       46.0
     ],
     [
-      37.0,
+      35.0,
       460.0,
-      331.0,
-      69.0
+      334.0,
+      71.0
     ],
     [
-      34.0,
-      457.0,
-      336.0,
+      35.0,
+      460.0,
+      334.0,
+      141.0
+    ],
+    [
+      33.0,
+      458.0,
+      339.0,
       145.0
     ],
     [
-      37.0,
-      206.0,
-      331.0,
+      35.0,
+      332.0,
+      334.0,
       61.0
     ],
     [
-      34.0,
-      203.0,
-      336.0,
-      193.0
-    ],
-    [
-      37.0,
-      84.0,
-      330.0,
-      57.0
-    ],
-    [
-      34.0,
-      81.0,
-      336.0,
+      35.0,
+      268.0,
+      334.0,
       63.0
     ],
     [
-      17.0,
-      5.0,
-      372.0,
-      766.0
+      35.0,
+      204.0,
+      334.0,
+      62.0
+    ],
+    [
+      33.0,
+      201.0,
+      339.0,
+      195.0
+    ],
+    [
+      35.0,
+      81.0,
+      334.0,
+      58.0
+    ],
+    [
+      33.0,
+      79.0,
+      338.0,
+      63.0
+    ],
+    [
+      14.0,
+      1.0,
+      378.0,
+      774.0
     ]
   ],
   "elements": [
@@ -88,6 +106,159 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4293981682
+    },
+    {
+      "id": "search_box",
+      "bounds": [
+        35.0,
+        81.0,
+        334.0,
+        58.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 7.73
+    },
+    {
+      "id": "icon_search",
+      "bounds": [
+        51.0,
+        100.5,
+        18.0,
+        20.5
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "card_installed",
+      "bounds": [
+        33.0,
+        201.0,
+        339.0,
+        195.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835710,
+      "radius": 8.17
+    },
+    {
+      "id": "card_registry",
+      "bounds": [
+        33.0,
+        458.0,
+        339.0,
+        145.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 8.11
+    },
+    {
+      "id": "div_1",
+      "bounds": [
+        33.5,
+        266.5,
+        337.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "div_2",
+      "bounds": [
+        33.5,
+        331.5,
+        337.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "div_3",
+      "bounds": [
+        33.5,
+        531.0,
+        337.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "btn_3_install",
+      "bounds": [
+        267.0,
+        474.0,
+        93.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "btn_3_install_surface",
+      "bounds": [
+        267.0,
+        474.0,
+        93.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294704123,
+      "radius": 23.0
+    },
+    {
+      "id": "btn_3_install_control",
+      "bounds": [
+        267.0,
+        474.0,
+        93.0,
+        46.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_4_install",
+      "bounds": [
+        267.0,
+        544.0,
+        93.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "btn_4_install_surface",
+      "bounds": [
+        267.0,
+        544.0,
+        93.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294704123,
+      "radius": 23.0
+    },
+    {
+      "id": "btn_4_install_control",
+      "bounds": [
+        267.0,
+        544.0,
+        93.0,
+        46.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
     }
   ]
 }

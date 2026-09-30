@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reference_sha256": "4738fa27565748637bc8abc66b5e77fa4b22b693a4fef324c24a72dcde0155c1",
+  "reference_sha256": "fb936b73852b6bdf407c8d75e674be0574aff1963fcd512b488ce59aca61a713",
   "artboard": [
     406,
     776
@@ -9,76 +9,66 @@
   "aspect_error": 0.0,
   "text": [
     {
-      "id": "t00",
-      "expected_text": "Reconnecting... attempt 2 \u2022 Retry now",
+      "id": "t_banner",
+      "expected_text": "Reconnecting\u2026 attempt 2 \u00b7",
       "requested_bounds": [
-        42.86,
-        31.5,
-        305.63,
-        27.0
+        46.2,
+        29.3,
+        222.0,
+        25.5
       ],
-      "status": "observed",
-      "ocr_text": "Reconnecting... attempt 2 \u2022 Retry now",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        44.5,
-        32.5,
-        215.0,
-        20.5
-      ],
-      "ink_color": [
-        141,
-        92,
-        47
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        42.85555746225083,
-        31.49999984095399,
-        305.6277770996094,
-        22.63953495025639
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
-      "id": "t01",
+      "id": "t_retry",
+      "expected_text": "Retry now",
+      "requested_bounds": [
+        276.5,
+        29.0,
+        77.0,
+        25.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_loading",
       "expected_text": "Loading session...",
       "requested_bounds": [
-        109.17,
-        509.45,
-        154.96,
-        27.81
+        112.78,
+        510.94,
+        160.14,
+        25.06
       ],
       "status": "observed",
       "ocr_text": "Loading session...",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        114.5,
-        511.5,
-        146.0,
+        118.0,
+        512.0,
+        147.5,
         22.5
       ],
       "ink_color": [
-        15,
-        15,
-        15
+        12,
+        13,
+        12
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        109.16827159748622,
-        509.44576121229284,
-        154.9579010009766,
-        27.806152343750043
+        112.77777952303387,
+        510.9418603322307,
+        160.14443969726562,
+        25.05813980102536
       ]
     },
     {
-      "id": "t02",
+      "id": "t_cancel",
       "expected_text": "Cancel",
       "requested_bounds": [
-        159.02,
-        570.72,
-        58.64,
+        163.53,
+        571.85,
+        57.52,
         21.0
       ],
       "status": "observed",
@@ -86,22 +76,22 @@
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        160.0,
-        571.5,
+        164.0,
+        572.5,
         54.0,
-        17.5
+        18.0
       ],
       "ink_color": [
-        129,
-        129,
-        131
+        130,
+        130,
+        132
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        159.01666742612963,
-        570.7209307362641,
-        58.6444435119629,
-        19.174417495727532
+        163.52777784972022,
+        571.8488367901165,
+        57.5166664123535,
+        19.174419403076193
       ]
     }
   ],
@@ -117,9 +107,132 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4293981682
+    },
+    {
+      "id": "banner",
+      "bounds": [
+        81.0,
+        104.0,
+        275.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293980658
+    },
+    {
+      "id": "skel0",
+      "bounds": [
+        30.0,
+        98.0,
+        70.0,
+        50.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293783280,
+      "radius": 8.0
+    },
+    {
+      "id": "skel1",
+      "bounds": [
+        81.0,
+        275.0,
+        195.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293980402,
+      "radius": 8.0
+    },
+    {
+      "id": "skel2",
+      "bounds": [
+        30.0,
+        180.0,
+        70.0,
+        56.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293914866,
+      "radius": 8.0
+    },
+    {
+      "id": "skel3",
+      "bounds": [
+        81.0,
+        183.0,
+        275.0,
+        54.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293980658,
+      "radius": 8.31
+    },
+    {
+      "id": "skel4",
+      "bounds": [
+        30.0,
+        270.0,
+        70.0,
+        49.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293783280,
+      "radius": 8.0
+    },
+    {
+      "id": "skel5",
+      "bounds": [
+        100.0,
+        275.0,
+        176.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293980402,
+      "radius": 8.0
+    },
+    {
+      "id": "divider",
+      "bounds": [
+        24.0,
+        392.0,
+        358.0,
+        2.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "icon_spin",
+      "bounds": [
+        178.0,
+        441.0,
+        30.0,
+        36.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     }
   ],
-  "unmapped_ocr": [],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        92.47778366082457,
+        58.651162248436286,
+        615.7666625976562,
+        43.34883689880379
+      ],
+      "confidence": 1,
+      "text": "Reconnecting... attempt 2 \u2022 Retry now"
+    }
+  ],
   "non_text_ocr": [],
   "limits": [
     "OCR cannot prove font family, hierarchy or control behavior.",

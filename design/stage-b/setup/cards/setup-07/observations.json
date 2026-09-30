@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reference_sha256": "a5262c0a1815ad4ba7a0db45e2adb2c46d7a96beaa86ff6586d1cc9d11f7592b",
+  "reference_sha256": "eea4879ae6d0cd6b624faf40165083cab6a008b8fc393afd6670a5c88fe6f3f5",
   "artboard": [
     406,
     776
@@ -9,55 +9,23 @@
   "aspect_error": 0.0,
   "text": [
     {
-      "id": "t00",
-      "expected_text": "1\u2022 IIVULL JLIIIIVUO",
-      "requested_bounds": [
-        7.89,
-        10.0,
-        218.79,
-        27.0
-      ],
-      "status": "observed",
-      "ocr_text": "1\u2022 IIVULL JLIIIIVUO",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        10.0,
-        11.0,
-        216.0,
-        8.0
-      ],
-      "ink_color": [
-        0,
-        0,
-        0
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        7.894451014863975,
-        10.00000012272242,
-        218.78887939453125,
-        12.558139324188218
-      ]
-    },
-    {
-      "id": "t01",
+      "id": "t_title",
       "expected_text": "Models",
       "requested_bounds": [
-        28.14,
-        81.03,
-        77.93,
-        24.05
+        25.9,
+        61.92,
+        77.88,
+        28.5
       ],
       "status": "observed",
       "ocr_text": "Models",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        30.5,
-        82.0,
-        73.0,
-        19.5
+        27.5,
+        63.0,
+        73.5,
+        20.0
       ],
       "ink_color": [
         0,
@@ -66,394 +34,330 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        28.139009743281818,
-        81.02592577172004,
-        77.92753601074219,
-        24.0527992248535
+        25.904980512756964,
+        61.923030861629805,
+        77.88448333740234,
+        23.909751892089794
       ]
     },
     {
-      "id": "t02",
+      "id": "t_ds_head",
       "expected_text": "DeepSeek \u2022 Official API",
       "requested_bounds": [
-        38.34,
-        156.78,
-        200.74,
-        24.81
+        36.09,
+        138.5,
+        203.0,
+        25.05
       ],
       "status": "observed",
       "ocr_text": "DeepSeek \u2022 Official API",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        41.0,
-        157.5,
-        194.5,
+        38.0,
+        139.5,
+        196.0,
         22.0
       ],
       "ink_color": [
         8,
-        8,
+        7,
         8
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        38.3444429607205,
-        156.7790699890413,
-        200.74444580078125,
-        24.813953399658267
+        36.08888791148149,
+        138.50000014024752,
+        203.0,
+        25.046511650085517
       ]
     },
     {
-      "id": "t03",
+      "id": "t_ds_count",
       "expected_text": "3 models",
       "requested_bounds": [
-        38.34,
-        192.87,
-        71.05,
-        21.0
+        34.87,
+        174.47,
+        72.35,
+        19.5
       ],
       "status": "observed",
       "ocr_text": "3 models",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        39.5,
-        193.0,
+        37.0,
+        175.5,
         68.0,
-        15.5
+        15.0
       ],
       "ink_color": [
-        117,
-        118,
-        119
+        110,
+        110,
+        112
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        38.34444327381553,
-        192.8720933608131,
-        71.05000305175781,
-        17.127906799316392
+        34.87467218297158,
+        174.47349297617473,
+        72.35065460205078,
+        18.750687599182122
       ]
     },
     {
-      "id": "t04",
-      "expected_text": "\u2022",
-      "requested_bounds": [
-        277.43,
-        157.91,
-        19.17,
-        21.0
-      ],
-      "status": "observed",
-      "ocr_text": "\u2022",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        281.5,
-        160.5,
-        9.0,
-        10.5
-      ],
-      "ink_color": [
-        35,
-        168,
-        82
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        277.4333335126633,
-        157.90697714548213,
-        19.172222137451165,
-        18.04651069641117
-      ]
-    },
-    {
-      "id": "t05",
-      "expected_text": "^",
-      "requested_bounds": [
-        312.39,
-        159.03,
-        15.79,
-        21.0
-      ],
-      "status": "observed",
-      "ocr_text": "^",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        314.0,
-        161.0,
-        13.0,
-        9.0
-      ],
-      "ink_color": [
-        98,
-        99,
-        100
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        312.39444437814063,
-        159.03488369647374,
-        15.788888931274395,
-        13.534883499145455
-      ]
-    },
-    {
-      "id": "t06",
+      "id": "t_flash",
       "expected_text": "deepseek-v4-flash (default)",
       "requested_bounds": [
-        49.62,
-        254.91,
-        199.62,
-        21.0
+        47.37,
+        236.86,
+        200.74,
+        21.64
       ],
       "status": "observed",
       "ocr_text": "deepseek-v4-flash (default)",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        51.0,
-        255.5,
-        195.0,
+        48.0,
+        238.0,
+        196.5,
         19.5
       ],
       "ink_color": [
-        98,
-        98,
-        99
+        95,
+        95,
+        96
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        49.62222263080295,
-        254.90697635312267,
-        199.61666870117188,
-        20.302326202392557
+        47.36666799594269,
+        236.8604649508897,
+        200.74444580078128,
+        21.639534950256394
       ]
     },
     {
-      "id": "t07",
+      "id": "t_pro",
       "expected_text": "deepseek-v4-pro",
       "requested_bounds": [
-        49.54,
-        315.31,
-        125.34,
-        21.31
+        46.14,
+        298.24,
+        126.51,
+        21.61
       ],
       "status": "observed",
       "ocr_text": "deepseek-v4-pro",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        51.0,
-        316.5,
-        122.0,
+        48.0,
+        299.5,
+        123.0,
         19.0
       ],
       "ink_color": [
-        27,
-        27,
-        27
+        21,
+        21,
+        20
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        49.542167172625,
-        315.30817100598904,
-        125.34344482421875,
-        21.31389045715335
+        46.137160923854026,
+        298.2420959571251,
+        126.51456451416014,
+        21.608831405639688
       ]
     },
     {
-      "id": "t08",
+      "id": "btn_test_label",
       "expected_text": "Test route",
       "requested_bounds": [
-        67.63,
-        386.7,
-        75.64,
-        21.0
+        65.0,
+        369.0,
+        76.0,
+        20.0
       ],
       "status": "observed",
       "ocr_text": "Test route",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        70.0,
-        387.5,
-        71.0,
-        14.5
+        67.0,
+        371.0,
+        71.5,
+        15.0
       ],
       "ink_color": [
         19,
-        19,
-        19
+        20,
+        20
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        67.62952228288984,
-        386.70467002890274,
-        75.6353988647461,
-        17.25344944000242
+        65.33238253308754,
+        369.6180222663803,
+        75.71856689453124,
+        18.717443466186538
       ]
     },
     {
-      "id": "t09",
+      "id": "btn_discover_label",
       "expected_text": "Discover models",
       "requested_bounds": [
-        209.77,
-        385.5,
-        109.39,
-        21.0
+        208.0,
+        369.0,
+        112.0,
+        20.0
       ],
       "status": "observed",
       "ocr_text": "Discover models",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        212.0,
-        387.0,
-        106.0,
+        210.5,
+        371.0,
+        106.5,
         15.0
       ],
       "ink_color": [
-        22,
-        22,
-        22
+        19,
+        18,
+        19
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        209.7666680139783,
-        385.49999993042724,
-        109.39443969726562,
-        18.50000000000002
+        208.52462540081137,
+        369.22520388312324,
+        110.75074768066405,
+        19.50308036804202
       ]
     },
     {
-      "id": "t10",
+      "id": "t_kimi_head",
       "expected_text": "Kimi Coding Plan",
       "requested_bounds": [
-        38.26,
-        481.1,
-        140.01,
-        24.71
+        34.87,
+        465.31,
+        142.28,
+        25.84
       ],
       "status": "observed",
       "ocr_text": "Kimi Coding Plan",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        40.5,
-        482.5,
-        136.0,
+        38.0,
+        467.0,
+        137.0,
         21.5
       ],
       "ink_color": [
-        1,
-        1,
-        1
+        7,
+        7,
+        7
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        38.25918256992358,
-        481.10216191360115,
-        140.0149688720703,
-        24.714281082153327
+        34.87292025561001,
+        465.3102503238182,
+        142.2763824462891,
+        25.844615936279332
       ]
     },
     {
-      "id": "t11",
+      "id": "t_kimi_count",
       "expected_text": "3 models",
       "requested_bounds": [
-        38.25,
-        515.08,
-        67.85,
-        21.0
+        34.84,
+        500.28,
+        69.04,
+        19.5
       ],
       "status": "observed",
       "ocr_text": "3 models",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        39.5,
-        516.5,
-        64.5,
+        36.5,
+        501.0,
+        65.0,
         15.0
       ],
       "ink_color": [
-        112,
-        112,
-        113
+        111,
+        110,
+        112
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        38.2518747398653,
-        515.0754007125518,
-        67.851806640625,
-        17.674779891967834
+        34.83839806994726,
+        500.27713295364885,
+        69.03987121582033,
+        17.945734024047823
       ]
     },
     {
-      "id": "t12",
+      "id": "t_glm_head",
       "expected_text": "GLM Coding Plan",
       "requested_bounds": [
-        37.13,
-        602.88,
-        144.53,
-        24.79
+        34.85,
+        588.09,
+        144.57,
+        25.03
       ],
       "status": "observed",
       "ocr_text": "GLM Coding Plan",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        40.0,
-        604.0,
-        139.0,
+        37.0,
+        589.5,
+        140.0,
         21.5
       ],
       "ink_color": [
-        10,
-        10,
-        10
+        9,
+        9,
+        9
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        37.12843137683444,
-        602.8801397681086,
-        144.5320281982422,
-        24.786231994628896
+        34.85365672417004,
+        588.0940277373468,
+        144.57046508789062,
+        25.03287506103519
       ]
     },
     {
-      "id": "t13",
+      "id": "t_glm_count",
       "expected_text": "3 models",
       "requested_bounds": [
-        37.22,
-        639.5,
-        68.79,
-        21.0
+        34.76,
+        624.0,
+        68.08,
+        19.5
       ],
       "status": "observed",
       "ocr_text": "3 models",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        39.5,
-        640.0,
-        64.0,
+        36.5,
+        625.5,
+        65.0,
         15.0
       ],
       "ink_color": [
-        118,
-        118,
-        118
+        111,
+        112,
+        112
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        37.21666770402959,
-        639.4999999361037,
-        68.79444122314452,
-        17.000000000000025
+        34.755858407240964,
+        623.9982953398791,
+        68.0771713256836,
+        18.642944335937536
       ]
     }
   ],
@@ -469,9 +373,247 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4294901502
+    },
+    {
+      "id": "card_deepseek",
+      "bounds": [
+        21.0,
+        111.0,
+        323.0,
+        306.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.66
+    },
+    {
+      "id": "card_kimi",
+      "bounds": [
+        21.0,
+        442.0,
+        322.0,
+        97.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.76
+    },
+    {
+      "id": "card_glm",
+      "bounds": [
+        21.0,
+        565.0,
+        322.0,
+        96.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 11.76
+    },
+    {
+      "id": "vline",
+      "bounds": [
+        364.0,
+        110.0,
+        1.0,
+        590.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "inner_card",
+      "bounds": [
+        33.0,
+        213.0,
+        300.0,
+        126.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 8.2
+    },
+    {
+      "id": "inner_div",
+      "bounds": [
+        34.5,
+        276.5,
+        296.5,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "dot_ds",
+      "bounds": [
+        280.5,
+        142.0,
+        9.0,
+        10.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280592978,
+      "radius": 4.5
+    },
+    {
+      "id": "icon_chev_ds",
+      "bounds": [
+        313.5,
+        143.0,
+        12.5,
+        8.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_check",
+      "bounds": [
+        292.0,
+        236.0,
+        28.0,
+        26.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "btn_test",
+      "bounds": [
+        36.0,
+        356.0,
+        138.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "btn_test_surface",
+      "bounds": [
+        36.0,
+        356.0,
+        138.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294769916,
+      "radius": 22.0
+    },
+    {
+      "id": "btn_test_control",
+      "bounds": [
+        36.0,
+        356.0,
+        138.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_discover",
+      "bounds": [
+        193.0,
+        356.0,
+        136.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "btn_discover_surface",
+      "bounds": [
+        193.0,
+        356.0,
+        136.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294704123,
+      "radius": 22.0
+    },
+    {
+      "id": "btn_discover_control",
+      "bounds": [
+        193.0,
+        356.0,
+        136.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "dot_kimi",
+      "bounds": [
+        280.5,
+        476.5,
+        9.0,
+        10.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280329549,
+      "radius": 4.5
+    },
+    {
+      "id": "icon_chev_kimi",
+      "bounds": [
+        314.0,
+        484.5,
+        11.5,
+        7.5
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "dot_glm",
+      "bounds": [
+        280.5,
+        601.5,
+        9.0,
+        10.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280460880,
+      "radius": 4.5
+    },
+    {
+      "id": "icon_chev_glm",
+      "bounds": [
+        314.0,
+        608.5,
+        11.5,
+        7.5
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     }
   ],
-  "unmapped_ocr": [],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        557.1222221842543,
+        1200.09302370318,
+        24.811111450195334,
+        27.06976699829108
+      ],
+      "confidence": 1,
+      "text": "\u2022"
+    }
+  ],
   "non_text_ocr": [],
   "limits": [
     "OCR cannot prove font family, hierarchy or control behavior.",

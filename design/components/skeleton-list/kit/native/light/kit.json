@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "theme": "light",
+  "tokens": {
+    "bg_f807212b6748": {
+      "value": 4294967295,
+      "property": "bg"
+    },
+    "radius_5feceb66ffc8": {
+      "value": 0,
+      "property": "radius"
+    },
+    "bg_92ba44e155d8": {
+      "value": 4293980658,
+      "property": "bg"
+    },
+    "radius_2c624232cdd2": {
+      "value": 8,
+      "property": "radius"
+    }
+  },
+  "components": {
+    "Surfacef468f03a0025": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_f807212b6748"
+        },
+        "radius": {
+          "$token": "radius_5feceb66ffc8"
+        }
+      },
+      "props": {},
+      "slot": true
+    },
+    "Surfaceb1747ab6b098": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_92ba44e155d8"
+        },
+        "radius": {
+          "$token": "radius_2c624232cdd2"
+        }
+      },
+      "props": {},
+      "slot": true
+    }
+  }
+}

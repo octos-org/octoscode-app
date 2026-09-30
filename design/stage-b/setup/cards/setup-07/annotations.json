@@ -1,97 +1,97 @@
 {
   "schema_version": 1,
-  "reference_sha256": "a5262c0a1815ad4ba7a0db45e2adb2c46d7a96beaa86ff6586d1cc9d11f7592b",
+  "reference_sha256": "eea4879ae6d0cd6b624faf40165083cab6a008b8fc393afd6670a5c88fe6f3f5",
   "method": "automatic proposals; unreviewed source-image measurements",
   "candidate_rectangles": [
     [
-      24.0,
-      580.0,
-      320.0,
-      95.0
-    ],
-    [
-      22.0,
-      578.0,
-      324.0,
-      100.0
-    ],
-    [
-      24.0,
-      458.0,
-      320.0,
+      21.0,
+      565.0,
+      322.0,
       96.0
     ],
     [
-      22.0,
-      455.0,
-      325.0,
+      18.0,
+      563.0,
+      328.0,
       101.0
     ],
     [
-      195.0,
-      372.0,
-      135.0,
-      45.0
+      21.0,
+      442.0,
+      322.0,
+      97.0
     ],
     [
-      39.0,
-      372.0,
+      19.0,
+      439.0,
+      327.0,
+      102.0
+    ],
+    [
+      193.0,
+      356.0,
       136.0,
-      45.0
+      44.0
     ],
     [
-      192.0,
-      369.0,
-      140.0,
-      50.0
+      36.0,
+      356.0,
+      138.0,
+      44.0
     ],
     [
-      37.0,
-      369.0,
+      191.0,
+      353.0,
       141.0,
       50.0
     ],
     [
-      38.0,
-      294.0,
-      292.0,
-      58.0
-    ],
-    [
-      38.0,
-      233.0,
-      292.0,
-      60.0
+      34.0,
+      353.0,
+      142.0,
+      50.0
     ],
     [
       36.0,
-      230.0,
-      297.0,
-      125.0
+      277.0,
+      294.0,
+      59.0
     ],
     [
-      24.0,
-      129.0,
-      320.0,
-      304.0
+      35.0,
+      216.0,
+      295.0,
+      60.0
     ],
     [
-      22.0,
-      127.0,
-      325.0,
-      309.0
+      33.0,
+      213.0,
+      307.0,
+      143.0
     ],
     [
-      5.0,
-      49.0,
-      359.0,
-      711.0
+      21.0,
+      111.0,
+      323.0,
+      306.0
     ],
     [
-      2.0,
-      46.0,
-      365.0,
+      19.0,
+      108.0,
+      327.0,
+      312.0
+    ],
+    [
+      1.0,
+      30.0,
+      363.0,
       716.0
+    ],
+    [
+      33.0,
+      213.0,
+      300.0,
+      126.0
     ]
   ],
   "elements": [
@@ -106,6 +106,233 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4294901502
+    },
+    {
+      "id": "card_deepseek",
+      "bounds": [
+        21.0,
+        111.0,
+        323.0,
+        306.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 12.66
+    },
+    {
+      "id": "card_kimi",
+      "bounds": [
+        21.0,
+        442.0,
+        322.0,
+        97.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.76
+    },
+    {
+      "id": "card_glm",
+      "bounds": [
+        21.0,
+        565.0,
+        322.0,
+        96.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 11.76
+    },
+    {
+      "id": "vline",
+      "bounds": [
+        364.0,
+        110.0,
+        1.0,
+        590.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "inner_card",
+      "bounds": [
+        33.0,
+        213.0,
+        300.0,
+        126.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 8.2
+    },
+    {
+      "id": "inner_div",
+      "bounds": [
+        34.5,
+        276.5,
+        296.5,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "dot_ds",
+      "bounds": [
+        280.5,
+        142.0,
+        9.0,
+        10.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280592978,
+      "radius": 4.5
+    },
+    {
+      "id": "icon_chev_ds",
+      "bounds": [
+        313.5,
+        143.0,
+        12.5,
+        8.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "icon_check",
+      "bounds": [
+        292.0,
+        236.0,
+        28.0,
+        26.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "btn_test",
+      "bounds": [
+        36.0,
+        356.0,
+        138.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "btn_test_surface",
+      "bounds": [
+        36.0,
+        356.0,
+        138.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294769916,
+      "radius": 22.0
+    },
+    {
+      "id": "btn_test_control",
+      "bounds": [
+        36.0,
+        356.0,
+        138.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_discover",
+      "bounds": [
+        193.0,
+        356.0,
+        136.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "btn_discover_surface",
+      "bounds": [
+        193.0,
+        356.0,
+        136.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294704123,
+      "radius": 22.0
+    },
+    {
+      "id": "btn_discover_control",
+      "bounds": [
+        193.0,
+        356.0,
+        136.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "dot_kimi",
+      "bounds": [
+        280.5,
+        476.5,
+        9.0,
+        10.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280329549,
+      "radius": 4.5
+    },
+    {
+      "id": "icon_chev_kimi",
+      "bounds": [
+        314.0,
+        484.5,
+        11.5,
+        7.5
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "dot_glm",
+      "bounds": [
+        280.5,
+        601.5,
+        9.0,
+        10.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280460880,
+      "radius": 4.5
+    },
+    {
+      "id": "icon_chev_glm",
+      "bounds": [
+        314.0,
+        608.5,
+        11.5,
+        7.5
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
     }
   ]
 }

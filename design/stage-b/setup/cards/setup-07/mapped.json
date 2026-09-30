@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reference_sha256": "a5262c0a1815ad4ba7a0db45e2adb2c46d7a96beaa86ff6586d1cc9d11f7592b",
+  "reference_sha256": "eea4879ae6d0cd6b624faf40165083cab6a008b8fc393afd6670a5c88fe6f3f5",
   "tree": {
     "t": "stack",
     "id": "page",
@@ -10,232 +10,415 @@
     "h": 776,
     "c": [
       {
+        "t": "stack",
+        "id": "card_deepseek",
+        "x": 20.0,
+        "y": 110.0,
+        "w": 324.0,
+        "h": 290.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294835709,
+        "radius": 12.66,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "stack",
+        "id": "card_kimi",
+        "x": 21.0,
+        "y": 442.0,
+        "w": 322.0,
+        "h": 97.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 11.76,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "stack",
+        "id": "card_glm",
+        "x": 21.0,
+        "y": 565.0,
+        "w": 322.0,
+        "h": 96.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294901246,
+        "radius": 11.76,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "stack",
+        "id": "vline",
+        "x": 364.0,
+        "y": 110.0,
+        "w": 1.0,
+        "h": 590.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4292467162,
+        "radius": 0
+      },
+      {
         "t": "text",
-        "id": "t00",
-        "text": "1\u2022 IIVULL JLIIIIVUO",
-        "x": 7.89,
-        "y": 10.0,
-        "w": 284.43,
-        "h": 27.0,
-        "size": 18,
-        "line_height": 27.0,
+        "id": "t_title",
+        "text": "Models",
+        "x": 25.99,
+        "y": 61.0,
+        "w": 77.5,
+        "h": 25.0,
+        "size": 20.66,
+        "line_height": 25.0,
         "weight": 600,
         "color": 4278190080,
         "variant": "single_line",
         "alignx": 0,
-        "font_src": "self:resources/ux/Inter-600.ttf"
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": 0.0
       },
       {
         "t": "text",
-        "id": "t01",
-        "text": "Models",
-        "x": 28.14,
-        "y": 81.03,
-        "w": 101.31,
-        "h": 24.05,
-        "size": 14,
-        "line_height": 24.05,
-        "weight": 400,
-        "color": 4278190080,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf"
-      },
-      {
-        "t": "text",
-        "id": "t02",
+        "id": "t_ds_head",
         "text": "DeepSeek \u2022 Official API",
-        "x": 38.34,
-        "y": 156.78,
-        "w": 260.96,
-        "h": 24.81,
-        "size": 14,
-        "line_height": 24.81,
-        "weight": 400,
-        "color": 4278716424,
+        "x": 36.73,
+        "y": 137.5,
+        "w": 200.0,
+        "h": 26.0,
+        "size": 17.3,
+        "line_height": 20.94,
+        "weight": 600,
+        "color": 4278716168,
         "variant": "single_line",
         "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf"
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": 0.0
       },
       {
         "t": "text",
-        "id": "t03",
+        "id": "t_ds_count",
         "text": "3 models",
-        "x": 38.34,
-        "y": 192.87,
-        "w": 92.36,
-        "h": 21.0,
-        "size": 14,
-        "line_height": 21.0,
+        "x": 36.04,
+        "y": 173.5,
+        "w": 72.0,
+        "h": 19.0,
+        "size": 15.67,
+        "line_height": 18.96,
         "weight": 400,
-        "color": 4285888119,
+        "color": 4285427312,
         "variant": "single_line",
         "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf"
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "inner_card",
+        "x": 33.0,
+        "y": 213.0,
+        "w": 300.0,
+        "h": 126.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294901246,
+        "radius": 8.2,
+        "border": 1,
+        "bordercolor": 4293125348
+      },
+      {
+        "t": "stack",
+        "id": "inner_div",
+        "x": 34.5,
+        "y": 276.5,
+        "w": 296.5,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293125348,
+        "radius": 0
+      },
+      {
+        "t": "stack",
+        "id": "dot_ds",
+        "x": 280.5,
+        "y": 142.0,
+        "w": 9.0,
+        "h": 10.5,
+        "c": [],
+        "variant": "surface",
+        "bg": 4280592978,
+        "radius": 4.5
+      },
+      {
+        "t": "svg",
+        "id": "icon_chev_ds",
+        "x": 313.5,
+        "y": 143.0,
+        "w": 12.5,
+        "h": 8.0,
+        "src": ""
       },
       {
         "t": "text",
-        "id": "t04",
-        "text": "\u2022",
-        "x": 277.43,
-        "y": 157.91,
-        "w": 24.92,
-        "h": 21.0,
-        "size": 14,
-        "line_height": 21.0,
-        "weight": 400,
-        "color": 4280526930,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf"
-      },
-      {
-        "t": "text",
-        "id": "t05",
-        "text": "^",
-        "x": 312.39,
-        "y": 159.03,
-        "w": 20.53,
-        "h": 21.0,
-        "size": 14,
-        "line_height": 21.0,
-        "weight": 400,
-        "color": 4284638052,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf"
-      },
-      {
-        "t": "text",
-        "id": "t06",
+        "id": "t_flash",
         "text": "deepseek-v4-flash (default)",
-        "x": 49.62,
-        "y": 254.91,
-        "w": 259.51,
-        "h": 21.0,
-        "size": 14,
-        "line_height": 21.0,
-        "weight": 400,
-        "color": 4284637795,
+        "x": 47.32,
+        "y": 236.0,
+        "w": 200.5,
+        "h": 23.5,
+        "size": 14.52,
+        "line_height": 17.57,
+        "weight": 500,
+        "color": 4284440416,
         "variant": "single_line",
         "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf"
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
       },
       {
         "t": "text",
-        "id": "t07",
+        "id": "t_pro",
         "text": "deepseek-v4-pro",
-        "x": 49.54,
-        "y": 315.31,
-        "w": 162.94,
-        "h": 21.31,
-        "size": 14,
-        "line_height": 21.31,
+        "x": 47.25,
+        "y": 297.5,
+        "w": 127.0,
+        "h": 23.0,
+        "size": 14.73,
+        "line_height": 17.82,
         "weight": 400,
-        "color": 4279966491,
+        "color": 4279571732,
         "variant": "single_line",
         "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf"
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "svg",
+        "id": "icon_check",
+        "x": 292.0,
+        "y": 236.0,
+        "w": 28.0,
+        "h": 26.0,
+        "src": ""
+      },
+      {
+        "t": "stack",
+        "id": "btn_test",
+        "x": 36.0,
+        "y": 356.0,
+        "w": 138.0,
+        "h": 44.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "btn_test_surface",
+            "x": 36.0,
+            "y": 356.0,
+            "w": 138.0,
+            "h": 44.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294769916,
+            "radius": 22.0,
+            "border": 1,
+            "bordercolor": 4280098079
+          },
+          {
+            "t": "button",
+            "id": "btn_test_control",
+            "x": 36.0,
+            "y": 356.0,
+            "w": 138.0,
+            "h": 44.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "btn_test_label",
+            "text": "Test route",
+            "x": 66.36,
+            "y": 369.0,
+            "w": 75.5,
+            "h": 19.0,
+            "size": 14.57,
+            "line_height": 17.63,
+            "weight": 500,
+            "color": 4279440404,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      {
+        "t": "stack",
+        "id": "btn_discover",
+        "x": 193.0,
+        "y": 356.0,
+        "w": 136.0,
+        "h": 44.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "btn_discover_surface",
+            "x": 193.0,
+            "y": 356.0,
+            "w": 136.0,
+            "h": 44.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294704123,
+            "radius": 22.0,
+            "border": 1,
+            "bordercolor": 4280098079
+          },
+          {
+            "t": "button",
+            "id": "btn_discover_control",
+            "x": 193.0,
+            "y": 356.0,
+            "w": 136.0,
+            "h": 44.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "btn_discover_label",
+            "text": "Discover models",
+            "x": 209.43,
+            "y": 369.0,
+            "w": 110.5,
+            "h": 19.0,
+            "size": 13.32,
+            "line_height": 16.11,
+            "weight": 500,
+            "color": 4279439891,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": 0.0
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
       },
       {
         "t": "text",
-        "id": "t08",
-        "text": "Test route",
-        "x": 67.63,
-        "y": 386.7,
-        "w": 98.33,
-        "h": 21.0,
-        "size": 14,
-        "line_height": 21.0,
-        "weight": 400,
-        "color": 4279440147,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf"
-      },
-      {
-        "t": "text",
-        "id": "t09",
-        "text": "Discover models",
-        "x": 209.77,
-        "y": 385.5,
-        "w": 142.21,
-        "h": 21.0,
-        "size": 14,
-        "line_height": 21.0,
-        "weight": 400,
-        "color": 4279637526,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf"
-      },
-      {
-        "t": "text",
-        "id": "t10",
+        "id": "t_kimi_head",
         "text": "Kimi Coding Plan",
-        "x": 38.26,
-        "y": 481.1,
-        "w": 182.01,
-        "h": 24.71,
-        "size": 14,
-        "line_height": 24.71,
-        "weight": 400,
-        "color": 4278255873,
+        "x": 36.78,
+        "y": 465.0,
+        "w": 141.0,
+        "h": 25.5,
+        "size": 16.72,
+        "line_height": 20.23,
+        "weight": 600,
+        "color": 4278650631,
         "variant": "single_line",
         "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf"
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": 0.0
       },
       {
         "t": "text",
-        "id": "t11",
+        "id": "t_kimi_count",
         "text": "3 models",
-        "x": 38.25,
-        "y": 515.08,
-        "w": 88.2,
-        "h": 21.0,
-        "size": 14,
-        "line_height": 21.0,
+        "x": 35.59,
+        "y": 499.0,
+        "w": 69.0,
+        "h": 19.0,
+        "size": 14.98,
+        "line_height": 18.12,
         "weight": 400,
-        "color": 4285558897,
+        "color": 4285492848,
         "variant": "single_line",
         "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf"
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "dot_kimi",
+        "x": 280.5,
+        "y": 476.5,
+        "w": 9.0,
+        "h": 10.5,
+        "c": [],
+        "variant": "surface",
+        "bg": 4280329549,
+        "radius": 4.5
+      },
+      {
+        "t": "svg",
+        "id": "icon_chev_kimi",
+        "x": 314.0,
+        "y": 484.5,
+        "w": 11.5,
+        "h": 7.5,
+        "src": ""
       },
       {
         "t": "text",
-        "id": "t12",
+        "id": "t_glm_head",
         "text": "GLM Coding Plan",
-        "x": 37.13,
-        "y": 602.88,
-        "w": 187.89,
-        "h": 24.79,
-        "size": 14,
-        "line_height": 24.79,
-        "weight": 400,
-        "color": 4278848010,
+        "x": 36.15,
+        "y": 587.5,
+        "w": 144.0,
+        "h": 25.5,
+        "size": 16.86,
+        "line_height": 20.4,
+        "weight": 600,
+        "color": 4278782217,
         "variant": "single_line",
         "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf"
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": 0.0
       },
       {
         "t": "text",
-        "id": "t13",
+        "id": "t_glm_count",
         "text": "3 models",
-        "x": 37.22,
-        "y": 639.5,
-        "w": 89.43,
-        "h": 21.0,
-        "size": 14,
-        "line_height": 21.0,
+        "x": 35.59,
+        "y": 623.5,
+        "w": 69.0,
+        "h": 19.0,
+        "size": 14.98,
+        "line_height": 18.12,
         "weight": 400,
-        "color": 4285953654,
+        "color": 4285493360,
         "variant": "single_line",
         "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf"
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "dot_glm",
+        "x": 280.5,
+        "y": 601.5,
+        "w": 9.0,
+        "h": 10.5,
+        "c": [],
+        "variant": "surface",
+        "bg": 4280460880,
+        "radius": 4.5
+      },
+      {
+        "t": "svg",
+        "id": "icon_chev_glm",
+        "x": 314.0,
+        "y": 608.5,
+        "w": 11.5,
+        "h": 7.5,
+        "src": ""
       }
     ],
     "variant": "surface",
-    "bg": 4294967295
+    "bg": 4294901502
   },
   "changes": [
     {
@@ -243,88 +426,146 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "t00",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": 0.6239420572916666
+      "id": "card_deepseek",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t01",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.112617688301282
+      "id": "card_kimi",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t02",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.1140731937629132
+      "id": "card_glm",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t03",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.13470937139976963
+      "id": "vline",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t04",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.044642857142857144
+      "id": "inner_card",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t05",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": 0.05251736111111107
+      "id": "inner_div",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t06",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.13209885817307693
+      "id": "dot_ds",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t07",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.16185238486842105
+      "id": "icon_chev_ds",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t08",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.12508792804118773
+      "id": "icon_check",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t09",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.16967075892857145
+      "id": "btn_test",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t10",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.11552810077519379
+      "id": "btn_test_surface",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t11",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.1440290178571429
+      "id": "btn_test_control",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t12",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.129206356416113
+      "id": "btn_discover",
+      "source": "observed non-text annotation"
     },
     {
-      "id": "t13",
+      "id": "btn_discover_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_discover_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "dot_kimi",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_chev_kimi",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "dot_glm",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "icon_chev_glm",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t_title",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.14759579613095242
+      "tracking_em": -0.14567626953124999
+    },
+    {
+      "id": "t_ds_head",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.11691914708161155
+    },
+    {
+      "id": "t_ds_count",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.11906156994047623
+    },
+    {
+      "id": "t_flash",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1364789432322485
+    },
+    {
+      "id": "t_pro",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1583499765037594
+    },
+    {
+      "id": "btn_test_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.14388201678240742
+    },
+    {
+      "id": "btn_discover_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.17270159040178573
+    },
+    {
+      "id": "t_kimi_head",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12131177325581395
+    },
+    {
+      "id": "t_kimi_count",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.14046223958333337
+    },
+    {
+      "id": "t_glm_head",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12971572622508312
+    },
+    {
+      "id": "t_glm_count",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.14046223958333337
     }
   ],
   "limits": [

@@ -104,10 +104,10 @@
    "design_id": "setup-07",
    "directory": "cards/setup-07",
    "crop": [
-    1035,
-    1074,
-    501,
-    930
+    1039,
+    1118,
+    497,
+    882
    ],
    "surface": "app",
    "title": "Model settings"
@@ -118,9 +118,9 @@
    "directory": "cards/setup-08",
    "crop": [
     1536,
-    1074,
-    466,
-    930
+    1119,
+    462,
+    881
    ],
    "surface": "app",
    "title": "Command palette"
@@ -130,10 +130,10 @@
    "design_id": "setup-09",
    "directory": "cards/setup-09",
    "crop": [
-    30,
-    2107,
-    466,
-    935
+    34,
+    2111,
+    458,
+    927
    ],
    "surface": "app",
    "title": "Context panel"
@@ -143,10 +143,10 @@
    "design_id": "setup-10",
    "directory": "cards/setup-10",
    "crop": [
-    535,
-    2107,
-    460,
-    935
+    539,
+    2111,
+    452,
+    927
    ],
    "surface": "app",
    "title": "Skills"
@@ -156,10 +156,10 @@
    "design_id": "setup-11",
    "directory": "cards/setup-11",
    "crop": [
-    1035,
-    2107,
-    501,
-    935
+    1039,
+    2111,
+    497,
+    927
    ],
    "surface": "app",
    "title": "Error screen"
@@ -170,9 +170,9 @@
    "directory": "cards/setup-12",
    "crop": [
     1536,
-    2107,
-    465,
-    935
+    2111,
+    455,
+    928
    ],
    "surface": "app",
    "title": "Loading and reconnecting"

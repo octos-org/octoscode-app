@@ -34,14 +34,23 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t00",
-    "x": 29.0,
-    "y": 187.5,
-    "w": 293.22,
-    "h": 35.6,
+    "id": "icon_warning",
+    "x": 130.0,
+    "y": 80.0,
+    "w": 72.0,
+    "h": 77.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "t_title",
+    "x": 29.32,
+    "y": 188.36,
+    "w": 289.84,
+    "h": 33.0,
     "text": "Something went wrong",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 18,
+    "size": 22,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -50,11 +59,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t01",
-    "x": 43.98,
+    "id": "t_msg1",
+    "x": 40.6,
     "y": 250.4,
-    "w": 258.26,
-    "h": 26.1,
+    "w": 261.64,
+    "h": 24.81,
     "text": "OctosCode hit an unexpected",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 14,
@@ -66,11 +75,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t02",
-    "x": 53.01,
-    "y": 284.0,
-    "w": 240.22,
-    "h": 23.0,
+    "id": "t_msg2",
+    "x": 50.55,
+    "y": 280.9,
+    "w": 241.69,
+    "h": 25.3,
     "text": "error. Your sessions are safe",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 14,
@@ -82,11 +91,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t03",
-    "x": 111.52,
-    "y": 318.96,
-    "w": 119.99,
-    "h": 21.2,
+    "id": "t_msg3",
+    "x": 109.32,
+    "y": 319.18,
+    "w": 121.03,
+    "h": 21.0,
     "text": "on the server.",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 14,
@@ -98,15 +107,50 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t04",
-    "x": 140.91,
-    "y": 410.36,
-    "w": 70.05,
-    "h": 22.95,
+    "id": "btn_reload",
+    "x": 26.0,
+    "y": 387.0,
+    "w": 303.0,
+    "h": 65.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "btn_reload_surface",
+    "x": 26.0,
+    "y": 387.0,
+    "w": 303.0,
+    "h": 65.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "btn_reload_control",
+    "x": 26.0,
+    "y": 387.0,
+    "w": 303.0,
+    "h": 65.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "btn_reload_label",
+    "x": 141.0,
+    "y": 410.0,
+    "w": 68.0,
+    "h": 25.01,
     "text": "Reload",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 16.67,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -114,15 +158,50 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t05",
-    "x": 90.11,
-    "y": 490.87,
-    "w": 164.57,
-    "h": 33.53,
+    "id": "btn_diag",
+    "x": 26.0,
+    "y": 473.0,
+    "w": 303.0,
+    "h": 63.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "btn_diag_surface",
+    "x": 26.0,
+    "y": 473.0,
+    "w": 303.0,
+    "h": 63.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "btn_diag_control",
+    "x": 26.0,
+    "y": 473.0,
+    "w": 303.0,
+    "h": 63.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "btn_diag_label",
+    "x": 87.0,
+    "y": 491.0,
+    "w": 164.0,
+    "h": 33.0,
     "text": "Copy diagnostics",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 22.0,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -130,15 +209,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t06",
-    "x": 122.93,
-    "y": 570.5,
+    "id": "t_report",
+    "x": 120.67,
+    "y": 571.85,
     "w": 109.39,
-    "h": 24.0,
+    "h": 24.81,
     "text": "Report issue",
-    "font_src": "self:resources/ux/Inter-400.ttf",
+    "font_src": "self:resources/ux/Inter-500.ttf",
     "size": 14,
-    "weight": 400,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",

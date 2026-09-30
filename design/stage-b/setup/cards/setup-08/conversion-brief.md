@@ -34,31 +34,112 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t00",
-    "x": 14.66,
-    "y": -0.0,
-    "w": 257.13,
-    "h": 27.0,
-    "text": "O. VUIVNIAN TALLIL",
-    "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 18,
-    "weight": 600,
-    "role": "text",
+    "id": "scrim",
+    "x": 0.0,
+    "y": 0.0,
+    "w": 406.0,
+    "h": 776.0,
+    "role": "layout",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "View"
     ]
   },
   {
-    "id": "t01",
-    "x": 57.52,
-    "y": 159.0,
-    "w": 56.39,
-    "h": 25.0,
+    "id": "bd_avatar",
+    "x": 23.5,
+    "y": 29.5,
+    "w": 38.0,
+    "h": 38.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "bd_bar1",
+    "x": 80.0,
+    "y": 40.5,
+    "w": 275.5,
+    "h": 18.5,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "bd_bar2",
+    "x": 62.0,
+    "y": 87.0,
+    "w": 321.0,
+    "h": 12.5,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "bd_composer",
+    "x": 25.5,
+    "y": 694.0,
+    "w": 374.0,
+    "h": 19.5,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "modal",
+    "x": 40.0,
+    "y": 93.0,
+    "w": 326.0,
+    "h": 570.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "search_field",
+    "x": 39.0,
+    "y": 110.0,
+    "w": 331.0,
+    "h": 59.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "cursor",
+    "x": 112.5,
+    "y": 129.0,
+    "w": 2.0,
+    "h": 26.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "icon_close",
+    "x": 336.08,
+    "y": 130.84,
+    "w": 19.17,
+    "h": 20.3,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "t_query",
+    "x": 50.75,
+    "y": 129.5,
+    "w": 59.77,
+    "h": 25.02,
     "text": "/ mo",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 15,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -66,15 +147,26 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t02",
-    "x": 54.89,
-    "y": 234.47,
-    "w": 72.93,
-    "h": 25.09,
-    "text": "/ model",
-    "font_src": "self:resources/ux/Inter-400.ttf",
+    "id": "row_sel",
+    "x": 48.0,
+    "y": 194.45,
+    "w": 310.0,
+    "h": 52.1,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t_cmd0",
+    "x": 50.38,
+    "y": 208.45,
+    "w": 74.04,
+    "h": 24.1,
+    "text": "/model",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
     "size": 14,
-    "weight": 400,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -82,94 +174,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t03",
-    "x": 58.61,
-    "y": 297.63,
-    "w": 88.03,
-    "h": 21.0,
-    "text": "/ monitor",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t04",
-    "x": 56.2,
-    "y": 359.25,
-    "w": 61.28,
-    "h": 22.53,
-    "text": "/ mode",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t05",
-    "x": 58.57,
-    "y": 422.68,
-    "w": 88.11,
-    "h": 23.13,
-    "text": "/ compact",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t06",
-    "x": 57.52,
-    "y": 485.0,
-    "w": 46.24,
-    "h": 21.43,
-    "text": "/btw",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t07",
-    "x": 58.6,
-    "y": 547.99,
-    "w": 77.9,
-    "h": 21.0,
-    "text": "/ resume",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t08",
-    "x": 248.0,
-    "y": 236.21,
-    "w": 99.47,
-    "h": 21.0,
+    "id": "t_desc0",
+    "x": 251.42,
+    "y": 210.53,
+    "w": 105.02,
+    "h": 19.96,
     "text": "Switch model",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -178,14 +190,30 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t09",
-    "x": 242.39,
-    "y": 298.38,
-    "w": 103.93,
+    "id": "t_cmd1",
+    "x": 51.84,
+    "y": 275.02,
+    "w": 93.69,
     "h": 21.0,
+    "text": "/monitor",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 14,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_desc1",
+    "x": 246.98,
+    "y": 276.34,
+    "w": 108.27,
+    "h": 19.5,
     "text": "Add a monitor",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -194,14 +222,30 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t10",
-    "x": 199.62,
-    "y": 360.93,
-    "w": 145.48,
-    "h": 21.57,
+    "id": "t_cmd2",
+    "x": 51.84,
+    "y": 340.52,
+    "w": 62.11,
+    "h": 22.78,
+    "text": "/mode",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 14,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_desc2",
+    "x": 201.87,
+    "y": 341.76,
+    "w": 152.25,
+    "h": 22.74,
     "text": "Change permissions",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -210,14 +254,30 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t11",
-    "x": 223.22,
-    "y": 424.7,
-    "w": 123.1,
-    "h": 21.35,
+    "id": "t_cmd3",
+    "x": 53.01,
+    "y": 407.0,
+    "w": 92.48,
+    "h": 24.0,
+    "text": "/compact",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 14,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_desc3",
+    "x": 226.56,
+    "y": 407.6,
+    "w": 128.8,
+    "h": 23.96,
     "text": "Compact context",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -226,14 +286,30 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t12",
-    "x": 206.38,
-    "y": 487.26,
-    "w": 137.59,
-    "h": 21.0,
+    "id": "t_cmd4",
+    "x": 50.75,
+    "y": 472.5,
+    "w": 49.62,
+    "h": 22.65,
+    "text": "/btw",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 14,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_desc4",
+    "x": 208.64,
+    "y": 474.85,
+    "w": 145.48,
+    "h": 21.65,
     "text": "Ask a side question",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -242,14 +318,30 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t13",
-    "x": 215.41,
-    "y": 549.29,
-    "w": 128.57,
-    "h": 21.0,
+    "id": "t_cmd5",
+    "x": 53.01,
+    "y": 538.0,
+    "w": 81.2,
+    "h": 21.5,
+    "text": "/resume",
+    "font_src": "self:resources/ux/LiberationMono-Regular.ttf",
+    "size": 14,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_desc5",
+    "x": 217.66,
+    "y": 540.27,
+    "w": 135.33,
+    "h": 19.5,
     "text": "Resume a session",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -258,14 +350,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t14",
-    "x": 76.69,
-    "y": 625.99,
-    "w": 237.96,
-    "h": 21.0,
-    "text": "Tv to move \u2022 \u00ab torun \u2022 esc",
+    "id": "t_hints",
+    "x": 72.18,
+    "y": 620.35,
+    "w": 250.37,
+    "h": 18.0,
+    "text": "\u2191\u2193 to move \u00b7 \u21b5 to run \u00b7 esc",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 12,
     "weight": 400,
     "role": "text",
     "native_candidates": [

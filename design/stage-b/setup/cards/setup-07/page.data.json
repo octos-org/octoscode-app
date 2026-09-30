@@ -3,7 +3,7 @@
     "theme": "light",
     "placements": {
       "page": {
-        "component": "Surface156d085f4ff5",
+        "component": "Surface16fae9a63e16",
         "layout": {
           "x": 0,
           "y": 0,
@@ -11,130 +11,278 @@
           "h": 776
         }
       },
-      "t00": {
-        "component": "Text7fde3152b682",
+      "card_deepseek": {
+        "component": "Surface8e5ec20f13ed",
         "layout": {
-          "x": 7.89,
-          "y": 10.0,
-          "w": 284.43,
-          "h": 27.0
+          "x": 20.0,
+          "y": 110.0,
+          "w": 324.0,
+          "h": 290.0
         }
       },
-      "t01": {
-        "component": "Text32d1dfc94e99",
+      "card_kimi": {
+        "component": "Surface9ee69c2cfe83",
         "layout": {
-          "x": 28.14,
-          "y": 81.03,
-          "w": 101.31,
-          "h": 24.05
+          "x": 21.0,
+          "y": 442.0,
+          "w": 322.0,
+          "h": 97.0
         }
       },
-      "t02": {
-        "component": "Textaa2e03476040",
+      "card_glm": {
+        "component": "Surface6ac8942dbfa9",
         "layout": {
-          "x": 38.34,
-          "y": 156.78,
-          "w": 260.96,
-          "h": 24.81
+          "x": 21.0,
+          "y": 565.0,
+          "w": 322.0,
+          "h": 96.0
         }
       },
-      "t03": {
-        "component": "Text343e77a578a6",
+      "vline": {
+        "component": "Surfaceb5be1093af4a",
         "layout": {
-          "x": 38.34,
-          "y": 192.87,
-          "w": 92.36,
-          "h": 21.0
+          "x": 364.0,
+          "y": 110.0,
+          "w": 1.0,
+          "h": 590.0
         }
       },
-      "t04": {
-        "component": "Text6054de07abc5",
+      "t_title": {
+        "component": "Textefc81a410676",
         "layout": {
-          "x": 277.43,
-          "y": 157.91,
-          "w": 24.92,
-          "h": 21.0
+          "x": 25.99,
+          "y": 61.0,
+          "w": 77.5,
+          "h": 25.0
         }
       },
-      "t05": {
-        "component": "Text46f8e3e0dca1",
+      "t_ds_head": {
+        "component": "Text9d99f2224598",
         "layout": {
-          "x": 312.39,
-          "y": 159.03,
-          "w": 20.53,
-          "h": 21.0
+          "x": 36.73,
+          "y": 137.5,
+          "w": 200.0,
+          "h": 26.0
         }
       },
-      "t06": {
-        "component": "Text2a21c2c3f11d",
+      "t_ds_count": {
+        "component": "Textd2de94ec13a5",
         "layout": {
-          "x": 49.62,
-          "y": 254.91,
-          "w": 259.51,
-          "h": 21.0
+          "x": 36.04,
+          "y": 173.5,
+          "w": 72.0,
+          "h": 19.0
         }
       },
-      "t07": {
-        "component": "Text8129c2d8951b",
+      "inner_card": {
+        "component": "Surfacea7406a4ae43d",
         "layout": {
-          "x": 49.54,
-          "y": 315.31,
-          "w": 162.94,
-          "h": 21.31
+          "x": 33.0,
+          "y": 213.0,
+          "w": 300.0,
+          "h": 126.0
         }
       },
-      "t08": {
-        "component": "Text2be08f69e94f",
+      "inner_div": {
+        "component": "Surface32251c2d6d0c",
         "layout": {
-          "x": 67.63,
-          "y": 386.7,
-          "w": 98.33,
-          "h": 21.0
+          "x": 34.5,
+          "y": 276.5,
+          "w": 296.5,
+          "h": 1.0
         }
       },
-      "t09": {
-        "component": "Texta313a5a6634f",
+      "dot_ds": {
+        "component": "Surfacec5da2fb3c7c1",
         "layout": {
-          "x": 209.77,
-          "y": 385.5,
-          "w": 142.21,
-          "h": 21.0
+          "x": 280.5,
+          "y": 142.0,
+          "w": 9.0,
+          "h": 10.5
         }
       },
-      "t10": {
-        "component": "Text0ca75cae2b78",
+      "icon_chev_ds": {
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 38.26,
-          "y": 481.1,
-          "w": 182.01,
-          "h": 24.71
+          "x": 313.5,
+          "y": 143.0,
+          "w": 12.5,
+          "h": 8.0,
+          "src": "http://127.0.0.1:8170/ux-images/setup-07/assets/icon_chev_ds-d680f88d367e.svg"
         }
       },
-      "t11": {
-        "component": "Textb5ca36ae2a42",
+      "t_flash": {
+        "component": "Textecbf6c315357",
         "layout": {
-          "x": 38.25,
-          "y": 515.08,
-          "w": 88.2,
-          "h": 21.0
+          "x": 47.32,
+          "y": 236.0,
+          "w": 200.5,
+          "h": 23.5
         }
       },
-      "t12": {
-        "component": "Text6fe36bc6cd4c",
+      "t_pro": {
+        "component": "Text947ba4ca257a",
         "layout": {
-          "x": 37.13,
-          "y": 602.88,
-          "w": 187.89,
-          "h": 24.79
+          "x": 47.25,
+          "y": 297.5,
+          "w": 127.0,
+          "h": 23.0
         }
       },
-      "t13": {
-        "component": "Textbc058d558782",
+      "icon_check": {
+        "component": "Vectore0a378fde04f",
         "layout": {
-          "x": 37.22,
-          "y": 639.5,
-          "w": 89.43,
-          "h": 21.0
+          "x": 292.0,
+          "y": 236.0,
+          "w": 28.0,
+          "h": 26.0,
+          "src": "http://127.0.0.1:8170/ux-images/setup-07/assets/icon_check-742796b61b58.svg"
+        }
+      },
+      "btn_test": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 36.0,
+          "y": 356.0,
+          "w": 138.0,
+          "h": 44.0
+        }
+      },
+      "btn_test_surface": {
+        "component": "Surface26d3b1b7b376",
+        "layout": {
+          "x": 36.0,
+          "y": 356.0,
+          "w": 138.0,
+          "h": 44.0
+        }
+      },
+      "btn_test_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 36.0,
+          "y": 356.0,
+          "w": 138.0,
+          "h": 44.0
+        }
+      },
+      "btn_test_label": {
+        "component": "Text23d6ea84e7c8",
+        "layout": {
+          "x": 66.36,
+          "y": 369.0,
+          "w": 75.5,
+          "h": 19.0
+        }
+      },
+      "btn_discover": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 193.0,
+          "y": 356.0,
+          "w": 136.0,
+          "h": 44.0
+        }
+      },
+      "btn_discover_surface": {
+        "component": "Surfacea8acf25b8347",
+        "layout": {
+          "x": 193.0,
+          "y": 356.0,
+          "w": 136.0,
+          "h": 44.0
+        }
+      },
+      "btn_discover_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 193.0,
+          "y": 356.0,
+          "w": 136.0,
+          "h": 44.0
+        }
+      },
+      "btn_discover_label": {
+        "component": "Text6b0ef02921d8",
+        "layout": {
+          "x": 209.43,
+          "y": 369.0,
+          "w": 110.5,
+          "h": 19.0
+        }
+      },
+      "t_kimi_head": {
+        "component": "Textaa1186c45b59",
+        "layout": {
+          "x": 36.78,
+          "y": 465.0,
+          "w": 141.0,
+          "h": 25.5
+        }
+      },
+      "t_kimi_count": {
+        "component": "Texta813d34bcd90",
+        "layout": {
+          "x": 35.59,
+          "y": 499.0,
+          "w": 69.0,
+          "h": 19.0
+        }
+      },
+      "dot_kimi": {
+        "component": "Surface1cfef960ffc3",
+        "layout": {
+          "x": 280.5,
+          "y": 476.5,
+          "w": 9.0,
+          "h": 10.5
+        }
+      },
+      "icon_chev_kimi": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 314.0,
+          "y": 484.5,
+          "w": 11.5,
+          "h": 7.5,
+          "src": "http://127.0.0.1:8170/ux-images/setup-07/assets/icon_chev_kimi-a742d013f874.svg"
+        }
+      },
+      "t_glm_head": {
+        "component": "Textf4212b9678a4",
+        "layout": {
+          "x": 36.15,
+          "y": 587.5,
+          "w": 144.0,
+          "h": 25.5
+        }
+      },
+      "t_glm_count": {
+        "component": "Texta3258eaad970",
+        "layout": {
+          "x": 35.59,
+          "y": 623.5,
+          "w": 69.0,
+          "h": 19.0
+        }
+      },
+      "dot_glm": {
+        "component": "Surface854f2bc4be10",
+        "layout": {
+          "x": 280.5,
+          "y": 601.5,
+          "w": 9.0,
+          "h": 10.5
+        }
+      },
+      "icon_chev_glm": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 314.0,
+          "y": 608.5,
+          "w": 11.5,
+          "h": 7.5,
+          "src": "http://127.0.0.1:8170/ux-images/setup-07/assets/icon_chev_glm-a742d013f874.svg"
         }
       }
     },

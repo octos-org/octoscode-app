@@ -1,5 +1,26 @@
 {
   "frame_id": 11,
-  "controls": {},
-  "source": "stub: setup-11 is another card's screen; no #28c mapping"
+  "controls": {
+    "btn_reload": {
+      "event": "error.reload",
+      "source_bounds": [
+        26,
+        387,
+        303,
+        65
+      ],
+      "enabled": true
+    },
+    "btn_diag": {
+      "event": "error.copy_diagnostics",
+      "source_bounds": [
+        26,
+        473,
+        303,
+        63
+      ],
+      "enabled": true
+    }
+  },
+  "source": "authored from the approved stage-a board-2 atlas (Gate A 2026-09-29) + Apple Vision OCR"
 }

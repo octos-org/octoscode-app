@@ -1,0 +1,20 @@
+{
+ "schema_version": 1,
+ "entry": "28d",
+ "note": "Self-scores are a pre-filter (RULES); the outer loop makes the final design_match call. Each score names its evidence PNG under evidence/gate-b/.",
+ "screens": {
+  "setup-07": {"score": 8.5, "evidence": "setup-07-review-v14.png (state unchanged since v12)", "gaps": ["Test route / Discover models pill outlines slightly heavier than ref"]},
+  "setup-08": {"score": 9.0, "evidence": "setup-08-review-v14.png", "gaps": ["hint-row glyphs a touch lighter than ref"]},
+  "setup-09": {"score": 9.0, "evidence": "setup-09-review-v14.png", "gaps": []},
+  "setup-10": {"score": 9.0, "evidence": "setup-10-review-v14.png", "gaps": ["placeholder ink a touch darker than ref"]},
+  "setup-11": {"score": 9.0, "evidence": "setup-11-review-v14.png (state unchanged since v12)", "gaps": []},
+  "setup-12": {"score": 9.0, "evidence": "setup-12-review-v14.png (state unchanged since v12)", "gaps": []}
+ },
+ "components": {
+  "usage-bar": {"score": 8.5, "evidence": "design/components/usage-bar/review-long.png", "gaps": ["long-variant label truncates without ellipsis ('compac')"]},
+  "segmented-control": {"score": 9.0, "evidence": "design/components/segmented-control/review-long.png", "gaps": []},
+  "skeleton-list": {"score": 9.0, "evidence": "design/components/skeleton-list/review-long.png", "gaps": []}
+ },
+ "not_reached_9": ["setup-07 (8.5)", "usage-bar long variant (8.5)"],
+ "rightmost_4px": "components-rightmost.json: 12/12 variants OK (real ink verified: usage-bar 21.8k/22.7k px, segmented 3.2k/3.9k, skeleton 126k/171k)"
+}

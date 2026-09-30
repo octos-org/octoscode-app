@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reference_sha256": "295d25bf4bce6339e416c60d7741aea06890332ae2a048e1b41a26317dc3c95e",
+  "reference_sha256": "a7336e5e9009742569caa7357497db715dd76b141fb3b35bdbfaea132bf88f93",
   "artboard": [
     406,
     776
@@ -9,23 +9,23 @@
   "aspect_error": 0.0,
   "text": [
     {
-      "id": "t00",
+      "id": "t_title",
       "expected_text": "Something went wrong",
       "requested_bounds": [
-        29.0,
-        187.5,
-        293.22,
-        35.6
+        29.32,
+        188.36,
+        289.84,
+        33.0
       ],
       "status": "observed",
       "ocr_text": "Something went wrong",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        34.0,
-        190.5,
-        285.0,
-        29.0
+        31.0,
+        189.0,
+        287.5,
+        29.5
       ],
       "ink_color": [
         0,
@@ -34,94 +34,94 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        28.99999374138025,
-        187.50000066158591,
-        293.22222900390625,
-        35.59999847412108
+        29.322218780257227,
+        188.36046566284185,
+        289.8388977050781,
+        31.639533996581985
       ]
     },
     {
-      "id": "t01",
+      "id": "t_msg1",
       "expected_text": "OctosCode hit an unexpected",
       "requested_bounds": [
-        43.98,
+        40.6,
         250.4,
-        258.26,
-        26.1
+        261.64,
+        24.81
       ],
       "status": "observed",
       "ocr_text": "OctosCode hit an unexpected",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        45.5,
-        251.5,
-        255.5,
+        42.5,
+        250.5,
+        257.5,
         23.0
       ],
       "ink_color": [
-        125,
+        124,
         125,
         127
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        43.98333599601273,
-        250.39534918646234,
-        258.2611083984375,
-        26.104650497436587
+        40.600003501367155,
+        250.3953490588087,
+        261.6444396972656,
+        24.813953399658267
       ]
     },
     {
-      "id": "t02",
+      "id": "t_msg2",
       "expected_text": "error. Your sessions are safe",
       "requested_bounds": [
-        53.01,
-        284.0,
-        240.22,
-        23.0
+        50.55,
+        280.9,
+        241.69,
+        25.3
       ],
       "status": "observed",
       "ocr_text": "error. Your sessions are safe",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        54.5,
-        285.0,
-        237.0,
+        51.5,
+        284.0,
+        239.0,
         18.0
       ],
       "ink_color": [
-        127,
-        128,
-        130
+        130,
+        130,
+        132
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        53.00556083177298,
-        283.99999972381096,
-        240.2166595458984,
-        22.99999999999992
+        50.546149570996874,
+        280.90298356013705,
+        241.693115234375,
+        25.29998397827149
       ]
     },
     {
-      "id": "t03",
+      "id": "t_msg3",
       "expected_text": "on the server.",
       "requested_bounds": [
-        111.52,
-        318.96,
-        119.99,
-        21.2
+        109.32,
+        319.18,
+        121.03,
+        21.0
       ],
       "status": "observed",
       "ocr_text": "on the server.",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        113.5,
-        319.5,
-        114.5,
-        17.5
+        111.5,
+        319.0,
+        115.0,
+        18.0
       ],
       "ink_color": [
         129,
@@ -130,106 +130,106 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        111.51526467655157,
-        318.96086490050754,
-        119.99298095703124,
-        21.202639579772956
+        109.3166242768169,
+        319.18415893187756,
+        121.03025817871095,
+        20.64883041381824
       ]
     },
     {
-      "id": "t04",
+      "id": "btn_reload_label",
       "expected_text": "Reload",
       "requested_bounds": [
-        140.91,
-        410.36,
-        70.05,
-        22.95
+        141.0,
+        410.0,
+        68.0,
+        25.01
       ],
       "status": "observed",
       "ocr_text": "Reload",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        139.5,
-        409.0,
-        72.5,
-        25.5
+        144.5,
+        411.0,
+        62.0,
+        19.5
       ],
       "ink_color": [
-        16,
-        16,
-        17
+        255,
+        255,
+        255
       ],
-      "light_foreground": false,
+      "light_foreground": true,
       "ocr_bounds": [
-        140.91020517373022,
-        410.3644614451353,
-        70.04625701904297,
-        22.945495605468707
+        140.6573547797999,
+        409.5754523551534,
+        68.29640197753906,
+        24.523513793945302
       ]
     },
     {
-      "id": "t05",
+      "id": "btn_diag_label",
       "expected_text": "Copy diagnostics",
       "requested_bounds": [
-        90.11,
-        490.87,
-        164.57,
-        33.53
+        87.0,
+        491.0,
+        164.0,
+        33.0
       ],
       "status": "observed",
       "ocr_text": "Copy diagnostics",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        96.5,
-        495.0,
-        153.0,
+        94.0,
+        496.0,
+        154.5,
         24.0
       ],
       "ink_color": [
-        5,
-        4,
-        5
+        6,
+        6,
+        6
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        90.10592364569624,
-        490.869121526974,
-        164.56593322753903,
-        33.52842330932618
+        86.89453977838201,
+        490.9257128311102,
+        164.54425048828128,
+        33.41524124145515
       ]
     },
     {
-      "id": "t06",
+      "id": "t_report",
       "expected_text": "Report issue",
       "requested_bounds": [
-        122.93,
-        570.5,
+        120.67,
+        571.85,
         109.39,
-        24.0
+        24.81
       ],
       "status": "observed",
       "ocr_text": "Report issue",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        124.0,
-        571.5,
-        106.0,
-        23.5
+        121.5,
+        572.5,
+        107.0,
+        24.0
       ],
       "ink_color": [
         125,
         125,
-        127
+        128
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        122.92778106298752,
-        570.5000000417178,
+        120.67222372178385,
+        571.8488370468763,
         109.39443969726562,
-        24.0
+        24.813953399658182
       ]
     }
   ],
@@ -244,7 +244,88 @@
       ],
       "method": "image canvas",
       "reviewed": false,
-      "bg": 4294901246
+      "bg": 4294901502
+    },
+    {
+      "id": "icon_warning",
+      "bounds": [
+        130.0,
+        80.0,
+        72.0,
+        77.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "btn_reload",
+      "bounds": [
+        26.0,
+        387.0,
+        304.0,
+        66.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "btn_reload_surface",
+      "bounds": [
+        26.0,
+        387.0,
+        304.0,
+        66.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279243026,
+      "radius": 32.49
+    },
+    {
+      "id": "btn_reload_control",
+      "bounds": [
+        26.0,
+        387.0,
+        304.0,
+        66.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_diag",
+      "bounds": [
+        25.0,
+        472.0,
+        306.0,
+        65.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "btn_diag_surface",
+      "bounds": [
+        25.0,
+        472.0,
+        306.0,
+        65.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294769916,
+      "radius": 31.98
+    },
+    {
+      "id": "btn_diag_control",
+      "bounds": [
+        25.0,
+        472.0,
+        306.0,
+        65.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
     }
   ],
   "unmapped_ocr": [],

@@ -1,36 +1,38 @@
 {
-  "height" : 1552,
-  "observations" : [
+  "height": 1552,
+  "observations": [
     {
-      "bounds" : [
-        85.711114924501658,
-        62.99999968190798,
-        611.25555419921875,
-        45.279069900512781
+      "bounds": [
+        92.47778366082457,
+        58.651162248436286,
+        615.7666625976562,
+        43.34883689880379
       ],
-      "confidence" : 1,
-      "text" : "Reconnecting... attempt 2 • Retry now"
+      "confidence": 1,
+      "text": "Reconnecting... attempt 2 \u2022 Retry now"
     },
     {
-      "bounds" : [
-        218.33654319497245,
-        1018.8915224245857,
-        309.91580200195318,
-        55.612304687500085
+      "bounds": [
+        225.55555904606774,
+        1021.8837206644614,
+        320.28887939453125,
+        50.11627960205072
       ],
-      "confidence" : 1,
-      "text" : "Loading session..."
+      "confidence": 1,
+      "text": "Loading session..."
     },
     {
-      "bounds" : [
-        318.03333485225926,
-        1141.4418614725282,
-        117.2888870239258,
-        38.348834991455064
+      "bounds": [
+        327.05555569944045,
+        1143.697673580233,
+        115.033332824707,
+        38.348838806152386
       ],
-      "confidence" : 1,
-      "text" : "Cancel"
+      "confidence": 1,
+      "text": "Cancel"
     }
   ],
-  "width" : 812
+  "width": 812,
+  "image_sha256": "fb936b73852b6bdf407c8d75e674be0574aff1963fcd512b488ce59aca61a713",
+  "engine": "Apple Vision VNRecognizeTextRequest accurate, en-US"
 }

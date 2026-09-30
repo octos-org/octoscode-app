@@ -1,0 +1,53 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "skeleton_list_root": {
+        "component": "Surfacef468f03a0025",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 340.0,
+          "h": 158.0
+        }
+      },
+      "skel0": {
+        "component": "Surfaceb1747ab6b098",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 70.0,
+          "h": 50.0
+        }
+      },
+      "skel1": {
+        "component": "Surfaceb1747ab6b098",
+        "layout": {
+          "x": 70.0,
+          "y": 6.0,
+          "w": 255.0,
+          "h": 44.0
+        }
+      },
+      "skel2": {
+        "component": "Surfaceb1747ab6b098",
+        "layout": {
+          "x": 0.0,
+          "y": 82.0,
+          "w": 70.0,
+          "h": 56.0
+        }
+      },
+      "skel3": {
+        "component": "Surfaceb1747ab6b098",
+        "layout": {
+          "x": 70.0,
+          "y": 86.0,
+          "w": 255.0,
+          "h": 52.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

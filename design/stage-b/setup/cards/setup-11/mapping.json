@@ -6,7 +6,7 @@
       "native_id": "beauty_0",
       "parent": null,
       "kind": "stack",
-      "component": "Surface156d085f4ff5",
+      "component": "Surface16fae9a63e16",
       "semantic_role": "layout",
       "bounds": [
         0,
@@ -20,136 +20,263 @@
       "size": null
     },
     {
-      "source_id": "t00",
+      "source_id": "icon_warning",
       "native_id": "beauty_0_0",
       "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        130.0,
+        80.0,
+        72.0,
+        77.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_title",
+      "native_id": "beauty_0_1",
+      "parent": "page",
       "kind": "text",
-      "component": "Textdff3c12dd0ad",
+      "component": "Texta5445c6e2aa8",
       "semantic_role": "text",
       "bounds": [
-        29.0,
-        187.5,
-        381.19,
-        35.6
+        29.81,
+        187.0,
+        291.5,
+        33.5
       ],
       "text": "Something went wrong",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 18
+      "size": 25.68
     },
     {
-      "source_id": "t01",
-      "native_id": "beauty_0_1",
+      "source_id": "t_msg1",
+      "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "text",
-      "component": "Text5d9757a986bf",
+      "component": "Text209c8b4b11ac",
       "semantic_role": "text",
       "bounds": [
-        43.98,
-        250.4,
-        335.74,
-        26.1
+        41.41,
+        248.5,
+        261.5,
+        27.0
       ],
       "text": "OctosCode hit an unexpected",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14
+      "size": 18.3
     },
     {
-      "source_id": "t02",
-      "native_id": "beauty_0_2",
+      "source_id": "t_msg2",
+      "native_id": "beauty_0_3",
       "parent": "page",
       "kind": "text",
-      "component": "Texta83bd04cbcd7",
+      "component": "Text0ea29b87f985",
       "semantic_role": "text",
       "bounds": [
-        53.01,
-        284.0,
-        312.29,
-        23.0
+        50.61,
+        282.0,
+        243.0,
+        22.0
       ],
       "text": "error. Your sessions are safe",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14
+      "size": 17.49
     },
     {
-      "source_id": "t03",
-      "native_id": "beauty_0_3",
+      "source_id": "t_msg3",
+      "native_id": "beauty_0_4",
       "parent": "page",
       "kind": "text",
-      "component": "Text106c4efc0f04",
+      "component": "Text69b0f8fd6511",
       "semantic_role": "text",
       "bounds": [
-        111.52,
-        318.96,
-        155.99,
-        21.2
+        110.61,
+        317.0,
+        119.0,
+        22.0
       ],
       "text": "on the server.",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14
+      "size": 17.55
     },
     {
-      "source_id": "t04",
-      "native_id": "beauty_0_4",
+      "source_id": "btn_reload",
+      "native_id": "beauty_0_5",
       "parent": "page",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        26.0,
+        387.0,
+        304.0,
+        66.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "btn_reload_surface",
+      "native_id": "beauty_0_5_0",
+      "parent": "btn_reload",
+      "kind": "stack",
+      "component": "Surface881ca262529c",
+      "semantic_role": "layout",
+      "bounds": [
+        26.0,
+        387.0,
+        304.0,
+        66.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "btn_reload_control",
+      "native_id": "beauty_0_5_1",
+      "parent": "btn_reload",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        26.0,
+        387.0,
+        304.0,
+        66.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "btn_reload_label",
+      "native_id": "beauty_0_5_2",
+      "parent": "btn_reload",
       "kind": "text",
-      "component": "Text6cd50347b15b",
+      "component": "Textef1f7f5a159c",
       "semantic_role": "text",
       "bounds": [
-        140.91,
-        410.36,
-        91.06,
-        22.95
+        143.13,
+        409.0,
+        66.0,
+        23.5
       ],
       "text": "Reload",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 18.72
     },
     {
-      "source_id": "t05",
-      "native_id": "beauty_0_5",
+      "source_id": "btn_diag",
+      "native_id": "beauty_0_6",
       "parent": "page",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        25.0,
+        472.0,
+        306.0,
+        65.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "btn_diag_surface",
+      "native_id": "beauty_0_6_0",
+      "parent": "btn_diag",
+      "kind": "stack",
+      "component": "Surface29c8b9492b90",
+      "semantic_role": "layout",
+      "bounds": [
+        25.0,
+        472.0,
+        306.0,
+        65.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "btn_diag_control",
+      "native_id": "beauty_0_6_1",
+      "parent": "btn_diag",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        25.0,
+        472.0,
+        306.0,
+        65.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "btn_diag_label",
+      "native_id": "beauty_0_6_2",
+      "parent": "btn_diag",
       "kind": "text",
-      "component": "Texta23d8baad481",
+      "component": "Text1e282cb6b1b4",
       "semantic_role": "text",
       "bounds": [
-        90.11,
-        490.87,
-        213.94,
-        33.53
+        92.97,
+        494.0,
+        158.5,
+        28.0
       ],
       "text": "Copy diagnostics",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 18.6
     },
     {
-      "source_id": "t06",
-      "native_id": "beauty_0_6",
+      "source_id": "t_report",
+      "native_id": "beauty_0_7",
       "parent": "page",
       "kind": "text",
-      "component": "Text28f528bc5db2",
+      "component": "Text1d5b7c8d06a0",
       "semantic_role": "text",
       "bounds": [
-        122.93,
+        120.06,
         570.5,
-        142.21,
-        24.0
+        111.0,
+        28.0
       ],
       "text": "Report issue",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 17.93
     }
   ],
   "fonts": {
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
-    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "6208cf595218b30e2c78e58e4c79edea6e57e4292184c689b7678eaf31508375",
+  "contract_sha256": "a9612944d8690b72dc8ab331defd425474f9f9f189551621347e4b7d30e99fd1",
   "mapping_basis": "mapped.json"
 }

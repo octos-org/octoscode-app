@@ -34,14 +34,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t00",
-    "x": 40.6,
-    "y": 39.48,
+    "id": "t_title",
+    "x": 39.47,
+    "y": 36.09,
     "w": 63.16,
-    "h": 27.0,
+    "h": 28.5,
     "text": "Skills",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 18,
+    "size": 19,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -50,30 +50,34 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t01",
-    "x": 51.88,
-    "y": 103.77,
-    "w": 16.92,
-    "h": 21.0,
-    "text": "Q",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
-    "role": "text",
+    "id": "search_box",
+    "x": 34.0,
+    "y": 80.0,
+    "w": 336.0,
+    "h": 60.0,
+    "role": "layout",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "View"
     ]
   },
   {
-    "id": "t02",
-    "x": 82.26,
-    "y": 103.35,
-    "w": 128.71,
-    "h": 23.4,
+    "id": "icon_search",
+    "x": 51.0,
+    "y": 100.5,
+    "w": 18.0,
+    "h": 20.5,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "t_search",
+    "x": 83.0,
+    "y": 104.0,
+    "w": 128.0,
+    "h": 18.0,
     "text": "Search registry",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 12,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -82,15 +86,70 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t03",
-    "x": 36.09,
-    "y": 172.57,
-    "w": 69.92,
-    "h": 21.0,
+    "id": "card_installed",
+    "x": 14.0,
+    "y": 203.0,
+    "w": 378.0,
+    "h": 191.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "card_registry",
+    "x": 14.0,
+    "y": 459.0,
+    "w": 378.0,
+    "h": 143.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "div_1",
+    "x": 33.5,
+    "y": 266.5,
+    "w": 337.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "div_2",
+    "x": 33.5,
+    "y": 331.5,
+    "w": 337.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "div_3",
+    "x": 33.5,
+    "y": 531.0,
+    "w": 337.0,
+    "h": 1.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t_inst_head",
+    "x": 32.71,
+    "y": 170.31,
+    "w": 72.18,
+    "h": 22.5,
     "text": "Installed",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 15,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -98,47 +157,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t04",
-    "x": 51.73,
-    "y": 227.07,
-    "w": 99.55,
-    "h": 21.83,
-    "text": "rust-review",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t05",
-    "x": 50.75,
-    "y": 291.0,
-    "w": 86.84,
-    "h": 23.69,
-    "text": "git-helper",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t06",
-    "x": 51.88,
-    "y": 354.16,
-    "w": 99.24,
+    "id": "t_name3",
+    "x": 49.59,
+    "y": 226.55,
+    "w": 100.44,
     "h": 21.0,
-    "text": "docs-writer",
-    "font_src": "self:resources/ux/Inter-400.ttf",
+    "text": "rust-review",
+    "font_src": "self:resources/ux/Inter-500.ttf",
     "size": 14,
-    "weight": 400,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -146,14 +173,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t07",
+    "id": "t_ver6",
     "x": 192.85,
-    "y": 225.58,
-    "w": 43.98,
+    "y": 224.45,
+    "w": 45.11,
     "h": 24.81,
     "text": "1.2.0",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -162,14 +189,46 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t08",
+    "id": "t_remove0",
+    "x": 295.38,
+    "y": 227.5,
+    "w": 58.84,
+    "h": 19.5,
+    "text": "Remove",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 13,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_name4",
+    "x": 49.62,
+    "y": 289.87,
+    "w": 86.84,
+    "h": 23.69,
+    "text": "git-helper",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_ver7",
     "x": 193.98,
-    "y": 288.74,
+    "y": 287.62,
     "w": 43.98,
-    "h": 24.81,
+    "h": 25.94,
     "text": "0.9.1",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -178,14 +237,46 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t09",
+    "id": "t_remove1",
+    "x": 295.48,
+    "y": 291.0,
+    "w": 59.77,
+    "h": 19.5,
+    "text": "Remove",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 13,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_name5",
+    "x": 50.75,
+    "y": 354.16,
+    "w": 100.37,
+    "h": 21.0,
+    "text": "docs-writer",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 14,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_ver8",
     "x": 193.98,
     "y": 351.91,
     "w": 43.98,
     "h": 25.94,
     "text": "2.0.0",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -194,15 +285,31 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t10",
-    "x": 35.73,
-    "y": 425.33,
-    "w": 69.5,
-    "h": 26.85,
+    "id": "t_remove2",
+    "x": 295.42,
+    "y": 355.09,
+    "w": 58.77,
+    "h": 19.5,
+    "text": "Remove",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 13,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_reg_head",
+    "x": 33.83,
+    "y": 427.48,
+    "w": 71.05,
+    "h": 23.69,
     "text": "Registry",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 15,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -210,15 +317,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t11",
-    "x": 50.73,
-    "y": 487.17,
-    "w": 93.64,
+    "id": "t_name10",
+    "x": 49.6,
+    "y": 488.26,
+    "w": 93.65,
     "h": 21.0,
     "text": "code-linter",
-    "font_src": "self:resources/ux/Inter-400.ttf",
+    "font_src": "self:resources/ux/Inter-500.ttf",
     "size": 14,
-    "weight": 400,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -226,14 +333,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t12",
+    "id": "t_ver11",
     "x": 190.59,
-    "y": 483.87,
-    "w": 42.86,
-    "h": 24.81,
+    "y": 485.0,
+    "w": 43.98,
+    "h": 25.94,
     "text": "1.1.0",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -242,15 +349,66 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t13",
-    "x": 50.51,
-    "y": 555.09,
-    "w": 81.69,
-    "h": 23.36,
+    "id": "btn_3_install",
+    "x": 268.0,
+    "y": 474.51,
+    "w": 90.0,
+    "h": 44.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "btn_3_install_surface",
+    "x": 268.0,
+    "y": 474.51,
+    "w": 90.0,
+    "h": 44.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "btn_3_install_control",
+    "x": 268.0,
+    "y": 474.51,
+    "w": 90.0,
+    "h": 44.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "btn_3_install_label",
+    "x": 286.46,
+    "y": 489.51,
+    "w": 53.01,
+    "h": 19.17,
+    "text": "Install",
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 12.78,
+    "weight": 500,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_name12",
+    "x": 49.33,
+    "y": 556.03,
+    "w": 81.78,
+    "h": 23.75,
     "text": "api-client",
-    "font_src": "self:resources/ux/Inter-400.ttf",
+    "font_src": "self:resources/ux/Inter-500.ttf",
     "size": 14,
-    "weight": 400,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -258,14 +416,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t14",
+    "id": "t_ver13",
     "x": 189.47,
-    "y": 554.93,
-    "w": 45.11,
+    "y": 556.06,
+    "w": 46.24,
     "h": 23.69,
     "text": "0.4.2",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -274,79 +432,50 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t15",
-    "x": 294.33,
-    "y": 228.9,
-    "w": 58.68,
-    "h": 21.0,
-    "text": "Remove",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
-    "role": "text",
+    "id": "btn_4_install",
+    "x": 268.0,
+    "y": 544.44,
+    "w": 90.0,
+    "h": 44.0,
+    "role": "button",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "Button",
+      "KitButton"
     ]
   },
   {
-    "id": "t16",
-    "x": 294.24,
-    "y": 291.75,
-    "w": 58.87,
-    "h": 21.0,
-    "text": "Remove",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
-    "role": "text",
+    "id": "btn_4_install_surface",
+    "x": 268.0,
+    "y": 544.44,
+    "w": 90.0,
+    "h": 44.0,
+    "role": "layout",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "View"
     ]
   },
   {
-    "id": "t17",
-    "x": 294.25,
-    "y": 356.06,
-    "w": 58.85,
-    "h": 21.0,
-    "text": "Remove",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
-    "role": "text",
+    "id": "btn_4_install_control",
+    "x": 268.0,
+    "y": 544.44,
+    "w": 90.0,
+    "h": 44.0,
+    "role": "button",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "Button",
+      "KitButton"
     ]
   },
   {
-    "id": "t18",
-    "x": 285.33,
-    "y": 488.38,
-    "w": 53.01,
-    "h": 21.0,
+    "id": "btn_4_install_label",
+    "x": 288.71,
+    "y": 559.44,
+    "w": 49.62,
+    "h": 18.05,
     "text": "Install",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t19",
-    "x": 287.58,
-    "y": 558.31,
-    "w": 50.75,
-    "h": 21.0,
-    "text": "Install",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 12.03,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",

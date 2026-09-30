@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "policy_version": "1.1.0",
+  "contract_sha256": "2fb6b4e5a0d997eb07d79c0819876362a5fcb3e8bfe585c60e036e895ea3f1a4",
+  "reference_sha256": "59d568270e3fd9a60919534b5e7beb523f33155967e90a3d2683f1cc129afc30",
+  "classification_scope": "Authored component subtree; no automatic recognition.",
+  "elements": [
+    {
+      "id": "segmented_control_root",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "seg_box",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "seg_div",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_llm",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_heur",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    }
+  ]
+}

@@ -1,5 +1,26 @@
 {
   "frame_id": 7,
-  "controls": {},
-  "source": "stub: setup-07 is another card's screen; no #28c mapping"
+  "controls": {
+    "btn_test": {
+      "event": "models.test_route",
+      "source_bounds": [
+        34,
+        356,
+        140,
+        40
+      ],
+      "enabled": true
+    },
+    "btn_discover": {
+      "event": "models.discover",
+      "source_bounds": [
+        192,
+        356,
+        138,
+        40
+      ],
+      "enabled": true
+    }
+  },
+  "source": "authored from the approved stage-a board-2 atlas (Gate A 2026-09-29) + Apple Vision OCR"
 }

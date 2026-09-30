@@ -34,14 +34,58 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t00",
-    "x": 7.89,
-    "y": 10.0,
-    "w": 218.79,
-    "h": 27.0,
-    "text": "1\u2022 IIVULL JLIIIIVUO",
+    "id": "card_deepseek",
+    "x": 20.0,
+    "y": 110.0,
+    "w": 324.0,
+    "h": 290.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "card_kimi",
+    "x": 20.0,
+    "y": 441.0,
+    "w": 324.0,
+    "h": 99.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "card_glm",
+    "x": 20.0,
+    "y": 564.0,
+    "w": 324.0,
+    "h": 98.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "vline",
+    "x": 364.0,
+    "y": 110.0,
+    "w": 1.0,
+    "h": 590.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "t_title",
+    "x": 25.9,
+    "y": 61.92,
+    "w": 77.88,
+    "h": 28.5,
+    "text": "Models",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 18,
+    "size": 19,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -50,31 +94,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t01",
-    "x": 28.14,
-    "y": 81.03,
-    "w": 77.93,
-    "h": 24.05,
-    "text": "Models",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
-    ]
-  },
-  {
-    "id": "t02",
-    "x": 38.34,
-    "y": 156.78,
-    "w": 200.74,
-    "h": 24.81,
+    "id": "t_ds_head",
+    "x": 36.09,
+    "y": 138.5,
+    "w": 203.0,
+    "h": 25.05,
     "text": "DeepSeek \u2022 Official API",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 15,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -82,14 +110,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t03",
-    "x": 38.34,
-    "y": 192.87,
-    "w": 71.05,
-    "h": 21.0,
+    "id": "t_ds_count",
+    "x": 34.87,
+    "y": 174.47,
+    "w": 72.35,
+    "h": 19.5,
     "text": "3 models",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -98,47 +126,57 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t04",
-    "x": 277.43,
-    "y": 157.91,
-    "w": 19.17,
-    "h": 21.0,
-    "text": "\u2022",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
-    "role": "text",
+    "id": "inner_card",
+    "x": 34.5,
+    "y": 214.0,
+    "w": 296.5,
+    "h": 123.0,
+    "role": "layout",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "View"
     ]
   },
   {
-    "id": "t05",
-    "x": 312.39,
-    "y": 159.03,
-    "w": 15.79,
-    "h": 21.0,
-    "text": "^",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
-    "role": "text",
+    "id": "inner_div",
+    "x": 34.5,
+    "y": 276.5,
+    "w": 296.5,
+    "h": 1.0,
+    "role": "layout",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "View"
     ]
   },
   {
-    "id": "t06",
-    "x": 49.62,
-    "y": 254.91,
-    "w": 199.62,
-    "h": 21.0,
+    "id": "dot_ds",
+    "x": 280.5,
+    "y": 142.0,
+    "w": 9.0,
+    "h": 10.5,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "icon_chev_ds",
+    "x": 313.5,
+    "y": 143.0,
+    "w": 12.5,
+    "h": 8.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "t_flash",
+    "x": 47.37,
+    "y": 236.86,
+    "w": 200.74,
+    "h": 21.64,
     "text": "deepseek-v4-flash (default)",
-    "font_src": "self:resources/ux/Inter-400.ttf",
+    "font_src": "self:resources/ux/Inter-500.ttf",
     "size": 14,
-    "weight": 400,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -146,11 +184,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t07",
-    "x": 49.54,
-    "y": 315.31,
-    "w": 125.34,
-    "h": 21.31,
+    "id": "t_pro",
+    "x": 46.14,
+    "y": 298.24,
+    "w": 126.51,
+    "h": 21.61,
     "text": "deepseek-v4-pro",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 14,
@@ -162,15 +200,59 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t08",
-    "x": 67.63,
-    "y": 386.7,
-    "w": 75.64,
-    "h": 21.0,
+    "id": "icon_check",
+    "x": 292.0,
+    "y": 236.0,
+    "w": 28.0,
+    "h": 26.0,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "btn_test",
+    "x": 34.5,
+    "y": 356.0,
+    "w": 140.0,
+    "h": 40.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "btn_test_surface",
+    "x": 34.5,
+    "y": 356.0,
+    "w": 140.0,
+    "h": 40.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "btn_test_control",
+    "x": 34.5,
+    "y": 356.0,
+    "w": 140.0,
+    "h": 40.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "btn_test_label",
+    "x": 65.0,
+    "y": 369.0,
+    "w": 76.0,
+    "h": 20.0,
     "text": "Test route",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 13.33,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -178,15 +260,50 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t09",
-    "x": 209.77,
-    "y": 385.5,
-    "w": 109.39,
-    "h": 21.0,
+    "id": "btn_discover",
+    "x": 192.0,
+    "y": 356.0,
+    "w": 138.5,
+    "h": 40.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "btn_discover_surface",
+    "x": 192.0,
+    "y": 356.0,
+    "w": 138.5,
+    "h": 40.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "btn_discover_control",
+    "x": 192.0,
+    "y": 356.0,
+    "w": 138.5,
+    "h": 40.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "btn_discover_label",
+    "x": 208.0,
+    "y": 369.0,
+    "w": 112.0,
+    "h": 20.0,
     "text": "Discover models",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-500.ttf",
+    "size": 13.33,
+    "weight": 500,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -194,15 +311,15 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t10",
-    "x": 38.26,
-    "y": 481.1,
-    "w": 140.01,
-    "h": 24.71,
+    "id": "t_kimi_head",
+    "x": 34.87,
+    "y": 465.31,
+    "w": 142.28,
+    "h": 25.84,
     "text": "Kimi Coding Plan",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 15,
+    "weight": 600,
     "role": "text",
     "native_candidates": [
       "Label",
@@ -210,14 +327,14 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t11",
-    "x": 38.25,
-    "y": 515.08,
-    "w": 67.85,
-    "h": 21.0,
+    "id": "t_kimi_count",
+    "x": 34.84,
+    "y": 500.28,
+    "w": 69.04,
+    "h": 19.5,
     "text": "3 models",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -226,14 +343,50 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t12",
-    "x": 37.13,
-    "y": 602.88,
-    "w": 144.53,
-    "h": 24.79,
+    "id": "dot_kimi",
+    "x": 280.5,
+    "y": 476.5,
+    "w": 9.0,
+    "h": 10.5,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "icon_chev_kimi",
+    "x": 314.0,
+    "y": 484.5,
+    "w": 11.5,
+    "h": 7.5,
+    "role": "unknown",
+    "native_candidates": []
+  },
+  {
+    "id": "t_glm_head",
+    "x": 34.85,
+    "y": 588.09,
+    "w": 144.57,
+    "h": 25.03,
     "text": "GLM Coding Plan",
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 15,
+    "weight": 600,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "t_glm_count",
+    "x": 34.76,
+    "y": 624.0,
+    "w": 68.08,
+    "h": 19.5,
+    "text": "3 models",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
+    "size": 13,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -242,20 +395,24 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "t13",
-    "x": 37.22,
-    "y": 639.5,
-    "w": 68.79,
-    "h": 21.0,
-    "text": "3 models",
-    "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 14,
-    "weight": 400,
-    "role": "text",
+    "id": "dot_glm",
+    "x": 280.5,
+    "y": 601.5,
+    "w": 9.0,
+    "h": 10.5,
+    "role": "layout",
     "native_candidates": [
-      "Label",
-      "TextFlow"
+      "View"
     ]
+  },
+  {
+    "id": "icon_chev_glm",
+    "x": 314.0,
+    "y": 608.5,
+    "w": 11.5,
+    "h": 7.5,
+    "role": "unknown",
+    "native_candidates": []
   }
 ]
 ```

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reference_sha256": "3f2daa3d59ea16d1303706ee569e2ee312badbfb8135ee6d0d30376c1593a7d2",
+  "reference_sha256": "5c08d9fc4a83f0e3a62d3a2098042c7651586fb065eef494aab64d625711f019",
   "artboard": [
     406,
     776
@@ -9,22 +9,22 @@
   "aspect_error": 0.0,
   "text": [
     {
-      "id": "t00",
+      "id": "t_title",
       "expected_text": "Context",
       "requested_bounds": [
-        43.98,
-        40.6,
-        91.35,
-        27.0
+        42.75,
+        37.95,
+        92.68,
+        28.5
       ],
       "status": "observed",
       "ocr_text": "Context",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        46.5,
-        41.0,
-        86.0,
+        45.0,
+        38.0,
+        87.0,
         21.5
       ],
       "ink_color": [
@@ -34,19 +34,19 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        43.98333342900429,
-        40.60465100036473,
-        91.34999847412111,
-        24.813953399658182
+        42.75480745895996,
+        37.94926000260768,
+        92.6792755126953,
+        24.485200881958036
       ]
     },
     {
-      "id": "t01",
+      "id": "t_usage",
       "expected_text": "124k of 200k tokens",
       "requested_bounds": [
-        45.11,
-        101.5,
-        161.27,
+        42.86,
+        99.26,
+        163.53,
         21.0
       ],
       "status": "observed",
@@ -54,10 +54,138 @@
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        48.0,
-        102.0,
-        156.0,
+        46.5,
+        99.5,
+        157.5,
         16.5
+      ],
+      "ink_color": [
+        18,
+        18,
+        19
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        42.85555929278645,
+        99.25581378800631,
+        163.52777099609372,
+        20.302326202392642
+      ]
+    },
+    {
+      "id": "t_pct",
+      "expected_text": "62%",
+      "requested_bounds": [
+        324.8,
+        99.26,
+        37.22,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "62%",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        328.0,
+        99.5,
+        32.0,
+        16.5
+      ],
+      "ink_color": [
+        27,
+        27,
+        27
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        324.7999999524461,
+        99.25581445155485,
+        37.216667175292955,
+        19.174417495727532
+      ]
+    },
+    {
+      "id": "t_row3",
+      "expected_text": "System",
+      "requested_bounds": [
+        45.11,
+        209.79,
+        59.77,
+        24.81
+      ],
+      "status": "observed",
+      "ocr_text": "System",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        47.0,
+        211.0,
+        57.0,
+        21.5
+      ],
+      "ink_color": [
+        20,
+        20,
+        20
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        45.111111521713866,
+        209.790697541533,
+        59.77222061157227,
+        24.813953399658182
+      ]
+    },
+    {
+      "id": "t_val6",
+      "expected_text": "8k",
+      "requested_bounds": [
+        340.59,
+        210.92,
+        21.43,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "8k",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        343.5,
+        211.0,
+        16.5,
+        17.0
+      ],
+      "ink_color": [
+        21,
+        20,
+        21
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        340.5888887381831,
+        210.91860419555493,
+        21.427778244018562,
+        19.174419403076193
+      ]
+    },
+    {
+      "id": "t_row4",
+      "expected_text": "Conversation",
+      "requested_bounds": [
+        45.06,
+        264.78,
+        106.11,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "Conversation",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        46.5,
+        265.5,
+        102.5,
+        17.0
       ],
       "ink_color": [
         18,
@@ -66,115 +194,51 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        45.111114630145806,
-        101.5000003653753,
-        161.272216796875,
-        20.500000000000014
+        45.061611895455414,
+        264.7806475378679,
+        106.11010742187503,
+        19.729402542114254
       ]
     },
     {
-      "id": "t02",
-      "expected_text": "62%",
+      "id": "t_val7",
+      "expected_text": "96k",
       "requested_bounds": [
-        323.67,
-        101.51,
-        37.22,
-        21.0
+        328.18,
+        263.93,
+        33.83,
+        21.43
       ],
       "status": "observed",
-      "ocr_text": "62%",
+      "ocr_text": "96k",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        327.0,
-        102.0,
-        32.0,
-        16.5
-      ],
-      "ink_color": [
-        18,
-        19,
-        19
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        323.6722221692979,
-        101.51162774149478,
-        37.216667175293004,
-        20.302326202392557
-      ]
-    },
-    {
-      "id": "t03",
-      "expected_text": "System",
-      "requested_bounds": [
-        47.37,
-        212.05,
-        58.64,
-        22.56
-      ],
-      "status": "observed",
-      "ocr_text": "System",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        48.0,
-        212.5,
-        56.5,
-        21.5
-      ],
-      "ink_color": [
-        15,
-        15,
-        15
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        47.36666674624078,
-        212.04651133370658,
-        58.6444435119629,
-        22.558139801025455
-      ]
-    },
-    {
-      "id": "t04",
-      "expected_text": "Conversation",
-      "requested_bounds": [
-        46.14,
-        265.64,
-        105.08,
-        21.0
-      ],
-      "status": "observed",
-      "ocr_text": "Conversation",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        48.0,
-        266.5,
-        101.5,
+        332.0,
+        265.5,
+        28.0,
         17.0
       ],
       "ink_color": [
-        18,
-        19,
-        19
+        17,
+        16,
+        17
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        46.14099609554302,
-        265.63541549758844,
-        105.07911682128906,
-        20.27568054199211
+        328.18333372744956,
+        263.9302323282983,
+        33.833332061767585,
+        21.43023300170892
       ]
     },
     {
-      "id": "t05",
+      "id": "t_row5",
       "expected_text": "Tools",
       "requested_bounds": [
-        45.11,
+        42.86,
         318.07,
-        43.98,
+        46.24,
         21.0
       ],
       "status": "observed",
@@ -182,160 +246,96 @@
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        47.5,
-        319.0,
-        40.0,
+        46.0,
+        318.5,
+        40.5,
         17.0
       ],
       "ink_color": [
-        22,
-        22,
-        22
+        18,
+        18,
+        18
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        45.11111067381566,
-        318.0697679158501,
-        43.983333587646484,
-        20.30232429504398
-      ]
-    },
-    {
-      "id": "t06",
-      "expected_text": "8k",
-      "requested_bounds": [
-        339.46,
-        212.05,
-        21.43,
-        21.0
-      ],
-      "status": "observed",
-      "ocr_text": "8k",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        342.5,
-        212.5,
-        16.5,
-        16.5
-      ],
-      "ink_color": [
-        20,
-        21,
-        20
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        339.46111099882404,
-        212.04651146242495,
-        21.427778244018562,
+        42.85555582462294,
+        318.06976698634526,
+        46.23888778686523,
         20.302326202392557
       ]
     },
     {
-      "id": "t07",
-      "expected_text": "96k",
-      "requested_bounds": [
-        327.06,
-        266.19,
-        34.96,
-        21.0
-      ],
-      "status": "observed",
-      "ocr_text": "96k",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        331.0,
-        266.5,
-        28.0,
-        17.0
-      ],
-      "ink_color": [
-        22,
-        21,
-        22
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        327.05555678014485,
-        266.18604700969433,
-        34.96110916137692,
-        19.174417495727532
-      ]
-    },
-    {
-      "id": "t08",
+      "id": "t_val8",
       "expected_text": "20k",
       "requested_bounds": [
-        327.06,
+        328.18,
         318.07,
-        33.83,
-        21.0
+        34.96,
+        20.3
       ],
       "status": "observed",
       "ocr_text": "20k",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        330.5,
-        319.0,
+        331.5,
+        318.5,
         28.5,
         17.0
       ],
       "ink_color": [
-        40,
-        40,
-        40
+        25,
+        26,
+        26
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        327.05555633231063,
+        328.18333452670737,
         318.0697670749665,
-        33.833332061767585,
+        34.96110916137696,
         20.302326202392642
       ]
     },
     {
-      "id": "t09",
+      "id": "t_comp",
       "expected_text": "Compaction:",
       "requested_bounds": [
-        43.95,
-        428.47,
-        97.05,
-        21.69
+        42.7,
+        427.93,
+        97.29,
+        23.91
       ],
       "status": "observed",
       "ocr_text": "Compaction:",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        45.0,
+        43.5,
         429.0,
-        92.5,
-        21.0
+        93.5,
+        21.5
       ],
       "ink_color": [
-        17,
-        17,
-        17
+        20,
+        20,
+        20
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        43.954698817389215,
-        428.474324804001,
-        97.04615783691408,
-        21.690885543823253
+        42.70263437617467,
+        427.92805839163077,
+        97.29473114013672,
+        23.91132545471192
       ]
     },
     {
-      "id": "t10",
+      "id": "t_llm",
       "expected_text": "LLM",
       "requested_bounds": [
         190.59,
-        428.6,
+        429.73,
         39.47,
-        21.0
+        19.5
       ],
       "status": "observed",
       "ocr_text": "LLM",
@@ -343,8 +343,8 @@
       "text_similarity": 1.0,
       "ink_bounds": [
         194.0,
-        429.5,
-        33.5,
+        430.0,
+        34.0,
         17.0
       ],
       "ink_color": [
@@ -354,106 +354,106 @@
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        190.59444515024416,
-        428.6046507878403,
-        39.47222137451171,
-        20.302326202392557
+        190.5944451150011,
+        429.7325586305519,
+        39.47222137451173,
+        19.174417495727532
       ]
     },
     {
-      "id": "t11",
+      "id": "t_heur",
       "expected_text": "Heuristic",
       "requested_bounds": [
-        283.07,
-        428.6,
-        67.67,
-        21.0
+        283.03,
+        429.58,
+        68.89,
+        20.62
       ],
       "status": "observed",
       "ocr_text": "Heuristic",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        285.0,
-        430.0,
-        64.0,
+        286.0,
+        430.5,
+        64.5,
         16.5
       ],
       "ink_color": [
-        40,
-        40,
-        41
+        30,
+        31,
+        30
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        283.07222304267685,
-        428.6046507072755,
-        67.66666412353513,
-        20.302326202392557
+        283.026100530284,
+        429.57518931315616,
+        68.88668823242188,
+        20.617063522338853
       ]
     },
     {
-      "id": "t12",
+      "id": "btn_compact_label",
       "expected_text": "Compact now",
       "requested_bounds": [
-        136.38,
-        533.08,
-        118.57,
-        23.4
+        134.0,
+        534.0,
+        139.0,
+        25.01
       ],
       "status": "observed",
       "ocr_text": "Compact now",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        137.0,
-        534.0,
-        117.5,
+        136.5,
+        535.5,
+        118.0,
         22.0
       ],
       "ink_color": [
-        8,
-        8,
-        8
+        11,
+        10,
+        10
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        136.38212132758002,
-        533.0778160182905,
-        118.57464599609375,
-        23.402507781982475
+        134.17410933466468,
+        534.4726452045652,
+        121.86289215087888,
+        25.124477386474602
       ]
     },
     {
-      "id": "t13",
+      "id": "t_keep",
       "expected_text": "Keeps the last 4 turns",
       "requested_bounds": [
-        108.27,
-        594.41,
-        170.29,
-        22.59
+        107.14,
+        595.5,
+        172.55,
+        23.72
       ],
       "status": "observed",
       "ocr_text": "Keeps the last 4 turns",
       "confidence": 1,
       "text_similarity": 1.0,
       "ink_bounds": [
-        109.0,
-        595.5,
-        168.0,
+        108.5,
+        597.0,
+        169.0,
         21.5
       ],
       "ink_color": [
-        127,
-        127,
-        129
+        125,
+        125,
+        127
       ],
       "light_foreground": false,
       "ocr_bounds": [
-        108.26666368257307,
-        594.4069767990998,
-        170.29444885253903,
-        22.59302330017087
+        107.13888638184335,
+        595.5000004142883,
+        172.55000305175784,
+        23.720930099487234
       ]
     }
   ],
@@ -469,6 +469,91 @@
       "method": "image canvas",
       "reviewed": false,
       "bg": 4293981682
+    },
+    {
+      "id": "bar_track",
+      "bounds": [
+        45.0,
+        142.5,
+        317.0,
+        15.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280970734,
+      "radius": 7.75
+    },
+    {
+      "id": "bar_fill",
+      "bounds": [
+        45.0,
+        142.5,
+        205.0,
+        15.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4280708079,
+      "radius": 7.75
+    },
+    {
+      "id": "seg_box",
+      "bounds": [
+        159.0,
+        410.0,
+        210.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 27.5
+    },
+    {
+      "id": "seg_div",
+      "bounds": [
+        266.0,
+        414.0,
+        1.5,
+        46.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "btn_compact",
+      "bounds": [
+        35.0,
+        516.0,
+        328.0,
+        58.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "btn_compact_surface",
+      "bounds": [
+        35.0,
+        516.0,
+        328.0,
+        58.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 29.0
+    },
+    {
+      "id": "btn_compact_control",
+      "bounds": [
+        35.0,
+        516.0,
+        328.0,
+        58.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
     }
   ],
   "unmapped_ocr": [],

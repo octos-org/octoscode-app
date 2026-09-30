@@ -20,64 +20,244 @@
       "size": null
     },
     {
-      "source_id": "t00",
+      "source_id": "banner",
       "native_id": "beauty_0_0",
       "parent": "page",
-      "kind": "text",
-      "component": "Textfb1d54978e9d",
-      "semantic_role": "text",
+      "kind": "stack",
+      "component": "Surfaceeb33ed3080ae",
+      "semantic_role": "layout",
       "bounds": [
-        42.86,
-        31.5,
-        397.32,
-        27.0
+        0.0,
+        0.0,
+        406.0,
+        58.0
       ],
-      "text": "Reconnecting... attempt 2 \u2022 Retry now",
+      "text": null,
       "enabled": null,
-      "font": "self:resources/ux/Inter-600.ttf",
-      "size": 18
+      "font": null,
+      "size": null
     },
     {
-      "source_id": "t01",
+      "source_id": "t_banner",
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "text",
-      "component": "Text3b0c706d6edf",
+      "component": "Texta28ea580967d",
       "semantic_role": "text",
       "bounds": [
-        109.17,
-        509.45,
-        201.45,
-        27.81
+        46.2,
+        29.3,
+        222.0,
+        25.5
       ],
-      "text": "Loading session...",
+      "text": "Reconnecting\u2026 attempt 2 \u00b7",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
+      "font": "self:resources/ux/Inter-500.ttf",
       "size": 14
     },
     {
-      "source_id": "t02",
+      "source_id": "t_retry",
       "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "text",
-      "component": "Text23269b208f3f",
+      "component": "Text7469c393c371",
       "semantic_role": "text",
       "bounds": [
-        159.02,
-        570.72,
-        76.23,
-        21.0
+        276.5,
+        29.0,
+        77.0,
+        25.0
+      ],
+      "text": "Retry now",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "skel0",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfacec585fc8d18c9",
+      "semantic_role": "layout",
+      "bounds": [
+        30.0,
+        98.0,
+        70.0,
+        50.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "skel1",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface09a35195428b",
+      "semantic_role": "layout",
+      "bounds": [
+        100.0,
+        104.0,
+        255.0,
+        44.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "skel2",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface2ead73f60ca2",
+      "semantic_role": "layout",
+      "bounds": [
+        30.0,
+        180.0,
+        70.0,
+        56.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "skel3",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface8a032afa0611",
+      "semantic_role": "layout",
+      "bounds": [
+        100.0,
+        184.0,
+        255.0,
+        52.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "skel4",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfacec585fc8d18c9",
+      "semantic_role": "layout",
+      "bounds": [
+        30.0,
+        270.0,
+        70.0,
+        49.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "skel5",
+      "native_id": "beauty_0_8",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface09a35195428b",
+      "semantic_role": "layout",
+      "bounds": [
+        100.0,
+        275.0,
+        176.0,
+        44.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "divider",
+      "native_id": "beauty_0_9",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfaceb272c9c71c9a",
+      "semantic_role": "layout",
+      "bounds": [
+        24.0,
+        392.0,
+        358.0,
+        2.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "icon_spin",
+      "native_id": "beauty_0_10",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        178.0,
+        441.0,
+        30.0,
+        36.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_loading",
+      "native_id": "beauty_0_11",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text19d3a97ab0c7",
+      "semantic_role": "text",
+      "bounds": [
+        116.63,
+        510.0,
+        151.5,
+        26.5
+      ],
+      "text": "Loading session...",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 17.02
+    },
+    {
+      "source_id": "t_cancel",
+      "native_id": "beauty_0_12",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text2f61b046f89f",
+      "semantic_role": "text",
+      "bounds": [
+        163.1,
+        570.5,
+        58.0,
+        22.0
       ],
       "text": "Cancel",
       "enabled": null,
-      "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 16.27
     }
   ],
   "fonts": {
-    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
-    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242"
   },
-  "contract_sha256": "325cc28b85cc3146125122b54bd5f978ebe63ff6f2246579dbb90c2212af4fdd",
+  "contract_sha256": "54839157cd886ad4b9cf1d2c10587fb82afd839d41caca85e407dafc03faba9b",
   "mapping_basis": "mapped.json"
 }
