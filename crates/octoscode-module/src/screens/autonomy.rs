@@ -199,10 +199,10 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
         screen.card_dir()
     );
     let card_src = std::fs::read_to_string(format!("{dir}/page.card"))
-        .map_err(|e| format!("read {}/page.card: {e}", screen.card_dir()))?;
+        .map_err(|e| format!("read {dir}/page.card: {e}"))?;
     let data: Value = serde_json::from_str(
         &std::fs::read_to_string(format!("{dir}/page.data.json"))
-            .map_err(|e| format!("read page.data.json: {e}"))?,
+            .map_err(|e| format!("read {dir}/page.data.json: {e}"))?,
     )
     .map_err(|e| format!("parse page.data.json: {e}"))?;
     let mut card = octoscript_makepad::l0::prepare(

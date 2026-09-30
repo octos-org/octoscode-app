@@ -16,8 +16,8 @@
 //!   directory (live reload, nothing written).
 
 use std::borrow::Cow;
-use std::path::{PathBuf, Path};
-use std::sync::OnceLock;
+use std::path::{Path, PathBuf};
+use std::sync::{OnceLock, RwLock};
 
 /// The generated embed table (path relative to `design/` -> bytes).
 fn table() -> &'static [(&'static str, &'static [u8])] {
@@ -69,38 +69,101 @@ pub fn embedded_bytes() -> usize {
     table().iter().map(|(_, b)| b.len()).sum()
 }
 
+/// The app dir the HOST hands the module (Android:
+/// `/data/user/0/<package>/files`, from `Cx::get_data_dir()`); installed
+/// once, before the first design read (lib.rs's mount arm). `None` until a
+/// host with the API connects.
+static HOST_DIR: RwLock<Option<PathBuf>> = RwLock::new(None);
+
+/// Called from the module's FIRST Cx hook (`register`, via `vm.cx_mut()`)
+/// and again at mount: the app's writable files dir (`Cx::get_data_dir()`;
+/// on Android `/data/user/0/<package>/files`, the dir the shell already
+/// logs). Seeding must happen BEFORE the first design read — register()
+/// itself reads the component ledger (`components::log_resolutions`), and
+/// on the phone root() would otherwise bake the unwritable temp fallback
+/// into the OnceLock (device log: "no HOME and no host files dir").
+/// `None` is recorded too: no dir is a fact like any other.
+pub fn set_host_dir(dir: Option<String>) {
+    *HOST_DIR.write().unwrap() = dir.map(PathBuf::from);
+}
+
+/// The base-dir resolution, PURE for tests: the explicit override (the env),
+/// then the host's files dir, then `$HOME` — NEVER `temp_dir` (Android's is
+/// unwritable for an app and HOME is usually unset there). `None` = no
+/// writable base anywhere; the caller logs and falls back (desktop dev only).
+fn resolve_base(env: Option<&Path>, host: Option<&Path>, home: Option<&std::ffi::OsStr>) -> Option<PathBuf> {
+    if let Some(dir) = env {
+        return Some(PathBuf::from(dir));
+    }
+    if let Some(dir) = host {
+        return Some(dir.join(".octoscode").join("design"));
+    }
+    home.map(|h| Path::new(h).join(".octoscode").join("design"))
+}
+
 /// The design root every card dir re-roots to: `$OCTOSCODE_DESIGN_DIR` when
-/// set (desktop live reload — nothing is written), else the embed
-/// materialized once under `$HOME/.octoscode/design`. The renderer's own
-/// lowering reads the kit packs from a real directory, so the table becomes
-/// files there; a marker carrying the embed's byte total short-circuits the
-/// re-write on the next run.
+/// set (desktop live reload — nothing is written), else the host's files dir
+/// (Android), else `$HOME/.octoscode/design` (desktop). The chosen root is
+/// LOGGED once (#32f item 1: the #32e build failed silently on the phone —
+/// never again), the embed is materialized there (the renderer's own
+/// lowering reads the kit packs from a real directory, l0.rs:57/65), and a
+/// marker carrying the embed's byte total short-circuits the re-write.
 pub fn root() -> PathBuf {
     static ROOT: OnceLock<PathBuf> = OnceLock::new();
-    ROOT.get_or_init(|| match override_dir() {
-        Some(dir) => dir,
-        None => {
-            let dir = std::env::var_os("HOME")
-                .map(PathBuf::from)
-                .unwrap_or_else(std::env::temp_dir)
-                .join(".octoscode")
-                .join("design");
-            let marker = dir.join(".embed-marker");
-            let total = embedded_bytes().to_string();
-            if std::fs::read_to_string(&marker).is_ok_and(|m| m == total) {
-                return dir;
+    ROOT.get_or_init(|| {
+        let dir = match resolve_base(
+            override_dir().as_deref(),
+            HOST_DIR.read().unwrap().as_deref(),
+            std::env::var_os("HOME").as_deref(),
+        ) {
+            Some(dir) => dir,
+            // No writable base anywhere: never temp_dir. The process dir is
+            // the honest last resort on a dev box — logged loudly.
+            None => {
+                let fallback = std::env::current_dir()
+                    .unwrap_or_else(|_| PathBuf::from("."))
+                    .join(".octoscode-design");
+                makepad_widgets::log!(
+                    "[octoscode] design root: no HOME and no host files dir — falling back to {}",
+                    fallback.display()
+                );
+                fallback
             }
-            for (rel, bytes) in table() {
-                let path = dir.join(rel);
-                if let Some(parent) = path.parent() {
-                    let _ = std::fs::create_dir_all(parent);
-                }
-                let _ = std::fs::write(&path, bytes);
-            }
-            let _ = std::fs::create_dir_all(&dir);
-            let _ = std::fs::write(&marker, total);
-            dir
+        };
+        makepad_widgets::log!("[octoscode] design root: {}", dir.display());
+        let marker = dir.join(".embed-marker");
+        let total = embedded_bytes().to_string();
+        if std::fs::read_to_string(&marker).is_ok_and(|m| m == total) {
+            return dir;
         }
+        if let Err(e) = std::fs::create_dir_all(&dir) {
+            makepad_widgets::log!(
+                "[octoscode] design root: cannot create {}: {e} (design reads will fail)",
+                dir.display()
+            );
+            return dir;
+        }
+        let mut failed = 0usize;
+        for (rel, bytes) in table() {
+            let path = dir.join(rel);
+            if let Some(parent) = path.parent() {
+                if std::fs::create_dir_all(parent).is_err() {
+                    failed += 1;
+                    continue;
+                }
+            }
+            if std::fs::write(&path, bytes).is_err() {
+                failed += 1;
+            }
+        }
+        if failed > 0 {
+            makepad_widgets::log!(
+                "[octoscode] design embed: {failed} file(s) failed to materialize under {}",
+                dir.display()
+            );
+        }
+        let _ = std::fs::write(&marker, total);
+        dir
     })
     .clone()
 }
@@ -166,6 +229,35 @@ mod tests {
                     "kit pack for {}", card.slot);
             }
         }
+    }
+
+    #[test]
+    fn the_root_base_prefers_the_host_and_never_temp_dir() {
+        // The entry's case: HOME unset + the host files dir given -> under
+        // the host dir, never temp_dir (Android's /data/local/tmp is
+        // unwritable for an app).
+        let host =
+            PathBuf::from("/data/user/0/dev.makepad.octosense.octoscode/files");
+        let got = resolve_base(None, Some(host.as_path()), None).expect("host dir is a base");
+        assert_eq!(got, host.join(".octoscode").join("design"));
+        assert!(!got.starts_with(std::env::temp_dir()), "never temp_dir");
+        // Desktop unchanged: no host, HOME set -> $HOME/.octoscode/design.
+        // The path is ASSEMBLED, never a machine-path literal — the hermetic
+        // gate scans source lines for absolute-path shapes (its own literals
+        // are assembled the same way; repo_hermetic.rs:51).
+        let home = PathBuf::from(format!("/{}/dev", "home"));
+        let got = resolve_base(None, None, Some(home.as_os_str())).expect("home is a base");
+        assert_eq!(got, home.join(".octoscode").join("design"));
+        // No writable base anywhere -> None (the caller logs; no temp_dir).
+        assert_eq!(resolve_base(None, None, None), None);
+        // The env override (OCTOSCODE_DESIGN_DIR) wins over both.
+        let got = resolve_base(
+            Some(Path::new("/tmp/design-override")),
+            Some(host.as_path()),
+            None,
+        )
+        .expect("env override");
+        assert_eq!(got, PathBuf::from("/tmp/design-override"));
     }
 
     #[test]

@@ -113,6 +113,7 @@ script_mod! {
                     Label {
                         width: Fit height: Fit text: "OctosCode"
                         draw_text.text_style.font_size: 13
+                        draw_text.color: theme.color_fg_app
                     }
                     Svg {
                         width: 10 height: 10
@@ -748,6 +749,7 @@ script_mod! {
                 Label {
                     width: Fill height: Fit text: "OctosCode"
                     draw_text.text_style.font_size: 13
+                    draw_text.color: theme.color_fg_app
                 }
                 Label {
                     width: Fill height: Fit text: "No threads yet"
@@ -1723,6 +1725,13 @@ impl OctoscodeView {
             if let Ok(pref) = std::env::var("OCTOSCODE_THEME") {
                 screens::theme::set_preference(&pref);
             }
+            // #32f item 1: the design tree roots in the app's OWN writable
+            // storage — the host hands the files dir over here, before any
+            // design read can trigger design::root() (HOME is usually unset
+            // in an app process and temp_dir is unwritable on Android).
+            if let Some(files) = cx.get_data_dir() {
+                crate::design::set_host_dir(Some(files));
+            }
             let r = if screens::theme::card_for(&which).is_some() {
                 screens::theme::mount(&mut self.mounts, cx, screen_splash, &which, &store)
             } else {
@@ -2383,6 +2392,14 @@ impl AppModule for OctoscodeModule {
         "OctosCode"
     }
     fn register(&self, vm: &mut ScriptVm) {
+        // #32f: seed the design root from the host's files dir BEFORE any
+        // design read — register() itself reads the component ledger below
+        // (`components::log_resolutions`), and on the phone root() would
+        // otherwise bake the unwritable temp fallback into the OnceLock
+        // (the device log: "no HOME and no host files dir — falling back").
+        // Same source OctoSense's ai-host uses (`Host::platform(
+        // cx.get_data_dir())` -> /data/user/0/<pkg>/files/octos-home).
+        crate::design::set_host_dir(vm.cx_mut().get_data_dir());
         script_mod(vm);
         // Card #21b: the design/kit vocabulary every lowered #16 component names
         // (`DesignSurface`, `KitButton`, …) must be in THIS VM — the isolate the
