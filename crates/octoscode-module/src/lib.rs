@@ -741,7 +741,11 @@ script_mod! {
                 }
                 connect_button := Button {
                     width: Fill height: 40 text: "Connect"
+                    // #28e3 item 3: the shell's button skin gradients to a
+                    // light end stop; pinning `color_2` to the same black
+                    // gives the board's flat pill.
                     draw_bg.color: #000000
+                    draw_bg.color_2: #000000
                     draw_bg.border_radius: 999.0
                 }
                 Label {
