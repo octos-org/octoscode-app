@@ -296,6 +296,13 @@ script_mod! {
                 conversation_inner := View {
                     width: Fill height: Fill flow: Down spacing: 6
                     max_width: 720
+                    // #28e2 item 2: the OctoSense dock floats over the window's
+                    // bottom ~90px (measured dock top y≈810 at 1440×900), which
+                    // cut the composer's control row (+ · Ask for approval ·
+                    // model · mic · send) off the captures. Reserve that strip
+                    // so the whole composer card is visible at 1440×900 and
+                    // 900×800 alike.
+                    padding: Inset{bottom: 96}
                 // Card #21c item 2: the component IS the item. No native `kind`
                 // label and no row chrome — the row is just the lowered
                 // component plus a transparent hit target.
