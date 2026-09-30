@@ -287,7 +287,7 @@ fn blocked_reason(store: &Store, ui: &crate::flow::FlowUi) -> Option<&'static st
 }
 
 /// Resolve one binding id. `None` = not declared (authored copy stays).
-pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
+pub fn query(_ctx: &Ctx<'_>, id: &str) -> Option<Value> {
     // NO FlowUi lock here: bindings::query already holds it when it
     // delegates to this arm (std Mutex is not reentrant — a second lock
     // self-deadlocks; caught by f30a's coverage test + a thread sample).
