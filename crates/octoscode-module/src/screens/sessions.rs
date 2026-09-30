@@ -508,6 +508,10 @@ pub fn lower_screen(which: &str, store: &Arc<crate::Store>) -> Result<String, St
                         .unwrap_or_default()
                 };
                 dsl = set_node_text(&dsl, "t_sz1", &sz(0));
+                // #32b2 item 3: centre the percent label in the ring's hole
+                // (authored top 294.73 clipped the ring's lower arc — ring
+                // 249.5..301.5; label 40.2×24.76 → its centre on (313, 275.5)).
+                dsl = set_node_abs_pos(&dsl, "att2_pct", 292.9, 263.12);
                 if n > 1 {
                     dsl = set_node_text(&dsl, "t_sz2", &sz(1));
                 }
@@ -628,6 +632,25 @@ fn swap_node_src(dsl: &str, node: &str, url: &str) -> String {
     };
     let end = start + end_rel;
     format!("{}{}{}", &dsl[..start], url, &dsl[end..])
+}
+
+/// Move one node's seated origin (`abs_pos: vec2(x, y)` in the lowered DSL)
+/// — #32b2 item 3: the "68%" label centres in the progress ring's hole
+/// instead of clipping its lower arc.
+fn set_node_abs_pos(dsl: &str, node: &str, x: f64, y: f64) -> String {
+    let Some(npos) = dsl.find(&format!("{node} := ")) else {
+        return dsl.to_owned();
+    };
+    let window_end = (npos + 240).min(dsl.len());
+    let key = "abs_pos: vec2(";
+    let Some(ppos) = dsl[npos..window_end].find(key) else {
+        return dsl.to_owned();
+    };
+    let start = npos + ppos + key.len();
+    let Some(len) = dsl[start..].find(')') else {
+        return dsl.to_owned();
+    };
+    format!("{}{}, {}{}", &dsl[..start], x, y, &dsl[start + len..])
 }
 
 /// `fit_node_height` for ANY node kind (`user_bubble := DesignSurface {`):

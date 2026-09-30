@@ -56,3 +56,23 @@ fn aside_user_bubble_hugs_its_content() {
     );
     assert!(!aside.contains("height: 90"), "no fixed 90 may remain");
 }
+
+/// Item 3: the "68%" label centres in the progress ring's hole (the authored
+/// position clipped the ring's lower arc).
+#[test]
+fn attachments_pct_label_centres_in_the_ring() {
+    let store = Arc::new(Store::new());
+    store.domains.session.set_active(Some("dsflash:main".into()));
+    octoscode_module::screens::sessions::seed_attachments(vec![("a.png", 1024), ("b.png", 2048)]);
+    let att = octoscode_module::screens::sessions::lower_screen("attachments", &store).unwrap();
+    assert!(
+        att.contains(
+            "att2_pct := Label {\nwidth: 40.2 height: 24.76\nabs_pos: vec2(292.9, 263.12)"
+        ),
+        "the 68% label must centre in the ring hole"
+    );
+    assert!(
+        !att.contains("vec2(275.04, 294.73)"),
+        "the authored overlapping position must be gone"
+    );
+}
