@@ -429,6 +429,10 @@ impl OctoscodeView {
                     Ok(n) => ::log::info!("octoscode: screens: {n} profile reads folded"),
                     Err(e) => ::log::warn!("octoscode: screens refresh: {e}"),
                 }
+                match screens::fleet::refresh(&drv, &drv.store).await {
+                    Ok(n) => ::log::info!("octoscode: fleet: {n} fleet reads folded"),
+                    Err(e) => ::log::warn!("octoscode: fleet refresh: {e}"),
+                }
                 SignalToUI::set_ui_signal();
             });
         }
@@ -464,6 +468,26 @@ impl OctoscodeView {
     /// The mapping is the pure [`actions::resolve`]; this only performs the
     /// resulting effect (off the UI thread).
     fn perform_action(&self, action: &str, index: usize) {
+        // #30c: board-3 (Fleet/Tasks) actions route through the screens table
+        // first; the conversation router never sees them (one-owner rule).
+        if screens::fleet::is_action(action) {
+            let (store, ui, conv) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.ui.clone(), b.conv.clone())
+            };
+            let effect = {
+                let ctx = bindings::Ctx::new(&store, &ui);
+                screens::fleet::resolve(action, index, &ctx)
+            };
+            if let screens::fleet::Effect::Unhandled(id) = &effect {
+                ::log::warn!("octoscode: unhandled screen action {id:?}");
+                return;
+            }
+            if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                screens::fleet::spawn(effect, rt, &conv, &ui, &store);
+            }
+            return;
+        }
         // #29b: board-2 (setup screens 04/05/06) actions route through the
         // screens table first; the conversation router never sees them.
         if screens::workspace::is_action(action) {
