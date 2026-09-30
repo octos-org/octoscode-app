@@ -286,6 +286,18 @@ class App:
     def key(self, code):
         return self._get_retry("/k?" + urllib.parse.urlencode({"c": code, "wait": 1}))
 
+    def key_mod(self, code, cmd=False, ctrl=False, alt=False, shift=False):
+        q = {"c": code, "wait": 1}
+        if cmd:
+            q["cmd"] = 1
+        if ctrl:
+            q["ctrl"] = 1
+        if alt:
+            q["alt"] = 1
+        if shift:
+            q["shift"] = 1
+        return self._get_retry("/k?" + urllib.parse.urlencode(q))
+
     def wait_for(self, predicate, timeout=WAIT_TIMEOUT_S, poll=POLL_S, what="condition"):
         """Poll `/snap` until `predicate(snap)` holds; return the snapshot, else raise.
 
@@ -331,18 +343,37 @@ class App:
         return None
 
     def clear_composer(self):
-        """Empty the composer: focus at the end, then backspace it away.
+        """Empty the composer: focus, home, shift+end, one backspace.
 
-        Waits for the field to read empty (or the placeholder), so the caller
-        never races the reducer (card #19c).
+        #33a, probed live (tmp/33a-*.log matrix): a burst of CLEAR_PRESSES
+        backspaces lost every key after the FIRST on an already-populated
+        draft ('walk draft prob' -> 'pro' then frozen; typing different keys
+        always worked), and cmd+a select-all is swallowed (the macOS
+        window_menu consumes the accelerator before the field sees it). The
+        probed-clean mechanism is three DISTINCT keys with a short pause
+        each: home -> shift+end (selects the line) -> backspace — verified to
+        clear a populated draft to '' in one pass. Bounded retries with a
+        re-focus; still waits for the observable result, never a fixed sleep
+        (#19c).
         """
         self.focus_composer()
-        for _ in range(CLEAR_PRESSES):
+        for attempt in range(3):
+            self.key("home")
+            time.sleep(0.3)
+            self.key_mod("end", shift=True)
+            time.sleep(0.3)
             self.key("backspace")
-        return self.wait_for(
-            lambda s: (self.draft(s) or "") in ("", PLACEHOLDER),
-            what="the composer to clear",
-        )
+            try:
+                return self.wait_for(
+                    lambda s: (self.draft(s) or "") in ("", PLACEHOLDER),
+                    timeout=4.0,
+                    what="the composer to clear",
+                )
+            except AssertionError:
+                if attempt == 2:
+                    raise
+            # re-focus before the next attempt (a click/key may have dropped)
+            self.focus_composer()
 
     def type_into_composer(self, text):
         """Clear, focus, type, and wait until the draft equals `text` exactly.
