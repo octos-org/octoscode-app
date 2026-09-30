@@ -343,10 +343,9 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
                             .join(" ")
                     })
                     .unwrap_or_default();
-                let slot = g(&format!("mon_{}_cmd", i + 1)).1;
                 texts.push((
                     format!("mon_{}_cmd", i + 1),
-                    fit_cmd(argv, slot, 14.21),
+                    fit_cmd(argv, MON_CMD_W, 14.21),
                     None,
                 ));
                 let mut state_txt = m["status"].as_str().unwrap_or_default().to_owned();
@@ -373,7 +372,7 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
                         a.iter().filter_map(|v| v.as_str()).collect::<Vec<_>>().join(" ")
                     })
                     .unwrap_or_default();
-                texts.push(("mon_3_cmd".into(), fit_cmd(argv, g("mon_2_cmd").1, 14.21), None));
+                texts.push(("mon_3_cmd".into(), fit_cmd(argv, MON_CMD_W, 14.21), None));
                 texts.push((
                     "mon_3_state".into(),
                     m3["status"].as_str().unwrap_or_default().to_owned(),
@@ -476,6 +475,11 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
     // monitors card only ever authored pause). Icons re-centre on growth.
     const PLAY_SRC: &str =
         "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_1_play-7d9f31b010d1.svg";
+    // #32c2 item 2: ONE width budget for every monitor command — the free
+    // space from the cmd column to the interval column (mon_1_int x 214.94 −
+    // an 8px gap − cmd x 29.8). The authored boxes were uneven (114.88 vs
+    // 157.53), so row 1 ellipsized while rows 2-3 showed the same string.
+    const MON_CMD_W: f64 = 177.0;
     if screen == Screen3::Loops || screen == Screen3::Monitors {
         let mut work = vec![&mut *tree];
         while let Some(n) = work.pop() {
@@ -500,6 +504,9 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
                     {
                         n.attrs.x = Some(22.38);
                         n.attrs.w = Some((208.0 - 12.0 - 22.38) as f32);
+                    }
+                    if screen == Screen3::Monitors && id.ends_with("_cmd") {
+                        n.attrs.w = Some(MON_CMD_W as f32);
                     }
                     let icon = ["dot", "pause", "play", "trash", "clock"]
                         .iter()
