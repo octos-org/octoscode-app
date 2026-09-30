@@ -377,7 +377,10 @@ pub fn lower_screen(which: &str, store: &std::sync::Arc<Store>) -> Result<String
         }
     }
     let _ = store; // further store-fed slots land with #28e's overlay
-    Ok(dsl)
+    // #31d workflow 1: the palette card is LIGHT-authored — in dark mode the
+    // app-wide token set rewrites its colors (the value pairs apply to light
+    // DSL only; dark-authored cards keep their literals — see theme.rs).
+    Ok(crate::screens::theme::retint_dsl(&dsl))
 }
 
 fn reconnect_banner(s: &mut ScreenUi) -> String {
