@@ -401,6 +401,18 @@ impl OctoscodeView {
             b.ui = conv.ui();
             b.conv = Some(conv.clone());
         }
+        // Entry #29c: the stage-C screens fold their three profile reads once
+        // at startup, behind the temporary-mount flag (until #28e's shell).
+        if std::env::var_os("OCTOSCODE_STAGE_C_SCREENS").is_some() {
+            let drv = conv.clone();
+            runtime.spawn(async move {
+                match screens::models::refresh(&drv, &drv.store).await {
+                    Ok(n) => ::log::info!("octoscode: screens: {n} profile reads folded"),
+                    Err(e) => ::log::warn!("octoscode: screens refresh: {e}"),
+                }
+                SignalToUI::set_ui_signal();
+            });
+        }
 
         // Drive the conversation: open the workspace, then drain events.
         let drv = conv.clone();
