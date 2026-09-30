@@ -578,11 +578,23 @@ script_mod! {
                 // A fixed 6×34 px viewport: a PortalList under a Fit-height
                 // parent computes zero visible rows (the f3 captures showed the
                 // search field and hint row with a blank gap between them).
+                // #28e2 item 5: the first row is highlighted (board 4 frame 3)
+                // — a toggleable background layer the draw step shows for
+                // row 0 only.
                 PaletteRowTpl := View {
-                    width: Fill height: 34 flow: Right spacing: 8
-                    padding: Inset{left: 6 top: 8}
-                    palette_row_name := Label { width: 150 height: Fit text: "" draw_text.text_style.font_size: 13 }
-                    palette_row_desc := Label { width: Fill height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
+                    width: Fill height: 34 flow: Overlay
+                    palette_row_bg := RoundedView {
+                        width: Fill height: Fill
+                        margin: Inset{left: 2 right: 2}
+                        draw_bg +: {color: #F0F0F2 border_radius: 8.0}
+                        visible: false
+                    }
+                    palette_row_inner := View {
+                        width: Fill height: Fill flow: Right spacing: 8
+                        padding: Inset{left: 6 top: 8}
+                        palette_row_name := Label { width: 150 height: Fit text: "" draw_text.text_style.font_size: 13 }
+                        palette_row_desc := Label { width: Fill height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
+                    }
                 }
             }
             Label {
@@ -848,7 +860,7 @@ pub struct OctoscodeView {
 }
 
 impl OctoscodeView {
-    fn start(&mut self) {
+    fn start(&mut self, cx: &mut Cx) {
         // The 2,000-entry synthetic timeline (the virtualization proof): no
         // transport at all — a store with 2,000 rows and a session, so the
         // window draws the virtualized list on its own (`/g` then shows the
@@ -873,6 +885,11 @@ impl OctoscodeView {
                 u.begin_turn_now("t1");
                 u.end_turn_now(true);
             }
+            // #28e2 item 5: the palette's search field shows the typed
+            // "/mo" like board 4 frame 3.
+            self.view
+                .text_input(cx, &[live_id!(palette_search)])
+                .set_text(cx, "/mo");
             makepad_widgets::log!("[octoscode] synthetic live: board-4 seed (no transport)");
             return;
         }
@@ -1309,6 +1326,10 @@ impl Widget for OctoscodeView {
                     while let Some(id) = list.next_visible_item(cx) {
                         let Some((name, desc)) = rows.get(id) else { continue };
                         let item = list.item(cx, id, id!(PaletteRowTpl));
+                        // #28e2 item 5: only the first row carries the
+                        // board's highlight.
+                        item.widget(cx, ids!(palette_row_bg))
+                            .set_visible(cx, id == 0);
                         item.label(cx, ids!(palette_row_name)).set_text(cx, name);
                         item.label(cx, ids!(palette_row_desc)).set_text(cx, desc);
                         item.draw_all_unscoped(cx);
@@ -1325,7 +1346,7 @@ impl Widget for OctoscodeView {
         self.view.handle_event(cx, event, scope);
         if !self.started {
             self.started = true;
-            self.start();
+            self.start(cx);
             self.sync_labels(cx);
         }
         match event {
