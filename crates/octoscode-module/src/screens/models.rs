@@ -24,7 +24,9 @@
 //! the `OCTOSCODE_STAGE_C_SCREENS` env flag until #28e lands.
 use serde_json::{json, Value};
 
-use octoscode_store::domains::profile::{InstalledSkill, ProfileLlmModel, SkillPackage};
+use octoscode_store::domains::profile::{
+    InstalledSkill, ProfileLlmModel, SkillPackage, SubProvider,
+};
 use octoscode_store::Store;
 
 use crate::bindings::Ctx;
@@ -41,50 +43,56 @@ pub const SCREENS: &[(&str, &str, f64)] = &[
 /// The declared copy-slot → binding-id table (`copy id`, `binding id`).
 /// Every id resolves in [`query_binding`]; the f29c coverage test asserts it.
 pub const COPY_SLOTS: &[(&str, &str)] = &[
+    // copy ids exactly as authored in each card's `page.card` (`copy X { en: … }`);
+    // the same copy id may appear in several cards (t_title_text) — set_copy runs
+    // per card, so that is fine.
     // setup-07 Model settings
-    ("models.title", "models.title"),
-    ("models.ds_head", "models.head.0"),
-    ("models.ds_count", "models.count.0"),
-    ("models.flash", "models.row.0.0"),
-    ("models.pro", "models.row.0.1"),
-    ("models.kimi_head", "models.head.1"),
-    ("models.kimi_count", "models.count.1"),
-    ("models.glm_head", "models.head.2"),
-    ("models.glm_count", "models.count.2"),
+    ("t_title_text", "models.title"),
+    ("t_ds_head_text", "models.head.0"),
+    ("t_ds_count_text", "models.count.0"),
+    ("t_flash_text", "models.row.0.0"),
+    ("t_pro_text", "models.row.0.1"),
+    ("btn_test_label_text", "models.test_label"),
+    ("btn_discover_label_text", "models.discover_label"),
+    ("t_kimi_head_text", "models.head.1"),
+    ("t_kimi_count_text", "models.count.1"),
+    ("t_glm_head_text", "models.head.2"),
+    ("t_glm_count_text", "models.count.2"),
     // setup-09 Context panel
-    ("context.title", "context.title"),
-    ("context.usage", "context.usage"),
-    ("context.pct", "context.pct"),
-    ("context.row3", "context.row.0"),
-    ("context.row4", "context.row.1"),
-    ("context.row5", "context.row.2"),
-    ("context.val6", "context.val.0"),
-    ("context.val7", "context.val.1"),
-    ("context.val8", "context.val.2"),
-    ("context.compact", "context.compact_label"),
-    ("context.llm", "context.mode_llm"),
-    ("context.heur", "context.mode_heur"),
-    ("context.keep", "context.keep"),
+    ("t_title_text", "context.title"),
+    ("t_usage_text", "context.usage"),
+    ("t_pct_text", "context.pct"),
+    ("t_row3_text", "context.row.0"),
+    ("t_row4_text", "context.row.1"),
+    ("t_row5_text", "context.row.2"),
+    ("t_val6_text", "context.val.0"),
+    ("t_val7_text", "context.val.1"),
+    ("t_val8_text", "context.val.2"),
+    ("btn_compact_label_text", "context.compact_label"),
+    ("t_comp_text", "context.compact_note"),
+    ("t_llm_text", "context.mode_llm"),
+    ("t_heur_text", "context.mode_heur"),
+    ("t_keep_text", "context.keep"),
     // setup-10 Skills
-    ("skills.title", "skills.title"),
-    ("skills.installed_head", "skills.installed_head"),
-    ("skills.registry_head", "skills.registry_head"),
-    ("skills.search", "skills.search_ph"),
-    ("skills.name0", "skills.installed.0.name"),
-    ("skills.name1", "skills.installed.1.name"),
-    ("skills.name2", "skills.installed.2.name"),
-    ("skills.ver0", "skills.installed.0.version"),
-    ("skills.ver1", "skills.installed.1.version"),
-    ("skills.ver2", "skills.installed.2.version"),
-    ("skills.remove0", "skills.remove_label"),
-    ("skills.remove1", "skills.remove_label"),
-    ("skills.remove2", "skills.remove_label"),
-    ("skills.name10", "skills.registry.0.name"),
-    ("skills.name12", "skills.registry.1.name"),
-    ("skills.ver11", "skills.registry.0.version"),
-    ("skills.ver13", "skills.registry.1.version"),
-    ("skills.install3", "skills.install_label"),
-    ("skills.install4", "skills.install_label"),
+    ("t_title_text", "skills.title"),
+    ("t_inst_head_text", "skills.installed_head"),
+    ("t_reg_head_text", "skills.registry_head"),
+    ("t_search_text", "skills.search_ph"),
+    ("t_name3_text", "skills.installed.0.name"),
+    ("t_name4_text", "skills.installed.1.name"),
+    ("t_name5_text", "skills.installed.2.name"),
+    ("t_ver6_text", "skills.installed.0.version"),
+    ("t_ver7_text", "skills.installed.1.version"),
+    ("t_ver8_text", "skills.installed.2.version"),
+    ("t_remove0_text", "skills.remove_label"),
+    ("t_remove1_text", "skills.remove_label"),
+    ("t_remove2_text", "skills.remove_label"),
+    ("t_name10_text", "skills.registry.0.name"),
+    ("t_ver11_text", "skills.registry.0.version"),
+    ("t_name12_text", "skills.registry.1.name"),
+    ("t_ver13_text", "skills.registry.1.version"),
+    ("btn_3_install_label_text", "skills.install_label"),
+    ("btn_4_install_label_text", "skills.install_label"),
 ];
 
 /// The control events `service-actions.json` declares for the three cards.
@@ -99,9 +107,17 @@ pub fn owns(action: &str) -> bool {
 /// `t_usage` composition — the web's occupancy line
 /// (`ContextPanel.tsx:59,100`: token estimate + "% of" the window).
 fn usage_line(estimate: Option<u64>, window: Option<u64>) -> String {
+    /// k-format, as the authored card reads it ("124k of 200k tokens").
+    fn k(v: u64) -> String {
+        if v >= 1000 && v % 1000 == 0 {
+            format!("{}k", v / 1000)
+        } else {
+            v.to_string()
+        }
+    }
     match (estimate, window) {
-        (Some(e), Some(w)) if w > 0 => format!("{e} of {w} tokens"),
-        (Some(e), _) => format!("{e} tokens"),
+        (Some(e), Some(w)) if w > 0 => format!("{} of {} tokens", k(e), k(w)),
+        (Some(e), _) => format!("{} tokens", k(e)),
         _ => "—".to_owned(),
     }
 }
@@ -145,16 +161,22 @@ fn version_text(v: &Option<String>) -> String {
 pub fn query_binding(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
     let store = ctx.store;
     let session = store.active_session().unwrap_or_default();
-    let lifecycle = store.domains.session.context(&session);
-    let (estimate, window) = lifecycle
-        .map(|l| {
-            let s = &l.state;
-            (
-                s.get("token_estimate").and_then(|v| v.as_u64()),
-                s.get("window").and_then(|v| v.as_u64()),
-            )
-        })
-        .unwrap_or((None, None));
+    // `context.usage`/`context.pct` composition (web ContextPanel.tsx:96-104):
+    // the estimate is the lifecycle's `token_estimate` (UiContextState,
+    // r3-session fixture); the window is the provider entry's
+    // `default_context_window` (store `SubProvider`).
+    let estimate = store
+        .domains
+        .session
+        .context(&session)
+        .and_then(|l| l.state.get("token_estimate").and_then(|v| v.as_u64()));
+    let window = store
+        .domains
+        .profile
+        .sub_providers()
+        .iter()
+        .find_map(|sp| sp.default_context_window)
+        .map(|w| w as u64);   // the store keeps u32; the composition is u64
     let models = store.domains.profile.llm_models();
     let skills = store.domains.profile.installed_skills();
     let registry = store.domains.profile.registry_packages();
@@ -192,9 +214,25 @@ pub fn query_binding(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
                     models.iter().filter(|m| &m.provider == p).collect();
                 provider_count(&mine)
             }
-            "models.head.2" => "GLM • default route".to_owned(),
-            "models.count.2" => "2 models".to_owned(),
+            "models.head.2" => {
+                let p0 = models.first()?.provider.clone();
+                let p1 = models.iter().map(|m| m.provider.clone()).find(|p| *p != p0)?;
+                let first = models.iter().find(|m| m.provider != p0 && m.provider != p1)?;
+                provider_head(first)
+            }
+            "models.count.2" => {
+                let p0 = models.first()?.provider.clone();
+                let p1 = models.iter().map(|m| m.provider.clone()).find(|p| *p != p0)?;
+                let mine: Vec<&ProfileLlmModel> = models
+                    .iter()
+                    .filter(|m| m.provider != p0 && m.provider != p1)
+                    .collect();
+                provider_count(&mine)
+            }
+            "models.test_label" => "Test route".to_owned(),
+            "models.discover_label" => "Discover models".to_owned(),
             "context.title" => "Context".to_owned(),
+            "context.compact_note" => "Compaction".to_owned(),
             "context.usage" => usage_line(estimate, window),
             "context.pct" => pct_line(estimate, window),
             "context.row.0" => "Input transcripts".to_owned(),
@@ -206,7 +244,14 @@ pub fn query_binding(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
             "context.compact_label" => "Compact now".to_owned(),
             "context.mode_llm" => "LLM".to_owned(),
             "context.mode_heur" => "Heuristic".to_owned(),
-            "context.keep" => window.map(|w| format!("Keep recent turns · {w}-token window"))?,
+            "context.keep" => window.map(|w| {
+                let kk = if w >= 1000 && w % 1000 == 0 {
+                    format!("{}k", w / 1000)
+                } else {
+                    w.to_string()
+                };
+                format!("Keep recent turns · {kk} window")
+            })?,
             "skills.title" => "Skills".to_owned(),
             "skills.installed_head" => "Installed".to_owned(),
             "skills.registry_head" => "Registry".to_owned(),
@@ -247,9 +292,13 @@ pub fn action_params(action: &str, store: &Store) -> Option<(String, Value)> {
         "context.compact_now" => Some(("session/compact".to_owned(), json!({ "session_id": session }))),
         "models.test_route" | "models.discover" => {
             let m = store.domains.profile.llm_models().into_iter().next()?;
+            // The store row keeps the route's DISPLAY label ("Official API",
+            // the string the web renders); the recorded wire route_id equals
+            // the family (r2: route_id "deepseek", family "deepseek"), so
+            // reconstruct the pair as (family, label).
             let route = json!({
-                "route_id": m.route,
-                "label": m.provider,
+                "route_id": m.provider,
+                "label": m.route,
             });
             if action == "models.test_route" {
                 Some((
@@ -270,11 +319,143 @@ pub fn action_params(action: &str, store: &Store) -> Option<(String, Value)> {
         }
         a if a.starts_with("skills.install_") => {
             let i: usize = a.rsplit('_').next()?.parse().ok()?;
-            let repo = store.domains.profile.registry_packages().get(i)?.repo.clone();
+            let row = i.checked_sub(INSTALL_BASE)?;
+            let repo = store.domains.profile.registry_packages().get(row)?.repo.clone();
             Some(("profile/skills/install".to_owned(), json!({ "repo": repo })))
         }
         _ => None,
     }
+}
+
+/// `skills.install_N` targets registry row `N - INSTALL_BASE`: the authored
+/// card puts buttons 3/4 on registry rows 0/1 (`setup-10/service-actions.json`:
+/// `btn_3_install` sits on the row bearing `t_name10_text`).
+const INSTALL_BASE: usize = 3;
+
+// --------------------------------------------------------------------- refresh
+
+/// Pull the three profile reads and fold them into the store — the web's
+/// settings/dialog load path (`profile/llm/list` via `llm-methods.ts` /
+/// `client.ts:759`; `profile/skills/list` via `skills.ts:142`;
+/// `profile/sub_providers/list` via `research.ts:145`). Production call site:
+/// lib.rs `start()` behind `OCTOSCODE_STAGE_C_SCREENS` until #28e lands;
+/// the f29c replay test calls it directly against the recorded frames.
+pub async fn refresh(conv: &Conversation, store: &Store) -> Result<usize, String> {
+    let client = conv.client();
+    let mut done = 0usize;
+    let mut errs = Vec::new();
+    for (method, fold) in [
+        ("profile/llm/list", fold_llm_list as fn(Value, &Store)),
+        ("profile/skills/list", fold_skills_list),
+        ("profile/sub_providers/list", fold_sub_providers),
+    ] {
+        match client.request(method, json!({})).await {
+            Ok(v) => {
+                fold(v, store);
+                done += 1;
+            }
+            Err(e) => errs.push(format!("{method}: {e}")),
+        }
+    }
+    if done == 0 {
+        return Err(errs.join("; "));
+    }
+    Ok(done)
+}
+
+/// One wire model entry -> a store row. The recorded `profile/llm/list`
+/// carries `primary` + `fallbacks` (r2-profile-a6ea8505.jsonl; the typed
+/// result's `models` key is absent on the wire), so rows are built from
+/// those. `route` keeps the wire's DISPLAY label ("Official API", the string
+/// the web renders) and falls back to the route id.
+fn model_row_from(obj: &Value, selected: bool) -> Option<ProfileLlmModel> {
+    let model = obj.get("model_id").and_then(|v| v.as_str())?.to_string();
+    let provider = obj.get("family_id").and_then(|v| v.as_str())?.to_string();
+    let route = obj.get("route").and_then(|r| {
+        r.get("label")
+            .and_then(|v| v.as_str())
+            .map(str::to_owned)
+            .or_else(|| r.get("route_id").and_then(|v| v.as_str()).map(str::to_owned))
+    });
+    Some(ProfileLlmModel {
+        title: model.clone(),
+        family: Some(provider.clone()),
+        model,
+        provider,
+        route,
+        selected,
+        available: obj.get("available").and_then(|v| v.as_bool()).unwrap_or(true),
+    })
+}
+
+pub fn fold_llm_list(v: Value, store: &Store) {
+    let mut rows: Vec<ProfileLlmModel> = Vec::new();
+    if let Some(m) = v.get("primary").and_then(|p| model_row_from(p, true)) {
+        rows.push(m);
+    }
+    if let Some(fallbacks) = v.get("fallbacks").and_then(|f| f.as_array()) {
+        for f in fallbacks {
+            if let Some(m) = model_row_from(f, false) {
+                rows.push(m);
+            }
+        }
+    }
+    if !rows.is_empty() {
+        store.domains.profile.set_llm_models(rows);
+    }
+}
+
+fn fold_skills_list(v: Value, store: &Store) {
+    let skills = v
+        .get("skills")
+        .and_then(|s| s.as_array())
+        .map(|list| {
+            list.iter()
+                .filter_map(|s| {
+                    Some(InstalledSkill {
+                        name: s.get("name")?.as_str()?.to_string(),
+                        version: s.get("version").and_then(|v| v.as_str()).map(str::to_owned),
+                        tool_count: s.get("tool_count").and_then(|v| v.as_u64()).unwrap_or(0),
+                        source_repo: s.get("source_repo").and_then(|v| v.as_str()).map(str::to_owned),
+                    })
+                })
+                .collect::<Vec<_>>()
+        })
+        .unwrap_or_default();
+    store.domains.profile.set_installed_skills(skills);
+}
+
+fn opt_str(s: &Value, key: &str) -> Option<String> {
+    s.get(key).and_then(|v| v.as_str()).map(str::to_owned)
+}
+
+fn opt_u32(s: &Value, key: &str) -> Option<u32> {
+    s.get(key).and_then(|v| v.as_u64()).map(|w| w as u32)
+}
+
+fn fold_sub_providers(v: Value, store: &Store) {
+    let subs = v
+        .get("sub_providers")
+        .and_then(|s| s.as_array())
+        .map(|list| {
+            list.iter()
+                .filter_map(|s| {
+                    Some(SubProvider {
+                        key: s.get("key")?.as_str()?.to_string(),
+                        provider: opt_str(s, "provider").unwrap_or_default(),
+                        model: opt_str(s, "model"),
+                        api_key_env: opt_str(s, "api_key_env"),
+                        base_url: opt_str(s, "base_url"),
+                        description: opt_str(s, "description"),
+                        default_context_window: opt_u32(s, "default_context_window"),
+                        max_output_tokens: opt_u32(s, "max_output_tokens"),
+                        api_type: opt_str(s, "api_type"),
+                    })
+                })
+                .collect::<Vec<_>>()
+        })
+        .unwrap_or_default();
+    store.domains.profile.set_sub_providers(subs);
 }
 
 /// Execute one screen action through the production client — the same
@@ -300,7 +481,10 @@ fn cards_root() -> std::path::PathBuf {
 /// conversation cards (the renderer that produced the accepted Gate-B PNGs).
 /// The artboard stays the card's authored 406×776; the caller supplies the
 /// temporary container until #28e's drawer/palette areas land.
-pub fn lower(screen_id: &str, ctx: &Ctx<'_>) -> Result<String, String> {
+/// The card source with the CURRENT store values written into its `copy`
+/// slots, plus its data + kit dir — what a renderer (or the visual driver)
+/// consumes. Pub for the f29c capture test.
+pub fn lower_card_src(screen_id: &str, ctx: &Ctx<'_>) -> Result<(String, Value, PathBuf), String> {
     let dir = cards_root().join(screen_id);
     let read = |rel: &str| -> Result<String, String> {
         std::fs::read_to_string(dir.join(rel)).map_err(|e| format!("read {screen_id}/{rel}: {e}"))
@@ -317,7 +501,12 @@ pub fn lower(screen_id: &str, ctx: &Ctx<'_>) -> Result<String, String> {
             }
         }
     }
-    let kit_dir = dir.join("kit");
+    Ok((card_src, data, dir.join("kit")))
+}
+
+/// Lower one screen card to Splash DSL with the CURRENT store values.
+pub fn lower(screen_id: &str, ctx: &Ctx<'_>) -> Result<String, String> {
+    let (card_src, data, kit_dir) = lower_card_src(screen_id, ctx)?;
     let prepared = octoscript_makepad::l0::prepare(&card_src, &data, &kit_dir)
         .map_err(|e| format!("prepare {screen_id}: {e}"))?;
     let mut tree = prepared.tree;
