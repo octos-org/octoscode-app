@@ -516,6 +516,64 @@ impl OctoscodeView {
             self.perform_screen_action(action, None);
             return;
         }
+        // #30d: board-3 (autonomy-08/09/10) actions route through the screens
+        // table first; the conversation router never sees them (one-owner).
+        if screens::sessions::is_action(action) {
+            let (store, ui, conv) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.ui.clone(), b.conv.clone())
+            };
+            let effect = {
+                let ctx = bindings::Ctx::new(&store, &ui);
+                screens::sessions::resolve(action, index, &ctx)
+            };
+            if let screens::sessions::Effect::Unhandled(id) = &effect {
+                ::log::warn!("octoscode: unhandled screen action {id:?}");
+                return;
+            }
+            // UI-local effects (stage/cancel/remove/dismiss) were already
+            // applied inside resolve; only the protocol effects spawn.
+            if matches!(
+                effect,
+                screens::sessions::Effect::ResumeStage(_)
+                    | screens::sessions::Effect::ResumeCancel
+                    | screens::sessions::Effect::AttachmentRemove(_)
+                    | screens::sessions::Effect::AsideDismiss
+            ) {
+                return;
+            }
+            if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                screens::sessions::spawn(effect, rt, conv);
+            }
+            return;
+        }
+        // #30e — the theme preference's own action id (one-owner rule): the
+        // sidebar's single theme button cycles system -> dark -> light ->
+        // system (use-theme.ts:44-49) and re-resolves the mounted card set
+        // app-wide. UI-local: no protocol method carries a display theme
+        // (parity row preferences/g-timeline, model.ts:1 — browser storage).
+        if screens::theme::is_action(action) {
+            let (store, ui) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.ui.clone())
+            };
+            let effect = {
+                let ctx = bindings::Ctx::new(&store, &ui);
+                screens::theme::resolve(action, index, &ctx)
+            };
+            match effect {
+                screens::theme::Effect::Cycle { preference, resolved } => {
+                    ::log::info!(
+                        "octoscode: theme -> {preference} (resolves {resolved}); \
+                         the next mount lowers the {resolved} card set"
+                    );
+                }
+                screens::theme::Effect::Unhandled(id) => {
+                    ::log::warn!("octoscode: unhandled screen action {id:?}");
+                }
+            }
+            return;
+        }
         let (store, ui, conv) = {
             let b = self.bridge.lock().unwrap();
             (b.store.clone(), b.ui.clone(), b.conv.clone())
@@ -883,9 +941,23 @@ impl OctoscodeView {
         if let Ok(which) = std::env::var("OCTOSCODE_SCREEN") {
             let screen_splash = self.view.splash(cx, ids!(screen_splash));
             let store = { self.bridge.lock().unwrap().store.clone() };
-            if let Err(e) = crate::screens::palette::mount_screen(
-                &mut self.mounts, cx, screen_splash, &which, &store,
-            ) {
+            // #30e — OCTOSCODE_THEME seeds the preference (system default),
+            // and the theme-wired card names lower through screens::theme,
+            // which selects the dark Stage B card or its light twin by the
+            // CURRENT resolved preference. Unset theme = system = dark set,
+            // byte-identical to the pre-#30e behaviour for palette|error|
+            // loading names.
+            if let Ok(pref) = std::env::var("OCTOSCODE_THEME") {
+                screens::theme::set_preference(&pref);
+            }
+            let r = if screens::theme::card_for(&which).is_some() {
+                screens::theme::mount(&mut self.mounts, cx, screen_splash, &which, &store)
+            } else {
+                crate::screens::palette::mount_screen(
+                    &mut self.mounts, cx, screen_splash, &which, &store,
+                )
+            };
+            if let Err(e) = r {
                 makepad_widgets::log!("[octoscode] screen mount: {e}");
             }
         }
