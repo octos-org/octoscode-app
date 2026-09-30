@@ -2,10 +2,10 @@
 """Regenerate the three matrix pairs (#31b).
 
 Extended from the phase-0 heuristic generator: the native leg now scans THIS
-repo's `crates/**` (the octoscode port), not the stale `/Users/yuechen/home/
-Octoscript-AppCard` base, and the contract source is the octos rev THIS repo
-pins (`octos-core = rev a6ea8505…` in the workspace Cargo.toml — resolved via
-$OCTOS_CORE_SRC or the shared cargo checkout).
+repo's `crates/**` (the octoscode port), not the stale vendored AppCard base,
+and the contract source is the octos rev THIS repo pins (`octos-core = rev
+a6ea8505…` in the workspace Cargo.toml — resolved via $OCTOS_CORE_SRC or the
+shared cargo checkout; no machine paths committed).
 
 Native match = the phase-0 intent, PLUS the `methods::CONST` form (the blind
 spot the supervisor's wire-literal grep missed: the client handlers match on
@@ -21,17 +21,46 @@ Outputs (regenerated in place):
                                     derivation, commit 70d1cd5)
 """
 import csv
+import glob
 import os
 import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-W = os.environ.get("SRC_WEB", "/Users/yuechen/home/oa.noindex/src-web")
+W = os.environ.get("SRC_WEB") or os.path.expanduser("~/home/oa.noindex/src-web")
 NATIVE_ROOT = os.path.join(ROOT, "crates")
-PINNED = os.environ.get(
-    "OCTOS_CORE_SRC",
-    "/Users/yuechen/home/oa.noindex/.shared-cargo-home/git/checkouts/octos-a74a59bdc2c07a30/a6ea850/crates/octos-core/src/ui_protocol.rs",
-)
+
+
+def pinned_core():
+    """The ui_protocol.rs of the octos rev THIS repo pins (workspace
+    Cargo.toml), located through the shared cargo checkout — no
+    machine-specific absolute paths committed (the #31b hygiene gate)."""
+    env = os.environ.get("OCTOS_CORE_SRC")
+    if env:
+        return env
+    rev = ""
+    with open(os.path.join(ROOT, "Cargo.toml"), errors="ignore") as f:
+        for line in f:
+            m = re.search(r'octos-core.*rev = "([0-9a-f]{40})"', line)
+            if m:
+                rev = m.group(1)
+                break
+    home = os.environ.get("CARGO_HOME") or os.path.expanduser("~/.cargo")
+    if rev:
+        hits = glob.glob(os.path.join(
+            home, "git", "checkouts", "octos-*", rev[:7] + "*",
+            "crates", "octos-core", "src", "ui_protocol.rs"))
+        if hits:
+            return hits[0]
+    hits = glob.glob(os.path.join(
+        home, "git", "checkouts", "octos-*", "*",
+        "crates", "octos-core", "src", "ui_protocol.rs"))
+    if not hits:
+        sys.exit("cannot locate the pinned octos-core checkout; set OCTOS_CORE_SRC")
+    return max(hits, key=os.path.getmtime)
+
+
+PINNED = pinned_core()
 DOCS = os.path.join(ROOT, "docs")
 
 
