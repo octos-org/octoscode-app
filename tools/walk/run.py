@@ -205,6 +205,22 @@ AREA_SCENARIO = {"conversation": "conversation", "threads": "conversation",
                  "approval": "approval", "peer": "peer", "review": "autonomy",
                  "settings": "session", "palette": "conversation",
                  "keyboard": "conversation", "connect": "session"}
+def scenario_for(area: str) -> str:
+    """The area's replay scenario, or a WALK_SCENARIO override (negative control).
+
+    `WALK_SCENARIO="conversation=session"` runs the conversation checks against
+    the session fixture — a deliberately broken setup for the negative-control
+    run (#33a review item 2): the shell still mounts, so the smoke checks pass,
+    but no coding turn streams, so the specific checks must FAIL.
+    """
+    override = os.environ.get("WALK_SCENARIO", "")
+    for pair in override.split(","):
+        a, sep, sc = pair.partition("=")
+        if sep and a.strip() == area:
+            return sc.strip()
+    return AREA_SCENARIO[area]
+
+
 APPROVAL_MISSING = ("missing: inline approval card — design scene conversation-05 "
                     "is not in the built batch (design/bindings.json:40); "
                     "approval/requested reaches the store but has no widget")
@@ -833,6 +849,32 @@ def r_replay(app):
     return True, f"timeline kinds={app.kinds(app.snap())}"
 
 
+# #33a review: DEPTH. A row is `specific` when at least one check that applied
+# to it tests the row's OWN behaviour (what its `case` says); rows covered only
+# by the generic smoke set (Live status, drawer mounts, composer present, ...)
+# are `smoke` — their pass must not be read as the behaviour being covered.
+# One table keeps the classification auditable; names must match @check.
+SPECIFIC_CHECKS = {
+    "the composer accepts typed text (prompt input)",
+    "composing clears the draft on send",
+    "a sent prompt streams an assistant answer row",
+    "the user's own prompt renders as a row",
+    "the answer row renders after the prompt row (order)",
+    "the turn's timeline item kinds are present",
+    "the Stop control is present for the live turn",
+    "New chat mints a fresh Session and re-opens the workspace",
+    "a replayed turn lands in the module's own transcript",
+    "a typed draft round-trips through the composer",
+    "the goals/loops lists render their rows",
+    "the review badge carries the live +/- counts from the receipt",
+    "the fold receipt renders the unmodified-lines count",
+    "an unknown command fails closed (fail-closed receipt visible)",
+    "Enter on the composer sends (the draft clears)",
+}
+for _c in CHECKS:
+    _c["specific"] = _c["name"] in SPECIFIC_CHECKS
+
+
 # --------------------------------------------------------------------------- #
 # Verdict logic (unit-tested in tools/walk/test_run.py)
 # --------------------------------------------------------------------------- #
@@ -973,7 +1015,7 @@ def main():
     area_state: dict[str, dict] = {}
     per_row_checks: dict[int, list] = {}   # row_id -> [(check_name, status, reason)]
     for area in areas:
-        scenario = AREA_SCENARIO[area]
+        scenario = scenario_for(area)
         try:
             procs.start_server(scenario)
             procs.start_app(scenario)
@@ -993,7 +1035,7 @@ def main():
             except Exception as e:  # noqa: BLE001
                 ok, status, reason = False, "fail", f"exception: {e}"
             results.append({"name": chk["name"], "status": status, "reason": reason[:200],
-                            "rows": chk["rows"]})
+                            "rows": chk["rows"], "specific": chk["specific"]})
             if status == "fail":
                 try:
                     sj = EVIDENCE / f"area-{area}.snap.json"
@@ -1011,8 +1053,9 @@ def main():
             if a != area:
                 continue
             applied = [(r["name"], r["status"]) for r in results if check_applies(r, row)]
-            krs = [(r["name"], r["status"], r["reason"]) for r in results if check_applies(r, row)]
-            per_row_checks[rid] = [(n, s, rr) for (n, s, rr) in krs]
+            krs = [(r["name"], r["status"], r["reason"], r["specific"])
+                   for r in results if check_applies(r, row)]
+            per_row_checks[rid] = krs
         area_state[area] = {"blocked": False, "reason": "", "evidence": evidence,
                             "results": results}
 
@@ -1029,12 +1072,14 @@ def main():
             area = target_area[i]
             st = area_state.get(area, {})
             checks = per_row_checks.get(i, [])
-            status = decided_status([s for _, s, _ in checks], st.get("blocked", False))
-            reason = row_reason([(n, s) for n, s, _ in checks], st.get("reason", ""))
+            status = decided_status([s for _, s, _, _ in checks], st.get("blocked", False))
+            reason = row_reason([(n, s) for n, s, _, _ in checks], st.get("reason", ""))
+            depth = "specific" if any(sp for *_, sp in checks) else "smoke"
             ev = st.get("evidence", "")
             out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
-                             "status": status, "evidence": ev, "reason": reason})
-            for n, s, rr in checks:
+                             "status": status, "depth": depth, "evidence": ev,
+                             "reason": reason})
+            for n, s, rr, _sp in checks:
                 check_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
                                    "check": n, "status": s, "evidence": ev, "reason": rr})
         elif web_only:
@@ -1061,7 +1106,7 @@ def main():
                              "reason": f"missing: {missing_capability(spec)}"})
 
     with open(WALK / "results.csv", "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=["row_id", "area", "spec", "case", "status", "evidence", "reason"])
+        w = csv.DictWriter(f, fieldnames=["row_id", "area", "spec", "case", "status", "depth", "evidence", "reason"])
         w.writeheader()
         w.writerows(out_rows)
     with open(WALK / "results-checks.csv", "w", newline="") as f:
@@ -1088,6 +1133,10 @@ def main():
     print(f"   total                {len(out_rows)}")
     print(f"   scripted rows        {len(targets)}  (areas: {areas})")
     print(f"   per-check rows       {len(check_rows)}  (docs/walk/results-checks.csv)")
+    by_depth = Counter((r["status"], r.get("depth", "")) for r in out_rows)
+    print(f"   pass by depth        specific={by_depth.get(('pass', 'specific'), 0)}"
+          f" smoke={by_depth.get(('pass', 'smoke'), 0)}"
+          f"  (distinct checks: {len({c['check'] for c in check_rows})})")
     if infra_blocked:
         print(f"   NOTE: {infra_blocked} selected row(s) blocked by a start failure")
         reasons = sorted({r["reason"] for r in out_rows
