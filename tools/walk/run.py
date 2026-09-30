@@ -400,7 +400,11 @@ class Procs:
         # before a single check ran ("timed out after 30s waiting for the
         # module to mount", results.csv).
         app = App(self.app_port)
-        app.wait_for(lambda s: "heading" in app.widget_ids(s), timeout=120.0,
+        # #33a: the module's own surface is the mount signal — the old
+        # "heading" id no longer exists (the #28e shell renders the OctosCode
+        # title as the TEXT of an unnamed Label; see tmp/33a-start.log
+        # forensics: 'heading' in ids == False with 165 widgets mounted).
+        app.wait_for(lambda s: "thread_list" in app.widget_ids(s), timeout=120.0,
                      what="the module to mount after launch")
 
     def stop_app(self):
@@ -455,8 +459,12 @@ def _compose_and_send(app: App, text: str):
 @check("conversation", "module reaches conn: Live with the OctosCode heading")
 def c_live(app):
     d = app.snap()
-    h, s = app.text_of(d, "heading"), app.text_of(d, "status") or ""
-    return (h == "OctosCode" and "Live" in s), f"heading={h!r} status={s!r}"
+    # #33a: the heading is the TEXT of an unnamed Label in the #28e shell (no
+    # widget carries the id "heading" any more) — assert the visible text.
+    texts = [w.get("t", "") for w in d.get("s", [])]
+    h = "OctosCode" in texts
+    s = app.text_of(d, "status") or ""
+    return (h and "Live" in s), f"heading_text={h} status={s!r}"
 
 
 @check("conversation", "the thread list renders the opened session row")
@@ -995,6 +1003,10 @@ def main():
     print(f"   per-check rows       {len(check_rows)}  (docs/walk/results-checks.csv)")
     if infra_blocked:
         print(f"   NOTE: {infra_blocked} selected row(s) blocked by a start failure")
+        reasons = sorted({r["reason"] for r in out_rows
+                          if r["status"] == "blocked" and r["reason"]})
+        for reason in reasons[:4]:
+            print(f"     - {reason[:160]}")
     return exit_code(counts, infra_blocked)
 
 
