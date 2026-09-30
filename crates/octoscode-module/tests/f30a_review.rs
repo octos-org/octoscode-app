@@ -271,6 +271,45 @@ fn the_folded_values_reach_the_card_slots() {
     assert_eq!(bindings::query(&ctx, "review.num4").unwrap(), serde_json::json!("1"));
 }
 
+#[test]
+fn the_confirmed_turn_rides_the_real_terminal_envelope() {
+    let _seq = review::test_lock();
+    review::reset();
+    // The REAL wire path (live-gate-a6ea8505.jsonl, seq 156, verbatim shape):
+    // a projection/envelope whose payload.type is "turn_terminal". No fixture
+    // ever carries a `turn/completed` method frame.
+    let envelope: serde_json::Value = serde_json::from_str(
+        r##"{"cursor": {"seq": 2468, "stream": "dsflash:main"},
+             "payload": {"data": {"outcome": "completed",
+                                  "token_usage": {"input_tokens": 164}},
+                         "type": "turn_terminal"},
+             "seq": 156, "session_id": "dsflash:main",
+             "thread_id": "01a0e75b",
+             "turn_id": "01a0e75b-dfb8-708a-a7ce-5d29c534f2f6"}"##,
+    )
+    .unwrap();
+    review::note_envelope(&envelope);
+    {
+        let st = review::ui();
+        assert_eq!(
+            st.last_turn_id.as_deref(),
+            Some("01a0e75b-dfb8-708a-a7ce-5d29c534f2f6")
+        );
+        // The fixtures carry no preview id on the record — the slot stays None.
+        assert_eq!(st.preview_id, None);
+    } // the STATE guard drops HERE (Drop lives to scope end, not last use)
+
+    // A non-completed terminal never confirms the turn (outcome gate).
+    review::reset();
+    let interrupted: serde_json::Value = serde_json::from_str(
+        r##"{"payload": {"data": {"outcome": "interrupted"}, "type": "turn_terminal"},
+             "turn_id": "t-x"}"##,
+    )
+    .unwrap();
+    review::note_envelope(&interrupted);
+    assert!(review::ui().last_turn_id.is_none(), "interrupted confirms nothing");
+}
+
 // --------------------------------------------------------------- §5 replay
 
 struct Frame {

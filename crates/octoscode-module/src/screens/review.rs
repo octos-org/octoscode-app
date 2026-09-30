@@ -213,9 +213,12 @@ pub fn reset() {
 }
 use std::sync::MutexGuard;
 
-/// Record the wire's confirmations. Tolerates every unknown payload by name
-/// (LESSONS 6): only `turn/completed` is read, for the confirmed turn id and
-/// (when the server attaches one) the turn's diff preview id.
+/// Record the wire's confirmations. The ONLY turn-terminal path the real
+/// server sends is the projection envelope (`payload.type ==
+/// "turn_terminal"`, 28 frames across the committed fixtures; live-gate seq
+/// 156 carries `turn_id` + `data.outcome:"completed"` top-level) — no
+/// fixture ever carries a `turn/completed` METHOD frame, so listening on one
+/// wired the screen to a path production never takes (LESSONS 5).
 pub fn note_transport_event(evt: &octos_app_transport::TransportEvent) {
     use octos_app_transport::TransportEvent;
     let payload = match evt {
@@ -223,14 +226,28 @@ pub fn note_transport_event(evt: &octos_app_transport::TransportEvent) {
         | TransportEvent::EphemeralNotification { payload } => payload,
         _ => return,
     };
-    if payload.method() != "turn/completed" {
+    if payload.method() != "projection/envelope" {
         return;
     }
-    let body = octoscode_client::trace::wire_params(payload);
+    note_envelope(&octoscode_client::trace::wire_params(payload));
+}
+
+/// Fold one projection-envelope body: a COMPLETED `turn_terminal` confirms
+/// the turn a native review reviews (`history.ts:250`). The preview id, when
+/// the server attaches one, rides the same record (the web reads it off the
+/// turn's diff, `interaction.ts:99-100`); the committed fixtures carry none,
+/// so the slot honestly stays None (the authored copy renders) until a real
+/// preview arrives.
+pub fn note_envelope(body: &Value) {
+    if body["payload"]["type"] != "turn_terminal"
+        || body["payload"]["data"]["outcome"] != "completed"
+    {
+        return;
+    }
     let turn = body["turn_id"].as_str().map(str::to_owned);
-    let preview = body["diff"]["preview_id"]
+    let preview = body["payload"]["data"]["diff"]["preview_id"]
         .as_str()
-        .or_else(|| body["preview_id"].as_str())
+        .or_else(|| body["diff"]["preview_id"].as_str())
         .map(str::to_owned);
     let mut st = state();
     if let Some(t) = turn {
