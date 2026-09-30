@@ -434,19 +434,23 @@ fn the_diff_rows_rebuild_with_the_real_chips() {
     review::reset();
     review::fold_preview(&serde_json::from_str::<serde_json::Value>(PREVIEW_JSON).unwrap());
     let (card_src, _data, _kit) = review::lower_card_src("autonomy-01").expect("card");
-    let out = review::rebuild_diff_rows(&card_src);
-    // changed rows carry the design's own chip trio; context rows stay bare
+    let (out, changed) = review::rebuild_diff_rows(&card_src);
+    // file 1's window is [ctx, removed, added, added] -> chips on rows 1/2/3
+    assert_eq!(changed.len(), 3, "the real changed rows get chips: {changed:?}");
+    assert_eq!(changed[0], (1, 13, false), "removed '    run(old);' with its char count");
     assert!(out.contains("Surface4db4e42a8189(instance: \"chip_1\")"),
             "removed row -> the design's removed chip");
-    assert!(out.contains("Surface04a27fc304ff(instance: \"chip_2\")"),
-            "added row -> the design's added chip");
+    assert!(out.contains("Surface04a27fc304ff(instance: \"chip_2\")")
+        && out.contains("Surface04a27fc304ff(instance: \"chip_3\")"),
+        "added rows -> the design's added chip");
     assert!(out.contains("(instance: \"ln_0\", text: copy.ln_0_text)"),
             "context row -> the bare text pair");
     assert!(out.contains("text: \"-\"") && out.contains("text: \"+\""),
             "the +/- marks are baked on the changed rows");
-    // 0-case: an empty preview rebuilds an EMPTY group
+    // 0-case: an empty preview rebuilds an EMPTY group, no chips
     review::reset();
-    let out0 = review::rebuild_diff_rows(&card_src);
+    let (out0, changed0) = review::rebuild_diff_rows(&card_src);
+    assert!(changed0.is_empty());
     let start = out0.find("Group3d2637879433").expect("the group stays");
     let seg = &out0[start..start + 140];
     assert!(seg.contains('}'), "empty group right after its open brace");

@@ -668,13 +668,18 @@ const ROW_GREEN_DL: &str = "Text6d68fc1c53dd";
 /// file's real hunks (`ln_i`/`dl_i` texts keep flowing through their
 /// `copy.*_text` slots; the +/- mark is baked literally — the card authors
 /// only `mk_2..mk_6`). Context rows are bare texts; changed rows get the
-/// design's chip. 0 rows -> an empty group (the honest empty diff).
-pub fn rebuild_diff_rows(card_src: &str) -> String {
+/// design's chip. 0 rows -> an empty group (the honest empty diff). Returns
+/// the new source plus `(row index, content chars, is_added)` for every
+/// CHANGED row — the caller synthesises one kit placement per chip
+/// (`prepare` requires a placement per instance; the authored card only
+/// carries chip_130/131/132).
+pub fn rebuild_diff_rows(card_src: &str) -> (String, Vec<(usize, u64, bool)>) {
     let st = state();
     let open = "Group3d2637879433(instance: \"diff_rows\") {";
     let start = match card_src.find(open) {
         Some(i) => i,
-        None => return card_src.to_owned(),
+        // the group is absent: nothing to rebuild, no chips emitted
+        None => return (card_src.to_owned(), Vec::new()),
     };
     // Find the group's matching close brace.
     let mut depth = 0i32;
@@ -693,6 +698,7 @@ pub fn rebuild_diff_rows(card_src: &str) -> String {
         }
     }
     let mut body = String::from(open);
+    let mut changed: Vec<(usize, u64, bool)> = Vec::new();
     body.push('\n');
     for (i, line) in st.lines.iter().enumerate() {
         match line.kind.as_str() {
@@ -703,6 +709,7 @@ pub fn rebuild_diff_rows(card_src: &str) -> String {
                     (ROW_GREEN, ROW_GREEN_LN, ROW_GREEN_MK, ROW_GREEN_DL)
                 };
                 let mark = if line.kind == "removed" { "-" } else { "+" };
+                changed.push((i, line.content.chars().count() as u64, mark == "+"));
                 body.push_str(&format!(
                     "      {surface}(instance: \"chip_{i}\") {{\n        \
                      {ln}(instance: \"ln_{i}\", text: copy.ln_{i}_text)\n        \
@@ -719,7 +726,7 @@ pub fn rebuild_diff_rows(card_src: &str) -> String {
         }
     }
     body.push('}');
-    format!("{}{}{}", &card_src[..start], body, &card_src[end..])
+    (format!("{}{}{}", &card_src[..start], body, &card_src[end..]), changed)
 }
 
 pub fn lower_screen(card: &str, ctx: &Ctx<'_>) -> Result<String, String> {
@@ -727,7 +734,51 @@ pub fn lower_screen(card: &str, ctx: &Ctx<'_>) -> Result<String, String> {
     // #30a2 ①: the diff body renders the SELECTED file's real hunks, one row
     // per line (before the copy injection, which then fills ln/dl texts).
     if card == "autonomy-01" {
-        card_src = rebuild_diff_rows(&card_src);
+        let (src2, changed) = rebuild_diff_rows(&card_src);
+        card_src = src2;
+        // prepare requires a kit placement per INSTANCE: the surgery emitted
+        // chip_<row> instances, so drop the authored chip_130/131/132
+        // placements, drop any mk placement whose row is no longer changed,
+        // and synthesise one placement per emitted chip — y from the row's
+        // own ln_i, width hugging the real content (~8px/char at the
+        // design's code size; authored dl_4: 25 chars -> 200px).
+        let obj = data
+            .get_mut("$kit")
+            .and_then(|k| k.get_mut("placements"))
+            .and_then(|p| p.as_object_mut())
+            .ok_or_else(|| "autonomy-01: no $kit.placements".to_string())?;
+        for k in ["chip_130", "chip_131", "chip_132"] {
+            obj.remove(k);
+        }
+        let used: Vec<usize> = changed.iter().map(|(i, _, _)| *i).collect();
+        for k in 0..ROW_SLOTS {
+            if !used.contains(&k) {
+                obj.remove(&format!("mk_{k}"));
+            }
+        }
+        for (i, chars, added) in &changed {
+            let ln_key = format!("ln_{i}");
+            let y = obj
+                .get(&ln_key)
+                .and_then(|c| c.get("layout"))
+                .and_then(|l| l.get("y"))
+                .and_then(Value::as_f64)
+                .unwrap_or(353.79 + *i as f64 * 34.96);
+            let w = ((*chars as f64) * 8.0 + 24.0).clamp(48.0, 330.0);
+            let surface = if *added { ROW_GREEN } else { ROW_RED };
+            obj.insert(
+                format!("chip_{i}"),
+                json!({"component": surface, "layout": {"x": 76.0, "y": y - 3.0, "w": w, "h": 33.0}}),
+            );
+            let mk_key = format!("mk_{i}");
+            if !obj.contains_key(&mk_key) {
+                let mkc = if *added { ROW_GREEN_MK } else { ROW_RED_MK };
+                obj.insert(
+                    mk_key,
+                    json!({"component": mkc, "layout": {"x": 76.0, "y": y, "w": 12.0, "h": 31.0}}),
+                );
+            }
+        }
     }
     // #30a2 ③: "Start native review" (`NativeReviewDialog.tsx:90`) is wider
     // than the authored 123px control — widen to 153px, keep the right edge,
