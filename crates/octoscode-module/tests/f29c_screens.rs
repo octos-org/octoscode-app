@@ -287,7 +287,8 @@ fn the_recorded_llm_list_frame_folds_into_store_rows() {
     let ui = Mutex::new(FlowUi::default());
     let ctx = Ctx::new(&store, &ui);
     let head = bindings::query(&ctx, "models.head.0").unwrap();
-    assert_eq!(head, serde_json::json!("deepseek • Official API"));
+    assert_eq!(head, serde_json::json!("DeepSeek • Official API"),
+       "the head carries the web's familyLabel, not the raw id");
 }
 
 #[test]
@@ -541,7 +542,7 @@ async fn live_capture_writes_the_three_cards_with_store_values() {
     std::fs::create_dir_all(&out).expect("mkdir target/f29c-live");
 
     let mut expect = [
-        ("setup-07", vec!["deepseek • Official API", "deepseek-v4-flash (default)"]),
+        ("setup-07", vec!["DeepSeek • Official API", "deepseek-v4-flash (default)"]),
         ("setup-09", vec!["128k of 200k tokens", "Compact now"]),
         ("setup-10", vec!["skill-a", "Search registry"]),
     ];
@@ -554,6 +555,15 @@ async fn live_capture_writes_the_three_cards_with_store_values() {
                 card_src.contains(needle),
                 "{screen}: the store value `{needle}` is not in the injected copy"
             );
+        }
+        // #29c2 item 1: with the recorded single primary model the inner
+        // card shrinks to its one row (no divider, no blank row).
+        if screen == "setup-07" {
+            let pl = &data["$kit"]["placements"];
+            assert_eq!(pl["inner_card"]["layout"]["h"].as_f64(), Some(63.5),
+                "1 live row -> the inner card shrinks");
+            assert_eq!(pl["inner_div"]["layout"]["h"].as_f64(), Some(0.0),
+                "1 live row -> no divider");
         }
         let dir = out.join(screen);
         std::fs::create_dir_all(dir.join("kit")).expect("mkdir screen");

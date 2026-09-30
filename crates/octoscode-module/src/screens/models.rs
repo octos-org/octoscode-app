@@ -123,11 +123,39 @@ fn pct_line(estimate: Option<u64>, window: Option<u64>) -> String {
     }
 }
 
-/// One provider card head: `"{provider} • {route}"` — the web renders the
-/// route label next to the provider (`model-settings.ts` routeSelection /
-/// the atlas card `t_ds_head "DeepSeek • Official API"`).
+/// The web's family display label — `familyLabel`
+/// (`model-management-projection.ts:207-215`): a known-id map with a
+/// `titleCase` fallback, NOT the raw id.
+fn family_label(id: &str) -> String {
+    match id {
+        "zai" => "Z.AI".to_owned(),
+        "zai-coding" => "Z.AI Coding Plan".to_owned(),
+        "deepseek" => "DeepSeek".to_owned(),
+        "ollama" => "Ollama".to_owned(),
+        "openai" => "OpenAI".to_owned(),
+        "anthropic" => "Anthropic".to_owned(),
+        _ => title_case(id),
+    }
+}
+
+fn title_case(id: &str) -> String {
+    id.split('-')
+        .map(|part| {
+            let mut c = part.chars();
+            match c.next() {
+                Some(f) => f.to_uppercase().collect::<String>() + c.as_str(),
+                None => String::new(),
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+/// One provider card head: `"{display label} • {route}"` (the web renders the
+/// family label next to the route; the authored head reads
+/// "DeepSeek • Official API").
 fn provider_head(m: &ProfileLlmModel) -> String {
-    format!("{} • {}", m.provider, m.route.as_deref().unwrap_or("default route"))
+    format!("{} • {}", family_label(&m.provider), m.route.as_deref().unwrap_or("default route"))
 }
 
 fn provider_count(models: &[&ProfileLlmModel]) -> String {
@@ -521,7 +549,8 @@ pub fn lower_card_src(screen_id: &str, ctx: &Ctx<'_>) -> Result<(String, Value, 
         std::fs::read_to_string(dir.join(rel)).map_err(|e| format!("read {screen_id}/{rel}: {e}"))
     };
     let mut card_src = read("page.card")?;
-    let data: Value = serde_json::from_str(&read("page.data.json")?)
+    // mut: #29c2 item 1 rewrites the inner-card placements for the live row count
+    let mut data: Value = serde_json::from_str(&read("page.data.json")?)
         .map_err(|e| format!("parse {screen_id} data: {e}"))?;
     // Only this screen's namespace may write its copies: `t_title_text` is
     // authored in all three cards and the table maps it once per screen
@@ -536,6 +565,38 @@ pub fn lower_card_src(screen_id: &str, ctx: &Ctx<'_>) -> Result<(String, Value, 
             if let Value::String(s) = v {
                 if let Some(next) = crate::l0_host::set_copy(&card_src, copy_id, &s) {
                     card_src = next;
+                }
+            }
+        }
+    }
+    // Entry #29c2 item 1: the inner card sizes to its LIVE rows. Authored
+    // geometry holds two model rows (inner_card 213..339, divider y276.5);
+    // with fewer rows than that, shrink the card to the divider line and zero
+    // the divider — no blank second row, no divider.
+    if ns == "models." {
+        let models = ctx.store.domains.profile.llm_models();
+        let rows = match models.first() {
+            Some(first) => models.iter().filter(|m| m.provider == first.provider).count(),
+            None => 0,
+        };
+        if rows < 2 {
+            if let Some(placements) = data
+                .get_mut("$kit")
+                .and_then(|k| k.get_mut("placements"))
+            {
+                if let Some(h) = placements
+                    .get_mut("inner_card")
+                    .and_then(|c| c.get_mut("layout"))
+                    .and_then(|l| l.get_mut("h"))
+                {
+                    *h = json!(63.5);
+                }
+                if let Some(h) = placements
+                    .get_mut("inner_div")
+                    .and_then(|c| c.get_mut("layout"))
+                    .and_then(|l| l.get_mut("h"))
+                {
+                    *h = json!(0.0);
                 }
             }
         }

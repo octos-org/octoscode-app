@@ -13,6 +13,7 @@ Usage: python3 docs/cards/29c-capture.py
 """
 import json
 import os
+import re
 import shutil
 import socket
 import subprocess
@@ -58,8 +59,12 @@ def wait_port(port, timeout=40):
 def render(work, port, art_port):
     data = work / "page.data.json"
     body = data.read_text()
-    if "127.0.0.1:8170" in body:            # artwork prefix -> our server
-        data.write_text(body.replace("127.0.0.1:8170", f"127.0.0.1:{art_port}"))
+    # Idempotent: previous runs left stale rewritten ports (8170 -> 8195 ->
+    # 8196 ...); ANY 127.0.0.1:<port>/ux-images prefix moves to OUR server.
+    new = re.sub(r"http://127\.0\.0\.1:\d+/ux-images",
+                 f"http://127.0.0.1:{art_port}/ux-images", body)
+    if new != body:
+        data.write_text(new)
     request = {
         "card": str(work / "page.card"), "data": str(data),
         "kit_dir": str(work / "kit"), "format": "l0-kit",
