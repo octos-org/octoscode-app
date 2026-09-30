@@ -307,7 +307,6 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
             }
             // The card sizes to its visible rows (authored pad preserved).
             let card = g("loops_card");
-            let pitch = g("loop_2_name").0 - g("loop_1_name").0;
             let row_bottom = |i: u32| {
                 (1..=i)
                     .flat_map(|r| {

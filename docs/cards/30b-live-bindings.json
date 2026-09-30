@@ -1,6 +1,7 @@
 {
   "schema_version": 1,
-  "card": "30b",
+  "card": "30b4",
+  "host": "examples/screen_shot_autonomy.rs (the production lower_screen)",
   "source_fixture": "crates/octoscode-client/tests/fixtures/r1-autonomy-a6ea8505.jsonl",
   "bindings": [
     "goal.objective",
@@ -40,44 +41,44 @@
   ],
   "captures": [
     {
-      "card": "autonomy-03",
-      "injected": 4,
+      "screen": "goal",
+      "store": 1,
       "png": "30b-live-goal.png",
       "rendered": true
     },
     {
-      "card": "autonomy-04",
-      "injected": 6,
+      "screen": "loops",
+      "store": 0,
       "png": "30b-live-loops-0.png",
       "rendered": true
     },
     {
-      "card": "autonomy-04",
-      "injected": 6,
+      "screen": "loops",
+      "store": 1,
       "png": "30b-live-loops-1.png",
       "rendered": true
     },
     {
-      "card": "autonomy-04",
-      "injected": 6,
+      "screen": "loops",
+      "store": 3,
       "png": "30b-live-loops-3.png",
       "rendered": true
     },
     {
-      "card": "autonomy-05",
-      "injected": 1,
+      "screen": "monitors",
+      "store": 0,
       "png": "30b-live-monitors-0.png",
       "rendered": true
     },
     {
-      "card": "autonomy-05",
-      "injected": 7,
+      "screen": "monitors",
+      "store": 1,
       "png": "30b-live-monitors-1.png",
       "rendered": true
     },
     {
-      "card": "autonomy-05",
-      "injected": 10,
+      "screen": "monitors",
+      "store": 3,
       "png": "30b-live-monitors-3.png",
       "rendered": true
     }
