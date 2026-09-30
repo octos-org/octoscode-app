@@ -194,8 +194,8 @@ pub struct Lowered {
 
 pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String> {
     let dir = format!(
-        "{}/../../design/stage-b/autonomy/cards/{}",
-        env!("CARGO_MANIFEST_DIR"),
+        "{}/{}",
+        crate::design::dir("stage-b/autonomy/cards").display(),
         screen.card_dir()
     );
     let card_src = std::fs::read_to_string(format!("{dir}/page.card"))
@@ -236,6 +236,8 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
 
     // ---- decide the live values (pure, from the state)
     let mut hide: HashSet<String> = HashSet::new();
+    // Monitors whose rows are paused → the resume (play) icon (#32c item 10).
+    let mut play_ids: Vec<String> = Vec::new();
     let mut texts: Vec<(String, String, Option<f64>)> = Vec::new(); // id, text, w?
     let mut set_w: Vec<(String, f32)> = Vec::new();
     let mut set_h: Vec<(String, f32)> = Vec::new();
@@ -329,6 +331,9 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
             let n = st.monitors.len();
             for i in 0..n.min(2) {
                 let m = &st.monitors[i];
+                if m["status"].as_str() == Some("paused") {
+                    play_ids.push(format!("mon_{}_pause", i + 1));
+                }
                 let argv = m["argv"]
                     .as_array()
                     .map(|a| {
@@ -338,7 +343,11 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
                             .join(" ")
                     })
                     .unwrap_or_default();
-                texts.push((format!("mon_{}_cmd", i + 1), ellipsize(argv, 13), None));
+                texts.push((
+                    format!("mon_{}_cmd", i + 1),
+                    fit_cmd(argv, MON_CMD_W, 14.21),
+                    None,
+                ));
                 let mut state_txt = m["status"].as_str().unwrap_or_default().to_owned();
                 if let Some(reason) = m["pause_reason"].as_str() {
                     state_txt = format!("{} ({})", state_txt, reason);
@@ -354,13 +363,16 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
             // card 2's shape; the apply pass then writes these values into
             // the mon_3_* ids).
             if let Some(m3) = st.monitors.get(2) {
+                if m3["status"].as_str() == Some("paused") {
+                    play_ids.push("mon_3_pause".into());
+                }
                 let argv = m3["argv"]
                     .as_array()
                     .map(|a| {
                         a.iter().filter_map(|v| v.as_str()).collect::<Vec<_>>().join(" ")
                     })
                     .unwrap_or_default();
-                texts.push(("mon_3_cmd".into(), ellipsize(argv, 13), None));
+                texts.push(("mon_3_cmd".into(), fit_cmd(argv, MON_CMD_W, 14.21), None));
                 texts.push((
                     "mon_3_state".into(),
                     m3["status"].as_str().unwrap_or_default().to_owned(),
@@ -452,6 +464,78 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
                 }
             }
             for c in &mut node.children {
+                work.push(c);
+            }
+        }
+    }
+
+    // ---- #32c backlog 7/10: board-3 rows render at atlas size (the
+    // accepted-8.5 note: text/icons ~10% small) and a paused monitor shows
+    // the RESUME icon — the design's own play asset (autonomy-04's; the
+    // monitors card only ever authored pause). Icons re-centre on growth.
+    const PLAY_SRC: &str =
+        "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_1_play-7d9f31b010d1.svg";
+    // #32c2 item 2: ONE width budget for every monitor command — the free
+    // space from the cmd column to the interval column (mon_1_int x 214.94 −
+    // an 8px gap − cmd x 29.8). The authored boxes were uneven (114.88 vs
+    // 157.53), so row 1 ellipsized while rows 2-3 showed the same string.
+    const MON_CMD_W: f64 = 177.0;
+    if screen == Screen3::Loops || screen == Screen3::Monitors {
+        let mut work = vec![&mut *tree];
+        while let Some(n) = work.pop() {
+            if let Some(id) = n.attrs.id.clone() {
+                let row = (id.starts_with("loop_")
+                    && id[5..].chars().next().is_some_and(|c| c.is_ascii_digit()))
+                    || (id.starts_with("mon_")
+                        && id[4..].chars().next().is_some_and(|c| c.is_ascii_digit()));
+                if row {
+                    if let Some(sz) = n.attrs.size.as_mut() {
+                        *sz *= 1.1;
+                    }
+                    // The name/cadence boxes are authored to the SMALLER font
+                    // (and unevenly per row — the after capture clipped
+                    // "r1 replay probe" mid-word on row 2, and row 1 sat
+                    // 3-13px right of rows 2-3: authored name x 23.85/22.38/
+                    // 22.33, cad x 28.75/22.38/22.38). #32c2 item 1: ONE left
+                    // edge — x=22.38 (rows 2-3's authored edge), width to the
+                    // status-dot column (loop_N_dot x=208).
+                    if screen == Screen3::Loops
+                        && (id.ends_with("_name") || id.ends_with("_cad"))
+                    {
+                        n.attrs.x = Some(22.38);
+                        n.attrs.w = Some((208.0 - 12.0 - 22.38) as f32);
+                    }
+                    if screen == Screen3::Monitors && id.ends_with("_cmd") {
+                        n.attrs.w = Some(MON_CMD_W as f32);
+                    }
+                    let icon = ["dot", "pause", "play", "trash", "clock"]
+                        .iter()
+                        .any(|k| id.contains(k));
+                    if icon {
+                        // #32c2 item 5: re-centre by the ACTUAL growth
+                        // (Δ = 0.1·w, not a flat 1.2px) — the 44px trash
+                        // needs 2.2px or its right side crosses the card's
+                        // inner edge (384) and clips.
+                        let (ow, oh) = (n.attrs.w.unwrap_or(0.0), n.attrs.h.unwrap_or(0.0));
+                        if let Some(w) = n.attrs.w.as_mut() {
+                            *w *= 1.1;
+                        }
+                        if let Some(h) = n.attrs.h.as_mut() {
+                            *h *= 1.1;
+                        }
+                        if let Some(x) = n.attrs.x.as_mut() {
+                            *x -= f64::from(ow * 0.05);
+                        }
+                        if let Some(y) = n.attrs.y.as_mut() {
+                            *y -= f64::from(oh * 0.05);
+                        }
+                    }
+                    if id.ends_with("_pause") && play_ids.iter().any(|p| p == &id) {
+                        n.attrs.src = Some(PLAY_SRC.to_owned());
+                    }
+                }
+            }
+            for c in &mut n.children {
                 work.push(c);
             }
         }
@@ -922,6 +1006,21 @@ fn elapsed_atlas(seconds: u64) -> String {
     } else {
         format!("{hours}h {rest}m")
     }
+}
+
+/// Width-aware command ellipsis (#32c backlog 10): render verbatim while the
+/// string fits its slot, truncate only then. Capacity from the mono metrics:
+/// an l0 size renders at `size * 0.75` px (`octoscript-makepad design.rs:387`)
+/// and the rendered mono advance measures ≈0.78em with the kit's tracking
+/// (an 18-char command ≈164px in the 157.53px authored slot at the scaled
+/// size — the #32c after capture).
+fn fit_cmd(argv: String, slot_w: f64, size_sp: f64) -> String {
+    let px = size_sp * 1.1 * 0.75;
+    let capacity = ((slot_w / (px * 0.78)).floor() as usize).max(4);
+    if argv.chars().count() <= capacity {
+        return argv;
+    }
+    ellipsize(argv, capacity)
 }
 
 /// Ellipsize past `max` chars to `max-1` + '…' (a display string, so the

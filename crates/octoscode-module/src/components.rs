@@ -250,7 +250,7 @@ pub fn components_dir() -> PathBuf {
     components_dir_candidates()
         .into_iter()
         .find(|p| p.is_dir())
-        .unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("../../design/components"))
+        .unwrap_or_else(|| crate::design::dir("components"))
 }
 
 /// The candidate roots for `design/components/`, most-specific first (card #21b).
@@ -263,7 +263,7 @@ pub fn components_dir() -> PathBuf {
 /// app find the real components whatever its cwd:
 /// 1. `OCTOSCODE_COMPONENTS_DIR` (the launcher sets it),
 /// 2. `design/components` under the CWD (the authored / repo-root layout),
-/// 3. `<CARGO_MANIFEST_DIR>/../../design/components` (the in-repo crate layout),
+/// 3. the in-repo checkout layout (`crate::design::dir`),
 /// 4. `design/components` walking up from the executable (the installed app).
 pub fn components_dir_candidates() -> Vec<PathBuf> {
     let mut out = Vec::new();
@@ -271,7 +271,7 @@ pub fn components_dir_candidates() -> Vec<PathBuf> {
         out.push(PathBuf::from(dir));
     }
     out.push(PathBuf::from("design/components"));
-    out.push(Path::new(env!("CARGO_MANIFEST_DIR")).join("../../design/components"));
+    out.push(crate::design::dir("components"));
     if let Ok(exe) = std::env::current_exe() {
         let mut p = exe.parent().map(|p| p.to_path_buf()).unwrap_or_default();
         for _ in 0..6 {

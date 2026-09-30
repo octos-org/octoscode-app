@@ -728,8 +728,8 @@ fn lowered_output_follows_the_store() {
     let m3 = au::lower_tree(Screen3::Monitors, &st3m).unwrap();
     assert_eq!(
         at(&m3.inventory, "mon_3_cmd")["text"],
-        serde_json::json!("git status -…"),
-        "the third item ellipsized on the cloned card"
+        serde_json::json!("git status --short"),
+        "the cloned row's cmd renders verbatim under the ONE budget (#32c2 item 2): 18 chars fit the 177px budget (capacity 19)"
     );
     assert_eq!(at(&m3.inventory, "mon_3_int")["text"], serde_json::json!("5m"));
     assert_eq!(

@@ -547,7 +547,7 @@ fn screen_ns(screen_id: &str) -> &'static str {
 }
 
 fn cards_root() -> std::path::PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../design/stage-b/setup/cards")
+    crate::design::dir("stage-b/setup/cards")
 }
 
 /// Lower one screen card to Splash DSL with the CURRENT store values in its

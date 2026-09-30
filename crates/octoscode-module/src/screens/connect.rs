@@ -673,8 +673,8 @@ pub fn copies(screen: Screen, ui: &ConnectUi) -> Vec<(String, String)> {
 /// feature-flagged mount and the headless captures both use this.
 pub fn lower_screen(screen: Screen, ui: &ConnectUi) -> Result<String, String> {
     let dir = format!(
-        "{}/../../design/stage-b/setup/cards/{}",
-        env!("CARGO_MANIFEST_DIR"),
+        "{}/{}",
+        crate::design::dir("stage-b/setup/cards").display(),
         screen.card_dir()
     );
     let card_src = std::fs::read_to_string(format!("{dir}/page.card"))

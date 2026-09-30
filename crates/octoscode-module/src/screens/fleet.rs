@@ -491,7 +491,7 @@ fn screen_ns(screen_id: &str) -> &'static str {
 }
 
 fn cards_root() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../design/stage-b/autonomy/cards")
+    crate::design::dir("stage-b/autonomy/cards")
 }
 
 /// The card source with the CURRENT store values written into its `copy`
@@ -606,6 +606,19 @@ fn put_placements(data: &mut Value, rows: &[(String, &'static str, f64, f64, f64
     }
 }
 
+/// The web's `formatElapsed` (`peer-row-view.ts:127-136`): `42s`, `1m30s`,
+/// `2h05m`.
+fn format_elapsed(staged_at_ms: u64) -> String {
+    let secs = (octoscode_store::domains::peer::now_ms().saturating_sub(staged_at_ms) / 1000) as u32;
+    if secs < 60 {
+        return format!("{secs}s");
+    }
+    if secs < 3600 {
+        return format!("{}m{:02}s", secs / 60, secs % 60);
+    }
+    format!("{}h{:02}m", secs / 3600, (secs % 3600) / 60)
+}
+
 fn rewrite_rows(screen_id: &str, card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> String {
     match screen_id {
         "autonomy-06" => rewrite_fleet_rows(card_src, data, ctx),
@@ -622,11 +635,30 @@ fn rewrite_rows(screen_id: &str, card_src: String, data: &mut Value, ctx: &Ctx<'
 /// column (the authored 42px clipped "review" to "reviev"). 0 peers → the
 /// empty-state text, no rows.
 fn rewrite_fleet_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> String {
-    retain_static_placements(
-        data,
-        &["page", "fleet_screen", "fleet_card", "t_title", "fleet_goal", "fleet_goal_label"],
-    );
     let peers = peer_rows(ctx.store);
+    // #32c item 11: 0 peers → a COMPACT empty card with no sample goal
+    // heading — the goal group's DSL block and placements go with the rows.
+    let empty = peers.is_empty();
+    let keep: Vec<&str> = if empty {
+        vec!["page", "fleet_screen", "fleet_card", "t_title"]
+    } else {
+        vec!["page", "fleet_screen", "fleet_card", "t_title", "fleet_goal", "fleet_goal_label"]
+    };
+    retain_static_placements(data, &keep);
+    let mut card_src = card_src;
+    if empty {
+        if let Some((gs, ge)) =
+            block_span(&card_src, "Group3d2637879433(instance: \"fleet_goal\") {")
+        {
+            card_src = format!("{}{}", &card_src[..gs], &card_src[ge..]);
+        }
+        // The heading TEXT is a top-level `copy` (page.card:7, outside the
+        // group) — blank it too, or the sample goal still renders.
+        card_src = card_src.replace(
+            "copy fleet_goal_label_text { class: user-copy, en: \"Fix steer queue\" }",
+            "copy fleet_goal_label_text { class: user-copy, en: \"\" }",
+        );
+    }
     let Some((fs, _fe)) = block_span(&card_src, "Surface5fa5be74391b(instance: \"fleet_card\") {")
     else {
         return card_src;
@@ -650,6 +682,16 @@ fn rewrite_fleet_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
         );
         minted.push(("fleet_empty_text".to_owned(), FLEET_EMPTY.to_owned()));
         placed.push(("fleet_empty".to_owned(), NAME, 32.0, 240.0, 340.0, 24.0));
+        // Compact: empty line bottom 264 + the authored pad 12 (606−594) −
+        // card y 217 ≈ 59 (the authored 389 was the 3 sample rows).
+        placed.push((
+            "fleet_card".to_owned(),
+            "Surface5fa5be74391b",
+            11.0,
+            217.0,
+            383.0,
+            59.0,
+        ));
     } else {
         const Y0: f64 = 227.92;
         const PITCH: f64 = 138.36;
@@ -667,6 +709,7 @@ fn rewrite_fleet_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
                  {badge}(instance: \"peer_r{i}_badge\") {{\n          \
                  {status_comp}(instance: \"peer_r{i}_status\", text: copy.peer_r{i}_status_text)\n        }}\n        \
                  Text6965a34baa9d(instance: \"peer_r{i}_name\", text: copy.peer_r{i}_name_text)\n        \
+                 Text53a53f8f1184(instance: \"peer_r{i}_meta\", text: copy.peer_r{i}_meta_text)\n        \
                  Text05c2e4254ba7(instance: \"peer_r{i}_steer\", text: copy.peer_r{i}_steer_text)\n      }}\n"
             ));
             if i + 1 < peers.len() {
@@ -680,9 +723,23 @@ fn rewrite_fleet_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
             placed.push((format!("peer_r{i}_status"), status_comp, 41.91, y + 41.86, 58.93, 26.88));
             // WIDENED: the authored 42px name column clipped longer slugs.
             placed.push((format!("peer_r{i}_name"), NAME, 147.48, y + 28.14, 160.0, 22.3));
+            placed.push((
+                format!("peer_r{i}_meta"),
+                "Text53a53f8f1184",
+                147.48,
+                y + 71.15,
+                160.0,
+                21.39,
+            ));
             placed.push((format!("peer_r{i}_steer"), STEER, 329.77, y + 46.44, 42.63, 24.13));
             minted.push((format!("peer_r{i}_status_text"), status.to_owned()));
             minted.push((format!("peer_r{i}_name_text"), p.name.clone()));
+            // #32c item 11: the meta line (elapsed · tokens). Tokens have no
+            // store source yet → the web's own zero-value dash.
+            minted.push((
+                format!("peer_r{i}_meta_text"),
+                format!("{} · —", format_elapsed(p.staged_at_ms)),
+            ));
             minted.push((format!("peer_r{i}_steer_text"), "Steer".to_owned()));
         }
     }
@@ -756,11 +813,11 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
             "    Textd55469de8b8b(instance: \"tasks_empty\", text: copy.tasks_empty_text)\n",
         );
         minted.push(("tasks_empty_text".to_owned(), TASKS_EMPTY.to_owned()));
-        placed.push(("tasks_empty".to_owned(), DCMD, 32.0, 285.0, 342.0, 44.0));
+        placed.push(("tasks_empty".to_owned(), DCMD, 32.0, 208.5, 342.0, 44.0));
     } else {
         const RUN_H: f64 = 387.0;
         for (i, t) in runs.iter().enumerate() {
-            let y = 265.0 + i as f64 * (RUN_H + 8.0);
+            let y = 188.5 + i as f64 * (RUN_H + 8.0);
             body.push_str(&format!(
                 "    Surfacee81dee70a29b(instance: \"run_r{i}\") {{\n      \
                  Vectore0a378fde04f(instance: \"run_r{i}_icon\")\n      \
@@ -785,7 +842,7 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
             placed.push((format!("run_r{i}_pill"), PILL, 274.0, y + 20.0, 63.0, 42.0));
             placed.push((format!("run_r{i}_status"), PILL_TXT, 283.78, y + 31.46, 45.91, 23.57));
             placed.push((format!("run_r{i}_dur"), DUR, 341.33, y + 34.06, 24.0, 21.5));
-            placed.push((format!("run_r{i}_console"), CONSOLE, 35.0, y + 86.0, 339.0, 197.0));
+            placed.push((format!("run_r{i}_console"), CONSOLE, 35.0, y + 86.0, 320.0, 197.0));
             for (k, comp) in [LOG01, LOG01, LOG2, LOG3].iter().enumerate() {
                 let ly = y + 116.0 + 41.0 * k as f64;
                 let lh = if k == 3 { 15.0 } else { 41.0 };
@@ -799,12 +856,22 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
             minted.push((format!("run_r{i}_cmd_text"), task_label(t)));
             minted.push((format!("run_r{i}_status_text"), status_word(&t.state)));
             minted.push((format!("run_r{i}_dur_text"), String::new()));
-            for k in 0..4 {
-                let line = output_line(ctx.store, &t.id, k).unwrap_or_default();
-                minted.push((format!("run_r{i}_log{k}_text"), line));
+            let lines: Vec<String> = (0..4)
+                .map(|k| output_line(ctx.store, &t.id, k).unwrap_or_default())
+                .collect();
+            // #32c item 11: no output yet → the waiting line, never the
+            // design's sample log.
+            let waiting = lines.iter().all(|l| l.is_empty());
+            for (k, line) in lines.iter().enumerate() {
+                let text = if waiting && k == 0 {
+                    "Waiting for output\u{2026}".to_owned()
+                } else {
+                    line.clone()
+                };
+                minted.push((format!("run_r{i}_log{k}_text"), text));
             }
         }
-        let done_y0 = 265.0 + runs.len() as f64 * (RUN_H + 8.0) + 8.0;
+        let done_y0 = 188.5 + runs.len() as f64 * (RUN_H + 8.0) + 8.0;
         for (j, t) in dones.iter().enumerate() {
             let y = done_y0 + j as f64 * 56.0;
             // The done container's kit component is slot=false (the authored
@@ -829,6 +896,35 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
             minted.push((format!("done_r{j}_dur_text"), String::new()));
         }
     }
+    // #32c item 11: the card sizes to its content (authored pad 17 = 756 −
+    // 739; the authored 648 fixed height overflowed at 3 items).
+    let content_bottom = if runs.is_empty() && dones.is_empty() {
+        285.0 + 44.0
+    } else {
+        let runs_bottom = if runs.is_empty() {
+            0.0
+        } else {
+            188.5 + (runs.len() - 1) as f64 * (387.0 + 8.0) + 387.0
+        };
+        let done_bottom = if dones.is_empty() {
+            0.0
+        } else {
+            let done_y0c = 188.5 + runs.len() as f64 * (387.0 + 8.0) + 8.0;
+            done_y0c + (dones.len() - 1) as f64 * 56.0 + 49.0
+        };
+        runs_bottom.max(done_bottom)
+    };
+    placed.push((
+        "tasks_card".to_owned(),
+        "Surfaceb4ab38079b26",
+        12.0,
+        108.0,
+        372.0,
+        content_bottom + 17.0 - 108.0,
+    ));
+    // #32c2 item 3: the heading sits at normal top padding (the card's 22px
+    // inset), not the authored y=206.43 that left ~200 device px dead above.
+    placed.push(("t02".to_owned(), "Texte9bb098090a8", 34.24, 130.0, 52.89, 28.46));
     put_placements(data, &placed);
     // Re-attach the SVG srcs: Vector nodes lower to `http_resource(src)` —
     // a placement without one fails to_makepad_ui.
@@ -863,6 +959,43 @@ pub fn lower(screen_id: &str, ctx: &Ctx<'_>) -> Result<String, String> {
     let prepared = octoscript_makepad::l0::prepare(&card_src, &data, &kit_dir)
         .map_err(|e| format!("prepare {screen_id}: {e}"))?;
     let mut tree = prepared.tree;
+    // #32c item 11 + #32c2 item 4: the fleet's Done rows wear the web's
+    // terminal state — GREY TEXT ON A GREY PILL (`--dsw-alias-label-secondary`
+    // #61666b, theme.css:82; the kit badge surface bg_fa0d0938e19f is
+    // greenish #E6F6E9). The surface is the text node's parent (peer_rN_badge
+    // → peer_rN_status), so the pass carries the parent down.
+    if screen_id == "autonomy-06" {
+        // Grey text on a grey pill: the badge SURFACE (id `peer_rN_badge`)
+        // and the Done TEXT (id `peer_rN_status`) are both directly
+        // addressable — no parent tracking needed.
+        let mut work = vec![&mut tree];
+        while let Some(n) = work.pop() {
+            if n.attrs.text.as_deref() == Some("Done") {
+                n.attrs.color = Some(0xFF61_66_6B);
+            }
+            if n
+                .attrs
+                .id
+                .as_deref()
+                .is_some_and(|id| id.ends_with("_badge"))
+            {
+                // Only the TERMINAL pill goes grey (the #32c2 item-4 review):
+                // decide from the badge's OWN status text child — "Done" (and
+                // the other terminal words) take the neutral surface, a
+                // "Working" pill keeps the kit's green one.
+                let terminal = n
+                    .children
+                    .iter()
+                    .any(|c| matches!(c.attrs.text.as_deref(), Some("Done")));
+                if terminal {
+                    n.attrs.bg = Some(0xFFE9_EA_EC);
+                }
+            }
+            for c in &mut n.children {
+                work.push(c);
+            }
+        }
+    }
     octoscript_makepad::l0::inspectable(&mut tree);
     let ui = octoscript_makepad::design::to_makepad_ui(&tree)
         .map_err(|e| format!("to_makepad_ui {screen_id}: {e}"))?;

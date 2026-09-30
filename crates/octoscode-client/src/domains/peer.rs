@@ -178,6 +178,7 @@ fn peer_row_from_staged(event: &octos_core::ui_protocol::PeerStagedEvent) -> oct
         brief_path: Some(event.brief_path.clone()),
         cwd: Some(event.cwd.clone()),
         worktree_branch: event.worktree_branch.clone(),
+        staged_at_ms: octoscode_store::domains::peer::now_ms(),
     }
 }
 

@@ -644,7 +644,7 @@ pub const COPY_SLOTS: &[(&str, &str)] = &[
 ];
 
 fn cards_root() -> std::path::PathBuf {
-    std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../design/stage-b/autonomy/cards")
+    crate::design::dir("stage-b/autonomy/cards")
 }
 
 /// The card source with the CURRENT values in its `copy` slots + its data and
