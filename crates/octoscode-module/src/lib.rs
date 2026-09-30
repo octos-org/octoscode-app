@@ -462,6 +462,38 @@ script_mod! {
                 width: 420 height: Fill
                 visible: false
             }
+            // #31a: below 760 px the sidebar hides (Codex-style); this
+            // top-left hit brings it back OVER the content. The wrapper is
+            // Overlay so only the 36x36 button takes clicks; sync_chrome
+            // shows it only while the sidebar is hidden by WIDTH (a user
+            // toggle keeps it visible even at this size).
+            sidebar_toggle := View {
+                width: Fill height: Fill
+                flow: Overlay
+                visible: false
+                sidebar_toggle_wrap := View {
+                    width: 36 height: 36
+                    margin: Inset{left: 8 top: 8}
+                    flow: Overlay
+                    menu_icon := Svg {
+                        width: 16 height: 16
+                        align: Align{x: 0.5 y: 0.5}
+                        animating: false
+                        draw_svg.svg: crate_resource("self:resources/icons/icon_menu.svg")
+                        draw_svg.preserve_viewbox: true
+                    }
+                    sidebar_toggle_hit := Button {
+                        width: Fill height: Fill text: ""
+                        draw_bg.color: #00000000
+                        draw_bg.color_hover: #00000010
+                        draw_bg.color_down: #00000020
+                        draw_bg.border_size: 0.0
+                        draw_bg.color_2: #00000000
+                        draw_bg.border_color: #00000000
+                        draw_bg.border_color_2: #00000000
+                    }
+                }
+            }
         } // columns
 
         } // base
@@ -939,6 +971,10 @@ pub struct OctoscodeView {
     /// `WindowGeomChange` (0 = no event yet — treated as wide).
     #[rust]
     window_w: f64,
+    /// #31a: the <760 sidebar toggle — once the window hid the sidebar there
+    /// was no way back; this flip shows it over the content (Codex-style).
+    #[rust]
+    sidebar_open: bool,
 }
 
 impl OctoscodeView {
@@ -1748,10 +1784,15 @@ impl OctoscodeView {
         // (Codex-style). A panel's dock wrapper hides with it (a visible
         // Fill/Fill overlay would shadow the composer's buttons).
         let wide = self.window_w == 0.0 || self.window_w >= 1260.0;
-        let show_sidebar = self.window_w == 0.0 || self.window_w >= 760.0;
+        // #31a: below 760 the sidebar hides but the toggle can bring it back.
+        let width_hides_sidebar = self.window_w != 0.0 && self.window_w < 760.0;
+        let show_sidebar = !width_hides_sidebar || self.sidebar_open;
         self.view.widget(cx, ids!(base)).set_visible(cx, live);
         self.view.widget(cx, ids!(first_run)).set_visible(cx, !live);
         self.view.widget(cx, ids!(threads_column)).set_visible(cx, show_sidebar);
+        // The toggle itself only exists while WIDTH hides the sidebar (and the
+        // shell is live — the first-run screen has its own chrome).
+        self.view.widget(cx, ids!(sidebar_toggle)).set_visible(cx, live && width_hides_sidebar);
         self.view.widget(cx, ids!(review_dock)).set_visible(cx, review);
         self.view.widget(cx, ids!(review_panel)).set_visible(cx, review);
         self.view
@@ -2070,6 +2111,11 @@ impl Widget for OctoscodeView {
                 }
                 if self.view.button(cx, ids!(settings_close)).clicked(actions) {
                     self.perform_action("settings.toggle", 0);
+                }
+                // #31a: the <760 sidebar toggle.
+                if self.view.button(cx, ids!(sidebar_toggle_hit)).clicked(actions) {
+                    self.sidebar_open = !self.sidebar_open;
+                    self.sync_chrome(cx);
                 }
                 self.sync_labels(cx);
             }
