@@ -132,38 +132,6 @@ script_mod! {
                         draw_bg.border_color_2: #00000000
                     }
                 }
-                // Card #21c item 6: one #16 `thread-row` per session (selected
-                // state, ellipsized title) — the component draws its own label,
-                // so no native title Label sits under it. A transparent `row_hit`
-                // routes the click with the item id (`thread.open`).
-                // Card #28e item 1: the THREADS section label (small grey caps)
-                // above the list.
-                Label {
-                    width: Fill height: Fit text: "THREADS"
-                    draw_text.text_style.font_size: 10
-                    draw_text.color: #6E6E73
-                }
-                thread_list := PortalList {
-                    width: Fill height: Fill flow: Down drag_scrolling: true
-                    // Card #21g item 3: the rows must share the New chat card's
-                    // right inset so the two align (the atlas insets the card and
-                    // the selected row to one right edge).
-                    margin: Inset{left: 0 top: 0 right: 13 bottom: 0}
-                    ThreadRowTpl := View {
-                        width: Fill height: Fit flow: Overlay
-                        thread_splash := Splash { width: Fill height: Fit }
-                        row_hit := Button {
-                            width: Fill height: Fill text: ""
-                            draw_bg.color: #00000000
-                            draw_bg.color_hover: #00000012
-                            draw_bg.color_down: #00000022
-                            draw_bg.border_size: 0.0
-                            draw_bg.color_2: #00000000
-                            draw_bg.border_color: #00000000
-                            draw_bg.border_color_2: #00000000
-                        }
-                    }
-                }
                 // Card #28e item 1: the autonomy sections — GOALS / LOOPS / FLEET
                 // — appear only when the session has them (board 4 frame 3).
                 // Native shell rows (no #16 component exists for these yet); the
@@ -200,6 +168,38 @@ script_mod! {
                         fleet_row_1 := Label { width: Fill height: 32 text: "" draw_text.text_style.font_size: 13 }
                         fleet_row_2 := Label { width: Fill height: 32 text: "" draw_text.text_style.font_size: 13 }
                         fleet_row_3 := Label { width: Fill height: 32 text: "" draw_text.text_style.font_size: 13 }
+                    }
+                }
+                // Card #21c item 6: one #16 `thread-row` per session (selected
+                // state, ellipsized title) — the component draws its own label,
+                // so no native title Label sits under it. A transparent `row_hit`
+                // routes the click with the item id (`thread.open`).
+                // Card #28e item 1: the THREADS section label (small grey caps)
+                // above the list.
+                Label {
+                    width: Fill height: Fit text: "THREADS"
+                    draw_text.text_style.font_size: 10
+                    draw_text.color: #6E6E73
+                }
+                thread_list := PortalList {
+                    width: Fill height: Fill flow: Down drag_scrolling: true
+                    // Card #21g item 3: the rows must share the New chat card's
+                    // right inset so the two align (the atlas insets the card and
+                    // the selected row to one right edge).
+                    margin: Inset{left: 0 top: 0 right: 13 bottom: 0}
+                    ThreadRowTpl := View {
+                        width: Fill height: Fit flow: Overlay
+                        thread_splash := Splash { width: Fill height: Fit }
+                        row_hit := Button {
+                            width: Fill height: Fill text: ""
+                            draw_bg.color: #00000000
+                            draw_bg.color_hover: #00000012
+                            draw_bg.color_down: #00000022
+                            draw_bg.border_size: 0.0
+                            draw_bg.color_2: #00000000
+                            draw_bg.border_color: #00000000
+                            draw_bg.border_color_2: #00000000
+                        }
                     }
                 }
             }
@@ -585,6 +585,117 @@ fn seed_synthetic(store: &Arc<Store>, n: usize) {
     }
 }
 
+/// Card #28e — the board-4 fixture (`design/stage-a/desktop/atlas-prompt.md`):
+/// workspace "octos", the five thread titles, one settled turn (the "Worked
+/// for" row), a session goal, two loops and three fleet peers. Rendered by the
+/// SAME store reads the live path uses (`sync_chrome` / `timeline_rows`) — a
+/// deterministic capture seed: no transport and no clicks (the remote-click
+/// pipeline is known-red: the A/B against fb9b8ce dropped the same clicks).
+fn seed_synthetic_live(store: &Arc<Store>) {
+    use octoscode_store::Session;
+    use octoscode_store::domains::autonomy::{GoalRecord, GoalState, LoopRecord};
+    use octoscode_store::domains::peer::Peer;
+    use octoscode_store::timeline::EntryKind;
+
+    store.set_connection("Live".into(), true);
+    let titles = [
+        "Fix steer queue drop on reconnect",
+        "Add session fork",
+        "Review PR #2566",
+        "Bump octos-core to a6ea8505",
+        "Why is hydrate slow?",
+    ];
+    store.set_sessions(
+        titles
+            .iter()
+            .map(|t| Session {
+                id: format!("board:{t}"),
+                title: Some((*t).to_owned()),
+                message_count: 2,
+                updated_at: None,
+                last_prompt: None,
+                active_turn: false,
+            })
+            .collect(),
+    );
+    let first = format!("board:{}", titles[0]);
+    store.set_active(Some(first.clone()));
+
+    // The conversation column (board 4 frame 1): a user bubble, an answer
+    // paragraph, a settled turn.
+    let answer = "The queued steers were dropped because the input buffer was \
+        cleared on reconnect; `steer_queue.rs` now re-drains the buffer after \
+        the socket is re-established, so commands issued offline reach the turn.";
+    let tl = &store.domains.session.timeline;
+    tl.upsert_user_message(
+        &first,
+        "t1",
+        "Fix the steer queue so queued steers survive a reconnect",
+        serde_json::json!({}),
+    );
+    tl.append(
+        &first,
+        Some("t1".to_owned()),
+        EntryKind::ASSISTANT_TEXT,
+        answer.to_owned(),
+    );
+    tl.finalize_assistant(&first, "t1", answer);
+    tl.close_turn(&first, "t1");
+    store.domains.turn.started("t1");
+    store.domains.turn.set_terminal("t1", "completed");
+
+    // GOALS / LOOPS / FLEET (board 4 frame 3).
+    store.domains.autonomy.set_goal(
+        &first,
+        GoalState {
+            goal: Some(GoalRecord {
+                goal_id: "g1".into(),
+                objective: "Fix steer queue on reconnect".into(),
+                status: "active".into(),
+                token_budget: 0,
+                tokens_used: 0,
+                created_at_ms: 0,
+                updated_at_ms: 0,
+            }),
+            ..Default::default()
+        },
+    );
+    store.domains.autonomy.set_loops(vec![
+        LoopRecord {
+            loop_id: "l1".into(),
+            session_id: first.clone(),
+            profile_id: None,
+            prompt: "Run CI smoke".into(),
+            mode: "auto".into(),
+            status: "active".into(),
+            interval_seconds: Some(900),
+            next_run_at_ms: None,
+            expires_at_ms: 0,
+            updated_at_ms: 0,
+            fires: 0,
+        },
+        LoopRecord {
+            loop_id: "l2".into(),
+            session_id: first.clone(),
+            profile_id: None,
+            prompt: "Nightly review".into(),
+            mode: "auto".into(),
+            status: "paused".into(),
+            interval_seconds: None,
+            next_run_at_ms: None,
+            expires_at_ms: 0,
+            updated_at_ms: 0,
+            fires: 0,
+        },
+    ]);
+    for (name, topic) in [("tests", "Running"), ("docs", "Blocked"), ("review", "Done")] {
+        let mut p = Peer::named(name);
+        p.topic = Some(topic.into());
+        p.origin_session_id = Some(first.clone());
+        store.domains.peer.upsert(p);
+    }
+}
+
 #[derive(Script, ScriptHook, Widget)]
 pub struct OctoscodeView {
     #[deref]
@@ -630,6 +741,20 @@ impl OctoscodeView {
                 seed_synthetic(&b.store, n);
             }
             ::log::info!("[octoscode] synthetic timeline: {n} entries (no transport)");
+            return;
+        }
+        // Card #28e — the board-4 capture seed: a LIVE-looking store so the
+        // window draws the full base chrome (sidebar, conversation, panels)
+        // with the board's own fixture rows. No transport.
+        if std::env::var("OCTOSCODE_SYNTHETIC_LIVE").is_ok() {
+            {
+                let b = self.bridge.lock().unwrap();
+                seed_synthetic_live(&b.store);
+                let mut u = b.ui.lock().unwrap();
+                u.begin_turn_now("t1");
+                u.end_turn_now(true);
+            }
+            makepad_widgets::log!("[octoscode] synthetic live: board-4 seed (no transport)");
             return;
         }
         // Card #28e item 6 (board 4 frame 4): the first-run frame needs NO
@@ -935,7 +1060,12 @@ impl OctoscodeView {
                 .autonomy
                 .loops()
                 .into_iter()
-                .map(|l| format!("{} · {}", l.prompt, l.status))
+                .map(|l| match l.interval_seconds {
+                    // Board 4 frame 3: "Run CI smoke · every 15 min"; a loop
+                    // without a cadence shows its status (paused).
+                    Some(s) if s % 60 == 0 => format!("{} · every {} min", l.prompt, s / 60),
+                    _ => format!("{} · {}", l.prompt, l.status),
+                })
                 .collect();
             let fleet: Vec<String> = b
                 .store
@@ -943,7 +1073,14 @@ impl OctoscodeView {
                 .peer
                 .list()
                 .into_iter()
-                .map(|p| format!("{} · {}", p.name, if p.closed { "closed" } else { "open" }))
+                .map(|p| {
+                    // Board 4 frame 3: "tests · Running" — the peer's topic
+                    // when it has one, else the open/closed state.
+                    let state = p.topic.clone().unwrap_or_else(|| {
+                        if p.closed { "closed".into() } else { "open".into() }
+                    });
+                    format!("{} · {}", p.name, state)
+                })
                 .collect();
             (goal_txt, loops, fleet)
         };
