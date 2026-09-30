@@ -28,7 +28,7 @@
       "semantic_role": "layout",
       "bounds": [
         0.0,
-        0.0,
+        -57.4,
         406.0,
         776.0
       ],
@@ -46,7 +46,7 @@
       "semantic_role": "text",
       "bounds": [
         22.5,
-        78.62,
+        21.22,
         70.53,
         24.16
       ],
@@ -64,7 +64,7 @@
       "semantic_role": "layout",
       "bounds": [
         195.0,
-        77.0,
+        19.6,
         100.0,
         35.0
       ],
@@ -82,7 +82,7 @@
       "semantic_role": "text",
       "bounds": [
         206.9,
-        84.05,
+        26.65,
         81.62,
         18.73
       ],
@@ -100,7 +100,7 @@
       "semantic_role": "icon",
       "bounds": [
         274.644,
-        87.186,
+        29.79,
         11.874,
         16.298
       ],
@@ -118,7 +118,7 @@
       "semantic_role": "text",
       "bounds": [
         325.82,
-        85.19,
+        27.79,
         34.0,
         22.5
       ],
@@ -136,7 +136,7 @@
       "semantic_role": "text",
       "bounds": [
         365.82,
-        85.19,
+        27.79,
         24.0,
         22.5
       ],
@@ -154,7 +154,7 @@
       "semantic_role": "layout",
       "bounds": [
         11.0,
-        136.0,
+        78.6,
         382.0,
         60.0
       ],
@@ -172,7 +172,7 @@
       "semantic_role": "icon",
       "bounds": [
         23.89,
-        149.242,
+        91.84,
         16.0,
         26.484
       ],
@@ -190,7 +190,7 @@
       "semantic_role": "text",
       "bounds": [
         53.0,
-        153.04,
+        95.64,
         281.0,
         29.58
       ],
@@ -208,7 +208,7 @@
       "semantic_role": "text",
       "bounds": [
         338.0,
-        154.89,
+        97.49,
         30.0,
         24.78
       ],
@@ -226,7 +226,7 @@
       "semantic_role": "text",
       "bounds": [
         371.0,
-        154.89,
+        97.49,
         17.0,
         24.78
       ],
@@ -244,7 +244,7 @@
       "semantic_role": "layout",
       "bounds": [
         16.0,
-        210.4,
+        153.0,
         374.0,
         40.78
       ],
@@ -262,7 +262,7 @@
       "semantic_role": "icon",
       "bounds": [
         23.89,
-        219.4,
+        162.0,
         16.0,
         18.0
       ],
@@ -280,7 +280,7 @@
       "semantic_role": "text",
       "bounds": [
         53.0,
-        214.29,
+        156.89,
         280.0,
         30.36
       ],
@@ -298,7 +298,7 @@
       "semantic_role": "text",
       "bounds": [
         333.33,
-        219.97,
+        162.57,
         30.0,
         21.08
       ],
@@ -316,7 +316,7 @@
       "semantic_role": "text",
       "bounds": [
         367.33,
-        219.97,
+        162.57,
         24.0,
         21.08
       ],
@@ -334,7 +334,7 @@
       "semantic_role": "layout",
       "bounds": [
         16.0,
-        278.55,
+        221.15,
         374.0,
         34.59
       ],
@@ -352,7 +352,7 @@
       "semantic_role": "icon",
       "bounds": [
         23.89,
-        287.55,
+        230.15,
         16.0,
         18.0
       ],
@@ -370,7 +370,7 @@
       "semantic_role": "text",
       "bounds": [
         53.0,
-        284.06,
+        226.66,
         280.0,
         19.5
       ],
@@ -388,7 +388,7 @@
       "semantic_role": "text",
       "bounds": [
         329.16,
-        283.27,
+        225.87,
         30.0,
         19.5
       ],
@@ -406,7 +406,7 @@
       "semantic_role": "text",
       "bounds": [
         363.16,
-        283.27,
+        225.87,
         24.0,
         19.5
       ],
@@ -424,7 +424,7 @@
       "semantic_role": "layout",
       "bounds": [
         0.0,
-        334.1,
+        276.7,
         406.0,
         1.2
       ],
@@ -442,7 +442,7 @@
       "semantic_role": "layout",
       "bounds": [
         0.0,
-        335.4,
+        278.0,
         406.0,
         54.9
       ],
@@ -460,7 +460,7 @@
       "semantic_role": "icon",
       "bounds": [
         24.76,
-        360.35,
+        302.95,
         16.0,
         18.0
       ],
@@ -478,7 +478,7 @@
       "semantic_role": "text",
       "bounds": [
         44.76,
-        357.7,
+        300.3,
         305.35,
         21.83
       ],
@@ -496,7 +496,7 @@
       "semantic_role": "layout",
       "bounds": [
         0.0,
-        390.3,
+        332.9,
         406.0,
         1.2
       ],
@@ -514,7 +514,7 @@
       "semantic_role": "layout",
       "bounds": [
         20.0,
-        403.56,
+        346.16,
         366.0,
         299.68
       ],
@@ -532,7 +532,7 @@
       "semantic_role": "text",
       "bounds": [
         21.35,
-        411.97,
+        354.57,
         24.47,
         16.4
       ],
@@ -550,7 +550,7 @@
       "semantic_role": "text",
       "bounds": [
         90.43,
-        411.19,
+        353.79,
         247.94,
         20.28
       ],
@@ -568,7 +568,7 @@
       "semantic_role": "text",
       "bounds": [
         20.5,
-        448.41,
+        391.01,
         24.47,
         15.63
       ],
@@ -586,7 +586,7 @@
       "semantic_role": "text",
       "bounds": [
         90.36,
-        446.86,
+        389.46,
         120.85,
         18.73
       ],
@@ -604,7 +604,7 @@
       "semantic_role": "layout",
       "bounds": [
         178.3,
-        480.48,
+        423.08,
         99.0,
         32.96
       ],
@@ -622,7 +622,7 @@
       "semantic_role": "text",
       "bounds": [
         20.47,
-        483.29,
+        425.89,
         25.32,
         15.63
       ],
@@ -636,13 +636,13 @@
       "native_id": "beauty_0_0_10_4_1",
       "parent": "chip_130",
       "kind": "text",
-      "component": "Text9ac4cebca82f",
+      "component": "Text68ec0a8de9aa",
       "semantic_role": "text",
       "bounds": [
         75.76,
-        483.48,
+        424.34,
         12.0,
-        30.96
+        21.05
       ],
       "text": "-",
       "enabled": null,
@@ -658,7 +658,7 @@
       "semantic_role": "text",
       "bounds": [
         132.19,
-        481.74,
+        424.34,
         166.06,
         21.05
       ],
@@ -676,7 +676,7 @@
       "semantic_role": "layout",
       "bounds": [
         244.0,
-        515.44,
+        458.04,
         55.5,
         32.96
       ],
@@ -694,7 +694,7 @@
       "semantic_role": "text",
       "bounds": [
         20.47,
-        517.4,
+        460.0,
         25.32,
         15.63
       ],
@@ -708,13 +708,13 @@
       "native_id": "beauty_0_0_10_5_1",
       "parent": "chip_131",
       "kind": "text",
-      "component": "Text9ac4cebca82f",
+      "component": "Text506ea66b18af",
       "semantic_role": "text",
       "bounds": [
         75.76,
-        518.44,
+        459.23,
         12.0,
-        30.96
+        20.28
       ],
       "text": "-",
       "enabled": null,
@@ -730,7 +730,7 @@
       "semantic_role": "text",
       "bounds": [
         131.57,
-        516.63,
+        459.23,
         217.24,
         20.28
       ],
@@ -748,7 +748,7 @@
       "semantic_role": "layout",
       "bounds": [
         178.3,
-        550.4,
+        493.0,
         133.1,
         32.96
       ],
@@ -766,7 +766,7 @@
       "semantic_role": "text",
       "bounds": [
         20.5,
-        551.51,
+        494.11,
         24.47,
         15.63
       ],
@@ -780,13 +780,13 @@
       "native_id": "beauty_0_0_10_6_1",
       "parent": "chip_132",
       "kind": "text",
-      "component": "Text3349daa3095a",
+      "component": "Textbf5ffcff1948",
       "semantic_role": "text",
       "bounds": [
         75.76,
-        553.4,
+        492.56,
         12.0,
-        30.96
+        21.05
       ],
       "text": "+",
       "enabled": null,
@@ -802,7 +802,7 @@
       "semantic_role": "text",
       "bounds": [
         132.18,
-        549.96,
+        492.56,
         200.18,
         21.05
       ],
@@ -820,7 +820,7 @@
       "semantic_role": "text",
       "bounds": [
         20.5,
-        585.62,
+        528.22,
         24.47,
         16.4
       ],
@@ -834,13 +834,13 @@
       "native_id": "beauty_0_0_10_8",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Text3349daa3095a",
+      "component": "Texte6eacc59390a",
       "semantic_role": "text",
       "bounds": [
         75.76,
-        588.36,
+        528.22,
         12.0,
-        30.96
+        20.28
       ],
       "text": "+",
       "enabled": null,
@@ -856,7 +856,7 @@
       "semantic_role": "text",
       "bounds": [
         131.58,
-        585.62,
+        528.22,
         230.88,
         20.28
       ],
@@ -874,7 +874,7 @@
       "semantic_role": "text",
       "bounds": [
         20.47,
-        621.28,
+        563.88,
         25.32,
         15.63
       ],
@@ -888,13 +888,13 @@
       "native_id": "beauty_0_0_10_11",
       "parent": "diff_rows",
       "kind": "text",
-      "component": "Textf867abe37804",
+      "component": "Textd12b0ea08a71",
       "semantic_role": "text",
       "bounds": [
         75.76,
-        623.32,
+        562.33,
         12.0,
-        30.96
+        20.28
       ],
       "text": "+",
       "enabled": null,
@@ -910,7 +910,7 @@
       "semantic_role": "text",
       "bounds": [
         133.26,
-        619.73,
+        562.33,
         149.0,
         20.28
       ],
@@ -928,7 +928,7 @@
       "semantic_role": "text",
       "bounds": [
         20.5,
-        656.17,
+        598.77,
         24.47,
         16.4
       ],
@@ -946,7 +946,7 @@
       "semantic_role": "text",
       "bounds": [
         89.6,
-        654.62,
+        597.22,
         9.97,
         20.28
       ],
@@ -964,7 +964,7 @@
       "semantic_role": "layout",
       "bounds": [
         1.0,
-        699.0,
+        641.6,
         400.0,
         60.0
       ],
@@ -982,7 +982,7 @@
       "semantic_role": "text",
       "bounds": [
         91.22,
-        717.41,
+        660.01,
         192.5,
         22.61
       ],

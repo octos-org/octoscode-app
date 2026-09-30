@@ -46,7 +46,7 @@
       "semantic_role": "text",
       "bounds": [
         24.74,
-        86.38,
+        32.88,
         113.41,
         22.61
       ],
@@ -64,7 +64,7 @@
       "semantic_role": "button",
       "bounds": [
         260.0,
-        76.0,
+        22.5,
         123.0,
         44.0
       ],
@@ -82,7 +82,7 @@
       "semantic_role": "layout",
       "bounds": [
         260.0,
-        76.0,
+        22.5,
         123.0,
         44.0
       ],
@@ -100,7 +100,7 @@
       "semantic_role": "button",
       "bounds": [
         260.0,
-        76.0,
+        22.5,
         123.0,
         44.0
       ],
@@ -118,7 +118,7 @@
       "semantic_role": "text",
       "bounds": [
         278.83,
-        87.15,
+        33.65,
         88.62,
         19.5
       ],
@@ -132,11 +132,11 @@
       "native_id": "beauty_0_0_2",
       "parent": "review_run",
       "kind": "stack",
-      "component": "Surface0309757e05b6",
+      "component": "Surface3cc526438404",
       "semantic_role": "layout",
       "bounds": [
         18.0,
-        144.0,
+        90.5,
         367.0,
         114.0
       ],
@@ -154,7 +154,7 @@
       "semantic_role": "icon",
       "bounds": [
         51.18,
-        171.48,
+        117.98,
         24.0,
         24.0
       ],
@@ -172,7 +172,7 @@
       "semantic_role": "text",
       "bounds": [
         81.73,
-        171.65,
+        118.15,
         222.81,
         24.16
       ],
@@ -190,7 +190,7 @@
       "semantic_role": "text",
       "bounds": [
         80.85,
-        208.09,
+        154.59,
         254.44,
         23.38
       ],
@@ -208,7 +208,7 @@
       "semantic_role": "layout",
       "bounds": [
         18.0,
-        282.0,
+        228.5,
         367.0,
         193.0
       ],
@@ -225,10 +225,10 @@
       "component": "Surface07bfcd994a43",
       "semantic_role": "layout",
       "bounds": [
-        29.0,
-        301.0,
-        57.0,
-        43.0
+        33.94,
+        256.68,
+        49.82,
+        28.0
       ],
       "text": null,
       "enabled": null,
@@ -240,18 +240,18 @@
       "native_id": "beauty_0_0_3_0_0",
       "parent": "finding_high_badge",
       "kind": "text",
-      "component": "Text5c05a5d945d1",
+      "component": "Textcadbe86c8627",
       "semantic_role": "text",
       "bounds": [
         40.94,
-        314.43,
-        55.82,
-        30.75
+        260.93,
+        49.82,
+        21.68
       ],
       "text": "High",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 20.5
+      "size": 14
     },
     {
       "source_id": "finding_high_path",
@@ -262,7 +262,7 @@
       "semantic_role": "text",
       "bounds": [
         32.41,
-        359.35,
+        305.85,
         339.47,
         23.23
       ],
@@ -280,7 +280,7 @@
       "semantic_role": "text",
       "bounds": [
         34.20840166979862,
-        398.015984015984,
+        344.52,
         327.53,
         50.02
       ],
@@ -298,7 +298,7 @@
       "semantic_role": "layout",
       "bounds": [
         18.0,
-        499.0,
+        445.5,
         367.0,
         194.0
       ],
@@ -315,10 +315,10 @@
       "component": "Surfacecd525e141ac3",
       "semantic_role": "layout",
       "bounds": [
-        29.0,
-        518.0,
-        54.0,
-        43.0
+        30.53,
+        475.07,
+        48.12,
+        28.0
       ],
       "text": null,
       "enabled": null,
@@ -330,18 +330,18 @@
       "native_id": "beauty_0_0_4_0_0",
       "parent": "finding_low_badge",
       "kind": "text",
-      "component": "Text843bcc2d6f00",
+      "component": "Text72cb0c72d94b",
       "semantic_role": "text",
       "bounds": [
         37.53,
-        532.82,
-        54.12,
-        30.75
+        479.32,
+        48.12,
+        21.0
       ],
       "text": "Low",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 20.5
+      "size": 14
     },
     {
       "source_id": "finding_low_path",
@@ -352,7 +352,7 @@
       "semantic_role": "text",
       "bounds": [
         32.41,
-        579.29,
+        525.79,
         257.59,
         22.5
       ],
@@ -370,7 +370,7 @@
       "semantic_role": "text",
       "bounds": [
         33.30169729529107,
-        616.6293706293706,
+        563.13,
         313.88,
         50.0
       ],
@@ -385,6 +385,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "b7e383575b7174c0959cc1d1c8d1d435214bbe84162eba9a49cad6025f294460",
+  "contract_sha256": "739657247284f0463192964e05b2206af75b78b26c6975f1cd9393875ab61f9b",
   "mapping_basis": "mapped.json"
 }

@@ -167,19 +167,15 @@ def load_ocr(num):
     d = json.loads((OCR / f"autonomy-{num:02d}.ocr.json").read_text())
     w, h = d["width"], d["height"]
     sx, sy = 406 / w, 776 / h
-    # #28a4: collapse the atlas's "OctosCode" title-strip band on the scenes that
-    # still reserve it (the app shell draws its own title). Measured on the s01
-    # reference: strip ink top y30, screen-title ink top y104 -> band = 74 ref px
-    # = 57.4 logical; every OCR-derived y shifts up by that amount.
-    strip = STRIP_SHIFT.get(num, 0.0)
+    # NOTE (#28a4): NO strip shift here. Shifting only the authored coords splits
+    # the scene into two coordinate systems (the map/fix_metrics stages re-anchor
+    # ordinary text nodes from the UNshifted observations). The OctosCode strip
+    # is collapsed once, after fix_map, by fix_map.STRIP_COLLAPSE — see there.
     out = []
     for o in d["observations"]:
         x, y, ww, hh = o["bounds"]
-        out.append((FIX.get(o["text"], o["text"]), x * sx, y * sy - strip, ww * sx, hh * sy))
+        out.append((FIX.get(o["text"], o["text"]), x * sx, y * sy, ww * sx, hh * sy))
     return out
-
-# per-scene upward shift that removes the atlas's OctosCode strip reserve.
-STRIP_SHIFT = {1: 57.4}
 
 # OCR glyph confusions corrected against the approved prompt (source/prompt.txt).
 FIX = {
@@ -252,16 +248,16 @@ def build_01(sc):
         sc.put(stack(fid, 16, y - 8, 374, h + 16, kids))
     # Diff section header (#28a3/#28a4): a FULL-WIDTH grey band with hairline
     # rules at its top and bottom edges (atlas ref y431/432 and 504/505 span the
-    # whole frame width; logical = ref/1.29 minus the STRIP_SHIFT[1] collapse,
-    # so the band moves with every OCR-derived node above it).
+    # whole frame width; logical = ref/1.29 -> 334.1/335.4/390.3). The OctosCode
+    # strip above is collapsed later, uniformly, by fix_map.STRIP_COLLAPSE.
     _, dx, dy, dw, dh = sc.rows[9]
-    sc.put(surface("diff_band_rule_top", 0, r(334.1 - STRIP_SHIFT[1]), 406, 1.2,
+    sc.put(surface("diff_band_rule_top", 0, r(334.1), 406, 1.2,
                    bg="hair", radius=0))
-    sc.put(surface("diff_file_header", 0, r(335.4 - STRIP_SHIFT[1]), 406, 54.9,
+    sc.put(surface("diff_file_header", 0, r(335.4), 406, 54.9,
                    bg="panel", radius=0, kids=[
         icon("diff_file_icon", "file", dx + 6, dy + 1, 16, 18, color="muted"),
         text("diff_file_path", sc.t(9), dx + 26, dy, dw, dh, size=13, weight=500)]))
-    sc.put(surface("diff_band_rule_bottom", 0, r(390.3 - STRIP_SHIFT[1]), 406, 1.2,
+    sc.put(surface("diff_band_rule_bottom", 0, r(390.3), 406, 1.2,
                    bg="hair", radius=0))
     # diff card for file 1 (OCR rows 9..29): gutter | marker | code, red/green bands.
     diff_lines = [
@@ -341,7 +337,8 @@ def build_02(sc):
     _, x3, y3, w3, h3 = sc.rows[3]
     _, x4, y4, w4, h4 = sc.rows[4]
     cy, ch = y3 - 16, (y4 + h4) - (y3 - 16) + 16
-    sc.put(surface("run_status_card", 18, cy, 370, ch, bg="panel", radius=12,
+    # #28a4: the atlas running card is WHITE with a 1px border, not grey-filled.
+    sc.put(surface("run_status_card", 18, cy, 370, ch, bg="white", radius=12,
                    border=1, bordercolor="cardline", kids=[
         icon("status_spinner", "spinner", x3 - 29, y3 - 2, 24, 24, color="muted"),
         text("t_status", sc.t(3), x3, y3, w3, h3, size=14, weight=500),
@@ -355,13 +352,13 @@ def build_02(sc):
         cy2, ch2 = by2 - 14, (l2y + l2h) - (by2 - 14) + 18
         sc.put(surface(fid, 18, cy2, 370, ch2, bg="white", radius=12, border=1,
                        bordercolor="cardline", kids=[
-            surface(fid + "_badge", bx2 - 10, by2 - 4, bw2 + 20, bh2 + 8, bg=bg,
+            # #28a4: the atlas chip is a 28-logical pill with ~14pt text (the
+            # earlier 20.2 "ink height" measured the RED PILL FILL through the
+            # <150 threshold, not the glyphs). Pill centred on the label row;
+            # the label box widens so 14pt "High" never clips.
+            surface(fid + "_badge", bx2 - 7, by2 - 4.25, bw2 + 14, 28, bg=bg,
                     radius=999, kids=[
-                # #28a3: badge label at the atlas ink height (20.2 logical) needs
-                # ~45px for "High" — the OCR label box (34px) CLIPPED it to "Hig"
-                # (single_line clips at box width). Widen the label box to the
-                # pill's inner width; the pill itself is unchanged.
-                text(fid + "_badge_label", badge, bx2, by2, bw2 + 20, bh2, size=20.5,
+                text(fid + "_badge_label", badge, bx2, by2, bw2 + 14, bh2, size=14,
                      weight=600, color=fg)]),
             # #28a3: atlas path ink is 18.6 logical tall but only 334px wide for
             # 48 chars — no Inter size satisfies both (19.4pt would need 430px
@@ -477,7 +474,10 @@ def build_04(sc):
         if idx > 0:
             kids.append(surface(rid + "_divider", 24, r(141.9 + 122.25 * idx), 358, 1,
                                 bg="hair", radius=0))
-        kids.append(icon(rid + "_dot", dot, 208.0, r(mid - 4.5), 18, 18))
+        # #28a4: dot_* SVGs fill 10/24 of their box — box 24 renders a 10px disc
+        # (the atlas dot); box 18 rendered ~7px ("still ~6px" per the outer).
+        # y keeps the disc centred at mid+4.5 (24/2 inset): mid - 7.5.
+        kids.append(icon(rid + "_dot", dot, 208.0, r(mid - 7.5), 24, 24))
         # #28a3: text ink centres straddle the row mid in the atlas (name ink
         # centre mid-21.4, cadence ink centre mid+22.7, pixel-scanned) -> boxes
         # at mid-32.6 / mid+13 (box centre ~= ink centre for single_line).

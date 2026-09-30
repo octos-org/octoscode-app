@@ -176,10 +176,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "finding_high_badge",
-    "x": 30.94,
-    "y": 310.43,
-    "w": 55.82,
-    "h": 29.68,
+    "x": 33.94,
+    "y": 310.18,
+    "w": 49.82,
+    "h": 28.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -189,11 +189,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "id": "finding_high_badge_label",
     "x": 40.94,
     "y": 314.43,
-    "w": 55.82,
-    "h": 30.75,
+    "w": 49.82,
+    "h": 21.68,
     "text": "High",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 20.5,
+    "size": 14,
     "weight": 600,
     "role": "text",
     "native_candidates": [
@@ -246,10 +246,10 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "finding_low_badge",
-    "x": 27.53,
-    "y": 528.82,
-    "w": 54.12,
-    "h": 25.04,
+    "x": 30.53,
+    "y": 528.57,
+    "w": 48.12,
+    "h": 28.0,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -259,11 +259,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "id": "finding_low_badge_label",
     "x": 37.53,
     "y": 532.82,
-    "w": 54.12,
-    "h": 30.75,
+    "w": 48.12,
+    "h": 21.0,
     "text": "Low",
     "font_src": "self:resources/ux/Inter-600.ttf",
-    "size": 20.5,
+    "size": 14,
     "weight": 600,
     "role": "text",
     "native_candidates": [

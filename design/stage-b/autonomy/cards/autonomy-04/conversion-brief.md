@@ -125,9 +125,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "loop_1_dot",
     "x": 208.0,
-    "y": 198.6,
-    "w": 18.0,
-    "h": 18.0,
+    "y": 195.6,
+    "w": 24.0,
+    "h": 24.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -204,9 +204,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "loop_2_dot",
     "x": 208.0,
-    "y": 320.85,
-    "w": 18.0,
-    "h": 18.0,
+    "y": 317.85,
+    "w": 24.0,
+    "h": 24.0,
     "role": "unknown",
     "native_candidates": []
   },
@@ -283,9 +283,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "loop_3_dot",
     "x": 208.0,
-    "y": 443.1,
-    "w": 18.0,
-    "h": 18.0,
+    "y": 440.1,
+    "w": 24.0,
+    "h": 24.0,
     "role": "unknown",
     "native_candidates": []
   },

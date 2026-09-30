@@ -40,17 +40,19 @@ COLOR_KEEP = {
 # single-row icons (it fits them to the row's OCR ink box), so restore the full
 # authored box.
 X_RESTORE_FULL = {
-    1: {"review_panel", "mk_2", "mk_3", "mk_4", "mk_5", "mk_6",
+    1: {"review_panel",
         # #28a3 full-width band + rules: their authored geometry is measured off
         # the atlas (y 334.1/335.4/390.3, x0 w406) — do not let the map stage
         # re-anchor them to OCR/annotation bands.
         "diff_file_header", "diff_file_icon",
         "diff_band_rule_top", "diff_band_rule_bottom"},
     2: {"status_spinner",
-        # #28a3 measured sizes (ink-height ratio): badge ~20.5, path ~19.5 —
-        # pin the authored boxes so the ink-fit can't re-shrink them.
+        # #28a3/#28a4: pin the authored label/path boxes and the 28-logical
+        # chip pills — the map stage replays the annotations pill boxes (43
+        # tall) over the authored ones, so restore them too.
         "finding_high_badge_label", "finding_high_path",
-        "finding_low_badge_label", "finding_low_path"},
+        "finding_low_badge_label", "finding_low_path",
+        "finding_high_badge", "finding_low_badge"},
     4: {"loop_1_pause", "loop_1_play", "loop_1_trash",
         "loop_2_pause", "loop_2_play", "loop_2_trash",
         "loop_3_play", "loop_3_trash",
@@ -98,6 +100,19 @@ STYLE_KEEP = {
     2: {"run_status_card", "finding_high", "finding_low"},
 }
 
+# #28a4: markers share their code line's INK-FITTED band (y/h/line_height from
+# the fitted dl_*) so the vertical centres match exactly. The authored marker
+# row box is ~2x taller than the fitted line box, so same-box ≠ same-centre
+# (that over-restoration, via X_RESTORE_FULL on ln_/dl_, blew the code text up
+# to ~22pt — their ink-fit was correct all along). mk x/w/size stay as
+# fix_metrics SIZE_KEEP pinned them (13pt at gx+57).
+MARKER_ALIGN = {1: [(f"mk_{i}", f"dl_{i}") for i in range(2, 7)]}
+
+# #28a4: per-scene upward shift (logical px) that removes the atlas's OctosCode
+# title strip. Measured off each reference: s01 strip ink y30 / title ink y104
+# -> (104-30)/1.29 = 57.4; s02 strip y30 / title ink y99 -> (99-30)/1.2899 = 53.5.
+STRIP_COLLAPSE = {1: 57.4, 2: 53.5}
+
 
 def walk(n):
     yield n
@@ -111,6 +126,11 @@ def fix_scene(d, scene_no):
         return 0
     authored = {n["id"]: n for n in walk(json.loads(cpath.read_text())["tree"])}
     doc = json.loads(mpath.read_text())
+    # #28a4: pipeline.py spawns this script once per SCENE while __main__ loops
+    # ALL scenes, so fix_scene runs 6x per scene. Once collapse_strip has run
+    # (strip_collapsed guard), repeated restores must pin the SHIFTED coords,
+    # not re-insert the atlas strip offset.
+    collapse = STRIP_COLLAPSE.get(scene_no, 0.0) if doc.get("strip_collapsed") else 0.0
     changed = 0
     for n in walk(doc["tree"]):
         nid = n.get("id")
@@ -137,22 +157,73 @@ def fix_scene(d, scene_no):
         if nid in X_RESTORE_FULL.get(scene_no, set()) and nid in authored:
             for k in ("x", "y", "w", "h", "size", "line_height"):
                 if k in authored[nid]:
-                    n[k] = authored[nid][k]
+                    v = authored[nid][k]
+                    if k == "y" and collapse:
+                        v = round(v - collapse, 2)
+                    n[k] = v
             changed += 1
         if nid in STYLE_KEEP.get(scene_no, set()) and nid in authored:
             for k in ("bg", "border", "bordercolor"):
                 if k in authored[nid]:
                     n[k] = authored[nid][k]
             changed += 1
+    # #28a4: markers share their code line's INK-FITTED band (y/h/line_height
+    # from the fitted dl_*) so the vertical centres match exactly. dl's ink-fit
+    # is correct (12.86pt at y=iy-2); mk keeps the SIZE_KEEP-pinned x/w/size.
+    # Idempotent under the 6x re-entrant fix_scene: copies dl's CURRENT band,
+    # and collapse_shift applies to both equally afterwards.
+    if MARKER_ALIGN.get(scene_no):
+        by_id = {n["id"]: n for n in walk(doc["tree"]) if "id" in n}
+        for mk_id, dl_id in MARKER_ALIGN[scene_no]:
+            mk, dl = by_id.get(mk_id), by_id.get(dl_id)
+            if mk and dl:
+                for k in ("y", "h", "line_height"):
+                    if k in dl:
+                        mk[k] = dl[k]
+                changed += 1
     if changed:
         mpath.write_text(json.dumps(doc, indent=2) + "\n")
     return changed
 
 
+def collapse_strip(d, scene_no):
+    """#28a4: collapse the atlas's OctosCode title-strip reserve (one-time).
+
+    Runs AFTER all restore tables in fix_scene, so restores pin atlas-true
+    coords and this pass then moves the WHOLE tree together — no split
+    coordinate systems (the earlier author_v2-side shift left ordinary
+    ink-fitted nodes 55px below the markers; the first in-fix_scene version
+    applied 6x because pipeline.py spawns this script once per scene while
+    __main__ loops all scenes — hence the `strip_collapsed` guard).
+    Only nodes strictly inside the page move (y > 1); full-page roots keep
+    their frame.
+    """
+    mpath = d / "mapped.json"
+    if not mpath.exists():
+        return 0
+    doc = json.loads(mpath.read_text())
+    if doc.get("strip_collapsed"):
+        return 0
+    shift = STRIP_COLLAPSE.get(scene_no, 0.0)
+    if not shift:
+        return 0
+    moved = 0
+    for n in walk(doc["tree"]):
+        y = n.get("y")
+        if isinstance(y, (int, float)) and y > 1:
+            n["y"] = round(y - shift, 2)
+            moved += 1
+    doc["strip_collapsed"] = True
+    mpath.write_text(json.dumps(doc, indent=2) + "\n")
+    return moved
+
+
 if __name__ == "__main__":
     total = 0
     for d in sorted(ROOT.glob("autonomy-*")):
-        c = fix_scene(d, int(d.name.split("-")[1]))
-        total += c
-        print(f"{d.name}: corrected {c} map artifacts")
+        n = int(d.name.split("-")[1])
+        c = fix_scene(d, n)
+        s = collapse_strip(d, n)
+        total += c + s
+        print(f"{d.name}: corrected {c} map artifacts, strip-collapsed {s} nodes")
     print(f"total {total}")

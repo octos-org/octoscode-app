@@ -24,7 +24,7 @@
         "component": "Text17d36e66429f",
         "layout": {
           "x": 24.74,
-          "y": 86.38,
+          "y": 32.88,
           "w": 113.41,
           "h": 22.61
         }
@@ -33,7 +33,7 @@
         "component": "KitButton2c6804b990a5",
         "layout": {
           "x": 260.0,
-          "y": 76.0,
+          "y": 22.5,
           "w": 123.0,
           "h": 44.0
         }
@@ -42,7 +42,7 @@
         "component": "Surfaceb5124380b3ee",
         "layout": {
           "x": 260.0,
-          "y": 76.0,
+          "y": 22.5,
           "w": 123.0,
           "h": 44.0
         }
@@ -51,7 +51,7 @@
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
           "x": 260.0,
-          "y": 76.0,
+          "y": 22.5,
           "w": 123.0,
           "h": 44.0
         }
@@ -60,16 +60,16 @@
         "component": "Text2579fcd137a7",
         "layout": {
           "x": 278.83,
-          "y": 87.15,
+          "y": 33.65,
           "w": 88.62,
           "h": 19.5
         }
       },
       "run_status_card": {
-        "component": "Surface0309757e05b6",
+        "component": "Surface3cc526438404",
         "layout": {
           "x": 18.0,
-          "y": 144.0,
+          "y": 90.5,
           "w": 367.0,
           "h": 114.0
         }
@@ -78,7 +78,7 @@
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 51.18,
-          "y": 171.48,
+          "y": 117.98,
           "w": 24.0,
           "h": 24.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-02/assets/status_spinner-a144d4d03dc2.svg"
@@ -88,7 +88,7 @@
         "component": "Text35832fe48287",
         "layout": {
           "x": 81.73,
-          "y": 171.65,
+          "y": 118.15,
           "w": 222.81,
           "h": 24.16
         }
@@ -97,7 +97,7 @@
         "component": "Text565da94791fb",
         "layout": {
           "x": 80.85,
-          "y": 208.09,
+          "y": 154.59,
           "w": 254.44,
           "h": 23.38
         }
@@ -106,7 +106,7 @@
         "component": "Surface74f4b416b605",
         "layout": {
           "x": 18.0,
-          "y": 282.0,
+          "y": 228.5,
           "w": 367.0,
           "h": 193.0
         }
@@ -114,26 +114,26 @@
       "finding_high_badge": {
         "component": "Surface07bfcd994a43",
         "layout": {
-          "x": 29.0,
-          "y": 301.0,
-          "w": 57.0,
-          "h": 43.0
+          "x": 33.94,
+          "y": 256.68,
+          "w": 49.82,
+          "h": 28.0
         }
       },
       "finding_high_badge_label": {
-        "component": "Text5c05a5d945d1",
+        "component": "Textcadbe86c8627",
         "layout": {
           "x": 40.94,
-          "y": 314.43,
-          "w": 55.82,
-          "h": 30.75
+          "y": 260.93,
+          "w": 49.82,
+          "h": 21.68
         }
       },
       "finding_high_path": {
         "component": "Text1f418777307c",
         "layout": {
           "x": 32.41,
-          "y": 359.35,
+          "y": 305.85,
           "w": 339.47,
           "h": 23.23
         }
@@ -142,7 +142,7 @@
         "component": "Text8720892a9a35",
         "layout": {
           "x": 34.20840166979862,
-          "y": 398.015984015984,
+          "y": 344.52,
           "w": 327.53,
           "h": 50.02
         }
@@ -151,7 +151,7 @@
         "component": "Surfacef4c109c9d8f7",
         "layout": {
           "x": 18.0,
-          "y": 499.0,
+          "y": 445.5,
           "w": 367.0,
           "h": 194.0
         }
@@ -159,26 +159,26 @@
       "finding_low_badge": {
         "component": "Surfacecd525e141ac3",
         "layout": {
-          "x": 29.0,
-          "y": 518.0,
-          "w": 54.0,
-          "h": 43.0
+          "x": 30.53,
+          "y": 475.07,
+          "w": 48.12,
+          "h": 28.0
         }
       },
       "finding_low_badge_label": {
-        "component": "Text843bcc2d6f00",
+        "component": "Text72cb0c72d94b",
         "layout": {
           "x": 37.53,
-          "y": 532.82,
-          "w": 54.12,
-          "h": 30.75
+          "y": 479.32,
+          "w": 48.12,
+          "h": 21.0
         }
       },
       "finding_low_path": {
         "component": "Texte8b947a52b60",
         "layout": {
           "x": 32.41,
-          "y": 579.29,
+          "y": 525.79,
           "w": 257.59,
           "h": 22.5
         }
@@ -187,7 +187,7 @@
         "component": "Texte9eae90b87dd",
         "layout": {
           "x": 33.30169729529107,
-          "y": 616.6293706293706,
+          "y": 563.13,
           "w": 313.88,
           "h": 50.0
         }

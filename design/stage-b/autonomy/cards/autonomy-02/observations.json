@@ -142,8 +142,8 @@
       "requested_bounds": [
         40.94,
         314.43,
-        55.82,
-        30.75
+        49.82,
+        21.68
       ],
       "status": "observed",
       "ocr_text": "High",
@@ -238,8 +238,8 @@
       "requested_bounds": [
         37.53,
         532.82,
-        54.12,
-        30.75
+        48.12,
+        21.0
       ],
       "status": "observed",
       "ocr_text": "Low",

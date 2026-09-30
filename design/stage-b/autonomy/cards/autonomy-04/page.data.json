@@ -78,9 +78,9 @@
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 208.0,
-          "y": 198.6,
-          "w": 18.0,
-          "h": 18.0,
+          "y": 195.6,
+          "w": 24.0,
+          "h": 24.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_1_dot-47612be73ffb.svg"
         }
       },
@@ -145,9 +145,9 @@
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 208.0,
-          "y": 320.85,
-          "w": 18.0,
-          "h": 18.0,
+          "y": 317.85,
+          "w": 24.0,
+          "h": 24.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_2_dot-47612be73ffb.svg"
         }
       },
@@ -212,9 +212,9 @@
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 208.0,
-          "y": 443.1,
-          "w": 18.0,
-          "h": 18.0,
+          "y": 440.1,
+          "w": 24.0,
+          "h": 24.0,
           "src": "http://127.0.0.1:8170/ux-images/autonomy-04/assets/loop_3_dot-e51db8e14b1f.svg"
         }
       },
