@@ -440,6 +440,11 @@ script_mod! {
         // was a 1440-only guess); the card's top margin keeps it near the top.
         palette_dock := View {
             width: Fill height: Fill
+            // Hidden WITH its child (sync_chrome toggles the wrapper): a
+            // Fill/Fill overlay wrapper that stays visible would put a draw
+            // area over the whole window even while `palette` is invisible,
+            // and headless f1 showed the composer's send click never landing.
+            visible: false
             align: Align{x: 0.5 y: 0.0}
         palette := RoundedView {
             width: 560 height: Fit flow: Down spacing: 4
@@ -908,6 +913,9 @@ impl OctoscodeView {
         self.view.widget(cx, ids!(review_panel)).set_visible(cx, review);
         self.view.widget(cx, ids!(settings_drawer)).set_visible(cx, settings);
         self.view.widget(cx, ids!(palette)).set_visible(cx, palette);
+        // The dock wrapper hides with the palette (a visible Fill/Fill overlay
+        // would shadow the composer's buttons even with the card invisible).
+        self.view.widget(cx, ids!(palette_dock)).set_visible(cx, palette);
         self.view.widget(cx, ids!(dimmer)).set_visible(cx, palette || settings);
 
         // GOALS / LOOPS / FLEET rows (board 4 frame 3): visible only when the
@@ -1084,7 +1092,8 @@ impl Widget for OctoscodeView {
                             u.set_palette_open(true);
                         }
                     }
-                    self.bridge.lock().unwrap().ui.lock().unwrap().set_draft_inner(text);
+                    self.bridge.lock().unwrap().ui.lock().unwrap().set_draft_inner(text.clone());
+                    makepad_widgets::log!("[octoscode] draft synced: {} chars", text.len());
                 }
                 if self.view.button(cx, ids!(refresh)).clicked(actions) {
                     self.perform_action("session.refresh", 0);
