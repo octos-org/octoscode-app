@@ -494,6 +494,37 @@ impl OctoscodeView {
             self.perform_screen_action(action, None);
             return;
         }
+        // #30d: board-3 (autonomy-08/09/10) actions route through the screens
+        // table first; the conversation router never sees them (one-owner).
+        if screens::sessions::is_action(action) {
+            let (store, ui, conv) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.ui.clone(), b.conv.clone())
+            };
+            let effect = {
+                let ctx = bindings::Ctx::new(&store, &ui);
+                screens::sessions::resolve(action, index, &ctx)
+            };
+            if let screens::sessions::Effect::Unhandled(id) = &effect {
+                ::log::warn!("octoscode: unhandled screen action {id:?}");
+                return;
+            }
+            // UI-local effects (stage/cancel/remove/dismiss) were already
+            // applied inside resolve; only the protocol effects spawn.
+            if matches!(
+                effect,
+                screens::sessions::Effect::ResumeStage(_)
+                    | screens::sessions::Effect::ResumeCancel
+                    | screens::sessions::Effect::AttachmentRemove(_)
+                    | screens::sessions::Effect::AsideDismiss
+            ) {
+                return;
+            }
+            if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                screens::sessions::spawn(effect, rt, conv);
+            }
+            return;
+        }
         let (store, ui, conv) = {
             let b = self.bridge.lock().unwrap();
             (b.store.clone(), b.ui.clone(), b.conv.clone())
