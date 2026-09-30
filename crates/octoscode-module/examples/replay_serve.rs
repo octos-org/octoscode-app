@@ -76,6 +76,9 @@ fn scenario_fixture(name: &str) -> (&'static str, &'static str) {
         "task" => ("task", "r4-task-a6ea8505.jsonl"),
         "peer" => ("peer", "r6-peer-a6ea8505.jsonl"),
         "session" => ("session", "r3-session-a6ea8505.jsonl"),
+        // #32b3: one synthetic turn whose fenced code block carries a 227-column
+        // line — the long-code-line render capture (the web wraps: pre-wrap).
+        "longcodeline" => ("longcodeline", "longcodeline-a6ea8505.jsonl"),
         other => {
             eprintln!("[replay-serve] unknown scenario '{other}' — using `conversation`");
             ("conversation", "live-gate-a6ea8505.jsonl")
