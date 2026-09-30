@@ -744,11 +744,12 @@ script_mod! {
             // Connect is wired for real. The native placeholder card (the
             // black-on-black "Connect" label) is retired.
             first_run_card := Splash {
-                // Fill/Fill: the setup-01 screen root fills its frame (the
-                // Fit slot collapsed it to 0x0 — the /snap probe showed the
-                // Splash at [0,0,0,0] with the mount error-free); the screen
-                // centers its own card inside whatever frame it gets.
-                width: Fill height: Fill
+                // The setup-01 artboard is 406x776 (observations.json) — a
+                // measured-layout card. Fill/Fill gave it a 1155px frame and
+                // the fitted card column collapsed to 133px at the left edge
+                // (/snap-probed); the frame must match the artboard width.
+                // `first_run_center` centers it on x.
+                width: 406 height: Fill
             }
         }
         }
