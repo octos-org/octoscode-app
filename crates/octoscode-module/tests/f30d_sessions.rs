@@ -355,10 +355,46 @@ fn lowered_screens_carry_the_live_slots() {
     sessions::reset_state();
     let (store, ui) = ctx_with(&[]);
 
-    // Idle resume: the authored Stage B rows stand.
+    // Idle resume: the store carries the four authored candidates, so the
+    // per-item surgery keeps all four rows and the swaps are no-ops — the
+    // render matches the Stage B card (an EMPTY store would cut the rows:
+    // per-item, never the design's count).
+    store.set_sessions(vec![
+        octoscode_store::Session {
+            id: "dsflash:fork".into(),
+            title: Some("Add session fork".into()),
+            message_count: 14,
+            updated_at: Some("2h ago".into()),
+            last_prompt: None,
+            active_turn: false,
+        },
+        octoscode_store::Session {
+            id: "dsflash:steer".into(),
+            title: Some("Fix steer queue drop on reconnect".into()),
+            message_count: 23,
+            updated_at: Some("1d ago".into()),
+            last_prompt: None,
+            active_turn: false,
+        },
+        octoscode_store::Session {
+            id: "dsflash:pr".into(),
+            title: Some("Review PR #2566".into()),
+            message_count: 17,
+            updated_at: Some("3d ago".into()),
+            last_prompt: None,
+            active_turn: false,
+        },
+        octoscode_store::Session {
+            id: "dsflash:hydrate".into(),
+            title: Some("Why is hydrate slow?".into()),
+            message_count: 9,
+            updated_at: Some("4d ago".into()),
+            last_prompt: None,
+            active_turn: false,
+        },
+    ]);
     let idle = sessions::lower_screen("resume", &store).expect("resume lowers");
     assert!(idle.contains("text: \"Add session fork\""), "authored row 1");
-    assert!(idle.contains("text: \"Resume \\\"Add session fork\\\"?\""), "the authored confirm line");
 
     // Live rows: the store's sessions swap in (title + meta), the confirm line
     // appears once something is staged.
@@ -377,7 +413,7 @@ fn lowered_screens_carry_the_live_slots() {
     let live = sessions::lower_screen("resume", &store).expect("resume lowers");
     assert!(live.contains("text: \"Live row\""), "the live title swapped in");
     assert!(live.contains("text: \"dsflash • 5m ago • 7 turns\""), "the live meta grammar (host = the id's profile prefix)");
-    assert!(live.contains("Resume \\\"Live row\\\"?"), "the staged confirm");
+    assert!(live.contains("text: \"Resume \\\"Live row\\\"?\""), "the staged confirm");
     assert!(!live.contains("text: \"Add session fork\""), "the authored copy is replaced");
 
     // Attachments: the count slot follows the draft.

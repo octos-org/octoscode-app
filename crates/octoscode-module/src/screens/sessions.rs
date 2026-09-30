@@ -42,6 +42,10 @@ const RESUME_ROWS: usize = 4;
 pub struct Attachment {
     pub name: String,
     pub bytes: usize,
+    /// A real preview image URL for the tile (`None` keeps the authored
+    /// thumb). The capture host serves real PNGs in-process (#29a2 path), so
+    /// the tile decodes an actual image — never a grey 404 box (#30d2).
+    pub image: Option<String>,
 }
 
 /// Screen-local UI state (the values the protocol never carries — the same
@@ -85,7 +89,17 @@ pub fn seed_attachments(items: Vec<(&str, usize)>) {
     let mut s = state().lock().unwrap();
     s.attachments = items
         .into_iter()
-        .map(|(name, bytes)| Attachment { name: name.to_owned(), bytes })
+        .map(|(name, bytes)| Attachment { name: name.to_owned(), bytes, image: None })
+        .collect();
+}
+
+/// Probe seam: seed drafts WITH real preview URLs (the tiles decode actual
+/// images served by the capture host).
+pub fn seed_attachments_live(items: Vec<(String, usize, String)>) {
+    let mut s = state().lock().unwrap();
+    s.attachments = items
+        .into_iter()
+        .map(|(name, bytes, image)| Attachment { name, bytes, image: Some(image) })
         .collect();
 }
 
@@ -434,25 +448,21 @@ pub fn lower_screen(which: &str, store: &Arc<crate::Store>) -> Result<String, St
             swaps
         }
         ATTACHMENTS_CARD => {
+            // The caption counts the TRUE list (attachment-drafts.ts:6); the
+            // tiles/sizes are per-item surgery after the swaps.
+            let n = s.attachments.len();
             vec![(
                 r#"text: "2 of 4 images • 20 MB max""#.to_owned(),
                 format!(
                     r#"text: "{}""#,
-                    escape_splash(&format!(
-                        "{} of 4 images • 20 MB max",
-                        s.attachments.len()
-                    ))
+                    escape_splash(&format!("{n} of 4 images • 20 MB max"))
                 ),
             )]
         }
         _ => {
             let mut swaps: Vec<(String, String)> = Vec::new();
-            if !s.aside_question.is_empty() {
-                swaps.push((
-                    r#"text: "Why is the steer queue dropping""#.to_owned(),
-                    format!(r#"text: "{}""#, escape_splash(&s.aside_question)),
-                ));
-            }
+            // The question swaps via the t_q1 node surgery below (one wrapping
+            // label — the design's second line is a stale leftover, #30d2 3).
             if !s.aside_answer.is_empty() {
                 swaps.push((
                     r#"text: "It's a metric that increments when messages are dropped from the steer queue due to a reconnect or protocol error. It helps track message loss.""#.to_owned(),
@@ -465,6 +475,79 @@ pub fn lower_screen(which: &str, store: &Arc<crate::Store>) -> Result<String, St
     for (from, to) in swaps {
         dsl = dsl.replace(&from, &to);
     }
+
+    // Per-item surgery (#30d2): a fixed-chrome card's tile/row count comes
+    // from the DATA, never from the design's frozen count (LESSONS: per item,
+    // not the design's count).
+    match card {
+        ATTACHMENTS_CARD => {
+            let n = s.attachments.len();
+            if n == 0 {
+                // 0 → no tile row at all.
+                for node in ["att_1", "att_2", "t_sz1", "t_sz2", "att2_ring", "att2_pct"] {
+                    dsl = cut_node(&dsl, node);
+                }
+            } else {
+                if n < 2 {
+                    for node in ["att_2", "t_sz2", "att2_ring", "att2_pct"] {
+                        dsl = cut_node(&dsl, node);
+                    }
+                }
+                // Real previews: each surviving tile decodes the attached
+                // image — never a grey 404 box (the capture host serves them
+                // in-process, the #29a2 path).
+                for (i, node) in ["att_1_thumb", "att_2_thumb"].iter().enumerate() {
+                    if let Some(url) = s.attachments.get(i).and_then(|a| a.image.as_deref()) {
+                        dsl = swap_node_src(&dsl, node, url);
+                    }
+                }
+                let sz = |i: usize| {
+                    s.attachments
+                        .get(i)
+                        .map(|a| format!("{:.1} MB", a.bytes as f64 / (1024.0 * 1024.0)))
+                        .unwrap_or_default()
+                };
+                dsl = set_node_text(&dsl, "t_sz1", &sz(0));
+                if n > 1 {
+                    dsl = set_node_text(&dsl, "t_sz2", &sz(1));
+                }
+            }
+        }
+        ASIDE_CARD => {
+            // The bubble is ONE wrapping label (the #16 user-bubble shape);
+            // the design's second line is a stale leftover (#30d2 defect 3).
+            if !s.aside_question.is_empty() {
+                dsl = set_node_text(&dsl, "t_q1", &s.aside_question);
+                dsl = fit_node_height(&dsl, "t_q1");
+            }
+            dsl = cut_node(&dsl, "t_q2");
+        }
+        RESUME_CARD => {
+            // Meta lines take their full room (#30d2 defect 4: "7 turn…"
+            // clipped at the authored 167.76).
+            for node in ["row_1_meta", "row_2_meta", "row_3_meta", "row_4_meta"] {
+                dsl = widen_node(&dsl, node);
+            }
+            // Per-item rows: the design's rows beyond the data are stale text.
+            let n = resume_rows(store).len();
+            for i in 1..=4usize {
+                if i > n {
+                    for node in [
+                        format!("row_{i}_sel"),
+                        format!("row_{i}_radio"),
+                        format!("row_{i}_title"),
+                        format!("row_{i}_meta"),
+                    ] {
+                        dsl = cut_node(&dsl, &node);
+                    }
+                    if i >= 2 {
+                        dsl = cut_node(&dsl, &format!("div_{}", i - 2));
+                    }
+                }
+            }
+        }
+        _ => {}
+    }
     Ok(dsl)
 }
 
@@ -472,6 +555,105 @@ pub fn lower_screen(which: &str, store: &Arc<crate::Store>) -> Result<String, St
 /// backslash or quote so live text cannot break the literal.
 fn escape_splash(text: &str) -> String {
     text.replace('\\', "\\\\").replace('"', "\\\"")
+}
+
+/// Cut one authored node (`name := Type { ... }`, braces balanced) out of the
+/// lowered DSL — the per-item surgery for fixed-chrome cards whose design
+/// ships a fixed tile count (#30d2: one tile per ATTACHMENT, not the design's).
+fn cut_node(dsl: &str, node: &str) -> String {
+    let Some(start) = dsl.find(&format!("{node} := ")) else {
+        return dsl.to_owned();
+    };
+    let bytes = dsl.as_bytes();
+    let Some(open) = bytes[start..].iter().position(|&b| b == b'{').map(|i| start + i) else {
+        return dsl.to_owned();
+    };
+    let mut depth = 0usize;
+    let mut end = dsl.len();
+    for (i, &b) in bytes[open..].iter().enumerate() {
+        match b {
+            b'{' => depth += 1,
+            b'}' => {
+                depth -= 1;
+                if depth == 0 {
+                    end = open + i + 1;
+                    break;
+                }
+            }
+            _ => {}
+        }
+    }
+    // Drop the node plus the newline that followed it.
+    let rest = &dsl[end..];
+    let rest = rest.strip_prefix('\n').unwrap_or(rest);
+    format!("{}{}", &dsl[..start], rest)
+}
+
+/// Set one Label node's `text:` (node-anchored — for labels whose authored
+/// literals are NOT unique, e.g. the two "1.2 MB" size labels).
+fn set_node_text(dsl: &str, node: &str, text: &str) -> String {
+    let Some(npos) = dsl.find(&format!("{node} := Label {{")) else {
+        return dsl.to_owned();
+    };
+    let Some(tkey) = dsl[npos..].find("text: \"") else {
+        return dsl.to_owned();
+    };
+    let start = npos + tkey + "text: \"".len();
+    let Some(end_rel) = dsl[start..].find('"') else {
+        return dsl.to_owned();
+    };
+    let end = start + end_rel;
+    format!("{}{}{}", &dsl[..start], escape_splash(text), &dsl[end..])
+}
+
+/// Swap one DesignImage node's `src:` URL (per-tile real previews).
+fn swap_node_src(dsl: &str, node: &str, url: &str) -> String {
+    let Some(npos) = dsl.find(&format!("{node} := ")) else {
+        return dsl.to_owned();
+    };
+    let key = "src: http_resource(\"";
+    let Some(skey) = dsl[npos..].find(key) else {
+        return dsl.to_owned();
+    };
+    let start = npos + skey + key.len();
+    let Some(end_rel) = dsl[start..].find("\")") else {
+        return dsl.to_owned();
+    };
+    let end = start + end_rel;
+    format!("{}{}{}", &dsl[..start], url, &dsl[end..])
+}
+
+/// Patch one Label node's fixed height to `Fit` so a long line wraps and the
+/// label grows with it (the #16 user-bubble behaviour for the aside question).
+fn fit_node_height(dsl: &str, node: &str) -> String {
+    let Some(npos) = dsl.find(&format!("{node} := Label {{")) else {
+        return dsl.to_owned();
+    };
+    let window_end = (npos + 140).min(dsl.len());
+    let key = "height: ";
+    let Some(hpos) = dsl[npos..window_end].find(key) else {
+        return dsl.to_owned();
+    };
+    let start = npos + hpos + key.len();
+    let Some(len) = dsl[start..].find(|c: char| !c.is_ascii_digit() && c != '.') else {
+        return dsl.to_owned();
+    };
+    format!("{}Fit{}", &dsl[..start], &dsl[start + len..])
+}
+
+/// Patch one authored node's width (`name := Type {\nwidth: <old>` -> 310) so
+/// runtime meta lines take their full room (#30d2 defect 4: "7 turn…" clips).
+fn widen_node(dsl: &str, node: &str) -> String {
+    let marker = format!("{node} := Label {{\nwidth: ");
+    let Some(pos) = dsl.find(&marker) else {
+        return dsl.to_owned();
+    };
+    let after = pos + marker.len();
+    let rest = &dsl[after..];
+    let Some(len) = rest.find(|c: char| !c.is_ascii_digit() && c != '.').map(|i| i) else {
+        return dsl.to_owned();
+    };
+    format!("{}310{}", &dsl[..after], &dsl[after + len..])
 }
 
 /// Trace helper for tests/assertions: the outbound method an effect performs.
