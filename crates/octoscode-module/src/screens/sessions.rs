@@ -521,6 +521,10 @@ pub fn lower_screen(which: &str, store: &Arc<crate::Store>) -> Result<String, St
                 dsl = fit_node_height(&dsl, "t_q1");
             }
             dsl = cut_node(&dsl, "t_q2");
+            // #32b2 item 1: the bubble SURFACE hugs too — the authored 90px
+            // box left an empty band under a one-line question (the label
+            // was already Fit; the container was not).
+            dsl = fit_node_box_height(&dsl, "user_bubble");
         }
         RESUME_CARD => {
             // Meta lines take their full room (#30d2 defect 4: "7 turn…"
@@ -624,6 +628,25 @@ fn swap_node_src(dsl: &str, node: &str, url: &str) -> String {
     };
     let end = start + end_rel;
     format!("{}{}{}", &dsl[..start], url, &dsl[end..])
+}
+
+/// `fit_node_height` for ANY node kind (`user_bubble := DesignSurface {`):
+/// find `<node> := `, then the first `height: <num>` inside the node's head,
+/// and make it `Fit` (#32b2 item 1).
+fn fit_node_box_height(dsl: &str, node: &str) -> String {
+    let Some(npos) = dsl.find(&format!("{node} := ")) else {
+        return dsl.to_owned();
+    };
+    let window_end = (npos + 120).min(dsl.len());
+    let key = "height: ";
+    let Some(hpos) = dsl[npos..window_end].find(key) else {
+        return dsl.to_owned();
+    };
+    let start = npos + hpos + key.len();
+    let Some(len) = dsl[start..].find(|c: char| !c.is_ascii_digit() && c != '.') else {
+        return dsl.to_owned();
+    };
+    format!("{}Fit{}", &dsl[..start], &dsl[start + len..])
 }
 
 /// Patch one Label node's fixed height to `Fit` so a long line wraps and the
