@@ -22,6 +22,70 @@ use makepad_widgets::*;
 use octoscode_module::bindings::Ctx;
 use octoscode_module::flow::FlowUi;
 use octoscode_module::mount::MountCache;
+use std::io::{Read, Write};
+
+/// The kit SVGs (the error screen's warning icon, the loading spinner) carry
+/// the capture-time asset origin (`http://127.0.0.1:8170/ux-images/<card>/
+/// assets/*.svg` in page.data.json). This host serves those files itself on a
+/// port from MY headless block and rewrites the origin before mounting — the
+/// `screen_shot.rs` precedent (capture plumbing, not a renderer change).
+const ASSET_PORT: u16 = 8374;
+
+/// Serve `design/stage-b/setup/cards/<card>/assets/*` at
+/// `/ux-images/<card>/assets/*` (card-host's AssetServer shape, in-process,
+/// loopback only).
+fn start_asset_server() {
+    static ONCE: std::sync::Once = std::sync::Once::new();
+    ONCE.call_once(|| {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../design/stage-b/setup/cards");
+        let Ok(root) = root.canonicalize() else {
+            makepad_widgets::log!("[screens_probe] asset root missing");
+            return;
+        };
+        let listener = match std::net::TcpListener::bind(("127.0.0.1", ASSET_PORT)) {
+            Ok(l) => l,
+            Err(e) => {
+                makepad_widgets::log!("[screens_probe] asset bind {ASSET_PORT}: {e}");
+                return;
+            }
+        };
+        std::thread::spawn(move || {
+            for stream in listener.incoming() {
+                let Ok(mut stream) = stream else { continue };
+                let mut buf = [0u8; 1024];
+                let n = stream.read(&mut buf).unwrap_or(0);
+                let req = String::from_utf8_lossy(&buf[..n]);
+                let Some(path) = req.split_whitespace().nth(1) else { continue };
+                // /ux-images/<card>/assets/<file> — no traversal.
+                let segs: Vec<&str> = path.split('/').filter(|s| !s.is_empty()).collect();
+                let serve = if segs.len() == 4
+                    && segs[0] == "ux-images"
+                    && segs[2] == "assets"
+                    && segs.iter().all(|s| *s != "..")
+                {
+                    root.join(segs[1]).join("assets").join(segs[3])
+                } else {
+                    root.join("__missing__")
+                };
+                match std::fs::read(&serve) {
+                    Ok(body) => {
+                        let head = format!(
+                            "HTTP/1.1 200 OK\r\nContent-Type: image/svg+xml\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+                            body.len()
+                        );
+                        let _ = stream.write_all(head.as_bytes());
+                        let _ = stream.write_all(&body);
+                    }
+                    Err(_) => {
+                        let _ = stream.write_all(b"HTTP/1.1 404 Not Found\r\n\r\n");
+                    }
+                }
+                let _ = stream.flush();
+            }
+        });
+    })
+}
 use octoscode_module::screens::palette;
 
 pub use makepad_widgets;
@@ -121,9 +185,22 @@ impl Widget for ScreensProbe {
                 }
                 other => ::log::warn!("screens_probe: unknown OCTOSCODE_SCREEN {other:?}"),
             }
+            start_asset_server();
             let splash = self.view.splash(cx, ids!(screen_splash));
             let mut cache = std::mem::take(&mut self.cache);
-            let r = palette::mount_screen(&mut cache, cx, splash, &which, &store);
+            // Lower, then point the kit SVGs at THIS host's asset server (the
+            // authored origin is the design flow's 8170, held by a process
+            // RULES forbid touching).
+            let r = palette::lower_screen(&which, &store).map(|dsl| {
+                dsl.replace(
+                    "http://127.0.0.1:8170/ux-images/",
+                    &format!("http://127.0.0.1:{ASSET_PORT}/ux-images/"),
+                )
+            });
+            let r = match r {
+                Ok(dsl) => cache.mount(cx, &splash, &dsl),
+                Err(e) => Err(e),
+            };
             self.cache = cache;
             if let Err(e) = r {
                 ::log::warn!("screens_probe: mount {which}: {e}");
