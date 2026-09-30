@@ -84,7 +84,32 @@ fn every_declared_binding_resolves_on_a_folded_preview() {
     review::reset();
     let (store, ctx) = ctx();
     caps_for(&store, &["review/start", "review.start.v1"]);
-    seed_preview();
+    // A FULL window: the selected file fills all 8 row slots (2 ctx +
+    // removed + added + 4 ctx), so every line/num/mark slot resolves. (A
+    // shorter file HONESTLY leaves the tail slots authored — the per-file
+    // model; the shorter case is asserted in the fold tests below.)
+    let rows = serde_json::json!([
+        {"kind": "context", "content": "use review;", "old_line": 1, "new_line": 1},
+        {"kind": "context", "content": "mod x;", "old_line": 2, "new_line": 2},
+        {"kind": "removed", "content": "old;", "old_line": 3},
+        {"kind": "added", "content": "new;", "new_line": 3},
+        {"kind": "context", "content": "a;", "old_line": 4, "new_line": 4},
+        {"kind": "context", "content": "b;", "old_line": 5, "new_line": 5},
+        {"kind": "context", "content": "c;", "old_line": 6, "new_line": 6},
+        {"kind": "context", "content": "d;", "old_line": 7, "new_line": 7}
+    ]);
+    // The card declares THREE file rows: the selected file (full.rs, the
+    // 8-row window above) plus two more, each with one changed line.
+    review::fold_preview(&serde_json::json!({"preview": {"files": [
+        {"path": "full.rs", "status": "modified",
+         "hunks": [{"header": "@@", "lines": rows}]},
+        {"path": "second.rs", "status": "modified",
+         "hunks": [{"header": "@@", "lines": [
+            {"kind": "added", "content": "two;", "new_line": 1}]}]},
+        {"path": "third.rs", "status": "modified",
+         "hunks": [{"header": "@@", "lines": [
+            {"kind": "removed", "content": "three;", "old_line": 1}]}]}
+    ]}}));
     seed_run();
     for (id, _desc) in review::BINDINGS {
         let v = bindings::query(&ctx, id);
@@ -119,7 +144,10 @@ fn every_copy_id_exists_in_its_authored_card() {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
         .join("../../design/stage-b/autonomy/cards");
     for (copy_id, binding) in review::COPY_SLOTS {
-        let card = if *binding == "review.status" || *binding == "review.start_label" {
+        let card = if *binding == "review.status"
+            || *binding == "review.start_label"
+            || binding.starts_with("review.finding")
+        {
             "autonomy-02"
         } else {
             "autonomy-01"
@@ -240,19 +268,22 @@ fn the_preview_folds_counts_lines_marks_numbers() {
     assert_eq!(st.files[0].add, 2, "file 1: two added lines");
     assert_eq!(st.files[0].del, 1, "file 1: one removed line");
     assert_eq!(st.files[2].del, 1, "deleted file counts its removals");
-    // header totals: +4 −3
+    // header totals: +4 −3 (across ALL files)
     let a: u64 = st.files.iter().map(|f| f.add).sum();
     let d: u64 = st.files.iter().map(|f| f.del).sum();
     assert_eq!((a, d), (4, 3));
-    // flattened lines, capped at the card's 8 slots
-    assert!(st.lines.len() <= 8 && st.lines.len() >= 6);
+    // the diff body renders the SELECTED file's real hunks (the first file
+    // carrying a change), one row per line — file 1 has 4 rows, all fit.
+    assert_eq!(st.selected_file.as_deref(), Some("crates/app/src/main.rs"));
+    assert_eq!(st.lines.len(), 4);
+    assert_eq!(st.hidden, 5, "9 preview rows − 4 shown = the real fold");
     assert_eq!(st.lines[0].content, "fn main() {");
+    assert_eq!(st.lines[0].mark(), "", "context lines carry no mark");
     assert_eq!(st.lines[1].mark(), "-");
     assert_eq!(st.lines[2].mark(), "+");
     assert_eq!(st.lines[2].num(), "2", "the gutter shows the new side");
     assert_eq!(st.lines[1].num(), "2", "…else the old side");
-    assert_eq!(st.lines[0].mark(), "", "context lines carry no mark");
-    assert_eq!(st.lines[3].mark(), "+", "lines[3] is the second added line");
+    assert_eq!(st.lines[3].mark(), "+", "file 1's second added line");
 }
 
 #[test]
@@ -268,7 +299,15 @@ fn the_folded_values_reach_the_card_slots() {
     assert_eq!(bindings::query(&ctx, "review.file1.add").unwrap(), serde_json::json!("+2"));
     assert_eq!(bindings::query(&ctx, "review.line1").unwrap(), serde_json::json!("    run(old);"));
     assert_eq!(bindings::query(&ctx, "review.mark3").unwrap(), serde_json::json!("+"));
-    assert_eq!(bindings::query(&ctx, "review.num4").unwrap(), serde_json::json!("1"));
+    assert_eq!(bindings::query(&ctx, "review.num3").unwrap(), serde_json::json!("3"));
+    // #30a2: header = the selected file; fold = the real count; findings stay
+    // empty until a review result exists.
+    assert_eq!(bindings::query(&ctx, "review.file_path").unwrap(),
+               serde_json::json!("crates/app/src/main.rs"));
+    assert_eq!(bindings::query(&ctx, "review.fold").unwrap(),
+               serde_json::json!("⋮ 5 unmodified lines ⋮"));
+    assert_eq!(bindings::query(&ctx, "review.finding_high.path").unwrap(),
+               serde_json::json!(""));
 }
 
 #[test]
@@ -329,6 +368,88 @@ fn the_confirmed_turn_rides_the_real_terminal_envelope() {
     .unwrap();
     review::note_envelope(&interrupted);
     assert!(review::ui().last_turn_id.is_none(), "interrupted confirms nothing");
+}
+
+#[test]
+fn the_window_anchors_the_first_change_with_two_context_lines() {
+    let _seq = review::test_lock();
+    review::reset();
+    // many-hunk case: a 14-line file whose only change sits at index 6 —
+    // the 8-row window must START two context lines above it (the #28
+    // diff-view changed-window shape).
+    let lines: Vec<serde_json::Value> = (0..14)
+        .map(|i| {
+            if i == 6 {
+                serde_json::json!({"kind": "added", "content": "new", "new_line": i + 1})
+            } else {
+                serde_json::json!({"kind": "context", "content": "c",
+                                   "old_line": i + 1, "new_line": i + 1})
+            }
+        })
+        .collect();
+    let v = serde_json::json!({"preview": {"files": [
+        {"path": "big.rs", "status": "modified",
+         "hunks": [{"header": "@@", "lines": lines}]}]}});
+    review::fold_preview(&v);
+    let st = review::ui();
+    assert_eq!(st.selected_file.as_deref(), Some("big.rs"));
+    assert_eq!(st.lines.len(), 8);
+    assert_eq!(st.hidden, 6);
+    assert_eq!(st.lines[2].kind, "added", "the first change is IN the window");
+    assert_eq!(st.lines[0].num(), "5", "two context lines above the change");
+}
+
+#[test]
+fn the_zero_and_one_hunk_states() {
+    let _seq = review::test_lock();
+    review::reset();
+    // 0 hunks: no rows, no fold, no selected file -> the slots keep the
+    // authored copy (the honest empty diff).
+    review::fold_preview(&serde_json::json!({"preview": {"files": []}}));
+    {
+        // the STATE guard drops at THIS brace — bindings::query takes the
+        // same lock inside review::query (std Mutex is not reentrant).
+        let st = review::ui();
+        assert!(st.lines.is_empty());
+        assert_eq!(st.hidden, 0);
+        assert!(st.selected_file.is_none());
+    }
+    let (_s, ctx) = ctx();
+    assert!(bindings::query(&ctx, "review.file_path").is_none());
+    assert_eq!(bindings::query(&ctx, "review.fold").unwrap(), serde_json::json!(""));
+    // 1 hunk fitting the card: everything shows, nothing folds.
+    review::fold_preview(&serde_json::json!({"preview": {"files": [
+        {"path": "one.rs", "status": "modified", "hunks": [{"header": "@@", "lines": [
+            {"kind": "removed", "content": "a", "old_line": 1},
+            {"kind": "added", "content": "b", "new_line": 1}]}]}]}}));
+    let st = review::ui();
+    assert_eq!(st.lines.len(), 2);
+    assert_eq!(st.hidden, 0);
+    assert_eq!(st.selected_file.as_deref(), Some("one.rs"));
+}
+
+#[test]
+fn the_diff_rows_rebuild_with_the_real_chips() {
+    let _seq = review::test_lock();
+    review::reset();
+    review::fold_preview(&serde_json::from_str::<serde_json::Value>(PREVIEW_JSON).unwrap());
+    let (card_src, _data, _kit) = review::lower_card_src("autonomy-01").expect("card");
+    let out = review::rebuild_diff_rows(&card_src);
+    // changed rows carry the design's own chip trio; context rows stay bare
+    assert!(out.contains("Surface4db4e42a8189(instance: \"chip_1\")"),
+            "removed row -> the design's removed chip");
+    assert!(out.contains("Surface04a27fc304ff(instance: \"chip_2\")"),
+            "added row -> the design's added chip");
+    assert!(out.contains("(instance: \"ln_0\", text: copy.ln_0_text)"),
+            "context row -> the bare text pair");
+    assert!(out.contains("text: \"-\"") && out.contains("text: \"+\""),
+            "the +/- marks are baked on the changed rows");
+    // 0-case: an empty preview rebuilds an EMPTY group
+    review::reset();
+    let out0 = review::rebuild_diff_rows(&card_src);
+    let start = out0.find("Group3d2637879433").expect("the group stays");
+    let seg = &out0[start..start + 140];
+    assert!(seg.contains('}'), "empty group right after its open brace");
 }
 
 // --------------------------------------------------------------- §5 replay

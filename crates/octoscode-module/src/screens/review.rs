@@ -74,6 +74,12 @@ pub const BINDINGS: &[(&str, &str)] = &[
     ("review.mark6", "seventh line's mark (+/-)"),
     ("review.status", "code-review run status or typed blocked reason"),
     ("review.start_label", "the start button's label (\"Start native review\")"),
+    ("review.file_path", "the diff header: the SELECTED file's path"),
+    ("review.fold", "\"⋮ N unmodified lines ⋮\" from the real fold"),
+    ("review.finding_high.path", "high finding's path (empty until a review result)"),
+    ("review.finding_high.text", "high finding's text (empty until a review result)"),
+    ("review.finding_low.path", "low finding's path (empty until a review result)"),
+    ("review.finding_low.text", "low finding's text (empty until a review result)"),
 ];
 
 /// The action ids the cards' `service-actions.json` declare. ONE OWNER: these
@@ -172,7 +178,14 @@ pub struct RevUi {
     pub preview_id: Option<String>,
     /// The fetched preview's files (flattened rows + per-file counts).
     pub files: Vec<FileRow>,
+    /// The file whose hunks the diff body renders (the first file that
+    /// carries a change, else the first) — the header names it.
+    pub selected_file: Option<String>,
+    /// The selected file's rows, windowed to the card's row slots.
     pub lines: Vec<Line>,
+    /// Preview rows not displayed (the real fold count under "⋮ N unmodified
+    /// lines ⋮").
+    pub hidden: u64,
     /// The accepted `review/start` receipt (agents admitted).
     pub agents: Option<u32>,
     /// The typed reason native review is withheld, when it is.
@@ -345,6 +358,25 @@ pub fn query(_ctx: &Ctx<'_>, id: &str) -> Option<Value> {
                 st.lines.get(i).map(|l| l.mark().to_owned())?
             }
             "review.start_label" => "Start native review".to_owned(),
+            // The diff header names the SELECTED file (the rendered hunks'),
+            // not a design placeholder.
+            "review.file_path" => st.selected_file.clone()?,
+            // The real fold: how many preview rows the card does not show.
+            "review.fold" => {
+                if st.hidden > 0 {
+                    format!("⋮ {} unmodified lines ⋮", st.hidden)
+                } else {
+                    String::new()
+                }
+            }
+            // Findings come from a review RESULT; the wire carries none until
+            // the server reports one (`native-review.ts:63` — a server-owned
+            // workflow). No result -> the authored sample rows go EMPTY (the
+            // web's running/empty state), never a fake finding.
+            "review.finding_high.path"
+            | "review.finding_high.text"
+            | "review.finding_low.path"
+            | "review.finding_low.text" => String::new(),
             // 3.2's status row: the typed blocked reason wins
             // (`NativeReviewDialog.tsx:84-97` shows it as role=status), then
             // the accepted receipt's specialists count.
@@ -484,32 +516,68 @@ pub fn spawn(effect: Effect, rt: &tokio::runtime::Runtime, conv: std::sync::Arc<
 
 /// Fold a `diff/preview/get` result into the screen cache (files with counts,
 /// flattened lines). Shapes are the octos-core types (`ui_protocol.rs:2700+`).
+/// The card's diff-body row slots (`ln_0..ln_7` / `dl_0..dl_7`).
+const ROW_SLOTS: usize = 8;
+
 pub fn fold_preview(v: &Value) {
+    struct RawFile {
+        path: String,
+        lines: Vec<Line>,
+    }
     let mut files = Vec::new();
-    let mut lines = Vec::new();
+    let mut raws: Vec<RawFile> = Vec::new();
+    let mut total = 0u64;
     for file in v["preview"]["files"].as_array().unwrap_or(&Vec::new()) {
         let (add, del) = file_counts(file);
+        let mut lines = Vec::new();
+        for hunk in file["hunks"].as_array().unwrap_or(&Vec::new()) {
+            for line in hunk["lines"].as_array().unwrap_or(&Vec::new()) {
+                lines.push(Line {
+                    kind: line["kind"].as_str().unwrap_or("context").to_string(),
+                    content: line["content"].as_str().unwrap_or_default().to_string(),
+                    old_line: line["old_line"].as_u64().map(|n| n as u32),
+                    new_line: line["new_line"].as_u64().map(|n| n as u32),
+                });
+            }
+        }
+        total += lines.len() as u64;
         files.push(FileRow {
             path: file["path"].as_str().unwrap_or_default().to_string(),
             add,
             del,
         });
-        for hunk in file["hunks"].as_array().unwrap_or(&Vec::new()) {
-            for line in hunk["lines"].as_array().unwrap_or(&Vec::new()) {
-                if lines.len() < 8 {
-                    lines.push(Line {
-                        kind: line["kind"].as_str().unwrap_or("context").to_string(),
-                        content: line["content"].as_str().unwrap_or_default().to_string(),
-                        old_line: line["old_line"].as_u64().map(|n| n as u32),
-                        new_line: line["new_line"].as_u64().map(|n| n as u32),
-                    });
-                }
-            }
+        raws.push(RawFile { path: files.last().unwrap().path.clone(), lines });
+    }
+    // The rendered file: the first one that carries a change, else the first
+    // (a preview of untouched files still shows its first file, honestly
+    // empty).
+    let sel = raws
+        .iter()
+        .position(|f| f.lines.iter().any(|l| l.kind != "context"))
+        .unwrap_or(0);
+    let mut shown: Vec<Line> = Vec::new();
+    if let Some(f) = raws.get(sel) {
+        if f.lines.len() <= ROW_SLOTS {
+            shown = f.lines.clone();
+        } else {
+            // Window so the FIRST CHANGE is visible, with up to two context
+            // lines above it (#28 diff-view's changed-window + fold shape).
+            let first = f
+                .lines
+                .iter()
+                .position(|l| l.kind != "context")
+                .unwrap_or(0);
+            let start = first.saturating_sub(2);
+            let end = (start + ROW_SLOTS).min(f.lines.len());
+            shown = f.lines[start..end].to_vec();
         }
     }
+    let hidden = total - shown.len() as u64;
     let mut st = state();
     st.files = files;
-    st.lines = lines;
+    st.selected_file = raws.get(sel).map(|f| f.path.clone());
+    st.lines = shown;
+    st.hidden = hidden;
 }
 
 // ------------------------------------------------------------------- lowering
@@ -550,9 +618,15 @@ pub const COPY_SLOTS: &[(&str, &str)] = &[
     ("mk_4_text", "review.mark4"),
     ("mk_5_text", "review.mark5"),
     ("mk_6_text", "review.mark6"),
+    ("diff_file_path_text", "review.file_path"),
+    ("t_fold_text", "review.fold"),
     // autonomy-02 Code review run
     ("t_status_text", "review.status"),
     ("start_review_label_text", "review.start_label"),
+    ("finding_high_path_text", "review.finding_high.path"),
+    ("finding_high_text_text", "review.finding_high.text"),
+    ("finding_low_path_text", "review.finding_low.path"),
+    ("finding_low_text_text", "review.finding_low.text"),
 ];
 
 fn cards_root() -> std::path::PathBuf {
@@ -575,12 +649,114 @@ pub fn lower_card_src(card: &str) -> Result<(String, Value, std::path::PathBuf),
 /// Lower one screen card to Splash DSL with the live values injected — the
 /// same `l0::prepare` → `inspectable` → `to_makepad_ui` chain the module's
 /// other screens run (the renderer behind the accepted Gate-B PNGs).
+/// The kit component ids the diff rows are built from (the authored card's
+/// own trio per style: context = bare ln/dl texts; removed/added = a chip
+/// Surface wrapping ln+mk+dl — chip_130 is the removed chip, chip_132 the
+/// added one, `page.card:217-231`).
+const ROW_CTX_LN: &str = "Textd6b85f1bbf60";
+const ROW_CTX_DL: &str = "Textbd31eef74fbf";
+const ROW_RED: &str = "Surface4db4e42a8189";
+const ROW_RED_LN: &str = "Text1eead614118f";
+const ROW_RED_MK: &str = "Text9ac4cebca82f";
+const ROW_RED_DL: &str = "Text0ac44d04eeea";
+const ROW_GREEN: &str = "Surface04a27fc304ff";
+const ROW_GREEN_LN: &str = "Text90ff5f3e7b35";
+const ROW_GREEN_MK: &str = "Text3349daa3095a";
+const ROW_GREEN_DL: &str = "Text6d68fc1c53dd";
+
+/// Rebuild the `diff_rows` group with ONE ROW PER LINE of the selected
+/// file's real hunks (`ln_i`/`dl_i` texts keep flowing through their
+/// `copy.*_text` slots; the +/- mark is baked literally — the card authors
+/// only `mk_2..mk_6`). Context rows are bare texts; changed rows get the
+/// design's chip. 0 rows -> an empty group (the honest empty diff).
+pub fn rebuild_diff_rows(card_src: &str) -> String {
+    let st = state();
+    let open = "Group3d2637879433(instance: \"diff_rows\") {";
+    let start = match card_src.find(open) {
+        Some(i) => i,
+        None => return card_src.to_owned(),
+    };
+    // Find the group's matching close brace.
+    let mut depth = 0i32;
+    let mut end = start;
+    for (i, c) in card_src[start..].char_indices() {
+        match c {
+            '{' => depth += 1,
+            '}' => {
+                depth -= 1;
+                if depth == 0 {
+                    end = start + i + 1;
+                    break;
+                }
+            }
+            _ => {}
+        }
+    }
+    let mut body = String::from(open);
+    body.push('\n');
+    for (i, line) in st.lines.iter().enumerate() {
+        match line.kind.as_str() {
+            "removed" | "added" => {
+                let (surface, ln, mk, dl) = if line.kind == "removed" {
+                    (ROW_RED, ROW_RED_LN, ROW_RED_MK, ROW_RED_DL)
+                } else {
+                    (ROW_GREEN, ROW_GREEN_LN, ROW_GREEN_MK, ROW_GREEN_DL)
+                };
+                let mark = if line.kind == "removed" { "-" } else { "+" };
+                body.push_str(&format!(
+                    "      {surface}(instance: \"chip_{i}\") {{\n        \
+                     {ln}(instance: \"ln_{i}\", text: copy.ln_{i}_text)\n        \
+                     {mk}(instance: \"mk_{i}\", text: \"{mark}\")\n        \
+                     {dl}(instance: \"dl_{i}\", text: copy.dl_{i}_text)\n      }}\n"
+                ));
+            }
+            _ => {
+                body.push_str(&format!(
+                    "      {ROW_CTX_LN}(instance: \"ln_{i}\", text: copy.ln_{i}_text)\n      \
+                     {ROW_CTX_DL}(instance: \"dl_{i}\", text: copy.dl_{i}_text)\n"
+                ));
+            }
+        }
+    }
+    body.push('}');
+    format!("{}{}{}", &card_src[..start], body, &card_src[end..])
+}
+
 pub fn lower_screen(card: &str, ctx: &Ctx<'_>) -> Result<String, String> {
-    let (mut card_src, data, kit_dir) = lower_card_src(card)?;
+    let (mut card_src, mut data, kit_dir) = lower_card_src(card)?;
+    // #30a2 ①: the diff body renders the SELECTED file's real hunks, one row
+    // per line (before the copy injection, which then fills ln/dl texts).
+    if card == "autonomy-01" {
+        card_src = rebuild_diff_rows(&card_src);
+    }
+    // #30a2 ③: "Start native review" (`NativeReviewDialog.tsx:90`) is wider
+    // than the authored 123px control — widen to 153px, keep the right edge,
+    // so the label is never clipped by its own button.
+    if card == "autonomy-02" {
+        if let Some(pl) = data.get_mut("$kit").and_then(|k| k.get_mut("placements")) {
+            for k in ["start_review", "start_review_control", "start_review_surface"] {
+                if let Some(l) = pl.get_mut(k).and_then(|c| c.get_mut("layout")) {
+                    l["x"] = json!(230.0);
+                    l["w"] = json!(153.0);
+                }
+            }
+            if let Some(l) = pl
+                .get_mut("start_review_label")
+                .and_then(|c| c.get_mut("layout"))
+            {
+                l["x"] = json!(246.0);
+                l["w"] = json!(121.0);
+            }
+        }
+    }
     for (copy_id, binding) in COPY_SLOTS {
         let wants = match card {
             "autonomy-01" => binding.starts_with("review."),
-            "autonomy-02" => *binding == "review.status" || *binding == "review.start_label",
+            "autonomy-02" => {
+                *binding == "review.status"
+                    || *binding == "review.start_label"
+                    || binding.starts_with("review.finding")
+            }
             _ => false,
         };
         if !wants {

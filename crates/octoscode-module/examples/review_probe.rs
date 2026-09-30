@@ -132,7 +132,7 @@ script_mod! {
     startup() do #(App::script_component(vm)){
         ui: Root{
             main_window := Window{
-                window.inner_size: vec2(420 780)
+                window.inner_size: vec2(406 808)
                 body +: { probe := ProbeRoot{} }
             }
         }
