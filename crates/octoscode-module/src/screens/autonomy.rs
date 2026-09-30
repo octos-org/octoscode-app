@@ -490,14 +490,16 @@ pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String
                     }
                     // The name/cadence boxes are authored to the SMALLER font
                     // (and unevenly per row — the after capture clipped
-                    // "r1 replay probe" mid-word on row 2); widen them to the
-                    // status-dot column (loop_N_dot x=208 in the card's
-                    // placements) so the atlas-size text fits unclipped.
+                    // "r1 replay probe" mid-word on row 2, and row 1 sat
+                    // 3-13px right of rows 2-3: authored name x 23.85/22.38/
+                    // 22.33, cad x 28.75/22.38/22.38). #32c2 item 1: ONE left
+                    // edge — x=22.38 (rows 2-3's authored edge), width to the
+                    // status-dot column (loop_N_dot x=208).
                     if screen == Screen3::Loops
                         && (id.ends_with("_name") || id.ends_with("_cad"))
                     {
-                        let x = n.attrs.x.unwrap_or(30.0);
-                        n.attrs.w = Some((208.0 - 12.0 - x) as f32);
+                        n.attrs.x = Some(22.38);
+                        n.attrs.w = Some((208.0 - 12.0 - 22.38) as f32);
                     }
                     let icon = ["dot", "pause", "play", "trash", "clock"]
                         .iter()
