@@ -747,12 +747,14 @@ script_mod! {
             // Connect is wired for real. The native placeholder card (the
             // black-on-black "Connect" label) is retired.
             first_run_card := Splash {
-                // The setup-01 artboard is 406x776 (observations.json) — a
-                // measured-layout card. Fill/Fill gave it a 1155px frame and
-                // the fitted card column collapsed to 133px at the left edge
-                // (/snap-probed); the frame must match the artboard width.
-                // `first_run_center` centers it on x.
-                width: 406 height: Fill
+                // l0_host.rs:296: "the slot must give the card its own
+                // 406x776 box" — the artboard-exact frame (observations.json
+                // [406,776]). mount.rs:113 hands the slot's walk to the
+                // mounted root, so the slot IS the artboard; three non-exact
+                // slot walks (Fit / Fill / 406xFill) each misframed the tree
+                // (/snap-probed 133x700 regardless). At 900x800 the fixed
+                // artboard clips (712px content) — it does not rescale.
+                width: 406 height: 776
             }
         }
         }
