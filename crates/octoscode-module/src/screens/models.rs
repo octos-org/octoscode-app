@@ -641,8 +641,13 @@ pub fn lower_card_src(screen_id: &str, ctx: &Ctx<'_>) -> Result<(String, Value, 
                         .and_then(|c| c.get_mut("layout"))
                         .and_then(|l| l.get_mut("y"))
                     {
-                        if y.as_f64() == Some(356.0) {
-                            *y = json!(356.0 - delta);
+                        // The whole button band moves together: the pill
+                        // surfaces sit at y356 AND their labels at y369 (+13,
+                        // the authored in-button offset). Matching only 356
+                        // left the labels behind — empty pills with text
+                        // floating outside the card (the first live capture).
+                        if y.as_f64().is_some_and(|v| v >= 356.0) {
+                            *y = json!(y.as_f64().unwrap() - delta);
                         }
                     }
                 }
