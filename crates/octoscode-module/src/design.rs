@@ -197,6 +197,47 @@ pub fn dir(rel: &str) -> PathBuf {
     }
 }
 
+/// #32g item 1: the lowered DSL names kit faces as
+/// `crate_resource("self:resources/ux/<file>")` — the crate's own resources,
+/// which the APK does NOT package (the phone drew every card in the mono
+/// fallback). Rewrite to the renderer's other supported form,
+/// `file_resource("<absolute path>")` (the renderer itself lowers `file:`
+/// sources to exactly this): the dev checkout's copy when present (desktop
+/// byte-identical), else the materialized design root (`ux/…` rides in the
+/// embed).
+pub fn with_fonts(lowered: Result<String, String>) -> Result<String, String> {
+    const NEEDLE: &str = "crate_resource(\"self:resources/ux/";
+    let dsl = lowered?;
+    if !dsl.contains(NEEDLE) {
+        return Ok(dsl);
+    }
+    let mut out = String::with_capacity(dsl.len());
+    let mut rest = dsl.as_str();
+    while let Some(i) = rest.find(NEEDLE) {
+        out.push_str(&rest[..i]);
+        rest = &rest[i + NEEDLE.len()..];
+        let Some(end) = rest.find('"') else {
+            out.push_str(NEEDLE);
+            break;
+        };
+        let name = &rest[..end];
+        out.push_str(&format!("file_resource({:?})", font_file(name)));
+        rest = &rest[end + 1..];
+    }
+    out.push_str(rest);
+    Ok(out)
+}
+
+/// The absolute file for a kit face (`ux/<file>.ttf`): the dev checkout's
+/// own resources first, else the materialized design root.
+pub fn font_file(rel: &str) -> PathBuf {
+    let own = Path::new(manifest_dir()).join("resources").join(rel);
+    if own.is_file() {
+        return own;
+    }
+    root().join(rel)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -270,6 +311,19 @@ mod tests {
         // The disk copy equals the embedded copy (byte-for-byte).
         let embedded_text = file("cards/index.json").expect("embedded");
         assert_eq!(text, embedded_text.as_ref());
+    }
+
+    #[test]
+    fn kit_fonts_rewrite_to_packaged_files() {
+        let dsl = "x := crate_resource(\"self:resources/ux/Inter-400.ttf\")";
+        let out = with_fonts(Ok(dsl.to_owned())).expect("ok");
+        assert!(out.contains("file_resource("), "{out}");
+        assert!(!out.contains("self:resources/ux/"), "{out}");
+        // The path is absolute and the file exists (the dev checkout; the
+        // embed materializes the same bytes on the phone).
+        let p = font_file("ux/Inter-400.ttf");
+        assert!(p.is_absolute(), "{p:?}");
+        assert!(p.is_file(), "{p:?}");
     }
 
     #[test]

@@ -892,7 +892,7 @@ pub fn lower_screen(card: &str, ctx: &Ctx<'_>) -> Result<String, String> {
         .map_err(|e| format!("prepare {card}: {e}"))?;
     let mut tree = prepared.tree;
     octoscript_makepad::l0::inspectable(&mut tree);
-    let ui = octoscript_makepad::design::to_makepad_ui(&tree)
+    let ui = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&tree))
         .map_err(|e| format!("to_makepad_ui {card}: {e}"))?;
     let prefix = format!("scr_{}", card.trim_start_matches("autonomy-"));
     // #31d workflow 1: the review cards are LIGHT-authored (autonomy-01 bg

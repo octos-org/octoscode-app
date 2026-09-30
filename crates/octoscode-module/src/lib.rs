@@ -1588,6 +1588,9 @@ impl OctoscodeView {
         let handle = rt.handle().clone();
         match transport {
             screens::connect::Effect::Connect { server, token } => {
+                // #32g item 6: the device must show whether the tap arrived —
+                // log the endpoint, NEVER the token.
+                ::log::info!("[octoscode] connect: {server}");
                 let profile =
                     std::env::var("OCTOS_PROFILE_ID").unwrap_or_else(|_| "octoscode".to_string());
                 connect_now(handle, bridge, store, screens, server, token, profile);

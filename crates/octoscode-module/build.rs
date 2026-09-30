@@ -23,6 +23,14 @@ fn main() {
 
     let mut rows: Vec<(String, PathBuf)> = Vec::new();
     walk(&design, &design, &mut rows);
+    // #32g item 1: the kit faces ride in the embed (ux/, ~1.5 MB) — the APK
+    // packages only the phone shell's font_assets list, so a
+    // crate_resource("self:resources/ux/…") face drew NOTHING on the phone
+    // (every card fell back to mono). design::with_fonts points the lowered
+    // DSL at the materialized copies.
+    let resources = manifest.join("resources");
+    println!("cargo:rerun-if-changed={}", resources.display());
+    walk(&resources, &resources, &mut rows);
     rows.sort();
 
     let total: usize = rows.iter().map(|(_, p)| p.metadata().map(|m| m.len()).unwrap_or(0) as usize).sum();
@@ -66,6 +74,7 @@ fn wanted(rel: &str) -> bool {
     }
     match p.extension().and_then(|e| e.to_str()).unwrap_or("") {
         "card" | "l0" | "splash" => true,
+        "ttf" => rel.starts_with("ux/"),
         "svg" => rel.starts_with("cards/") || rel.contains("/kit/") || rel.starts_with("components/"),
         "json" => {
             // The per-card trees wholesale: mapped.json (cards.rs structure),
