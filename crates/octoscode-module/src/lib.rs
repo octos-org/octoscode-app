@@ -477,10 +477,11 @@ script_mod! {
         // instead of squeezing the center below its 420px minimum. Wide
         // windows show the same docked pixels via the columns spacers.
         review_dock := View {
-            // Fit width: the dock is only its child's right-edge strip, so the
-            // rest of the window keeps its clicks (a visible Fill/Fill wrapper
-            // shadows what's under it — the palette_dock lesson, 321ea9c).
-            width: Fit height: Fill
+            // Fill/Fill + internal right align: the palette_dock's proven
+            // overlay pattern (a Fit-width wrapper here loses the root's
+            // overlay positioning and lands top-left). The dock hides with
+            // its panel, so it never shadows clicks while hidden.
+            width: Fill height: Fill
             align: Align{x: 1.0 y: 0.0}
             visible: false
 
@@ -562,7 +563,7 @@ script_mod! {
             }
         }
         settings_dock := View {
-            width: Fit height: Fill
+            width: Fill height: Fill
             align: Align{x: 1.0 y: 0.0}
             visible: false
 
@@ -1456,6 +1457,19 @@ impl OctoscodeView {
         };
         // First run (board 4 frame 4): before a connection the window shows
         // only the centered card area; the base chrome is hidden.
+        // #28e3 item 1: the authoritative window width. Hidden-window
+        // captures never fire WindowGeomChange, and the shell sizes the
+        // window FROM this env — so when present it IS the width; real
+        // windows (no env) keep the event-tracked value instead.
+        if let Ok(sz) = std::env::var("OCTOSENSE_WINDOW_SIZE") {
+            if let Some((w, _)) = sz.split_once('x') {
+                if let Ok(w) = w.parse::<f64>() {
+                    if w > 0.0 {
+                        self.window_w = w;
+                    }
+                }
+            }
+        }
         // #28e3 item 1: the responsive layout. The center column keeps a
         // 420 px minimum: at wide windows (>= 1260 = 260 sidebar + 2x10
         // spacing + 420 center + 560 review) the docked panels reserve their
