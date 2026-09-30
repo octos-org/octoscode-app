@@ -48,3 +48,34 @@ fn icon_resources_resolve_to_existing_absolute_files() {
         assert!(std::path::Path::new(&p).is_file(), "{name}: {p}");
     }
 }
+
+#[test]
+fn svg_properties_never_carry_a_bare_string_splice() {
+    // The 42d4cad regression (device: lib.rs:122:38 "type mismatch for
+    // property svg: expected object, got string" — one bad property aborts
+    // the whole module script_mod, the module rendered EMPTY): a splice of a
+    // plain STRING into `draw_svg.svg` is a type error the compiler cannot
+    // see (the property is evaluated at script time). The value must be the
+    // file_resource OBJECT — `file_resource(#(…))` — or a plain
+    // crate_resource literal. A #[test] cannot construct ScriptVm outside an
+    // app (no public constructor; keys_probe registers the module through
+    // AppMain), so this source-level guard pins the shape in CI and
+    // examples/keys_probe.rs (headless) is the executable mount check.
+    let src = include_str!("../src/lib.rs");
+    for (i, line) in src.lines().enumerate() {
+        if line.contains("draw_svg.svg:") && line.contains("#(") {
+            assert!(
+                line.contains("file_resource(#("),
+                "lib.rs:{}: a bare string splice on draw_svg.svg (needs the file_resource object): {line}",
+                i + 1
+            );
+        }
+        if line.contains("draw_svg.svg:") {
+            assert!(
+                !line.contains("self:resources/"),
+                "lib.rs:{}: a self:resources reference (build-machine path): {line}",
+                i + 1
+            );
+        }
+    }
+}
