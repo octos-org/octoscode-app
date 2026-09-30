@@ -28,9 +28,16 @@ use std::io::{Read, Write};
 /// The kit SVGs (diff/file icons, the status spinner) carry the capture-time
 /// asset origin (`http://127.0.0.1:8170/ux-images/<card>/assets/*.svg` in the
 /// cards' page.data.json). This host serves those files itself on a port from
-/// MY headless block (8360–8369) and rewrites the origin before mounting —
+/// MY headless block (8380–8389, this lane's; env-overridable via
+/// SCREENS_PROBE_ASSET_PORT like screens_probe) and rewrites the origin
+/// before mounting —
 /// the `screens_probe` precedent (capture plumbing, not a renderer change).
-const ASSET_PORT: u16 = 8366;
+fn asset_port() -> u16 {
+    std::env::var("SCREENS_PROBE_ASSET_PORT")
+        .ok()
+        .and_then(|p| p.parse().ok())
+        .unwrap_or(8386)
+}
 
 /// Serve `design/stage-b/autonomy/cards/<card>/assets/*` at
 /// `/ux-images/<card>/assets/*` (card-host's AssetServer shape, in-process,
@@ -44,10 +51,11 @@ fn start_asset_server() {
             makepad_widgets::log!("[review_probe] asset root missing");
             return;
         };
-        let listener = match std::net::TcpListener::bind(("127.0.0.1", ASSET_PORT)) {
+        let listener = match std::net::TcpListener::bind(("127.0.0.1", asset_port())) {
             Ok(l) => l,
             Err(e) => {
-                makepad_widgets::log!("[review_probe] asset bind {ASSET_PORT}: {e}");
+                let port = asset_port();
+                makepad_widgets::log!("[review_probe] asset bind {port}: {e}");
                 return;
             }
         };
@@ -120,6 +128,11 @@ impl AppMain for App {
 script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
+
+    // #31d — the capture host shows the theme as the APP draws it: assign the
+    // shell theme roles (loads the persisted preference) before this class
+    // body evaluates, exactly like lib.rs's script_mod.
+    #(octoscode_module::screens::theme::eval_roles(vm))
 
     let ProbeRoot = #(ReviewProbe::register_widget(vm)) {
         width: Fill height: Fill flow: Down
@@ -259,9 +272,16 @@ impl Widget for ReviewProbe {
             // THIS host's asset server (the authored origin is the design
             // flow's 8170, held by a process RULES forbid touching).
             let r = review::lower_screen(card, &ctx).map(|dsl| {
+                // #31d2 verification dump (capture plumbing; untracked tmp/):
+                // the lowered DSL around the dl_ rows, to confirm where the
+                // ellipsis property landed.
+                if let Ok(mark) = std::env::var("SCREENS_PROBE_DUMP_DSL") {
+                    let _ = std::fs::write(&mark, &dsl);
+                    makepad_widgets::log!("[review_probe] dumped DSL to {mark}");
+                }
                 dsl.replace(
                     "http://127.0.0.1:8170/ux-images/",
-                    &format!("http://127.0.0.1:{ASSET_PORT}/ux-images/"),
+                    &format!("http://127.0.0.1:{}/ux-images/", asset_port()),
                 )
             });
             let r = match r {
