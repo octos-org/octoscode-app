@@ -451,6 +451,7 @@ impl OctoscodeView {
                 // #29c: the screens' occupancy window folds from the
                 // token_cost_update progress payloads (workspace-events.ts:6-10).
                 screens::models::note_transport_event(&evt);
+                screens::review::note_transport_event(&evt);
                 let e = drv.on_event(evt);
                 ::log::debug!("[octoscode] {e:?}");
                 SignalToUI::set_ui_signal();
@@ -484,6 +485,26 @@ impl OctoscodeView {
             }
             if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
                 screens::workspace::spawn(effect, rt, conv);
+            }
+            return;
+        }
+        // #30a: the board-3 review screens' ids route through their own table
+        // first (one-owner rule); the conversation router never sees them.
+        if screens::review::is_action(action) {
+            let (store, ui, conv) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.ui.clone(), b.conv.clone())
+            };
+            let effect = {
+                let ctx = bindings::Ctx::new(&store, &ui);
+                screens::review::resolve(action, index, &ctx)
+            };
+            if let screens::review::Effect::Unhandled(id) = &effect {
+                ::log::warn!("octoscode: unhandled screen action {id:?}");
+                return;
+            }
+            if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                screens::review::spawn(effect, rt, conv);
             }
             return;
         }
