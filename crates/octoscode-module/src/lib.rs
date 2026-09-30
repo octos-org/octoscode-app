@@ -1810,6 +1810,14 @@ impl OctoscodeView {
         // The toggle itself only exists while WIDTH hides the sidebar (and the
         // shell is live — the first-run screen has its own chrome).
         self.view.widget(cx, ids!(sidebar_toggle)).set_visible(cx, live && width_hides_sidebar);
+        // #31a: below 760 the toggle OPENS the sidebar as a drill-down screen
+        // and the conversation hides — showing both split the Right flow and
+        // left the conversation 385px, where the user bubble clipped at the
+        // window edge (the exact g3 defect class; 31a-toggle-after.png). The
+        // same icon closes, so nothing is ever clipped.
+        self.view
+            .widget(cx, ids!(conversation_column))
+            .set_visible(cx, !(width_hides_sidebar && self.sidebar_open));
         self.view.widget(cx, ids!(review_dock)).set_visible(cx, review);
         self.view.widget(cx, ids!(review_panel)).set_visible(cx, review);
         self.view
