@@ -396,7 +396,7 @@ fn reconnect_banner(s: &mut ScreenUi) -> String {
 /// tests and headless runs work from any CWD.
 pub fn screen_cards_dir() -> std::path::PathBuf {
     std::path::Path::new(&std::env::var("OCTOSCODE_CARDS_DIR").unwrap_or_else(|_| {
-        concat!(env!("CARGO_MANIFEST_DIR"), "/../../design/stage-b/setup/cards").to_owned()
+        crate::design::dir("stage-b/setup/cards").to_string_lossy().to_string()
     }))
     .to_path_buf()
 }

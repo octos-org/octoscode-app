@@ -194,8 +194,8 @@ pub struct Lowered {
 
 pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String> {
     let dir = format!(
-        "{}/../../design/stage-b/autonomy/cards/{}",
-        env!("CARGO_MANIFEST_DIR"),
+        "{}/{}",
+        crate::design::dir("stage-b/autonomy/cards").display(),
         screen.card_dir()
     );
     let card_src = std::fs::read_to_string(format!("{dir}/page.card"))

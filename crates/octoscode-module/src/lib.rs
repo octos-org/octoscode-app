@@ -34,6 +34,7 @@ pub mod actions;
 pub mod bindings;
 pub mod cards;
 pub mod components;
+pub mod design;
 pub mod fallback;
 pub mod l0_host;
 pub mod flow;
