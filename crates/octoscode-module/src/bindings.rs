@@ -105,14 +105,9 @@ pub const ACTIONS: &[(&str, &str)] = &[
     ("thread.open", "open the clicked thread row's session (`row.id`)"),
     ("answer.copy", "copy the answer text (UI-local; the clipboard is the host's)"),
     ("tool.toggle", "toggle a tool cell's output disclosure (UI-local)"),
-    // #29d — Stage C screens (board 2.8/2.11/2.12)
-    ("palette.move", "move the palette selection (ArrowUp/Down, wraps)"),
-    ("palette.run", "run the selected command (capability-gated, fails closed)"),
-    ("palette.query.set", "feed the palette query box from the draft (UI-local)"),
-    ("error.copy", "copy the redacted crash diagnostics (UI-local)"),
-    ("connection.retry", "replay the production connect handshake"),
-    ("error.reload", "the error card's Reload: reconnect and re-render"),
-    ("error.copy_diagnostics", "copy the redacted crash report (the card's button id)"),
+    // Screen actions (#29d palette, #29a/#29c workspace/connect/models) are NOT
+    // declared here: each screen owns its own table (the one-owner rule,
+    // #29d3) — `screens::palette::owns_action` and its siblings.
 ];
 
 /// The conversation action ids the fallback view emits (its buttons map to

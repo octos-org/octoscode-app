@@ -412,3 +412,39 @@ async fn palette_run_resume_routes_the_production_refresh_on_the_real_wire() {
         "the wire carried session/list"
     );
 }
+
+
+// ------------------------------------------------- §6 the one-owner rule (#29d3)
+
+/// The screen action ids belong to the screen's OWN table
+/// (`screens::palette::owns_action`), never to the conversation
+/// `bindings::ACTIONS` (whose shape two lib tests pin) — and the conversation
+/// router must not claim them either.
+#[test]
+fn screen_action_ids_are_owned_by_the_screen_not_the_conversation_tables() {
+    let screen_ids = [
+        "palette.move",
+        "palette.run",
+        "palette.query.set",
+        "error.copy",
+        "error.reload",
+        "error.copy_diagnostics",
+        "connection.retry",
+    ];
+    for id in screen_ids {
+        assert!(
+            palette::owns_action(id),
+            "{id} must be owned by screens::palette"
+        );
+        assert!(
+            !octoscode_module::bindings::ACTIONS.iter().any(|(a, _)| *a == id),
+            "{id} leaked into the conversation bindings::ACTIONS"
+        );
+        assert!(
+            !octoscode_module::actions::is_routed(id),
+            "{id} leaked into the conversation router's ROUTED"
+        );
+        // …and the conversation table keeps exactly its pinned shape (9 ids).
+        assert_eq!(octoscode_module::bindings::ACTIONS.len(), 9);
+    }
+}

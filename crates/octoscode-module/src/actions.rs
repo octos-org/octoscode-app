@@ -83,12 +83,8 @@ pub const ROUTED: &[&str] = &[
     "thread.open",
     "tool.toggle",
     "answer.copy",
-    // #29d — routed through screens::palette::resolve.
-    "palette.move",
-    "palette.run",
-    "palette.query.set",
-    "error.copy",
-    "connection.retry",
+    // Screen actions route through their own screens::* resolvers (the
+    // one-owner rule, #29d3), not this conversation router.
 ];
 
 /// Whether `id` is a routed action id.
