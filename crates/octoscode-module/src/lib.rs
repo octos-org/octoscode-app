@@ -521,15 +521,27 @@ script_mod! {
                         width: Fill height: Fit text: "Session settings"
                         draw_text.text_style.font_size: 14
                     }
-                    settings_close := Button {
-                        width: 28 height: 28 text: "✕"
-                        draw_bg.color: #00000000
-                        draw_bg.color_hover: #00000010
-                        draw_bg.color_down: #00000020
-                        draw_bg.border_size: 0.0
-                        draw_bg.color_2: #00000000
-                        draw_bg.border_color: #00000000
-                        draw_bg.border_color_2: #00000000
+                    // #28e2 item 1: "✕" was tofu — the close SVG (same as the
+                    // review header's).
+                    settings_close_wrap := View {
+                        width: 28 height: 28 flow: Overlay
+                        settings_close_icon := Svg {
+                            width: 12 height: 12
+                            align: Align{x: 0.5 y: 0.5}
+                            animating: false
+                            draw_svg.svg: crate_resource("self:resources/icons/icon_close.svg")
+                            draw_svg.preserve_viewbox: true
+                        }
+                        settings_close := Button {
+                            width: Fill height: Fill text: ""
+                            draw_bg.color: #00000000
+                            draw_bg.color_hover: #00000010
+                            draw_bg.color_down: #00000020
+                            draw_bg.border_size: 0.0
+                            draw_bg.color_2: #00000000
+                            draw_bg.border_color: #00000000
+                            draw_bg.border_color_2: #00000000
+                        }
                     }
                 }
                 Label { width: Fill height: Fit text: "Model" draw_text.text_style.font_size: 11 draw_text.color: #6E6E73 }
@@ -597,10 +609,32 @@ script_mod! {
                     }
                 }
             }
-            Label {
-                width: Fill height: Fit text: "↑↓ move · ↵ run · esc"
-                draw_text.text_style.font_size: 10
-                draw_text.color: #6E6E73
+            // #28e2 item 1: the hint's arrows and return were tofu (Inter
+            // lacks those glyphs) — small SVGs instead of text glyphs.
+            palette_hint := View {
+                width: Fill height: Fit flow: Right spacing: 4
+                Svg {
+                    width: 9 height: 9
+                    animating: false
+                    draw_svg.svg: crate_resource("self:resources/icons/icon_arrow_up.svg")
+                    draw_svg.preserve_viewbox: true
+                }
+                Svg {
+                    width: 9 height: 9
+                    animating: false
+                    draw_svg.svg: crate_resource("self:resources/icons/icon_arrow_down.svg")
+                    draw_svg.preserve_viewbox: true
+                }
+                Label { width: Fit height: Fit text: "move" draw_text.text_style.font_size: 10 draw_text.color: #6E6E73 }
+                Label { width: Fit height: Fit text: "·" draw_text.text_style.font_size: 10 draw_text.color: #6E6E73 }
+                Svg {
+                    width: 9 height: 9
+                    animating: false
+                    draw_svg.svg: crate_resource("self:resources/icons/icon_return.svg")
+                    draw_svg.preserve_viewbox: true
+                }
+                Label { width: Fit height: Fit text: "run" draw_text.text_style.font_size: 10 draw_text.color: #6E6E73 }
+                Label { width: Fit height: Fit text: "· esc" draw_text.text_style.font_size: 10 draw_text.color: #6E6E73 }
             }
         } // palette
         } // palette_dock
