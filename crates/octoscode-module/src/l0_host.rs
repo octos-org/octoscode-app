@@ -48,8 +48,34 @@ pub fn register_vocabulary() {
         fn kit(vm: &mut ScriptVm) {
             octoscript_widgets::kit::script_mod(vm);
         }
+        // #32h item 1 (layer 3): the screen cards evaluate inside their OWN
+        // Splash isolate (mount.rs), which does not see the module VM where
+        // NAV is registered — an unregistered global is NIL (kit.rs:141-143),
+        // so the wired `on_click: || { NAV(t: "connect") }` still silently
+        // did nothing (the 8367 run: click ok, zero nav logs). This mod is
+        // installed into every isolate BEFORE its first body evaluation, so
+        // each one gets the NAV global (same thread-free closure shape as
+        // register() in lib.rs — NAV_QUEUE/SignalToUI are statics).
+        fn nav(vm: &mut ScriptVm) {
+            use makepad_widgets::{LiveId, live_id};
+            let f = octoscript_render::add_global_fn(
+                vm,
+                &[(makepad_widgets::live_id!(t), makepad_widgets::ScriptValue::NIL)],
+                |vm, a| {
+                    let t =
+                        octoscript_render::string_prop(vm, a, makepad_widgets::live_id!(t))
+                            .unwrap_or_default();
+                    makepad_widgets::log!("[octoscode] nav tap: {t}");
+                    crate::NAV_QUEUE.lock().unwrap().push(t);
+                    makepad_widgets::SignalToUI::set_ui_signal();
+                    makepad_widgets::ScriptValue::NIL
+                },
+            );
+            vm.set_injected_global(makepad_widgets::live_id!(NAV), f);
+        }
         register_splash_isolate_mod(design);
         register_splash_isolate_mod(kit);
+        register_splash_isolate_mod(nav);
     });
 }
 

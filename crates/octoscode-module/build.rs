@@ -86,9 +86,9 @@ fn wanted(rel: &str) -> bool {
     }
     match p.extension().and_then(|e| e.to_str()).unwrap_or("") {
         "card" | "l0" | "splash" => true,
-        "ttf" => rel.starts_with("ux/"),
-        // The module's own icons (lib.rs script_mod! names them by
-        // self:resources/icons/…); 28K, they ride the embed like the faces.
+        // #32h: the module's own kit faces AND icons ride the embed (ux/,
+        // icons/, plus the cards'/kit/components/ svgs from #32e — this arm
+        // is a superset of the original svg arm, which it replaces).
         "svg" => rel.starts_with("ux/") || rel.starts_with("icons/") || rel.starts_with("cards/") || rel.contains("/kit/") || rel.starts_with("components/"),
         "svg" => rel.starts_with("cards/") || rel.contains("/kit/") || rel.starts_with("components/"),
         "json" => {

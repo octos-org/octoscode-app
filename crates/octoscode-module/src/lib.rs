@@ -981,6 +981,13 @@ pub struct OctoscodeView {
     runtime: Option<tokio::runtime::Runtime>,
     #[rust]
     started: bool,
+    /// #32h item 1: the mounted card's tap wiring — (widget id, action id)
+    /// pairs from the lowered card's wired DesignNativeButton blocks. The
+    /// Event::Actions loop routes their clicks into the screens' tables
+    /// (the outer loop's L4: nothing dispatched in-splash clicks — Stage C
+    /// had tested the tables by calling ids directly, never by clicking).
+    #[rust]
+    splash_taps: Vec<(LiveId, String)>,
     /// The memoised per-item lowerings (a `PortalList` re-instantiates its
     /// visible rows every frame; without this the CPU re-lowers them each
     /// frame). See [`screen::Cache`].
@@ -1521,6 +1528,9 @@ impl OctoscodeView {
     /// caller has one; without it the input effects no-op (the L0 input
     /// wiring lands with #28e's containers).
     fn perform_screen_action(&self, action: &str, value: Option<&str>) {
+        // #32h: the terminal proof line (makepad macro — reaches logcat on
+        // Android, unlike ::log::info!), fired for EVERY routed screen action.
+        makepad_widgets::log!("[octoscode] screen action: {action}");
         let (bridge, store, conv, screens) = {
             let b = self.bridge.lock().unwrap();
             (self.bridge.clone(), b.store.clone(), b.conv.clone(), b.screens.clone())
@@ -1588,9 +1598,10 @@ impl OctoscodeView {
         let handle = rt.handle().clone();
         match transport {
             screens::connect::Effect::Connect { server, token } => {
-                // #32g item 6: the device must show whether the tap arrived —
-                // log the endpoint, NEVER the token.
-                ::log::info!("[octoscode] connect: {server}");
+                // #32h: ::log::info! is NOT routed to logcat on Android (the
+                // outer loop's diagnosis — no connect line was ever visible
+                // on the 6T); makepad_widgets::log! reaches the platform log.
+                makepad_widgets::log!("[octoscode] connect: {server}");
                 let profile =
                     std::env::var("OCTOS_PROFILE_ID").unwrap_or_else(|_| "octoscode".to_string());
                 connect_now(handle, bridge, store, screens, server, token, profile);
@@ -1771,6 +1782,12 @@ impl OctoscodeView {
             };
             match lowered {
                 Ok(dsl) => {
+                    // #32h item 1: keep the card's tap wiring — the Event::
+                    // Actions loop routes these (L4).
+                    self.splash_taps = screens::connect::wired_taps(&dsl)
+                        .into_iter()
+                        .map(|(n, e)| (LiveId::from_str(&n), e))
+                        .collect();
                     // #31a item 3: centre the card in the first-run area (not
                     // over the sidebar header, no left clipping — the arm-A
                     // probe had it at x=12). A plain View wrapper carries the
@@ -2082,7 +2099,16 @@ impl Widget for OctoscodeView {
             self.sync_labels(cx);
         }
         match event {
-            Event::Signal => self.sync_labels(cx),
+            Event::Signal => {
+                // #32h item 1: drain the card taps the NAV global enqueued
+                // (eval thread) into the same router the native chrome uses.
+                let taps: Vec<String> = NAV_QUEUE.lock().unwrap().drain(..).collect();
+                for t in taps {
+                    makepad_widgets::log!("[octoscode] nav route: {t}");
+                    self.perform_screen_action(&t, None);
+                }
+                self.sync_labels(cx);
+            }
             // #28e3 item 1: track the window width — the responsive layout
             // (center min 420, review overlay when narrow, sidebar hidden
             // below 760) re-derives in `sync_chrome`.
@@ -2113,6 +2139,19 @@ impl Widget for OctoscodeView {
                 }
                 if self.view.button(cx, ids!(refresh)).clicked(actions) {
                     self.perform_action("session.refresh", 0);
+                }
+                // #32h item 1 (L4): route the mounted card's wired taps into
+                // the screens' tables — the ButtonAction from inside the
+                // splash was in this very actions vec, but nothing queried it.
+                for (id, ev) in &self.splash_taps {
+                    if self
+                        .view
+                        .button(cx, &[live_id!(screen_splash), *id])
+                        .clicked(actions)
+                    {
+                        makepad_widgets::log!("[octoscode] card tap: {ev}");
+                        self.perform_screen_action(ev, None);
+                    }
                 }
                 // The #16 `new-chat` component overlaid by a host hit target.
                 if self.view.button(cx, ids!(new_chat_hit)).clicked(actions) {
@@ -2370,6 +2409,16 @@ impl Widget for OctoscodeView {
     }
 }
 
+// #32h item 1: the lowered cards' tap targets emit `on_click: || { NAV(t:
+// "connect") }` (octoscript-makepad lib.rs:450) and NAV is "a global the
+// host registers" (fork lib.rs:359) — nobody did. An unregistered global
+// evaluates to NIL (kit.rs:141-143), so every card tap silently did
+// nothing: no connection, no log (the phone symptom). The callback runs on
+// the eval thread: log, enqueue, wake; the Signal arm drains into the SAME
+// router the native chrome uses (perform_screen_action → the screens'
+// table → Effect::Connect).
+static NAV_QUEUE: Mutex<Vec<String>> = Mutex::new(Vec::new());
+
 pub struct OctoscodeModule;
 pub static OCTOSCODE_MODULE: OctoscodeModule = OctoscodeModule;
 
@@ -2403,6 +2452,25 @@ impl AppModule for OctoscodeModule {
         // Same source OctoSense's ai-host uses (`Host::platform(
         // cx.get_data_dir())` -> /data/user/0/<pkg>/files/octos-home).
         crate::design::set_host_dir(vm.cx_mut().get_data_dir());
+        // #32h item 1: the lowered cards' buttons emit `on_click: || { NAV(t:
+        // "…") }` (fork lib.rs:450) and NAV is "a global the host registers"
+        // (fork lib.rs:359) — nobody did. An unregistered global evaluates to
+        // NIL (kit.rs:141-143), so every card tap silently did nothing: no
+        // connection, no log (the phone symptom). The callback runs on the
+        // eval thread: log + enqueue + wake; the Event::Signal arm drains
+        // into the SAME router the native chrome taps use.
+        let nav = octoscript_render::add_global_fn(
+            vm,
+            &[(live_id!(t), makepad_widgets::ScriptValue::NIL)],
+            |vm, a| {
+                let t = octoscript_render::string_prop(vm, a, live_id!(t)).unwrap_or_default();
+                makepad_widgets::log!("[octoscode] nav tap: {t}");
+                NAV_QUEUE.lock().unwrap().push(t);
+                SignalToUI::set_ui_signal();
+                makepad_widgets::ScriptValue::NIL
+            },
+        );
+        vm.set_injected_global(live_id!(NAV), nav);
         script_mod(vm);
         // Card #21b: the design/kit vocabulary every lowered #16 component names
         // (`DesignSurface`, `KitButton`, …) must be in THIS VM — the isolate the

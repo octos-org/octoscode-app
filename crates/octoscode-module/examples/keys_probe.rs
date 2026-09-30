@@ -260,7 +260,7 @@ script_mod! {
     startup() do #(App::script_component(vm)){
         ui: Root{
             main_window := Window{
-                window.inner_size: vec2(1280 800)
+                window.inner_size: vec2(360 780) // #32h: the phone viewport
                 body +: {
                     // The REAL shell — the same widget the desktop host mounts.
                     shell := OctoscodeView {}
