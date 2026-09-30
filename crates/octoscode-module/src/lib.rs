@@ -458,7 +458,10 @@ script_mod! {
                 draw_text.text_style.font_size: 13
             }
             palette_list := PortalList {
-                width: Fill height: Fit flow: Down
+                width: Fill height: 204 flow: Down
+                // A fixed 6×34 px viewport: a PortalList under a Fit-height
+                // parent computes zero visible rows (the f3 captures showed the
+                // search field and hint row with a blank gap between them).
                 PaletteRowTpl := View {
                     width: Fill height: 34 flow: Right spacing: 8
                     padding: Inset{left: 6 top: 8}
