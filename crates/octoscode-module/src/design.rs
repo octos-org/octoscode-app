@@ -162,6 +162,20 @@ pub fn root() -> PathBuf {
                 dir.display()
             );
         }
+        // (a) the faces are visible in the log: count + one full path.
+        let faces: Vec<&str> = table()
+            .iter()
+            .filter(|(p, _)| p.starts_with("ux/") && p.ends_with(".ttf"))
+            .map(|(p, _)| *p)
+            .collect();
+        if !faces.is_empty() {
+            makepad_widgets::log!(
+                "[octoscode] design embed: {} font face(s) under {} (e.g. {})",
+                faces.len(),
+                dir.join("ux/").display(),
+                dir.join(faces[0]).display()
+            );
+        }
         let _ = std::fs::write(&marker, total);
         dir
     })
@@ -221,8 +235,30 @@ pub fn with_fonts(lowered: Result<String, String>) -> Result<String, String> {
             break;
         };
         let name = &rest[..end];
-        out.push_str(&format!("file_resource({:?})", font_file(name)));
+        // The needle consumed the `ux/` prefix — the faces live in
+        // resources/ux/ (the checkout) and <root>/ux/ (the embed). b408a89
+        // sought them at the ROOT (device log: ".../design/Inter-600.ttf is
+        // not available in this build") and the family rendered EMPTY — no
+        // text at all.
+        let path = font_file(&format!("ux/{name}"));
+        // Skip past the quoted name FIRST — the original crate_resource's
+        // closing `)` follows the quote. (The previous strip ran BEFORE the
+        // skip: a silent no-op, the `)` survived, and the doubled `))`
+        // broke the DSL parse — "Expected } not found" — the whole card
+        // drew nothing.)
         rest = &rest[end + 1..];
+        if path.is_file() {
+            // (b) the absolute, packaged path; consume the original `)`.
+            out.push_str(&format!("file_resource({path:?})"));
+            rest = rest.strip_prefix(')').unwrap_or(rest);
+        } else {
+            // (c) never draw nothing: keep the crate-relative form (a
+            // broken materialization degrades to the mono fallback, not an
+            // empty family); the `)` in rest closes it.
+            out.push_str(NEEDLE);
+            out.push_str(name);
+            out.push('"');
+        }
     }
     out.push_str(rest);
     Ok(out)
@@ -319,11 +355,52 @@ mod tests {
         let out = with_fonts(Ok(dsl.to_owned())).expect("ok");
         assert!(out.contains("file_resource("), "{out}");
         assert!(!out.contains("self:resources/ux/"), "{out}");
-        // The path is absolute and the file exists (the dev checkout; the
-        // embed materializes the same bytes on the phone).
-        let p = font_file("ux/Inter-400.ttf");
-        assert!(p.is_absolute(), "{p:?}");
-        assert!(p.is_file(), "{p:?}");
+        // The emitted path carries the ux/ DIRECTORY (b408a89's regression:
+        // the needle consumed the prefix and the face was sought at the
+        // root — the family rendered empty and the card drew no text).
+        let start = out.find('"').expect("quoted path") + 1;
+        let end = out[start..].find('"').expect("closing") + start;
+        let path = &out[start..end];
+        assert!(path.ends_with("ux/Inter-400.ttf"), "{path}");
+        assert!(Path::new(path).is_file(), "{path}");
+        // The emitted call is well-formed: the original `crate_resource`'s
+        // closing paren is consumed — a doubled `))` is the parse breaker
+        // that blanked the whole card (b408a89).
+        assert!(!out.contains("))"), "{out}");
+        assert!(out.ends_with(".ttf\")"), "{out}");
+    }
+
+    #[test]
+    fn a_face_missing_on_disk_keeps_the_original_reference() {
+        // (c): the guard never points the renderer at a nonexistent file —
+        // the original form stays (the mono fallback), never an empty family.
+        let dsl = "x := crate_resource(\"self:resources/ux/NotARealFace.ttf\")";
+        let out = with_fonts(Ok(dsl.to_owned())).expect("ok");
+        assert!(
+            out.contains("crate_resource(\"self:resources/ux/NotARealFace.ttf\")"),
+            "{out}"
+        );
+        assert!(!out.contains("file_resource("), "{out}");
+    }
+
+    #[test]
+    fn the_materialized_root_carries_the_five_faces() {
+        let dir = root();
+        for f in [
+            "ux/Inter-400.ttf",
+            "ux/Inter-500.ttf",
+            "ux/Inter-600.ttf",
+            "ux/Inter-700.ttf",
+            "ux/LiberationMono-Regular.ttf",
+        ] {
+            let p = dir.join(f);
+            assert!(p.is_file(), "missing {}", p.display());
+            assert!(
+                std::fs::metadata(&p).map(|m| m.len() > 100_000).unwrap_or(false),
+                "{} is not a real face",
+                p.display()
+            );
+        }
     }
 
     #[test]
