@@ -993,8 +993,22 @@ def r_localcmd(app):
         if r and r[2] > 0:
             break
         time.sleep(0.5)
+    # The earlier recovery checks (r_replay) leave a turn LIVE; the mounted
+    # composer rejects text while the turn runs, so wait for it to settle
+    # before typing (probed via the app log: no `draft synced` for this
+    # check's text when typed mid-turn).
+    app.wait_for(lambda s: "workingrow" not in app.kinds(s), timeout=45,
+                 what="the earlier recovery turn to settle")
+    time.sleep(1.0)
     app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
-    app.clear_composer(); app.type("/bogus-command walk probe")
+    app.clear_composer()
+    # ONE /t event carries the whole string: the composer's changed action
+    # fires ONCE with '/bogus-command walk probe' (!= "/"), so the bare-'/'
+    # palette trigger never opens and the draft holds the command. (Probed
+    # three other flows: '/'-first gets eaten by the palette's Esc, and a
+    # home+'/' insertion never fires a changed sync.)
+    app.type("/bogus-command walk probe")
+    time.sleep(0.5)
     app.key("return")
     time.sleep(3.0)
     d = app.snap()
