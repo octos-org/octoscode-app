@@ -38,6 +38,7 @@ pub mod fallback;
 pub mod l0_host;
 pub mod flow;
 pub mod mount;
+pub mod screens;
 pub mod screen;
 
 use flow::{Conversation, FlowUi};
@@ -265,6 +266,9 @@ script_mod! {
             review_column := View {
                 width: 200 height: Fill flow: Down spacing: 6
                 Label { width: Fill height: Fit text: "Review" draw_text.text_style.font_size: 14 }
+                // #29d: feature-flagged temporary mount (OCTOSCODE_SCREEN=palette|error|loading)
+                // until #28e's shell (drawer + palette overlay) lands.
+                screen_splash := Splash { width: Fill height: Fit }
             }
         }
     }
@@ -341,6 +345,18 @@ pub struct OctoscodeView {
 
 impl OctoscodeView {
     fn start(&mut self) {
+        // #29d — seed the error screen the way the host's crash boundary would
+        // (`OCTOSCODE_ERROR_SEED`; the `OCTOSCODE_SYNTHETIC_TIMELINE` precedent:
+        // a proof-only seed, no transport). The sample carries secrets so the
+        // capture proves the redaction boundary renders.
+        if std::env::var("OCTOSCODE_ERROR_SEED").is_ok() {
+            crate::screens::palette::report_error(
+                "Render panicked: bad connection state\n\
+                 GET https://octos.example/ws?token=abc123&x=1\n\
+                 Authorization: Bearer sk-test-9f8e7d6c"
+                    .to_owned(),
+            );
+        }
         // The 2,000-entry synthetic timeline (the virtualization proof): no
         // transport at all — a store with 2,000 rows and a session, so the
         // window draws the virtualized list on its own (`/g` then shows the
@@ -447,11 +463,62 @@ impl OctoscodeView {
                 ::log::warn!("octoscode: unhandled action id {id:?}");
                 return;
             }
+            // #29d — UI-local screen effects (resolve already applied them):
+            // selection/query feed, and the report copy (the host owns the
+            // clipboard exactly like `answer.copy`; its write needs `cx`).
+            actions::Effect::Screen(
+                crate::screens::palette::Effect::Move(_)
+                | crate::screens::palette::Effect::QuerySet
+                | crate::screens::palette::Effect::CopyReport(_),
+            ) => return,
             _ => {}
         }
         let Some(rt) = self.runtime.as_ref() else {
             return;
         };
+        // #29d — `connection.retry` replays the production handshake. It must
+        // run BEFORE the conv guard: a retry is exactly for the case where the
+        // initial connect failed and `bridge.conv` is still None.
+        if let actions::Effect::Screen(crate::screens::palette::Effect::Retry) = effect {
+            let bridge = self.bridge.clone();
+            let base =
+                std::env::var("OCTOS_BASE_URL").unwrap_or_else(|_| "http://127.0.0.1:50082".into());
+            let bearer = std::env::var("OCTOS_BEARER").unwrap_or_default();
+            let profile =
+                std::env::var("OCTOS_PROFILE_ID").unwrap_or_else(|_| "octoscode".to_string());
+            let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
+            let connected = {
+                let _guard = rt.enter();
+                crate::flow::Conversation::connect(
+                    &base,
+                    &bearer,
+                    &profile,
+                    cwd.clone(),
+                    Some(Arc::new(|| SignalToUI::set_ui_signal())),
+                )
+            };
+            match connected {
+                Ok((conv, mut evt_rx)) => {
+                    let conv = Arc::new(conv);
+                    {
+                        let mut b = bridge.lock().unwrap();
+                        b.store = conv.store.clone();
+                        b.ui = conv.ui();
+                        b.conv = Some(conv.clone());
+                    }
+                    ::log::info!("octoscode: connection.retry connected");
+                    rt.spawn(async move {
+                        while let Some(evt) = evt_rx.recv().await {
+                            let e = conv.on_event(evt);
+                            ::log::debug!("[octoscode] {e:?}");
+                            SignalToUI::set_ui_signal();
+                        }
+                    });
+                }
+                Err(e) => ::log::warn!("octoscode: connection.retry: {e}"),
+            }
+            return;
+        }
         let Some(conv) = conv else {
             return;
         };
@@ -504,10 +571,38 @@ impl OctoscodeView {
                     }
                 });
             }
+            // #29d — palette commands route to the EXISTING production effects
+            // (fail closed: only commands with a native effect and an advertised
+            // feature reach here, or they resolved to Unhandled).
+            actions::Effect::Screen(crate::screens::palette::Effect::Run(effect_id, name)) => {
+                match effect_id {
+                    Some("session.refresh") => {
+                        rt.spawn(async move {
+                            if let Err(e) = conv.refresh_sessions().await {
+                                ::log::warn!("octoscode: palette.run {name}: session.refresh: {e}");
+                            }
+                        });
+                    }
+                    // Fail closed with the command's own name: the table only
+                    // ships effects the native client can actually perform, so
+                    // this names a wiring gap, never a silent no-op.
+                    other => ::log::warn!(
+                        "octoscode: palette.run {name}: no native effect ({other:?})"
+                    ),
+                }
+            }
             // Handled above / needs `cx` (copy).
             actions::Effect::ToggleTool(_)
             | actions::Effect::Unhandled(_)
             | actions::Effect::CopyAnswer => {}
+            actions::Effect::Screen(other) => match other {
+                crate::screens::palette::Effect::Run(..) => unreachable!("matched above"),
+                crate::screens::palette::Effect::Move(_)
+                | crate::screens::palette::Effect::QuerySet
+                | crate::screens::palette::Effect::CopyReport(_)
+                | crate::screens::palette::Effect::Unhandled(_) => {}
+                crate::screens::palette::Effect::Retry => {}
+            },
         }
     }
 
@@ -562,6 +657,20 @@ impl OctoscodeView {
         let composer_splash = self.view.splash(cx, ids!(composer_splash));
         if let Err(e) = self.mounts.mount(cx, &composer_splash, &composer) {
             makepad_widgets::log!("[octoscode] composer mount: {e}");
+        }
+        // #29d — the Stage C screens (board 2.8/2.11/2.12) mount into the review
+        // column's temporary slot while #28e's shell (drawer + palette overlay)
+        // is pending. OCTOSCODE_SCREEN=palette|error|loading names one; unset
+        // leaves the screen exactly as before this card. The mount cache
+        // compares the DSL string, so live-slot flips repaint exactly once.
+        if let Ok(which) = std::env::var("OCTOSCODE_SCREEN") {
+            let screen_splash = self.view.splash(cx, ids!(screen_splash));
+            let store = { self.bridge.lock().unwrap().store.clone() };
+            if let Err(e) = crate::screens::palette::mount_screen(
+                &mut self.mounts, cx, screen_splash, &which, &store,
+            ) {
+                makepad_widgets::log!("[octoscode] screen mount: {e}");
+            }
         }
         // Card #21d item 5: the `new-chat` component (#16) is the thread
         // column's first row. The row existed but was never mounted, so it

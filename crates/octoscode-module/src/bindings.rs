@@ -105,6 +105,12 @@ pub const ACTIONS: &[(&str, &str)] = &[
     ("thread.open", "open the clicked thread row's session (`row.id`)"),
     ("answer.copy", "copy the answer text (UI-local; the clipboard is the host's)"),
     ("tool.toggle", "toggle a tool cell's output disclosure (UI-local)"),
+    // #29d — Stage C screens (board 2.8/2.11/2.12)
+    ("palette.move", "move the palette selection (ArrowUp/Down, wraps)"),
+    ("palette.run", "run the selected command (capability-gated, fails closed)"),
+    ("palette.query.set", "feed the palette query box from the draft (UI-local)"),
+    ("error.copy", "copy the redacted crash diagnostics (UI-local)"),
+    ("connection.retry", "replay the production connect handshake"),
 ];
 
 /// The conversation action ids the fallback view emits (its buttons map to
@@ -144,6 +150,11 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
         "session.active" => json!(store.active_session()),
         "caps.count" => json!(store.capabilities().len()),
         "summary" => json!(store.summary()),
+
+        // #29d — Stage C screens (board 2.8/2.11/2.12); prefix-disjoint ids.
+        _ if crate::screens::palette::owns_binding(id) => {
+            return crate::screens::palette::query(ctx, id);
+        }
 
         // ---- conversation-01: THREAD LIST ---------------------------------
         "threads" => json!(rows_json(store)),

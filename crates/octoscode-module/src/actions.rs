@@ -36,6 +36,9 @@ pub enum Effect {
     /// A declared id with no resolvable target (a missing row), or an id this
     /// router does not own. Logged by name, never fatal (LESSONS 6).
     Unhandled(String),
+    /// #29d — a Stage C screen action (palette / error / reconnect), resolved
+    /// by [`crate::screens::palette`].
+    Screen(crate::screens::palette::Effect),
 }
 
 /// Route one action. `index` is the item the control belonged to (a session
@@ -60,6 +63,10 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             None => Effect::Unhandled(format!("{action}[{index}]")),
         },
         "answer.copy" => Effect::CopyAnswer,
+        // #29d — the Stage C screens own their ids (palette/error/reconnect).
+        _ if crate::screens::palette::owns_action(action) => {
+            Effect::Screen(crate::screens::palette::resolve(action, index, ctx))
+        }
         // `answer.expand` / any other declared id the router does not own.
         other => Effect::Unhandled(other.to_owned()),
     }
@@ -76,6 +83,12 @@ pub const ROUTED: &[&str] = &[
     "thread.open",
     "tool.toggle",
     "answer.copy",
+    // #29d — routed through screens::palette::resolve.
+    "palette.move",
+    "palette.run",
+    "palette.query.set",
+    "error.copy",
+    "connection.retry",
 ];
 
 /// Whether `id` is a routed action id.
