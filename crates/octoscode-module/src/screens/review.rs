@@ -134,7 +134,7 @@ pub struct Line {
 impl Line {
     /// `diffKind` (`diff-presentation.ts:17-23`): the wire kinds collapse to
     /// added/removed/context; the gutter mark is `+`/`-`/empty.
-    fn mark(&self) -> &'static str {
+    pub fn mark(&self) -> &'static str {
         match self.kind.as_str() {
             "added" => "+",
             "removed" => "-",
@@ -142,7 +142,7 @@ impl Line {
         }
     }
     /// The gutter number the web shows: the new side, else the old side.
-    fn num(&self) -> String {
+    pub fn num(&self) -> String {
         match (self.new_line, self.old_line) {
             (Some(n), _) => n.to_string(),
             (None, Some(o)) => o.to_string(),
@@ -181,7 +181,35 @@ pub struct RevUi {
 
 fn state() -> MutexGuard<'static, RevUi> {
     static STATE: OnceLock<Mutex<RevUi>> = OnceLock::new();
-    STATE.get_or_init(|| Mutex::new(RevUi::default())).lock().unwrap()
+    // Poison-tolerant: the cache is plain data; a panicking holder (a test
+    // assert) must not cascade PoisonError through every later query.
+    STATE
+        .get_or_init(|| Mutex::new(RevUi::default()))
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+}
+
+/// Test/probe access to the screen cache (a separate binary sees only the
+/// crate's public API). Sets the full scenario BEFORE the query/resolve.
+pub fn ui() -> MutexGuard<'static, RevUi> {
+    state()
+}
+
+/// Serialise whole set+act+assert scenarios in tests (query/resolve take the
+/// STATE lock internally; this lock is a different mutex, so no cycle).
+#[doc(hidden)]
+pub fn test_lock() -> MutexGuard<'static, ()> {
+    static SEQ: OnceLock<Mutex<()>> = OnceLock::new();
+    // Poison-tolerant: one test's assert failure must not fail the rest.
+    SEQ
+        .get_or_init(|| Mutex::new(()))
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+}
+
+/// Clear the screen cache (tests start from a known state).
+pub fn reset() {
+    *state() = RevUi::default();
 }
 use std::sync::MutexGuard;
 
@@ -260,8 +288,9 @@ fn blocked_reason(store: &Store, ui: &crate::flow::FlowUi) -> Option<&'static st
 
 /// Resolve one binding id. `None` = not declared (authored copy stays).
 pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
-    let store = ctx.store;
-    let ui = ctx.ui.lock().unwrap();
+    // NO FlowUi lock here: bindings::query already holds it when it
+    // delegates to this arm (std Mutex is not reentrant — a second lock
+    // self-deadlocks; caught by f30a's coverage test + a thread sample).
     let st = state();
 
     let text = || -> Option<String> {
@@ -314,13 +343,13 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
             _ => return None,
         })
     };
-    let _ = blocked_reason(store, &ui);
     text().map(Value::String)
 }
 
 // --------------------------------------------------------------------- actions
 
 /// The pure action table.
+#[derive(Debug)]
 pub enum Effect {
     /// `diff.scope` — cycle the pill and re-fetch the preview for the scope.
     ScopeCycle,
@@ -509,7 +538,7 @@ fn cards_root() -> std::path::PathBuf {
 
 /// The card source with the CURRENT values in its `copy` slots + its data and
 /// kit dir (the capture host consumes all three).
-pub fn lower_card_src(card: &str, ctx: &Ctx<'_>) -> Result<(String, Value, std::path::PathBuf), String> {
+pub fn lower_card_src(card: &str) -> Result<(String, Value, std::path::PathBuf), String> {
     let dir = cards_root().join(card);
     let read = |rel: &str| -> Result<String, String> {
         std::fs::read_to_string(dir.join(rel)).map_err(|e| format!("read {card}/{rel}: {e}"))
@@ -524,7 +553,7 @@ pub fn lower_card_src(card: &str, ctx: &Ctx<'_>) -> Result<(String, Value, std::
 /// same `l0::prepare` → `inspectable` → `to_makepad_ui` chain the module's
 /// other screens run (the renderer behind the accepted Gate-B PNGs).
 pub fn lower_screen(card: &str, ctx: &Ctx<'_>) -> Result<String, String> {
-    let (mut card_src, data, kit_dir) = lower_card_src(card, ctx)?;
+    let (mut card_src, data, kit_dir) = lower_card_src(card)?;
     for (copy_id, binding) in COPY_SLOTS {
         let wants = match card {
             "autonomy-01" => binding.starts_with("review."),
