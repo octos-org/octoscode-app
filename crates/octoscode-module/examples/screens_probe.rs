@@ -108,6 +108,7 @@ fn start_asset_server() {
 }
 use octoscode_module::screens::palette;
 use octoscode_module::screens::sessions;
+use octoscode_module::screens::models;
 
 pub use makepad_widgets;
 
@@ -273,6 +274,32 @@ impl Widget for ScreensProbe {
             // through sessions::.
             let lowered = match which.as_str() {
                 "resume" | "attachments" | "aside" => sessions::lower_screen(&which, &store),
+                // #32d item 2 evidence: the question-card component card
+                // through the SAME chain `components::lower` uses
+                // (l0::prepare -> design::to_makepad_ui) — an IIFE because
+                // handle_event does not return Result.
+                "question" => (|| {
+                    let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+                        .join("../../design/components/question-card");
+                    let card = std::fs::read_to_string(dir.join("page.card"))
+                        .map_err(|e| e.to_string())?;
+                    let data: serde_json::Value = serde_json::from_str(
+                        &std::fs::read_to_string(dir.join("page.data.json"))
+                            .map_err(|e| e.to_string())?,
+                    )
+                    .map_err(|e| e.to_string())?;
+                    let prepared = octoscript_makepad::l0::prepare(
+                        &card,
+                        &data,
+                        &dir.join("kit"),
+                    )
+                    .map_err(|e| e.to_string())?;
+                    octoscript_makepad::design::to_makepad_ui(&prepared.tree)
+                        .map_err(|e| e.to_string())
+                })(),
+                // #32d item 6 evidence: the models screen through its
+                // production lower (the outer card sizes to its live rows).
+                "models" => models::lower("setup-07", &Ctx::new(&store, &ui)),
                 _ if octoscode_module::screens::theme::card_for(&which).is_some() => {
                     octoscode_module::screens::theme::lower(&which, &store)
                 }
