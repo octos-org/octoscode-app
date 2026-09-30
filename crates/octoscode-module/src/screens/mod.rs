@@ -8,4 +8,6 @@ pub mod connect;
 pub mod fleet;
 pub mod models;
 pub mod palette;
+pub mod sessions;
+pub mod theme;
 pub mod workspace;
