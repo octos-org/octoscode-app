@@ -462,41 +462,42 @@ script_mod! {
                 width: 420 height: Fill
                 visible: false
             }
-            // #31a: below 760 px the sidebar hides (Codex-style); this
-            // top-left hit brings it back OVER the content. The wrapper is
-            // Overlay so only the 36x36 button takes clicks; sync_chrome
-            // shows it only while the sidebar is hidden by WIDTH (a user
-            // toggle keeps it visible even at this size).
-            sidebar_toggle := View {
-                width: Fill height: Fill
-                flow: Overlay
-                visible: false
-                sidebar_toggle_wrap := View {
-                    width: 36 height: 36
-                    margin: Inset{left: 8 top: 8}
-                    flow: Overlay
-                    menu_icon := Svg {
-                        width: 16 height: 16
-                        align: Align{x: 0.5 y: 0.5}
-                        animating: false
-                        draw_svg.svg: crate_resource("self:resources/icons/icon_menu.svg")
-                        draw_svg.preserve_viewbox: true
-                    }
-                    sidebar_toggle_hit := Button {
-                        width: Fill height: Fill text: ""
-                        draw_bg.color: #00000000
-                        draw_bg.color_hover: #00000010
-                        draw_bg.color_down: #00000020
-                        draw_bg.border_size: 0.0
-                        draw_bg.color_2: #00000000
-                        draw_bg.border_color: #00000000
-                        draw_bg.border_color_2: #00000000
-                    }
-                }
-            }
         } // columns
 
         } // base
+
+        // #31a: below 760 px the sidebar hides (Codex-style); this
+        // top-left hit brings it back OVER the content. The wrapper is
+        // Overlay so only the 36x36 button takes clicks; sync_chrome
+        // shows it only while the sidebar is hidden by WIDTH (a user
+        // toggle keeps it visible even at this size).
+        sidebar_toggle := View {
+            width: Fill height: Fill
+            flow: Overlay
+            visible: false
+            sidebar_toggle_wrap := View {
+                width: 36 height: 36
+                margin: Inset{left: 8 top: 8}
+                flow: Overlay
+                menu_icon := Svg {
+                    width: 16 height: 16
+                    align: Align{x: 0.5 y: 0.5}
+                    animating: false
+                    draw_svg.svg: crate_resource("self:resources/icons/icon_menu.svg")
+                    draw_svg.preserve_viewbox: true
+                }
+                sidebar_toggle_hit := Button {
+                    width: Fill height: Fill text: ""
+                    draw_bg.color: #00000000
+                    draw_bg.color_hover: #00000010
+                    draw_bg.color_down: #00000020
+                    draw_bg.border_size: 0.0
+                    draw_bg.color_2: #00000000
+                    draw_bg.border_color: #00000000
+                    draw_bg.border_color_2: #00000000
+                }
+            }
+        }
 
         // Card #28e item 5 (board 4 frame 3): a dimmer between the base chrome
         // and the floating palette (the "conversation dimmed slightly" layer).
