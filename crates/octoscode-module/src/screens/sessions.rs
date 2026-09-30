@@ -508,6 +508,14 @@ pub fn lower_screen(which: &str, store: &Arc<crate::Store>) -> Result<String, St
                         .unwrap_or_default()
                 };
                 dsl = set_node_text(&dsl, "t_sz1", &sz(0));
+                // #32b2 item 3 (review v2): the ring's HOLE is ~34px
+                // (viewBox r9.2 + stroke 2.6 @ 52px → inner ⌀ 34.2) — the
+                // ~21px "68%" run fits once the TEXT centres in its box (the
+                // authored align x:0 left-seated the run onto the ink arc —
+                // the review's "wider than the hole"). Box centred on the
+                // ring centre (313, 275.5): x 292.9, y 275.5 − 12.38 = 263.12.
+                dsl = set_node_abs_pos(&dsl, "att2_pct", 292.9, 263.12);
+                dsl = centre_node_text(&dsl, "att2_pct");
                 if n > 1 {
                     dsl = set_node_text(&dsl, "t_sz2", &sz(1));
                 }
@@ -521,6 +529,26 @@ pub fn lower_screen(which: &str, store: &Arc<crate::Store>) -> Result<String, St
                 dsl = fit_node_height(&dsl, "t_q1");
             }
             dsl = cut_node(&dsl, "t_q2");
+            // #32b2 item 1 (review): the surface hugs AND pads symmetrically
+            // — height:Fit with padding:0 left the one-line text sitting on
+            // the bottom edge (the design flow's own #16e fix for the main
+            // bubble: components.rs:655-661).
+            dsl = fit_node_box_height(&dsl, "user_bubble");
+            dsl = dsl.replace(
+                "flow: Overlay padding: 0 clip_x: false clip_y: false",
+                "flow: Down padding: Inset{left: 14.93 top: 12 right: 14.93 bottom: 12} clip_x: false clip_y: false",
+            );
+            // v3: the label is seated by abs_pos — an abs child ignores the
+            // Down flow, so the Fit surface collapsed to its padding and the
+            // text rendered BELOW the bar (the after2 capture). Clear the
+            // seat, let the bubble's padding place it, Fill the width so a
+            // long question wraps at the padded box, and wrap the run.
+            dsl = dsl.replace("\nabs_pos: vec2(129.93, 167.4)", "");
+            dsl = dsl.replace(
+                "t_q1 := Label {\nwidth: 240.69 height: Fit",
+                "t_q1 := Label {\nwidth: Fill height: Fit",
+            );
+            dsl = wrap_node_text(&dsl, "t_q1");
         }
         RESUME_CARD => {
             // Meta lines take their full room (#30d2 defect 4: "7 turn…"
@@ -624,6 +652,82 @@ fn swap_node_src(dsl: &str, node: &str, url: &str) -> String {
     };
     let end = start + end_rel;
     format!("{}{}{}", &dsl[..start], url, &dsl[end..])
+}
+
+/// Move one node's seated origin (`abs_pos: vec2(x, y)` in the lowered DSL)
+/// — #32b2 item 3: the "68%" label centres in the progress ring's hole
+/// instead of clipping its lower arc.
+fn set_node_abs_pos(dsl: &str, node: &str, x: f64, y: f64) -> String {
+    let Some(npos) = dsl.find(&format!("{node} := ")) else {
+        return dsl.to_owned();
+    };
+    let window_end = (npos + 240).min(dsl.len());
+    let key = "abs_pos: vec2(";
+    let Some(ppos) = dsl[npos..window_end].find(key) else {
+        return dsl.to_owned();
+    };
+    let start = npos + ppos + key.len();
+    let Some(len) = dsl[start..].find(')') else {
+        return dsl.to_owned();
+    };
+    format!("{}{}, {}{}", &dsl[..start], x, y, &dsl[start + len..])
+}
+
+/// Make one label's text run wrap (`flow: Right` -> `flow: Right{wrap: true}`,
+/// first occurrence in the node's head) — a long side question must wrap, not
+/// hard-clip (#32b2 item 1; the main-bubble precedent, components.rs:571).
+fn wrap_node_text(dsl: &str, node: &str) -> String {
+    let Some(npos) = dsl.find(&format!("{node} := ")) else {
+        return dsl.to_owned();
+    };
+    let window_end = (npos + 700).min(dsl.len());
+    let key = "flow: Right\n";
+    let Some(fpos) = dsl[npos..window_end].find(key) else {
+        return dsl.to_owned();
+    };
+    let at = npos + fpos;
+    format!("{}flow: Right{{wrap: true}}{}", &dsl[..at], &dsl[at + key.len()..])
+}
+
+/// Centre one label's text run in its own box (`align x: 0` -> `x: 0.5`,
+/// first occurrence in the node's head) — #32b2 item 3 review: the ~21px
+/// "68%" run fits the ring's ~34px hole once it centres; left-seated it
+/// rode onto the ink arc.
+fn centre_node_text(dsl: &str, node: &str) -> String {
+    let Some(npos) = dsl.find(&format!("{node} := ")) else {
+        return dsl.to_owned();
+    };
+    let window_end = (npos + 700).min(dsl.len());
+    let key = "align: Align{x: 0 y: 0.5}";
+    let Some(apos) = dsl[npos..window_end].find(key) else {
+        return dsl.to_owned();
+    };
+    let at = npos + apos;
+    format!(
+        "{}{}{}",
+        &dsl[..at],
+        "align: Align{x: 0.5 y: 0.5}",
+        &dsl[at + key.len()..]
+    )
+}
+
+/// `fit_node_height` for ANY node kind (`user_bubble := DesignSurface {`):
+/// find `<node> := `, then the first `height: <num>` inside the node's head,
+/// and make it `Fit` (#32b2 item 1).
+fn fit_node_box_height(dsl: &str, node: &str) -> String {
+    let Some(npos) = dsl.find(&format!("{node} := ")) else {
+        return dsl.to_owned();
+    };
+    let window_end = (npos + 120).min(dsl.len());
+    let key = "height: ";
+    let Some(hpos) = dsl[npos..window_end].find(key) else {
+        return dsl.to_owned();
+    };
+    let start = npos + hpos + key.len();
+    let Some(len) = dsl[start..].find(|c: char| !c.is_ascii_digit() && c != '.') else {
+        return dsl.to_owned();
+    };
+    format!("{}Fit{}", &dsl[..start], &dsl[start + len..])
 }
 
 /// Patch one Label node's fixed height to `Fit` so a long line wraps and the
