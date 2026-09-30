@@ -701,11 +701,13 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
     // The authored icon placements carry the capture-time SVG srcs (a kit
     // Vector node cannot lower without one — "design SVG resource required");
     // capture them before the static retain drops the authored rows.
-    let icon_run_src = data["$kit"]["placements"]["icon_run_task"]["src"]
+    // The authored src lives INSIDE the placement's layout object (the
+    // captured page.data.json: `icon_run_task.layout.src`) — read it there.
+    let icon_run_src = data["$kit"]["placements"]["icon_run_task"]["layout"]["src"]
         .as_str()
         .unwrap_or_default()
         .to_owned();
-    let icon_done_src = data["$kit"]["placements"]["icon_done_task"]["src"]
+    let icon_done_src = data["$kit"]["placements"]["icon_done_task"]["layout"]["src"]
         .as_str()
         .unwrap_or_default()
         .to_owned();
@@ -840,7 +842,7 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
             } else {
                 continue;
             };
-            entry["src"] = serde_json::json!(src);
+            entry["layout"]["src"] = serde_json::json!(src);
         }
     }
     // Cut AT the anchor start: the authored run_card line (with its `{`) and
