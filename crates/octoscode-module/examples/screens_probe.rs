@@ -160,6 +160,7 @@ script_mod! {
         ui: Root{
             main_window := Window{
                 window.inner_size: vec2(420 780)
+                show_caption_bar: false
                 body +: { probe := ProbeRoot{} }
             }
         }

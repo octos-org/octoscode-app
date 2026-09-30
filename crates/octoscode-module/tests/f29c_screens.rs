@@ -565,10 +565,13 @@ async fn live_capture_writes_the_three_cards_with_store_values() {
             assert_eq!(pl["inner_div"]["layout"]["h"].as_f64(), Some(0.0),
                 "1 live row -> no divider");
             // #32d item 6: the outer card follows its content.
-            assert_eq!(pl["card_deepseek"]["layout"]["h"].as_f64(), Some(227.5),
-                "1 live row -> the outer card ends at the route buttons");
+            assert_eq!(pl["card_deepseek"]["layout"]["h"].as_f64(), Some(239.5),
+                "1 live row -> the outer card ends 12px below the route buttons");
             assert_eq!(pl["btn_test"]["layout"]["y"].as_f64(), Some(293.5),
                 "1 live row -> the route buttons keep their authored gap");
+            // #32d r2: the following cards ride the same delta (no empty band).
+            assert_eq!(pl["card_kimi"]["layout"]["y"].as_f64(), Some(391.5),
+                "1 live row -> Kimi follows at the authored 42px list gap");
         }
         let dir = out.join(screen);
         std::fs::create_dir_all(dir.join("kit")).expect("mkdir screen");
