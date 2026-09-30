@@ -5,7 +5,7 @@ How every later UI lane proves its own work with Makepad's built-in instrument i
 
 - Script: [`harness/headless.sh`](../../harness/headless.sh) — `start | snap | click | type | shot | stop | status | ports`.
 - Scripted tests: [`harness/ui-smoke/`](../../harness/ui-smoke) — the `makepad_test` template.
-- Shared workspace: `/Users/yuechen/home/oa.noindex/native/` (see [Shared workspace](#shared-workspace)).
+- Shared workspace: `<WORKSPACE>/native/` (see [Shared workspace](#shared-workspace)).
 - Evidence produced by this card: [`docs/harness/evidence/`](evidence/) + [`docs/harness/index.json`](index.json).
 
 Hidden means the native window is **never shown or focused**; the app's own HTTP
@@ -19,7 +19,7 @@ app's own `/g` grab counts.
 
 ```sh
 source .peer/env.sh
-export OCTOSENSE_NATIVE_ROOT=/Users/yuechen/home/oa.noindex/native   # default anyway
+export OCTOSENSE_NATIVE_ROOT=<WORKSPACE>/native   # default anyway
 
 # start an app hidden on YOUR port (see the port plan), then drive it:
 bash harness/headless.sh start harness/ui-smoke/fixtures/notes/bundle 8301
@@ -35,9 +35,9 @@ Verbatim output of exactly that flow (this card, from its herdr pane on :8301):
 
 ```text
 $ bash harness/headless.sh start harness/ui-smoke/fixtures/notes/bundle 8301
-[headless] launch: MAKEPAD_HIDE_WINDOWS=1 /Users/yuechen/home/oa.noindex/native/OctoSense-App-Hub/target/release/card-host --bundle harness/ui-smoke/fixtures/notes/bundle --app-data /Users/yuechen/home/oa.noindex/p0-harness/tmp/peer-tmp/octos-headless/app-data-8301 --allow-unsigned --remote 8301
-[makepad-remote] listening on 127.0.0.1:8301 pid=82391 app=card-host grabs=/Users/yuechen/home/oa.noindex/p0-harness/tmp/peer-tmp/makepad-remote/card-host-82391
-[headless] up: pid 82391  port 8301  log /Users/yuechen/home/oa.noindex/p0-harness/tmp/peer-tmp/octos-headless/port-8301.log
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <WORKSPACE>/native/OctoSense-App-Hub/target/release/card-host --bundle harness/ui-smoke/fixtures/notes/bundle --app-data <WORKSPACE>/p0-harness/tmp/peer-tmp/octos-headless/app-data-8301 --allow-unsigned --remote 8301
+[makepad-remote] listening on 127.0.0.1:8301 pid=82391 app=card-host grabs=<WORKSPACE>/p0-harness/tmp/peer-tmp/makepad-remote/card-host-82391
+[headless] up: pid 82391  port 8301  log <WORKSPACE>/p0-harness/tmp/peer-tmp/octos-headless/port-8301.log
 
 $ bash harness/headless.sh snap 8301 Button
 {"s":[{"i":"card","ty":"Splash","r":[0,32,412,860],"w":0,...},{"i":"-","ty":"Button","r":[336,120,60,40],"w":0,"t":"Add"}]}
@@ -168,7 +168,7 @@ MAKEPAD_TEST_PARALLEL=1 cargo test --release --test ui    # several hidden apps 
 Run every `cargo test` through the host-wide slot wrapper so 20 lanes don't fight:
 
 ```sh
-/Users/yuechen/home/octoscode-app/outer/scripts/ctest --release --test ui
+<HOME>/octoscode-app/outer/scripts/ctest --release --test ui
 ```
 
 Verbatim (this card):
@@ -267,15 +267,15 @@ hidden env var and `--remote`. A missing `OCTOS_APP_CORE_BIN` is expected and ha
 
 ## 6. Shared workspace — read it, or clone your own?
 
-`/Users/yuechen/home/oa.noindex/native/` was built once by this card:
+`<WORKSPACE>/native/` was built once by this card:
 
 ```sh
-mkdir -p /Users/yuechen/home/oa.noindex/native
-cp -c -R <ref>/OctoScript-App-Design-Flow /Users/yuechen/home/oa.noindex/native/   # APFS clone, ~2 s
-cd /Users/yuechen/home/oa.noindex/native/OctoScript-App-Design-Flow
+mkdir -p <WORKSPACE>/native
+cp -c -R <ref>/OctoScript-App-Design-Flow <WORKSPACE>/native/   # APFS clone, ~2 s
+cd <WORKSPACE>/native/OctoScript-App-Design-Flow
 source .peer/env.sh && python3 tools/setup-native.py          # fetches the pinned closure
-cp -c -R <ref>/OctoSense-App-Hub /Users/yuechen/home/oa.noindex/native/
-cd /Users/yuechen/home/oa.noindex/native/OctoSense-App-Hub
+cp -c -R <ref>/OctoSense-App-Hub <WORKSPACE>/native/
+cd <WORKSPACE>/native/OctoSense-App-Hub
 cargo build --release -p octosense-card-host -p octosense-app-hub
 ```
 
@@ -311,7 +311,7 @@ Never let `CARGO_TARGET_DIR` point at the shared tree's `target/` (two lanes wou
 - **Not an Android/phone pass.** The pinned Makepad compiles `--remote` out on Android, so a
   desktop probe never counts as an Android pass — say "unverified on device".
 - **No `timeout` on this host.** Waiting for a long job: one blocking call,
-  `/Users/yuechen/home/hl/waitfor '<pgrep pattern>' <logfile>`. Run builds under ~20 min in the
+  `<HOME>/hl/waitfor '<pgrep pattern>' <logfile>`. Run builds under ~20 min in the
   foreground instead.
 - **One service per port.** Two copies of the *same* bundle need distinct `--app-data`
   (`headless.sh` uses `$STATE/app-data-<port>` automatically; `makepad_test` uses one per test).

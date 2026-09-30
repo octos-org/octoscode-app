@@ -2,7 +2,7 @@
   {
     "scene": "01",
     "port": 8385,
-    "png": "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/peer-tmp/makepad-remote/beauty-host-38645/grab-w0-00001.png",
+    "png": "<REPO>/tmp/peer-tmp/makepad-remote/beauty-host-38645/grab-w0-00001.png",
     "font_warnings": 0,
     "border_widths": 3,
     "widgets": 34
@@ -10,7 +10,7 @@
   {
     "scene": "02",
     "port": 8386,
-    "png": "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/peer-tmp/makepad-remote/beauty-host-38766/grab-w0-00001.png",
+    "png": "<REPO>/tmp/peer-tmp/makepad-remote/beauty-host-38766/grab-w0-00001.png",
     "font_warnings": 0,
     "border_widths": 3,
     "widgets": 40
@@ -18,7 +18,7 @@
   {
     "scene": "03",
     "port": 8387,
-    "png": "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/peer-tmp/makepad-remote/beauty-host-38893/grab-w0-00001.png",
+    "png": "<REPO>/tmp/peer-tmp/makepad-remote/beauty-host-38893/grab-w0-00001.png",
     "font_warnings": 0,
     "border_widths": 3,
     "widgets": 44
@@ -26,7 +26,7 @@
   {
     "scene": "04",
     "port": 8388,
-    "png": "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/peer-tmp/makepad-remote/beauty-host-39108/grab-w0-00001.png",
+    "png": "<REPO>/tmp/peer-tmp/makepad-remote/beauty-host-39108/grab-w0-00001.png",
     "font_warnings": 0,
     "border_widths": 4,
     "widgets": 48
@@ -34,7 +34,7 @@
   {
     "scene": "05",
     "port": 8389,
-    "png": "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/peer-tmp/makepad-remote/beauty-host-39260/grab-w0-00001.png",
+    "png": "<REPO>/tmp/peer-tmp/makepad-remote/beauty-host-39260/grab-w0-00001.png",
     "font_warnings": 0,
     "border_widths": 5,
     "widgets": 39
@@ -42,7 +42,7 @@
   {
     "scene": "06",
     "port": 8390,
-    "png": "/Users/yuechen/home/oa.noindex/p0-proto2/tmp/peer-tmp/makepad-remote/beauty-host-39383/grab-w0-00001.png",
+    "png": "<REPO>/tmp/peer-tmp/makepad-remote/beauty-host-39383/grab-w0-00001.png",
     "font_warnings": 0,
     "border_widths": 5,
     "widgets": 43

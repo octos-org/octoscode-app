@@ -49,7 +49,7 @@ def const_map():
     `methods::TOOL_PROGRESS` to the wrong string. And a method name need not
     contain a slash (`warning`, `snapshot/list`), so a slash heuristic is wrong.
     """
-    src = "/Users/yuechen/home/oa.noindex/src-octos/crates/octos-core/src/ui_protocol.rs"
+    src = os.environ.get('SRC_UI_PROTOCOL', '../src-octos/crates/octos-core/src/ui_protocol.rs')
     out = {}
     if not os.path.exists(src):
         return out

@@ -3,11 +3,11 @@
 # 1) open a ws and attempt ws.write_string(...):
 [I] splash:50849579008:7:17 - string:"PROBE: returned 0000000000000002"
 [I] splash:50849579008:7:17 - string:"PROBE: on_opened"
-[E] splash:50849579008:13:37 - method write_string not found on id (/Users/yuechen/home/oa.noindex/p0-build/tmp/makepad/platform/script/src/opcodes_calls.rs:253)
+[E] splash:50849579008:13:37 - method write_string not found on id (<WORKSPACE>/p0-build/tmp/makepad/platform/script/src/opcodes_calls.rs:253)
 
 # 2) receive path + the other transmit path (socket_stream):
 [I] splash:52287553536:9:17 - string:"PROBE: ws returned 0000000000000002"
-[E] splash:52287553536:21:34 - this app may not open a raw socket (/Users/yuechen/home/oa.noindex/p0-build/tmp/makepad/platform/script/std/src/net.rs:1178)
+[E] splash:52287553536:21:34 - this app may not open a raw socket (<WORKSPACE>/p0-build/tmp/makepad/platform/script/std/src/net.rs:1178)
 [I] splash:52287553536:9:17 - string:"PROBE: ws on_opened"
 [I] splash:52287553536:9:17 - string:"PROBE: RECV: {"jsonrpc":"2.0","method":"message/delta","params":{"text":"hello-from-server"}}"
 [I] splash:52287553536:9:17 - string:"PROBE: ws err: The operation couldn’t be completed. Socket is not connected"

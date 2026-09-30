@@ -4,7 +4,7 @@
 [I] splash:37524777472:121:17 - string:"OUP: DONE rows=2000 frames=80 first100=65.26612500000084ms total=1585.6327079999985ms"
 
 # monolithic 5000-line diff in one run -> hard bail:
-[E] splash:32095027200:148:19 - script time budget exceeded (/Users/yuechen/home/oa.noindex/p0-build/tmp/makepad/platform/script/src/vm.rs:1046)
+[E] splash:32095027200:148:19 - script time budget exceeded (<WORKSPACE>/p0-build/tmp/makepad/platform/script/src/vm.rs:1046)
 
 # the Splash pump re-evaluates a sys.simsecs body once per sim-second:
 -n   live re-eval lines (bundle with sys.simsecs): 
@@ -23,4 +23,4 @@
    1 "id":"3"
 
 # re-eval line (verbatim):
-[I] /Users/yuechen/home/oa.noindex/p0-build/tmp/makepad/widgets/src/splash.rs:644:17 - [SPLASH] live re-eval: epoch 0 -> 0 sim_due=true (7331 bytes)
+[I] <WORKSPACE>/p0-build/tmp/makepad/widgets/src/splash.rs:644:17 - [SPLASH] live re-eval: epoch 0 -> 0 sim_due=true (7331 bytes)

@@ -5,10 +5,10 @@ Task #3. A known-red list for every build/test we gate on, the cheapest correct 
 registered and run in the OctoSense desktop shell.
 
 Method: cloned the read-only ref at
-`/Users/yuechen/home/oa.noindex/ref/OctoSense` (HEAD `6e9bfd4077cf8181878ac005ad586f908084a4bf`,
+`<WORKSPACE>/ref/OctoSense` (HEAD `6e9bfd4077cf8181878ac005ad586f908084a4bf`,
 branch `main`) to `tmp/octosense` (`cp -c -R`, APFS clone), built **only** in `tmp/octosense` with
 `CARGO_TARGET_DIR=$PWD/tmp/octosense-target`. Nothing was built inside `oa.noindex/ref/*`. Every
-`cargo test` ran through the host slot wrapper `/Users/yuechen/home/octoscode-app/outer/scripts/ctest`.
+`cargo test` ran through the host slot wrapper `<HOME>/octoscode-app/outer/scripts/ctest`.
 Android / phone / ROM builds were **skipped** on purpose (the card says to).
 
 ## Host

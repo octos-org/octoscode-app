@@ -25,7 +25,7 @@ ROOT = Path(__file__).resolve().parents[4]        # repo root
 CLONE = ROOT / "tmp/stage-b/native-ws/OctoScript-App-Design-Flow"
 STAGE = HERE / "pipeline-output/service-cards"
 OUT = ROOT / "design/components"
-PY = "/Users/yuechen/miniconda3/bin/python3"
+PY = os.environ.get("PY", "python3")
 
 # Per-item bindings + the two Gate-B data variants, from card #18's component list.
 SPEC = {

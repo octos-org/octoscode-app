@@ -1,11 +1,11 @@
 [I] .sources/makepad/platform/src/web_socket.rs:321:13 - studio websocket disabled: empty studio_http
-[makepad-remote] listening on 127.0.0.1:8302 pid=76292 app=octosense grabs=/Users/yuechen/home/oa.noindex/p0-harness/tmp/peer-tmp/makepad-remote/octosense-76292
-[I] .sources/makepad/platform/src/remote.rs:547:9 - [makepad-remote] listening on 127.0.0.1:8302 pid=76292 app=octosense grabs=/Users/yuechen/home/oa.noindex/p0-harness/tmp/peer-tmp/makepad-remote/octosense-76292
+[makepad-remote] listening on 127.0.0.1:8302 pid=76292 app=octosense grabs=<WORKSPACE>/p0-harness/tmp/peer-tmp/makepad-remote/octosense-76292
+[I] .sources/makepad/platform/src/remote.rs:547:9 - [makepad-remote] listening on 127.0.0.1:8302 pid=76292 app=octosense grabs=<WORKSPACE>/p0-harness/tmp/peer-tmp/makepad-remote/octosense-76292
 [I] .sources/makepad/platform/src/os/apple/metal.rs:3100:9 - retained-upload budgets: recommended_working_set_bytes=115448725504 physical_memory_bytes=137438953472 unified=true allocation_limit=17179869184 fraction=1/4 pool_fraction=1/16 residency_high_fraction=3/4 residency_low_fraction=5/8 source=physicalMemory/2
 [I] .sources/makepad/platform/src/cx.rs:687:9 - memory budget: 65536 MiB (ProcessInfo.processInfo.physicalMemory)
 [I] .sources/makepad/platform/src/thread.rs:928:9 - UI thread priority UserInteractive: Applied
-[I] crates/ai-host/src/lib.rs:223:13 - octos: no octos kernel: no kernel binary configured (OCTOS_APP_CORE_BIN); the providers are still saved under Some("/Users/yuechen/octos-home/.octos")
-[I] crates/ai-host/src/lib.rs:265:13 - llm: provider profile under /Users/yuechen/octos-home/.octos
+[I] crates/ai-host/src/lib.rs:223:13 - octos: no octos kernel: no kernel binary configured (OCTOS_APP_CORE_BIN); the providers are still saved under Some("<HOME>/octos-home/.octos")
+[I] crates/ai-host/src/lib.rs:265:13 - llm: provider profile under <HOME>/octos-home/.octos
 [I] crates/shell/src/lib.rs:4429:9 - wm: modules linked: ["rinx", "appcard", "apphub", "card"]
 [I] .sources/makepad/libs/zune/zune-png/src/headers/readers.rs:110:9 - Width: 1672
 [I] .sources/makepad/libs/zune/zune-png/src/headers/readers.rs:111:9 - Height: 941
@@ -29,7 +29,7 @@
 [I] .sources/makepad/libs/zune/zune-png/src/decoder.rs:626:9 - Output Colorspace: RGB 
 [I] .sources/makepad/platform/src/thread/ui_hang/native.rs:88:46 - [ui-hang] 599 ms · phase=Startup detail=0 · samples=5 · ticks=5/expected=6 · top frames: 5x Startup: poll+0x8 (libsystem_kernel.dylib) ← std::process::Command::output+0xf8 (octosense) ← std::sync::once::Once::call_once_force::_$u7b$$u7b$closure$u7d$$u7d$+0x120 (octosense) ← std::sys::sync::once::queue::Once::call+0x100 (octosense) ← std::sync::once_lock::OnceLock<T>::initialize+0x28 (octosense) ← std::sync::once::Once::call_once_force::_$u7b$$u7b$closure$u7d$$u7d$+0x368 (octosense) ← std::sys::sync::once::queue::Once::call+0x100 (octosense) ← std::sync::once_lock::OnceLock<T>::initialize+0x48 (octosense)
 [I] .sources/makepad/widgets/src/splash.rs:408:9 - [SPLASH] eval: 809 bytes preserve=false view=true animating=false tick=false epoch=0
-[I] crates/shell/src/apps.rs:193:13 - news: service registered, host dir /Users/yuechen/.makeos/apps/.host
+[I] crates/shell/src/apps.rs:193:13 - news: service registered, host dir <HOME>/.makeos/apps/.host
 [I] .sources/makepad/libs/zune/zune-png/src/headers/readers.rs:110:9 - Width: 216
 [I] .sources/makepad/libs/zune/zune-png/src/headers/readers.rs:111:9 - Height: 216
 [I] .sources/makepad/libs/zune/zune-png/src/headers/readers.rs:112:9 - Filter type:None

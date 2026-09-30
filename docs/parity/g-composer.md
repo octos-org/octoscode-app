@@ -1,8 +1,8 @@
 # Parity map — group `g-composer` (board #1c)
 
 One capability-per-row parity matrix for the 8 web feature dirs of group `g-composer`, cut from
-the web oracle (`~/home/oa.noindex/src-web` @ `70a8a1c`) and the native base
-(`~/home/oa.noindex/ref/OctoSense/apps/appcard/app` — the octos-app client inside OctoSense).
+the web oracle (`~/src-web` @ `70a8a1c`) and the native base
+(`~/ref/OctoSense/apps/appcard/app` — the octos-app client inside OctoSense).
 
 - Machine-readable: **`docs/parity/g-composer.csv`** — columns exactly
   `feature,group,capability,web_src,web_unit_tests,web_e2e_specs,protocol_methods,native_status,native_src,notes`

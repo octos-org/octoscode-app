@@ -6,10 +6,10 @@ Card #2 (`docs/protocol-matrix.csv`) covers the 125 `CORE_UI_METHODS` in
 card covers the **AppUI extension** methods the web client calls that live
 OUTSIDE that generated contract — handwritten constants and helpers.
 
-Sources: web oracle `/Users/yuechen/home/oa.noindex/src-web`
-(octoscode-web @ `70a8a1c`); protocol pin `/Users/yuechen/home/oa.noindex/src-octos`
+Sources: web oracle `<WORKSPACE>/src-web`
+(octoscode-web @ `70a8a1c`); protocol pin `<WORKSPACE>/src-octos`
 (`a6ea8505`, the rev OctoSense pins — see "Pin" below); native
-`/Users/yuechen/home/oa.noindex/ref/OctoSense/apps/appcard/app`.
+`<WORKSPACE>/ref/OctoSense/apps/appcard/app`.
 
 ## Counts
 
@@ -124,7 +124,7 @@ python3 - <<'EOF'
 import csv
 core=set()
 import re
-for l in open('/Users/yuechen/home/oa.noindex/src-web/packages/client/src/generated/core-contract.ts'):
+for l in open('<WORKSPACE>/src-web/packages/client/src/generated/core-contract.ts'):
     core|=set(re.findall(r'"([a-z][a-z0-9_]*/[a-z0-9_./-]+)"',l))
 rows=[r['method'] for r in csv.DictReader(open('docs/protocol-ext-matrix.csv'))]
 hit=[m for m in rows if m in core]

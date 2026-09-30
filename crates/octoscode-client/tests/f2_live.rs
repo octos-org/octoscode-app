@@ -5,7 +5,7 @@
 //! "Domain fan-out: your own octos serve port"), then:
 //!
 //! ```sh
-//! cp /Users/yuechen/home/oa.noindex/p0-build/tmp/octos-target/release/octos tmp/f2/octos
+//! cp <WORKSPACE>/p0-build/tmp/octos-target/release/octos tmp/f2/octos
 //! tmp/f2/octos serve --solo --port 50120 --host 127.0.0.1 \
 //!   --auth-token spike-dummy-token --data-dir tmp/f2/data --instance-data-dir tmp/f2/instance
 //! OCTOS_BASE_URL=http://127.0.0.1:50120 \

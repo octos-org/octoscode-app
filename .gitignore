@@ -1,10 +1,16 @@
-# outer-loop control files (not product)
+
+__pycache__/
+/.octos-workspace.toml
+/.octos/
+/.peer/
 /OCTOLOOP_PLAN.md
 /outer/
-# lane-local
-/.peer/
-/.octos/
-/tmp/
 /target/
-/.octos-workspace.toml
-__pycache__/
+/tmp/
+# generated pipeline run dirs (evidence stays where it is produced)
+# lane-local
+# outer-loop control files (not product)
+pipeline-output/runs/
+
+# local forks created by tools/prepare-*-fork.sh
+/.forks/

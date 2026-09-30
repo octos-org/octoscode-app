@@ -470,6 +470,39 @@ script_mod! {
 
         } // base
 
+        // #31a: below 760 px the sidebar hides (Codex-style); this
+        // top-left hit brings it back OVER the content. The wrapper is
+        // Overlay so only the 36x36 button takes clicks; sync_chrome
+        // shows it only while the sidebar is hidden by WIDTH (a user
+        // toggle keeps it visible even at this size).
+        sidebar_toggle := View {
+            width: Fill height: Fill
+            flow: Overlay
+            visible: false
+            sidebar_toggle_wrap := View {
+                width: 36 height: 36
+                margin: Inset{left: 8 top: 8}
+                flow: Overlay
+                menu_icon := Svg {
+                    width: 16 height: 16
+                    align: Align{x: 0.5 y: 0.5}
+                    animating: false
+                    draw_svg.svg: crate_resource("self:resources/icons/icon_menu.svg")
+                    draw_svg.preserve_viewbox: true
+                }
+                sidebar_toggle_hit := Button {
+                    width: Fill height: Fill text: ""
+                    draw_bg.color: #00000000
+                    draw_bg.color_hover: #00000010
+                    draw_bg.color_down: #00000020
+                    draw_bg.border_size: 0.0
+                    draw_bg.color_2: #00000000
+                    draw_bg.border_color: #00000000
+                    draw_bg.border_color_2: #00000000
+                }
+            }
+        }
+
         // Card #28e item 5 (board 4 frame 3): a dimmer between the base chrome
         // and the floating palette (the "conversation dimmed slightly" layer).
         dimmer := SolidView {
@@ -772,6 +805,26 @@ pub(crate) struct Bridge {
 /// Seed a store with `n` synthetic timeline rows and one session, for the
 /// virtualization proof (`OCTOSCODE_SYNTHETIC_TIMELINE`). No transport: the
 /// window draws the virtualized list on its own.
+/// #31e — three pending approvals pushed STRAIGHT into the store's approval
+/// domain (`OCTOSCODE_APPROVAL_SEED`; the `OCTOSCODE_SYNTHETIC_TIMELINE`
+/// precedent: a proof-only seed). The keyboard decision's evidence needs the
+/// SAME store rows the client's `approval/requested` handler would push; the
+/// notification-distribution path belongs to the client domain's card, and
+/// the fake server's frames never reached it (nine probe rounds showed the
+/// store empty while the wire carried the pushes).
+fn seed_approvals(store: &Arc<Store>) {
+    use octoscode_store::domains::approval::PendingApproval;
+    for id in ["a1-approve-me", "a2-approve-session", "a3-deny-me"] {
+        store.domains.approval.push(PendingApproval {
+            id: id.to_owned(),
+            target: None,
+            decided: false,
+            auto_resolved: false,
+            cancelled: false,
+        });
+    }
+}
+
 fn seed_synthetic(store: &Arc<Store>, n: usize) {
     use octoscode_store::Session;
     store.set_connection("Live".into(), false);
@@ -857,7 +910,13 @@ fn seed_synthetic_live(store: &Arc<Store>) {
     store.domains.turn.started("t1");
     store.domains.turn.set_terminal("t1", "completed");
 
-    // GOALS / LOOPS / FLEET (board 4 frame 3).
+    // GOALS / LOOPS / FLEET (board 4 frame 3). #31a item 2: an EMPTY session
+    // must show only THREADS — OCTOSCODE_SYNTHETIC_EMPTY=1 skips the autonomy
+    // seed so the sections' data-driven visibility is provable (live store,
+    // no goal/loops/fleet).
+    if std::env::var("OCTOSCODE_SYNTHETIC_EMPTY").is_ok() {
+        return;
+    }
     store.domains.autonomy.set_goal(
         &first,
         GoalState {
@@ -943,6 +1002,10 @@ pub struct OctoscodeView {
     /// `WindowGeomChange` (0 = no event yet — treated as wide).
     #[rust]
     window_w: f64,
+    /// #31a: the <760 sidebar toggle — once the window hid the sidebar there
+    /// was no way back; this flip shows it over the content (Codex-style).
+    #[rust]
+    sidebar_open: bool,
 }
 
 impl OctoscodeView {
@@ -974,6 +1037,7 @@ impl OctoscodeView {
             ::log::info!("[octoscode] synthetic timeline: {n} entries (no transport)");
             return;
         }
+
         // Card #28e — the board-4 capture seed: a LIVE-looking store so the
         // window draws the full base chrome (sidebar, conversation, panels)
         // with the board's own fixture rows. No transport.
@@ -1048,6 +1112,15 @@ impl OctoscodeView {
             b.store = conv.store.clone();
             b.ui = conv.ui();
             b.conv = Some(conv.clone());
+        }
+        // #31e — the keyboard-decision seed, AFTER the bridge swap: connect
+        // REPLACES `b.store` with the Conversation's own store above, so a
+        // pre-connect seed landed on a store the shell then threw away (the
+        // Y/S/N gate read oldest=None while the seed line printed — the swap
+        // was the break). Still WITH transport: the receipts need the wire.
+        if std::env::var("OCTOSCODE_APPROVAL_SEED").is_ok() {
+            seed_approvals(&conv.store);
+            makepad_widgets::log!("[octoscode] approval seed: 3 pending cards");
         }
         // Entry #29c: the stage-C screens fold their three profile reads once
         // at startup, behind the temporary-mount flag (until #28e's shell).
@@ -1685,7 +1758,17 @@ impl OctoscodeView {
             };
             match lowered {
                 Ok(dsl) => {
-                    if let Err(e) = self.mounts.mount(cx, &splash, &dsl) {
+                    // #31a item 3: centre the card in the first-run area (not
+                    // over the sidebar header, no left clipping — the arm-A
+                    // probe had it at x=12). A plain View wrapper carries the
+                    // slot's Fill walk and centers the natural-size card via
+                    // align; the lowered string itself stays byte-identical
+                    // (the f21/f29a replay tests assert on it).
+                    let centered = format!(
+                        "View {{\nwidth: Fill height: Fill\nflow: Overlay\nalign: Align{{x: 0.5 y: 0.5}}\n{}\n}}",
+                        dsl
+                    );
+                    if let Err(e) = self.mounts.mount(cx, &splash, &centered) {
                         makepad_widgets::log!("[octoscode] connect mount: {e}");
                     }
                 }
@@ -1752,10 +1835,23 @@ impl OctoscodeView {
         // (Codex-style). A panel's dock wrapper hides with it (a visible
         // Fill/Fill overlay would shadow the composer's buttons).
         let wide = self.window_w == 0.0 || self.window_w >= 1260.0;
-        let show_sidebar = self.window_w == 0.0 || self.window_w >= 760.0;
+        // #31a: below 760 the sidebar hides but the toggle can bring it back.
+        let width_hides_sidebar = self.window_w != 0.0 && self.window_w < 760.0;
+        let show_sidebar = !width_hides_sidebar || self.sidebar_open;
         self.view.widget(cx, ids!(base)).set_visible(cx, live);
         self.view.widget(cx, ids!(first_run)).set_visible(cx, !live);
         self.view.widget(cx, ids!(threads_column)).set_visible(cx, show_sidebar);
+        // The toggle itself only exists while WIDTH hides the sidebar (and the
+        // shell is live — the first-run screen has its own chrome).
+        self.view.widget(cx, ids!(sidebar_toggle)).set_visible(cx, live && width_hides_sidebar);
+        // #31a: below 760 the toggle OPENS the sidebar as a drill-down screen
+        // and the conversation hides — showing both split the Right flow and
+        // left the conversation 385px, where the user bubble clipped at the
+        // window edge (the exact g3 defect class; 31a-toggle-after.png). The
+        // same icon closes, so nothing is ever clipped.
+        self.view
+            .widget(cx, ids!(conversation_column))
+            .set_visible(cx, !(width_hides_sidebar && self.sidebar_open));
         self.view.widget(cx, ids!(review_dock)).set_visible(cx, review);
         self.view.widget(cx, ids!(review_panel)).set_visible(cx, review);
         self.view
@@ -1946,10 +2042,13 @@ impl Widget for OctoscodeView {
                     while let Some(id) = list.next_visible_item(cx) {
                         let Some((name, desc)) = rows.get(id) else { continue };
                         let item = list.item(cx, id, id!(PaletteRowTpl));
-                        // #28e2 item 5: only the first row carries the
-                        // board's highlight.
-                        item.widget(cx, ids!(palette_row_bg))
-                            .set_visible(cx, id == 0);
+                        // #28e2 item 5 -> #31e: the highlight follows the
+                        // LIVE selection (↑/↓ move it; CommandPalette.tsx:66's
+                        // roving selection), no longer hardcoded row 0.
+                        item.widget(cx, ids!(palette_row_bg)).set_visible(
+                            cx,
+                            id == crate::screens::palette::selected_row(),
+                        );
                         item.label(cx, ids!(palette_row_name)).set_text(cx, name);
                         item.label(cx, ids!(palette_row_desc)).set_text(cx, desc);
                         item.draw_all_unscoped(cx);
@@ -2075,39 +2174,182 @@ impl Widget for OctoscodeView {
                 if self.view.button(cx, ids!(settings_close)).clicked(actions) {
                     self.perform_action("settings.toggle", 0);
                 }
+                // #31a: the <760 sidebar toggle.
+                if self.view.button(cx, ids!(sidebar_toggle_hit)).clicked(actions) {
+                    self.sidebar_open = !self.sidebar_open;
+                    self.sync_chrome(cx);
+                }
                 self.sync_labels(cx);
             }
-            // Card #28e — board-4 keys. Esc closes the palette (frame 3);
-            // Cmd+K toggles it.
+            // Card #31e — the keyboard surface routes through the ONE
+            // resolver (`screens::keys::resolve`); every rule cites its web
+            // source there. #28e's chrome chords are preserved in the table.
             Event::KeyDown(e) => {
-                let ui = self.bridge.lock().unwrap().ui.clone();
+                let (ui, store, conv) = {
+                    let b = self.bridge.lock().unwrap();
+                    (b.ui.clone(), b.store.clone(), b.conv.clone())
+                };
+                let (palette_open, turn_active, draft_empty) = {
+                    let u = ui.lock().unwrap();
+                    (u.palette_open(), u.turn_active(), u.draft().is_empty())
+                };
+                // Y/S/N gate on the AUTHORITATIVE pending list — the store's
+                // approval domain, where the client's `approval/requested`
+                // handler lands pushed cards — or the flow's own flag
+                // (module-driven transports). The FlowUi flag alone missed
+                // server-pushed cards (the first live drive's dead Y).
+                let approval_pending =
+                    crate::screens::keys::oldest_pending_id(&store).is_some()
+                        || ui.lock().unwrap().approval_pending();
+                let action = crate::screens::keys::resolve(
+                    e.key_code,
+                    e.modifiers.shift,
+                    e.modifiers.control,
+                    e.modifiers.alt,
+                    e.modifiers.logo,
+                    palette_open,
+                    approval_pending,
+                    turn_active,
+                    draft_empty,
+                );
+                use crate::screens::keys::KeyAction;
+                // The per-binding receipt: /log names every resolved key (the
+                // docs/keyboard.md table's live evidence).
+                makepad_widgets::log!("[octoscode] key {:?} -> {:?}", e.key_code, action);
                 let mut open_changed = false;
-                if let Ok(mut u) = ui.lock() {
-                    if e.key_code == KeyCode::Escape && u.palette_open() {
-                        u.set_palette_open(false);
-                        open_changed = true;
-                    } else if e.key_code == KeyCode::KeyK && e.modifiers.logo {
-                        u.toggle_palette();
-                        open_changed = true;
-                    } else if e.key_code == KeyCode::KeyE && e.modifiers.logo {
-                        u.toggle_review();
-                        open_changed = true;
-                    } else if e.key_code == KeyCode::Period && e.modifiers.logo {
-                        u.toggle_settings();
-                        open_changed = true;
-                    // Card #28e item 5: typing "/" in an EMPTY composer opens
-                    // the palette (board 4 frame 3). A non-empty draft keeps
-                    // the "/" as text.
-                    } else if e.key_code == KeyCode::Slash
-                        && !u.palette_open()
-                        && u.draft().is_empty()
-                    {
-                        u.set_palette_open(true);
+                match action {
+                    KeyAction::PaletteClose => {
+                        ui.lock().unwrap().set_palette_open(false);
                         open_changed = true;
                     }
+                    KeyAction::PaletteToggle => {
+                        ui.lock().unwrap().toggle_palette();
+                        open_changed = true;
+                    }
+                    // "/"-open is IDEMPOTENT (set true): the composer's
+                    // changed-action may perform the same open (#28e item 5).
+                    KeyAction::PaletteOpen => {
+                        ui.lock().unwrap().set_palette_open(true);
+                        open_changed = true;
+                    }
+                    KeyAction::PaletteMove(dir) => {
+                        // The screen's table owns the semantics; the shell
+                        // only names the action id (one-owner).
+                        let ctx = crate::bindings::Ctx::new(&store, &ui);
+                        // usize::MAX casts to -1: the table's rem_euclid walk.
+                        let idx = if dir < 0 { usize::MAX } else { 1 };
+                        let _ = crate::screens::palette::resolve("palette.move", idx, &ctx);
+                        open_changed = true;
+                    }
+                    KeyAction::PaletteRun => {
+                        let ctx = crate::bindings::Ctx::new(&store, &ui);
+                        let effect = crate::screens::palette::resolve(
+                            "palette.run",
+                            crate::screens::palette::selected_row(),
+                            &ctx,
+                        );
+                        // `palette::resolve` returns the screen's own Effect
+                        // (not the wrapped actions::Effect::Screen).
+                        if let crate::screens::palette::Effect::Run(effect_id, name) = effect {
+                            // The web closes the palette when a command runs
+                            // (CommandPalette's run path dismisses the listbox).
+                            ui.lock().unwrap().set_palette_open(false);
+                            open_changed = true;
+                            if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                                match effect_id {
+                                    Some("session.refresh") => {
+                                        rt.spawn(async move {
+                                            if let Err(e) = conv.refresh_sessions().await {
+                                                ::log::warn!(
+                                                    "octoscode: palette.run {name}: session.refresh: {e}"
+                                                );
+                                            }
+                                        });
+                                    }
+                                    // Fail closed with the command's own name
+                                    // (the #29d rule): never a silent no-op.
+                                    other => ::log::warn!(
+                                        "octoscode: palette.run {name}: no native effect ({other:?})"
+                                    ),
+                                }
+                            }
+                        }
+                    }
+                    KeyAction::ComposerSubmit => {
+                        // :237-243 — the bare Enter sends the draft (the same
+                        // production path the composer's send affordance takes).
+                        if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                            rt.spawn(async move {
+                                if let Err(e) = conv.submit_draft().await {
+                                    ::log::warn!("octoscode: composer.submit: {e}");
+                                }
+                            });
+                        }
+                    }
+                    KeyAction::Interrupt => {
+                        // :245-252 — Esc with a live turn interrupts it.
+                        if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                            let turn = ui.lock().unwrap().active_turn();
+                            if let Some(turn) = turn {
+                                rt.spawn(async move {
+                                    if let Err(e) = conv.interrupt(&turn).await {
+                                        ::log::warn!("octoscode: turn.interrupt: {e}");
+                                    }
+                                });
+                            }
+                        }
+                    }
+                    // ApprovalPanel.tsx:46-54 — the keyboard decides the
+                    // pending approval over the production wire
+                    // (`approval/respond`, the r5-turn recording's grammar).
+                    KeyAction::ApprovalApproveRequest
+                    | KeyAction::ApprovalApproveSession
+                    | KeyAction::ApprovalDenyRequest => {
+                        if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                            let approval_id = crate::screens::keys::oldest_pending_id(&store);
+                            if let Some(approval_id) = approval_id {
+                                let body = crate::screens::keys::respond_body(
+                                    &action,
+                                    &conv.session_id(),
+                                    &approval_id,
+                                );
+                                if let Some(body) = body {
+                                    let client = conv.client().clone();
+                                    rt.spawn(async move {
+                                        if let Err(e) =
+                                            client.request("approval/respond", body).await
+                                        {
+                                            ::log::warn!("octoscode: approval/respond: {e}");
+                                        }
+                                    });
+                                }
+                            } else {
+                                ::log::warn!("octoscode: keyboard decision: no pending approval");
+                            }
+                        }
+                    }
+                    // registry.ts:614 — the parity shortcut resolves; the
+                    // approval surface it reveals lands with the approval
+                    // Stage-C screen (logged, never silent).
+                    KeyAction::ShowApproval => {
+                        makepad_widgets::log!(
+                            "[octoscode] Alt+A show-approval (pending={approval_pending})"
+                        );
+                    }
+                    KeyAction::ReviewToggle => {
+                        ui.lock().unwrap().toggle_review();
+                    }
+                    KeyAction::SettingsToggle => {
+                        ui.lock().unwrap().toggle_settings();
+                    }
+                    KeyAction::Ignore => {}
                 }
                 if open_changed {
                     self.sync_labels(cx);
+                    // The palette's rows (and the highlight that follows the
+                    // LIVE selection) draw in `draw_walk` — an explicit redraw
+                    // or the move paints only on some future frame.
+                    self.view.redraw(cx);
                 }
             }
             _ => {}

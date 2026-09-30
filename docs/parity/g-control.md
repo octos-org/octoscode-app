@@ -2,7 +2,7 @@
 
 Scope: 8 web feature dirs in `src-web/apps/web/src/features/` — `commands control inventory media peers
 questions reasoning workspace-create`. Companion machine-readable data: `docs/parity/g-control.csv`
-(43 rows / 8 features). Path prefixes: `src-web/` = `/Users/yuechen/home/oa.noindex/src-web/`,
+(43 rows / 8 features). Path prefixes: `src-web/` = `<WORKSPACE>/src-web/`,
 `appcard/` = `ref/OctoSense/apps/appcard/app/`, `octosense/` = `ref/OctoSense/`.
 
 Method: one row per user-visible behaviour, cited `file:line`; unit tests from `*.test.ts[x]` in the dir,

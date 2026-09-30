@@ -11,7 +11,7 @@
 //!
 //! Env:
 //!   OCTOSENSE_NATIVE_ROOT  the prepared native workspace (default:
-//!                          /Users/yuechen/home/oa.noindex/native)
+//!                          <REPO>/../native)
 
 use makepad_test::{run_with_config, Selector, TestApp, TestConfig};
 use std::path::PathBuf;
@@ -29,7 +29,7 @@ fn repo_root() -> PathBuf {
 fn native_root() -> PathBuf {
     std::env::var_os("OCTOSENSE_NATIVE_ROOT")
         .map(PathBuf::from)
-        .unwrap_or_else(|| PathBuf::from("/Users/yuechen/home/oa.noindex/native"))
+        .unwrap_or_else(|| PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../native"))
 }
 
 /// A config that builds and launches `card-host` on the committed notes fixture.
