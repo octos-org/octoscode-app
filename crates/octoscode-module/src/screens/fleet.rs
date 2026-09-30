@@ -116,7 +116,12 @@ pub fn is_action(id: &str) -> bool {
 // ------------------------------------------------------------------- bindings
 
 fn peer_rows(store: &Store) -> Vec<Peer> {
-    store.domains.peer.list()
+    // The store's roster is a map (unordered); the card's rows must be
+    // DETERMINISTIC across runs (a row maps to a steer target), so the
+    // projection orders by slug.
+    let mut rows = store.domains.peer.list();
+    rows.sort_by(|a, b| a.name.cmp(&b.name));
+    rows
 }
 
 fn running_task(store: &Store) -> Option<TaskSnapshot> {
@@ -135,6 +140,22 @@ fn settled_task(store: &Store) -> Option<TaskSnapshot> {
         .snapshots()
         .into_iter()
         .find(|t| t.state != "running")
+}
+
+/// The wire runtime state → the design's status word. The web maps wire
+/// states to product words the same way (`supervision/plan.ts:70`
+/// `planStatusLabel("completed") -> "Done"`; the plan labels are the Tasks
+/// card's own vocabulary), and the card's authored copy is capitalized
+/// ("Running" / "Done") — a raw wire state must not paint lowercase.
+fn status_word(state: &str) -> String {
+    match state {
+        "pending" => "Pending".to_owned(),
+        "running" => "Running".to_owned(),
+        "done" | "completed" => "Done".to_owned(),
+        "failed" => "Failed".to_owned(),
+        "cancelled" | "canceled" => "Stopped".to_owned(),
+        other => other.to_owned(),
+    }
 }
 
 fn task_label(t: &TaskSnapshot) -> String {
@@ -204,11 +225,11 @@ pub fn query_binding(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
         }
         // ---- autonomy-07 Tasks ------------------------------------------------
         "tasks.run_cmd" => running_task(store).map_or(Value::Null, |t| json!(task_label(&t))),
-        "tasks.run_status" => running_task(store).map_or(Value::Null, |t| json!(t.state)),
+        "tasks.run_status" => running_task(store).map_or(Value::Null, |t| json!(status_word(&t.state))),
         // No wall-clock durations in the store — authored stays.
         "tasks.run_dur" | "tasks.done_dur" => Value::Null,
         "tasks.done_cmd" => settled_task(store).map_or(Value::Null, |t| json!(task_label(&t))),
-        "tasks.done_status" => settled_task(store).map_or(Value::Null, |t| json!(t.state)),
+        "tasks.done_status" => settled_task(store).map_or(Value::Null, |t| json!(status_word(&t.state))),
         other @ ("tasks.log0" | "tasks.log1" | "tasks.log2" | "tasks.log3") => {
             let line: usize = other.trim_start_matches("tasks.log").parse().ok()?;
             let t = running_task(store).or_else(|| settled_task(store))?;
@@ -549,6 +570,11 @@ pub fn spawn(
 /// one `Done`), the goal line, a running + a settled task with four output
 /// lines — exactly the shape the accepted reviews show, so the LIVE slots
 /// reproduce the reviewed renders (the f29c capture-test contract).
+///
+/// `OCTOSCODE_CAPTURE_PEERS=0|1|3` scales the roster (0 = the empty state:
+/// every live slot resolves Null and the AUTHORED copy shows — the
+/// empty-store contract the f30c coverage test pins); the default is 3.
+/// `OCTOSCODE_CAPTURE_TASKS=0|1|3` scales the task rows the same way.
 pub fn capture_store() -> std::sync::Arc<Store> {
     let store = std::sync::Arc::new(Store::new());
     let session = "dsflash:main";
@@ -568,38 +594,67 @@ pub fn capture_store() -> std::sync::Arc<Store> {
             ..Default::default()
         },
     );
-    for name in ["tests", "docs", "review"] {
+    let peers: &[&str] = match std::env::var("OCTOSCODE_CAPTURE_PEERS").as_deref() {
+        Ok("0") => &[],
+        Ok("1") => &["tests"],
+        _ => &["tests", "docs", "review"],
+    };
+    for &name in peers {
         store.domains.peer.upsert(Peer::named(name));
     }
-    store.domains.peer.mark_closed("review");
-    store.domains.task.upsert_snapshot(TaskSnapshot::from_list_row(
-        "t-run".into(),
-        "cargo test -p octos-cli steer_queue".into(),
-        "running".into(),
-        "running".into(),
-        Some("cargo test -p octos-cli steer_queue".into()),
-        None,
-        None,
-        None,
-        0,
-        Vec::new(),
-        None,
-        None,
-    ));
-    store.domains.task.upsert_snapshot(TaskSnapshot::from_list_row(
-        "t-done".into(),
-        "cargo clippy -p octos-cli".into(),
-        "done".into(),
-        "done".into(),
-        Some("cargo clippy -p octos-cli".into()),
-        None,
-        None,
-        None,
-        0,
-        Vec::new(),
-        None,
-        None,
-    ));
+    if peers.contains(&"review") {
+        store.domains.peer.mark_closed("review");
+    }
+    let tasks_env = std::env::var("OCTOSCODE_CAPTURE_TASKS").unwrap_or_else(|_| "2".into());
+    let tasks: &str = tasks_env.as_str();
+    if tasks != "0" {
+        store.domains.task.upsert_snapshot(TaskSnapshot::from_list_row(
+            "t-run".into(),
+            "cargo test -p octos-cli steer_queue".into(),
+            "running".into(),
+            "running".into(),
+            Some("cargo test -p octos-cli steer_queue".into()),
+            None,
+            None,
+            None,
+            0,
+            Vec::new(),
+            None,
+            None,
+        ));
+    }
+    if tasks == "2" || tasks == "3" {
+        store.domains.task.upsert_snapshot(TaskSnapshot::from_list_row(
+            "t-done".into(),
+            "cargo clippy -p octos-cli".into(),
+            "done".into(),
+            "done".into(),
+            Some("cargo clippy -p octos-cli".into()),
+            None,
+            None,
+            None,
+            0,
+            Vec::new(),
+            None,
+            None,
+        ));
+    }
+    if tasks == "3" {
+        store.domains.task.upsert_snapshot(TaskSnapshot::from_list_row(
+            "t-fmt".into(),
+            "cargo fmt --check".into(),
+            "done".into(),
+            "done".into(),
+            Some("cargo fmt --check".into()),
+            None,
+            None,
+            None,
+            0,
+            Vec::new(),
+            None,
+            None,
+        ));
+    }
     for line in [
         "Compiling octos-cli v0.24.1 (/workspace/crates/octos-cli)",
         "Finished test [unoptimized + debuginfo] target(s) in 1.23s",
