@@ -620,3 +620,127 @@ fn budget_fill_binds_used_over_budget() {
         "atlas-granular elapsed"
     );
 }
+
+/// #30b4 — the APP's lowered output follows the data: card height, divider
+/// count and the empty-line slot are decided in `lower_tree` (the production
+/// path the mount renders), not in capture tooling.
+#[test]
+fn lowered_output_follows_the_store() {
+    use octoscode_module::screens::autonomy::Screen3;
+    let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+    au::reset_state();
+    let loop_row = serde_json::json!({
+        "loop_id": "loop_01", "prompt": "r1 replay probe",
+        "mode": "fixed_interval", "interval_seconds": 3600, "status": "active",
+    });
+    let monitor = |name: &str, argv: &str| {
+        serde_json::json!({
+            "monitor_id": format!("mon_{name}"), "name": name, "argv": [argv],
+            "status": "active", "interval_seconds": 3600,
+        })
+    };
+    let at = |inv: &[serde_json::Value], id: &str| -> serde_json::Value {
+        inv.iter()
+            .find(|v| v["original_id"] == serde_json::json!(id))
+            .cloned()
+            .unwrap_or_else(|| panic!("no {id} in the inventory"))
+    };
+
+    // 1 loop: the compact card; both dividers collapse.
+    let st1 = au::AutonomyState { loops: vec![loop_row.clone()], ..Default::default() };
+    let l1 = au::lower_tree(Screen3::Loops, &st1).unwrap();
+    // One visible row: card = row1's bottom (~219.6, the dot) + the authored
+    // pad, up from the card top 141 — about 126, NOT the authored 370.
+    let h1 = at(&l1.inventory, "loops_card")["height"].as_f64().unwrap();
+    assert!(
+        (h1 - 125.6).abs() < 3.0 && h1 < 370.0,
+        "the card sizes to its one row (got {h1})"
+    );
+    assert_eq!(at(&l1.inventory, "loop_2_divider")["width"], serde_json::json!(0.0));
+    assert_eq!(at(&l1.inventory, "loop_3_divider")["width"], serde_json::json!(0.0));
+    assert_eq!(
+        at(&l1.inventory, "loop_1_name")["text"],
+        serde_json::json!("r1 replay probe")
+    );
+
+    // 0 loops: the empty line renders in the BODY-font name slot (the mono
+    // command slot pattern is monitors'; loop_1_cad collapses).
+    let l0 = au::lower_tree(Screen3::Loops, &au::AutonomyState::default()).unwrap();
+    let h0 = at(&l0.inventory, "loops_card")["height"].as_f64().unwrap();
+    // Measured: name bottom 193 + the authored pad 28.72 - card top 141.
+    assert!(
+        (h0 - 80.72).abs() < 1.0 && h0 < h1,
+        "the empty card is the name box + pad (got {h0})"
+    );
+    assert_eq!(
+        at(&l0.inventory, "loop_1_name")["text"],
+        serde_json::json!("No loops in this session.")
+    );
+    assert_eq!(at(&l0.inventory, "loop_1_cad")["width"], serde_json::json!(0.0));
+
+    // 3 loops: the authored card height; every row carries data.
+    let st3 = au::AutonomyState {
+        loops: vec![loop_row.clone(), loop_row.clone(), loop_row],
+        ..Default::default()
+    };
+    let l3 = au::lower_tree(Screen3::Loops, &st3).unwrap();
+    assert_eq!(at(&l3.inventory, "loops_card")["height"], serde_json::json!(370.0));
+    assert_eq!(
+        at(&l3.inventory, "loop_3_name")["text"],
+        serde_json::json!("r1 replay probe")
+    );
+
+    // Monitors 0: the empty line on the body-font footer label; the mono
+    // command slot carries nothing.
+    let m0 = au::lower_tree(Screen3::Monitors, &au::AutonomyState::default()).unwrap();
+    assert_eq!(
+        at(&m0.inventory, "monitors_footer_label")["text"],
+        serde_json::json!("No monitors in this session.")
+    );
+    assert_eq!(at(&m0.inventory, "mon_1_cmd")["text"], serde_json::json!(""));
+
+    // Monitors 1: card 2 collapses; the footer follows card 1.
+    let st1m = au::AutonomyState {
+        monitors: vec![monitor("a", "./scripts/watch.sh")],
+        ..Default::default()
+    };
+    let m1 = au::lower_tree(Screen3::Monitors, &st1m).unwrap();
+    assert_eq!(at(&m1.inventory, "mon_2")["width"], serde_json::json!(0.0));
+    assert_eq!(
+        at(&m1.inventory, "monitors_footer_label")["text"],
+        serde_json::json!("1 monitor · 1 active")
+    );
+
+    // Monitors 3: the cloned third card carries the THIRD item's values; the
+    // footer lands below it.
+    let st3m = au::AutonomyState {
+        monitors: vec![
+            monitor("a", "./scripts/watch.sh"),
+            monitor("b", "tail -n 50 app.log"),
+            serde_json::json!({
+                "monitor_id": "mon_c", "name": "c",
+                "argv": ["git", "status", "--short"],
+                "status": "paused", "interval_seconds": 300,
+            }),
+        ],
+        ..Default::default()
+    };
+    let m3 = au::lower_tree(Screen3::Monitors, &st3m).unwrap();
+    assert_eq!(
+        at(&m3.inventory, "mon_3_cmd")["text"],
+        serde_json::json!("git status -…"),
+        "the third item ellipsized on the cloned card"
+    );
+    assert_eq!(at(&m3.inventory, "mon_3_int")["text"], serde_json::json!("5m"));
+    assert_eq!(
+        at(&m3.inventory, "monitors_footer_label")["text"],
+        serde_json::json!("3 monitors · 2 active")
+    );
+    // Geometry (y) is not in inspectable's snapshot — read `measured`.
+    assert!(
+        m3.measured["monitors_footer"].0 > m3.measured["mon_3"].0,
+        "the footer follows the last card ({:?} vs {:?})",
+        m3.measured["monitors_footer"],
+        m3.measured["mon_3"]
+    );
+}

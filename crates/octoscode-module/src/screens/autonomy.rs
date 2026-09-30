@@ -33,6 +33,8 @@
 //! probe","status":"active","token_budget":100000000,...}`, loop `loop_01`
 //! fixed_interval 3600, monitor `monitor_01` poll/ERROR — are what the
 //! replay tests assert (hermetic: fixture values only, no environment).
+use std::collections::{HashMap, HashSet};
+use std::path::Path;
 use std::sync::{Arc, Mutex, MutexGuard, OnceLock};
 
 use serde_json::{json, Value};
@@ -140,6 +142,383 @@ pub fn reset_state() {
 /// seeding 0/1/3-item stores.
 pub fn update_state(f: impl FnOnce(&mut AutonomyState)) {
     f(&mut state());
+}
+
+/// The board-3 screens (the wired Stage-B cards).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Screen3 {
+    Goal,
+    Loops,
+    Monitors,
+}
+
+impl Screen3 {
+    pub fn card_dir(self) -> &'static str {
+        match self {
+            Screen3::Goal => "autonomy-03",
+            Screen3::Loops => "autonomy-04",
+            Screen3::Monitors => "autonomy-05",
+        }
+    }
+
+    pub fn from_env() -> Option<Self> {
+        match std::env::var("OCTOSCODE_SCREEN").as_deref() {
+            Ok("goal") => Some(Screen3::Goal),
+            Ok("loops") => Some(Screen3::Loops),
+            Ok("monitors") => Some(Screen3::Monitors),
+            _ => None,
+        }
+    }
+}
+
+/// The production lowering (the #29a connect precedent): the authored Stage-B
+/// card + the live screen state → the makepad DSL the app mounts. The row,
+/// sizing and empty-state rules live HERE (entry #30b4) — not in capture
+/// tooling: rows instantiate per cached item (the #17 pattern), the card
+/// heights follow the visible rows, the 0-item line renders in the body-font
+/// slot, and the budget bar's fill is the `goal.fill` binding.
+pub fn lower_screen(screen: Screen3, st: &AutonomyState) -> Result<String, String> {
+    Ok(lower_tree(screen, st)?.dsl)
+}
+
+pub struct Lowered {
+    pub dsl: String,
+    pub card: octoscript_makepad::l0::PreparedCard,
+    /// `l0::inspectable`'s original_id-keyed snapshot (text/w/h per node) —
+    /// the assertions in the tests read THIS, not the DSL string.
+    pub inventory: Vec<Value>,
+    /// id → (y, w, h) collected after the apply pass — the geometry view
+    /// (inspectable's snapshot carries no x/y).
+    pub measured: HashMap<String, (f64, f64, f64)>,
+}
+
+pub fn lower_tree(screen: Screen3, st: &AutonomyState) -> Result<Lowered, String> {
+    let dir = format!(
+        "{}/../../design/stage-b/autonomy/cards/{}",
+        env!("CARGO_MANIFEST_DIR"),
+        screen.card_dir()
+    );
+    let card_src = std::fs::read_to_string(format!("{dir}/page.card"))
+        .map_err(|e| format!("read {}/page.card: {e}", screen.card_dir()))?;
+    let data: Value = serde_json::from_str(
+        &std::fs::read_to_string(format!("{dir}/page.data.json"))
+            .map_err(|e| format!("read page.data.json: {e}"))?,
+    )
+    .map_err(|e| format!("parse page.data.json: {e}"))?;
+    let mut card = octoscript_makepad::l0::prepare(
+        &card_src,
+        &data,
+        Path::new(&format!("{dir}/kit")),
+    )
+    .map_err(|e| format!("l0::prepare: {e}"))?;
+    let tree = &mut card.tree;
+
+    // ---- measure the authored geometry (immutable pass; types stay inferred
+    // because octoscript-render is not a direct dependency of this crate).
+    let mut geo: HashMap<String, (f64, f64, f64)> = HashMap::new(); // y, w, h
+    let mut stack = vec![&*tree];
+    while let Some(n) = stack.pop() {
+        if let Some(id) = &n.attrs.id {
+            geo.insert(
+                id.clone(),
+                (
+                    n.attrs.y.unwrap_or(0.0),
+                    n.attrs.w.unwrap_or(0.0) as f64,
+                    n.attrs.h.unwrap_or(0.0) as f64,
+                ),
+            );
+        }
+        for c in &n.children {
+            stack.push(c);
+        }
+    }
+    let g = |id: &str| geo.get(id).copied().unwrap_or((0.0, 0.0, 0.0));
+
+    // ---- decide the live values (pure, from the state)
+    let mut hide: HashSet<String> = HashSet::new();
+    let mut texts: Vec<(String, String, Option<f64>)> = Vec::new(); // id, text, w?
+    let mut set_w: Vec<(String, f32)> = Vec::new();
+    let mut set_h: Vec<(String, f32)> = Vec::new();
+    let mut set_y: Vec<(String, f64)> = Vec::new();
+
+    match screen {
+        Screen3::Goal => {
+            if let Some(goal) = &st.goal {
+                let obj = goal["objective"].as_str().unwrap_or_default().to_owned();
+                let status = goal["status"].as_str().unwrap_or_default().to_owned();
+                let mut badge = status.clone();
+                if let Some(first) = badge.get_mut(0..1) {
+                    first.make_ascii_uppercase();
+                }
+                let used = goal["tokens_used"].as_u64().unwrap_or(0);
+                let budget = goal["token_budget"].as_u64().unwrap_or(0);
+                texts.push(("t_goal".into(), obj, None));
+                texts.push(("goal_badge_label".into(), badge, None));
+                texts.push((
+                    "t_budget_val".into(),
+                    format!("{} / {}", format_tokens(used), format_tokens(budget)),
+                    None,
+                ));
+                texts.push((
+                    "t_elapsed_val".into(),
+                    elapsed_atlas(goal["time_used_seconds"].as_u64().unwrap_or(0)),
+                    None,
+                ));
+                // The bar's fill is the goal.fill binding (used/budget).
+                let fill = if budget > 0 { used as f64 / budget as f64 } else { 0.0 };
+                set_w.push(("bar_fill".into(), (g("bar_track").1 * fill) as f32));
+            }
+        }
+        Screen3::Loops => {
+            let n = st.loops.len().min(3);
+            for i in 0..n {
+                let row = &st.loops[i];
+                texts.push((
+                    (format!("loop_{}_name", i + 1)),
+                    row["prompt"].as_str().unwrap_or_default().to_owned(),
+                    None,
+                ));
+                texts.push((
+                    (format!("loop_{}_cad", i + 1)),
+                    cadence(row),
+                    None,
+                ));
+            }
+            for i in (n + 1)..=3 {
+                for id in geo.keys() {
+                    if id.starts_with(&format!("loop_{i}_")) {
+                        hide.insert(id.clone());
+                    }
+                }
+            }
+            if n == 0 {
+                // The 0-item line renders in the body-font slot (loop_1_name,
+                // Inter-500 — never the mono command slot; AutonomyPanel.tsx:238).
+                texts.push((
+                    "loop_1_name".into(),
+                    "No loops in this session.".into(),
+                    Some(280.0),
+                ));
+                for id in geo.keys() {
+                    if id.starts_with("loop_1_") && id != "loop_1_name" {
+                        hide.insert(id.clone());
+                    }
+                }
+            }
+            // The card sizes to its visible rows (authored pad preserved).
+            let card = g("loops_card");
+            let pitch = g("loop_2_name").0 - g("loop_1_name").0;
+            let row_bottom = |i: u32| {
+                (1..=i)
+                    .flat_map(|r| {
+                        geo.keys()
+                            .filter(move |id| id.starts_with(&format!("loop_{r}_")))
+                            .map(move |id| g(id))
+                    })
+                    .map(|(y, _w, h)| y + h)
+                    .fold(0.0_f64, f64::max)
+            };
+            let pad = card.2 - (row_bottom(3) - card.0);
+            let visible_bottom = if n == 0 {
+                g("loop_1_name").0 + g("loop_1_name").2
+            } else {
+                row_bottom(n as u32)
+            };
+            set_h.push(("loops_card".into(), ((visible_bottom + pad) - card.0) as f32));
+        }
+        Screen3::Monitors => {
+            let n = st.monitors.len();
+            for i in 0..n.min(2) {
+                let m = &st.monitors[i];
+                let argv = m["argv"]
+                    .as_array()
+                    .map(|a| {
+                        a.iter()
+                            .filter_map(|v| v.as_str())
+                            .collect::<Vec<_>>()
+                            .join(" ")
+                    })
+                    .unwrap_or_default();
+                texts.push((format!("mon_{}_cmd", i + 1), ellipsize(argv, 13), None));
+                let mut state_txt = m["status"].as_str().unwrap_or_default().to_owned();
+                if let Some(reason) = m["pause_reason"].as_str() {
+                    state_txt = format!("{} ({})", state_txt, reason);
+                }
+                texts.push((format!("mon_{}_state", i + 1), state_txt, None));
+                texts.push((
+                    format!("mon_{}_int", i + 1),
+                    interval_short(m["interval_seconds"].as_u64()),
+                    None,
+                ));
+            }
+            // A third item rides the CLONED card (the clone pass below copies
+            // card 2's shape; the apply pass then writes these values into
+            // the mon_3_* ids).
+            if let Some(m3) = st.monitors.get(2) {
+                let argv = m3["argv"]
+                    .as_array()
+                    .map(|a| {
+                        a.iter().filter_map(|v| v.as_str()).collect::<Vec<_>>().join(" ")
+                    })
+                    .unwrap_or_default();
+                texts.push(("mon_3_cmd".into(), ellipsize(argv, 13), None));
+                texts.push((
+                    "mon_3_state".into(),
+                    m3["status"].as_str().unwrap_or_default().to_owned(),
+                    None,
+                ));
+                texts.push((
+                    "mon_3_int".into(),
+                    interval_short(m3["interval_seconds"].as_u64()),
+                    None,
+                ));
+            }
+            for i in (n.min(2) + 1)..=2 {
+                for id in geo.keys() {
+                    if *id == format!("mon_{i}") || id.starts_with(&format!("mon_{i}_")) {
+                        hide.insert(id.clone());
+                    }
+                }
+            }
+            let pitch = g("mon_2").0 - g("mon_1").0;
+            // The last visible card's bottom: 0 items → the first slot's top;
+            // 1 item → card 1's bottom; n≥2 → card 2 shifted by the pitch.
+            let last_bottom = |n: usize| {
+                if n == 0 {
+                    g("mon_1").0
+                } else if n == 1 {
+                    g("mon_1").0 + g("mon_1").2
+                } else {
+                    g("mon_2").0 + pitch * (n - 2) as f64 + g("mon_2").2
+                }
+            };
+            // The footer follows the last card with the authored gap.
+            let authored_gap = g("monitors_footer").0 - (g("mon_2").0 + g("mon_2").2);
+            let shift = (last_bottom(n) + authored_gap) - g("monitors_footer").0;
+            set_y.push(("monitors_footer".into(), g("monitors_footer").0 + shift));
+            set_y.push((
+                "monitors_footer_label".into(),
+                g("monitors_footer_label").0 + shift,
+            ));
+            let active = st
+                .monitors
+                .iter()
+                .filter(|m| m["status"].as_str() == Some("active"))
+                .count();
+            texts.push((
+                "monitors_footer_label".into(),
+                if n == 0 {
+                    "No monitors in this session.".to_owned()
+                } else {
+                    format!(
+                        "{n} {} · {active} active",
+                        if n == 1 { "monitor" } else { "monitors" }
+                    )
+                },
+                None,
+            ));
+        }
+    }
+
+    // ---- clone the authored card for stores larger than the template (the
+    // lowering-layer instantiation; the mounted PortalList generalizes it).
+    if screen == Screen3::Monitors && st.monitors.len() > 2 {
+        let n = st.monitors.len();
+        let pitch = g("mon_2").0 - g("mon_1").0;
+        let mut work: Vec<&mut _> = vec![tree];
+        let mut done = false;
+        while let Some(node) = work.pop() {
+            if !done {
+                let at = node.children.iter().position(|c| c.attrs.id.as_deref() == Some("mon_2"));
+                if let Some(at) = at {
+                    for k in 3..=n {
+                        let mut extra = node.children[at].clone();
+
+                        let mut sub = vec![&mut extra];
+                        while let Some(x) = sub.pop() {
+                            if let Some(id) = &x.attrs.id {
+                                if id.contains("mon_2") {
+                                    x.attrs.id =
+                                        Some(id.replace("mon_2", &format!("mon_{k}")));
+                                }
+                            }
+                            x.attrs.y = x.attrs.y.map(|y| y + pitch * (k - 2) as f64);
+                            for c in &mut x.children {
+                                sub.push(c);
+                            }
+                        }
+                        node.children.insert(at + k - 2, extra);
+                    }
+                    done = true;
+                }
+            }
+            for c in &mut node.children {
+                work.push(c);
+            }
+        }
+    }
+
+    // ---- apply the edits (mutable walk; text nodes blank before w=0 so the
+    // lowered tree never carries content in a zero box).
+    let mut work = vec![&mut *tree];
+    while let Some(n) = work.pop() {
+        if let Some(id) = n.attrs.id.clone() {
+            if hide.contains(&id) {
+                if n.attrs.text.is_some() {
+                    n.attrs.text = Some(String::new());
+                }
+                n.attrs.w = Some(0.0);
+            }
+            for (tid, text, w) in &texts {
+                if &id == tid {
+                    n.attrs.text = Some(text.clone());
+                    if let Some(w) = w {
+                        n.attrs.w = Some(*w as f32);
+                    }
+                }
+            }
+            for (wid, w) in &set_w {
+                if &id == wid {
+                    n.attrs.w = Some(*w);
+                }
+            }
+            for (hid, h) in &set_h {
+                if &id == hid {
+                    n.attrs.h = Some(*h);
+                }
+            }
+            for (yid, y) in &set_y {
+                if &id == yid {
+                    n.attrs.y = Some(*y);
+                }
+            }
+        }
+        for c in &mut n.children {
+            work.push(c);
+        }
+    }
+
+    let mut measured: HashMap<String, (f64, f64, f64)> = HashMap::new();
+    let mut walk = vec![&*tree];
+    while let Some(n) = walk.pop() {
+        if let Some(id) = &n.attrs.id {
+            measured.insert(
+                id.clone(),
+                (
+                    n.attrs.y.unwrap_or(0.0),
+                    n.attrs.w.unwrap_or(0.0) as f64,
+                    n.attrs.h.unwrap_or(0.0) as f64,
+                ),
+            );
+        }
+        for c in &n.children {
+            walk.push(c);
+        }
+    }
+    let inventory = octoscript_makepad::l0::inspectable(tree);
+    let dsl = octoscript_makepad::design::to_makepad_ui(tree)
+        .map_err(|e| format!("to_makepad_ui: {e}"))?;
+    Ok(Lowered { dsl, card, inventory, measured })
 }
 
 fn advertised(store: &Store, method: &str) -> bool {
