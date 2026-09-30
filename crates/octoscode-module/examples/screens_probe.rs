@@ -1,6 +1,7 @@
 //! Card #29d — the headless capture host for the three Stage C screens.
 //!
 //! Mounts one Stage B screen card (`OCTOSCODE_SCREEN=palette|error|loading`,
+//! or the board-3 `resume|attachments|aside`),
 //! default `palette`) through the SAME path the module uses
 //! ([`octoscode_module::screens::palette::mount_screen`]), with live slots:
 //!
@@ -87,6 +88,7 @@ fn start_asset_server() {
     })
 }
 use octoscode_module::screens::palette;
+use octoscode_module::screens::sessions;
 
 pub use makepad_widgets;
 
@@ -183,6 +185,41 @@ impl Widget for ScreensProbe {
                     let ctx = Ctx::new(&store, &ui);
                     palette::resolve("palette.query.set", 0, &ctx);
                 }
+                // #30d — board 3.8: the store's live rows + a staged confirm
+                // (live data, not the authored copy).
+                "resume" => {
+                    store.set_sessions(vec![
+                        octoscode_store::Session {
+                            id: "dsflash:live".into(),
+                            title: Some("Live row".into()),
+                            message_count: 7,
+                            updated_at: Some("5m ago".into()),
+                            last_prompt: None,
+                            active_turn: false,
+                        },
+                        octoscode_store::Session {
+                            id: "dsflash:steer".into(),
+                            title: Some("Fix steer queue drop on reconnect".into()),
+                            message_count: 23,
+                            updated_at: Some("1d ago".into()),
+                            last_prompt: None,
+                            active_turn: false,
+                        },
+                    ]);
+                    let ctx = Ctx::new(&store, &ui);
+                    sessions::resolve("resume.stage", 0, &ctx);
+                }
+                // #30d — board 3.9: one live draft attachment (the count slot).
+                "attachments" => {
+                    sessions::seed_attachments(vec![("screenshot.png", 1_258_291)]);
+                }
+                // #30d — board 3.10: the answered aside (question + answer).
+                "aside" => {
+                    sessions::seed_aside(
+                        "What does steer_dropped mean?",
+                        "It's a metric that increments when messages are dropped from the steer queue due to a reconnect or protocol error. It helps track message loss.",
+                    );
+                }
                 other => ::log::warn!("screens_probe: unknown OCTOSCODE_SCREEN {other:?}"),
             }
             start_asset_server();
@@ -191,7 +228,11 @@ impl Widget for ScreensProbe {
             // Lower, then point the kit SVGs at THIS host's asset server (the
             // authored origin is the design flow's 8170, held by a process
             // RULES forbid touching).
-            let r = palette::lower_screen(&which, &store).map(|dsl| {
+            let lowered = match which.as_str() {
+                "resume" | "attachments" | "aside" => sessions::lower_screen(&which, &store),
+                _ => palette::lower_screen(&which, &store),
+            };
+            let r = lowered.map(|dsl| {
                 dsl.replace(
                     "http://127.0.0.1:8170/ux-images/",
                     &format!("http://127.0.0.1:{ASSET_PORT}/ux-images/"),
