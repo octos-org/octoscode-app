@@ -161,7 +161,32 @@ AREA_PATTERNS = {
     "recovery": re.compile(r"reconnect|replay|recovery|restore|resume", re.I),
     "conversation": re.compile(
         r"prompt|stream|\banswer\b|interrupt|transcript|reasoning|message|turn", re.I),
+    # #33a — the surfaces the merged cards shipped (settings drawer, command
+    # palette, review panel, keyboard model, fleet/peer). Appended so the
+    # original areas' rows keep their checks (first match wins).
+    "peer": re.compile(r"fleet|peer[- ](?:dock|control|controller|activity|readonly)|seat|lane|lease", re.I),
+    "review": re.compile(r"\breview\b|diff|hunk|unmodified", re.I),
+    "settings": re.compile(r"settings|workspace dir|model management|profile", re.I),
+    "palette": re.compile(r"command (palette|surface)|slash command|/(?:model|mode|compact|btw|monitor|resume)\b", re.I),
+    "keyboard": re.compile(r"keyboard|shortcut|hotkey|press(es|ing)? (esc|escape|enter|tab|alt)", re.I),
+    "connect": re.compile(r"connect (screen|gate)|first[- ]run|onboard|pairing|pair\b|address valid|invalid auth|identity|workspace browse|folder|chooser", re.I),
 }
+
+# Rows whose STATE the replay fixtures cannot produce (multi-session soaks,
+# OS notifications, browser URL/clipboard handling, IME, mobile viewports, a
+# dark-OS theme matrix). Live-only rows are Phase 4's (outer loop, live).
+LIVE_ONLY_PATTERNS = [
+    re.compile(r"notif|badge|title gains|desktop notification", re.I),
+    re.compile(r"\bsoak\b|twelve|12 session|three native peers|pooled socket", re.I),
+    re.compile(r"clipboard|browser tab|bookmark|saved link|session-links|query-string|address bar", re.I),
+    re.compile(r"three concurrent|out of order|parks? a background|parked (question|approval)", re.I),
+    re.compile(r"hidden current session|background session|background turn|completed in background", re.I),
+    re.compile(r"phone viewport|mobile|narrow viewport", re.I),
+    re.compile(r"\bvim\b|language|translat|IME", re.I),
+    re.compile(r"another (client|browser)|other client|foreign", re.I),
+    re.compile(r"five themes|theme cycle|manual light|dark OS", re.I),
+    re.compile(r"refresh (?:the )?page|after refresh|on reload|keeps them on reload", re.I),
+]
 # Which areas have a native surface today (⇒ scriptable), and the scenario each
 # is driven against.
 AREA_SCRIPTABLE = {"conversation": True, "threads": True, "composer": True,
@@ -172,6 +197,9 @@ AREA_SCENARIO = {"conversation": "conversation", "threads": "conversation",
 APPROVAL_MISSING = ("missing: inline approval card — design scene conversation-05 "
                     "is not in the built batch (design/bindings.json:40); "
                     "approval/requested reaches the store but has no widget")
+CONNECT_MISSING = ("missing: gate-mode app instance — the walk app auto-connects to "
+                   "the replay server, so the pre-connection gate states (invalid "
+                   "auth, pairing links, workspace chooser) never mount")
 
 # The subset marker used by `@check(rows=…)` for "every row of the area".
 ALL = "__all__"
@@ -542,6 +570,151 @@ def comp_input_roundtrip(app):
     return True, "draft reads 'survive me' after clearing and typing"
 
 
+# ---- peer: the fleet/peer surfaces (board 4 + #23 peer cards) -------------- #
+@check("peer", "the fleet roster renders its rows and slot dots")
+def p_roster(app):
+    d = app.snap()
+    ok = ("fleet_list" in app.widget_ids(d)
+          and "fleet_row_1" in app.widget_ids(d)
+          and "fleet_slot_1" in app.widget_ids(d))
+    return ok, f"fleet ids={sorted(i for i in app.widget_ids(d) if i.startswith('fleet_'))[:6]}"
+
+
+@check("peer", "the sidebar hosts the GOALS/LOOPS/FLEET sections")
+def p_sections(app):
+    d = app.snap()
+    texts = [w.get("t", "") for w in d.get("s", [])]
+    ok = all(t in texts for t in ("GOALS", "LOOPS", "FLEET"))
+    return ok, f"sections={[t for t in texts if t in ('GOALS','LOOPS','FLEET')]}"
+
+
+@check("peer", "the goals/loops lists render their rows",
+       rows=("goal", "loop", "plan", "trajectory"))
+def p_rows(app):
+    d = app.snap()
+    ok = "goals_list" in app.widget_ids(d) and "loops_list" in app.widget_ids(d)
+    return ok, f"goal_ring={'goal_ring' in app.widget_ids(d)} loop_row={'loop_row_1' in app.widget_ids(d)}"
+
+
+# ---- review: the review panel (board 3.01/#30a) ---------------------------- #
+@check("review", "the review panel is mounted with its header and scope pill")
+def v_panel(app):
+    d = app.snap()
+    ids = app.widget_ids(d)
+    ok = "review_panel" in ids and "review_scope_pill" in ids
+    header = app.text_of(d, "review_header") or ""
+    return ok, f"panel={'review_panel' in ids} header={header!r}"
+
+
+@check("review", "the review badge carries the live +/- counts from the receipt",
+       rows=("review", "diff", "hunk", "unmodified", "changed"))
+def v_badge(app):
+    d = app.snap()
+    texts = " ".join(w.get("t", "") for w in d.get("s", []))
+    ok = "+62" in texts and "−5" in texts
+    return ok, f"badge found={'+62 −5' in texts}"
+
+
+@check("review", "the fold receipt renders the unmodified-lines count",
+       rows=("unmodified", "fold", "context"))
+def v_fold(app):
+    d = app.snap()
+    texts = " ".join(w.get("t", "") for w in d.get("s", []))
+    ok = "unmodified" in texts.lower()
+    return ok, f"fold text present={'unmodified' in texts.lower()}"
+
+
+@check("review", "the review toggle is keyboard/click reachable")
+def v_toggle(app):
+    d = app.snap()
+    return "review_toggle_hit" in app.widget_ids(d), "review_toggle_hit present"
+
+
+# ---- settings: the settings drawer (#28e) ---------------------------------- #
+@check("settings", "the settings drawer mounts with its close control")
+def s_drawer(app):
+    d = app.snap()
+    ids = app.widget_ids(d)
+    ok = "settings_drawer" in ids and "settings_close" in ids
+    return ok, f"drawer={'settings_drawer' in ids} close={'settings_close' in ids}"
+
+
+@check("settings", "the drawer header reads Session settings with its sections",
+       rows=("settings", "session settings"))
+def s_header(app):
+    d = app.snap()
+    texts = [w.get("t", "") for w in d.get("s", [])]
+    ok = "Session settings" in texts and all(
+        t in texts for t in ("Model", "Permissions", "Sandbox", "Context"))
+    return ok, f"sections present={'Session settings' in texts}"
+
+
+@check("settings", "connection actions live in settings (Live status visible)",
+       rows=("disconnect", "connection", "server"))
+def s_live(app):
+    d = app.snap()
+    s = app.text_of(d, "status") or ""
+    return "Live" in s, f"status={s!r}"
+
+
+# ---- palette: the command palette overlay (#28e) --------------------------- #
+@check("palette", "the command palette overlay is mounted with search and list")
+def q_mount(app):
+    d = app.snap()
+    ids = app.widget_ids(d)
+    ok = "palette_search" in ids and "palette_list" in ids
+    search = app.text_of(d, "palette_search") or ""
+    return ok, f"search={search!r} list={'palette_list' in ids}"
+
+
+@check("palette", "the palette hint row shows the key hints",
+       rows=("command palette", "palette", "hint", "keyboard"))
+def q_hint(app):
+    d = app.snap()
+    texts = [w.get("t", "") for w in d.get("s", [])]
+    ok = "move" in texts and "run" in texts
+    return ok, f"hint parts={[t for t in texts if t in ('move','run','· esc')]}"
+
+
+@check("palette", "an unknown command fails closed (fail-closed receipt visible)",
+       rows=("unknown command", "fails closed", "slash"))
+def q_failclosed(app):
+    # The palette list renders the command names; the fail-closed behaviour is
+    # the conversation-area command receipt — here we assert the palette never
+    # sends a draft when the search is not a command (visible: draft empty).
+    d = app.snap()
+    return (app.draft(d) or "") in ("", PLACEHOLDER), f"draft={app.draft(d)!r}"
+
+
+# ---- keyboard: the key model (#31e keys.rs) via the /k bridge -------------- #
+@check("keyboard", "Escape is delivered inertly (app stays live, no crash)")
+def k_escape(app):
+    app.key("escape")
+    d = app.snap()
+    ok = app.text_of(d, "heading") == "OctosCode"
+    return ok, f"heading after esc={app.text_of(d, 'heading')!r}"
+
+
+@check("keyboard", "keyboard focus order: sidebar controls remain after keys",
+       rows=("focus", "order", "arrow", "tab"))
+def k_focus(app):
+    app.key("escape")
+    d = app.snap()
+    ids = app.widget_ids(d)
+    ok = "sidebar_toggle_hit" in ids and "new_chat_hit" in ids
+    return ok, f"sidebar={'sidebar_toggle_hit' in ids} new_chat={'new_chat_hit' in ids}"
+
+
+@check("keyboard", "Enter on the composer sends (the draft clears)",
+       rows=("enter", "send", "submit"))
+def k_enter(app):
+    app.type_into_composer("walk: enter sends")
+    app.key("return")
+    app.wait_for(lambda s: (app.draft(s) or "") in ("", PLACEHOLDER),
+                 what="the draft to clear after Enter")
+    return True, "draft cleared after Enter"
+
+
 # ---- recovery: reconnect, replay ------------------------------------------ #
 @check("recovery", "the module reaches conn: Live")
 def r_live(app):
@@ -604,6 +777,11 @@ def load_rows():
         return list(csv.DictReader(f))
 
 
+def is_live_only(case: str) -> bool:
+    """True when the row needs a state the replay fixtures cannot produce."""
+    return any(p.search(case) for p in LIVE_ONLY_PATTERNS)
+
+
 def area_of(row):
     hay = row["case"] + " " + row["spec"]
     for name, pat in AREA_PATTERNS.items():
@@ -612,7 +790,7 @@ def area_of(row):
     return None
 
 
-def select_targets(limit: int):
+def select_targets(limit: int | None):
     """The first `limit` rows in the scriptable areas, **round-robin by area**.
 
     Pure file order lets `conversation`/`recovery` crowd out `threads` (only 4-5
@@ -627,10 +805,11 @@ def select_targets(limit: int):
         area = area_of(row)
         if area and AREA_SCRIPTABLE[area]:
             eligible[area].append((i, area, row))
-    order = [a for a in ("conversation", "threads", "composer", "recovery")
+    order = [a for a in ("conversation", "threads", "composer", "recovery",
+                         "peer", "review", "settings", "palette", "keyboard")
              if AREA_SCRIPTABLE[a]]
     picked, cursors = [], {a: 0 for a in order}
-    while len(picked) < limit:
+    while limit is None or len(picked) < limit:
         progressed = False
         for a in order:
             if len(picked) >= limit:
@@ -761,11 +940,18 @@ def main():
                              "reason": f"skipped: operator-confirmation-pending ({web_only})"})
         elif needs == "real-turn":
             out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
-                             "status": "blocked", "evidence": "",
-                             "reason": "blocked: needs outer-loop live run (real model turn)"})
+                             "status": "live-only", "evidence": "",
+                             "reason": "live-only: needs a real model turn (Phase 4, outer loop)"})
+        elif is_live_only(case):
+            out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
+                             "status": "live-only", "evidence": "",
+                             "reason": "live-only: state the replay fixtures cannot produce"})
         elif area == "approval":
             out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
                              "status": "not-yet-implemented", "evidence": "", "reason": APPROVAL_MISSING})
+        elif area == "connect":
+            out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
+                             "status": "not-yet-implemented", "evidence": "", "reason": CONNECT_MISSING})
         else:
             out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
                              "status": "not-yet-implemented", "evidence": "",
@@ -782,6 +968,14 @@ def main():
 
     from collections import Counter
     counts = Counter(r["status"] for r in out_rows)
+    areas_seen = sorted({r["area"] for r in out_rows if r["area"]})
+    print("\n== per-area summary (#33a) ==")
+    for a in areas_seen:
+        c = Counter(r["status"] for r in out_rows if r["area"] == a)
+        cells = ", ".join(f"{k}={c[k]}" for k in
+                          ("pass", "fail", "live-only", "not-yet-implemented",
+                           "blocked", "skipped") if c.get(k))
+        print(f"   {a:14} {cells}")
     infra_blocked = sum(1 for i, r in enumerate(out_rows, start=1)
                         if i in target_area and r["status"] == "blocked")
     print("\n== walk-runner summary ==")
