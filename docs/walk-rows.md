@@ -7,7 +7,7 @@ Playwright specs, rewritten as user-level steps to run against the **native app*
 - Specs: **49** (49 expected).
 - Cases (rows): **234**.
 - `needs`: fixture **226**, none **5**, real-turn **3**.
-- `natively_handled`: all **175**, none **16**, some **43**.
+- `natively_handled`: all **217**, none **16**, some **1**. (#31b refresh 2026-09-30: re-derived from the refreshed protocol matrix — production paths in this repo's `crates/**` only.)
 
 ## Real-turn quota
 

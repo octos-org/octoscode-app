@@ -239,6 +239,21 @@ pub fn query_binding(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
     let skills = store.domains.profile.installed_skills();
     let registry = store.domains.profile.registry_packages();
 
+    // #31b: the context-panel lifecycle leg (web `ContextPanel.tsx:50,135-143`
+    // renders a compaction spinner while a pass runs and
+    // "Last compaction: {status} · before → after" from the record). The
+    // store's last `context/*` lifecycle event is the single source; the
+    // (kind, detail) pair distinguishes in-progress from finished.
+    if id == "context.lifecycle" {
+        return Some(match store.domains.session.context(&session) {
+            Some(l) => json!({
+                "kind": l.kind,
+                "state": l.state,
+                "detail": l.detail,
+            }),
+            None => Value::Null,
+        });
+    }
     let text = || -> Option<String> {
         Some(match id {
             "models.title" => "Models".to_owned(),
