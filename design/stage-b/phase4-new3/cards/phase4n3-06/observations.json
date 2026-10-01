@@ -1,0 +1,920 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "e1c7dc9edc459c91f9e7c77ab946dece5c7bd0b8f88e9878c2f3f2526731ff93",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.01452457262010487,
+  "text": [
+    {
+      "id": "t_title",
+      "expected_text": "Thinking effort",
+      "requested_bounds": [
+        24,
+        28,
+        240,
+        22
+      ],
+      "status": "observed",
+      "ocr_text": "Thinking effort",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        21.41350210970464,
+        30.414333706606946,
+        124.19831223628692,
+        21.72452407614782
+      ],
+      "ink_color": [
+        9,
+        8,
+        8
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        20.492670604652165,
+        27.44651791646583,
+        128.60959300109604,
+        26.69980396893731
+      ]
+    },
+    {
+      "id": "effort_low_t",
+      "expected_text": "Low",
+      "requested_bounds": [
+        32.0,
+        68,
+        69.5,
+        16
+      ],
+      "status": "observed",
+      "ocr_text": "Low",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        60.81434599156118,
+        98.19484882418814,
+        17.987341772151897,
+        8.689809630459127
+      ],
+      "ink_color": [
+        48,
+        49,
+        47
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        49.679325114767934,
+        93.7449663809524,
+        30.835443037974684,
+        15.624161073825482
+      ]
+    },
+    {
+      "id": "effort_medium_t",
+      "expected_text": "Medium",
+      "requested_bounds": [
+        117.5,
+        68,
+        69.5,
+        16
+      ],
+      "status": "observed",
+      "ocr_text": "Medium",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        131.0506329113924,
+        93.84994400895857,
+        51.392405063291136,
+        13.03471444568869
+      ],
+      "ink_color": [
+        22,
+        23,
+        22
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        128.27068140806992,
+        93.01335615791349,
+        56.95230900889207,
+        18.8233994008177
+      ]
+    },
+    {
+      "id": "effort_high_t",
+      "expected_text": "High",
+      "requested_bounds": [
+        195.0,
+        68,
+        85.5,
+        16
+      ],
+      "status": "observed",
+      "ocr_text": "High",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        229.55274261603375,
+        89.505039193729,
+        41.970464135021096,
+        26.938409854423295
+      ],
+      "ink_color": [
+        5,
+        4,
+        4
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        231.2658228990155,
+        92.00894873392993,
+        37.68776371308016,
+        22.568232662192305
+      ]
+    },
+    {
+      "id": "effort_max_t",
+      "expected_text": "Max",
+      "requested_bounds": [
+        288.5,
+        68,
+        69.5,
+        16
+      ],
+      "status": "observed",
+      "ocr_text": "Max",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        324.62869198312234,
+        93.84994400895857,
+        27.40928270042194,
+        13.903695408734604
+      ],
+      "ink_color": [
+        39,
+        40,
+        39
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        322.059072055443,
+        93.74496637351228,
+        32.548523206751064,
+        17.360178970917232
+      ]
+    },
+    {
+      "id": "t_help",
+      "expected_text": "Sets how much the model thinks before answering",
+      "requested_bounds": [
+        24,
+        102,
+        320,
+        15
+      ],
+      "status": "observed",
+      "ocr_text": "Sets how much the model thinks before answering",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        23.126582278481013,
+        144.25083986562151,
+        346.042194092827,
+        18.248600223964168
+      ],
+      "ink_color": [
+        129,
+        131,
+        135
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        20.556966350843783,
+        144.0894857190157,
+        349.46835443037975,
+        20.83221476510064
+      ]
+    },
+    {
+      "id": "t_show",
+      "expected_text": "Show reasoning",
+      "requested_bounds": [
+        24,
+        136,
+        220,
+        17.08
+      ],
+      "status": "observed",
+      "ocr_text": "Show reasoning",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        22.270042194092827,
+        220.72116461366184,
+        117.34599156118144,
+        19.11758118701008
+      ],
+      "ink_color": [
+        18,
+        19,
+        19
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        20.50873604930152,
+        220.20806253944343,
+        120.01206667614386,
+        23.10065402173894
+      ]
+    },
+    {
+      "id": "t_show_help",
+      "expected_text": "Shows the model's reasoning while it works",
+      "requested_bounds": [
+        24,
+        160,
+        300,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "Shows the model's reasoning while it works",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        22.270042194092827,
+        254.61142217245242,
+        286.084388185654,
+        18.248600223964168
+      ],
+      "ink_color": [
+        146,
+        148,
+        152
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        20.55696300177212,
+        253.45861318371368,
+        289.5105485232068,
+        20.83221476510064
+      ]
+    },
+    {
+      "id": "t_default",
+      "expected_text": "Default on for new chats",
+      "requested_bounds": [
+        24,
+        196,
+        220,
+        17.08
+      ],
+      "status": "observed",
+      "ocr_text": "Default on for new chats",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        24.839662447257382,
+        316.3090705487122,
+        178.16033755274262,
+        14.772676371780516
+      ],
+      "ink_color": [
+        16,
+        16,
+        18
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        22.270041059177238,
+        315.9552573466443,
+        181.58649789029536,
+        19.096196868008896
+      ]
+    },
+    {
+      "id": "thinking_expand_all_t",
+      "expected_text": "Expand all",
+      "requested_bounds": [
+        24,
+        252,
+        70,
+        17
+      ],
+      "status": "observed",
+      "ocr_text": "Expand all",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        23.9831223628692,
+        383.2206047032475,
+        64.24050632911393,
+        16.51063829787234
+      ],
+      "ink_color": [
+        50,
+        114,
+        215
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        20.55696114736289,
+        381.9239374035795,
+        70.23628691983123,
+        20.83221476510064
+      ]
+    },
+    {
+      "id": "thinking_collapse_all_t",
+      "expected_text": "Collapse all",
+      "requested_bounds": [
+        104,
+        252,
+        80,
+        17
+      ],
+      "status": "observed",
+      "ocr_text": "Collaspe all",
+      "confidence": 1,
+      "text_similarity": 0.9166666666666666,
+      "ink_bounds": [
+        143.89873417721518,
+        383.2206047032475,
+        71.0928270042194,
+        16.51063829787234
+      ],
+      "ink_color": [
+        46,
+        111,
+        216
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        140.43973517765338,
+        381.7868761527332,
+        77.15428316140476,
+        19.370317983947317
+      ]
+    },
+    {
+      "id": "row_0_chev",
+      "expected_text": "\u25be",
+      "requested_bounds": [
+        34,
+        295,
+        16,
+        16
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "row_0_t",
+      "expected_text": "Weighed two approaches",
+      "requested_bounds": [
+        56,
+        295,
+        190,
+        16
+      ],
+      "status": "observed",
+      "ocr_text": "v Weighed two approaches",
+      "confidence": 1,
+      "text_similarity": 0.9565217391304348,
+      "ink_bounds": [
+        21.41350210970464,
+        444.91825307950734,
+        187.58227848101265,
+        16.51063829787234
+      ],
+      "ink_color": [
+        42,
+        43,
+        43
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        18.843883792320653,
+        444.4205815686801,
+        193.57805907172997,
+        19.096196868008896
+      ]
+    },
+    {
+      "id": "row_0_meta",
+      "expected_text": "1,204 tok \u00b7 3.2s",
+      "requested_bounds": [
+        240,
+        296,
+        114,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "row_0_l0",
+      "expected_text": "- Latency vs correctness on the retry path",
+      "requested_bounds": [
+        72,
+        330,
+        280,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "row_0_l1",
+      "expected_text": "- Token budget for the wider context",
+      "requested_bounds": [
+        72,
+        352,
+        280,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "row_0_l2",
+      "expected_text": "- Order of the two tool calls",
+      "requested_bounds": [
+        72,
+        374,
+        280,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "row_0_l3",
+      "expected_text": "- Fallback when the probe times out",
+      "requested_bounds": [
+        72,
+        396,
+        280,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "row_1_chev",
+      "expected_text": "\u25b8",
+      "requested_bounds": [
+        34,
+        439,
+        16,
+        16
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "row_1_t",
+      "expected_text": "Checked the retry path",
+      "requested_bounds": [
+        56,
+        439,
+        190,
+        16
+      ],
+      "status": "observed",
+      "ocr_text": "\u203a Checked the retry path",
+      "confidence": 1,
+      "text_similarity": 0.9565217391304348,
+      "ink_bounds": [
+        23.126582278481013,
+        684.7569988801793,
+        173.87763713080167,
+        17.379619260918254
+      ],
+      "ink_color": [
+        45,
+        46,
+        46
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        18.84388004067514,
+        683.9910515235795,
+        181.58649789029536,
+        20.83221476510064
+      ]
+    },
+    {
+      "id": "row_1_meta",
+      "expected_text": "842 tok \u00b7 1.9s",
+      "requested_bounds": [
+        240,
+        440,
+        114,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "seg_track",
+      "bounds": [
+        2.0,
+        294.0,
+        402.0,
+        62.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 17.22
+    },
+    {
+      "id": "effort_low_row",
+      "bounds": [
+        24.0,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "effort_low",
+      "bounds": [
+        24.0,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "effort_medium_row",
+      "bounds": [
+        109.5,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "effort_medium",
+      "bounds": [
+        109.5,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "effort_high_row",
+      "bounds": [
+        195.0,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "effort_high_bg",
+      "bounds": [
+        206.0,
+        79.0,
+        87.0,
+        45.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4278584581,
+      "radius": 11.25
+    },
+    {
+      "id": "effort_high",
+      "bounds": [
+        195.0,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "effort_max_row",
+      "bounds": [
+        280.5,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "effort_max",
+      "bounds": [
+        280.5,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "toggle_show_reasoning_row",
+      "bounds": [
+        322.0,
+        132.0,
+        44.0,
+        26.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "toggle_show_reasoning_bg",
+      "bounds": [
+        341.0,
+        307.0,
+        47.0,
+        34.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4282482407,
+      "radius": 17.0
+    },
+    {
+      "id": "toggle_show_reasoning_knob",
+      "bounds": [
+        343.0,
+        135.0,
+        20.0,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294704124,
+      "radius": 10.0
+    },
+    {
+      "id": "toggle_show_reasoning",
+      "bounds": [
+        322.0,
+        132.0,
+        44.0,
+        26.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "toggle_default_new_row",
+      "bounds": [
+        322.0,
+        192.0,
+        44.0,
+        26.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "toggle_default_new_bg",
+      "bounds": [
+        22.0,
+        78.0,
+        87.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294572537,
+      "radius": 23.0
+    },
+    {
+      "id": "toggle_default_new_knob",
+      "bounds": [
+        343.0,
+        195.0,
+        20.0,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294769917,
+      "radius": 10.0
+    },
+    {
+      "id": "toggle_default_new",
+      "bounds": [
+        322.0,
+        192.0,
+        44.0,
+        26.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "d0",
+      "bounds": [
+        20.0,
+        240.0,
+        366.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "thinking_expand_all_row",
+      "bounds": [
+        24.0,
+        252.0,
+        70.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thinking_expand_all",
+      "bounds": [
+        24.0,
+        252.0,
+        70.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thinking_collapse_all_row",
+      "bounds": [
+        104.0,
+        252.0,
+        80.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thinking_collapse_all",
+      "bounds": [
+        104.0,
+        252.0,
+        80.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "row_0_row",
+      "bounds": [
+        24.0,
+        284.0,
+        342.0,
+        40.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "row_0",
+      "bounds": [
+        24.0,
+        284.0,
+        342.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "row_1_row",
+      "bounds": [
+        11.0,
+        664.0,
+        385.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.75
+    },
+    {
+      "id": "row_1",
+      "bounds": [
+        11.0,
+        664.0,
+        385.0,
+        55.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        296.0000007,
+        511.42729276521254,
+        150,
+        17.979865771812054
+      ],
+      "confidence": 1,
+      "text": "1.2k tokens 12s V"
+    },
+    {
+      "bounds": [
+        56.0000043499999,
+        559.3736017897091,
+        348,
+        19.97762863534676
+      ],
+      "confidence": 1,
+      "text": "Compared cache-first vs. queue-based designs."
+    },
+    {
+      "bounds": [
+        56.000000933333325,
+        603.3243844545116,
+        344,
+        19.97762863534676
+      ],
+      "confidence": 1,
+      "text": "Estimated reconnect scenarios and edge cases."
+    },
+    {
+      "bounds": [
+        56.0000040999999,
+        653.2684563758389,
+        328,
+        19.97762863534666
+      ],
+      "confidence": 1,
+      "text": "Considered impact on hydrate performance."
+    },
+    {
+      "bounds": [
+        56.00000422499991,
+        699.2170022371365,
+        338,
+        19.97762863534666
+      ],
+      "confidence": 1,
+      "text": "Chose queue-based with backoff and dedupe."
+    },
+    {
+      "bounds": [
+        291.96804866738364,
+        788.9734094084573,
+        80.06390380859374,
+        18.26570900867987
+      ],
+      "confidence": 1,
+      "text": "862 tokens"
+    },
+    {
+      "bounds": [
+        395.87995092404367,
+        788.7490473419302,
+        48.24009704589844,
+        16.716670034182428
+      ],
+      "confidence": 0.5,
+      "text": "8sV"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

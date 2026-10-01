@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "543f7de4c5ab5e44d9d5449860290c7c437a0acf24ccacaa5a7ba53253cc5626",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      273.0,
+      478.0,
+      122.0,
+      71.0
+    ],
+    [
+      158.0,
+      478.0,
+      114.0,
+      71.0
+    ],
+    [
+      16.0,
+      478.0,
+      141.0,
+      71.0
+    ],
+    [
+      14.0,
+      475.0,
+      383.0,
+      77.0
+    ],
+    [
+      157.0,
+      265.0,
+      118.0,
+      72.0
+    ],
+    [
+      17.0,
+      265.0,
+      139.0,
+      72.0
+    ],
+    [
+      14.0,
+      263.0,
+      384.0,
+      76.0
+    ],
+    [
+      274.0,
+      45.0,
+      121.0,
+      71.0
+    ],
+    [
+      17.0,
+      45.0,
+      140.0,
+      71.0
+    ],
+    [
+      14.0,
+      43.0,
+      383.0,
+      76.0
+    ],
+    [
+      7.0,
+      4.0,
+      398.0,
+      771.0
+    ],
+    [
+      4.0,
+      2.0,
+      402.0,
+      774.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "strip",
+      "bounds": [
+        14.0,
+        43.0,
+        383.0,
+        76.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294638330
+    },
+    {
+      "id": "strip_model",
+      "bounds": [
+        14.0,
+        43.0,
+        127.352,
+        76.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "strip_d1",
+      "bounds": [
+        141.352,
+        57.25,
+        0.943,
+        47.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "strip_activity",
+      "bounds": [
+        142.296,
+        43.0,
+        125.466,
+        76.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "strip_d2",
+      "bounds": [
+        268.704,
+        57.25,
+        0.943,
+        47.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "strip_permissions",
+      "bounds": [
+        269.648,
+        43.0,
+        127.352,
+        76.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "state_0",
+      "bounds": [
+        16.0,
+        108.0,
+        90.4,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294769916,
+      "radius": 10.0
+    },
+    {
+      "id": "state_1",
+      "bounds": [
+        16.0,
+        142.0,
+        102.8,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294704123,
+      "radius": 10.0
+    },
+    {
+      "id": "state_2",
+      "bounds": [
+        16.0,
+        176.0,
+        146.2,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294770174,
+      "radius": 10.0
+    },
+    {
+      "id": "info",
+      "bounds": [
+        16.0,
+        232.0,
+        342.0,
+        40.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "info_dot",
+      "bounds": [
+        28.0,
+        161.0,
+        10.0,
+        10.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 5.0
+    }
+  ]
+}

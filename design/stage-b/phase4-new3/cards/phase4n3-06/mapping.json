@@ -1,0 +1,893 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surfaceb4206391250d",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_title",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textfef972d3de4a",
+      "semantic_role": "text",
+      "bounds": [
+        20.513284686679047,
+        28.414333706606946,
+        128.19831223628694,
+        25.72452407614782
+      ],
+      "text": "Thinking effort",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 22.21259376333037
+    },
+    {
+      "source_id": "seg_track",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfaced7f2822a600a",
+      "semantic_role": "layout",
+      "bounds": [
+        2.0,
+        294.0,
+        402.0,
+        62.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "effort_low_row",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        24.0,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "effort_low_t",
+      "native_id": "beauty_0_2_0",
+      "parent": "effort_low_row",
+      "kind": "text",
+      "component": "Text375a0aa25706",
+      "semantic_role": "text",
+      "bounds": [
+        59.7812114251922,
+        96.19484882418814,
+        21.987341772151897,
+        12.689809630459127
+      ],
+      "text": "Low",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11.754775510687114
+    },
+    {
+      "source_id": "effort_low",
+      "native_id": "beauty_0_2_1",
+      "parent": "effort_low_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        24.0,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "effort_medium_row",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        109.5,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "effort_medium_t",
+      "native_id": "beauty_0_3_0",
+      "parent": "effort_medium_row",
+      "kind": "text",
+      "component": "Text4736adf62fc3",
+      "semantic_role": "text",
+      "bounds": [
+        129.5495141652478,
+        91.84994400895857,
+        55.392405063291136,
+        17.034714445688692
+      ],
+      "text": "Medium",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 17.07939551168934
+    },
+    {
+      "source_id": "effort_medium",
+      "native_id": "beauty_0_3_1",
+      "parent": "effort_medium_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        109.5,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "effort_high_row",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        195.0,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "effort_high_bg",
+      "native_id": "beauty_0_4_0",
+      "parent": "effort_high_row",
+      "kind": "stack",
+      "component": "Surface832fd8e912eb",
+      "semantic_role": "layout",
+      "bounds": [
+        206.0,
+        79.0,
+        87.0,
+        45.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "effort_high_t",
+      "native_id": "beauty_0_4_1",
+      "parent": "effort_high_row",
+      "kind": "text",
+      "component": "Text471878f2839d",
+      "semantic_role": "text",
+      "bounds": [
+        227.53538790901254,
+        87.505039193729,
+        45.970464135021096,
+        30.938409854423295
+      ],
+      "text": "High",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 27.54361626652966
+    },
+    {
+      "source_id": "effort_high",
+      "native_id": "beauty_0_4_2",
+      "parent": "effort_high_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        195.0,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "effort_max_row",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        280.5,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "effort_max_t",
+      "native_id": "beauty_0_5_0",
+      "parent": "effort_max_row",
+      "kind": "text",
+      "component": "Text39632603a90f",
+      "semantic_role": "text",
+      "bounds": [
+        322.9778574359111,
+        91.84994400895857,
+        31.40928270042194,
+        17.903695408734606
+      ],
+      "text": "Max",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 18.782828626047802
+    },
+    {
+      "source_id": "effort_max",
+      "native_id": "beauty_0_5_1",
+      "parent": "effort_max_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        280.5,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_help",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textc0f96b132cb5",
+      "semantic_role": "text",
+      "bounds": [
+        22.06922082694263,
+        142.25083986562151,
+        350.042194092827,
+        22.248600223964168
+      ],
+      "text": "Sets how much the model thinks before answering",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 18.667898730608698
+    },
+    {
+      "source_id": "t_show",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textfeb1f1a87607",
+      "semantic_role": "text",
+      "bounds": [
+        21.15058766724115,
+        218.72116461366184,
+        121.34599156118144,
+        23.11758118701008
+      ],
+      "text": "Show reasoning",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 19.764162680967516
+    },
+    {
+      "source_id": "toggle_show_reasoning_row",
+      "native_id": "beauty_0_8",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        322.0,
+        132.0,
+        44.0,
+        26.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "toggle_show_reasoning_bg",
+      "native_id": "beauty_0_8_0",
+      "parent": "toggle_show_reasoning_row",
+      "kind": "stack",
+      "component": "Surfaced72208a7a20d",
+      "semantic_role": "layout",
+      "bounds": [
+        341.0,
+        307.0,
+        47.0,
+        34.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "toggle_show_reasoning_knob",
+      "native_id": "beauty_0_8_1",
+      "parent": "toggle_show_reasoning_row",
+      "kind": "stack",
+      "component": "Surface295f4739042c",
+      "semantic_role": "layout",
+      "bounds": [
+        343.0,
+        135.0,
+        20.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "toggle_show_reasoning",
+      "native_id": "beauty_0_8_2",
+      "parent": "toggle_show_reasoning_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        322.0,
+        132.0,
+        44.0,
+        26.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_show_help",
+      "native_id": "beauty_0_9",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textbfb0aefaab9e",
+      "semantic_role": "text",
+      "bounds": [
+        21.201471963916227,
+        252.61142217245242,
+        290.084388185654,
+        22.248600223964168
+      ],
+      "text": "Shows the model's reasoning while it works",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 18.865791650014444
+    },
+    {
+      "source_id": "t_default",
+      "native_id": "beauty_0_10",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text8efa239bf69b",
+      "semantic_role": "text",
+      "bounds": [
+        23.163066137723654,
+        314.3090705487122,
+        182.16033755274262,
+        18.772676371780516
+      ],
+      "text": "Default on for new chats",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 19.075940232917084
+    },
+    {
+      "source_id": "toggle_default_new_row",
+      "native_id": "beauty_0_11",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        322.0,
+        192.0,
+        44.0,
+        26.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "toggle_default_new_bg",
+      "native_id": "beauty_0_11_0",
+      "parent": "toggle_default_new_row",
+      "kind": "stack",
+      "component": "Surfaceb51745863521",
+      "semantic_role": "layout",
+      "bounds": [
+        22.0,
+        78.0,
+        87.0,
+        46.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "toggle_default_new_knob",
+      "native_id": "beauty_0_11_1",
+      "parent": "toggle_default_new_row",
+      "kind": "stack",
+      "component": "Surface90032cc52286",
+      "semantic_role": "layout",
+      "bounds": [
+        343.0,
+        195.0,
+        20.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "toggle_default_new",
+      "native_id": "beauty_0_11_2",
+      "parent": "toggle_default_new_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        322.0,
+        192.0,
+        44.0,
+        26.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "d0",
+      "native_id": "beauty_0_12",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface19a87ed4ebd0",
+      "semantic_role": "layout",
+      "bounds": [
+        20.0,
+        240.0,
+        366.0,
+        1.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "thinking_expand_all_row",
+      "native_id": "beauty_0_13",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        24.0,
+        252.0,
+        70.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "thinking_expand_all_t",
+      "native_id": "beauty_0_13_0",
+      "parent": "thinking_expand_all_row",
+      "kind": "text",
+      "component": "Text1028599503b1",
+      "semantic_role": "text",
+      "bounds": [
+        22.42551497627747,
+        381.2206047032475,
+        68.24050632911393,
+        20.51063829787234
+      ],
+      "text": "Expand all",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 17.72211070966591
+    },
+    {
+      "source_id": "thinking_expand_all",
+      "native_id": "beauty_0_13_1",
+      "parent": "thinking_expand_all_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        24.0,
+        252.0,
+        70.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "thinking_collapse_all_row",
+      "native_id": "beauty_0_14",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        104.0,
+        252.0,
+        80.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "thinking_collapse_all_t",
+      "native_id": "beauty_0_14_0",
+      "parent": "thinking_collapse_all_row",
+      "kind": "text",
+      "component": "Text3799bc766096",
+      "semantic_role": "text",
+      "bounds": [
+        142.85397386998466,
+        381.2206047032475,
+        75.0928270042194,
+        20.51063829787234
+      ],
+      "text": "Collapse all",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 17.538271386951532
+    },
+    {
+      "source_id": "thinking_collapse_all",
+      "native_id": "beauty_0_14_1",
+      "parent": "thinking_collapse_all_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        104.0,
+        252.0,
+        80.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "row_0_row",
+      "native_id": "beauty_0_15",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfacece4417baa3e2",
+      "semantic_role": "layout",
+      "bounds": [
+        24.0,
+        284.0,
+        342.0,
+        40.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "row_0_chev",
+      "native_id": "beauty_0_15_0",
+      "parent": "row_0_row",
+      "kind": "text",
+      "component": "Text638628278134",
+      "semantic_role": "text",
+      "bounds": [
+        34,
+        295,
+        16,
+        16
+      ],
+      "text": "\u25be",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13
+    },
+    {
+      "source_id": "row_0_t",
+      "native_id": "beauty_0_15_1",
+      "parent": "row_0_row",
+      "kind": "text",
+      "component": "Text2c6826c047db",
+      "semantic_role": "text",
+      "bounds": [
+        20.98010827250658,
+        442.91825307950734,
+        191.58227848101265,
+        20.51063829787234
+      ],
+      "text": "Weighed two approaches",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 17.069049588108307
+    },
+    {
+      "source_id": "row_0_meta",
+      "native_id": "beauty_0_15_2",
+      "parent": "row_0_row",
+      "kind": "text",
+      "component": "Textbb01184c1223",
+      "semantic_role": "text",
+      "bounds": [
+        240,
+        296,
+        114,
+        14
+      ],
+      "text": "1,204 tok \u00b7 3.2s",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "row_0",
+      "native_id": "beauty_0_15_3",
+      "parent": "row_0_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        24.0,
+        284.0,
+        342.0,
+        40.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "row_0_l0",
+      "native_id": "beauty_0_16",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text09ef707ce916",
+      "semantic_role": "text",
+      "bounds": [
+        72,
+        330,
+        280,
+        14
+      ],
+      "text": "- Latency vs correctness on the retry path",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "row_0_l1",
+      "native_id": "beauty_0_17",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text09ef707ce916",
+      "semantic_role": "text",
+      "bounds": [
+        72,
+        352,
+        280,
+        14
+      ],
+      "text": "- Token budget for the wider context",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "row_0_l2",
+      "native_id": "beauty_0_18",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text09ef707ce916",
+      "semantic_role": "text",
+      "bounds": [
+        72,
+        374,
+        280,
+        14
+      ],
+      "text": "- Order of the two tool calls",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "row_0_l3",
+      "native_id": "beauty_0_19",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text09ef707ce916",
+      "semantic_role": "text",
+      "bounds": [
+        72,
+        396,
+        280,
+        14
+      ],
+      "text": "- Fallback when the probe times out",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "row_1_row",
+      "native_id": "beauty_0_20",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface072b2212e0df",
+      "semantic_role": "layout",
+      "bounds": [
+        11.0,
+        664.0,
+        385.0,
+        55.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "row_1_chev",
+      "native_id": "beauty_0_20_0",
+      "parent": "row_1_row",
+      "kind": "text",
+      "component": "Text638628278134",
+      "semantic_role": "text",
+      "bounds": [
+        34,
+        439,
+        16,
+        16
+      ],
+      "text": "\u25b8",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13
+    },
+    {
+      "source_id": "row_1_t",
+      "native_id": "beauty_0_20_1",
+      "parent": "row_1_row",
+      "kind": "text",
+      "component": "Text5b93516084c1",
+      "semantic_role": "text",
+      "bounds": [
+        22.0313789986091,
+        682.7569988801793,
+        177.87763713080167,
+        21.379619260918254
+      ],
+      "text": "Checked the retry path",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 18.38505178014493
+    },
+    {
+      "source_id": "row_1_meta",
+      "native_id": "beauty_0_20_2",
+      "parent": "row_1_row",
+      "kind": "text",
+      "component": "Textbb01184c1223",
+      "semantic_role": "text",
+      "bounds": [
+        240,
+        440,
+        114,
+        14
+      ],
+      "text": "842 tok \u00b7 1.9s",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "row_1",
+      "native_id": "beauty_0_20_3",
+      "parent": "row_1_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        11.0,
+        664.0,
+        385.0,
+        55.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "df3ac167edb53f634b0d99d3aa4f799533daff9cafd1c257c56a3051376a5b42",
+  "mapping_basis": "mapped.json"
+}

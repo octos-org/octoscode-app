@@ -1,0 +1,400 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "e1c7dc9edc459c91f9e7c77ab946dece5c7bd0b8f88e9878c2f3f2526731ff93",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      11.0,
+      664.0,
+      385.0,
+      55.0
+    ],
+    [
+      8.0,
+      661.0,
+      390.0,
+      61.0
+    ],
+    [
+      10.0,
+      422.0,
+      386.0,
+      224.0
+    ],
+    [
+      8.0,
+      420.0,
+      391.0,
+      229.0
+    ],
+    [
+      2.0,
+      357.0,
+      402.0,
+      417.0
+    ],
+    [
+      341.0,
+      307.0,
+      47.0,
+      34.0
+    ],
+    [
+      2.0,
+      294.0,
+      402.0,
+      62.0
+    ],
+    [
+      2.0,
+      294.0,
+      404.0,
+      480.0
+    ],
+    [
+      206.0,
+      79.0,
+      87.0,
+      45.0
+    ],
+    [
+      22.0,
+      78.0,
+      87.0,
+      46.0
+    ],
+    [
+      2.0,
+      1.0,
+      402.0,
+      199.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "seg_track",
+      "bounds": [
+        2.0,
+        294.0,
+        402.0,
+        62.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 17.22
+    },
+    {
+      "id": "effort_low_row",
+      "bounds": [
+        24.0,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "effort_low",
+      "bounds": [
+        24.0,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "effort_medium_row",
+      "bounds": [
+        109.5,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "effort_medium",
+      "bounds": [
+        109.5,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "effort_high_row",
+      "bounds": [
+        195.0,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "effort_high_bg",
+      "bounds": [
+        206.0,
+        79.0,
+        87.0,
+        45.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4278584581,
+      "radius": 11.25
+    },
+    {
+      "id": "effort_high",
+      "bounds": [
+        195.0,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "effort_max_row",
+      "bounds": [
+        280.5,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "effort_max",
+      "bounds": [
+        280.5,
+        58.0,
+        85.5,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "toggle_show_reasoning_row",
+      "bounds": [
+        322.0,
+        132.0,
+        44.0,
+        26.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "toggle_show_reasoning_bg",
+      "bounds": [
+        341.0,
+        307.0,
+        47.0,
+        34.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4282482407,
+      "radius": 17.0
+    },
+    {
+      "id": "toggle_show_reasoning_knob",
+      "bounds": [
+        343.0,
+        135.0,
+        20.0,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294704124,
+      "radius": 10.0
+    },
+    {
+      "id": "toggle_show_reasoning",
+      "bounds": [
+        322.0,
+        132.0,
+        44.0,
+        26.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "toggle_default_new_row",
+      "bounds": [
+        322.0,
+        192.0,
+        44.0,
+        26.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "toggle_default_new_bg",
+      "bounds": [
+        22.0,
+        78.0,
+        87.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294572537,
+      "radius": 23.0
+    },
+    {
+      "id": "toggle_default_new_knob",
+      "bounds": [
+        343.0,
+        195.0,
+        20.0,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294769917,
+      "radius": 10.0
+    },
+    {
+      "id": "toggle_default_new",
+      "bounds": [
+        322.0,
+        192.0,
+        44.0,
+        26.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "d0",
+      "bounds": [
+        20.0,
+        240.0,
+        366.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "thinking_expand_all_row",
+      "bounds": [
+        24.0,
+        252.0,
+        70.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thinking_expand_all",
+      "bounds": [
+        24.0,
+        252.0,
+        70.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thinking_collapse_all_row",
+      "bounds": [
+        104.0,
+        252.0,
+        80.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "thinking_collapse_all",
+      "bounds": [
+        104.0,
+        252.0,
+        80.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "row_0_row",
+      "bounds": [
+        24.0,
+        284.0,
+        342.0,
+        40.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "row_0",
+      "bounds": [
+        24.0,
+        284.0,
+        342.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "row_1_row",
+      "bounds": [
+        11.0,
+        664.0,
+        385.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.75
+    },
+    {
+      "id": "row_1",
+      "bounds": [
+        11.0,
+        664.0,
+        385.0,
+        55.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ]
+}

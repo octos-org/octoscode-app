@@ -1,0 +1,36 @@
+{
+  "frame_id": 8,
+  "controls": {
+    "strip_model": {
+      "event": "strip_model",
+      "source_bounds": [
+        0,
+        0,
+        135,
+        64
+      ],
+      "enabled": true
+    },
+    "strip_activity": {
+      "event": "strip_activity",
+      "source_bounds": [
+        136,
+        0,
+        133,
+        64
+      ],
+      "enabled": true
+    },
+    "strip_permissions": {
+      "event": "strip_permissions",
+      "source_bounds": [
+        271,
+        0,
+        135,
+        64
+      ],
+      "enabled": true
+    }
+  },
+  "source": "phase4-new3-screen-08"
+}

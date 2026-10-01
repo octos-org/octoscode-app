@@ -1,0 +1,498 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "543f7de4c5ab5e44d9d5449860290c7c437a0acf24ccacaa5a7ba53253cc5626",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.04662978061441203,
+  "text": [
+    {
+      "id": "strip_model_t",
+      "expected_text": "glm-4.6",
+      "requested_bounds": [
+        16,
+        24,
+        110,
+        16
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "strip_activity_t",
+      "expected_text": "Working\u2026",
+      "requested_bounds": [
+        143,
+        24,
+        118,
+        16
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "strip_perm_t",
+      "expected_text": "Write",
+      "requested_bounds": [
+        286,
+        24,
+        100,
+        16
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_legend",
+      "expected_text": "Model, permissions, sandbox",
+      "requested_bounds": [
+        16,
+        80,
+        240,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "Model, permissions, sandbox",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        24.9079754601227,
+        139.90593505039195,
+        179.33742331288346,
+        18.248600223964168
+      ],
+      "ink_color": [
+        132,
+        133,
+        138
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        23.200001302040807,
+        140.6174495776287,
+        182.28571428571428,
+        19.096196868008896
+      ]
+    },
+    {
+      "id": "state_0_t",
+      "expected_text": "Reconnecting",
+      "requested_bounds": [
+        24,
+        111,
+        74.4,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "Reconnecting",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        24.9079754601227,
+        178.1410974244121,
+        83.85685071574643,
+        17.379619260918254
+      ],
+      "ink_color": [
+        57,
+        118,
+        216
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        21.34089184589241,
+        177.28548247183886,
+        90.07385384695871,
+        19.3459534101038
+      ]
+    },
+    {
+      "id": "state_1_t",
+      "expected_text": "Resuming chat\u2026",
+      "requested_bounds": [
+        24,
+        145,
+        86.8,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "Resuming chat...",
+      "confidence": 1,
+      "text_similarity": 0.8666666666666667,
+      "ink_bounds": [
+        25.73824130879346,
+        393.64837625979845,
+        101.29243353783232,
+        17.379619260918254
+      ],
+      "ink_color": [
+        74,
+        129,
+        219
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        21.491679659412853,
+        393.7489053739135,
+        109.47378627232142,
+        19.750512287387405
+      ]
+    },
+    {
+      "id": "state_2_t",
+      "expected_text": "Handing back control\u2026",
+      "requested_bounds": [
+        24,
+        179,
+        130.2,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "Handing back control...",
+      "confidence": 1,
+      "text_similarity": 0.9090909090909091,
+      "ink_bounds": [
+        24.9079754601227,
+        607.417693169093,
+        142.80572597137015,
+        17.379619260918254
+      ],
+      "ink_color": [
+        46,
+        109,
+        212
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        23.200001474857125,
+        607.6062639647428,
+        147.48571428571432,
+        19.09619686800898
+      ]
+    },
+    {
+      "id": "info_t",
+      "expected_text": "Another app is using this session",
+      "requested_bounds": [
+        48,
+        156,
+        300,
+        16
+      ],
+      "status": "observed",
+      "ocr_text": "Another app is using this session",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        70.57259713701431,
+        694.3157894736843,
+        218.35991820040903,
+        18.248600223964168
+      ],
+      "ink_color": [
+        102,
+        103,
+        106
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        69.60000157428571,
+        692.6711408775967,
+        220.40000000000006,
+        22.56823266219239
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "strip",
+      "bounds": [
+        14.0,
+        43.0,
+        383.0,
+        76.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294638330
+    },
+    {
+      "id": "strip_model",
+      "bounds": [
+        14.0,
+        43.0,
+        127.352,
+        76.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "strip_d1",
+      "bounds": [
+        141.352,
+        57.25,
+        0.943,
+        47.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "strip_activity",
+      "bounds": [
+        142.296,
+        43.0,
+        125.466,
+        76.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "strip_d2",
+      "bounds": [
+        268.704,
+        57.25,
+        0.943,
+        47.5
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "strip_permissions",
+      "bounds": [
+        269.648,
+        43.0,
+        127.352,
+        76.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "state_0",
+      "bounds": [
+        16.0,
+        108.0,
+        90.4,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294769916,
+      "radius": 10.0
+    },
+    {
+      "id": "state_1",
+      "bounds": [
+        16.0,
+        142.0,
+        102.8,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294704123,
+      "radius": 10.0
+    },
+    {
+      "id": "state_2",
+      "bounds": [
+        16.0,
+        176.0,
+        146.2,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294770174,
+      "radius": 10.0
+    },
+    {
+      "id": "info",
+      "bounds": [
+        16.0,
+        232.0,
+        342.0,
+        40.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "info_dot",
+      "bounds": [
+        28.0,
+        161.0,
+        10.0,
+        10.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 5.0
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        27.942855625959215,
+        83.90604040829982,
+        151.68979591836737,
+        17.979865771812054
+      ],
+      "confidence": 1,
+      "text": "claude-3.5-sonnet"
+    },
+    {
+      "bounds": [
+        211.56734803653057,
+        83.90604029342838,
+        87.82040816326527,
+        21.975391498881468
+      ],
+      "confidence": 1,
+      "text": "Working..."
+    },
+    {
+      "bounds": [
+        343.8347912486054,
+        68.44748881669113,
+        92.43166757700395,
+        28.56112007166709
+      ],
+      "confidence": 1,
+      "text": "Workspace"
+    },
+    {
+      "bounds": [
+        345.2938783493877,
+        101.88590594038034,
+        111.77142857142861,
+        17.979865771812054
+      ],
+      "confidence": 1,
+      "text": "write allowed"
+    },
+    {
+      "bounds": [
+        27.94285796617344,
+        337.62192421205265,
+        145.70204081632653,
+        21.97539149888137
+      ],
+      "confidence": 1,
+      "text": "Model not reported"
+    },
+    {
+      "bounds": [
+        195.51659840940238,
+        335.170634375461,
+        127.9055791738082,
+        24.880209187799903
+      ],
+      "confidence": 1,
+      "text": "Resuming chat..."
+    },
+    {
+      "bounds": [
+        343.2979576867347,
+        321.6398207793625,
+        123.74693877551022,
+        19.97762863534666
+      ],
+      "confidence": 1,
+      "text": "Permissions not"
+    },
+    {
+      "bounds": [
+        341.3020401177551,
+        353.60402692554817,
+        69.85714285714288,
+        19.97762863534666
+      ],
+      "confidence": 1,
+      "text": "reported"
+    },
+    {
+      "bounds": [
+        25.946940621734626,
+        411.53914980490305,
+        221.5469387755102,
+        21.97539149888137
+      ],
+      "confidence": 1,
+      "text": "Model, permissions, sandbox"
+    },
+    {
+      "bounds": [
+        27.942856219744904,
+        581.3489930388703,
+        149.69387755102042,
+        19.97762863534676
+      ],
+      "confidence": 1,
+      "text": "claude-3.5-sonnet"
+    },
+    {
+      "bounds": [
+        211.4212765969803,
+        580.8012820311188,
+        88.11255060312699,
+        25.068576855414154
+      ],
+      "confidence": 1,
+      "text": "Thinking..."
+    },
+    {
+      "bounds": [
+        340.9381228022684,
+        566.7944257144727,
+        80.92613590785433,
+        21.140017535062437
+      ],
+      "confidence": 1,
+      "text": "Read-only"
+    },
+    {
+      "bounds": [
+        340.8823681423393,
+        596.9513381109092,
+        86.84277789057518,
+        22.58334755310812
+      ],
+      "confidence": 1,
+      "text": "workspace"
+    },
+    {
+      "bounds": [
+        27.942859338367274,
+        655.2662191394854,
+        219.55102040816323,
+        21.97539149888137
+      ],
+      "confidence": 1,
+      "text": "Model, permissions, sandbox"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

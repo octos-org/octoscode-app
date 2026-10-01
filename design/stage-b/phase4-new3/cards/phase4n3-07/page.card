@@ -1,0 +1,182 @@
+# ledger phase4n3-07@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Resume chat" }
+copy banner_t_text { class: user-copy, en: "History browsing authority changed." }
+copy banner_s_text { class: user-copy, en: "Refresh the catalog before selecting this row." }
+copy cand_0_t_text { class: user-copy, en: "Fix steer queue drop on reconnect" }
+copy cand_0_s_text { class: user-copy, en: "octos · 2m" }
+copy cand_0_chip_t_text { class: user-copy, en: "unverified" }
+copy cand_1_t_text { class: user-copy, en: "Add session fork" }
+copy cand_1_s_text { class: user-copy, en: "octoscode-app · 1h" }
+copy cand_1_chip_t_text { class: user-copy, en: "unverified" }
+copy cand_2_t_text { class: user-copy, en: "Review PR #2566" }
+copy cand_2_s_text { class: user-copy, en: "octos · Yesterday" }
+copy cand_2_chip_t_text { class: user-copy, en: "unverified" }
+copy confirm_h_text { class: user-copy, en: "Confirm exact title to resume:" }
+copy resume_input_text_text { class: user-copy, en: "Type the exact thread title above" }
+copy resume_confirm_t_text { class: user-copy, en: "Resume" }
+copy t_note_text { class: user-copy, en: "A confirmed source Session is required to browse history." }
+copy locked_t_text { class: user-copy, en: "This retained Session is closed." }
+copy locked_chip_t_text { class: user-copy, en: "locked" }
+state resume_row_0_enabled { shape: bool, initial: true }
+state resume_row_1_enabled { shape: bool, initial: true }
+state resume_row_2_enabled { shape: bool, initial: true }
+state resume_input_enabled { shape: bool, initial: true }
+state resume_confirm_enabled { shape: bool, initial: false }
+component Surfaceb4206391250d(instance: text) {
+  view Kit(component: "Surfaceb4206391250d", instance: instance) { slot }
+}
+component Surfacedd0df1b48c89(instance: text) {
+  view Kit(component: "Surfacedd0df1b48c89", instance: instance) { slot }
+}
+component Surface6a5a08d4eec5(instance: text) {
+  view Kit(component: "Surface6a5a08d4eec5", instance: instance) { slot }
+}
+component Text13431e7ba125(instance: text, text: text) {
+  view Kit(component: "Text13431e7ba125", instance: instance, text: text)
+}
+component Surface40ba542edc3e(instance: text) {
+  view Kit(component: "Surface40ba542edc3e", instance: instance) { slot }
+}
+component Text825a5399a342(instance: text, text: text) {
+  view Kit(component: "Text825a5399a342", instance: instance, text: text)
+}
+component Textaee6ab968d36(instance: text, text: text) {
+  view Kit(component: "Textaee6ab968d36", instance: instance, text: text)
+}
+component Surface2783ecd8c5e4(instance: text) {
+  view Kit(component: "Surface2783ecd8c5e4", instance: instance) { slot }
+}
+component Text9eac63f94b9e(instance: text, text: text) {
+  view Kit(component: "Text9eac63f94b9e", instance: instance, text: text)
+}
+component Text09ef707ce916(instance: text, text: text) {
+  view Kit(component: "Text09ef707ce916", instance: instance, text: text)
+}
+component Surfacee76934704027(instance: text) {
+  view Kit(component: "Surfacee76934704027", instance: instance) { slot }
+}
+component Textcce8be3acf98(instance: text, text: text) {
+  view Kit(component: "Textcce8be3acf98", instance: instance, text: text)
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Surfacece4417baa3e2(instance: text) {
+  view Kit(component: "Surfacece4417baa3e2", instance: instance) { slot }
+}
+component Text9d97831e4945(instance: text, text: text) {
+  view Kit(component: "Text9d97831e4945", instance: instance, text: text)
+}
+component Textcf2cf904b180(instance: text, text: text) {
+  view Kit(component: "Textcf2cf904b180", instance: instance, text: text)
+}
+component Surfacea5b7af2bbadd(instance: text) {
+  view Kit(component: "Surfacea5b7af2bbadd", instance: instance) { slot }
+}
+component Textbafc014a8ef4(instance: text, text: text) {
+  view Kit(component: "Textbafc014a8ef4", instance: instance, text: text)
+}
+component Textf95e757b513a(instance: text, text: text) {
+  view Kit(component: "Textf95e757b513a", instance: instance, text: text)
+}
+component Texte0296b02977e(instance: text, text: text) {
+  view Kit(component: "Texte0296b02977e", instance: instance, text: text)
+}
+component Surfacec408f906d48d(instance: text) {
+  view Kit(component: "Surfacec408f906d48d", instance: instance) { slot }
+}
+component Text28fdf2b58ade(instance: text, text: text) {
+  view Kit(component: "Text28fdf2b58ade", instance: instance, text: text)
+}
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Surface61da98b087ad(instance: text) {
+  view Kit(component: "Surface61da98b087ad", instance: instance) { slot }
+}
+component Text09ea7e406191(instance: text, text: text) {
+  view Kit(component: "Text09ea7e406191", instance: instance, text: text)
+}
+component Surface344061c0524c(instance: text) {
+  view Kit(component: "Surface344061c0524c", instance: instance) { slot }
+}
+component Text40d05cb8823d(instance: text, text: text) {
+  view Kit(component: "Text40d05cb8823d", instance: instance, text: text)
+}
+component Surface508390703ceb(instance: text) {
+  view Kit(component: "Surface508390703ceb", instance: instance) { slot }
+}
+component Text03509255b16b(instance: text, text: text) {
+  view Kit(component: "Text03509255b16b", instance: instance, text: text)
+}
+component Surfacee36ccafcac75(instance: text) {
+  view Kit(component: "Surfacee36ccafcac75", instance: instance) { slot }
+}
+component Textc87024c50e59(instance: text, text: text) {
+  view Kit(component: "Textc87024c50e59", instance: instance, text: text)
+}
+
+view root Surfaceb4206391250d(instance: "page") {
+  Surfacedd0df1b48c89(instance: "scrim_70") {
+
+  }
+  Surface6a5a08d4eec5(instance: "modal_card") {
+    Text13431e7ba125(instance: "t_title", text: copy.t_title_text)
+    Surface40ba542edc3e(instance: "banner") {
+      Text825a5399a342(instance: "banner_t", text: copy.banner_t_text)
+      Textaee6ab968d36(instance: "banner_s", text: copy.banner_s_text)
+    }
+    Surface2783ecd8c5e4(instance: "cand_0") {
+      Text9eac63f94b9e(instance: "cand_0_t", text: copy.cand_0_t_text)
+      Text09ef707ce916(instance: "cand_0_s", text: copy.cand_0_s_text)
+      Surfacee76934704027(instance: "cand_0_chip") {
+        Textcce8be3acf98(instance: "cand_0_chip_t", text: copy.cand_0_chip_t_text)
+      }
+      NativeButton02f1d1bd99b4(instance: "resume_row_0", enabled: resume_row_0_enabled)
+    }
+    Surfacece4417baa3e2(instance: "cand_1") {
+      Text9d97831e4945(instance: "cand_1_t", text: copy.cand_1_t_text)
+      Textcf2cf904b180(instance: "cand_1_s", text: copy.cand_1_s_text)
+      Surfacea5b7af2bbadd(instance: "cand_1_chip") {
+        Textbafc014a8ef4(instance: "cand_1_chip_t", text: copy.cand_1_chip_t_text)
+      }
+      NativeButton02f1d1bd99b4(instance: "resume_row_1", enabled: resume_row_1_enabled)
+    }
+    Surfacece4417baa3e2(instance: "cand_2") {
+      Textf95e757b513a(instance: "cand_2_t", text: copy.cand_2_t_text)
+      Text09ef707ce916(instance: "cand_2_s", text: copy.cand_2_s_text)
+      Surfacea5b7af2bbadd(instance: "cand_2_chip") {
+        Texte0296b02977e(instance: "cand_2_chip_t", text: copy.cand_2_chip_t_text)
+      }
+      NativeButton02f1d1bd99b4(instance: "resume_row_2", enabled: resume_row_2_enabled)
+    }
+    Surfacec408f906d48d(instance: "confirm") {
+      Text28fdf2b58ade(instance: "confirm_h", text: copy.confirm_h_text)
+      Group3d2637879433(instance: "resume_input_row") {
+        Surface61da98b087ad(instance: "resume_input_bg") {
+
+        }
+        Text09ea7e406191(instance: "resume_input_text", text: copy.resume_input_text_text)
+        NativeButton02f1d1bd99b4(instance: "resume_input", enabled: resume_input_enabled)
+      }
+      Group3d2637879433(instance: "resume_confirm_row") {
+        Surface344061c0524c(instance: "resume_confirm_bg") {
+
+        }
+        Text40d05cb8823d(instance: "resume_confirm_t", text: copy.resume_confirm_t_text)
+        NativeButton02f1d1bd99b4(instance: "resume_confirm", enabled: resume_confirm_enabled)
+      }
+    }
+    Text09ef707ce916(instance: "t_note", text: copy.t_note_text)
+    Surface508390703ceb(instance: "locked") {
+      Text03509255b16b(instance: "locked_t", text: copy.locked_t_text)
+      Surfacee36ccafcac75(instance: "locked_chip") {
+        Textc87024c50e59(instance: "locked_chip_t", text: copy.locked_chip_t_text)
+      }
+    }
+  }
+}

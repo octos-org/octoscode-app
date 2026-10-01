@@ -1,0 +1,329 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "addb8b1c762052ef28db28a193e4e4092ca243154e9e530b5dad9bf4d09ad2ed",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      275.0,
+      695.0,
+      110.0,
+      46.0
+    ],
+    [
+      15.0,
+      619.0,
+      365.0,
+      39.0
+    ],
+    [
+      12.0,
+      616.0,
+      371.0,
+      45.0
+    ],
+    [
+      1.0,
+      572.0,
+      393.0,
+      105.0
+    ],
+    [
+      311.0,
+      507.0,
+      74.0,
+      37.0
+    ],
+    [
+      311.0,
+      463.0,
+      74.0,
+      37.0
+    ],
+    [
+      1.0,
+      422.0,
+      393.0,
+      137.0
+    ],
+    [
+      1.0,
+      175.0,
+      393.0,
+      232.0
+    ],
+    [
+      0.0,
+      1.0,
+      405.0,
+      773.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "scrim_64",
+      "bounds": [
+        0.0,
+        1.0,
+        405.0,
+        773.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "modal_card",
+      "bounds": [
+        16.0,
+        64.0,
+        374.0,
+        648.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 20.0
+    },
+    {
+      "id": "inspector_refresh_row",
+      "bounds": [
+        282.0,
+        86.0,
+        92.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "inspector_refresh",
+      "bounds": [
+        282.0,
+        86.0,
+        92.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "d0",
+      "bounds": [
+        20.0,
+        166.0,
+        366.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "node_0",
+      "bounds": [
+        32.0,
+        200.0,
+        342.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "node_1",
+      "bounds": [
+        32.0,
+        250.0,
+        342.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "node_2",
+      "bounds": [
+        32.0,
+        300.0,
+        342.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 10.0
+    },
+    {
+      "id": "node_3",
+      "bounds": [
+        32.0,
+        350.0,
+        342.0,
+        44.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "d1",
+      "bounds": [
+        20.0,
+        404.0,
+        366.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "scope_0",
+      "bounds": [
+        32.0,
+        436.0,
+        342.0,
+        40.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "scope_0_tag",
+      "bounds": [
+        316.0,
+        446.0,
+        59.4,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "scope_1",
+      "bounds": [
+        32.0,
+        482.0,
+        342.0,
+        40.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "scope_1_tag",
+      "bounds": [
+        311.0,
+        463.0,
+        74.0,
+        37.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293587197,
+      "radius": 18.5
+    },
+    {
+      "id": "d2",
+      "bounds": [
+        20.0,
+        532.0,
+        366.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "inspector_copy_link_row",
+      "bounds": [
+        32.0,
+        546.0,
+        120.0,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "inspector_copy_link_bg",
+      "bounds": [
+        311.0,
+        507.0,
+        74.0,
+        37.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293587453,
+      "radius": 18.5
+    },
+    {
+      "id": "inspector_copy_link",
+      "bounds": [
+        32.0,
+        546.0,
+        120.0,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "inspector_refresh_bottom_row",
+      "bounds": [
+        264.0,
+        640.0,
+        110.0,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "inspector_refresh_bottom_bg",
+      "bounds": [
+        275.0,
+        695.0,
+        110.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293585387,
+      "radius": 23.0
+    },
+    {
+      "id": "inspector_refresh_bottom",
+      "bounds": [
+        264.0,
+        640.0,
+        110.0,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ]
+}
