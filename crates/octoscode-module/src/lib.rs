@@ -1329,7 +1329,14 @@ impl OctoscodeView {
     /// Run one binding action with the item index that emitted it (card #21 §3).
     /// The mapping is the pure [`actions::resolve`]; this only performs the
     /// resulting effect (off the UI thread).
-    fn perform_action(&self, action: &str, index: usize) {
+    ///
+    /// `cx` is needed for exactly one thing: the clipboard. Both copy actions
+    /// (`answer.copy`, `error.copy_diagnostics`) resolve to an effect carrying
+    /// the text, and the platform clipboard is only reachable through
+    /// `Cx::copy_to_clipboard` (makepad `platform/src/cx_api.rs:1629`) — it is
+    /// the host's, not the module's, so the write must happen here rather than
+    /// inside a resolver. #35d.
+    fn perform_action(&mut self, cx: &mut Cx, action: &str, index: usize) {
         // #30b: board-3 autonomy actions route through their own table first
         // (one-owner rule); no other router sees these ids. `goal.set` /
         // `monitor.create` carry the composer draft as their entry text.
@@ -1517,13 +1524,33 @@ impl OctoscodeView {
                 return;
             }
             // #29d — UI-local screen effects (resolve already applied them):
-            // selection/query feed, and the report copy (the host owns the
-            // clipboard exactly like `answer.copy`; its write needs `cx`).
+            // selection/query feed, and the report copy.
+            // #35d: `CopyReport` is the ONE effect that still had work to do —
+            // `resolve` builds the report and flips `copy_state`, but the text
+            // was then DISCARDED here, so the control flipped state and never
+            // copied anything. The web's handler writes it
+            // (FatalErrorBoundary.tsx:44-50, `navigator.clipboard.writeText`)
+            // and only then reports "Copied"/"Copy failed". The clipboard is the
+            // HOST's, so the write happens here with the `cx` this arm now has.
             actions::Effect::Screen(
                 crate::screens::palette::Effect::Move(_)
-                | crate::screens::palette::Effect::QuerySet
-                | crate::screens::palette::Effect::CopyReport(_),
+                | crate::screens::palette::Effect::QuerySet,
             ) => return,
+            actions::Effect::Screen(
+                crate::screens::palette::Effect::CopyReport(report),
+            ) => {
+                if report.is_empty() {
+                    // resolve already set copy_state="failed" (palette.rs:286).
+                    makepad_widgets::log!("[octoscode] copy diagnostics: empty report, nothing copied");
+                    return;
+                }
+                cx.copy_to_clipboard(report);
+                makepad_widgets::log!(
+                    "[octoscode] copy diagnostics: {} bytes to clipboard",
+                    report.len()
+                );
+                return;
+            }
             _ => {}
         }
         let Some(rt) = self.runtime.as_ref() else {
@@ -1684,8 +1711,10 @@ impl OctoscodeView {
                 crate::screens::palette::Effect::Run(..) => unreachable!("matched above"),
                 crate::screens::palette::Effect::Move(_)
                 | crate::screens::palette::Effect::QuerySet
-                | crate::screens::palette::Effect::CopyReport(_)
                 | crate::screens::palette::Effect::Unhandled(_) => {}
+                // #35d: CopyReport returns from the UI-local arm above (it is
+                // the one that writes), so this arm is only a no-op guard.
+                crate::screens::palette::Effect::CopyReport(_) => {}
                 crate::screens::palette::Effect::Retry => {}
             },
         }
@@ -2602,7 +2631,7 @@ impl Widget for OctoscodeView {
                     makepad_widgets::log!("[octoscode] draft synced: {} chars", text.len());
                 }
                 if self.view.button(cx, ids!(refresh)).clicked(actions) {
-                    self.perform_action("session.refresh", 0);
+                    self.perform_action(cx, "session.refresh", 0);
                 }
                 // #32h item 1 (L4): route the mounted card's wired taps into
                 // the screens' tables — the ButtonAction from inside the
@@ -2613,7 +2642,13 @@ impl Widget for OctoscodeView {
                 // (setup-11's `error.reload`/`error.copy_diagnostics`), which
                 // `perform_screen_action` would resolve to Unhandled. The
                 // one-owner routing inside perform_action is unchanged.
-                for (id, ev) in &self.screen_taps {
+                // #35d: clone the tap list before the loop — the taps are
+                // borrowed from self, and `perform_action` now takes &mut self
+                // (it needs `cx` for the clipboard), so the immutable borrow
+                // would otherwise span the call (E0502). The list is a handful
+                // of (id, action) pairs and only changes on a remount.
+                let screen_taps = self.screen_taps.clone();
+                for (id, ev) in &screen_taps {
                     if self
                         .view
                         .button(cx, &[live_id!(screen_splash), *id])
@@ -2625,7 +2660,7 @@ impl Widget for OctoscodeView {
                                 self.perform_screen_action(ev, None);
                             }
                             screens::taps::Owner::Action => {
-                                self.perform_action(ev, 0);
+                                self.perform_action(cx, ev, 0);
                             }
                         }
                     }
@@ -2656,7 +2691,7 @@ impl Widget for OctoscodeView {
                     || self.view.button(cx, &[live_id!(i0_newchat)]).clicked(actions);
                 if new_chat_clicked {
                     makepad_widgets::log!("[octoscode] new_chat clicked");
-                    self.perform_action(bindings::ACTION_NEW_CHAT, 0);
+                    self.perform_action(cx, bindings::ACTION_NEW_CHAT, 0);
                 }
                 // The composer's send control. While a turn is running the same
                 // control is STOP (scene 08 / Codex) and sends `turn/interrupt`
@@ -2671,9 +2706,9 @@ impl Widget for OctoscodeView {
                             .unwrap_or(false)
                     };
                     if live {
-                        self.perform_action(bindings::ACTION_INTERRUPT, 0);
+                        self.perform_action(cx, bindings::ACTION_INTERRUPT, 0);
                     } else {
-                        self.perform_action(bindings::ACTION_SUBMIT, 0);
+                        self.perform_action(cx, bindings::ACTION_SUBMIT, 0);
                     }
                 }
                 // `+` (attach) and the mic are not wired to a protocol method
@@ -2696,7 +2731,7 @@ impl Widget for OctoscodeView {
                         || item.button(cx, &[live_id!(i0_threadrow)]).clicked(actions)
                     {
                         makepad_widgets::log!("[octoscode] thread row {item_id} clicked");
-                        self.perform_action("thread.open", item_id);
+                        self.perform_action(cx, "thread.open", item_id);
                     }
                 }
                 let timeline_list = self.view.portal_list(cx, ids!(timeline_list));
@@ -2723,9 +2758,9 @@ impl Widget for OctoscodeView {
                     };
                     if let Some(action) = components::action_for(row.kind, control) {
                         if action == "tool.toggle" {
-                            self.perform_action(action, row.index);
+                            self.perform_action(cx, action, row.index);
                         } else {
-                            self.perform_action(action, 0);
+                            self.perform_action(cx, action, 0);
                         }
                     }
                 }
@@ -2733,10 +2768,10 @@ impl Widget for OctoscodeView {
                 if self.view.button(cx, ids!(review_toggle_hit)).clicked(actions)
                     || self.view.button(cx, ids!(review_close)).clicked(actions)
                 {
-                    self.perform_action("review.toggle", 0);
+                    self.perform_action(cx, "review.toggle", 0);
                 }
                 if self.view.button(cx, ids!(settings_close)).clicked(actions) {
-                    self.perform_action("settings.toggle", 0);
+                    self.perform_action(cx, "settings.toggle", 0);
                 }
                 // #34a row 165 — the drawer's General section carries the
                 // server connection action (product.spec.ts:1435). The native
