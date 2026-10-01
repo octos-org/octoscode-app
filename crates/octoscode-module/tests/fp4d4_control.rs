@@ -121,19 +121,26 @@ fn recorded_prompt() -> String {
         .expect("the recording has a turn/start OUT frame with text")
 }
 
+/// Open a conversation on a session id UNIQUE to this test, so the process-wide
+/// attachment draft authority of one test can never be observed by another.
 async fn connect(server: &ReplayServer) -> (Conversation, Arc<Store>) {
+    use std::sync::atomic::{AtomicU32, Ordering};
+    static SEQ: AtomicU32 = AtomicU32::new(0);
+    let session = format!("dsflash:p4d4-{}", SEQ.fetch_add(1, Ordering::SeqCst));
     let (conv, mut _events) =
         Conversation::connect(&server.base_url, "dummy", "dsflash", None, None).expect("connect");
-    conv.open_workspace(None).await.expect("session/open");
+    conv.open_workspace_as(&session, None).await.expect("session/open");
     let store = conv.store.clone();
     (conv, store)
 }
 
-fn scope() -> AttachmentScope {
+/// The scope for THIS conversation's authority, exactly as `media::current_scope`
+/// derives it. Anything else is (correctly) refused as another authority.
+fn scope_for(conv: &Conversation) -> AttachmentScope {
     AttachmentScope {
-        authority_key: "dsflash:main".into(),
-        session_id: "dsflash:main".into(),
-        profile_id: "dsflash".into(),
+        authority_key: conv.session_id(),
+        session_id: conv.session_id(),
+        profile_id: conv.profile(),
     }
 }
 
@@ -203,7 +210,7 @@ async fn the_accepted_batch_rides_turn_start_and_an_empty_batch_is_omitted() {
     //    accepted batch, consumed exactly once.
     let server = ReplayServer::start(vec![]).await;
     let (conv, store) = connect(&server).await;
-    let scope = scope();
+    let scope = scope_for(&conv);
     let drafts = Arc::new(AttachmentDraftStore::new(scope.clone(), true).expect("scope"));
     drafts.select_files(vec![file("shot.png", 10)]).expect("select");
     let id = drafts.entries()[0].id.clone();
@@ -240,7 +247,7 @@ async fn the_accepted_batch_rides_turn_start_and_an_empty_batch_is_omitted() {
 async fn an_unready_attachment_refuses_the_turn_and_keeps_the_draft() {
     let server = ReplayServer::start(vec![]).await;
     let (conv, store) = connect(&server).await;
-    let scope = scope();
+    let scope = scope_for(&conv);
     let drafts = Arc::new(AttachmentDraftStore::new(scope.clone(), true).expect("scope"));
     // selected but never uploaded
     drafts.select_files(vec![file("shot.png", 10)]).expect("select");
