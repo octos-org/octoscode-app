@@ -1,0 +1,762 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "dde871990c509eb1418af9e3b78cfa5143f788c699cf3f9e7323e35c053209a0",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "variant": "surface",
+    "bg": 4294901502,
+    "radius": 0,
+    "c": [
+      {
+        "t": "text",
+        "id": "t_head",
+        "text": "OctosCode",
+        "x": 15.511832945816884,
+        "y": 27.17293233082707,
+        "w": 92.62921348314606,
+        "h": 27.338345864661655,
+        "size": 31.19904199140148,
+        "line_height": 27.338345864661655,
+        "weight": 700,
+        "color": 4278453509,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-700.ttf",
+        "tracking": -9.957469950288637,
+        "font_asc": -0.16734078004188147,
+        "font_desc": 0.16636421754188138
+      },
+      {
+        "t": "svg",
+        "id": "i_pencil",
+        "x": 22.0,
+        "y": 56.0,
+        "w": 18.0,
+        "h": 18.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t_newchat",
+        "text": "New chat",
+        "x": 14.672435566611487,
+        "y": 82.01804511278196,
+        "w": 86.76404494382022,
+        "h": 30.839097744360902,
+        "size": 36.281499789076655,
+        "line_height": 30.839097744360902,
+        "weight": 500,
+        "color": 4281085229,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": -11.118236017231869,
+        "font_asc": -0.1860864246869397,
+        "font_desc": 0.17387939343693973
+      },
+      {
+        "t": "button",
+        "id": "ctl_newchat_control",
+        "x": 20.0,
+        "y": 50.0,
+        "w": 140.0,
+        "h": 30.0,
+        "enabled": 1
+      },
+      {
+        "t": "stack",
+        "id": "sf",
+        "x": 14.0,
+        "y": 134.0,
+        "w": 378.0,
+        "h": 57.0,
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 14.25,
+        "c": [
+          {
+            "t": "stack",
+            "id": "sf_hair",
+            "x": 12.0,
+            "y": 132.0,
+            "w": 383.0,
+            "h": 62.0,
+            "variant": "surface",
+            "bg": 4294901502,
+            "radius": 15.5,
+            "c": []
+          }
+        ]
+      },
+      {
+        "t": "svg",
+        "id": "i_search",
+        "x": 34.0,
+        "y": 104.0,
+        "w": 16.0,
+        "h": 16.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t_search",
+        "text": "Search chats",
+        "x": 20.958330869308103,
+        "y": 148.53233082706768,
+        "w": 106.96629213483146,
+        "h": 28.50526315789474,
+        "size": 32.67368421052632,
+        "line_height": 28.50526315789474,
+        "weight": 400,
+        "color": 4287073168,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -8.696395691091878,
+        "font_asc": -0.17023397229381443,
+        "font_desc": 0.16730428479381443
+      },
+      {
+        "t": "button",
+        "id": "ctl_search_control",
+        "x": 20.0,
+        "y": 92.0,
+        "w": 366.0,
+        "h": 40.0,
+        "enabled": 1
+      },
+      {
+        "t": "stack",
+        "id": "seg",
+        "x": 20.0,
+        "y": 148.0,
+        "w": 214.0,
+        "h": 34.0,
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 9.0,
+        "c": []
+      },
+      {
+        "t": "stack",
+        "id": "seg_sel",
+        "x": 24.0,
+        "y": 152.0,
+        "w": 105.0,
+        "h": 26.0,
+        "variant": "surface",
+        "bg": 4294704124,
+        "radius": 7.0,
+        "c": []
+      },
+      {
+        "t": "text",
+        "id": "t_seg_l",
+        "text": "By workspace",
+        "x": 32.62999091874792,
+        "y": 227.8827067669173,
+        "w": 81.5505617977528,
+        "h": 26.171428571428574,
+        "size": 23.698896510587538,
+        "line_height": 26.171428571428574,
+        "weight": 500,
+        "color": 4278847753,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": -7.256811167533414,
+        "font_asc": -0.15681882248711343,
+        "font_desc": -0.051188990012886515
+      },
+      {
+        "t": "text",
+        "id": "t_seg_r",
+        "text": "All",
+        "x": 162.32222634861796,
+        "y": 226.71578947368423,
+        "w": 17.685393258426966,
+        "h": 21.503759398496243,
+        "size": 24.058858555785438,
+        "line_height": 21.503759398496243,
+        "weight": 500,
+        "color": 4286612359,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": -6.578810157888501,
+        "font_asc": -0.15808147417311003,
+        "font_desc": 0.15808147417310997
+      },
+      {
+        "t": "button",
+        "id": "ctl_seg_ws_control",
+        "x": 24.0,
+        "y": 152.0,
+        "w": 105.0,
+        "h": 26.0,
+        "enabled": 1
+      },
+      {
+        "t": "button",
+        "id": "ctl_seg_all_control",
+        "x": 129.0,
+        "y": 152.0,
+        "w": 105.0,
+        "h": 26.0,
+        "enabled": 1
+      },
+      {
+        "t": "svg",
+        "id": "i_sort",
+        "x": 380.0,
+        "y": 156.0,
+        "w": 14.0,
+        "h": 14.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t_sort",
+        "text": "Recent",
+        "x": 337.3083264764705,
+        "y": 225.54887218045113,
+        "w": 54.8314606741573,
+        "h": 22.670676691729323,
+        "size": 25.255974811533456,
+        "line_height": 22.670676691729323,
+        "weight": 400,
+        "color": 4282466625,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -5.951656634052441,
+        "font_asc": -0.16202175494321847,
+        "font_desc": 0.15030300494321835
+      },
+      {
+        "t": "svg",
+        "id": "i_chev_octos",
+        "x": 24.0,
+        "y": 216.0,
+        "w": 14.0,
+        "h": 14.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t_grp_octos",
+        "text": "octos",
+        "x": 15.615176654172265,
+        "y": 303.7323308270677,
+        "w": 63.955056179775276,
+        "h": 25.00451127819549,
+        "size": 30.57373070202158,
+        "line_height": 25.00451127819549,
+        "weight": 600,
+        "color": 4278584838,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": -5.022996700202631,
+        "font_asc": -0.22755311526793387,
+        "font_desc": 0.16456483401793384
+      },
+      {
+        "t": "button",
+        "id": "ctl_grp_octos_control",
+        "x": 16.0,
+        "y": 210.0,
+        "w": 250.0,
+        "h": 30.0,
+        "enabled": 1
+      },
+      {
+        "t": "stack",
+        "id": "grp_badge",
+        "x": 320.0,
+        "y": 214.0,
+        "w": 30.0,
+        "h": 22.0,
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 11.0,
+        "c": []
+      },
+      {
+        "t": "text",
+        "id": "grp_badge_t",
+        "text": "3",
+        "x": 319.19916778065453,
+        "y": 304.8992481203008,
+        "w": 10.039253454190664,
+        "h": 21.503759398496243,
+        "size": 23.429868789621114,
+        "line_height": 21.503759398496243,
+        "weight": 400,
+        "color": 4280362020,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -6.432809055023548,
+        "font_asc": -0.14608418572809279,
+        "font_desc": 0.14608418572809279
+      },
+      {
+        "t": "stack",
+        "id": "grp_menu_btn",
+        "x": 356.0,
+        "y": 214.0,
+        "w": 30.0,
+        "h": 22.0,
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 11.0,
+        "c": []
+      },
+      {
+        "t": "svg",
+        "id": "i_dots",
+        "x": 362.0,
+        "y": 218.0,
+        "w": 18.0,
+        "h": 14.0,
+        "src": ""
+      },
+      {
+        "t": "button",
+        "id": "ctl_grp_menu_control",
+        "x": 356.0,
+        "y": 210.0,
+        "w": 34.0,
+        "h": 30.0,
+        "enabled": 1
+      },
+      {
+        "t": "stack",
+        "id": "menu",
+        "x": 15.0,
+        "y": 212.0,
+        "w": 117.0,
+        "h": 51.0,
+        "variant": "surface",
+        "bg": 4294835709,
+        "radius": 4.9,
+        "c": [
+          {
+            "t": "stack",
+            "id": "menu_hair",
+            "x": 12.0,
+            "y": 209.0,
+            "w": 189.0,
+            "h": 57.0,
+            "variant": "surface",
+            "bg": 4294704123,
+            "radius": 5.48,
+            "c": []
+          }
+        ]
+      },
+      {
+        "t": "text",
+        "id": "menu_t0",
+        "text": "New chat here",
+        "x": 336,
+        "y": 258,
+        "w": 128,
+        "h": 20,
+        "size": 13,
+        "line_height": 20,
+        "weight": 400,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "button",
+        "id": "ctl_menu0_control",
+        "x": 326.0,
+        "y": 252.0,
+        "w": 142.0,
+        "h": 28.0,
+        "enabled": 1
+      },
+      {
+        "t": "text",
+        "id": "menu_t1",
+        "text": "Rename",
+        "x": 336,
+        "y": 288,
+        "w": 128,
+        "h": 20,
+        "size": 13,
+        "line_height": 20,
+        "weight": 400,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "button",
+        "id": "ctl_menu1_control",
+        "x": 326.0,
+        "y": 282.0,
+        "w": 142.0,
+        "h": 28.0,
+        "enabled": 1
+      },
+      {
+        "t": "text",
+        "id": "menu_t2",
+        "text": "Remove from sidebar",
+        "x": 336,
+        "y": 318,
+        "w": 128,
+        "h": 20,
+        "size": 13,
+        "line_height": 20,
+        "weight": 400,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "button",
+        "id": "ctl_menu2_control",
+        "x": 326.0,
+        "y": 312.0,
+        "w": 142.0,
+        "h": 28.0,
+        "enabled": 1
+      },
+      {
+        "t": "svg",
+        "id": "i_chev_octoscode_app",
+        "x": 24.0,
+        "y": 268.0,
+        "w": 14.0,
+        "h": 14.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t_grp_octoscode_app",
+        "text": "octoscode-app",
+        "x": 12.3246013415278,
+        "y": 398.2526315789474,
+        "w": 136.29213483146066,
+        "h": 33.17293233082707,
+        "size": 31.313503885499916,
+        "line_height": 33.17293233082707,
+        "weight": 600,
+        "color": 4278781961,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": -8.052225261998425,
+        "font_asc": -0.17734072970360826,
+        "font_desc": -0.02676083279639163
+      },
+      {
+        "t": "button",
+        "id": "ctl_grp_octoscode_app_control",
+        "x": 16.0,
+        "y": 262.0,
+        "w": 250.0,
+        "h": 30.0,
+        "enabled": 1
+      },
+      {
+        "t": "text",
+        "id": "r00_t",
+        "text": "Bump octos-core to a6ea8505",
+        "x": 38.76834400327827,
+        "y": 463.6,
+        "w": 181.25842696629212,
+        "h": 28.50526315789474,
+        "size": 26.030487005896486,
+        "line_height": 28.50526315789474,
+        "weight": 400,
+        "color": 4279440403,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -7.534137978743668,
+        "font_asc": -0.1546123281786942,
+        "font_desc": -0.03972360932130575
+      },
+      {
+        "t": "text",
+        "id": "r00_w",
+        "text": "2h",
+        "x": 319.4957472556307,
+        "y": 464.7669172932331,
+        "w": 16.382022471910112,
+        "h": 21.503759398496243,
+        "size": 23.740198177563116,
+        "line_height": 21.503759398496243,
+        "weight": 400,
+        "color": 4284244328,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -12.517365069791829,
+        "font_asc": -0.1472000174506014,
+        "font_desc": 0.15696564245060138
+      },
+      {
+        "t": "button",
+        "id": "ctl_row0_control",
+        "x": 16.0,
+        "y": 296.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
+      },
+      {
+        "t": "text",
+        "id": "r01_t",
+        "text": "Why is hydrate slow?",
+        "x": 40.37681418573451,
+        "y": 524.2796992481203,
+        "w": 129.12359550561797,
+        "h": 29.672180451127822,
+        "size": 26.75655244982686,
+        "line_height": 29.672180451127822,
+        "weight": 400,
+        "color": 4279571990,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -7.48319129132278,
+        "font_asc": -0.14253711074786202,
+        "font_desc": -0.041544920502138094
+      },
+      {
+        "t": "text",
+        "id": "r01_w",
+        "text": "Yesterday",
+        "x": 284.77313247463854,
+        "y": 524.2796992481203,
+        "w": 54.17977528089887,
+        "h": 28.50526315789474,
+        "size": 26.193517195912538,
+        "line_height": 28.50526315789474,
+        "weight": 400,
+        "color": 4285888638,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -9.313502158671291,
+        "font_asc": -0.164856166774055,
+        "font_desc": -0.0431516457259451
+      },
+      {
+        "t": "button",
+        "id": "ctl_row1_control",
+        "x": 16.0,
+        "y": 336.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
+      },
+      {
+        "t": "svg",
+        "id": "i_plus",
+        "x": 24.0,
+        "y": 726.0,
+        "w": 16.0,
+        "h": 16.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t_addws",
+        "text": "Add workspace",
+        "x": 15.574737564708887,
+        "y": 716.8210526315789,
+        "w": 125.2134831460674,
+        "h": 30.839097744360902,
+        "size": 28.80842357465992,
+        "line_height": 30.839097744360902,
+        "weight": 500,
+        "color": 4283322192,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": -7.687280853772715,
+        "font_asc": -0.17178679859087853,
+        "font_desc": -0.032314763909121524
+      },
+      {
+        "t": "button",
+        "id": "ctl_addws_control",
+        "x": 16.0,
+        "y": 718.0,
+        "w": 220.0,
+        "h": 32.0,
+        "enabled": 1
+      }
+    ]
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "i_pencil",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "sf",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "sf_hair",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "i_search",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "seg",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "seg_sel",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "i_sort",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "i_chev_octos",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "grp_badge",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "grp_menu_btn",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "i_dots",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "menu",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "menu_hair",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "i_chev_octoscode_app",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "i_plus",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t_head",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.31915947781450904
+    },
+    {
+      "id": "t_newchat",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.3064436718952632
+    },
+    {
+      "id": "t_search",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2661590176075156
+    },
+    {
+      "id": "t_seg_l",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.3062088213386398
+    },
+    {
+      "id": "t_seg_r",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2734464788773819
+    },
+    {
+      "id": "t_sort",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.23565341185462943
+    },
+    {
+      "id": "t_grp_octos",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.16429125870041444
+    },
+    {
+      "id": "grp_badge_t",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2745559146226689
+    },
+    {
+      "id": "t_grp_octoscode_app",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2571486503535972
+    },
+    {
+      "id": "r00_t",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.28943515259768354
+    },
+    {
+      "id": "r00_w",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.5272645567728244
+    },
+    {
+      "id": "r01_t",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.279676961572499
+    },
+    {
+      "id": "r01_w",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.3555651609904702
+    },
+    {
+      "id": "t_addws",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.26684142691287344
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

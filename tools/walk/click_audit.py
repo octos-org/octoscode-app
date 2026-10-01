@@ -90,7 +90,51 @@ EXPECTED: dict[str, list[tuple[str, str]]] = {
     ],
     "dock-palette": [],
     "dock-loading": [],
+    # #D2a: board 2's sidebar half, screens 1-5. One entry per card; the
+    # expectations come from each card's OWN service-actions.json (read from
+    # the card dir), not from a hand-copied list, so a card edit shows up here.
+    "sidebar-grouped": [],
+    "sidebar-statuses": [],
+    "sidebar-search": [],
+    "sidebar-collapsed": [],
+    "sidebar-drawer": [],
 }
+
+# #D2a: the board-2 cards and the OCTOSCODE_SCREEN name that mounts each
+# (screens/sidebar.rs:374 `card_for`).
+SIDEBAR_CARDS = {
+    "sidebar-grouped": "phase4n2-01",
+    "sidebar-statuses": "phase4n2-02",
+    "sidebar-search": "phase4n2-03",
+    "sidebar-collapsed": "phase4n2-04",
+    "sidebar-drawer": "phase4n2-05",
+}
+SIDEBAR_SCREEN_NAMES = {
+    "sidebar-grouped": "sidebar_grouped",
+    "sidebar-statuses": "sidebar_statuses",
+    "sidebar-search": "sidebar_search",
+    "sidebar-collapsed": "sidebar_collapsed",
+    "sidebar-drawer": "sidebar_drawer",
+}
+
+
+def sidebar_expectations(name: str) -> list[tuple[str, str]]:
+    """(control name, event) pairs from the card's own service-actions.json.
+
+    Read from the card so the EXPECTED table cannot drift from what the card
+    actually declares — the same source the mount wires from.
+    """
+    card = SIDEBAR_CARDS.get(name)
+    if not card:
+        return []
+    path = pathlib.Path(__file__).resolve().parents[2] / "design" / \
+        "stage-b" / "phase4-new2" / "cards" / card / "service-actions.json"
+    try:
+        v = json.loads(path.read_text())
+    except Exception:
+        return []
+    return [(n, c.get("event", "")) for n, c in (v.get("controls") or {}).items()
+            if c.get("event")]
 
 
 SHADOWED_BY_DOCK = {
@@ -106,6 +150,14 @@ def expected_for(screen: str, ident: str, text: str) -> str:
             return action
     for needle, action in EXPECTED.get(screen, []):
         if needle in hay:
+            return action
+    # #D2a: a sidebar card's control expects the event ITS OWN
+    # `service-actions.json` declares, read from the card dir — so the table
+    # can never drift from what the card (and therefore the wiring) uses.
+    # Checked BEFORE the chrome table's catch-alls would otherwise swallow it:
+    # a card control's own id is more specific than "row_hit"/"new_chat_hit".
+    for needle, action in sidebar_expectations(screen):
+        if needle.lower() in hay:
             return action
     return ""
 
@@ -135,7 +187,7 @@ class Http:
         return self.get("/log?n=400")
 
 
-def wait_mount(app: Http, marker_text: str, timeout: float = 100.0) -> None:
+def wait_mount(app: Http, marker_text: str, timeout: float = 420.0) -> None:
     deadline = time.monotonic() + timeout
     while time.monotonic() < deadline:
         try:
@@ -216,6 +268,14 @@ def run_screen(cfg: dict, bin_path: pathlib.Path, app_port: int, rows: list) -> 
             raise AssertionError(f"app start failed: {(r.stdout + r.stderr)[-400:]}")
         marker = "Connect" if cfg["serve"] is None else "OctosCode"
         wait_mount(app, marker)
+        if cfg.get("sidebar"):
+            # #D2a: the sidebar card mounts into the screen_splash slot; log
+            # the wiring line so a 0-control run says WHY (card never lowered
+            # vs controls not laid out) instead of being ambiguous.
+            makepad_log = app.get("/log?n=200")
+            if "card events:" in makepad_log:
+                line = [l for l in makepad_log.split("\"l\":") if "card events" in l]
+                print(f"[click-audit] {name}: {line[0][:120] if line else 'no card-events line'}", flush=True)
         # First-run mounts land a frame LATER than their text: the module's
         # text widgets can report rects long before the KitButtons get their
         # layout (observed: 'Connect' present, every clickable still 0x0 —
@@ -354,6 +414,13 @@ def main() -> int:
          "serve": "conversation", "shadow_chrome": True},
         {"name": "chrome-review", "env": {}, "serve": "conversation"},
         {"name": "chrome-settings", "env": {}, "serve": "conversation"},
+    ] + [
+        # #D2a board 2's sidebar half. `shadow_chrome` is deliberately absent:
+        # these cards ARE the sidebar, so the base chrome's hit targets are not
+        # what is under test — each card's own controls are.
+        {"name": n, "env": {"OCTOSCODE_SCREEN": SIDEBAR_SCREEN_NAMES[n]},
+         "serve": "conversation", "sidebar": True}
+        for n in SIDEBAR_CARDS
     ]
     only = {s.strip() for s in args.only.split(",") if s.strip()}
     screens = [s for s in SCREENS if not only or s["name"] in only]

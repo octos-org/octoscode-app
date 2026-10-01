@@ -1,0 +1,106 @@
+{
+  "frame_id": 2,
+  "controls": {
+    "ctl_newchat": {
+      "event": "new_chat",
+      "source_bounds": [
+        20,
+        50,
+        140,
+        30
+      ],
+      "enabled": true
+    },
+    "ctl_search": {
+      "event": "search.focus",
+      "source_bounds": [
+        20,
+        92,
+        366,
+        40
+      ],
+      "enabled": true
+    },
+    "ctl_seg_ws": {
+      "event": "sidebar.mode.grouped",
+      "source_bounds": [
+        24,
+        152,
+        105,
+        26
+      ],
+      "enabled": true
+    },
+    "ctl_seg_all": {
+      "event": "sidebar.mode.flat",
+      "source_bounds": [
+        129,
+        152,
+        105,
+        26
+      ],
+      "enabled": true
+    },
+    "ctl_strow0": {
+      "event": "session.open",
+      "source_bounds": [
+        16,
+        208,
+        374,
+        36
+      ],
+      "enabled": true
+    },
+    "ctl_strow1": {
+      "event": "session.open",
+      "source_bounds": [
+        16,
+        250,
+        374,
+        36
+      ],
+      "enabled": true
+    },
+    "ctl_strow2": {
+      "event": "session.open",
+      "source_bounds": [
+        16,
+        292,
+        374,
+        36
+      ],
+      "enabled": true
+    },
+    "ctl_strow3": {
+      "event": "session.open",
+      "source_bounds": [
+        16,
+        334,
+        374,
+        36
+      ],
+      "enabled": true
+    },
+    "ctl_strow4": {
+      "event": "session.open",
+      "source_bounds": [
+        16,
+        376,
+        374,
+        36
+      ],
+      "enabled": true
+    },
+    "ctl_addws": {
+      "event": "workspace.add",
+      "source_bounds": [
+        16,
+        718,
+        220,
+        32
+      ],
+      "enabled": true
+    }
+  },
+  "source": "phase4-new2-screen-02"
+}

@@ -1,0 +1,429 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surfaceb4206391250d",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "t_head": {
+        "component": "Text868e9080b64c",
+        "layout": {
+          "x": 15.511832945816884,
+          "y": 27.17293233082707,
+          "w": 92.62921348314606,
+          "h": 27.338345864661655
+        }
+      },
+      "i_pencil": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 22.0,
+          "y": 56.0,
+          "w": 18.0,
+          "h": 18.0,
+          "src": "http://127.0.0.1:8190/ux-images/phase4n2-04/assets/i_pencil-32d2adc5b655.svg"
+        }
+      },
+      "t_newchat": {
+        "component": "Text7522dc2a2424",
+        "layout": {
+          "x": 14.672435566611487,
+          "y": 82.01804511278196,
+          "w": 86.76404494382022,
+          "h": 30.839097744360902
+        }
+      },
+      "ctl_newchat_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 20.0,
+          "y": 50.0,
+          "w": 140.0,
+          "h": 30.0
+        }
+      },
+      "sf": {
+        "component": "Surface06e53b1722d3",
+        "layout": {
+          "x": 14.0,
+          "y": 134.0,
+          "w": 378.0,
+          "h": 57.0
+        }
+      },
+      "sf_hair": {
+        "component": "Surfacea7396eb2806c",
+        "layout": {
+          "x": 12.0,
+          "y": 132.0,
+          "w": 383.0,
+          "h": 62.0
+        }
+      },
+      "i_search": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 34.0,
+          "y": 104.0,
+          "w": 16.0,
+          "h": 16.0,
+          "src": "http://127.0.0.1:8190/ux-images/phase4n2-04/assets/i_search-e0cef4fa0173.svg"
+        }
+      },
+      "t_search": {
+        "component": "Textdbb4d428205e",
+        "layout": {
+          "x": 20.958330869308103,
+          "y": 148.53233082706768,
+          "w": 106.96629213483146,
+          "h": 28.50526315789474
+        }
+      },
+      "ctl_search_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 20.0,
+          "y": 92.0,
+          "w": 366.0,
+          "h": 40.0
+        }
+      },
+      "seg": {
+        "component": "Surfacefb10c85792a2",
+        "layout": {
+          "x": 20.0,
+          "y": 148.0,
+          "w": 214.0,
+          "h": 34.0
+        }
+      },
+      "seg_sel": {
+        "component": "Surfaceb2ee79a520d8",
+        "layout": {
+          "x": 24.0,
+          "y": 152.0,
+          "w": 105.0,
+          "h": 26.0
+        }
+      },
+      "t_seg_l": {
+        "component": "Text9c6fe6c39087",
+        "layout": {
+          "x": 32.62999091874792,
+          "y": 227.8827067669173,
+          "w": 81.5505617977528,
+          "h": 26.171428571428574
+        }
+      },
+      "t_seg_r": {
+        "component": "Textbe746047212e",
+        "layout": {
+          "x": 162.32222634861796,
+          "y": 226.71578947368423,
+          "w": 17.685393258426966,
+          "h": 21.503759398496243
+        }
+      },
+      "ctl_seg_ws_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 24.0,
+          "y": 152.0,
+          "w": 105.0,
+          "h": 26.0
+        }
+      },
+      "ctl_seg_all_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 129.0,
+          "y": 152.0,
+          "w": 105.0,
+          "h": 26.0
+        }
+      },
+      "i_sort": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 380.0,
+          "y": 156.0,
+          "w": 14.0,
+          "h": 14.0,
+          "src": "http://127.0.0.1:8190/ux-images/phase4n2-04/assets/i_sort-4a0fec61e082.svg"
+        }
+      },
+      "t_sort": {
+        "component": "Textb00651a8e41b",
+        "layout": {
+          "x": 337.3083264764705,
+          "y": 225.54887218045113,
+          "w": 54.8314606741573,
+          "h": 22.670676691729323
+        }
+      },
+      "i_chev_octos": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 24.0,
+          "y": 216.0,
+          "w": 14.0,
+          "h": 14.0,
+          "src": "http://127.0.0.1:8190/ux-images/phase4n2-04/assets/i_chev_octos-b376f0c32465.svg"
+        }
+      },
+      "t_grp_octos": {
+        "component": "Textf397b4b2cc2c",
+        "layout": {
+          "x": 15.615176654172265,
+          "y": 303.7323308270677,
+          "w": 63.955056179775276,
+          "h": 25.00451127819549
+        }
+      },
+      "ctl_grp_octos_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 210.0,
+          "w": 250.0,
+          "h": 30.0
+        }
+      },
+      "grp_badge": {
+        "component": "Surface632edf7c986b",
+        "layout": {
+          "x": 320.0,
+          "y": 214.0,
+          "w": 30.0,
+          "h": 22.0
+        }
+      },
+      "grp_badge_t": {
+        "component": "Text28dff8321d16",
+        "layout": {
+          "x": 319.19916778065453,
+          "y": 304.8992481203008,
+          "w": 10.039253454190664,
+          "h": 21.503759398496243
+        }
+      },
+      "grp_menu_btn": {
+        "component": "Surface632edf7c986b",
+        "layout": {
+          "x": 356.0,
+          "y": 214.0,
+          "w": 30.0,
+          "h": 22.0
+        }
+      },
+      "i_dots": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 362.0,
+          "y": 218.0,
+          "w": 18.0,
+          "h": 14.0,
+          "src": "http://127.0.0.1:8190/ux-images/phase4n2-04/assets/i_dots-3dba008581ee.svg"
+        }
+      },
+      "ctl_grp_menu_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 356.0,
+          "y": 210.0,
+          "w": 34.0,
+          "h": 30.0
+        }
+      },
+      "menu": {
+        "component": "Surface145b682e4b7b",
+        "layout": {
+          "x": 15.0,
+          "y": 212.0,
+          "w": 117.0,
+          "h": 51.0
+        }
+      },
+      "menu_hair": {
+        "component": "Surfacece7c15b81537",
+        "layout": {
+          "x": 12.0,
+          "y": 209.0,
+          "w": 189.0,
+          "h": 57.0
+        }
+      },
+      "menu_t0": {
+        "component": "Text00a53ab7e7fa",
+        "layout": {
+          "x": 336,
+          "y": 258,
+          "w": 128,
+          "h": 20
+        }
+      },
+      "ctl_menu0_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 326.0,
+          "y": 252.0,
+          "w": 142.0,
+          "h": 28.0
+        }
+      },
+      "menu_t1": {
+        "component": "Text00a53ab7e7fa",
+        "layout": {
+          "x": 336,
+          "y": 288,
+          "w": 128,
+          "h": 20
+        }
+      },
+      "ctl_menu1_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 326.0,
+          "y": 282.0,
+          "w": 142.0,
+          "h": 28.0
+        }
+      },
+      "menu_t2": {
+        "component": "Text00a53ab7e7fa",
+        "layout": {
+          "x": 336,
+          "y": 318,
+          "w": 128,
+          "h": 20
+        }
+      },
+      "ctl_menu2_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 326.0,
+          "y": 312.0,
+          "w": 142.0,
+          "h": 28.0
+        }
+      },
+      "i_chev_octoscode_app": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 24.0,
+          "y": 268.0,
+          "w": 14.0,
+          "h": 14.0,
+          "src": "http://127.0.0.1:8190/ux-images/phase4n2-04/assets/i_chev_octoscode_app-4a0fec61e082.svg"
+        }
+      },
+      "t_grp_octoscode_app": {
+        "component": "Textfee0b0d9712c",
+        "layout": {
+          "x": 12.3246013415278,
+          "y": 398.2526315789474,
+          "w": 136.29213483146066,
+          "h": 33.17293233082707
+        }
+      },
+      "ctl_grp_octoscode_app_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 262.0,
+          "w": 250.0,
+          "h": 30.0
+        }
+      },
+      "r00_t": {
+        "component": "Text0ce546d1950b",
+        "layout": {
+          "x": 38.76834400327827,
+          "y": 463.6,
+          "w": 181.25842696629212,
+          "h": 28.50526315789474
+        }
+      },
+      "r00_w": {
+        "component": "Textdc7834a5b0cb",
+        "layout": {
+          "x": 319.4957472556307,
+          "y": 464.7669172932331,
+          "w": 16.382022471910112,
+          "h": 21.503759398496243
+        }
+      },
+      "ctl_row0_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 296.0,
+          "w": 374.0,
+          "h": 36.0
+        }
+      },
+      "r01_t": {
+        "component": "Text5dce2b649501",
+        "layout": {
+          "x": 40.37681418573451,
+          "y": 524.2796992481203,
+          "w": 129.12359550561797,
+          "h": 29.672180451127822
+        }
+      },
+      "r01_w": {
+        "component": "Text39a66bd1a676",
+        "layout": {
+          "x": 284.77313247463854,
+          "y": 524.2796992481203,
+          "w": 54.17977528089887,
+          "h": 28.50526315789474
+        }
+      },
+      "ctl_row1_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 336.0,
+          "w": 374.0,
+          "h": 36.0
+        }
+      },
+      "i_plus": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 24.0,
+          "y": 726.0,
+          "w": 16.0,
+          "h": 16.0,
+          "src": "http://127.0.0.1:8190/ux-images/phase4n2-04/assets/i_plus-5c8b9808e6ad.svg"
+        }
+      },
+      "t_addws": {
+        "component": "Text07d660d100d3",
+        "layout": {
+          "x": 15.574737564708887,
+          "y": 716.8210526315789,
+          "w": 125.2134831460674,
+          "h": 30.839097744360902
+        }
+      },
+      "ctl_addws_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 718.0,
+          "w": 220.0,
+          "h": 32.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

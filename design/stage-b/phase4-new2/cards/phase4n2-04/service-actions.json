@@ -1,0 +1,136 @@
+{
+  "frame_id": 4,
+  "controls": {
+    "ctl_newchat": {
+      "event": "new_chat",
+      "source_bounds": [
+        20,
+        50,
+        140,
+        30
+      ],
+      "enabled": true
+    },
+    "ctl_search": {
+      "event": "search.focus",
+      "source_bounds": [
+        20,
+        92,
+        366,
+        40
+      ],
+      "enabled": true
+    },
+    "ctl_seg_ws": {
+      "event": "sidebar.mode.grouped",
+      "source_bounds": [
+        24,
+        152,
+        105,
+        26
+      ],
+      "enabled": true
+    },
+    "ctl_seg_all": {
+      "event": "sidebar.mode.flat",
+      "source_bounds": [
+        129,
+        152,
+        105,
+        26
+      ],
+      "enabled": true
+    },
+    "ctl_grp_octos": {
+      "event": "workspace.toggle",
+      "source_bounds": [
+        16,
+        210,
+        250,
+        30
+      ],
+      "enabled": true
+    },
+    "ctl_grp_menu": {
+      "event": "workspace.menu",
+      "source_bounds": [
+        356,
+        210,
+        34,
+        30
+      ],
+      "enabled": true
+    },
+    "ctl_menu0": {
+      "event": "workspace.new_chat_here",
+      "source_bounds": [
+        326,
+        252,
+        142,
+        28
+      ],
+      "enabled": true
+    },
+    "ctl_menu1": {
+      "event": "workspace.rename",
+      "source_bounds": [
+        326,
+        282,
+        142,
+        28
+      ],
+      "enabled": true
+    },
+    "ctl_menu2": {
+      "event": "workspace.remove",
+      "source_bounds": [
+        326,
+        312,
+        142,
+        28
+      ],
+      "enabled": true
+    },
+    "ctl_grp_octoscode_app": {
+      "event": "workspace.toggle",
+      "source_bounds": [
+        16,
+        262,
+        250,
+        30
+      ],
+      "enabled": true
+    },
+    "ctl_row0": {
+      "event": "session.open",
+      "source_bounds": [
+        16,
+        296,
+        374,
+        36
+      ],
+      "enabled": true
+    },
+    "ctl_row1": {
+      "event": "session.open",
+      "source_bounds": [
+        16,
+        336,
+        374,
+        36
+      ],
+      "enabled": true
+    },
+    "ctl_addws": {
+      "event": "workspace.add",
+      "source_bounds": [
+        16,
+        718,
+        220,
+        32
+      ],
+      "enabled": true
+    }
+  },
+  "source": "phase4-new2-screen-04"
+}
