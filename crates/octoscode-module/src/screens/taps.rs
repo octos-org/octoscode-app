@@ -277,7 +277,7 @@ text: \"Copy\"
         // untouched rather than panic.
         let same = wire_card_events(BUTTON_DSL, "setup-99-does-not-exist");
         assert_eq!(same, BUTTON_DSL);
-        assert!(!wireed_taps(&same).iter().any(|(n, _)| n == "btn_reload"));
+        assert!(!wired_taps(&same).iter().any(|(n, _)| n == "btn_reload"));
     }
 
     #[test]
