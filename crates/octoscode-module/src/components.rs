@@ -230,7 +230,10 @@ pub fn slots(kind: ItemKind) -> &'static [Binding] {
             // The model pill (`v4-flash ▾`) and the approval pill are the
             // component's own copy — static until `composer.model` is declared.
             Binding { copy: "t04_text", binding: "" },
-            Binding { copy: "pill1_t_text", binding: "" },
+            // #P4a1 — the approval pill carries the live permission mode
+            // (read-back from permission/profile/set); the static art text
+            // stays until the server has answered at least once.
+            Binding { copy: "pill1_t_text", binding: "set.permission_mode" },
         ],
     }
 }
@@ -464,6 +467,17 @@ pub fn item_copies(
             }
             "tools[].status" => text(&row("tools")?.get("status").cloned().unwrap_or(Value::Null)),
             "tools[].detail" => text(&row("tools")?.get("summary").cloned().unwrap_or(Value::Null)),
+            // ---- composer pills ---------------------------------------------
+            // #P4a1 — the approval pill carries the live mode when the
+            // server has one; empty (never read) keeps the authored static
+            // copy ("Ask for approval", the web's on-request label).
+            "set.permission_mode" => {
+                let v = text(&get("set.permission_mode")?);
+                if v.is_empty() {
+                    continue;
+                }
+                v
+            }
             // ---- turn / answer ---------------------------------------------
             "turn.activity" => text(&get("turn.activity")?),
             // **Card #21j**: the settled tail renders from ITS OWN turn's

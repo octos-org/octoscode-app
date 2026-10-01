@@ -36,6 +36,7 @@
 //! Both paths are additive (the server accepts either); the query path is the
 //! web-identical one and is what the module uses.
 use octos_app_transport::Capabilities;
+use octos_core::ui_protocol::methods;
 
 /// The 21 features the web client requests, **in the web's order**
 /// (`client.ts:106-128`).
@@ -107,4 +108,51 @@ pub fn typed_features() -> &'static [&'static str] {
 /// dependency; see `octoscode_module::features_apply`.
 pub fn feature_query_pairs() -> impl Iterator<Item = (&'static str, &'static str)> {
     WEB_UI_FEATURES.iter().map(|f| ("ui_feature", *f))
+}
+
+// ---------------------------------------------------------------------------
+// #P4g1 row 217 — the coding product capability gate. The web refuses to make
+// a candidate the active coding Session unless the open reply advertised every
+// coding method AND every durable-projection feature
+// (`src-web/apps/web/src/features/session/coding-capabilities.ts:14-16/:38-66`:
+// `CODING_SESSION_METHODS` + `DURABLE_SESSION_FEATURES` ->
+// `missingCodingSessionRequirements`). Same list, evaluated from the
+// `session/open` reply's `UiProtocolCapabilities` the pinned octos-core
+// decodes for us.
+// ---------------------------------------------------------------------------
+
+/// The methods the web's coding gate requires
+/// (`coding-capabilities.ts:14-16`).
+pub const CODING_SESSION_METHODS: &[&str] = &[
+    methods::SESSION_OPEN,
+    methods::SESSION_HYDRATE,
+    methods::TURN_START,
+];
+
+/// The durable-projection features the web's coding gate requires
+/// (`coding-capabilities.ts:19-22`).
+pub const DURABLE_SESSION_FEATURES: &[&str] = &[
+    "state.session_hydrate.v1",
+    "projection.envelope.v2",
+];
+
+/// The gate: every required method/feature the open reply did NOT advertise
+/// (empty = the candidate may become the active coding Session). Names, not
+/// booleans, so a closed gate says exactly what is missing — the web's
+/// `missingCodingSessionRequirements` contract
+/// (`coding-capabilities.ts:58-66`).
+pub fn missing_coding_session_requirements(
+    advertised_methods: &[String],
+    advertised_features: &[String],
+) -> Vec<String> {
+    CODING_SESSION_METHODS
+        .iter()
+        .filter(|m| !advertised_methods.iter().any(|a| a == *m))
+        .chain(
+            DURABLE_SESSION_FEATURES
+                .iter()
+                .filter(|f| !advertised_features.iter().any(|a| a == *f)),
+        )
+        .map(|s| (*s).to_owned())
+        .collect()
 }

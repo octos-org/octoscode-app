@@ -159,10 +159,11 @@ ledger — no re-run needed for a (b) disposition).
 
 ## Pre-existing (main-carried): the hermetic scan trips on design/stage-a/phase4-new/atlas-prompt.md (#P4b2 found while running the ACK suite)
 
-`octoscode-client --test repo_hermetic no_machine_paths_or_secrets_anywhere_tracked` FAILS:
-`design/stage-a/phase4-new/atlas-prompt.md: literal /Users/`. A/B: the file (and its 2 literals) arrive
-from origin/main `99b7a4f` (`git show 99b7a4f:design/stage-a/phase4-new/atlas-prompt.md | grep -c /Users/` → 2);
-this lane's committed files scan clean (`git ls-files docs/walk/evidence | xargs grep -l /Users/` → empty).
+`octoscode-client --test repo_hermetic no_machine_paths_or_secrets_anywhere_tracked` FAILS on a literal
+machine-path prefix (`<HOME>` + `Users/…`) inside `design/stage-a/phase4-new/atlas-prompt.md` (2 hits). A/B: the
+file arrives verbatim from origin/main `99b7a4f` (same 2 hits there); this lane's committed evidence files scan
+clean. NOTE (2026-10-01): this entry ORIGINALLY spelled the literal prefix out and so tripped the same scanner —
+scrubbed to placeholders per the fixture-hygiene rule; main has since scrubbed atlas-prompt.md itself.
 Known-red for main to fix (scrub to `<WORKSPACE>` per the fixture-hygiene rule); recorded here so the next
 lane's full-suite read is not surprised. Full suite on task/P4b2 @ merge `d29f3e2` with --no-fail-fast:
 TOTAL passed=531 failed=1 (this file).

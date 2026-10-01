@@ -90,6 +90,14 @@ struct Inner {
     /// compaction spinner/bar from exactly this
     /// (`src-web/apps/web/src/features/.../context-*`).
     context: HashMap<String, ContextLifecycle>,
+    /// #P4g1 row 204: the `session/open` reply's `workspace_root` per session
+    /// (`SessionOpened.workspace_root`, ui_protocol.rs:4528 @ a6ea8505), plus
+    /// the resume-open rejections (`(requested, returned)` per session) — the
+    /// native fail-closed record for an open that answered a DIFFERENT
+    /// workspace than the one asked (web
+    /// `candidate-session.ts:230-243 validateCandidateWorkspace`).
+    workspace_roots: HashMap<String, String>,
+    workspace_rejects: HashMap<String, (String, String)>,
 }
 
 /// One context lifecycle event, flattened from the `context/*` notifications
@@ -174,6 +182,40 @@ impl Sessions {
         self.inner.lock().unwrap().active = id;
     }
 
+    /// #P4g1 row 204: record the open reply's `workspace_root` for `id`.
+    pub fn set_workspace_root(&self, id: &str, root: &str) {
+        self.inner
+            .lock()
+            .unwrap()
+            .workspace_roots
+            .insert(id.to_owned(), root.to_owned());
+    }
+
+    pub fn workspace_root(&self, id: &str) -> Option<String> {
+        self.inner.lock().unwrap().workspace_roots.get(id).cloned()
+    }
+
+    /// #P4g1 row 204: record a rejected resume open (requested vs returned
+    /// workspace). The reject is the fail-closed observable; the caller
+    /// decides what the user sees.
+    pub fn note_workspace_reject(&self, id: &str, requested: &str, returned: &str) {
+        self.inner
+            .lock()
+            .unwrap()
+            .workspace_rejects
+            .insert(id.to_owned(), (requested.to_owned(), returned.to_owned()));
+    }
+
+    /// Every recorded `(session, requested, returned)` open rejection.
+    pub fn workspace_rejects(&self) -> Vec<(String, String, String)> {
+        self.inner
+            .lock()
+            .unwrap()
+            .workspace_rejects
+            .iter()
+            .map(|(k, (a, b))| (k.clone(), a.clone(), b.clone()))
+            .collect()
+    }
     pub fn active(&self) -> Option<String> {
         self.inner.lock().unwrap().active.clone()
     }

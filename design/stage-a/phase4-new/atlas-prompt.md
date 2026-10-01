@@ -41,8 +41,8 @@ Depict these 9 screens:
    pills at the bottom: outline "Cancel", black "Save".
 7. PROVIDER REJECTED: the same editor with the API key field outlined red and a red message "The provider rejected this key (401). Your draft is kept."
    — the key still masked, no raw error text, no key shown; the other fields keep their values; black pill "Try again".
-8. CHOOSE A FOLDER: title "Choose workspace folder", a breadcrumb "/ › Users › dev › code", a list of folder rows with folder icons
+8. CHOOSE A FOLDER: title "Choose workspace folder", a breadcrumb "/ › home › user › code", a list of folder rows with folder icons
    (octos, octoscode-app, notes, scratch), one row selected (light grey fill) "octoscode-app", a grey footnote "3 hidden by the server", a path box
-   at the bottom "/Users/dev/code/octoscode-app", and a black pill "Use this folder".
+   at the bottom "/home/user/code/octoscode-app", and a black pill "Use this folder".
 9. FOLDER REFUSED: the same browser opened into "/ › private", a neutral callout "The server won't list this folder." with a grey next step
-   "Pick another folder or type a path you can access.", an outline pill "Back to /Users/dev", and the path box below.
+   "Pick another folder or type a path you can access.", an outline pill "Back to /home/user", and the path box below.
