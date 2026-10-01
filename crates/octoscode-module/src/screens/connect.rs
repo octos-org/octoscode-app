@@ -695,7 +695,241 @@ pub fn lower_screen(screen: Screen, ui: &ConnectUi) -> Result<String, String> {
     octoscript_makepad::l0::inspectable(&mut tree);
     let dsl = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&tree))
         .map_err(|e| format!("to_makepad_ui: {e}"))?;
+    let dsl = phone_layout(&dsl);
+    let dsl = theme_surfaces(&dsl);
     Ok(mask_secret_inputs(&wire_events(&dsl, screen), screen))
+}
+
+/// #36b item 3: the Connect card must not stay light when the OS/app theme is
+/// dark (the Android shell is dark, and the entry reported the light Connect
+/// card against it).
+///
+/// The web's Connect is NOT light-only: `.gate`/`.card` paint from design
+/// tokens (`var(--dsw-alias-bg-base)`, `--dsw-alias-bg-layer-1`) and
+/// `features/connection/` has no `prefers-color-scheme` of its own, so it
+/// follows the global theme.
+///
+/// There is no authored dark Connect twin on disk (`setup-01/kit/native/`
+/// ships only `light`; `theme::card_for` has no connect entry), so the dark
+/// palette is applied at the TOKEN level, the same way #31d's dark screens
+/// carry the dark token set: the authored light hexes are remapped to the dark
+/// role values from `theme::role_assignments` (#31d, theme.rs:556-566) —
+/// `color_bg_app #1c1f22`, `color_outset_1 #38383a`. In `light` (and with no
+/// preference resolvable) the card is left byte-identical to the authored
+/// Stage B output, so the desktop look does not move.
+/// #36b item 3: the Connect card must not stay light when the OS/app theme is
+/// dark (the Android shell is dark, and the entry reported the light Connect
+/// card against it).
+///
+/// The web's Connect is NOT light-only: `.gate`/`.card` paint from design
+/// tokens (`var(--dsw-alias-bg-base)`, `--dsw-alias-bg-layer-1`) and
+/// `features/connection/` has no `prefers-color-scheme` of its own, so it
+/// follows the global theme.
+///
+/// There is no authored dark Connect twin on disk (`setup-01/kit/native/`
+/// ships only `light`; `theme::card_for` has no connect entry), so the dark
+/// palette is applied at the TOKEN level, the way #31d's dark screens carry the
+/// dark token set: the authored light hexes are remapped to the dark role
+/// values from `theme::role_assignments` (#31d, theme.rs:556-566) —
+/// `color_bg_app #1c1f22`, `color_bg_even #2c2c2e`, `color_outset_1 #38383a`,
+/// `color_fg_app #f5f5f7`, `color_text_muted #98989d`.
+///
+/// TEXT must be remapped too, or the dark surface carries dark-on-dark labels:
+/// the authored set is `#1d1d1f` x2 (primary), `#6e6e73` / `#6d6d6e` (muted),
+/// `#141415` / `#191919`, and the field borders `#d2d2d7` x2. The accent
+/// `#1651f3` is the brand blue and is kept in both palettes.
+///
+/// `#000000ff` is AMBIGUOUS in this card — it is the "Connect to Octos" TEXT
+/// colour AND the Connect button's surface fill — so it is remapped per
+/// PROPERTY (`draw_text.color:` vs `draw_bg.color:`), never by value: a global
+/// value replace would repaint one of them wrongly.
+///
+/// In `light` (and with no preference resolvable) the card is left
+/// byte-identical to the authored Stage B output, so the desktop look does not
+/// move.
+fn theme_surfaces(dsl: &str) -> String {
+    if crate::screens::theme::resolved() != "dark" {
+        return dsl.to_owned();
+    }
+    let mut out = dsl
+        // surfaces
+        .replace("draw_bg.color: #ffffffff", "draw_bg.color: #1c1f22ff")
+        // the Connect button pill: a black disc in light, the raised dark
+        // surface in dark (`color_bg_even`)
+        .replace("draw_bg.color: #000000ff", "draw_bg.color: #2c2c2eff")
+        // borders: the card outline, the two field outlines
+        .replace("draw_bg.border_color: #e5e5e7ff", "draw_bg.border_color: #38383aff")
+        .replace("draw_bg.border_color: #d2d2d7ff", "draw_bg.border_color: #38383aff")
+        // primary + near-black text
+        .replace("draw_text.color: #1d1d1fff", "draw_text.color: #f5f5f7ff")
+        .replace("draw_text.color: #141415ff", "draw_text.color: #f5f5f7ff")
+        .replace("draw_text.color: #191919ff", "draw_text.color: #f5f5f7ff")
+        // the "Connect to Octos" title — the ambiguous #000000, TEXT property only
+        .replace("draw_text.color: #000000ff", "draw_text.color: #f5f5f7ff")
+        // muted labels and the stored-for hint
+        .replace("draw_text.color: #6e6e73ff", "draw_text.color: #98989dff")
+        .replace("draw_text.color: #6d6d6eff", "draw_text.color: #98989dff");
+    // The Connect button's own LABEL is authored light (#fdfdfd) on the black
+    // disc; on the dark raised surface it still reads, so it is left alone.
+    out
+}
+
+/// #36b: the Connect card at PHONE width (the 6T's 384x788 logical viewport).
+///
+/// Two measured defects, both traceable to the authored card
+/// (`design/stage-b/setup/cards/setup-01/mapped.json`):
+///
+/// 1. **The card is flush right.** The artboard is a fixed 406 wide (`page w=406`,
+///    `outer_card x=10 w=386` -> authored right edge 396), so at 384 it overflows:
+///    `/snap` on main gave the card `[10, 32, 374, 734]` — left margin 10, right
+///    margin **0**. The web gives EQUAL sides at phone width:
+///    `ConnectionPanel.module.css:319-321` —
+///    `@media (max-width: 560px) { .gate { padding: 20px 16px } }`.
+///
+/// 2. **The field inputs are not centred in their boxes, and one escapes.** Both
+///    are authored at a fixed **+12** from the box top, but the two boxes differ
+///    in height (server 44.3, token 34.15), so the same offset overflows the
+///    shorter one. `/snap` on main: server insets 12/6 (6.8px off-centre), token
+///    input bottom **381 vs box bottom 377** (4px outside). The token dots row
+///    (insets 6.08/5.57) is the authored proof the intent is centring.
+///
+/// Both are no-ops at desktop widths: the clamps only fire when the authored
+/// artboard does not fit the viewport.
+fn phone_layout(dsl: &str) -> String {
+    const VIEWPORT_W: f64 = 384.0;
+    const WEB_INSET: f64 = 16.0;
+    let Some(card) = node_rect(dsl, "beauty_0_0") else {
+        return dsl.to_owned();
+    };
+    let mut out = dsl.to_owned();
+
+    // (1) equal side margins, matching the web's phone padding
+    if card.0 + card.2 > VIEWPORT_W {
+        let inset = card.0.min(WEB_INSET);
+        out = set_node_x(&out, "beauty_0_0", inset);
+        out = set_node_w(&out, "beauty_0_0", VIEWPORT_W - inset * 2.0);
+    }
+
+    // (2) centre each TextInput in its field box (top inset == bottom inset).
+    // The RENDERER snaps to integer pixels: `/snap` draws the token input at
+    // h=26 (authored 25.5) inside a h=34 box (authored 34.15), so centring on
+    // the authored floats leaves the live field 2px high (insets 5/3) even
+    // though the DSL numbers balance. Centre on the drawn geometry — the
+    // rounded box and input heights — so the seat is right on screen.
+    for (bx, ix) in [
+        ("beauty_0_0_2", "beauty_0_0_2_0"),
+        ("beauty_0_0_4", "beauty_0_0_4_0"),
+    ] {
+        let (Some(b), Some(i)) = (node_rect(&out, bx), node_rect(&out, ix)) else {
+            continue;
+        };
+        let drawn_bh = b.3.round();
+        let drawn_ih = i.3.round();
+        out = set_node_y(&out, ix, b.1 + (drawn_bh - drawn_ih) / 2.0);
+    }
+    out
+}
+
+/// `(x, y, w, h)` of one lowered node, read from its own head block.
+fn node_rect(dsl: &str, node: &str) -> Option<(f64, f64, f64, f64)> {
+    let head = node_head(dsl, node)?;
+    let num = |key: &str| -> Option<f64> {
+        let at = head.find(key)?;
+        let tail = &head[at + key.len()..];
+        let end = tail
+            .find(|c: char| !c.is_ascii_digit() && c != '.')
+            .unwrap_or(tail.len());
+        tail[..end].parse().ok()
+    };
+    let at = head.find("abs_pos: vec2(")?;
+    let tail = &head[at + 14..];
+    let close = tail.find(')')?;
+    let mut it = tail[..close].split(',');
+    Some((
+        it.next()?.trim().parse().ok()?,
+        it.next()?.trim().parse().ok()?,
+        num("width: ")?,
+        num("height: ")?,
+    ))
+}
+
+/// One node's own lowered head — from `<node> := ` down to the next node
+/// initializer or a closing brace. The head spans SEVERAL lines
+/// (`width: 386 height: 756` is not on the `:=` line), so this cannot be
+/// line-at-a-time.
+fn node_head<'a>(dsl: &'a str, node: &str) -> Option<&'a str> {
+    let at = dsl.find(&format!("{node} := "))?;
+    let mut end = at;
+    for line in dsl[at..].lines() {
+        if end > at && (line.contains(" := ") || line.starts_with('}')) {
+            break;
+        }
+        end += line.len() + 1;
+    }
+    Some(&dsl[at..end.min(dsl.len())])
+}
+
+/// One node's `x` in `abs_pos: vec2(x, y)`.
+fn set_node_x(dsl: &str, node: &str, x: f64) -> String {
+    let Some(r) = node_rect(dsl, node) else {
+        return dsl.to_owned();
+    };
+    set_node_xy(dsl, node, x, r.1)
+}
+
+/// One node's `y` in `abs_pos: vec2(x, y)`.
+fn set_node_y(dsl: &str, node: &str, y: f64) -> String {
+    let Some(r) = node_rect(dsl, node) else {
+        return dsl.to_owned();
+    };
+    set_node_xy(dsl, node, r.0, y)
+}
+
+/// One node's `abs_pos: vec2(x, y)`. The whole `(x, y)` payload is replaced —
+/// the number span must run to the closing paren, or only `x` is replaced and
+/// the old `y` survives (`vec2(10, 10, 10)`).
+fn set_node_xy(dsl: &str, node: &str, x: f64, y: f64) -> String {
+    const KEY: &str = "abs_pos: vec2(";
+    let Some(head) = node_head(dsl, node) else {
+        return dsl.to_owned();
+    };
+    let at = dsl.find(head).unwrap_or(0);
+    let Some(k) = head.find(KEY) else {
+        return dsl.to_owned();
+    };
+    let start = at + k;
+    let inner = start + KEY.len();
+    let close = dsl[inner..]
+        .find(')')
+        .map(|i| inner + i)
+        .unwrap_or(dsl.len());
+    let payload = format!("{x}, {y}");
+    format!("{}{}{}", &dsl[..inner], payload, &dsl[close..])
+}
+
+/// One node's `width:`.
+fn set_node_w(dsl: &str, node: &str, w: f64) -> String {
+    replace_in_head(dsl, node, "width: ", &format!("{w}"))
+}
+
+/// Replace the number that follows `<key>` inside one node's head.
+///
+/// `value` is the bare number(s) — the key stays in the DSL, so inserting
+/// `key + value` here would duplicate it (`width: width: 364`).
+fn replace_in_head(dsl: &str, node: &str, key: &str, value: &str) -> String {
+    let Some(head) = node_head(dsl, node) else {
+        return dsl.to_owned();
+    };
+    let at = dsl.find(head).unwrap_or(0);
+    let Some(k) = head.find(key) else {
+        return dsl.to_owned();
+    };
+    let start = at + k + key.len();
+    let end = start
+        + dsl[start..]
+            .find(|c: char| !c.is_ascii_digit() && c != '.')
+            .unwrap_or(0);
+    format!("{}{}{}", &dsl[..start], value, &dsl[end..])
 }
 
 /// #32h item 1 (the dispatch layer, the outer loop's L4): the (widget name,

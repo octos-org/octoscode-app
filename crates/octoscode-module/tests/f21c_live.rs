@@ -295,14 +295,22 @@ async fn two_replayed_real_turns_render_as_two_bubbles_and_two_answers() {
         .expect("turn/start");
 
     let mut ended = 0;
-    for _ in 0..6000 {
+    // #37a: the old loop broke on the FIRST 40 ms quiet gap — and that break
+    // also fires on a TIMEOUT, so a slow gap between the replay server's two
+    // turns (e.g. right after a cold rebuild) ended the wait with ended==1
+    // and flaked this test exactly once in ~11 ctest rounds (left: 1,
+    // right: 2). Wait for BOTH terminals against a real deadline; only a
+    // CLOSED channel ends the wait early.
+    let deadline = tokio::time::Instant::now() + Duration::from_secs(30);
+    while ended < 2 && tokio::time::Instant::now() < deadline {
         match tokio::time::timeout(Duration::from_millis(40), events.recv()).await {
             Ok(Some(evt)) => {
                 if matches!(conv.on_event(evt), FlowEvent::TurnEnded { .. }) {
                     ended += 1;
                 }
             }
-            _ => break,
+            Ok(None) => break,
+            Err(_elapsed) => continue,
         }
     }
     assert_eq!(ended, 2, "both recorded turns reached a terminal");

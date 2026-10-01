@@ -97,6 +97,13 @@ script_mod! {
     use mod.prelude.widgets.*
     use mod.widgets.*
 
+    // #36b: assign the theme roles BEFORE the class body evaluates, exactly like
+    // lib.rs's script_mod and screens_probe's — this is what reads
+    // `OCTOSCODE_THEME` into the preference (`theme::eval_roles`). Without it
+    // the host ignores the knob and `theme::resolved()` falls back to dark, so a
+    // "light" capture silently renders the dark palette.
+    #(octoscode_module::screens::theme::eval_roles(vm))
+
     let ShotRoot = #(ScreenShot::register_widget(vm)) {
         width: Fill height: Fill flow: Down
         body := View {
@@ -111,11 +118,29 @@ script_mod! {
     startup() do #(App::script_component(vm)){
         ui: Root{
             main_window := Window{
-                window.inner_size: vec2(406 776)
+                window.inner_size: #(window_inner_size())
                 body +: { shot := ShotRoot{} }
             }
         }
     }
+}
+
+/// #36b: the probe's window size, env-overridable, so a phone-width layout can
+/// be reproduced on desktop (RULES: the instrument is compiled out on Android,
+/// so phone issues are reproduced at a phone-SIZE window). Same knob and
+/// `WxH` form as the shell's `OCTOSENSE_WINDOW_SIZE` (`lib.rs:1936`); default is
+/// the authored 406x776 artboard.
+fn window_inner_size() -> Vec2 {
+    if let Ok(sz) = std::env::var("OCTOSCODE_WINDOW_SIZE") {
+        if let Some((w, h)) = sz.split_once('x') {
+            if let (Ok(w), Ok(h)) = (w.trim().parse::<f32>(), h.trim().parse::<f32>()) {
+                if w > 0.0 && h > 0.0 {
+                    return Vec2 { x: w, y: h };
+                }
+            }
+        }
+    }
+    Vec2 { x: 406.0, y: 776.0 }
 }
 
 #[derive(Script, ScriptHook)]
