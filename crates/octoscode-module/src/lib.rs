@@ -49,6 +49,24 @@ use flow::{Conversation, FlowUi};
 use mount::MountCache as ComponentMounts;
 use screen::Cache as ScreenCache;
 
+/// #P4h1 row 306 — install the recents store and purge the legacy v1 cache at
+/// startup (the web's App.tsx:1019-1023). This is the production caller that
+/// keeps `clear_recent_workspaces` off the test-only list (RULES 3); an honest
+/// failure is logged, never silently swallowed.
+///
+/// #M1: this MUST NOT live in the `script_mod!` body. A bare Rust block there is
+/// not DSL, so the script parser choked on the `:` of the `::log::warn!` path
+/// and `mod.widgets.OctoscodeView` never bound ("variable OctoscodeView not
+/// found in scope", `SplashVmId(1)`) — the mounted card rendered 0 non-zero
+/// rects. Wrapping it in `#{ … }` does not help either: `script_mod!` splices a
+/// script EXPRESSION, so a block's unit value has no `script_to_value`. A Rust
+/// call belongs in a Rust fn, invoked from Rust.
+fn init_recents_persistence() {
+    if !screens::recents::init_persistence() {
+        ::log::warn!("octoscode: workspace recents: legacy v1 cache could not be purged");
+    }
+}
+
 script_mod! {
     use mod.prelude.widgets.*
     // #31d — assign the theme roles BEFORE this class body dereferences any
@@ -59,11 +77,7 @@ script_mod! {
     // at startup (the web's App.tsx:1019-1023). This is the production caller
     // that keeps `clear_recent_workspaces` off the test-only list (RULES 3); an
     // honest failure is logged, never silently swallowed.
-    {
-        if !screens::recents::init_persistence() {
-            ::log::warn!("octoscode: workspace recents: legacy v1 cache could not be purged");
-        }
-    }
+    //
     mod.widgets.OctoscodeView = set_type_default() do #(OctoscodeView::register_widget(vm)) {
         ..mod.widgets.RectView
         width: Fill height: Fill
@@ -2446,6 +2460,11 @@ impl OctoscodeView {
             // screens have no home yet. The handler keeps the #29d screens.
             let screen_splash = self.view.splash(cx, ids!(screen_splash));
             let store = { self.bridge.lock().unwrap().store.clone() };
+            // #M1: `models::lower` needs a `Ctx` (store + the flow's UI state).
+            // The bridge carries both, and the bridge lock must be released
+            // before the mount arms run, so clone the `ui` handle here — the
+            // same `b.ui.clone()` the mounted screens already use (lib.rs:1520).
+            let ui = { self.bridge.lock().unwrap().ui.clone() };
             // #30e — OCTOSCODE_THEME seeds the preference (system default),
             // and the theme-wired card names lower through screens::theme,
             // which selects the dark Stage B card or its light twin by the
@@ -2462,7 +2481,17 @@ impl OctoscodeView {
             if let Some(files) = cx.get_data_dir() {
                 crate::design::set_host_dir(Some(files));
             }
-            let lowered = if screens::theme::card_for(&which).is_some() {
+            // #M1: the models/skills/context cards (setup-07 Model settings,
+            // setup-09 Context panel, setup-10 Skills). These three had
+            // handlers wired (refresh/owns/perform) but `models::lower` had
+            // 0 call sites, so every skills/models/context row was
+            // production-path yet user-UNREACHABLE — RULES 3's "exists but
+            // nobody can get there". Mounted here, reusing the existing
+            // accepted Stage-B cards; no new design.
+            let lowered = if screens::models::card_for(&which).is_some() {
+                let ctx = bindings::Ctx::new(&store, &ui);
+                screens::models::lower(&which, &ctx)
+            } else if screens::theme::card_for(&which).is_some() {
                 screens::theme::lower(&which, &store)
             } else if let Some(screen) = screens::autonomy::Screen3::from_env() {
                 // #P4e1c — the autonomy cards (autonomy-03/04/05: Goal, Loops,
@@ -3685,6 +3714,11 @@ impl AppModule for OctoscodeModule {
             },
         );
         vm.set_injected_global(live_id!(NAV), nav);
+        // #M1: the recents store is installed from RUST, before the DSL is
+        // evaluated — see `init_recents_persistence` for why it cannot live in
+        // the `script_mod!` body (it is not DSL, and `#{ … }` fails too because
+        // `script_mod!` splices a script expression, not a unit block).
+        init_recents_persistence();
         script_mod(vm);
         // Card #21b: the design/kit vocabulary every lowered #16 component names
         // (`DesignSurface`, `KitButton`, …) must be in THIS VM — the isolate the
