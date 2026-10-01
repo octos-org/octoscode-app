@@ -185,6 +185,18 @@ pub fn match_command(input: &str) -> Option<CommandMatch> {
 /// final-text pick), never as a turn.
 pub const REPORT_KIND: octoscode_store::EntryKind = octoscode_store::EntryKind::new("command.report");
 
+/// The receipt rows' synthetic turn ids: one NEW group per receipt. The
+/// timeline groups by turn id in first-seen order, so a `None` ("" group)
+/// receipt joins whichever None group exists — often the FIRST entries'
+/// group, rendering at the TOP of an auto_tail'd list where it never
+/// instantiates (the composer-area walk caught exactly that). A fresh id
+/// puts every receipt at the END, in view.
+pub fn next_receipt_turn() -> String {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    static SEQ: AtomicU64 = AtomicU64::new(1);
+    format!("cmd-report-{}", SEQ.fetch_add(1, Ordering::Relaxed))
+}
+
 /// `local-report.ts:4` — the cold report shapes, rendered with no transport.
 pub enum LocalReport {
     Help,

@@ -1048,7 +1048,7 @@ impl Conversation {
                 let session = self.session_id();
                 self.store.domains.session.timeline.append(
                     &session,
-                    None,
+                    Some(crate::screens::palette::next_receipt_turn()),
                     crate::screens::palette::REPORT_KIND,
                     format!(
                         "/{name} is not available in this native build — \
@@ -1073,7 +1073,7 @@ impl Conversation {
                 let session = self.session_id();
                 self.store.domains.session.timeline.append(
                     &session,
-                    None,
+                    Some(crate::screens::palette::next_receipt_turn()),
                     crate::screens::palette::REPORT_KIND,
                     format!(
                         "Unsupported command: /{name} — kept in the composer, \
