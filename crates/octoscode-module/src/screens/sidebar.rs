@@ -366,6 +366,69 @@ pub fn seed_from_store(ctx: &Ctx<'_>) {
     });
 }
 
+// --------------------------------------------------------------- the mount
+
+/// `OCTOSCODE_SCREEN` names -> the board-2 card that renders it. Screens 1-5
+/// are `phase4n2-01..05`; 6-12 are D2b's and deliberately absent here, so a
+/// D2b name falls through to the existing screens untouched.
+pub fn card_for(which: &str) -> Option<&'static str> {
+    Some(match which {
+        "sidebar_grouped" => "phase4n2-01",
+        "sidebar_statuses" => "phase4n2-02",
+        "sidebar_search" => "phase4n2-03",
+        "sidebar_collapsed" => "phase4n2-04",
+        "sidebar_drawer" => "phase4n2-05",
+        _ => return None,
+    })
+}
+
+/// Where the board-2 cards live. `OCTOSCODE_CARDS_DIR` overrides (the
+/// `lower_probe` convention); the default is the repo's design tree, the same
+/// resolution `palette::screen_cards_dir` uses.
+pub fn cards_dir() -> std::path::PathBuf {
+    std::path::PathBuf::from(
+        std::env::var("OCTOSCODE_CARDS_DIR")
+            .unwrap_or_else(|_| crate::design::dir("stage-b/phase4-new2/cards").to_string_lossy().to_string()),
+    )
+}
+
+/// Lower one board-2 card to the host DSL, wiring its CLICK controls through
+/// the shared helper so a card tap reaches this module's [`resolve`].
+///
+/// This is what makes the wiring reachable at all: before #D2a no mount path
+/// named these cards, so per RULES §3 the 13 actions existed only in tests.
+pub fn lower(which: &str) -> Result<String, String> {
+    let card = card_for(which).ok_or_else(|| format!("octoscode: unknown sidebar screen {which:?}"))?;
+    let dir = cards_dir().join(card);
+    let card_text = std::fs::read_to_string(dir.join("page.card"))
+        .map_err(|e| format!("octoscode: {card}/page.card: {e}"))?;
+    let data_text =
+        std::fs::read_to_string(dir.join("page.data.json")).unwrap_or_else(|_| "{}".into());
+    let data: Value = serde_json::from_str(&data_text)
+        .map_err(|e| format!("octoscode: {card}/page.data.json: {e}"))?;
+    let prepared = octoscript_makepad::l0::prepare(&card_text, &data, &dir.join("kit"))?;
+    // The DESIGN branch, the artifact Gate B rendered (each card dir ships
+    // `page.design.splash`); the L0-kit branch is rejected by the host VM on
+    // these screens (mount.rs:68). These five are FIXED chrome, so measured
+    // coordinates are inside the RULES 8.10 carve-out.
+    let dsl = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&prepared.tree))?;
+    // The shared card-tap helper (#35b), pointed at this card's
+    // `service-actions.json` — ONE helper, not a per-screen copy.
+    Ok(crate::screens::taps::wire_card_events_dir(&dsl, &dir))
+}
+
+/// Mount one board-2 card into a splash slot (the `palette::mount_screen`
+/// shape), publishing its taps so the `Event::Actions` loop routes them.
+pub fn mount(
+    cache: &mut crate::mount::MountCache,
+    cx: &mut crate::makepad_widgets::Cx,
+    splash: crate::makepad_widgets::SplashRef,
+    which: &str,
+) -> Result<bool, String> {
+    let dsl = lower(which)?;
+    cache.mount(cx, &splash, &dsl)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

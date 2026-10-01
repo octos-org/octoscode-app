@@ -2312,6 +2312,11 @@ impl OctoscodeView {
             }
             let lowered = if screens::theme::card_for(&which).is_some() {
                 screens::theme::lower(&which, &store)
+            } else if screens::sidebar::card_for(&which).is_some() {
+                // #D2a: board 2's sidebar half (screens 1-5). Without this arm
+                // the five phase4n2 cards were reachable from NO mount path, so
+                // per RULES §3 the 13 actions existed only in tests.
+                screens::sidebar::lower(&which)
             } else {
                 crate::screens::palette::lower_screen(&which, &store)
             };
