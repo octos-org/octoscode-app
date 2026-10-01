@@ -6,6 +6,7 @@
 //! ONLY at dispatch and immediately dropped — never a store field; the
 //! receipt's lanes replace the folded list and the notice copy is verbatim.
 use serde_json::{json, Value};
+use octoscode_client::domains::profile::SubProviderParams;
 use octoscode_store::Store;
 
 /// The web's `recordMutation` notice (ResearchDialog.tsx:120-127), verbatim.
@@ -88,6 +89,57 @@ fn fold_receipt(receipt: Value, store: &Store) -> String {
         .unwrap_or(false);
     crate::screens::models::fold_sub_providers(receipt, store);
     mutation_notice(applied, restart).to_owned()
+}
+
+// ------------------------------------------------- production action surface
+
+/// The action ids this screen owns (the cards' service-actions events; the
+/// models::owns precedent) — routed by lib.rs's screen-action router.
+pub fn owns(action: &str) -> bool {
+    matches!(action, "research.lane_upsert" | "research.lane_remove")
+}
+
+/// Build the wire params from a payload object (all fields pub; the
+/// optional ones absent when missing — never null).
+fn lane_params(v: &Value) -> Result<SubProviderParams, String> {
+    let get = |k: &str| v.get(k).and_then(|x| x.as_str()).map(str::to_owned);
+    Ok(SubProviderParams {
+        key: get("key").ok_or("research lane payload needs `key`")?,
+        provider: get("provider").ok_or("research lane payload needs `provider`")?,
+        model: get("model"),
+        api_key_env: get("api_key_env"),
+        base_url: get("base_url"),
+        description: get("description"),
+        default_context_window: v.get("default_context_window").and_then(|x| x.as_u64()).map(|x| x as u32),
+        max_output_tokens: v.get("max_output_tokens").and_then(|x| x.as_u64()).map(|x| x as u32),
+        api_type: get("api_type"),
+    })
+}
+
+/// The production mutation entry: the store's own draft lane is the payload
+/// and the credential comes in at dispatch (`value`), mirroring the dialog's
+/// confirm() (read -> send -> drop). Returns the verbatim web notice.
+pub async fn perform(
+    conv: &crate::flow::Conversation,
+    action: &str,
+    store: &Store,
+    value: Option<&str>,
+) -> Result<String, String> {
+    match action {
+        "research.lane_upsert" => {
+            // SubProviderParams is Serialize-only (the wire never returns
+            // lanes in this shape), so the payload is built by hand.
+            let v: Value = serde_json::from_str(value.unwrap_or("{}"))
+                .map_err(|e| format!("research.lane_upsert payload: {e}"))?;
+            let lane = lane_params(&v)?;
+            upsert_lane(conv.client(), store, lane, None).await
+        }
+        "research.lane_remove" => {
+            let key = value.ok_or("research.lane_remove needs the lane key")?;
+            remove_lane(conv.client(), store, key).await
+        }
+        _ => Err(format!("research: unowned action {action:?}")),
+    }
 }
 
 #[cfg(test)]

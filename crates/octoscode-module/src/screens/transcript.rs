@@ -157,6 +157,33 @@ pub async fn copy_conversation(
     Ok(CopyOutcome::Copied(markdown))
 }
 
+// ------------------------------------------------- production action surface
+
+/// The composer's copy action (the button row's handler target).
+pub fn owns(action: &str) -> bool {
+    action == "composer.copy_transcript"
+}
+
+/// The production copy path: read the canonical history through the
+/// production client and hand the markdown to the caller (the UI layer owns
+/// the clipboard write + button phases — the STOPped row 7 surface).
+pub async fn perform(
+    conv: &crate::flow::Conversation,
+    store: &octoscode_store::Store,
+) -> Result<String, String> {
+    let session = conv.session_id().to_owned();
+    let ws = store
+        .domains
+        .session
+        .active()
+        .and_then(|s| s.rsplit([':', '/']).next().map(str::to_owned));
+    match copy_conversation(conv.client(), &session, ws.as_deref(), None).await? {
+        CopyOutcome::Copied(markdown) => Ok(markdown),
+        CopyOutcome::Empty => Ok(String::new()),
+        CopyOutcome::Foreign => Err("History belongs to another Session.".to_owned()),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
