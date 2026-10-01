@@ -634,4 +634,59 @@ mod p4d3_tests {
             "Unsupported command: /bogus"
         );
     }
+
+    /// #P4h3 — the SAFE DIAGNOSTIC report. `buildSafeDiagnostic`
+    /// (apps/web/src/features/error/FatalErrorBoundary.tsx:93-104) builds
+    /// `Name: message` + stack, REDACTS the secret-bearing query params and
+    /// the `Bearer` scheme, and caps the whole thing at 4 000 characters.
+    /// The native `redact_secrets` (palette.rs:337) already does all of that
+    /// (`out.chars().take(4_000)` at :376); this row's gap was that NOTHING
+    /// asserted it. The report is what the crash screen's copy action ships
+    /// off-box, so the redaction and the cap are a privacy property, not
+    /// cosmetics.
+    #[test]
+    fn the_diagnostic_report_redacts_secrets_and_caps_at_four_thousand_chars() {
+        // Query-param secrets keep the KEY, lose the value, and stop at the
+        // terminator (the web's `.replace(/([?&]token=)[^&\s)]+/gi, "$1[redacted]")`).
+        for key in ["token", "auth_token", "api_key"] {
+            let raw = format!("GET /connect?{key}=SUPERSECRETVALUE&next=1");
+            let out = build_safe_diagnostic(&raw);
+            assert!(!out.contains("SUPERSECRETVALUE"), "{key} leaked: {out}");
+            assert!(out.contains(&format!("{key}=[redacted]")), "{key}: {out}");
+            // The redaction is BOUNDED — the rest of the string survives.
+            assert!(out.contains("next=1"), "{key}: redaction ate the tail: {out}");
+        }
+        // …including the `&`-terminated form the web's regex requires.
+        let two = build_safe_diagnostic("/x?token=AAA&api_key=BBB");
+        assert!(!two.contains("AAA") && !two.contains("BBB"), "{two}");
+
+        // `Bearer <token>` keeps the scheme, loses the token.
+        let bearer = build_safe_diagnostic("Authorization: Bearer abc.def-123");
+        assert!(!bearer.contains("abc.def-123"), "bearer leaked: {bearer}");
+        assert!(bearer.contains("Bearer [redacted]"), "{bearer}");
+
+        // A credential embedded in a panic message is redacted the same way —
+        // this is the shape that actually reaches `report_error`.
+        let panic_shaped = build_safe_diagnostic(
+            "TypeError: cannot read x\n    at fetch (/?token=LEAKME)\n\n  stack: Bearer SK-abc",
+        );
+        assert!(!panic_shaped.contains("LEAKME"), "query leak: {panic_shaped}");
+        assert!(!panic_shaped.contains("SK-abc"), "bearer leak: {panic_shaped}");
+
+        // The 4000-char cap, asserted on the OUTPUT length (the web's
+        // `.slice(0, 4_000)` on the redacted string).
+        let huge = "E".repeat(5_000);
+        let capped = build_safe_diagnostic(&huge);
+        assert_eq!(capped.chars().count(), 4_000, "the report is capped at 4000");
+        // The cap counts CHARACTERS, not bytes, and never splits a char.
+        let multibyte = "é".repeat(3_000); // 6000 bytes, 3000 chars — under the cap
+        let kept = build_safe_diagnostic(&multibyte);
+        assert_eq!(kept.chars().count(), 3_000, "no truncation under the cap");
+
+        // An innocuous report is passed through UNCHANGED (the redaction never
+        // eats ordinary text).
+        let plain = build_safe_diagnostic("RenderError: card setup-11 failed to mount");
+        assert_eq!(plain, "RenderError: card setup-11 failed to mount");
+        assert!(!plain.contains("[redacted]"), "{}", plain);
+    }
 }
