@@ -1670,7 +1670,11 @@ def main():
         # model to RAISE an approval card on its own; not scriptable yet.
         # select_targets EXCLUDES live-only rows (needs == "real-turn" is
         # skipped), so --live builds its targets straight from the rows.
-        wanted = {1, 2}
+        # {1,2,3,33}: the rows the real model can serve today (1 real turn +
+        # restore, 2 background turn, 3 foreign-turn disclosure, 33 file
+        # deliveries) — row 50 needs the model to RAISE an approval card on
+        # its own; the other live-only rows need browser-only state (#41d).
+        wanted = {1, 2, 3, 33}
         targets = [(i, area_of(r) or "", r)
                    for i, r in enumerate(rows, start=1) if i in wanted]
     try:
