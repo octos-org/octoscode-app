@@ -416,7 +416,7 @@ def build_04(sc):
     card = surface("fleet_card", 0, 0, ARTW, ARTH, bg="white", radius=0)
     k = [text("t_title", "Fleet", 20, 20, 160, 24, weight=600, size=20),
          text("t_empty", "No peers yet", 246, 26, 140, 16, color="muted", size=12,
-              alignx=2)]
+              alignx=1)]
     k.append(text("loading_models", "Loading models…", 20, 52, 200, 14,
                   color="muted", size=11))
     # peer card 1: the Start form over a model + brief

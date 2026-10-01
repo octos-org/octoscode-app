@@ -86,7 +86,7 @@
             "weight": 400,
             "color": 4285427315,
             "variant": "single_line",
-            "alignx": 2,
+            "alignx": 1,
             "font_src": "self:resources/ux/Inter-400.ttf",
             "tracking": 0.0
           },

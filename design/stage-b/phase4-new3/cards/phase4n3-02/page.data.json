@@ -3,7 +3,7 @@
     "theme": "light",
     "placements": {
       "page": {
-        "component": "Surface7dc6068bad75",
+        "component": "Surfacef468f03a0025",
         "layout": {
           "x": 0,
           "y": 0,
@@ -12,57 +12,57 @@
         }
       },
       "scrim_64": {
-        "component": "Surfaceb4206391250d",
+        "component": "Surfaceb101f26001b0",
         "layout": {
-          "x": 8.0,
-          "y": 183.0,
-          "w": 391.0,
-          "h": 585.0
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
         }
       },
       "modal_card": {
-        "component": "Surfacec84491d5e542",
+        "component": "Surface11a4cded75fe",
         "layout": {
-          "x": 16.0,
-          "y": 64.0,
-          "w": 374.0,
-          "h": 640.0
+          "x": 16,
+          "y": 64,
+          "w": 374,
+          "h": 640
         }
       },
       "t_title": {
-        "component": "Textd62eaa78845d",
+        "component": "Text840b7001f71f",
         "layout": {
-          "x": 32.044338997592575,
-          "y": 208.03305785123968,
-          "w": 127.34177215189874,
-          "h": 23.2396694214876
+          "x": 32,
+          "y": 82,
+          "w": 240,
+          "h": 24.4
         }
       },
       "wd_card": {
-        "component": "Surfaceb8c8686567d1",
+        "component": "Surfaced4707dd25870",
         "layout": {
-          "x": 30.0,
-          "y": 388.0,
-          "w": 348.0,
-          "h": 63.0
+          "x": 32,
+          "y": 118,
+          "w": 342,
+          "h": 56
         }
       },
       "wd_label": {
-        "component": "Text655448b96c7a",
+        "component": "Text75ee4f0ef332",
         "layout": {
-          "x": 30.753146822138838,
-          "y": 268.1570247933884,
-          "w": 166.74261603375527,
-          "h": 20.03305785123967
+          "x": 44,
+          "y": 126,
+          "w": 240,
+          "h": 16
         }
       },
       "wd_path": {
-        "component": "Text1bf68810ca79",
+        "component": "Textc9b85a486b80",
         "layout": {
-          "x": 76.77855126317226,
-          "y": 423.6776859504132,
-          "w": 117.91983122362869,
-          "h": 16.02479338842975
+          "x": 44,
+          "y": 146,
+          "w": 200,
+          "h": 16
         }
       },
       "wd_help": {
@@ -77,10 +77,10 @@
       "wd_start_row": {
         "component": "Group3d2637879433",
         "layout": {
-          "x": 44.0,
-          "y": 178.0,
-          "w": 318.0,
-          "h": 20.0
+          "x": 44,
+          "y": 178,
+          "w": 318,
+          "h": 20
         }
       },
       "wd_start_t": {
@@ -95,37 +95,37 @@
       "wd_start": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 44.0,
-          "y": 178.0,
-          "w": 318.0,
-          "h": 20.0
+          "x": 44,
+          "y": 178,
+          "w": 318,
+          "h": 20
         }
       },
       "h_recent": {
-        "component": "Text7b65b150eb95",
+        "component": "Textd514fa7b4cc2",
         "layout": {
-          "x": 30.494545625611476,
-          "y": 357.1404958677686,
-          "w": 121.34599156118144,
-          "h": 19.231404958677686
+          "x": 32,
+          "y": 206,
+          "w": 240,
+          "h": 16
         }
       },
       "rec_0": {
-        "component": "Surface440fcab505cc",
+        "component": "Surface7a7bef822439",
         "layout": {
-          "x": 27.0,
-          "y": 386.0,
-          "w": 354.0,
-          "h": 68.0
+          "x": 32,
+          "y": 230,
+          "w": 342,
+          "h": 52
         }
       },
       "rec_0_name": {
-        "component": "Text928547f1884b",
+        "component": "Textef39c1926771",
         "layout": {
-          "x": 76.32284960801182,
-          "y": 401.2314049586777,
-          "w": 41.687763713080166,
-          "h": 15.223140495867769
+          "x": 44,
+          "y": 238,
+          "w": 160,
+          "h": 16
         }
       },
       "rec_0_br": {
@@ -138,21 +138,21 @@
         }
       },
       "rec_0_path": {
-        "component": "Text603efb899d6a",
+        "component": "Text09ef707ce916",
         "layout": {
-          "x": 32.197126030751356,
-          "y": 296.21487603305786,
-          "w": 132.48101265822785,
-          "h": 17.62809917355372
+          "x": 44,
+          "y": 260,
+          "w": 240,
+          "h": 14
         }
       },
       "rec_0_pick_row": {
         "component": "Group3d2637879433",
         "layout": {
-          "x": 44.0,
-          "y": 260.0,
-          "w": 200.0,
-          "h": 20.0
+          "x": 44,
+          "y": 260,
+          "w": 200,
+          "h": 20
         }
       },
       "rec_0_pick_t": {
@@ -167,28 +167,28 @@
       "rec_0_pick": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 44.0,
-          "y": 260.0,
-          "w": 200.0,
-          "h": 20.0
+          "x": 44,
+          "y": 260,
+          "w": 200,
+          "h": 20
         }
       },
       "rec_1": {
-        "component": "Surface064c7833fafa",
+        "component": "Surface7a7bef822439",
         "layout": {
-          "x": 30.0,
-          "y": 465.0,
-          "w": 348.0,
-          "h": 60.0
+          "x": 32,
+          "y": 288,
+          "w": 342,
+          "h": 52
         }
       },
       "rec_1_name": {
-        "component": "Text69bf28f6c848",
+        "component": "Textef39c1926771",
         "layout": {
-          "x": 76.32224759701582,
-          "y": 475.78512396694214,
-          "w": 106.78481012658227,
-          "h": 19.231404958677686
+          "x": 44,
+          "y": 296,
+          "w": 160,
+          "h": 16
         }
       },
       "rec_1_br": {
@@ -212,10 +212,10 @@
       "rec_1_pick_row": {
         "component": "Group3d2637879433",
         "layout": {
-          "x": 44.0,
-          "y": 318.0,
-          "w": 200.0,
-          "h": 20.0
+          "x": 44,
+          "y": 318,
+          "w": 200,
+          "h": 20
         }
       },
       "rec_1_pick_t": {
@@ -230,37 +230,37 @@
       "rec_1_pick": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 44.0,
-          "y": 318.0,
-          "w": 200.0,
-          "h": 20.0
+          "x": 44,
+          "y": 318,
+          "w": 200,
+          "h": 20
         }
       },
       "div1": {
         "component": "Surface19a87ed4ebd0",
         "layout": {
-          "x": 20.0,
-          "y": 352.0,
-          "w": 366.0,
-          "h": 1.0
+          "x": 20,
+          "y": 352,
+          "w": 366,
+          "h": 1
         }
       },
       "f_path_row": {
         "component": "Group3d2637879433",
         "layout": {
-          "x": 32.0,
-          "y": 372.0,
-          "w": 250.0,
-          "h": 40.0
+          "x": 32,
+          "y": 372,
+          "w": 250,
+          "h": 40
         }
       },
       "f_path_bg": {
-        "component": "Surface8f32acf329f5",
+        "component": "Surfaced4707dd25870",
         "layout": {
-          "x": 27.0,
-          "y": 463.0,
-          "w": 354.0,
-          "h": 65.0
+          "x": 32,
+          "y": 372,
+          "w": 250,
+          "h": 40
         }
       },
       "f_path_text": {
@@ -284,64 +284,64 @@
       "f_path": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 32.0,
-          "y": 372.0,
-          "w": 250.0,
-          "h": 40.0
+          "x": 32,
+          "y": 372,
+          "w": 250,
+          "h": 40
         }
       },
       "btn_enter_row": {
         "component": "Group3d2637879433",
         "layout": {
-          "x": 296.0,
-          "y": 372.0,
-          "w": 78.0,
-          "h": 40.0
+          "x": 296,
+          "y": 372,
+          "w": 78,
+          "h": 40
         }
       },
       "btn_enter_bg": {
-        "component": "Surface45ad8235d9cb",
+        "component": "Surface26187bf5e7ec",
         "layout": {
-          "x": 296.0,
-          "y": 605.0,
-          "w": 88.0,
-          "h": 46.0
+          "x": 296,
+          "y": 372,
+          "w": 78,
+          "h": 40
         }
       },
       "btn_enter_t": {
-        "component": "Textd77f02265dd6",
+        "component": "Textcd182d906e73",
         "layout": {
-          "x": 311.72748670200286,
-          "y": 614.4710743801653,
-          "w": 55.392405063291136,
-          "h": 28.049586776859503
+          "x": 296,
+          "y": 383.5,
+          "w": 78,
+          "h": 17.08
         }
       },
       "btn_enter": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 296.0,
-          "y": 372.0,
-          "w": 78.0,
-          "h": 40.0
+          "x": 296,
+          "y": 372,
+          "w": 78,
+          "h": 40
         }
       },
       "help_browse": {
-        "component": "Text17cda53f8d3d",
+        "component": "Text09ef707ce916",
         "layout": {
-          "x": 24.670311067737575,
-          "y": 672.99173553719,
-          "w": 224.13080168776372,
-          "h": 20.834710743801654
+          "x": 32,
+          "y": 424,
+          "w": 300,
+          "h": 14
         }
       },
       "btn_browse_row": {
         "component": "Group3d2637879433",
         "layout": {
-          "x": 32.0,
-          "y": 448.0,
-          "w": 200.0,
-          "h": 20.0
+          "x": 32,
+          "y": 448,
+          "w": 200,
+          "h": 20
         }
       },
       "btn_browse_t": {
@@ -356,10 +356,10 @@
       "btn_browse": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 32.0,
-          "y": 448.0,
-          "w": 200.0,
-          "h": 20.0
+          "x": 32,
+          "y": 448,
+          "w": 200,
+          "h": 20
         }
       }
     },

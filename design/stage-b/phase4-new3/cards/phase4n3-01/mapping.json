@@ -6,7 +6,7 @@
       "native_id": "beauty_0",
       "parent": null,
       "kind": "stack",
-      "component": "Surfaceb4206391250d",
+      "component": "Surfacef468f03a0025",
       "semantic_role": "layout",
       "bounds": [
         0,
@@ -24,13 +24,13 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "stack",
-      "component": "Surfaceb4206391250d",
+      "component": "Surfaceb101f26001b0",
       "semantic_role": "layout",
       "bounds": [
-        0.0,
-        0.0,
-        406.0,
-        776.0
+        0,
+        0,
+        406,
+        776
       ],
       "text": null,
       "enabled": null,
@@ -42,13 +42,13 @@
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "stack",
-      "component": "Surfacec84491d5e542",
+      "component": "Surface11a4cded75fe",
       "semantic_role": "layout",
       "bounds": [
-        16.0,
-        44.0,
-        374.0,
-        688.0
+        16,
+        44,
+        374,
+        688
       ],
       "text": null,
       "enabled": null,
@@ -60,18 +60,18 @@
       "native_id": "beauty_0_1_0",
       "parent": "modal_card",
       "kind": "text",
-      "component": "Textfbf1ad8d51e8",
+      "component": "Text840b7001f71f",
       "semantic_role": "text",
       "bounds": [
-        18.65553328306699,
-        22.049586776859503,
-        166.22462203023755,
-        24.041322314049587
+        32,
+        62,
+        240,
+        24.4
       ],
       "text": "Runtime inventory",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 20.656581831491472
+      "size": 20
     },
     {
       "source_id": "t_sub",
@@ -99,10 +99,10 @@
       "component": "Group3d2637879433",
       "semantic_role": "layout",
       "bounds": [
-        32.0,
-        116.0,
-        342.0,
-        40.0
+        32,
+        116,
+        342,
+        40
       ],
       "text": null,
       "enabled": null,
@@ -114,13 +114,13 @@
       "native_id": "beauty_0_1_2_0",
       "parent": "f_search_row",
       "kind": "stack",
-      "component": "Surfaceff94531b9647",
+      "component": "Surfaced4707dd25870",
       "semantic_role": "layout",
       "bounds": [
-        14.0,
-        123.0,
-        378.0,
-        41.0
+        32,
+        116,
+        342,
+        40
       ],
       "text": null,
       "enabled": null,
@@ -132,18 +132,18 @@
       "native_id": "beauty_0_1_2_1",
       "parent": "f_search_row",
       "kind": "text",
-      "component": "Textd68be3cb570d",
+      "component": "Text0caa141626b1",
       "semantic_role": "text",
       "bounds": [
-        59.56005822228463,
-        78.96694214876032,
-        220.59179265658744,
-        19.231404958677686
+        44,
+        127.0,
+        318,
+        18
       ],
       "text": "Search names, status, or tools\u2026",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 16.69016444910214
+      "size": 14
     },
     {
       "source_id": "f_search",
@@ -153,10 +153,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        32.0,
-        116.0,
-        342.0,
-        40.0
+        32,
+        116,
+        342,
+        40
       ],
       "text": null,
       "enabled": 1,
@@ -168,13 +168,13 @@
       "native_id": "beauty_0_1_3",
       "parent": "modal_card",
       "kind": "stack",
-      "component": "Surfaceace499df8cc9",
+      "component": "Surface566158604ce0",
       "semantic_role": "layout",
       "bounds": [
-        32.0,
-        168.0,
+        32,
+        168,
         50.1,
-        20.0
+        20
       ],
       "text": null,
       "enabled": null,
@@ -186,31 +186,31 @@
       "native_id": "beauty_0_1_3_0",
       "parent": "tab_tools_fill",
       "kind": "text",
-      "component": "Text7b903ab1056f",
+      "component": "Textb014b7fa954a",
       "semantic_role": "text",
       "bounds": [
-        83.67542435685729,
-        131.07438016528926,
-        50.475161987041034,
-        27.24793388429752
+        40,
+        171,
+        34.1,
+        14
       ],
       "text": "Tools",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 31.468452475242117
+      "size": 11
     },
     {
       "source_id": "tab_mcp_fill",
       "native_id": "beauty_0_1_4",
       "parent": "modal_card",
       "kind": "stack",
-      "component": "Surfaceace499df8cc9",
+      "component": "Surface7b33a3d4a9a8",
       "semantic_role": "layout",
       "bounds": [
-        104.0,
-        168.0,
+        104,
+        168,
         91.0,
-        20.0
+        20
       ],
       "text": null,
       "enabled": null,
@@ -222,18 +222,18 @@
       "native_id": "beauty_0_1_4_0",
       "parent": "tab_mcp_fill",
       "kind": "text",
-      "component": "Textaed5042e46ce",
+      "component": "Text4a1bcd055c05",
       "semantic_role": "text",
       "bounds": [
-        253.00380246399357,
-        135.08264462809916,
-        85.55075593952483,
-        16.02479338842975
+        112,
+        171,
+        75.0,
+        14
       ],
       "text": "MCP servers",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 16.064433698306672
+      "size": 11
     },
     {
       "source_id": "tab_tools_row",
@@ -243,10 +243,10 @@
       "component": "Group3d2637879433",
       "semantic_role": "layout",
       "bounds": [
-        32.0,
-        168.0,
-        60.0,
-        20.0
+        32,
+        168,
+        60,
+        20
       ],
       "text": null,
       "enabled": null,
@@ -279,10 +279,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        32.0,
-        168.0,
-        60.0,
-        20.0
+        32,
+        168,
+        60,
+        20
       ],
       "text": null,
       "enabled": 1,
@@ -297,10 +297,10 @@
       "component": "Group3d2637879433",
       "semantic_role": "layout",
       "bounds": [
-        104.0,
-        168.0,
-        92.0,
-        20.0
+        104,
+        168,
+        92,
+        20
       ],
       "text": null,
       "enabled": null,
@@ -333,10 +333,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        104.0,
-        168.0,
-        92.0,
-        20.0
+        104,
+        168,
+        92,
+        20
       ],
       "text": null,
       "enabled": 1,
@@ -348,31 +348,31 @@
       "native_id": "beauty_0_1_7",
       "parent": "modal_card",
       "kind": "text",
-      "component": "Text742be2180f8c",
+      "component": "Text1413998a2de4",
       "semantic_role": "text",
       "bounds": [
-        17.016957914929613,
-        189.59504132231405,
-        24.168466522678184,
-        13.6198347107438
+        32,
+        208,
+        120,
+        13.42
       ],
       "text": "TOOLS",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 12.851546958645338
+      "size": 11
     },
     {
       "source_id": "tool_0",
       "native_id": "beauty_0_1_8",
       "parent": "modal_card",
       "kind": "stack",
-      "component": "Surface2783ecd8c5e4",
+      "component": "Surface7a7bef822439",
       "semantic_role": "layout",
       "bounds": [
-        32.0,
-        230.0,
-        342.0,
-        52.0
+        32,
+        230,
+        342,
+        52
       ],
       "text": null,
       "enabled": null,
@@ -438,13 +438,13 @@
       "native_id": "beauty_0_1_8_3",
       "parent": "tool_0",
       "kind": "stack",
-      "component": "Surfacef79cb3de0a11",
+      "component": "Surfaced58a017b209b",
       "semantic_role": "layout",
       "bounds": [
-        165.0,
-        220.0,
-        57.0,
-        26.0
+        296,
+        236,
+        59.4,
+        20
       ],
       "text": null,
       "enabled": null,
@@ -456,18 +456,18 @@
       "native_id": "beauty_0_1_8_3_0",
       "parent": "tool_0_st",
       "kind": "text",
-      "component": "Text842e43fd4032",
+      "component": "Textb0ce4ee563f0",
       "semantic_role": "text",
       "bounds": [
-        173.0146163801536,
-        225.6694214876033,
-        43.46004319654427,
-        13.6198347107438
+        304,
+        239,
+        43.4,
+        14
       ],
       "text": "enabled",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 13.004238605678749
+      "size": 10
     },
     {
       "source_id": "tool_0_be",
@@ -492,31 +492,31 @@
       "native_id": "beauty_0_1_8_5",
       "parent": "tool_0",
       "kind": "text",
-      "component": "Textaf16c7e5875d",
+      "component": "Text638628278134",
       "semantic_role": "text",
       "bounds": [
-        371.1387377440651,
-        225.6694214876033,
-        16.27645788336933,
-        14.421487603305785
+        340,
+        248,
+        24,
+        16
       ],
       "text": "12",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14.134573914947184
+      "size": 13
     },
     {
       "source_id": "tool_1",
       "native_id": "beauty_0_1_9",
       "parent": "modal_card",
       "kind": "stack",
-      "component": "Surface2783ecd8c5e4",
+      "component": "Surface7a7bef822439",
       "semantic_role": "layout",
       "bounds": [
-        32.0,
-        288.0,
-        342.0,
-        52.0
+        32,
+        288,
+        342,
+        52
       ],
       "text": null,
       "enabled": null,
@@ -528,18 +528,18 @@
       "native_id": "beauty_0_1_9_0",
       "parent": "tool_1",
       "kind": "text",
-      "component": "Text78aa6e26f793",
+      "component": "Textef39c1926771",
       "semantic_role": "text",
       "bounds": [
-        238.34322395522486,
-        226.47107438016528,
-        27.676025917926562,
-        13.6198347107438
+        44,
+        296,
+        180,
+        16
       ],
       "text": "Read",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 13.004238605678749
+      "size": 13
     },
     {
       "source_id": "tool_1_cat",
@@ -582,13 +582,13 @@
       "native_id": "beauty_0_1_9_3",
       "parent": "tool_1",
       "kind": "stack",
-      "component": "Surfacec27587a604c6",
+      "component": "Surfaced58a017b209b",
       "semantic_role": "layout",
       "bounds": [
-        165.0,
-        288.0,
-        57.0,
-        27.0
+        296,
+        294,
+        59.4,
+        20
       ],
       "text": null,
       "enabled": null,
@@ -600,18 +600,18 @@
       "native_id": "beauty_0_1_9_3_0",
       "parent": "tool_1_st",
       "kind": "text",
-      "component": "Text2a7ce1d39931",
+      "component": "Textb0ce4ee563f0",
       "semantic_role": "text",
       "bounds": [
-        173.0146163801536,
-        294.61157024793386,
-        43.46004319654427,
-        13.6198347107438
+        304,
+        297,
+        43.4,
+        14
       ],
       "text": "enabled",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 13.004238605678749
+      "size": 10
     },
     {
       "source_id": "tool_1_be",
@@ -654,13 +654,13 @@
       "native_id": "beauty_0_1_10",
       "parent": "modal_card",
       "kind": "stack",
-      "component": "Surface848fcef5f070",
+      "component": "Surface7a7bef822439",
       "semantic_role": "layout",
       "bounds": [
-        32.0,
-        346.0,
-        342.0,
-        52.0
+        32,
+        346,
+        342,
+        52
       ],
       "text": null,
       "enabled": null,
@@ -726,13 +726,13 @@
       "native_id": "beauty_0_1_10_3",
       "parent": "tool_2",
       "kind": "stack",
-      "component": "Surface27bcba17990c",
+      "component": "Surface3ec9062c8dc7",
       "semantic_role": "layout",
       "bounds": [
-        165.0,
-        389.0,
-        57.0,
-        27.0
+        296,
+        352,
+        65.6,
+        20
       ],
       "text": null,
       "enabled": null,
@@ -744,18 +744,18 @@
       "native_id": "beauty_0_1_10_3_0",
       "parent": "tool_2_st",
       "kind": "text",
-      "component": "Text907efb153107",
+      "component": "Textb0ce4ee563f0",
       "semantic_role": "text",
       "bounds": [
-        172.16094838599452,
-        396.42148760330576,
-        46.09071274298056,
-        13.6198347107438
+        304,
+        355,
+        49.6,
+        14
       ],
       "text": "disabled",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 12.50883903974813
+      "size": 10
     },
     {
       "source_id": "tool_2_be",
@@ -816,31 +816,31 @@
       "native_id": "beauty_0_1_12",
       "parent": "modal_card",
       "kind": "text",
-      "component": "Textea7fd951075e",
+      "component": "Text09ef707ce916",
       "semantic_role": "text",
       "bounds": [
-        14.324107144305989,
-        513.4628099173553,
-        190.77753779697622,
-        15.223140495867769
+        150,
+        410,
+        224,
+        14
       ],
       "text": "connected \u00b7 2    connecting \u00b7 1    failed \u00b7 0",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 11.48101485291568
+      "size": 11
     },
     {
       "source_id": "srv_0",
       "native_id": "beauty_0_1_13",
       "parent": "modal_card",
       "kind": "stack",
-      "component": "Surfacece4417baa3e2",
+      "component": "Surface7a7bef822439",
       "semantic_role": "layout",
       "bounds": [
-        32.0,
-        432.0,
-        342.0,
-        48.0
+        32,
+        432,
+        342,
+        48
       ],
       "text": null,
       "enabled": null,
@@ -888,13 +888,13 @@
       "native_id": "beauty_0_1_13_2",
       "parent": "srv_0",
       "kind": "stack",
-      "component": "Surface13e8967d194b",
+      "component": "Surfaced58a017b209b",
       "semantic_role": "layout",
       "bounds": [
-        262.0,
-        444.0,
+        262,
+        444,
         10.0,
-        20.0
+        20
       ],
       "text": null,
       "enabled": null,
@@ -924,13 +924,13 @@
       "native_id": "beauty_0_1_13_3",
       "parent": "srv_0",
       "kind": "stack",
-      "component": "Surface9a8cd682e1c3",
+      "component": "Surface5263a122e2e4",
       "semantic_role": "layout",
       "bounds": [
-        200.0,
-        439.0,
+        200,
+        439,
         47.0,
-        20.0
+        20
       ],
       "text": null,
       "enabled": null,
@@ -942,49 +942,49 @@
       "native_id": "beauty_0_1_13_3_0",
       "parent": "srv_0_tr",
       "kind": "text",
-      "component": "Text10691c472e44",
+      "component": "Textb0ce4ee563f0",
       "semantic_role": "text",
       "bounds": [
-        93.22788527766029,
-        611.2644628099174,
-        32.06047516198704,
-        13.6198347107438
+        208,
+        442,
+        31.0,
+        14
       ],
       "text": "stdio",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 12.524743475908013
+      "size": 10
     },
     {
       "source_id": "srv_0_tc",
       "native_id": "beauty_0_1_13_4",
       "parent": "srv_0",
       "kind": "text",
-      "component": "Textc7c37f2c236b",
+      "component": "Text638628278134",
       "semantic_role": "text",
       "bounds": [
-        375.3547507040467,
-        327.4793388429752,
-        9.26133909287257,
-        14.421487603305785
+        340,
+        440,
+        24,
+        16
       ],
       "text": "6",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 13.94980824285637
+      "size": 13
     },
     {
       "source_id": "srv_1",
       "native_id": "beauty_0_1_14",
       "parent": "modal_card",
       "kind": "stack",
-      "component": "Surfacece4417baa3e2",
+      "component": "Surface7a7bef822439",
       "semantic_role": "layout",
       "bounds": [
-        32.0,
-        486.0,
-        342.0,
-        48.0
+        32,
+        486,
+        342,
+        48
       ],
       "text": null,
       "enabled": null,
@@ -1032,13 +1032,13 @@
       "native_id": "beauty_0_1_14_2",
       "parent": "srv_1",
       "kind": "stack",
-      "component": "Surfaceb34ef683799a",
+      "component": "Surface39fbc2f19eae",
       "semantic_role": "layout",
       "bounds": [
-        262.0,
-        498.0,
+        262,
+        498,
         10.0,
-        20.0
+        20
       ],
       "text": null,
       "enabled": null,
@@ -1068,13 +1068,13 @@
       "native_id": "beauty_0_1_14_3",
       "parent": "srv_1",
       "kind": "stack",
-      "component": "Surfaceace499df8cc9",
+      "component": "Surface5263a122e2e4",
       "semantic_role": "layout",
       "bounds": [
-        200.0,
-        493.0,
+        200,
+        493,
         40.8,
-        20.0
+        20
       ],
       "text": null,
       "enabled": null,
@@ -1086,72 +1086,72 @@
       "native_id": "beauty_0_1_14_3_0",
       "parent": "srv_1_tr",
       "kind": "text",
-      "component": "Textf987c4a905a0",
+      "component": "Textb0ce4ee563f0",
       "semantic_role": "text",
       "bounds": [
-        93.70918016563351,
-        677.801652892562,
-        28.552915766738657,
-        16.826446280991735
+        208,
+        496,
+        24.8,
+        14
       ],
       "text": "http",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 13.767590138087565
+      "size": 10
     },
     {
       "source_id": "srv_1_tc",
       "native_id": "beauty_0_1_14_4",
       "parent": "srv_1",
       "kind": "text",
-      "component": "Text9b6307f4227b",
+      "component": "Text638628278134",
       "semantic_role": "text",
       "bounds": [
-        260.70158280545365,
-        578.396694214876,
-        15.399568034557234,
-        13.6198347107438
+        340,
+        494,
+        24,
+        16
       ],
       "text": "12",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 13.047298998412783
+      "size": 13
     },
     {
       "source_id": "empty_tools",
       "native_id": "beauty_0_1_15",
       "parent": "modal_card",
       "kind": "text",
-      "component": "Text3187ddd728c0",
+      "component": "Texta07edffbdc18",
       "semantic_role": "text",
       "bounds": [
-        270.5247196779883,
-        462.1570247933884,
-        115.36501079913606,
-        18.429752066115704
+        236,
+        544,
+        138,
+        14
       ],
       "text": "No matching tools.",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 14.917785073904572
+      "size": 11
     },
     {
       "source_id": "empty_servers",
       "native_id": "beauty_0_1_16",
       "parent": "modal_card",
       "kind": "text",
-      "component": "Texta69276cb00a0",
+      "component": "Texta07edffbdc18",
       "semantic_role": "text",
       "bounds": [
-        245.82612241638728,
-        721.0909090909091,
-        139.91792656587472,
-        20.03305785123967
+        236,
+        562,
+        138,
+        14
       ],
       "text": "No matching servers.",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 16.575316748782857
+      "size": 11
     },
     {
       "source_id": "btn_close_row",
@@ -1161,10 +1161,10 @@
       "component": "Group3d2637879433",
       "semantic_role": "layout",
       "bounds": [
-        330.0,
-        60.0,
-        24.0,
-        20.0
+        330,
+        60,
+        24,
+        20
       ],
       "text": null,
       "enabled": null,
@@ -1197,10 +1197,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        330.0,
-        60.0,
-        24.0,
-        20.0
+        330,
+        60,
+        24,
+        20
       ],
       "text": null,
       "enabled": 1,

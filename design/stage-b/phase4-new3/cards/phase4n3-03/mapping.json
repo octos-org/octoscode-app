@@ -6,7 +6,7 @@
       "native_id": "beauty_0",
       "parent": null,
       "kind": "stack",
-      "component": "Surfaceb4206391250d",
+      "component": "Surfacef468f03a0025",
       "semantic_role": "layout",
       "bounds": [
         0,
@@ -24,13 +24,13 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "stack",
-      "component": "Surfaceb4206391250d",
+      "component": "Surfaceb101f26001b0",
       "semantic_role": "layout",
       "bounds": [
-        10.0,
-        45.0,
-        388.0,
-        727.0
+        0,
+        0,
+        406,
+        776
       ],
       "text": null,
       "enabled": null,
@@ -42,13 +42,13 @@
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "stack",
-      "component": "Surface5e6bef633a6b",
+      "component": "Surface11a4cded75fe",
       "semantic_role": "layout",
       "bounds": [
-        16.0,
-        64.0,
-        374.0,
-        640.0
+        16,
+        64,
+        374,
+        640
       ],
       "text": null,
       "enabled": null,
@@ -60,18 +60,18 @@
       "native_id": "beauty_0_1_0",
       "parent": "modal_card",
       "kind": "text",
-      "component": "Text63903e53d76f",
+      "component": "Text840b7001f71f",
       "semantic_role": "text",
       "bounds": [
-        35.04318418383598,
-        75.7603305785124,
-        139.33333333333334,
-        24.041322314049587
+        32,
+        82,
+        240,
+        24.4
       ],
       "text": "Add workspace",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 21.511859590761823
+      "size": 20
     },
     {
       "source_id": "btn_back_row",
@@ -81,10 +81,10 @@
       "component": "Group3d2637879433",
       "semantic_role": "layout",
       "bounds": [
-        32.0,
-        112.0,
-        200.0,
-        20.0
+        32,
+        112,
+        200,
+        20
       ],
       "text": null,
       "enabled": null,
@@ -96,18 +96,18 @@
       "native_id": "beauty_0_1_1_0",
       "parent": "btn_back_row",
       "kind": "text",
-      "component": "Text1fddb37dbea1",
+      "component": "Text7d630b6bd848",
       "semantic_role": "text",
       "bounds": [
-        34.055823440900625,
-        427.6859504132231,
-        135.86324786324786,
-        20.03305785123967
+        32,
+        112,
+        200,
+        17
       ],
       "text": "Back to workspaces",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 17.209487672609455
+      "size": 12
     },
     {
       "source_id": "btn_back",
@@ -117,10 +117,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        32.0,
-        112.0,
-        200.0,
-        20.0
+        32,
+        112,
+        200,
+        20
       ],
       "text": null,
       "enabled": 1,
@@ -135,10 +135,10 @@
       "component": "Group3d2637879433",
       "semantic_role": "layout",
       "bounds": [
-        32.0,
-        150.0,
-        250.0,
-        40.0
+        32,
+        150,
+        250,
+        40
       ],
       "text": null,
       "enabled": null,
@@ -150,13 +150,13 @@
       "native_id": "beauty_0_1_2_0",
       "parent": "f_folder_row",
       "kind": "stack",
-      "component": "Surface113f7a239053",
+      "component": "Surfaced4707dd25870",
       "semantic_role": "layout",
       "bounds": [
-        13.0,
-        122.0,
-        383.0,
-        107.0
+        32,
+        150,
+        250,
+        40
       ],
       "text": null,
       "enabled": null,
@@ -168,18 +168,18 @@
       "native_id": "beauty_0_1_2_1",
       "parent": "f_folder_row",
       "kind": "text",
-      "component": "Textc809c3186b56",
+      "component": "Textc9b85a486b80",
       "semantic_role": "text",
       "bounds": [
-        47.59165629194039,
-        312.24793388429754,
-        44.405208250556264,
-        12.818181818181818
+        44,
+        161.0,
+        226,
+        18
       ],
       "text": "notes",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 12.826446280991735
+      "size": 13
     },
     {
       "source_id": "f_folder",
@@ -189,10 +189,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        32.0,
-        150.0,
-        250.0,
-        40.0
+        32,
+        150,
+        250,
+        40
       ],
       "text": null,
       "enabled": 1,
@@ -207,10 +207,10 @@
       "component": "Group3d2637879433",
       "semantic_role": "layout",
       "bounds": [
-        296.0,
-        150.0,
-        78.0,
-        40.0
+        296,
+        150,
+        78,
+        40
       ],
       "text": null,
       "enabled": null,
@@ -222,13 +222,13 @@
       "native_id": "beauty_0_1_3_0",
       "parent": "btn_create_row",
       "kind": "stack",
-      "component": "Surfaceac0cb337fe76",
+      "component": "Surface26187bf5e7ec",
       "semantic_role": "layout",
       "bounds": [
-        326.0,
-        697.0,
-        58.0,
-        44.0
+        296,
+        150,
+        78,
+        40
       ],
       "text": null,
       "enabled": null,
@@ -240,18 +240,18 @@
       "native_id": "beauty_0_1_3_1",
       "parent": "btn_create_row",
       "kind": "text",
-      "component": "Text7ccfeff4ee7f",
+      "component": "Textcd182d906e73",
       "semantic_role": "text",
       "bounds": [
-        170.92534071725663,
-        373.1735537190083,
-        65.59401709401709,
-        27.24793388429752
+        296,
+        161.5,
+        78,
+        17.08
       ],
       "text": "Create",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 31.017438824131155
+      "size": 14
     },
     {
       "source_id": "btn_create",
@@ -261,10 +261,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        296.0,
-        150.0,
-        78.0,
-        40.0
+        296,
+        150,
+        78,
+        40
       ],
       "text": null,
       "enabled": 1,
@@ -312,18 +312,18 @@
       "native_id": "beauty_0_1_6",
       "parent": "modal_card",
       "kind": "text",
-      "component": "Text1aea6a8e9edc",
+      "component": "Textc9b85a486b80",
       "semantic_role": "text",
       "bounds": [
-        35.196308470258735,
-        179.17355371900825,
-        142.80341880341882,
-        18.429752066115704
+        32,
+        250,
+        200,
+        16
       ],
       "text": "/home/user/octos",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 16.56509654226735
+      "size": 13
     },
     {
       "source_id": "btn_drill_row",
@@ -333,10 +333,10 @@
       "component": "Group3d2637879433",
       "semantic_role": "layout",
       "bounds": [
-        32.0,
-        286.0,
-        200.0,
-        20.0
+        32,
+        286,
+        200,
+        20
       ],
       "text": null,
       "enabled": null,
@@ -369,10 +369,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        32.0,
-        286.0,
-        200.0,
-        20.0
+        32,
+        286,
+        200,
+        20
       ],
       "text": null,
       "enabled": 1,
@@ -387,10 +387,10 @@
       "component": "Group3d2637879433",
       "semantic_role": "layout",
       "bounds": [
-        32.0,
-        286.0,
-        260.0,
-        20.0
+        32,
+        286,
+        260,
+        20
       ],
       "text": null,
       "enabled": null,
@@ -423,10 +423,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        32.0,
-        286.0,
-        260.0,
-        20.0
+        32,
+        286,
+        260,
+        20
       ],
       "text": null,
       "enabled": 0,
@@ -438,13 +438,13 @@
       "native_id": "beauty_0_1_9",
       "parent": "modal_card",
       "kind": "stack",
-      "component": "Surfaced1a627811bff",
+      "component": "Surfaced4707dd25870",
       "semantic_role": "layout",
       "bounds": [
-        33.0,
-        362.0,
-        342.0,
-        47.0
+        32,
+        330,
+        342,
+        44
       ],
       "text": null,
       "enabled": null,
@@ -456,18 +456,18 @@
       "native_id": "beauty_0_1_10",
       "parent": "modal_card",
       "kind": "text",
-      "component": "Textab1329fc996a",
+      "component": "Text6d079c80f2e2",
       "semantic_role": "text",
       "bounds": [
-        33.35542327277865,
-        493.42148760330576,
-        160.77565192528223,
-        20.834710743801654
+        44,
+        342,
+        200,
+        16
       ],
       "text": "\u00b7 3 existing folders",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 17.22152227937352
+      "size": 12
     },
     {
       "source_id": "disc_l",
