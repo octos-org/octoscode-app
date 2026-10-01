@@ -1,0 +1,98 @@
+{
+  "width": 812.0,
+  "height": 1552.0,
+  "observations": [
+    {
+      "bounds": [
+        160.1444,
+        0.0,
+        455.6222,
+        25.0
+      ],
+      "confidence": 1.0,
+      "text": "enter server and token instead"
+    },
+    {
+      "bounds": [
+        -0.1759,
+        143.4165,
+        228.163,
+        44.7716
+      ],
+      "confidence": 1.0,
+      "text": "4. Can't pair"
+    },
+    {
+      "bounds": [
+        212.6667,
+        316.8667,
+        380.2222,
+        58.2
+      ],
+      "confidence": 1.0,
+      "text": "Pair with Octos"
+    },
+    {
+      "bounds": [
+        203.0,
+        485.0,
+        415.0222,
+        41.0
+      ],
+      "confidence": 1.0,
+      "text": "This server doesn't support"
+    },
+    {
+      "bounds": [
+        205.0304,
+        536.2239,
+        117.7393,
+        41.9243
+      ],
+      "confidence": 1.0,
+      "text": "pairing."
+    },
+    {
+      "bounds": [
+        94.3565,
+        718.5899,
+        424.828,
+        42.7616
+      ],
+      "confidence": 1.0,
+      "text": "Octos on another computer"
+    },
+    {
+      "bounds": [
+        94.7333,
+        776.0,
+        304.5,
+        41.0
+      ],
+      "confidence": 1.0,
+      "text": "must be paired from"
+    },
+    {
+      "bounds": [
+        94.5947,
+        829.2979,
+        228.0885,
+        40.032
+      ],
+      "confidence": 1.0,
+      "text": "that computer."
+    },
+    {
+      "bounds": [
+        207.5111,
+        1161.7442,
+        338.3333,
+        36.2558
+      ],
+      "confidence": 1.0,
+      "text": "Use server and token"
+    }
+  ],
+  "image_sha256": "6c5d01edd66c6d4f140a5df01ff802189d0c14a826a3c7db7a597959c5118910",
+  "engine": "Apple Vision VNRecognizeTextRequest accurate, en-US (pyobjc)"
+}

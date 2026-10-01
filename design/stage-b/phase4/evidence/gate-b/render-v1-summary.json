@@ -1,0 +1,65 @@
+[
+  {
+    "scene": "01",
+    "port": 8350,
+    "png": "<TMP>/peer-tmp/makepad-remote/beauty-host-19270/grab-w0-00001.png",
+    "font_warnings": 0,
+    "widgets": 42
+  },
+  {
+    "scene": "02",
+    "port": 8351,
+    "png": "<TMP>/peer-tmp/makepad-remote/beauty-host-19572/grab-w0-00001.png",
+    "font_warnings": 0,
+    "widgets": 29
+  },
+  {
+    "scene": "03",
+    "port": 8352,
+    "png": "<TMP>/peer-tmp/makepad-remote/beauty-host-19848/grab-w0-00001.png",
+    "font_warnings": 0,
+    "widgets": 35
+  },
+  {
+    "scene": "04",
+    "port": 8353,
+    "png": "<TMP>/peer-tmp/makepad-remote/beauty-host-20129/grab-w0-00001.png",
+    "font_warnings": 0,
+    "widgets": 32
+  },
+  {
+    "scene": "05",
+    "port": 8354,
+    "png": "<TMP>/peer-tmp/makepad-remote/beauty-host-20286/grab-w0-00001.png",
+    "font_warnings": 0,
+    "widgets": 34
+  },
+  {
+    "scene": "06",
+    "port": 8355,
+    "png": "<TMP>/peer-tmp/makepad-remote/beauty-host-20540/grab-w0-00001.png",
+    "font_warnings": 0,
+    "widgets": 52
+  },
+  {
+    "scene": "07",
+    "port": 8356,
+    "png": "<TMP>/peer-tmp/makepad-remote/beauty-host-20814/grab-w0-00001.png",
+    "font_warnings": 0,
+    "widgets": 57
+  },
+  {
+    "scene": "08",
+    "port": 8357,
+    "png": "<TMP>/peer-tmp/makepad-remote/beauty-host-21076/grab-w0-00001.png",
+    "font_warnings": 0,
+    "widgets": 45
+  },
+  {
+    "scene": "09",
+    "port": 8358,
+    "png": "<TMP>/peer-tmp/makepad-remote/beauty-host-21219/grab-w0-00001.png",
+    "font_warnings": 0,
+    "widgets": 32
+  }
+]

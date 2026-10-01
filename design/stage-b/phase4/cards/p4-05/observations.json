@@ -1,0 +1,368 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "4e6f37456011fe135f2e1c67be547f91a2726d5b43bec4ceab0c6b9ef5eb55bd",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t_title",
+      "expected_text": "Connection",
+      "requested_bounds": [
+        125.53,
+        164.25,
+        151.72,
+        36.0
+      ],
+      "status": "observed",
+      "ocr_text": "Connection",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        130.5,
+        168.5,
+        143.5,
+        21.5
+      ],
+      "ink_color": [
+        12,
+        12,
+        12
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        125.53035,
+        164.25375,
+        151.71705,
+        33.62585
+      ]
+    },
+    {
+      "id": "t_srv_k",
+      "expected_text": "Server",
+      "requested_bounds": [
+        41.52,
+        247.48,
+        56.8,
+        22.5
+      ],
+      "status": "observed",
+      "ocr_text": "Server",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        43.0,
+        249.0,
+        52.0,
+        15.5
+      ],
+      "ink_color": [
+        19,
+        19,
+        20
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        41.52365,
+        247.48005,
+        56.79715,
+        19.3655
+      ]
+    },
+    {
+      "id": "t_srv_v",
+      "expected_text": "192.168.1.20:50190",
+      "requested_bounds": [
+        206.38,
+        248.14,
+        161.27,
+        22.5
+      ],
+      "status": "observed",
+      "ocr_text": "192.168.1.20:50190",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        210.5,
+        249.5,
+        155.0,
+        15.0
+      ],
+      "ink_color": [
+        84,
+        84,
+        84
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        206.38335,
+        248.13955,
+        161.2722,
+        21.43025
+      ]
+    },
+    {
+      "id": "t_pair_k",
+      "expected_text": "Paired",
+      "requested_bounds": [
+        40.5,
+        317.76,
+        57.72,
+        22.5
+      ],
+      "status": "observed",
+      "ocr_text": "Paired",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        43.5,
+        319.0,
+        51.5,
+        15.5
+      ],
+      "ink_color": [
+        25,
+        24,
+        25
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        40.49665,
+        317.75515,
+        57.7234,
+        19.80365
+      ]
+    },
+    {
+      "id": "t_pair_v",
+      "expected_text": "Today, 9:41 PM",
+      "requested_bounds": [
+        244.56,
+        317.07,
+        122.14,
+        23.43
+      ],
+      "status": "observed",
+      "ocr_text": "Today, 9:41 PM",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        246.5,
+        319.0,
+        118.5,
+        20.0
+      ],
+      "ink_color": [
+        88,
+        88,
+        88
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        244.56015,
+        317.07225,
+        122.1352,
+        23.4253
+      ]
+    },
+    {
+      "id": "t_stays",
+      "expected_text": "Stays on this device only",
+      "requested_bounds": [
+        41.73,
+        388.0,
+        212.02,
+        21.5
+      ],
+      "status": "observed",
+      "ocr_text": "Stays on this device only",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        43.0,
+        388.5,
+        209.0,
+        20.0
+      ],
+      "ink_color": [
+        19,
+        19,
+        20
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        41.7278,
+        388.0,
+        212.0222,
+        21.5
+      ]
+    },
+    {
+      "id": "pair_forget_label",
+      "expected_text": "Forget this device",
+      "requested_bounds": [
+        117.0,
+        618.0,
+        158.0,
+        24.0
+      ],
+      "status": "observed",
+      "ocr_text": "Forget this device",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        118.5,
+        620.5,
+        153.0,
+        21.0
+      ],
+      "ink_color": [
+        206,
+        17,
+        17
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        117.2889,
+        619.0,
+        156.7611,
+        23.0
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "pair_back_chev",
+      "bounds": [
+        15.0,
+        130.0,
+        14.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "pair_back_control",
+      "bounds": [
+        5.0,
+        121.0,
+        34.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "conn_card",
+      "bounds": [
+        21.0,
+        223.0,
+        362.0,
+        207.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 12.67
+    },
+    {
+      "id": "conn_div1",
+      "bounds": [
+        36.0,
+        296.0,
+        334.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "conn_div2",
+      "bounds": [
+        36.0,
+        366.0,
+        334.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "pair_forget",
+      "bounds": [
+        117.0,
+        608.0,
+        172.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "pair_forget_surface",
+      "bounds": [
+        117.0,
+        608.0,
+        172.0,
+        40.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901245
+    },
+    {
+      "id": "pair_forget_control",
+      "bounds": [
+        117.0,
+        608.0,
+        172.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        -0.1633,
+        154.9074,
+        171.7489,
+        39.8363
+      ],
+      "confidence": 1.0,
+      "text": "5. Paired"
+    },
+    {
+      "bounds": [
+        29.3222,
+        252.6512,
+        49.6222,
+        72.186
+      ],
+      "confidence": 1.0,
+      "text": "<"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

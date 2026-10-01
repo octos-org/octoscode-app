@@ -1,0 +1,118 @@
+{
+  "width": 812.0,
+  "height": 1552.0,
+  "observations": [
+    {
+      "bounds": [
+        0.0,
+        -0.0,
+        315.7778,
+        38.3488
+      ],
+      "confidence": 1.0,
+      "text": "1. Pair this device"
+    },
+    {
+      "bounds": [
+        212.0222,
+        180.0,
+        390.2111,
+        48.0
+      ],
+      "confidence": 1.0,
+      "text": "Pair with Octos"
+    },
+    {
+      "bounds": [
+        604.4889,
+        309.0465,
+        58.6444,
+        58.6512
+      ],
+      "confidence": 0.5,
+      "text": "7"
+    },
+    {
+      "bounds": [
+        146.6111,
+        606.814,
+        54.1333,
+        56.3953
+      ],
+      "confidence": 1.0,
+      "text": "L"
+    },
+    {
+      "bounds": [
+        135.3333,
+        721.8605,
+        539.0778,
+        38.3488
+      ],
+      "confidence": 1.0,
+      "text": "Scan the pairing QR shown in Octos"
+    },
+    {
+      "bounds": [
+        272.5586,
+        772.835,
+        271.5038,
+        34.3319
+      ],
+      "confidence": 1.0,
+      "text": "on your computer"
+    },
+    {
+      "bounds": [
+        387.9556,
+        852.6977,
+        38.3444,
+        24.814
+      ],
+      "confidence": 1.0,
+      "text": "Or"
+    },
+    {
+      "bounds": [
+        63.1556,
+        927.0,
+        250.3667,
+        36.2326
+      ],
+      "confidence": 1.0,
+      "text": "Paste pairing link"
+    },
+    {
+      "bounds": [
+        87.9667,
+        1010.6047,
+        340.5889,
+        36.093
+      ],
+      "confidence": 1.0,
+      "text": "octos://pair?code=..."
+    },
+    {
+      "bounds": [
+        369.9111,
+        1159.4884,
+        67.6667,
+        33.8372
+      ],
+      "confidence": 1.0,
+      "text": "Pair"
+    },
+    {
+      "bounds": [
+        162.4,
+        1276.7907,
+        20.3,
+        11.2791
+      ],
+      "confidence": 1.0,
+      "text": "-"
+    }
+  ],
+  "image_sha256": "0e6b248781a866d372cf882b759075f7ea03a0d6ce0d8560a4a554b4ee6c97b1",
+  "engine": "Apple Vision VNRecognizeTextRequest accurate, en-US (pyobjc)"
+}

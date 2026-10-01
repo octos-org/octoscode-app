@@ -1,0 +1,68 @@
+{
+  "width": 812.0,
+  "height": 1552.0,
+  "observations": [
+    {
+      "bounds": [
+        -0.2335,
+        -1.3118,
+        221.5114,
+        43.2282
+      ],
+      "confidence": 1.0,
+      "text": "2. Pairing..."
+    },
+    {
+      "bounds": [
+        33.8333,
+        108.2791,
+        42.8556,
+        63.1628
+      ],
+      "confidence": 1.0,
+      "text": "<"
+    },
+    {
+      "bounds": [
+        212.0222,
+        194.0,
+        387.9556,
+        45.1163
+      ],
+      "confidence": 1.0,
+      "text": "Pair with Octos"
+    },
+    {
+      "bounds": [
+        139.8445,
+        692.5349,
+        523.2889,
+        45.4651
+      ],
+      "confidence": 1.0,
+      "text": "Pairing with 192.168.1.20..."
+    },
+    {
+      "bounds": [
+        209.7667,
+        841.0,
+        396.9778,
+        39.0
+      ],
+      "confidence": 1.0,
+      "text": "This code works once."
+    },
+    {
+      "bounds": [
+        349.6111,
+        1274.5349,
+        119.5444,
+        33.8372
+      ],
+      "confidence": 1.0,
+      "text": "Cancel"
+    }
+  ],
+  "image_sha256": "119a8712b86da0f63a6c42bcf845ae47b6372d1f55db43a40fb5fe4ef42d694e",
+  "engine": "Apple Vision VNRecognizeTextRequest accurate, en-US (pyobjc)"
+}

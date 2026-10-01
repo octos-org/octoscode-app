@@ -1,0 +1,147 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "t_title": {
+        "component": "Text208602c94c37",
+        "layout": {
+          "x": 61.69817997977756,
+          "y": 108.0,
+          "w": 268.5,
+          "h": 29.0
+        }
+      },
+      "t_crumbs": {
+        "component": "Text81dc8feb211c",
+        "layout": {
+          "x": 25.546511627906977,
+          "y": 157.5,
+          "w": 102.7028058645096,
+          "h": 23.5
+        }
+      },
+      "cal_refused": {
+        "component": "Surface047c70a52d99",
+        "layout": {
+          "x": 27.0,
+          "y": 201.0,
+          "w": 355.0,
+          "h": 136.0
+        }
+      },
+      "t_cal1": {
+        "component": "Text9f22e56ee86c",
+        "layout": {
+          "x": 93.61876184459886,
+          "y": 225.5,
+          "w": 237.5,
+          "h": 19.5
+        }
+      },
+      "t_cal2": {
+        "component": "Text3ad305aa9e9d",
+        "layout": {
+          "x": 93.77794561933534,
+          "y": 267.5,
+          "w": 249.0,
+          "h": 23.0
+        }
+      },
+      "t_cal3": {
+        "component": "Text732311b2d228",
+        "layout": {
+          "x": 93.997432605905,
+          "y": 299.0,
+          "w": 118.5,
+          "h": 18.5
+        }
+      },
+      "browser_back": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 67.0,
+          "y": 382.0,
+          "w": 260.0,
+          "h": 49.0
+        }
+      },
+      "browser_back_surface": {
+        "component": "Surfacee383a5572ee4",
+        "layout": {
+          "x": 67.0,
+          "y": 382.0,
+          "w": 260.0,
+          "h": 49.0
+        }
+      },
+      "browser_back_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 67.0,
+          "y": 382.0,
+          "w": 260.0,
+          "h": 49.0
+        }
+      },
+      "browser_back_label": {
+        "component": "Text1e7134e67639",
+        "layout": {
+          "x": 129.0201793721973,
+          "y": 395.5,
+          "w": 137.0,
+          "h": 20.0
+        }
+      },
+      "browser_path_wrap": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 28.0,
+          "y": 488.0,
+          "w": 350.0,
+          "h": 48.0
+        }
+      },
+      "browser_path_field": {
+        "component": "Surfacee82a3a65acee",
+        "layout": {
+          "x": 25.0,
+          "y": 483.0,
+          "w": 356.0,
+          "h": 56.0
+        }
+      },
+      "browser_path": {
+        "component": "Inputbf8299260317",
+        "layout": {
+          "x": 42.0,
+          "y": 488.0,
+          "w": 322.0,
+          "h": 48.0
+        }
+      }
+    },
+    "bindings": [
+      {
+        "id": "browser_path",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "browser_path",
+          "property": "text"
+        }
+      }
+    ]
+  }
+}

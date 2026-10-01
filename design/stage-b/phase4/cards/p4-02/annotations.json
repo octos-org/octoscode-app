@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "119a8712b86da0f63a6c42bcf845ae47b6372d1f55db43a40fb5fe4ef42d694e",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      131.0,
+      622.0,
+      144.0,
+      48.0
+    ],
+    [
+      128.0,
+      619.0,
+      149.0,
+      53.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "pair_back_chev",
+      "bounds": [
+        17.0,
+        58.0,
+        14.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "pair_back_control",
+      "bounds": [
+        7.0,
+        49.0,
+        34.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "spinner",
+      "bounds": [
+        191.0,
+        288.0,
+        24.0,
+        24.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "pair_cancel",
+      "bounds": [
+        131.0,
+        622.0,
+        144.0,
+        48.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "pair_cancel_surface",
+      "bounds": [
+        131.0,
+        622.0,
+        144.0,
+        48.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 24.0
+    },
+    {
+      "id": "pair_cancel_control",
+      "bounds": [
+        131.0,
+        622.0,
+        144.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+# ledger p4-04@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Pair with Octos" }
+copy t_cal1_text { class: user-copy, en: "This server doesn't support" }
+copy t_cal2_text { class: user-copy, en: "pairing." }
+copy t_cal3_text { class: user-copy, en: "Octos on another computer" }
+copy t_cal4_text { class: user-copy, en: "must be paired from" }
+copy t_cal5_text { class: user-copy, en: "that computer." }
+copy pair_fallback_label_text { class: user-copy, en: "Use server and token" }
+state pair_fallback_control_enabled { shape: bool, initial: true }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Text213f9ee3b17f(instance: text, text: text) {
+  view Kit(component: "Text213f9ee3b17f", instance: instance, text: text)
+}
+component Surface9e232933b194(instance: text) {
+  view Kit(component: "Surface9e232933b194", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Text167fd8406758(instance: text, text: text) {
+  view Kit(component: "Text167fd8406758", instance: instance, text: text)
+}
+component Text84b55bde8dbb(instance: text, text: text) {
+  view Kit(component: "Text84b55bde8dbb", instance: instance, text: text)
+}
+component Surface8b2100bbe9a3(instance: text) {
+  view Kit(component: "Surface8b2100bbe9a3", instance: instance) { slot }
+}
+component Text589f5760b5e7(instance: text, text: text) {
+  view Kit(component: "Text589f5760b5e7", instance: instance, text: text)
+}
+component Texte92dcf57db3e(instance: text, text: text) {
+  view Kit(component: "Texte92dcf57db3e", instance: instance, text: text)
+}
+component Texte264a98085cb(instance: text, text: text) {
+  view Kit(component: "Texte264a98085cb", instance: instance, text: text)
+}
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surfacebe3dbbc617cb(instance: text) {
+  view Kit(component: "Surfacebe3dbbc617cb", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Text93acade43e2f(instance: text, text: text) {
+  view Kit(component: "Text93acade43e2f", instance: instance, text: text)
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Text213f9ee3b17f(instance: "t_title", text: copy.t_title_text)
+  Surface9e232933b194(instance: "cal_nosup") {
+
+  }
+  Vectore0a378fde04f(instance: "cal_info")
+  Text167fd8406758(instance: "t_cal1", text: copy.t_cal1_text)
+  Text84b55bde8dbb(instance: "t_cal2", text: copy.t_cal2_text)
+  Surface8b2100bbe9a3(instance: "cal_other") {
+
+  }
+  Text589f5760b5e7(instance: "t_cal3", text: copy.t_cal3_text)
+  Texte92dcf57db3e(instance: "t_cal4", text: copy.t_cal4_text)
+  Texte264a98085cb(instance: "t_cal5", text: copy.t_cal5_text)
+  KitButton2c6804b990a5(instance: "pair_fallback") {
+    Surfacebe3dbbc617cb(instance: "pair_fallback_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "pair_fallback_control", enabled: pair_fallback_control_enabled)
+    Text93acade43e2f(instance: "pair_fallback_label", text: copy.pair_fallback_label_text)
+  }
+}

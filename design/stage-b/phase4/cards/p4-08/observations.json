@@ -1,0 +1,519 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "2e0b9de79e8cd1e4164b67852c273fcf18e8e11ef75e87a2c0c71e7a245d7597",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t_title",
+      "expected_text": "Choose workspace folder",
+      "requested_bounds": [
+        56.39,
+        108.28,
+        287.58,
+        30.0
+      ],
+      "status": "observed",
+      "ocr_text": "Choose workspace folder",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        58.0,
+        109.0,
+        283.0,
+        23.0
+      ],
+      "ink_color": [
+        6,
+        6,
+        6
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        56.3889,
+        108.27905,
+        287.58335,
+        25.94185
+      ]
+    },
+    {
+      "id": "t_crumbs",
+      "expected_text": "/ > home \u203a dev \u203a code",
+      "requested_bounds": [
+        15.79,
+        154.5,
+        235.71,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "/ > home \u203a dev \u203a code",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        18.0,
+        154.0,
+        233.0,
+        14.0
+      ],
+      "ink_color": [
+        96,
+        96,
+        96
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        15.7889,
+        154.5,
+        235.70555,
+        14.68605
+      ]
+    },
+    {
+      "id": "t_row_0",
+      "expected_text": "octos",
+      "requested_bounds": [
+        82.3,
+        213.07,
+        50.81,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "octos",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        88.0,
+        213.5,
+        42.5,
+        13.5
+      ],
+      "ink_color": [
+        14,
+        14,
+        13
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        82.29555,
+        213.0702,
+        50.8145,
+        15.99915
+      ]
+    },
+    {
+      "id": "t_row_1",
+      "expected_text": "octoscode-app",
+      "requested_bounds": [
+        86.35,
+        265.22,
+        125.18,
+        25.47
+      ],
+      "status": "observed",
+      "ocr_text": "octoscode-app",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        88.0,
+        269.0,
+        120.5,
+        20.0
+      ],
+      "ink_color": [
+        14,
+        14,
+        15
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        86.3514,
+        265.222,
+        125.18375,
+        25.47365
+      ]
+    },
+    {
+      "id": "t_row_2",
+      "expected_text": "notes",
+      "requested_bounds": [
+        86.79,
+        324.71,
+        47.45,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "notes",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        88.5,
+        326.0,
+        43.5,
+        14.0
+      ],
+      "ink_color": [
+        19,
+        19,
+        19
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        86.7948,
+        324.713,
+        47.45485,
+        17.16705
+      ]
+    },
+    {
+      "id": "t_row_3",
+      "expected_text": "scratch",
+      "requested_bounds": [
+        85.67,
+        381.08,
+        63.24,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "scratch",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        88.0,
+        382.0,
+        58.5,
+        15.5
+      ],
+      "ink_color": [
+        16,
+        16,
+        16
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        85.66745,
+        381.07865,
+        63.24285,
+        18.35435
+      ]
+    },
+    {
+      "id": "t_hidden",
+      "expected_text": "3 hidden by the server",
+      "requested_bounds": [
+        25.94,
+        433.0,
+        178.19,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "3 hidden by the server",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        27.0,
+        434.5,
+        174.5,
+        17.0
+      ],
+      "ink_color": [
+        122,
+        122,
+        122
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        25.9389,
+        433.0,
+        178.1889,
+        19.5
+      ]
+    },
+    {
+      "id": "browser_use_label",
+      "expected_text": "Use this folder",
+      "requested_bounds": [
+        126.0,
+        574.0,
+        132.0,
+        22.5
+      ],
+      "status": "observed",
+      "ocr_text": "Use this folder",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        129.0,
+        575.5,
+        127.5,
+        17.5
+      ],
+      "ink_color": [
+        251,
+        252,
+        252
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        126.3111,
+        574.0,
+        131.95,
+        21.5349
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "row_0",
+      "bounds": [
+        17.0,
+        190.0,
+        370.0,
+        62.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 15.5
+    },
+    {
+      "id": "fld_0",
+      "bounds": [
+        46.0,
+        211.0,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "row_0_control",
+      "bounds": [
+        28.0,
+        196.0,
+        350.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "row_1",
+      "bounds": [
+        17.0,
+        296.0,
+        370.0,
+        63.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 15.75
+    },
+    {
+      "id": "fld_1",
+      "bounds": [
+        46.0,
+        263.0,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "row_1_control",
+      "bounds": [
+        28.0,
+        248.0,
+        350.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "row_2",
+      "bounds": [
+        17.0,
+        299.0,
+        370.0,
+        60.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 15.0
+    },
+    {
+      "id": "fld_2",
+      "bounds": [
+        46.0,
+        323.0,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "row_2_control",
+      "bounds": [
+        28.0,
+        308.0,
+        350.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "row_3",
+      "bounds": [
+        17.0,
+        361.0,
+        370.0,
+        57.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 14.25
+    },
+    {
+      "id": "fld_3",
+      "bounds": [
+        46.0,
+        379.0,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "row_3_control",
+      "bounds": [
+        28.0,
+        364.0,
+        350.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "browser_path_wrap",
+      "bounds": [
+        28.0,
+        490.0,
+        350.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "browser_path_field",
+      "bounds": [
+        17.0,
+        491.0,
+        369.0,
+        53.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 13.25
+    },
+    {
+      "id": "browser_path",
+      "bounds": [
+        42.0,
+        490.0,
+        322.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "browser_use",
+      "bounds": [
+        15.0,
+        557.0,
+        373.0,
+        54.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "browser_use_surface",
+      "bounds": [
+        15.0,
+        557.0,
+        373.0,
+        54.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279176975,
+      "radius": 27.0
+    },
+    {
+      "id": "browser_use_control",
+      "bounds": [
+        15.0,
+        557.0,
+        373.0,
+        54.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        -0.0,
+        74.0,
+        351.8667,
+        41.0465
+      ],
+      "confidence": 1.0,
+      "text": "8. Choose a folder"
+    },
+    {
+      "bounds": [
+        71.834,
+        1015.8643,
+        578.2367,
+        49.4239
+      ],
+      "confidence": 1.0,
+      "text": "/home/user/code/octoscode-app"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

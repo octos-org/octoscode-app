@@ -5,12 +5,17 @@
 //! `connect`/`models`/`workspace` (#29a/#29c) — the #29d2 merge keeps all four.
 //! #30c adds `fleet` (board 3.6/3.7) on task/30c.
 pub mod autonomy;
+pub mod browser;
 pub mod connect;
 pub mod fleet;
 pub mod history;
 pub mod keys;
 pub mod media;
 pub mod models;
+// #D1: the five native-pairing cards (p4-01..p4-05) — one owner per action id.
+pub mod pairing;
+// #D1: the two provider-editor cards (p4-06/07) — draft kept, error redacted.
+pub mod provider;
 pub mod palette;
 pub mod peers;
 // P4h1 rows 304-307: the recent-workspaces cache (the web's

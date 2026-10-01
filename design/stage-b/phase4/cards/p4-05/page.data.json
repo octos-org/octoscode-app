@@ -1,0 +1,153 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "pair_back_chev": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 15.0,
+          "y": 130.0,
+          "w": 14.0,
+          "h": 22.0,
+          "src": "http://127.0.0.1:8170/ux-images/p4-05/assets/pair_back_chev-7bb4adb11d58.svg"
+        }
+      },
+      "pair_back_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 5.0,
+          "y": 121.0,
+          "w": 34.0,
+          "h": 40.0
+        }
+      },
+      "t_title": {
+        "component": "Text8f51dfaad892",
+        "layout": {
+          "x": 129.10195707070707,
+          "y": 166.5,
+          "w": 147.84859006734007,
+          "h": 25.5
+        }
+      },
+      "conn_card": {
+        "component": "Surface07eaedee1d73",
+        "layout": {
+          "x": 21.0,
+          "y": 223.0,
+          "w": 362.0,
+          "h": 207.0
+        }
+      },
+      "conn_div1": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 36.0,
+          "y": 296.0,
+          "w": 334.0,
+          "h": 1.0
+        }
+      },
+      "conn_div2": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 36.0,
+          "y": 366.0,
+          "w": 334.0,
+          "h": 1.0
+        }
+      },
+      "t_srv_k": {
+        "component": "Textbc9ef3d82ed2",
+        "layout": {
+          "x": 41.92964169381108,
+          "y": 247.0,
+          "w": 56.0,
+          "h": 19.5
+        }
+      },
+      "t_srv_v": {
+        "component": "Text173c0271770d",
+        "layout": {
+          "x": 209.55890205239447,
+          "y": 247.5,
+          "w": 159.0,
+          "h": 19.0
+        }
+      },
+      "t_pair_k": {
+        "component": "Textc7558026abad",
+        "layout": {
+          "x": 41.87619047619047,
+          "y": 317.0,
+          "w": 55.5,
+          "h": 19.5
+        }
+      },
+      "t_pair_v": {
+        "component": "Text1b8bd8f7f8e7",
+        "layout": {
+          "x": 245.4876700586826,
+          "y": 317.0,
+          "w": 122.5,
+          "h": 24.0
+        }
+      },
+      "t_stays": {
+        "component": "Text383fad3d8ea6",
+        "layout": {
+          "x": 41.81933842239186,
+          "y": 386.5,
+          "w": 213.0,
+          "h": 24.0
+        }
+      },
+      "pair_forget": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 117.0,
+          "y": 608.0,
+          "w": 172.0,
+          "h": 40.0
+        }
+      },
+      "pair_forget_surface": {
+        "component": "Surfacedd0df1b48c89",
+        "layout": {
+          "x": 117.0,
+          "y": 608.0,
+          "w": 172.0,
+          "h": 40.0
+        }
+      },
+      "pair_forget_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 117.0,
+          "y": 608.0,
+          "w": 172.0,
+          "h": 40.0
+        }
+      },
+      "pair_forget_label": {
+        "component": "Text579f962ecdd5",
+        "layout": {
+          "x": 116.7605421686747,
+          "y": 618.5,
+          "w": 157.0,
+          "h": 25.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}
