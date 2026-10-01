@@ -40,6 +40,23 @@ pub const SCREENS: &[(&str, &str, f64)] = &[
     ("setup-10", "Skills", 9.0),
 ];
 
+/// #M1: the card→screen gate the mount ladder calls, exactly as
+/// `theme::card_for` (theme.rs:261) does for the theme cards. Without it
+/// `models::lower` had ZERO call sites: the three cards were accepted Stage-B
+/// designs with wired handlers, but no mount path could reach them, so every
+/// skills/models/context row was production-path yet user-unreachable (RULES 3).
+///
+/// Returns the screen's namespace, which `lower_card_src` also keys on
+/// (`screen_ns`), so the gate and the lowerer cannot drift.
+pub fn card_for(which: &str) -> Option<&'static str> {
+    match which {
+        "setup-07" => Some("models"),
+        "setup-09" => Some("context"),
+        "setup-10" => Some("skills"),
+        _ => None,
+    }
+}
+
 /// The declared copy-slot → binding-id table (`copy id`, `binding id`).
 /// Every id resolves in [`query_binding`]; the f29c coverage test asserts it.
 pub const COPY_SLOTS: &[(&str, &str)] = &[

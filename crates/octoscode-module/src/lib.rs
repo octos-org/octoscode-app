@@ -49,6 +49,24 @@ use flow::{Conversation, FlowUi};
 use mount::MountCache as ComponentMounts;
 use screen::Cache as ScreenCache;
 
+/// #P4h1 row 306 — install the recents store and purge the legacy v1 cache at
+/// startup (the web's App.tsx:1019-1023). This is the production caller that
+/// keeps `clear_recent_workspaces` off the test-only list (RULES 3); an honest
+/// failure is logged, never silently swallowed.
+///
+/// #M1: this MUST NOT live in the `script_mod!` body. A bare Rust block there is
+/// not DSL, so the script parser choked on the `:` of the `::log::warn!` path
+/// and `mod.widgets.OctoscodeView` never bound ("variable OctoscodeView not
+/// found in scope", `SplashVmId(1)`) — the mounted card rendered 0 non-zero
+/// rects. Wrapping it in `#{ … }` does not help either: `script_mod!` splices a
+/// script EXPRESSION, so a block's unit value has no `script_to_value`. A Rust
+/// call belongs in a Rust fn, invoked from Rust.
+fn init_recents_persistence() {
+    if !screens::recents::init_persistence() {
+        ::log::warn!("octoscode: workspace recents: legacy v1 cache could not be purged");
+    }
+}
+
 script_mod! {
     use mod.prelude.widgets.*
     // #31d — assign the theme roles BEFORE this class body dereferences any
@@ -57,12 +75,14 @@ script_mod! {
     #(screens::theme::eval_roles(vm))
     // #P4h1 row 306 — install the recents store and purge the legacy v1 cache
     // at startup (the web's App.tsx:1019-1023); the warn lives in the helper.
-    // #FX1 portability: this was a bare `{ if .. ::log::warn! }` block, which
-    // the script parser reads as SCRIPT tokens (IfTest / EmitUnary /
-    // Operator(:)) and fails to parse — the app came up a 46-widget husk with
-    // 11 [E] DSL errors and no screen_dock (fx1-evidence/walk-conv.log). The
-    // `#(call)` splice is the one shape both dialects parse (the eval_roles
-    // precedent above).
+    // The production caller that keeps `clear_recent_workspaces` off the
+    // test-only list (RULES 3); an honest failure is logged, never silently
+    // swallowed. #FX1 portability: this was a bare `{ if .. ::log::warn! }`
+    // block, which the script parser reads as SCRIPT tokens (IfTest /
+    // EmitUnary / Operator(:)) and fails to parse — the app came up a
+    // 46-widget husk with 11 [E] DSL errors and no screen_dock
+    // (fx1-evidence/walk-conv.log). The `#(call)` splice is the one shape
+    // both dialects parse (the eval_roles precedent above).
     #(screens::recents::init_persistence_logged())
     mod.widgets.OctoscodeView = set_type_default() do #(OctoscodeView::register_widget(vm)) {
         ..mod.widgets.RectView
@@ -1035,6 +1055,23 @@ script_mod! {
             }
         }
 
+        // #M2 — the FLEET dock (autonomy-06, the peers card). This slot is
+        // what was missing: `screens::fleet::lower` had ZERO call sites, so the
+        // card was never shown even though its handlers were already routed
+        // (`fleet::is_action` at :1538 -> resolve -> spawn). Fit/Follows height
+        // rather than Fill, because the fleet card is a list that grows with the
+        // peer count and must not stretch the window (the Fill/Fill slot above
+        // is for a full-window screen; the review card uses the same measured
+        // idiom in its column).
+        fleet_dock := View {
+            width: Fill height: Fit
+            align: Align{x: 1.0 y: 0.0}
+            visible: false
+            fleet_splash := Splash {
+                width: Fill height: Fit
+            }
+        }
+
     }
 }
 
@@ -1247,6 +1284,15 @@ fn seed_synthetic_live(store: &Arc<Store>) {
         p.origin_session_id = Some(first.clone());
         store.domains.peer.upsert(p);
     }
+}
+
+/// #D1t: the two board-1 transport effects, so ONE `rt.spawn` arm can carry
+/// either screen's typed effect across the await point (the two enums are
+/// unrelated types, so the `match` needs a common carrier).
+#[derive(Debug)]
+enum D1Effect {
+    Provider(screens::provider::Effect),
+    Browser(screens::browser::Effect),
 }
 
 #[derive(Script, ScriptHook, Widget)]
@@ -1905,6 +1951,44 @@ impl OctoscodeView {
             });
             return;
         }
+        // #D1t: board 1's provider editor and workspace browser. Both cards
+        // already mounted (`lib.rs:2459-2460` `lower_mounted`) but until this
+        // dispatch existed their transport effects had NO executor, so
+        // `prov.test` / `provider.save` / `browser.use` / `browser.create` were
+        // reachable only from a test and RULES 3 scored them missing. The
+        // pairing card is deliberately NOT here: it has no typed method (see
+        // .peer/report-D1t.md §pairing).
+        if screens::provider::is_action(action) || screens::browser::is_action(action) {
+            // Apply to the LIVE state first; the transport effect (or None) is
+            // what actually talks to the server. `perform_action` carries no
+            // `value` (lib.rs:1513), so the input ids resolve with `None` here —
+            // the live card's own fields are already in each module's state.
+            let is_provider = screens::provider::is_action(action);
+            let effect = if is_provider {
+                screens::provider::perform(action, None)
+                    .map(D1Effect::Provider)
+            } else {
+                screens::browser::perform(action, None).map(D1Effect::Browser)
+            };
+            let Some(effect) = effect else { return };
+            // `action` is a method-lifetime `&str`, so the spawned task needs its
+            // OWN copy (E0521) — it is only the log line's subject.
+            let action = action.to_string();
+            rt.spawn(async move {
+                let out = match effect {
+                    D1Effect::Provider(e) => {
+                        screens::provider::perform_transport(&conv, e).await
+                    }
+                    D1Effect::Browser(e) => screens::browser::perform_transport(&conv, e).await,
+                };
+                if let Err(e) = out {
+                    ::log::warn!("octoscode: screens: {action:?}: {e}");
+                }
+                // Repaint: the transport arm writes the card's own state.
+                SignalToUI::set_ui_signal();
+            });
+            return;
+        }
         match effect {
             actions::Effect::Refresh => {
                 rt.spawn(async move {
@@ -2382,6 +2466,11 @@ impl OctoscodeView {
             // screens have no home yet. The handler keeps the #29d screens.
             let screen_splash = self.view.splash(cx, ids!(screen_splash));
             let store = { self.bridge.lock().unwrap().store.clone() };
+            // #M1: `models::lower` needs a `Ctx` (store + the flow's UI state).
+            // The bridge carries both, and the bridge lock must be released
+            // before the mount arms run, so clone the `ui` handle here — the
+            // same `b.ui.clone()` the mounted screens already use (lib.rs:1520).
+            let ui = { self.bridge.lock().unwrap().ui.clone() };
             // #30e — OCTOSCODE_THEME seeds the preference (system default),
             // and the theme-wired card names lower through screens::theme,
             // which selects the dark Stage B card or its light twin by the
@@ -2398,7 +2487,17 @@ impl OctoscodeView {
             if let Some(files) = cx.get_data_dir() {
                 crate::design::set_host_dir(Some(files));
             }
-            let lowered = if screens::theme::card_for(&which).is_some() {
+            // #M1: the models/skills/context cards (setup-07 Model settings,
+            // setup-09 Context panel, setup-10 Skills). These three had
+            // handlers wired (refresh/owns/perform) but `models::lower` had
+            // 0 call sites, so every skills/models/context row was
+            // production-path yet user-UNREACHABLE — RULES 3's "exists but
+            // nobody can get there". Mounted here, reusing the existing
+            // accepted Stage-B cards; no new design.
+            let lowered = if screens::models::card_for(&which).is_some() {
+                let ctx = bindings::Ctx::new(&store, &ui);
+                screens::models::lower(&which, &ctx)
+            } else if screens::theme::card_for(&which).is_some() {
                 screens::theme::lower(&which, &store)
             } else if let Some(screen) = screens::autonomy::Screen3::from_env() {
                 // #P4e1c — the autonomy cards (autonomy-03/04/05: Goal, Loops,
@@ -2486,6 +2585,47 @@ impl OctoscodeView {
                 makepad_widgets::log!("[octoscode] screen mount: {e}");
             }
         }
+        // #M2 — MOUNT the fleet card (autonomy-06). This is the call the card is
+        // about: before it, `screens::fleet::lower` had ZERO call sites, so the
+        // authored peers card was never evaluated into the live view tree even
+        // though its handlers were already routed (`fleet::is_action` above ->
+        // `resolve` -> `spawn` -> the production client).
+        //
+        // Shape copied from the docked review card (the `open` gate + env
+        // override), NOT from a new design: it reuses the authored
+        // `design/stage-b/autonomy/cards/autonomy-06` card as-is.
+        //
+        // The open gate: `OCTOSCODE_CHROME=fleet` is the deterministic
+        // headless-capture opener (the same contract as review/settings/palette
+        // — a headless run cannot click a toggle). There is no user tap for it
+        // YET, so the card is reachable by that env but not by hand; that limit
+        // is recorded in the matrix evidence rather than claimed as a click.
+        //
+        // Taps need no new wiring: the lowered card's `on_click: || { NAV(t: …) }`
+        // handlers are published into `screen_taps` by the same
+        // `taps::wired_taps` pass the screen dock uses, and `taps::owner_of`
+        // routes them to `fleet::is_action`. So mounting is sufficient to make
+        // the row controls live.
+        {
+            let fleet_open = chrome_env().3;
+            self.view.widget(cx, ids!(fleet_dock)).set_visible(cx, fleet_open);
+            if fleet_open {
+                let dsl = {
+                    let b = self.bridge.lock().unwrap();
+                    let ctx = bindings::Ctx::new(&b.store, &b.ui);
+                    screens::fleet::lower("autonomy-06", &ctx)
+                };
+                match dsl {
+                    Ok(dsl) => {
+                        let fleet_splash = self.view.splash(cx, ids!(fleet_splash));
+                        if let Err(e) = self.mounts.mount(cx, &fleet_splash, &dsl) {
+                            makepad_widgets::log!("[octoscode] fleet mount: {e}");
+                        }
+                    }
+                    Err(e) => makepad_widgets::log!("[octoscode] fleet lower: {e}"),
+                }
+            }
+        }
         // #28e4 item 2: the first-run card area mounts the REAL board-2
         // Connect screen (setup-01, #29a) — `screens::connect::lower_screen`
         // lowers the authored Stage B card with the ConnectUi copies applied,
@@ -2569,9 +2709,10 @@ impl OctoscodeView {
     /// dimmer visibility, and the GOALS/LOOPS/FLEET sidebar sections.
     fn sync_chrome(&mut self, cx: &mut Cx) {
         // Card #28e — the headless-capture gate: `OCTOSCODE_CHROME=review|
-        // settings|palette` pre-opens that surface deterministically (a
+        // settings|palette|fleet` pre-opens that surface deterministically (a
         // headless run cannot click the toggle). Parsed once per process.
-        let (env_review, env_settings, env_palette) = chrome_env();
+        // #M2: `fleet` is the 4th arm (see chrome_env).
+        let (env_review, env_settings, env_palette, _env_fleet) = chrome_env();
         let (live, review, settings, palette) = {
             let b = self.bridge.lock().unwrap();
             (
@@ -2752,13 +2893,21 @@ impl OctoscodeView {
 }
 
 /// Card #28e — the `OCTOSCODE_CHROME` capture gate, parsed once.
-fn chrome_env() -> (bool, bool, bool) {
-    static CHROME: std::sync::OnceLock<(bool, bool, bool)> = std::sync::OnceLock::new();
+/// `OCTOSCODE_CHROME=review|settings|palette|fleet` pre-opens a surface
+/// deterministically (a headless run cannot click the toggle).
+///
+/// #M2: `fleet` added — the fleet card (`autonomy-06`) had **no** opener at
+/// all, which is why `screens::fleet::lower` had 0 call sites. Returns a 4-tuple;
+/// BOTH call sites are migrated in the same commit as this change
+/// (`lib.rs:2293` review, `lib.rs:2574` the chrome table) — the #P4f2 lesson
+/// about a signature change riding alone.
+fn chrome_env() -> (bool, bool, bool, bool) {
+    static CHROME: std::sync::OnceLock<(bool, bool, bool, bool)> = std::sync::OnceLock::new();
     *CHROME.get_or_init(|| {
         let v = std::env::var("OCTOSCODE_CHROME")
             .unwrap_or_default()
             .to_lowercase();
-        (v == "review", v == "settings", v == "palette")
+        (v == "review", v == "settings", v == "palette", v == "fleet")
     })
 }
 
@@ -3571,6 +3720,11 @@ impl AppModule for OctoscodeModule {
             },
         );
         vm.set_injected_global(live_id!(NAV), nav);
+        // #M1: the recents store is installed from RUST, before the DSL is
+        // evaluated — see `init_recents_persistence` for why it cannot live in
+        // the `script_mod!` body (it is not DSL, and `#{ … }` fails too because
+        // `script_mod!` splices a script expression, not a unit block).
+        init_recents_persistence();
         script_mod(vm);
         // Card #21b: the design/kit vocabulary every lowered #16 component names
         // (`DesignSurface`, `KitButton`, …) must be in THIS VM — the isolate the

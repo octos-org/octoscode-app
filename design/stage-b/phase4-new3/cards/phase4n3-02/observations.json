@@ -1,0 +1,67 @@
+{
+  "width": 406,
+  "height": 776,
+  "observations": [
+    {
+      "expected_text": "/home/user/octos",
+      "requested_bounds": [
+        44,
+        146,
+        200,
+        16
+      ],
+      "ink_bounds": [
+        44,
+        146,
+        200,
+        16
+      ]
+    },
+    {
+      "expected_text": "octos",
+      "requested_bounds": [
+        44,
+        238,
+        160,
+        16
+      ],
+      "ink_bounds": [
+        44,
+        238,
+        160,
+        16
+      ]
+    },
+    {
+      "expected_text": "octoscode-app",
+      "requested_bounds": [
+        44,
+        296,
+        160,
+        16
+      ],
+      "ink_bounds": [
+        44,
+        296,
+        160,
+        16
+      ]
+    },
+    {
+      "expected_text": "/path/to/project",
+      "requested_bounds": [
+        44,
+        381,
+        226,
+        18
+      ],
+      "ink_bounds": [
+        44,
+        381,
+        226,
+        18
+      ]
+    }
+  ],
+  "source": "lane-vision on the measured atlas crops (no external OCR for board 3)"
+}
