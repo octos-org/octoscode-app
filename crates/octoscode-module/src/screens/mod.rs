@@ -7,6 +7,7 @@
 pub mod autonomy;
 pub mod connect;
 pub mod fleet;
+pub mod history;
 pub mod keys;
 pub mod models;
 pub mod palette;
