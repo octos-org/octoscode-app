@@ -1176,12 +1176,12 @@ impl OctoscodeView {
             let drv = conv.clone();
             runtime.spawn(async move {
                 match screens::models::refresh(&drv, &drv.store).await {
-                    Ok(n) => ::log::info!("octoscode: screens: {n} profile reads folded"),
-                    Err(e) => ::log::warn!("octoscode: screens refresh: {e}"),
+                    Ok(n) => makepad_widgets::log!("[octoscode] screens: {n} profile reads folded"),
+                    Err(e) => makepad_widgets::log!("[octoscode] screens refresh: {e}"),
                 }
                 match screens::fleet::refresh(&drv, &drv.store).await {
-                    Ok(n) => ::log::info!("octoscode: fleet: {n} fleet reads folded"),
-                    Err(e) => ::log::warn!("octoscode: fleet refresh: {e}"),
+                    Ok(n) => makepad_widgets::log!("[octoscode] fleet: {n} fleet reads folded"),
+                    Err(e) => makepad_widgets::log!("[octoscode] fleet refresh: {e}"),
                 }
                 SignalToUI::set_ui_signal();
             });
@@ -1190,18 +1190,14 @@ impl OctoscodeView {
         // Drive the conversation: open the workspace, then drain events.
         let drv = conv.clone();
         runtime.spawn(async move {
-            if let Err(e) = drv.open_workspace(cwd).await {
-                ::log::error!("octoscode: session/open: {e}");
-                SignalToUI::set_ui_signal();
-                return;
-            }
-            // #32h: ensure a profile that EXISTS server-side and adopt it —
-            // the baked fallback ("octoscode", no env on the phone) gets
-            // every session/open rejected with -32120 "agent is outside the
-            // requested profile scope" (fixture: the server's active profile
-            // is `<name>-<pid>`, what profile/local/create mints), and the
-            // failures rode ::log::* which never reaches logcat — the silent
-            // submit. The desktop live gate keeps its explicit env.
+            // #32h: ensure a profile that EXISTS server-side BEFORE the first
+            // session/open. The previous order ran open_workspace FIRST: on
+            // the phone it failed (the baked fallback "octoscode" does not
+            // exist; -32120 "agent is outside the requested profile scope"),
+            // logged via ::log (invisible on logcat) and RETURNED — the
+            // ensure block below never ran (the outer loop's device test of
+            // fbbaa08: no "profile ready" line at all). The desktop live
+            // gate keeps its explicit env.
             let ensure_profile = std::env::var_os("OCTOS_CREATE_PROFILE").is_some()
                 || std::env::var_os("OCTOS_PROFILE_ID").is_none();
             if ensure_profile {
@@ -1214,6 +1210,11 @@ impl OctoscodeView {
                         makepad_widgets::log!("[octoscode] profile/local/create failed: {e}")
                     }
                 }
+            }
+            if let Err(e) = drv.open_workspace(cwd).await {
+                makepad_widgets::log!("[octoscode] session/open: {e}");
+                SignalToUI::set_ui_signal();
+                return;
             }
             while let Some(evt) = evt_rx.recv().await {
                 // #29c: the screens' occupancy window folds from the
