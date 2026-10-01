@@ -1789,7 +1789,7 @@ SPECIFIC_CHECKS = {
     "Enter on the composer sends (the draft clears)",
     "a 227-column code line stays fully readable (wrapped, tail visible)",
     "the palette opens by '/', lists its commands and executes one by keyboard",
-    "a queued follow-up drains as its own turn and a reselect replays nothing",
+    "a follow-up drains as its own turn and a reselect replays nothing",
     "General settings carries the server connection action",
     "a failed local command restores the typed input and sends nothing",
     "a real coding turn streams, terminates, and the timeline survives a refresh",
