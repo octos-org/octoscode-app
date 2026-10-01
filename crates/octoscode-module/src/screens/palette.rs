@@ -380,7 +380,12 @@ pub fn lower_screen(which: &str, store: &std::sync::Arc<Store>) -> Result<String
     // #31d workflow 1: the palette card is LIGHT-authored — in dark mode the
     // app-wide token set rewrites its colors (the value pairs apply to light
     // DSL only; dark-authored cards keep their literals — see theme.rs).
-    Ok(crate::screens::theme::retint_dsl(&dsl))
+    // #35b item 1: wire the card's CLICK controls BEFORE the retint, so
+    // setup-11's two buttons carry on_click. The retint only rewrites colour
+    // literals, so handler order does not matter, but wiring first keeps the
+    // "lowered, then wired" order the connect path uses.
+    let wired = super::taps::wire_card_events(&dsl, card);
+    Ok(crate::screens::theme::retint_dsl(&wired))
 }
 
 fn reconnect_banner(s: &mut ScreenUi) -> String {

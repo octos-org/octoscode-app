@@ -237,7 +237,11 @@ fn lower_card(card: &str, root: std::path::PathBuf) -> Result<String, String> {
     let data: Value = serde_json::from_str(&data_text)
         .map_err(|e| format!("octoscode: {card}/page.data.json: {e}"))?;
     let prepared = octoscript_makepad::l0::prepare(&card_text, &data, &dir.join("kit"))?;
-    crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&prepared.tree))
+    let dsl = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&prepared.tree))?;
+    // #35b item 1: the same card-dir-driven wiring the connect/palette paths
+    // get, resolved against THIS card's own stage root (the theme cards live
+    // in stage-b/{conversation,autonomy,setup}/cards, not only stage-b/setup).
+    Ok(crate::screens::taps::wire_card_events_dir(&dsl, &dir))
 }
 
 /// Lower one theme-wired screen to the LIVE palette (#31d workflow 1: the

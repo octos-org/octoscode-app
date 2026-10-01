@@ -986,8 +986,14 @@ pub struct OctoscodeView {
     /// Event::Actions loop routes their clicks into the screens' tables
     /// (the outer loop's L4: nothing dispatched in-splash clicks — Stage C
     /// had tested the tables by calling ids directly, never by clicking).
+    ///
+    /// #35b item 1: renamed from `splash_taps` because it is no longer the
+    /// first-run Connect card's alone — every docked card mounted into
+    /// `screen_splash` publishes its taps here (setup-08/11/12 and the theme
+    /// cards), and each tap is dispatched to the resolver that owns its id
+    /// (`screens::taps::owner_of`).
     #[rust]
-    splash_taps: Vec<(LiveId, String)>,
+    screen_taps: Vec<(LiveId, String)>,
     /// #32h: the 1 Hz remount guard — sync_labels runs on EVERY Signal and
     /// the phone's transport events arrive constantly, so the first-run card
     /// was re-lowered + re-wired each time (device log: "card events: 1
@@ -1783,12 +1789,25 @@ impl OctoscodeView {
             if let Some(files) = cx.get_data_dir() {
                 crate::design::set_host_dir(Some(files));
             }
-            let r = if screens::theme::card_for(&which).is_some() {
-                screens::theme::mount(&mut self.mounts, cx, screen_splash, &which, &store)
+            let lowered = if screens::theme::card_for(&which).is_some() {
+                screens::theme::lower(&which, &store)
             } else {
-                crate::screens::palette::mount_screen(
-                    &mut self.mounts, cx, screen_splash, &which, &store,
-                )
+                crate::screens::palette::lower_screen(&which, &store)
+            };
+            // #35b item 1: publish the mounted card's wired taps BEFORE the
+            // mount, so the Event::Actions loop routes them. setup-08/11/12's
+            // buttons carried no on_click at all before #35b, so they were
+            // dead in the real app (the #35a audit: error.reload clicked to
+            // nothing). Lowering twice is cheap and the mount cache dedupes.
+            if let Ok(dsl) = &lowered {
+                self.screen_taps = screens::taps::wired_taps(dsl)
+                    .into_iter()
+                    .map(|(n, e)| (LiveId::from_str(&n), e))
+                    .collect();
+            }
+            let r = match lowered {
+                Ok(dsl) => self.mounts.mount(cx, &screen_splash, &dsl),
+                Err(e) => Err(e),
             };
             if let Err(e) = r {
                 makepad_widgets::log!("[octoscode] screen mount: {e}");
@@ -1829,8 +1848,9 @@ impl OctoscodeView {
                     Ok(dsl) => {
                         self.connect_key = Some(key);
                         // #32h item 1: keep the card's tap wiring — the Event::
-                        // Actions loop routes these (L4).
-                        self.splash_taps = screens::connect::wired_taps(&dsl)
+                        // Actions loop routes these (L4). #35b: the same
+                        // `screen_taps` slot every docked card publishes into.
+                        self.screen_taps = screens::connect::wired_taps(&dsl)
                             .into_iter()
                             .map(|(n, e)| (LiveId::from_str(&n), e))
                             .collect();
@@ -2205,14 +2225,27 @@ impl Widget for OctoscodeView {
                 // #32h item 1 (L4): route the mounted card's wired taps into
                 // the screens' tables — the ButtonAction from inside the
                 // splash was in this very actions vec, but nothing queried it.
-                for (id, ev) in &self.splash_taps {
+                // #35b: dispatch each tap to the resolver that OWNS its id
+                // (`taps::owner_of`). setup-01's ids belong to connect::resolve;
+                // every other docked card authors conversation/chrome ids
+                // (setup-11's `error.reload`/`error.copy_diagnostics`), which
+                // `perform_screen_action` would resolve to Unhandled. The
+                // one-owner routing inside perform_action is unchanged.
+                for (id, ev) in &self.screen_taps {
                     if self
                         .view
                         .button(cx, &[live_id!(screen_splash), *id])
                         .clicked(actions)
                     {
                         makepad_widgets::log!("[octoscode] card tap: {ev}");
-                        self.perform_screen_action(ev, None);
+                        match screens::taps::owner_of(ev) {
+                            screens::taps::Owner::Connect => {
+                                self.perform_screen_action(ev, None);
+                            }
+                            screens::taps::Owner::Action => {
+                                self.perform_action(ev, 0);
+                            }
+                        }
                     }
                 }
                 // The #16 `new-chat` component overlaid by a host hit target.
