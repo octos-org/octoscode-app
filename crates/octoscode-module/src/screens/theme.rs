@@ -136,6 +136,37 @@ pub fn resolved() -> &'static str {
     }
 }
 
+/// #36e item 2 — the web's **+/− diff line tint** as LITERAL hexes, picked per
+/// palette at LOWER time. `DiffReviewDialog.module.css:45-54`:
+///
+/// ```css
+/// :global(.diff-added)   .changedWord { background: color-mix(in srgb, var(--dsw-alias-state-success-primary) 22%, transparent); }
+/// :global(.diff-removed) .changedWord { background: color-mix(in srgb, var(--dsw-alias-state-error-primary)   20%, transparent); }
+/// ```
+///
+/// with `success #22c55e` and `error light-dark(#ec1313, #ff6b6b)`
+/// (`app/theme.css:86-89`). A `color-mix` over a surface resolves per palette, so
+/// the two values are pre-mixed here against the panel's own background
+/// (`color_bg_app`, `theme.rs:544` light `#ffffff` / `:557` dark `#1c1f22`).
+///
+/// **Why literals and not a role.** Assigning a NEW `theme.*` role in
+/// `role_assignments` is not readable by a widget default on this host: the
+/// module's `script_mod` then aborts with `property … not found in prototype
+/// chain`, which unregisters `OctoscodeView` and leaves the whole app unmounted
+/// (measured — see .peer/report-36e.md §2). Existing roles resolve; a new one
+/// does not. So the tint is baked as literal hex at lower time, exactly the way
+/// the design emitter writes `hex_rgba` literals
+/// (`octoscript-makepad/src/design.rs:733-735`) — a `#(...)` splice
+/// (`lib.rs:121` is the precedent), so the script never has to resolve a role.
+pub fn diff_tint_hexes() -> (&'static str, &'static str) {
+    match resolved() {
+        // success #22c55e @22% over #ffffff; error #ec1313 @20% over #ffffff
+        "light" => ("#cef2dc", "#fbd4d4"),
+        // success #22c55e @22% over #1c1f22; error #ff6b6b @20% over #1c1f22
+        _ => ("#1d442f", "#462425"),
+    }
+}
+
 /// `theme.set` / `OCTOSCODE_THEME`: set the preference from its stored string.
 /// Unknown values are rejected (`use-theme.ts:11-13` only accepts
 /// light/dark, else system — here the caller keeps the current preference).
@@ -322,6 +353,20 @@ const TOKENS: &[(&str, &str)] = &[
     // the send control's disc: black in light, white in dark (both atlases)
     ("#050505", "#f5f5f7"),
     ("#030202", "#f5f5f7"),
+    // #36f: the conversation components' artboard INK literals — the
+    // measured pill sat at 1.00:1 on these. The bubble's SURFACE is NOT a
+    // table key on purpose: #f5f5f7 is ALSO the dark ink token, so a key
+    // here eats the correct light text on every dark line (the double-
+    // retint cut proved it — the text came out #2c2c2e-on-#2c2c2e). The
+    // surface is rewritten role-scoped in bubble_dark_surface instead.
+    ("#fafbfb", "#f5f5f7"),
+    ("#434343", "#e8e8ea"),
+    ("#252525", "#e8e8ea"),
+    // NOTE: #1c1f22 is deliberately NOT a key — it is the SHELL's dark
+    // surface token, and a key here breaks retint's dark fixed-point
+    // (f31d_retint_dark_rewrites_tokens: the dark output must re-retint to
+    // itself). The user bubble's #1c1f22 timestamp ink is handled by the
+    // role-scoped pin in bubble_dark_surface instead.
     // #31d re-capture round: the setup-08 (palette) and autonomy-01 (review)
     // kits carry NEAR-BLACK text and mid-grey hints outside the first table —
     // the dark captures' low-contrast command names came from exactly these.
