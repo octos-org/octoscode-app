@@ -33,9 +33,9 @@ row_id,area,spec,case,status,depth,evidence,reason
 32,,e2e/copy-conversation.spec.ts,keeps the phone header for the workspace title: no copy button there,skipped,,,skipped: operator-confirmation-pending (A responsive-layout assertion about which header control renders at a phone viewport.)
 33,,e2e/delivered-files.spec.ts,"shows files the agent delivers, previews images, downloads them, and keeps them on reload",live-only,,,live-only: state the replay fixtures cannot produce
 34,,e2e/delivered-files.spec.ts,says a file could not be loaded instead of failing silently,not-yet-implemented,,,missing: native capability not yet built (see docs/parity-matrix.csv)
-35,review,e2e/diff-review.spec.ts,"diff syntax and word marks preserve inert, selectable text in both themes and on mobile",pass,specific,docs/walk/evidence/area-review.snap.json,"3 checks, all pass"
-36,review,e2e/diff-review.spec.ts,large previews remain complete and use the plain-text performance fallback,pass,specific,docs/walk/evidence/area-review.snap.json,"3 checks, all pass"
-37,review,e2e/diff-review.spec.ts,a missing optional diff grammar retains original text and word marks,pass,specific,docs/walk/evidence/area-review.snap.json,"3 checks, all pass"
+35,review,e2e/diff-review.spec.ts,"diff syntax and word marks preserve inert, selectable text in both themes and on mobile",pass,specific,,"3 checks, all pass"
+36,review,e2e/diff-review.spec.ts,large previews remain complete and use the plain-text performance fallback,pass,specific,,"3 checks, all pass"
+37,review,e2e/diff-review.spec.ts,a missing optional diff grammar retains original text and word marks,pass,specific,,"3 checks, all pass"
 38,composer,e2e/draft-recovery.spec.ts,"reload restores exact unsent text without dispatching it, and sent drafts stay cleared",skipped,,,skipped: operator-confirmation-pending (Unsent-draft persistence is browser localStorage behavior with no native-client equivalent.)
 39,composer,e2e/draft-recovery.spec.ts,a rejected draft storage write preserves editing and warns before text can be lost,skipped,,,skipped: operator-confirmation-pending (Draft-save failure handling is browser localStorage behavior with no native-client equivalent.)
 40,,e2e/driver-discovery.spec.ts,renders a healthy EXTERNAL disclosure from the real empty terminal operations page,not-yet-implemented,,,missing: external driver disclosure: walk the session/driver/get operations chain [missing]
@@ -59,7 +59,7 @@ row_id,area,spec,case,status,depth,evidence,reason
 58,recovery,e2e/final-reading.spec.ts,sidebar native buttons keep Enter behavior and search Escape restores its trigger,pass,smoke,,"1 checks, all pass"
 59,,e2e/final-reading.spec.ts,tree focus follows a collapsed parent and no longer references a removed search row,skipped,,,skipped: operator-confirmation-pending (Pure browser focus bookkeeping: tree active-row tracking has no native counterpart.)
 60,conversation,e2e/final-reading.spec.ts,360-message history stays readable while new output streams and unsafe Markdown stays inert,pass,specific,,"7 checks, all pass"
-61,review,e2e/final-reading.spec.ts,Diff review keeps long headings and file content inside the narrow viewport,pass,specific,docs/walk/evidence/area-review.snap.json,"3 checks, all pass"
+61,review,e2e/final-reading.spec.ts,Diff review keeps long headings and file content inside the narrow viewport,pass,specific,,"3 checks, all pass"
 62,longcode,e2e/final-reading.spec.ts,a missing optional syntax grammar leaves readable and copyable plain code,skipped,,,skipped: operator-confirmation-pending (About the web client's optional syntax-grammar asset load and its plain-code fallback; no native counterpart.)
 63,,e2e/final-reading.spec.ts,task output and artifact controls fit a short phone viewport with long titles,live-only,,,live-only: state the replay fixtures cannot produce
 64,,e2e/interaction-ownership.spec.ts,rejects same-base foreign-topic ${kind} and terminal traffic without settling or poisoning the ordinary owner,live-only,,,live-only: state the replay fixtures cannot produce
@@ -180,7 +180,7 @@ row_id,area,spec,case,status,depth,evidence,reason
 179,connect,e2e/product.spec.ts,preserves Octoscode keyless-provider onboarding semantics,not-yet-implemented,,,"missing: gate-mode app instance — the walk app auto-connects to the replay server, so the pre-connection gate states (invalid auth, pairing links, workspace chooser) never mount"
 180,,e2e/product.spec.ts,keeps the DSH-aligned dark product shell WCAG A/AA clean,skipped,,,skipped: operator-confirmation-pending (Axe-core audit of the dark shell plus CSS colour and animation inspection; pure rendering with no native meaning.)
 181,settings,e2e/profile-mutation.spec.ts,skill writes hold the profile lock through deferred replies and deduplicate confirmation,pass,smoke,,"1 checks, all pass"
-182,review,e2e/profile-mutation.spec.ts,"a failed credential write clears its input, consumes confirmation and requires a fresh review",pass,specific,docs/walk/evidence/area-review.snap.json,"3 checks, all pass"
+182,review,e2e/profile-mutation.spec.ts,"a failed credential write clears its input, consumes confirmation and requires a fresh review",pass,specific,,"3 checks, all pass"
 183,peer,e2e/release-readiness.spec.ts,settings preserves its geometry while model management loads at ${viewport.width}px,pass,smoke,,"2 checks, all pass"
 184,peer,e2e/release-readiness.spec.ts,skip link bypasses navigation and multiline commands retain valid accessibility semantics,pass,smoke,,"2 checks, all pass"
 185,peer,e2e/release-readiness.spec.ts,empty session search offers a direct way back and replies use the chat column,pass,smoke,,"2 checks, all pass"
@@ -190,11 +190,11 @@ row_id,area,spec,case,status,depth,evidence,reason
 189,recovery,e2e/resume-and-reasoning.spec.ts,reasoning visibility is retained per Session and does not change captured model effort,pass,smoke,,"1 checks, all pass"
 190,composer,e2e/runtime-recovery.spec.ts,continues past an unknown turn without replaying it or losing the queue and new draft,pass,specific,,"5 checks, all pass"
 191,,e2e/server-shutdown.spec.ts,"server shutdown is capability gated, explicit, and truthful on an unconfirmed result",not-yet-implemented,,,missing: Server's working directory as the first picker entry [partial]
-192,review,e2e/session-links.spec.ts,a different saved link takes precedence over the tab's remembered conversation,pass,specific,docs/walk/evidence/area-review.snap.json,"3 checks, all pass"
+192,review,e2e/session-links.spec.ts,a different saved link takes precedence over the tab's remembered conversation,pass,specific,,"3 checks, all pass"
 193,,e2e/session-links.spec.ts,opens a bookmarked conversation in a fresh browser only after an explicit choice,live-only,,,live-only: state the replay fixtures cannot produce
 194,,e2e/session-links.spec.ts,keeps a failed saved link visible and retries only when requested,live-only,,,live-only: state the replay fixtures cannot produce
 195,,e2e/session-links.spec.ts,rejects invalid links without opening a session and allows normal entry after dismissal,not-yet-implemented,,,"missing: Session settings pane: a ModalSurface drawer with Model, Permissions, Sandbox and Advanced sections [missing]"
-196,review,e2e/session-links.spec.ts,refuses a saved-link candidate with a different workspace before requesting history,pass,specific,docs/walk/evidence/area-review.snap.json,"3 checks, all pass"
+196,review,e2e/session-links.spec.ts,refuses a saved-link candidate with a different workspace before requesting history,pass,specific,,"3 checks, all pass"
 197,,e2e/session-links.spec.ts,reports a copied link only after the clipboard operation succeeds,live-only,,,live-only: state the replay fixtures cannot produce
 198,,e2e/session-links.spec.ts,provides a selected readonly link when clipboard access is denied,live-only,,,live-only: state the replay fixtures cannot produce
 199,,e2e/session-links.spec.ts,does not claim diagnostics were copied after clipboard rejection and allows retry,live-only,,,live-only: state the replay fixtures cannot produce
