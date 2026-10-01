@@ -1,0 +1,36 @@
+{
+  "frame_id": 5,
+  "controls": {
+    "inspector_refresh": {
+      "event": "inspector_refresh",
+      "source_bounds": [
+        282,
+        86,
+        92,
+        20
+      ],
+      "enabled": true
+    },
+    "inspector_copy_link": {
+      "event": "inspector_copy_link",
+      "source_bounds": [
+        32,
+        546,
+        120,
+        36
+      ],
+      "enabled": true
+    },
+    "inspector_refresh_bottom": {
+      "event": "inspector_refresh",
+      "source_bounds": [
+        264,
+        640,
+        110,
+        36
+      ],
+      "enabled": true
+    }
+  },
+  "source": "phase4-new3-screen-05"
+}

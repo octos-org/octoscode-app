@@ -1,0 +1,106 @@
+{
+  "frame_id": 6,
+  "controls": {
+    "effort_low": {
+      "event": "thinking.effort.low",
+      "source_bounds": [
+        24.0,
+        58,
+        85.5,
+        36
+      ],
+      "enabled": true
+    },
+    "effort_medium": {
+      "event": "thinking.effort.medium",
+      "source_bounds": [
+        109.5,
+        58,
+        85.5,
+        36
+      ],
+      "enabled": true
+    },
+    "effort_high": {
+      "event": "thinking.effort.high",
+      "source_bounds": [
+        195.0,
+        58,
+        85.5,
+        36
+      ],
+      "enabled": true
+    },
+    "effort_max": {
+      "event": "thinking.effort.max",
+      "source_bounds": [
+        280.5,
+        58,
+        85.5,
+        36
+      ],
+      "enabled": true
+    },
+    "toggle_show_reasoning": {
+      "event": "thinking.show_reasoning",
+      "source_bounds": [
+        322,
+        132,
+        44,
+        26
+      ],
+      "enabled": true
+    },
+    "toggle_default_new": {
+      "event": "thinking.default_new",
+      "source_bounds": [
+        322,
+        192,
+        44,
+        26
+      ],
+      "enabled": true
+    },
+    "thinking_expand_all": {
+      "event": "thinking_expand_all",
+      "source_bounds": [
+        24,
+        252,
+        70,
+        20
+      ],
+      "enabled": true
+    },
+    "thinking_collapse_all": {
+      "event": "thinking_collapse_all",
+      "source_bounds": [
+        104,
+        252,
+        80,
+        20
+      ],
+      "enabled": true
+    },
+    "row_0": {
+      "event": "thinking.row_0",
+      "source_bounds": [
+        24,
+        284,
+        342,
+        40
+      ],
+      "enabled": true
+    },
+    "row_1": {
+      "event": "thinking.row_1",
+      "source_bounds": [
+        24,
+        428,
+        342,
+        40
+      ],
+      "enabled": true
+    }
+  },
+  "source": "phase4-new3-screen-06"
+}

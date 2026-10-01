@@ -1,0 +1,208 @@
+{
+  "height": 893,
+  "observations": [
+    {
+      "bounds": [
+        23.924940558140705,
+        31.584717138407196,
+        150.15011596679688,
+        30.725418742604404
+      ],
+      "confidence": 1,
+      "text": "Thinking effort"
+    },
+    {
+      "bounds": [
+        58.00000025714286,
+        107.87919455952382,
+        36,
+        17.979865771812054
+      ],
+      "confidence": 1,
+      "text": "Low"
+    },
+    {
+      "bounds": [
+        149.75444085572695,
+        107.03727712502157,
+        66.49111938476562,
+        21.6614634857348
+      ],
+      "confidence": 1,
+      "text": "Medium"
+    },
+    {
+      "bounds": [
+        270.00000013333334,
+        105.88143198376214,
+        43.999999999999986,
+        25.97091722595068
+      ],
+      "confidence": 1,
+      "text": "High"
+    },
+    {
+      "bounds": [
+        376.00000037999996,
+        107.87919455096194,
+        38.00000000000001,
+        19.97762863534676
+      ],
+      "confidence": 1,
+      "text": "Max"
+    },
+    {
+      "bounds": [
+        24.000005049999885,
+        165.81431797304253,
+        408,
+        23.97315436241607
+      ],
+      "confidence": 1,
+      "text": "Sets how much the model thinks before answering"
+    },
+    {
+      "bounds": [
+        23.94369676691852,
+        253.40953588624095,
+        140.11260986328125,
+        26.583613455428956
+      ],
+      "confidence": 1,
+      "text": "Show reasoning"
+    },
+    {
+      "bounds": [
+        24.000001139999966,
+        291.6733783157942,
+        338.00000000000006,
+        23.97315436241607
+      ],
+      "confidence": 1,
+      "text": "Shows the model's reasoning while it works"
+    },
+    {
+      "bounds": [
+        25.99999867500003,
+        363.5928412507131,
+        212,
+        21.97539149888137
+      ],
+      "confidence": 1,
+      "text": "Default on for new chats"
+    },
+    {
+      "bounds": [
+        23.999998975000025,
+        439.50783002757277,
+        82,
+        23.97315436241607
+      ],
+      "confidence": 1,
+      "text": "Expand all"
+    },
+    {
+      "bounds": [
+        163.96166126652145,
+        439.35010361390556,
+        90.07667541503906,
+        22.290842731527
+      ],
+      "confidence": 1,
+      "text": "Collaspe all"
+    },
+    {
+      "bounds": [
+        22.000002259999974,
+        511.4272929649888,
+        226,
+        21.97539149888137
+      ],
+      "confidence": 1,
+      "text": "v Weighed two approaches"
+    },
+    {
+      "bounds": [
+        296.0000007,
+        511.42729276521254,
+        150,
+        17.979865771812054
+      ],
+      "confidence": 1,
+      "text": "1.2k tokens 12s V"
+    },
+    {
+      "bounds": [
+        56.0000043499999,
+        559.3736017897091,
+        348,
+        19.97762863534676
+      ],
+      "confidence": 1,
+      "text": "Compared cache-first vs. queue-based designs."
+    },
+    {
+      "bounds": [
+        56.000000933333325,
+        603.3243844545116,
+        344,
+        19.97762863534676
+      ],
+      "confidence": 1,
+      "text": "Estimated reconnect scenarios and edge cases."
+    },
+    {
+      "bounds": [
+        56.0000040999999,
+        653.2684563758389,
+        328,
+        19.97762863534666
+      ],
+      "confidence": 1,
+      "text": "Considered impact on hydrate performance."
+    },
+    {
+      "bounds": [
+        56.00000422499991,
+        699.2170022371365,
+        338,
+        19.97762863534666
+      ],
+      "confidence": 1,
+      "text": "Chose queue-based with backoff and dedupe."
+    },
+    {
+      "bounds": [
+        21.999997880000038,
+        787.1185683125727,
+        212,
+        23.97315436241607
+      ],
+      "confidence": 1,
+      "text": "\u203a Checked the retry path"
+    },
+    {
+      "bounds": [
+        291.96804866738364,
+        788.9734094084573,
+        80.06390380859374,
+        18.26570900867987
+      ],
+      "confidence": 1,
+      "text": "862 tokens"
+    },
+    {
+      "bounds": [
+        395.87995092404367,
+        788.7490473419302,
+        48.24009704589844,
+        16.716670034182428
+      ],
+      "confidence": 0.5,
+      "text": "8sV"
+    }
+  ],
+  "width": 474,
+  "image_sha256": "e1c7dc9edc459c91f9e7c77ab946dece5c7bd0b8f88e9878c2f3f2526731ff93",
+  "engine": "Apple Vision VNRecognizeTextRequest accurate, en-US"
+}

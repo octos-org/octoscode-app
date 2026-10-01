@@ -1,0 +1,46 @@
+{
+  "frame_id": 7,
+  "controls": {
+    "resume_row_0": {
+      "event": "resume.select.0",
+      "source_bounds": [
+        32,
+        196,
+        342,
+        56
+      ],
+      "enabled": true
+    },
+    "resume_row_1": {
+      "event": "resume.select.1",
+      "source_bounds": [
+        32,
+        258,
+        342,
+        56
+      ],
+      "enabled": true
+    },
+    "resume_row_2": {
+      "event": "resume.select.2",
+      "source_bounds": [
+        32,
+        320,
+        342,
+        56
+      ],
+      "enabled": true
+    },
+    "resume_confirm": {
+      "event": "resume_confirm",
+      "source_bounds": [
+        292,
+        444,
+        74,
+        32
+      ],
+      "enabled": true
+    }
+  },
+  "source": "phase4-new3-screen-07"
+}

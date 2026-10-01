@@ -5,6 +5,7 @@
 //! `connect`/`models`/`workspace` (#29a/#29c) — the #29d2 merge keeps all four.
 //! #30c adds `fleet` (board 3.6/3.7) on task/30c.
 pub mod autonomy;
+pub mod board3;
 pub mod browser;
 pub mod connect;
 pub mod fleet;

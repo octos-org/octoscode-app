@@ -1,0 +1,149 @@
+# ledger phase4n3-07@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Resume chat" }
+copy banner_t_text { class: user-copy, en: "History browsing authority changed." }
+copy banner_s_text { class: user-copy, en: "Refresh the catalog before selecting this row." }
+copy cand_0_t_text { class: user-copy, en: "Fix steer queue drop on reconnect" }
+copy cand_0_s_text { class: user-copy, en: "octos · 2m" }
+copy cand_0_chip_t_text { class: user-copy, en: "unverified" }
+copy cand_1_t_text { class: user-copy, en: "Add session fork" }
+copy cand_1_s_text { class: user-copy, en: "octoscode-app · 1h" }
+copy cand_1_chip_t_text { class: user-copy, en: "unverified" }
+copy cand_2_t_text { class: user-copy, en: "Review PR #2566" }
+copy cand_2_s_text { class: user-copy, en: "octos · Yesterday" }
+copy cand_2_chip_t_text { class: user-copy, en: "unverified" }
+copy confirm_h_text { class: user-copy, en: "Confirm exact title to resume:" }
+copy resume_input_text_text { class: user-copy, en: "Type the exact thread title above" }
+copy resume_confirm_t_text { class: user-copy, en: "Resume" }
+copy t_note_text { class: user-copy, en: "A confirmed source Session is required to browse history." }
+copy locked_t_text { class: user-copy, en: "This retained Session is closed." }
+copy locked_chip_t_text { class: user-copy, en: "locked" }
+state resume_row_0_enabled { shape: bool, initial: true }
+state resume_row_1_enabled { shape: bool, initial: true }
+state resume_row_2_enabled { shape: bool, initial: true }
+state resume_input_enabled { shape: bool, initial: true }
+state resume_confirm_enabled { shape: bool, initial: false }
+component Surfacef468f03a0025(instance: text) {
+  view Kit(component: "Surfacef468f03a0025", instance: instance) { slot }
+}
+component Surfaceb101f26001b0(instance: text) {
+  view Kit(component: "Surfaceb101f26001b0", instance: instance) { slot }
+}
+component Surface11a4cded75fe(instance: text) {
+  view Kit(component: "Surface11a4cded75fe", instance: instance) { slot }
+}
+component Text840b7001f71f(instance: text, text: text) {
+  view Kit(component: "Text840b7001f71f", instance: instance, text: text)
+}
+component Surface3b2fa5e4ab48(instance: text) {
+  view Kit(component: "Surface3b2fa5e4ab48", instance: instance) { slot }
+}
+component Textef39c1926771(instance: text, text: text) {
+  view Kit(component: "Textef39c1926771", instance: instance, text: text)
+}
+component Text09ef707ce916(instance: text, text: text) {
+  view Kit(component: "Text09ef707ce916", instance: instance, text: text)
+}
+component Surface7a7bef822439(instance: text) {
+  view Kit(component: "Surface7a7bef822439", instance: instance) { slot }
+}
+component Surface630f9ff04df8(instance: text) {
+  view Kit(component: "Surface630f9ff04df8", instance: instance) { slot }
+}
+component Text53f97087be23(instance: text, text: text) {
+  view Kit(component: "Text53f97087be23", instance: instance, text: text)
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Surfaced4707dd25870(instance: text) {
+  view Kit(component: "Surfaced4707dd25870", instance: instance) { slot }
+}
+component Text88a0a021d32a(instance: text, text: text) {
+  view Kit(component: "Text88a0a021d32a", instance: instance, text: text)
+}
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Text1914bedecf20(instance: text, text: text) {
+  view Kit(component: "Text1914bedecf20", instance: instance, text: text)
+}
+component Surface5b0ae892523a(instance: text) {
+  view Kit(component: "Surface5b0ae892523a", instance: instance) { slot }
+}
+component Text40d05cb8823d(instance: text, text: text) {
+  view Kit(component: "Text40d05cb8823d", instance: instance, text: text)
+}
+component Text75ee4f0ef332(instance: text, text: text) {
+  view Kit(component: "Text75ee4f0ef332", instance: instance, text: text)
+}
+component Surface3ec9062c8dc7(instance: text) {
+  view Kit(component: "Surface3ec9062c8dc7", instance: instance) { slot }
+}
+component Textc87024c50e59(instance: text, text: text) {
+  view Kit(component: "Textc87024c50e59", instance: instance, text: text)
+}
+
+view root Surfacef468f03a0025(instance: "page") {
+  Surfaceb101f26001b0(instance: "scrim_70") {
+
+  }
+  Surface11a4cded75fe(instance: "modal_card") {
+    Text840b7001f71f(instance: "t_title", text: copy.t_title_text)
+    Surface3b2fa5e4ab48(instance: "banner") {
+      Textef39c1926771(instance: "banner_t", text: copy.banner_t_text)
+      Text09ef707ce916(instance: "banner_s", text: copy.banner_s_text)
+    }
+    Surface7a7bef822439(instance: "cand_0") {
+      Textef39c1926771(instance: "cand_0_t", text: copy.cand_0_t_text)
+      Text09ef707ce916(instance: "cand_0_s", text: copy.cand_0_s_text)
+      Surface630f9ff04df8(instance: "cand_0_chip") {
+        Text53f97087be23(instance: "cand_0_chip_t", text: copy.cand_0_chip_t_text)
+      }
+      NativeButton02f1d1bd99b4(instance: "resume_row_0", enabled: resume_row_0_enabled)
+    }
+    Surface7a7bef822439(instance: "cand_1") {
+      Textef39c1926771(instance: "cand_1_t", text: copy.cand_1_t_text)
+      Text09ef707ce916(instance: "cand_1_s", text: copy.cand_1_s_text)
+      Surface630f9ff04df8(instance: "cand_1_chip") {
+        Text53f97087be23(instance: "cand_1_chip_t", text: copy.cand_1_chip_t_text)
+      }
+      NativeButton02f1d1bd99b4(instance: "resume_row_1", enabled: resume_row_1_enabled)
+    }
+    Surface7a7bef822439(instance: "cand_2") {
+      Textef39c1926771(instance: "cand_2_t", text: copy.cand_2_t_text)
+      Text09ef707ce916(instance: "cand_2_s", text: copy.cand_2_s_text)
+      Surface630f9ff04df8(instance: "cand_2_chip") {
+        Text53f97087be23(instance: "cand_2_chip_t", text: copy.cand_2_chip_t_text)
+      }
+      NativeButton02f1d1bd99b4(instance: "resume_row_2", enabled: resume_row_2_enabled)
+    }
+    Surfaced4707dd25870(instance: "confirm") {
+      Text88a0a021d32a(instance: "confirm_h", text: copy.confirm_h_text)
+      Group3d2637879433(instance: "resume_input_row") {
+        Surfaced4707dd25870(instance: "resume_input_bg") {
+
+        }
+        Text1914bedecf20(instance: "resume_input_text", text: copy.resume_input_text_text)
+        NativeButton02f1d1bd99b4(instance: "resume_input", enabled: resume_input_enabled)
+      }
+      Group3d2637879433(instance: "resume_confirm_row") {
+        Surface5b0ae892523a(instance: "resume_confirm_bg") {
+
+        }
+        Text40d05cb8823d(instance: "resume_confirm_t", text: copy.resume_confirm_t_text)
+        NativeButton02f1d1bd99b4(instance: "resume_confirm", enabled: resume_confirm_enabled)
+      }
+    }
+    Text09ef707ce916(instance: "t_note", text: copy.t_note_text)
+    Surfaced4707dd25870(instance: "locked") {
+      Text75ee4f0ef332(instance: "locked_t", text: copy.locked_t_text)
+      Surface3ec9062c8dc7(instance: "locked_chip") {
+        Textc87024c50e59(instance: "locked_chip_t", text: copy.locked_chip_t_text)
+      }
+    }
+  }
+}

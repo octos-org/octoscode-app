@@ -1,0 +1,371 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surfacef468f03a0025",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "strip",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface7e9a576cd2e6",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        64
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "strip_model_t",
+      "native_id": "beauty_0_0_0",
+      "parent": "strip",
+      "kind": "text",
+      "component": "Textef39c1926771",
+      "semantic_role": "text",
+      "bounds": [
+        16,
+        24,
+        110,
+        16
+      ],
+      "text": "glm-4.6",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 13
+    },
+    {
+      "source_id": "strip_model",
+      "native_id": "beauty_0_0_1",
+      "parent": "strip",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        0,
+        0,
+        135,
+        64
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "strip_d1",
+      "native_id": "beauty_0_0_2",
+      "parent": "strip",
+      "kind": "stack",
+      "component": "Surfacec4c38149242a",
+      "semantic_role": "layout",
+      "bounds": [
+        135,
+        12,
+        1,
+        40
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "strip_activity_t",
+      "native_id": "beauty_0_0_3",
+      "parent": "strip",
+      "kind": "text",
+      "component": "Textc9b85a486b80",
+      "semantic_role": "text",
+      "bounds": [
+        143,
+        24,
+        118,
+        16
+      ],
+      "text": "Working\u2026",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13
+    },
+    {
+      "source_id": "strip_activity",
+      "native_id": "beauty_0_0_4",
+      "parent": "strip",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        136,
+        0,
+        133,
+        64
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "strip_d2",
+      "native_id": "beauty_0_0_5",
+      "parent": "strip",
+      "kind": "stack",
+      "component": "Surfacec4c38149242a",
+      "semantic_role": "layout",
+      "bounds": [
+        270,
+        12,
+        1,
+        40
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "strip_perm_t",
+      "native_id": "beauty_0_0_6",
+      "parent": "strip",
+      "kind": "text",
+      "component": "Textc9b85a486b80",
+      "semantic_role": "text",
+      "bounds": [
+        286,
+        24,
+        100,
+        16
+      ],
+      "text": "Write",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13
+    },
+    {
+      "source_id": "strip_permissions",
+      "native_id": "beauty_0_0_7",
+      "parent": "strip",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        271,
+        0,
+        135,
+        64
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_legend",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text09ef707ce916",
+      "semantic_role": "text",
+      "bounds": [
+        16,
+        80,
+        240,
+        14
+      ],
+      "text": "Model, permissions, sandbox",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "state_0",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface5263a122e2e4",
+      "semantic_role": "layout",
+      "bounds": [
+        16,
+        108,
+        90.4,
+        20
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "state_0_t",
+      "native_id": "beauty_0_2_0",
+      "parent": "state_0",
+      "kind": "text",
+      "component": "Text7cc0a36130db",
+      "semantic_role": "text",
+      "bounds": [
+        24,
+        111,
+        74.4,
+        14
+      ],
+      "text": "Reconnecting",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 10
+    },
+    {
+      "source_id": "state_1",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface5263a122e2e4",
+      "semantic_role": "layout",
+      "bounds": [
+        16,
+        142,
+        102.8,
+        20
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "state_1_t",
+      "native_id": "beauty_0_3_0",
+      "parent": "state_1",
+      "kind": "text",
+      "component": "Text7cc0a36130db",
+      "semantic_role": "text",
+      "bounds": [
+        24,
+        145,
+        86.8,
+        14
+      ],
+      "text": "Resuming chat\u2026",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 10
+    },
+    {
+      "source_id": "state_2",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface5263a122e2e4",
+      "semantic_role": "layout",
+      "bounds": [
+        16,
+        176,
+        146.2,
+        20
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "state_2_t",
+      "native_id": "beauty_0_4_0",
+      "parent": "state_2",
+      "kind": "text",
+      "component": "Text7cc0a36130db",
+      "semantic_role": "text",
+      "bounds": [
+        24,
+        179,
+        130.2,
+        14
+      ],
+      "text": "Handing back control\u2026",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 10
+    },
+    {
+      "source_id": "info",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface7a7bef822439",
+      "semantic_role": "layout",
+      "bounds": [
+        16,
+        232,
+        342,
+        40
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "info_dot",
+      "native_id": "beauty_0_5_0",
+      "parent": "info",
+      "kind": "stack",
+      "component": "Surface5e3dc430757b",
+      "semantic_role": "layout",
+      "bounds": [
+        28,
+        161,
+        10,
+        10
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "info_t",
+      "native_id": "beauty_0_5_1",
+      "parent": "info",
+      "kind": "text",
+      "component": "Text6d079c80f2e2",
+      "semantic_role": "text",
+      "bounds": [
+        48,
+        156,
+        300,
+        16
+      ],
+      "text": "Another app is using this session",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "f6dad0371e869ec3d78c7dd459a03841665f8d4982c622d509f9affa7bd8a8c5",
+  "mapping_basis": "requested contract; image measurements gated separately"
+}

@@ -1904,6 +1904,18 @@ impl OctoscodeView {
             });
             return;
         }
+        // D3b — board-3 screens 5-8: the cards' NAV events write their store
+        // seams (thinking prefs, folded-thinking rows, the resume gate).
+        if screens::board3::owns(action) {
+            let action = action.to_string();
+            let store = store.clone();
+            rt.spawn(async move {
+                if let Err(e) = screens::board3::perform(&action, &store) {
+                    ::log::warn!("octoscode: screens: {action:?}: {e}");
+                }
+            });
+            return;
+        }
         // P4f1: the history mutations (undo/rewind/fork) behind the history
         // dialog's three titles. The dialog itself is a design-flow surface;
         // these are the production paths it dispatches into.
@@ -2497,6 +2509,9 @@ impl OctoscodeView {
             let lowered = if screens::models::card_for(&which).is_some() {
                 let ctx = bindings::Ctx::new(&store, &ui);
                 screens::models::lower(&which, &ctx)
+            } else if screens::board3::card_for(&which).is_some() {
+                // D3b — board-3 screens 5-8 mount where the web opens them.
+                screens::board3::lower(&which)
             } else if screens::theme::card_for(&which).is_some() {
                 screens::theme::lower(&which, &store)
             } else if let Some(screen) = screens::autonomy::Screen3::from_env() {
