@@ -134,11 +134,18 @@ script_mod! {
                     // stop short of that edge (the list reserves its scrollbar).
                     // Give the card the same right inset so the two align.
                     margin: Inset{left: 0 top: 0 right: 13 bottom: 0}
-                    // Card #21e item 2: the #16 `new-chat` component's artboard is
-                    // 374x76 (scene-01 `mapped.json`); a fixed 44px slot clipped its
-                    // bottom edge flat under the label. `Fit` takes the component's
-                    // own measured height (the same idiom `thread_splash` uses).
-                    new_chat_splash := Splash { width: Fill height: Fit }
+                    // #35b: the hit target is declared BEFORE the Splash, not after.
+                    // Makepad hands a MouseDown to the FIRST widget in traversal
+                    // order that contains the point and then sets `e.handled`
+                    // (finger.rs:1481-1483: a widget returns Hit::Nothing once an
+                    // earlier one handled the press). The component's own inner
+                    // Button (`i0_newchat_1`) fully covers the hit target
+                    // (/d: 66,139,225,76 over 66,142,225,70), so with the Splash
+                    // first the component always won and `session.new` never
+                    // fired. Declared first, the host claims the press and routes
+                    // it (the #21c "the component's button lives in the Splash
+                    // isolate and never reports to the host" contract, inverted
+                    // so the HOST target is the one that receives it).
                     new_chat_hit := Button {
                         width: Fill height: Fill text: ""
                         draw_bg.color: #00000000
@@ -149,6 +156,11 @@ script_mod! {
                         draw_bg.border_color: #00000000
                         draw_bg.border_color_2: #00000000
                     }
+                    // Card #21e item 2: the #16 `new-chat` component's artboard is
+                    // 374x76 (scene-01 `mapped.json`); a fixed 44px slot clipped its
+                    // bottom edge flat under the label. `Fit` takes the component's
+                    // own measured height (the same idiom `thread_splash` uses).
+                    new_chat_splash := Splash { width: Fill height: Fit }
                 }
                 // Card #28e item 1: the autonomy sections — GOALS / LOOPS / FLEET
                 // — appear only when the session has them (board 4 frame 3).
@@ -289,7 +301,10 @@ script_mod! {
                     margin: Inset{left: 0 top: 0 right: 13 bottom: 0}
                     ThreadRowTpl := View {
                         width: Fill height: Fit flow: Overlay
-                        thread_splash := Splash { width: Fill height: Fit }
+                        // #35b: row_hit BEFORE the Splash, same reason as
+                        // new_chat_hit above — the component's own inner Button
+                        // covers this rect and won the MouseDown's `e.handled`
+                        // race, so `thread.open` never fired.
                         row_hit := Button {
                             width: Fill height: Fill text: ""
                             draw_bg.color: #00000000
@@ -300,6 +315,7 @@ script_mod! {
                             draw_bg.border_color: #00000000
                             draw_bg.border_color_2: #00000000
                         }
+                        thread_splash := Splash { width: Fill height: Fit }
                     }
                 }
             }
@@ -352,7 +368,8 @@ script_mod! {
                         // component (`Splash height: Fit` measures its root), so a
                         // bubble hugs its text and prose is not clipped.
                         width: Fill height: Fit flow: Overlay
-                        item_splash := Splash { width: Fill height: Fit }
+                        // #35b: row_hit BEFORE the Splash — same MouseDown
+                        // `e.handled` race as new_chat_hit / the thread row.
                         row_hit := Button {
                             width: Fill height: Fill text: ""
                             draw_bg.color: #00000000
@@ -363,6 +380,7 @@ script_mod! {
                             draw_bg.border_color: #00000000
                             draw_bg.border_color_2: #00000000
                         }
+                        item_splash := Splash { width: Fill height: Fit }
                     }
                 }
                 // Card #21c item 5: ONE composer — the #16 `composer` component is
