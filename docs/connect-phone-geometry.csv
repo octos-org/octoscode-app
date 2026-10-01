@@ -1,0 +1,4 @@
+node,label,x,y,w,h,right,bottom,left_margin,right_margin,centred
+beauty_0_0,card,10.00,10.00,364.00,756.00,374.00,766.00,10.00,10.00,true
+server,input,60.00,222.58,286.00,25.50,346.00,248.08,,9.00,9.80,true
+token,input,60.00,347.29,286.00,25.50,346.00,372.79,,4.00,4.65,true
