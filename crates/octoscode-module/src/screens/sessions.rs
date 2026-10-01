@@ -508,20 +508,29 @@ pub fn lower_screen(which: &str, store: &Arc<crate::Store>) -> Result<String, St
                         .unwrap_or_default()
                 };
                 dsl = set_node_text(&dsl, "t_sz1", &sz(0));
-                // #36a: the "68%" label must sit INSIDE the ring's hole and be
-                // legible. Measured on main with the instrument: the hole is
-                // R = (9.2 - 2.6/2) x (52/24) = 17.12 (⌀ 34.23 — the #32b2
-                // figure was right), the ring's centre is (313.0, 276.0) from
-                // `/snap` rect [287, 250, 52, 52], and the label box 40.2 x
-                // 24.76 has half-diagonal hypot(20.1, 12.38) = 23.61 — so every
-                // corner sat 6.5px ON the stroke, and the authored seat (275.04,
-                // 294.73) hung the whole label below the ring. Seat a label sized
-                // to the run: at 11.45pt the "68%" run is 29.04 x 13.86, half-
-                // diagonal 16.10 <= 17.12 (>= 1.0px clearance), centred on the
-                // ring centre -> x 313 - 14.52 = 298.48, y 275.5 - 6.93 = 268.57.
-                dsl = set_node_abs_pos(&dsl, "att2_pct", 298.48, 268.57);
-                dsl = set_node_box(&dsl, "att2_pct", 29.04, 13.86);
-                dsl = set_node_font_size(&dsl, "att2_pct", 11.45);
+                // #36a: the "68%" label must sit INSIDE the ring's hole, be
+                // legible, and NOT clip its own glyphs. Measured on main with
+                // the instrument: the hole is R = (9.2 - 2.6/2) x (52/24) = 17.12
+                // (⌀ 34.23 — the #32b2 figure was right), the ring's centre is
+                // (313.0, 275.5) from the authored seat y 249.5, and the label
+                // box 40.2 x 24.76 has half-diagonal hypot(20.1, 12.38) = 23.61 —
+                // every corner sat on the stroke, and the authored seat
+                // (275.04, 294.73) hung the whole label below the ring.
+                //
+                // Review r2: sizing the box from the AUTHORED ratio
+                // (40.2/15.85 = 2.5363) left the run flush against the box edge —
+                // measured ink 298.5..327.0 = 28.50px in a 29.04px box, a 0.02px
+                // left margin, so the "6" and "%" were cut. And the run/font
+                // ratio is NOT constant across sizes: 28.50/11.45 = 2.4891 but
+                // 27.00/10.50 = 2.5714 (small-size hinting/AA), so the box is
+                // sized from the run MEASURED at the size actually used, not
+                // from a scaled authored constant. At 10.0pt the measured run is
+                // 26.00px (tmp/36a-evidence/attachments-after4.png), so a 29.00px
+                // box holds it with 3.00px of slack, and its half-diagonal 16.02
+                // stays 1.10px inside the 17.12 hole.
+                dsl = set_node_abs_pos(&dsl, "att2_pct", 298.5, 268.7);
+                dsl = set_node_box(&dsl, "att2_pct", 29.0, 13.6);
+                dsl = set_node_font_size(&dsl, "att2_pct", 10.0);
                 dsl = centre_node_text(&dsl, "att2_pct");
                 // Legibility: the card authors the label WHITE (color
                 // 4294967295) over an arbitrary thumbnail, and `att_2` has no

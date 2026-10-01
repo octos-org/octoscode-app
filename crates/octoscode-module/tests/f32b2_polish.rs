@@ -97,14 +97,15 @@ fn attachments_pct_label_centres_in_the_ring() {
     // Box sized to the run and centred on the ring centre, run centred in it.
     assert!(
         att.contains(
-            "att2_pct := Label {\nwidth: 29.04 height: 13.86\nabs_pos: vec2(298.48, 268.57)"
+            "att2_pct := Label {\nwidth: 29 height: 13.6\nabs_pos: vec2(298.5, 268.7)"
         ),
-        "the label box centres on the ring centre (#36a geometry)"
+        "the label box centres on the ring centre (#36a r2 geometry)"
     );
     assert!(
         !att.contains("vec2(275.04, 294.73)")
             && !att.contains("vec2(292.9, 295)")
-            && !att.contains("vec2(292.9, 263.12)"),
-        "neither the authored, the below-ring, nor the oversize #32b2 seat may remain"
+            && !att.contains("vec2(292.9, 263.12)")
+            && !att.contains("vec2(298.48, 268.57)"),
+        "neither the authored, the below-ring, nor either #36a box may remain"
     );
 }

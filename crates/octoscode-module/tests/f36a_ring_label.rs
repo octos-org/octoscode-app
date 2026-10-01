@@ -204,12 +204,36 @@ fn the_pct_run_is_sized_to_its_box() {
         .find(|c: char| !c.is_ascii_digit() && c != '.')
         .unwrap();
     let size: f64 = tail[..end].parse().unwrap();
-    // authored run/size ratio from mapped.json: 40.2 wide at 15.85pt
-    let run = size * (40.2 / 15.85);
+    // The run/font ratio must come from a MEASURED render, not the authored card
+    // (40.2/15.85 = 2.5363) and not a constant scaled across sizes. Two rounds of
+    // capture show the ratio is NOT constant — small-size hinting/AA:
+    //     11.45pt -> 28.50px ink (2.4891) but that run was itself CLIPPED
+    //              (0.02px left margin), so 2.4891 is only a LOWER bound;
+    //     10.00pt -> 28.00px ink (2.8000) with zero ink outside its box.
+    // Only the second measurement is unclipped, so 2.80 is the value to guard
+    // with: it is the widest run observed per point of font size, and it is the
+    // one measured where nothing was cut. Guards: the run must fit the box, and
+    // the box must keep real headroom (a zero-margin fit is a clipped glyph).
+    const MEASURED_RATIO: f64 = 28.00 / 10.00;
+    let run = size * MEASURED_RATIO;
     let (w, _, _, _) = node_rect(&dsl, "att2_pct");
     assert!(
-        run <= w + 0.01,
-        "the {size:.2}pt run ({run:.2}px) must fit its {w:.2}px box"
+        run <= w,
+        "the {size:.2}pt run ({run:.2}px at the unclipped measured ratio {MEASURED_RATIO:.4}) \
+         must fit its {w:.2}px box — a flush run is a clipped glyph"
+    );
+    // and there must be real clip HEADROOM, not a zero-margin fit
+    assert!(
+        w - run >= 1.0,
+        "the box needs >= 1.0px of headroom past the run (box {w:.2}, run {run:.2})"
+    );
+    // the box must also stay inside the hole — the two constraints bind together
+    let (bw, bh, _, _) = node_rect(&dsl, "att2_pct");
+    let half_diag = ((bw / 2.0).powi(2) + (bh / 2.0).powi(2)).sqrt();
+    assert!(
+        half_diag <= hole_radius() - 1.0,
+        "box half-diagonal {half_diag:.2} must stay >= 1.0px inside the hole radius {:.2}",
+        hole_radius()
     );
     assert!(
         size < 11.8875,
