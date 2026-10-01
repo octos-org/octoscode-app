@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "119a8712b86da0f63a6c42bcf845ae47b6372d1f55db43a40fb5fe4ef42d694e",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t_title",
+      "expected_text": "Pair with Octos",
+      "requested_bounds": [
+        106.01,
+        97.0,
+        193.98,
+        30.0
+      ],
+      "status": "observed",
+      "ocr_text": "Pair with Octos",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        108.0,
+        97.0,
+        190.5,
+        20.5
+      ],
+      "ink_color": [
+        10,
+        10,
+        10
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        106.0111,
+        97.0,
+        193.9778,
+        22.55815
+      ]
+    },
+    {
+      "id": "t_pairing",
+      "expected_text": "Pairing with 192.168.1.20...",
+      "requested_bounds": [
+        69.92,
+        346.27,
+        261.64,
+        24.0
+      ],
+      "status": "observed",
+      "ocr_text": "Pairing with 192.168.1.20...",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        71.5,
+        347.0,
+        256.0,
+        21.5
+      ],
+      "ink_color": [
+        12,
+        12,
+        12
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        69.92225,
+        346.26745,
+        261.64445,
+        22.73255
+      ]
+    },
+    {
+      "id": "t_once",
+      "expected_text": "This code works once.",
+      "requested_bounds": [
+        104.88,
+        420.5,
+        198.49,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "This code works once.",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        106.0,
+        421.0,
+        194.0,
+        15.0
+      ],
+      "ink_color": [
+        101,
+        100,
+        101
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        104.88335,
+        420.5,
+        198.4889,
+        19.5
+      ]
+    },
+    {
+      "id": "pair_cancel_label",
+      "expected_text": "Cancel",
+      "requested_bounds": [
+        174.0,
+        634.0,
+        61.0,
+        22.5
+      ],
+      "status": "observed",
+      "ocr_text": "Cancel",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        175.5,
+        638.5,
+        53.0,
+        14.5
+      ],
+      "ink_color": [
+        8,
+        8,
+        7
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        174.80555,
+        637.26745,
+        59.7722,
+        16.9186
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "pair_back_chev",
+      "bounds": [
+        17.0,
+        58.0,
+        14.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "pair_back_control",
+      "bounds": [
+        7.0,
+        49.0,
+        34.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "spinner",
+      "bounds": [
+        191.0,
+        288.0,
+        24.0,
+        24.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "pair_cancel",
+      "bounds": [
+        131.0,
+        622.0,
+        144.0,
+        48.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "pair_cancel_surface",
+      "bounds": [
+        131.0,
+        622.0,
+        144.0,
+        48.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 24.0
+    },
+    {
+      "id": "pair_cancel_control",
+      "bounds": [
+        131.0,
+        622.0,
+        144.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        -0.2335,
+        -1.3118,
+        221.5114,
+        43.2282
+      ],
+      "confidence": 1.0,
+      "text": "2. Pairing..."
+    },
+    {
+      "bounds": [
+        33.8333,
+        108.2791,
+        42.8556,
+        63.1628
+      ],
+      "confidence": 1.0,
+      "text": "<"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

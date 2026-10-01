@@ -1,0 +1,255 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "2e0b9de79e8cd1e4164b67852c273fcf18e8e11ef75e87a2c0c71e7a245d7597",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      15.0,
+      557.0,
+      373.0,
+      54.0
+    ],
+    [
+      17.0,
+      491.0,
+      369.0,
+      53.0
+    ],
+    [
+      14.0,
+      488.0,
+      375.0,
+      59.0
+    ],
+    [
+      17.0,
+      361.0,
+      370.0,
+      57.0
+    ],
+    [
+      17.0,
+      299.0,
+      370.0,
+      60.0
+    ],
+    [
+      17.0,
+      296.0,
+      370.0,
+      63.0
+    ],
+    [
+      17.0,
+      190.0,
+      370.0,
+      62.0
+    ],
+    [
+      14.0,
+      188.0,
+      376.0,
+      233.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "row_0",
+      "bounds": [
+        17.0,
+        190.0,
+        370.0,
+        62.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 15.5
+    },
+    {
+      "id": "fld_0",
+      "bounds": [
+        46.0,
+        211.0,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "row_0_control",
+      "bounds": [
+        28.0,
+        196.0,
+        350.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "row_1",
+      "bounds": [
+        17.0,
+        296.0,
+        370.0,
+        63.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 15.75
+    },
+    {
+      "id": "fld_1",
+      "bounds": [
+        46.0,
+        263.0,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "row_1_control",
+      "bounds": [
+        28.0,
+        248.0,
+        350.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "row_2",
+      "bounds": [
+        17.0,
+        299.0,
+        370.0,
+        60.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 15.0
+    },
+    {
+      "id": "fld_2",
+      "bounds": [
+        46.0,
+        323.0,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "row_2_control",
+      "bounds": [
+        28.0,
+        308.0,
+        350.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "row_3",
+      "bounds": [
+        17.0,
+        361.0,
+        370.0,
+        57.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 14.25
+    },
+    {
+      "id": "fld_3",
+      "bounds": [
+        46.0,
+        379.0,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "row_3_control",
+      "bounds": [
+        28.0,
+        364.0,
+        350.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "browser_path",
+      "bounds": [
+        28.0,
+        490.0,
+        350.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "browser_use",
+      "bounds": [
+        15.0,
+        557.0,
+        373.0,
+        54.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "browser_use_surface",
+      "bounds": [
+        15.0,
+        557.0,
+        373.0,
+        54.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279176975,
+      "radius": 27.0
+    },
+    {
+      "id": "browser_use_control",
+      "bounds": [
+        15.0,
+        557.0,
+        373.0,
+        54.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ]
+}

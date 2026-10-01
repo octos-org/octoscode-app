@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "3bf85f94c7517d93f2346b6da3b7bf773cfd0e2fabcc8152e44670903f2928bb",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      25.0,
+      483.0,
+      356.0,
+      56.0
+    ],
+    [
+      22.0,
+      481.0,
+      362.0,
+      61.0
+    ],
+    [
+      67.0,
+      382.0,
+      260.0,
+      49.0
+    ],
+    [
+      65.0,
+      379.0,
+      265.0,
+      55.0
+    ],
+    [
+      27.0,
+      201.0,
+      355.0,
+      136.0
+    ],
+    [
+      25.0,
+      198.0,
+      359.0,
+      142.0
+    ],
+    [
+      1.0,
+      67.0,
+      404.0,
+      534.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "cal_refused",
+      "bounds": [
+        27.0,
+        201.0,
+        355.0,
+        136.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294440951,
+      "radius": 13.2
+    },
+    {
+      "id": "browser_back",
+      "bounds": [
+        67.0,
+        382.0,
+        260.0,
+        49.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "browser_back_surface",
+      "bounds": [
+        67.0,
+        382.0,
+        260.0,
+        49.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 24.5
+    },
+    {
+      "id": "browser_back_control",
+      "bounds": [
+        67.0,
+        382.0,
+        260.0,
+        49.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "browser_path",
+      "bounds": [
+        28.0,
+        488.0,
+        350.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ]
+}

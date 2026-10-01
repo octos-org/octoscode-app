@@ -1,0 +1,26 @@
+{
+  "frame_id": 9,
+  "controls": {
+    "browser_back": {
+      "event": "browser.back",
+      "source_bounds": [
+        28,
+        382,
+        350,
+        44
+      ],
+      "enabled": true
+    },
+    "browser_path": {
+      "event": "browser.path",
+      "source_bounds": [
+        28,
+        488,
+        350,
+        48
+      ],
+      "enabled": true
+    }
+  },
+  "source": "workspace-browser"
+}

@@ -1,0 +1,26 @@
+{
+  "frame_id": 2,
+  "controls": {
+    "pair_back": {
+      "event": "pair.back",
+      "source_bounds": [
+        7,
+        49,
+        34,
+        40
+      ],
+      "enabled": true
+    },
+    "pair_cancel": {
+      "event": "pair.cancel",
+      "source_bounds": [
+        133,
+        622,
+        140,
+        44
+      ],
+      "enabled": true
+    }
+  },
+  "source": "pairing"
+}

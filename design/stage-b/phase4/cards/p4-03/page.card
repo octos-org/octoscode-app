@@ -1,0 +1,81 @@
+# ledger p4-03@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Pair with Octos" }
+copy t_cal1_text { class: user-copy, en: "This pairing link was already used." }
+copy t_cal2_text { class: user-copy, en: "Ask Octos for a new code." }
+copy t_srv_label_text { class: user-copy, en: "Server" }
+copy connect_server_text { class: user-copy, en: "http://192.168.1.20:50190" }
+copy connect_server_placeholder { class: user-copy, en: "" }
+copy t_tok_label_text { class: user-copy, en: "Access token" }
+copy connect_token_text { class: user-copy, en: "" }
+copy connect_token_placeholder { class: user-copy, en: "" }
+copy connect_submit_label_text { class: user-copy, en: "Connect" }
+state connect_server_enabled { shape: bool, initial: true }
+state connect_token_enabled { shape: bool, initial: true }
+state connect_submit_control_enabled { shape: bool, initial: true }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Text685b5767cd4b(instance: text, text: text) {
+  view Kit(component: "Text685b5767cd4b", instance: instance, text: text)
+}
+component Surface64f6d205179a(instance: text) {
+  view Kit(component: "Surface64f6d205179a", instance: instance) { slot }
+}
+component Textec6b2ee1b329(instance: text, text: text) {
+  view Kit(component: "Textec6b2ee1b329", instance: instance, text: text)
+}
+component Text7c315f4db910(instance: text, text: text) {
+  view Kit(component: "Text7c315f4db910", instance: instance, text: text)
+}
+component Text475cf652a069(instance: text, text: text) {
+  view Kit(component: "Text475cf652a069", instance: instance, text: text)
+}
+component Inputbf8299260317(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Inputbf8299260317", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+}
+component Text786141d7d45d(instance: text, text: text) {
+  view Kit(component: "Text786141d7d45d", instance: instance, text: text)
+}
+component Input508f95901acf(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Input508f95901acf", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+}
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surface4b77e2726ce6(instance: text) {
+  view Kit(component: "Surface4b77e2726ce6", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Text4dc575d33cb7(instance: text, text: text) {
+  view Kit(component: "Text4dc575d33cb7", instance: instance, text: text)
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Text685b5767cd4b(instance: "t_title", text: copy.t_title_text)
+  Surface64f6d205179a(instance: "cal_red") {
+
+  }
+  Textec6b2ee1b329(instance: "t_cal1", text: copy.t_cal1_text)
+  Text7c315f4db910(instance: "t_cal2", text: copy.t_cal2_text)
+  Text475cf652a069(instance: "t_srv_label", text: copy.t_srv_label_text)
+  Inputbf8299260317(instance: "connect_server", text: copy.connect_server_text, placeholder: copy.connect_server_placeholder, enabled: connect_server_enabled) {
+
+  }
+  Text786141d7d45d(instance: "t_tok_label", text: copy.t_tok_label_text)
+  Input508f95901acf(instance: "connect_token", text: copy.connect_token_text, placeholder: copy.connect_token_placeholder, enabled: connect_token_enabled) {
+
+  }
+  KitButton2c6804b990a5(instance: "connect_submit") {
+    Surface4b77e2726ce6(instance: "connect_submit_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "connect_submit_control", enabled: connect_submit_control_enabled)
+    Text4dc575d33cb7(instance: "connect_submit_label", text: copy.connect_submit_label_text)
+  }
+}

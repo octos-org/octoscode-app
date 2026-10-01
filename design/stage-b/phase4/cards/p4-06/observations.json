@@ -1,0 +1,593 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "10cd5bbd141138aa20779484ae3dc4e62997570b0f25201115bcf955ab66d1d3",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t_title",
+      "expected_text": "Edit provider",
+      "requested_bounds": [
+        117.26,
+        154.37,
+        155.69,
+        30.0
+      ],
+      "status": "observed",
+      "ocr_text": "Edit provider",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        120.0,
+        155.5,
+        149.0,
+        24.5
+      ],
+      "ink_color": [
+        10,
+        10,
+        10
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        117.26215,
+        154.3688,
+        155.68675,
+        27.37865
+      ]
+    },
+    {
+      "id": "t_name_label",
+      "expected_text": "Name",
+      "requested_bounds": [
+        20.3,
+        194.0,
+        42.86,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "Name",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        22.0,
+        195.0,
+        38.5,
+        12.5
+      ],
+      "ink_color": [
+        13,
+        13,
+        12
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        20.3,
+        194.0,
+        42.85555,
+        15.7907
+      ]
+    },
+    {
+      "id": "t_url_label",
+      "expected_text": "Base URL",
+      "requested_bounds": [
+        20.17,
+        271.24,
+        70.18,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "Base URL",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        22.0,
+        274.0,
+        65.5,
+        12.5
+      ],
+      "ink_color": [
+        22,
+        21,
+        21
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        20.17205,
+        271.2384,
+        70.1781,
+        16.96505
+      ]
+    },
+    {
+      "id": "t_key_label",
+      "expected_text": "API key",
+      "requested_bounds": [
+        20.3,
+        348.5,
+        54.13,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "API key",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        21.0,
+        349.5,
+        51.0,
+        16.0
+      ],
+      "ink_color": [
+        27,
+        27,
+        27
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        20.3,
+        348.5,
+        54.13335,
+        18.06975
+      ]
+    },
+    {
+      "id": "t_models_label",
+      "expected_text": "Models",
+      "requested_bounds": [
+        19.15,
+        431.93,
+        51.92,
+        22.5
+      ],
+      "status": "observed",
+      "ocr_text": "Models",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        22.0,
+        433.5,
+        47.5,
+        12.5
+      ],
+      "ink_color": [
+        24,
+        23,
+        24
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        19.15225,
+        431.9269,
+        51.91775,
+        17.0415
+      ]
+    },
+    {
+      "id": "t_model_0",
+      "expected_text": "deepseek-v4-flash (default)",
+      "requested_bounds": [
+        34.96,
+        469.0,
+        198.49,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "deepseek-v4-flash (default)",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        37.0,
+        469.5,
+        193.0,
+        17.5
+      ],
+      "ink_color": [
+        34,
+        34,
+        34
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        34.9611,
+        469.0,
+        198.4889,
+        19.5
+      ]
+    },
+    {
+      "id": "t_model_1",
+      "expected_text": "deepseek-v4-flash (default)",
+      "requested_bounds": [
+        34.96,
+        469.0,
+        198.49,
+        21.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_model_2",
+      "expected_text": "deepseek-chat",
+      "requested_bounds": [
+        34.83,
+        551.93,
+        107.4,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "deepseek-chat",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        37.0,
+        554.0,
+        103.0,
+        17.0
+      ],
+      "ink_color": [
+        36,
+        36,
+        36
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        34.8326,
+        551.92825,
+        107.39595,
+        20.6668
+      ]
+    },
+    {
+      "id": "prov_cancel_label",
+      "expected_text": "Cancel",
+      "requested_bounds": [
+        74.0,
+        618.0,
+        57.0,
+        22.5
+      ],
+      "status": "observed",
+      "ocr_text": "Cancel",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        75.5,
+        623.5,
+        50.0,
+        15.0
+      ],
+      "ink_color": [
+        14,
+        13,
+        13
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        74.4062,
+        622.5156,
+        55.3154,
+        17.09665
+      ]
+    },
+    {
+      "id": "prov_save_label",
+      "expected_text": "Save",
+      "requested_bounds": [
+        272.0,
+        618.0,
+        42.0,
+        22.5
+      ],
+      "status": "observed",
+      "ocr_text": "Save",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        275.0,
+        623.5,
+        34.5,
+        15.0
+      ],
+      "ink_color": [
+        253,
+        253,
+        253
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        272.9222,
+        622.60465,
+        38.34445,
+        16.9186
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "prov_name",
+      "bounds": [
+        28.0,
+        218.0,
+        350.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "prov_url",
+      "bounds": [
+        28.0,
+        296.0,
+        350.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "prov_key",
+      "bounds": [
+        28.0,
+        374.0,
+        350.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "key_eye",
+      "bounds": [
+        350.0,
+        386.0,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "key_eye_control",
+      "bounds": [
+        342.0,
+        378.0,
+        36.0,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "chk_0",
+      "bounds": [
+        40.0,
+        467.0,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "model_0_control",
+      "bounds": [
+        28.0,
+        462.0,
+        350.0,
+        34.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "chk_1",
+      "bounds": [
+        40.0,
+        467.0,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "model_1_control",
+      "bounds": [
+        28.0,
+        503.0,
+        350.0,
+        34.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "chk_2",
+      "bounds": [
+        40.0,
+        549.93,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "model_2_control",
+      "bounds": [
+        28.0,
+        545.0,
+        350.0,
+        34.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "prov_cancel",
+      "bounds": [
+        21.0,
+        607.0,
+        161.0,
+        48.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "prov_cancel_surface",
+      "bounds": [
+        21.0,
+        607.0,
+        161.0,
+        48.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 24.0
+    },
+    {
+      "id": "prov_cancel_control",
+      "bounds": [
+        21.0,
+        607.0,
+        161.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "prov_save",
+      "bounds": [
+        203.0,
+        604.0,
+        176.0,
+        53.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "prov_save_surface",
+      "bounds": [
+        203.0,
+        604.0,
+        176.0,
+        53.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279176975,
+      "radius": 26.5
+    },
+    {
+      "id": "prov_save_control",
+      "bounds": [
+        203.0,
+        604.0,
+        176.0,
+        53.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        0.0,
+        148.8837,
+        320.2889,
+        38.3488
+      ],
+      "confidence": 1.0,
+      "text": "6. Provider editor"
+    },
+    {
+      "bounds": [
+        74.4333,
+        457.9302,
+        360.8889,
+        41.0698
+      ],
+      "confidence": 1.0,
+      "text": "DeepSeek \u2022 Official API"
+    },
+    {
+      "bounds": [
+        72.1778,
+        615.8372,
+        430.8111,
+        38.3488
+      ],
+      "confidence": 0.5,
+      "text": "https://api.deepseek.com/v1"
+    },
+    {
+      "bounds": [
+        281.9444,
+        773.7442,
+        54.1333,
+        20.3023
+      ],
+      "confidence": 1.0,
+      "text": "..."
+    },
+    {
+      "bounds": [
+        363.1444,
+        773.7442,
+        162.4,
+        20.3023
+      ],
+      "confidence": 1.0,
+      "text": "....."
+    },
+    {
+      "bounds": [
+        157.8889,
+        776.0,
+        49.6222,
+        11.2791
+      ],
+      "confidence": 1.0,
+      "text": "\u2022 \u2022 o"
+    },
+    {
+      "bounds": [
+        69.746,
+        1020.9935,
+        189.8191,
+        40.1293
+      ],
+      "confidence": 1.0,
+      "text": "deepseek-v4"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

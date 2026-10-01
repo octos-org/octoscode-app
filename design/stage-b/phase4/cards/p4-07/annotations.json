@@ -1,0 +1,338 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "6dd789b5d18f34b568f48404e6542f7d04e175f70778daed9391c13f639b2699",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      22.0,
+      519.0,
+      152.0,
+      43.0
+    ],
+    [
+      199.0,
+      517.0,
+      169.0,
+      47.0
+    ],
+    [
+      19.0,
+      516.0,
+      158.0,
+      48.0
+    ],
+    [
+      21.0,
+      462.0,
+      358.0,
+      33.0
+    ],
+    [
+      21.0,
+      426.0,
+      358.0,
+      34.0
+    ],
+    [
+      21.0,
+      391.0,
+      358.0,
+      34.0
+    ],
+    [
+      18.0,
+      388.0,
+      364.0,
+      110.0
+    ],
+    [
+      22.0,
+      274.0,
+      358.0,
+      35.0
+    ],
+    [
+      20.0,
+      271.0,
+      363.0,
+      41.0
+    ],
+    [
+      22.0,
+      211.0,
+      358.0,
+      33.0
+    ],
+    [
+      19.0,
+      209.0,
+      364.0,
+      38.0
+    ],
+    [
+      22.0,
+      147.0,
+      358.0,
+      33.0
+    ],
+    [
+      19.0,
+      145.0,
+      364.0,
+      38.0
+    ],
+    [
+      0.0,
+      67.0,
+      405.0,
+      529.0
+    ],
+    [
+      0.0,
+      64.0,
+      406.0,
+      532.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "prov_back_chev",
+      "bounds": [
+        16.0,
+        82.0,
+        14.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "prov_back_control",
+      "bounds": [
+        6.0,
+        73.0,
+        34.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "prov_name",
+      "bounds": [
+        28.0,
+        218.0,
+        350.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "prov_url",
+      "bounds": [
+        28.0,
+        296.0,
+        350.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "prov_key",
+      "bounds": [
+        21.0,
+        391.0,
+        358.0,
+        34.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835710
+    },
+    {
+      "id": "key_eye",
+      "bounds": [
+        350.0,
+        386.0,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "key_eye_control",
+      "bounds": [
+        342.0,
+        378.0,
+        36.0,
+        36.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "cal_red",
+      "bounds": [
+        22.0,
+        274.0,
+        358.0,
+        35.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294900989,
+      "radius": 6.44
+    },
+    {
+      "id": "chk_0",
+      "bounds": [
+        40.0,
+        399.5,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "model_0_control",
+      "bounds": [
+        28.0,
+        394.0,
+        350.0,
+        34.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "chk_1",
+      "bounds": [
+        40.0,
+        399.5,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "model_1_control",
+      "bounds": [
+        28.0,
+        430.0,
+        350.0,
+        34.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "chk_2",
+      "bounds": [
+        40.0,
+        470.59,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "model_2_control",
+      "bounds": [
+        28.0,
+        466.0,
+        350.0,
+        34.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "prov_cancel",
+      "bounds": [
+        22.0,
+        519.0,
+        152.0,
+        43.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "prov_cancel_surface",
+      "bounds": [
+        22.0,
+        519.0,
+        152.0,
+        43.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 21.5
+    },
+    {
+      "id": "prov_cancel_control",
+      "bounds": [
+        22.0,
+        519.0,
+        152.0,
+        43.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "prov_retry",
+      "bounds": [
+        199.0,
+        517.0,
+        169.0,
+        47.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "prov_retry_surface",
+      "bounds": [
+        199.0,
+        517.0,
+        169.0,
+        47.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279176975,
+      "radius": 23.5
+    },
+    {
+      "id": "prov_retry_control",
+      "bounds": [
+        199.0,
+        517.0,
+        169.0,
+        47.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ]
+}

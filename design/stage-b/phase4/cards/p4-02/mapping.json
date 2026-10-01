@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "pair_back_chev",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        17.0,
+        58.0,
+        14.0,
+        22.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "pair_back_control",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        7.0,
+        49.0,
+        34.0,
+        40.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_title",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text3a53b5f544cc",
+      "semantic_role": "text",
+      "bounds": [
+        106.05871212121212,
+        95.0,
+        195.51140873015873,
+        24.5
+      ],
+      "text": "Pair with Octos",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 26.505050505050505
+    },
+    {
+      "source_id": "spinner",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        191.0,
+        288.0,
+        24.0,
+        24.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_pairing",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textc2ece9102309",
+      "semantic_role": "text",
+      "bounds": [
+        69.7191265060241,
+        345.0,
+        260.7481407109921,
+        25.5
+      ],
+      "text": "Pairing with 192.168.1.20...",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 22.104417670682732
+    },
+    {
+      "source_id": "t_once",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texte714a10c0d1d",
+      "semantic_role": "text",
+      "bounds": [
+        105.0595009596929,
+        419.0,
+        198.0,
+        19.0
+      ],
+      "text": "This code works once.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 19.65451055662188
+    },
+    {
+      "source_id": "pair_cancel",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        131.0,
+        622.0,
+        144.0,
+        48.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "pair_cancel_surface",
+      "native_id": "beauty_0_6_0",
+      "parent": "pair_cancel",
+      "kind": "stack",
+      "component": "Surface310c17824b92",
+      "semantic_role": "layout",
+      "bounds": [
+        131.0,
+        622.0,
+        144.0,
+        48.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "pair_cancel_control",
+      "native_id": "beauty_0_6_1",
+      "parent": "pair_cancel",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        131.0,
+        622.0,
+        144.0,
+        48.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "pair_cancel_label",
+      "native_id": "beauty_0_6_2",
+      "parent": "pair_cancel",
+      "kind": "text",
+      "component": "Text4e367bcfe1e5",
+      "semantic_role": "text",
+      "bounds": [
+        174.43257328990228,
+        636.5,
+        57.0,
+        18.5
+      ],
+      "text": "Cancel",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 19.345928338762214
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "79eaa0c6a3d811de9412b81ea4ca6a005657ceb80f4264aa0b8194c369225634",
+  "mapping_basis": "mapped.json"
+}

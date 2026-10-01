@@ -1,0 +1,606 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "prov_back_chev",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        16.0,
+        82.0,
+        14.0,
+        22.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "prov_back_control",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        6.0,
+        73.0,
+        34.0,
+        40.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_title",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text89934ded995a",
+      "semantic_role": "text",
+      "bounds": [
+        129.2945932289035,
+        98.5,
+        141.0,
+        26.5
+      ],
+      "text": "Edit provider",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 23.284487114704397
+    },
+    {
+      "source_id": "t_name_label",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textd74aceeaacec",
+      "semantic_role": "text",
+      "bounds": [
+        21.193931398416886,
+        126.5,
+        40.0,
+        15.0
+      ],
+      "text": "Name",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14.860158311345646
+    },
+    {
+      "source_id": "prov_name",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "input",
+      "component": "Inputef5e5b66e067",
+      "semantic_role": "input",
+      "bounds": [
+        28.0,
+        218.0,
+        350.0,
+        44.0
+      ],
+      "text": "DeepSeek \u2022 Official API",
+      "enabled": 1,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15
+    },
+    {
+      "source_id": "t_url_label",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text065c393b3866",
+      "semantic_role": "text",
+      "bounds": [
+        21.193931398416886,
+        191.0,
+        65.0,
+        15.0
+      ],
+      "text": "Base URL",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14.860158311345646
+    },
+    {
+      "source_id": "prov_url",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "input",
+      "component": "Inputef5e5b66e067",
+      "semantic_role": "input",
+      "bounds": [
+        28.0,
+        296.0,
+        350.0,
+        44.0
+      ],
+      "text": "https://api.deepseek.com/v1",
+      "enabled": 1,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15
+    },
+    {
+      "source_id": "t_key_label",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text1ef2362f896e",
+      "semantic_role": "text",
+      "bounds": [
+        21.606471816283925,
+        253.5,
+        51.0,
+        18.5
+      ],
+      "text": "API key",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15.498956158663884
+    },
+    {
+      "source_id": "prov_key",
+      "native_id": "beauty_0_8",
+      "parent": "page",
+      "kind": "input",
+      "component": "Inputf0419bda3e0d",
+      "semantic_role": "input",
+      "bounds": [
+        21.0,
+        391.0,
+        358.0,
+        34.0
+      ],
+      "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+      "enabled": 1,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15
+    },
+    {
+      "source_id": "key_eye",
+      "native_id": "beauty_0_9",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        350.0,
+        386.0,
+        20.0,
+        20.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "key_eye_control",
+      "native_id": "beauty_0_10",
+      "parent": "page",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        342.0,
+        378.0,
+        36.0,
+        36.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "cal_red",
+      "native_id": "beauty_0_11",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface465a7af11b6e",
+      "semantic_role": "layout",
+      "bounds": [
+        22.0,
+        274.0,
+        358.0,
+        35.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_cal1",
+      "native_id": "beauty_0_12",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text6052f4508957",
+      "semantic_role": "text",
+      "bounds": [
+        24.804932735426007,
+        318.5,
+        243.5,
+        19.5
+      ],
+      "text": "The provider rejected this key (401).",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 15.816641753861484
+    },
+    {
+      "source_id": "t_cal2",
+      "native_id": "beauty_0_13",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texte37f1967a42d",
+      "semantic_role": "text",
+      "bounds": [
+        25.61880687563195,
+        341.0,
+        120.5,
+        18.5
+      ],
+      "text": "Your draft is kept.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15.01314459049545
+    },
+    {
+      "source_id": "t_models_label",
+      "native_id": "beauty_0_14",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text5b91138fd68b",
+      "semantic_role": "text",
+      "bounds": [
+        20.909451421017845,
+        367.5,
+        50.5,
+        15.0
+      ],
+      "text": "Models",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 14.889623265036352
+    },
+    {
+      "source_id": "chk_0",
+      "native_id": "beauty_0_15",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        40.0,
+        399.5,
+        18.0,
+        18.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_model_0",
+      "native_id": "beauty_0_16",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textc4607b763430",
+      "semantic_role": "text",
+      "bounds": [
+        35.255627813906955,
+        399.5,
+        194.0,
+        19.5
+      ],
+      "text": "deepseek-v4-flash (default)",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 15.879939969984992
+    },
+    {
+      "source_id": "model_0_control",
+      "native_id": "beauty_0_17",
+      "parent": "page",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        28.0,
+        394.0,
+        350.0,
+        34.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "chk_1",
+      "native_id": "beauty_0_18",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        40.0,
+        399.5,
+        18.0,
+        18.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_model_1",
+      "native_id": "beauty_0_19",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text404646513d4f",
+      "semantic_role": "text",
+      "bounds": [
+        33.83,
+        401.5,
+        193.98,
+        21.0
+      ],
+      "text": "deepseek-v4-flash (default)",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "model_1_control",
+      "native_id": "beauty_0_20",
+      "parent": "page",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        28.0,
+        430.0,
+        350.0,
+        34.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "chk_2",
+      "native_id": "beauty_0_21",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        40.0,
+        470.59,
+        18.0,
+        18.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_model_2",
+      "native_id": "beauty_0_22",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textf54a9faac2e8",
+      "semantic_role": "text",
+      "bounds": [
+        34.770440251572325,
+        470.5,
+        105.0,
+        18.5
+      ],
+      "text": "deepseek-chat",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 15.563941299790356
+    },
+    {
+      "source_id": "model_2_control",
+      "native_id": "beauty_0_23",
+      "parent": "page",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        28.0,
+        466.0,
+        350.0,
+        34.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "prov_cancel",
+      "native_id": "beauty_0_24",
+      "parent": "page",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        22.0,
+        519.0,
+        152.0,
+        43.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "prov_cancel_surface",
+      "native_id": "beauty_0_24_0",
+      "parent": "prov_cancel",
+      "kind": "stack",
+      "component": "Surfaceedcbe1f9731a",
+      "semantic_role": "layout",
+      "bounds": [
+        22.0,
+        519.0,
+        152.0,
+        43.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "prov_cancel_control",
+      "native_id": "beauty_0_24_1",
+      "parent": "prov_cancel",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        22.0,
+        519.0,
+        152.0,
+        43.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "prov_cancel_label",
+      "native_id": "beauty_0_24_2",
+      "parent": "prov_cancel",
+      "kind": "text",
+      "component": "Textc7f6ffd3f227",
+      "semantic_role": "text",
+      "bounds": [
+        71.54299674267101,
+        531.5,
+        53.0,
+        17.0
+      ],
+      "text": "Cancel",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 17.344625407166124
+    },
+    {
+      "source_id": "prov_retry",
+      "native_id": "beauty_0_25",
+      "parent": "page",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        199.0,
+        517.0,
+        169.0,
+        47.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "prov_retry_surface",
+      "native_id": "beauty_0_25_0",
+      "parent": "prov_retry",
+      "kind": "stack",
+      "component": "Surface1da1d32c1790",
+      "semantic_role": "layout",
+      "bounds": [
+        199.0,
+        517.0,
+        169.0,
+        47.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "prov_retry_control",
+      "native_id": "beauty_0_25_1",
+      "parent": "prov_retry",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        199.0,
+        517.0,
+        169.0,
+        47.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "prov_retry_label",
+      "native_id": "beauty_0_25_2",
+      "parent": "prov_retry",
+      "kind": "text",
+      "component": "Textcb957cac5349",
+      "semantic_role": "text",
+      "bounds": [
+        247.73192771084337,
+        531.5,
+        72.5,
+        21.0
+      ],
+      "text": "Try again",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 17.477911646586346
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
+  },
+  "contract_sha256": "032e84ae6db5cc29ae5130de07c67760a2df2afae86eb7ee9b12702474060690",
+  "mapping_basis": "mapped.json"
+}

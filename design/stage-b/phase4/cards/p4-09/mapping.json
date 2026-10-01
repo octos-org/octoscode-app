@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_title",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text208602c94c37",
+      "semantic_role": "text",
+      "bounds": [
+        61.69817997977756,
+        108.0,
+        268.5,
+        29.0
+      ],
+      "text": "Choose workspace folder",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 25.88473205257836
+    },
+    {
+      "source_id": "t_crumbs",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text81dc8feb211c",
+      "semantic_role": "text",
+      "bounds": [
+        25.546511627906977,
+        157.5,
+        102.7028058645096,
+        23.5
+      ],
+      "text": "/ \u203a private",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 20.190091001011123
+    },
+    {
+      "source_id": "cal_refused",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface047c70a52d99",
+      "semantic_role": "layout",
+      "bounds": [
+        27.0,
+        201.0,
+        355.0,
+        136.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_cal1",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text9f22e56ee86c",
+      "semantic_role": "text",
+      "bounds": [
+        93.61876184459886,
+        225.5,
+        237.5,
+        19.5
+      ],
+      "text": "The server won't list this folder.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 20.053063802905875
+    },
+    {
+      "source_id": "t_cal2",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text3ad305aa9e9d",
+      "semantic_role": "text",
+      "bounds": [
+        93.77794561933534,
+        267.5,
+        249.0,
+        23.0
+      ],
+      "text": "Pick another folder or type a path",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 19.593152064451157
+    },
+    {
+      "source_id": "t_cal3",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text732311b2d228",
+      "semantic_role": "text",
+      "bounds": [
+        93.997432605905,
+        299.0,
+        118.5,
+        18.5
+      ],
+      "text": "you can access.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 19.06033376123235
+    },
+    {
+      "source_id": "browser_back",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        67.0,
+        382.0,
+        260.0,
+        49.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "browser_back_surface",
+      "native_id": "beauty_0_6_0",
+      "parent": "browser_back",
+      "kind": "stack",
+      "component": "Surfacee383a5572ee4",
+      "semantic_role": "layout",
+      "bounds": [
+        67.0,
+        382.0,
+        260.0,
+        49.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "browser_back_control",
+      "native_id": "beauty_0_6_1",
+      "parent": "browser_back",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        67.0,
+        382.0,
+        260.0,
+        49.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "browser_back_label",
+      "native_id": "beauty_0_6_2",
+      "parent": "browser_back",
+      "kind": "text",
+      "component": "Text1e7134e67639",
+      "semantic_role": "text",
+      "bounds": [
+        129.0201793721973,
+        395.5,
+        137.0,
+        20.0
+      ],
+      "text": "Back to /Users/dev",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 18.367713004484305
+    },
+    {
+      "source_id": "browser_path",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "input",
+      "component": "Inputbf8299260317",
+      "semantic_role": "input",
+      "bounds": [
+        28.0,
+        488.0,
+        350.0,
+        48.0
+      ],
+      "text": "/private",
+      "enabled": 1,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
+  },
+  "contract_sha256": "e929619003e590d82b222a35f7ae18731450ab4272f1fe060802a6989d73b6fb",
+  "mapping_basis": "mapped.json"
+}

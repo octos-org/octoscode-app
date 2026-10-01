@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_title",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text685b5767cd4b",
+      "semantic_role": "text",
+      "bounds": [
+        108.60606060606061,
+        91.5,
+        188.2698412698413,
+        24.0
+      ],
+      "text": "Pair with Octos",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 25.858585858585858
+    },
+    {
+      "source_id": "cal_red",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface64f6d205179a",
+      "semantic_role": "layout",
+      "bounds": [
+        27.0,
+        146.0,
+        352.0,
+        106.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_cal1",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textec6b2ee1b329",
+      "semantic_role": "text",
+      "bounds": [
+        55.70933734939759,
+        174.5,
+        276.0,
+        21.5
+      ],
+      "text": "This pairing link was already used.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 17.991967871485944
+    },
+    {
+      "source_id": "t_cal2",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text7c315f4db910",
+      "semantic_role": "text",
+      "bounds": [
+        55.540983606557376,
+        210.5,
+        213.5,
+        18.0
+      ],
+      "text": "Ask Octos for a new code.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 18.078184110970998
+    },
+    {
+      "source_id": "t_srv_label",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text475cf652a069",
+      "semantic_role": "text",
+      "bounds": [
+        25.942708333333332,
+        288.0,
+        54.0,
+        18.0
+      ],
+      "text": "Server",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 18.666666666666668
+    },
+    {
+      "source_id": "connect_server",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "input",
+      "component": "Inputbf8299260317",
+      "semantic_role": "input",
+      "bounds": [
+        28.0,
+        322.0,
+        350.0,
+        48.0
+      ],
+      "text": "http://192.168.1.20:50190",
+      "enabled": 1,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15
+    },
+    {
+      "source_id": "t_tok_label",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text786141d7d45d",
+      "semantic_role": "text",
+      "bounds": [
+        26.036327608982827,
+        403.5,
+        106.0,
+        17.5
+      ],
+      "text": "Access token",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 18.261558784676353
+    },
+    {
+      "source_id": "connect_token",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "input",
+      "component": "Input508f95901acf",
+      "semantic_role": "input",
+      "bounds": [
+        28.0,
+        436.0,
+        350.0,
+        48.0
+      ],
+      "text": "",
+      "enabled": 1,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15
+    },
+    {
+      "source_id": "connect_submit",
+      "native_id": "beauty_0_8",
+      "parent": "page",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        128.0,
+        600.0,
+        150.0,
+        48.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "connect_submit_surface",
+      "native_id": "beauty_0_8_0",
+      "parent": "connect_submit",
+      "kind": "stack",
+      "component": "Surface4b77e2726ce6",
+      "semantic_role": "layout",
+      "bounds": [
+        128.0,
+        600.0,
+        150.0,
+        48.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "connect_submit_control",
+      "native_id": "beauty_0_8_1",
+      "parent": "connect_submit",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        128.0,
+        600.0,
+        150.0,
+        48.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "connect_submit_label",
+      "native_id": "beauty_0_8_2",
+      "parent": "connect_submit",
+      "kind": "text",
+      "component": "Text4dc575d33cb7",
+      "semantic_role": "text",
+      "bounds": [
+        160.39432485322897,
+        617.0,
+        71.0,
+        19.0
+      ],
+      "text": "Connect",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 20.03913894324853
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "0f8f5601c421a956b10304aec6ed925359b90e905763488195543c3c317b52ed",
+  "mapping_basis": "mapped.json"
+}

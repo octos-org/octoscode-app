@@ -1,0 +1,349 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "6c5d01edd66c6d4f140a5df01ff802189d0c14a826a3c7db7a597959c5118910",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t_title",
+      "expected_text": "Pair with Octos",
+      "requested_bounds": [
+        106.33,
+        158.43,
+        190.11,
+        30.0
+      ],
+      "status": "observed",
+      "ocr_text": "Pair with Octos",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        114.5,
+        161.5,
+        178.5,
+        20.0
+      ],
+      "ink_color": [
+        12,
+        12,
+        12
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        106.33335,
+        158.43335,
+        190.1111,
+        29.1
+      ]
+    },
+    {
+      "id": "t_cal1",
+      "expected_text": "This server doesn't support",
+      "requested_bounds": [
+        101.5,
+        242.5,
+        207.51,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "This server doesn't support",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        102.5,
+        244.0,
+        203.5,
+        18.5
+      ],
+      "ink_color": [
+        63,
+        63,
+        64
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        101.5,
+        242.5,
+        207.5111,
+        20.5
+      ]
+    },
+    {
+      "id": "t_cal2",
+      "expected_text": "pairing.",
+      "requested_bounds": [
+        102.52,
+        268.11,
+        58.87,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "pairing.",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        103.5,
+        269.5,
+        54.5,
+        18.5
+      ],
+      "ink_color": [
+        57,
+        57,
+        58
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        102.5152,
+        268.11195,
+        58.86965,
+        20.96215
+      ]
+    },
+    {
+      "id": "t_cal3",
+      "expected_text": "Octos on another computer",
+      "requested_bounds": [
+        47.18,
+        359.29,
+        212.41,
+        21.38
+      ],
+      "status": "observed",
+      "ocr_text": "Octos on another computer",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        48.5,
+        361.0,
+        208.5,
+        19.0
+      ],
+      "ink_color": [
+        63,
+        63,
+        63
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        47.17825,
+        359.29495,
+        212.414,
+        21.3808
+      ]
+    },
+    {
+      "id": "t_cal4",
+      "expected_text": "must be paired from",
+      "requested_bounds": [
+        47.37,
+        388.0,
+        152.25,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "must be paired from",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        49.0,
+        389.0,
+        149.5,
+        18.5
+      ],
+      "ink_color": [
+        57,
+        58,
+        57
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        47.36665,
+        388.0,
+        152.25,
+        20.5
+      ]
+    },
+    {
+      "id": "t_cal5",
+      "expected_text": "that computer.",
+      "requested_bounds": [
+        47.3,
+        414.65,
+        114.04,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "that computer.",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        48.0,
+        415.0,
+        110.0,
+        19.0
+      ],
+      "ink_color": [
+        69,
+        69,
+        69
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        47.29735,
+        414.64895,
+        114.04425,
+        20.016
+      ]
+    },
+    {
+      "id": "pair_fallback_label",
+      "expected_text": "Use server and token",
+      "requested_bounds": [
+        103.0,
+        576.0,
+        171.0,
+        22.5
+      ],
+      "status": "observed",
+      "ocr_text": "Use server and token",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        105.0,
+        582.0,
+        165.0,
+        15.0
+      ],
+      "ink_color": [
+        251,
+        252,
+        252
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        103.75555,
+        580.8721,
+        169.16665,
+        18.1279
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "cal_nosup",
+      "bounds": [
+        30.0,
+        218.0,
+        345.0,
+        89.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294440951,
+      "radius": 13.59
+    },
+    {
+      "id": "cal_info",
+      "bounds": [
+        70.0,
+        240.5,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "cal_other",
+      "bounds": [
+        30.0,
+        334.0,
+        345.0,
+        120.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294440951,
+      "radius": 13.41
+    },
+    {
+      "id": "pair_fallback",
+      "bounds": [
+        19.0,
+        563.0,
+        343.0,
+        54.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "pair_fallback_surface",
+      "bounds": [
+        19.0,
+        563.0,
+        343.0,
+        54.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279176975,
+      "radius": 27.0
+    },
+    {
+      "id": "pair_fallback_control",
+      "bounds": [
+        19.0,
+        563.0,
+        343.0,
+        54.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        160.1444,
+        0.0,
+        455.6222,
+        25.0
+      ],
+      "confidence": 1.0,
+      "text": "enter server and token instead"
+    },
+    {
+      "bounds": [
+        -0.1759,
+        143.4165,
+        228.163,
+        44.7716
+      ],
+      "confidence": 1.0,
+      "text": "4. Can't pair"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

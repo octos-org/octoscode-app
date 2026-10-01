@@ -1,0 +1,145 @@
+# ledger p4-07@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Edit provider" }
+copy t_name_label_text { class: user-copy, en: "Name" }
+copy prov_name_text { class: user-copy, en: "DeepSeek • Official API" }
+copy prov_name_placeholder { class: user-copy, en: "" }
+copy t_url_label_text { class: user-copy, en: "Base URL" }
+copy prov_url_text { class: user-copy, en: "https://api.deepseek.com/v1" }
+copy prov_url_placeholder { class: user-copy, en: "" }
+copy t_key_label_text { class: user-copy, en: "API key" }
+copy prov_key_text { class: user-copy, en: "••••••••••" }
+copy prov_key_placeholder { class: user-copy, en: "" }
+copy t_cal1_text { class: user-copy, en: "The provider rejected this key (401)." }
+copy t_cal2_text { class: user-copy, en: "Your draft is kept." }
+copy t_models_label_text { class: user-copy, en: "Models" }
+copy t_model_0_text { class: user-copy, en: "deepseek-v4-flash (default)" }
+copy t_model_1_text { class: user-copy, en: "deepseek-v4-flash (default)" }
+copy t_model_2_text { class: user-copy, en: "deepseek-chat" }
+copy prov_cancel_label_text { class: user-copy, en: "Cancel" }
+copy prov_retry_label_text { class: user-copy, en: "Try again" }
+state prov_back_control_enabled { shape: bool, initial: true }
+state prov_name_enabled { shape: bool, initial: true }
+state prov_url_enabled { shape: bool, initial: true }
+state prov_key_enabled { shape: bool, initial: true }
+state key_eye_control_enabled { shape: bool, initial: true }
+state model_0_control_enabled { shape: bool, initial: true }
+state model_1_control_enabled { shape: bool, initial: true }
+state model_2_control_enabled { shape: bool, initial: true }
+state prov_cancel_control_enabled { shape: bool, initial: true }
+state prov_retry_control_enabled { shape: bool, initial: true }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Text89934ded995a(instance: text, text: text) {
+  view Kit(component: "Text89934ded995a", instance: instance, text: text)
+}
+component Textd74aceeaacec(instance: text, text: text) {
+  view Kit(component: "Textd74aceeaacec", instance: instance, text: text)
+}
+component Inputef5e5b66e067(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Inputef5e5b66e067", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+}
+component Text065c393b3866(instance: text, text: text) {
+  view Kit(component: "Text065c393b3866", instance: instance, text: text)
+}
+component Text1ef2362f896e(instance: text, text: text) {
+  view Kit(component: "Text1ef2362f896e", instance: instance, text: text)
+}
+component Inputf0419bda3e0d(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Inputf0419bda3e0d", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+}
+component Surface465a7af11b6e(instance: text) {
+  view Kit(component: "Surface465a7af11b6e", instance: instance) { slot }
+}
+component Text6052f4508957(instance: text, text: text) {
+  view Kit(component: "Text6052f4508957", instance: instance, text: text)
+}
+component Texte37f1967a42d(instance: text, text: text) {
+  view Kit(component: "Texte37f1967a42d", instance: instance, text: text)
+}
+component Text5b91138fd68b(instance: text, text: text) {
+  view Kit(component: "Text5b91138fd68b", instance: instance, text: text)
+}
+component Textc4607b763430(instance: text, text: text) {
+  view Kit(component: "Textc4607b763430", instance: instance, text: text)
+}
+component Text404646513d4f(instance: text, text: text) {
+  view Kit(component: "Text404646513d4f", instance: instance, text: text)
+}
+component Textf54a9faac2e8(instance: text, text: text) {
+  view Kit(component: "Textf54a9faac2e8", instance: instance, text: text)
+}
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surfaceedcbe1f9731a(instance: text) {
+  view Kit(component: "Surfaceedcbe1f9731a", instance: instance) { slot }
+}
+component Textc7f6ffd3f227(instance: text, text: text) {
+  view Kit(component: "Textc7f6ffd3f227", instance: instance, text: text)
+}
+component Surface1da1d32c1790(instance: text) {
+  view Kit(component: "Surface1da1d32c1790", instance: instance) { slot }
+}
+component Textcb957cac5349(instance: text, text: text) {
+  view Kit(component: "Textcb957cac5349", instance: instance, text: text)
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Vectore0a378fde04f(instance: "prov_back_chev")
+  NativeButton02f1d1bd99b4(instance: "prov_back_control", enabled: prov_back_control_enabled)
+  Text89934ded995a(instance: "t_title", text: copy.t_title_text)
+  Textd74aceeaacec(instance: "t_name_label", text: copy.t_name_label_text)
+  Inputef5e5b66e067(instance: "prov_name", text: copy.prov_name_text, placeholder: copy.prov_name_placeholder, enabled: prov_name_enabled) {
+
+  }
+  Text065c393b3866(instance: "t_url_label", text: copy.t_url_label_text)
+  Inputef5e5b66e067(instance: "prov_url", text: copy.prov_url_text, placeholder: copy.prov_url_placeholder, enabled: prov_url_enabled) {
+
+  }
+  Text1ef2362f896e(instance: "t_key_label", text: copy.t_key_label_text)
+  Inputf0419bda3e0d(instance: "prov_key", text: copy.prov_key_text, placeholder: copy.prov_key_placeholder, enabled: prov_key_enabled) {
+
+  }
+  Vectore0a378fde04f(instance: "key_eye")
+  NativeButton02f1d1bd99b4(instance: "key_eye_control", enabled: key_eye_control_enabled)
+  Surface465a7af11b6e(instance: "cal_red") {
+
+  }
+  Text6052f4508957(instance: "t_cal1", text: copy.t_cal1_text)
+  Texte37f1967a42d(instance: "t_cal2", text: copy.t_cal2_text)
+  Text5b91138fd68b(instance: "t_models_label", text: copy.t_models_label_text)
+  Vectore0a378fde04f(instance: "chk_0")
+  Textc4607b763430(instance: "t_model_0", text: copy.t_model_0_text)
+  NativeButton02f1d1bd99b4(instance: "model_0_control", enabled: model_0_control_enabled)
+  Vectore0a378fde04f(instance: "chk_1")
+  Text404646513d4f(instance: "t_model_1", text: copy.t_model_1_text)
+  NativeButton02f1d1bd99b4(instance: "model_1_control", enabled: model_1_control_enabled)
+  Vectore0a378fde04f(instance: "chk_2")
+  Textf54a9faac2e8(instance: "t_model_2", text: copy.t_model_2_text)
+  NativeButton02f1d1bd99b4(instance: "model_2_control", enabled: model_2_control_enabled)
+  KitButton2c6804b990a5(instance: "prov_cancel") {
+    Surfaceedcbe1f9731a(instance: "prov_cancel_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "prov_cancel_control", enabled: prov_cancel_control_enabled)
+    Textc7f6ffd3f227(instance: "prov_cancel_label", text: copy.prov_cancel_label_text)
+  }
+  KitButton2c6804b990a5(instance: "prov_retry") {
+    Surface1da1d32c1790(instance: "prov_retry_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "prov_retry_control", enabled: prov_retry_control_enabled)
+    Textcb957cac5349(instance: "prov_retry_label", text: copy.prov_retry_label_text)
+  }
+}
