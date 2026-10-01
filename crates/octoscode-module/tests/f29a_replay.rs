@@ -21,7 +21,6 @@
 //! configured on a fresh capture serve) is replayed as-is: the sequence
 //! must not depend on it, exactly as the capture run did not.
 use std::sync::{Arc, Mutex};
-use std::time::Duration;
 
 use futures_util::{SinkExt, StreamExt};
 use tokio::net::TcpListener;
