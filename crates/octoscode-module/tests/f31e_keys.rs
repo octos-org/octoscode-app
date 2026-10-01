@@ -13,6 +13,7 @@ fn r(key_code: KeyCode, shift: bool, ctrl: bool, alt: bool, logo: bool) -> KeyAc
         key_code, shift, ctrl, alt, logo,
         false, // palette_open
         false, // approval_pending
+        None,  // approval_preview (#P4f2 row 7 — no approval is showing)
         false, // turn_active
         true,  // draft_empty
     )
@@ -38,12 +39,12 @@ fn enter_sends_and_shift_enter_is_the_newline() {
 fn esc_closes_the_overlay_then_interrupts_the_turn() {
     // CommandPalette.tsx:40-43 — Esc closes the open palette FIRST.
     assert_eq!(
-        keys::resolve(KeyCode::Escape, false, false, false, false, true, false, false, true),
+        keys::resolve(KeyCode::Escape, false, false, false, false, true, false, None, false, true),
         KeyAction::PaletteClose
     );
     // ComposerInput.tsx:245-252 — bare Esc interrupts the LIVE turn.
     assert_eq!(
-        keys::resolve(KeyCode::Escape, false, false, false, false, false, false, true, true),
+        keys::resolve(KeyCode::Escape, false, false, false, false, false, false, None, true, true),
         KeyAction::Interrupt
     );
     // …and does nothing with no overlay and no turn.
@@ -69,14 +70,14 @@ fn cmd_ctrl_k_toggles_and_slash_opens_on_an_empty_draft() {
     assert_eq!(r(KeyCode::Slash, false, false, false, false), KeyAction::PaletteOpen);
     // A non-empty draft keeps "/" as text (the changed-action path owns it).
     assert_eq!(
-        keys::resolve(KeyCode::Slash, false, false, false, false, false, false, false, false),
+        keys::resolve(KeyCode::Slash, false, false, false, false, false, false, None, false, false),
         KeyAction::Ignore
     );
     // Shift+Slash ("?") is typing.
     assert_eq!(r(KeyCode::Slash, true, false, false, false), KeyAction::Ignore);
     // Already open: the key binding does nothing (Esc closes).
     assert_eq!(
-        keys::resolve(KeyCode::Slash, false, false, false, false, true, false, false, true),
+        keys::resolve(KeyCode::Slash, false, false, false, false, true, false, None, false, true),
         KeyAction::Ignore
     );
 }
@@ -87,11 +88,11 @@ fn cmd_ctrl_k_toggles_and_slash_opens_on_an_empty_draft() {
 fn arrows_move_the_palette_only_while_open() {
     // CommandPalette.tsx:44-49.
     assert_eq!(
-        keys::resolve(KeyCode::ArrowDown, false, false, false, false, true, false, false, true),
+        keys::resolve(KeyCode::ArrowDown, false, false, false, false, true, false, None, false, true),
         KeyAction::PaletteMove(1)
     );
     assert_eq!(
-        keys::resolve(KeyCode::ArrowUp, false, false, false, false, true, false, false, true),
+        keys::resolve(KeyCode::ArrowUp, false, false, false, false, true, false, None, false, true),
         KeyAction::PaletteMove(-1)
     );
     // Closed palette: the arrows scroll/navigate whatever else owns them.
@@ -99,7 +100,7 @@ fn arrows_move_the_palette_only_while_open() {
     assert_eq!(r(KeyCode::ArrowUp, false, false, false, false), KeyAction::Ignore);
     // Enter while open RUNS the selection (the listbox's Enter).
     assert_eq!(
-        keys::resolve(KeyCode::ReturnKey, false, false, false, false, true, false, false, true),
+        keys::resolve(KeyCode::ReturnKey, false, false, false, false, true, false, None, false, true),
         KeyAction::PaletteRun
     );
 }
@@ -123,18 +124,18 @@ fn alt_a_is_the_only_approval_chord() {
 fn ysn_decide_only_bare_keys_with_a_pending_approval() {
     // ApprovalPanel.tsx:46-54 — approve/request, approve/session, deny/request.
     let with = |kc| {
-        keys::resolve(kc, false, false, false, false, false, true, false, true)
+        keys::resolve(kc, false, false, false, false, false, true, None, false, true)
     };
     assert_eq!(with(KeyCode::KeyY), KeyAction::ApprovalApproveRequest);
     assert_eq!(with(KeyCode::KeyS), KeyAction::ApprovalApproveSession);
     assert_eq!(with(KeyCode::KeyN), KeyAction::ApprovalDenyRequest);
     // :37-43 — chords never decide.
     assert_eq!(
-        keys::resolve(KeyCode::KeyY, false, true, false, false, false, true, false, true),
+        keys::resolve(KeyCode::KeyY, false, true, false, false, false, true, None, false, true),
         KeyAction::Ignore
     );
     assert_eq!(
-        keys::resolve(KeyCode::KeyY, false, false, true, false, false, true, false, true),
+        keys::resolve(KeyCode::KeyY, false, false, true, false, false, true, None, false, true),
         KeyAction::Ignore
     );
     // No pending card: the keys are typing.
