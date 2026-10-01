@@ -156,6 +156,112 @@ fn the_shell_mounts_the_review_body() {
         !shell.contains("Empty for now"),
         "the stale header-only note must be removed with the fix"
     );
+    // #36c r1: every label in the panel needs an EXPLICIT colour. A Label's
+    // default is `theme.color_label_outer` (the linked makepad rev,
+    // `widgets/src/label.rs:23`) and this app never assigns it: on macOS
+    // `desktop_style.rs:206-210` resolves the style from MAKEPAD_WIDGET_STYLE
+    // (unset) or an iOS/Android OsType, and falls to `_ => None`, so no sheet
+    // is installed and the role stays unset. Measured on the r0 capture: labels
+    // WITH a colour drew ink (`+62 -5` 537 dark px, the row's `M` 198), labels
+    // WITHOUT drew none (`Review` 0, `Last turn` 0, `path` 0, `line_text` 0) —
+    // the same font, the same capture. So "text exists in /snap" was never
+    // evidence of visibility; an unset colour renders nothing.
+    for (label, needle) in [
+        ("the Review title", "text: \"Review\""),
+        ("the scope pill label", "text: \"Last turn\""),
+    ] {
+        // Scan to the LABEL's own closing brace, not a fixed window: the
+        // explanatory comment between `text:` and `color:` is ~1 kB, so any
+        // fixed offset would either miss the colour or reach into the next
+        // label (and pass on THAT label's colour).
+        let at = shell
+            .find(needle)
+            .unwrap_or_else(|| panic!("{label} in the shell"));
+        let after = &shell[at..];
+        let end = after.find("\n                    }").unwrap_or(after.len());
+        assert!(
+            after[..end].contains("draw_text.color:"),
+            "{label} must set an explicit colour before its block closes — \
+             without one it draws zero ink (the default theme.color_label_outer \
+             is never assigned)"
+        );
+    }
+    for (name, needle) in [
+        ("review_file_path", "review_file_path := Label"),
+        ("review_line_text", "review_line_text := Label"),
+    ] {
+        let at = shell
+            .find(needle)
+            .unwrap_or_else(|| panic!("{name} in the shell"));
+        let after = &shell[at..(at + 320).min(shell.len())];
+        let end = after.find("\n    ").unwrap_or(after.len());
+        assert!(
+            after[..end].contains("draw_text.color:"),
+            "{name} must set an explicit colour, or its text renders invisibly"
+        );
+    }
+    // r1: the counts must come BEFORE the Fill path. With `path` first the
+    // fixed parts (14+44+44 + 3x8 spacing) exceeded the 336px inner width, the
+    // Fill went negative, and both count labels were pushed to r=[0,0,0,0] —
+    // text set, nothing drawn.
+    let status_at = shell.find("review_file_status := Label").expect("status label");
+    let add_at = shell.find("review_file_add := Label").expect("add label");
+    let del_at = shell.find("review_file_del := Label").expect("del label");
+    let path_at = shell.find("review_file_path := Label").expect("path label");
+    assert!(
+        status_at < add_at && add_at < del_at && del_at < path_at,
+        "the row must order status, add, del, then the Fill path, or the counts \
+         are squeezed to zero width (status {status_at}, add {add_at}, del {del_at}, path {path_at})"
+    );
+    // r1 defect 4: the totals are the LIVE sums. The label keeps an AUTHORED
+    // placeholder in its `text:` (so the card is not blank before the first
+    // fetch, the #30a "None keeps the authored" rule) — what must be gone is a
+    // hardcoded VALUE baked in as text, not the placeholder `sync_labels`
+    // overwrites. So assert on the `text:` line, not on the raw string: the
+    // explanation comments quote the old value legitimately.
+    assert!(
+        shell.contains("ids!(review_totals))"),
+        "the header totals label must be named so sync_labels can set it"
+    );
+    assert!(
+        shell.contains("s(\"review.add\")") && shell.contains("s(\"review.del\")"),
+        "the totals must be read from review.add / review.del (review.rs:341-348), \
+         not left as the hardcoded board placeholder"
+    );
+    let totals_at = shell.find("review_totals := Label").expect("the totals label");
+    let authored = &shell[totals_at..];
+    let end = authored.find("}").unwrap_or(authored.len());
+    assert!(
+        !authored[..end].contains("+62"),
+        "the totals label must not bake the board's +62 into its authored text \
+         (fixture sums are +3 -2); got {:?}",
+        &authored[..end]
+    );
+}
+
+/// The header totals for the recorded fixture are the LIVE sums: +3 added
+/// (`run(new)`, `check()`, `# b`) and -2 removed (`run(old)`, `gone`). The
+/// board's static "+62 −5" was the defect.
+#[test]
+fn the_header_totals_are_the_live_sums() {
+    let _seq = review::test_lock();
+    review::reset();
+    seed_preview();
+    let (_store, ctx) = ctx();
+    assert_eq!(s(&ctx, "review.add"), "+3", "added lines over the folded preview");
+    assert_eq!(s(&ctx, "review.del"), "-2", "removed lines over the folded preview");
+    // and the per-row counts must sum to the same total — the header and the
+    // body can never disagree.
+    let add: u64 = file_rows(&ctx)
+        .iter()
+        .filter_map(|r| r.1.trim_start_matches('+').parse::<u64>().ok())
+        .sum();
+    let del: u64 = file_rows(&ctx)
+        .iter()
+        .filter_map(|r| r.2.trim_start_matches('-').parse::<u64>().ok())
+        .sum();
+    assert_eq!(add, 3, "the per-row + counts must sum to the header total");
+    assert_eq!(del, 2, "the per-row - counts must sum to the header total");
 }
 
 /// ITEM 1/2 core: with a preview folded, the file rows and the selected file's

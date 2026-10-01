@@ -549,11 +549,38 @@ script_mod! {
                     Label {
                         width: Fit height: Fit text: "Review"
                         draw_text.text_style.font_size: 14
+                        // #36c r1: a Label's default is
+                        // `theme.color_label_outer` (the linked rev,
+                        // `widgets/src/label.rs:23`), and THIS APP never assigns
+                        // that role: `desktop_style.rs:201-215` installs a style
+                        // sheet only from `MAKEPAD_WIDGET_STYLE` or an
+                        // iOS/Android `OsType`, and on macOS falls to `_ =>
+                        // None` (line 209), so no sheet is ever installed and
+                        // the role stays unset. Measured on the same capture:
+                        // labels WITH an explicit colour draw ink (`+62 −5` 357
+                        // dark px, the row's `M` 135), labels WITHOUT draw none
+                        // (`Review` 0, `Last turn` 0, `path` 0, `line_text` 0).
+                        // So every label in the panel needs an explicit colour.
+                        draw_text.color: theme.color_fg_app
                     }
-                    // #28e2 item 4: the board's diff totals (static chrome —
-                    // `StartedReview` carries no +/- counts).
-                    Label {
-                        width: Fit height: Fit text: "+62 −5"
+                    // #36c r1: the totals are the LIVE sums over the fetched
+                    // preview — `review.rs:341-348` folds `review.add` /
+                    // `review.del` from `st.files` (the web sums the same
+                    // preview, DiffReviewDialog.tsx:34-41), and draw_walk sets
+                    // them below. This used to hardcode the board's static
+                    // "+62 -5", which is why a review with different files still
+                    // showed 62/5 and made the empty body look inconsistent.
+                    // #36c r1: an explicit colour is REQUIRED here — the
+                    // default `theme.color_label_outer` is never assigned (see
+                    // the "Review" label above), so this is the one header label
+                    // that already drew ink (357 dark px on the capture).
+                    // Empty until the first fetch lands — `sync_labels` writes the
+                    // live `+n −n` sums (see the arms above). No placeholder
+                    // number is honest: the board's "+62 −5" was fiction, and so
+                    // would be any other hardcoded total. The web shows no
+                    // totals before the preview either (DiffReviewDialog.tsx:78).
+                    review_totals := Label {
+                        width: Fit height: Fit text: ""
                         draw_text.text_style.font_size: 11
                         draw_text.color: theme.color_text_muted
                     }
@@ -568,6 +595,10 @@ script_mod! {
                             Label {
                                 width: Fit height: Fit text: "Last turn"
                                 draw_text.text_style.font_size: 11
+                                // #36c r1: explicit colour — without it this
+                                // label drew ZERO ink (the default role is
+                                // never assigned; see the "Review" label above).
+                                draw_text.color: theme.color_fg_app
                             }
                             Svg {
                                 width: 8 height: 8
@@ -624,9 +655,15 @@ script_mod! {
                         width: Fill height: 32 flow: Right spacing: 8
                         padding: Inset{left: 12 right: 12}
                         review_file_status := Label { width: 14 height: Fit text: "M" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
-                        review_file_path := Label { width: Fill height: Fit text: "" draw_text.text_style.font_size: 12 }
+                        // #36c r1: the counts come BEFORE the Fill path. With
+                        // `path` first, the row's fixed parts (14+44+44 plus
+                        // 3x8 spacing) exceeded the 336px inner width, so the
+                        // Fill resolved NEGATIVE and the two count labels were
+                        // pushed to r=[0,0,0,0] — text set but never drawn. The
+                        // path takes Fill last and gets 210px.
                         review_file_add := Label { width: 44 height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: #3a8a3a }
                         review_file_del := Label { width: 44 height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: #b04040 }
+                        review_file_path := Label { width: Fill height: Fit text: "" draw_text.text_style.font_size: 12 draw_text.color: theme.color_fg_app }
                     }
                 }
                 review_diff := PortalList {
@@ -635,7 +672,7 @@ script_mod! {
                         width: Fill height: 20 flow: Right spacing: 8
                         padding: Inset{left: 12 right: 12}
                         review_line_num := Label { width: 34 height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
-                        review_line_text := Label { width: Fill height: Fit text: "" draw_text.text_style.font_size: 11 }
+                        review_line_text := Label { width: Fill height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: theme.color_fg_app }
                     }
                 }
             }
@@ -1776,6 +1813,35 @@ impl OctoscodeView {
         self.view
             .label(cx, ids!(sessions))
             .set_text(cx, &format!("sessions: {sessions}"));
+        // #36c r1: the review header's +/- totals are the LIVE sums over the
+        // fetched preview. `review.rs:341-348` folds `review.add` / `review.del`
+        // from `st.files` — the same sum the web does over the same preview
+        // (`DiffReviewDialog.tsx:34-41`). This used to hardcode the board's
+        // static "+62 -5", so a review of any other files still showed 62/5.
+        // Read the same way as `turn.active` below, and only when the sheet is
+        // open: a hidden header must not churn every frame.
+        {
+            let b = self.bridge.lock().unwrap();
+            let open =
+                b.ui.lock().map(|u| u.review_open()).unwrap_or(false) || chrome_env().0;
+            if open {
+                let ctx = bindings::Ctx::new(&b.store, &b.ui);
+                let s = |id: &str| {
+                    bindings::query(&ctx, id)
+                        .and_then(|v| v.as_str().map(str::to_owned))
+                        .unwrap_or_default()
+                };
+                let (add, del) = (s("review.add"), s("review.del"));
+                // With no preview folded the bindings resolve to None and the
+                // authored placeholder stays (the web's empty state shows no
+                // totals either, DiffReviewDialog.tsx:78).
+                if !add.is_empty() || !del.is_empty() {
+                    self.view
+                        .label(cx, ids!(review_totals))
+                        .set_text(cx, &format!("{add} {del}"));
+                }
+            }
+        }
         // The #16 `composer` component is the dock's look. It is NOT virtualized
         // (one instance), so it is lowered here rather than in `draw_walk`; its
         // two live slots are the draft and the idle placeholder. Card #21b: it is
