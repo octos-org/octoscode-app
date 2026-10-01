@@ -2498,8 +2498,32 @@ impl Widget for OctoscodeView {
                         }
                     }
                 }
-                // The #16 `new-chat` component overlaid by a host hit target.
-                if self.view.button(cx, ids!(new_chat_hit)).clicked(actions) {
+                // The #16 `new-chat` component, and the host hit target laid over
+                // it.
+                //
+                // #35c: the component draws its OWN Button over the host target
+                // (`/d`: i0_newchat_1 [66,139,225,76] over new_chat_hit
+                // [66,142,225,70]), and makepad gives the press to the first
+                // widget in traversal order containing the point — so the host
+                // target underneath never fires. #35b's "declare the host target
+                // first" fix was measured NOT to work (2f69122, reverted
+                // 795dcb2), so order is not the lever.
+                //
+                // The lever is that the host CAN query a widget inside the
+                // mounted Splash: the composer already does exactly this
+                // (`text_input(cx, &[live_id!(i0_composer_0)]).changed(...)`
+                // below reads a component-owned widget's action). So route the
+                // COMPONENT's own Button, the way #32h/#35b route card taps,
+                // and keep the host target as the no-component fallback.
+                let new_chat_clicked = self.view.button(cx, ids!(new_chat_hit)).clicked(actions)
+                    // i0_newchat_0/_1 are the component root's own children
+                    // (`/d` 68 nodes: i0_newchat > i0_newchat_0 > i0_newchat_1);
+                    // query each by id so whichever one owns the press routes it.
+                    || self.view.button(cx, &[live_id!(i0_newchat_0)]).clicked(actions)
+                    || self.view.button(cx, &[live_id!(i0_newchat_1)]).clicked(actions)
+                    || self.view.button(cx, &[live_id!(i0_newchat)]).clicked(actions);
+                if new_chat_clicked {
+                    makepad_widgets::log!("[octoscode] new_chat clicked");
                     self.perform_action(bindings::ACTION_NEW_CHAT, 0);
                 }
                 // The composer's send control. While a turn is running the same
@@ -2528,9 +2552,19 @@ impl Widget for OctoscodeView {
                 // makepad examples use).
                 let thread_list = self.view.portal_list(cx, ids!(thread_list));
                 for (item_id, item) in thread_list.items_with_actions(actions) {
-                    if item.button(cx, ids!(row_hit)).clicked(actions) {
+                    // #35c: same cause as new_chat_hit — the thread-row
+                    // COMPONENT draws its own Button over the host `row_hit`
+                    // (`/d`: i0_threadrow_1 [66,257,225,78] over row_hit
+                    // [66,260,225,72]), so the press never reaches the host
+                    // target. Query the component's own Button inside the SAME
+                    // item scope, so the click still routes with its item id.
+                    if item.button(cx, ids!(row_hit)).clicked(actions)
+                        || item.button(cx, &[live_id!(i0_threadrow_0)]).clicked(actions)
+                        || item.button(cx, &[live_id!(i0_threadrow_1)]).clicked(actions)
+                        || item.button(cx, &[live_id!(i0_threadrow)]).clicked(actions)
+                    {
+                        makepad_widgets::log!("[octoscode] thread row {item_id} clicked");
                         self.perform_action("thread.open", item_id);
-
                     }
                 }
                 let timeline_list = self.view.portal_list(cx, ids!(timeline_list));
