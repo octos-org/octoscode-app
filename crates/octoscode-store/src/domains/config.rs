@@ -136,6 +136,14 @@ struct Inner {
     replay_loss: std::collections::HashMap<String, ReplayLoss>,
     /// Card #22 §1: the per-session durable-replay recovery phase.
     recovery: std::collections::HashMap<String, RecoveryState>,
+    /// #P4g1 row 217: the `session/open` reply's
+    /// `capabilities.supported_methods` (`UiProtocolCapabilities`) — the
+    /// method half of the coding gate. The feature half already lands in
+    /// `capabilities` (the store's advertised-feature list).
+    supported_methods: Vec<String>,
+    /// #P4g1 row 217: the coding gate's current missing list (empty = open),
+    /// evaluated from the open reply by the client's `features` module.
+    coding_gate: Vec<String>,
 }
 
 impl Config {
@@ -161,6 +169,24 @@ impl Config {
             .capabilities
             .iter()
             .any(|c| c.trim().to_ascii_lowercase() == want)
+    }
+
+    /// #P4g1 row 217: record the open reply's supported methods.
+    pub fn set_supported_methods(&self, methods: Vec<String>) {
+        self.inner.lock().unwrap().supported_methods = methods;
+    }
+
+    pub fn supported_methods(&self) -> Vec<String> {
+        self.inner.lock().unwrap().supported_methods.clone()
+    }
+
+    /// #P4g1 row 217: record the coding gate's missing list (empty = open).
+    pub fn set_coding_gate(&self, missing: Vec<String>) {
+        self.inner.lock().unwrap().coding_gate = missing;
+    }
+
+    pub fn coding_gate(&self) -> Vec<String> {
+        self.inner.lock().unwrap().coding_gate.clone()
     }
 
     // ---- card #F3: launch/resolve, snapshot/*, server/shutdown, warnings ----
