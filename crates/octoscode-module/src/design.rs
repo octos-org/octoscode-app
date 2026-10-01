@@ -418,6 +418,27 @@ mod tests {
     #[test]
     fn the_materialized_root_carries_the_five_faces() {
         let dir = root();
+        // #FX1 (the merge-tree suite catch): lane isolation re-roots the tree
+        // (OCTOSCODE_DESIGN_DIR -> the repo's design/, which carries NO ux/
+        // faces — they ride in crate resources, and the renderer's
+        // missing-face guard above falls back to them, so production is
+        // correct there). The five-faces premise holds on the DEFAULT
+        // materialization only; under an override assert what DOES hold
+        // (the embed materialized) and say what was skipped.
+        if override_dir().is_some() {
+            let marker = dir.join(".embed-marker");
+            assert!(
+                marker.is_file(),
+                "the override root is materialized: {}",
+                marker.display()
+            );
+            eprintln!(
+                "override root {} (no ux/ faces in the repo tree — the five-faces \
+                 assert applies to the default materialization only)",
+                dir.display()
+            );
+            return;
+        }
         for f in [
             "ux/Inter-400.ttf",
             "ux/Inter-500.ttf",
@@ -438,7 +459,12 @@ mod tests {
     #[test]
     fn a_missing_file_errs_with_the_disk_read_shape() {
         let e = file("no/such/file.card").unwrap_err();
-        assert!(e.starts_with("read no/such/file.card"), "{e}");
+        // The ONE shape both resolution paths produce: a read error that
+        // names the file asked for. Under the embedded default it is exactly
+        // "read no/such/file.card: …"; under an override dir the path is
+        // absolute, so pin the prefix + the name, not the whole prefix match.
+        assert!(e.starts_with("read "), "{e}");
+        assert!(e.contains("no/such/file.card"), "{e}");
     }
 
     #[test]
