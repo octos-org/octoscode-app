@@ -212,6 +212,18 @@ def run_screen(cfg: dict, bin_path: pathlib.Path, app_port: int, rows: list) -> 
             raise AssertionError(f"app start failed: {(r.stdout + r.stderr)[-400:]}")
         marker = "Connect" if cfg["serve"] is None else "OctosCode"
         wait_mount(app, marker)
+        # First-run mounts land a frame LATER than their text: the module's
+        # text widgets can report rects long before the KitButtons get their
+        # layout (observed: 'Connect' present, every clickable still 0x0 —
+        # the audit then sees 0 controls). Wait for the first NON-ZERO
+        # clickable, not just for text.
+        deadline = time.monotonic() + 40.0
+        while time.monotonic() < deadline:
+            if any((w.get("r") or [0, 0, 0, 0])[2] > 0
+                   for w in app.snap().get("s", [])
+                   if str(w.get("ty", "")) in CLICKABLE):
+                break
+            time.sleep(1.0)
         time.sleep(1.5)  # let the first full layout settle
 
         before_snap = app.snap()
@@ -320,7 +332,11 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--app-bin", required=True)
     ap.add_argument("--out", default="docs/walk/click-audit.csv")
-    ap.add_argument("--port", type=int, default=8376)
+    # App port: THIS lane's block is 8380-8389 (docs/harness/GUIDE.md; 8387 is
+    # the scenario server). 8376/8377 sit in p0-proto's 8370-8379 block — runs
+    # there fail as "app start failed: already taken" whenever that lane is
+    # live, which read as a mysterious 0-control screen.
+    ap.add_argument("--port", type=int, default=8388)
     ap.add_argument("--only", default="", help="comma-separated screen names")
     args = ap.parse_args()
 
