@@ -236,6 +236,96 @@ CONNECT_MISSING = ("missing: gate-mode app instance — the walk app auto-connec
 # The subset marker used by `@check(rows=…)` for "every row of the area".
 ALL = "__all__"
 
+# --------------------------------------------------------------------------- #
+# #43b — PER-ROW LAUNCH ENV. The runner used to fix ONE env per area at launch
+# (`start_app`), so a row whose behaviour depends on process-wide state could
+# never be driven: a theme, a window width, or "not connected yet". The app
+# reads all three ONCE per process, so each distinct env needs its OWN app
+# instance — hence `ENV_GROUPS`: rows are grouped by their launch key and each
+# group is launched, driven and torn down in turn.
+#
+# App-side consumers (all read at mount / first frame, none hot-reload):
+#   OCTOSENSE_WINDOW_SIZE "WxH" → `self.window_w` (lib.rs:2387-2394), which
+#     picks `wide` (>= 1260.0, lib.rs:2416) and `width_hides_sidebar`
+#     (< 760.0, lib.rs:2418).
+#   OCTOSCODE_THEME "light|dark|system" → `screens::theme::set_preference`
+#     (lib.rs:2252, screens/theme.rs:170-184); the resolved mode is
+#     process-global (screens/theme.rs:175-186 documents the test_lock).
+#   OCTOSCODE_FIRST_RUN / OCTOSCODE_NO_CONNECT → early `return` before the
+#     transport is built (lib.rs:1341-1348), so `store.is_live()` stays false
+#     and `ids!(first_run)` paints (lib.rs:2301-2302, 2421).
+#
+# A row may also name a `rows=` subset for its checks; the launch env alone
+# never decides a row's verdict, the checks do.
+ENV_GROUPS: dict[tuple, dict] = {
+    # row 106 — the first-run flow (e2e/onboarding.spec.ts:77). The walk app
+    # auto-connects, so the pre-connection chrome never mounted.
+    ("keyboard", "first-run"): {
+        "first_run": True,
+        "checks": [
+            "the first-run chrome mounts with no connection and a focused composer",
+            "the Add-workspace dialog focuses its path field and Escape keeps the draft",
+        ],
+        "rows": ("starts a first workspace with the keyboard",),
+    },
+    # row 183 — ${viewport.width} semantics (e2e/release-readiness.spec.ts:25).
+    # The row is a TEMPLATE: the web suite runs it at each configured width, so
+    # the runner sweeps the widths below instead of the fixed 900 px window.
+    # 1280 crosses the `wide` breakpoint (1260), 720 the `width_hides_sidebar`
+    # one (760): the two edges the module actually branches on.
+    ("peer", "viewport-1280"): {
+        "env": {"OCTOSENSE_WINDOW_SIZE": "1280x900"},
+        "checks": [
+            "the requested viewport width is honoured and picks the width breakpoints",
+            "the settings drawer keeps one dialog and its geometry across a panel load",
+        ],
+        "rows": ("preserves its geometry while model management loads",),
+    },
+    ("peer", "viewport-720"): {
+        "env": {"OCTOSENSE_WINDOW_SIZE": "720x900"},
+        "checks": [
+            "the requested viewport width is honoured and picks the width breakpoints",
+        ],
+        "rows": ("preserves its geometry while model management loads",),
+    },
+    # row 212 — manual light on a dark OS (e2e/theme.spec.ts:72). The stored
+    # preference is `light` while the OS stays dark, which the native app
+    # cannot express as a process env alone (it has one resolved mode), so the
+    # check asserts the LIGHT resolution itself plus the readable tokens.
+    ("settings", "theme-light"): {
+        "env": {"OCTOSCODE_THEME": "light"},
+        "checks": [
+            "manual light keeps conversation and settings text readable",
+        ],
+        "rows": ("manual light preserves readable conversation",),
+    },
+}
+
+
+def env_groups_for(row: dict) -> list:
+    """EVERY launch-env key that applies to `row` (empty = the default env).
+
+    A row can need MORE THAN ONE instance: row 183 is a template the web suite
+    runs at every configured viewport width, so its verdict must be the AND of
+    each width. A single-key answer would launch the first width and silently
+    never launch the second.
+    """
+    case = row["case"].lower()
+    area = area_of(row)
+    return [k for k, spec in ENV_GROUPS.items()
+            if k[0] == area and any(s in case for s in spec["rows"])]
+
+
+def env_group_for(row: dict) -> tuple | None:
+    """The REPRESENTATIVE launch-env key for `row` (`None` = the default env).
+
+    Used for the per-row verdict lookup (`area_state`), so a row driven by
+    several instances reads one of them; the merged check list in
+    `per_row_checks` is what actually decides the row.
+    """
+    keys = env_groups_for(row)
+    return keys[0] if keys else None
+
 
 # --------------------------------------------------------------------------- #
 class App:
@@ -255,6 +345,11 @@ class App:
 
     def snap(self) -> dict:
         return json.loads(self._get("/snap?all=1"))
+
+    def raw(self, path: str) -> bytes:
+        """Binary GET (`/g?raw=1`) — `_get` decodes UTF-8, which corrupts PNGs."""
+        with urllib.request.urlopen(self.base + path, timeout=20) as r:
+            return r.read()
 
     def _get_retry(self, path: str, tries: int = 4) -> str:
         """`_get` with a short retry, for bursty input where the bridge can time
@@ -457,18 +552,36 @@ class Procs:
             f"replay server '{scenario}' never listened on {port}; see {log}")
 
     def start_app(self, scenario: str):
+        self.start_app_opts(scenario)
+
+    def start_app_opts(self, scenario: str, first_run: bool = False,
+                       extra_env: dict | None = None):
         self.stop_app()
         state = ROOT / "tmp" / "walk" / "headless"
         state.mkdir(parents=True, exist_ok=True)
         env = os.environ.copy()
+        if first_run:
+            # #43b row 106 — FIRST-RUN MODE: the module must NOT auto-connect.
+            # OCTOSCODE_FIRST_RUN gates the transport off entirely
+            # (crates/octoscode-module/src/lib.rs:1341-1348), and the connect
+            # env stays OFF so nothing can dial the replay server.
+            env["OCTOSCODE_FIRST_RUN"] = "1"
+        else:
+            env.update({
+                "OCTOS_BASE_URL": f"http://127.0.0.1:{SCENARIO_PORTS[scenario]}",
+                "OCTOS_BEARER": "walk-dummy-token",
+            })
         env.update({
-            "OCTOS_BASE_URL": f"http://127.0.0.1:{SCENARIO_PORTS[scenario]}",
-            "OCTOS_BEARER": "walk-dummy-token",
             "OCTOS_PROFILE_ID": "dsflash",
             "MAKEPAD_WM_TEST_APP": "octoscode",
             "HEADLESS_ARGS": "--module octoscode",
             "HEADLESS_STATE": str(state),
         })
+        if extra_env:
+            env.update(extra_env)
+        # The env of the running app, so a check can assert what it was LAUNCHED
+        # with (row 212's theme, row 183's window size) instead of guessing.
+        self.last_env = dict(env)
         cwd = self.shell_cwd or default_shell_cwd(BIN)
         if not (cwd / "Cargo.toml").is_file():
             raise PrereqError(
@@ -1868,6 +1981,313 @@ def r_localcmd(app):
     return (not sent) and restored, f"sent={sent} draft_restored={restored} draft={app.draft(d)!r}"
 
 
+# --------------------------------------------------------------------------- #
+# #43b — the three rows the runner could not drive. Each check is registered
+# under the area `env_group_for` resolves for its row, and is only ever run on
+# the instance its ENV_GROUPS entry launched (main() filters by name), so a
+# first-run assertion can never see a connected app.
+# --------------------------------------------------------------------------- #
+@check("keyboard", "the first-run chrome mounts with no connection and a focused composer",
+       rows=("starts a first workspace with the keyboard",))
+def fr_chrome(app):
+    # Row 106's precondition, half 1 (e2e/onboarding.spec.ts:77). Measured on
+    # the first-run instance: `first_run` paints because `store.is_live()` is
+    # false (lib.rs:2301-2302, 2421) — the transport is never built
+    # (lib.rs:1341-1348), so `conn:` must NOT read Live.
+    d = app.wait_for(lambda s: (app.rect(s, "first_run") or [0, 0, 0, 0])[2] > 0,
+                    timeout=20, what="the first-run chrome to mount")
+    ids = app.widget_ids(d)
+    texts = [str(w.get("t", "")) for w in d.get("s", [])]
+    status = (app.text_of(d, "status") or "").strip()
+    chrome = all(k in ids for k in ("first_run", "first_run_sidebar", "first_run_center"))
+    empty_sidebar = "No threads yet" in texts and "OctosCode" in texts
+    # NOT connected: the status line keeps its bare `conn:` label (no "Live"),
+    # and the connected-only chrome (thread list rows) is absent.
+    not_live = "Live" not in status
+    no_threads = not any(str(i).startswith("i0_threadrow") for i in ids)
+    # The Connect card mounts into the first-run dock (lib.rs:2242-2244, the
+    # `!live` arm) — it is the first-run affordance, and its own fields are the
+    # only TextInputs on screen.
+    connect = any(t == "Connect to Octos" for t in texts)
+    ok = chrome and empty_sidebar and not_live and no_threads and connect
+    return ok, (f"chrome={chrome} empty_sidebar={empty_sidebar} status={status!r} "
+                f"not_live={not_live} no_thread_rows={no_threads} connect_card={connect}")
+
+
+@check("keyboard", "the Add-workspace dialog focuses its path field and Escape keeps the draft",
+       rows=("starts a first workspace with the keyboard",))
+def fr_add_workspace(app):
+    # Row 106, half 2: "Open the Add-workspace dialog and press Escape" — the
+    # dialog focuses its PATH FIELD, and Escape closes it WITHOUT losing the
+    # unsent draft. PROBED on the first-run instance: `/snap?all=1` carries no
+    # add-workspace affordance at all (no id or label matching `add`, in any
+    # casing — see .peer/report-43b.md §3), and the first-run chrome has no
+    # composer to hold a draft (the `!live` arm hides `base`, lib.rs:2301).
+    # So this is an HONEST expected-fail: the runner can now drive the flow, and
+    # driving it proves the surface is absent. It is NOT worked around.
+    d = app.snap()
+    ids = app.widget_ids(d)
+    texts = [str(w.get("t", "")) for w in d.get("s", [])]
+    aff = [i for i in ids if "add" in i.lower()] + \
+          [t for t in texts if "add" in t.lower() and "addworkspace" not in t.lower()]
+    add_workspace = any("workspace" in a.lower() for a in aff)
+    # The draft the row keeps: the row types into the COMPOSER, which the
+    # first-run chrome does not mount.
+    composer = app.rect_re(d, COMPOSER_INPUT_RE)
+    return (add_workspace and composer is not None), (
+        f"add_workspace_affordance={add_workspace} hits={aff[:3]} "
+        f"composer={'yes' if composer else 'absent'}")
+
+
+@check("peer", "the requested viewport width is honoured and picks the width breakpoints",
+       rows=("preserves its geometry while model management loads",))
+def vp_width(app):
+    # Row 183's `${viewport.width}` semantics. The app reads the width from the
+    # env ONCE (lib.rs:2387-2394 → `window_w`) and branches on it twice:
+    # `wide` at >= 1260 (lib.rs:2416) and `width_hides_sidebar` at < 760
+    # (lib.rs:2418). Probed at 1280x900: `main_window` [0,0,1280,900] with
+    # `threads_column` [54,86,260,593] VISIBLE; at 720x900: `threads_column`
+    # [0,0,0,0] and the composer moves left to x=65. This check therefore
+    # asserts the width was applied AND that the module took the branch the
+    # width selects — at EITHER edge, whichever the instance was launched with.
+    want = app.env.get("OCTOSENSE_WINDOW_SIZE", "")
+    m = re.match(r"^(\d+)x(\d+)$", want)
+    if not m:
+        return False, f"no OCTOSENSE_WINDOW_SIZE in the launch env: {want!r}"
+    w_req = float(m.group(1))
+    d = app.wait_for(lambda s: (app.rect(s, "main_window") or [0, 0, 0, 0])[2] > 0,
+                    timeout=20, what="the module to mount at the requested width")
+    win = app.rect(d, "main_window")
+    got = float(win[2])
+    honoured = abs(got - w_req) < 1.0
+    # The branch: at >= 1260 the sidebar column is laid out; below 760 it is
+    # collapsed to a zero rect. Both are the module's own decision, not ours.
+    col = app.rect(d, "threads_column") or [0, 0, 0, 0]
+    wide = w_req >= 1260.0
+    if wide:
+        branch = col[2] > 0
+        want_state = "wide: threads_column laid out"
+    elif w_req < 760.0:
+        branch = col[2] == 0
+        want_state = "narrow: threads_column collapsed"
+    else:
+        branch = col[2] > 0
+        want_state = "mid: threads_column laid out"
+    return (honoured and branch), (
+        f"requested={w_req:g} main_window_w={got:g} honoured={honoured} "
+        f"threads_column={col} want={want_state} branch={branch}")
+
+
+@check("peer", "the settings drawer keeps one dialog and its geometry across a panel load",
+       rows=("preserves its geometry while model management loads",))
+def vp_geometry(app):
+    # Row 183's actual pass_condition: "the settings dialog's geometry is
+    # IDENTICAL before and after the panel loads", with the dialog count at one
+    # and the Models control keeping focus.
+    # MEASURED (docs/parity/g-settings.csv:5, phase4-gaps.md:195): the native
+    # sidebar/drawer has NO workspace grouping and NO model-management section at
+    # all, and row 87's own `s_models_section` check is an expected-FAIL for the
+    # same reason. So there is no Models panel to load and no dialog to hold its
+    # geometry: this is an HONEST expected-fail, not a harness limit. What IS
+    # proven is the part the runner can decide — the drawer opens, and the
+    # geometry it has is stable (identical across a re-snap and a re-open).
+    def drawer_open(s):
+        return (app.rect(s, "settings_drawer") or [0, 0, 0, 0])[2] > 0
+    d = app.snap()
+    if drawer_open(d):
+        app.click_id(d, "settings_close")
+        app.wait_for(lambda s: not drawer_open(s), timeout=8,
+                     what="a pre-existing drawer to close")
+    opened = False
+    for _ in range(3):  # the toggle click is flaky right after mount
+        d = app.snap()
+        app.click_id(d, "settings_open_hit")
+        try:
+            app.wait_for(drawer_open, timeout=8, what="the settings drawer to open")
+            opened = True
+            break
+        except AssertionError:
+            continue
+    if not opened:
+        return False, "the settings drawer never opened via settings_open_hit"
+    d1 = app.snap()
+    geo1 = app.rect(d1, "settings_drawer")
+    # Re-read without touching anything: a stable layout must not drift.
+    d2 = app.snap()
+    geo2 = app.rect(d2, "settings_drawer")
+    texts = [str(w.get("t", "")) for w in d1.get("s", [])]
+    has_models = any(t in texts for t in ("Model", "Models", "Manage models"))
+    one_dialog = geo1 is not None
+    stable = geo1 == geo2
+    if drawer_open(d2):
+        app.click_id(d2, "settings_close")
+        app.wait_for(lambda s: not drawer_open(s), timeout=8, what="the drawer to close")
+    # Geometry stability + a single dialog is what the runner can decide; the
+    # Models panel itself is missing, so this stays red until it ships.
+    return (one_dialog and stable and has_models), (
+        f"dialog_geometry={geo1} stable={stable} models_section={has_models}")
+
+
+@check("settings", "manual light keeps conversation and settings text readable",
+       rows=("manual light preserves readable conversation",))
+def theme_light(app):
+    # Row 212 (e2e/theme.spec.ts:72): the STORED preference is light while the
+    # OS stays dark, and the web asserts no colour-contrast violation in the
+    # conversation AND in Settings.
+    # `/snap` exposes NO colour channel (probe: the only keys are
+    # i/ty/r/w/v/val/t/enabled/window_id), so the contrast MUST be measured from
+    # the app's OWN PNG via `/g?raw=1` — `App.raw()` (the UTF-8 `_get` corrupts
+    # a PNG). Probed at OCTOSCODE_THEME=light: white-dominant surface
+    # ((255,255,255) x 1.6M) and every text cluster >= 5.03:1, so this passes
+    # on the real pixels rather than on a token lookup.
+    want = app.env.get("OCTOSCODE_THEME", "")
+    if want != "light":
+        return False, f"the launch env is not the light theme: OCTOSCODE_THEME={want!r}"
+    # #43b: WAIT for the mount before mapping anything. A freshly launched
+    # instance's first `/snap` can still read `main_window` as [0,0,0,0] — the
+    # first run of this check failed exactly there ("main_window has no laid-out
+    # rect"), while `vp_width` passed because it waits. The PNG is fetched AFTER
+    # the wait so the pixels and the rects describe the same frame.
+    d = app.wait_for(lambda s: (app.rect(s, "main_window") or [0, 0, 0, 0])[2] > 0,
+                    timeout=30, what="the module to mount in the light theme")
+    win = app.rect(d, "main_window")
+    png = app.raw("/g?raw=1")
+    try:
+        pw, ph, rows = _decode_png(png)
+    except Exception as e:  # noqa: BLE001
+        return False, f"could not decode the app's own PNG for contrast: {e}"
+    sx = pw / float(win[2])
+    measured = _contrast_of(rows, d, pw, sx)
+    if not measured:
+        return False, "no text-bearing widget carried measurable ink in the PNG"
+    # WCAG AA for normal text is 4.5:1; the web row asserts NO violation.
+    bad = [(t, r) for t, r in measured if r < 4.5]
+    worst = min(measured, key=lambda m: m[1])
+    return (not bad), (f"png={pw}x{ph} widgets={len(measured)} worst={worst[0][:24]!r} "
+                       f"{worst[1]:.2f}:1 violations={[(t[:18], round(r, 2)) for t, r in bad][:3]}")
+
+
+def _decode_png(png: bytes):
+    """(width, height, rows) of an 8-bit RGB/RGBA non-interlaced PNG — stdlib only.
+
+    The walk lane's interpreter has NO Pillow (measured: `import PIL` fails
+    under `.peer/env.sh`, and the check's first run failed exactly there), and a
+    check must not carry a dependency the lane cannot satisfy — so the five
+    filter types are undone here (RFC 2083 §6). Measured cost on the real
+    1800x2044 RGBA capture: 1.0 s, which is fine for one PNG per run.
+    """
+    if png[:8] != b"\x89PNG\r\n\x1a\n":
+        raise ValueError("not a PNG (bad signature)")
+    off, idat, ihdr = 8, [], None
+    while off + 8 <= len(png):
+        ln = int.from_bytes(png[off:off + 4], "big")
+        typ = png[off + 4:off + 8]
+        body = png[off + 8:off + 8 + ln]
+        if typ == b"IHDR":
+            ihdr = body
+        elif typ == b"IDAT":
+            idat.append(body)
+        elif typ == b"IEND":
+            break
+        off += 12 + ln
+    if ihdr is None or not idat:
+        raise ValueError("PNG has no IHDR/IDAT")
+    w = int.from_bytes(ihdr[0:4], "big")
+    h = int.from_bytes(ihdr[4:8], "big")
+    depth, ctype, _, _, interlace = ihdr[8], ihdr[9], ihdr[10], ihdr[11], ihdr[12]
+    if depth != 8 or interlace != 0 or ctype not in (2, 6):
+        raise ValueError(f"unsupported PNG: depth={depth} colour_type={ctype} "
+                         f"interlace={interlace} (need 8-bit, non-interlaced, 2 or 6)")
+    nch = 3 if ctype == 2 else 4
+    import zlib
+    raw = zlib.decompress(b"".join(idat))
+    stride = w * nch
+    out = bytearray(h * stride)
+    prev = bytearray(stride)
+    pos = 0
+    for y in range(h):
+        f = raw[pos]
+        pos += 1
+        line = bytearray(raw[pos:pos + stride])
+        pos += stride
+        if f == 1:        # Sub
+            for i in range(nch, stride):
+                line[i] = (line[i] + line[i - nch]) & 255
+        elif f == 2:      # Up
+            for i in range(stride):
+                line[i] = (line[i] + prev[i]) & 255
+        elif f == 3:      # Average
+            for i in range(stride):
+                a = line[i - nch] if i >= nch else 0
+                line[i] = (line[i] + ((a + prev[i]) >> 1)) & 255
+        elif f == 4:      # Paeth
+            for i in range(stride):
+                a = line[i - nch] if i >= nch else 0
+                b = prev[i]
+                c = prev[i - nch] if i >= nch else 0
+                p = a + b - c
+                pa, pb, pc = abs(p - a), abs(p - b), abs(p - c)
+                pr = a if (pa <= pb and pa <= pc) else (b if pb <= pc else c)
+                line[i] = (line[i] + pr) & 255
+        elif f != 0:
+            raise ValueError(f"unknown PNG filter type {f} on row {y}")
+        out[y * stride:(y + 1) * stride] = line
+        prev = line
+    return w, h, (out, stride, nch)
+
+
+def _rel_lum(c):
+    def f(v):
+        v /= 255.0
+        return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+    return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2])
+
+
+def _contrast_of(decoded, snap, png_w, sx):
+    """(label, ratio) per text-bearing widget, measured on the app's own PNG.
+
+    `decoded` is `_decode_png`'s `(buf, stride, nch)`; the PNG is read
+    stdlib-only (the lane interpreter has no Pillow).
+
+    The background is each widget rect's modal pixel; the ink is the
+    highest-luminance-distance quartile of the pixels that differ from it
+    (antialiased glyph edges dominate otherwise). Returns [] when nothing has
+    measurable ink.
+    """
+    buf, stride, nch = decoded
+    out = []
+    for w in snap.get("s", []):
+        t = str(w.get("t", "")).strip()
+        r = w.get("r")
+        if not t or not r or r[2] <= 0 or r[3] <= 0:
+            continue
+        x0, y0 = int(r[0] * sx), int(r[1] * sx)
+        x1, y1 = int((r[0] + r[2]) * sx), int((r[1] + r[3]) * sx)
+        if x1 <= x0 or y1 <= y0:
+            continue
+        px = []
+        for y in range(max(0, y0), min(len(buf) // stride, y1)):
+            row = y * stride
+            for x in range(max(0, x0), min(png_w, x1)):
+                o = row + x * nch
+                px.append((buf[o], buf[o + 1], buf[o + 2]))
+        if not px:
+            continue
+        from collections import Counter
+        bg = Counter(px).most_common(1)[0][0]
+        bgl = _rel_lum(bg)
+        ink = [p for p in px if abs(_rel_lum(p) - bgl) > 0.08]
+        if not ink:
+            continue
+        ink.sort(key=lambda p: abs(_rel_lum(p) - bgl), reverse=True)
+        top = ink[:max(1, len(ink) // 4)]
+        mean = tuple(sum(c[i] for c in top) // len(top) for i in range(3))
+        tl = _rel_lum(mean)
+        hi, lo = max(tl, bgl), min(tl, bgl)
+        out.append((t, (hi + 0.05) / (lo + 0.05)))
+    return out
+
+
 # #33a review: DEPTH. A row is `specific` when at least one check that applied
 # to it tests the row's OWN behaviour (what its `case` says); rows covered only
 # by the generic smoke set (Live status, drawer mounts, composer present, ...)
@@ -1909,6 +2329,12 @@ SPECIFIC_CHECKS = {
     "the closed-state review opener lays out and opens the panel by click",
     "the approval pill cycles the permission mode and reflects the read-back",
     "the drawer's close hit is a real 28x28 slot and Disconnect ends inside the window",
+    # #43b — the three harness-limited rows, now driven by their own instances.
+    "the first-run chrome mounts with no connection and a focused composer",
+    "the Add-workspace dialog focuses its path field and Escape keeps the draft",
+    "the requested viewport width is honoured and picks the width breakpoints",
+    "the settings drawer keeps one dialog and its geometry across a panel load",
+    "manual light keeps conversation and settings text readable",
 }
 for _c in CHECKS:
     _c["specific"] = _c["name"] in SPECIFIC_CHECKS
@@ -2047,6 +2473,17 @@ def main():
     EVIDENCE.mkdir(parents=True, exist_ok=True)
     rows = load_rows()
     targets = select_targets(args.limit)
+    # #43b: WALK_ONLY_ROWS="106,183,212" narrows a REPLAY run to named rows, the
+    # replay-side twin of WALK_LIVE_ROWS. Needed because the three rows this card
+    # unblocks each need their OWN app instance (a first run, a viewport width, a
+    # forced theme), so proving them means launching those instances and nothing
+    # else — `--limit` cannot select them (they sit past the round-robin cursor).
+    only = os.environ.get("WALK_ONLY_ROWS", "")
+    if only.strip() and not args.live:
+        want = {int(x) for x in only.split(",") if x.strip().isdigit()}
+        targets = [(i, area_of(r), r)
+                   for i, r in enumerate(rows, start=1) if i in want]
+        targets = [(i, a, r) for i, a, r in targets if a]
     if args.live:
         # #39a: exactly the live-only rows a real model can serve today —
         # row 1 (a real coding turn + refresh) and row 2 (a background turn
@@ -2086,17 +2523,55 @@ def main():
     area_state: dict[str, dict] = {}
     per_row_checks: dict[int, list] = {}   # row_id -> [(check_name, status, reason)]
     for area in areas:
-        scenario = scenario_for(area)
+      scenario = scenario_for(area)
+      # #43b: the rows of one area may need DIFFERENT launch envs (a first run
+      # that must not connect, a specific viewport width, a forced theme). The
+      # app reads each of those once per process, so every distinct env is its
+      # own app instance: group the area's target rows by `env_group_for` and
+      # drive one instance per group. The DEFAULT group (no key) keeps the
+      # pre-#43b connected behaviour, so the other rows are unaffected.
+      area_rows = [(rid, a, r) for rid, a, r in targets if a == area]
+      groups: dict[tuple | None, list] = {}
+      for rid, a, r in area_rows:
+          # EVERY key the row needs, not just the first: row 183 is a template
+          # the web runs at each viewport width, so it must be driven at 1280
+          # AND 720 — and its verdict is the AND of the two instances.
+          for k in env_groups_for(r) or [None]:
+              groups.setdefault(k, []).append((rid, a, r))
+      for gkey in ([None] if None in groups else []) + [k for k in ENV_GROUPS if k in groups]:
+        gspec = ENV_GROUPS.get(gkey, {})
+        grows = groups.get(gkey) or []
+        if gkey is not None and not grows:
+            continue
+        # The rows this instance is responsible for: only the rows with NO
+        # env group (each grouped row belongs to its own instance), or exactly
+        # the group's own rows. Without the `env_group_for(r) is None` filter the
+        # default instance would re-map — and OVERWRITE — every grouped row's
+        # verdict with its own connected-app results.
+        my_rows = ([(rid, a, r) for rid, a, r in targets
+                    if a == area and env_group_for(r) is None]
+                   if gkey is None else grows)
         try:
             procs.start_server(scenario)
-            procs.start_app(scenario)
+            procs.start_app_opts(scenario,
+                                 first_run=bool(gspec.get("first_run")),
+                                 extra_env=dict(gspec.get("env") or {}))
         except Exception as e:  # noqa: BLE001
-            area_state[area] = {"blocked": True,
-                                "reason": f"scenario '{scenario}' failed to start: {e}"}
+            area_state[(area, gkey)] = {
+                "blocked": True,
+                "reason": f"scenario '{scenario}' failed to start: {e}"}
+            for rid, _a, _r in grows:
+                per_row_checks[rid] = []
             continue
         app = App(procs.app_port)
+        app.env = dict(getattr(procs, "last_env", {}))
         # Run each check ONCE against this area's app; record its status.
         area_checks = [c for c in CHECKS if c["area"] == area]
+        if gkey is not None:
+            # Only this group's own checks, and only for its rows: the rest of
+            # the area's checks assert the CONNECTED app this instance is not.
+            keep = set(gspec.get("checks") or ())
+            area_checks = [c for c in area_checks if c["name"] in keep]
         if args.live:
             # #39a: --live runs EXACTLY the live-specific set — the replay
             # checks' assertions (fixture texts, replay counts) are nonsense
@@ -2121,27 +2596,47 @@ def main():
             results.append({"name": chk["name"], "status": status, "reason": reason[:200],
                             "rows": chk["rows"], "specific": chk["specific"]})
             if status == "fail":
+                # #43b: evidence is per INSTANCE now (one per env group), so
+                # the default group keeps the old name and a group appends its
+                # key. Two failing groups in one area no longer clobber.
+                suffix = "" if gkey is None else "-" + gkey[1]
                 try:
-                    sj = EVIDENCE / f"area-{area}.snap.json"
+                    sj = EVIDENCE / f"area-{area}{suffix}.snap.json"
                     sj.write_text(json.dumps(app.snap()))
                     subprocess.run(["curl", "-s", "--max-time", "20", "-o",
-                                    str(EVIDENCE / f"area-{area}.png"),
+                                    str(EVIDENCE / f"area-{area}{suffix}.png"),
                                     f"http://127.0.0.1:{procs.app_port}/g?raw=1"],
                                    capture_output=True)
                     evidence = str(sj.relative_to(ROOT))
                 except Exception:  # noqa: BLE001
                     pass
-            print(f"  [{area}] {status:5} {chk['name'][:62]:62} :: {reason[:60]}")
-        # Map each selected row of this area to the checks that apply to it.
-        for rid, a, row in targets:
-            if a != area:
-                continue
-            applied = [(r["name"], r["status"]) for r in results if check_applies(r, row)]
+            print(f"  [{area}{'' if gkey is None else ':' + gkey[1]}] "
+                  f"{status:5} {chk['name'][:62]:62} :: {reason[:60]}")
+        # Map THIS INSTANCE's rows to the checks that apply to it. Scoping to
+        # `my_rows` is what keeps a themed/width/first-run instance from
+        # writing verdicts for rows it never launched for.
+        for rid, _a, row in my_rows:
             krs = [(r["name"], r["status"], r["reason"], r["specific"])
                    for r in results if check_applies(r, row)]
-            per_row_checks[rid] = krs
-        area_state[area] = {"blocked": False, "reason": "", "evidence": evidence,
-                            "results": results}
+            # #43b: a TEMPLATE row (row 183 runs at every viewport width) is
+            # driven by SEVERAL instances and each one writes here, so EXTEND,
+            # never replace — assigning clobbered the 1280 instance's two results
+            # with the 720 instance's one (measured: 1 check recorded, and
+            # vp_geometry vanished from the CSV entirely).
+            # The dedupe key MUST include the group: both widths run the
+            # SAME-named `vp_width`, and deduping on the name alone dropped the
+            # 720 result — which would have let row 183 read green off the 1280
+            # pass alone. Tagging the recorded name with the group keeps the CSV
+            # auditable (`… [viewport-720]`) and keeps the row an AND over
+            # widths. The default group keeps its bare names, so no other row's
+            # recorded check name changes.
+            prev = per_row_checks.get(rid, [])
+            seen = {n for n, _s, _r, _sp in prev}
+            if gkey is not None:
+                krs = [(f"{n} [{gkey[1]}]", s, rr, sp) for n, s, rr, sp in krs]
+            per_row_checks[rid] = prev + [k for k in krs if k[0] not in seen]
+        area_state[(area, gkey)] = {"blocked": False, "reason": "",
+                                    "evidence": evidence, "results": results}
 
     procs.stop_all()
 
@@ -2154,7 +2649,11 @@ def main():
         area = area_of(row) or ""
         if i in target_area:
             area = target_area[i]
-            st = area_state.get(area, {})
+            # #43b: the state is keyed by (area, env-group), not by area — a
+            # row's verdict comes from the instance it was actually launched
+            # on, so the lookup must use the same key `env_group_for` chose.
+            st = area_state.get((area, env_group_for(row)),
+                                area_state.get((area, None), {}))
             checks = per_row_checks.get(i, [])
             status = decided_status([s for _, s, _, _ in checks], st.get("blocked", False))
             reason = row_reason([(n, s) for n, s, _, _ in checks], st.get("reason", ""))
@@ -2190,6 +2689,13 @@ def main():
                              "reason": f"missing: {missing_capability(spec)}"})
 
     live_suffix = "_live" if args.live else ""
+    # #43b: a WALK_ONLY_ROWS run drives a SUBSET of rows, but the loop above
+    # still emits an aggregate row for EVERY walk row — the unselected ones as
+    # `not-yet-implemented`/`live-only`. Writing that to results.csv flipped 113
+    # statuses of the last FULL run (measured), so a targeted run gets its own
+    # files, exactly as --live does.
+    if not args.live and os.environ.get("WALK_ONLY_ROWS", "").strip():
+        live_suffix = "-only"
     with open(WALK / f"results{live_suffix}.csv", "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=["row_id", "area", "spec", "case", "status", "depth", "evidence", "reason"])
         w.writeheader()
