@@ -249,24 +249,47 @@ async fn wired() -> (
         .expect("connect");
     conv.open_workspace(None).await.expect("session/open");
     tokio::time::sleep(Duration::from_millis(80)).await;
+    // #P4e1b: bind the authority the production `session/open` arm binds
+    // (`flow.rs`, the `SessionOpen` reply arm). This harness never drains the
+    // event stream, so that arm does not run here and the autonomy fence would
+    // — correctly, fail-closed (web `autonomy/store.ts`: "with no active command
+    // authority in the current epoch … a notification must never repopulate
+    // state") — refuse every result, leaving the screen cache empty.
+    conv.store.domains.autonomy.bind_identity("f30b#1");
+    conv.store.domains.autonomy.bind_session(&conv.session_id());
     let store = Arc::new(Store::new());
-    // The session/open fold gives the app's store its capabilities table —
-    // mirror that here with the same list the fake server advertises, so the
-    // resolve() gates see what production sees after a real open.
+    // #P4e1b F1: a real `session/open` reply fills TWO lists — the METHODS into
+    // `config.supported_methods` and the `coding.*` FEATURES into
+    // `capabilities()` (the transport's `Capabilities::parse`
+    // `capability/mod.rs:137-139` early-returns `from_supported_features` on a
+    // `supported_features` array, and `:121` puts only feature names in `raw`;
+    // methods arrive separately, `flow.rs:1231`). This helper used to seed
+    // METHOD NAMES into `capabilities()`, which no production path does — that
+    // un-production-shaped fixture is what let the old single-list gate read as
+    // "proven". The corrected gate (`screens/autonomy.rs::gated`) requires
+    // BOTH halves, so seed them the way production does.
+    store
+        .domains
+        .config
+        .set_supported_methods(vec![
+            "session/goal/get".into(),
+            "session/goal/set".into(),
+            "session/goal/clear".into(),
+            "loop/list".into(),
+            "loop/pause".into(),
+            "loop/resume".into(),
+            "loop/delete".into(),
+            "loop/fire_now".into(),
+            "monitor/list".into(),
+            "monitor/create".into(),
+            "monitor/pause".into(),
+            "monitor/resume".into(),
+            "monitor/delete".into(),
+        ]);
     store.set_capabilities(vec![
-        "session/goal/get".into(),
-        "session/goal/set".into(),
-        "session/goal/clear".into(),
-        "loop/list".into(),
-        "loop/pause".into(),
-        "loop/resume".into(),
-        "loop/delete".into(),
-        "loop/fire_now".into(),
-        "monitor/list".into(),
-        "monitor/create".into(),
-        "monitor/pause".into(),
-        "monitor/resume".into(),
-        "monitor/delete".into(),
+        "coding.goal_runtime.v1".into(),
+        "coding.loop_runtime.v1".into(),
+        "coding.monitor_runtime.v1".into(),
     ]);
     let ui = Mutex::new(FlowUi::default());
     (conv, server, store, ui, _guard)
