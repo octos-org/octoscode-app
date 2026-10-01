@@ -341,8 +341,9 @@ pub fn blocked_reason(store: &Store, session_id: &str, mode: HistoryMode) -> Opt
 }
 
 /// The web's verbatim blocked copy for unsettled work
-/// (`history-binding.ts:121`).
-const SETTLE: &str =
+/// (`history-binding.ts:121`). Public so a test can assert the SAME string the
+/// gate returns instead of re-typing it.
+pub const SETTLE: &str =
     "Wait for affected turns, queued prompts, and questions to settle before changing history.";
 
 // ------------------------------------------------- canonical history read

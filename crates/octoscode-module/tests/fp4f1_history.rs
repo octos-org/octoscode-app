@@ -578,3 +578,84 @@ async fn the_capability_gate_refuses_every_mode_before_the_wire() {
     );
     assert!(!server.saw("session/fork"), "the blocked action never touched the wire");
 }
+
+// ------------------------------------------------- the foreign-reply refusal
+
+/// Row 5: the canonical read is BOUND to a Session, so a reply carrying another
+/// `session_id` is an error, never a read. Exercised through the production
+/// client against the recorded hydrate with only its identity rebound.
+#[tokio::test]
+async fn a_hydrate_reply_for_another_session_is_refused() {
+    let hydrate = recorded(R43A, "session/hydrate");
+    let session = hydrate["session_id"].as_str().expect("recorded session id").to_owned();
+    let mut foreign = hydrate.clone();
+    foreign["session_id"] = json!("other:session");
+
+    let server = ReplayServer::start(vec![("session/hydrate".to_owned(), foreign)], vec![]).await;
+    let (conv, _store) = connect(&server).await;
+    let err = history::read_history(conv.client(), &session)
+        .await
+        .expect_err("another Session's history is refused");
+    assert_eq!(err, "History belongs to another Session.");
+
+    // The bound read still succeeds on the recorded frame, so the refusal is
+    // the identity check and not a decode failure.
+    let server = ReplayServer::start(vec![("session/hydrate".to_owned(), hydrate)], vec![]).await;
+    let (conv, _store) = connect(&server).await;
+    let thread = history::read_history(conv.client(), &session)
+        .await
+        .expect("the bound history reads");
+    assert_eq!(thread["session_id"], session);
+    assert!(!thread["messages"].as_array().expect("messages").is_empty());
+}
+
+// ----------------------------------------- the same-workspace sibling rule
+
+/// Row 4: workspace undo blocks a busy sibling in the SAME workspace, and does
+/// NOT block on a busy record in ANOTHER workspace. This is the rule the
+/// global in-flight defect violated; it is pinned per workspace here.
+#[tokio::test]
+async fn workspace_undo_blocks_a_busy_sibling_in_the_same_workspace_only() {
+    let hydrate = recorded(R43A, "session/hydrate");
+    let session = hydrate["session_id"].as_str().expect("recorded session id").to_owned();
+    let server = ReplayServer::start(
+        vec![("session/hydrate".to_owned(), hydrate)],
+        vec![],
+    )
+    .await;
+    let (_conv, store) = connect(&server).await;
+    advertised(&store, &["undo"]);
+
+    let row = |id: &str, active: bool| octoscode_store::domains::session::Session {
+        id: id.to_owned(),
+        title: None,
+        message_count: 0,
+        updated_at: None,
+        last_prompt: None,
+        active_turn: active,
+    };
+    store.domains.session.set_list(vec![row(&session, false), row("sibling", true)]);
+    store.domains.session.set_workspace_root(&session, "/ws/shared");
+    store.domains.session.set_workspace_root("sibling", "/ws/shared");
+
+    // A busy sibling in the SAME workspace blocks the undo.
+    let err = history::blocked_reason(&store, &session, HistoryMode::Undo)
+        .expect("a busy same-workspace sibling blocks undo");
+    assert_eq!(err, history::SETTLE);
+
+    // The same busy sibling in ANOTHER workspace does not.
+    store.domains.session.set_workspace_root("sibling", "/ws/elsewhere");
+    assert!(
+        history::blocked_reason(&store, &session, HistoryMode::Undo).is_none(),
+        "row 4: another workspace's busy record must not block this workspace's undo"
+    );
+
+    // The bound record's OWN live turn still blocks, in either workspace layout.
+    store.domains.session.set_workspace_root("sibling", "/ws/shared");
+    store.domains.turn.started("turn-live");
+    assert_eq!(
+        history::blocked_reason(&store, &session, HistoryMode::Undo),
+        Some(history::SETTLE.to_owned()),
+        "the bound record's own live turn blocks"
+    );
+}
