@@ -1729,14 +1729,6 @@ impl OctoscodeView {
                                 );
                             }
                         });
-                        // Take over the new transport's event drain.
-                        let drv = conv.clone();
-                        tokio::spawn(async move {
-                            while let Some(evt) = evt_rx.recv().await {
-                                let _ = drv.on_event(evt);
-                                SignalToUI::set_ui_signal();
-                            }
-                        });
                     }
                     Err(e) => {
                         store.set_connection("Offline".to_owned(), false);
