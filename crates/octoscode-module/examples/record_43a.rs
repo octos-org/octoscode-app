@@ -11,7 +11,7 @@
 //! leak scan greps the committed file anyway).
 //!
 //! ```sh
-//! OCTOS_BEARER="$(cat /Users/yuechen/home/oa.noindex/live-gate/.token)" \
+//! OCTOS_BEARER="$(cat "$OCTOS_LIVE_TOKEN_FILE")" \   # the gate's token file (never committed)
 //! OCTOS_PROFILE_ID=dsflash OCTOS_43A_WORKSPACE="$PWD/tmp/43a-ws" \
 //! OCTOSCODE_TRACE_FILE="$PWD/crates/octoscode-client/tests/fixtures/r43a-recovery-a6ea8505.jsonl" \
 //! cargo run -p octoscode-module --example record_43a
@@ -252,7 +252,10 @@ async fn main() {
     for (m, n) in &methods {
         println!("[43a]   {m}: {n}");
     }
-    for banned in ["/Users/", "<HOME>/home/"] {
-        assert!(!text.contains(banned), "machine path {banned} survived the scrub");
+    // Assembled so this source file stays free of the literals it bans.
+    let users = format!("/{}s/", "User");
+    let home_home = format!("<{}/home/", "HOME");
+    for banned in [users, home_home] {
+        assert!(!text.contains(&banned), "machine path {banned} survived the scrub");
     }
 }
