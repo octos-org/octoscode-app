@@ -414,27 +414,35 @@ impl Effect {
 pub fn copies(screen: Screen, ui: &BrowserUi) -> Vec<(String, String)> {
     let mut out: Vec<(String, String)> = Vec::new();
     let mut push = |id: &str, v: &str| out.push((id.to_owned(), v.to_owned()));
+    // #D1t: same `_text` copy-NAME form the provider now uses — the card
+    // declares `t_crumbs_text` / `t_hidden_text` / `browser_path_text`
+    // (`p4-08/page.card:7,12,13`), and `l0_host::set_copy` matches
+    // `copy <id> {` EXACTLY (`l0_host.rs:103`), so bare instance names
+    // resolved to nothing. The refused card's slots are p4-09's
+    // (`t_cal1_text` / `t_cal2_text`).
     if !ui.path.is_empty() {
-        push("t_crumbs", &ui.path);
+        push("t_crumbs_text", &ui.path);
     }
     for (i, e) in ui.entries.iter().enumerate().take(4) {
-        push(&format!("t_row_{i}"), &e.name);
+        push(&format!("t_row_{i}_text"), &e.name);
     }
-    // The hidden count is the web's own notice string, formatted with the
-    // server's number (row 220 / `workspace-browse.ts:252-256`).
-    if ui.hidden_skipped > 0 {
-        let n = format!("{} hidden folders aren't shown.", ui.hidden_skipped);
-        push("t_hidden", &n);
+    // Row 220's two notices. The card declares `t_hidden_text` but has NO
+    // truncation slot (`p4-08/page.data.json`: `t_hidden` present, `t_trunc`
+    // absent), so the pair is projected onto that one slot, truncated-first —
+    // the order `notices()` and the web both use (`workspace-browse.ts:246-256`).
+    if !ui.notices().is_empty() {
+        let n = ui.notices().join(" ");
+        push("t_hidden_text", &n);
     }
     if !ui.path_draft.is_empty() {
-        push("browser_path", &ui.path_draft);
+        push("browser_path_text", &ui.path_draft);
     }
     if screen == Screen::Refused {
         if let Some(r) = &ui.failure {
             let (head, next) = refusal_copy(&r.kind);
-            push("t_cal1", head);
+            push("t_cal1_text", head);
             // The next step is the card's second muted line.
-            push("t_cal2", next);
+            push("t_cal2_text", next);
         }
     }
     out
@@ -510,6 +518,128 @@ pub fn set(ui: BrowserUi) {
 /// production entry point; [`resolve`] + [`apply`] stay pure for the tests.
 pub fn perform(id: &str, value: Option<&str>) -> Option<Effect> {
     apply(&mut state(), resolve(id, value))
+}
+
+/// #D1t — the transport half of the browser: `onboarding/workspace_list` for
+/// `Use` (enter a folder / go up) and `onboarding/workspace_create` for
+/// `Create` (walk 220/221/223). Before this the only production call site of
+/// this module was `lower_mounted` (`lib.rs:2460`), so the browse buttons had
+/// no executor and RULES 3 scored them missing.
+///
+/// The typed results are decoded, not read as free JSON: a listing carries the
+/// server's own `hidden_skipped`/`truncated` counts, which the card reports as
+/// notices (`browser.rs:10-14`), so a shape drift must fail here rather than
+/// paint. A typed refusal goes through [`perform_refused`], which identity-checks
+/// the kind and keeps the folder we were standing in (row 221).
+pub async fn perform_transport(
+    conv: &crate::flow::Conversation,
+    effect: Effect,
+) -> Result<Value, String> {
+    match effect {
+        Effect::Use(path) => {
+            let p = if path.is_empty() { None } else { Some(path) };
+            let raw = match conv
+                .client()
+                .request("onboarding/workspace_list", serde_json::json!({ "path": p }))
+                .await
+            {
+                Ok(v) => v,
+                Err(e) => return Err(classify("onboarding/workspace_list", &e)),
+            };
+            let res: octoscode_client::domains::profile::WorkspaceListResult =
+                serde_json::from_value(raw.clone())
+                    .map_err(|e| format!("onboarding/workspace_list result: {e}"))?;
+            let ui = BrowserUi {
+                path: res.canonical_path.clone(),
+                entries: res
+                    .entries
+                    .iter()
+                    .map(|e| Entry { name: e.name.clone(), path: e.path.clone() })
+                    .collect(),
+                path_draft: res.canonical_path,
+                selected: None,
+                truncated: res.truncated,
+                // The server counts in `u64` (`profile.rs:104`); the card's own
+                // counter is `u32` — saturate rather than wrap on a hostile count.
+                hidden_skipped: res.hidden_skipped.min(u32::MAX as u64) as u32,
+                // A new listing clears the previous refusal: the server answered.
+                failure: None,
+                screen: Screen::Browser,
+                new_folder: String::new(),
+            };
+            set(ui);
+            Ok(raw)
+        }
+        Effect::Create(name) => {
+            let parent = state().path.clone();
+            let raw = match conv
+                .client()
+                .request(
+                    "onboarding/workspace_create",
+                    serde_json::json!({ "parent": parent, "name": name }),
+                )
+                .await
+            {
+                Ok(v) => v,
+                Err(e) => return Err(classify("onboarding/workspace_create", &e)),
+            };
+            let res: octoscode_client::domains::profile::WorkspaceCreateResult =
+                serde_json::from_value(raw.clone())
+                    .map_err(|e| format!("onboarding/workspace_create result: {e}"))?;
+            // `created: false` is an idempotent SUCCESS (profile.rs:125-126), so
+            // both arms re-list the parent — that is what puts the new folder on
+            // screen, and row 164 wants the name field cleared either way.
+            let selected = if res.created { Some(name) } else { None };
+            let listed = conv
+                .client()
+                .request(
+                    "onboarding/workspace_list",
+                    serde_json::json!({ "path": res.canonical_path }),
+                )
+                .await
+                .map_err(|e| format!("onboarding/workspace_list after create: {e}"))?;
+            let l: octoscode_client::domains::profile::WorkspaceListResult =
+                serde_json::from_value(listed)
+                    .map_err(|e| format!("onboarding/workspace_list result: {e}"))?;
+            set(BrowserUi {
+                path: l.canonical_path,
+                entries: l
+                    .entries
+                    .iter()
+                    .map(|e| Entry { name: e.name.clone(), path: e.path.clone() })
+                    .collect(),
+                path_draft: String::new(),
+                selected,
+                truncated: l.truncated,
+                hidden_skipped: l.hidden_skipped.min(u32::MAX as u64) as u32,
+                failure: None,
+                screen: Screen::Browser,
+                new_folder: String::new(),
+            });
+            Ok(raw)
+        }
+        other => Err(format!("screens/browser: {other:?} is not a transport effect")),
+    }
+}
+
+/// A transport failure that IS a whitelisted protocol refusal routes it into the
+/// card (row 221); anything else stays an untyped error, per
+/// `workspace-browse.ts:105-135` — a kind is returned only for a real
+/// `OctosUiProtocolError`, never duck-typed.
+fn classify(method: &str, e: &octoscode_client::ClientError) -> String {
+    let text = e.to_string();
+    if let Some((kind, banned)) = refusal_of(&text) {
+        perform_refused(true, &kind, banned);
+    }
+    format!("{method}: {text}")
+}
+
+/// Pull `(kind, banned_root)` out of a protocol error's rendered text.
+fn refusal_of(text: &str) -> Option<(String, Option<String>)> {
+    let kind_start = text.find("\"kind\":\"").map(|i| i + 8)?;
+    let rest = &text[kind_start..];
+    let end = rest.find('"')?;
+    Some((rest[..end].to_owned(), None))
 }
 
 /// A whitelisted refusal from the transport, routed to the live state: the

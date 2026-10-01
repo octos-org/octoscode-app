@@ -1266,6 +1266,15 @@ fn seed_synthetic_live(store: &Arc<Store>) {
     }
 }
 
+/// #D1t: the two board-1 transport effects, so ONE `rt.spawn` arm can carry
+/// either screen's typed effect across the await point (the two enums are
+/// unrelated types, so the `match` needs a common carrier).
+#[derive(Debug)]
+enum D1Effect {
+    Provider(screens::provider::Effect),
+    Browser(screens::browser::Effect),
+}
+
 #[derive(Script, ScriptHook, Widget)]
 pub struct OctoscodeView {
     #[deref]
@@ -1919,6 +1928,44 @@ impl OctoscodeView {
                 if let Err(e) = screens::models::perform(&conv, &action, &store).await {
                     ::log::warn!("octoscode: screens: {action:?}: {e}");
                 }
+            });
+            return;
+        }
+        // #D1t: board 1's provider editor and workspace browser. Both cards
+        // already mounted (`lib.rs:2459-2460` `lower_mounted`) but until this
+        // dispatch existed their transport effects had NO executor, so
+        // `prov.test` / `provider.save` / `browser.use` / `browser.create` were
+        // reachable only from a test and RULES 3 scored them missing. The
+        // pairing card is deliberately NOT here: it has no typed method (see
+        // .peer/report-D1t.md §pairing).
+        if screens::provider::is_action(action) || screens::browser::is_action(action) {
+            // Apply to the LIVE state first; the transport effect (or None) is
+            // what actually talks to the server. `perform_action` carries no
+            // `value` (lib.rs:1513), so the input ids resolve with `None` here —
+            // the live card's own fields are already in each module's state.
+            let is_provider = screens::provider::is_action(action);
+            let effect = if is_provider {
+                screens::provider::perform(action, None)
+                    .map(D1Effect::Provider)
+            } else {
+                screens::browser::perform(action, None).map(D1Effect::Browser)
+            };
+            let Some(effect) = effect else { return };
+            // `action` is a method-lifetime `&str`, so the spawned task needs its
+            // OWN copy (E0521) — it is only the log line's subject.
+            let action = action.to_string();
+            rt.spawn(async move {
+                let out = match effect {
+                    D1Effect::Provider(e) => {
+                        screens::provider::perform_transport(&conv, e).await
+                    }
+                    D1Effect::Browser(e) => screens::browser::perform_transport(&conv, e).await,
+                };
+                if let Err(e) = out {
+                    ::log::warn!("octoscode: screens: {action:?}: {e}");
+                }
+                // Repaint: the transport arm writes the card's own state.
+                SignalToUI::set_ui_signal();
             });
             return;
         }

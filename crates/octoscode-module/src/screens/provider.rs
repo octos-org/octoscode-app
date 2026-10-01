@@ -148,20 +148,29 @@ fn redact_keyed_runs(s: &str) -> String {
 }
 
 /// The `Bearer <token>` pass (`model-settings.ts:541`).
-fn redact_bearer(s: &str) -> String {
-    // The scan and the slice must run over the SAME string: lowercasing can
-    // change byte lengths for non-ASCII, so a position found in a lowercased
-    // copy is not a position in the original.
-    let mut out = String::with_capacity(s.len());
-    let mut i = 0usize;
-    while i < s.len() {
-        let tail = &s[i..];
-        if !tail[..tail.len().min(7)].eq_ignore_ascii_case("bearer ") {
-            let ch = tail.chars().next().expect("i is a char boundary");
-            out.push(ch);
-            i += ch.len_utf8();
-            continue;
-        }
+    fn redact_bearer(s: &str) -> String {
+        // The scan and the slice must run over the SAME string: lowercasing can
+        // change byte lengths for non-ASCII, so a position found in a lowercased
+        // copy is not a position in the original.
+        //
+        // #D1t: the window is taken with `get(..)`, NOT `[..7]`. The RECORDED
+        // `profile/llm/test` 401 (r29a-onboarding-a6ea8505.jsonl line 9) carries
+        // an em dash ("—", 3 bytes), so a hard `[..7]` slice lands mid-character
+        // and PANICS — reproduced standalone, not theoretical. A `None` window
+        // (a short tail) is simply not a "bearer " prefix.
+        let mut out = String::with_capacity(s.len());
+        let mut i = 0usize;
+        while i < s.len() {
+            let tail = &s[i..];
+            let is_bearer = tail
+                .get(..7)
+                .is_some_and(|w| w.eq_ignore_ascii_case("bearer "));
+            if !is_bearer {
+                let ch = tail.chars().next().expect("i is a char boundary");
+                out.push(ch);
+                i += ch.len_utf8();
+                continue;
+            }
         let after = 7usize; // "bearer ".len() == 7
         out.push_str(&s[i..i + after]);
         let token = &s[i + after..];
@@ -413,10 +422,17 @@ pub fn apply(ui: &mut ProviderUi, effect: Effect) -> Option<Effect> {
 pub fn copies(screen: Screen, ui: &ProviderUi) -> Vec<(String, String)> {
     let mut out: Vec<(String, String)> = Vec::new();
     let mut push = |id: &str, v: &str| out.push((id.to_owned(), v.to_owned()));
-    push("prov_name", &ui.family);
-    push("prov_url", &ui.base_url);
+    // #D1t: the ids are the card's `copy` NAMES, and every phase4 board-1 card
+    // declares them with a `_text` suffix (`p4-06/page.card:8,11,19-21`;
+    // `p4-07/page.card:8,11,16`). `l0_host::set_copy` looks for `copy <id> {`
+    // EXACTLY (`l0_host.rs:103`) — it does not suffix — so the bare
+    // instance names these used to push resolved to nothing and the card kept
+    // its authored text. `connect.rs` already uses this form
+    // (`server_field_text`, `t_error_text`), which is the corroboration.
+    push("prov_name_text", &ui.family);
+    push("prov_url_text", &ui.base_url);
     for (i, m) in ui.models.iter().enumerate().take(3) {
-        push(&format!("t_model_{i}"), m);
+        push(&format!("t_model_{i}_text"), m);
     }
     if screen == Screen::Rejected {
         let err = ui
@@ -424,7 +440,7 @@ pub fn copies(screen: Screen, ui: &ProviderUi) -> Vec<(String, String)> {
             .as_deref()
             .map(|_| TEST_FAILED)
             .unwrap_or(TEST_FAILED);
-        push("t_cal1", err);
+        push("t_cal1_text", err);
     }
     out
 }
@@ -493,6 +509,98 @@ pub fn set(ui: ProviderUi) {
 /// production entry point; [`resolve`] + [`apply`] stay pure for the tests.
 pub fn perform(id: &str, value: Option<&str>) -> Option<Effect> {
     apply(&mut state(), resolve(id, value))
+}
+
+/// #D1t — the transport half of the editor: issue `profile/llm/test` and
+/// `profile/llm/upsert` for the LIVE draft and route the answer back into the
+/// state (row 87/88). Before this the only production call site of this module
+/// was `lower_mounted` (`lib.rs:2459`), so `prov.test` / `provider.save` had
+/// no executor at all and RULES 3 scored them missing.
+///
+/// `profile_id` is `None` (the server's own default profile) and the draft's key
+/// is sent only here, never into a copy id — the redaction property the module
+/// header states (`provider.rs:23-24`). A failure goes through
+/// [`perform_failed`], which redacts BEFORE any copy can read it.
+pub async fn perform_transport(
+    conv: &crate::flow::Conversation,
+    effect: Effect,
+) -> Result<Value, String> {
+    let (method, draft) = {
+        let ui = state();
+        match &effect {
+            // `is_save`: only the upsert asks to become the primary.
+            Effect::Test => ("profile/llm/test", provision_params(&ui, false)),
+            Effect::Save => ("profile/llm/upsert", provision_params(&ui, true)),
+            other => {
+                return Err(format!(
+                    "screens/provider: {other:?} is not a transport effect"
+                ))
+            }
+        }
+    };
+    let raw = conv
+        .client()
+        .request(method, draft)
+        .await
+        .map_err(|e| format!("{method}: {e}"))?;
+    // The typed result, so a shape drift is caught here rather than painted.
+    if method == "profile/llm/test" {
+        let res: octoscode_client::domains::profile::LlmTestResult =
+            serde_json::from_value(raw.clone()).map_err(|e| format!("{method} result: {e}"))?;
+        if let Some(err) = res.error.as_deref().filter(|e| !e.is_empty()) {
+            perform_failed(err);
+            return Err(format!("{method}: {err}"));
+        }
+    } else {
+        let res: octoscode_client::domains::profile::LlmUpsertResult =
+            serde_json::from_value(raw.clone()).map_err(|e| format!("{method} result: {e}"))?;
+        if !res.applied {
+            perform_failed("the provider draft was not applied");
+            return Err(format!("{method}: not applied"));
+        }
+    }
+    // A save leaves the editor; the module's own Close is the web's behaviour
+    // after a successful upsert (`model-settings.ts` save handler).
+    if method == "profile/llm/upsert" {
+        apply(&mut state(), Effect::Close);
+    }
+    Ok(raw)
+}
+
+/// The `profile/llm/{test,upsert}` params for the live draft. The default model
+/// row is the one the card marks `(default)`, whose label carries the suffix.
+/// `is_save` is the only difference between the two arms: the upsert asks to
+/// become the primary, the test never does (`LlmProvisionParams::set_primary`).
+fn provision_params(ui: &ProviderUi, is_save: bool) -> Value {
+    let model = ui
+        .default_model
+        .clone()
+        .or_else(|| {
+            ui.models
+                .first()
+                .map(|m| m.split(" (").next().unwrap_or(m).to_owned())
+        })
+        .unwrap_or_else(|| ui.model.clone());
+    let route = octoscode_client::domains::profile::LlmRouteSelection {
+        route_id: Some(ui.route.clone()),
+        base_url: Some(ui.base_url.clone()),
+        ..Default::default()
+    };
+    let selection = octoscode_client::domains::profile::LlmSelection {
+        family_id: ui.family.clone(),
+        model_id: model,
+        route,
+        inference: octoscode_client::domains::profile::LlmInferenceOverrides::default(),
+    };
+    let params = octoscode_client::domains::profile::LlmProvisionParams {
+        profile_id: None,
+        selection,
+        // Omit when the draft has no key: the server then reuses the stored one
+        // (`LlmProvisionParams::api_key`, `profile.rs:196-198`).
+        api_key: (!ui.key.is_empty()).then(|| ui.key.clone()),
+        set_primary: is_save.then_some(true),
+    };
+    serde_json::to_value(params).unwrap_or(Value::Null)
 }
 
 /// A typed refusal from the transport, routed to the live draft so the copy is
