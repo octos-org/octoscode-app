@@ -328,13 +328,6 @@
 - workspace: product controller (listWorkspaceSessions/deleteSession/observeTokenCost) — web: src-web/apps/web/src/features/workspace/use-workspace-product.ts:42 — transport handled (crates/) but no UI layer cited
 - workspace: request a per-session workspace cwd on open — web: src-web/apps/web/src/features/workspace/use-workspace-product.ts:13 — transport handled (crates/) but no UI layer cited
 - workspace: profile-choice transition moves drafts only after commit — web: src-web/apps/web/src/features/workspace/use-workspace-product.ts:42 — transport handled (crates/) but no UI layer cited
-- **fixture** — the row needs protocol frames (or timing) the committed recordings lack. RULES require
-  replaying recorded real traffic; this lane has no live gate to record from, so each needs a recording
-  pass (outer loop).
-- **native-surface** — the native surface the case describes is not mounted/implemented yet (measured 41c recon).
-- **harness** — the walk runner cannot vary what the row needs (viewport width, per-row env, first-run flow).
-
-
 
 ## 41b2 manual pass — g-timeline (rows that stay C, with the build/test gap)
 - g-timeline: Parse the native inspection slash grammar (/thread|/threads, /turn, approvals) incl. active-turn UUI — gap: the palette registry (screens/palette.rs:53-58) has /model /monitor /mode /compact /btw /resume but no inspection grammar — web: src-web/apps/web/src/features/inspection/intent.ts:9
@@ -348,12 +341,9 @@
 - g-timeline: Choose UI language (en/zh); load the Chinese catalog lazily and merge feature copy tables with place — gap: locale comes from the environment only; no language switcher or lazy zh catalog — web: src-web/apps/web/src/features/preferences/ui-text.tsx:42
 - g-timeline: Vim editing mode toggle for the composer — gap: no vim editing mode in the native composer — web: src-web/apps/web/src/features/preferences/PreferencesDialog.tsx:80
 - g-timeline: Localize product strings across features via the ui-text catalog (commands, connections, approvals,  — gap: no ui-text catalog/i18n layer natively (same locale gap) — web: src-web/apps/web/src/features/preferences/ui-text.tsx:17
-- g-timeline: Plan checklist card: plan/updated REPLACES wholesale (never a diff), scoped to the authoring turn, d — gap: client PlanUpdatedHandler lands (domains/task.rs:148-206) + store PLAN EntryKind (timeline.rs:62), but no wholesale-replace/turn-scope test or card render — web: src-web/apps/web/src/features/supervision/plan.ts:20
 - g-timeline: Plan presentation: per-status counts, headline (server title -> in-progress -> card label), relative — gap: no plan presentation surface (counts/headline/relative time) — web: src-web/apps/web/src/features/supervision/plan.ts:45
-- g-timeline: Session trajectory: list tasks with live task/updated merges (title = summary|role|tool_name, state/ — gap: no session-scoped task trajectory list natively (task rows render in the timeline only) — web: src-web/apps/web/src/features/supervision/use-supervision.ts:54
-- g-timeline: Read live task output (task/output/read) with a byte cursor — gap: transport present (domains/mod.rs:15) with no output drill-down UI/walk check — web: src-web/apps/web/src/features/supervision/use-supervision.ts:251
-- g-timeline: Append live task/output/delta by UTF-8 byte offset; fail closed on a cursor gap — gap: delta folding exists client-side but no cursor-gap fail-closed assertion — web: src-web/apps/web/src/features/supervision/model.ts:145
-- g-timeline: Cancel a cancellable task (pending/running) — gap: task/cancel implemented (domains/mod.rs:15) with no UI affordance or test — web: src-web/apps/web/src/features/supervision/use-supervision.ts:307
+- g-timeline: Read live task output (task/output/read) with a byte cursor — gap: the request side is routed and shape-tested (fleet.rs task.open.running -> task/output/read cursor 0 / limit 65536, f30c_replay.rs:213-221) and the store buffer exists (append_output_checked since #P4b), but no drill-down UI renders the fetched output — build the output surface (goes through the design flow like the other new fleet surfaces)
+- g-timeline: Cancel a cancellable task — gap: ONLY the §8.23 headless CLICK walk check is missing: the production path is fully tested (fleet.rs:90/:286/:346/:1021 route task.cancel; f30c_replay.rs:211-217 asserts the task/cancel params and :315-340 drives fleet::spawn through the production client with the server asserting the frame; f4_task_tool.rs:95 client-side) — add a fleet config to tools/walk/click_audit.py with a replay-fed running task, click the row's cancel control, assert the frame + /snap
 - g-timeline: Task artifacts: list pages and read artifact content — gap: task/artifact/list+read implemented (domains/mod.rs:15) with no artifacts UI/test — web: src-web/apps/web/src/features/supervision/use-supervision.ts:358
 - g-timeline: Session runtime status (model / permission profile / health) in the trajectory — gap: session/status/read implemented (domains/mod.rs:10) with no status surface — web: src-web/apps/web/src/features/supervision/SessionTrajectory.tsx:40
 - g-timeline: Assistant reasoning/thinking rendered as a folded disclosure with a one-line summary (duration + wor — gap: reasoning deltas are client notifications (domains/mod.rs:11) but no disclosure UI renders them — web: src-web/apps/web/src/features/timeline/ThinkingDisclosure.tsx:14
@@ -561,8 +551,4 @@
 - g-timeline: Desktop-notification consent — gap: no OS-notification integration or consent policy in the shell; add notifications + a consent-gated first prompt — web desktop-notifications.ts:27
 - g-timeline: Show/close OS notices — gap: no notification-center client in the shell (no show/close/focus-on-click handling) — web desktop-notifications.ts:86
 - g-timeline: Acknowledge attention on window focus — gap: no attention acknowledgement on window activation (and no attention state to clear) — build with the notifications gap above — web use-attention.ts:27
-
-## P4a2 manual pass — regen-stable audit overrides (2026-10-01)
-- models: "model settings: save a provider/model draft (upsert) and optionally make it the primary route, rebuilding the request once so Test and Save cannot drift" stays A — verified native: run_onboarding builds ONE selection (connect.rs:521) and clones it into BOTH llm/test and llm/upsert (:566/:585), production caller lib.rs:2081, wire-tested f29a_replay.rs. NOTE: this regen flips it automatically; the flip is CORRECT.
-- product-settings: "Profile mutation leases: modal-independent write ownership; duplicate acquisition rejected" is C by AUDIT, not by the mechanical gate — the gate re-flips it A on every regen because its methods (profile/llm/upsert;profile/llm/delete) now carry screens+tests evidence, but the LEASE capability itself (modal-independent write ownership, duplicate-acquisition rejection) has NO native implementation (grep lease|mutation_lease|write_ownership = 0 hits in module/client src). Needs its own surface card; the row's notes + phase4_evidence carry the audit.
 Split after #41c: specific=7 checked in-lane (7 rows), documented gaps=44 (this file). smoke=0 among rows that CAN have a specific check; the 44 above are the rows that cannot, each with its reason.
