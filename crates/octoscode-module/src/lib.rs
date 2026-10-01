@@ -1903,6 +1903,18 @@ impl OctoscodeView {
                 }
             }
         }
+        // #32h A: a phone that never resized (the app opens full-screen; no
+        // WindowGeomChange arrives) kept window_w at 0.0 and got the DESKTOP
+        // shell — the sidebar stayed at 384 px and the composer sat off the
+        // right edge (device /snap: i0_composer_0 [295,512,89,48]). Seed the
+        // width from the root view's LAID-OUT rect when no event/env ever
+        // set it: the instrument numbers are the truth on every target.
+        if self.window_w == 0.0 {
+            let w = self.view.area().rect(cx).size.x;
+            if w > 0.0 {
+                self.window_w = w;
+            }
+        }
         // #28e3 item 1: the responsive layout. The center column keeps a
         // 420 px minimum: at wide windows (>= 1260 = 260 sidebar + 2x10
         // spacing + 420 center + 560 review) the docked panels reserve their
