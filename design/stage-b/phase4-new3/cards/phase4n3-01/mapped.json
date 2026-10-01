@@ -152,31 +152,33 @@
           },
           {
             "t": "stack",
-            "id": "tab_mcp",
-            "x": 104,
-            "y": 168,
+            "id": "tab_mcp_fill",
+            "x": 104.0,
+            "y": 168.0,
             "w": 91.0,
-            "h": 20,
+            "h": 20.0,
             "variant": "pill",
-            "bg": 4294111991,
-            "radius": 10,
+            "bg": 4294901502,
+            "radius": 10.0,
             "c": [
               {
                 "t": "text",
-                "id": "tab_mcp_t",
+                "id": "tab_mcp_fill_t",
                 "text": "MCP servers",
-                "x": 112,
-                "y": 171,
-                "w": 75.0,
-                "h": 14,
-                "size": 11,
-                "line_height": 13.42,
+                "x": 253.00380246399357,
+                "y": 135.08264462809916,
+                "w": 85.55075593952483,
+                "h": 16.02479338842975,
+                "size": 16.064433698306672,
+                "line_height": 16.02479338842975,
                 "weight": 500,
-                "color": 4280098079,
+                "color": 4284045915,
                 "variant": "single_line",
                 "alignx": 0,
                 "font_src": "self:resources/ux/Inter-500.ttf",
-                "tracking": 0.0
+                "tracking": -1.5290796032786773,
+                "font_asc": -0.10694668170103094,
+                "font_desc": 0.10548183795103097
               }
             ]
           },
@@ -228,20 +230,18 @@
                 "t": "text",
                 "id": "tab_mcp_t",
                 "text": "MCP servers",
-                "x": 252.88706345021592,
-                "y": 135.08264462809916,
-                "w": 85.55075593952483,
-                "h": 16.02479338842975,
-                "size": 16.05396144687362,
-                "line_height": 16.02479338842975,
+                "x": 104,
+                "y": 168,
+                "w": 92,
+                "h": 17,
+                "size": 13,
+                "line_height": 15.86,
                 "weight": 400,
-                "color": 4284045915,
+                "color": 4280098079,
                 "variant": "single_line",
                 "alignx": 0,
                 "font_src": "self:resources/ux/Inter-400.ttf",
-                "tracking": -1.4012644450531937,
-                "font_asc": -0.10686546928694152,
-                "font_desc": 0.10491234428694168
+                "tracking": 0.0
               },
               {
                 "t": "button",
@@ -250,9 +250,7 @@
                 "y": 168.0,
                 "w": 92.0,
                 "h": 20.0,
-                "enabled": 1,
-                "bg": 4294901502,
-                "radius": 10.0
+                "enabled": 1
               }
             ]
           },
@@ -682,7 +680,7 @@
             "x": 32,
             "y": 410,
             "w": 140,
-            "h": 12,
+            "h": 13.42,
             "size": 11,
             "line_height": 13.42,
             "weight": 600,
@@ -1024,7 +1022,7 @@
                 "x": 330,
                 "y": 60,
                 "w": 24,
-                "h": 17,
+                "h": 18.3,
                 "size": 15,
                 "line_height": 18.3,
                 "weight": 400,
@@ -1084,7 +1082,7 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "tab_mcp",
+      "id": "tab_mcp_fill",
       "source": "observed non-text annotation"
     },
     {
@@ -1178,16 +1176,10 @@
       "tracking_em": -0.27128266040665844
     },
     {
-      "id": "tab_mcp_t",
+      "id": "tab_mcp_fill_t",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
-      "tracking_em": -0.0872846524323801
-    },
-    {
-      "id": "tab_mcp_t",
-      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
-      "font_family_verified_in_reference": false,
-      "tracking_em": -0.0872846524323801
+      "tracking_em": -0.09518415849541309
     },
     {
       "id": "h_tools",

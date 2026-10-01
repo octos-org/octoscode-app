@@ -1,0 +1,496 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "d5ff4f989358363e89a6d47982d486fbe94ec4efab4932517dfc903799ca0aff",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "variant": "surface",
+    "bg": 4294901502,
+    "radius": 0,
+    "c": [
+      {
+        "t": "stack",
+        "id": "scrim_64",
+        "x": 10.0,
+        "y": 45.0,
+        "w": 388.0,
+        "h": 727.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 0
+      },
+      {
+        "t": "stack",
+        "id": "modal_card",
+        "x": 16.0,
+        "y": 64.0,
+        "w": 374.0,
+        "h": 640.0,
+        "c": [
+          {
+            "t": "text",
+            "id": "t_title",
+            "text": "Add workspace",
+            "x": 35.04318418383598,
+            "y": 75.7603305785124,
+            "w": 139.33333333333334,
+            "h": 24.041322314049587,
+            "size": 21.511859590761823,
+            "line_height": 24.041322314049587,
+            "weight": 600,
+            "color": 4278716424,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-600.ttf",
+            "tracking": -2.1627578674105266,
+            "font_asc": -0.14823896585051544,
+            "font_desc": -0.0558625966494844
+          },
+          {
+            "t": "stack",
+            "id": "btn_back_row",
+            "x": 32.0,
+            "y": 112.0,
+            "w": 200.0,
+            "h": 20.0,
+            "c": [
+              {
+                "t": "text",
+                "id": "btn_back_t",
+                "text": "Back to workspaces",
+                "x": 34.055823440900625,
+                "y": 427.6859504132231,
+                "w": 135.86324786324786,
+                "h": 20.03305785123967,
+                "size": 17.209487672609455,
+                "line_height": 20.03305785123967,
+                "weight": 400,
+                "color": 4281692630,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": -1.7739028088135138,
+                "font_asc": -0.12499597293814435,
+                "font_desc": -0.07910558956185565
+              },
+              {
+                "t": "button",
+                "id": "btn_back",
+                "x": 32.0,
+                "y": 112.0,
+                "w": 200.0,
+                "h": 20.0,
+                "enabled": 1
+              }
+            ]
+          },
+          {
+            "t": "stack",
+            "id": "f_folder_row",
+            "x": 32.0,
+            "y": 150.0,
+            "w": 250.0,
+            "h": 40.0,
+            "c": [
+              {
+                "t": "stack",
+                "id": "f_folder_bg",
+                "x": 13.0,
+                "y": 122.0,
+                "w": 383.0,
+                "h": 107.0,
+                "c": [],
+                "variant": "surface",
+                "bg": 4294901502,
+                "radius": 26.75
+              },
+              {
+                "t": "text",
+                "id": "f_folder_text",
+                "text": "notes",
+                "x": 47.59165629194039,
+                "y": 312.24793388429754,
+                "w": 44.405208250556264,
+                "h": 12.818181818181818,
+                "size": 12.826446280991735,
+                "line_height": 12.818181818181818,
+                "weight": 400,
+                "color": 4281677367,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 1.7383892740781945,
+                "font_asc": -0.1370409149484536,
+                "font_desc": 0.07356435244845358
+              },
+              {
+                "t": "button",
+                "id": "f_folder",
+                "x": 32.0,
+                "y": 150.0,
+                "w": 250.0,
+                "h": 40.0,
+                "enabled": 1
+              }
+            ]
+          },
+          {
+            "t": "stack",
+            "id": "btn_create_row",
+            "x": 296.0,
+            "y": 150.0,
+            "w": 78.0,
+            "h": 40.0,
+            "c": [
+              {
+                "t": "stack",
+                "id": "btn_create_bg",
+                "x": 326.0,
+                "y": 697.0,
+                "w": 58.0,
+                "h": 44.0,
+                "c": [],
+                "variant": "surface",
+                "bg": 4293914609,
+                "radius": 13.2
+              },
+              {
+                "t": "text",
+                "id": "btn_create_t",
+                "text": "Create",
+                "x": 170.92534071725663,
+                "y": 373.1735537190083,
+                "w": 65.59401709401709,
+                "h": 27.24793388429752,
+                "size": 31.017438824131155,
+                "line_height": 27.24793388429752,
+                "weight": 500,
+                "color": 4278453252,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-500.ttf",
+                "tracking": -6.927759695310776,
+                "font_asc": -0.16696545614113045,
+                "font_desc": 0.1645240498911305
+              },
+              {
+                "t": "button",
+                "id": "btn_create",
+                "x": 296.0,
+                "y": 150.0,
+                "w": 78.0,
+                "h": 40.0,
+                "enabled": 1
+              }
+            ]
+          },
+          {
+            "t": "text",
+            "id": "val_name",
+            "text": "Folder name must not be empty.",
+            "x": 32,
+            "y": 200,
+            "w": 300,
+            "h": 14,
+            "size": 11,
+            "line_height": 13.42,
+            "weight": 400,
+            "color": 4291764782,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "parent_label",
+            "text": "Parent",
+            "x": 32,
+            "y": 232,
+            "w": 120,
+            "h": 14.64,
+            "size": 12,
+            "line_height": 14.64,
+            "weight": 400,
+            "color": 4285427315,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "parent_path",
+            "text": "/home/user/octos",
+            "x": 35.196308470258735,
+            "y": 179.17355371900825,
+            "w": 142.80341880341882,
+            "h": 18.429752066115704,
+            "size": 16.56509654226735,
+            "line_height": 18.429752066115704,
+            "weight": 400,
+            "color": 4280624422,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": 0.01819639420536608,
+            "font_asc": -0.08629546105383734,
+            "font_desc": 0.01110014855383712
+          },
+          {
+            "t": "stack",
+            "id": "btn_drill_row",
+            "x": 32.0,
+            "y": 286.0,
+            "w": 200.0,
+            "h": 20.0,
+            "c": [
+              {
+                "t": "text",
+                "id": "btn_drill_t",
+                "text": "Open folder browser",
+                "x": 32,
+                "y": 286,
+                "w": 200,
+                "h": 17,
+                "size": 12,
+                "line_height": 14.64,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 0.0
+              },
+              {
+                "t": "button",
+                "id": "btn_drill",
+                "x": 32.0,
+                "y": 286.0,
+                "w": 200.0,
+                "h": 20.0,
+                "enabled": 1
+              }
+            ]
+          },
+          {
+            "t": "stack",
+            "id": "btn_drill_disabled_row",
+            "x": 32.0,
+            "y": 286.0,
+            "w": 260.0,
+            "h": 20.0,
+            "c": [
+              {
+                "t": "text",
+                "id": "btn_drill_disabled_t",
+                "text": "Open folder browser (unavailable)",
+                "x": 32,
+                "y": 286,
+                "w": 260,
+                "h": 17,
+                "size": 12,
+                "line_height": 14.64,
+                "weight": 400,
+                "color": 4291282892,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 0.0
+              },
+              {
+                "t": "button",
+                "id": "btn_drill_disabled",
+                "x": 32.0,
+                "y": 286.0,
+                "w": 260.0,
+                "h": 20.0,
+                "enabled": 0
+              }
+            ]
+          },
+          {
+            "t": "stack",
+            "id": "disc_1",
+            "x": 33.0,
+            "y": 362.0,
+            "w": 342.0,
+            "h": 47.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4278387459,
+            "radius": 10.68
+          },
+          {
+            "t": "text",
+            "id": "disc_t",
+            "text": "\u00b7 3 existing folders",
+            "x": 33.35542327277865,
+            "y": 493.42148760330576,
+            "w": 160.77565192528223,
+            "h": 20.834710743801654,
+            "size": 17.22152227937352,
+            "line_height": 20.834710743801654,
+            "weight": 400,
+            "color": 4280032798,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": 0.418661807961504,
+            "font_asc": -0.09089749785223367,
+            "font_desc": -0.09074312714776639
+          },
+          {
+            "t": "text",
+            "id": "disc_l",
+            "text": "notes \u00b7 drafts \u00b7 tmp",
+            "x": 44,
+            "y": 360,
+            "w": 240,
+            "h": 14,
+            "size": 11,
+            "line_height": 13.42,
+            "weight": 400,
+            "color": 4285427315,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": 0.0
+          },
+          {
+            "t": "text",
+            "id": "note_browser",
+            "text": "The folder browser is available only when the server advertises it.",
+            "x": 32,
+            "y": 392,
+            "w": 342,
+            "h": 28,
+            "size": 11,
+            "line_height": 13.42,
+            "weight": 400,
+            "color": 4285427315,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": 0.0
+          }
+        ],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 20.0,
+        "border": 1,
+        "bordercolor": 4293256679
+      }
+    ]
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "scrim_64",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "modal_card",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_back_row",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_back",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "f_folder_row",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "f_folder_bg",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "f_folder",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_create_row",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_create_bg",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_create",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_drill_row",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_drill",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_drill_disabled_row",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_drill_disabled",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "disc_1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t_title",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.10053793156679554
+    },
+    {
+      "id": "btn_back_t",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.10307702603121938
+    },
+    {
+      "id": "f_folder_text",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": 0.13553163799192108
+    },
+    {
+      "id": "btn_create_t",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.2233504750212023
+    },
+    {
+      "id": "parent_path",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": 0.0010984780051801282
+    },
+    {
+      "id": "disc_t",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": 0.024310383319768522
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

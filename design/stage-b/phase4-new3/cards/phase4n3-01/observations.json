@@ -15,7 +15,7 @@
         32,
         62,
         240,
-        24
+        24.4
       ],
       "status": "observed",
       "ocr_text": "Runtime inventory",
@@ -116,7 +116,7 @@
       ]
     },
     {
-      "id": "tab_mcp_t",
+      "id": "tab_mcp_fill_t",
       "expected_text": "MCP servers",
       "requested_bounds": [
         112,
@@ -167,28 +167,7 @@
         92,
         17
       ],
-      "status": "observed",
-      "ocr_text": "MCP servers",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        254.29805615550754,
-        137.08264462809916,
-        81.55075593952483,
-        12.024793388429751
-      ],
-      "ink_color": [
-        89,
-        90,
-        91
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        251.97173227540978,
-        136.15311419605055,
-        85.8065366744995,
-        16.288812842250827
-      ]
+      "status": "missing_or_ocr_unresolved"
     },
     {
       "id": "h_tools",
@@ -197,7 +176,7 @@
         32,
         208,
         120,
-        12
+        13.42
       ],
       "status": "observed",
       "ocr_text": "Tool",
@@ -532,7 +511,7 @@
         32,
         410,
         140,
-        12
+        13.42
       ],
       "status": "missing_or_ocr_unresolved"
     },
@@ -833,7 +812,7 @@
         330,
         60,
         24,
-        17
+        18.3
       ],
       "status": "missing_or_ocr_unresolved"
     }
@@ -925,7 +904,7 @@
       "radius": 10.0
     },
     {
-      "id": "tab_mcp",
+      "id": "tab_mcp_fill",
       "bounds": [
         104.0,
         168.0,

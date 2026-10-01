@@ -1,0 +1,611 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surfaceb4206391250d",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "scrim_44": {
+        "component": "Surfaceb4206391250d",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 406.0,
+          "h": 776.0
+        }
+      },
+      "modal_card": {
+        "component": "Surfacec84491d5e542",
+        "layout": {
+          "x": 16.0,
+          "y": 44.0,
+          "w": 374.0,
+          "h": 688.0
+        }
+      },
+      "t_title": {
+        "component": "Textfbf1ad8d51e8",
+        "layout": {
+          "x": 18.65553328306699,
+          "y": 22.049586776859503,
+          "w": 166.22462203023755,
+          "h": 24.041322314049587
+        }
+      },
+      "t_sub": {
+        "component": "Text75ee4f0ef332",
+        "layout": {
+          "x": 32,
+          "y": 88,
+          "w": 240,
+          "h": 16
+        }
+      },
+      "f_search_row": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 32.0,
+          "y": 116.0,
+          "w": 342.0,
+          "h": 40.0
+        }
+      },
+      "f_search_bg": {
+        "component": "Surfaceff94531b9647",
+        "layout": {
+          "x": 14.0,
+          "y": 123.0,
+          "w": 378.0,
+          "h": 41.0
+        }
+      },
+      "f_search_text": {
+        "component": "Textd68be3cb570d",
+        "layout": {
+          "x": 59.56005822228463,
+          "y": 78.96694214876032,
+          "w": 220.59179265658744,
+          "h": 19.231404958677686
+        }
+      },
+      "f_search": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 32.0,
+          "y": 116.0,
+          "w": 342.0,
+          "h": 40.0
+        }
+      },
+      "tab_tools_fill": {
+        "component": "Surfaceace499df8cc9",
+        "layout": {
+          "x": 32.0,
+          "y": 168.0,
+          "w": 50.1,
+          "h": 20.0
+        }
+      },
+      "tab_tools_fill_t": {
+        "component": "Text7b903ab1056f",
+        "layout": {
+          "x": 83.67542435685729,
+          "y": 131.07438016528926,
+          "w": 50.475161987041034,
+          "h": 27.24793388429752
+        }
+      },
+      "tab_mcp_fill": {
+        "component": "Surfaceace499df8cc9",
+        "layout": {
+          "x": 104.0,
+          "y": 168.0,
+          "w": 91.0,
+          "h": 20.0
+        }
+      },
+      "tab_mcp_fill_t": {
+        "component": "Textaed5042e46ce",
+        "layout": {
+          "x": 253.00380246399357,
+          "y": 135.08264462809916,
+          "w": 85.55075593952483,
+          "h": 16.02479338842975
+        }
+      },
+      "tab_tools_row": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 32.0,
+          "y": 168.0,
+          "w": 60.0,
+          "h": 20.0
+        }
+      },
+      "tab_tools_t": {
+        "component": "Text8b8f48254c8b",
+        "layout": {
+          "x": 32,
+          "y": 168,
+          "w": 60,
+          "h": 17
+        }
+      },
+      "tab_tools": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 32.0,
+          "y": 168.0,
+          "w": 60.0,
+          "h": 20.0
+        }
+      },
+      "tab_mcp_row": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 104.0,
+          "y": 168.0,
+          "w": 92.0,
+          "h": 20.0
+        }
+      },
+      "tab_mcp_t": {
+        "component": "Textc9b85a486b80",
+        "layout": {
+          "x": 104,
+          "y": 168,
+          "w": 92,
+          "h": 17
+        }
+      },
+      "tab_mcp": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 104.0,
+          "y": 168.0,
+          "w": 92.0,
+          "h": 20.0
+        }
+      },
+      "h_tools": {
+        "component": "Text742be2180f8c",
+        "layout": {
+          "x": 17.016957914929613,
+          "y": 189.59504132231405,
+          "w": 24.168466522678184,
+          "h": 13.6198347107438
+        }
+      },
+      "tool_0": {
+        "component": "Surface2783ecd8c5e4",
+        "layout": {
+          "x": 32.0,
+          "y": 230.0,
+          "w": 342.0,
+          "h": 52.0
+        }
+      },
+      "tool_0_name": {
+        "component": "Textef39c1926771",
+        "layout": {
+          "x": 44,
+          "y": 238,
+          "w": 180,
+          "h": 16
+        }
+      },
+      "tool_0_cat": {
+        "component": "Text09ef707ce916",
+        "layout": {
+          "x": 44,
+          "y": 258,
+          "w": 120,
+          "h": 14
+        }
+      },
+      "tool_0_alias": {
+        "component": "Text09ef707ce916",
+        "layout": {
+          "x": 150,
+          "y": 238,
+          "w": 130,
+          "h": 14
+        }
+      },
+      "tool_0_st": {
+        "component": "Surfacef79cb3de0a11",
+        "layout": {
+          "x": 165.0,
+          "y": 220.0,
+          "w": 57.0,
+          "h": 26.0
+        }
+      },
+      "tool_0_st_t": {
+        "component": "Text842e43fd4032",
+        "layout": {
+          "x": 173.0146163801536,
+          "y": 225.6694214876033,
+          "w": 43.46004319654427,
+          "h": 13.6198347107438
+        }
+      },
+      "tool_0_be": {
+        "component": "Text09ef707ce916",
+        "layout": {
+          "x": 150,
+          "y": 256,
+          "w": 130,
+          "h": 14
+        }
+      },
+      "tool_0_cnt": {
+        "component": "Textaf16c7e5875d",
+        "layout": {
+          "x": 371.1387377440651,
+          "y": 225.6694214876033,
+          "w": 16.27645788336933,
+          "h": 14.421487603305785
+        }
+      },
+      "tool_1": {
+        "component": "Surface2783ecd8c5e4",
+        "layout": {
+          "x": 32.0,
+          "y": 288.0,
+          "w": 342.0,
+          "h": 52.0
+        }
+      },
+      "tool_1_name": {
+        "component": "Text78aa6e26f793",
+        "layout": {
+          "x": 238.34322395522486,
+          "y": 226.47107438016528,
+          "w": 27.676025917926562,
+          "h": 13.6198347107438
+        }
+      },
+      "tool_1_cat": {
+        "component": "Text09ef707ce916",
+        "layout": {
+          "x": 44,
+          "y": 316,
+          "w": 120,
+          "h": 14
+        }
+      },
+      "tool_1_alias": {
+        "component": "Text09ef707ce916",
+        "layout": {
+          "x": 150,
+          "y": 296,
+          "w": 130,
+          "h": 14
+        }
+      },
+      "tool_1_st": {
+        "component": "Surfacec27587a604c6",
+        "layout": {
+          "x": 165.0,
+          "y": 288.0,
+          "w": 57.0,
+          "h": 27.0
+        }
+      },
+      "tool_1_st_t": {
+        "component": "Text2a7ce1d39931",
+        "layout": {
+          "x": 173.0146163801536,
+          "y": 294.61157024793386,
+          "w": 43.46004319654427,
+          "h": 13.6198347107438
+        }
+      },
+      "tool_1_be": {
+        "component": "Text09ef707ce916",
+        "layout": {
+          "x": 150,
+          "y": 314,
+          "w": 130,
+          "h": 14
+        }
+      },
+      "tool_1_cnt": {
+        "component": "Text638628278134",
+        "layout": {
+          "x": 340,
+          "y": 306,
+          "w": 24,
+          "h": 16
+        }
+      },
+      "tool_2": {
+        "component": "Surface848fcef5f070",
+        "layout": {
+          "x": 32.0,
+          "y": 346.0,
+          "w": 342.0,
+          "h": 52.0
+        }
+      },
+      "tool_2_name": {
+        "component": "Textef39c1926771",
+        "layout": {
+          "x": 44,
+          "y": 354,
+          "w": 180,
+          "h": 16
+        }
+      },
+      "tool_2_cat": {
+        "component": "Text09ef707ce916",
+        "layout": {
+          "x": 44,
+          "y": 374,
+          "w": 120,
+          "h": 14
+        }
+      },
+      "tool_2_alias": {
+        "component": "Text09ef707ce916",
+        "layout": {
+          "x": 150,
+          "y": 354,
+          "w": 130,
+          "h": 14
+        }
+      },
+      "tool_2_st": {
+        "component": "Surface27bcba17990c",
+        "layout": {
+          "x": 165.0,
+          "y": 389.0,
+          "w": 57.0,
+          "h": 27.0
+        }
+      },
+      "tool_2_st_t": {
+        "component": "Text907efb153107",
+        "layout": {
+          "x": 172.16094838599452,
+          "y": 396.42148760330576,
+          "w": 46.09071274298056,
+          "h": 13.6198347107438
+        }
+      },
+      "tool_2_be": {
+        "component": "Text09ef707ce916",
+        "layout": {
+          "x": 150,
+          "y": 372,
+          "w": 130,
+          "h": 14
+        }
+      },
+      "tool_2_cnt": {
+        "component": "Text638628278134",
+        "layout": {
+          "x": 340,
+          "y": 364,
+          "w": 24,
+          "h": 16
+        }
+      },
+      "h_mcp": {
+        "component": "Text1413998a2de4",
+        "layout": {
+          "x": 32,
+          "y": 410,
+          "w": 140,
+          "h": 13.42
+        }
+      },
+      "mcp_counts": {
+        "component": "Textea7fd951075e",
+        "layout": {
+          "x": 14.324107144305989,
+          "y": 513.4628099173553,
+          "w": 190.77753779697622,
+          "h": 15.223140495867769
+        }
+      },
+      "srv_0": {
+        "component": "Surfacece4417baa3e2",
+        "layout": {
+          "x": 32.0,
+          "y": 432.0,
+          "w": 342.0,
+          "h": 48.0
+        }
+      },
+      "srv_0_id": {
+        "component": "Textef39c1926771",
+        "layout": {
+          "x": 44,
+          "y": 440,
+          "w": 140,
+          "h": 16
+        }
+      },
+      "srv_0_sum": {
+        "component": "Text09ef707ce916",
+        "layout": {
+          "x": 44,
+          "y": 460,
+          "w": 200,
+          "h": 14
+        }
+      },
+      "srv_0_dot": {
+        "component": "Surface13e8967d194b",
+        "layout": {
+          "x": 262.0,
+          "y": 444.0,
+          "w": 10.0,
+          "h": 20.0
+        }
+      },
+      "srv_0_dot_t": {
+        "component": "Texta79ff800c359",
+        "layout": {
+          "x": 267,
+          "y": 447,
+          "w": 0.0,
+          "h": 14
+        }
+      },
+      "srv_0_tr": {
+        "component": "Surface9a8cd682e1c3",
+        "layout": {
+          "x": 200.0,
+          "y": 439.0,
+          "w": 47.0,
+          "h": 20.0
+        }
+      },
+      "srv_0_tr_t": {
+        "component": "Text10691c472e44",
+        "layout": {
+          "x": 93.22788527766029,
+          "y": 611.2644628099174,
+          "w": 32.06047516198704,
+          "h": 13.6198347107438
+        }
+      },
+      "srv_0_tc": {
+        "component": "Textc7c37f2c236b",
+        "layout": {
+          "x": 375.3547507040467,
+          "y": 327.4793388429752,
+          "w": 9.26133909287257,
+          "h": 14.421487603305785
+        }
+      },
+      "srv_1": {
+        "component": "Surfacece4417baa3e2",
+        "layout": {
+          "x": 32.0,
+          "y": 486.0,
+          "w": 342.0,
+          "h": 48.0
+        }
+      },
+      "srv_1_id": {
+        "component": "Textef39c1926771",
+        "layout": {
+          "x": 44,
+          "y": 494,
+          "w": 140,
+          "h": 16
+        }
+      },
+      "srv_1_sum": {
+        "component": "Text09ef707ce916",
+        "layout": {
+          "x": 44,
+          "y": 514,
+          "w": 200,
+          "h": 14
+        }
+      },
+      "srv_1_dot": {
+        "component": "Surfaceb34ef683799a",
+        "layout": {
+          "x": 262.0,
+          "y": 498.0,
+          "w": 10.0,
+          "h": 20.0
+        }
+      },
+      "srv_1_dot_t": {
+        "component": "Texta79ff800c359",
+        "layout": {
+          "x": 267,
+          "y": 501,
+          "w": 0.0,
+          "h": 14
+        }
+      },
+      "srv_1_tr": {
+        "component": "Surfaceace499df8cc9",
+        "layout": {
+          "x": 200.0,
+          "y": 493.0,
+          "w": 40.8,
+          "h": 20.0
+        }
+      },
+      "srv_1_tr_t": {
+        "component": "Textf987c4a905a0",
+        "layout": {
+          "x": 93.70918016563351,
+          "y": 677.801652892562,
+          "w": 28.552915766738657,
+          "h": 16.826446280991735
+        }
+      },
+      "srv_1_tc": {
+        "component": "Text9b6307f4227b",
+        "layout": {
+          "x": 260.70158280545365,
+          "y": 578.396694214876,
+          "w": 15.399568034557234,
+          "h": 13.6198347107438
+        }
+      },
+      "empty_tools": {
+        "component": "Text3187ddd728c0",
+        "layout": {
+          "x": 270.5247196779883,
+          "y": 462.1570247933884,
+          "w": 115.36501079913606,
+          "h": 18.429752066115704
+        }
+      },
+      "empty_servers": {
+        "component": "Texta69276cb00a0",
+        "layout": {
+          "x": 245.82612241638728,
+          "y": 721.0909090909091,
+          "w": 139.91792656587472,
+          "h": 20.03305785123967
+        }
+      },
+      "btn_close_row": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 330.0,
+          "y": 60.0,
+          "w": 24.0,
+          "h": 20.0
+        }
+      },
+      "btn_close_t": {
+        "component": "Textfa6531db81c6",
+        "layout": {
+          "x": 330,
+          "y": 60,
+          "w": 24,
+          "h": 18.3
+        }
+      },
+      "btn_close": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 330.0,
+          "y": 60.0,
+          "w": 24.0,
+          "h": 20.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

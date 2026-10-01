@@ -1,42 +1,6 @@
 {
   "schema_version": 1,
-  "id": "phase4n3-02",
-  "app": "octoscode",
-  "number": 2,
-  "title": "Add workspace",
-  "structure": "Native component reconstructed from the approved board-3 atlas",
-  "artboard": [
-    406,
-    776
-  ],
-  "artboard_pixels_per_pt": 1.0,
-  "content_source": "Approved stage-a phase4-new3 atlas; text/bounds measured by the lane model on the measured hairline-grid crops (labeled 'lane-vision'; no external OCR exists for board 3)",
-  "font_family": "Inter",
-  "palette": {
-    "name": "OctosCode",
-    "page": "#FFFFFF",
-    "panel": "#F7F7F8",
-    "ink": "#1D1D1F",
-    "muted": "#6E6E73",
-    "accent": "#2F6FEB"
-  },
-  "colors": {
-    "white": "#FFFFFF",
-    "panel": "#F7F7F8",
-    "hair": "#E5E5E7",
-    "ink": "#1D1D1F",
-    "muted": "#6E6E73",
-    "black": "#000000",
-    "blue": "#2F6FEB",
-    "amber": "#B45309",
-    "green": "#1F883D",
-    "red": "#CF222E",
-    "sel": "#F2F2F7",
-    "chip": "#EFEFF0",
-    "disabled": "#C7C7CC"
-  },
-  "graphics": {},
-  "widgets": [],
+  "reference_sha256": "33b8eb78028ea1ceb7277952faceb3f07cb7b7425bbc7b1f035094053933e78f",
   "tree": {
     "t": "stack",
     "id": "page",
@@ -45,91 +9,97 @@
     "w": 406,
     "h": 776,
     "variant": "surface",
-    "bg": 4294967295,
+    "bg": 4290888648,
     "radius": 0,
     "c": [
       {
         "t": "stack",
         "id": "scrim_64",
-        "x": 0,
-        "y": 0,
-        "w": 406,
-        "h": 776,
+        "x": 8.0,
+        "y": 183.0,
+        "w": 391.0,
+        "h": 585.0,
         "c": [],
         "variant": "surface",
-        "bg": 2566914048,
+        "bg": 4294901502,
         "radius": 0
       },
       {
         "t": "stack",
         "id": "modal_card",
-        "x": 16,
-        "y": 64,
-        "w": 374,
-        "h": 640,
+        "x": 16.0,
+        "y": 64.0,
+        "w": 374.0,
+        "h": 640.0,
         "c": [
           {
             "t": "text",
             "id": "t_title",
             "text": "Add workspace",
-            "x": 32,
-            "y": 82,
-            "w": 240,
-            "h": 24.4,
-            "size": 20,
-            "line_height": 24.4,
+            "x": 32.044338997592575,
+            "y": 208.03305785123968,
+            "w": 127.34177215189874,
+            "h": 23.2396694214876,
+            "size": 20.651385207131344,
+            "line_height": 23.2396694214876,
             "weight": 600,
-            "color": 4280098079,
+            "color": 4278716424,
             "variant": "single_line",
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-600.ttf",
-            "tracking": 0.0
+            "tracking": -2.6244332067225407,
+            "font_asc": -0.1443651336984536,
+            "font_desc": -0.059736428801546504
           },
           {
             "t": "stack",
             "id": "wd_card",
-            "x": 32,
-            "y": 118,
-            "w": 342,
-            "h": 56,
+            "x": 30.0,
+            "y": 388.0,
+            "w": 348.0,
+            "h": 63.0,
             "c": [],
             "variant": "surface",
-            "bg": 4294111991,
-            "radius": 10
+            "bg": 4294901502,
+            "radius": 11.25
           },
           {
             "t": "text",
             "id": "wd_label",
             "text": "Server's working directory",
-            "x": 44,
-            "y": 126,
-            "w": 240,
-            "h": 16,
-            "size": 12,
-            "line_height": 14.64,
+            "x": 30.753146822138838,
+            "y": 268.1570247933884,
+            "w": 166.74261603375527,
+            "h": 20.03305785123967,
+            "size": 16.575316748782857,
+            "line_height": 20.03305785123967,
             "weight": 400,
-            "color": 4285427315,
+            "color": 4281545523,
             "variant": "single_line",
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-400.ttf",
-            "tracking": 0.0
+            "tracking": -1.7578820604157386,
+            "font_asc": -0.09662381201675252,
+            "font_desc": -0.09527071923324748
           },
           {
             "t": "text",
             "id": "wd_path",
             "text": "/home/user/octos",
-            "x": 44,
-            "y": 146,
-            "w": 200,
-            "h": 16,
-            "size": 13,
-            "line_height": 15.86,
+            "x": 76.77855126317226,
+            "y": 423.6776859504132,
+            "w": 117.91983122362869,
+            "h": 16.02479338842975,
+            "size": 13.804247118556127,
+            "line_height": 16.02479338842975,
             "weight": 400,
-            "color": 4280098079,
+            "color": 4283585108,
             "variant": "single_line",
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-400.ttf",
-            "tracking": 0.0
+            "tracking": -0.10148196788799548,
+            "font_asc": -0.062148303264604854,
+            "font_desc": -0.01304700923539509
           },
           {
             "t": "text",
@@ -151,10 +121,10 @@
           {
             "t": "stack",
             "id": "wd_start_row",
-            "x": 44,
-            "y": 178,
-            "w": 318,
-            "h": 20,
+            "x": 44.0,
+            "y": 178.0,
+            "w": 318.0,
+            "h": 20.0,
             "c": [
               {
                 "t": "text",
@@ -176,10 +146,10 @@
               {
                 "t": "button",
                 "id": "wd_start",
-                "x": 44,
-                "y": 178,
-                "w": 318,
-                "h": 20,
+                "x": 44.0,
+                "y": 178.0,
+                "w": 318.0,
+                "h": 20.0,
                 "enabled": 1
               }
             ]
@@ -188,30 +158,32 @@
             "t": "text",
             "id": "h_recent",
             "text": "Recent workspaces",
-            "x": 32,
-            "y": 206,
-            "w": 240,
-            "h": 16,
-            "size": 12,
-            "line_height": 14.64,
+            "x": 30.494545625611476,
+            "y": 357.1404958677686,
+            "w": 121.34599156118144,
+            "h": 19.231404958677686,
+            "size": 16.349013288978984,
+            "line_height": 19.231404958677686,
             "weight": 600,
-            "color": 4285427315,
+            "color": 4281743159,
             "variant": "single_line",
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-600.ttf",
-            "tracking": 0.0
+            "tracking": -2.276309303436695,
+            "font_asc": -0.11887939585594143,
+            "font_desc": -0.08522216664405857
           },
           {
             "t": "stack",
             "id": "rec_0",
-            "x": 32,
-            "y": 230,
-            "w": 342,
-            "h": 52,
+            "x": 27.0,
+            "y": 386.0,
+            "w": 354.0,
+            "h": 68.0,
             "c": [],
             "variant": "surface",
-            "bg": 4294967295,
-            "radius": 10,
+            "bg": 4294901502,
+            "radius": 13.08,
             "border": 1,
             "bordercolor": 4293256679
           },
@@ -219,18 +191,20 @@
             "t": "text",
             "id": "rec_0_name",
             "text": "octos",
-            "x": 44,
-            "y": 238,
-            "w": 160,
-            "h": 16,
-            "size": 13,
-            "line_height": 15.86,
+            "x": 76.32284960801182,
+            "y": 401.2314049586777,
+            "w": 41.687763713080166,
+            "h": 15.223140495867769,
+            "size": 16.336170387730768,
+            "line_height": 15.223140495867769,
             "weight": 500,
-            "color": 4280098079,
+            "color": 4281018924,
             "variant": "single_line",
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-500.ttf",
-            "tracking": 0.0
+            "tracking": -1.0813072934313688,
+            "font_asc": -0.17054103576030932,
+            "font_desc": 0.10755275451030924
           },
           {
             "t": "text",
@@ -253,31 +227,33 @@
             "t": "text",
             "id": "rec_0_path",
             "text": "/home/user/octos",
-            "x": 44,
-            "y": 260,
-            "w": 240,
-            "h": 14,
-            "size": 11,
-            "line_height": 13.42,
+            "x": 32.197126030751356,
+            "y": 296.21487603305786,
+            "w": 132.48101265822785,
+            "h": 17.62809917355372,
+            "size": 15.644813401030278,
+            "line_height": 17.62809917355372,
             "weight": 400,
-            "color": 4285427315,
+            "color": 4280427300,
             "variant": "single_line",
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-400.ttf",
-            "tracking": 0.0
+            "tracking": -0.1568881899542627,
+            "font_asc": -0.07919335582171017,
+            "font_desc": 0.003998043321709943
           },
           {
             "t": "stack",
             "id": "rec_0_pick_row",
-            "x": 44,
-            "y": 260,
-            "w": 200,
-            "h": 20,
+            "x": 44.0,
+            "y": 260.0,
+            "w": 200.0,
+            "h": 20.0,
             "c": [
               {
                 "t": "text",
                 "id": "rec_0_pick_t",
-                "text": "Start a new session in …",
+                "text": "Start a new session in \u2026",
                 "x": 44,
                 "y": 260,
                 "w": 200,
@@ -294,10 +270,10 @@
               {
                 "t": "button",
                 "id": "rec_0_pick",
-                "x": 44,
-                "y": 260,
-                "w": 200,
-                "h": 20,
+                "x": 44.0,
+                "y": 260.0,
+                "w": 200.0,
+                "h": 20.0,
                 "enabled": 1
               }
             ]
@@ -305,14 +281,14 @@
           {
             "t": "stack",
             "id": "rec_1",
-            "x": 32,
-            "y": 288,
-            "w": 342,
-            "h": 52,
+            "x": 30.0,
+            "y": 465.0,
+            "w": 348.0,
+            "h": 60.0,
             "c": [],
             "variant": "surface",
-            "bg": 4294967295,
-            "radius": 10,
+            "bg": 4294835709,
+            "radius": 11.54,
             "border": 1,
             "bordercolor": 4293256679
           },
@@ -320,18 +296,20 @@
             "t": "text",
             "id": "rec_1_name",
             "text": "octoscode-app",
-            "x": 44,
-            "y": 296,
-            "w": 160,
-            "h": 16,
-            "size": 13,
-            "line_height": 15.86,
+            "x": 76.32224759701582,
+            "y": 475.78512396694214,
+            "w": 106.78481012658227,
+            "h": 19.231404958677686,
+            "size": 16.349013288978984,
+            "line_height": 19.231404958677686,
             "weight": 500,
-            "color": 4280098079,
+            "color": 4280822057,
             "variant": "single_line",
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-500.ttf",
-            "tracking": 0.0
+            "tracking": -1.276204893307072,
+            "font_asc": -0.11887939585594143,
+            "font_desc": -0.08522216664405857
           },
           {
             "t": "text",
@@ -370,15 +348,15 @@
           {
             "t": "stack",
             "id": "rec_1_pick_row",
-            "x": 44,
-            "y": 318,
-            "w": 200,
-            "h": 20,
+            "x": 44.0,
+            "y": 318.0,
+            "w": 200.0,
+            "h": 20.0,
             "c": [
               {
                 "t": "text",
                 "id": "rec_1_pick_t",
-                "text": "Start a new session in …",
+                "text": "Start a new session in \u2026",
                 "x": 44,
                 "y": 318,
                 "w": 200,
@@ -395,10 +373,10 @@
               {
                 "t": "button",
                 "id": "rec_1_pick",
-                "x": 44,
-                "y": 318,
-                "w": 200,
-                "h": 20,
+                "x": 44.0,
+                "y": 318.0,
+                "w": 200.0,
+                "h": 20.0,
                 "enabled": 1
               }
             ]
@@ -406,10 +384,10 @@
           {
             "t": "stack",
             "id": "div1",
-            "x": 20,
-            "y": 352,
-            "w": 366,
-            "h": 1,
+            "x": 20.0,
+            "y": 352.0,
+            "w": 366.0,
+            "h": 1.0,
             "variant": "surface",
             "bg": 4293256679,
             "radius": 0
@@ -417,22 +395,22 @@
           {
             "t": "stack",
             "id": "f_path_row",
-            "x": 32,
-            "y": 372,
-            "w": 250,
-            "h": 40,
+            "x": 32.0,
+            "y": 372.0,
+            "w": 250.0,
+            "h": 40.0,
             "c": [
               {
                 "t": "stack",
                 "id": "f_path_bg",
-                "x": 32,
-                "y": 372,
-                "w": 250,
-                "h": 40,
+                "x": 27.0,
+                "y": 463.0,
+                "w": 354.0,
+                "h": 65.0,
                 "c": [],
                 "variant": "surface",
-                "bg": 4294111991,
-                "radius": 10
+                "bg": 4294835709,
+                "radius": 16.25
               },
               {
                 "t": "text",
@@ -471,10 +449,10 @@
               {
                 "t": "button",
                 "id": "f_path",
-                "x": 32,
-                "y": 372,
-                "w": 250,
-                "h": 40,
+                "x": 32.0,
+                "y": 372.0,
+                "w": 250.0,
+                "h": 40.0,
                 "enabled": 1
               }
             ]
@@ -482,47 +460,49 @@
           {
             "t": "stack",
             "id": "btn_enter_row",
-            "x": 296,
-            "y": 372,
-            "w": 78,
-            "h": 40,
+            "x": 296.0,
+            "y": 372.0,
+            "w": 78.0,
+            "h": 40.0,
             "c": [
               {
                 "t": "stack",
                 "id": "btn_enter_bg",
-                "x": 296,
-                "y": 372,
-                "w": 78,
-                "h": 40,
+                "x": 296.0,
+                "y": 605.0,
+                "w": 88.0,
+                "h": 46.0,
                 "c": [],
                 "variant": "surface",
-                "bg": 4278190080,
-                "radius": 12
+                "bg": 4278584837,
+                "radius": 13.8
               },
               {
                 "t": "text",
                 "id": "btn_enter_t",
                 "text": "Enter",
-                "x": 296,
-                "y": 383.5,
-                "w": 78,
-                "h": 17.08,
-                "size": 14,
-                "line_height": 17.08,
+                "x": 311.72748670200286,
+                "y": 614.4710743801653,
+                "w": 55.392405063291136,
+                "h": 28.049586776859503,
+                "size": 32.553571526112535,
+                "line_height": 28.049586776859503,
                 "weight": 500,
-                "color": 4294967295,
+                "color": 4278453251,
                 "variant": "single_line",
                 "alignx": 0,
                 "font_src": "self:resources/ux/Inter-500.ttf",
-                "tracking": 0.0
+                "tracking": -6.826304572285512,
+                "font_asc": -0.17977374624140896,
+                "font_desc": 0.168543277491409
               },
               {
                 "t": "button",
                 "id": "btn_enter",
-                "x": 296,
-                "y": 372,
-                "w": 78,
-                "h": 40,
+                "x": 296.0,
+                "y": 372.0,
+                "w": 78.0,
+                "h": 40.0,
                 "enabled": 1
               }
             ]
@@ -531,31 +511,33 @@
             "t": "text",
             "id": "help_browse",
             "text": "Choosing a folder fills the path box.",
-            "x": 32,
-            "y": 424,
-            "w": 300,
-            "h": 14,
-            "size": 11,
-            "line_height": 13.42,
+            "x": 24.670311067737575,
+            "y": 672.99173553719,
+            "w": 224.13080168776372,
+            "h": 20.834710743801654,
+            "size": 17.22152227937352,
+            "line_height": 20.834710743801654,
             "weight": 400,
-            "color": 4285427315,
+            "color": 4288454305,
             "variant": "single_line",
             "alignx": 0,
             "font_src": "self:resources/ux/Inter-400.ttf",
-            "tracking": 0.0
+            "tracking": -1.852265083120822,
+            "font_asc": -0.09089749785223367,
+            "font_desc": -0.09074312714776639
           },
           {
             "t": "stack",
             "id": "btn_browse_row",
-            "x": 32,
-            "y": 448,
-            "w": 200,
-            "h": 20,
+            "x": 32.0,
+            "y": 448.0,
+            "w": 200.0,
+            "h": 20.0,
             "c": [
               {
                 "t": "text",
                 "id": "btn_browse_t",
-                "text": "Browse server folders…",
+                "text": "Browse server folders\u2026",
                 "x": 32,
                 "y": 448,
                 "w": 200,
@@ -572,21 +554,164 @@
               {
                 "t": "button",
                 "id": "btn_browse",
-                "x": 32,
-                "y": 448,
-                "w": 200,
-                "h": 20,
+                "x": 32.0,
+                "y": 448.0,
+                "w": 200.0,
+                "h": 20.0,
                 "enabled": 1
               }
             ]
           }
         ],
         "variant": "surface",
-        "bg": 4294967295,
-        "radius": 20,
+        "bg": 4294901246,
+        "radius": 20.0,
         "border": 1,
         "bordercolor": 4293256679
       }
     ]
-  }
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "scrim_64",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "modal_card",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "wd_card",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "wd_start_row",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "wd_start",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "rec_0",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "rec_0_pick_row",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "rec_0_pick",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "rec_1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "rec_1_pick_row",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "rec_1_pick",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "div1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "f_path_row",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "f_path_bg",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "f_path",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_enter_row",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_enter_bg",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_enter",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_browse_row",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "btn_browse",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t_title",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12708267171425722
+    },
+    {
+      "id": "wd_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.10605420620663684
+    },
+    {
+      "id": "wd_path",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.007351503274059768
+    },
+    {
+      "id": "h_recent",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.13923221317406204
+    },
+    {
+      "id": "rec_0_name",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.06619099016275451
+    },
+    {
+      "id": "rec_0_path",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.010028127912598238
+    },
+    {
+      "id": "rec_1_name",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.07806005602597271
+    },
+    {
+      "id": "btn_enter_t",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.20969448979844982
+    },
+    {
+      "id": "help_browse",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.10755524703755766
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
 }

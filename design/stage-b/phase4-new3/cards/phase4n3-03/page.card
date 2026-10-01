@@ -1,0 +1,117 @@
+# ledger phase4n3-03@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Add workspace" }
+copy btn_back_t_text { class: user-copy, en: "Back to workspaces" }
+copy f_folder_text_text { class: user-copy, en: "notes" }
+copy btn_create_t_text { class: user-copy, en: "Create" }
+copy val_name_text { class: user-copy, en: "Folder name must not be empty." }
+copy parent_label_text { class: user-copy, en: "Parent" }
+copy parent_path_text { class: user-copy, en: "/home/user/octos" }
+copy btn_drill_t_text { class: user-copy, en: "Open folder browser" }
+copy btn_drill_disabled_t_text { class: user-copy, en: "Open folder browser (unavailable)" }
+copy disc_t_text { class: user-copy, en: "· 3 existing folders" }
+copy disc_l_text { class: user-copy, en: "notes · drafts · tmp" }
+copy note_browser_text { class: user-copy, en: "The folder browser is available only when the server advertises it." }
+state btn_back_enabled { shape: bool, initial: true }
+state f_folder_enabled { shape: bool, initial: true }
+state btn_create_enabled { shape: bool, initial: true }
+state btn_drill_enabled { shape: bool, initial: true }
+state btn_drill_disabled_enabled { shape: bool, initial: false }
+component Surfaceb4206391250d(instance: text) {
+  view Kit(component: "Surfaceb4206391250d", instance: instance) { slot }
+}
+component Surface5e6bef633a6b(instance: text) {
+  view Kit(component: "Surface5e6bef633a6b", instance: instance) { slot }
+}
+component Text63903e53d76f(instance: text, text: text) {
+  view Kit(component: "Text63903e53d76f", instance: instance, text: text)
+}
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Text1fddb37dbea1(instance: text, text: text) {
+  view Kit(component: "Text1fddb37dbea1", instance: instance, text: text)
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Surface113f7a239053(instance: text) {
+  view Kit(component: "Surface113f7a239053", instance: instance) { slot }
+}
+component Textc809c3186b56(instance: text, text: text) {
+  view Kit(component: "Textc809c3186b56", instance: instance, text: text)
+}
+component Surfaceac0cb337fe76(instance: text) {
+  view Kit(component: "Surfaceac0cb337fe76", instance: instance) { slot }
+}
+component Text7ccfeff4ee7f(instance: text, text: text) {
+  view Kit(component: "Text7ccfeff4ee7f", instance: instance, text: text)
+}
+component Text27eb811a33a8(instance: text, text: text) {
+  view Kit(component: "Text27eb811a33a8", instance: instance, text: text)
+}
+component Text75ee4f0ef332(instance: text, text: text) {
+  view Kit(component: "Text75ee4f0ef332", instance: instance, text: text)
+}
+component Text1aea6a8e9edc(instance: text, text: text) {
+  view Kit(component: "Text1aea6a8e9edc", instance: instance, text: text)
+}
+component Text45c65ca3e393(instance: text, text: text) {
+  view Kit(component: "Text45c65ca3e393", instance: instance, text: text)
+}
+component Surfaced1a627811bff(instance: text) {
+  view Kit(component: "Surfaced1a627811bff", instance: instance) { slot }
+}
+component Textab1329fc996a(instance: text, text: text) {
+  view Kit(component: "Textab1329fc996a", instance: instance, text: text)
+}
+component Text09ef707ce916(instance: text, text: text) {
+  view Kit(component: "Text09ef707ce916", instance: instance, text: text)
+}
+
+view root Surfaceb4206391250d(instance: "page") {
+  Surfaceb4206391250d(instance: "scrim_64") {
+
+  }
+  Surface5e6bef633a6b(instance: "modal_card") {
+    Text63903e53d76f(instance: "t_title", text: copy.t_title_text)
+    Group3d2637879433(instance: "btn_back_row") {
+      Text1fddb37dbea1(instance: "btn_back_t", text: copy.btn_back_t_text)
+      NativeButton02f1d1bd99b4(instance: "btn_back", enabled: btn_back_enabled)
+    }
+    Group3d2637879433(instance: "f_folder_row") {
+      Surface113f7a239053(instance: "f_folder_bg") {
+
+      }
+      Textc809c3186b56(instance: "f_folder_text", text: copy.f_folder_text_text)
+      NativeButton02f1d1bd99b4(instance: "f_folder", enabled: f_folder_enabled)
+    }
+    Group3d2637879433(instance: "btn_create_row") {
+      Surfaceac0cb337fe76(instance: "btn_create_bg") {
+
+      }
+      Text7ccfeff4ee7f(instance: "btn_create_t", text: copy.btn_create_t_text)
+      NativeButton02f1d1bd99b4(instance: "btn_create", enabled: btn_create_enabled)
+    }
+    Text27eb811a33a8(instance: "val_name", text: copy.val_name_text)
+    Text75ee4f0ef332(instance: "parent_label", text: copy.parent_label_text)
+    Text1aea6a8e9edc(instance: "parent_path", text: copy.parent_path_text)
+    Group3d2637879433(instance: "btn_drill_row") {
+      Text75ee4f0ef332(instance: "btn_drill_t", text: copy.btn_drill_t_text)
+      NativeButton02f1d1bd99b4(instance: "btn_drill", enabled: btn_drill_enabled)
+    }
+    Group3d2637879433(instance: "btn_drill_disabled_row") {
+      Text45c65ca3e393(instance: "btn_drill_disabled_t", text: copy.btn_drill_disabled_t_text)
+      NativeButton02f1d1bd99b4(instance: "btn_drill_disabled", enabled: btn_drill_disabled_enabled)
+    }
+    Surfaced1a627811bff(instance: "disc_1") {
+
+    }
+    Textab1329fc996a(instance: "disc_t", text: copy.disc_t_text)
+    Text09ef707ce916(instance: "disc_l", text: copy.disc_l_text)
+    Text09ef707ce916(instance: "note_browser", text: copy.note_browser_text)
+  }
+}

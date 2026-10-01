@@ -256,7 +256,7 @@ def build_01(sc):
     sc.control("f_search", "inventory.search.focus", (32, 116, 342, 40))
     # two tabs, "Tools" selected
     k.append(pill("tab_tools_fill", "Tools", 32, 168, color="black", fg="white"))
-    k.append(pill("tab_mcp", "MCP servers", 104, 168, color="sel"))
+    k.append(pill("tab_mcp_fill", "MCP servers", 104, 168, color="sel"))
     k.append(link("tab_tools", "Tools", 32, 168, 60, color="white", enabled=True))
     k.append(link("tab_mcp", "MCP servers", 104, 168, 92, color="ink", enabled=True))
     sc.control("tab_tools", "inventory.tab.tools", (32, 168, 60, 20))

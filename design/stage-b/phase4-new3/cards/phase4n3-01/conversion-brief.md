@@ -60,7 +60,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 32,
     "y": 62,
     "w": 240,
-    "h": 24,
+    "h": 24.4,
     "text": "Runtime inventory",
     "font_src": "self:resources/ux/Inter-600.ttf",
     "size": 20,
@@ -165,19 +165,18 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "tab_mcp",
+    "id": "tab_mcp_fill",
     "x": 104,
     "y": 168,
     "w": 91.0,
     "h": 20,
-    "role": "button",
+    "role": "layout",
     "native_candidates": [
-      "Button",
-      "KitButton"
+      "View"
     ]
   },
   {
-    "id": "tab_mcp_t",
+    "id": "tab_mcp_fill_t",
     "x": 112,
     "y": 171,
     "w": 75.0,
@@ -275,7 +274,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 32,
     "y": 208,
     "w": 120,
-    "h": 12,
+    "h": 13.42,
     "text": "TOOLS",
     "font_src": "self:resources/ux/Inter-600.ttf",
     "size": 11,
@@ -645,7 +644,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 32,
     "y": 410,
     "w": 140,
-    "h": 12,
+    "h": 13.42,
     "text": "MCP SERVERS",
     "font_src": "self:resources/ux/Inter-600.ttf",
     "size": 11,
@@ -946,7 +945,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 330,
     "y": 60,
     "w": 24,
-    "h": 17,
+    "h": 18.3,
     "text": "\u2715",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 15,

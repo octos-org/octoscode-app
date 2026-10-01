@@ -3,9 +3,9 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "60dd4ec81fa0596b29d9a6a560d90db50f86fd344ca07910550185ed3961bbbf",
-  "reference_sha256": "9ca1e9931959e20be9724198c37f242ff7ab46dc82a1a058ccebe133f1fd1ff0",
-  "id": "phase4n3-01",
+  "manifest_sha256": "fab2ecfa4885d1b95a6ec82073b1ef5c7feffc0b9a38eafe714dd79adba5ed2b",
+  "reference_sha256": "49437d4e5594427a7e2dead4983d9d420d66202879f110cf7567d19e42304e28",
+  "id": "phase4n3-04",
   "round": null,
   "phase": "preflight",
   "pass": true,
@@ -23,18 +23,7 @@
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
-      "id": "scrim_44",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "modal_card",
+      "id": "fleet_card",
       "role": "layout",
       "basis": "authored stack node",
       "expected_widgets": [
@@ -57,7 +46,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "t_sub",
+      "id": "t_empty",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -69,29 +58,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "f_search_row",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "f_search_bg",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "f_search_text",
+      "id": "loading_models",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -103,7 +70,99 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "f_search",
+      "id": "peer_1",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "peer_1_avatar",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "peer_1_av",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "peer_1_model",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "peer_1_status",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "peer_1_status_t",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "peer_1_adv_row",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "peer_1_adv_t",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "peer_1_adv",
       "role": "button",
       "basis": "authored button node",
       "expected_widgets": [
@@ -115,18 +174,7 @@
       "repair": "Use a native control and verify its declared action."
     },
     {
-      "id": "tab_tools_fill",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "tab_tools_fill_t",
+      "id": "peer_1_brief",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -138,18 +186,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "tab_mcp_fill",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "tab_mcp_fill_t",
+      "id": "lbl_model",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -161,7 +198,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "tab_tools_row",
+      "id": "sel_model_row",
       "role": "layout",
       "basis": "authored stack node",
       "expected_widgets": [
@@ -172,7 +209,18 @@
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
-      "id": "tab_tools_t",
+      "id": "sel_model_bg",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "sel_model_text",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -184,7 +232,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "tab_tools",
+      "id": "sel_model",
       "role": "button",
       "basis": "authored button node",
       "expected_widgets": [
@@ -196,18 +244,7 @@
       "repair": "Use a native control and verify its declared action."
     },
     {
-      "id": "tab_mcp_row",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "tab_mcp_t",
+      "id": "lbl_brief",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -219,7 +256,30 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "tab_mcp",
+      "id": "brief_box",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "brief_text",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "brief_input",
       "role": "button",
       "basis": "authored button node",
       "expected_widgets": [
@@ -231,19 +291,7 @@
       "repair": "Use a native control and verify its declared action."
     },
     {
-      "id": "h_tools",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "tool_0",
+      "id": "btn_start_row",
       "role": "layout",
       "basis": "authored stack node",
       "expected_widgets": [
@@ -254,43 +302,7 @@
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
-      "id": "tool_0_name",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "tool_0_cat",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "tool_0_alias",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "tool_0_st",
+      "id": "btn_start_bg",
       "role": "layout",
       "basis": "authored stack node",
       "expected_widgets": [
@@ -301,7 +313,7 @@
       "repair": "Compose layout containers with explicit spacing, sizing and clipping."
     },
     {
-      "id": "tool_0_st_t",
+      "id": "btn_start_t",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [
@@ -313,476 +325,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "tool_0_be",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "tool_0_cnt",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "tool_1",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "tool_1_name",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "tool_1_cat",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "tool_1_alias",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "tool_1_st",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "tool_1_st_t",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "tool_1_be",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "tool_1_cnt",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "tool_2",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "tool_2_name",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "tool_2_cat",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "tool_2_alias",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "tool_2_st",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "tool_2_st_t",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "tool_2_be",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "tool_2_cnt",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "h_mcp",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "mcp_counts",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "srv_0",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "srv_0_id",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "srv_0_sum",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "srv_0_dot",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "srv_0_dot_t",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "srv_0_tr",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "srv_0_tr_t",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "srv_0_tc",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "srv_1",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "srv_1_id",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "srv_1_sum",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "srv_1_dot",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "srv_1_dot_t",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "srv_1_tr",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "srv_1_tr_t",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "srv_1_tc",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "empty_tools",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "empty_servers",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "btn_close_row",
-      "role": "layout",
-      "basis": "authored stack node",
-      "expected_widgets": [
-        "View"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
-    },
-    {
-      "id": "btn_close_t",
-      "role": "text",
-      "basis": "authored text node",
-      "expected_widgets": [
-        "Label",
-        "TextFlow"
-      ],
-      "actual_widget": null,
-      "issues": [],
-      "repair": "Use native text with a bundled font, exact copy and measured line layout."
-    },
-    {
-      "id": "btn_close",
+      "id": "btn_start",
       "role": "button",
       "basis": "authored button node",
       "expected_widgets": [
@@ -792,6 +335,191 @@
       "actual_widget": null,
       "issues": [],
       "repair": "Use a native control and verify its declared action."
+    },
+    {
+      "id": "peer_2",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "peer_2_avatar",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "peer_2_av",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "peer_2_model",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "peer_2_status",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "peer_2_status_t",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "in_steer_row",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "in_steer_bg",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "in_steer_text",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "in_steer",
+      "role": "button",
+      "basis": "authored button node",
+      "expected_widgets": [
+        "Button",
+        "KitButton"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a native control and verify its declared action."
+    },
+    {
+      "id": "btn_dismiss_row",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "btn_dismiss_t",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "btn_dismiss",
+      "role": "button",
+      "basis": "authored button node",
+      "expected_widgets": [
+        "Button",
+        "KitButton"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a native control and verify its declared action."
+    },
+    {
+      "id": "peer_2_rule",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "peer_2_note",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "t_noproject",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
     }
   ],
   "scope": "Semantic mapping checks only; geometry, visual fidelity and complete app workflows remain separate."
