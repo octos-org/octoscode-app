@@ -56,14 +56,14 @@ script_mod! {
     // documents the same ordering constraint). Loads the persisted preference.
     #(screens::theme::eval_roles(vm))
     // #P4h1 row 306 — install the recents store and purge the legacy v1 cache
-    // at startup (the web's App.tsx:1019-1023). This is the production caller
-    // that keeps `clear_recent_workspaces` off the test-only list (RULES 3); an
-    // honest failure is logged, never silently swallowed.
-    {
-        if !screens::recents::init_persistence() {
-            ::log::warn!("octoscode: workspace recents: legacy v1 cache could not be purged");
-        }
-    }
+    // at startup (the web's App.tsx:1019-1023); the warn lives in the helper.
+    // #FX1 portability: this was a bare `{ if .. ::log::warn! }` block, which
+    // the script parser reads as SCRIPT tokens (IfTest / EmitUnary /
+    // Operator(:)) and fails to parse — the app came up a 46-widget husk with
+    // 11 [E] DSL errors and no screen_dock (fx1-evidence/walk-conv.log). The
+    // `#(call)` splice is the one shape both dialects parse (the eval_roles
+    // precedent above).
+    #(screens::recents::init_persistence_logged())
     mod.widgets.OctoscodeView = set_type_default() do #(OctoscodeView::register_widget(vm)) {
         ..mod.widgets.RectView
         width: Fill height: Fill

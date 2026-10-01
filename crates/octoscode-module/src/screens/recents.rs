@@ -420,6 +420,22 @@ pub fn init_persistence() -> bool {
     storage.remove_item(&key).is_ok() && storage.get_item(&key).is_none()
 }
 
+/// The `script_mod!` splice calls THIS, not [`init_persistence`] directly: a
+/// bare `{ if .. ::log::warn!(..) }` block in `script_mod!` is SCRIPT tokens
+/// to the makepad parser (`IfTest` / `EmitUnary` / `Operator(:)`) and fails to
+/// parse — the app came up a 46-widget husk with 11 [E] DSL errors and no
+/// screen_dock (fx1-evidence/walk-conv.log). Behind this fn the warn is plain
+/// Rust and the splice rides the one `#(call)` shape both dialects accept
+/// (the `theme::eval_roles` precedent). Same contract as [`init_persistence`]:
+/// the bool is the purge's honest result.
+pub fn init_persistence_logged() -> bool {
+    let ok = init_persistence();
+    if !ok {
+        ::log::warn!("octoscode: workspace recents: legacy v1 cache could not be purged");
+    }
+    ok
+}
+
 /// The user-facing clear: BOTH keys for one endpoint, reporting honestly.
 ///
 /// This is `ConnectionGate`'s disconnect/identity-change cleanup
