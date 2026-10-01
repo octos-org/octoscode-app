@@ -1477,6 +1477,7 @@ impl OctoscodeView {
             return;
         }
         let Some(conv) = conv else {
+            makepad_widgets::log!("[octoscode] action dropped: no conversation (connect first)");
             return;
         };
         // Entry #29c: the stage-C screens own their action ids (the cards'
@@ -1668,8 +1669,19 @@ impl OctoscodeView {
                     Ok((conv, evt_rx)) => {
                         let conv = Arc::new(conv);
                         let mut evt_rx = evt_rx;
-                        store.set_connection("Live".to_owned(), true);
                         if let Ok(mut b) = bridge.lock() {
+                            // #32h: swap ALL THREE, mirroring the start()
+                            // path. The closure only set b.conv, so on the
+                            // phone the composer's changed events wrote the
+                            // draft into the PRE-CONNECT FlowUi while
+                            // conv.submit_draft() read the conversation's own
+                            // (empty) one: the silent empty-draft return —
+                            // no drop log, draft kept, sessions 0 (server
+                            // events folded into a store the labels never
+                            // read). The conv store carries Live itself, as
+                            // on the desktop path.
+                            b.store = conv.store.clone();
+                            b.ui = conv.ui();
                             b.conv = Some(conv.clone());
                         }
                         if let Ok(mut ui) = screens.lock() {
@@ -2464,6 +2476,10 @@ impl Widget for OctoscodeView {
                 // #31a: the <760 sidebar toggle.
                 if self.view.button(cx, ids!(sidebar_toggle_hit)).clicked(actions) {
                     self.sidebar_open = !self.sidebar_open;
+                    makepad_widgets::log!(
+                        "[octoscode] sidebar toggle -> {}",
+                        if self.sidebar_open { "open" } else { "closed" }
+                    );
                     self.sync_chrome(cx);
                 }
                 self.sync_labels(cx);

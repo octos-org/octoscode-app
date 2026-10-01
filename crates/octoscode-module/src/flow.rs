@@ -493,6 +493,9 @@ pub struct Conversation {
     /// Card #14 defect 4: mutable, so a New chat adopts a fresh id and a resume
     /// adopts a listed one. Read through [`Conversation::session_id`].
     session_id: Mutex<String>,
+    /// #32h: set by open_workspace_as — submit must never target an
+    /// un-opened session (the web's first message creates the thread).
+    workspace_opened: Mutex<bool>,
     started: Instant,
 }
 
@@ -601,6 +604,7 @@ impl Conversation {
                 registry: Mutex::new(registry),
                 profile: Mutex::new(profile.to_owned()),
                 session_id: Mutex::new(format!("{profile}:main")),
+                workspace_opened: Mutex::new(false),
                 started: Instant::now(),
             },
             evt_rx,
@@ -725,6 +729,7 @@ impl Conversation {
         if let Err(e) = self.refresh_sessions().await {
             ::log::warn!("octoscode: session/list after open: {e}");
         }
+        *self.workspace_opened.lock().unwrap() = true;
         ::log::info!("octoscode: workspace open requested for {}", session_id.0);
         Ok(session_id.0)
     }
@@ -794,7 +799,7 @@ impl Conversation {
         }
         match self.client.request("turn/start", params).await {
             Ok(v) => {
-                ::log::info!("octoscode: turn started {turn_id}");
+                makepad_widgets::log!("[octoscode] turn started: {turn_id}");
                 Ok(turn_id)
             }
             Err(e) => {
@@ -953,8 +958,21 @@ impl Conversation {
     pub async fn submit_draft(&self) -> Result<String, ClientError> {
         let text = self.ui.lock().unwrap().draft();
         if text.trim().is_empty() {
-            ::log::debug!("octoscode: composer.submit ignored (empty draft)");
+            // #32h: this was ::log::debug! + Ok — the invisible silent drop
+            // the phone showed (no drop log, draft kept). Visible now.
+            makepad_widgets::log!("[octoscode] submit ignored: empty draft");
             return Ok(String::new());
+        }
+        // The web's first message creates the thread: never turn/start on a
+        // session the server has not opened.
+        if !*self.workspace_opened.lock().unwrap() {
+            if let Err(e) = self.open_workspace(None).await {
+                makepad_widgets::log!("[octoscode] submit: ensure thread failed: {e}");
+                return Err(ClientError::Transport {
+                    method: "session/open".to_owned(),
+                    reason: e,
+                });
+            }
         }
         // #34a row 209 — a slash command is LOCAL on the web: it never
         // reaches the model, and a failed/unknown command restores the input
@@ -1011,7 +1029,7 @@ impl Conversation {
         match e {
             FlowEvent::Live => ::log::info!("octoscode: connection live"),
             FlowEvent::WorkspaceOpened(id) => ::log::info!("octoscode: workspace opened {id}"),
-            FlowEvent::TurnStarted(id) => ::log::info!("octoscode: turn started {id}"),
+            FlowEvent::TurnStarted(id) => makepad_widgets::log!("[octoscode] turn started: {id}"),
             FlowEvent::TurnEnded { turn_id, error: None } => {
                 ::log::info!("octoscode: turn completed {turn_id}")
             }
