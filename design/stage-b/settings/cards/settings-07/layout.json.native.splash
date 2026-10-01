@@ -1,0 +1,198 @@
+use mod.prelude.widgets.*
+return View{width:Fill height:Fill flow:Overlay beauty_0 := DesignSurface {
+width: 406 height: 776
+abs_pos: vec2(0, 0)
+draw_bg.radius: 0 draw_bg.ellipse: 0 draw_bg.border_width: 0 draw_bg.border_position: 0 draw_bg.border_color: #00000000
+flow: Overlay padding: 0 clip_x: false clip_y: false
+show_bg: true draw_bg.color: #ffffffff
+beauty_0_0 := DesignSurface {
+width: 42 height: 50
+abs_pos: vec2(11, 121)
+draw_bg.radius: 10 draw_bg.ellipse: 0 draw_bg.border_width: 0 draw_bg.border_position: 0 draw_bg.border_color: #00000000
+flow: Overlay padding: 0 clip_x: false clip_y: false
+show_bg: true draw_bg.color: #eff5feff
+}
+beauty_0_1 := Svg {
+width: 24 height: 34
+abs_pos: vec2(16, 130)
+animating: false draw_svg.svg: http_resource("http://127.0.0.1:8188/ux-images/settings-07/assets/rail_gear_i-a302d15ebd84.svg") draw_svg.preserve_viewbox: true draw_svg.preserve_aspect: false
+}
+beauty_0_2 := Svg {
+width: 24 height: 48
+abs_pos: vec2(16, 218)
+animating: false draw_svg.svg: http_resource("http://127.0.0.1:8188/ux-images/settings-07/assets/rail_shield_i-0d9a752a9a38.svg") draw_svg.preserve_viewbox: true draw_svg.preserve_aspect: false
+}
+beauty_0_3 := Svg {
+width: 24 height: 34
+abs_pos: vec2(16, 318)
+animating: false draw_svg.svg: http_resource("http://127.0.0.1:8188/ux-images/settings-07/assets/rail_code_i-419ca21d76e5.svg") draw_svg.preserve_viewbox: true draw_svg.preserve_aspect: false
+}
+beauty_0_4 := Svg {
+width: 24 height: 54
+abs_pos: vec2(16, 404)
+animating: false draw_svg.svg: http_resource("http://127.0.0.1:8188/ux-images/settings-07/assets/rail_box_i-4f74fd85f0bb.svg") draw_svg.preserve_viewbox: true draw_svg.preserve_aspect: false
+}
+beauty_0_5 := Svg {
+width: 24 height: 50
+abs_pos: vec2(16, 500)
+animating: false draw_svg.svg: http_resource("http://127.0.0.1:8188/ux-images/settings-07/assets/rail_plug_i-5ac1c767324b.svg") draw_svg.preserve_viewbox: true draw_svg.preserve_aspect: false
+}
+beauty_0_6 := Svg {
+width: 24 height: 48
+abs_pos: vec2(16, 592)
+animating: false draw_svg.svg: http_resource("http://127.0.0.1:8188/ux-images/settings-07/assets/rail_info_i-e91367a9a5b2.svg") draw_svg.preserve_viewbox: true draw_svg.preserve_aspect: false
+}
+beauty_0_7 := DesignSurface {
+width: 406 height: 776
+abs_pos: vec2(0, 0)
+draw_bg.radius: 0 draw_bg.ellipse: 0 draw_bg.border_width: 0 draw_bg.border_position: 0 draw_bg.border_color: #00000000
+flow: Overlay padding: 0 clip_x: false clip_y: false
+show_bg: true draw_bg.color: #c5c9ccff
+}
+beauty_0_8 := Label {
+width: 61.91 height: 38.34
+abs_pos: vec2(74.8, 44.7)
+padding: 0 text: "Settings" align: Align{x: 0 y: 0.5}
+flow: Right
+draw_text.text_style: TextStyle{font_family: FontFamily{latin := FontMember{res: crate_resource("self:resources/ux/Inter-600.ttf") asc: 0.04 desc: 0.04 weight: 600} symbols := FontMember{res: crate_resource("makepad_widgets:resources/jetbrains_mono_variable.ttf") asc: 0 desc: 0 weight: 400} emoji := FontMember{res: file_resource("/System/Library/Fonts/Apple Color Emoji.ttc") asc: 0 desc: 0}} font_size: 10.8675 line_spacing: 0.99986696 letter_spacing: 0}
+draw_text.color: #1d1d1fff
+}
+beauty_0_9 := Label {
+width: 48.24 height: 27.35
+abs_pos: vec2(74.23, 146.33)
+padding: 0 text: "General" align: Align{x: 0 y: 0.5}
+flow: Right
+draw_text.text_style: TextStyle{font_family: FontFamily{latin := FontMember{res: crate_resource("self:resources/ux/Inter-600.ttf") asc: 0.04 desc: 0.04 weight: 600} symbols := FontMember{res: crate_resource("makepad_widgets:resources/jetbrains_mono_variable.ttf") asc: 0 desc: 0 weight: 400} emoji := FontMember{res: file_resource("/System/Library/Fonts/Apple Color Emoji.ttc") asc: 0 desc: 0}} font_size: 8.79 line_spacing: 0.99994767 letter_spacing: 0}
+draw_text.color: #1d1d1fff
+}
+beauty_0_10 := Label {
+width: 84.87 height: 46.88
+abs_pos: vec2(73.2, 635.3)
+padding: 0 text: "Stop server…" align: Align{x: 0 y: 0.5}
+flow: Right
+draw_text.text_style: TextStyle{font_family: FontFamily{latin := FontMember{res: crate_resource("self:resources/ux/Inter-500.ttf") asc: 0.04 desc: 0.04 weight: 500} symbols := FontMember{res: crate_resource("makepad_widgets:resources/jetbrains_mono_variable.ttf") asc: 0 desc: 0 weight: 400} emoji := FontMember{res: file_resource("/System/Library/Fonts/Apple Color Emoji.ttc") asc: 0 desc: 0}} font_size: 11.25 line_spacing: 2.5830035 letter_spacing: 0}
+draw_text.color: #6e6e73ff
+}
+beauty_0_11 := Label {
+width: 208.3 height: 32.84
+abs_pos: vec2(74.79, 683.35)
+padding: 0 text: "Shuts down Octos on this computer" align: Align{x: 0 y: 0.5}
+flow: Right
+draw_text.text_style: TextStyle{font_family: FontFamily{latin := FontMember{res: crate_resource("self:resources/ux/Inter-400.ttf") asc: 0.04 desc: 0.04 weight: 400} symbols := FontMember{res: crate_resource("makepad_widgets:resources/jetbrains_mono_variable.ttf") asc: 0 desc: 0 weight: 400} emoji := FontMember{res: file_resource("/System/Library/Fonts/Apple Color Emoji.ttc") asc: 0 desc: 0}} font_size: 9.059999 line_spacing: 1.0002512 letter_spacing: 0}
+draw_text.color: #6e6e73ff
+}
+beauty_0_12 := DesignSurface {
+width: 350 height: 372
+abs_pos: vec2(28, 176)
+draw_bg.radius: 12 draw_bg.ellipse: 0 draw_bg.border_width: 1 draw_bg.border_position: 0 draw_bg.border_color: #e5e5e7ff
+flow: Overlay padding: 0 clip_x: false clip_y: false
+show_bg: true draw_bg.color: #ffffffff
+}
+beauty_0_13 := Label {
+width: 185.53 height: 42.46
+abs_pos: vec2(112.45, 230.11)
+padding: 0 text: "Stop the Octos server?" align: Align{x: 0 y: 0.5}
+flow: Right
+draw_text.text_style: TextStyle{font_family: FontFamily{latin := FontMember{res: crate_resource("self:resources/ux/Inter-600.ttf") asc: 0.04 desc: 0.04 weight: 600} symbols := FontMember{res: crate_resource("makepad_widgets:resources/jetbrains_mono_variable.ttf") asc: 0 desc: 0 weight: 400} emoji := FontMember{res: file_resource("/System/Library/Fonts/Apple Color Emoji.ttc") asc: 0 desc: 0}} font_size: 12.299999 line_spacing: 1.0003347 letter_spacing: 0}
+draw_text.color: #1d1d1fff
+}
+beauty_0_14 := Label {
+width: 222.62 height: 35.59
+abs_pos: vec2(97.91, 315.27)
+padding: 0 text: "All sessions on this computer stop." align: Align{x: 0 y: 0.5}
+flow: Right
+draw_text.text_style: TextStyle{font_family: FontFamily{latin := FontMember{res: crate_resource("self:resources/ux/Inter-400.ttf") asc: 0.04 desc: 0.04 weight: 400} symbols := FontMember{res: crate_resource("makepad_widgets:resources/jetbrains_mono_variable.ttf") asc: 0 desc: 0 weight: 400} emoji := FontMember{res: file_resource("/System/Library/Fonts/Apple Color Emoji.ttc") asc: 0 desc: 0}} font_size: 9.9525 line_spacing: 0.9996149 letter_spacing: 0}
+draw_text.color: #6e6e73ff
+}
+beauty_0_15 := Label {
+width: 192.69 height: 35.59
+abs_pos: vec2(108.14, 366.08)
+padding: 0 text: "Running turns are interrupted." align: Align{x: 0 y: 0.5}
+flow: Right
+draw_text.text_style: TextStyle{font_family: FontFamily{latin := FontMember{res: crate_resource("self:resources/ux/Inter-400.ttf") asc: 0.04 desc: 0.04 weight: 400} symbols := FontMember{res: crate_resource("makepad_widgets:resources/jetbrains_mono_variable.ttf") asc: 0 desc: 0 weight: 400} emoji := FontMember{res: file_resource("/System/Library/Fonts/Apple Color Emoji.ttc") asc: 0 desc: 0}} font_size: 9.997499 line_spacing: 1.0000757 letter_spacing: 0}
+draw_text.color: #6e6e73ff
+}
+beauty_0_16 := DesignSurface {
+width: 128 height: 46
+abs_pos: vec2(58, 480)
+draw_bg.radius: 999 draw_bg.ellipse: 0 draw_bg.border_width: 1 draw_bg.border_position: 0 draw_bg.border_color: #e5e5e7ff
+flow: Overlay padding: 0 clip_x: false clip_y: false
+show_bg: true draw_bg.color: #ffffffff
+}
+beauty_0_17 := Label {
+width: 47 height: 33.7
+abs_pos: vec2(121, 490.4)
+padding: 0 text: "Cancel" align: Align{x: 0 y: 0.5}
+flow: Right
+draw_text.text_style: TextStyle{font_family: FontFamily{latin := FontMember{res: crate_resource("self:resources/ux/Inter-500.ttf") asc: 0.04 desc: 0.04 weight: 500} symbols := FontMember{res: crate_resource("makepad_widgets:resources/jetbrains_mono_variable.ttf") asc: 0 desc: 0 weight: 400} emoji := FontMember{res: file_resource("/System/Library/Fonts/Apple Color Emoji.ttc") asc: 0 desc: 0}} font_size: 10.875 line_spacing: 1.9208372 letter_spacing: 0}
+draw_text.color: #1d1d1fff
+}
+beauty_0_18 := KitButton {
+contract: "{\"bindings\":{\"control\":\"beauty_0_18_1\",\"label\":\"beauty_0_18_2\"},\"widget\":\"KitButton\"}" glass: false
+width: 128 height: 46
+abs_pos: vec2(58, 480)
+flow: Overlay padding: 0 clip_x: false clip_y: false
+beauty_0_18_0 := DesignSurface {
+width: 128 height: 46
+abs_pos: vec2(58, 480)
+draw_bg.radius: 999 draw_bg.ellipse: 0 draw_bg.border_width: 0 draw_bg.border_position: 0 draw_bg.border_color: #00000000
+flow: Overlay padding: 0 clip_x: false clip_y: false
+show_bg: true draw_bg.color: #00000000
+}
+beauty_0_18_1 := DesignNativeButton {
+width: 128 height: 46
+abs_pos: vec2(58, 480)
+enabled: true
+}
+beauty_0_18_2 := Label {
+width: 8 height: 15
+abs_pos: vec2(0, 0)
+padding: 0 text: "" align: Align{x: 0 y: 0.5}
+flow: Right
+draw_text.text_style: TextStyle{font_family: FontFamily{latin := FontMember{res: crate_resource("self:resources/ux/Inter-400.ttf") asc: 0.04 desc: 0.04 weight: 400} symbols := FontMember{res: crate_resource("makepad_widgets:resources/jetbrains_mono_variable.ttf") asc: 0 desc: 0 weight: 400} emoji := FontMember{res: file_resource("/System/Library/Fonts/Apple Color Emoji.ttc") asc: 0 desc: 0}} font_size: 7.5 line_spacing: 1.2397095 letter_spacing: 0}
+draw_text.color: #1d1d1fff
+}
+}
+beauty_0_19 := DesignSurface {
+width: 128 height: 46
+abs_pos: vec2(220, 480)
+draw_bg.radius: 999 draw_bg.ellipse: 0 draw_bg.border_width: 0 draw_bg.border_position: 0 draw_bg.border_color: #00000000
+flow: Overlay padding: 0 clip_x: false clip_y: false
+show_bg: true draw_bg.color: #d92024ff
+}
+beauty_0_20 := Label {
+width: 85.33 height: 57.56
+abs_pos: vec2(234.86, 484.2)
+padding: 0 text: "Stop server" align: Align{x: 0 y: 0.5}
+flow: Right
+draw_text.text_style: TextStyle{font_family: FontFamily{latin := FontMember{res: crate_resource("self:resources/ux/Inter-600.ttf") asc: 0.04 desc: 0.04 weight: 600} symbols := FontMember{res: crate_resource("makepad_widgets:resources/jetbrains_mono_variable.ttf") asc: 0 desc: 0 weight: 400} emoji := FontMember{res: file_resource("/System/Library/Fonts/Apple Color Emoji.ttc") asc: 0 desc: 0}} font_size: 10.89 line_spacing: 1.0000777 letter_spacing: 0}
+draw_text.color: #ffffffff
+}
+beauty_0_21 := KitButton {
+contract: "{\"bindings\":{\"control\":\"beauty_0_21_1\",\"label\":\"beauty_0_21_2\"},\"widget\":\"KitButton\"}" glass: false
+width: 128 height: 46
+abs_pos: vec2(220, 480)
+flow: Overlay padding: 0 clip_x: false clip_y: false
+beauty_0_21_0 := DesignSurface {
+width: 128 height: 46
+abs_pos: vec2(220, 480)
+draw_bg.radius: 999 draw_bg.ellipse: 0 draw_bg.border_width: 0 draw_bg.border_position: 0 draw_bg.border_color: #00000000
+flow: Overlay padding: 0 clip_x: false clip_y: false
+show_bg: true draw_bg.color: #00000000
+}
+beauty_0_21_1 := DesignNativeButton {
+width: 128 height: 46
+abs_pos: vec2(220, 480)
+enabled: true
+}
+beauty_0_21_2 := Label {
+width: 8 height: 15
+abs_pos: vec2(0, 0)
+padding: 0 text: "" align: Align{x: 0 y: 0.5}
+flow: Right
+draw_text.text_style: TextStyle{font_family: FontFamily{latin := FontMember{res: crate_resource("self:resources/ux/Inter-400.ttf") asc: 0.04 desc: 0.04 weight: 400} symbols := FontMember{res: crate_resource("makepad_widgets:resources/jetbrains_mono_variable.ttf") asc: 0 desc: 0 weight: 400} emoji := FontMember{res: file_resource("/System/Library/Fonts/Apple Color Emoji.ttc") asc: 0 desc: 0}} font_size: 7.5 line_spacing: 1.2397095 letter_spacing: 0}
+draw_text.color: #1d1d1fff
+}
+}
+}
+}

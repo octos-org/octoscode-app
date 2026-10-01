@@ -1,0 +1,69 @@
+# ledger settings-10@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_strip1_text { class: user-copy, en: "New chat defaults • Ask for approval • Workspace write •" }
+copy t_strip2_text { class: user-copy, en: "v4-flash v • Thinking: On" }
+copy t_change_text { class: user-copy, en: "Change" }
+copy defaults_change_label_text { class: user-copy, en: "" }
+copy t_placeholder_text { class: user-copy, en: "Ask Octos anything" }
+copy t_placeholder_sub_text { class: user-copy, en: "Start a new conversation with Octos." }
+copy composer_text { class: user-copy, en: "" }
+copy composer_placeholder { class: user-copy, en: "Ask Octos anything" }
+state defaults_change_control_enabled { shape: bool, initial: true }
+state composer_enabled { shape: bool, initial: true }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Surfaceb4206391250d(instance: text) {
+  view Kit(component: "Surfaceb4206391250d", instance: instance) { slot }
+}
+component Text6757ae954469(instance: text, text: text) {
+  view Kit(component: "Text6757ae954469", instance: instance, text: text)
+}
+component Textceafa785adbf(instance: text, text: text) {
+  view Kit(component: "Textceafa785adbf", instance: instance, text: text)
+}
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surfacef228e8bd3284(instance: text) {
+  view Kit(component: "Surfacef228e8bd3284", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Textc1271c2044f7(instance: text, text: text) {
+  view Kit(component: "Textc1271c2044f7", instance: instance, text: text)
+}
+component Text8936e01c41d7(instance: text, text: text) {
+  view Kit(component: "Text8936e01c41d7", instance: instance, text: text)
+}
+component Text30658d2fdf24(instance: text, text: text) {
+  view Kit(component: "Text30658d2fdf24", instance: instance, text: text)
+}
+component Inputd45730a1c3f5(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Inputd45730a1c3f5", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Surfaceb4206391250d(instance: "strip") {
+
+  }
+  Text6757ae954469(instance: "t_strip1", text: copy.t_strip1_text)
+  Text6757ae954469(instance: "t_strip2", text: copy.t_strip2_text)
+  Textceafa785adbf(instance: "t_change", text: copy.t_change_text)
+  KitButton2c6804b990a5(instance: "defaults_change") {
+    Surfacef228e8bd3284(instance: "defaults_change_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "defaults_change_control", enabled: defaults_change_control_enabled)
+    Textc1271c2044f7(instance: "defaults_change_label", text: copy.defaults_change_label_text)
+  }
+  Text8936e01c41d7(instance: "t_placeholder", text: copy.t_placeholder_text)
+  Text30658d2fdf24(instance: "t_placeholder_sub", text: copy.t_placeholder_sub_text)
+  Inputd45730a1c3f5(instance: "composer", text: copy.composer_text, placeholder: copy.composer_placeholder, enabled: composer_enabled) {
+
+  }
+}

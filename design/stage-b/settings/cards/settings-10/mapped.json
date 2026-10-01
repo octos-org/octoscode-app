@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "3bf8690de982634622165236de23078b6c9d944a51330ee2af381365dd834603",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "stack",
+        "id": "strip",
+        "x": 5.0,
+        "y": 9.0,
+        "w": 397.0,
+        "h": 137.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 0
+      },
+      {
+        "t": "text",
+        "id": "t_strip1",
+        "text": "New chat defaults \u2022 Ask for approval \u2022 Workspace write \u2022",
+        "x": 17.14,
+        "y": 45.65,
+        "w": 321.64,
+        "h": 32.22,
+        "size": 13.5,
+        "line_height": 32.22,
+        "weight": 500,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t_strip2",
+        "text": "v4-flash v \u2022 Thinking: On",
+        "x": 15.82,
+        "y": 88.61,
+        "w": 154.23,
+        "h": 32.22,
+        "size": 13.5,
+        "line_height": 32.22,
+        "weight": 500,
+        "color": 4280098079,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t_change",
+        "text": "Change",
+        "x": 338.05,
+        "y": 88.11,
+        "w": 45.59,
+        "h": 30.9,
+        "size": 11.21,
+        "line_height": 13.56,
+        "weight": 500,
+        "color": 4281298923,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "stack",
+        "id": "defaults_change",
+        "x": 326.0,
+        "y": 84.0,
+        "w": 70.0,
+        "h": 42.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "defaults_change_surface",
+            "x": 326.0,
+            "y": 84.0,
+            "w": 70.0,
+            "h": 42.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 0,
+            "radius": 8
+          },
+          {
+            "t": "button",
+            "id": "defaults_change_control",
+            "x": 326.0,
+            "y": 84.0,
+            "w": 70.0,
+            "h": 42.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "defaults_change_label",
+            "text": "",
+            "x": 0.0,
+            "y": 0.0,
+            "w": 8.0,
+            "h": 15.0,
+            "size": 10.0,
+            "line_height": 15.0,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf"
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      {
+        "t": "text",
+        "id": "t_placeholder",
+        "text": "Ask Octos anything",
+        "x": 113.13,
+        "y": 354.4,
+        "w": 160.46,
+        "h": 41.66,
+        "size": 16.78,
+        "line_height": 20.3,
+        "weight": 500,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "text",
+        "id": "t_placeholder_sub",
+        "text": "Start a new conversation with Octos.",
+        "x": 93.09,
+        "y": 413.57,
+        "w": 204.69,
+        "h": 25.52,
+        "size": 11.54,
+        "line_height": 13.97,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+      },
+      {
+        "t": "input",
+        "id": "composer",
+        "text": "",
+        "placeholder": "Ask Octos anything",
+        "x": 20.0,
+        "y": 580.0,
+        "w": 366.0,
+        "h": 84.0,
+        "size": 15,
+        "line_height": 84.0,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "enabled": 1,
+        "c": []
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "strip",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "composer",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t_strip1",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.291730280701391
+    },
+    {
+      "id": "t_strip2",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.26990043709411526
+    },
+    {
+      "id": "t_change",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.4274168784966684
+    },
+    {
+      "id": "t_placeholder",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.30516254813407795
+    },
+    {
+      "id": "t_placeholder_sub",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.289202431922075
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

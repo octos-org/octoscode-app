@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "3bf8690de982634622165236de23078b6c9d944a51330ee2af381365dd834603",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 1.0372062050183128,
+  "text": [
+    {
+      "id": "t_strip1",
+      "expected_text": "New chat defaults \u2022 Ask for approval \u2022 Workspace write \u2022",
+      "requested_bounds": [
+        17.14,
+        45.65,
+        321.64,
+        32.22
+      ],
+      "status": "observed",
+      "ocr_text": "New chat defaults \u2022 Ask for approval \u2022 Workspace write \u2022",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        19.14471544715447,
+        47.07105719237435,
+        316.8780487804878,
+        26.897746967071058
+      ],
+      "ink_color": [
+        48,
+        50,
+        51
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        17.136366316666606,
+        45.64705868927336,
+        321.6363636363637,
+        32.22145328719721
+      ]
+    },
+    {
+      "id": "t_strip2",
+      "expected_text": "v4-flash v \u2022 Thinking: On",
+      "requested_bounds": [
+        15.82,
+        88.61,
+        154.23,
+        32.22
+      ],
+      "status": "observed",
+      "ocr_text": "v4-flash v \u2022 Thinking: On",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        18.484552845528455,
+        90.10745233968804,
+        149.85691056910568,
+        26.897746967071058
+      ],
+      "ink_color": [
+        55,
+        57,
+        57
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        15.818182859545436,
+        88.60899686200695,
+        154.22727272727272,
+        32.22145328719721
+      ]
+    },
+    {
+      "id": "t_change",
+      "expected_text": "Change",
+      "requested_bounds": [
+        335.8,
+        92.6,
+        45.59,
+        26.74
+      ],
+      "status": "observed",
+      "ocr_text": "Change",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        338.6634146341463,
+        90.10745233968804,
+        41.59024390243902,
+        26.897746967071058
+      ],
+      "ink_color": [
+        35,
+        93,
+        238
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        335.8158511748718,
+        92.58177231908508,
+        45.58886441317468,
+        26.74094087277324
+      ]
+    },
+    {
+      "id": "defaults_change_label",
+      "expected_text": "",
+      "requested_bounds": [
+        0.0,
+        0.0,
+        8.0,
+        15.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_placeholder",
+      "expected_text": "Ask Octos anything",
+      "requested_bounds": [
+        112.05,
+        354.44,
+        160.82,
+        42.96
+      ],
+      "status": "observed",
+      "ocr_text": "Ask Octos anything",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        113.5479674796748,
+        356.3951473136915,
+        156.45853658536583,
+        37.65684575389948
+      ],
+      "ink_color": [
+        5,
+        5,
+        6
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        112.04545354034089,
+        354.4359862598616,
+        160.8181818181818,
+        42.96193771626303
+      ]
+    },
+    {
+      "id": "t_placeholder_sub",
+      "expected_text": "Start a new conversation with Octos.",
+      "requested_bounds": [
+        92.27,
+        416.19,
+        204.32,
+        26.85
+      ],
+      "status": "observed",
+      "ocr_text": "Start a new conversation with Octos.",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        93.7430894308943,
+        415.57019064124785,
+        200.68943089430894,
+        21.518197573656845
+      ],
+      "ink_color": [
+        124,
+        128,
+        133
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        92.27272897537875,
+        416.1937715815455,
+        204.3181818181818,
+        26.85121107266434
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "strip",
+      "bounds": [
+        5.0,
+        9.0,
+        397.0,
+        137.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "composer",
+      "bounds": [
+        20.0,
+        580.0,
+        366.0,
+        84.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        49.918832766233734,
+        449.22145323728364,
+        191.68831168831167,
+        25.955017301038076
+      ],
+      "confidence": 1,
+      "text": "Ask Octos anything"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

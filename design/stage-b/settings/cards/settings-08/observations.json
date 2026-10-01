@@ -1,0 +1,458 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "88d3ae1b3bfe1d46bbc974711a15640b3662ef67d336ea28190ad62ed51622f8",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 1.1481320022668817,
+  "text": [
+    {
+      "id": "t_title",
+      "expected_text": "Settings",
+      "requested_bounds": [
+        72.74,
+        43.63,
+        62.63,
+        41.61
+      ],
+      "status": "observed",
+      "ocr_text": "Settings",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        74.80629921259842,
+        45.32389380530974,
+        58.18267716535433,
+        35.70973451327434
+      ],
+      "ink_color": [
+        6,
+        6,
+        6
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        72.73943442396673,
+        43.6319142751096,
+        62.62805003040242,
+        41.612497120779715
+      ]
+    },
+    {
+      "id": "perm_ask_label",
+      "expected_text": "",
+      "requested_bounds": [
+        0.0,
+        0.0,
+        8.0,
+        15.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_opt1",
+      "expected_text": "Ask for approval",
+      "requested_bounds": [
+        72.8,
+        222.1,
+        123.84,
+        38.39
+      ],
+      "status": "observed",
+      "ocr_text": "\u2022 Ask for approval",
+      "confidence": 1,
+      "text_similarity": 0.9411764705882353,
+      "ink_bounds": [
+        101.02047244094489,
+        226.61946902654867,
+        90.1511811023622,
+        31.589380530973454
+      ],
+      "ink_color": [
+        66,
+        67,
+        67
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        72.77358395875261,
+        222.10600674723207,
+        123.84276729559748,
+        38.38869257950532
+      ]
+    },
+    {
+      "id": "t_opt1_d",
+      "expected_text": "Server asks before shell, write and network",
+      "requested_bounds": [
+        98.31,
+        271.46,
+        227.26,
+        32.9
+      ],
+      "status": "observed",
+      "ocr_text": "Server asks before shell, write and network",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        100.38110236220473,
+        271.9433628318584,
+        223.7795275590551,
+        26.09557522123894
+      ],
+      "ink_color": [
+        140,
+        144,
+        149
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        98.30817640704399,
+        271.4628978555476,
+        227.2578616352201,
+        32.904593639576035
+      ]
+    },
+    {
+      "id": "perm_workspace_label",
+      "expected_text": "",
+      "requested_bounds": [
+        0.0,
+        0.0,
+        8.0,
+        15.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_opt2",
+      "expected_text": "Auto-approve in workspace",
+      "requested_bounds": [
+        72.8,
+        342.8,
+        196.62,
+        38.39
+      ],
+      "status": "observed",
+      "ocr_text": "\u2022 Auto-approve in workspace",
+      "confidence": 1,
+      "text_similarity": 0.9615384615384616,
+      "ink_bounds": [
+        100.38110236220473,
+        344.7362831858407,
+        168.1543307086614,
+        31.589380530973454
+      ],
+      "ink_color": [
+        30,
+        31,
+        30
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        72.77358293949689,
+        342.756183855265,
+        196.61635220125788,
+        38.38869257950532
+      ]
+    },
+    {
+      "id": "t_opt2_d",
+      "expected_text": "Approve actions in this workspace",
+      "requested_bounds": [
+        99.58,
+        397.6,
+        181.3,
+        30.16
+      ],
+      "status": "observed",
+      "ocr_text": "Approve actions in this workspace",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        100.38110236220473,
+        396.9274336283186,
+        178.38425196850395,
+        26.09557522123894
+      ],
+      "ink_color": [
+        136,
+        138,
+        144
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        99.584907171174,
+        397.5971729849234,
+        181.29559748427673,
+        30.16254416961135
+      ]
+    },
+    {
+      "id": "perm_full_label",
+      "expected_text": "",
+      "requested_bounds": [
+        0.0,
+        0.0,
+        8.0,
+        15.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "t_opt3",
+      "expected_text": "Full access",
+      "requested_bounds": [
+        95.75,
+        466.15,
+        70.22,
+        30.16
+      ],
+      "status": "observed",
+      "ocr_text": "Full access",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        101.02047244094489,
+        466.9734513274336,
+        63.29763779527559,
+        23.348672566371683
+      ],
+      "ink_color": [
+        10,
+        9,
+        10
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        95.75471635553461,
+        466.1484095923675,
+        70.22012578616354,
+        30.162544169611266
+      ]
+    },
+    {
+      "id": "t_opt3_d",
+      "expected_text": "No prompts \u2022 full read/write/network",
+      "requested_bounds": [
+        99.58,
+        515.51,
+        197.89,
+        30.16
+      ],
+      "status": "observed",
+      "ocr_text": "No prompts \u2022 full read/write/network",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        101.02047244094489,
+        516.4176991150442,
+        194.36850393700786,
+        27.469026548672566
+      ],
+      "ink_color": [
+        144,
+        147,
+        153
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        99.58490730948634,
+        515.505300193404,
+        197.89308176100627,
+        30.162544169611266
+      ]
+    },
+    {
+      "id": "t_readback",
+      "expected_text": "Server: ask before shell, write and network",
+      "requested_bounds": [
+        72.77,
+        625.19,
+        237.47,
+        32.9
+      ],
+      "status": "observed",
+      "ocr_text": "Server: ask before shell, write and network",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        74.16692913385826,
+        624.9203539823009,
+        234.6488188976378,
+        26.09557522123894
+      ],
+      "ink_color": [
+        113,
+        118,
+        125
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        72.77358518228513,
+        625.1872794261484,
+        237.47169811320754,
+        32.90459363957595
+      ]
+    },
+    {
+      "id": "t_advanced",
+      "expected_text": "Advanced\u2026",
+      "requested_bounds": [
+        72.7,
+        687.6,
+        71.6,
+        28.63
+      ],
+      "status": "observed",
+      "ocr_text": "Advanced...",
+      "confidence": 1,
+      "text_similarity": 0.8,
+      "ink_bounds": [
+        74.16692913385826,
+        686.7256637168142,
+        67.77322834645669,
+        21.975221238938055
+      ],
+      "ink_color": [
+        24,
+        82,
+        239
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        72.72420771136007,
+        687.6475226318184,
+        71.5956111644049,
+        28.634283382564096
+      ]
+    },
+    {
+      "id": "advanced_link_label",
+      "expected_text": "",
+      "requested_bounds": [
+        0.0,
+        0.0,
+        8.0,
+        15.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "back",
+      "bounds": [
+        18.0,
+        44.0,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "perm_ask",
+      "bounds": [
+        46.0,
+        228.0,
+        22.0,
+        22.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.0
+    },
+    {
+      "id": "perm_ask_dot",
+      "bounds": [
+        53.0,
+        235.0,
+        8.0,
+        8.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "radius": 4.0
+    },
+    {
+      "id": "perm_workspace",
+      "bounds": [
+        46.0,
+        348.0,
+        22.0,
+        22.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 11.0
+    },
+    {
+      "id": "perm_full",
+      "bounds": [
+        46.0,
+        470.0,
+        22.0,
+        22.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.0
+    },
+    {
+      "id": "div",
+      "bounds": [
+        24.0,
+        596.0,
+        358.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        31.94968543474843,
+        367.3498230021201,
+        25.959119496855347,
+        31.94346289752654
+      ],
+      "confidence": 1,
+      "text": "$"
+    },
+    {
+      "bounds": [
+        113.79827670063234,
+        105.69037682615586,
+        129.8405553709786,
+        24.202285099366478
+      ],
+      "confidence": 1,
+      "text": "Permissions"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

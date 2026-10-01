@@ -1,0 +1,68 @@
+{
+  "height": 577,
+  "observations": [
+    {
+      "bounds": [
+        25.957796267857052,
+        33.94117637076125,
+        487.2077922077923,
+        23.958477508650503
+      ],
+      "confidence": 1,
+      "text": "New chat defaults \u2022 Ask for approval \u2022 Workspace write \u2022"
+    },
+    {
+      "bounds": [
+        23.961040538474,
+        65.88581338837372,
+        233.6201298701299,
+        23.958477508650503
+      ],
+      "confidence": 1,
+      "text": "v4-flash v \u2022 Thinking: On"
+    },
+    {
+      "bounds": [
+        508.6865725924782,
+        68.83979720117537,
+        69.05702368005525,
+        19.88340577782237
+      ],
+      "confidence": 1,
+      "text": "Change"
+    },
+    {
+      "bounds": [
+        169.7240244515016,
+        263.54325267002594,
+        243.60389610389612,
+        31.944636678200734
+      ],
+      "confidence": 1,
+      "text": "Ask Octos anything"
+    },
+    {
+      "bounds": [
+        139.77272985186684,
+        309.4636677867935,
+        309.49675324675326,
+        19.96539792387542
+      ],
+      "confidence": 1,
+      "text": "Start a new conversation with Octos."
+    },
+    {
+      "bounds": [
+        49.918832766233734,
+        449.22145323728364,
+        191.68831168831167,
+        25.955017301038076
+      ],
+      "confidence": 1,
+      "text": "Ask Octos anything"
+    }
+  ],
+  "width": 615,
+  "image_sha256": "3bf8690de982634622165236de23078b6c9d944a51330ee2af381365dd834603",
+  "engine": "Apple Vision VNRecognizeTextRequest accurate, en-US"
+}

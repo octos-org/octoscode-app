@@ -1,0 +1,46 @@
+{
+  "frame_id": 8,
+  "controls": {
+    "perm_ask": {
+      "event": "perm_ask.select",
+      "source_bounds": [
+        46,
+        228,
+        22,
+        22
+      ],
+      "enabled": true
+    },
+    "perm_workspace": {
+      "event": "perm_workspace.select",
+      "source_bounds": [
+        46,
+        348,
+        22,
+        22
+      ],
+      "enabled": true
+    },
+    "perm_full": {
+      "event": "perm_full.select",
+      "source_bounds": [
+        46,
+        470,
+        22,
+        22
+      ],
+      "enabled": true
+    },
+    "advanced_link": {
+      "event": "settings.advanced",
+      "source_bounds": [
+        64,
+        680,
+        120,
+        40
+      ],
+      "enabled": true
+    }
+  },
+  "source": "authored from the approved stage-a board-2 atlas (operator 2026-10-01) + Apple Vision OCR"
+}

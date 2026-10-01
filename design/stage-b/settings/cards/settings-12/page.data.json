@@ -1,0 +1,225 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "banner": {
+        "component": "Surfacee93df965987a",
+        "layout": {
+          "x": 4.0,
+          "y": 9.0,
+          "w": 399.0,
+          "h": 138.0
+        }
+      },
+      "info_i": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 24.0,
+          "y": 40.0,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8188/ux-images/settings-12/assets/info_i-e91367a9a5b2.svg"
+        }
+      },
+      "t_ban1": {
+        "component": "Textc793d02cb2a8",
+        "layout": {
+          "x": 55.51,
+          "y": 47.59,
+          "w": 188.86,
+          "h": 33.49
+        }
+      },
+      "t_ban2": {
+        "component": "Text231cc99936e0",
+        "layout": {
+          "x": 53.71,
+          "y": 90.48,
+          "w": 165.32,
+          "h": 32.15
+        }
+      },
+      "takeover_fill": {
+        "component": "Surface6aa6c9c7465f",
+        "layout": {
+          "x": 311.0,
+          "y": 39.0,
+          "w": 80.0,
+          "h": 80.0
+        }
+      },
+      "takeover_label": {
+        "component": "Text3b4abe632e7f",
+        "layout": {
+          "x": 323.67,
+          "y": 58.31,
+          "w": 56.96,
+          "h": 44.21
+        }
+      },
+      "take_over": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 312.0,
+          "y": 56.0,
+          "w": 82.0,
+          "h": 44.0
+        }
+      },
+      "take_over_surface": {
+        "component": "Surfacee502f30c4358",
+        "layout": {
+          "x": 312.0,
+          "y": 56.0,
+          "w": 82.0,
+          "h": 44.0
+        }
+      },
+      "take_over_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 312.0,
+          "y": 56.0,
+          "w": 82.0,
+          "h": 44.0
+        }
+      },
+      "take_over_label": {
+        "component": "Textc1271c2044f7",
+        "layout": {
+          "x": 0.0,
+          "y": 0.0,
+          "w": 8.0,
+          "h": 15.0
+        }
+      },
+      "ban_div": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 0.0,
+          "y": 132.0,
+          "w": 406.0,
+          "h": 1.0
+        }
+      },
+      "t_thread1": {
+        "component": "Text4b9be6227fe8",
+        "layout": {
+          "x": 16.44,
+          "y": 182.95,
+          "w": 167.28,
+          "h": 36.17
+        }
+      },
+      "t_thread2": {
+        "component": "Textdf1f54f62750",
+        "layout": {
+          "x": 16.12,
+          "y": 266.05,
+          "w": 53.03,
+          "h": 25.44
+        }
+      },
+      "t_b1": {
+        "component": "Text359465b6c29c",
+        "layout": {
+          "x": 16.01,
+          "y": 315.64,
+          "w": 189.35,
+          "h": 34.83
+        }
+      },
+      "t_b2": {
+        "component": "Text0bc2dbc746fe",
+        "layout": {
+          "x": 19.43,
+          "y": 378.63,
+          "w": 126.58,
+          "h": 30.8
+        }
+      },
+      "t_b3": {
+        "component": "Text44be84c38105",
+        "layout": {
+          "x": 19.53,
+          "y": 434.92,
+          "w": 188.37,
+          "h": 30.8
+        }
+      },
+      "chip_patch": {
+        "component": "Surfaceede62a6da6ff",
+        "layout": {
+          "x": 20.5,
+          "y": 510.0,
+          "w": 52.0,
+          "h": 36.0
+        }
+      },
+      "chip_patch_t": {
+        "component": "Text20100aa2ba44",
+        "layout": {
+          "x": 27.38,
+          "y": 516.67,
+          "w": 25.57,
+          "h": 24.1
+        }
+      },
+      "t_add12": {
+        "component": "Textb778a6ae939f",
+        "layout": {
+          "x": 133.06,
+          "y": 518.01,
+          "w": 18.22,
+          "h": 22.76
+        }
+      },
+      "t_del4": {
+        "component": "Texta76f1997d189",
+        "layout": {
+          "x": 170.08,
+          "y": 518.01,
+          "w": 12.83,
+          "h": 22.76
+        }
+      },
+      "t_done": {
+        "component": "Texte098364b2571",
+        "layout": {
+          "x": 15.91,
+          "y": 591.73,
+          "w": 76.57,
+          "h": 32.15
+        }
+      },
+      "ghost_composer": {
+        "component": "Surfacecb9670194267",
+        "layout": {
+          "x": 17.0,
+          "y": 645.0,
+          "w": 373.0,
+          "h": 97.0
+        }
+      },
+      "t_readonly": {
+        "component": "Text50a4faec0abd",
+        "layout": {
+          "x": 28.13,
+          "y": 680.18,
+          "w": 184.44,
+          "h": 34.83
+        }
+      }
+    },
+    "bindings": []
+  }
+}

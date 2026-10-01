@@ -1,0 +1,227 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "strip",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfaceb4206391250d",
+      "semantic_role": "layout",
+      "bounds": [
+        5.0,
+        9.0,
+        397.0,
+        137.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_strip1",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text6757ae954469",
+      "semantic_role": "text",
+      "bounds": [
+        17.14,
+        45.65,
+        321.64,
+        32.22
+      ],
+      "text": "New chat defaults \u2022 Ask for approval \u2022 Workspace write \u2022",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 13.5
+    },
+    {
+      "source_id": "t_strip2",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text6757ae954469",
+      "semantic_role": "text",
+      "bounds": [
+        15.82,
+        88.61,
+        154.23,
+        32.22
+      ],
+      "text": "v4-flash v \u2022 Thinking: On",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 13.5
+    },
+    {
+      "source_id": "t_change",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textceafa785adbf",
+      "semantic_role": "text",
+      "bounds": [
+        338.05,
+        88.11,
+        45.59,
+        30.9
+      ],
+      "text": "Change",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 11.21
+    },
+    {
+      "source_id": "defaults_change",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        326.0,
+        84.0,
+        70.0,
+        42.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "defaults_change_surface",
+      "native_id": "beauty_0_4_0",
+      "parent": "defaults_change",
+      "kind": "stack",
+      "component": "Surfacef228e8bd3284",
+      "semantic_role": "layout",
+      "bounds": [
+        326.0,
+        84.0,
+        70.0,
+        42.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "defaults_change_control",
+      "native_id": "beauty_0_4_1",
+      "parent": "defaults_change",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        326.0,
+        84.0,
+        70.0,
+        42.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "defaults_change_label",
+      "native_id": "beauty_0_4_2",
+      "parent": "defaults_change",
+      "kind": "text",
+      "component": "Textc1271c2044f7",
+      "semantic_role": "text",
+      "bounds": [
+        0.0,
+        0.0,
+        8.0,
+        15.0
+      ],
+      "text": "",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 10.0
+    },
+    {
+      "source_id": "t_placeholder",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text8936e01c41d7",
+      "semantic_role": "text",
+      "bounds": [
+        113.13,
+        354.4,
+        160.46,
+        41.66
+      ],
+      "text": "Ask Octos anything",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 16.78
+    },
+    {
+      "source_id": "t_placeholder_sub",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text30658d2fdf24",
+      "semantic_role": "text",
+      "bounds": [
+        93.09,
+        413.57,
+        204.69,
+        25.52
+      ],
+      "text": "Start a new conversation with Octos.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11.54
+    },
+    {
+      "source_id": "composer",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "input",
+      "component": "Inputd45730a1c3f5",
+      "semantic_role": "input",
+      "bounds": [
+        20.0,
+        580.0,
+        366.0,
+        84.0
+      ],
+      "text": "",
+      "enabled": 1,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
+  },
+  "contract_sha256": "6a165a15ce1e08b288805692c2d61f7a9c6ebafe9d571bb84a9380b37192a627",
+  "mapping_basis": "mapped.json"
+}
