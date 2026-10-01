@@ -41,6 +41,20 @@ pub fn owner_of(action: &str) -> Owner {
     }
 }
 
+/// How far a lowered `abs_pos` may sit from a control's authored `source_bounds`
+/// and still count as the same control.
+///
+/// #35d: 0.5px was too tight. The authored bounds are whole pixels, but the
+/// lowering rounds AND lays out (padding, the card's own inset), so the emitted
+/// `abs_pos` drifts up to 1px in BOTH axes: setup-11's `btn_diag` is authored at
+/// [26, 473] and lowers to `25, 472`. At 0.5px the match MISSED, the control got
+/// no handler, and it was dead on the mounted screen — proven by
+/// `real_card_tests::setup_11_wires_each_control_into_its_own_block` (it wires
+/// only `error.reload`). 1.5px absorbs that drift while staying far tighter than
+/// the 20+px gap between neighbouring controls, so one control can never steal
+/// another's handler.
+const POS_TOLERANCE: f64 = 1.5;
+
 /// Wire every CLICK control of the card in `card_dir` into the lowered `dsl`.
 ///
 /// Each non-`input.*` control in `service-actions.json` gets
@@ -142,10 +156,10 @@ pub fn wired_taps(dsl: &str) -> Vec<(String, String)> {
 }
 
 /// Inject `on_click: || { NAV(t: "<event>") }` into the DesignNativeButton
-/// block whose abs_pos matches (x, y) within 0.5px (the lowering rounds
-/// through f32). Idempotent: a block already carrying on_click is skipped.
-/// Returns the DSL unchanged when no block matches (the caller's wired
-/// count then stays put — visible in the card-events log).
+/// block whose abs_pos matches (x, y) within [`POS_TOLERANCE`]px. Idempotent: a
+/// block already carrying on_click is skipped. Returns the DSL unchanged when no
+/// block matches (the caller's wired count then stays put — visible in the
+/// card-events log).
 fn inject_click(dsl: &str, event: &str, x: f64, y: f64) -> String {
     let lines: Vec<&str> = dsl.lines().collect();
     let mut out: Vec<String> = Vec::with_capacity(lines.len() + 1);
@@ -179,8 +193,8 @@ fn inject_click(dsl: &str, event: &str, x: f64, y: f64) -> String {
                 let mut it = p.split(',');
                 let ok = match (it.next(), it.next()) {
                     (Some(px), Some(py)) => {
-                        px.trim().parse::<f64>().is_ok_and(|vx| (vx - x).abs() < 0.5)
-                            && py.trim().parse::<f64>().is_ok_and(|vy| (vy - y).abs() < 0.5)
+                        px.trim().parse::<f64>().is_ok_and(|vx| (vx - x).abs() < POS_TOLERANCE)
+                            && py.trim().parse::<f64>().is_ok_and(|vy| (vy - y).abs() < POS_TOLERANCE)
                     }
                     _ => false,
                 };
@@ -312,5 +326,63 @@ abs_pos: vec2(1, 2)
             wired_taps(dsl),
             vec![("a".to_owned(), "error.copy".to_owned())]
         );
+    }
+}
+
+#[cfg(test)]
+mod real_card_tests {
+    use super::*;
+
+    /// #35d: run the REAL setup-11 card through the shared wiring and assert
+    /// each control's handler lands in ITS OWN block. The audit reported
+    /// "2 tap(s) wired for setup-11" yet only `error.reload` ever fired, which
+    /// is what a duplicate-in-one-block looks like.
+    #[test]
+    fn setup_11_wires_each_control_into_its_own_block() {
+        let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("../../design/stage-b/setup/cards/setup-11");
+        if !dir.join("page.card").is_file() {
+            return; // the design tree is not vendored into this build
+        }
+        let Ok(text) = std::fs::read_to_string(dir.join("page.card")) else { return };
+        let Ok(data) = std::fs::read_to_string(dir.join("page.data.json")) else { return };
+        let Ok(data) = serde_json::from_str::<serde_json::Value>(&data) else { return };
+        let Ok(prepared) = octoscript_makepad::l0::prepare(&text, &data, &dir.join("kit")) else { return };
+        // NO `inspectable()`: palette::lower_screen (palette.rs:342) does not
+        // call it — only connect.rs:695 does — so calling it here would lower a
+        // DIFFERENT tree than the app mounts and the test would not be a
+        // faithful reproduction of the dock-error path.
+        let Ok(dsl) = crate::design::with_fonts(
+            octoscript_makepad::design::to_makepad_ui(&prepared.tree)) else { return };
+
+        // What the lowering produced, BEFORE wiring: which blocks exist and
+        // where. This is the evidence the fix depends on.
+        let mut blocks: Vec<(String, String, String)> = Vec::new(); // (name, abs_pos, kind)
+        let lines: Vec<&str> = dsl.lines().collect();
+        for (i, l) in lines.iter().enumerate() {
+            let Some(rest) = l.strip_suffix(" {") else { continue };
+            let Some((name, kind)) = rest.split_once(":=") else { continue };
+            if kind.trim() != "DesignNativeButton" { continue; }
+            let mut pos = String::new();
+            for j in i + 1..lines.len() {
+                if lines[j].trim() == "}" { break; }
+                if let Some(p) = lines[j].trim().strip_prefix("abs_pos: vec2(") {
+                    pos = p.trim_end_matches(')').to_owned();
+                }
+            }
+            blocks.push((name.trim().to_owned(), pos, kind.trim().to_owned()));
+        }
+        eprintln!("setup-11 DesignNativeButton blocks: {blocks:?}");
+
+        let wired = wire_card_events_dir(&dsl, &dir);
+        let taps = wired_taps(&wired);
+        eprintln!("setup-11 taps after wiring: {taps:?}");
+
+        // Each of the two controls must appear EXACTLY once, in its own block.
+        let reload = taps.iter().filter(|(_, e)| e == "error.reload").count();
+        let diag = taps.iter().filter(|(_, e)| e == "error.copy_diagnostics").count();
+        assert_eq!(reload, 1, "error.reload wired exactly once, taps={taps:?}");
+        assert_eq!(diag, 1, "error.copy_diagnostics wired exactly once, taps={taps:?}");
+        assert_ne!(reload + diag, 0, "both controls wired");
     }
 }
