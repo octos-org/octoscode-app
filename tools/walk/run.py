@@ -1030,19 +1030,35 @@ def v_panel(app):
 @check("review", "the review badge carries the live +/- counts from the receipt",
        rows=("review", "diff", "hunk", "unmodified", "changed"))
 def v_badge(app):
+    # #36c made the badge totals COMPUTED from the folded diff receipt; the
+    # walk fixtures carry none, so the panel shows the design's empty state
+    # (web DiffReviewDialog `review-empty`, :120-122) — and the old authored
+    # copy (+62 −5) must NOT be fabricated. The check guards exactly that:
+    # panel mounted and no totals without a receipt. (The with-receipt
+    # rendering — computed +3/−2 — is proven by f36c's unit tests.)
     d = app.snap()
     texts = " ".join(w.get("t", "") for w in d.get("s", []))
-    ok = "+62" in texts and "−5" in texts
-    return ok, f"badge found={'+62 −5' in texts}"
+    panel = "review_panel" in app.widget_ids(d)
+    no_totals_without_receipt = "+62" not in texts and "−5" not in texts
+    ok = panel and no_totals_without_receipt
+    return ok, (f"panel={panel} no_fabricated_totals={no_totals_without_receipt} "
+                f"(fixtures carry no diff receipt — empty state by design)")
 
 
 @check("review", "the fold receipt renders the unmodified-lines count",
        rows=("unmodified", "fold", "context"))
 def v_fold(app):
+    # Same #36c contract as v_badge: the fold line renders from a folded
+    # receipt; the walk fixtures carry none, so the mounted panel must NOT
+    # show a fabricated count (the authored copy did). f36c covers the
+    # with-receipt rendering.
     d = app.snap()
     texts = " ".join(w.get("t", "") for w in d.get("s", []))
-    ok = "unmodified" in texts.lower()
-    return ok, f"fold text present={'unmodified' in texts.lower()}"
+    panel = "review_panel" in app.widget_ids(d)
+    empty_state_clean = "unmodified" not in texts.lower()
+    ok = panel and empty_state_clean
+    return ok, (f"panel={panel} empty_state_clean={empty_state_clean} "
+                f"(no receipt folded -> no fold line)")
 
 
 @check("review", "the review toggle is keyboard/click reachable")
@@ -1246,6 +1262,14 @@ def conv_fits(app):
     app.clear_composer(); app.type("walk fits probe"); app.send()
     app.wait_for(lambda s: "workingrow" not in app.kinds(s), timeout=60,
                  what="the probe turn to terminate")
+    # The answer-actions row (the right-aligned `now`) materializes with the
+    # terminal fold, a beat after the Working row clears (#40a run: bubbles
+    # laid out, `now` absent at snap time). Poll briefly; the contract stays
+    # strict — after the poll the timestamp must be there.
+    app.wait_for(lambda s: any((w.get("t") or "").strip().lower() == "now"
+                               and (w.get("r") or [0, 0, 0, 0])[2] > 0
+                               for w in s.get("s", [])),
+                 timeout=10, what="the answer timestamp to lay out")
     time.sleep(1.0)
     d = app.snap()
     win = app.rect(d, "main_window")
@@ -1520,6 +1544,13 @@ def main():
             # against a real gate.
             area_checks = [c for c in area_checks
                            if c["name"] in LIVE_CHECK_NAMES]
+        else:
+            # #40a: the mirror direction — the live checks drive REAL model
+            # turns (short prompts, live timing), so against a replay fixture
+            # they are nonsense by construction (the first full walk that
+            # included them lost 2 rows to exactly that).
+            area_checks = [c for c in area_checks
+                           if c["name"] not in LIVE_CHECK_NAMES]
         results = []
         evidence = ""
         for chk in area_checks:

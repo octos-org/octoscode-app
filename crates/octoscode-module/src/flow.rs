@@ -761,6 +761,13 @@ impl Conversation {
         // Adopt the id we opened, so `turn/start` / `turn/interrupt` drive the
         // session that is actually live (a fresh chat or a resume).
         *self.session_id.lock().unwrap() = session_id.0.clone();
+        // #34b — seed the opened session NOW, synchronously: the web's
+        // tab-known registry knows the session the moment the tab is created
+        // (known-session-registry), so a session/list reply that lags the tab
+        // (the #39a row-2 gate behavior) can neither drop it nor dangle the
+        // active id. The session/open RpcResult arm re-notes idempotently.
+        self.store.note_session_opened(&session_id.0, None);
+        self.store.set_active(Some(session_id.0.clone()));
         if let Err(e) = self.refresh_sessions().await {
             ::log::warn!("octoscode: session/list after open: {e}");
         }
@@ -1123,6 +1130,12 @@ impl Conversation {
                 FlowEvent::Capabilities(n)
             }
             TransportEvent::RpcResult(LifecycleResult::SessionOpen(r)) => {
+                // #34b — seed the opened session BEFORE anything folds a
+                // session/list reply: the web treats an opened session as
+                // known immediately (known-session-registry), so the reply's
+                // catalog lag can neither drop it nor dangle the active id.
+                self.store
+                    .note_session_opened(&r.opened.session_id.0, None);
                 self.store.set_active(Some(r.opened.session_id.0.clone()));
                 FlowEvent::WorkspaceOpened(r.opened.session_id.0.clone())
             }
