@@ -325,7 +325,17 @@ script_mod! {
                     // model · mic · send) off the captures. Reserve that strip
                     // so the whole composer card is visible at 1440×900 and
                     // 900×800 alike.
-                    padding: Inset{bottom: 96}
+                    // #38c (backlog 80b9f33): the shell hands the module a
+                    // window that ends AT the screen's right edge (measured:
+                    // window [54,76,846,603] in a 900-wide scene — 54 px left
+                    // margin, 0 right), so a full-width bubble row and the
+                    // right-aligned `now` timestamp ended at x=900, clipped by
+                    // the screen. The window rect is the shell's; the CONTENT
+                    // must fit it: a right inset keeps the bubble and the
+                    // timestamp inside the column with a margin
+                    // (bubble right ≤ column right − 12, asserted by the walk
+                    // check `the conversation content fits…`).
+                    padding: Inset{bottom: 96 right: 16}
                 // Card #21c item 2: the component IS the item. No native `kind`
                 // label and no row chrome — the row is just the lowered
                 // component plus a transparent hit target.
