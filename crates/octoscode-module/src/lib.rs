@@ -1272,12 +1272,12 @@ impl OctoscodeView {
             let drv = conv.clone();
             runtime.spawn(async move {
                 match screens::models::refresh(&drv, &drv.store).await {
-                    Ok(n) => ::log::info!("octoscode: screens: {n} profile reads folded"),
-                    Err(e) => ::log::warn!("octoscode: screens refresh: {e}"),
+                    Ok(n) => makepad_widgets::log!("[octoscode] screens: {n} profile reads folded"),
+                    Err(e) => makepad_widgets::log!("[octoscode] screens refresh: {e}"),
                 }
                 match screens::fleet::refresh(&drv, &drv.store).await {
-                    Ok(n) => ::log::info!("octoscode: fleet: {n} fleet reads folded"),
-                    Err(e) => ::log::warn!("octoscode: fleet refresh: {e}"),
+                    Ok(n) => makepad_widgets::log!("[octoscode] fleet: {n} fleet reads folded"),
+                    Err(e) => makepad_widgets::log!("[octoscode] fleet refresh: {e}"),
                 }
                 SignalToUI::set_ui_signal();
             });
@@ -1286,16 +1286,31 @@ impl OctoscodeView {
         // Drive the conversation: open the workspace, then drain events.
         let drv = conv.clone();
         runtime.spawn(async move {
+            // #32h: ensure a profile that EXISTS server-side BEFORE the first
+            // session/open. The previous order ran open_workspace FIRST: on
+            // the phone it failed (the baked fallback "octoscode" does not
+            // exist; -32120 "agent is outside the requested profile scope"),
+            // logged via ::log (invisible on logcat) and RETURNED — the
+            // ensure block below never ran (the outer loop's device test of
+            // fbbaa08: no "profile ready" line at all). The desktop live
+            // gate keeps its explicit env.
+            let ensure_profile = std::env::var_os("OCTOS_CREATE_PROFILE").is_some()
+                || std::env::var_os("OCTOS_PROFILE_ID").is_none();
+            if ensure_profile {
+                match drv.create_profile().await {
+                    Ok(id) => {
+                        drv.adopt_profile(id.clone());
+                        makepad_widgets::log!("[octoscode] profile ready: {id}");
+                    }
+                    Err(e) => {
+                        makepad_widgets::log!("[octoscode] profile/local/create failed: {e}")
+                    }
+                }
+            }
             if let Err(e) = drv.open_workspace(cwd).await {
-                ::log::error!("octoscode: session/open: {e}");
+                makepad_widgets::log!("[octoscode] session/open: {e}");
                 SignalToUI::set_ui_signal();
                 return;
-            }
-            // Optionally onboard a profile (the live gate's `profile/local/create`).
-            if std::env::var("OCTOS_CREATE_PROFILE").is_ok() {
-                if let Err(e) = drv.create_profile().await {
-                    ::log::warn!("octoscode: profile/local/create: {e}");
-                }
             }
             while let Some(evt) = evt_rx.recv().await {
                 // #29c: the screens' occupancy window folds from the
@@ -1558,6 +1573,7 @@ impl OctoscodeView {
             return;
         }
         let Some(conv) = conv else {
+            makepad_widgets::log!("[octoscode] action dropped: no conversation (connect first)");
             return;
         };
         // Entry #29c: the stage-C screens own their action ids (the cards'
@@ -1587,14 +1603,14 @@ impl OctoscodeView {
                 rt.spawn(async move {
                     match conv.new_chat(cwd).await {
                         Ok(id) => ::log::info!("octoscode: new chat opened {id}"),
-                        Err(e) => ::log::warn!("octoscode: session.new: {e}"),
+                        Err(e) => makepad_widgets::log!("[octoscode] new chat dropped: {e}"),
                     }
                 });
             }
             actions::Effect::Submit => {
                 rt.spawn(async move {
                     if let Err(e) = conv.submit_draft().await {
-                        ::log::warn!("octoscode: composer.submit: {e}");
+                        makepad_widgets::log!("[octoscode] submit dropped: {e}");
                     }
                 });
             }
@@ -1711,16 +1727,57 @@ impl OctoscodeView {
                                 screens: Arc<Mutex<screens::connect::ConnectUi>>,
                                 server: String,
                                 token: String,
-                                profile: String| {
+                                profile: String,
+                                discover: bool| {
             let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
             let waker: Arc<dyn Fn() + Send + Sync> = Arc::new(|| SignalToUI::set_ui_signal());
             handle.spawn(async move {
-                match Conversation::connect(&server, &token, &profile, cwd, Some(waker.clone())) {
+                // #32h: discover a REAL profile id BEFORE the upgrade — the
+                // X-Profile-Id header is baked into TransportConfig at
+                // connect time and the session is scoped to it: the outer
+                // loop's curl shows ANY header gets the 101, but a
+                // non-existent profile never answers session/open (the
+                // silent submit). The solo login's user.id is a server-
+                // verified top-level profile id; an explicit
+                // OCTOS_PROFILE_ID (the desktop gate) is honored as-is; the
+                // onboarding arm passes discover=false (its id already comes
+                // from the server).
+                let effective = if discover {
+                    match std::env::var("OCTOS_PROFILE_ID") {
+                        Ok(explicit) => explicit,
+                        Err(_) => match Conversation::discover_solo_profile(&server).await {
+                            Some(id) => {
+                                makepad_widgets::log!("[octoscode] profile discovered: {id}");
+                                id
+                            }
+                            None => {
+                                makepad_widgets::log!(
+                                    "[octoscode] profile discovery unavailable — falling back to {profile}"
+                                );
+                                profile
+                            }
+                        },
+                    }
+                } else {
+                    profile
+                };
+                match Conversation::connect(&server, &token, &effective, cwd.clone(), Some(waker.clone())) {
                     Ok((conv, evt_rx)) => {
                         let conv = Arc::new(conv);
                         let mut evt_rx = evt_rx;
-                        store.set_connection("Live".to_owned(), true);
                         if let Ok(mut b) = bridge.lock() {
+                            // #32h: swap ALL THREE, mirroring the start()
+                            // path. The closure only set b.conv, so on the
+                            // phone the composer's changed events wrote the
+                            // draft into the PRE-CONNECT FlowUi while
+                            // conv.submit_draft() read the conversation's own
+                            // (empty) one: the silent empty-draft return —
+                            // no drop log, draft kept, sessions 0 (server
+                            // events folded into a store the labels never
+                            // read). The conv store carries Live itself, as
+                            // on the desktop path.
+                            b.store = conv.store.clone();
+                            b.ui = conv.ui();
                             b.conv = Some(conv.clone());
                         }
                         if let Ok(mut ui) = screens.lock() {
@@ -1728,7 +1785,15 @@ impl OctoscodeView {
                             ui.raw_error = None;
                             ui.endpoint_error = None;
                         }
-                        // Take over the new transport's event drain.
+                        // #32h: THIS is the path the phone's Connect tap takes
+                        // (the startup path instrumented in 3f52566/156c321 is
+                        // env-gated). c70f1ca's device run exposed the REAL
+                        // freeze: open_workspace().await never resolved
+                        // because the response needs the event drain, and the
+                        // drain only started AFTER this block. The drain goes
+                        // FIRST; ensure+open run in their own task with a
+                        // 15 s timeout so a wedged request can never hang the
+                        // connect path again (the outer loop's prescription).
                         let drv = conv.clone();
                         tokio::spawn(async move {
                             while let Some(evt) = evt_rx.recv().await {
@@ -1736,9 +1801,76 @@ impl OctoscodeView {
                                 SignalToUI::set_ui_signal();
                             }
                         });
+                        let conv2 = conv.clone();
+                        tokio::spawn(async move {
+                            makepad_widgets::log!(
+                                "[octoscode] live: profile={effective} env_profile={}",
+                                std::env::var_os("OCTOS_PROFILE_ID").is_some()
+                            );
+                            let open = async {
+                                if let Err(e) = conv2.open_workspace(cwd).await {
+                                    makepad_widgets::log!(
+                                        "[octoscode] session/open failed: {e} — ensuring a profile"
+                                    );
+                                    match tokio::time::timeout(
+                                        std::time::Duration::from_secs(15),
+                                        conv2.create_profile(),
+                                    )
+                                    .await
+                                    {
+                                        Ok(Ok(id)) => {
+                                            conv2.adopt_profile(id.clone());
+                                            makepad_widgets::log!(
+                                                "[octoscode] profile ready: {id}"
+                                            );
+                                        }
+                                        Ok(Err(e)) => makepad_widgets::log!(
+                                            "[octoscode] profile/local/create failed: {e}"
+                                        ),
+                                        Err(_) => makepad_widgets::log!(
+                                            "[octoscode] profile/local/create: timed out"
+                                        ),
+                                    }
+                                    match tokio::time::timeout(
+                                        std::time::Duration::from_secs(15),
+                                        conv2.open_workspace(None),
+                                    )
+                                    .await
+                                    {
+                                        Ok(Ok(_)) => makepad_widgets::log!(
+                                            "[octoscode] workspace open: {}",
+                                            conv2.session_id()
+                                        ),
+                                        Ok(Err(e)) => {
+                                            makepad_widgets::log!("[octoscode] session/open: {e}")
+                                        }
+                                        Err(_) => {
+                                            makepad_widgets::log!("[octoscode] session/open: timed out")
+                                        }
+                                    }
+                                } else {
+                                    makepad_widgets::log!(
+                                        "[octoscode] workspace open: {}",
+                                        conv2.session_id()
+                                    );
+                                }
+                            };
+                            if tokio::time::timeout(
+                                std::time::Duration::from_secs(15),
+                                open,
+                            )
+                            .await
+                            .is_err()
+                            {
+                                makepad_widgets::log!(
+                                    "[octoscode] session/open: timed out (15 s)"
+                                );
+                            }
+                        });
                     }
                     Err(e) => {
                         store.set_connection("Offline".to_owned(), false);
+                        makepad_widgets::log!("[octoscode] transport open failed: {e}");
                         if let Ok(mut ui) = screens.lock() {
                             ui.note_connect_error(&e, &screens::connect::clock_12h());
                         }
@@ -1756,7 +1888,7 @@ impl OctoscodeView {
                 makepad_widgets::log!("[octoscode] connect: {server}");
                 let profile =
                     std::env::var("OCTOS_PROFILE_ID").unwrap_or_else(|_| "octoscode".to_string());
-                connect_now(handle, bridge, store, screens, server, token, profile);
+                connect_now(handle, bridge, store, screens, server, token, profile, true);
             }
             // The web's `onConfigured` (`onboarding-submission.ts:126`): once
             // the provider is saved, open the canonical session — here a
@@ -1793,7 +1925,7 @@ impl OctoscodeView {
                             }
                             connect_now(
                                 handle, bridge, store2, screens2, server,
-                                String::new(), out.profile_id,
+                                String::new(), out.profile_id, false,
                             );
                         }
                         Err(e) => {
@@ -2588,6 +2720,10 @@ impl Widget for OctoscodeView {
                 // #31a: the <760 sidebar toggle.
                 if self.view.button(cx, ids!(sidebar_toggle_hit)).clicked(actions) {
                     self.sidebar_open = !self.sidebar_open;
+                    makepad_widgets::log!(
+                        "[octoscode] sidebar toggle -> {}",
+                        if self.sidebar_open { "open" } else { "closed" }
+                    );
                     self.sync_chrome(cx);
                 }
                 self.sync_labels(cx);
@@ -2692,7 +2828,7 @@ impl Widget for OctoscodeView {
                         if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
                             rt.spawn(async move {
                                 if let Err(e) = conv.submit_draft().await {
-                                    ::log::warn!("octoscode: composer.submit: {e}");
+                                    makepad_widgets::log!("[octoscode] submit dropped: {e}");
                                 }
                             });
                         }
