@@ -861,6 +861,43 @@ def comp_input_roundtrip(app):
     return True, "draft reads 'survive me' after clearing and typing"
 
 
+# ---- #35b: the docked card's CLICK controls route to their action table ---- #
+# #32h wired taps for setup-01 ONLY (connect::wire_events took a `Screen` enum),
+# so setup-11's Reload / Copy-diagnostics mounted with no on_click at all and
+# were dead in the real app. #35b moved the wiring into one card-dir-driven
+# helper (screens/taps.rs) and made lib.rs dispatch each tap to the resolver
+# that owns it. These checks click the LAID-OUT rect and assert the app's own
+# effect line — never the action id directly (the LESSONS 135 rule: wiring must
+# be proven by a CLICK).
+#
+# HONEST SCOPE: only `error.reload` is covered. `error.copy_diagnostics` wires
+# (`card events: 2 tap(s) wired for setup-11`) and is owned (palette.rs:282), but
+# its click produced NO `card tap:` line, and a four-widget probe (btn_diag /
+# _surface / _control / _label, all at the same rect) stayed silent while every
+# btn_reload* widget fired — cause UNVERIFIED, so it gets no check claiming it
+# works.
+def _card_tap_log(app, ident, action):
+    """Click `ident`'s laid-out centre; True iff the app logs the card tap."""
+    d = app.snap()
+    r = app.rect(d, ident)
+    if not r or r[2] <= 0 or r[3] <= 0:
+        return False, f"{ident} not laid out (rect={r})"
+    app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
+    time.sleep(1.0)
+    # /log answers {n, pool, l: [lines…]}; count OCCURRENCES of the named line
+    # rather than set-differencing (two controls can emit the identical line).
+    n = app._get("/log?n=400").count(f"card tap: {action}")
+    if n == 0:
+        return False, f"no 'card tap: {action}' after clicking {ident} at {r}"
+    return True, f"card tap: {action} after clicking {ident} at {r}"
+
+
+@check("connect", "the error card's Reload button routes to error.reload",
+       rows=("error", "reload", "diagnostic"))
+def card_tap_error_reload(app):
+    return _card_tap_log(app, "btn_reload", "error.reload")
+
+
 # ---- peer: the fleet/peer surfaces (board 4 + #23 peer cards) -------------- #
 @check("peer", "the fleet roster renders its rows and slot dots")
 def p_roster(app):

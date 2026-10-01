@@ -483,10 +483,19 @@ pub struct Conversation {
     client: Client,
     cmd_tx: tokio::sync::mpsc::Sender<OutboundCommand>,
     registry: Mutex<Registry>,
-    profile: String,
+    /// #32h: mutable AFTER connect — the phone has no OCTOS_PROFILE_ID, so
+    /// the baked fallback ("octoscode") may not exist server-side and every
+    /// session/open dies with -32120 "agent is outside the requested
+    /// profile scope" (fixture: the server's active profile is
+    /// `<name>-<pid>`, what `profile/local/create` mints). connect_now
+    /// ensures + adopts the real id (adopt_profile) before the first turn.
+    profile: Mutex<String>,
     /// Card #14 defect 4: mutable, so a New chat adopts a fresh id and a resume
     /// adopts a listed one. Read through [`Conversation::session_id`].
     session_id: Mutex<String>,
+    /// #32h: set by open_workspace_as — submit must never target an
+    /// un-opened session (the web's first message creates the thread).
+    workspace_opened: Mutex<bool>,
     started: Instant,
 }
 
@@ -497,6 +506,75 @@ impl Conversation {
     /// The base URL carries the web's `ui_feature=` query params
     /// ([`octoscode_client::features`]) — our transport clones `base_url`
     /// verbatim, so they reach the socket as the web sends them.
+        /// #32h: discover a REAL profile id before the WS upgrade. The server
+    /// accepts any `X-Profile-Id` on the socket, but the session is scoped
+    /// to that header — a non-existent profile never answers session/open
+    /// (the silent submit: the baked "octoscode" does not exist). The solo
+    /// login (POST api/auth/solo — anonymous, the web's "Use local solo
+    /// server" flow) returns the server's local user whose id IS a verified
+    /// top-level profile id (`resolve_solo_user` keeps only users passing
+    /// `is_top_level_profile_id` — solo_auth.rs:127, auth_handlers.rs:59).
+    /// None = discovery unavailable; the caller falls back and the ensure
+    /// chain still guards the session.
+    pub async fn discover_solo_profile(base: &str) -> Option<String> {
+        // Step 1: the solo login (anonymous) mints an admin session token.
+        let url = format!("{}/api/auth/solo", base.trim_end_matches('/'));
+        let call = reqwest::Client::new()
+            .post(&url)
+            .json(&serde_json::json!({}))
+            .send();
+        let resp = tokio::time::timeout(std::time::Duration::from_secs(15), call)
+            .await
+            .ok()?
+            .ok()?;
+        let body: serde_json::Value = tokio::time::timeout(
+            std::time::Duration::from_secs(15),
+            resp.json(),
+        )
+        .await
+        .ok()?
+        .ok()?;
+        let token = body.get("token")?.as_str()?.to_owned();
+        let solo_id = body.get("user")?.get("id")?.as_str()?.to_owned();
+        if solo_id.is_empty() {
+            return None;
+        }
+        // Step 2 (the outer loop's device finding): an EXISTING profile can
+        // still have NO runtime — turn/start dies with -32603 "No
+        // ProfileRuntime registered" (the device: 'octoscode-desktop' had no
+        // model; 'dsflash' carries config.llm.primary). Rank the admin list:
+        // a profile whose llm config has a primary rides first; the solo
+        // id (which certainly exists) is the fallback.
+        let list_url = format!("{}/api/admin/profiles", base.trim_end_matches('/'));
+        let call = reqwest::Client::new()
+            .get(&list_url)
+            .header("Authorization", format!("Bearer {token}"))
+            .send();
+        let list: Option<serde_json::Value> =
+            match tokio::time::timeout(std::time::Duration::from_secs(15), call).await {
+                Ok(Ok(resp)) => tokio::time::timeout(
+                    std::time::Duration::from_secs(15),
+                    resp.json::<serde_json::Value>(),
+                )
+                .await
+                .ok()
+                .and_then(|r| r.ok()),
+                _ => None,
+            };
+        if let Some(rows) = list.as_ref().and_then(|v| v.as_array()) {
+            let runnable = rows.iter().find_map(|row| {
+                let id = row.get("id")?.as_str()?;
+                row.pointer("/config/llm/primary")
+                    .is_some()
+                    .then(|| id.to_owned())
+            });
+            if let Some(id) = runnable {
+                return Some(id);
+            }
+        }
+        Some(solo_id)
+    }
+
     pub fn connect(
         base: &str,
         bearer: &str,
@@ -559,16 +637,28 @@ impl Conversation {
                 client: Client::with_trace(cmd_tx.clone(), frames.clone()),
                 cmd_tx,
                 registry: Mutex::new(registry),
-                profile: profile.to_owned(),
+                profile: Mutex::new(profile.to_owned()),
                 session_id: Mutex::new(format!("{profile}:main")),
+                workspace_opened: Mutex::new(false),
                 started: Instant::now(),
             },
             evt_rx,
         ))
     }
 
-    pub fn profile(&self) -> &str {
-        &self.profile
+    pub fn profile(&self) -> String {
+        self.profile.lock().unwrap().clone()
+    }
+
+    /// #32h: take the server-verified profile id (`profile/local/create`'s
+    /// `profile_id`) and re-prefix the not-yet-opened session id, so the
+    /// next `session/open` / `turn/start` carries a profile that EXISTS.
+    pub fn adopt_profile(&self, id: String) {
+        *self.profile.lock().unwrap() = id.clone();
+        let mut sid = self.session_id.lock().unwrap();
+        if sid.ends_with(":main") {
+            *sid = format!("{id}:main");
+        }
     }
 
     /// The session the flow currently drives — `<profile>:main` until a
@@ -605,7 +695,7 @@ impl Conversation {
     /// `profile/local/create` — onboard a profile on a fresh solo serve
     /// (the precondition; not a matrix row).
     pub async fn create_profile(&self) -> Result<String, ClientError> {
-        let id = format!("{}-{}", self.profile, std::process::id());
+        let id = format!("{}-{}", self.profile(), std::process::id());
         let result = self
             .client
             .request(
@@ -644,14 +734,14 @@ impl Conversation {
             "session/open",
             &serde_json::json!({
                 "session_id": session_id.0,
-                "profile_id": self.profile,
+                "profile_id": self.profile(),
                 "cwd": cwd,
             }),
         );
         let params = SessionOpenParams {
             session_id: session_id.clone(),
             topic: None,
-            profile_id: Some(self.profile.clone()),
+            profile_id: Some(self.profile()),
             cwd,
             sandbox: None,
             after: None,
@@ -681,6 +771,7 @@ impl Conversation {
         if let Err(e) = self.refresh_sessions().await {
             ::log::warn!("octoscode: session/list after open: {e}");
         }
+        *self.workspace_opened.lock().unwrap() = true;
         ::log::info!("octoscode: workspace open requested for {}", session_id.0);
         Ok(session_id.0)
     }
@@ -750,11 +841,20 @@ impl Conversation {
         }
         match self.client.request("turn/start", params).await {
             Ok(v) => {
-                ::log::info!("octoscode: turn started {turn_id}");
+                makepad_widgets::log!("[octoscode] turn started: {turn_id}");
                 Ok(turn_id)
             }
             Err(e) => {
-                ::log::error!("octoscode: turn/start failed for {turn_id}: {e}");
+                makepad_widgets::log!("[octoscode] turn/start failed for {turn_id}: {e}");
+                // #34a's rule (the /bogus fix): a FAILED send restores the
+                // user's text — the clear happened optimistically before the
+                // request, so put it back (and drop the optimistic row's
+                // turn from live, the web's dispatch rollback).
+                self.ui.lock().unwrap().set_draft_inner(text.clone());
+                makepad_widgets::log!(
+                    "[octoscode] draft restored: {} chars",
+                    text.chars().count()
+                );
                 Err(e)
             }
         }
@@ -844,7 +944,7 @@ impl Conversation {
     /// resolved profile is embedded exactly once). Resume stays possible: an
     /// existing id is simply passed to [`Conversation::open_session`].
     pub fn fresh_session_id(&self) -> String {
-        Self::fresh_session_id_for(&self.profile)
+        Self::fresh_session_id_for(&self.profile())
     }
 
     /// The id-minting rule, as a pure function so it is testable without a
@@ -874,7 +974,7 @@ impl Conversation {
     /// `:23`). Resume is unchanged: [`Conversation::open_session`] takes any
     /// existing id the server listed.
     pub async fn new_chat(&self, cwd: Option<String>) -> Result<String, String> {
-        let id = Self::fresh_session_id_for(&self.profile);
+        let id = Self::fresh_session_id_for(&self.profile());
         ::log::info!("octoscode: new chat -> {id}");
         self.open_workspace_as(&id, cwd).await
     }
@@ -909,8 +1009,21 @@ impl Conversation {
     pub async fn submit_draft(&self) -> Result<String, ClientError> {
         let text = self.ui.lock().unwrap().draft();
         if text.trim().is_empty() {
-            ::log::debug!("octoscode: composer.submit ignored (empty draft)");
+            // #32h: this was ::log::debug! + Ok — the invisible silent drop
+            // the phone showed (no drop log, draft kept). Visible now.
+            makepad_widgets::log!("[octoscode] submit ignored: empty draft");
             return Ok(String::new());
+        }
+        // The web's first message creates the thread: never turn/start on a
+        // session the server has not opened.
+        if !*self.workspace_opened.lock().unwrap() {
+            if let Err(e) = self.open_workspace(None).await {
+                makepad_widgets::log!("[octoscode] submit: ensure thread failed: {e}");
+                return Err(ClientError::Transport {
+                    method: "session/open".to_owned(),
+                    reason: e,
+                });
+            }
         }
         // #34a row 209 — a slash command is LOCAL on the web: it never
         // reaches the model, and a failed/unknown command restores the input
@@ -967,7 +1080,7 @@ impl Conversation {
         match e {
             FlowEvent::Live => ::log::info!("octoscode: connection live"),
             FlowEvent::WorkspaceOpened(id) => ::log::info!("octoscode: workspace opened {id}"),
-            FlowEvent::TurnStarted(id) => ::log::info!("octoscode: turn started {id}"),
+            FlowEvent::TurnStarted(id) => makepad_widgets::log!("[octoscode] turn started: {id}"),
             FlowEvent::TurnEnded { turn_id, error: None } => {
                 ::log::info!("octoscode: turn completed {turn_id}")
             }

@@ -937,31 +937,12 @@ fn replace_in_head(dsl: &str, node: &str, key: &str, value: &str) -> String {
 /// widget ids and routes the clicks — nothing dispatched clicks inside the
 /// mounted screen to the screens' action tables (Stage C tested the tables
 /// by calling ids directly, never by clicking).
-pub fn wired_taps(dsl: &str) -> Vec<(String, String)> {
-    let lines: Vec<&str> = dsl.lines().collect();
-    let mut out = Vec::new();
-    let mut i = 0;
-    while i < lines.len() {
-        let l = lines[i];
-        if let Some(rest) = l.strip_suffix(" {") {
-            if let Some((name, kind)) = rest.split_once(":=") {
-                if kind.trim() == "DesignNativeButton" {
-                    let mut j = i + 1;
-                    while j < lines.len() && lines[j].trim() != "}" {
-                        if let Some(e) = lines[j].trim().strip_prefix("on_click: || { NAV(t: ") {
-                            let ev = e.trim_end_matches(") }").trim_matches('"');
-                            out.push((name.trim().to_owned(), ev.to_owned()));
-                        }
-                        j += 1;
-                    }
-                    i = j;
-                }
-            }
-        }
-        i += 1;
-    }
-    out
-}
+// #35b item 1: the reader and the injector are card-agnostic, so they now live
+// in [`super::taps`] and every docked screen's mount path uses them (this
+// module was the ONLY caller, which is exactly why the palette/error cards
+// mounted buttons that could never fire). Re-exported here so lib.rs:1833's
+// existing connect-side call keeps its path.
+pub use super::taps::wired_taps;
 
 /// #32h item 5: the token / API-key fields must MASK typed input (the web:
 /// ConnectionPanel.tsx:255 `type={showToken ? "text" : "password"}`); the
@@ -1053,110 +1034,13 @@ fn mask_secret_inputs(dsl: &str, screen: Screen) -> String {
 /// to — fork lib.rs:365-368). Field controls (input.*) stay unwired: they
 /// are live text, and the masked ones are handled in item 5.
 fn wire_events(dsl: &str, screen: Screen) -> String {
-    let Ok(text) = crate::design::file(&format!(
-        "stage-b/setup/cards/{}/service-actions.json",
-        screen.card_dir()
-    )) else {
-        return dsl.to_owned();
-    };
-    let Ok(v) = serde_json::from_str::<serde_json::Value>(text.as_ref()) else {
-        return dsl.to_owned();
-    };
-    let mut out = dsl.to_owned();
-    let mut wired = 0usize;
-    if let Some(controls) = v.get("controls").and_then(|c| c.as_object()) {
-        for (_name, c) in controls {
-            let (Some(event), Some(b)) = (
-                c.get("event").and_then(|e| e.as_str()),
-                c.get("source_bounds").and_then(|b| b.as_array()),
-            ) else {
-                continue;
-            };
-            if event.starts_with("input.") {
-                continue; // live text, not a tap
-            }
-            let Some(b) = b.iter().map(|x| x.as_f64()).collect::<Option<Vec<_>>>() else {
-                continue;
-            };
-            let (before, after) = (out.clone(), inject_click(&out, event, b[0], b[1]));
-            if after.len() != before.len() {
-                wired += 1;
-            }
-            out = after;
-        }
-    }
-    makepad_widgets::log!(
-        "[octoscode] card events: {wired} tap(s) wired for {}",
-        screen.card_dir()
-    );
-    out
+    // #35b item 1: the wiring body is the shared, card-dir-driven helper. This
+    // module was its only caller, which is exactly why every other docked
+    // screen mounted a card whose buttons could never fire.
+    super::taps::wire_card_events(dsl, screen.card_dir())
 }
 
 /// Inject `on_click: || { NAV(t: "<event>") }` into the DesignNativeButton
-/// block whose abs_pos matches (x, y) within 0.5px (the lowering rounds
-/// through f32). Idempotent: a block already carrying on_click is skipped.
-/// Returns the DSL unchanged when no block matches (the caller's wired
-/// count then stays put — visible in the card-events log).
-fn inject_click(dsl: &str, event: &str, x: f64, y: f64) -> String {
-    let lines: Vec<&str> = dsl.lines().collect();
-    let mut out: Vec<String> = Vec::with_capacity(lines.len() + 1);
-    let mut i = 0;
-    while i < lines.len() {
-        let line = lines[i];
-        out.push(line.to_owned());
-        i += 1;
-        // A block header: `<name> := <Kind> {`
-        let Some(rest) = line.strip_suffix(" {") else { continue };
-        let Some((_name, kind)) = rest.split_once(":=") else { continue };
-        // Handlers attach ONLY to the native Button instances.
-        if kind.trim() != "DesignNativeButton" {
-            continue;
-        }
-        // Scan the (flat) block: match abs_pos, find the insert point.
-        let mut pos_ok = false;
-        let mut already = false;
-        let mut insert_after = None;
-        let mut j = i;
-        while j < lines.len() {
-            let l = lines[j];
-            if l.trim() == "}" {
-                break;
-            }
-            if l.contains("on_click") {
-                already = true;
-            }
-            if let Some(p) = l.trim().strip_prefix("abs_pos: vec2(") {
-                let p = p.trim_end_matches(')');
-                let mut it = p.split(',');
-                let ok = match (it.next(), it.next()) {
-                    (Some(px), Some(py)) => {
-                        px.trim().parse::<f64>().is_ok_and(|vx| (vx - x).abs() < 0.5)
-                            && py.trim().parse::<f64>().is_ok_and(|vy| (vy - y).abs() < 0.5)
-                    }
-                    _ => false,
-                };
-                if ok {
-                    pos_ok = true;
-                    insert_after = Some(j);
-                }
-            }
-            if l.trim() == "enabled: true" {
-                insert_after = Some(j);
-            }
-            j += 1;
-        }
-        if already || !pos_ok {
-            continue;
-        }
-        let at = insert_after.unwrap_or(i - 1);
-        for l in &lines[i..=at] {
-            out.push((*l).to_owned());
-        }
-        out.push(format!("on_click: || {{ NAV(t: {event:?}) }}"));
-        i = at + 1;
-    }
-    out.join("\n")
-}
 
 #[cfg(test)]
 mod tests {

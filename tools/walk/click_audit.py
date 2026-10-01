@@ -38,7 +38,7 @@ SCENARIO_PORT = 8387  # this lane's documented block (8380–8389)
 DEAD_URL = "http://127.0.0.1:8399"  # nothing listens — the app stays first-run
 
 ACTION_LOG = re.compile(
-    r"\[octoscode\].*(clicked|perform|route|draft synced|->)")
+    r"\[octoscode\].*(clicked|perform|route|card tap|screen action|draft synced|->)")
 
 # Host-chrome controls are the same on every docked screen; their actions come
 # from lib.rs's host arms (cited), NOT from a screen ACTIONS table.
@@ -244,19 +244,53 @@ def run_screen(cfg: dict, bin_path: pathlib.Path, app_port: int, rows: list) -> 
                 continue
             time.sleep(0.6)
             after_log = app.log()
-            # /log diff, but only NAMED action evidence — a bare redraw log
-            # line ("design root: …") fires on any repaint and is not a click
-            # effect (the first run's false "respond" rows).
-            before_lines = set(before_log.splitlines())
-            new_lines = [l for l in after_log.splitlines()
-                         if l not in before_lines and ACTION_LOG.search(l)]
+            # Count-based evidence: only NAMED action lines count (a bare
+            # redraw line like "design root: …" fires on any repaint), and a
+            # line identical to one already on the log is a hit only if its
+            # COUNT grew — two controls on one arm fire the same line twice
+            # (review_toggle then review_close both -> review.toggle), which a
+            # set-difference judge would miss.
+            def entries(raw: str) -> list[str]:
+                # /log answers a JSON object {n, pool, l: [lines…]} — the log
+                # lines ride the "l" key (a list, on one physical line).
+                # Fall back to physical lines if it ever changes shape.
+                try:
+                    v = json.loads(raw)
+                except Exception:  # noqa: BLE001
+                    return raw.splitlines()
+                if isinstance(v, dict) and isinstance(v.get("l"), list):
+                    return [str(x) for x in v["l"]]
+                if isinstance(v, list):
+                    return [str(x) for x in v]
+                return raw.splitlines()
+
+            def named_counts(raw: str) -> dict[str, int]:
+                counts: dict[str, int] = {}
+                for l in entries(raw):
+                    if ACTION_LOG.search(l):
+                        counts[l] = counts.get(l, 0) + 1
+                return counts
+
+            before_counts = named_counts(before_log)
+            after_counts = named_counts(after_log)
+            new_named = [l for l, n in after_counts.items()
+                         if n > before_counts.get(l, 0)]
             action_line = next((l.split("[octoscode]", 1)[1].strip()[:100]
-                                for l in reversed(new_lines)), "")
+                                for l in reversed(new_named)), "")
             after_snap = app.snap()
             changed = len(snapshot_fingerprint(after_snap) ^ before_fp)
             before_fp = snapshot_fingerprint(after_snap)
             before_log = after_log
-            if cfg.get("shadow_chrome") and ident in SHADOWED_BY_DOCK:
+            dimmer = next((w.get("r") for w in cur.get("s", [])
+                           if str(w.get("i", "")) == "dimmer"), None)
+            if (ident in SHADOWED_BY_DOCK
+                    and dimmer and len(dimmer) == 4 and dimmer[2] > 0 and dimmer[3] > 0
+                    and rect[0] >= dimmer[0] and rect[1] >= dimmer[1]
+                    and rect[0] + rect[2] <= dimmer[0] + dimmer[2]
+                    and rect[1] + rect[3] <= dimmer[1] + dimmer[3]):
+                observed = ("shadowed: the modal dimmer covers the chrome "
+                            "(by design) — click lands on the dimmer")
+            elif cfg.get("shadow_chrome") and ident in SHADOWED_BY_DOCK:
                 observed = ("shadowed: the visible dock overlays the chrome "
                             "(by design) — click lands on the dock, not the control")
             elif action_line:
@@ -267,6 +301,8 @@ def run_screen(cfg: dict, bin_path: pathlib.Path, app_port: int, rows: list) -> 
                 observed = "nothing (focus-only: a live-text binding, not a dispatched action)"
             else:
                 observed = "nothing"
+            (sdir / "last-click-log.txt").write_text(
+                after_log[-4000:])
             observed = observed.replace(os.path.expanduser("~"), "~")
             # The pattern is BUILT from pieces: repo_hermetic.rs fails the
             # build on the machine-path SUBSTRING in tracked source, so neither
@@ -296,10 +332,8 @@ def main() -> int:
          "serve": "conversation", "shadow_chrome": True},
         {"name": "dock-loading", "env": {"OCTOSCODE_SCREEN": "loading"},
          "serve": "conversation", "shadow_chrome": True},
-        {"name": "chrome-review", "env": {"OCTOSCODE_CHROME": "review"},
-         "serve": "conversation"},
-        {"name": "chrome-settings", "env": {"OCTOSCODE_CHROME": "settings"},
-         "serve": "conversation"},
+        {"name": "chrome-review", "env": {}, "serve": "conversation"},
+        {"name": "chrome-settings", "env": {}, "serve": "conversation"},
     ]
     only = {s.strip() for s in args.only.split(",") if s.strip()}
     screens = [s for s in SCREENS if not only or s["name"] in only]
@@ -328,10 +362,11 @@ def main() -> int:
     dead = sum(1 for r in real if r[6] == "nothing")
     dismissed = sum(1 for r in real if r[6].startswith("dismissed:"))
     shadowed = sum(1 for r in real if r[6].startswith("shadowed:"))
+    dimmed = sum(1 for r in real if r[6].startswith("shadowed: the modal"))
     focus = sum(1 for r in real if r[6].startswith("nothing (focus-only"))
     print(f"SURFACE: {total} controls, {len(real)} with an expected action: "
           f"{respond} respond, {dead} dead, {dismissed} dismissed-by-earlier-click, "
-          f"{shadowed} shadowed-by-dock, {focus} focus-only-bindings, "
+          f"{shadowed} shadowed-by-dock ({dimmed} by the modal dimmer), {focus} focus-only-bindings, "
           f"{unwired} documented-unwired (+{total - len(real) - unwired} unmapped)", flush=True)
     return 0
 
