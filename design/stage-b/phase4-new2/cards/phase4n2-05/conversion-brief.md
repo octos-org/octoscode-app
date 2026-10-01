@@ -386,7 +386,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "i_chev_octoscode-app",
+    "id": "i_chev_octoscode_app",
     "x": 24,
     "y": 390,
     "w": 14,
@@ -395,7 +395,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "native_candidates": []
   },
   {
-    "id": "t_grp_octoscode-app",
+    "id": "t_grp_octoscode_app",
     "x": 46,
     "y": 388,
     "w": 180,

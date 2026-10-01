@@ -14,7 +14,7 @@ copy grp_badge_t_text { class: user-copy, en: "3" }
 copy menu_t0_text { class: user-copy, en: "New chat here" }
 copy menu_t1_text { class: user-copy, en: "Rename" }
 copy menu_t2_text { class: user-copy, en: "Remove from sidebar" }
-copy t_grp_octoscode-app_text { class: user-copy, en: "octoscode-app" }
+copy t_grp_octoscode_app_text { class: user-copy, en: "octoscode-app" }
 copy r00_t_text { class: user-copy, en: "Bump octos-core to a6ea8505" }
 copy r00_w_text { class: user-copy, en: "2h" }
 copy r01_t_text { class: user-copy, en: "Why is hydrate slow?" }
@@ -132,8 +132,8 @@ view root Surfaceb4206391250d(instance: "page") {
   Text00a53ab7e7fa(instance: "menu_t0", text: copy.menu_t0_text)
   Text00a53ab7e7fa(instance: "menu_t1", text: copy.menu_t1_text)
   Text00a53ab7e7fa(instance: "menu_t2", text: copy.menu_t2_text)
-  Vectore0a378fde04f(instance: "i_chev_octoscode-app")
-  Textfee0b0d9712c(instance: "t_grp_octoscode-app", text: copy.t_grp_octoscode-app_text)
+  Vectore0a378fde04f(instance: "i_chev_octoscode_app")
+  Textfee0b0d9712c(instance: "t_grp_octoscode_app", text: copy.t_grp_octoscode_app_text)
   Text0ce546d1950b(instance: "r00_t", text: copy.r00_t_text)
   Textdc7834a5b0cb(instance: "r00_w", text: copy.r00_w_text)
   Text5dce2b649501(instance: "r01_t", text: copy.r01_t_text)

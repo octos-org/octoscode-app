@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "d5a3fe40c1a172f51d003b04f514b21fe2388aa85d1088eafec820919393813c",
+  "contract_sha256": "9a4db1fb10668c122e840a4ffd45168fe19400f0b429a813d4266a212fc86ad9",
   "reference_sha256": "2dc2cfabadfe094b439b4fa6d0a60c70b77971b77f7da02dfb6b1f0d8bd61dde",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -212,13 +212,13 @@
       "decision": "declared"
     },
     {
-      "id": "i_chev_octoscode-app",
+      "id": "i_chev_octoscode_app",
       "role": "icon",
       "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
       "confidence": 1.0,
       "decision": "reviewed",
       "asset": {
-        "path": "assets/i_chev_octoscode-app.svg",
+        "path": "assets/i_chev_octoscode_app.svg",
         "sha256": "4a0fec61e0820c83f59cbde8c0cb7f6de7b14bafb6c2d6b3ddecaf5ca9d79357",
         "method": "reference_svg",
         "reference_sha256": "2dc2cfabadfe094b439b4fa6d0a60c70b77971b77f7da02dfb6b1f0d8bd61dde",
@@ -228,7 +228,7 @@
       }
     },
     {
-      "id": "t_grp_octoscode-app",
+      "id": "t_grp_octoscode_app",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,

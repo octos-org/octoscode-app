@@ -168,11 +168,28 @@ def row(sc, i, y, title, when, *, selected=False, indent=56):
     sc.observe(when, 300, y, 84, 20)
 
 
+def slug(s):
+    """An id-safe form of a NAME.
+
+    #D2a: the workspace names are DATA ("octoscode-app"), but `group_head`
+    mints IDS from them. L0 rejects a bare `-` whose previous token is
+    Ident/Num/Token (octoscript-ui-l0 lib.rs:905-915) — so an id carrying the
+    name's hyphen made the whole card require L1, and l0::prepare refused it
+    ("arithmetic is not in L0"). The only whitelisted hyphen is the
+    `class: user-copy` / `class: model-copy` form, which needs a `class` token
+    three back, so it cannot save an id. Slug instead: the id is an identifier,
+    not prose; the visible name is unchanged.
+    """
+    out = "".join(ch if (ch.isalnum() or ch == "_") else "_" for ch in s)
+    return out or "x"
+
+
 def group_head(sc, y, name, *, expanded=True, count=None, menu=False):
-    sc.put(icon(f"i_chev_{name.replace(' ', '')}", "chev-down" if expanded else "chev-right",
+    gid = slug(name)
+    sc.put(icon(f"i_chev_{gid}", "chev-down" if expanded else "chev-right",
                 24, y + 2, 14, 14))
-    sc.put(text(f"t_grp_{name.replace(' ', '')}", name, 46, y, 180, 22, weight=600, size=15))
-    sc.control(f"ctl_grp_{name.replace(' ', '')}", "workspace.toggle",
+    sc.put(text(f"t_grp_{gid}", name, 46, y, 180, 22, weight=600, size=15))
+    sc.control(f"ctl_grp_{gid}", "workspace.toggle",
                (16, y - 4, 250, 30))
     sc.observe(name, 46, y, 180, 22)
     if count is not None:

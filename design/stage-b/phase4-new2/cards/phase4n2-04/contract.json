@@ -352,7 +352,7 @@
       },
       {
         "t": "svg",
-        "id": "i_chev_octoscode-app",
+        "id": "i_chev_octoscode_app",
         "x": 24,
         "y": 268,
         "w": 14,
@@ -361,7 +361,7 @@
       },
       {
         "t": "text",
-        "id": "t_grp_octoscode-app",
+        "id": "t_grp_octoscode_app",
         "text": "octoscode-app",
         "x": 46,
         "y": 266,

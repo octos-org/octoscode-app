@@ -3,7 +3,7 @@
   "policy_version": "1.1.0",
   "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
   "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
-  "manifest_sha256": "84cd8a137f724398358daab017da343fbe1e55701a2117e03edb9a878e31ff7e",
+  "manifest_sha256": "e6fcea849f58ef29989e816757ea8155edf17820310f0cdd91eb780b7357b83c",
   "reference_sha256": "d74ce8614ec945fc75d645cc8921095fb139738ee66a4c0f339dfe4305130e83",
   "id": "phase4n2-01",
   "round": null,
@@ -286,7 +286,7 @@
       "repair": "Use native text with a bundled font, exact copy and measured line layout."
     },
     {
-      "id": "i_chev_octoscode-app",
+      "id": "i_chev_octoscode_app",
       "role": "icon",
       "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
       "expected_widgets": [
@@ -299,7 +299,7 @@
       "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
     },
     {
-      "id": "t_grp_octoscode-app",
+      "id": "t_grp_octoscode_app",
       "role": "text",
       "basis": "authored text node",
       "expected_widgets": [

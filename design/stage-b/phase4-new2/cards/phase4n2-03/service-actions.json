@@ -71,7 +71,7 @@
       ],
       "enabled": true
     },
-    "ctl_grp_octoscode-app": {
+    "ctl_grp_octoscode_app": {
       "event": "workspace.toggle",
       "source_bounds": [
         16,

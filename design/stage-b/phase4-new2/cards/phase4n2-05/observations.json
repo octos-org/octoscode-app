@@ -425,7 +425,7 @@
       ]
     },
     {
-      "id": "t_grp_octoscode-app",
+      "id": "t_grp_octoscode_app",
       "expected_text": "octoscode-app",
       "requested_bounds": [
         46,
@@ -799,7 +799,7 @@
       "radius": 13.78
     },
     {
-      "id": "i_chev_octoscode-app",
+      "id": "i_chev_octoscode_app",
       "bounds": [
         24.0,
         390.0,

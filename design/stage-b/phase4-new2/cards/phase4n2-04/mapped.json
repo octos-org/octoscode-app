@@ -357,7 +357,7 @@
       },
       {
         "t": "svg",
-        "id": "i_chev_octoscode-app",
+        "id": "i_chev_octoscode_app",
         "x": 24.0,
         "y": 268.0,
         "w": 14.0,
@@ -366,7 +366,7 @@
       },
       {
         "t": "text",
-        "id": "t_grp_octoscode-app",
+        "id": "t_grp_octoscode_app",
         "text": "octoscode-app",
         "x": 12.3246013415278,
         "y": 398.2526315789474,
@@ -547,7 +547,7 @@
       "source": "observed non-text annotation"
     },
     {
-      "id": "i_chev_octoscode-app",
+      "id": "i_chev_octoscode_app",
       "source": "observed non-text annotation"
     },
     {
@@ -603,7 +603,7 @@
       "tracking_em": -0.2745559146226689
     },
     {
-      "id": "t_grp_octoscode-app",
+      "id": "t_grp_octoscode_app",
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.2571486503535972

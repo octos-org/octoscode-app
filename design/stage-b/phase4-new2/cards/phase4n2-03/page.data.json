@@ -214,17 +214,17 @@
           "h": 27.338345864661655
         }
       },
-      "i_chev_octoscode-app": {
+      "i_chev_octoscode_app": {
         "component": "Vectore0a378fde04f",
         "layout": {
           "x": 24.0,
           "y": 308.0,
           "w": 14.0,
           "h": 14.0,
-          "src": "http://127.0.0.1:8190/ux-images/phase4n2-03/assets/i_chev_octoscode-app-4a0fec61e082.svg"
+          "src": "http://127.0.0.1:8190/ux-images/phase4n2-03/assets/i_chev_octoscode_app-4a0fec61e082.svg"
         }
       },
-      "t_grp_octoscode-app": {
+      "t_grp_octoscode_app": {
         "component": "Text594842dc53d5",
         "layout": {
           "x": 11.939969286693604,

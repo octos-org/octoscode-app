@@ -14,7 +14,7 @@ copy m1_text { class: user-copy, en: "Why is " }
 copy m2_text { class: user-copy, en: "hydrate" }
 copy m3_text { class: user-copy, en: " slow?" }
 copy r00_w_text { class: user-copy, en: "Yesterday" }
-copy t_grp_octoscode-app_text { class: user-copy, en: "octoscode-app" }
+copy t_grp_octoscode_app_text { class: user-copy, en: "octoscode-app" }
 copy empty1_text { class: user-copy, en: "No chats in octoscode-app match \"hydrate\"" }
 copy clear1_text { class: user-copy, en: "Clear search" }
 copy t_addws_text { class: user-copy, en: "Add workspace" }
@@ -116,8 +116,8 @@ view root Surfaceb4206391250d(instance: "page") {
   Text2c75faf33992(instance: "m2", text: copy.m2_text)
   Text2c75faf33992(instance: "m3", text: copy.m3_text)
   Textef2d27646007(instance: "r00_w", text: copy.r00_w_text)
-  Vectore0a378fde04f(instance: "i_chev_octoscode-app")
-  Text594842dc53d5(instance: "t_grp_octoscode-app", text: copy.t_grp_octoscode-app_text)
+  Vectore0a378fde04f(instance: "i_chev_octoscode_app")
+  Text594842dc53d5(instance: "t_grp_octoscode_app", text: copy.t_grp_octoscode_app_text)
   Textbe50c81793d2(instance: "empty1", text: copy.empty1_text)
   Textdefbda05080a(instance: "clear1", text: copy.clear1_text)
   Vectore0a378fde04f(instance: "i_plus")

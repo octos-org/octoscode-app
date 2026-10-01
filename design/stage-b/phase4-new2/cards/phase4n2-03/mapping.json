@@ -416,7 +416,7 @@
       "size": 24.946206853250036
     },
     {
-      "source_id": "i_chev_octoscode-app",
+      "source_id": "i_chev_octoscode_app",
       "native_id": "beauty_0_21",
       "parent": "page",
       "kind": "svg",
@@ -434,7 +434,7 @@
       "size": null
     },
     {
-      "source_id": "t_grp_octoscode-app",
+      "source_id": "t_grp_octoscode_app",
       "native_id": "beauty_0_22",
       "parent": "page",
       "kind": "text",
@@ -530,6 +530,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242"
   },
-  "contract_sha256": "d5a3fe40c1a172f51d003b04f514b21fe2388aa85d1088eafec820919393813c",
+  "contract_sha256": "9a4db1fb10668c122e840a4ffd45168fe19400f0b429a813d4266a212fc86ad9",
   "mapping_basis": "mapped.json"
 }
