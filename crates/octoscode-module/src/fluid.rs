@@ -879,12 +879,16 @@ pub fn connect_card(c: &ConnectView, m: &Metrics, left: f64) -> String {
         // the web's Show/Hide, ConnectionPanel.tsx:262-270): two icons, the
         // host shows one and flips the input's masking on a click.
         let eye = if password {
+            // `Svg` has no `visible` property (the DSL refused to evaluate
+            // and the whole card stayed unmounted): each icon rides a View
+            // the host shows or hides.
             format!(
                 "connect_eye_wrap := View{{width: 28 height: 28 flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n\
-                 {show}{hide}{hit}}}\n",
-                show = svg("connect_eye_show", "eye.svg", 16.0, MUTED),
-                hide = svg("connect_eye_hide", "eye_off.svg", 16.0, MUTED)
-                    .replacen("Svg{", "Svg{visible: false ", 1),
+                 connect_eye_show := View{{width: 16 height: 16 flow: Overlay\n{show}}}\n\
+                 connect_eye_hide := View{{width: 16 height: 16 flow: Overlay visible: false\n{hide}}}\n\
+                 {hit}}}\n",
+                show = svg("connect_eye_show_icon", "eye.svg", 16.0, MUTED),
+                hide = svg("connect_eye_hide_icon", "eye_off.svg", 16.0, MUTED),
                 hit = hit("connect_eye", 6.0),
             )
         } else {
@@ -1141,6 +1145,33 @@ mod tests {
         assert!(dsl.contains("#000000ff"), "the board's black bubble");
         let dark = user_bubble("0", "hi", &m, true);
         assert!(dark.contains("#2c2c2eff") && dark.contains("draw_text.color: #f5f5f7ff"));
+    }
+
+    /// `Svg` has no `visible` property: a `visible:` inside an Svg block
+    /// made the whole Connect card's DSL fail to evaluate (the card never
+    /// mounted). Hideable icons ride a View.
+    #[test]
+    fn no_builder_sets_visible_on_an_svg() {
+        let m = desk();
+        let c = ConnectView { server: "http://127.0.0.1:50190".into(), ..Default::default() };
+        let t = ToolView { title: "read_file".into(), state: "done".into(), ..Default::default() };
+        let all = [
+            connect_card(&c, &m, 261.0),
+            tool_row("0", &t, GroupPos::Single, true, &m),
+            worked_for("0", "Worked for 2s", 2, true, &m),
+            answer_actions("0", "now", &m),
+            empty_state(Some("octos"), &m),
+            composer(
+                &ComposerView { placeholder: "x".into(), approval: "y".into(), model: "z".into() },
+                &m,
+            ),
+        ];
+        for dsl in all {
+            for (i, _) in dsl.match_indices(":= Svg{") {
+                let head = &dsl[i..i + dsl[i..].find('}').unwrap_or(dsl.len() - i)];
+                assert!(!head.contains("visible"), "an Svg cannot take `visible`: {head}");
+            }
+        }
     }
 
     #[test]
