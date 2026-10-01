@@ -14,11 +14,11 @@ copy info_t_text { class: user-copy, en: "Another app is using this session" }
 state strip_model_enabled { shape: bool, initial: true }
 state strip_activity_enabled { shape: bool, initial: true }
 state strip_permissions_enabled { shape: bool, initial: true }
-component Surfaceb4206391250d(instance: text) {
-  view Kit(component: "Surfaceb4206391250d", instance: instance) { slot }
+component Surfacef468f03a0025(instance: text) {
+  view Kit(component: "Surfacef468f03a0025", instance: instance) { slot }
 }
-component Surfaceec9605ba5dbd(instance: text) {
-  view Kit(component: "Surfaceec9605ba5dbd", instance: instance) { slot }
+component Surface7e9a576cd2e6(instance: text) {
+  view Kit(component: "Surface7e9a576cd2e6", instance: instance) { slot }
 }
 component Textef39c1926771(instance: text, text: text) {
   view Kit(component: "Textef39c1926771", instance: instance, text: text)
@@ -32,39 +32,27 @@ component Surfacec4c38149242a(instance: text) {
 component Textc9b85a486b80(instance: text, text: text) {
   view Kit(component: "Textc9b85a486b80", instance: instance, text: text)
 }
-component Text09e08d6d992e(instance: text, text: text) {
-  view Kit(component: "Text09e08d6d992e", instance: instance, text: text)
+component Text09ef707ce916(instance: text, text: text) {
+  view Kit(component: "Text09ef707ce916", instance: instance, text: text)
 }
-component Surface9dd90909298b(instance: text) {
-  view Kit(component: "Surface9dd90909298b", instance: instance) { slot }
+component Surface5263a122e2e4(instance: text) {
+  view Kit(component: "Surface5263a122e2e4", instance: instance) { slot }
 }
-component Texte5cd7dbf5628(instance: text, text: text) {
-  view Kit(component: "Texte5cd7dbf5628", instance: instance, text: text)
+component Text7cc0a36130db(instance: text, text: text) {
+  view Kit(component: "Text7cc0a36130db", instance: instance, text: text)
 }
-component Surface8260e3b33429(instance: text) {
-  view Kit(component: "Surface8260e3b33429", instance: instance) { slot }
+component Surface7a7bef822439(instance: text) {
+  view Kit(component: "Surface7a7bef822439", instance: instance) { slot }
 }
-component Text0436583449d1(instance: text, text: text) {
-  view Kit(component: "Text0436583449d1", instance: instance, text: text)
+component Surface5e3dc430757b(instance: text) {
+  view Kit(component: "Surface5e3dc430757b", instance: instance) { slot }
 }
-component Surface2c1f267efa08(instance: text) {
-  view Kit(component: "Surface2c1f267efa08", instance: instance) { slot }
-}
-component Text7cbc40681f34(instance: text, text: text) {
-  view Kit(component: "Text7cbc40681f34", instance: instance, text: text)
-}
-component Surfacece4417baa3e2(instance: text) {
-  view Kit(component: "Surfacece4417baa3e2", instance: instance) { slot }
-}
-component Surface4580afbbc2fa(instance: text) {
-  view Kit(component: "Surface4580afbbc2fa", instance: instance) { slot }
-}
-component Text72f86ec425be(instance: text, text: text) {
-  view Kit(component: "Text72f86ec425be", instance: instance, text: text)
+component Text6d079c80f2e2(instance: text, text: text) {
+  view Kit(component: "Text6d079c80f2e2", instance: instance, text: text)
 }
 
-view root Surfaceb4206391250d(instance: "page") {
-  Surfaceec9605ba5dbd(instance: "strip") {
+view root Surfacef468f03a0025(instance: "page") {
+  Surface7e9a576cd2e6(instance: "strip") {
     Textef39c1926771(instance: "strip_model_t", text: copy.strip_model_t_text)
     NativeButton02f1d1bd99b4(instance: "strip_model", enabled: strip_model_enabled)
     Surfacec4c38149242a(instance: "strip_d1") {
@@ -78,20 +66,20 @@ view root Surfaceb4206391250d(instance: "page") {
     Textc9b85a486b80(instance: "strip_perm_t", text: copy.strip_perm_t_text)
     NativeButton02f1d1bd99b4(instance: "strip_permissions", enabled: strip_permissions_enabled)
   }
-  Text09e08d6d992e(instance: "t_legend", text: copy.t_legend_text)
-  Surface9dd90909298b(instance: "state_0") {
-    Texte5cd7dbf5628(instance: "state_0_t", text: copy.state_0_t_text)
+  Text09ef707ce916(instance: "t_legend", text: copy.t_legend_text)
+  Surface5263a122e2e4(instance: "state_0") {
+    Text7cc0a36130db(instance: "state_0_t", text: copy.state_0_t_text)
   }
-  Surface8260e3b33429(instance: "state_1") {
-    Text0436583449d1(instance: "state_1_t", text: copy.state_1_t_text)
+  Surface5263a122e2e4(instance: "state_1") {
+    Text7cc0a36130db(instance: "state_1_t", text: copy.state_1_t_text)
   }
-  Surface2c1f267efa08(instance: "state_2") {
-    Text7cbc40681f34(instance: "state_2_t", text: copy.state_2_t_text)
+  Surface5263a122e2e4(instance: "state_2") {
+    Text7cc0a36130db(instance: "state_2_t", text: copy.state_2_t_text)
   }
-  Surfacece4417baa3e2(instance: "info") {
-    Surface4580afbbc2fa(instance: "info_dot") {
+  Surface7a7bef822439(instance: "info") {
+    Surface5e3dc430757b(instance: "info_dot") {
 
     }
-    Text72f86ec425be(instance: "info_t", text: copy.info_t_text)
+    Text6d079c80f2e2(instance: "info_t", text: copy.info_t_text)
   }
 }

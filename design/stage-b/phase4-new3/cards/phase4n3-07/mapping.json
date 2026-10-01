@@ -6,7 +6,7 @@
       "native_id": "beauty_0",
       "parent": null,
       "kind": "stack",
-      "component": "Surfaceb4206391250d",
+      "component": "Surfacef468f03a0025",
       "semantic_role": "layout",
       "bounds": [
         0,
@@ -24,13 +24,13 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "stack",
-      "component": "Surfacedd0df1b48c89",
+      "component": "Surfaceb101f26001b0",
       "semantic_role": "layout",
       "bounds": [
-        1.0,
-        1.0,
-        401.0,
-        774.0
+        0,
+        0,
+        406,
+        776
       ],
       "text": null,
       "enabled": null,
@@ -42,13 +42,13 @@
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "stack",
-      "component": "Surface6a5a08d4eec5",
+      "component": "Surface11a4cded75fe",
       "semantic_role": "layout",
       "bounds": [
-        16.0,
-        70.0,
-        374.0,
-        640.0
+        16,
+        70,
+        374,
+        640
       ],
       "text": null,
       "enabled": null,
@@ -60,31 +60,31 @@
       "native_id": "beauty_0_1_0",
       "parent": "modal_card",
       "kind": "text",
-      "component": "Text13431e7ba125",
+      "component": "Text840b7001f71f",
       "semantic_role": "text",
       "bounds": [
-        25.256284835541212,
-        28.414333706606946,
-        115.91025641025642,
-        20.51063829787234
+        32,
+        90,
+        220,
+        24.4
       ],
       "text": "Resume chat",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 22.34883492005456
+      "size": 20
     },
     {
       "source_id": "banner",
       "native_id": "beauty_0_1_1",
       "parent": "modal_card",
       "kind": "stack",
-      "component": "Surface40ba542edc3e",
+      "component": "Surface3b2fa5e4ab48",
       "semantic_role": "layout",
       "bounds": [
-        14.0,
-        73.0,
-        377.0,
-        107.0
+        32,
+        124,
+        342,
+        56
       ],
       "text": null,
       "enabled": null,
@@ -96,49 +96,49 @@
       "native_id": "beauty_0_1_1_0",
       "parent": "banner",
       "kind": "text",
-      "component": "Text825a5399a342",
+      "component": "Textef39c1926771",
       "semantic_role": "text",
       "bounds": [
-        65.28758955770249,
-        90.98096304591266,
-        252.11111111111111,
-        22.248600223964168
+        44,
+        132,
+        300,
+        16
       ],
       "text": "History browsing authority changed.",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 18.76161308166597
+      "size": 13
     },
     {
       "source_id": "banner_s",
       "native_id": "beauty_0_1_1_1",
       "parent": "banner",
       "kind": "text",
-      "component": "Textaee6ab968d36",
+      "component": "Text09ef707ce916",
       "semantic_role": "text",
       "bounds": [
-        65.1584120122754,
-        121.39529675251961,
-        264.2564102564103,
-        22.248600223964168
+        44,
+        152,
+        300,
+        14
       ],
       "text": "Refresh the catalog before selecting this row.",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 18.667898730608698
+      "size": 11
     },
     {
       "source_id": "cand_0",
       "native_id": "beauty_0_1_2",
       "parent": "modal_card",
       "kind": "stack",
-      "component": "Surface2783ecd8c5e4",
+      "component": "Surface7a7bef822439",
       "semantic_role": "layout",
       "bounds": [
-        32.0,
-        196.0,
-        342.0,
-        56.0
+        32,
+        196,
+        342,
+        56
       ],
       "text": null,
       "enabled": null,
@@ -150,18 +150,18 @@
       "native_id": "beauty_0_1_2_0",
       "parent": "cand_0",
       "kind": "text",
-      "component": "Text9eac63f94b9e",
+      "component": "Textef39c1926771",
       "semantic_role": "text",
       "bounds": [
-        26.230694412637984,
-        204.81746920492722,
-        245.17094017094018,
-        22.248600223964168
+        44,
+        205,
+        240,
+        16
       ],
       "text": "Fix steer queue drop on reconnect",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 18.990413241198482
+      "size": 13
     },
     {
       "source_id": "cand_0_s",
@@ -186,13 +186,13 @@
       "native_id": "beauty_0_1_2_2",
       "parent": "cand_0",
       "kind": "stack",
-      "component": "Surfacee76934704027",
+      "component": "Surface630f9ff04df8",
       "semantic_role": "layout",
       "bounds": [
-        306.0,
-        213.0,
+        292,
+        204,
         78.0,
-        36.0
+        20
       ],
       "text": null,
       "enabled": null,
@@ -204,18 +204,18 @@
       "native_id": "beauty_0_1_2_2_0",
       "parent": "cand_0_chip",
       "kind": "text",
-      "component": "Textcce8be3acf98",
+      "component": "Text53f97087be23",
       "semantic_role": "text",
       "bounds": [
-        312.8240757010029,
-        222.1970884658455,
-        65.59401709401709,
-        17.034714445688692
+        300,
+        207,
+        62.0,
+        14
       ],
       "text": "unverified",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 16.863610350455108
+      "size": 10
     },
     {
       "source_id": "resume_row_0",
@@ -225,10 +225,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        32.0,
-        196.0,
-        342.0,
-        56.0
+        32,
+        196,
+        342,
+        56
       ],
       "text": null,
       "enabled": 1,
@@ -240,13 +240,13 @@
       "native_id": "beauty_0_1_3",
       "parent": "modal_card",
       "kind": "stack",
-      "component": "Surfacece4417baa3e2",
+      "component": "Surface7a7bef822439",
       "semantic_role": "layout",
       "bounds": [
-        32.0,
-        258.0,
-        342.0,
-        56.0
+        32,
+        258,
+        342,
+        56
       ],
       "text": null,
       "enabled": null,
@@ -258,49 +258,49 @@
       "native_id": "beauty_0_1_3_0",
       "parent": "cand_1",
       "kind": "text",
-      "component": "Text9d97831e4945",
+      "component": "Textef39c1926771",
       "semantic_role": "text",
       "bounds": [
-        26.417226515107558,
-        276.07390817469206,
-        124.58547008547009,
-        18.772676371780516
+        44,
+        267,
+        240,
+        16
       ],
       "text": "Add session fork",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 19.11209173051579
+      "size": 13
     },
     {
       "source_id": "cand_1_s",
       "native_id": "beauty_0_1_3_1",
       "parent": "cand_1",
       "kind": "text",
-      "component": "Textcf2cf904b180",
+      "component": "Text09ef707ce916",
       "semantic_role": "text",
       "bounds": [
-        35.583312340078805,
-        382.08958566629343,
-        103.76495726495727,
-        19.641657334826427
+        44,
+        288,
+        200,
+        14
       ],
       "text": "octoscode-app \u00b7 1h",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 16.789368040736125
+      "size": 11
     },
     {
       "source_id": "cand_1_chip",
       "native_id": "beauty_0_1_3_2",
       "parent": "cand_1",
       "kind": "stack",
-      "component": "Surfacea5b7af2bbadd",
+      "component": "Surface630f9ff04df8",
       "semantic_role": "layout",
       "bounds": [
-        306.0,
-        285.0,
+        292,
+        266,
         78.0,
-        36.0
+        20
       ],
       "text": null,
       "enabled": null,
@@ -312,18 +312,18 @@
       "native_id": "beauty_0_1_3_2_0",
       "parent": "cand_1_chip",
       "kind": "text",
-      "component": "Textbafc014a8ef4",
+      "component": "Text53f97087be23",
       "semantic_role": "text",
       "bounds": [
-        312.8240757010029,
-        293.45352743561034,
-        65.59401709401709,
-        17.034714445688692
+        300,
+        269,
+        62.0,
+        14
       ],
       "text": "unverified",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 16.863610350455108
+      "size": 10
     },
     {
       "source_id": "resume_row_1",
@@ -333,10 +333,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        32.0,
-        258.0,
-        342.0,
-        56.0
+        32,
+        258,
+        342,
+        56
       ],
       "text": null,
       "enabled": 1,
@@ -348,13 +348,13 @@
       "native_id": "beauty_0_1_4",
       "parent": "modal_card",
       "kind": "stack",
-      "component": "Surfacece4417baa3e2",
+      "component": "Surface7a7bef822439",
       "semantic_role": "layout",
       "bounds": [
-        32.0,
-        320.0,
-        342.0,
-        56.0
+        32,
+        320,
+        342,
+        56
       ],
       "text": null,
       "enabled": null,
@@ -366,18 +366,18 @@
       "native_id": "beauty_0_1_4_0",
       "parent": "cand_2",
       "kind": "text",
-      "component": "Textf95e757b513a",
+      "component": "Textef39c1926771",
       "semantic_role": "text",
       "bounds": [
-        26.302254172354957,
-        348.1993281075028,
-        129.7905982905983,
-        17.903695408734606
+        44,
+        329,
+        240,
+        16
       ],
       "text": "Review PR #2566",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 18.102204829681163
+      "size": 13
     },
     {
       "source_id": "cand_2_s",
@@ -402,13 +402,13 @@
       "native_id": "beauty_0_1_4_2",
       "parent": "cand_2",
       "kind": "stack",
-      "component": "Surfacea5b7af2bbadd",
+      "component": "Surface630f9ff04df8",
       "semantic_role": "layout",
       "bounds": [
-        306.0,
-        358.0,
-        79.0,
-        36.0
+        292,
+        328,
+        78.0,
+        20
       ],
       "text": null,
       "enabled": null,
@@ -420,18 +420,18 @@
       "native_id": "beauty_0_1_4_2_0",
       "parent": "cand_2_chip",
       "kind": "text",
-      "component": "Texte0296b02977e",
+      "component": "Text53f97087be23",
       "semantic_role": "text",
       "bounds": [
-        312.8240757010029,
-        366.447928331467,
-        65.59401709401709,
-        17.034714445688692
+        300,
+        331,
+        62.0,
+        14
       ],
       "text": "unverified",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 16.863610350455108
+      "size": 10
     },
     {
       "source_id": "resume_row_2",
@@ -441,10 +441,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        32.0,
-        320.0,
-        342.0,
-        56.0
+        32,
+        320,
+        342,
+        56
       ],
       "text": null,
       "enabled": 1,
@@ -456,13 +456,13 @@
       "native_id": "beauty_0_1_5",
       "parent": "modal_card",
       "kind": "stack",
-      "component": "Surfacec408f906d48d",
+      "component": "Surfaced4707dd25870",
       "semantic_role": "layout",
       "bounds": [
-        13.0,
-        423.0,
-        379.0,
-        230.0
+        32,
+        390,
+        342,
+        104
       ],
       "text": null,
       "enabled": null,
@@ -474,18 +474,18 @@
       "native_id": "beauty_0_1_5_0",
       "parent": "confirm",
       "kind": "text",
-      "component": "Text28fdf2b58ade",
+      "component": "Text88a0a021d32a",
       "semantic_role": "text",
       "bounds": [
-        26.913098162258297,
-        439.4423292273237,
-        193.11965811965814,
-        17.034714445688692
+        44,
+        398,
+        240,
+        14
       ],
       "text": "Confirm exact title to resume:",
       "enabled": null,
       "font": "self:resources/ux/Inter-600.ttf",
-      "size": 16.85296413179952
+      "size": 10
     },
     {
       "source_id": "resume_input_row",
@@ -495,10 +495,10 @@
       "component": "Group3d2637879433",
       "semantic_role": "layout",
       "bounds": [
-        26.298,
-        489.346,
-        261.532,
-        75.192
+        44,
+        420,
+        236,
+        34
       ],
       "text": null,
       "enabled": null,
@@ -510,13 +510,13 @@
       "native_id": "beauty_0_1_5_1_0",
       "parent": "resume_input_row",
       "kind": "stack",
-      "component": "Surface61da98b087ad",
+      "component": "Surfaced4707dd25870",
       "semantic_role": "layout",
       "bounds": [
-        24.0,
-        467.0,
-        356.0,
-        44.0
+        44,
+        420,
+        236,
+        34
       ],
       "text": null,
       "enabled": null,
@@ -528,18 +528,18 @@
       "native_id": "beauty_0_1_5_1_1",
       "parent": "resume_input_row",
       "kind": "text",
-      "component": "Text09ea7e406191",
+      "component": "Text1914bedecf20",
       "semantic_role": "text",
       "bounds": [
-        34.70160625281882,
-        481.1534154535275,
-        211.33760683760684,
-        21.379619260918254
+        56,
+        428.0,
+        212,
+        18
       ],
       "text": "Type the exact thread title above",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 18.113720227155515
+      "size": 14
     },
     {
       "source_id": "resume_input",
@@ -549,10 +549,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        26.298,
-        489.346,
-        261.532,
-        75.192
+        44,
+        420,
+        236,
+        34
       ],
       "text": null,
       "enabled": 1,
@@ -567,10 +567,10 @@
       "component": "Group3d2637879433",
       "semantic_role": "layout",
       "bounds": [
-        301.129,
-        542.423,
-        82.006,
-        70.769
+        292,
+        444,
+        74,
+        32
       ],
       "text": null,
       "enabled": null,
@@ -582,13 +582,13 @@
       "native_id": "beauty_0_1_5_2_0",
       "parent": "resume_confirm_row",
       "kind": "stack",
-      "component": "Surface344061c0524c",
+      "component": "Surface5b0ae892523a",
       "semantic_role": "layout",
       "bounds": [
-        308.0,
-        360.0,
-        74.0,
-        31.0
+        292,
+        444,
+        74,
+        32
       ],
       "text": null,
       "enabled": null,
@@ -621,10 +621,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        301.129,
-        542.423,
-        82.006,
-        70.769
+        292,
+        444,
+        74,
+        32
       ],
       "text": null,
       "enabled": 0,
@@ -654,13 +654,13 @@
       "native_id": "beauty_0_1_7",
       "parent": "modal_card",
       "kind": "stack",
-      "component": "Surface508390703ceb",
+      "component": "Surfaced4707dd25870",
       "semantic_role": "layout",
       "bounds": [
-        12.0,
-        670.0,
-        380.0,
-        65.0
+        32,
+        534,
+        342,
+        44
       ],
       "text": null,
       "enabled": null,
@@ -672,31 +672,31 @@
       "native_id": "beauty_0_1_7_0",
       "parent": "locked",
       "kind": "text",
-      "component": "Text03509255b16b",
+      "component": "Text75ee4f0ef332",
       "semantic_role": "text",
       "bounds": [
-        68.53106266045958,
-        694.922732362822,
-        200.92735042735043,
-        17.903695408734606
+        44,
+        547,
+        240,
+        16
       ],
       "text": "This retained Session is closed.",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 18.19474006203736
+      "size": 12
     },
     {
       "source_id": "locked_chip",
       "native_id": "beauty_0_1_7_1",
       "parent": "locked",
       "kind": "stack",
-      "component": "Surfacee36ccafcac75",
+      "component": "Surface3ec9062c8dc7",
       "semantic_role": "layout",
       "bounds": [
-        308.0,
-        287.0,
-        74.0,
-        31.0
+        316,
+        545,
+        53.2,
+        20
       ],
       "text": null,
       "enabled": null,
@@ -728,5 +728,5 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
   "contract_sha256": "9ad94928a3fed20095572f2bb097eb7c52be64f3da023eaabefa109824f555c7",
-  "mapping_basis": "mapped.json"
+  "mapping_basis": "requested contract; image measurements gated separately"
 }

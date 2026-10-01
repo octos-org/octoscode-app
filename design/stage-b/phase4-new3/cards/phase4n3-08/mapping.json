@@ -6,7 +6,7 @@
       "native_id": "beauty_0",
       "parent": null,
       "kind": "stack",
-      "component": "Surfaceb4206391250d",
+      "component": "Surfacef468f03a0025",
       "semantic_role": "layout",
       "bounds": [
         0,
@@ -24,13 +24,13 @@
       "native_id": "beauty_0_0",
       "parent": "page",
       "kind": "stack",
-      "component": "Surfaceec9605ba5dbd",
+      "component": "Surface7e9a576cd2e6",
       "semantic_role": "layout",
       "bounds": [
-        14.0,
-        43.0,
-        383.0,
-        76.0
+        0,
+        0,
+        406,
+        64
       ],
       "text": null,
       "enabled": null,
@@ -63,10 +63,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        14.0,
-        43.0,
-        127.352,
-        76.0
+        0,
+        0,
+        135,
+        64
       ],
       "text": null,
       "enabled": 1,
@@ -81,10 +81,10 @@
       "component": "Surfacec4c38149242a",
       "semantic_role": "layout",
       "bounds": [
-        141.352,
-        57.25,
-        0.943,
-        47.5
+        135,
+        12,
+        1,
+        40
       ],
       "text": null,
       "enabled": null,
@@ -117,10 +117,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        142.296,
-        43.0,
-        125.466,
-        76.0
+        136,
+        0,
+        133,
+        64
       ],
       "text": null,
       "enabled": 1,
@@ -135,10 +135,10 @@
       "component": "Surfacec4c38149242a",
       "semantic_role": "layout",
       "bounds": [
-        268.704,
-        57.25,
-        0.943,
-        47.5
+        270,
+        12,
+        1,
+        40
       ],
       "text": null,
       "enabled": null,
@@ -171,10 +171,10 @@
       "component": "NativeButton02f1d1bd99b4",
       "semantic_role": "button",
       "bounds": [
-        269.648,
-        43.0,
-        127.352,
-        76.0
+        271,
+        0,
+        135,
+        64
       ],
       "text": null,
       "enabled": 1,
@@ -186,31 +186,31 @@
       "native_id": "beauty_0_1",
       "parent": "page",
       "kind": "text",
-      "component": "Text09e08d6d992e",
+      "component": "Text09ef707ce916",
       "semantic_role": "text",
       "bounds": [
-        23.229514529967588,
-        137.90593505039195,
-        183.33742331288346,
-        22.248600223964168
+        16,
+        80,
+        240,
+        14
       ],
       "text": "Model, permissions, sandbox",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 19.09715547198703
+      "size": 11
     },
     {
       "source_id": "state_0",
       "native_id": "beauty_0_2",
       "parent": "page",
       "kind": "stack",
-      "component": "Surface9dd90909298b",
+      "component": "Surface5263a122e2e4",
       "semantic_role": "layout",
       "bounds": [
-        16.0,
-        108.0,
+        16,
+        108,
         90.4,
-        20.0
+        20
       ],
       "text": null,
       "enabled": null,
@@ -222,31 +222,31 @@
       "native_id": "beauty_0_2_0",
       "parent": "state_0",
       "kind": "text",
-      "component": "Texte5cd7dbf5628",
+      "component": "Text7cc0a36130db",
       "semantic_role": "text",
       "bounds": [
-        23.468398563510494,
-        176.1410974244121,
-        87.85685071574643,
-        21.379619260918254
+        24,
+        111,
+        74.4,
+        14
       ],
       "text": "Reconnecting",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 17.86820293491997
+      "size": 10
     },
     {
       "source_id": "state_1",
       "native_id": "beauty_0_3",
       "parent": "page",
       "kind": "stack",
-      "component": "Surface8260e3b33429",
+      "component": "Surface5263a122e2e4",
       "semantic_role": "layout",
       "bounds": [
-        16.0,
-        142.0,
+        16,
+        142,
         102.8,
-        20.0
+        20
       ],
       "text": null,
       "enabled": null,
@@ -258,31 +258,31 @@
       "native_id": "beauty_0_3_0",
       "parent": "state_1",
       "kind": "text",
-      "component": "Text0436583449d1",
+      "component": "Text7cc0a36130db",
       "semantic_role": "text",
       "bounds": [
-        24.298664412181253,
-        391.64837625979845,
-        105.29243353783232,
-        21.379619260918254
+        24,
+        145,
+        86.8,
+        14
       ],
       "text": "Resuming chat\u2026",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 17.86820293491997
+      "size": 10
     },
     {
       "source_id": "state_2",
       "native_id": "beauty_0_4",
       "parent": "page",
       "kind": "stack",
-      "component": "Surface2c1f267efa08",
+      "component": "Surface5263a122e2e4",
       "semantic_role": "layout",
       "bounds": [
-        16.0,
-        176.0,
+        16,
+        176,
         146.2,
-        20.0
+        20
       ],
       "text": null,
       "enabled": null,
@@ -294,31 +294,31 @@
       "native_id": "beauty_0_4_0",
       "parent": "state_2",
       "kind": "text",
-      "component": "Text7cbc40681f34",
+      "component": "Text7cc0a36130db",
       "semantic_role": "text",
       "bounds": [
-        23.468398563510494,
-        605.417693169093,
-        146.80572597137015,
-        21.379619260918254
+        24,
+        179,
+        130.2,
+        14
       ],
       "text": "Handing back control\u2026",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 17.86820293491997
+      "size": 10
     },
     {
       "source_id": "info",
       "native_id": "beauty_0_5",
       "parent": "page",
       "kind": "stack",
-      "component": "Surfacece4417baa3e2",
+      "component": "Surface7a7bef822439",
       "semantic_role": "layout",
       "bounds": [
-        16.0,
-        232.0,
-        342.0,
-        40.0
+        16,
+        232,
+        342,
+        40
       ],
       "text": null,
       "enabled": null,
@@ -330,13 +330,13 @@
       "native_id": "beauty_0_5_0",
       "parent": "info",
       "kind": "stack",
-      "component": "Surface4580afbbc2fa",
+      "component": "Surface5e3dc430757b",
       "semantic_role": "layout",
       "bounds": [
-        28.0,
-        161.0,
-        10.0,
-        10.0
+        28,
+        161,
+        10,
+        10
       ],
       "text": null,
       "enabled": null,
@@ -348,18 +348,18 @@
       "native_id": "beauty_0_5_1",
       "parent": "info",
       "kind": "text",
-      "component": "Text72f86ec425be",
+      "component": "Text6d079c80f2e2",
       "semantic_role": "text",
       "bounds": [
-        70.09358289590067,
-        692.3157894736843,
-        222.35991820040903,
-        22.248600223964168
+        48,
+        156,
+        300,
+        16
       ],
       "text": "Another app is using this session",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 18.865791650014444
+      "size": 12
     }
   ],
   "fonts": {
@@ -367,5 +367,5 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
   "contract_sha256": "f6dad0371e869ec3d78c7dd459a03841665f8d4982c622d509f9affa7bd8a8c5",
-  "mapping_basis": "mapped.json"
+  "mapping_basis": "requested contract; image measurements gated separately"
 }

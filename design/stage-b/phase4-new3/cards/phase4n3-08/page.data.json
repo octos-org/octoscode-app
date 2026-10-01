@@ -3,7 +3,7 @@
     "theme": "light",
     "placements": {
       "page": {
-        "component": "Surfaceb4206391250d",
+        "component": "Surfacef468f03a0025",
         "layout": {
           "x": 0,
           "y": 0,
@@ -12,12 +12,12 @@
         }
       },
       "strip": {
-        "component": "Surfaceec9605ba5dbd",
+        "component": "Surface7e9a576cd2e6",
         "layout": {
-          "x": 14.0,
-          "y": 43.0,
-          "w": 383.0,
-          "h": 76.0
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 64
         }
       },
       "strip_model_t": {
@@ -32,19 +32,19 @@
       "strip_model": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 14.0,
-          "y": 43.0,
-          "w": 127.352,
-          "h": 76.0
+          "x": 0,
+          "y": 0,
+          "w": 135,
+          "h": 64
         }
       },
       "strip_d1": {
         "component": "Surfacec4c38149242a",
         "layout": {
-          "x": 141.352,
-          "y": 57.25,
-          "w": 0.943,
-          "h": 47.5
+          "x": 135,
+          "y": 12,
+          "w": 1,
+          "h": 40
         }
       },
       "strip_activity_t": {
@@ -59,19 +59,19 @@
       "strip_activity": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 142.296,
-          "y": 43.0,
-          "w": 125.466,
-          "h": 76.0
+          "x": 136,
+          "y": 0,
+          "w": 133,
+          "h": 64
         }
       },
       "strip_d2": {
         "component": "Surfacec4c38149242a",
         "layout": {
-          "x": 268.704,
-          "y": 57.25,
-          "w": 0.943,
-          "h": 47.5
+          "x": 270,
+          "y": 12,
+          "w": 1,
+          "h": 40
         }
       },
       "strip_perm_t": {
@@ -86,100 +86,100 @@
       "strip_permissions": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 269.648,
-          "y": 43.0,
-          "w": 127.352,
-          "h": 76.0
+          "x": 271,
+          "y": 0,
+          "w": 135,
+          "h": 64
         }
       },
       "t_legend": {
-        "component": "Text09e08d6d992e",
+        "component": "Text09ef707ce916",
         "layout": {
-          "x": 23.229514529967588,
-          "y": 137.90593505039195,
-          "w": 183.33742331288346,
-          "h": 22.248600223964168
+          "x": 16,
+          "y": 80,
+          "w": 240,
+          "h": 14
         }
       },
       "state_0": {
-        "component": "Surface9dd90909298b",
+        "component": "Surface5263a122e2e4",
         "layout": {
-          "x": 16.0,
-          "y": 108.0,
+          "x": 16,
+          "y": 108,
           "w": 90.4,
-          "h": 20.0
+          "h": 20
         }
       },
       "state_0_t": {
-        "component": "Texte5cd7dbf5628",
+        "component": "Text7cc0a36130db",
         "layout": {
-          "x": 23.468398563510494,
-          "y": 176.1410974244121,
-          "w": 87.85685071574643,
-          "h": 21.379619260918254
+          "x": 24,
+          "y": 111,
+          "w": 74.4,
+          "h": 14
         }
       },
       "state_1": {
-        "component": "Surface8260e3b33429",
+        "component": "Surface5263a122e2e4",
         "layout": {
-          "x": 16.0,
-          "y": 142.0,
+          "x": 16,
+          "y": 142,
           "w": 102.8,
-          "h": 20.0
+          "h": 20
         }
       },
       "state_1_t": {
-        "component": "Text0436583449d1",
+        "component": "Text7cc0a36130db",
         "layout": {
-          "x": 24.298664412181253,
-          "y": 391.64837625979845,
-          "w": 105.29243353783232,
-          "h": 21.379619260918254
+          "x": 24,
+          "y": 145,
+          "w": 86.8,
+          "h": 14
         }
       },
       "state_2": {
-        "component": "Surface2c1f267efa08",
+        "component": "Surface5263a122e2e4",
         "layout": {
-          "x": 16.0,
-          "y": 176.0,
+          "x": 16,
+          "y": 176,
           "w": 146.2,
-          "h": 20.0
+          "h": 20
         }
       },
       "state_2_t": {
-        "component": "Text7cbc40681f34",
+        "component": "Text7cc0a36130db",
         "layout": {
-          "x": 23.468398563510494,
-          "y": 605.417693169093,
-          "w": 146.80572597137015,
-          "h": 21.379619260918254
+          "x": 24,
+          "y": 179,
+          "w": 130.2,
+          "h": 14
         }
       },
       "info": {
-        "component": "Surfacece4417baa3e2",
+        "component": "Surface7a7bef822439",
         "layout": {
-          "x": 16.0,
-          "y": 232.0,
-          "w": 342.0,
-          "h": 40.0
+          "x": 16,
+          "y": 232,
+          "w": 342,
+          "h": 40
         }
       },
       "info_dot": {
-        "component": "Surface4580afbbc2fa",
+        "component": "Surface5e3dc430757b",
         "layout": {
-          "x": 28.0,
-          "y": 161.0,
-          "w": 10.0,
-          "h": 10.0
+          "x": 28,
+          "y": 161,
+          "w": 10,
+          "h": 10
         }
       },
       "info_t": {
-        "component": "Text72f86ec425be",
+        "component": "Text6d079c80f2e2",
         "layout": {
-          "x": 70.09358289590067,
-          "y": 692.3157894736843,
-          "w": 222.35991820040903,
-          "h": 22.248600223964168
+          "x": 48,
+          "y": 156,
+          "w": 300,
+          "h": 16
         }
       }
     },

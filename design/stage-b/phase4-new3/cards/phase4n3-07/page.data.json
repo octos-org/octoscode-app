@@ -3,7 +3,7 @@
     "theme": "light",
     "placements": {
       "page": {
-        "component": "Surfaceb4206391250d",
+        "component": "Surfacef468f03a0025",
         "layout": {
           "x": 0,
           "y": 0,
@@ -12,75 +12,75 @@
         }
       },
       "scrim_70": {
-        "component": "Surfacedd0df1b48c89",
+        "component": "Surfaceb101f26001b0",
         "layout": {
-          "x": 1.0,
-          "y": 1.0,
-          "w": 401.0,
-          "h": 774.0
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
         }
       },
       "modal_card": {
-        "component": "Surface6a5a08d4eec5",
+        "component": "Surface11a4cded75fe",
         "layout": {
-          "x": 16.0,
-          "y": 70.0,
-          "w": 374.0,
-          "h": 640.0
+          "x": 16,
+          "y": 70,
+          "w": 374,
+          "h": 640
         }
       },
       "t_title": {
-        "component": "Text13431e7ba125",
+        "component": "Text840b7001f71f",
         "layout": {
-          "x": 25.256284835541212,
-          "y": 28.414333706606946,
-          "w": 115.91025641025642,
-          "h": 20.51063829787234
+          "x": 32,
+          "y": 90,
+          "w": 220,
+          "h": 24.4
         }
       },
       "banner": {
-        "component": "Surface40ba542edc3e",
+        "component": "Surface3b2fa5e4ab48",
         "layout": {
-          "x": 14.0,
-          "y": 73.0,
-          "w": 377.0,
-          "h": 107.0
+          "x": 32,
+          "y": 124,
+          "w": 342,
+          "h": 56
         }
       },
       "banner_t": {
-        "component": "Text825a5399a342",
+        "component": "Textef39c1926771",
         "layout": {
-          "x": 65.28758955770249,
-          "y": 90.98096304591266,
-          "w": 252.11111111111111,
-          "h": 22.248600223964168
+          "x": 44,
+          "y": 132,
+          "w": 300,
+          "h": 16
         }
       },
       "banner_s": {
-        "component": "Textaee6ab968d36",
+        "component": "Text09ef707ce916",
         "layout": {
-          "x": 65.1584120122754,
-          "y": 121.39529675251961,
-          "w": 264.2564102564103,
-          "h": 22.248600223964168
+          "x": 44,
+          "y": 152,
+          "w": 300,
+          "h": 14
         }
       },
       "cand_0": {
-        "component": "Surface2783ecd8c5e4",
+        "component": "Surface7a7bef822439",
         "layout": {
-          "x": 32.0,
-          "y": 196.0,
-          "w": 342.0,
-          "h": 56.0
+          "x": 32,
+          "y": 196,
+          "w": 342,
+          "h": 56
         }
       },
       "cand_0_t": {
-        "component": "Text9eac63f94b9e",
+        "component": "Textef39c1926771",
         "layout": {
-          "x": 26.230694412637984,
-          "y": 204.81746920492722,
-          "w": 245.17094017094018,
-          "h": 22.248600223964168
+          "x": 44,
+          "y": 205,
+          "w": 240,
+          "h": 16
         }
       },
       "cand_0_s": {
@@ -93,102 +93,102 @@
         }
       },
       "cand_0_chip": {
-        "component": "Surfacee76934704027",
+        "component": "Surface630f9ff04df8",
         "layout": {
-          "x": 306.0,
-          "y": 213.0,
+          "x": 292,
+          "y": 204,
           "w": 78.0,
-          "h": 36.0
+          "h": 20
         }
       },
       "cand_0_chip_t": {
-        "component": "Textcce8be3acf98",
+        "component": "Text53f97087be23",
         "layout": {
-          "x": 312.8240757010029,
-          "y": 222.1970884658455,
-          "w": 65.59401709401709,
-          "h": 17.034714445688692
+          "x": 300,
+          "y": 207,
+          "w": 62.0,
+          "h": 14
         }
       },
       "resume_row_0": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 32.0,
-          "y": 196.0,
-          "w": 342.0,
-          "h": 56.0
+          "x": 32,
+          "y": 196,
+          "w": 342,
+          "h": 56
         }
       },
       "cand_1": {
-        "component": "Surfacece4417baa3e2",
+        "component": "Surface7a7bef822439",
         "layout": {
-          "x": 32.0,
-          "y": 258.0,
-          "w": 342.0,
-          "h": 56.0
+          "x": 32,
+          "y": 258,
+          "w": 342,
+          "h": 56
         }
       },
       "cand_1_t": {
-        "component": "Text9d97831e4945",
+        "component": "Textef39c1926771",
         "layout": {
-          "x": 26.417226515107558,
-          "y": 276.07390817469206,
-          "w": 124.58547008547009,
-          "h": 18.772676371780516
+          "x": 44,
+          "y": 267,
+          "w": 240,
+          "h": 16
         }
       },
       "cand_1_s": {
-        "component": "Textcf2cf904b180",
+        "component": "Text09ef707ce916",
         "layout": {
-          "x": 35.583312340078805,
-          "y": 382.08958566629343,
-          "w": 103.76495726495727,
-          "h": 19.641657334826427
+          "x": 44,
+          "y": 288,
+          "w": 200,
+          "h": 14
         }
       },
       "cand_1_chip": {
-        "component": "Surfacea5b7af2bbadd",
+        "component": "Surface630f9ff04df8",
         "layout": {
-          "x": 306.0,
-          "y": 285.0,
+          "x": 292,
+          "y": 266,
           "w": 78.0,
-          "h": 36.0
+          "h": 20
         }
       },
       "cand_1_chip_t": {
-        "component": "Textbafc014a8ef4",
+        "component": "Text53f97087be23",
         "layout": {
-          "x": 312.8240757010029,
-          "y": 293.45352743561034,
-          "w": 65.59401709401709,
-          "h": 17.034714445688692
+          "x": 300,
+          "y": 269,
+          "w": 62.0,
+          "h": 14
         }
       },
       "resume_row_1": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 32.0,
-          "y": 258.0,
-          "w": 342.0,
-          "h": 56.0
+          "x": 32,
+          "y": 258,
+          "w": 342,
+          "h": 56
         }
       },
       "cand_2": {
-        "component": "Surfacece4417baa3e2",
+        "component": "Surface7a7bef822439",
         "layout": {
-          "x": 32.0,
-          "y": 320.0,
-          "w": 342.0,
-          "h": 56.0
+          "x": 32,
+          "y": 320,
+          "w": 342,
+          "h": 56
         }
       },
       "cand_2_t": {
-        "component": "Textf95e757b513a",
+        "component": "Textef39c1926771",
         "layout": {
-          "x": 26.302254172354957,
-          "y": 348.1993281075028,
-          "w": 129.7905982905983,
-          "h": 17.903695408734606
+          "x": 44,
+          "y": 329,
+          "w": 240,
+          "h": 16
         }
       },
       "cand_2_s": {
@@ -201,102 +201,102 @@
         }
       },
       "cand_2_chip": {
-        "component": "Surfacea5b7af2bbadd",
+        "component": "Surface630f9ff04df8",
         "layout": {
-          "x": 306.0,
-          "y": 358.0,
-          "w": 79.0,
-          "h": 36.0
+          "x": 292,
+          "y": 328,
+          "w": 78.0,
+          "h": 20
         }
       },
       "cand_2_chip_t": {
-        "component": "Texte0296b02977e",
+        "component": "Text53f97087be23",
         "layout": {
-          "x": 312.8240757010029,
-          "y": 366.447928331467,
-          "w": 65.59401709401709,
-          "h": 17.034714445688692
+          "x": 300,
+          "y": 331,
+          "w": 62.0,
+          "h": 14
         }
       },
       "resume_row_2": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 32.0,
-          "y": 320.0,
-          "w": 342.0,
-          "h": 56.0
+          "x": 32,
+          "y": 320,
+          "w": 342,
+          "h": 56
         }
       },
       "confirm": {
-        "component": "Surfacec408f906d48d",
+        "component": "Surfaced4707dd25870",
         "layout": {
-          "x": 13.0,
-          "y": 423.0,
-          "w": 379.0,
-          "h": 230.0
+          "x": 32,
+          "y": 390,
+          "w": 342,
+          "h": 104
         }
       },
       "confirm_h": {
-        "component": "Text28fdf2b58ade",
+        "component": "Text88a0a021d32a",
         "layout": {
-          "x": 26.913098162258297,
-          "y": 439.4423292273237,
-          "w": 193.11965811965814,
-          "h": 17.034714445688692
+          "x": 44,
+          "y": 398,
+          "w": 240,
+          "h": 14
         }
       },
       "resume_input_row": {
         "component": "Group3d2637879433",
         "layout": {
-          "x": 26.298,
-          "y": 489.346,
-          "w": 261.532,
-          "h": 75.192
+          "x": 44,
+          "y": 420,
+          "w": 236,
+          "h": 34
         }
       },
       "resume_input_bg": {
-        "component": "Surface61da98b087ad",
+        "component": "Surfaced4707dd25870",
         "layout": {
-          "x": 24.0,
-          "y": 467.0,
-          "w": 356.0,
-          "h": 44.0
+          "x": 44,
+          "y": 420,
+          "w": 236,
+          "h": 34
         }
       },
       "resume_input_text": {
-        "component": "Text09ea7e406191",
+        "component": "Text1914bedecf20",
         "layout": {
-          "x": 34.70160625281882,
-          "y": 481.1534154535275,
-          "w": 211.33760683760684,
-          "h": 21.379619260918254
+          "x": 56,
+          "y": 428.0,
+          "w": 212,
+          "h": 18
         }
       },
       "resume_input": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 26.298,
-          "y": 489.346,
-          "w": 261.532,
-          "h": 75.192
+          "x": 44,
+          "y": 420,
+          "w": 236,
+          "h": 34
         }
       },
       "resume_confirm_row": {
         "component": "Group3d2637879433",
         "layout": {
-          "x": 301.129,
-          "y": 542.423,
-          "w": 82.006,
-          "h": 70.769
+          "x": 292,
+          "y": 444,
+          "w": 74,
+          "h": 32
         }
       },
       "resume_confirm_bg": {
-        "component": "Surface344061c0524c",
+        "component": "Surface5b0ae892523a",
         "layout": {
-          "x": 308.0,
-          "y": 360.0,
-          "w": 74.0,
-          "h": 31.0
+          "x": 292,
+          "y": 444,
+          "w": 74,
+          "h": 32
         }
       },
       "resume_confirm_t": {
@@ -311,10 +311,10 @@
       "resume_confirm": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 301.129,
-          "y": 542.423,
-          "w": 82.006,
-          "h": 70.769
+          "x": 292,
+          "y": 444,
+          "w": 74,
+          "h": 32
         }
       },
       "t_note": {
@@ -327,30 +327,30 @@
         }
       },
       "locked": {
-        "component": "Surface508390703ceb",
+        "component": "Surfaced4707dd25870",
         "layout": {
-          "x": 12.0,
-          "y": 670.0,
-          "w": 380.0,
-          "h": 65.0
+          "x": 32,
+          "y": 534,
+          "w": 342,
+          "h": 44
         }
       },
       "locked_t": {
-        "component": "Text03509255b16b",
+        "component": "Text75ee4f0ef332",
         "layout": {
-          "x": 68.53106266045958,
-          "y": 694.922732362822,
-          "w": 200.92735042735043,
-          "h": 17.903695408734606
+          "x": 44,
+          "y": 547,
+          "w": 240,
+          "h": 16
         }
       },
       "locked_chip": {
-        "component": "Surfacee36ccafcac75",
+        "component": "Surface3ec9062c8dc7",
         "layout": {
-          "x": 308.0,
-          "y": 287.0,
-          "w": 74.0,
-          "h": 31.0
+          "x": 316,
+          "y": 545,
+          "w": 53.2,
+          "h": 20
         }
       },
       "locked_chip_t": {

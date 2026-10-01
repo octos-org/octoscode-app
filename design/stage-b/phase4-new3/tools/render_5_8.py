@@ -89,7 +89,7 @@ def render(n, port):
         "card": str(work / "page.card"), "data": str(data),
         "kit_dir": str(work / "kit"),
         "format": "l0-kit", "width": 406, "height": 776,
-        "nonce": f"gate-b-p4n3-v4-{n}",
+        "nonce": f"gate-b-p4n3-v5-{n}",
         "result": str(work / "native.json"), "layout": str(work / "layout.json"),
         "actions": str(work / "actions.json"),
     }
@@ -112,16 +112,16 @@ def render(n, port):
         time.sleep(6)                                 # mount + svg resolve
         snap = subprocess.check_output(
             ["curl", "-s", "--max-time", "10", f"127.0.0.1:{port}/snap?all=1"]).decode()
-        (EVIDENCE / f"p4n3-{n}-snap-v4.json").write_text(snap)
+        (EVIDENCE / f"p4n3-{n}-snap-v5.json").write_text(snap)
         grab = json.loads(subprocess.check_output(
             ["curl", "-s", "--max-time", "25", f"127.0.0.1:{port}/g"]).decode() or "{}")
         png = grab.get("png")
         # Only OUR beauty-host's grab is evidence (the v1 06 grab came from
         # a foreign window's /g).
         if png and "beauty-host" in png and Path(png).is_file():
-            shutil.copy(png, EVIDENCE / f"p4n3-{n}-native-v4.png")
-            compose_review(n, EVIDENCE / f"p4n3-{n}-native-v4.png",
-                           EVIDENCE / f"p4n3-{n}-review-v4.png")
+            shutil.copy(png, EVIDENCE / f"p4n3-{n}-native-v5.png")
+            compose_review(n, EVIDENCE / f"p4n3-{n}-native-v5.png",
+                           EVIDENCE / f"p4n3-{n}-review-v5.png")
         subprocess.run(["curl", "-s", "--max-time", "5", f"127.0.0.1:{port}/quit"],
                        capture_output=True)
         time.sleep(1)
@@ -132,7 +132,7 @@ def render(n, port):
     text = (work / "host.log").read_text(errors="ignore")
     widgets = None
     try:
-        widgets = len(json.loads((EVIDENCE / f"p4n3-{n}-snap-v4.json").read_text())["s"])
+        widgets = len(json.loads((EVIDENCE / f"p4n3-{n}-snap-v5.json").read_text())["s"])
     except Exception:
         pass
     return {"scene": n, "port": port, "png": str(png),
