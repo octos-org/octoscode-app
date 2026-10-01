@@ -76,6 +76,10 @@ fn scenario_fixture(name: &str) -> (&'static str, &'static str) {
         "task" => ("task", "r4-task-a6ea8505.jsonl"),
         "peer" => ("peer", "r6-peer-a6ea8505.jsonl"),
         "session" => ("session", "r3-session-a6ea8505.jsonl"),
+        // A5: the dialogs' click walk. The handshake + standalone notifications
+        // are r1-autonomy's; every REQUEST the dialogs send is answered from
+        // the recorded replies (`screens_replies`).
+        "screens" => ("screens", "r1-autonomy-a6ea8505.jsonl"),
         // #32b3: one synthetic turn whose fenced code block carries a 227-column
         // line — the long-code-line render capture (the web wraps: pre-wrap).
         "longcodeline" => ("longcodeline", "longcodeline-a6ea8505.jsonl"),
@@ -180,6 +184,86 @@ fn standalone_notifications(frames: &[Frame]) -> Vec<Frame> {
         .collect()
 }
 
+/// A5 — the `screens` scenario's reply table: request method → the recorded
+/// reply body, from the committed recordings. Direct replies come from the
+/// fixtures that recorded the request AND its reply (r2-profile's
+/// `in <method>`, r3-session's `res:<method>`, r6-peer, r4-task, c24b); the
+/// autonomy reads and controls, whose replies r1 did not keep, answer with
+/// the objects r1's own `loop/updated` / `monitor/updated` /
+/// `session/goal/updated` notifications carried at the same step. Each entry
+/// keeps the session id it was recorded under, for the rewrite.
+fn screens_replies() -> BTreeMap<String, (Value, String)> {
+    let mut out: BTreeMap<String, (Value, String)> = BTreeMap::new();
+    for file in [
+        "r2-profile-a6ea8505.jsonl",
+        "r3-session-a6ea8505.jsonl",
+        "r6-peer-a6ea8505.jsonl",
+        "r4-task-a6ea8505.jsonl",
+        "c24b-subagent-a6ea8505.jsonl",
+    ] {
+        let frames = fixture(file);
+        let session = recorded_session(&frames);
+        let asked: std::collections::BTreeSet<String> = frames
+            .iter()
+            .filter(|f| f.dir == "out")
+            .map(|f| f.method.clone())
+            .collect();
+        for f in frames.iter().filter(|f| f.dir == "in") {
+            let method = f.method.strip_prefix("res:").unwrap_or(&f.method).to_owned();
+            if !asked.contains(&method) || method == "session/open" || f.body.is_null() {
+                continue;
+            }
+            out.entry(method).or_insert_with(|| (f.body.clone(), session.clone()));
+        }
+    }
+    let r1 = fixture("r1-autonomy-a6ea8505.jsonl");
+    let r1_session = recorded_session(&r1);
+    let bodies = |m: &str| -> Vec<Value> {
+        r1.iter().filter(|f| f.dir == "in" && f.method == m).map(|f| f.body.clone()).collect()
+    };
+    let loops = bodies("loop/updated");
+    let monitors = bodies("monitor/updated");
+    let goal = bodies("session/goal/updated");
+    let mut put = |m: &str, v: Value| {
+        out.insert(m.to_owned(), (v, r1_session.clone()));
+    };
+    if let Some(first) = loops.first() {
+        put("loop/list", serde_json::json!({ "loops": [first["loop"].clone()] }));
+        put("loop/create", first.clone());
+    }
+    // r1's sequence: create, pause, resume, (fire), delete.
+    if let Some(v) = loops.get(1) {
+        put("loop/pause", v.clone());
+    }
+    if let Some(v) = loops.get(2) {
+        put("loop/resume", v.clone());
+        put("loop/fire_now", v.clone());
+    }
+    if let Some(v) = loops.get(3) {
+        put("loop/delete", v.clone());
+    }
+    if let Some(first) = monitors.first() {
+        put("monitor/list", serde_json::json!({ "monitors": [first["monitor"].clone()] }));
+    }
+    if let Some(v) = monitors.get(1) {
+        put("monitor/pause", v.clone());
+    }
+    if let Some(v) = monitors.get(2) {
+        put("monitor/resume", v.clone());
+    }
+    if let Some(v) = monitors.get(3) {
+        put("monitor/delete", v.clone());
+    }
+    if let Some(g) = goal.first() {
+        put("session/goal/get", g.clone());
+        put("session/goal/set", g.clone());
+    }
+    if let Some(c) = bodies("session/goal/cleared").first() {
+        put("session/goal/clear", c.clone());
+    }
+    out
+}
+
 #[tokio::main]
 async fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -197,6 +281,14 @@ async fn main() {
         .cloned()
         .unwrap_or_default();
     let (label, file) = scenario_fixture(&scenario);
+    let replies = if label == "screens" { screens_replies() } else { BTreeMap::new() };
+    if !replies.is_empty() {
+        println!(
+            "[replay-serve] screens: {} recorded replies: {:?}",
+            replies.len(),
+            replies.keys().collect::<Vec<_>>()
+        );
+    }
 
     let frames = fixture(file);
     // turn_id -> its frames. The app mints its own turn ids, so a `turn/start`
@@ -214,7 +306,15 @@ async fn main() {
         .filter(|(_, v)| v.iter().any(|f| f.method == "projection/envelope"))
         .map(|(k, _)| k.clone())
         .collect();
-    let standalone = standalone_notifications(&frames);
+    // A5: the `screens` scenario answers each read with ONE recorded step's
+    // objects (the loop as created, the goal as set); replaying r1's later
+    // standalone deletes/clears first would make those reads stale on arrival
+    // (and the generation gate rightly refuses them), so it sends none.
+    let standalone = if label == "screens" {
+        Vec::new()
+    } else {
+        standalone_notifications(&frames)
+    };
     println!(
         "[replay-serve] scenario={label} fixture={file}: {} frames; recorded session `{recorded}`; \
          {} recorded turns {:?}; {} standalone notifications",
@@ -238,6 +338,7 @@ async fn main() {
         let recorded = recorded.clone();
         let recorded_turns = recorded_turns.clone();
         let standalone = standalone.clone();
+        let replies = replies.clone();
         tokio::spawn(async move {
             let Ok(ws) = tokio_tungstenite::accept_async(stream).await else {
                 return;
@@ -344,6 +445,16 @@ async fn main() {
                                 tokio::time::sleep(std::time::Duration::from_millis(delay_ms)).await;
                             }
                         });
+                    }
+                    // A5 — the `screens` scenario: the recorded reply for
+                    // this method, re-pointed at the session the app opened.
+                    m if replies.contains_key(m) => {
+                        let (mut body, from) = replies[m].clone();
+                        rewrite_session(&mut body, &from, &active_session);
+                        println!("[replay-serve] -> {m} (recorded reply)");
+                        send(&tx, serde_json::json!({
+                            "jsonrpc": "2.0", "id": id, "result": body
+                        })).await;
                     }
                     _ => {
                         send(&tx, serde_json::json!({

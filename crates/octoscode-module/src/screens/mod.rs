@@ -54,3 +54,21 @@ pub async fn perform_control(
     }
     Err(format!("control: unhandled action {action:?}"))
 }
+
+/// A5 — whether one of the screen modules whose `perform_action` arms run
+/// AFTER the conversation router's `Unhandled` check owns `action`. Such an id
+/// must fall through to its owner: returning at `Unhandled` made the research,
+/// board-3, history, media, peers, transcript, models/skills/context, provider
+/// and browser tables unreachable from any click (measured: the Models
+/// dialog's `models.test_route` never reached the wire).
+pub fn owned_after_router(action: &str) -> bool {
+    research::owns(action)
+        || board3::owns(action)
+        || history::owns(action)
+        || media::owns(action)
+        || peers::owns(action)
+        || transcript::owns(action)
+        || models::owns(action)
+        || provider::is_action(action)
+        || browser::is_action(action)
+}

@@ -48,6 +48,9 @@ use flow::{Conversation, FlowUi};
 // cache types are aliased to bare idents here.
 use mount::MountCache as ComponentMounts;
 use screen::Cache as ScreenCache;
+/// A5 — the dialog's wired action ids (a bare alias: the `Script` derive's
+/// field parser takes one ident + generics, not a `::` path).
+type DialogEvents = std::collections::HashSet<String>;
 
 /// #P4h1 row 306 — install the recents store and purge the legacy v1 cache at
 /// startup (the web's App.tsx:1019-1023). This is the production caller that
@@ -1405,6 +1408,12 @@ pub struct OctoscodeView {
     /// A5 — the last dialog lowering error, so a broken card logs once.
     #[rust]
     dialog_err: Option<String>,
+    /// A5 — every action id a mounted dialog wired. A dialog control's
+    /// `on_click` also enqueues its id on the NAV queue, whose drain only
+    /// resolves Connect ids; the dialog routes these by `clicked()`, so the
+    /// drain skips them (one route per click, no unhandled-noise).
+    #[rust]
+    dialog_events: DialogEvents,
 }
 
 impl OctoscodeView {
@@ -1627,8 +1636,14 @@ impl OctoscodeView {
             };
             if let screens::autonomy::Effect::Unhandled(id) = &effect {
                 ::log::warn!("octoscode: unhandled autonomy action {id:?}");
+                // A5 — an open dialog tells the user why the click did not run.
+                if let Some(text) = screens::dialog::notice_for_refusal(id) {
+                    makepad_widgets::log!("[octoscode] dialog notice: {id}");
+                    screens::dialog::set_notice(text);
+                }
                 return;
             }
+            screens::dialog::clear_notice();
             if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
                 screens::autonomy::spawn(effect, rt, conv);
             }
@@ -1861,7 +1876,13 @@ impl OctoscodeView {
                 }
                 return;
             }
-            actions::Effect::Unhandled(id) => {
+            // A5 — an id the conversation router does not know is NOT dead
+            // when a screen module owns it: the research/board3/history/
+            // media/peers/transcript/models/provider/browser arms below run
+            // after this match, so returning here for them made every one of
+            // those tables unreachable from a click (measured: the Models
+            // dialog's `models.test_route` click never reached the wire).
+            actions::Effect::Unhandled(id) if !screen_owned(action) => {
                 ::log::warn!("octoscode: unhandled action id {id:?}");
                 return;
             }
@@ -2243,6 +2264,30 @@ impl OctoscodeView {
             }
         }
         screens::palette::set_query("");
+        // The web's command layer (`intent.ts`): only `/btw` (its question)
+        // and `/review` (its instructions) take arguments; any other command
+        // with arguments is REPORTED, never run and never sent.
+        if !args.trim().is_empty() {
+            if let screens::palette::Effect::Run(Some(id), name) = &effect {
+                if !matches!(*id, "aside.ask" | "dialog.open.review") {
+                    let session = store.active_session().unwrap_or_default();
+                    store.domains.session.timeline.append(
+                        &session,
+                        Some(screens::palette::next_receipt_turn()),
+                        screens::palette::REPORT_KIND,
+                        format!(
+                            "Arguments for {name} are not supported in this native build. \
+                             Open the command without arguments to use its controls. \
+                             Nothing was sent to the model."
+                        ),
+                    );
+                    makepad_widgets::log!("[octoscode] palette run {name}: arguments reported");
+                    self.sync_labels(cx);
+                    self.view.redraw(cx);
+                    return;
+                }
+            }
+        }
         match effect {
             screens::palette::Effect::Run(Some(id), name) => {
                 makepad_widgets::log!("[octoscode] palette run {name} -> {id}");
@@ -2335,6 +2380,7 @@ impl OctoscodeView {
                     .iter()
                     .map(|(n, e)| (LiveId::from_str(n), e.clone()))
                     .collect();
+                self.dialog_events.extend(m.taps.iter().map(|(_, e)| e.clone()));
                 let splash = self.view.splash(cx, ids!(dialog_splash));
                 match self.mounts.mount(cx, &splash, &m.dsl) {
                     Ok(true) => makepad_widgets::log!(
@@ -3474,12 +3520,16 @@ impl Widget for OctoscodeView {
                 // (eval thread) into the same router the native chrome uses.
                 let taps: Vec<String> = NAV_QUEUE.lock().unwrap().drain(..).collect();
                 for t in taps {
+                    if self.dialog_events.contains(&t) {
+                        continue; // A5: routed by the dialog's clicked() path
+                    }
                     makepad_widgets::log!("[octoscode] nav route: {t}");
                     self.perform_screen_action(&t, None);
                 }
                 // A5 — a known slash command submitted from the composer runs
                 // locally (flow.rs queues it; it never reaches the model).
                 for (row, args) in screens::palette::take_queued() {
+                    makepad_widgets::log!("[octoscode] queued command run: row {row}");
                     self.run_palette_row(cx, row, &args);
                 }
                 self.sync_labels(cx);
@@ -4034,6 +4084,11 @@ impl Widget for OctoscodeView {
 // router the native chrome uses (perform_screen_action → the screens'
 // table → Effect::Connect).
 static NAV_QUEUE: Mutex<Vec<String>> = Mutex::new(Vec::new());
+
+/// A5 — see [`screens::owned_after_router`].
+fn screen_owned(action: &str) -> bool {
+    screens::owned_after_router(action)
+}
 
 pub struct OctoscodeModule;
 pub static OCTOSCODE_MODULE: OctoscodeModule = OctoscodeModule;

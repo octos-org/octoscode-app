@@ -1135,7 +1135,7 @@ impl Conversation {
                 if crate::screens::palette::queue_run(&name, &args) {
                     self.ui.lock().unwrap().set_draft_inner(String::new());
                     makepad_widgets::SignalToUI::set_ui_signal();
-                    ::log::info!("octoscode: command /{name}: queued to run locally");
+                    makepad_widgets::log!("[octoscode] command /{name}: queued to run locally");
                     return Ok(String::new());
                 }
             }

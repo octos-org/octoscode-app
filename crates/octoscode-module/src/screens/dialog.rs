@@ -197,6 +197,48 @@ pub fn close() {
     *OPEN.lock().unwrap() = None;
 }
 
+/// The open dialog's notice: why a control the user just clicked did not run
+/// (the web renders each family's error under its section with
+/// `role="alert"`, `AutonomyPanel.tsx:227/:328/:485`; a create/steer with no
+/// text is refused before any request, like the web's `required` field).
+static NOTICE: Mutex<Option<(Dialog, String)>> = Mutex::new(None);
+
+pub fn set_notice(text: impl Into<String>) {
+    if let Some(d) = current() {
+        *NOTICE.lock().unwrap() = Some((d, text.into()));
+    }
+}
+
+pub fn clear_notice() {
+    *NOTICE.lock().unwrap() = None;
+}
+
+/// The notice for dialog `d`, if one is up.
+pub fn notice(d: Dialog) -> Option<String> {
+    match NOTICE.lock().unwrap().as_ref() {
+        Some((n, t)) if *n == d => Some(t.clone()),
+        _ => None,
+    }
+}
+
+/// The notice a fail-closed control id earns (`autonomy::resolve`'s typed
+/// `Unhandled` reasons). `None` = nothing to tell the user.
+pub fn notice_for_refusal(id: &str) -> Option<&'static str> {
+    if id.ends_with("[not-advertised]") {
+        return Some("This server does not advertise that control.");
+    }
+    Some(match id {
+        "loop.create[empty]" => {
+            "Type the loop’s prompt in the composer first (add “ | 5m” for a fixed interval), then choose + New loop."
+        }
+        i if i.starts_with("loop.create[interval") => {
+            "Use a whole-number interval from 60s to 24h, such as “ | 5m”."
+        }
+        "loop.create[prompt-too-long]" => "The loop prompt is limited to 8 KB.",
+        _ => return None,
+    })
+}
+
 pub const ACTION_CLOSE: &str = "dialog.close";
 pub const ACTION_REFRESH_PROFILE: &str = "dialog.refresh.profile";
 pub const ACTION_REFRESH_CONTEXT: &str = "dialog.refresh.context";
@@ -249,15 +291,55 @@ pub fn resolve(id: &str) -> Effect {
 pub fn apply(effect: &Effect) -> Option<Dialog> {
     match effect {
         Effect::Open(d) => {
+            clear_notice();
             open(*d);
             Some(*d)
         }
         Effect::Close => {
+            clear_notice();
             close();
             None
         }
         _ => None,
     }
+}
+
+/// Append the notice line under the card's content (post-normalize card
+/// coordinates), growing the frame containers to hold it. The line keeps the
+/// card's own body face (cloned from its first text node) in the atlas red.
+fn append_notice(tree: &mut UiNode, text: &str, card: (f64, f64)) -> (f64, f64) {
+    let (w, h) = card;
+    let mut proto: Option<UiNode> = None;
+    walk(tree, &mut |n| {
+        if proto.is_none() && n.kind == NodeKind::Text && n.attrs.font_src.is_some() {
+            proto = Some(n.clone());
+        }
+    });
+    let Some(mut node) = proto else { return card };
+    let line_h = 44.0;
+    node.children.clear();
+    let a = &mut node.attrs;
+    a.id = Some("dialog_notice".into());
+    a.text = Some(text.to_owned());
+    a.x = Some(PAD_X);
+    a.y = Some(h - PAD_BOTTOM + 6.0);
+    a.w = Some((w - 2.0 * PAD_X) as f32);
+    a.h = Some(line_h as f32);
+    a.size = Some(13.5);
+    a.weight = Some(400);
+    a.color = Some(0xffcf_222e);
+    a.alignx = Some(0.0);
+    a.variant = None;
+    a.fillw = None;
+    let grown = (w, h + line_h + 6.0);
+    let frames = frame_ids(tree);
+    walk_mut(tree, &mut |n| {
+        if n.attrs.id.as_deref().is_some_and(|id| frames.iter().any(|f| f == id)) {
+            n.attrs.h = Some(grown.1 as f32);
+        }
+    });
+    tree.children.push(node);
+    grown
 }
 
 /// Whether the server advertises `name`: a METHOD (`a/b`) is read from the
@@ -774,15 +856,17 @@ fn live_skills(tree: &mut UiNode, ctx: &Ctx<'_>) {
 /// The goal's status word (`describeGoalStatus`, AutonomyPanel) and its badge
 /// colours: active green (the authored badge), paused/blocked amber, terminal
 /// grey.
-fn goal_badge(status: &str) -> (&'static str, u32, u32) {
-    match status {
+fn goal_badge(status: &str) -> (String, u32, u32) {
+    let (word, bg, ink) = match status {
         "active" => ("Active", 0xffe6_f6ea, 0xff28_7f3b),
         "paused" => ("Paused", 0xffff_f4e5, 0xff8a_5a00),
         "budget_limited" => ("Budget limited", 0xffff_f4e5, 0xff8a_5a00),
         "blocked" => ("Blocked", 0xffff_f4e5, 0xff8a_5a00),
-        "complete" | "completed" => ("Complete", 0xfff2_f2f4, 0xff61_666b),
-        _ => ("Unknown", 0xfff2_f2f4, 0xff61_666b),
-    }
+        "complete" => ("Complete", 0xfff2_f2f4, 0xff61_666b),
+        // `describeGoalStatus` returns an unknown status verbatim.
+        other => (other, 0xfff2_f2f4, 0xff61_666b),
+    };
+    (word.to_owned(), bg, ink)
 }
 
 /// autonomy-03 — no goal → the web's "No active goal for this session."
@@ -814,7 +898,7 @@ fn live_goal(tree: &mut UiNode, st: &AutonomyState) {
     };
     let status = goal["status"].as_str().unwrap_or("active");
     let (word, bg, ink) = goal_badge(status);
-    set_text(tree, "goal_badge_label", word);
+    set_text(tree, "goal_badge_label", &word);
     if let Some(n) = find_mut(tree, "goal_badge") {
         n.attrs.bg = Some(bg);
         // The pill hugs its word (the authored 72px fits "Active").
@@ -881,6 +965,20 @@ fn loop_rows(tree: &mut UiNode, st: &AutonomyState) {
 /// an active loop, Resume only for a paused one, `AutonomyPanel.tsx:262-300`).
 fn live_loops(tree: &mut UiNode, st: &AutonomyState) {
     loop_rows(tree, st);
+}
+
+/// autonomy-05 — a row's status line carries the pause reason
+/// ("paused (user)"); its box runs to the interval column instead of the
+/// atlas word's measured width ("fired 3×" clipped the live "paused (").
+fn live_monitors(tree: &mut UiNode, st: &AutonomyState) {
+    for i in 1..=st.monitors.len().min(3) {
+        let (state, int) = (format!("mon_{i}_state"), format!("mon_{i}_int"));
+        if let (Some((sx, _, _, _)), Some((ix, _, _, _))) = (rect_of(tree, &state), rect_of(tree, &int)) {
+            if let Some(n) = find_mut(tree, &state) {
+                n.attrs.w = Some((ix - 10.0 - sx).max(40.0) as f32);
+            }
+        }
+    }
 }
 
 /// autonomy-02 — idle: the web's own preamble ("Run the server's native review
@@ -1084,7 +1182,21 @@ pub fn controls(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState) -> Vec<Control> {
             let n = ctx.store.domains.peer.list().len();
             (0..n).map(|i| ctl(format!("peer_r{i}_steer"), format!("peer.steer#{i}"))).collect()
         }
-        Dialog::Tasks => vec![ctl("cancel_control", "task.cancel")],
+        Dialog::Tasks => {
+            // The generated run blocks (`fleet::rewrite_tasks_rows`): one
+            // Cancel per running task, addressing its own row.
+            let running = ctx
+                .store
+                .domains
+                .task
+                .snapshots()
+                .into_iter()
+                .filter(|t| t.state == "running")
+                .count();
+            (0..running)
+                .map(|i| ctl(format!("run_r{i}_cancel_control"), format!("task.cancel#{i}")))
+                .collect()
+        }
         Dialog::Review => vec![ctl("start_review_control", "review.start")],
     }
 }
@@ -1344,7 +1456,7 @@ fn live(d: Dialog, tree: &mut UiNode, ctx: &Ctx<'_>, st: &AutonomyState) {
         Dialog::Loops => live_loops(tree, st),
         Dialog::Review => live_review(tree, ctx),
         Dialog::Fleet | Dialog::Tasks => live_fleet_tasks(tree),
-        Dialog::Monitors => {}
+        Dialog::Monitors => live_monitors(tree, st),
     }
     centre_button_labels(tree);
 }
@@ -1359,6 +1471,10 @@ pub fn lower(d: Dialog, ctx: &Ctx<'_>, avail_w: f64, avail_h: f64) -> Result<Mou
     let frames = frame_ids(&tree);
     let slot = close_slot(&tree, cw, &frames);
     clear_close(&mut tree, slot, &frames);
+    let (cw, ch) = match notice(d) {
+        Some(text) => append_notice(&mut tree, &text, (cw, ch)),
+        None => (cw, ch),
+    };
 
     // Desktop: the card at its design size, centred, the frame no taller than
     // the host minus the backdrop padding (the rest scrolls). Phone: a
@@ -1691,6 +1807,238 @@ mod tests {
 
     use crate::flow::FlowUi;
     use octoscode_store::Store;
+
+    /// The dialog state + the autonomy cache are process statics; the tests
+    /// that read them run one at a time.
+    fn serial() -> std::sync::MutexGuard<'static, ()> {
+        static L: StdMutex<()> = StdMutex::new(());
+        L.lock().unwrap_or_else(|e| e.into_inner())
+    }
+
+    fn full() -> (Arc<Store>, StdMutex<FlowUi>) {
+        let store = Arc::new(Store::new());
+        store.domains.session.set_active(Some("dsflash:main".into()));
+        seed_fixture(&store);
+        (store, StdMutex::new(FlowUi::default()))
+    }
+
+    fn empty() -> (Arc<Store>, StdMutex<FlowUi>) {
+        crate::screens::autonomy::reset_state();
+        let store = Arc::new(Store::new());
+        store.domains.session.set_active(Some("dsflash:main".into()));
+        (store, StdMutex::new(FlowUi::default()))
+    }
+
+    fn events(m: &Mounted) -> Vec<String> {
+        m.taps.iter().map(|(_, e)| e.clone()).collect()
+    }
+
+    /// Every dialog, on the full fixture state, wires EVERY control it draws to
+    /// its owner's action id (by node id — no atlas-bounds matching), plus the
+    /// close button; nothing drawn is left dead.
+    #[test]
+    fn every_dialog_wires_every_drawn_control_on_the_full_state() {
+        let _s = serial();
+        let (store, ui) = full();
+        let ctx = Ctx::new(&store, &ui);
+        let want: &[(Dialog, &[&str])] = &[
+            (Dialog::Models, &["models.test_route", "models.discover"]),
+            (Dialog::Context, &["context.compact_now", "context.mode.llm", "context.mode.heuristic"]),
+            (Dialog::Skills, &["skills.remove_0", "skills.remove_1", "skills.remove_2", "skills.install_3", "skills.install_4"]),
+            (Dialog::Goal, &["goal.pause", "goal.stop", "goal.clear"]),
+            (
+                Dialog::Loops,
+                &[
+                    "loop.create", "loop.pause#0", "loop.fire_now#0", "loop.delete#0", "loop.pause#1",
+                    "loop.fire_now#1", "loop.delete#1", "loop.resume#2", "loop.delete#2",
+                ],
+            ),
+            (Dialog::Monitors, &["monitor.pause#0", "monitor.delete#0", "monitor.pause#1", "monitor.delete#1"]),
+            (Dialog::Fleet, &["peer.steer#0", "peer.steer#1", "peer.steer#2"]),
+            (Dialog::Tasks, &["task.cancel#0"]),
+            (Dialog::Review, &["review.start"]),
+        ];
+        for (d, evs) in want {
+            let m = lower(*d, &ctx, 990.0, 603.0).unwrap_or_else(|e| panic!("{d:?}: {e}"));
+            assert!(m.missing.is_empty(), "{d:?} dead controls: {:?}", m.missing);
+            let got = events(&m);
+            for e in *evs {
+                assert!(got.iter().any(|g| g == e), "{d:?} must wire {e}; got {got:?}");
+            }
+            assert!(got.iter().any(|g| g == ACTION_CLOSE), "{d:?} has a close button");
+            // The paused third loop has NO pause control (web: Pause only
+            // while active, Resume only while paused).
+            if *d == Dialog::Loops {
+                assert!(!got.iter().any(|g| g == "loop.pause#2"), "{got:?}");
+            }
+        }
+    }
+
+    /// With nothing folded, no dialog shows the atlas SAMPLE copy: each
+    /// shows the web's own empty-state line (or the live value) instead.
+    #[test]
+    fn an_empty_store_never_shows_the_atlas_sample_data() {
+        let _s = serial();
+        let (store, ui) = empty();
+        let ctx = Ctx::new(&store, &ui);
+        let dsl = |d| lower(d, &ctx, 990.0, 603.0).unwrap().dsl;
+        let models = dsl(Dialog::Models);
+        assert!(models.contains("No models are configured for this Profile."));
+        for sample in ["3 models", "Kimi Coding Plan", "GLM Coding Plan", "deepseek-v4-pro"] {
+            assert!(!models.contains(sample), "models shows the sample {sample:?}");
+        }
+        let context = dsl(Dialog::Context);
+        // (`text: "…"` — the bare word also appears in the macOS emoji font
+        // path `/System/Library/Fonts/…` the lowering names.)
+        for sample in [
+            "text: \"System\"",
+            "text: \"Conversation\"",
+            "text: \"Tools\"",
+            "\"8k\"",
+            "\"96k\"",
+            "Keeps the last 4 turns",
+        ] {
+            assert!(!context.contains(sample), "context shows the sample {sample:?}");
+        }
+        assert!(context.contains("\"Items\"") && context.contains("\"Recovery\""));
+        let skills = dsl(Dialog::Skills);
+        assert!(skills.contains("No skills installed in this Profile."));
+        for sample in ["rust-review", "code-linter", "api-client"] {
+            assert!(!skills.contains(sample), "skills shows the sample {sample:?}");
+        }
+        let goal = dsl(Dialog::Goal);
+        assert!(goal.contains("No active goal for this session."));
+        assert!(!goal.contains("41k of 100k") && !goal.contains("\"Pause\""));
+        let review = dsl(Dialog::Review);
+        assert!(!review.contains("Reviewing 3 files"), "review shows the sample run");
+    }
+
+    /// Desktop: the frame fits the host with the web's 16 px backdrop margin
+    /// and the card keeps its design size; phone (360 wide): a full-bleed
+    /// sheet, the card scaled to the width. Every node stays inside the card
+    /// and every hit target is at least 28 px.
+    #[test]
+    fn the_frame_fits_desktop_and_phone_and_nothing_spills() {
+        let _s = serial();
+        let (store, ui) = full();
+        let ctx = Ctx::new(&store, &ui);
+        for d in ALL {
+            let m = lower(*d, &ctx, 990.0, 603.0).unwrap();
+            assert_eq!(m.scale, 1.0, "{d:?} desktop keeps the design size");
+            assert!(m.frame.0 <= 990.0 - 32.0 && m.frame.1 <= 603.0 - 32.0 + 0.5, "{d:?} {:?}", m.frame);
+            let p = lower(*d, &ctx, 360.0, 780.0).unwrap();
+            assert_eq!(p.frame, (360.0, 780.0), "{d:?} phone sheet");
+            assert!(p.scale <= 1.0 && p.scale > 0.8, "{d:?} phone scale {}", p.scale);
+            let (tree, _) = live_tree(*d, &ctx).unwrap();
+            let (_, _, cw, _) = rect(&tree);
+            walk(&tree, &mut |n| {
+                let (x, _, w, h) = rect(n);
+                if w > 0.5 && h > 0.5 {
+                    assert!(x >= -0.5 && x + w <= cw + 0.5, "{d:?} {:?} spills [{x},{w}] of {cw}", n.attrs.id);
+                }
+                if n.kind == NodeKind::Button && n.attrs.tapto.is_some() {
+                    assert!(w >= 28.0 && h >= 28.0, "{d:?} {:?} hit {w}x{h} < 28", n.attrs.id);
+                }
+            });
+        }
+    }
+
+    /// The close square never sits on a title-row control (`+ New loop`,
+    /// `Start native review`): those move left of it.
+    #[test]
+    fn the_close_button_never_covers_a_title_row_control() {
+        let _s = serial();
+        let (store, ui) = full();
+        let ctx = Ctx::new(&store, &ui);
+        for (d, control) in [(Dialog::Loops, "new_loop"), (Dialog::Review, "start_review")] {
+            let (tree, _) = live_tree(d, &ctx).unwrap();
+            let frames = frame_ids(&tree);
+            let (cx, cy) = close_slot(&tree, rect(&tree).2, &frames);
+            let (x, y, w, h) = rect_of(&tree, control).unwrap();
+            let overlap = x < cx + CLOSE_SIZE && x + w > cx && y < cy + CLOSE_SIZE && y + h > cy;
+            assert!(!overlap, "{d:?}: {control} [{x},{y},{w},{h}] under the close at ({cx},{cy})");
+        }
+    }
+
+    /// The web's command → surface table (`App.tsx:1339-1495` intents), and
+    /// the host's own ids resolve one owner each.
+    #[test]
+    fn commands_open_the_web_surfaces_and_the_host_ids_resolve() {
+        for (cmd, d) in [
+            ("/model", Dialog::Models),
+            ("/context", Dialog::Context),
+            ("/compact", Dialog::Context),
+            ("ctx", Dialog::Context),
+            ("/skills", Dialog::Skills),
+            ("/goal", Dialog::Goal),
+            ("/agents", Dialog::Goal),
+            ("/loop", Dialog::Loops),
+            ("/monitor", Dialog::Monitors),
+            ("/peer", Dialog::Fleet),
+            ("/ps", Dialog::Tasks),
+            ("/tasks", Dialog::Tasks),
+            ("/review", Dialog::Review),
+            ("/code-review", Dialog::Review),
+        ] {
+            assert_eq!(for_command(cmd), Some(d), "{cmd}");
+        }
+        assert_eq!(for_command("/help"), None);
+        for d in ALL {
+            assert_eq!(resolve(&open_action(*d)), Effect::Open(*d));
+            assert!(is_action(&open_action(*d)));
+        }
+        assert_eq!(resolve(ACTION_CLOSE), Effect::Close);
+        assert!(!is_action("dialog.open.nope") && !is_action("goal.pause"));
+        // Every palette row that opens a dialog names a real dialog id.
+        for c in crate::screens::palette::COMMANDS {
+            if let Some(e) = c.effect.filter(|e| e.starts_with("dialog.")) {
+                assert!(matches!(resolve(e), Effect::Open(_)), "{} -> {e}", c.name);
+            }
+        }
+    }
+
+    /// The fail-closed notice: a refused create explains itself in the open
+    /// dialog, and opening/closing clears it.
+    #[test]
+    fn a_refused_control_leaves_a_notice_in_its_dialog() {
+        let _s = serial();
+        let (store, ui) = full();
+        let ctx = Ctx::new(&store, &ui);
+        open(Dialog::Loops);
+        set_notice(notice_for_refusal("loop.create[empty]").unwrap());
+        let m = lower(Dialog::Loops, &ctx, 990.0, 603.0).unwrap();
+        assert!(m.dsl.contains("then choose + New loop."), "the notice renders");
+        let plain = {
+            clear_notice();
+            lower(Dialog::Loops, &ctx, 990.0, 603.0).unwrap()
+        };
+        assert!(m.frame.1 > plain.frame.1, "the frame grows to hold the notice");
+        set_notice("x");
+        apply(&Effect::Close);
+        assert_eq!(notice(Dialog::Loops), None, "closing clears the notice");
+        assert!(notice_for_refusal("goal.pause[not-advertised]").is_some());
+        assert!(notice_for_refusal("loop.pause[3]").is_none());
+    }
+
+    /// The card SVGs resolve to their on-disk assets (the `:8170` design-lab
+    /// URLs are not ours to serve).
+    #[test]
+    fn card_svgs_resolve_to_files_on_disk() {
+        let out = localize_card_assets(
+            "draw_svg.svg: http_resource(\"http://127.0.0.1:8170/ux-images/setup-07/assets/nope.svg\")",
+        );
+        // A file that does not exist keeps the original call (logged, never
+        // silently pointed somewhere else).
+        assert!(out.contains("http_resource"), "{out}");
+        let _s = serial();
+        let (store, ui) = full();
+        let ctx = Ctx::new(&store, &ui);
+        let models = lower(Dialog::Models, &ctx, 990.0, 603.0).unwrap().dsl;
+        if crate::design::dir("stage-b/setup/cards/setup-07/assets").is_dir() {
+            assert!(!models.contains("http_resource(\"http://127.0.0.1:8170"), "an unresolved card svg");
+            assert!(models.contains("file_resource("), "the chevrons/check are files");
+        }
+    }
 
     /// Dev probe: `cargo test -p octoscode-module --lib dialog::tests::dump -- --ignored --nocapture`
     #[test]

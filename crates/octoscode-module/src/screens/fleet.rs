@@ -285,7 +285,9 @@ pub fn action_params(
             ))
         }
         "task.cancel" => {
-            let task = running_task(store)?;
+            // A5: row-aware — each generated run block's Cancel addresses
+            // its own running task (`run_r{i}_cancel_control` → row i).
+            let task = running_tasks(store).into_iter().nth(row)?;
             Some((
                 "task/cancel".to_owned(),
                 json!({ "task_id": task.id, "session_id": session }),
@@ -325,8 +327,8 @@ pub enum Effect {
     /// per-row `steerDrafts`, `FleetView.tsx:226-227`; the native screen set
     /// has one draft — reported).
     Steer { row: usize, text: String },
-    /// `task/cancel` the running task.
-    CancelTask,
+    /// `task/cancel` the running task in run block `row`.
+    CancelTask { row: usize },
     /// `task/output/read` the running card's output.
     OpenRunning,
     /// #P4a4 row `Start control flow`: start peer row `row` — acquire the
@@ -360,7 +362,7 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             text: ctx.ui.lock().unwrap().draft(),
         },
         "peer.start" | "peer_1_start" | "peer_2_start" | "peer_3_start" => Effect::Start { row },
-        "task.cancel" => Effect::CancelTask,
+        "task.cancel" => Effect::CancelTask { row: index },
         "task.open.running" => Effect::OpenRunning,
         other => Effect::Unhandled(other.to_owned()),
     }
@@ -1161,9 +1163,21 @@ pub fn spawn(
         });
         return;
     }
+    // A5 — a steer with no text never leaves the client (the web's row input
+    // is required before Steer, `FleetView.tsx` steerDrafts); the open dialog
+    // says where the text comes from.
+    if let Effect::Steer { text, .. } = &effect {
+        if text.trim().is_empty() {
+            ::log::warn!("octoscode: fleet steer: nothing to send — the steering text is empty");
+            crate::screens::dialog::set_notice(
+                "Type the steering text in the composer first, then choose Steer.",
+            );
+            return;
+        }
+    }
     let (action, row, text) = match &effect {
         Effect::Steer { row, text } => ("peer.steer", *row, text.clone()),
-        Effect::CancelTask => ("task.cancel", 0, String::new()),
+        Effect::CancelTask { row } => ("task.cancel", *row, String::new()),
         Effect::OpenRunning => ("task.open.running", 0, String::new()),
         // Routed above (the if-let returned); the match only needs the arms
         // the compiler cannot prove unreachable.
