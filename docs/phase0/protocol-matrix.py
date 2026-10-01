@@ -153,6 +153,87 @@ def regenerate_protocol(consts, server, notif, core_src):
     return rows
 
 
+def regenerate_ext(consts, core_src):
+    """#41a: the extension-method matrix (docs/protocol-ext-matrix.csv),
+    generated the same way as the protocol matrix — never hand-edited. The
+    method set comes from the web's AppUI extension files (everything under
+    packages/client/src/ outside core-contract.ts: *-methods.ts objects,
+    single-const modules like steer), the native status from crates/**:
+    handled = a PRODUCTION consumer under a crate's src/ (RULES: test-only
+    matches are noted, never counted as handled)."""
+    core_lines = core_src.splitlines()
+    const_line = {}
+    for i, l in enumerate(core_lines):
+        m = re.match(r"\s*pub const ([A-Z_]+): &str = \"([^\"]+)\"", l)
+        if m:
+            const_line[m.group(2)] = i + 1
+
+    def line_at(text, pos):
+        return text.count("\n", 0, pos) + 1
+
+    ext = {}  # method -> defined_in_web (first file:line wins)
+    for p in sorted(glob.glob(f"{W}/packages/client/src/*.ts")):
+        base = os.path.basename(p)
+        if base.endswith(".test.ts"):
+            continue
+        text = open(p, errors="ignore").read()
+        rel = os.path.relpath(p, W)
+        # object entries:  TOOLS: "tool/status/list"
+        for m in re.finditer(r"([A-Z][A-Z0-9_]+)\s*:\s*\"([a-z][a-z0-9_/]+)\"", text):
+            method = m.group(2)
+            if "/" not in method or method in consts or method in ext:
+                continue
+            ext[method] = f"{rel}:{line_at(text, m.start(2))}"
+        # single constants:  export const TURN_STEER_METHOD = "turn/steer"
+        for m in re.finditer(r"export const [A-Z][A-Z0-9_]+ = \"([a-z][a-z0-9_/]+)\"", text):
+            method = m.group(1)
+            if "/" not in method or method in consts or method in ext:
+                continue
+            ext[method] = f"{rel}:{line_at(text, m.start(1))}"
+
+    web = [(p, open(p, errors="ignore").read()) for p in files(f"{W}/apps", (".ts", ".tsx"))]
+    web += [(p, open(p, errors="ignore").read()) for p in files(f"{W}/packages", (".ts", ".tsx"))]
+    native = [(p, open(p, errors="ignore").read()) for p in files(NATIVE_ROOT, (".rs",))]
+
+    rows = []
+    for method, defined in sorted(ext.items()):
+        camel = "".join(w.capitalize() for w in re.split(r"[/_.]", method))
+        pat_n = re.compile("[\"']" + re.escape(method) + "[\"']")
+        all_np = [p for p, t in native if pat_n.search(t)]
+        # Production path only (RULES 3): src/ under an octoscode crate.
+        np_ = [p for p in all_np if "/src/" in p]
+        tests = [p for p in all_np if p not in np_]
+        has_handler = any("octoscode-client" in p or "octoscode-module" in p or "octoscode-store" in p
+                          for p in np_)
+        status = "handled" if has_handler else ("decoded-only" if np_ else "absent")
+        # The entry: the TEST file per row — native replay/guard coverage is
+        # part of the row's evidence (absent rows say so explicitly).
+        tnames = sorted({os.path.basename(t) for t in tests})
+        note = ""
+        if tnames:
+            note = f"tests: {';'.join(tnames[:2])}" + (f" +{len(tnames) - 2}" if len(tnames) > 2 else "")
+        if not np_ and tests:
+            note = (note + "; " if note else "") + f"test-only matches: {len(tests)}"
+        wsrc = [p for p, t in web if pat_n.search(t) and not re.search(r"\.(test|spec)\.", p)]
+        wtest = [p for p, t in web if pat_n.search(t) and re.search(r"\.(test|spec)\.", p)]
+        kind = ("notification" if re.search(r"pub struct " + camel + "Event\b", core_src)
+                else "request")
+        rows.append(dict(
+            method=method, kind=kind, defined_in_web=defined,
+            params_type=(camel + "Params") if re.search(r"pub struct " + camel + "Params\b", core_src) else "",
+            result_type=(camel + "Result") if re.search(r"pub struct " + camel + "Result\b", core_src) else "",
+            feature_flag="",
+            server_status=("defined" if method in const_line else "absent-in-pin"),
+            server_src=(f"octos-core/src/ui_protocol.rs:{const_line[method]}" if method in const_line else ""),
+            web_call_sites=";".join(sorted(os.path.relpath(p, W) for p in wsrc)[:3]),
+            web_tested=str(len(wtest)),
+            native_status=status,
+            native_src=";".join(sorted({os.path.relpath(p, NATIVE_ROOT) for p in np_})[:3]),
+            notes=note,
+        ))
+    return rows
+
+
 def statuses(path):
     with open(path, newline="") as f:
         return {r["method"]: r["native_status"] for r in csv.DictReader(f)}
@@ -221,6 +302,15 @@ def main():
           "| absent", sum(r["native_status"] == "absent" for r in used))
 
     proto_status = {r["method"]: r["native_status"] for r in rows}
+    ext_rows = regenerate_ext(consts, core_src)
+    write_csv(os.path.join(DOCS, "protocol-ext-matrix.csv"),
+              ["method", "kind", "defined_in_web", "params_type", "result_type", "feature_flag",
+               "server_status", "server_src", "web_call_sites", "web_tested",
+               "native_status", "native_src", "notes"], ext_rows)
+    print("ext methods", len(ext_rows), "| handled", sum(r["native_status"] == "handled" for r in ext_rows),
+          "| decoded-only", sum(r["native_status"] == "decoded-only" for r in ext_rows),
+          "| absent", sum(r["native_status"] == "absent" for r in ext_rows),
+          "| defined-in-pin", sum(r["server_status"] == "defined" for r in ext_rows))
     ph, prow, upgraded = regenerate_parity(proto_status)
     write_csv(os.path.join(DOCS, "parity-matrix.csv"), ph, prow)
     wh, wrow = regenerate_walk(proto_status)
