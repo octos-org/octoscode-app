@@ -35,9 +35,9 @@
       "event": "pair.paste",
       "source_bounds": [
         28,
-        490,
+        484,
         350,
-        44
+        48
       ],
       "enabled": true
     }

@@ -165,7 +165,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 394.0,
     "w": 139.0,
     "h": 22.5,
-    "text": "Back to /Users/dev",
+    "text": "Back to /home/user",
     "font_src": "self:resources/ux/Inter-500.ttf",
     "size": 15,
     "weight": 500,
@@ -176,10 +176,32 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "browser_path",
+    "id": "browser_path_wrap",
     "x": 28.0,
     "y": 488.0,
     "w": 350.0,
+    "h": 48.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "browser_path_field",
+    "x": 28.0,
+    "y": 488.0,
+    "w": 350.0,
+    "h": 48.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "browser_path",
+    "x": 42.0,
+    "y": 488.0,
+    "w": 322.0,
     "h": 48.0,
     "text": "/private",
     "font_src": "self:resources/ux/Inter-400.ttf",

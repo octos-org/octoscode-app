@@ -202,14 +202,35 @@
     },
     {
       "id": "t_model_1",
-      "expected_text": "deepseek-v4-flash (default)",
+      "expected_text": "deepseek-v4",
       "requested_bounds": [
-        34.96,
-        469.0,
-        198.49,
+        34.87,
+        510.5,
+        94.91,
         21.0
       ],
-      "status": "missing_or_ocr_unresolved"
+      "status": "observed",
+      "ocr_text": "deepseek-v4",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        37.0,
+        512.5,
+        90.0,
+        17.0
+      ],
+      "ink_color": [
+        36,
+        35,
+        36
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        34.873,
+        510.49675,
+        94.90955,
+        20.06465
+      ]
     },
     {
       "id": "t_model_2",
@@ -322,7 +343,7 @@
       "bg": 4294901502
     },
     {
-      "id": "prov_name",
+      "id": "prov_name_wrap",
       "bounds": [
         28.0,
         218.0,
@@ -333,7 +354,31 @@
       "reviewed": false
     },
     {
-      "id": "prov_url",
+      "id": "prov_name_field",
+      "bounds": [
+        21.0,
+        217.0,
+        361.0,
+        41.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.18
+    },
+    {
+      "id": "prov_name",
+      "bounds": [
+        42.0,
+        218.0,
+        322.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "prov_url_wrap",
       "bounds": [
         28.0,
         296.0,
@@ -344,11 +389,59 @@
       "reviewed": false
     },
     {
-      "id": "prov_key",
+      "id": "prov_url_field",
+      "bounds": [
+        21.0,
+        294.0,
+        361.0,
+        41.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.18
+    },
+    {
+      "id": "prov_url",
+      "bounds": [
+        42.0,
+        296.0,
+        322.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "prov_key_wrap",
       "bounds": [
         28.0,
         374.0,
         350.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "prov_key_field",
+      "bounds": [
+        21.0,
+        370.0,
+        361.0,
+        41.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.18
+    },
+    {
+      "id": "prov_key",
+      "bounds": [
+        42.0,
+        374.0,
+        322.0,
         44.0
       ],
       "method": "inferred semantic extent from observed parent",
@@ -402,7 +495,7 @@
       "id": "chk_1",
       "bounds": [
         40.0,
-        467.0,
+        508.5,
         18.0,
         18.0
       ],
@@ -573,16 +666,6 @@
       ],
       "confidence": 1.0,
       "text": "\u2022 \u2022 o"
-    },
-    {
-      "bounds": [
-        69.746,
-        1020.9935,
-        189.8191,
-        40.1293
-      ],
-      "confidence": 1.0,
-      "text": "deepseek-v4"
     }
   ],
   "non_text_ocr": [],

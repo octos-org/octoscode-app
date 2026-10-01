@@ -31,6 +31,12 @@ component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
 component Text1e7134e67639(instance: text, text: text) {
   view Kit(component: "Text1e7134e67639", instance: instance, text: text)
 }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Surfacee82a3a65acee(instance: text) {
+  view Kit(component: "Surfacee82a3a65acee", instance: instance) { slot }
+}
 component Inputbf8299260317(instance: text, text: text, placeholder: text, enabled: bool) {
   view Kit(component: "Inputbf8299260317", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
 }

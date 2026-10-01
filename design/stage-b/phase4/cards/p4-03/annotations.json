@@ -73,7 +73,7 @@
       "radius": 14.77
     },
     {
-      "id": "connect_server",
+      "id": "connect_server_wrap",
       "bounds": [
         28.0,
         322.0,
@@ -84,11 +84,59 @@
       "reviewed": false
     },
     {
-      "id": "connect_token",
+      "id": "connect_server_field",
+      "bounds": [
+        26.0,
+        319.0,
+        353.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.75
+    },
+    {
+      "id": "connect_server",
+      "bounds": [
+        42.0,
+        322.0,
+        322.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "connect_token_wrap",
       "bounds": [
         28.0,
         436.0,
         350.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "connect_token_field",
+      "bounds": [
+        26.0,
+        435.0,
+        353.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.75
+    },
+    {
+      "id": "connect_token",
+      "bounds": [
+        42.0,
+        436.0,
+        322.0,
         48.0
       ],
       "method": "inferred semantic extent from observed parent",

@@ -55,7 +55,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 154.5,
     "w": 235.71,
     "h": 19.5,
-    "text": "/ > Users \u203a dev \u203a code",
+    "text": "/ > home \u203a dev \u203a code",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 13,
     "weight": 400,
@@ -274,12 +274,34 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "browser_path",
+    "id": "browser_path_wrap",
     "x": 28.0,
     "y": 490.0,
     "w": 350.0,
     "h": 48.0,
-    "text": "/Users/dev/code/octoscode-app",
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "browser_path_field",
+    "x": 28.0,
+    "y": 490.0,
+    "w": 350.0,
+    "h": 48.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "browser_path",
+    "x": 42.0,
+    "y": 490.0,
+    "w": 322.0,
+    "h": 48.0,
+    "text": "/home/user/code/octoscode-app",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 15,
     "weight": 400,

@@ -66,23 +66,47 @@
         "font_desc": 0.09392755681818177
       },
       {
-        "t": "input",
-        "id": "prov_name",
-        "text": "DeepSeek \u2022 Official API",
-        "placeholder": "",
+        "t": "stack",
+        "id": "prov_name_wrap",
         "x": 28.0,
         "y": 218.0,
         "w": 350.0,
         "h": 44.0,
-        "size": 15,
-        "line_height": 44.0,
-        "weight": 400,
-        "color": 4280098079,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "enabled": 1,
-        "c": []
+        "c": [
+          {
+            "t": "stack",
+            "id": "prov_name_field",
+            "x": 22.0,
+            "y": 211.0,
+            "w": 358.0,
+            "h": 33.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294901502,
+            "radius": 9.0,
+            "border": 1,
+            "bordercolor": 4292006615
+          },
+          {
+            "t": "input",
+            "id": "prov_name",
+            "text": "DeepSeek \u2022 Official API",
+            "placeholder": "",
+            "x": 42.0,
+            "y": 218.0,
+            "w": 322.0,
+            "h": 44.0,
+            "size": 15,
+            "line_height": 44.0,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "enabled": 1,
+            "c": []
+          }
+        ]
       },
       {
         "t": "text",
@@ -104,23 +128,47 @@
         "font_desc": 0.09392755681818177
       },
       {
-        "t": "input",
-        "id": "prov_url",
-        "text": "https://api.deepseek.com/v1",
-        "placeholder": "",
+        "t": "stack",
+        "id": "prov_url_wrap",
         "x": 28.0,
         "y": 296.0,
         "w": 350.0,
         "h": 44.0,
-        "size": 15,
-        "line_height": 44.0,
-        "weight": 400,
-        "color": 4280098079,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "enabled": 1,
-        "c": []
+        "c": [
+          {
+            "t": "stack",
+            "id": "prov_url_field",
+            "x": 20.0,
+            "y": 271.0,
+            "w": 363.0,
+            "h": 41.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294900988,
+            "radius": 11.18,
+            "border": 1,
+            "bordercolor": 4292006615
+          },
+          {
+            "t": "input",
+            "id": "prov_url",
+            "text": "https://api.deepseek.com/v1",
+            "placeholder": "",
+            "x": 42.0,
+            "y": 296.0,
+            "w": 322.0,
+            "h": 44.0,
+            "size": 15,
+            "line_height": 44.0,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "enabled": 1,
+            "c": []
+          }
+        ]
       },
       {
         "t": "text",
@@ -142,26 +190,47 @@
         "font_desc": -0.09583782327586199
       },
       {
-        "t": "input",
-        "id": "prov_key",
-        "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
-        "placeholder": "",
-        "x": 21.0,
-        "y": 391.0,
-        "w": 358.0,
-        "h": 34.0,
-        "size": 15,
-        "line_height": 44.0,
-        "weight": 400,
-        "color": 4280098079,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "enabled": 1,
-        "c": [],
-        "bg": 4294835710,
-        "border_color": 4291764782,
-        "border_size": 1.0
+        "t": "stack",
+        "id": "prov_key_wrap",
+        "x": 28.0,
+        "y": 372.0,
+        "w": 350.0,
+        "h": 44.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "prov_key_field",
+            "x": 21.0,
+            "y": 391.0,
+            "w": 358.0,
+            "h": 34.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294835710,
+            "radius": 9.27,
+            "border": 1,
+            "bordercolor": 4292006615
+          },
+          {
+            "t": "input",
+            "id": "prov_key",
+            "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+            "placeholder": "",
+            "x": 42.0,
+            "y": 372.0,
+            "w": 322.0,
+            "h": 44.0,
+            "size": 15,
+            "line_height": 44.0,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "enabled": 1,
+            "c": []
+          }
+        ]
       },
       {
         "t": "svg",
@@ -291,7 +360,7 @@
         "t": "svg",
         "id": "chk_1",
         "x": 40.0,
-        "y": 399.5,
+        "y": 435.28,
         "w": 18.0,
         "h": 18.0,
         "src": ""
@@ -299,18 +368,21 @@
       {
         "t": "text",
         "id": "t_model_1",
-        "text": "deepseek-v4-flash (default)",
-        "x": 33.83,
-        "y": 401.5,
-        "w": 193.98,
-        "h": 21.0,
-        "size": 14,
-        "line_height": 21.0,
+        "text": "deepseek-v4",
+        "x": 35.24528301886792,
+        "y": 435.5,
+        "w": 91.0,
+        "h": 19.0,
+        "size": 16.10062893081761,
+        "line_height": 19.0,
         "weight": 500,
-        "color": 4280098079,
+        "color": 4279900954,
         "variant": "single_line",
         "alignx": 0,
-        "font_src": "self:resources/ux/Inter-500.ttf"
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": -1.405345911949685,
+        "font_asc": -0.11699218749999996,
+        "font_desc": -0.08710937500000004
       },
       {
         "t": "button",
@@ -480,11 +552,35 @@
       "source": "observed non-text annotation"
     },
     {
+      "id": "prov_name_wrap",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_name_field",
+      "source": "observed non-text annotation"
+    },
+    {
       "id": "prov_name",
       "source": "observed non-text annotation"
     },
     {
+      "id": "prov_url_wrap",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_url_field",
+      "source": "observed non-text annotation"
+    },
+    {
       "id": "prov_url",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_key_wrap",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_key_field",
       "source": "observed non-text annotation"
     },
     {
@@ -598,6 +694,12 @@
       "source": "Vision OCR ink bounds plus bundled font glyph metrics",
       "font_family_verified_in_reference": false,
       "tracking_em": -0.054596022991625325
+    },
+    {
+      "id": "t_model_1",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.08728515624999997
     },
     {
       "id": "t_model_2",

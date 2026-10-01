@@ -87,10 +87,32 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "prov_name",
+    "id": "prov_name_wrap",
     "x": 28.0,
     "y": 218.0,
     "w": 350.0,
+    "h": 44.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "prov_name_field",
+    "x": 28.0,
+    "y": 218.0,
+    "w": 350.0,
+    "h": 44.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "prov_name",
+    "x": 42.0,
+    "y": 218.0,
+    "w": 322.0,
     "h": 44.0,
     "text": "DeepSeek \u2022 Official API",
     "font_src": "self:resources/ux/Inter-400.ttf",
@@ -119,10 +141,32 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "prov_url",
+    "id": "prov_url_wrap",
     "x": 28.0,
     "y": 296.0,
     "w": 350.0,
+    "h": 44.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "prov_url_field",
+    "x": 28.0,
+    "y": 296.0,
+    "w": 350.0,
+    "h": 44.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "prov_url",
+    "x": 42.0,
+    "y": 296.0,
+    "w": 322.0,
     "h": 44.0,
     "text": "https://api.deepseek.com/v1",
     "font_src": "self:resources/ux/Inter-400.ttf",
@@ -151,10 +195,32 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "prov_key",
+    "id": "prov_key_wrap",
     "x": 28.0,
     "y": 372.0,
     "w": 350.0,
+    "h": 44.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "prov_key_field",
+    "x": 28.0,
+    "y": 372.0,
+    "w": 350.0,
+    "h": 44.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "prov_key",
+    "x": 42.0,
+    "y": 372.0,
+    "w": 322.0,
     "h": 44.0,
     "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
     "font_src": "self:resources/ux/Inter-400.ttf",
@@ -286,7 +352,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "chk_1",
     "x": 40.0,
-    "y": 399.5,
+    "y": 435.28,
     "w": 18.0,
     "h": 18.0,
     "role": "unknown",
@@ -294,11 +360,11 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "t_model_1",
-    "x": 33.83,
-    "y": 401.5,
-    "w": 193.98,
+    "x": 33.77,
+    "y": 437.28,
+    "w": 90.34,
     "h": 21.0,
-    "text": "deepseek-v4-flash (default)",
+    "text": "deepseek-v4",
     "font_src": "self:resources/ux/Inter-500.ttf",
     "size": 14,
     "weight": 500,

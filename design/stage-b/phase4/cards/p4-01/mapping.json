@@ -236,17 +236,53 @@
       "size": 16.541140837960626
     },
     {
-      "source_id": "pair_link",
+      "source_id": "pair_link_wrap",
       "native_id": "beauty_0_12",
       "parent": "page",
-      "kind": "input",
-      "component": "Input36d5f46a2e5c",
-      "semantic_role": "input",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
       "bounds": [
         28.0,
-        490.0,
+        484.0,
         350.0,
-        44.0
+        48.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "pair_link_field",
+      "native_id": "beauty_0_12_0",
+      "parent": "pair_link_wrap",
+      "kind": "stack",
+      "component": "Surface86bc6db63f02",
+      "semantic_role": "layout",
+      "bounds": [
+        27.0,
+        487.0,
+        352.0,
+        51.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "pair_link",
+      "native_id": "beauty_0_12_1",
+      "parent": "pair_link_wrap",
+      "kind": "input",
+      "component": "Input508f95901acf",
+      "semantic_role": "input",
+      "bounds": [
+        42.0,
+        484.0,
+        322.0,
+        48.0
       ],
       "text": "",
       "enabled": 1,
@@ -403,6 +439,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "350149046a7979c09da18749ff034d9d560db3bdc62330f4ddd5576053b9153f",
+  "contract_sha256": "82b1e05691fbea803df200819f2b1af26f01d0403c6654cbbd5059144a4492aa",
   "mapping_basis": "mapped.json"
 }

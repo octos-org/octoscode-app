@@ -30,7 +30,7 @@
         29.3721
       ],
       "confidence": 1.0,
-      "text": "/ > Users \u203a dev \u203a code"
+      "text": "/ > home \u203a dev \u203a code"
     },
     {
       "bounds": [
@@ -90,7 +90,7 @@
         49.4239
       ],
       "confidence": 1.0,
-      "text": "/Users/dev/code/octoscode-app"
+      "text": "/home/user/code/octoscode-app"
     },
     {
       "bounds": [

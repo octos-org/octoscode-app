@@ -194,22 +194,58 @@
         137.0,
         20.0
       ],
-      "text": "Back to /Users/dev",
+      "text": "Back to /home/user",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
       "size": 18.367713004484305
     },
     {
-      "source_id": "browser_path",
+      "source_id": "browser_path_wrap",
       "native_id": "beauty_0_7",
       "parent": "page",
-      "kind": "input",
-      "component": "Inputbf8299260317",
-      "semantic_role": "input",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
       "bounds": [
         28.0,
         488.0,
         350.0,
+        48.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "browser_path_field",
+      "native_id": "beauty_0_7_0",
+      "parent": "browser_path_wrap",
+      "kind": "stack",
+      "component": "Surfacee82a3a65acee",
+      "semantic_role": "layout",
+      "bounds": [
+        25.0,
+        483.0,
+        356.0,
+        56.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "browser_path",
+      "native_id": "beauty_0_7_1",
+      "parent": "browser_path_wrap",
+      "kind": "input",
+      "component": "Inputbf8299260317",
+      "semantic_role": "input",
+      "bounds": [
+        42.0,
+        488.0,
+        322.0,
         48.0
       ],
       "text": "/private",
@@ -223,6 +259,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "e929619003e590d82b222a35f7ae18731450ab4272f1fe060802a6989d73b6fb",
+  "contract_sha256": "664e75ebc6493404ce00a3e9cd63d68c044457baf5209c06ea5eaf5fd48f2931",
   "mapping_basis": "mapped.json"
 }

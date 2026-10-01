@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "0f8f5601c421a956b10304aec6ed925359b90e905763488195543c3c317b52ed",
+  "contract_sha256": "44a306a3d05621885db632fccd9593fa8fa52ebe95bf59e85a05e42e697c6222",
   "reference_sha256": "2b5d5f5886d5b1d5342973132341134f9369ea38ff76b13a7843357b2c4a17f7",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -48,6 +48,20 @@
       "decision": "declared"
     },
     {
+      "id": "connect_server_wrap",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "connect_server_field",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "connect_server",
       "role": "input",
       "basis": "authored input node",
@@ -63,6 +77,20 @@
       "id": "t_tok_label",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "connect_token_wrap",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "connect_token_field",
+      "role": "layout",
+      "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },

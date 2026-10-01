@@ -110,16 +110,52 @@
       "size": 18.666666666666668
     },
     {
-      "source_id": "connect_server",
+      "source_id": "connect_server_wrap",
       "native_id": "beauty_0_5",
       "parent": "page",
-      "kind": "input",
-      "component": "Inputbf8299260317",
-      "semantic_role": "input",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
       "bounds": [
         28.0,
         322.0,
         350.0,
+        48.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "connect_server_field",
+      "native_id": "beauty_0_5_0",
+      "parent": "connect_server_wrap",
+      "kind": "stack",
+      "component": "Surfacef6fd84a8f1d5",
+      "semantic_role": "layout",
+      "bounds": [
+        26.0,
+        319.0,
+        353.0,
+        55.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "connect_server",
+      "native_id": "beauty_0_5_1",
+      "parent": "connect_server_wrap",
+      "kind": "input",
+      "component": "Inputbf8299260317",
+      "semantic_role": "input",
+      "bounds": [
+        42.0,
+        322.0,
+        322.0,
         48.0
       ],
       "text": "http://192.168.1.20:50190",
@@ -146,16 +182,52 @@
       "size": 18.261558784676353
     },
     {
-      "source_id": "connect_token",
+      "source_id": "connect_token_wrap",
       "native_id": "beauty_0_7",
       "parent": "page",
-      "kind": "input",
-      "component": "Input508f95901acf",
-      "semantic_role": "input",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
       "bounds": [
         28.0,
         436.0,
         350.0,
+        48.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "connect_token_field",
+      "native_id": "beauty_0_7_0",
+      "parent": "connect_token_wrap",
+      "kind": "stack",
+      "component": "Surfacef6fd84a8f1d5",
+      "semantic_role": "layout",
+      "bounds": [
+        26.0,
+        435.0,
+        353.0,
+        55.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "connect_token",
+      "native_id": "beauty_0_7_1",
+      "parent": "connect_token_wrap",
+      "kind": "input",
+      "component": "Input508f95901acf",
+      "semantic_role": "input",
+      "bounds": [
+        42.0,
+        436.0,
+        322.0,
         48.0
       ],
       "text": "",
@@ -241,6 +313,6 @@
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488"
   },
-  "contract_sha256": "0f8f5601c421a956b10304aec6ed925359b90e905763488195543c3c317b52ed",
+  "contract_sha256": "44a306a3d05621885db632fccd9593fa8fa52ebe95bf59e85a05e42e697c6222",
   "mapping_basis": "mapped.json"
 }

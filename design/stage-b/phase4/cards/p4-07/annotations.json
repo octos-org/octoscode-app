@@ -130,7 +130,7 @@
       "reviewed": false
     },
     {
-      "id": "prov_name",
+      "id": "prov_name_wrap",
       "bounds": [
         28.0,
         218.0,
@@ -141,7 +141,31 @@
       "reviewed": false
     },
     {
-      "id": "prov_url",
+      "id": "prov_name_field",
+      "bounds": [
+        22.0,
+        211.0,
+        358.0,
+        33.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 9.0
+    },
+    {
+      "id": "prov_name",
+      "bounds": [
+        42.0,
+        218.0,
+        322.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "prov_url_wrap",
       "bounds": [
         28.0,
         296.0,
@@ -152,7 +176,42 @@
       "reviewed": false
     },
     {
-      "id": "prov_key",
+      "id": "prov_url_field",
+      "bounds": [
+        20.0,
+        271.0,
+        363.0,
+        41.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294900988,
+      "radius": 11.18
+    },
+    {
+      "id": "prov_url",
+      "bounds": [
+        42.0,
+        296.0,
+        322.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "prov_key_wrap",
+      "bounds": [
+        28.0,
+        372.0,
+        350.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "prov_key_field",
       "bounds": [
         21.0,
         391.0,
@@ -161,7 +220,19 @@
       ],
       "method": "reference edge contour with contained OCR text anchors",
       "reviewed": false,
-      "bg": 4294835710
+      "bg": 4294835710,
+      "radius": 9.27
+    },
+    {
+      "id": "prov_key",
+      "bounds": [
+        42.0,
+        372.0,
+        322.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
     },
     {
       "id": "key_eye",
@@ -224,7 +295,7 @@
       "id": "chk_1",
       "bounds": [
         40.0,
-        399.5,
+        435.28,
         18.0,
         18.0
       ],

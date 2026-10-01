@@ -8,7 +8,7 @@ copy t_crumbs_text { class: user-copy, en: "/ › private" }
 copy t_cal1_text { class: user-copy, en: "The server won't list this folder." }
 copy t_cal2_text { class: user-copy, en: "Pick another folder or type a path" }
 copy t_cal3_text { class: user-copy, en: "you can access." }
-copy browser_back_label_text { class: user-copy, en: "Back to /Users/dev" }
+copy browser_back_label_text { class: user-copy, en: "Back to /home/user" }
 copy browser_path_text { class: user-copy, en: "/private" }
 copy browser_path_placeholder { class: user-copy, en: "" }
 state browser_back_control_enabled { shape: bool, initial: true }
@@ -46,6 +46,12 @@ component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
 component Text1e7134e67639(instance: text, text: text) {
   view Kit(component: "Text1e7134e67639", instance: instance, text: text)
 }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Surfacee82a3a65acee(instance: text) {
+  view Kit(component: "Surfacee82a3a65acee", instance: instance) { slot }
+}
 component Inputbf8299260317(instance: text, text: text, placeholder: text, enabled: bool) {
   view Kit(component: "Inputbf8299260317", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
 }
@@ -66,7 +72,12 @@ view root Surface16fae9a63e16(instance: "page") {
     NativeButton02f1d1bd99b4(instance: "browser_back_control", enabled: browser_back_control_enabled)
     Text1e7134e67639(instance: "browser_back_label", text: copy.browser_back_label_text)
   }
-  Inputbf8299260317(instance: "browser_path", text: copy.browser_path_text, placeholder: copy.browser_path_placeholder, enabled: browser_path_enabled) {
+  Group3d2637879433(instance: "browser_path_wrap") {
+    Surfacee82a3a65acee(instance: "browser_path_field") {
 
+    }
+    Inputbf8299260317(instance: "browser_path", text: copy.browser_path_text, placeholder: copy.browser_path_placeholder, enabled: browser_path_enabled) {
+
+    }
   }
 }

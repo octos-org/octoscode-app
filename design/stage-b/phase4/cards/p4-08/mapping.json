@@ -50,7 +50,7 @@
         239.36616485159084,
         18.0
       ],
-      "text": "/ > Users \u203a dev \u203a code",
+      "text": "/ > home \u203a dev \u203a code",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
       "size": 16.071748878923767
@@ -362,19 +362,55 @@
       "size": 17.718066157760813
     },
     {
-      "source_id": "browser_path",
+      "source_id": "browser_path_wrap",
       "native_id": "beauty_0_19",
       "parent": "page",
-      "kind": "input",
-      "component": "Inputbf8299260317",
-      "semantic_role": "input",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
       "bounds": [
         28.0,
         490.0,
         350.0,
         48.0
       ],
-      "text": "/Users/dev/code/octoscode-app",
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "browser_path_field",
+      "native_id": "beauty_0_19_0",
+      "parent": "browser_path_wrap",
+      "kind": "stack",
+      "component": "Surfaced427ec81a2f0",
+      "semantic_role": "layout",
+      "bounds": [
+        17.0,
+        491.0,
+        369.0,
+        53.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "browser_path",
+      "native_id": "beauty_0_19_1",
+      "parent": "browser_path_wrap",
+      "kind": "input",
+      "component": "Inputbf8299260317",
+      "semantic_role": "input",
+      "bounds": [
+        42.0,
+        490.0,
+        322.0,
+        48.0
+      ],
+      "text": "/home/user/code/octoscode-app",
       "enabled": 1,
       "font": "self:resources/ux/Inter-400.ttf",
       "size": 15
@@ -457,6 +493,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "615e0757a928450c939c1412394f4d7adb3b69ab52236618424ddf352403f12c",
+  "contract_sha256": "f2481ae375ef753ecaccb16e83c804fd5536ba07a6ae52880be37b6187a2eba4",
   "mapping_basis": "mapped.json"
 }

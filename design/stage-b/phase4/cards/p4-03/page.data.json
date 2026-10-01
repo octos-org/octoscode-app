@@ -56,12 +56,30 @@
           "h": 18.0
         }
       },
-      "connect_server": {
-        "component": "Inputbf8299260317",
+      "connect_server_wrap": {
+        "component": "Group3d2637879433",
         "layout": {
           "x": 28.0,
           "y": 322.0,
           "w": 350.0,
+          "h": 48.0
+        }
+      },
+      "connect_server_field": {
+        "component": "Surfacef6fd84a8f1d5",
+        "layout": {
+          "x": 26.0,
+          "y": 319.0,
+          "w": 353.0,
+          "h": 55.0
+        }
+      },
+      "connect_server": {
+        "component": "Inputbf8299260317",
+        "layout": {
+          "x": 42.0,
+          "y": 322.0,
+          "w": 322.0,
           "h": 48.0
         }
       },
@@ -74,12 +92,30 @@
           "h": 17.5
         }
       },
-      "connect_token": {
-        "component": "Input508f95901acf",
+      "connect_token_wrap": {
+        "component": "Group3d2637879433",
         "layout": {
           "x": 28.0,
           "y": 436.0,
           "w": 350.0,
+          "h": 48.0
+        }
+      },
+      "connect_token_field": {
+        "component": "Surfacef6fd84a8f1d5",
+        "layout": {
+          "x": 26.0,
+          "y": 435.0,
+          "w": 353.0,
+          "h": 55.0
+        }
+      },
+      "connect_token": {
+        "component": "Input508f95901acf",
+        "layout": {
+          "x": 42.0,
+          "y": 436.0,
+          "w": 322.0,
           "h": 48.0
         }
       },

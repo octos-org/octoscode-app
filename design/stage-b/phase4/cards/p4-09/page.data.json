@@ -101,12 +101,30 @@
           "h": 20.0
         }
       },
-      "browser_path": {
-        "component": "Inputbf8299260317",
+      "browser_path_wrap": {
+        "component": "Group3d2637879433",
         "layout": {
           "x": 28.0,
           "y": 488.0,
           "w": 350.0,
+          "h": 48.0
+        }
+      },
+      "browser_path_field": {
+        "component": "Surfacee82a3a65acee",
+        "layout": {
+          "x": 25.0,
+          "y": 483.0,
+          "w": 356.0,
+          "h": 56.0
+        }
+      },
+      "browser_path": {
+        "component": "Inputbf8299260317",
+        "layout": {
+          "x": 42.0,
+          "y": 488.0,
+          "w": 322.0,
           "h": 48.0
         }
       }

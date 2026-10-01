@@ -16,6 +16,12 @@ component Text7c315f4db910(instance: text, text: text) {
 component Text475cf652a069(instance: text, text: text) {
   view Kit(component: "Text475cf652a069", instance: instance, text: text)
 }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Surfacef6fd84a8f1d5(instance: text) {
+  view Kit(component: "Surfacef6fd84a8f1d5", instance: instance) { slot }
+}
 component Inputbf8299260317(instance: text, text: text, placeholder: text, enabled: bool) {
   view Kit(component: "Inputbf8299260317", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
 }

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "a992020b7b260ec3904f4dc92b9bcc76848c05b38be310c555a7762c2d42dd92",
+  "contract_sha256": "1febbc0cfe643c9a035dc958226da82e18298a0dbb5f7a0948d24a43cbc6999c",
   "reference_sha256": "10cd5bbd141138aa20779484ae3dc4e62997570b0f25201115bcf955ab66d1d3",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -27,6 +27,20 @@
       "decision": "declared"
     },
     {
+      "id": "prov_name_wrap",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "prov_name_field",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "prov_name",
       "role": "input",
       "basis": "authored input node",
@@ -46,6 +60,20 @@
       "decision": "declared"
     },
     {
+      "id": "prov_url_wrap",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "prov_url_field",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "prov_url",
       "role": "input",
       "basis": "authored input node",
@@ -61,6 +89,20 @@
       "id": "t_key_label",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "prov_key_wrap",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "prov_key_field",
+      "role": "layout",
+      "basis": "authored stack node",
       "confidence": 1.0,
       "decision": "declared"
     },

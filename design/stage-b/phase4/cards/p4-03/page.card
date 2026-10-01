@@ -34,6 +34,12 @@ component Text7c315f4db910(instance: text, text: text) {
 component Text475cf652a069(instance: text, text: text) {
   view Kit(component: "Text475cf652a069", instance: instance, text: text)
 }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Surfacef6fd84a8f1d5(instance: text) {
+  view Kit(component: "Surfacef6fd84a8f1d5", instance: instance) { slot }
+}
 component Inputbf8299260317(instance: text, text: text, placeholder: text, enabled: bool) {
   view Kit(component: "Inputbf8299260317", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
 }
@@ -64,12 +70,22 @@ view root Surface16fae9a63e16(instance: "page") {
   Textec6b2ee1b329(instance: "t_cal1", text: copy.t_cal1_text)
   Text7c315f4db910(instance: "t_cal2", text: copy.t_cal2_text)
   Text475cf652a069(instance: "t_srv_label", text: copy.t_srv_label_text)
-  Inputbf8299260317(instance: "connect_server", text: copy.connect_server_text, placeholder: copy.connect_server_placeholder, enabled: connect_server_enabled) {
+  Group3d2637879433(instance: "connect_server_wrap") {
+    Surfacef6fd84a8f1d5(instance: "connect_server_field") {
 
+    }
+    Inputbf8299260317(instance: "connect_server", text: copy.connect_server_text, placeholder: copy.connect_server_placeholder, enabled: connect_server_enabled) {
+
+    }
   }
   Text786141d7d45d(instance: "t_tok_label", text: copy.t_tok_label_text)
-  Input508f95901acf(instance: "connect_token", text: copy.connect_token_text, placeholder: copy.connect_token_placeholder, enabled: connect_token_enabled) {
+  Group3d2637879433(instance: "connect_token_wrap") {
+    Surfacef6fd84a8f1d5(instance: "connect_token_field") {
 
+    }
+    Input508f95901acf(instance: "connect_token", text: copy.connect_token_text, placeholder: copy.connect_token_placeholder, enabled: connect_token_enabled) {
+
+    }
   }
   KitButton2c6804b990a5(instance: "connect_submit") {
     Surface4b77e2726ce6(instance: "connect_submit_surface") {

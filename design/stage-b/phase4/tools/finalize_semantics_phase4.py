@@ -2,7 +2,9 @@
 """Phase4-board equivalent of setup/tools/finalize_semantics_setup.py (#28d pattern).
 Declares each authored svg as a reviewed reference_svg icon asset so preflight
 accepts it; gives inputs their changed/behavior record. Glob p4-*."""
-import hashlib, json, sys
+import hashlib
+import json
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1] / "cards"

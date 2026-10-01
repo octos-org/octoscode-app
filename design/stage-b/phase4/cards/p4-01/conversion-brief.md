@@ -183,11 +183,33 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "pair_link",
+    "id": "pair_link_wrap",
     "x": 28.0,
-    "y": 490.0,
+    "y": 484.0,
     "w": 350.0,
-    "h": 44.0,
+    "h": 48.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "pair_link_field",
+    "x": 28.0,
+    "y": 484.0,
+    "w": 350.0,
+    "h": 48.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "pair_link",
+    "x": 42.0,
+    "y": 484.0,
+    "w": 322.0,
+    "h": 48.0,
     "text": "",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 15,

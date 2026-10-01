@@ -40,6 +40,12 @@ component Text011af819956c(instance: text, text: text) {
 component Text60e1d00ede1b(instance: text, text: text) {
   view Kit(component: "Text60e1d00ede1b", instance: instance, text: text)
 }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Surfaced427ec81a2f0(instance: text) {
+  view Kit(component: "Surfaced427ec81a2f0", instance: instance) { slot }
+}
 component Inputbf8299260317(instance: text, text: text, placeholder: text, enabled: bool) {
   view Kit(component: "Inputbf8299260317", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
 }

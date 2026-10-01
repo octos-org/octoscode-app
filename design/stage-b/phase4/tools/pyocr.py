@@ -2,7 +2,9 @@
 """Apple Vision OCR via pyobjc (the swift interpreter crashes under Xcode 26.2).
 Emits the same schema observe() expects: {width,height,observations:[{bounds,confidence,text}]}
 + image_sha256 cache key. bounds are [x,y,w,h] pixels, origin top-left."""
-import json, sys, hashlib
+import json
+import sys
+import hashlib
 from pathlib import Path
 import Vision
 from Foundation import NSURL

@@ -170,7 +170,7 @@
     },
     {
       "id": "browser_back_label",
-      "expected_text": "Back to /Users/dev",
+      "expected_text": "Back to /home/user",
       "requested_bounds": [
         128.0,
         394.0,
@@ -178,7 +178,7 @@
         22.5
       ],
       "status": "observed",
-      "ocr_text": "Back to /Users/dev",
+      "ocr_text": "Back to /home/user",
       "confidence": 1.0,
       "text_similarity": 1.0,
       "ink_bounds": [
@@ -263,11 +263,35 @@
       "reviewed": false
     },
     {
-      "id": "browser_path",
+      "id": "browser_path_wrap",
       "bounds": [
         28.0,
         488.0,
         350.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "browser_path_field",
+      "bounds": [
+        25.0,
+        483.0,
+        356.0,
+        56.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 14.0
+    },
+    {
+      "id": "browser_path",
+      "bounds": [
+        42.0,
+        488.0,
+        322.0,
         48.0
       ],
       "method": "inferred semantic extent from observed parent",

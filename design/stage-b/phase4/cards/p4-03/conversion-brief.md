@@ -109,10 +109,32 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "connect_server",
+    "id": "connect_server_wrap",
     "x": 28.0,
     "y": 322.0,
     "w": 350.0,
+    "h": 48.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "connect_server_field",
+    "x": 28.0,
+    "y": 322.0,
+    "w": 350.0,
+    "h": 48.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "connect_server",
+    "x": 42.0,
+    "y": 322.0,
+    "w": 322.0,
     "h": 48.0,
     "text": "http://192.168.1.20:50190",
     "font_src": "self:resources/ux/Inter-400.ttf",
@@ -141,10 +163,32 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "connect_token",
+    "id": "connect_token_wrap",
     "x": 28.0,
     "y": 436.0,
     "w": 350.0,
+    "h": 48.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "connect_token_field",
+    "x": 28.0,
+    "y": 436.0,
+    "w": 350.0,
+    "h": 48.0,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "connect_token",
+    "x": 42.0,
+    "y": 436.0,
+    "w": 322.0,
     "h": 48.0,
     "text": "",
     "font_src": "self:resources/ux/Inter-400.ttf",

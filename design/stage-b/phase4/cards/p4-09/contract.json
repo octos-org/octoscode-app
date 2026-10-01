@@ -154,7 +154,7 @@
           {
             "t": "text",
             "id": "browser_back_label",
-            "text": "Back to /Users/dev",
+            "text": "Back to /home/user",
             "x": 128.0,
             "y": 394.0,
             "w": 139.0,
@@ -171,23 +171,47 @@
         "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
       },
       {
-        "t": "input",
-        "id": "browser_path",
-        "text": "/private",
-        "placeholder": "",
+        "t": "stack",
+        "id": "browser_path_wrap",
         "x": 28.0,
         "y": 488.0,
         "w": 350.0,
         "h": 48.0,
-        "size": 15,
-        "line_height": 48.0,
-        "weight": 400,
-        "color": 4280098079,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "enabled": 1,
-        "c": []
+        "c": [
+          {
+            "t": "stack",
+            "id": "browser_path_field",
+            "x": 28.0,
+            "y": 488.0,
+            "w": 350.0,
+            "h": 48.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 12,
+            "border": 1,
+            "bordercolor": 4292006615
+          },
+          {
+            "t": "input",
+            "id": "browser_path",
+            "text": "/private",
+            "placeholder": "",
+            "x": 42.0,
+            "y": 488.0,
+            "w": 322.0,
+            "h": 48.0,
+            "size": 15,
+            "line_height": 48.0,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "enabled": 1,
+            "c": []
+          }
+        ]
       }
     ],
     "variant": "surface",

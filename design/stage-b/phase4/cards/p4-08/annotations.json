@@ -206,11 +206,35 @@
       "reviewed": false
     },
     {
-      "id": "browser_path",
+      "id": "browser_path_wrap",
       "bounds": [
         28.0,
         490.0,
         350.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "browser_path_field",
+      "bounds": [
+        17.0,
+        491.0,
+        369.0,
+        53.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 13.25
+    },
+    {
+      "id": "browser_path",
+      "bounds": [
+        42.0,
+        490.0,
+        322.0,
         48.0
       ],
       "method": "inferred semantic extent from observed parent",

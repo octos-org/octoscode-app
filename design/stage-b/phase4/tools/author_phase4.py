@@ -7,7 +7,8 @@ Apple Vision OCR bounds (cards/p4-NN/reference.ocr.json, 812x1552 -> logical
 406x776), text copy corrected to the approved stage-a prompt. Gutter captions
 ("N. Title") and viewfinder-bracket OCR misreads ("7", "L") are not UI.
 """
-import importlib.util, json
+import importlib.util
+import json
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -19,6 +20,7 @@ av.C["d2"] = 0xFFD2D2D7
 av.C["accent"] = 0xFF2F6FEB   # the atlas link/toggle blue (atlas-prompt.md palette)
 av.C["cal_red"] = 0xFFFDECEC  # link-problem callout background (#FDECEC)
 av.C["red_tx"] = 0xFFCF222E   # callout / destructive text (#CF222E)
+av.C["d2"] = 0xFFD2D2D7
 
 ROOT = HERE.parent
 TITLES = {1: "Pair this device", 2: "Pairing", 3: "Link problem", 4: "Can't pair",
@@ -35,6 +37,10 @@ def load_rows(num):
 
 
 def find(sc, prefix):
+    """Exact text first (model rows share prefixes: deepseek-v4 vs -flash)."""
+    for i, (s, *_) in enumerate(sc.rows):
+        if s.lower() == prefix.lower():
+            return i
     for i, (s, *_) in enumerate(sc.rows):
         if s.lower().startswith(prefix.lower()):
             return i
@@ -66,6 +72,20 @@ BRACKET = ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="no
            '<path d="{d}"/></svg>\n')
 
 
+
+def input_box(sc, id, x, y, w, h, event, value="", placeholder=""):
+    """An input on its white 1px-#D2D2D7 field (the setup-board input look;
+    the l0-kit renderer draws bare input nodes as naked text)."""
+    inner = av.input_node(id, x + 14, y, w - 28, h, placeholder)
+    if value:
+        inner["text"] = value
+        inner["color"] = av.C["ink"]
+    sc.put(av.stack(id + "_wrap", x, y, w, h, [
+        av.surface(id + "_field", x, y, w, h, bg="white", radius=12, border=1,
+                   bordercolor="d2"), inner]))
+    sc.inputs[id] = (event, [x, y, w, h])
+
+
 def build_01(sc):
     # title (gutter caption "1. Pair this device" is NOT UI)
     s, x, y, w, h = sc.rows[find(sc, "Pair with Octos")]
@@ -90,8 +110,8 @@ def build_01(sc):
     sc.add_text("t_or", find(sc, "Or"), weight=400, size=12, color="muted")
     # input: field label above (measured) + placeholder per the approved prompt
     sc.add_text("t_link_label", find(sc, "Paste pairing link"), weight=400, size=13, color="muted")
-    sc.put(av.input_node("pair_link", 28, 490, 350, 44, "octos://pair?code=\u2026"))
-    sc.inputs["pair_link"] = ("pair.paste", [28, 490, 350, 44])
+    input_box(sc, "pair_link", 28, 484, 350, 48, "pair.paste",
+              placeholder="octos://pair?code=\u2026")
     # black pill "Pair"
     control(sc, "pair_submit", 128, 562, 150, 48, "Pair", bg="ink", color="white",
             radius=24, event="pair.submit", lx=185, lw=36)
@@ -146,14 +166,10 @@ def build_03(sc):
                    size=13, weight=400, color="muted"))
     # connect form (prompt: Server prefilled, empty Access token, black Connect pill)
     sc.add_text("t_srv_label", find(sc, "Server"), size=13, color="muted")
-    n = av.input_node("connect_server", 28, 322, 350, 48, "")
-    n["text"] = "http://192.168.1.20:50190"
-    n["color"] = av.C["ink"]
-    sc.put(n)
-    sc.inputs["connect_server"] = ("connect.server", [28, 322, 350, 48])
+    input_box(sc, "connect_server", 28, 322, 350, 48, "connect.server",
+              value="http://192.168.1.20:50190")
     sc.add_text("t_tok_label", find(sc, "Access token"), size=13, color="muted")
-    sc.put(av.input_node("connect_token", 28, 436, 350, 48, ""))
-    sc.inputs["connect_token"] = ("connect.token", [28, 436, 350, 48])
+    input_box(sc, "connect_token", 28, 436, 350, 48, "connect.token")
     control(sc, "connect_submit", 128, 600, 150, 48, "Connect", bg="ink", color="white",
             radius=24, event="connect.submit", lx=160, lw=72)
 
@@ -221,25 +237,23 @@ def provider_editor(sc, rejected):
         back_button(sc, "prov_back", 16, 82, "provider.back")
     sc.add_text("t_title", find(sc, "Edit provider"), weight=600, size=20)
     sc.add_text("t_name_label", find(sc, "Name"), size=13, color="muted")
-    n = av.input_node("prov_name", 28, 218, 350, 44, "")
-    n["text"] = sc.t(find(sc, "DeepSeek")); n["color"] = av.C["ink"]
-    sc.put(n); sc.inputs["prov_name"] = ("provider.name", [28, 218, 350, 44])
+    input_box(sc, "prov_name", 28, 218, 350, 44, "provider.name",
+              value=sc.t(find(sc, "DeepSeek")))
     sc.add_text("t_url_label", find(sc, "Base URL"), size=13, color="muted")
-    n = av.input_node("prov_url", 28, 296, 350, 44, "")
-    n["text"] = sc.t(find(sc, "https://api")); n["color"] = av.C["ink"]
-    sc.put(n); sc.inputs["prov_url"] = ("provider.url", [28, 296, 350, 44])
+    input_box(sc, "prov_url", 28, 296, 350, 44, "provider.url",
+              value=sc.t(find(sc, "https://api")))
     sc.add_text("t_key_label", find(sc, "API key"), size=13, color="muted")
-    key_kwargs = {}
     if rejected:
-        # the rejected key field is outlined red (prompt: field outlined red)
-        key_kwargs = {"border": 1, "bordercolor": "cal_red"}
-        n = av.input_node("prov_key", 28, 372, 350, 44, "", **{})
-        n["bg"] = av.C["white"]; n["border_color"] = av.C["red_tx"]; n["border_size"] = 1.0
+        input_box(sc, "prov_key", 28, 372, 350, 44, "provider.key",
+                  value="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022")
+        # the rejected key field is outlined red (approved prompt: field outlined red)
+        for node in sc.kids:
+            if node.get("id") == "prov_key_field":
+                node["border"] = 1
+                node["bordercolor"] = av.C["red_tx"]
     else:
-        n = av.input_node("prov_key", 28, 374, 350, 44, "")
-    n["text"] = "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
-    n["color"] = av.C["ink"]
-    sc.put(n); sc.inputs["prov_key"] = ("provider.key", [28, 372 if rejected else 374, 350, 44])
+        input_box(sc, "prov_key", 28, 374, 350, 44, "provider.key",
+                  value="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022")
     sc.put(svg_node(sc, "key_eye", EYE, 350, 386, 20, 20))
     sc.put({"t": "button", "id": "key_eye_control", "x": av.r(342), "y": av.r(378),
             "w": av.r(36), "h": av.r(36), "enabled": 1})
@@ -254,7 +268,8 @@ def provider_editor(sc, rejected):
         sc.put(av.text("t_cal2", sc.t(find(sc, "Your draft is kept.")), b, yb, wb, hb,
                        size=13, weight=400, color="muted"))
     sc.add_text("t_models_label", find(sc, "Models"), weight=600, size=15)
-    models = [("deepseek-v4-flash", "provider.model.0"), ("deepseek-v4", "provider.model.1"),
+    models = [("deepseek-v4-flash (default)", "provider.model.0"),
+              ("deepseek-v4", "provider.model.1"),
               ("deepseek-chat", "provider.model.2")]
     ys = [462, 503, 545] if not rejected else [394, 430, 466]
     for (prefix, event), ry in zip(models, ys):
@@ -291,7 +306,7 @@ def build_07(sc):
 
 def build_08(sc):
     sc.add_text("t_title", find(sc, "Choose workspace folder"), weight=600, size=20)
-    sc.add_text("t_crumbs", find(sc, "/ > Users"), size=13, color="muted")
+    sc.add_text("t_crumbs", find(sc, "/ > home"), size=13, color="muted")
     rows = [("octos", 196, "browser.enter.0"), ("octoscode-app", 248, "browser.enter.1"),
             ("notes", 308, "browser.enter.2"), ("scratch", 364, "browser.enter.3")]
     for name, ry, event in rows:
@@ -306,9 +321,8 @@ def build_08(sc):
                 "y": av.r(ry), "w": av.r(350), "h": av.r(48), "enabled": 1})
         sc.controls["browser_row_" + event[-1]] = (event, [28, ry, 350, 48], True)
     sc.add_text("t_hidden", find(sc, "3 hidden by the server"), size=13, color="muted")
-    n = av.input_node("browser_path", 28, 490, 350, 48, "")
-    n["text"] = sc.t(find(sc, "/Users/dev/code")); n["color"] = av.C["ink"]
-    sc.put(n); sc.inputs["browser_path"] = ("browser.path", [28, 490, 350, 48])
+    input_box(sc, "browser_path", 28, 490, 350, 48, "browser.path",
+              value=sc.t(find(sc, "/home/user/code")))
     control(sc, "browser_use", 28, 560, 350, 48, "Use this folder", bg="ink", color="white",
             radius=24, event="browser.use", lx=126, lw=132)
 
@@ -327,13 +341,11 @@ def build_09(sc):
                    size=13, weight=400, color="muted"))
     sc.put(av.text("t_cal3", sc.t(find(sc, "you can access.")), c, yc, wc, hc,
                    size=13, weight=400, color="muted"))
-    _, bx, by, bw, bh = sc.rows[find(sc, "Back to /Users/dev")]
-    control(sc, "browser_back", 28, 382, 350, 44, "Back to /Users/dev", bg="white",
+    _, bx, by, bw, bh = sc.rows[find(sc, "Back to /home/user")]
+    control(sc, "browser_back", 28, 382, 350, 44, "Back to /home/user", bg="white",
             radius=22, border=1, bordercolor="hair", event="browser.back",
             lx=int(bx), lw=int(bw) + 2)
-    n = av.input_node("browser_path", 28, 488, 350, 48, "")
-    n["text"] = "/private"; n["color"] = av.C["ink"]
-    sc.put(n); sc.inputs["browser_path"] = ("browser.path", [28, 488, 350, 48])
+    input_box(sc, "browser_path", 28, 488, 350, 48, "browser.path", value="/private")
 
 
 BUILDERS = {1: build_01, 2: build_02, 3: build_03, 4: build_04, 5: build_05, 6: build_06, 7: build_07, 8: build_08, 9: build_09}

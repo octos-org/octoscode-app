@@ -105,23 +105,47 @@
         "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {
-        "t": "input",
-        "id": "connect_server",
-        "text": "http://192.168.1.20:50190",
-        "placeholder": "",
+        "t": "stack",
+        "id": "connect_server_wrap",
         "x": 28.0,
         "y": 322.0,
         "w": 350.0,
         "h": 48.0,
-        "size": 15,
-        "line_height": 48.0,
-        "weight": 400,
-        "color": 4280098079,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "enabled": 1,
-        "c": []
+        "c": [
+          {
+            "t": "stack",
+            "id": "connect_server_field",
+            "x": 28.0,
+            "y": 322.0,
+            "w": 350.0,
+            "h": 48.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 12,
+            "border": 1,
+            "bordercolor": 4292006615
+          },
+          {
+            "t": "input",
+            "id": "connect_server",
+            "text": "http://192.168.1.20:50190",
+            "placeholder": "",
+            "x": 42.0,
+            "y": 322.0,
+            "w": 322.0,
+            "h": 48.0,
+            "size": 15,
+            "line_height": 48.0,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "enabled": 1,
+            "c": []
+          }
+        ]
       },
       {
         "t": "text",
@@ -140,23 +164,47 @@
         "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {
-        "t": "input",
-        "id": "connect_token",
-        "text": "",
-        "placeholder": "",
+        "t": "stack",
+        "id": "connect_token_wrap",
         "x": 28.0,
         "y": 436.0,
         "w": 350.0,
         "h": 48.0,
-        "size": 15,
-        "line_height": 48.0,
-        "weight": 400,
-        "color": 4285427315,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "enabled": 1,
-        "c": []
+        "c": [
+          {
+            "t": "stack",
+            "id": "connect_token_field",
+            "x": 28.0,
+            "y": 436.0,
+            "w": 350.0,
+            "h": 48.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 12,
+            "border": 1,
+            "bordercolor": 4292006615
+          },
+          {
+            "t": "input",
+            "id": "connect_token",
+            "text": "",
+            "placeholder": "",
+            "x": 42.0,
+            "y": 436.0,
+            "w": 322.0,
+            "h": 48.0,
+            "size": 15,
+            "line_height": 48.0,
+            "weight": 400,
+            "color": 4285427315,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "enabled": 1,
+            "c": []
+          }
+        ]
       },
       {
         "t": "stack",

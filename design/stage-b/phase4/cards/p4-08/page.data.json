@@ -186,12 +186,30 @@
           "h": 21.0
         }
       },
-      "browser_path": {
-        "component": "Inputbf8299260317",
+      "browser_path_wrap": {
+        "component": "Group3d2637879433",
         "layout": {
           "x": 28.0,
           "y": 490.0,
           "w": 350.0,
+          "h": 48.0
+        }
+      },
+      "browser_path_field": {
+        "component": "Surfaced427ec81a2f0",
+        "layout": {
+          "x": 17.0,
+          "y": 491.0,
+          "w": 369.0,
+          "h": 53.0
+        }
+      },
+      "browser_path": {
+        "component": "Inputbf8299260317",
+        "layout": {
+          "x": 42.0,
+          "y": 490.0,
+          "w": 322.0,
           "h": 48.0
         }
       },

@@ -92,16 +92,52 @@
       "size": 14.860158311345646
     },
     {
-      "source_id": "prov_name",
+      "source_id": "prov_name_wrap",
       "native_id": "beauty_0_4",
       "parent": "page",
-      "kind": "input",
-      "component": "Inputef5e5b66e067",
-      "semantic_role": "input",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
       "bounds": [
         28.0,
         218.0,
         350.0,
+        44.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "prov_name_field",
+      "native_id": "beauty_0_4_0",
+      "parent": "prov_name_wrap",
+      "kind": "stack",
+      "component": "Surfacefcf282909461",
+      "semantic_role": "layout",
+      "bounds": [
+        22.0,
+        211.0,
+        358.0,
+        33.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "prov_name",
+      "native_id": "beauty_0_4_1",
+      "parent": "prov_name_wrap",
+      "kind": "input",
+      "component": "Inputef5e5b66e067",
+      "semantic_role": "input",
+      "bounds": [
+        42.0,
+        218.0,
+        322.0,
         44.0
       ],
       "text": "DeepSeek \u2022 Official API",
@@ -128,16 +164,52 @@
       "size": 14.860158311345646
     },
     {
-      "source_id": "prov_url",
+      "source_id": "prov_url_wrap",
       "native_id": "beauty_0_6",
       "parent": "page",
-      "kind": "input",
-      "component": "Inputef5e5b66e067",
-      "semantic_role": "input",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
       "bounds": [
         28.0,
         296.0,
         350.0,
+        44.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "prov_url_field",
+      "native_id": "beauty_0_6_0",
+      "parent": "prov_url_wrap",
+      "kind": "stack",
+      "component": "Surfacefb58f5eb0487",
+      "semantic_role": "layout",
+      "bounds": [
+        20.0,
+        271.0,
+        363.0,
+        41.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "prov_url",
+      "native_id": "beauty_0_6_1",
+      "parent": "prov_url_wrap",
+      "kind": "input",
+      "component": "Inputef5e5b66e067",
+      "semantic_role": "input",
+      "bounds": [
+        42.0,
+        296.0,
+        322.0,
         44.0
       ],
       "text": "https://api.deepseek.com/v1",
@@ -164,17 +236,53 @@
       "size": 15.498956158663884
     },
     {
-      "source_id": "prov_key",
+      "source_id": "prov_key_wrap",
       "native_id": "beauty_0_8",
       "parent": "page",
-      "kind": "input",
-      "component": "Inputf0419bda3e0d",
-      "semantic_role": "input",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        28.0,
+        372.0,
+        350.0,
+        44.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "prov_key_field",
+      "native_id": "beauty_0_8_0",
+      "parent": "prov_key_wrap",
+      "kind": "stack",
+      "component": "Surfacef35db8eba6d9",
+      "semantic_role": "layout",
       "bounds": [
         21.0,
         391.0,
         358.0,
         34.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "prov_key",
+      "native_id": "beauty_0_8_1",
+      "parent": "prov_key_wrap",
+      "kind": "input",
+      "component": "Inputef5e5b66e067",
+      "semantic_role": "input",
+      "bounds": [
+        42.0,
+        372.0,
+        322.0,
+        44.0
       ],
       "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
       "enabled": 1,
@@ -352,7 +460,7 @@
       "semantic_role": "icon",
       "bounds": [
         40.0,
-        399.5,
+        435.28,
         18.0,
         18.0
       ],
@@ -366,18 +474,18 @@
       "native_id": "beauty_0_19",
       "parent": "page",
       "kind": "text",
-      "component": "Text404646513d4f",
+      "component": "Text3a870ad04548",
       "semantic_role": "text",
       "bounds": [
-        33.83,
-        401.5,
-        193.98,
-        21.0
+        35.24528301886792,
+        435.5,
+        91.0,
+        19.0
       ],
-      "text": "deepseek-v4-flash (default)",
+      "text": "deepseek-v4",
       "enabled": null,
       "font": "self:resources/ux/Inter-500.ttf",
-      "size": 14
+      "size": 16.10062893081761
     },
     {
       "source_id": "model_1_control",
@@ -601,6 +709,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "032e84ae6db5cc29ae5130de07c67760a2df2afae86eb7ee9b12702474060690",
+  "contract_sha256": "89c572e085ef8fea4a1bb7bcd77a2cb290b332fd41e3d003ed72b82a74971838",
   "mapping_basis": "mapped.json"
 }

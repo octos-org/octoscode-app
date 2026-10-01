@@ -25,8 +25,14 @@ component Textfb98c520c9d5(instance: text, text: text) {
 component Text3d3491d16aa8(instance: text, text: text) {
   view Kit(component: "Text3d3491d16aa8", instance: instance, text: text)
 }
-component Input36d5f46a2e5c(instance: text, text: text, placeholder: text, enabled: bool) {
-  view Kit(component: "Input36d5f46a2e5c", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Surface86bc6db63f02(instance: text) {
+  view Kit(component: "Surface86bc6db63f02", instance: instance) { slot }
+}
+component Input508f95901acf(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Input508f95901acf", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
 }
 component KitButton2c6804b990a5(instance: text) {
   view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }

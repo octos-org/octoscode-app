@@ -4,13 +4,13 @@
 # Static design fixture, runtime native Kit composition.
 theme light
 copy t_title_text { class: user-copy, en: "Choose workspace folder" }
-copy t_crumbs_text { class: user-copy, en: "/ > Users › dev › code" }
+copy t_crumbs_text { class: user-copy, en: "/ > home › dev › code" }
 copy t_row_0_text { class: user-copy, en: "octos" }
 copy t_row_1_text { class: user-copy, en: "octoscode-app" }
 copy t_row_2_text { class: user-copy, en: "notes" }
 copy t_row_3_text { class: user-copy, en: "scratch" }
 copy t_hidden_text { class: user-copy, en: "3 hidden by the server" }
-copy browser_path_text { class: user-copy, en: "/Users/dev/code/octoscode-app" }
+copy browser_path_text { class: user-copy, en: "/home/user/code/octoscode-app" }
 copy browser_path_placeholder { class: user-copy, en: "" }
 copy browser_use_label_text { class: user-copy, en: "Use this folder" }
 state row_0_control_enabled { shape: bool, initial: true }
@@ -61,6 +61,12 @@ component Text011af819956c(instance: text, text: text) {
 component Text60e1d00ede1b(instance: text, text: text) {
   view Kit(component: "Text60e1d00ede1b", instance: instance, text: text)
 }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Surfaced427ec81a2f0(instance: text) {
+  view Kit(component: "Surfaced427ec81a2f0", instance: instance) { slot }
+}
 component Inputbf8299260317(instance: text, text: text, placeholder: text, enabled: bool) {
   view Kit(component: "Inputbf8299260317", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
 }
@@ -102,8 +108,13 @@ view root Surface16fae9a63e16(instance: "page") {
   Text011af819956c(instance: "t_row_3", text: copy.t_row_3_text)
   NativeButton02f1d1bd99b4(instance: "row_3_control", enabled: row_3_control_enabled)
   Text60e1d00ede1b(instance: "t_hidden", text: copy.t_hidden_text)
-  Inputbf8299260317(instance: "browser_path", text: copy.browser_path_text, placeholder: copy.browser_path_placeholder, enabled: browser_path_enabled) {
+  Group3d2637879433(instance: "browser_path_wrap") {
+    Surfaced427ec81a2f0(instance: "browser_path_field") {
 
+    }
+    Inputbf8299260317(instance: "browser_path", text: copy.browser_path_text, placeholder: copy.browser_path_placeholder, enabled: browser_path_enabled) {
+
+    }
   }
   KitButton2c6804b990a5(instance: "browser_use") {
     Surfacebe3dbbc617cb(instance: "browser_use_surface") {

@@ -177,23 +177,47 @@
         "font_desc": -0.09552001953125
       },
       {
-        "t": "input",
-        "id": "pair_link",
-        "text": "",
-        "placeholder": "octos://pair?code=\u2026",
+        "t": "stack",
+        "id": "pair_link_wrap",
         "x": 28.0,
-        "y": 490.0,
+        "y": 484.0,
         "w": 350.0,
-        "h": 44.0,
-        "size": 15,
-        "line_height": 44.0,
-        "weight": 400,
-        "color": 4285427315,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "enabled": 1,
-        "c": []
+        "h": 48.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "pair_link_field",
+            "x": 27.0,
+            "y": 487.0,
+            "w": 352.0,
+            "h": 51.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294901502,
+            "radius": 12.75,
+            "border": 1,
+            "bordercolor": 4292006615
+          },
+          {
+            "t": "input",
+            "id": "pair_link",
+            "text": "",
+            "placeholder": "octos://pair?code=\u2026",
+            "x": 42.0,
+            "y": 484.0,
+            "w": 322.0,
+            "h": 48.0,
+            "size": 15,
+            "line_height": 48.0,
+            "weight": 400,
+            "color": 4285427315,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "enabled": 1,
+            "c": []
+          }
+        ]
       },
       {
         "t": "stack",
@@ -329,6 +353,14 @@
     },
     {
       "id": "div_r",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "pair_link_wrap",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "pair_link_field",
       "source": "observed non-text annotation"
     },
     {

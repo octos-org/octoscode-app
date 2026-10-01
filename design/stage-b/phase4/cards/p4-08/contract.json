@@ -47,7 +47,7 @@
       {
         "t": "text",
         "id": "t_crumbs",
-        "text": "/ > Users › dev › code",
+        "text": "/ > home › dev › code",
         "x": 15.79,
         "y": 154.5,
         "w": 235.71,
@@ -261,23 +261,47 @@
         "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {
-        "t": "input",
-        "id": "browser_path",
-        "text": "/Users/dev/code/octoscode-app",
-        "placeholder": "",
+        "t": "stack",
+        "id": "browser_path_wrap",
         "x": 28.0,
         "y": 490.0,
         "w": 350.0,
         "h": 48.0,
-        "size": 15,
-        "line_height": 48.0,
-        "weight": 400,
-        "color": 4280098079,
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": "self:resources/ux/Inter-400.ttf",
-        "enabled": 1,
-        "c": []
+        "c": [
+          {
+            "t": "stack",
+            "id": "browser_path_field",
+            "x": 28.0,
+            "y": 490.0,
+            "w": 350.0,
+            "h": 48.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294967295,
+            "radius": 12,
+            "border": 1,
+            "bordercolor": 4292006615
+          },
+          {
+            "t": "input",
+            "id": "browser_path",
+            "text": "/home/user/code/octoscode-app",
+            "placeholder": "",
+            "x": 42.0,
+            "y": 490.0,
+            "w": 322.0,
+            "h": 48.0,
+            "size": 15,
+            "line_height": 48.0,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "enabled": 1,
+            "c": []
+          }
+        ]
       },
       {
         "t": "stack",

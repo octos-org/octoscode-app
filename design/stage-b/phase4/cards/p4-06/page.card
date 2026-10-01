@@ -15,7 +15,7 @@ copy prov_key_text { class: user-copy, en: "••••••••••" }
 copy prov_key_placeholder { class: user-copy, en: "" }
 copy t_models_label_text { class: user-copy, en: "Models" }
 copy t_model_0_text { class: user-copy, en: "deepseek-v4-flash (default)" }
-copy t_model_1_text { class: user-copy, en: "deepseek-v4-flash (default)" }
+copy t_model_1_text { class: user-copy, en: "deepseek-v4" }
 copy t_model_2_text { class: user-copy, en: "deepseek-chat" }
 copy prov_cancel_label_text { class: user-copy, en: "Cancel" }
 copy prov_save_label_text { class: user-copy, en: "Save" }
@@ -36,6 +36,12 @@ component Textaa31ab1b7371(instance: text, text: text) {
 }
 component Texte69a971e37a6(instance: text, text: text) {
   view Kit(component: "Texte69a971e37a6", instance: instance, text: text)
+}
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Surfacef8d711594295(instance: text) {
+  view Kit(component: "Surfacef8d711594295", instance: instance) { slot }
 }
 component Inputef5e5b66e067(instance: text, text: text, placeholder: text, enabled: bool) {
   view Kit(component: "Inputef5e5b66e067", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
@@ -58,8 +64,8 @@ component Textc73527ae8546(instance: text, text: text) {
 component Text4776e88290ac(instance: text, text: text) {
   view Kit(component: "Text4776e88290ac", instance: instance, text: text)
 }
-component Text404646513d4f(instance: text, text: text) {
-  view Kit(component: "Text404646513d4f", instance: instance, text: text)
+component Text659f5874932b(instance: text, text: text) {
+  view Kit(component: "Text659f5874932b", instance: instance, text: text)
 }
 component Texta2ed9620c933(instance: text, text: text) {
   view Kit(component: "Texta2ed9620c933", instance: instance, text: text)
@@ -83,16 +89,31 @@ component Textb4515a6276b8(instance: text, text: text) {
 view root Surface16fae9a63e16(instance: "page") {
   Textaa31ab1b7371(instance: "t_title", text: copy.t_title_text)
   Texte69a971e37a6(instance: "t_name_label", text: copy.t_name_label_text)
-  Inputef5e5b66e067(instance: "prov_name", text: copy.prov_name_text, placeholder: copy.prov_name_placeholder, enabled: prov_name_enabled) {
+  Group3d2637879433(instance: "prov_name_wrap") {
+    Surfacef8d711594295(instance: "prov_name_field") {
 
+    }
+    Inputef5e5b66e067(instance: "prov_name", text: copy.prov_name_text, placeholder: copy.prov_name_placeholder, enabled: prov_name_enabled) {
+
+    }
   }
   Text1823a8c75134(instance: "t_url_label", text: copy.t_url_label_text)
-  Inputef5e5b66e067(instance: "prov_url", text: copy.prov_url_text, placeholder: copy.prov_url_placeholder, enabled: prov_url_enabled) {
+  Group3d2637879433(instance: "prov_url_wrap") {
+    Surfacef8d711594295(instance: "prov_url_field") {
 
+    }
+    Inputef5e5b66e067(instance: "prov_url", text: copy.prov_url_text, placeholder: copy.prov_url_placeholder, enabled: prov_url_enabled) {
+
+    }
   }
   Texte6d2e660c7af(instance: "t_key_label", text: copy.t_key_label_text)
-  Inputef5e5b66e067(instance: "prov_key", text: copy.prov_key_text, placeholder: copy.prov_key_placeholder, enabled: prov_key_enabled) {
+  Group3d2637879433(instance: "prov_key_wrap") {
+    Surfacef8d711594295(instance: "prov_key_field") {
 
+    }
+    Inputef5e5b66e067(instance: "prov_key", text: copy.prov_key_text, placeholder: copy.prov_key_placeholder, enabled: prov_key_enabled) {
+
+    }
   }
   Vectore0a378fde04f(instance: "key_eye")
   NativeButton02f1d1bd99b4(instance: "key_eye_control", enabled: key_eye_control_enabled)
@@ -101,7 +122,7 @@ view root Surface16fae9a63e16(instance: "page") {
   Text4776e88290ac(instance: "t_model_0", text: copy.t_model_0_text)
   NativeButton02f1d1bd99b4(instance: "model_0_control", enabled: model_0_control_enabled)
   Vectore0a378fde04f(instance: "chk_1")
-  Text404646513d4f(instance: "t_model_1", text: copy.t_model_1_text)
+  Text659f5874932b(instance: "t_model_1", text: copy.t_model_1_text)
   NativeButton02f1d1bd99b4(instance: "model_1_control", enabled: model_1_control_enabled)
   Vectore0a378fde04f(instance: "chk_2")
   Texta2ed9620c933(instance: "t_model_2", text: copy.t_model_2_text)

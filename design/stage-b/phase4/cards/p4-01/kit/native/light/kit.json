@@ -142,12 +142,16 @@
       "value": -0.5705377557383379,
       "property": "tracking"
     },
+    "radius_2b88e0371268": {
+      "value": 12.75,
+      "property": "radius"
+    },
     "size_e629fa6598d7": {
       "value": 15,
       "property": "size"
     },
-    "line_height_ef200d24a60e": {
-      "value": 44.0,
+    "line_height_de64346f732f": {
+      "value": 48.0,
       "property": "line_height"
     },
     "color_5e6b06fd707a": {
@@ -433,14 +437,37 @@
       },
       "slot": false
     },
-    "Input36d5f46a2e5c": {
+    "Group3d2637879433": {
+      "style": {
+        "t": "stack"
+      },
+      "props": {},
+      "slot": true
+    },
+    "Surface86bc6db63f02": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_07cf9621f5e0"
+        },
+        "radius": {
+          "$token": "radius_2b88e0371268"
+        },
+        "border": 1,
+        "bordercolor": 4292006615
+      },
+      "props": {},
+      "slot": true
+    },
+    "Input508f95901acf": {
       "style": {
         "t": "input",
         "size": {
           "$token": "size_e629fa6598d7"
         },
         "line_height": {
-          "$token": "line_height_ef200d24a60e"
+          "$token": "line_height_de64346f732f"
         },
         "weight": {
           "$token": "weight_26d228663f13"

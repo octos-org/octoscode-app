@@ -190,6 +190,10 @@
       "value": 0.022949218749999972,
       "property": "font_desc"
     },
+    "radius_65cebb6f370f": {
+      "value": 14.0,
+      "property": "radius"
+    },
     "size_e629fa6598d7": {
       "value": 15,
       "property": "size"
@@ -471,6 +475,29 @@
         "text": "text"
       },
       "slot": false
+    },
+    "Group3d2637879433": {
+      "style": {
+        "t": "stack"
+      },
+      "props": {},
+      "slot": true
+    },
+    "Surfacee82a3a65acee": {
+      "style": {
+        "t": "stack",
+        "variant": "surface",
+        "bg": {
+          "$token": "bg_07cf9621f5e0"
+        },
+        "radius": {
+          "$token": "radius_65cebb6f370f"
+        },
+        "border": 1,
+        "bordercolor": 4292006615
+      },
+      "props": {},
+      "slot": true
     },
     "Inputbf8299260317": {
       "style": {
