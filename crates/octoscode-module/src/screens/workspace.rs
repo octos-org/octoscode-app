@@ -37,6 +37,7 @@ use serde_json::{json, Value};
 
 use crate::bindings::Ctx;
 use crate::flow::{Conversation, Direction};
+use crate::screens::recents;
 
 /// The board-2 data slots (setup cards 04/05/06).
 pub const BINDINGS: &[(&str, &str)] = &[
@@ -62,6 +63,7 @@ pub const ACTIONS: &[(&str, &str)] = &[
     ("ws.create_folder", "onboarding/workspace_create with the picker field's (draft) name under the server root"),
     ("set.model.select", "profile/llm/select for the cached primary route"),
     ("set.permission.set", "permission/profile/set with the clicked segment's mode (index into the cached profiles)"),
+    ("set.permission.cycle", "#P4a1: the composer approval pill — cycle the mode via permission/profile/set"),
     ("set.diagnostics.copy", "copy the diagnostics (UI-local; the host owns the clipboard)"),
     // #40b — setup-11's own id for the same control; the #35b wired taps and
     // the click audit emit THIS string, so the alias must pass is_action or
@@ -79,6 +81,7 @@ pub const ROUTED: &[&str] = &[
     "ws.create_folder",
     "set.model.select",
     "set.permission.set",
+    "set.permission.cycle",
     "set.diagnostics.copy",
     "error.copy_diagnostics",
     "settings.close",
@@ -138,6 +141,7 @@ pub enum Effect {
     SelectModel,
     /// `permission/profile/set` with the picked mode.
     SetPermission(String),
+    CyclePermissionMode,
     CopyDiagnostics,
     Close,
     Unhandled(String),
@@ -183,6 +187,7 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             Some(mode) => Effect::SetPermission(mode.to_owned()),
             None => Effect::Unhandled(format!("{action}[{index}]")),
         },
+        "set.permission.cycle" => Effect::CyclePermissionMode,
         "set.diagnostics.copy" | "error.copy_diagnostics" => Effect::CopyDiagnostics,
         "settings.close" => Effect::Close,
         other => Effect::Unhandled(other.to_owned()),
@@ -194,7 +199,25 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
 pub async fn apply(effect: Effect, conv: &Conversation) -> Result<(), String> {
     match effect {
         Effect::Refresh => refresh(conv).await,
-        Effect::Open(cwd) => conv.open_workspace(Some(cwd)).await.map(|_| ()),
+        Effect::Open(cwd) => {
+            // #P4h1 row 305: the web remembers a workspace at the OPEN, not at
+            // a picker render (`App.tsx:1031` — `rememberWorkspace(storage,
+            // connection.endpoint, cwd)` on the open path). Recording it here
+            // is what makes the cache a production path rather than a helper
+            // only tests call (RULES 3). It is a navigation cache, so it is
+            // written AFTER the open succeeds — a failed open must not leave a
+            // row the user never reached — and a write that fails never fails
+            // the open (the web catches the storage throw, and
+            // `remember_workspace` returns the new list either way).
+            conv.open_workspace(Some(cwd.clone())).await?;
+            recents::remember_workspace(
+                &*recents::store(),
+                &recents::endpoint(),
+                &cwd,
+                recents::now_ms(),
+            );
+            Ok(())
+        }
         Effect::Browse(path) => {
             let result = conv
                 .client()
@@ -213,6 +236,13 @@ pub async fn apply(effect: Effect, conv: &Conversation) -> Result<(), String> {
         Effect::CreateFolder { parent, name } => create_folder(conv, &parent, &name).await,
         Effect::SelectModel => select_model(conv).await,
         Effect::SetPermission(mode) => set_permission(conv, &mode).await,
+        Effect::CyclePermissionMode => {
+            // #P4a1 — the composer pill: cycle the web's two settings-app
+            // modes; set_permission sends the same permission/profile/set the
+            // web sends and stores the reply's `current` read-back.
+            let next = next_permission_mode(state().permission_mode.as_deref());
+            set_permission(conv, next).await
+        }
         // UI-local: the host owns the clipboard; close belongs to #28e's
         // overlay container. No protocol method either way.
         Effect::CopyDiagnostics | Effect::Close => Ok(()),
@@ -409,6 +439,17 @@ async fn select_model(conv: &Conversation) -> Result<(), String> {
     Ok(())
 }
 
+/// #P4a1 — the pill's cycle rule, pure so it is testable: the web's
+/// settings app offers two modes (on-request maps to `workspace_write`,
+/// never-ask to `read_only` — permissions-section.tsx:17-18); a pill with no
+/// known mode starts the cycle at read_only. Unknown values re-enter safely.
+fn next_permission_mode(current: Option<&str>) -> &'static str {
+    match current {
+        Some("read_only") => "workspace_write",
+        _ => "read_only",
+    }
+}
+
 /// `permission/profile/set` with the picked mode; the reply's `current` is the
 /// read-back (permissions-section.test.tsx:51 parity).
 async fn set_permission(conv: &Conversation, mode: &str) -> Result<(), String> {
@@ -428,6 +469,10 @@ async fn set_permission(conv: &Conversation, mode: &str) -> Result<(), String> {
         Some(mode.to_owned()),
     );
     state().permission_mode = result["current"]["mode"].as_str().map(str::to_owned);
+    // #P4a1 — the read-back must REACH the pill: wake the UI thread so the
+    // composer re-lowers with the fresh `set.permission_mode` binding (an
+    // async arm on the tokio thread never repaints by itself).
+    makepad_widgets::SignalToUI::set_ui_signal();
     Ok(())
 }
 
@@ -544,5 +589,40 @@ mod tests {
         let shown = workspace_display(&long);
         assert_eq!(shown.chars().count(), 24);
         assert!(shown.ends_with('…'), "{shown}");
+    }
+
+    #[test]
+    fn the_pill_cycle_rule_matches_the_web() {
+        // #P4a1 — no known mode starts the cycle at read_only; the two
+        // settings-app modes flip onto each other; an unknown value
+        // re-enters safely.
+        assert_eq!(next_permission_mode(None), "read_only");
+        assert_eq!(next_permission_mode(Some("read_only")), "workspace_write");
+        assert_eq!(next_permission_mode(Some("workspace_write")), "read_only");
+        assert_eq!(next_permission_mode(Some("on_request")), "read_only");
+    }
+
+    #[test]
+    fn the_pill_action_is_declared_and_routes() {
+        // #P4a1 — the cycle action sits in the wired tables (so
+        // perform_action routes it) and resolves to its effect. Before this
+        // card the id did not exist: resolve returned Unhandled.
+        use crate::bindings::{self, Ctx};
+        use crate::flow::FlowUi;
+        use octoscode_store::Store;
+        use std::sync::{Arc, Mutex};
+        assert!(is_action("set.permission.cycle"));
+        assert!(is_routed("set.permission.cycle"));
+        let store = Arc::new(Store::new());
+        let ui = Arc::new(Mutex::new(FlowUi::default()));
+        let ctx = Ctx::new(&store, &ui);
+        assert!(matches!(
+            resolve("set.permission.cycle", 0, &ctx),
+            Effect::CyclePermissionMode
+        ));
+        assert!(matches!(
+            resolve("set.permission.nope", 0, &ctx),
+            Effect::Unhandled(_)
+        ));
     }
 }

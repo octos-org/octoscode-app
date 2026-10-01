@@ -55,6 +55,15 @@ script_mod! {
     // `theme.*` ref (class defaults capture at evaluation; the wm_theme bridge
     // documents the same ordering constraint). Loads the persisted preference.
     #(screens::theme::eval_roles(vm))
+    // #P4h1 row 306 — install the recents store and purge the legacy v1 cache
+    // at startup (the web's App.tsx:1019-1023). This is the production caller
+    // that keeps `clear_recent_workspaces` off the test-only list (RULES 3); an
+    // honest failure is logged, never silently swallowed.
+    {
+        if !screens::recents::init_persistence() {
+            ::log::warn!("octoscode: workspace recents: legacy v1 cache could not be purged");
+        }
+    }
     mod.widgets.OctoscodeView = set_type_default() do #(OctoscodeView::register_widget(vm)) {
         ..mod.widgets.RectView
         width: Fill height: Fill
@@ -462,6 +471,21 @@ script_mod! {
                             draw_bg.border_color_2_down: #00000000
                             draw_bg.border_color_2_focus: #00000000
                             draw_bg.border_color_2_disabled: #00000000
+                        }
+                        // #P4a1 — the approval pill's hit target (the
+                        // component's pill art sits at left 49 / top 121,
+                        // 122x46 in the composer artboard): click cycles the
+                        // session's permission mode on the wire.
+                        approval_pill_hit := Button {
+                            width: 122 height: 46 text: ""
+                            margin: Inset{left: 49.0 top: 121.0}
+                            draw_bg.color: #00000000
+                            draw_bg.color_hover: #00000010
+                            draw_bg.color_down: #00000020
+                            draw_bg.border_size: 0.0
+                            draw_bg.color_2: #00000000
+                            draw_bg.border_color: #00000000
+                            draw_bg.border_color_2: #00000000
                         }
                         send_hit := Button {
                             width: 44 height: 44 text: ""
@@ -1770,6 +1794,42 @@ impl OctoscodeView {
         };
         // Entry #29c: the stage-C screens own their action ids (the cards'
         // service-actions events); route them through the production client.
+        if screens::research::owns(action) {
+            let action = action.to_string();
+            let store = store.clone();
+            rt.spawn(async move {
+                if let Err(e) =
+                    screens::research::perform(&conv, &action, &store, None).await
+                {
+                    ::log::warn!("octoscode: screens: {action:?}: {e}");
+                }
+            });
+            return;
+        }
+        // P4f1: the history mutations (undo/rewind/fork) behind the history
+        // dialog's three titles. The dialog itself is a design-flow surface;
+        // these are the production paths it dispatches into.
+        if screens::history::owns(action) {
+            let action = action.to_string();
+            let store = store.clone();
+            rt.spawn(async move {
+                if let Err(e) =
+                    screens::history::perform(&conv, &action, &store, None).await
+                {
+                    ::log::warn!("octoscode: screens: {action:?}: {e}");
+                }
+            });
+            return;
+        }
+        if screens::transcript::owns(action) {
+            let store = store.clone();
+            rt.spawn(async move {
+                if let Err(e) = screens::transcript::perform(&conv, &store).await {
+                    ::log::warn!("octoscode: screens: composer.copy_transcript: {e}");
+                }
+            });
+            return;
+        }
         if screens::models::owns(action) {
             let action = action.to_string();
             let store = store.clone();
@@ -2971,6 +3031,23 @@ impl Widget for OctoscodeView {
                         self.perform_action(cx, bindings::ACTION_INTERRUPT, 0);
                     } else {
                         self.perform_action(cx, bindings::ACTION_SUBMIT, 0);
+                    }
+                }
+                // #P4a1 — the approval pill: cycle the permission mode and
+                // reflect the server's read-back (the web's
+                // permission/profile/set, permissions-section.tsx:27-28;
+                // #42a owns the protocol side).
+                if self.view.button(cx, ids!(approval_pill_hit)).clicked(actions) {
+                    let conv = {
+                        let b = self.bridge.lock().unwrap();
+                        b.conv.clone()
+                    };
+                    if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                        screens::workspace::spawn(
+                            screens::workspace::Effect::CyclePermissionMode,
+                            rt,
+                            conv,
+                        );
                     }
                 }
                 // `+` (attach) and the mic are not wired to a protocol method

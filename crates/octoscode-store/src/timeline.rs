@@ -122,6 +122,20 @@ impl TimelineEntry {
     }
 }
 
+/// One row of `SessionHydrateResult.messages`
+/// (octos-core `ui_protocol.rs:2865`), reduced to what the rebuild needs —
+/// the store stays decoupled from octos-core types.
+pub struct HydratedRow<'a> {
+    pub seq: u64,
+    pub role: &'a str,
+    pub content: &'a str,
+    /// Owned: the caller derives it from a typed id (`TurnId(pub Uuid)`), so
+    /// the string must be materialised somewhere anyway.
+    pub turn_id: Option<String>,
+    /// Captured reasoning for the row; becomes its own REASONING entry.
+    pub reasoning: Option<&'a str>,
+}
+
 /// The transcript store: `session id -> entries`, in arrival order.
 #[derive(Debug, Default)]
 pub struct Timeline {
@@ -336,7 +350,151 @@ impl Timeline {
     }
 
     /// The entries of one kind, in order.
+    /// Card #P4b2 (canonical hydrate recovery): rebuild the transcript from
+    /// `SessionHydrateResult.messages` — the web's `restoreCanonicalHydrate`
+    /// (`timeline/canonical-hydrate.ts:31`) rules, reduced to what the native
+    /// store keeps:
+    /// * **event order** — rows land in `seq` order regardless of arrival;
+    /// * **durable bodies win, ambiguous identity never deletes** — existing
+    ///   entries are never overwritten or removed; a rebuild only appends;
+    /// * **idempotent** — each rebuilt row carries `data.hydreate_id`
+    ///   `hydrate:seq:<seq>`; re-hydrating the same snapshot adds nothing.
+    ///   Identity is `seq` (unique per stream cursor): the web's
+    ///   `message_id ?? client_message_id ?? thread:seq` collapses to the
+    ///   same uniqueness (recorded deviation);
+    /// * rebuilt user/assistant rows are `finalized` — the durable receipt
+    ///   absorbs no further `append_delta` text (#21i semantics);
+    /// * captured `reasoning` becomes its own REASONING entry immediately
+    ///   before the row (the folded-disclosure source).
+    /// Returns the number of entries added.
+    pub fn fold_hydrated_messages(&self, session: &str, rows: &[HydratedRow]) -> usize {
+        let mut ordered: Vec<&HydratedRow> = rows.iter().collect();
+        ordered.sort_by_key(|r| r.seq);
+        let mut i = self.inner.lock().unwrap();
+        let entries = i.entry(session.to_owned()).or_default();
+        let mut seen: Vec<String> = entries
+            .iter()
+            .filter_map(|e| {
+                e.data.get("hydrate_id").and_then(|v| v.as_str().map(str::to_owned))
+            })
+            .collect();
+        let mut added = 0usize;
+        for row in ordered {
+            let hid = format!("hydrate:seq:{}", row.seq);
+            let rhid = format!("hydrate:reasoning:seq:{}", row.seq);
+            if seen.iter().any(|s| s == &hid) || seen.iter().any(|s| s == &rhid) {
+                continue;
+            }
+            let turn = row.turn_id.clone();
+            let mut push = |entries: &mut Vec<TimelineEntry>,
+                            turn: Option<String>,
+                            kind: EntryKind,
+                            text: &str,
+                            hid: String,
+                            finalized: bool| {
+                let id = self.next_id.fetch_add(1, Ordering::Relaxed);
+                let mut e = TimelineEntry::new(id, turn, kind);
+                e.text = text.to_owned();
+                e.data = serde_json::json!({ "hydrate_id": hid });
+                e.finalized = finalized;
+                entries.push(e);
+            };
+            if let Some(reasoning) = row.reasoning {
+                push(
+                    entries,
+                    turn.clone(),
+                    EntryKind::REASONING,
+                    reasoning,
+                    rhid.clone(),
+                    true,
+                );
+                seen.push(rhid.clone());
+                added += 1;
+            }
+            let (kind, finalized) = match row.role {
+                "user" => (EntryKind::USER_MESSAGE, true),
+                "assistant" => (EntryKind::ASSISTANT_TEXT, true),
+                "reasoning" => (EntryKind::REASONING, true),
+                _ => (EntryKind::SYSTEM_NOTICE, false),
+            };
+            push(entries, turn, kind, row.content, hid.clone(), finalized);
+            seen.push(hid);
+            added += 1;
+        }
+        added
+    }
+
     pub fn of_kind(&self, session: &str, kind: EntryKind) -> Vec<TimelineEntry> {
         self.entries(session).into_iter().filter(|e| e.kind == kind).collect()
+    }
+}
+
+
+#[cfg(test)]
+mod p4b2_tests {
+    use super::*;
+
+    fn rows() -> Vec<HydratedRow<'static>> {
+        vec![
+            HydratedRow {
+                seq: 11,
+                role: "assistant",
+                content: "because five",
+                turn_id: Some("t1".to_owned()),
+                reasoning: Some("counting to five"),
+            },
+            HydratedRow {
+                seq: 10,
+                role: "user",
+                content: "why 5?",
+                turn_id: Some("t1".to_owned()),
+                reasoning: None,
+            },
+        ]
+    }
+
+    #[test]
+    fn rebuilds_in_event_order_with_durable_bodies() {
+        let tl = Timeline::default();
+        let added = tl.fold_hydrated_messages("s1", &rows());
+        assert_eq!(added, 3, "reasoning + user + assistant");
+        let es = tl.entries("s1");
+        let kinds: Vec<EntryKind> = es.iter().map(|e| e.kind).collect();
+        assert_eq!(
+            kinds,
+            vec![EntryKind::USER_MESSAGE, EntryKind::REASONING, EntryKind::ASSISTANT_TEXT],
+            "seq order (user 10 before assistant 11), reasoning right before its answer"
+        );
+        assert_eq!(es[0].text, "why 5?");
+        assert_eq!(es[2].text, "because five");
+        assert!(es[0].finalized && es[2].finalized, "durable receipts absorb no further deltas");
+    }
+
+    #[test]
+    fn rehydrate_is_idempotent_and_never_deletes() {
+        let tl = Timeline::default();
+        // A LIVE durable entry the server did not send back: must survive.
+        tl.append_delta("s1", Some("t-live"), EntryKind::ASSISTANT_TEXT, "live partial");
+        let before = tl.len("s1");
+        assert_eq!(tl.fold_hydrated_messages("s1", &rows()), 3);
+        // The exact same snapshot again: adds nothing, deletes nothing.
+        assert_eq!(tl.fold_hydrated_messages("s1", &rows()), 0, "idempotent");
+        let es = tl.entries("s1");
+        assert_eq!(es[0].text, "live partial", "the live entry survives, untouched");
+        assert_eq!(tl.len("s1"), before + 3);
+    }
+
+    #[test]
+    fn unknown_roles_lands_as_system_notice() {
+        let tl = Timeline::default();
+        let rows = vec![HydratedRow {
+            seq: 1,
+            role: "moderator",
+            content: "session pinned",
+            turn_id: None,
+            reasoning: None,
+        }];
+        assert_eq!(tl.fold_hydrated_messages("s1", &rows), 1);
+        assert_eq!(tl.entries("s1")[0].kind, EntryKind::SYSTEM_NOTICE);
     }
 }

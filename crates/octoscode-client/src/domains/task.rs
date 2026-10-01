@@ -129,14 +129,20 @@ pub struct TaskOutputDeltaHandler {
 impl NotificationHandler for TaskOutputDeltaHandler {
     const METHOD: &'static str = methods::TASK_OUTPUT_DELTA;
     fn handle(&self, notification: &UiNotification) {
-        if let UiNotification::TaskOutputDelta(TaskOutputDeltaEvent { task_id, text, .. }) =
-            notification
+        if let UiNotification::TaskOutputDelta(TaskOutputDeltaEvent {
+            task_id,
+            cursor,
+            text,
+            ..
+        }) = notification
         {
             self.store.note_seen(Self::METHOD);
+            // #P4b [18]: offset-checked like the web (model.ts:143-165) —
+            // stale replays and cursor gaps must never touch the buffer.
             self.store
                 .domains
                 .task
-                .append_output(&task_id.0.to_string(), text);
+                .append_output_checked(&task_id.0.to_string(), cursor.offset, text);
         }
     }
 }
@@ -218,4 +224,52 @@ impl Method for TaskOutputRead {
     const NAME: &'static str = methods::TASK_OUTPUT_READ;
     type Params = octos_core::ui_protocol::TaskOutputReadParams;
     type Result = octos_core::ui_protocol::TaskOutputReadResult;
+}
+
+#[cfg(test)]
+mod output_cursor_tests {
+    use super::*;
+    use octos_core::ui_protocol::OutputCursor;
+
+    /// #P4b g-timeline [18]: `task/output/delta` carries a byte cursor and the
+    /// fold must be offset-checked like the web's appendTaskOutputDelta
+    /// (supervision/model.ts:143-165) — a STALE frame (entirely before the
+    /// expected offset) is a no-op and a GAP frame (starting past it) fails
+    /// closed; neither may touch the buffer. The handler used to ignore the
+    /// cursor and blind-append, so a replayed or dropped-frames stream
+    /// silently corrupted the output.
+    /// TaskId parses a UUID-shaped id (f4_task_tool.rs:106 precedent) — the
+    /// store keys its output buffer by that id's string form.
+    const TASK: &str = "00000000-0000-7000-8000-0000000000a1";
+
+    fn delta(offset: u64, text: &str) -> UiNotification {
+        UiNotification::TaskOutputDelta(TaskOutputDeltaEvent {
+            session_id: octos_core::SessionKey("s1".into()),
+            topic: None,
+            task_id: octos_core::TaskId(TASK.parse().unwrap()),
+            cursor: OutputCursor { offset },
+            text: text.to_string(),
+        })
+    }
+
+    #[test]
+    fn a_cursor_gap_delta_fails_closed_instead_of_corrupting_the_buffer() {
+        let store = Arc::new(Store::new());
+        let handler = TaskOutputDeltaHandler { store: store.clone() };
+        // Base frame: bytes 0..5 -> the expected offset becomes 5.
+        handler.handle(&delta(0, "Hello"));
+        assert_eq!(store.domains.task.output(TASK), "Hello");
+        // A STALE replay (offset 0 again) must be a no-op...
+        handler.handle(&delta(0, "JUNK"));
+        // ...and a GAP (offset 9 > expected 5) must fail closed...
+        handler.handle(&delta(9, "WORLD"));
+        assert_eq!(
+            store.domains.task.output(TASK),
+            "Hello",
+            "stale and gapped frames must not touch the buffer"
+        );
+        // ...while a frame that OVERLAPS the expected offset resumes cleanly.
+        handler.handle(&delta(5, " World"));
+        assert_eq!(store.domains.task.output(TASK), "Hello World");
+    }
 }

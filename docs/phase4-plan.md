@@ -6,7 +6,10 @@
   web multi-record plumbing with no user-visible behaviour natively). 45 rows, confirmed by the operator 2026-10-01.
 - **C — Phase-4 gap:** missing or untested natively. Each row has a one-line gap in docs/phase4-gaps.md. Work = implement and/or test, then flip to A.
 
-Totals: **A 42 · B 45 · C 214**.
+**Final bucket = `phase4_bucket_manual` when set, else `phase4_bucket`.** To flip a row, set `phase4_bucket_manual=A` AND `phase4_evidence_manual`
+(file:line + production-path test); a regen may rewrite `phase4_bucket` but never the manual columns. Count A with the final bucket only.
+
+Totals at triage: **A 42 · B 45 · C 214**.
 
 ## Cards, in order of the walk rows they unblock
 | # | card | C rows | open walk rows unblocked | notes |

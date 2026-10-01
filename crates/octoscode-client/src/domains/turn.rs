@@ -58,6 +58,9 @@ impl NotificationHandler for TurnCompletedHandler {
             let session = completed.session_id.0.clone();
             let turn_id = completed.turn_id.0.to_string();
             self.store.domains.turn.ended(&turn_id);
+            // #P4b1 [14]: the turn's plan dies with the turn that authored it
+            // (clearPlanForTurn, plan.ts:31).
+            self.store.domains.task.clear_plan_for_turn(&session, &turn_id);
             // A turn boundary closes the assistant entry it belongs to, so
             // later deltas start a new block instead of appending to a
             // finished one.
@@ -79,6 +82,8 @@ impl NotificationHandler for TurnErrorHandler {
             let session = error.session_id.0.clone();
             let turn_id = error.turn_id.0.to_string();
             self.store.domains.turn.ended(&turn_id);
+            // #P4b1 [14]: an errored authoring turn drops its plan too.
+            self.store.domains.task.clear_plan_for_turn(&session, &turn_id);
             self.store.domains.session.timeline.close_turn(&session, &turn_id);
             // A readable system notice: a deterministic kind, the error text.
             self.store.domains.session.timeline.append_data(
@@ -373,6 +378,10 @@ impl NotificationHandler for ProjectionEnvelopeHandler {
                 };
                 self.store.domains.turn.ended(&turn_id);
                 self.store.domains.turn.set_terminal(&turn_id, name);
+                // #P4b1 [14]: every terminal outcome drops the authoring
+                // turn's plan (the web's terminalTurnId treats turn_terminal
+                // as the canonical terminal, entry-model.ts:87-99).
+                self.store.domains.task.clear_plan_for_turn(&session, &turn_id);
                 match outcome {
                     TurnTerminalOutcome::Completed => {
                         timeline.close_turn(&session, &turn_id);
@@ -517,4 +526,100 @@ pub fn register(reg: &mut Registry, store: Arc<Store>) {
     reg.register(ProjectionEnvelopeHandler { store: store.clone() });
     reg.register(ReasoningDeltaHandler { store: store.clone() });
     reg.register(ProgressUpdatedHandler { store });
+}
+
+#[cfg(test)]
+mod plan_terminal_tests {
+    use super::*;
+    use octos_core::ui_protocol::{
+        PlanItemStatus, PlanUpdatedEvent, TurnCompletedEvent, TurnErrorEvent, UiPlanItem,
+        UiPlanRecord,
+    };
+
+    /// #P4b1 [14]: a plan is scoped to its AUTHORING turn and is dropped when
+    /// THAT turn terminates (the web's clearPlanForTurn, plan.ts:31) — never
+    /// by another turn's terminal, and the rule covers every terminal source
+    /// (turn/completed, turn/error, envelope turn_terminal).
+    const TURN_A: &str = "00000000-0000-7000-8000-0000000000a1";
+    const TURN_B: &str = "00000000-0000-7000-8000-0000000000b2";
+
+    fn turn(id: &str) -> octos_core::TurnId {
+        octos_core::TurnId(id.parse().unwrap())
+    }
+
+    fn plan_updated(session: &str, author: &str) -> UiNotification {
+        UiNotification::PlanUpdated(PlanUpdatedEvent {
+            session_id: octos_core::SessionKey(session.to_string()),
+            topic: None,
+            turn_id: Some(turn(author)),
+            plan: UiPlanRecord {
+                items: vec![UiPlanItem {
+                    id: "p1".into(),
+                    title: "step".into(),
+                    status: PlanItemStatus::InProgress,
+                    priority: None,
+                }],
+                title: None,
+                updated_at_ms: 1,
+            },
+        })
+    }
+
+    fn completed(session: &str, id: &str) -> UiNotification {
+        UiNotification::TurnCompleted(TurnCompletedEvent {
+            session_id: octos_core::SessionKey(session.to_string()),
+            topic: None,
+            turn_id: turn(id),
+            cursor: None,
+            tokens_in: None,
+            tokens_out: None,
+            token_usage: None,
+            session_result: None,
+        })
+    }
+
+    fn failed(session: &str, id: &str) -> UiNotification {
+        UiNotification::TurnError(TurnErrorEvent {
+            session_id: octos_core::SessionKey(session.to_string()),
+            topic: None,
+            turn_id: turn(id),
+            code: "boom".into(),
+            message: "broke".into(),
+            token_usage: None,
+            partial_result: None,
+        })
+    }
+
+    #[test]
+    fn a_plan_is_dropped_by_its_own_turns_terminal_only() {
+        let store = Arc::new(Store::new());
+        let completed_h = TurnCompletedHandler { store: store.clone() };
+        let error_h = TurnErrorHandler { store: store.clone() };
+        let plan_h = crate::domains::task::PlanUpdatedHandler { store: store.clone() };
+
+        plan_h.handle(&plan_updated("s1", TURN_A));
+        assert!(store.domains.task.plan("s1").is_some(), "the plan lands");
+
+        // A terminal for a DIFFERENT turn must not drop it.
+        completed_h.handle(&completed("s1", TURN_B));
+        assert!(
+            store.domains.task.plan("s1").is_some(),
+            "another turn's terminal keeps the plan"
+        );
+
+        // The AUTHORING turn's terminal drops it (plan.ts:31).
+        completed_h.handle(&completed("s1", TURN_A));
+        assert!(
+            store.domains.task.plan("s1").is_none(),
+            "the authoring turn's completion clears the plan"
+        );
+
+        // The same rule on the error terminal.
+        plan_h.handle(&plan_updated("s1", TURN_A));
+        error_h.handle(&failed("s1", TURN_A));
+        assert!(
+            store.domains.task.plan("s1").is_none(),
+            "the authoring turn's error clears the plan too"
+        );
+    }
 }

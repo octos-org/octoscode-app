@@ -227,6 +227,36 @@ impl Tasks {
             .push_str(text);
     }
 
+    /// #P4b g-timeline [18]: the web's `appendTaskOutputDelta`
+    /// (supervision/model.ts:143-165) in store form. `offset` is the frame's
+    /// byte cursor: a frame ending at/before the expected offset is a STALE
+    /// replay (no-op), a frame starting PAST it is a cursor GAP (fail closed —
+    /// the buffer is never corrupted), an overlapping frame contributes only
+    /// its non-overlapping suffix. A frame whose overlap boundary would split
+    /// a UTF-8 char also fails closed (a malformed split is not a resync).
+    /// Returns whether the buffer changed. The gap's user-facing error copy
+    /// lands with the output drill-down UI (row [17]'s gap).
+    pub fn append_output_checked(&self, task_id: &str, offset: u64, text: &str) -> bool {
+        let mut i = self.inner.lock().unwrap();
+        let expected = i.output.get(task_id).map(|s| s.len() as u64).unwrap_or(0);
+        let delta_end = offset.saturating_add(text.len() as u64);
+        if delta_end <= expected {
+            return false; // stale replay: nothing to add
+        }
+        if offset > expected {
+            return false; // cursor gap: fail closed
+        }
+        let overlap = (expected - offset) as usize;
+        let Some(suffix) = text.get(overlap..) else {
+            return false; // the overlap would split a UTF-8 char: malformed
+        };
+        i.output
+            .entry(task_id.to_owned())
+            .or_default()
+            .push_str(suffix);
+        true
+    }
+
     pub fn output(&self, task_id: &str) -> String {
         self.inner
             .lock()

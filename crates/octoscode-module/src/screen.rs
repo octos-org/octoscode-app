@@ -64,7 +64,12 @@ pub fn thread_rows(store: &Arc<Store>) -> Vec<ThreadRow> {
         .sessions()
         .into_iter()
         .map(|s| ThreadRow {
-            title: s.title.unwrap_or_else(|| s.id.clone()),
+            // #P4h1 row 301: the ONE label rule (the web's `sessionLabel`,
+            // features/workspace/model.ts:71) — title, then last_prompt, then
+            // the id. This projection used to skip straight to the id on a
+            // missing title, so an untitled session showed its raw id instead
+            // of the prompt the web shows. See `Session::display_label`.
+            title: s.display_label(),
             meta: format!("{} messages", s.message_count),
             active: active.as_deref() == Some(s.id.as_str()),
         })
@@ -103,9 +108,15 @@ pub fn timeline_rows(store: &Arc<Store>, live: bool) -> Vec<Row> {
         // assistant-prose: the turn's FINAL assistant text (deltas folded).
         if let Some((i, _, _)) = group
             .iter()
-            .filter(|(_, k, t)| *k == EntryKind::ASSISTANT_TEXT && !t.is_empty())
+            .filter(|(_, k, t)| {
+                (*k == EntryKind::ASSISTANT_TEXT || *k == crate::screens::palette::REPORT_KIND)
+                    && !t.is_empty()
+            })
             .next_back()
         {
+            // #P4d3: REPORT_KIND (command receipts) rides the same prose row —
+            // a receipt turn's group holds only report rows, and the pick is
+            // the FINAL text, so the last receipt wins.
             out.push(Row { kind: ItemKind::AssistantProse, index: *i, turn: turn_of(turn) });
         }
         // tool-cell × N: the turn's tool calls, in order. The `index` is the
