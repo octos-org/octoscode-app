@@ -14,3 +14,6 @@ pipeline-output/runs/
 
 # local forks created by tools/prepare-*-fork.sh
 /.forks/
+/design/.embed-marker
+/design/icons/
+/design/resources/
