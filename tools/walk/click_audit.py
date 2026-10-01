@@ -251,13 +251,18 @@ def run_screen(cfg: dict, bin_path: pathlib.Path, app_port: int, rows: list) -> 
             # (review_toggle then review_close both -> review.toggle), which a
             # set-difference judge would miss.
             def entries(raw: str) -> list[str]:
-                # /log answers a JSON array of lines on ONE physical line;
-                # fall back to physical lines if it ever changes shape.
+                # /log answers a JSON object {n, pool, l: [lines…]} — the log
+                # lines ride the "l" key (a list, on one physical line).
+                # Fall back to physical lines if it ever changes shape.
                 try:
                     v = json.loads(raw)
-                    return [str(x) for x in v] if isinstance(v, list) else raw.splitlines()
                 except Exception:  # noqa: BLE001
                     return raw.splitlines()
+                if isinstance(v, dict) and isinstance(v.get("l"), list):
+                    return [str(x) for x in v["l"]]
+                if isinstance(v, list):
+                    return [str(x) for x in v]
+                return raw.splitlines()
 
             def named_counts(raw: str) -> dict[str, int]:
                 counts: dict[str, int] = {}
