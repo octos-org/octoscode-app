@@ -250,25 +250,42 @@ def run_screen(cfg: dict, bin_path: pathlib.Path, app_port: int, rows: list) -> 
             # COUNT grew — two controls on one arm fire the same line twice
             # (review_toggle then review_close both -> review.toggle), which a
             # set-difference judge would miss.
-            before_counts: dict[str, int] = {}
-            for l in before_log.splitlines():
-                if ACTION_LOG.search(l):
-                    before_counts[l] = before_counts.get(l, 0) + 1
-            new_named = []
-            after_counts: dict[str, int] = {}
-            for l in after_log.splitlines():
-                if not ACTION_LOG.search(l):
-                    continue
-                after_counts[l] = after_counts.get(l, 0) + 1
-                if after_counts[l] > before_counts.get(l, 0):
-                    new_named.append(l)
+            def entries(raw: str) -> list[str]:
+                # /log answers a JSON array of lines on ONE physical line;
+                # fall back to physical lines if it ever changes shape.
+                try:
+                    v = json.loads(raw)
+                    return [str(x) for x in v] if isinstance(v, list) else raw.splitlines()
+                except Exception:  # noqa: BLE001
+                    return raw.splitlines()
+
+            def named_counts(raw: str) -> dict[str, int]:
+                counts: dict[str, int] = {}
+                for l in entries(raw):
+                    if ACTION_LOG.search(l):
+                        counts[l] = counts.get(l, 0) + 1
+                return counts
+
+            before_counts = named_counts(before_log)
+            after_counts = named_counts(after_log)
+            new_named = [l for l, n in after_counts.items()
+                         if n > before_counts.get(l, 0)]
             action_line = next((l.split("[octoscode]", 1)[1].strip()[:100]
                                 for l in reversed(new_named)), "")
             after_snap = app.snap()
             changed = len(snapshot_fingerprint(after_snap) ^ before_fp)
             before_fp = snapshot_fingerprint(after_snap)
             before_log = after_log
-            if cfg.get("shadow_chrome") and ident in SHADOWED_BY_DOCK:
+            dimmer = next((w.get("r") for w in cur.get("s", [])
+                           if str(w.get("i", "")) == "dimmer"), None)
+            if (ident in SHADOWED_BY_DOCK
+                    and dimmer and len(dimmer) == 4 and dimmer[2] > 0 and dimmer[3] > 0
+                    and rect[0] >= dimmer[0] and rect[1] >= dimmer[1]
+                    and rect[0] + rect[2] <= dimmer[0] + dimmer[2]
+                    and rect[1] + rect[3] <= dimmer[1] + dimmer[3]):
+                observed = ("shadowed: the modal dimmer covers the chrome "
+                            "(by design) — click lands on the dimmer")
+            elif cfg.get("shadow_chrome") and ident in SHADOWED_BY_DOCK:
                 observed = ("shadowed: the visible dock overlays the chrome "
                             "(by design) — click lands on the dock, not the control")
             elif action_line:
@@ -340,10 +357,11 @@ def main() -> int:
     dead = sum(1 for r in real if r[6] == "nothing")
     dismissed = sum(1 for r in real if r[6].startswith("dismissed:"))
     shadowed = sum(1 for r in real if r[6].startswith("shadowed:"))
+    dimmed = sum(1 for r in real if r[6].startswith("shadowed: the modal"))
     focus = sum(1 for r in real if r[6].startswith("nothing (focus-only"))
     print(f"SURFACE: {total} controls, {len(real)} with an expected action: "
           f"{respond} respond, {dead} dead, {dismissed} dismissed-by-earlier-click, "
-          f"{shadowed} shadowed-by-dock, {focus} focus-only-bindings, "
+          f"{shadowed} shadowed-by-dock ({dimmed} by the modal dimmer), {focus} focus-only-bindings, "
           f"{unwired} documented-unwired (+{total - len(real) - unwired} unmapped)", flush=True)
     return 0
 
