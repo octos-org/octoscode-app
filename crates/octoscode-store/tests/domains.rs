@@ -268,6 +268,7 @@ fn approval_decide_marks_the_right_row() {
         decided: false,
         auto_resolved: false,
         cancelled: false,
+        preview_id: None,
     });
     assert!(store.domains.approval.decide("a1"));
     assert!(store.domains.approval.pending()[0].decided);

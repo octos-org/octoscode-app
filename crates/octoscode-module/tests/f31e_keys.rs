@@ -188,6 +188,7 @@ fn the_oldest_undecided_approval_is_what_the_keyboard_answers() {
         decided,
         auto_resolved: false,
         cancelled,
+        preview_id: None,
     };
     // The web decides the SHOWING card; the store's list is FIFO
     // (domains/approval.rs:79) — the first actionable row wins.

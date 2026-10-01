@@ -54,6 +54,13 @@ pub enum KeyAction {
     ApprovalApproveSession,
     /// N — deny the request (`ApprovalPanel.tsx:52-54`).
     ApprovalDenyRequest,
+    /// D — open the diff review for the SHOWING approval's preview
+    /// (`ApprovalPanel.tsx:45`: `key === "d" && previewId && onReviewDiff`).
+    /// Carries the preview id read from the approval payload
+    /// (`typedDetails.diff.preview_id`, #P4f2 row 7). Only produced when a
+    /// preview id exists, so a non-diff approval leaves D inert exactly as
+    /// the web does.
+    ApprovalReviewDiff(String),
     /// Alt+A — the web's show-approval parity shortcut (`registry.ts:614`).
     /// The native approval surface lands with the approval Stage-C screen;
     /// the binding and its gate are wired and observable now.
@@ -78,6 +85,11 @@ pub fn resolve(
     logo: bool,
     palette_open: bool,
     approval_pending: bool,
+    // #P4f2 row 7: the SHOWING approval's diff preview id, read by the caller
+    // from the store (`Approvals::oldest_preview_id`). Passed in rather than
+    // read here so `resolve` stays a PURE function over its arguments — the
+    // same shape every other rule in this table already has.
+    approval_preview: Option<String>,
     turn_active: bool,
     draft_empty: bool,
 ) -> KeyAction {
@@ -151,6 +163,27 @@ pub fn resolve(
                 KeyAction::Ignore
             }
         }
+        KeyCode::KeyD if !shift && !ctrl && !alt && !logo => {
+            // #P4f2 row 7 — `ApprovalPanel.tsx:45`: D opens the diff review,
+            // but ONLY when the showing approval carries a preview id. The web
+            // reads it off the card; natively the store's oldest ACTIONABLE
+            // pending approval is the card that is showing (FIFO,
+            // `domains/approval.rs`), so its preview id is the one to use.
+            // A non-diff approval leaves D inert — same as `previewId` absent.
+            //
+            // The web's other two early-returns (`:36-38`): `busy` is already
+            // covered by `approval_pending`, and the IME arm
+            // (`isComposing` / `keyCode === 229`) has NO native input — the
+            // pinned makepad `KeyEvent` carries only
+            // {key_code, is_repeat, modifiers, time}
+            // (platform/studio/src/keyboard.rs:7-12) and exposes no composing
+            // flag anywhere in the tree, so there is no value to read. Recorded
+            // as unported in .peer/report-P4f2.md rather than silently claimed.
+            match approval_preview {
+                Some(preview_id) if approval_pending => KeyAction::ApprovalReviewDiff(preview_id),
+                _ => KeyAction::Ignore,
+            }
+        }
         // #28e's chrome chords, preserved verbatim.
         KeyCode::KeyE if logo => KeyAction::ReviewToggle,
         KeyCode::Period if logo => KeyAction::SettingsToggle,
@@ -169,6 +202,14 @@ pub fn oldest_pending_id(store: &Store) -> Option<String> {
         .into_iter()
         .find(|a| !a.decided && !a.cancelled)
         .map(|a| a.id)
+}
+
+/// #P4f2 row 7: the diff preview id of the SAME FIFO row
+/// [`oldest_pending_id`] returns, so `D` and Y/S/N can never act on different
+/// cards. `None` when the showing approval is not a diff approval — the web's
+/// `previewId` absent, which leaves `D` inert (`ApprovalPanel.tsx:45`).
+pub fn preview_id(store: &Store) -> Option<String> {
+    store.domains.approval.oldest_preview_id()
 }
 
 /// The outbound `approval/respond` body for a keyboard decision — the r5-turn
