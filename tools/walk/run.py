@@ -1428,7 +1428,11 @@ def main():
         # row 1 (a real coding turn + refresh) and row 2 (a background turn
         # survives focusing a sibling). Row 50 (approval shortcuts) needs the
         # model to RAISE an approval card on its own; not scriptable yet.
-        targets = [t for t in targets if t[0] in (1, 2)]
+        # select_targets EXCLUDES live-only rows (needs == "real-turn" is
+        # skipped), so --live builds its targets straight from the rows.
+        wanted = {1, 2}
+        targets = [(i, area_of(r) or "", r)
+                   for i, r in enumerate(rows, start=1) if i in wanted]
     try:
         procs = LiveGate(args.port) if args.live else Procs(args.port)
     except PrereqError as e:
@@ -1568,7 +1572,7 @@ def main():
             print(f"   {k:20} {counts[k]}")
     print(f"   total                {len(out_rows)}")
     print(f"   scripted rows        {len(targets)}  (areas: {areas})")
-    print(f"   per-check rows       {len(check_rows)}  (docs/walk/results-checks.csv)")
+    print(f"   per-check rows       {len(check_rows)}  (docs/walk/results{live_suffix}-checks.csv)")
     by_depth = Counter((r["status"], r.get("depth", "")) for r in out_rows)
     print(f"   pass by depth        specific={by_depth.get(('pass', 'specific'), 0)}"
           f" smoke={by_depth.get(('pass', 'smoke'), 0)}"
