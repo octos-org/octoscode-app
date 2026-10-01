@@ -129,6 +129,33 @@ fn p4_06_row_2_click_addresses_row_2_not_row_0() {
     );
 }
 
+// ---- the glued-digit, 0-based family (the walk's live catch) ----------------
+// The phase4n2 sidebar cards name their rows `ctl_row0..ctl_row4` — the
+// digits GLUED to the family word in one segment — and they number from 0.
+// The first in-app walk clicked ctl_row2 and logged a bare `session.open`
+// (no `#2`): row_of rejected the glued tail and the tap fell back to row 0.
+#[test]
+fn a_glued_0_based_family_stamps_its_own_number() {
+    assert_eq!(taps::row_of("ctl_row2"), Some(2), "glued digits parse");
+    assert_eq!(taps::row_of("ctl_row0"), Some(0), "0 exists in this family");
+    assert_eq!(taps::row_of("ctl_search"), None, "no digits -> no row");
+    // Family evidence: the card also names a row 0, so the index passes
+    // through UNSHIFTED — ctl_row2 must address store row 2, not 1.
+    assert_eq!(
+        taps::with_row_in_family("session.open", "ctl_row2", Some(0)),
+        "session.open#2"
+    );
+    // A 1-based family with the same glued shape still shifts (belt and
+    // braces — no measured card has this shape today, the rule is per family,
+    // not per spelling).
+    assert_eq!(
+        taps::with_row_in_family("session.open", "ctl_row2", Some(1)),
+        "session.open#1"
+    );
+    // A lone control (no family evidence) keeps the historical contract.
+    assert_eq!(taps::with_row("session.open", "ctl_row2"), "session.open#1");
+}
+
 // ---- the shared-event family: the case #FX1 exists for ----------------------
 
 /// `conversation-01` gives all five thread rows ONE `thread.open` event, so the
