@@ -508,14 +508,27 @@ pub fn lower_screen(which: &str, store: &Arc<crate::Store>) -> Result<String, St
                         .unwrap_or_default()
                 };
                 dsl = set_node_text(&dsl, "t_sz1", &sz(0));
-                // #32b2 item 3 (review v2): the ring's HOLE is ~34px
-                // (viewBox r9.2 + stroke 2.6 @ 52px → inner ⌀ 34.2) — the
-                // ~21px "68%" run fits once the TEXT centres in its box (the
-                // authored align x:0 left-seated the run onto the ink arc —
-                // the review's "wider than the hole"). Box centred on the
-                // ring centre (313, 275.5): x 292.9, y 275.5 − 12.38 = 263.12.
-                dsl = set_node_abs_pos(&dsl, "att2_pct", 292.9, 263.12);
+                // #36a: the "68%" label must sit INSIDE the ring's hole and be
+                // legible. Measured on main with the instrument: the hole is
+                // R = (9.2 - 2.6/2) x (52/24) = 17.12 (⌀ 34.23 — the #32b2
+                // figure was right), the ring's centre is (313.0, 276.0) from
+                // `/snap` rect [287, 250, 52, 52], and the label box 40.2 x
+                // 24.76 has half-diagonal hypot(20.1, 12.38) = 23.61 — so every
+                // corner sat 6.5px ON the stroke, and the authored seat (275.04,
+                // 294.73) hung the whole label below the ring. Seat a label sized
+                // to the run: at 11.45pt the "68%" run is 29.04 x 13.86, half-
+                // diagonal 16.10 <= 17.12 (>= 1.0px clearance), centred on the
+                // ring centre -> x 313 - 14.52 = 298.48, y 275.5 - 6.93 = 268.57.
+                dsl = set_node_abs_pos(&dsl, "att2_pct", 298.48, 268.57);
+                dsl = set_node_box(&dsl, "att2_pct", 29.04, 13.86);
+                dsl = set_node_font_size(&dsl, "att2_pct", 11.45);
                 dsl = centre_node_text(&dsl, "att2_pct");
+                // Legibility: the card authors the label WHITE (color
+                // 4294967295) over an arbitrary thumbnail, and `att_2` has no
+                // scrim child at all — the run reads through the pale preview
+                // and over the #48484A track. Paint a dark disc filling the
+                // hole, behind the label, so the white glyph always has contrast.
+                dsl = add_hole_scrim(&dsl);
                 if n > 1 {
                     dsl = set_node_text(&dsl, "t_sz2", &sz(1));
                 }
@@ -709,6 +722,75 @@ fn centre_node_text(dsl: &str, node: &str) -> String {
         "align: Align{x: 0.5 y: 0.5}",
         &dsl[at + key.len()..]
     )
+}
+
+/// Resize one node's own box in the lowered DSL — #36a: the "68%" label's
+/// authored box is sized to the OCR ink bounding box, which is wider than the
+/// ring's circular hole, so the box is seated to the run instead. The lowered
+/// head carries `width: W height: H` on the line AFTER `<node> := Kind {`.
+fn set_node_box(dsl: &str, node: &str, w: f64, h: f64) -> String {
+    let Some(npos) = dsl.find(&format!("{node} := ")) else {
+        return dsl.to_owned();
+    };
+    let window_end = (npos + 200).min(dsl.len());
+    // Resolve BOTH value spans against the SAME, unmutated string — resolving
+    // the second one after a width edit shifts its offsets (40.2 -> 29.04 is a
+    // one-character move) and re-inserts the old number.
+    let span_of = |key: &str| -> Option<(usize, usize)> {
+        let k = npos + dsl[npos..window_end].find(key)?;
+        let s = k + key.len();
+        let e = s + dsl[s..window_end].find(|c: char| !c.is_ascii_digit() && c != '.')?;
+        Some((s, e))
+    };
+    let (Some((ws, we)), Some((hs, he))) = (span_of("width: "), span_of("height: ")) else {
+        return dsl.to_owned();
+    };
+    // `width: W height: H` — the height span starts later, so replace it first
+    // and the width offsets stay valid.
+    let out = format!("{}{}{}", &dsl[..hs], h, &dsl[he..]);
+    format!("{}{}{}", &out[..ws], w, &out[we..])
+}
+
+/// Set one Label's `font_size:` in the lowered DSL (the lowered head carries
+/// `draw_text.text_style: TextStyle{... font_size: 11.887501 ...}`) — #36a:
+/// the run has to shrink with its box or it still rides the ring's stroke.
+fn set_node_font_size(dsl: &str, node: &str, size: f64) -> String {
+    let Some(npos) = dsl.find(&format!("{node} := ")) else {
+        return dsl.to_owned();
+    };
+    let window_end = (npos + 700).min(dsl.len());
+    let key = "font_size: ";
+    let Some(fpos) = dsl[npos..window_end].find(key) else {
+        return dsl.to_owned();
+    };
+    let start = npos + fpos + key.len();
+    let Some(len) = dsl[start..].find(|c: char| !c.is_ascii_digit() && c != '.') else {
+        return dsl.to_owned();
+    };
+    format!("{}{}{}", &dsl[..start], size, &dsl[start + len..])
+}
+
+/// Paint a dark disc filling the ring's hole, immediately BEFORE the label, so
+/// the white "68%" always has contrast over an arbitrary thumbnail (#36a). The
+/// card authors no scrim node at all — `att_2`'s children are the thumb, the
+/// close button, the ring and the label — so this is injected here. Sized to
+/// the hole (⌀ 34.23) and seated on the ring centre (313, 276).
+fn add_hole_scrim(dsl: &str) -> String {
+    let Some(npos) = dsl.find("att2_pct := ") else {
+        return dsl.to_owned();
+    };
+    // `DesignSurface`, not a bare `View`: the design vocabulary's containers
+    // lower to View and lay a rect out but paint no background (measured: the
+    // disc's annulus showed the thumbnail through it), while every authored
+    // surface (att_2, att_2_close_bg, user_bubble) lowers to DesignSurface and
+    // does paint. Props mirror the authored surface heads.
+    let disc = "att2_pct_scrim := DesignSurface {width: 34.23 height: 34.23 \
+                abs_pos: vec2(295.88, 258.38) \
+                draw_bg.radius: 17.12 draw_bg.ellipse: 1.0 draw_bg.border_width: 0 \
+                draw_bg.border_position: 0 draw_bg.border_color: #00000000 \
+                flow: Down padding: 0 clip_x: false clip_y: false \
+                show_bg: true draw_bg.color: #1c1c1eff}\n";
+    format!("{}{}{}", &dsl[..npos], disc, &dsl[npos..])
 }
 
 /// `fit_node_height` for ANY node kind (`user_bubble := DesignSurface {`):
