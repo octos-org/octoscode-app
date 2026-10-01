@@ -938,7 +938,7 @@ def p_altd_notice(app):
     # focus to land on. Measured 41c recon: keys.rs has no KeyD arm, and the
     # snap carries no notice widget — expected FAIL until wired.
     app.key("escape")
-    app.key_mod("d", alt=True)
+    app.key_mod("keyd", alt=True)
     d = app.snap()
     notice = [i for i in app.widget_ids(d) if "capab" in i or "notice" in i]
     return bool(notice), f"capability-notice widgets={notice or 'none (Alt+D unbound)'}"
@@ -950,9 +950,9 @@ def p_altp_fold(app):
     # Row 73's own case. Native observable: a peer dock whose rect toggles
     # across two Alt+P presses. Measured 41c recon: no peer dock mounts.
     app.key("escape")
-    app.key_mod("p", alt=True)
+    app.key_mod("keyp", alt=True)
     r1 = app.rect(app.snap(), "peer_dock")
-    app.key_mod("p", alt=True)
+    app.key_mod("keyp", alt=True)
     r2 = app.rect(app.snap(), "peer_dock")
     ok = bool(r1) and bool(r2) and (r1 != r2 or (r1[2] > 0 and r1[3] > 0))
     return ok, f"peer_dock rects={r1} -> {r2}"
@@ -975,6 +975,8 @@ def p_fleet_rows_visible(app):
 def r_monitor_entry(app):
     # Row 102's own domain: monitors managed through typed receipts, entered
     # via the palette's /monitor (the list q_execute probed carries it).
+    app.wait_for(lambda s: (app.rect_re(s, COMPOSER_INPUT_RE) or [0, 0, 0, 0])[2] > 0,
+                 what="the composer input to lay out")
     app.focus_composer(app.snap())
     app.clear_composer()
     app.type("/monitor")
@@ -1004,14 +1006,38 @@ def s_models_section(app):
     # Row 87's own case. Measured 41c recon: the drawer mounts header + the
     # connection action only — no Model/Models entry. Expected FAIL until the
     # section ships.
+    def drawer_open(s):
+        return (app.rect(s, "settings_drawer") or [0, 0, 0, 0])[2] > 0
+    # Pre-clean: a previous check may have left the drawer open (the open hit
+    # is a TOGGLE — clicking then would CLOSE it and time out the wait).
     d = app.snap()
-    app.click_id(d, "settings_open_hit")
-    app.wait_for(lambda s: (app.rect(s, "settings_drawer") or [0, 0, 0, 0])[2] > 0,
-                 what="the settings drawer to open")
+    if drawer_open(d):
+        app.click_id(d, "settings_close")
+        app.wait_for(lambda s: not drawer_open(s), timeout=8,
+                     what="the pre-existing drawer to close")
+    opened = False
+    for _ in range(3):  # the toggle click is flaky right after mount
+        d = app.snap()
+        app.click_id(d, "settings_open_hit")
+        try:
+            app.wait_for(drawer_open, timeout=8, what="the settings drawer to open")
+            opened = True
+            break
+        except AssertionError:
+            continue
+    if not opened:
+        return False, "the settings drawer never opened via settings_open_hit"
     d = app.snap()
     texts = [str(w.get("t", "")) for w in d.get("s", [])]
     ok = any(t in texts for t in ("Model", "Models", "Manage models"))
-    app.key("escape")  # hygiene: leave the drawer closed for later checks
+    # Hygiene via the drawer's OWN close control: Esc does not close the
+    # drawer (defects.md #41c-5), and a left-open drawer covers the
+    # composer's right half and poisons later checks.
+    d = app.snap()
+    if drawer_open(d):
+        app.click_id(d, "settings_close")
+        app.wait_for(lambda s: not drawer_open(s), timeout=8,
+                     what="the drawer to close after the check")
     return ok, f"models section texts={[t for t in texts if 'model' in t.lower()][:3]}"
 
 
@@ -1019,23 +1045,40 @@ def s_models_section(app):
        rows=("escape restores",))
 def k_esc_drawer(app):
     # Row 58's own domain: Escape hands control back and the trigger survives.
+    def drawer_open(s):
+        return (app.rect(s, "settings_drawer") or [0, 0, 0, 0])[2] > 0
+    d = app.snap()
+    if drawer_open(d):  # pre-clean a drawer a previous check left open
+        app.click_id(d, "settings_close")
+        app.wait_for(lambda s: not drawer_open(s), timeout=8,
+                     what="the pre-existing drawer to close")
     d = app.snap()
     app.click_id(d, "settings_open_hit")
-    app.wait_for(lambda s: (app.rect(s, "settings_drawer") or [0, 0, 0, 0])[2] > 0,
-                 what="the settings drawer to open")
-    app.key("escape")
-    app.wait_for(lambda s: (app.rect(s, "settings_drawer") or [0, 0, 9, 9])[2] == 0,
-                 what="Escape to close the drawer")
+    app.wait_for(drawer_open, what="the settings drawer to open")
+    # The row's own case: Escape hands control back. Fold the verdict (no
+    # raw raise) so the cleanup always runs.
+    esc_closes = True
+    try:
+        app.wait_for(lambda s: not drawer_open(s), timeout=6,
+                     what="Escape to close the settings drawer")
+    except AssertionError:
+        esc_closes = False
+    if not esc_closes:
+        d = app.snap()  # defects.md #41c-5: Esc does not close the drawer
+        if drawer_open(d):
+            app.click_id(d, "settings_close")
+            app.wait_for(lambda s: not drawer_open(s), timeout=8,
+                         what="the drawer to close via its own control")
+        return False, "Escape did not close the settings drawer (closed via its own control)"
+    # The trigger still works after Esc handed control back.
     d = app.snap()
     app.click_id(d, "settings_open_hit")
-    app.wait_for(lambda s: (app.rect(s, "settings_drawer") or [0, 0, 0, 0])[2] > 0,
-                 what="the Settings trigger to still work")
-    # Hygiene: close the drawer so later area runs start clean (it overlays
-    # the composer's right half otherwise).
-    app.key("escape")
-    app.wait_for(lambda s: (app.rect(s, "settings_drawer") or [0, 0, 9, 9])[2] == 0,
-                 what="the drawer to close again")
-    return True, "open -> Esc closes -> trigger re-opens -> Esc closes"
+    app.wait_for(drawer_open, what="the Settings trigger to re-open the drawer")
+    d = app.snap()
+    app.click_id(d, "settings_close")
+    app.wait_for(lambda s: not drawer_open(s), timeout=8,
+                 what="the drawer to close at the end")
+    return True, "open -> Esc closes -> trigger re-opens -> closed cleanly"
 
 
 # ---- live-only rows against the REAL gate (#39a, --live) -------------------- #
@@ -1175,7 +1218,8 @@ def v_fold(app):
                 f"(no receipt folded -> no fold line)")
 
 
-@check("review", "the closed-state review opener lays out and opens the panel by click")
+@check("review", "the closed-state review opener lays out and opens the panel by click",
+       rows=("review toggle", "opener", "closed-state"))
 def v_closed_opener(app):
     # #40b defect 1: the in-panel toggle hit lives INSIDE the closed overlay
     # (rect [0,0,0,0] — #40a's dead click). The sidebar header now carries an
@@ -1204,7 +1248,8 @@ def v_toggle(app):
 
 
 # ---- settings: the settings drawer (#28e) ---------------------------------- #
-@check("settings", "the drawer's close hit is a real 28x28 slot and Disconnect ends inside the window")
+@check("settings", "the drawer's close hit is a real 28x28 slot and Disconnect ends inside the window",
+       rows=("28x28", "close hit", "disconnect ends"))
 def s_close_disconnect(app):
     # #40b defects 1+2: the close button measured 14 or 0 across rounds (the
     # fork's Right rows steal from the last Fit child to feed Fill siblings)
@@ -1375,7 +1420,12 @@ def k_a11y_semantics(app):
     # Row 172's own case (the a11y batch): the shell's keyboard model —
     # Cmd+K opens the palette, Esc closes it, / re-opens, Esc closes.
     app.key("escape")
-    app.key_mod("k", cmd=True)
+    # '/' opens the palette only on an EMPTY draft (keys.rs:110) — clear any
+    # residue earlier keyboard checks left in the composer.
+    d = app.snap()
+    if (app.rect_re(d, COMPOSER_INPUT_RE) or [0, 0, 0, 0])[2] > 0:
+        app.clear_composer()
+    app.key_mod("keyk", cmd=True)
     app.wait_for(lambda s: any(str(w.get("i", "")).startswith("palette_row")
                                and (w.get("r") or [0, 0, 0, 0])[2] > 0
                                for w in s.get("s", [])),
