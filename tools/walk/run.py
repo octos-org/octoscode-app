@@ -1425,26 +1425,18 @@ def k_a11y_semantics(app):
     d = app.snap()
     if (app.rect_re(d, COMPOSER_INPUT_RE) or [0, 0, 0, 0])[2] > 0:
         app.clear_composer()
+    # The palette's mounted signal is the SEARCH field's rect (the proven
+    # q_execute predicate) — the list rows carry generated ids.
+    def pal_open(s):
+        return (app.rect(s, "palette_search") or [0, 0, 0, 0])[2] > 0
     app.key_mod("keyk", cmd=True)
-    app.wait_for(lambda s: any(str(w.get("i", "")).startswith("palette_row")
-                               and (w.get("r") or [0, 0, 0, 0])[2] > 0
-                               for w in s.get("s", [])),
-                 what="Cmd+K to open the palette")
+    app.wait_for(pal_open, what="Cmd+K to open the palette")
     app.key("escape")
-    app.wait_for(lambda s: not any(str(w.get("i", "")).startswith("palette_row")
-                                   and (w.get("r") or [0, 0, 0, 0])[2] > 0
-                                   for w in s.get("s", [])),
-                 what="Esc to close the palette")
+    app.wait_for(lambda s: not pal_open(s), what="Esc to close the palette")
     app.type("/")
-    app.wait_for(lambda s: any(str(w.get("i", "")).startswith("palette_row")
-                               and (w.get("r") or [0, 0, 0, 0])[2] > 0
-                               for w in s.get("s", [])),
-                 what="'/' to open the palette")
+    app.wait_for(pal_open, what="'/' to open the palette")
     app.key("escape")
-    app.wait_for(lambda s: not any(str(w.get("i", "")).startswith("palette_row")
-                                   and (w.get("r") or [0, 0, 0, 0])[2] > 0
-                                   for w in s.get("s", [])),
-                 what="Esc to close the palette again")
+    app.wait_for(lambda s: not pal_open(s), what="Esc to close the palette again")
     return True, "Cmd+K open, Esc close, / open, Esc close — all routed"
 
 
