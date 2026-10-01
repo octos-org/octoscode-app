@@ -104,3 +104,23 @@ From `outer/polish-backlog.md` (20 rows) + the click audit's dead rows. "Card"
 - `WALK_SCENARIO=conversation=session python3 tools/walk/run.py --only conversation --port 8370` -> rc=1 (expected FAILs)
 - `python3 tools/walk/click_audit.py --app-bin <vendored> --out docs/walk/click-audit.csv` -> SURFACE 29: 2/8/6/8 (+5 unmapped)
 - live gate session + captures: see §2 (replay_serve 8380 + harness/headless.sh 8370; connect via dead URL on 8371)
+
+## Real live run (#38b, main @ 0591982) — dsflash, NOT replay
+
+Setup: the outer loop's REAL live gate — `octos serve` already listening on
+127.0.0.1:50190 (a6ea8505, dsflash), native app hidden on :8490 with the
+live-gate env (`OCTOS_BASE_URL=…50190`, `$G/.token`, `OCTOS_PROFILE_ID=dsflash`,
+`OCTOS_WORKSPACE_CWD=$G/ws`), binary = fresh vendored build of 0591982.
+Driven with the walk App + instrument (0.4 s /snap polling; timestamps wall-clock).
+
+| check | result |
+|---|---|
+| turn 1 streams | **yes** — `In one short paragraph: what does main.rs … print, and why?` streamed a real paragraph (main.rs prints `5`; `println!("{}", add(2, 3))`), terminal 2.5 s after send |
+| "Working" -> "Worked for Ns" (#32i recheck, timed) | **replaced within one poll of the last delta (0.0 s ± 0.4 s poll)** — row reads `Worked for 1s ›` matching the real ~1 s duration. NO linger in the live run; #38a's "Worked for 0s" was the REPLAY fixture's ~0 s turns, not an app defect -> nothing filed |
+| turn 2 interrupt verdict | **`Interrupted`** — `walk 38b second prompt: list the top-level files here`, list_dir tool cell done, Esc -> terminal 1.5 s after Esc, verdict row `Interrupted` |
+
+Captures (both VIEWED): `docs/walk/evidence/phase3/live/38b-live-turn1.png`
+(streamed answer + `Worked for 1s ›` + restored composer with approval pill /
+v4-flash selector), `38b-live-turn2.png` (second prompt bubble + list_dir done
+cell + `Interrupted` row). Both also show the known 80b9f33 window-overflow
+right-edge clip — backlog row, not a new defect.
