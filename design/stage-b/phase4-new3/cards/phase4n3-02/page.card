@@ -1,0 +1,164 @@
+# ledger phase4n3-02@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Add workspace" }
+copy btn_close_t_text { class: user-copy, en: "✕" }
+copy wd_label_text { class: user-copy, en: "Server's working directory" }
+copy wd_path_text { class: user-copy, en: "/home/user/octos" }
+copy wd_help_text { class: user-copy, en: "Start a new session here" }
+copy wd_start_t_text { class: user-copy, en: "Start a new session in /home/user/octos" }
+copy h_recent_text { class: user-copy, en: "Recent workspaces" }
+copy rec_0_name_text { class: user-copy, en: "octos" }
+copy rec_0_br_text { class: user-copy, en: "feat/steer-queue" }
+copy rec_0_path_text { class: user-copy, en: "/home/user/octos" }
+copy rec_0_pick_t_text { class: user-copy, en: "Start session" }
+copy rec_0_chev_text { class: user-copy, en: "›" }
+copy rec_1_name_text { class: user-copy, en: "octoscode-app" }
+copy rec_1_br_text { class: user-copy, en: "main" }
+copy rec_1_path_text { class: user-copy, en: "/home/user/octoscode-app" }
+copy rec_1_pick_t_text { class: user-copy, en: "Start session" }
+copy rec_1_chev_text { class: user-copy, en: "›" }
+copy f_path_text_text { class: user-copy, en: "" }
+copy f_path_ph_text { class: user-copy, en: "/path/to/project" }
+copy btn_enter_t_text { class: user-copy, en: "Enter" }
+copy help_browse_text { class: user-copy, en: "Choosing a folder fills the path box." }
+copy btn_browse_t_text { class: user-copy, en: "Browse server folders…" }
+state btn_close_enabled { shape: bool, initial: true }
+state wd_start_enabled { shape: bool, initial: true }
+state rec_0_pick_enabled { shape: bool, initial: true }
+state rec_1_pick_enabled { shape: bool, initial: true }
+state f_path_enabled { shape: bool, initial: true }
+state btn_enter_enabled { shape: bool, initial: true }
+state btn_browse_enabled { shape: bool, initial: true }
+component Surfacef468f03a0025(instance: text) {
+  view Kit(component: "Surfacef468f03a0025", instance: instance) { slot }
+}
+component Surfaceb101f26001b0(instance: text) {
+  view Kit(component: "Surfaceb101f26001b0", instance: instance) { slot }
+}
+component Surface11a4cded75fe(instance: text) {
+  view Kit(component: "Surface11a4cded75fe", instance: instance) { slot }
+}
+component Text840b7001f71f(instance: text, text: text) {
+  view Kit(component: "Text840b7001f71f", instance: instance, text: text)
+}
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Textfa6531db81c6(instance: text, text: text) {
+  view Kit(component: "Textfa6531db81c6", instance: instance, text: text)
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Surfaced4707dd25870(instance: text) {
+  view Kit(component: "Surfaced4707dd25870", instance: instance) { slot }
+}
+component Text75ee4f0ef332(instance: text, text: text) {
+  view Kit(component: "Text75ee4f0ef332", instance: instance, text: text)
+}
+component Textc9b85a486b80(instance: text, text: text) {
+  view Kit(component: "Textc9b85a486b80", instance: instance, text: text)
+}
+component Text09ef707ce916(instance: text, text: text) {
+  view Kit(component: "Text09ef707ce916", instance: instance, text: text)
+}
+component Textd85a44242f71(instance: text, text: text) {
+  view Kit(component: "Textd85a44242f71", instance: instance, text: text)
+}
+component Textd514fa7b4cc2(instance: text, text: text) {
+  view Kit(component: "Textd514fa7b4cc2", instance: instance, text: text)
+}
+component Surface7a7bef822439(instance: text) {
+  view Kit(component: "Surface7a7bef822439", instance: instance) { slot }
+}
+component Textef39c1926771(instance: text, text: text) {
+  view Kit(component: "Textef39c1926771", instance: instance, text: text)
+}
+component Text0caa141626b1(instance: text, text: text) {
+  view Kit(component: "Text0caa141626b1", instance: instance, text: text)
+}
+component Surface19a87ed4ebd0(instance: text) {
+  view Kit(component: "Surface19a87ed4ebd0", instance: instance)
+}
+component Text1914bedecf20(instance: text, text: text) {
+  view Kit(component: "Text1914bedecf20", instance: instance, text: text)
+}
+component Surface26187bf5e7ec(instance: text) {
+  view Kit(component: "Surface26187bf5e7ec", instance: instance) { slot }
+}
+component Textcd182d906e73(instance: text, text: text) {
+  view Kit(component: "Textcd182d906e73", instance: instance, text: text)
+}
+component Text7d630b6bd848(instance: text, text: text) {
+  view Kit(component: "Text7d630b6bd848", instance: instance, text: text)
+}
+
+view root Surfacef468f03a0025(instance: "page") {
+  Surfaceb101f26001b0(instance: "scrim_64") {
+
+  }
+  Surface11a4cded75fe(instance: "modal_card") {
+    Text840b7001f71f(instance: "t_title", text: copy.t_title_text)
+    Group3d2637879433(instance: "btn_close_row") {
+      Textfa6531db81c6(instance: "btn_close_t", text: copy.btn_close_t_text)
+      NativeButton02f1d1bd99b4(instance: "btn_close", enabled: btn_close_enabled)
+    }
+    Surfaced4707dd25870(instance: "wd_card") {
+
+    }
+    Text75ee4f0ef332(instance: "wd_label", text: copy.wd_label_text)
+    Textc9b85a486b80(instance: "wd_path", text: copy.wd_path_text)
+    Text09ef707ce916(instance: "wd_help", text: copy.wd_help_text)
+    Group3d2637879433(instance: "wd_start_row") {
+      Textd85a44242f71(instance: "wd_start_t", text: copy.wd_start_t_text)
+      NativeButton02f1d1bd99b4(instance: "wd_start", enabled: wd_start_enabled)
+    }
+    Textd514fa7b4cc2(instance: "h_recent", text: copy.h_recent_text)
+    Surface7a7bef822439(instance: "rec_0") {
+
+    }
+    Textef39c1926771(instance: "rec_0_name", text: copy.rec_0_name_text)
+    Text09ef707ce916(instance: "rec_0_br", text: copy.rec_0_br_text)
+    Text09ef707ce916(instance: "rec_0_path", text: copy.rec_0_path_text)
+    Group3d2637879433(instance: "rec_0_pick_row") {
+      Textd85a44242f71(instance: "rec_0_pick_t", text: copy.rec_0_pick_t_text)
+      NativeButton02f1d1bd99b4(instance: "rec_0_pick", enabled: rec_0_pick_enabled)
+    }
+    Text0caa141626b1(instance: "rec_0_chev", text: copy.rec_0_chev_text)
+    Surface7a7bef822439(instance: "rec_1") {
+
+    }
+    Textef39c1926771(instance: "rec_1_name", text: copy.rec_1_name_text)
+    Text09ef707ce916(instance: "rec_1_br", text: copy.rec_1_br_text)
+    Text09ef707ce916(instance: "rec_1_path", text: copy.rec_1_path_text)
+    Group3d2637879433(instance: "rec_1_pick_row") {
+      Textd85a44242f71(instance: "rec_1_pick_t", text: copy.rec_1_pick_t_text)
+      NativeButton02f1d1bd99b4(instance: "rec_1_pick", enabled: rec_1_pick_enabled)
+    }
+    Text0caa141626b1(instance: "rec_1_chev", text: copy.rec_1_chev_text)
+    Surface19a87ed4ebd0(instance: "div1")
+    Group3d2637879433(instance: "f_path_row") {
+      Surfaced4707dd25870(instance: "f_path_bg") {
+
+      }
+      Text1914bedecf20(instance: "f_path_text", text: copy.f_path_text_text)
+      Text1914bedecf20(instance: "f_path_ph", text: copy.f_path_ph_text)
+      NativeButton02f1d1bd99b4(instance: "f_path", enabled: f_path_enabled)
+    }
+    Group3d2637879433(instance: "btn_enter_row") {
+      Surface26187bf5e7ec(instance: "btn_enter_bg") {
+
+      }
+      Textcd182d906e73(instance: "btn_enter_t", text: copy.btn_enter_t_text)
+      NativeButton02f1d1bd99b4(instance: "btn_enter", enabled: btn_enter_enabled)
+    }
+    Text09ef707ce916(instance: "help_browse", text: copy.help_browse_text)
+    Group3d2637879433(instance: "btn_browse_row") {
+      Text7d630b6bd848(instance: "btn_browse_t", text: copy.btn_browse_t_text)
+      NativeButton02f1d1bd99b4(instance: "btn_browse", enabled: btn_browse_enabled)
+    }
+  }
+}

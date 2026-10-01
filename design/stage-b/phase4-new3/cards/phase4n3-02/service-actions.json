@@ -1,6 +1,16 @@
 {
   "frame_id": 2,
   "controls": {
+    "btn_close": {
+      "event": "workspace.create.close",
+      "source_bounds": [
+        330,
+        82,
+        24,
+        20
+      ],
+      "enabled": true
+    },
     "wd_start": {
       "event": "workspace.start_in_server_root",
       "source_bounds": [

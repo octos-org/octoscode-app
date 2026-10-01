@@ -1,0 +1,299 @@
+# ledger phase4n3-01@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Runtime inventory" }
+copy t_sub_text { class: user-copy, en: "12 tools · 3 servers" }
+copy f_search_text_text { class: user-copy, en: "Search names, status, or tools…" }
+copy tab_tools_t_text { class: user-copy, en: "Tools" }
+copy tab_mcp_t_text { class: user-copy, en: "MCP servers" }
+copy h_tools_text { class: user-copy, en: "TOOLS" }
+copy ch_name_text { class: user-copy, en: "TOOL" }
+copy ch_cat_text { class: user-copy, en: "CAT" }
+copy ch_alias_text { class: user-copy, en: "ALIASES / BACKEND" }
+copy ch_cnt_text { class: user-copy, en: "N" }
+copy tool_0_name_text { class: user-copy, en: "Bash" }
+copy tool_0_cat_text { class: user-copy, en: "shell" }
+copy tool_0_alias_text { class: user-copy, en: "Aliases: exec, run" }
+copy tool_0_st_t_text { class: user-copy, en: "enabled" }
+copy tool_0_be_text { class: user-copy, en: "Backend: octos" }
+copy tool_0_cnt_text { class: user-copy, en: "12" }
+copy tool_1_name_text { class: user-copy, en: "Read" }
+copy tool_1_cat_text { class: user-copy, en: "fs" }
+copy tool_1_alias_text { class: user-copy, en: "Aliases: cat, view" }
+copy tool_1_st_t_text { class: user-copy, en: "enabled" }
+copy tool_1_be_text { class: user-copy, en: "Backend: octos" }
+copy tool_1_cnt_text { class: user-copy, en: "4" }
+copy tool_2_name_text { class: user-copy, en: "Write" }
+copy tool_2_cat_text { class: user-copy, en: "fs" }
+copy tool_2_alias_text { class: user-copy, en: "Aliases: save" }
+copy tool_2_st_t_text { class: user-copy, en: "enabled" }
+copy tool_2_be_text { class: user-copy, en: "Backend: octos" }
+copy tool_2_cnt_text { class: user-copy, en: "3" }
+copy tool_3_name_text { class: user-copy, en: "Edit" }
+copy tool_3_cat_text { class: user-copy, en: "fs" }
+copy tool_3_alias_text { class: user-copy, en: "Aliases: patch" }
+copy tool_3_st_t_text { class: user-copy, en: "enabled" }
+copy tool_3_be_text { class: user-copy, en: "Backend: octos" }
+copy tool_3_cnt_text { class: user-copy, en: "8" }
+copy tool_4_name_text { class: user-copy, en: "Grep" }
+copy tool_4_cat_text { class: user-copy, en: "search" }
+copy tool_4_alias_text { class: user-copy, en: "Aliases: find" }
+copy tool_4_st_t_text { class: user-copy, en: "enabled" }
+copy tool_4_be_text { class: user-copy, en: "Backend: octos" }
+copy tool_4_cnt_text { class: user-copy, en: "6" }
+copy tool_5_name_text { class: user-copy, en: "ImageView" }
+copy tool_5_cat_text { class: user-copy, en: "media" }
+copy tool_5_alias_text { class: user-copy, en: "Aliases: see" }
+copy tool_5_st_t_text { class: user-copy, en: "disabled" }
+copy tool_5_be_text { class: user-copy, en: "Backend: octos" }
+copy tool_5_cnt_text { class: user-copy, en: "1" }
+copy h_mcp_text { class: user-copy, en: "MCP SERVERS" }
+copy mcp_counts_text { class: user-copy, en: "connected · 2    connecting · 1    failed · 0" }
+copy srv_0_id_text { class: user-copy, en: "fs-probe" }
+copy srv_0_sum_text { class: user-copy, en: "workspace file tools" }
+copy srv_0_dot_t_text { class: user-copy, en: "" }
+copy srv_0_tr_t_text { class: user-copy, en: "stdio" }
+copy srv_0_tc_text { class: user-copy, en: "6" }
+copy srv_1_id_text { class: user-copy, en: "web-probe" }
+copy srv_1_sum_text { class: user-copy, en: "browser + fetch tools" }
+copy srv_1_dot_t_text { class: user-copy, en: "" }
+copy srv_1_tr_t_text { class: user-copy, en: "http" }
+copy srv_1_tc_text { class: user-copy, en: "12" }
+copy srv_2_id_text { class: user-copy, en: "git-probe" }
+copy srv_2_sum_text { class: user-copy, en: "repository inspection" }
+copy srv_2_dot_t_text { class: user-copy, en: "" }
+copy srv_2_tr_t_text { class: user-copy, en: "stdio" }
+copy srv_2_tc_text { class: user-copy, en: "4" }
+copy empty_tools_text { class: user-copy, en: "No matching tools." }
+copy empty_servers_text { class: user-copy, en: "No matching servers." }
+copy btn_close_t_text { class: user-copy, en: "✕" }
+state f_search_enabled { shape: bool, initial: true }
+state tab_tools_enabled { shape: bool, initial: true }
+state tab_mcp_enabled { shape: bool, initial: true }
+state btn_close_enabled { shape: bool, initial: true }
+component Surfacef468f03a0025(instance: text) {
+  view Kit(component: "Surfacef468f03a0025", instance: instance) { slot }
+}
+component Surfaceb101f26001b0(instance: text) {
+  view Kit(component: "Surfaceb101f26001b0", instance: instance) { slot }
+}
+component Surface11a4cded75fe(instance: text) {
+  view Kit(component: "Surface11a4cded75fe", instance: instance) { slot }
+}
+component Text840b7001f71f(instance: text, text: text) {
+  view Kit(component: "Text840b7001f71f", instance: instance, text: text)
+}
+component Text75ee4f0ef332(instance: text, text: text) {
+  view Kit(component: "Text75ee4f0ef332", instance: instance, text: text)
+}
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Surfaced4707dd25870(instance: text) {
+  view Kit(component: "Surfaced4707dd25870", instance: instance) { slot }
+}
+component Text0caa141626b1(instance: text, text: text) {
+  view Kit(component: "Text0caa141626b1", instance: instance, text: text)
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Surfaced5469d4a181d(instance: text) {
+  view Kit(component: "Surfaced5469d4a181d", instance: instance) { slot }
+}
+component Text8b8f48254c8b(instance: text, text: text) {
+  view Kit(component: "Text8b8f48254c8b", instance: instance, text: text)
+}
+component Textc9b85a486b80(instance: text, text: text) {
+  view Kit(component: "Textc9b85a486b80", instance: instance, text: text)
+}
+component Text1413998a2de4(instance: text, text: text) {
+  view Kit(component: "Text1413998a2de4", instance: instance, text: text)
+}
+component Textf8e4038a8fcb(instance: text, text: text) {
+  view Kit(component: "Textf8e4038a8fcb", instance: instance, text: text)
+}
+component Surface7a7bef822439(instance: text) {
+  view Kit(component: "Surface7a7bef822439", instance: instance) { slot }
+}
+component Texta25561378d1a(instance: text, text: text) {
+  view Kit(component: "Texta25561378d1a", instance: instance, text: text)
+}
+component Textf9fb559f9ffd(instance: text, text: text) {
+  view Kit(component: "Textf9fb559f9ffd", instance: instance, text: text)
+}
+component Surfaced58a017b209b(instance: text) {
+  view Kit(component: "Surfaced58a017b209b", instance: instance) { slot }
+}
+component Text028e2755ab02(instance: text, text: text) {
+  view Kit(component: "Text028e2755ab02", instance: instance, text: text)
+}
+component Surface3ec9062c8dc7(instance: text) {
+  view Kit(component: "Surface3ec9062c8dc7", instance: instance) { slot }
+}
+component Text09ef707ce916(instance: text, text: text) {
+  view Kit(component: "Text09ef707ce916", instance: instance, text: text)
+}
+component Textef39c1926771(instance: text, text: text) {
+  view Kit(component: "Textef39c1926771", instance: instance, text: text)
+}
+component Texta79ff800c359(instance: text, text: text) {
+  view Kit(component: "Texta79ff800c359", instance: instance, text: text)
+}
+component Surface5263a122e2e4(instance: text) {
+  view Kit(component: "Surface5263a122e2e4", instance: instance) { slot }
+}
+component Textb0ce4ee563f0(instance: text, text: text) {
+  view Kit(component: "Textb0ce4ee563f0", instance: instance, text: text)
+}
+component Text638628278134(instance: text, text: text) {
+  view Kit(component: "Text638628278134", instance: instance, text: text)
+}
+component Surface39fbc2f19eae(instance: text) {
+  view Kit(component: "Surface39fbc2f19eae", instance: instance) { slot }
+}
+component Texta07edffbdc18(instance: text, text: text) {
+  view Kit(component: "Texta07edffbdc18", instance: instance, text: text)
+}
+component Textfa6531db81c6(instance: text, text: text) {
+  view Kit(component: "Textfa6531db81c6", instance: instance, text: text)
+}
+
+view root Surfacef468f03a0025(instance: "page") {
+  Surfaceb101f26001b0(instance: "scrim_44") {
+
+  }
+  Surface11a4cded75fe(instance: "modal_card") {
+    Text840b7001f71f(instance: "t_title", text: copy.t_title_text)
+    Text75ee4f0ef332(instance: "t_sub", text: copy.t_sub_text)
+    Group3d2637879433(instance: "f_search_row") {
+      Surfaced4707dd25870(instance: "f_search_bg") {
+
+      }
+      Text0caa141626b1(instance: "f_search_text", text: copy.f_search_text_text)
+      NativeButton02f1d1bd99b4(instance: "f_search", enabled: f_search_enabled)
+    }
+    Surfaced5469d4a181d(instance: "tab_tools_fill") {
+
+    }
+    Surfaced4707dd25870(instance: "tab_mcp_fill") {
+
+    }
+    Group3d2637879433(instance: "tab_tools_row") {
+      Text8b8f48254c8b(instance: "tab_tools_t", text: copy.tab_tools_t_text)
+      NativeButton02f1d1bd99b4(instance: "tab_tools", enabled: tab_tools_enabled)
+    }
+    Group3d2637879433(instance: "tab_mcp_row") {
+      Textc9b85a486b80(instance: "tab_mcp_t", text: copy.tab_mcp_t_text)
+      NativeButton02f1d1bd99b4(instance: "tab_mcp", enabled: tab_mcp_enabled)
+    }
+    Text1413998a2de4(instance: "h_tools", text: copy.h_tools_text)
+    Textf8e4038a8fcb(instance: "ch_name", text: copy.ch_name_text)
+    Textf8e4038a8fcb(instance: "ch_cat", text: copy.ch_cat_text)
+    Textf8e4038a8fcb(instance: "ch_alias", text: copy.ch_alias_text)
+    Textf8e4038a8fcb(instance: "ch_cnt", text: copy.ch_cnt_text)
+    Surface7a7bef822439(instance: "tool_0") {
+      Texta25561378d1a(instance: "tool_0_name", text: copy.tool_0_name_text)
+      Textf9fb559f9ffd(instance: "tool_0_cat", text: copy.tool_0_cat_text)
+      Textf9fb559f9ffd(instance: "tool_0_alias", text: copy.tool_0_alias_text)
+      Surfaced58a017b209b(instance: "tool_0_st") {
+        Text028e2755ab02(instance: "tool_0_st_t", text: copy.tool_0_st_t_text)
+      }
+      Textf9fb559f9ffd(instance: "tool_0_be", text: copy.tool_0_be_text)
+      Text75ee4f0ef332(instance: "tool_0_cnt", text: copy.tool_0_cnt_text)
+    }
+    Surface7a7bef822439(instance: "tool_1") {
+      Texta25561378d1a(instance: "tool_1_name", text: copy.tool_1_name_text)
+      Textf9fb559f9ffd(instance: "tool_1_cat", text: copy.tool_1_cat_text)
+      Textf9fb559f9ffd(instance: "tool_1_alias", text: copy.tool_1_alias_text)
+      Surfaced58a017b209b(instance: "tool_1_st") {
+        Text028e2755ab02(instance: "tool_1_st_t", text: copy.tool_1_st_t_text)
+      }
+      Textf9fb559f9ffd(instance: "tool_1_be", text: copy.tool_1_be_text)
+      Text75ee4f0ef332(instance: "tool_1_cnt", text: copy.tool_1_cnt_text)
+    }
+    Surface7a7bef822439(instance: "tool_2") {
+      Texta25561378d1a(instance: "tool_2_name", text: copy.tool_2_name_text)
+      Textf9fb559f9ffd(instance: "tool_2_cat", text: copy.tool_2_cat_text)
+      Textf9fb559f9ffd(instance: "tool_2_alias", text: copy.tool_2_alias_text)
+      Surfaced58a017b209b(instance: "tool_2_st") {
+        Text028e2755ab02(instance: "tool_2_st_t", text: copy.tool_2_st_t_text)
+      }
+      Textf9fb559f9ffd(instance: "tool_2_be", text: copy.tool_2_be_text)
+      Text75ee4f0ef332(instance: "tool_2_cnt", text: copy.tool_2_cnt_text)
+    }
+    Surface7a7bef822439(instance: "tool_3") {
+      Texta25561378d1a(instance: "tool_3_name", text: copy.tool_3_name_text)
+      Textf9fb559f9ffd(instance: "tool_3_cat", text: copy.tool_3_cat_text)
+      Textf9fb559f9ffd(instance: "tool_3_alias", text: copy.tool_3_alias_text)
+      Surfaced58a017b209b(instance: "tool_3_st") {
+        Text028e2755ab02(instance: "tool_3_st_t", text: copy.tool_3_st_t_text)
+      }
+      Textf9fb559f9ffd(instance: "tool_3_be", text: copy.tool_3_be_text)
+      Text75ee4f0ef332(instance: "tool_3_cnt", text: copy.tool_3_cnt_text)
+    }
+    Surface7a7bef822439(instance: "tool_4") {
+      Texta25561378d1a(instance: "tool_4_name", text: copy.tool_4_name_text)
+      Textf9fb559f9ffd(instance: "tool_4_cat", text: copy.tool_4_cat_text)
+      Textf9fb559f9ffd(instance: "tool_4_alias", text: copy.tool_4_alias_text)
+      Surfaced58a017b209b(instance: "tool_4_st") {
+        Text028e2755ab02(instance: "tool_4_st_t", text: copy.tool_4_st_t_text)
+      }
+      Textf9fb559f9ffd(instance: "tool_4_be", text: copy.tool_4_be_text)
+      Text75ee4f0ef332(instance: "tool_4_cnt", text: copy.tool_4_cnt_text)
+    }
+    Surface7a7bef822439(instance: "tool_5") {
+      Texta25561378d1a(instance: "tool_5_name", text: copy.tool_5_name_text)
+      Textf9fb559f9ffd(instance: "tool_5_cat", text: copy.tool_5_cat_text)
+      Textf9fb559f9ffd(instance: "tool_5_alias", text: copy.tool_5_alias_text)
+      Surface3ec9062c8dc7(instance: "tool_5_st") {
+        Text028e2755ab02(instance: "tool_5_st_t", text: copy.tool_5_st_t_text)
+      }
+      Textf9fb559f9ffd(instance: "tool_5_be", text: copy.tool_5_be_text)
+      Text75ee4f0ef332(instance: "tool_5_cnt", text: copy.tool_5_cnt_text)
+    }
+    Text1413998a2de4(instance: "h_mcp", text: copy.h_mcp_text)
+    Text09ef707ce916(instance: "mcp_counts", text: copy.mcp_counts_text)
+    Surface7a7bef822439(instance: "srv_0") {
+      Textef39c1926771(instance: "srv_0_id", text: copy.srv_0_id_text)
+      Text09ef707ce916(instance: "srv_0_sum", text: copy.srv_0_sum_text)
+      Surfaced58a017b209b(instance: "srv_0_dot") {
+        Texta79ff800c359(instance: "srv_0_dot_t", text: copy.srv_0_dot_t_text)
+      }
+      Surface5263a122e2e4(instance: "srv_0_tr") {
+        Textb0ce4ee563f0(instance: "srv_0_tr_t", text: copy.srv_0_tr_t_text)
+      }
+      Text638628278134(instance: "srv_0_tc", text: copy.srv_0_tc_text)
+    }
+    Surface7a7bef822439(instance: "srv_1") {
+      Textef39c1926771(instance: "srv_1_id", text: copy.srv_1_id_text)
+      Text09ef707ce916(instance: "srv_1_sum", text: copy.srv_1_sum_text)
+      Surface39fbc2f19eae(instance: "srv_1_dot") {
+        Texta79ff800c359(instance: "srv_1_dot_t", text: copy.srv_1_dot_t_text)
+      }
+      Surface5263a122e2e4(instance: "srv_1_tr") {
+        Textb0ce4ee563f0(instance: "srv_1_tr_t", text: copy.srv_1_tr_t_text)
+      }
+      Text638628278134(instance: "srv_1_tc", text: copy.srv_1_tc_text)
+    }
+    Surface7a7bef822439(instance: "srv_2") {
+      Textef39c1926771(instance: "srv_2_id", text: copy.srv_2_id_text)
+      Text09ef707ce916(instance: "srv_2_sum", text: copy.srv_2_sum_text)
+      Surfaced58a017b209b(instance: "srv_2_dot") {
+        Texta79ff800c359(instance: "srv_2_dot_t", text: copy.srv_2_dot_t_text)
+      }
+      Surface5263a122e2e4(instance: "srv_2_tr") {
+        Textb0ce4ee563f0(instance: "srv_2_tr_t", text: copy.srv_2_tr_t_text)
+      }
+      Text638628278134(instance: "srv_2_tc", text: copy.srv_2_tc_text)
+    }
+    Texta07edffbdc18(instance: "empty_tools", text: copy.empty_tools_text)
+    Texta07edffbdc18(instance: "empty_servers", text: copy.empty_servers_text)
+    Group3d2637879433(instance: "btn_close_row") {
+      Textfa6531db81c6(instance: "btn_close_t", text: copy.btn_close_t_text)
+      NativeButton02f1d1bd99b4(instance: "btn_close", enabled: btn_close_enabled)
+    }
+  }
+}

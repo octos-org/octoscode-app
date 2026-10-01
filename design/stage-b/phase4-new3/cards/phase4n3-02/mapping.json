@@ -1,0 +1,822 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surfacef468f03a0025",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "scrim_64",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfaceb101f26001b0",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "modal_card",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface11a4cded75fe",
+      "semantic_role": "layout",
+      "bounds": [
+        16,
+        64,
+        374,
+        640
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_title",
+      "native_id": "beauty_0_1_0",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Text840b7001f71f",
+      "semantic_role": "text",
+      "bounds": [
+        32,
+        82,
+        240,
+        24.4
+      ],
+      "text": "Add workspace",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 20
+    },
+    {
+      "source_id": "btn_close_row",
+      "native_id": "beauty_0_1_1",
+      "parent": "modal_card",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        330,
+        82,
+        24,
+        20
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "btn_close_t",
+      "native_id": "beauty_0_1_1_0",
+      "parent": "btn_close_row",
+      "kind": "text",
+      "component": "Textfa6531db81c6",
+      "semantic_role": "text",
+      "bounds": [
+        330,
+        82,
+        24,
+        18.3
+      ],
+      "text": "\u2715",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15
+    },
+    {
+      "source_id": "btn_close",
+      "native_id": "beauty_0_1_1_1",
+      "parent": "btn_close_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        330,
+        82,
+        24,
+        20
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "wd_card",
+      "native_id": "beauty_0_1_2",
+      "parent": "modal_card",
+      "kind": "stack",
+      "component": "Surfaced4707dd25870",
+      "semantic_role": "layout",
+      "bounds": [
+        32,
+        118,
+        342,
+        56
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "wd_label",
+      "native_id": "beauty_0_1_3",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Text75ee4f0ef332",
+      "semantic_role": "text",
+      "bounds": [
+        44,
+        126,
+        240,
+        16
+      ],
+      "text": "Server's working directory",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12
+    },
+    {
+      "source_id": "wd_path",
+      "native_id": "beauty_0_1_4",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Textc9b85a486b80",
+      "semantic_role": "text",
+      "bounds": [
+        44,
+        146,
+        200,
+        16
+      ],
+      "text": "/home/user/octos",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 13
+    },
+    {
+      "source_id": "wd_help",
+      "native_id": "beauty_0_1_5",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Text09ef707ce916",
+      "semantic_role": "text",
+      "bounds": [
+        252,
+        146,
+        118,
+        16
+      ],
+      "text": "Start a new session here",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "wd_start_row",
+      "native_id": "beauty_0_1_6",
+      "parent": "modal_card",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        44,
+        178,
+        318,
+        20
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "wd_start_t",
+      "native_id": "beauty_0_1_6_0",
+      "parent": "wd_start_row",
+      "kind": "text",
+      "component": "Textd85a44242f71",
+      "semantic_role": "text",
+      "bounds": [
+        44,
+        178,
+        318,
+        17
+      ],
+      "text": "Start a new session in /home/user/octos",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "wd_start",
+      "native_id": "beauty_0_1_6_1",
+      "parent": "wd_start_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        44,
+        178,
+        318,
+        20
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "h_recent",
+      "native_id": "beauty_0_1_7",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Textd514fa7b4cc2",
+      "semantic_role": "text",
+      "bounds": [
+        32,
+        206,
+        240,
+        16
+      ],
+      "text": "Recent workspaces",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 12
+    },
+    {
+      "source_id": "rec_0",
+      "native_id": "beauty_0_1_8",
+      "parent": "modal_card",
+      "kind": "stack",
+      "component": "Surface7a7bef822439",
+      "semantic_role": "layout",
+      "bounds": [
+        32,
+        230,
+        342,
+        52
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "rec_0_name",
+      "native_id": "beauty_0_1_9",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Textef39c1926771",
+      "semantic_role": "text",
+      "bounds": [
+        44,
+        238,
+        160,
+        16
+      ],
+      "text": "octos",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 13
+    },
+    {
+      "source_id": "rec_0_br",
+      "native_id": "beauty_0_1_10",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Text09ef707ce916",
+      "semantic_role": "text",
+      "bounds": [
+        210,
+        239,
+        100,
+        14
+      ],
+      "text": "feat/steer-queue",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "rec_0_path",
+      "native_id": "beauty_0_1_11",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Text09ef707ce916",
+      "semantic_role": "text",
+      "bounds": [
+        44,
+        260,
+        190,
+        14
+      ],
+      "text": "/home/user/octos",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "rec_0_pick_row",
+      "native_id": "beauty_0_1_12",
+      "parent": "modal_card",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        240,
+        260,
+        86,
+        20
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "rec_0_pick_t",
+      "native_id": "beauty_0_1_12_0",
+      "parent": "rec_0_pick_row",
+      "kind": "text",
+      "component": "Textd85a44242f71",
+      "semantic_role": "text",
+      "bounds": [
+        240,
+        260,
+        86,
+        17
+      ],
+      "text": "Start session",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "rec_0_pick",
+      "native_id": "beauty_0_1_12_1",
+      "parent": "rec_0_pick_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        240,
+        260,
+        86,
+        20
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "rec_0_chev",
+      "native_id": "beauty_0_1_13",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Text0caa141626b1",
+      "semantic_role": "text",
+      "bounds": [
+        356,
+        246,
+        14,
+        18
+      ],
+      "text": "\u203a",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "rec_1",
+      "native_id": "beauty_0_1_14",
+      "parent": "modal_card",
+      "kind": "stack",
+      "component": "Surface7a7bef822439",
+      "semantic_role": "layout",
+      "bounds": [
+        32,
+        288,
+        342,
+        52
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "rec_1_name",
+      "native_id": "beauty_0_1_15",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Textef39c1926771",
+      "semantic_role": "text",
+      "bounds": [
+        44,
+        296,
+        160,
+        16
+      ],
+      "text": "octoscode-app",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 13
+    },
+    {
+      "source_id": "rec_1_br",
+      "native_id": "beauty_0_1_16",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Text09ef707ce916",
+      "semantic_role": "text",
+      "bounds": [
+        210,
+        297,
+        100,
+        14
+      ],
+      "text": "main",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "rec_1_path",
+      "native_id": "beauty_0_1_17",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Text09ef707ce916",
+      "semantic_role": "text",
+      "bounds": [
+        44,
+        318,
+        190,
+        14
+      ],
+      "text": "/home/user/octoscode-app",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "rec_1_pick_row",
+      "native_id": "beauty_0_1_18",
+      "parent": "modal_card",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        240,
+        318,
+        86,
+        20
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "rec_1_pick_t",
+      "native_id": "beauty_0_1_18_0",
+      "parent": "rec_1_pick_row",
+      "kind": "text",
+      "component": "Textd85a44242f71",
+      "semantic_role": "text",
+      "bounds": [
+        240,
+        318,
+        86,
+        17
+      ],
+      "text": "Start session",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "rec_1_pick",
+      "native_id": "beauty_0_1_18_1",
+      "parent": "rec_1_pick_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        240,
+        318,
+        86,
+        20
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "rec_1_chev",
+      "native_id": "beauty_0_1_19",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Text0caa141626b1",
+      "semantic_role": "text",
+      "bounds": [
+        356,
+        304,
+        14,
+        18
+      ],
+      "text": "\u203a",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "div1",
+      "native_id": "beauty_0_1_20",
+      "parent": "modal_card",
+      "kind": "stack",
+      "component": "Surface19a87ed4ebd0",
+      "semantic_role": "layout",
+      "bounds": [
+        20,
+        352,
+        366,
+        1
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "f_path_row",
+      "native_id": "beauty_0_1_21",
+      "parent": "modal_card",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        32,
+        372,
+        250,
+        40
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "f_path_bg",
+      "native_id": "beauty_0_1_21_0",
+      "parent": "f_path_row",
+      "kind": "stack",
+      "component": "Surfaced4707dd25870",
+      "semantic_role": "layout",
+      "bounds": [
+        32,
+        372,
+        250,
+        40
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "f_path_text",
+      "native_id": "beauty_0_1_21_1",
+      "parent": "f_path_row",
+      "kind": "text",
+      "component": "Text1914bedecf20",
+      "semantic_role": "text",
+      "bounds": [
+        44,
+        383.0,
+        226,
+        18
+      ],
+      "text": "",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "f_path_ph",
+      "native_id": "beauty_0_1_21_2",
+      "parent": "f_path_row",
+      "kind": "text",
+      "component": "Text1914bedecf20",
+      "semantic_role": "text",
+      "bounds": [
+        44,
+        383.0,
+        226,
+        18
+      ],
+      "text": "/path/to/project",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "f_path",
+      "native_id": "beauty_0_1_21_3",
+      "parent": "f_path_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        32,
+        372,
+        250,
+        40
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "btn_enter_row",
+      "native_id": "beauty_0_1_22",
+      "parent": "modal_card",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        296,
+        372,
+        78,
+        40
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "btn_enter_bg",
+      "native_id": "beauty_0_1_22_0",
+      "parent": "btn_enter_row",
+      "kind": "stack",
+      "component": "Surface26187bf5e7ec",
+      "semantic_role": "layout",
+      "bounds": [
+        296,
+        372,
+        78,
+        40
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "btn_enter_t",
+      "native_id": "beauty_0_1_22_1",
+      "parent": "btn_enter_row",
+      "kind": "text",
+      "component": "Textcd182d906e73",
+      "semantic_role": "text",
+      "bounds": [
+        296,
+        383.5,
+        78,
+        17.08
+      ],
+      "text": "Enter",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "btn_enter",
+      "native_id": "beauty_0_1_22_2",
+      "parent": "btn_enter_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        296,
+        372,
+        78,
+        40
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "help_browse",
+      "native_id": "beauty_0_1_23",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Text09ef707ce916",
+      "semantic_role": "text",
+      "bounds": [
+        32,
+        424,
+        300,
+        14
+      ],
+      "text": "Choosing a folder fills the path box.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "btn_browse_row",
+      "native_id": "beauty_0_1_24",
+      "parent": "modal_card",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        32,
+        448,
+        200,
+        20
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "btn_browse_t",
+      "native_id": "beauty_0_1_24_0",
+      "parent": "btn_browse_row",
+      "kind": "text",
+      "component": "Text7d630b6bd848",
+      "semantic_role": "text",
+      "bounds": [
+        32,
+        448,
+        200,
+        17
+      ],
+      "text": "Browse server folders\u2026",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12
+    },
+    {
+      "source_id": "btn_browse",
+      "native_id": "beauty_0_1_24_1",
+      "parent": "btn_browse_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        32,
+        448,
+        200,
+        20
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
+  },
+  "contract_sha256": "3199436345d91dca6f653ae7de0d823de49ab5e35e0efe0c0f6d3fd419fc9d4c",
+  "mapping_basis": "mapped.json"
+}
