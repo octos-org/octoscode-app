@@ -1266,8 +1266,39 @@ impl Conversation {
                                 &h.cursor.stream,
                                 h.cursor.seq,
                             );
+                            // Card #P4b2 (canonical hydrate recovery): rebuild the
+                            // transcript from the authoritative snapshot — the
+                            // web's `restoreCanonicalHydrate`
+                            // (`timeline/canonical-hydrate.ts:31`) reduced to the
+                            // store's rules: seq order, durable bodies finalized,
+                            // idempotent by seq identity, NEVER a delete. Sits
+                            // INSIDE the #P4g1 mismatch guard's else: only a
+                            // matching snapshot commits anything.
+                            let rows: Vec<octoscode_store::timeline::HydratedRow> = h
+                                .messages
+                                .iter()
+                                .flatten()
+                                .map(|m| octoscode_store::timeline::HydratedRow {
+                                    seq: m.seq,
+                                    role: m.role.as_str(),
+                                    content: m.content.as_str(),
+                                    turn_id: m.turn_id.as_ref().map(|t| t.0.to_string()),
+                                    reasoning: m.reasoning_content.as_deref(),
+                                })
+                                .collect();
+                            let added = if rows.is_empty() {
+                                0
+                            } else {
+                                self.store
+                                    .domains
+                                    .session
+                                    .timeline
+                                    .fold_hydrated_messages(&session_id, &rows)
+                            };
                             self.store.domains.config.mark_recovered(&session_id);
-                            ::log::info!("octoscode: session/hydrate folded for {session_id}");
+                            ::log::info!(
+                                "octoscode: session/hydrate folded for {session_id} (+{added} rows)"
+                            );
                             FlowEvent::Other("session/hydrate".to_owned())
                         }
                     }
