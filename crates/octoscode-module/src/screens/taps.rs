@@ -142,8 +142,12 @@ pub fn wired_taps(dsl: &str) -> Vec<(String, String)> {
 }
 
 /// Inject `on_click: || { NAV(t: "<event>") }` into the DesignNativeButton
-/// block whose abs_pos matches (x, y) within 0.5px (the lowering rounds
-/// through f32). Idempotent: a block already carrying on_click is skipped.
+/// block whose abs_pos matches (x, y) within 2 px. #40b: 0.5px silently
+/// dropped setup-11's btn_diag — the card's two authored sources disagree by
+/// exactly 1 px (mapped.json abs_pos 25.0,472.0 vs service-actions bounds
+/// 26,473; OCR/mapping noise), so the injection no-op'd and the button
+/// stayed dead while its sibling btn_reload (0 px drift) wired fine.
+/// Idempotent: a block already carrying on_click is skipped.
 /// Returns the DSL unchanged when no block matches (the caller's wired
 /// count then stays put — visible in the card-events log).
 fn inject_click(dsl: &str, event: &str, x: f64, y: f64) -> String {
@@ -179,8 +183,8 @@ fn inject_click(dsl: &str, event: &str, x: f64, y: f64) -> String {
                 let mut it = p.split(',');
                 let ok = match (it.next(), it.next()) {
                     (Some(px), Some(py)) => {
-                        px.trim().parse::<f64>().is_ok_and(|vx| (vx - x).abs() < 0.5)
-                            && py.trim().parse::<f64>().is_ok_and(|vy| (vy - y).abs() < 0.5)
+                                px.trim().parse::<f64>().is_ok_and(|vx| (vx - x).abs() < 2.0)
+                                    && py.trim().parse::<f64>().is_ok_and(|vy| (vy - y).abs() < 2.0)
                     }
                     _ => false,
                 };
