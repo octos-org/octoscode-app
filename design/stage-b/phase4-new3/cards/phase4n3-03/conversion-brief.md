@@ -378,9 +378,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "disc_1",
     "x": 32,
-    "y": 330,
+    "y": 336,
     "w": 342,
-    "h": 44,
+    "h": 132,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -389,7 +389,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "disc_t",
     "x": 44,
-    "y": 342,
+    "y": 346,
     "w": 200,
     "h": 16,
     "text": "\u00b7 3 existing folders",
@@ -403,14 +403,127 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
-    "id": "disc_l",
-    "x": 44,
-    "y": 360,
-    "w": 240,
-    "h": 14,
-    "text": "notes \u00b7 drafts \u00b7 tmp",
+    "id": "disc_0_icon",
+    "x": 48,
+    "y": 372,
+    "w": 16,
+    "h": 16,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "disc_0_name",
+    "x": 72,
+    "y": 372,
+    "w": 120,
+    "h": 14.64,
+    "text": "docs",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 11,
+    "size": 12,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "disc_0_date",
+    "x": 300,
+    "y": 372,
+    "w": 60,
+    "h": 14,
+    "text": "Mar 12",
+    "font_src": "self:resources/ux/Inter-400.ttf",
+    "size": 10,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "disc_1_icon",
+    "x": 48,
+    "y": 402,
+    "w": 16,
+    "h": 16,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "disc_1_name",
+    "x": 72,
+    "y": 402,
+    "w": 120,
+    "h": 14.64,
+    "text": "scripts",
+    "font_src": "self:resources/ux/Inter-400.ttf",
+    "size": 12,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "disc_1_date",
+    "x": 300,
+    "y": 402,
+    "w": 60,
+    "h": 14,
+    "text": "Mar 9",
+    "font_src": "self:resources/ux/Inter-400.ttf",
+    "size": 10,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "disc_2_icon",
+    "x": 48,
+    "y": 432,
+    "w": 16,
+    "h": 16,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "disc_2_name",
+    "x": 72,
+    "y": 432,
+    "w": 120,
+    "h": 14.64,
+    "text": "tmp",
+    "font_src": "self:resources/ux/Inter-400.ttf",
+    "size": 12,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "disc_2_date",
+    "x": 300,
+    "y": 432,
+    "w": 60,
+    "h": 14,
+    "text": "Feb 28",
+    "font_src": "self:resources/ux/Inter-400.ttf",
+    "size": 10,
     "weight": 400,
     "role": "text",
     "native_candidates": [
@@ -421,7 +534,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "note_browser",
     "x": 32,
-    "y": 392,
+    "y": 484,
     "w": 342,
     "h": 28,
     "text": "The folder browser is available only when the server advertises it.",

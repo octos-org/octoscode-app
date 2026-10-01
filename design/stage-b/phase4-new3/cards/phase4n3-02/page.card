@@ -65,8 +65,8 @@ component Textc9b85a486b80(instance: text, text: text) {
 component Text09ef707ce916(instance: text, text: text) {
   view Kit(component: "Text09ef707ce916", instance: instance, text: text)
 }
-component Text7d630b6bd848(instance: text, text: text) {
-  view Kit(component: "Text7d630b6bd848", instance: instance, text: text)
+component Textd85a44242f71(instance: text, text: text) {
+  view Kit(component: "Textd85a44242f71", instance: instance, text: text)
 }
 component Textd514fa7b4cc2(instance: text, text: text) {
   view Kit(component: "Textd514fa7b4cc2", instance: instance, text: text)
@@ -76,9 +76,6 @@ component Surface7a7bef822439(instance: text) {
 }
 component Textef39c1926771(instance: text, text: text) {
   view Kit(component: "Textef39c1926771", instance: instance, text: text)
-}
-component Textd85a44242f71(instance: text, text: text) {
-  view Kit(component: "Textd85a44242f71", instance: instance, text: text)
 }
 component Text0caa141626b1(instance: text, text: text) {
   view Kit(component: "Text0caa141626b1", instance: instance, text: text)
@@ -94,6 +91,9 @@ component Surface26187bf5e7ec(instance: text) {
 }
 component Textcd182d906e73(instance: text, text: text) {
   view Kit(component: "Textcd182d906e73", instance: instance, text: text)
+}
+component Text7d630b6bd848(instance: text, text: text) {
+  view Kit(component: "Text7d630b6bd848", instance: instance, text: text)
 }
 
 view root Surfacef468f03a0025(instance: "page") {
@@ -113,7 +113,7 @@ view root Surfacef468f03a0025(instance: "page") {
     Textc9b85a486b80(instance: "wd_path", text: copy.wd_path_text)
     Text09ef707ce916(instance: "wd_help", text: copy.wd_help_text)
     Group3d2637879433(instance: "wd_start_row") {
-      Text7d630b6bd848(instance: "wd_start_t", text: copy.wd_start_t_text)
+      Textd85a44242f71(instance: "wd_start_t", text: copy.wd_start_t_text)
       NativeButton02f1d1bd99b4(instance: "wd_start", enabled: wd_start_enabled)
     }
     Textd514fa7b4cc2(instance: "h_recent", text: copy.h_recent_text)

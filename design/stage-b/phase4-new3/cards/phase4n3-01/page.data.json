@@ -26,7 +26,7 @@
           "x": 16,
           "y": 44,
           "w": 374,
-          "h": 688
+          "h": 700
         }
       },
       "t_title": {
@@ -164,11 +164,47 @@
           "h": 13.42
         }
       },
+      "ch_name": {
+        "component": "Textf8e4038a8fcb",
+        "layout": {
+          "x": 44,
+          "y": 219,
+          "w": 90,
+          "h": 11
+        }
+      },
+      "ch_cat": {
+        "component": "Textf8e4038a8fcb",
+        "layout": {
+          "x": 138,
+          "y": 219,
+          "w": 52,
+          "h": 11
+        }
+      },
+      "ch_alias": {
+        "component": "Textf8e4038a8fcb",
+        "layout": {
+          "x": 192,
+          "y": 219,
+          "w": 82,
+          "h": 11
+        }
+      },
+      "ch_cnt": {
+        "component": "Textf8e4038a8fcb",
+        "layout": {
+          "x": 340,
+          "y": 219,
+          "w": 24,
+          "h": 11
+        }
+      },
       "tool_0": {
         "component": "Surface7a7bef822439",
         "layout": {
           "x": 32,
-          "y": 230,
+          "y": 236,
           "w": 342,
           "h": 44
         }
@@ -177,7 +213,7 @@
         "component": "Texta25561378d1a",
         "layout": {
           "x": 44,
-          "y": 236,
+          "y": 242,
           "w": 90,
           "h": 16
         }
@@ -186,7 +222,7 @@
         "component": "Textf9fb559f9ffd",
         "layout": {
           "x": 138,
-          "y": 237,
+          "y": 243,
           "w": 52,
           "h": 14
         }
@@ -195,7 +231,7 @@
         "component": "Textf9fb559f9ffd",
         "layout": {
           "x": 192,
-          "y": 236,
+          "y": 242,
           "w": 82,
           "h": 14
         }
@@ -204,7 +240,7 @@
         "component": "Surfaced58a017b209b",
         "layout": {
           "x": 282,
-          "y": 235,
+          "y": 241,
           "w": 55.1,
           "h": 20
         }
@@ -213,7 +249,7 @@
         "component": "Text028e2755ab02",
         "layout": {
           "x": 290,
-          "y": 238,
+          "y": 244,
           "w": 39.1,
           "h": 14
         }
@@ -222,7 +258,7 @@
         "component": "Textf9fb559f9ffd",
         "layout": {
           "x": 192,
-          "y": 252,
+          "y": 258,
           "w": 82,
           "h": 14
         }
@@ -231,7 +267,7 @@
         "component": "Text75ee4f0ef332",
         "layout": {
           "x": 344,
-          "y": 243,
+          "y": 249,
           "w": 20,
           "h": 16
         }
@@ -240,7 +276,7 @@
         "component": "Surface7a7bef822439",
         "layout": {
           "x": 32,
-          "y": 280,
+          "y": 286,
           "w": 342,
           "h": 44
         }
@@ -249,7 +285,7 @@
         "component": "Texta25561378d1a",
         "layout": {
           "x": 44,
-          "y": 286,
+          "y": 292,
           "w": 90,
           "h": 16
         }
@@ -258,7 +294,7 @@
         "component": "Textf9fb559f9ffd",
         "layout": {
           "x": 138,
-          "y": 287,
+          "y": 293,
           "w": 52,
           "h": 14
         }
@@ -267,7 +303,7 @@
         "component": "Textf9fb559f9ffd",
         "layout": {
           "x": 192,
-          "y": 286,
+          "y": 292,
           "w": 82,
           "h": 14
         }
@@ -276,7 +312,7 @@
         "component": "Surfaced58a017b209b",
         "layout": {
           "x": 282,
-          "y": 285,
+          "y": 291,
           "w": 55.1,
           "h": 20
         }
@@ -285,7 +321,7 @@
         "component": "Text028e2755ab02",
         "layout": {
           "x": 290,
-          "y": 288,
+          "y": 294,
           "w": 39.1,
           "h": 14
         }
@@ -294,7 +330,7 @@
         "component": "Textf9fb559f9ffd",
         "layout": {
           "x": 192,
-          "y": 302,
+          "y": 308,
           "w": 82,
           "h": 14
         }
@@ -303,7 +339,7 @@
         "component": "Text75ee4f0ef332",
         "layout": {
           "x": 344,
-          "y": 293,
+          "y": 299,
           "w": 20,
           "h": 16
         }
@@ -312,7 +348,7 @@
         "component": "Surface7a7bef822439",
         "layout": {
           "x": 32,
-          "y": 330,
+          "y": 336,
           "w": 342,
           "h": 44
         }
@@ -321,7 +357,7 @@
         "component": "Texta25561378d1a",
         "layout": {
           "x": 44,
-          "y": 336,
+          "y": 342,
           "w": 90,
           "h": 16
         }
@@ -330,7 +366,7 @@
         "component": "Textf9fb559f9ffd",
         "layout": {
           "x": 138,
-          "y": 337,
+          "y": 343,
           "w": 52,
           "h": 14
         }
@@ -339,7 +375,7 @@
         "component": "Textf9fb559f9ffd",
         "layout": {
           "x": 192,
-          "y": 336,
+          "y": 342,
           "w": 82,
           "h": 14
         }
@@ -348,7 +384,7 @@
         "component": "Surfaced58a017b209b",
         "layout": {
           "x": 282,
-          "y": 335,
+          "y": 341,
           "w": 55.1,
           "h": 20
         }
@@ -357,7 +393,7 @@
         "component": "Text028e2755ab02",
         "layout": {
           "x": 290,
-          "y": 338,
+          "y": 344,
           "w": 39.1,
           "h": 14
         }
@@ -366,7 +402,7 @@
         "component": "Textf9fb559f9ffd",
         "layout": {
           "x": 192,
-          "y": 352,
+          "y": 358,
           "w": 82,
           "h": 14
         }
@@ -375,7 +411,7 @@
         "component": "Text75ee4f0ef332",
         "layout": {
           "x": 344,
-          "y": 343,
+          "y": 349,
           "w": 20,
           "h": 16
         }
@@ -384,7 +420,7 @@
         "component": "Surface7a7bef822439",
         "layout": {
           "x": 32,
-          "y": 380,
+          "y": 386,
           "w": 342,
           "h": 44
         }
@@ -393,7 +429,7 @@
         "component": "Texta25561378d1a",
         "layout": {
           "x": 44,
-          "y": 386,
+          "y": 392,
           "w": 90,
           "h": 16
         }
@@ -402,7 +438,7 @@
         "component": "Textf9fb559f9ffd",
         "layout": {
           "x": 138,
-          "y": 387,
+          "y": 393,
           "w": 52,
           "h": 14
         }
@@ -411,7 +447,7 @@
         "component": "Textf9fb559f9ffd",
         "layout": {
           "x": 192,
-          "y": 386,
+          "y": 392,
           "w": 82,
           "h": 14
         }
@@ -420,7 +456,7 @@
         "component": "Surfaced58a017b209b",
         "layout": {
           "x": 282,
-          "y": 385,
+          "y": 391,
           "w": 55.1,
           "h": 20
         }
@@ -429,7 +465,7 @@
         "component": "Text028e2755ab02",
         "layout": {
           "x": 290,
-          "y": 388,
+          "y": 394,
           "w": 39.1,
           "h": 14
         }
@@ -438,7 +474,7 @@
         "component": "Textf9fb559f9ffd",
         "layout": {
           "x": 192,
-          "y": 402,
+          "y": 408,
           "w": 82,
           "h": 14
         }
@@ -447,7 +483,7 @@
         "component": "Text75ee4f0ef332",
         "layout": {
           "x": 344,
-          "y": 393,
+          "y": 399,
           "w": 20,
           "h": 16
         }
@@ -456,7 +492,7 @@
         "component": "Surface7a7bef822439",
         "layout": {
           "x": 32,
-          "y": 430,
+          "y": 436,
           "w": 342,
           "h": 44
         }
@@ -465,7 +501,7 @@
         "component": "Texta25561378d1a",
         "layout": {
           "x": 44,
-          "y": 436,
+          "y": 442,
           "w": 90,
           "h": 16
         }
@@ -474,7 +510,7 @@
         "component": "Textf9fb559f9ffd",
         "layout": {
           "x": 138,
-          "y": 437,
+          "y": 443,
           "w": 52,
           "h": 14
         }
@@ -483,7 +519,7 @@
         "component": "Textf9fb559f9ffd",
         "layout": {
           "x": 192,
-          "y": 436,
+          "y": 442,
           "w": 82,
           "h": 14
         }
@@ -492,7 +528,7 @@
         "component": "Surfaced58a017b209b",
         "layout": {
           "x": 282,
-          "y": 435,
+          "y": 441,
           "w": 55.1,
           "h": 20
         }
@@ -501,7 +537,7 @@
         "component": "Text028e2755ab02",
         "layout": {
           "x": 290,
-          "y": 438,
+          "y": 444,
           "w": 39.1,
           "h": 14
         }
@@ -510,7 +546,7 @@
         "component": "Textf9fb559f9ffd",
         "layout": {
           "x": 192,
-          "y": 452,
+          "y": 458,
           "w": 82,
           "h": 14
         }
@@ -519,7 +555,7 @@
         "component": "Text75ee4f0ef332",
         "layout": {
           "x": 344,
-          "y": 443,
+          "y": 449,
           "w": 20,
           "h": 16
         }
@@ -528,7 +564,7 @@
         "component": "Surface7a7bef822439",
         "layout": {
           "x": 32,
-          "y": 480,
+          "y": 486,
           "w": 342,
           "h": 44
         }
@@ -537,7 +573,7 @@
         "component": "Texta25561378d1a",
         "layout": {
           "x": 44,
-          "y": 486,
+          "y": 492,
           "w": 90,
           "h": 16
         }
@@ -546,7 +582,7 @@
         "component": "Textf9fb559f9ffd",
         "layout": {
           "x": 138,
-          "y": 487,
+          "y": 493,
           "w": 52,
           "h": 14
         }
@@ -555,7 +591,7 @@
         "component": "Textf9fb559f9ffd",
         "layout": {
           "x": 192,
-          "y": 486,
+          "y": 492,
           "w": 82,
           "h": 14
         }
@@ -564,7 +600,7 @@
         "component": "Surface3ec9062c8dc7",
         "layout": {
           "x": 282,
-          "y": 485,
+          "y": 491,
           "w": 60.6,
           "h": 20
         }
@@ -573,7 +609,7 @@
         "component": "Text028e2755ab02",
         "layout": {
           "x": 290,
-          "y": 488,
+          "y": 494,
           "w": 44.6,
           "h": 14
         }
@@ -582,7 +618,7 @@
         "component": "Textf9fb559f9ffd",
         "layout": {
           "x": 192,
-          "y": 502,
+          "y": 508,
           "w": 82,
           "h": 14
         }
@@ -591,7 +627,7 @@
         "component": "Text75ee4f0ef332",
         "layout": {
           "x": 344,
-          "y": 493,
+          "y": 499,
           "w": 20,
           "h": 16
         }
@@ -600,7 +636,7 @@
         "component": "Text1413998a2de4",
         "layout": {
           "x": 32,
-          "y": 536,
+          "y": 542,
           "w": 140,
           "h": 13.42
         }
@@ -609,7 +645,7 @@
         "component": "Text09ef707ce916",
         "layout": {
           "x": 150,
-          "y": 536,
+          "y": 542,
           "w": 224,
           "h": 14
         }
@@ -618,7 +654,7 @@
         "component": "Surface7a7bef822439",
         "layout": {
           "x": 32,
-          "y": 558,
+          "y": 564,
           "w": 342,
           "h": 48
         }
@@ -627,7 +663,7 @@
         "component": "Textef39c1926771",
         "layout": {
           "x": 44,
-          "y": 566,
+          "y": 572,
           "w": 140,
           "h": 16
         }
@@ -636,7 +672,7 @@
         "component": "Text09ef707ce916",
         "layout": {
           "x": 44,
-          "y": 586,
+          "y": 592,
           "w": 200,
           "h": 14
         }
@@ -645,7 +681,7 @@
         "component": "Surfaced58a017b209b",
         "layout": {
           "x": 262,
-          "y": 570,
+          "y": 576,
           "w": 10.0,
           "h": 20
         }
@@ -654,7 +690,7 @@
         "component": "Texta79ff800c359",
         "layout": {
           "x": 267,
-          "y": 573,
+          "y": 579,
           "w": 0.0,
           "h": 14
         }
@@ -663,7 +699,7 @@
         "component": "Surface5263a122e2e4",
         "layout": {
           "x": 200,
-          "y": 565,
+          "y": 571,
           "w": 47.0,
           "h": 20
         }
@@ -672,7 +708,7 @@
         "component": "Textb0ce4ee563f0",
         "layout": {
           "x": 208,
-          "y": 568,
+          "y": 574,
           "w": 31.0,
           "h": 14
         }
@@ -681,7 +717,7 @@
         "component": "Text638628278134",
         "layout": {
           "x": 340,
-          "y": 566,
+          "y": 572,
           "w": 24,
           "h": 16
         }
@@ -690,7 +726,7 @@
         "component": "Surface7a7bef822439",
         "layout": {
           "x": 32,
-          "y": 612,
+          "y": 618,
           "w": 342,
           "h": 48
         }
@@ -699,7 +735,7 @@
         "component": "Textef39c1926771",
         "layout": {
           "x": 44,
-          "y": 620,
+          "y": 626,
           "w": 140,
           "h": 16
         }
@@ -708,7 +744,7 @@
         "component": "Text09ef707ce916",
         "layout": {
           "x": 44,
-          "y": 640,
+          "y": 646,
           "w": 200,
           "h": 14
         }
@@ -717,7 +753,7 @@
         "component": "Surface39fbc2f19eae",
         "layout": {
           "x": 262,
-          "y": 624,
+          "y": 630,
           "w": 10.0,
           "h": 20
         }
@@ -726,7 +762,7 @@
         "component": "Texta79ff800c359",
         "layout": {
           "x": 267,
-          "y": 627,
+          "y": 633,
           "w": 0.0,
           "h": 14
         }
@@ -735,7 +771,7 @@
         "component": "Surface5263a122e2e4",
         "layout": {
           "x": 200,
-          "y": 619,
+          "y": 625,
           "w": 40.8,
           "h": 20
         }
@@ -744,7 +780,7 @@
         "component": "Textb0ce4ee563f0",
         "layout": {
           "x": 208,
-          "y": 622,
+          "y": 628,
           "w": 24.8,
           "h": 14
         }
@@ -753,7 +789,7 @@
         "component": "Text638628278134",
         "layout": {
           "x": 340,
-          "y": 620,
+          "y": 626,
           "w": 24,
           "h": 16
         }
@@ -762,7 +798,7 @@
         "component": "Surface7a7bef822439",
         "layout": {
           "x": 32,
-          "y": 666,
+          "y": 672,
           "w": 342,
           "h": 48
         }
@@ -771,7 +807,7 @@
         "component": "Textef39c1926771",
         "layout": {
           "x": 44,
-          "y": 674,
+          "y": 680,
           "w": 140,
           "h": 16
         }
@@ -780,7 +816,7 @@
         "component": "Text09ef707ce916",
         "layout": {
           "x": 44,
-          "y": 694,
+          "y": 700,
           "w": 200,
           "h": 14
         }
@@ -789,7 +825,7 @@
         "component": "Surfaced58a017b209b",
         "layout": {
           "x": 262,
-          "y": 678,
+          "y": 684,
           "w": 10.0,
           "h": 20
         }
@@ -798,7 +834,7 @@
         "component": "Texta79ff800c359",
         "layout": {
           "x": 267,
-          "y": 681,
+          "y": 687,
           "w": 0.0,
           "h": 14
         }
@@ -807,7 +843,7 @@
         "component": "Surface5263a122e2e4",
         "layout": {
           "x": 200,
-          "y": 673,
+          "y": 679,
           "w": 47.0,
           "h": 20
         }
@@ -816,7 +852,7 @@
         "component": "Textb0ce4ee563f0",
         "layout": {
           "x": 208,
-          "y": 676,
+          "y": 682,
           "w": 31.0,
           "h": 14
         }
@@ -825,7 +861,7 @@
         "component": "Text638628278134",
         "layout": {
           "x": 340,
-          "y": 674,
+          "y": 680,
           "w": 24,
           "h": 16
         }
@@ -834,7 +870,7 @@
         "component": "Texta07edffbdc18",
         "layout": {
           "x": 236,
-          "y": 724,
+          "y": 730,
           "w": 138,
           "h": 14
         }
@@ -843,7 +879,7 @@
         "component": "Texta07edffbdc18",
         "layout": {
           "x": 236,
-          "y": 742,
+          "y": 748,
           "w": 138,
           "h": 14
         }

@@ -156,10 +156,21 @@
         120,
         13.42
       ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "ch_name",
+      "expected_text": "TOOL",
+      "requested_bounds": [
+        44,
+        219,
+        90,
+        11
+      ],
       "status": "observed",
       "ocr_text": "Tool",
       "confidence": 1,
-      "text_similarity": 0.8888888888888888,
+      "text_similarity": 1.0,
       "ink_bounds": [
         17.5377969762419,
         191.59504132231405,
@@ -180,11 +191,44 @@
       ]
     },
     {
+      "id": "ch_cat",
+      "expected_text": "CAT",
+      "requested_bounds": [
+        138,
+        219,
+        52,
+        11
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "ch_alias",
+      "expected_text": "ALIASES / BACKEND",
+      "requested_bounds": [
+        192,
+        219,
+        82,
+        11
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "ch_cnt",
+      "expected_text": "N",
+      "requested_bounds": [
+        340,
+        219,
+        24,
+        11
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
       "id": "tool_0_name",
       "expected_text": "Bash",
       "requested_bounds": [
         44,
-        236,
+        242,
         90,
         16
       ],
@@ -195,7 +239,7 @@
       "expected_text": "shell",
       "requested_bounds": [
         138,
-        237,
+        243,
         52,
         14
       ],
@@ -206,7 +250,7 @@
       "expected_text": "Aliases: exec, run",
       "requested_bounds": [
         192,
-        236,
+        242,
         82,
         14
       ],
@@ -217,7 +261,7 @@
       "expected_text": "enabled",
       "requested_bounds": [
         290,
-        238,
+        244,
         39.1,
         14
       ],
@@ -249,7 +293,7 @@
       "expected_text": "Backend: octos",
       "requested_bounds": [
         192,
-        252,
+        258,
         82,
         14
       ],
@@ -260,7 +304,7 @@
       "expected_text": "12",
       "requested_bounds": [
         344,
-        243,
+        249,
         20,
         16
       ],
@@ -292,7 +336,7 @@
       "expected_text": "Read",
       "requested_bounds": [
         44,
-        286,
+        292,
         90,
         16
       ],
@@ -324,7 +368,7 @@
       "expected_text": "fs",
       "requested_bounds": [
         138,
-        287,
+        293,
         52,
         14
       ],
@@ -335,7 +379,7 @@
       "expected_text": "Aliases: cat, view",
       "requested_bounds": [
         192,
-        286,
+        292,
         82,
         14
       ],
@@ -346,7 +390,7 @@
       "expected_text": "enabled",
       "requested_bounds": [
         290,
-        288,
+        294,
         39.1,
         14
       ],
@@ -378,7 +422,7 @@
       "expected_text": "Backend: octos",
       "requested_bounds": [
         192,
-        302,
+        308,
         82,
         14
       ],
@@ -389,7 +433,7 @@
       "expected_text": "4",
       "requested_bounds": [
         344,
-        293,
+        299,
         20,
         16
       ],
@@ -400,7 +444,7 @@
       "expected_text": "Write",
       "requested_bounds": [
         44,
-        336,
+        342,
         90,
         16
       ],
@@ -432,7 +476,7 @@
       "expected_text": "fs",
       "requested_bounds": [
         138,
-        337,
+        343,
         52,
         14
       ],
@@ -443,7 +487,7 @@
       "expected_text": "Aliases: save",
       "requested_bounds": [
         192,
-        336,
+        342,
         82,
         14
       ],
@@ -454,94 +498,7 @@
       "expected_text": "enabled",
       "requested_bounds": [
         290,
-        338,
-        39.1,
-        14
-      ],
-      "status": "observed",
-      "ocr_text": "enabled",
-      "confidence": 1,
-      "text_similarity": 1.0,
-      "ink_bounds": [
-        173.6241900647948,
-        330.2809917355372,
-        39.46004319654427,
-        9.6198347107438
-      ],
-      "ink_color": [
-        67,
-        69,
-        70
-      ],
-      "light_foreground": false,
-      "ocr_bounds": [
-        171.44708186063033,
-        326.94254010271175,
-        47.35583686828612,
-        16.296737812767304
-      ]
-    },
-    {
-      "id": "tool_2_be",
-      "expected_text": "Backend: octos",
-      "requested_bounds": [
-        192,
-        352,
-        82,
-        14
-      ],
-      "status": "missing_or_ocr_unresolved"
-    },
-    {
-      "id": "tool_2_cnt",
-      "expected_text": "3",
-      "requested_bounds": [
         344,
-        343,
-        20,
-        16
-      ],
-      "status": "missing_or_ocr_unresolved"
-    },
-    {
-      "id": "tool_3_name",
-      "expected_text": "Edit",
-      "requested_bounds": [
-        44,
-        386,
-        90,
-        16
-      ],
-      "status": "missing_or_ocr_unresolved"
-    },
-    {
-      "id": "tool_3_cat",
-      "expected_text": "fs",
-      "requested_bounds": [
-        138,
-        387,
-        52,
-        14
-      ],
-      "status": "missing_or_ocr_unresolved"
-    },
-    {
-      "id": "tool_3_alias",
-      "expected_text": "Aliases: patch",
-      "requested_bounds": [
-        192,
-        386,
-        82,
-        14
-      ],
-      "status": "missing_or_ocr_unresolved"
-    },
-    {
-      "id": "tool_3_st_t",
-      "expected_text": "enabled",
-      "requested_bounds": [
-        290,
-        388,
         39.1,
         14
       ],
@@ -569,11 +526,98 @@
       ]
     },
     {
+      "id": "tool_2_be",
+      "expected_text": "Backend: octos",
+      "requested_bounds": [
+        192,
+        358,
+        82,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "tool_2_cnt",
+      "expected_text": "3",
+      "requested_bounds": [
+        344,
+        349,
+        20,
+        16
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "tool_3_name",
+      "expected_text": "Edit",
+      "requested_bounds": [
+        44,
+        392,
+        90,
+        16
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "tool_3_cat",
+      "expected_text": "fs",
+      "requested_bounds": [
+        138,
+        393,
+        52,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "tool_3_alias",
+      "expected_text": "Aliases: patch",
+      "requested_bounds": [
+        192,
+        392,
+        82,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "tool_3_st_t",
+      "expected_text": "enabled",
+      "requested_bounds": [
+        290,
+        394,
+        39.1,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "enabled",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        173.6241900647948,
+        330.2809917355372,
+        39.46004319654427,
+        9.6198347107438
+      ],
+      "ink_color": [
+        67,
+        69,
+        70
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        171.44708186063033,
+        326.94254010271175,
+        47.35583686828612,
+        16.296737812767304
+      ]
+    },
+    {
       "id": "tool_3_be",
       "expected_text": "Backend: octos",
       "requested_bounds": [
         192,
-        402,
+        408,
         82,
         14
       ],
@@ -584,7 +628,7 @@
       "expected_text": "8",
       "requested_bounds": [
         344,
-        393,
+        399,
         20,
         16
       ],
@@ -616,7 +660,7 @@
       "expected_text": "Grep",
       "requested_bounds": [
         44,
-        436,
+        442,
         90,
         16
       ],
@@ -627,7 +671,7 @@
       "expected_text": "search",
       "requested_bounds": [
         138,
-        437,
+        443,
         52,
         14
       ],
@@ -638,7 +682,7 @@
       "expected_text": "Aliases: find",
       "requested_bounds": [
         192,
-        436,
+        442,
         82,
         14
       ],
@@ -649,7 +693,7 @@
       "expected_text": "enabled",
       "requested_bounds": [
         290,
-        438,
+        444,
         39.1,
         14
       ],
@@ -681,7 +725,7 @@
       "expected_text": "Backend: octos",
       "requested_bounds": [
         192,
-        452,
+        458,
         82,
         14
       ],
@@ -692,7 +736,7 @@
       "expected_text": "6",
       "requested_bounds": [
         344,
-        443,
+        449,
         20,
         16
       ],
@@ -724,7 +768,7 @@
       "expected_text": "ImageView",
       "requested_bounds": [
         44,
-        486,
+        492,
         90,
         16
       ],
@@ -735,7 +779,7 @@
       "expected_text": "media",
       "requested_bounds": [
         138,
-        487,
+        493,
         52,
         14
       ],
@@ -746,7 +790,7 @@
       "expected_text": "Aliases: see",
       "requested_bounds": [
         192,
-        486,
+        492,
         82,
         14
       ],
@@ -757,7 +801,7 @@
       "expected_text": "disabled",
       "requested_bounds": [
         290,
-        488,
+        494,
         44.6,
         14
       ],
@@ -789,7 +833,7 @@
       "expected_text": "Backend: octos",
       "requested_bounds": [
         192,
-        502,
+        508,
         82,
         14
       ],
@@ -800,7 +844,7 @@
       "expected_text": "1",
       "requested_bounds": [
         344,
-        493,
+        499,
         20,
         16
       ],
@@ -811,7 +855,7 @@
       "expected_text": "MCP SERVERS",
       "requested_bounds": [
         32,
-        536,
+        542,
         140,
         13.42
       ],
@@ -822,7 +866,7 @@
       "expected_text": "connected \u00b7 2    connecting \u00b7 1    failed \u00b7 0",
       "requested_bounds": [
         150,
-        536,
+        542,
         224,
         14
       ],
@@ -854,7 +898,7 @@
       "expected_text": "fs-probe",
       "requested_bounds": [
         44,
-        566,
+        572,
         140,
         16
       ],
@@ -865,7 +909,7 @@
       "expected_text": "workspace file tools",
       "requested_bounds": [
         44,
-        586,
+        592,
         200,
         14
       ],
@@ -876,7 +920,7 @@
       "expected_text": "",
       "requested_bounds": [
         267,
-        573,
+        579,
         0.0,
         14
       ],
@@ -887,7 +931,7 @@
       "expected_text": "stdio",
       "requested_bounds": [
         208,
-        568,
+        574,
         31.0,
         14
       ],
@@ -919,7 +963,7 @@
       "expected_text": "6",
       "requested_bounds": [
         340,
-        566,
+        572,
         24,
         16
       ],
@@ -930,7 +974,7 @@
       "expected_text": "web-probe",
       "requested_bounds": [
         44,
-        620,
+        626,
         140,
         16
       ],
@@ -941,7 +985,7 @@
       "expected_text": "browser + fetch tools",
       "requested_bounds": [
         44,
-        640,
+        646,
         200,
         14
       ],
@@ -952,7 +996,7 @@
       "expected_text": "",
       "requested_bounds": [
         267,
-        627,
+        633,
         0.0,
         14
       ],
@@ -963,7 +1007,7 @@
       "expected_text": "http",
       "requested_bounds": [
         208,
-        622,
+        628,
         24.8,
         14
       ],
@@ -995,7 +1039,7 @@
       "expected_text": "12",
       "requested_bounds": [
         340,
-        620,
+        626,
         24,
         16
       ],
@@ -1027,7 +1071,7 @@
       "expected_text": "git-probe",
       "requested_bounds": [
         44,
-        674,
+        680,
         140,
         16
       ],
@@ -1038,7 +1082,7 @@
       "expected_text": "repository inspection",
       "requested_bounds": [
         44,
-        694,
+        700,
         200,
         14
       ],
@@ -1049,7 +1093,7 @@
       "expected_text": "",
       "requested_bounds": [
         267,
-        681,
+        687,
         0.0,
         14
       ],
@@ -1060,7 +1104,7 @@
       "expected_text": "stdio",
       "requested_bounds": [
         208,
-        676,
+        682,
         31.0,
         14
       ],
@@ -1092,7 +1136,7 @@
       "expected_text": "4",
       "requested_bounds": [
         340,
-        674,
+        680,
         24,
         16
       ],
@@ -1103,7 +1147,7 @@
       "expected_text": "No matching tools.",
       "requested_bounds": [
         236,
-        724,
+        730,
         138,
         14
       ],
@@ -1135,7 +1179,7 @@
       "expected_text": "No matching servers.",
       "requested_bounds": [
         236,
-        742,
+        748,
         138,
         14
       ],

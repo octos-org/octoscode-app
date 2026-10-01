@@ -49,7 +49,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "x": 16,
     "y": 44,
     "w": 374,
-    "h": 688,
+    "h": 700,
     "role": "layout",
     "native_candidates": [
       "View"
@@ -254,9 +254,73 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "ch_name",
+    "x": 44,
+    "y": 219,
+    "w": 90,
+    "h": 11,
+    "text": "TOOL",
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 9,
+    "weight": 600,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "ch_cat",
+    "x": 138,
+    "y": 219,
+    "w": 52,
+    "h": 11,
+    "text": "CAT",
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 9,
+    "weight": 600,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "ch_alias",
+    "x": 192,
+    "y": 219,
+    "w": 82,
+    "h": 11,
+    "text": "ALIASES / BACKEND",
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 9,
+    "weight": 600,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "ch_cnt",
+    "x": 340,
+    "y": 219,
+    "w": 24,
+    "h": 11,
+    "text": "N",
+    "font_src": "self:resources/ux/Inter-600.ttf",
+    "size": 9,
+    "weight": 600,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
     "id": "tool_0",
     "x": 32,
-    "y": 230,
+    "y": 236,
     "w": 342,
     "h": 44,
     "role": "layout",
@@ -267,7 +331,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_0_name",
     "x": 44,
-    "y": 236,
+    "y": 242,
     "w": 90,
     "h": 16,
     "text": "Bash",
@@ -283,7 +347,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_0_cat",
     "x": 138,
-    "y": 237,
+    "y": 243,
     "w": 52,
     "h": 14,
     "text": "shell",
@@ -299,7 +363,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_0_alias",
     "x": 192,
-    "y": 236,
+    "y": 242,
     "w": 82,
     "h": 14,
     "text": "Aliases: exec, run",
@@ -315,7 +379,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_0_st",
     "x": 282,
-    "y": 235,
+    "y": 241,
     "w": 55.1,
     "h": 20,
     "role": "layout",
@@ -326,7 +390,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_0_st_t",
     "x": 290,
-    "y": 238,
+    "y": 244,
     "w": 39.1,
     "h": 14,
     "text": "enabled",
@@ -342,7 +406,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_0_be",
     "x": 192,
-    "y": 252,
+    "y": 258,
     "w": 82,
     "h": 14,
     "text": "Backend: octos",
@@ -358,7 +422,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_0_cnt",
     "x": 344,
-    "y": 243,
+    "y": 249,
     "w": 20,
     "h": 16,
     "text": "12",
@@ -374,7 +438,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_1",
     "x": 32,
-    "y": 280,
+    "y": 286,
     "w": 342,
     "h": 44,
     "role": "layout",
@@ -385,7 +449,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_1_name",
     "x": 44,
-    "y": 286,
+    "y": 292,
     "w": 90,
     "h": 16,
     "text": "Read",
@@ -401,7 +465,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_1_cat",
     "x": 138,
-    "y": 287,
+    "y": 293,
     "w": 52,
     "h": 14,
     "text": "fs",
@@ -417,7 +481,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_1_alias",
     "x": 192,
-    "y": 286,
+    "y": 292,
     "w": 82,
     "h": 14,
     "text": "Aliases: cat, view",
@@ -433,7 +497,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_1_st",
     "x": 282,
-    "y": 285,
+    "y": 291,
     "w": 55.1,
     "h": 20,
     "role": "layout",
@@ -444,7 +508,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_1_st_t",
     "x": 290,
-    "y": 288,
+    "y": 294,
     "w": 39.1,
     "h": 14,
     "text": "enabled",
@@ -460,7 +524,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_1_be",
     "x": 192,
-    "y": 302,
+    "y": 308,
     "w": 82,
     "h": 14,
     "text": "Backend: octos",
@@ -476,7 +540,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_1_cnt",
     "x": 344,
-    "y": 293,
+    "y": 299,
     "w": 20,
     "h": 16,
     "text": "4",
@@ -492,7 +556,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_2",
     "x": 32,
-    "y": 330,
+    "y": 336,
     "w": 342,
     "h": 44,
     "role": "layout",
@@ -503,7 +567,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_2_name",
     "x": 44,
-    "y": 336,
+    "y": 342,
     "w": 90,
     "h": 16,
     "text": "Write",
@@ -519,7 +583,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_2_cat",
     "x": 138,
-    "y": 337,
+    "y": 343,
     "w": 52,
     "h": 14,
     "text": "fs",
@@ -535,7 +599,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_2_alias",
     "x": 192,
-    "y": 336,
+    "y": 342,
     "w": 82,
     "h": 14,
     "text": "Aliases: save",
@@ -551,7 +615,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_2_st",
     "x": 282,
-    "y": 335,
+    "y": 341,
     "w": 55.1,
     "h": 20,
     "role": "layout",
@@ -562,7 +626,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_2_st_t",
     "x": 290,
-    "y": 338,
+    "y": 344,
     "w": 39.1,
     "h": 14,
     "text": "enabled",
@@ -578,7 +642,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_2_be",
     "x": 192,
-    "y": 352,
+    "y": 358,
     "w": 82,
     "h": 14,
     "text": "Backend: octos",
@@ -594,7 +658,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_2_cnt",
     "x": 344,
-    "y": 343,
+    "y": 349,
     "w": 20,
     "h": 16,
     "text": "3",
@@ -610,7 +674,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_3",
     "x": 32,
-    "y": 380,
+    "y": 386,
     "w": 342,
     "h": 44,
     "role": "layout",
@@ -621,7 +685,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_3_name",
     "x": 44,
-    "y": 386,
+    "y": 392,
     "w": 90,
     "h": 16,
     "text": "Edit",
@@ -637,7 +701,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_3_cat",
     "x": 138,
-    "y": 387,
+    "y": 393,
     "w": 52,
     "h": 14,
     "text": "fs",
@@ -653,7 +717,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_3_alias",
     "x": 192,
-    "y": 386,
+    "y": 392,
     "w": 82,
     "h": 14,
     "text": "Aliases: patch",
@@ -669,7 +733,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_3_st",
     "x": 282,
-    "y": 385,
+    "y": 391,
     "w": 55.1,
     "h": 20,
     "role": "layout",
@@ -680,7 +744,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_3_st_t",
     "x": 290,
-    "y": 388,
+    "y": 394,
     "w": 39.1,
     "h": 14,
     "text": "enabled",
@@ -696,7 +760,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_3_be",
     "x": 192,
-    "y": 402,
+    "y": 408,
     "w": 82,
     "h": 14,
     "text": "Backend: octos",
@@ -712,7 +776,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_3_cnt",
     "x": 344,
-    "y": 393,
+    "y": 399,
     "w": 20,
     "h": 16,
     "text": "8",
@@ -728,7 +792,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_4",
     "x": 32,
-    "y": 430,
+    "y": 436,
     "w": 342,
     "h": 44,
     "role": "layout",
@@ -739,7 +803,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_4_name",
     "x": 44,
-    "y": 436,
+    "y": 442,
     "w": 90,
     "h": 16,
     "text": "Grep",
@@ -755,7 +819,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_4_cat",
     "x": 138,
-    "y": 437,
+    "y": 443,
     "w": 52,
     "h": 14,
     "text": "search",
@@ -771,7 +835,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_4_alias",
     "x": 192,
-    "y": 436,
+    "y": 442,
     "w": 82,
     "h": 14,
     "text": "Aliases: find",
@@ -787,7 +851,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_4_st",
     "x": 282,
-    "y": 435,
+    "y": 441,
     "w": 55.1,
     "h": 20,
     "role": "layout",
@@ -798,7 +862,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_4_st_t",
     "x": 290,
-    "y": 438,
+    "y": 444,
     "w": 39.1,
     "h": 14,
     "text": "enabled",
@@ -814,7 +878,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_4_be",
     "x": 192,
-    "y": 452,
+    "y": 458,
     "w": 82,
     "h": 14,
     "text": "Backend: octos",
@@ -830,7 +894,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_4_cnt",
     "x": 344,
-    "y": 443,
+    "y": 449,
     "w": 20,
     "h": 16,
     "text": "6",
@@ -846,7 +910,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_5",
     "x": 32,
-    "y": 480,
+    "y": 486,
     "w": 342,
     "h": 44,
     "role": "layout",
@@ -857,7 +921,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_5_name",
     "x": 44,
-    "y": 486,
+    "y": 492,
     "w": 90,
     "h": 16,
     "text": "ImageView",
@@ -873,7 +937,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_5_cat",
     "x": 138,
-    "y": 487,
+    "y": 493,
     "w": 52,
     "h": 14,
     "text": "media",
@@ -889,7 +953,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_5_alias",
     "x": 192,
-    "y": 486,
+    "y": 492,
     "w": 82,
     "h": 14,
     "text": "Aliases: see",
@@ -905,7 +969,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_5_st",
     "x": 282,
-    "y": 485,
+    "y": 491,
     "w": 60.6,
     "h": 20,
     "role": "layout",
@@ -916,7 +980,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_5_st_t",
     "x": 290,
-    "y": 488,
+    "y": 494,
     "w": 44.6,
     "h": 14,
     "text": "disabled",
@@ -932,7 +996,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_5_be",
     "x": 192,
-    "y": 502,
+    "y": 508,
     "w": 82,
     "h": 14,
     "text": "Backend: octos",
@@ -948,7 +1012,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "tool_5_cnt",
     "x": 344,
-    "y": 493,
+    "y": 499,
     "w": 20,
     "h": 16,
     "text": "1",
@@ -964,7 +1028,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "h_mcp",
     "x": 32,
-    "y": 536,
+    "y": 542,
     "w": 140,
     "h": 13.42,
     "text": "MCP SERVERS",
@@ -980,7 +1044,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "mcp_counts",
     "x": 150,
-    "y": 536,
+    "y": 542,
     "w": 224,
     "h": 14,
     "text": "connected \u00b7 2    connecting \u00b7 1    failed \u00b7 0",
@@ -996,7 +1060,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_0",
     "x": 32,
-    "y": 558,
+    "y": 564,
     "w": 342,
     "h": 48,
     "role": "layout",
@@ -1007,7 +1071,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_0_id",
     "x": 44,
-    "y": 566,
+    "y": 572,
     "w": 140,
     "h": 16,
     "text": "fs-probe",
@@ -1023,7 +1087,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_0_sum",
     "x": 44,
-    "y": 586,
+    "y": 592,
     "w": 200,
     "h": 14,
     "text": "workspace file tools",
@@ -1039,7 +1103,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_0_dot",
     "x": 262,
-    "y": 570,
+    "y": 576,
     "w": 10.0,
     "h": 20,
     "role": "layout",
@@ -1050,7 +1114,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_0_dot_t",
     "x": 267,
-    "y": 573,
+    "y": 579,
     "w": 0.0,
     "h": 14,
     "text": "",
@@ -1066,7 +1130,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_0_tr",
     "x": 200,
-    "y": 565,
+    "y": 571,
     "w": 47.0,
     "h": 20,
     "role": "layout",
@@ -1077,7 +1141,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_0_tr_t",
     "x": 208,
-    "y": 568,
+    "y": 574,
     "w": 31.0,
     "h": 14,
     "text": "stdio",
@@ -1093,7 +1157,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_0_tc",
     "x": 340,
-    "y": 566,
+    "y": 572,
     "w": 24,
     "h": 16,
     "text": "6",
@@ -1109,7 +1173,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_1",
     "x": 32,
-    "y": 612,
+    "y": 618,
     "w": 342,
     "h": 48,
     "role": "layout",
@@ -1120,7 +1184,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_1_id",
     "x": 44,
-    "y": 620,
+    "y": 626,
     "w": 140,
     "h": 16,
     "text": "web-probe",
@@ -1136,7 +1200,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_1_sum",
     "x": 44,
-    "y": 640,
+    "y": 646,
     "w": 200,
     "h": 14,
     "text": "browser + fetch tools",
@@ -1152,7 +1216,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_1_dot",
     "x": 262,
-    "y": 624,
+    "y": 630,
     "w": 10.0,
     "h": 20,
     "role": "layout",
@@ -1163,7 +1227,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_1_dot_t",
     "x": 267,
-    "y": 627,
+    "y": 633,
     "w": 0.0,
     "h": 14,
     "text": "",
@@ -1179,7 +1243,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_1_tr",
     "x": 200,
-    "y": 619,
+    "y": 625,
     "w": 40.8,
     "h": 20,
     "role": "layout",
@@ -1190,7 +1254,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_1_tr_t",
     "x": 208,
-    "y": 622,
+    "y": 628,
     "w": 24.8,
     "h": 14,
     "text": "http",
@@ -1206,7 +1270,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_1_tc",
     "x": 340,
-    "y": 620,
+    "y": 626,
     "w": 24,
     "h": 16,
     "text": "12",
@@ -1222,7 +1286,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_2",
     "x": 32,
-    "y": 666,
+    "y": 672,
     "w": 342,
     "h": 48,
     "role": "layout",
@@ -1233,7 +1297,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_2_id",
     "x": 44,
-    "y": 674,
+    "y": 680,
     "w": 140,
     "h": 16,
     "text": "git-probe",
@@ -1249,7 +1313,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_2_sum",
     "x": 44,
-    "y": 694,
+    "y": 700,
     "w": 200,
     "h": 14,
     "text": "repository inspection",
@@ -1265,7 +1329,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_2_dot",
     "x": 262,
-    "y": 678,
+    "y": 684,
     "w": 10.0,
     "h": 20,
     "role": "layout",
@@ -1276,7 +1340,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_2_dot_t",
     "x": 267,
-    "y": 681,
+    "y": 687,
     "w": 0.0,
     "h": 14,
     "text": "",
@@ -1292,7 +1356,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_2_tr",
     "x": 200,
-    "y": 673,
+    "y": 679,
     "w": 47.0,
     "h": 20,
     "role": "layout",
@@ -1303,7 +1367,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_2_tr_t",
     "x": 208,
-    "y": 676,
+    "y": 682,
     "w": 31.0,
     "h": 14,
     "text": "stdio",
@@ -1319,7 +1383,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "srv_2_tc",
     "x": 340,
-    "y": 674,
+    "y": 680,
     "w": 24,
     "h": 16,
     "text": "4",
@@ -1335,7 +1399,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "empty_tools",
     "x": 236,
-    "y": 724,
+    "y": 730,
     "w": 138,
     "h": 14,
     "text": "No matching tools.",
@@ -1351,7 +1415,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "empty_servers",
     "x": 236,
-    "y": 742,
+    "y": 748,
     "w": 138,
     "h": 14,
     "text": "No matching servers.",

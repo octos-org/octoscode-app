@@ -496,9 +496,9 @@
       "semantic_role": "layout",
       "bounds": [
         32,
-        330,
+        336,
         342,
-        44
+        132
       ],
       "text": null,
       "enabled": null,
@@ -514,7 +514,7 @@
       "semantic_role": "text",
       "bounds": [
         44,
-        342,
+        346,
         200,
         16
       ],
@@ -524,33 +524,177 @@
       "size": 12
     },
     {
-      "source_id": "disc_l",
+      "source_id": "disc_0_icon",
       "native_id": "beauty_0_1_12",
       "parent": "modal_card",
+      "kind": "stack",
+      "component": "Surface2759b392b2e2",
+      "semantic_role": "layout",
+      "bounds": [
+        48,
+        372,
+        16,
+        16
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "disc_0_name",
+      "native_id": "beauty_0_1_13",
+      "parent": "modal_card",
       "kind": "text",
-      "component": "Text09ef707ce916",
+      "component": "Text6d079c80f2e2",
       "semantic_role": "text",
       "bounds": [
-        44,
-        360,
-        240,
-        14
+        72,
+        372,
+        120,
+        14.64
       ],
-      "text": "notes \u00b7 drafts \u00b7 tmp",
+      "text": "docs",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
-      "size": 11
+      "size": 12
+    },
+    {
+      "source_id": "disc_0_date",
+      "native_id": "beauty_0_1_14",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Textf9fb559f9ffd",
+      "semantic_role": "text",
+      "bounds": [
+        300,
+        372,
+        60,
+        14
+      ],
+      "text": "Mar 12",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 10
+    },
+    {
+      "source_id": "disc_1_icon",
+      "native_id": "beauty_0_1_15",
+      "parent": "modal_card",
+      "kind": "stack",
+      "component": "Surface2759b392b2e2",
+      "semantic_role": "layout",
+      "bounds": [
+        48,
+        402,
+        16,
+        16
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "disc_1_name",
+      "native_id": "beauty_0_1_16",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Text6d079c80f2e2",
+      "semantic_role": "text",
+      "bounds": [
+        72,
+        402,
+        120,
+        14.64
+      ],
+      "text": "scripts",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12
+    },
+    {
+      "source_id": "disc_1_date",
+      "native_id": "beauty_0_1_17",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Textf9fb559f9ffd",
+      "semantic_role": "text",
+      "bounds": [
+        300,
+        402,
+        60,
+        14
+      ],
+      "text": "Mar 9",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 10
+    },
+    {
+      "source_id": "disc_2_icon",
+      "native_id": "beauty_0_1_18",
+      "parent": "modal_card",
+      "kind": "stack",
+      "component": "Surface2759b392b2e2",
+      "semantic_role": "layout",
+      "bounds": [
+        48,
+        432,
+        16,
+        16
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "disc_2_name",
+      "native_id": "beauty_0_1_19",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Text6d079c80f2e2",
+      "semantic_role": "text",
+      "bounds": [
+        72,
+        432,
+        120,
+        14.64
+      ],
+      "text": "tmp",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12
+    },
+    {
+      "source_id": "disc_2_date",
+      "native_id": "beauty_0_1_20",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Textf9fb559f9ffd",
+      "semantic_role": "text",
+      "bounds": [
+        300,
+        432,
+        60,
+        14
+      ],
+      "text": "Feb 28",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 10
     },
     {
       "source_id": "note_browser",
-      "native_id": "beauty_0_1_13",
+      "native_id": "beauty_0_1_21",
       "parent": "modal_card",
       "kind": "text",
       "component": "Text09ef707ce916",
       "semantic_role": "text",
       "bounds": [
         32,
-        392,
+        484,
         342,
         28
       ],
@@ -565,6 +709,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "2d9d7d5f5097722250430c58db89ec4e23cbb4dd515defa91c40619171d21527",
+  "contract_sha256": "8f962eb158cf6528c384bed4d9704c52e8d92df1835bce3671df4131fe55c1e1",
   "mapping_basis": "mapped.json"
 }

@@ -14,7 +14,12 @@ copy parent_path_text { class: user-copy, en: "/home/user/octos" }
 copy btn_drill_t_text { class: user-copy, en: "Open folder browser" }
 copy btn_drill_disabled_t_text { class: user-copy, en: "Open folder browser (unavailable)" }
 copy disc_t_text { class: user-copy, en: "· 3 existing folders" }
-copy disc_l_text { class: user-copy, en: "notes · drafts · tmp" }
+copy disc_0_name_text { class: user-copy, en: "docs" }
+copy disc_0_date_text { class: user-copy, en: "Mar 12" }
+copy disc_1_name_text { class: user-copy, en: "scripts" }
+copy disc_1_date_text { class: user-copy, en: "Mar 9" }
+copy disc_2_name_text { class: user-copy, en: "tmp" }
+copy disc_2_date_text { class: user-copy, en: "Feb 28" }
 copy note_browser_text { class: user-copy, en: "The folder browser is available only when the server advertises it." }
 state btn_back_enabled { shape: bool, initial: true }
 state btn_close_enabled { shape: bool, initial: true }
@@ -70,6 +75,12 @@ component Text45c65ca3e393(instance: text, text: text) {
 component Text6d079c80f2e2(instance: text, text: text) {
   view Kit(component: "Text6d079c80f2e2", instance: instance, text: text)
 }
+component Surface2759b392b2e2(instance: text) {
+  view Kit(component: "Surface2759b392b2e2", instance: instance) { slot }
+}
+component Textf9fb559f9ffd(instance: text, text: text) {
+  view Kit(component: "Textf9fb559f9ffd", instance: instance, text: text)
+}
 component Text09ef707ce916(instance: text, text: text) {
   view Kit(component: "Text09ef707ce916", instance: instance, text: text)
 }
@@ -117,7 +128,21 @@ view root Surfacef468f03a0025(instance: "page") {
 
     }
     Text6d079c80f2e2(instance: "disc_t", text: copy.disc_t_text)
-    Text09ef707ce916(instance: "disc_l", text: copy.disc_l_text)
+    Surface2759b392b2e2(instance: "disc_0_icon") {
+
+    }
+    Text6d079c80f2e2(instance: "disc_0_name", text: copy.disc_0_name_text)
+    Textf9fb559f9ffd(instance: "disc_0_date", text: copy.disc_0_date_text)
+    Surface2759b392b2e2(instance: "disc_1_icon") {
+
+    }
+    Text6d079c80f2e2(instance: "disc_1_name", text: copy.disc_1_name_text)
+    Textf9fb559f9ffd(instance: "disc_1_date", text: copy.disc_1_date_text)
+    Surface2759b392b2e2(instance: "disc_2_icon") {
+
+    }
+    Text6d079c80f2e2(instance: "disc_2_name", text: copy.disc_2_name_text)
+    Textf9fb559f9ffd(instance: "disc_2_date", text: copy.disc_2_date_text)
     Text09ef707ce916(instance: "note_browser", text: copy.note_browser_text)
   }
 }

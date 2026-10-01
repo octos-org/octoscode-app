@@ -582,7 +582,7 @@
       "native_id": "beauty_0_0_4_3",
       "parent": "peer_2",
       "kind": "stack",
-      "component": "Surface39fbc2f19eae",
+      "component": "Surface9c1ef49c744b",
       "semantic_role": "layout",
       "bounds": [
         220,
@@ -600,7 +600,7 @@
       "native_id": "beauty_0_0_4_3_0",
       "parent": "peer_2_status",
       "kind": "text",
-      "component": "Textb0ce4ee563f0",
+      "component": "Text53f97087be23",
       "semantic_role": "text",
       "bounds": [
         228,
@@ -799,6 +799,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "5838f4fc092943dd20b02f11c9d1d117adf4d1396e52fe4f60b1bb27f0331edf",
+  "contract_sha256": "86f107972d83831a0694444179c866c55c35bfdc9b70cac043c66bc2c2205bbb",
   "mapping_basis": "mapped.json"
 }

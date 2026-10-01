@@ -481,7 +481,7 @@
                 "w": 109.0,
                 "h": 20,
                 "variant": "pill",
-                "bg": 4290007817,
+                "bg": 4294701283,
                 "radius": 10,
                 "c": [
                   {
@@ -495,7 +495,7 @@
                     "size": 10,
                     "line_height": 12.2,
                     "weight": 500,
-                    "color": 4280098079,
+                    "color": 4290007817,
                     "variant": "single_line",
                     "alignx": 0,
                     "font_src": "self:resources/ux/Inter-500.ttf",

@@ -83,8 +83,11 @@ component Surfaceddfd676580b9(instance: text) {
 component Textcd182d906e73(instance: text, text: text) {
   view Kit(component: "Textcd182d906e73", instance: instance, text: text)
 }
-component Surface39fbc2f19eae(instance: text) {
-  view Kit(component: "Surface39fbc2f19eae", instance: instance) { slot }
+component Surface9c1ef49c744b(instance: text) {
+  view Kit(component: "Surface9c1ef49c744b", instance: instance) { slot }
+}
+component Text53f97087be23(instance: text, text: text) {
+  view Kit(component: "Text53f97087be23", instance: instance, text: text)
 }
 component Text45c65ca3e393(instance: text, text: text) {
   view Kit(component: "Text45c65ca3e393", instance: instance, text: text)
@@ -140,8 +143,8 @@ view root Surfacef468f03a0025(instance: "page") {
       }
       Text685b33af9004(instance: "peer_2_av", text: copy.peer_2_av_text)
       Textef39c1926771(instance: "peer_2_model", text: copy.peer_2_model_text)
-      Surface39fbc2f19eae(instance: "peer_2_status") {
-        Textb0ce4ee563f0(instance: "peer_2_status_t", text: copy.peer_2_status_t_text)
+      Surface9c1ef49c744b(instance: "peer_2_status") {
+        Text53f97087be23(instance: "peer_2_status_t", text: copy.peer_2_status_t_text)
       }
       Group3d2637879433(instance: "in_steer_row") {
         Surfaced4707dd25870(instance: "in_steer_bg") {

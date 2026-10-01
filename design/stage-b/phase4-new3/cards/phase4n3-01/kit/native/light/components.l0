@@ -37,6 +37,9 @@ component Textc9b85a486b80(instance: text, text: text) {
 component Text1413998a2de4(instance: text, text: text) {
   view Kit(component: "Text1413998a2de4", instance: instance, text: text)
 }
+component Textf8e4038a8fcb(instance: text, text: text) {
+  view Kit(component: "Textf8e4038a8fcb", instance: instance, text: text)
+}
 component Surface7a7bef822439(instance: text) {
   view Kit(component: "Surface7a7bef822439", instance: instance) { slot }
 }

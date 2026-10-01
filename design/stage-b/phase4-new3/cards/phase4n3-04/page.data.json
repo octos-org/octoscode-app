@@ -291,7 +291,7 @@
         }
       },
       "peer_2_status": {
-        "component": "Surface39fbc2f19eae",
+        "component": "Surface9c1ef49c744b",
         "layout": {
           "x": 220,
           "y": 410,
@@ -300,7 +300,7 @@
         }
       },
       "peer_2_status_t": {
-        "component": "Textb0ce4ee563f0",
+        "component": "Text53f97087be23",
         "layout": {
           "x": 228,
           "y": 413,

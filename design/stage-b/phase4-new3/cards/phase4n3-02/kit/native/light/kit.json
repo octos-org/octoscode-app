@@ -355,14 +355,14 @@
       },
       "slot": false
     },
-    "Text7d630b6bd848": {
+    "Textd85a44242f71": {
       "style": {
         "t": "text",
         "size": {
-          "$token": "size_6b51d431df5d"
+          "$token": "size_4fc82b26aecb"
         },
         "line_height": {
-          "$token": "line_height_905c74a521c4"
+          "$token": "line_height_46267923268f"
         },
         "weight": {
           "$token": "weight_26d228663f13"
@@ -448,35 +448,6 @@
         "alignx": 0,
         "font_src": {
           "$token": "font_src_cb352dc03af3"
-        },
-        "tracking": {
-          "$token": "tracking_8aed642bf511"
-        }
-      },
-      "props": {
-        "text": "text"
-      },
-      "slot": false
-    },
-    "Textd85a44242f71": {
-      "style": {
-        "t": "text",
-        "size": {
-          "$token": "size_4fc82b26aecb"
-        },
-        "line_height": {
-          "$token": "line_height_46267923268f"
-        },
-        "weight": {
-          "$token": "weight_26d228663f13"
-        },
-        "color": {
-          "$token": "color_5ab339f4f62e"
-        },
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": {
-          "$token": "font_src_86ab34a300f7"
         },
         "tracking": {
           "$token": "tracking_8aed642bf511"
@@ -592,6 +563,35 @@
         "alignx": 0,
         "font_src": {
           "$token": "font_src_cb352dc03af3"
+        },
+        "tracking": {
+          "$token": "tracking_8aed642bf511"
+        }
+      },
+      "props": {
+        "text": "text"
+      },
+      "slot": false
+    },
+    "Text7d630b6bd848": {
+      "style": {
+        "t": "text",
+        "size": {
+          "$token": "size_6b51d431df5d"
+        },
+        "line_height": {
+          "$token": "line_height_905c74a521c4"
+        },
+        "weight": {
+          "$token": "weight_26d228663f13"
+        },
+        "color": {
+          "$token": "color_5ab339f4f62e"
+        },
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_86ab34a300f7"
         },
         "tracking": {
           "$token": "tracking_8aed642bf511"

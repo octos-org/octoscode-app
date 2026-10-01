@@ -228,7 +228,7 @@
       "expected_text": "\u00b7 3 existing folders",
       "requested_bounds": [
         44,
-        342,
+        346,
         200,
         16
       ],
@@ -256,12 +256,130 @@
       ]
     },
     {
-      "id": "disc_l",
-      "expected_text": "notes \u00b7 drafts \u00b7 tmp",
+      "id": "disc_0_name",
+      "expected_text": "docs",
       "requested_bounds": [
-        44,
-        360,
-        240,
+        72,
+        372,
+        120,
+        14.64
+      ],
+      "status": "observed",
+      "ocr_text": "docs",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        72.00427350427351,
+        543.5206611570247,
+        33.833333333333336,
+        12.826446280991735
+      ],
+      "ink_color": [
+        65,
+        65,
+        66
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        67.66666633700856,
+        543.5206609966942,
+        39.90598290598292,
+        16.033057851239615
+      ]
+    },
+    {
+      "id": "disc_0_date",
+      "expected_text": "Mar 12",
+      "requested_bounds": [
+        300,
+        372,
+        60,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "disc_1_name",
+      "expected_text": "scripts",
+      "requested_bounds": [
+        72,
+        402,
+        120,
+        14.64
+      ],
+      "status": "observed",
+      "ocr_text": "scripts",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        72.87179487179488,
+        590.8181818181819,
+        59.858974358974365,
+        16.834710743801654
+      ],
+      "ink_color": [
+        53,
+        54,
+        53
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        67.63456939727187,
+        589.919680591165,
+        67.73086107694186,
+        19.433365609035036
+      ]
+    },
+    {
+      "id": "disc_1_date",
+      "expected_text": "Mar 9",
+      "requested_bounds": [
+        300,
+        402,
+        60,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "disc_2_name",
+      "expected_text": "tmp",
+      "requested_bounds": [
+        72,
+        432,
+        120,
+        14.64
+      ],
+      "status": "observed",
+      "ocr_text": "tmp",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        72.00427350427351,
+        639.7190082644628,
+        25.15811965811966,
+        16.03305785123967
+      ],
+      "ink_color": [
+        54,
+        55,
+        55
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        67.66666627628207,
+        639.7190082845041,
+        31.230769230769234,
+        17.63636363636362
+      ]
+    },
+    {
+      "id": "disc_2_date",
+      "expected_text": "Feb 28",
+      "requested_bounds": [
+        300,
+        432,
+        60,
         14
       ],
       "status": "missing_or_ocr_unresolved"
@@ -271,7 +389,7 @@
       "expected_text": "The folder browser is available only when the server advertises it.",
       "requested_bounds": [
         32,
-        392,
+        484,
         342,
         28
       ],
@@ -496,36 +614,6 @@
       ],
       "confidence": 1,
       "text": "Create new folder"
-    },
-    {
-      "bounds": [
-        77.99999962000001,
-        677.9999998000001,
-        46.00000000000001,
-        19.999999999999932
-      ],
-      "confidence": 1,
-      "text": "docs"
-    },
-    {
-      "bounds": [
-        77.96300117715083,
-        735.879189191041,
-        78.0739974975586,
-        24.241621017456076
-      ],
-      "confidence": 1,
-      "text": "scripts"
-    },
-    {
-      "bounds": [
-        77.99999955000001,
-        798.000000025,
-        36,
-        21.99999999999998
-      ],
-      "confidence": 1,
-      "text": "tmp"
     },
     {
       "bounds": [

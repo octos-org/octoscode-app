@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "2d9d7d5f5097722250430c58db89ec4e23cbb4dd515defa91c40619171d21527",
+  "contract_sha256": "8f962eb158cf6528c384bed4d9704c52e8d92df1835bce3671df4131fe55c1e1",
   "reference_sha256": "d5ff4f989358363e89a6d47982d486fbe94ec4efab4932517dfc903799ca0aff",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -209,7 +209,63 @@
       "decision": "declared"
     },
     {
-      "id": "disc_l",
+      "id": "disc_0_icon",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "disc_0_name",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "disc_0_date",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "disc_1_icon",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "disc_1_name",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "disc_1_date",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "disc_2_icon",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "disc_2_name",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "disc_2_date",
       "role": "text",
       "basis": "authored text node",
       "confidence": 1.0,

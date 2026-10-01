@@ -35,7 +35,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # The atlas prompt's palette (the same token set the autonomy author uses).
 C = {"white": 0xFFFFFFFF, "panel": 0xFFF7F7F8, "hair": 0xFFE5E5E7, "ink": 0xFF1D1D1F,
      "muted": 0xFF6E6E73, "black": 0xFF000000, "blue": 0xFF2F6FEB, "amber": 0xFFB45309,
-     "green": 0xFF1F883D, "red": 0xFFCF222E, "sel": 0xFFF2F2F7, "chip": 0xFFEFEFF0,
+     "green": 0xFF1F883D, "red": 0xFFCF222E, "sel": 0xFFF2F2F7, "chip": 0xFFEFEFF0, "amber_bg": 0xFFFBF0E3,
      "hl": 0xFFFCE9B8, "dim": 0x99000000, "disabled": 0xFFC7C7CC}
 C_HEX = {k: f"#{v & 0xFFFFFF:06X}" for k, v in C.items()}
 FONT = {400: "self:resources/ux/Inter-400.ttf", 500: "self:resources/ux/Inter-500.ttf",
@@ -246,7 +246,7 @@ def build(num):
 # --------------------------------------------------------------- screen 01
 def build_01(sc):
     """Runtime inventory (atlas-prompt.md #1)."""
-    scrim, card = modal(y=44, h=688)
+    scrim, card = modal(y=44, h=700)
     sc.put(scrim)
     k = [text("t_title", "Runtime inventory", 32, 62, 240, 24, weight=600, size=20),
          text("t_sub", "12 tools · 3 servers", 32, 88, 240, 16, color="muted", size=12)]
@@ -263,7 +263,12 @@ def build_01(sc):
     sc.control("tab_mcp", "inventory.tab.servers", (104, 168, 92, 20))
     k.append(text("h_tools", "TOOLS", 32, 208, 120, 12, color="muted", size=11,
                   weight=600))
-    y = 230
+    for hid, hx, hw, htxt in (("ch_name", 44, 90, "TOOL"), ("ch_cat", 138, 52, "CAT"),
+                              ("ch_alias", 192, 82, "ALIASES / BACKEND"),
+                              ("ch_cnt", 340, 24, "N")):
+        k.append(text(hid, htxt, hx, 219, hw, 11, color="muted", size=9,
+                      weight=600))
+    y = 236
     for i, (nm, cat, st, alias, backend, cnt) in enumerate([
         ("Bash", "shell", "enabled", "exec, run", "octos", "12"),
         ("Read", "fs", "enabled", "cat, view", "octos", "4"),
@@ -343,7 +348,7 @@ def build_02(sc):
                   color="muted", size=11))
     sc.observe("/home/user/octos", 44, 146, 200, 16)
     k.append(link("wd_start", "Start a new session in /home/user/octos", 44, 178,
-                  318, color="blue", size=12))
+                  318, color="blue", size=11))
     sc.control("wd_start", "workspace.start_in_server_root", (44, 178, 318, 20))
     k.append(text("h_recent", "Recent workspaces", 32, 206, 240, 16,
                   color="muted", size=12, weight=600))
@@ -411,12 +416,18 @@ def build_03(sc):
     sc.control("btn_drill", "folder.browser.open", (32, 286, 200, 20))
     sc.control("btn_drill_disabled", "folder.browser.open", (32, 312, 260, 20),
                enabled=False)
-    k.append(surface("disc_1", 32, 330, 342, 44, bg="sel", radius=10))
-    k.append(text("disc_t", "· 3 existing folders", 44, 342, 200, 16, size=12))
-    k.append(text("disc_l", "notes · drafts · tmp", 44, 360, 240, 14,
-                  color="muted", size=11, mono=True))
+    k.append(surface("disc_1", 32, 336, 342, 132, bg="sel", radius=10))
+    k.append(text("disc_t", "· 3 existing folders", 44, 346, 200, 16, size=12))
+    for j, (dn, dd) in enumerate([("docs", "Mar 12"), ("scripts", "Mar 9"),
+                                  ("tmp", "Feb 28")]):
+        ry = 372 + j * 30
+        k.append(surface(f"disc_{j}_icon", 48, ry, 16, 16, bg="white", radius=4))
+        k.append(text(f"disc_{j}_name", dn, 72, ry, 120, 14, size=12, mono=True))
+        k.append(text(f"disc_{j}_date", dd, 300, ry, 60, 14, color="muted",
+                      size=10))
+        sc.observe(dn, 72, ry, 120, 14)
     k.append(text("note_browser", "The folder browser is available only when the "
-                  "server advertises it.", 32, 392, 342, 28, color="muted", size=11))
+                  "server advertises it.", 32, 484, 342, 28, color="muted", size=11))
     card["c"] = k
     sc.put(card)
 
@@ -464,7 +475,8 @@ def build_04(sc):
            text("peer_2_av", "W", 36, 416, 32, 18, weight=600, size=14),
            text("peer_2_model", "gpt-4o", 78, 408, 140, 16, weight=500, size=13,
                 mono=True),
-           pill("peer_2_status", "Waiting for you", 220, 410, color="amber", size=10),
+           pill("peer_2_status", "Waiting for you", 220, 410, color="amber_bg",
+                fg="amber", size=10),
            field("in_steer", "Enter steering text", 36, 448, 334, 38,
                  color="disabled", size=12),
            link("btn_dismiss", "Dismiss", 36, 498, 70, color="muted", size=12),

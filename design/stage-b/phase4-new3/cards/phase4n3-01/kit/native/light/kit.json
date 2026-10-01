@@ -102,6 +102,14 @@
       "value": 13.42,
       "property": "line_height"
     },
+    "size_19581e27de7c": {
+      "value": 9,
+      "property": "size"
+    },
+    "line_height_cc1ed3d75752": {
+      "value": 10.98,
+      "property": "line_height"
+    },
     "weight_0604cd3138fe": {
       "value": 500,
       "property": "weight"
@@ -121,14 +129,6 @@
     "bg_d3727bcbe31e": {
       "value": 4280256573,
       "property": "bg"
-    },
-    "size_19581e27de7c": {
-      "value": 9,
-      "property": "size"
-    },
-    "line_height_cc1ed3d75752": {
-      "value": 10.98,
-      "property": "line_height"
     },
     "bg_e7bb3ed424ea": {
       "value": 4291282892,
@@ -405,6 +405,35 @@
         },
         "line_height": {
           "$token": "line_height_46267923268f"
+        },
+        "weight": {
+          "$token": "weight_284b7e6d788f"
+        },
+        "color": {
+          "$token": "color_5e6b06fd707a"
+        },
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_a9a389fb1fcc"
+        },
+        "tracking": {
+          "$token": "tracking_8aed642bf511"
+        }
+      },
+      "props": {
+        "text": "text"
+      },
+      "slot": false
+    },
+    "Textf8e4038a8fcb": {
+      "style": {
+        "t": "text",
+        "size": {
+          "$token": "size_19581e27de7c"
+        },
+        "line_height": {
+          "$token": "line_height_cc1ed3d75752"
         },
         "weight": {
           "$token": "weight_284b7e6d788f"

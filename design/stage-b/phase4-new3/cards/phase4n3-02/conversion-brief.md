@@ -188,7 +188,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "h": 17,
     "text": "Start a new session in /home/user/octos",
     "font_src": "self:resources/ux/Inter-400.ttf",
-    "size": 12,
+    "size": 11,
     "weight": 400,
     "role": "text",
     "native_candidates": [
