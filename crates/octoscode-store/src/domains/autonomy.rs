@@ -104,6 +104,28 @@ struct Inner {
     loops: HashMap<String, LoopRecord>,
     monitors: HashMap<String, MonitorRecord>,
     goals: HashMap<String, GoalState>,
+    // ---- P4e1b: the authority fence (web `autonomy/store.ts`) ----
+    /// The commands identity this state belongs to (`store.ts:214-231`
+    /// `#syncAuthority`). `None` = never bound.
+    identity: Option<String>,
+    /// Monotonic authority epoch, bumped on EVERY identity change. A result
+    /// captured under an older epoch is a late old-client frame and is
+    /// dropped (`store.ts:887-889` epoch admission).
+    epoch: u64,
+    /// The session this state is bound to. Switching sessions drops all
+    /// prior autonomy state (`model.ts:101-104` `resetAutonomyForSession`).
+    session_id: Option<String>,
+    /// Per-family refresh revision (`store.ts:350-370`). Only an applied
+    /// OWNING event/mutation on the SAME family supersedes that family's
+    /// in-flight refresh snapshot; a foreign-family event never does.
+    revisions: HashMap<String, u64>,
+    /// Per-family error, recorded ONLY while the op stays authorized
+    /// (`store.ts` `#runGuarded`: "records the error only while the op stays
+    /// authorized"). Cleared by the authority change.
+    errors: HashMap<String, String>,
+    /// Per-family busy holder, stamped with the epoch that took it, so an
+    /// authority change drops every busy/pending marker (`store.ts:222-224`).
+    busy: HashMap<String, u64>,
 }
 
 /// The autonomy domain.
@@ -364,5 +386,157 @@ impl Autonomy {
         let mut v: Vec<String> = i.goals.keys().cloned().collect();
         v.sort();
         v
+    }
+
+    // =======================================================================
+    // P4e1b — the authority fence. Web oracle: `features/autonomy/store.ts`.
+    //
+    // Four rules, one mechanism:
+    //   row 4 — an identity change bumps the epoch and drops everything;
+    //            a result captured under an older epoch is refused;
+    //   row 8 — an error is recorded only while its op holds the CURRENT
+    //            epoch, and only for the family it belongs to;
+    //   row 6 — a family is revision-guarded so a mid-refresh notification
+    //            supersedes that family's stale snapshot, while a foreign
+    //            family's event never does;
+    //   row 9 — switching sessions drops all prior autonomy state.
+    // =======================================================================
+
+    /// #P4e1b row 4/9: bind this state to a commands identity. Returns `true`
+    /// when the identity actually changed (an epoch bump happened).
+    ///
+    /// The identity is the client id + the session it is bound to — a new
+    /// socket, a re-auth, a reconnect or a Core restart all present a new
+    /// object for the same session id, and any of them retires the old one
+    /// (`store.ts:208-213`: "ANY commands-identity change — a new object for
+    /// the same session, re-auth, reconnect, or a Core daemon restart").
+    pub fn bind_identity(&self, identity: &str) -> bool {
+        let mut i = self.inner.lock().unwrap();
+        if i.identity.as_deref() == Some(identity) && i.session_id.is_some() {
+            return false;
+        }
+        let had_any = i.identity.is_some() || i.session_id.is_some();
+        i.identity = Some(identity.to_owned());
+        i.epoch += 1;
+        // An identity change drops ALL busy/pending markers, revisions and
+        // errors (`store.ts:222-224`) — they belonged to the retired authority.
+        i.revisions.clear();
+        i.busy.clear();
+        i.errors.clear();
+        if had_any {
+            // `resetAutonomyForSession` (model.ts:101-104): a stale store must
+            // never survive an identity change under the same session id.
+            i.agents.clear();
+            i.loops.clear();
+            i.monitors.clear();
+            i.goals.clear();
+        }
+        true
+    }
+
+    /// #P4e1b row 9: bind the state to a session. Returns `true` when the
+    /// session actually changed, in which case all prior autonomy state is
+    /// dropped. A same-id re-bind under a NEW identity still drops
+    /// (`store.ts:113-115` "an identity change drops carried-over data under
+    /// the same session id").
+    pub fn bind_session(&self, session_id: &str) -> bool {
+        let mut i = self.inner.lock().unwrap();
+        if i.session_id.as_deref() == Some(session_id) {
+            return false;
+        }
+        i.session_id = Some(session_id.to_owned());
+        i.agents.clear();
+        i.loops.clear();
+        i.monitors.clear();
+        i.goals.clear();
+        i.revisions.clear();
+        i.busy.clear();
+        i.errors.clear();
+        true
+    }
+
+    /// The current authority epoch — the value a result must be captured under
+    /// to be admitted.
+    pub fn epoch(&self) -> u64 {
+        self.inner.lock().unwrap().epoch
+    }
+
+    /// The bound session, if any.
+    pub fn bound_session(&self) -> Option<String> {
+        self.inner.lock().unwrap().session_id.clone()
+    }
+
+    /// #P4e1b row 4: is a result captured under `captured_epoch` still
+    /// authorized? `false` after ANY identity change, so a late result from a
+    /// retired commands identity is dropped rather than applied
+    /// (`store.ts:887-889`; the same rule as the goal generation guard, one
+    /// level up — that one orders goal events, this one orders commands).
+    pub fn epoch_admits(&self, captured_epoch: u64) -> bool {
+        let i = self.inner.lock().unwrap();
+        i.identity.is_some() && captured_epoch == i.epoch
+    }
+
+    /// #P4e1b row 6: take a refresh revision for `family` (goal|loops|
+    /// monitors|agents) and return the new value. Every refresh start takes
+    /// one, so a later refresh always supersedes an earlier one's snapshot.
+    pub fn bump_revision(&self, family: &str) -> u64 {
+        let mut i = self.inner.lock().unwrap();
+        let next = i.revisions.get(family).copied().unwrap_or(0) + 1;
+        i.revisions.insert(family.to_owned(), next);
+        next
+    }
+
+    /// The current revision of `family`.
+    pub fn revision(&self, family: &str) -> u64 {
+        self.inner.lock().unwrap().revisions.get(family).copied().unwrap_or(0)
+    }
+
+    /// #P4e1b row 6: an OWNING event on `family` supersedes that family's
+    /// in-flight refresh. A foreign-family event must NOT (`store.ts:350-357`:
+    /// "an unrelated-family owning event does not discard another family's
+    /// refresh snapshot") — so the caller names its own family only.
+    pub fn supersede_family(&self, family: &str) {
+        let _ = self.bump_revision(family);
+    }
+
+    /// #P4e1b row 8: record a family error while the op stays authorized.
+    /// The error is stamped with `captured_epoch`; if the authority has moved
+    /// on it is dropped and NOT shown (`store.ts` "drops the error when a
+    /// newer epoch superseded the request"). Returns whether it was recorded.
+    pub fn record_error(&self, family: &str, captured_epoch: u64, message: &str) -> bool {
+        let mut i = self.inner.lock().unwrap();
+        if i.identity.is_none() || captured_epoch != i.epoch {
+            return false;
+        }
+        i.errors.insert(family.to_owned(), message.to_owned());
+        true
+    }
+
+    /// The recorded error for `family`, if any.
+    pub fn error(&self, family: &str) -> Option<String> {
+        self.inner.lock().unwrap().errors.get(family).cloned()
+    }
+
+    /// Clear a family error (the web nulls it on a successful op).
+    pub fn clear_error(&self, family: &str) {
+        self.inner.lock().unwrap().errors.remove(family);
+    }
+
+    /// Take a busy hold for `family` at `captured_epoch`.
+    pub fn set_busy(&self, family: &str, captured_epoch: u64) {
+        self.inner.lock().unwrap().busy.insert(family.to_owned(), captured_epoch);
+    }
+
+    /// Release a busy hold — but only when the holder is still the current
+    /// authority, so a retired op cannot clear a live one's marker.
+    pub fn release_busy(&self, family: &str, captured_epoch: u64) {
+        let mut i = self.inner.lock().unwrap();
+        if i.busy.get(family).copied() == Some(captured_epoch) {
+            i.busy.remove(family);
+        }
+    }
+
+    pub fn is_busy(&self, family: &str) -> bool {
+        self.inner.lock().unwrap().busy.contains_key(family)
     }
 }

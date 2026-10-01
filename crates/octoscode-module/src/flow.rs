@@ -501,6 +501,13 @@ pub struct Conversation {
     /// `workspace_root` (the web's `requireExactWorkspace` resume path,
     /// `candidate-session.ts:230-243`).
     pending_open_cwd: Mutex<Option<String>>,
+    /// #P4e1b row 4: bumped by every `session/open`, so each open presents a
+    /// NEW commands identity to the autonomy fence and retires the previous
+    /// one (web `autonomy/store.ts:208-213`: a new object for the same
+    /// session id, a re-auth, a reconnect or a Core restart all reset ALL
+    /// data, watermarks, revisions and busy holders). Starts at 0 and is
+    /// bumped BEFORE the open is sent, so the reply arm reads the new value.
+    open_seq: Mutex<u64>,
     started: Instant,
 }
 
@@ -646,6 +653,7 @@ impl Conversation {
                 session_id: Mutex::new(format!("{profile}:main")),
                 workspace_opened: Mutex::new(false),
                 pending_open_cwd: Mutex::new(None),
+                open_seq: Mutex::new(0),
                 started: Instant::now(),
             },
             evt_rx,
@@ -654,6 +662,16 @@ impl Conversation {
 
     pub fn profile(&self) -> String {
         self.profile.lock().unwrap().clone()
+    }
+
+    /// #P4e1b row 4: the commands identity this connection currently
+    /// presents to the autonomy fence. The `open_seq` counter makes every
+    /// `session/open` a NEW identity for the same session id — which is
+    /// exactly the case the web treats as an authority reset
+    /// (`autonomy/store.ts:208-213`).
+    pub fn identity(&self) -> String {
+        let seq = *self.open_seq.lock().unwrap();
+        format!("{}#{}", self.profile(), seq)
     }
 
     /// #32h: take the server-verified profile id (`profile/local/create`'s
@@ -735,6 +753,13 @@ impl Conversation {
         cwd: Option<String>,
     ) -> Result<String, String> {
         let session_id = octos_core::SessionKey(id.to_owned());
+        // #P4e1b row 4: retire the previous commands identity BEFORE the open
+        // goes out, so the reply arm binds the NEW one and any result captured
+        // under the old identity is refused from the moment it is issued.
+        {
+            let mut seq = self.open_seq.lock().unwrap();
+            *seq += 1;
+        }
         // #P4g1 row 204: remember what THIS open asked for, so the reply arm
         // can fail closed on a different returned workspace.
         *self.pending_open_cwd.lock().unwrap() = cwd.clone();
@@ -1273,6 +1298,20 @@ impl Conversation {
                 self.store
                     .note_session_opened(&r.opened.session_id.0, None);
                 self.store.set_active(Some(r.opened.session_id.0.clone()));
+                // #P4e1b rows 4+9: bind the autonomy state to THIS commands
+                // identity and the session the open reply names. The identity is
+                // per-socket-and-open: any later open, reconnect or re-auth
+                // presents a new one, and the fence then drops every late
+                // result, busy marker and carried-over row (web
+                // `features/autonomy/store.ts:208-231` `#syncAuthority`).
+                self.store
+                    .domains
+                    .autonomy
+                    .bind_identity(&self.identity());
+                self.store
+                    .domains
+                    .autonomy
+                    .bind_session(&r.opened.session_id.0);
                 // #P4g1 row 217: the open reply's `UiProtocolCapabilities`
                 // carries the advertised methods AND features — record both
                 // and evaluate the web's coding gate
