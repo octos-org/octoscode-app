@@ -10,9 +10,11 @@ pub mod fleet;
 pub mod keys;
 pub mod models;
 pub mod palette;
+pub mod research;
 // #35b item 1: the ONE card-tap wiring every docked screen shares (connect.rs
 // delegates here; the palette/theme mount paths call it directly).
 pub mod taps;
+pub mod transcript;
 pub mod workspace;
 pub mod review;
 pub mod sessions;

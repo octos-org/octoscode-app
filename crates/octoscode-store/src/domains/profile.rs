@@ -192,6 +192,9 @@ struct Inner {
     registry_packages: Vec<SkillPackage>,
     /// Research lanes (`profile/sub_providers/list|upsert|remove`).
     sub_providers: Vec<SubProvider>,
+    /// Known Profile work running (the web's `profileBusy` prop,
+    /// ResearchDialog.tsx:27): locks research MUTATIONS while set.
+    profile_busy: bool,
     /// The session-scoped model picker list (`profile/llm/list`).
     llm_models: Vec<ProfileLlmModel>,
     /// Whether the profile's last LLM write applied but needs a restart.
@@ -272,6 +275,14 @@ impl Profiles {
 
     pub fn sub_providers(&self) -> Vec<SubProvider> {
         self.inner.lock().unwrap().sub_providers.clone()
+    }
+
+    pub fn set_profile_busy(&self, busy: bool) {
+        self.inner.lock().unwrap().profile_busy = busy;
+    }
+
+    pub fn profile_busy(&self) -> bool {
+        self.inner.lock().unwrap().profile_busy
     }
 
     // ---- profile/llm/* ---------------------------------------------------
