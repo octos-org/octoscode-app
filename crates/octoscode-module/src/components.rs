@@ -559,7 +559,7 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
         ),
         // Card #21e item 5: the timestamp sits at the artboard's own x=243.64 in a
         // 364px row, which lands mid-column once mounted in a wider slot.
-        ItemKind::AnswerActions => right_align_timestamp(&ui),
+        ItemKind::AnswerActions => right_align_timestamp(&answer_actions_ink(&ui)),
         // Card #21e item 6: fenced code must not soft-wrap.
         ItemKind::AssistantProse => reachable_code(&fit_heights(&ui)),
         // Card #21e item 8: the activity row's spinner keeps its 18px box.
@@ -689,6 +689,31 @@ fn working_row_layout(ui: &str) -> String {
 ///
 /// Card #21e item 5 — the answer-actions timestamp sits mid-column.
 ///
+/// #36g item 1 — the answer-actions' svg ink follows the theme. The
+/// artboard's svgs carry a FIXED mid-grey stroke (#6E6E73): readable on
+/// light, near-invisible on the dark shell (the 6T: no icons in dark).
+/// `DrawSvg.color` REPLACES the geometry's color when set (draw/src/shader/
+/// draw_svg.rs get_color: color.rgb*color.a*base.a; the (-1,-1,-1,-1)
+/// sentinel passes through) — pin it per resolved mode: dark ink on light,
+/// light ink on dark.
+fn answer_actions_ink(ui: &str) -> String {
+    let ink = if crate::screens::theme::resolved() == "dark" {
+        "#f5f5f7ff"
+    } else {
+        "#1c1f22ff"
+    };
+    ui.lines()
+        .map(|l| {
+            if l.contains("draw_svg.svg:") && !l.contains("draw_svg.color:") {
+                format!("{l} draw_svg.color: {ink}")
+            } else {
+                l.to_owned()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
 /// The artboard places the timestamp flush with its row's right edge
 /// (`answer-actions/mapped.json`: t11 x=267.64 w=121.5 → right 389.14, row right
 /// 388.11). The app's row is only 364px inside a 404px column, so even at its
@@ -1139,6 +1164,26 @@ mod tests {
     /// (left 328), 11px past the mounted 333 column (device /snap on the
     /// pre-fix tree: composer_5 [339,612,5,38] vs column right 344).
     /// Fails on main (no re-anchor there); 333-36-10 = 287.
+    /// #36g item 1 — the icons' ink is themed per resolved mode (bare
+    /// literals: a theme ROLE ref draws 0 ink inside a component isolate,
+    /// the #36c lesson). Tests have no OS-appearance reader, so resolved()
+    /// falls back to dark; light is set explicitly and restored.
+    #[test]
+    fn the_answer_action_icons_carry_theme_ink() {
+        let dark = lower(ItemKind::AnswerActions, "t0", &[]).expect("lower");
+        assert!(
+            dark.contains("draw_svg.color: #f5f5f7ff"),
+            "the icons kept the fixed grey stroke in dark"
+        );
+        crate::screens::theme::set_preference("light");
+        let light = lower(ItemKind::AnswerActions, "t1", &[]).expect("lower");
+        crate::screens::theme::set_preference("dark");
+        assert!(
+            light.contains("draw_svg.color: #1c1f22ff"),
+            "the icons kept the fixed grey stroke in light"
+        );
+    }
+
     #[test]
     fn the_send_disc_stays_inside_the_mounted_column() {
         let dsl = lower(ItemKind::Composer, "t0", &[]).expect("lower");
