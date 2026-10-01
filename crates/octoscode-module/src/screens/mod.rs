@@ -11,6 +11,8 @@ pub mod keys;
 pub mod models;
 // #D1: the five native-pairing cards (p4-01..p4-05) — one owner per action id.
 pub mod pairing;
+// #D1: the two provider-editor cards (p4-06/07) — draft kept, error redacted.
+pub mod provider;
 pub mod palette;
 // #35b item 1: the ONE card-tap wiring every docked screen shares (connect.rs
 // delegates here; the palette/theme mount paths call it directly).
