@@ -54,3 +54,23 @@ defects, so none are defects under this card's rule):
   newchat/composer widgets). Row 1 (a real coding turn streams, terminates, and
   the timeline keeps bubble+answer) PASSED in the same run
   (streamed+terminal=1.7 s, prose=2, bubbles laid out=2).
+
+## #41d — live FAIL (REAL dsflash gate, row 33): file deliveries have no native attachment surface
+
+- **row 33** ("shows files the agent delivers, previews images, downloads them…"):
+  the scripted live slice asked the model to create two files (note-a.txt,
+  note-b.txt) in the live workspace. The turn ran for real (5s; 3 tool cells:
+  write_file ×2 + bash; the assistant prose renders the delivery as a markdown
+  FILE TABLE). The check asserts the web contract — laid-out ATTACHMENT rows —
+  and found ZERO: the native timeline has no attachment-row widget at all
+  (instrument: the failure snap carries no id/text matching
+  attach/download/file outside the prose itself; capture:
+  docs/walk/evidence/phase3/41d-row33-fail.png + .snap.json). The delivery
+  CONTENT is visible (prose table + tool cells), but the web's attachment
+  surface (rows, preview, download, persists across reload) has no native
+  equivalent yet. Candidate app card: an attachment-row kind in
+  screen::timeline_rows fed from the delivery/file notifications. Turns spent
+  on this row: 1 (of the 60 cap). Rows 51/63/65/67/76/77/92/101/193/194/197/
+  198/199 stay unscripted (approvals the model must raise itself, phone
+  viewports, browser clipboard/link surfaces) — dispositions in
+  .peer/report-41d.md.
