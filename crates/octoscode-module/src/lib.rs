@@ -1768,6 +1768,21 @@ impl OctoscodeView {
             });
             return;
         }
+        // P4f1: the history mutations (undo/rewind/fork) behind the history
+        // dialog's three titles. The dialog itself is a design-flow surface;
+        // these are the production paths it dispatches into.
+        if screens::history::owns(action) {
+            let action = action.to_string();
+            let store = store.clone();
+            rt.spawn(async move {
+                if let Err(e) =
+                    screens::history::perform(&conv, &action, &store, None).await
+                {
+                    ::log::warn!("octoscode: screens: {action:?}: {e}");
+                }
+            });
+            return;
+        }
         if screens::transcript::owns(action) {
             let store = store.clone();
             rt.spawn(async move {
