@@ -1,0 +1,7 @@
+[replay-serve] scenario=autonomy fixture=r1-autonomy-a6ea8505.jsonl: 91 frames; recorded session `dsflash:main`; 2 recorded turns ["01a0e769-55e5-7d40-be9c-9e340e3afb97", "01a0e769-67b9-7753-a1a7-da2d5fbbb444"]; 13 standalone notifications
+[replay-serve] listening on ws://127.0.0.1:8383/api/ui-protocol/ws (delay 2ms)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] <- session/list (id=1)

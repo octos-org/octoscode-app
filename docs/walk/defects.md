@@ -91,3 +91,68 @@ defects, so none are defects under this card's rule):
   docs/walk/evidence/phase3/41e-row50-fail.png (+ .snap.json). Turns spent: 1
   (cumulative 5/60 across #41d+#41e). No app card candidate; re-test only if
   the operator reconfigures dsflash's autonomy mode.
+## #41c — five reproduced FAILs from the new row-specific checks (runs 3+5 agree)
+Each is a walk row's OWN case now asserted specifically (tools/walk/run.py `#41c` block); each FAIL reproduced in
+run 3 (`tmp/41c-walk-run3.log`) and run 5 (`tmp/41c-walk-run5.log`) after the check-harness bugs were fixed out.
+| row | check | measured |
+|---|---|---|
+| 72 | Alt+D reaches a fleet capability notice surface to focus | keys.rs has no KeyD Alt arm; snap after keyd&alt carries no capability/notice widget — `capability-notice widgets=none` |
+| 73 | Alt+P toggles a peer dock fold | no `peer_dock` widget mounts at all — `peer_dock rects=None -> None` |
+| 128 | Fleet's roster rows render with real rects | `fleet_row_1 rect=[0,0,0,0]` under r6-peer: ids mount, rects stay collapsed (the id-only smoke check masked this) |
+| 102 | the palette's /monitor command reaches a monitors surface | `/monitor` is table data only (`palette_commands`, lib.rs:3099); executing it closes the palette and mounts nothing — `monitor ids=[] texts=[]` (the run arm logs `no native effect`) |
+| 58 | Escape closes the settings drawer and the trigger still works | Esc does NOT close the drawer; the check recovered via the drawer's own `settings_close` control and the trigger re-opens fine — so only the Esc leg is broken |
+Non-#41c fails in run 5: row 57 (longcode clipboard) is the pre-existing known-red; row 57/58's `longcode` check
+(a 227-column line) is likewise pre-existing (kept failing on main).
+Also recorded: `keyk&cmd` does not open the palette on the walk host while `keyk&ctrl` does (three runs), with cmd
+delivery itself proven (Cmd+E opens the review dock, #36e) — keys.rs:106 accepts `logo || ctrl`, so the logo arm
+is the suspect; the a11y check asserts the ctrl leg (proven delivery).
+## #42a — live row 50 disposition: GATE CONFIGURATION, not an app defect (shell ran with no approval card under the static "Ask for approval" pill)
+Verdict: (b) — the server/profile policy decides; the app's (missing) mode
+send is not what produced row 50. Evidence:
+1. The native app sends NO permission mode anywhere: the gate trace
+   (live-gate/evidence/trace.jsonl, 5768 frames) carries `session/open`
+   outbound = `{"cwd","profile_id","session_id"}` only (no mode, no
+   sandbox), and ZERO outbound `permission/profile` frames (the string
+   only appears inside `session/open`'s capability list). In the crate,
+   `permission/profile/*` appears ONLY in tests
+   (crates/octoscode-client/tests/r2_replay.rs:293-309) — no production
+   sender.
+2. BUT the web, under the gate's exact conditions, sends nothing either:
+   the mode/sandbox defaults are THIS BROWSER's localStorage preference,
+   applied at CREATION only (src-web .../session-config/session-defaults.ts:4-8);
+   with nothing stored `loadSessionDefaults` returns null
+   (App.tsx:643-648) and the creation path skips the send entirely
+   (App.tsx:1941 `if (outcome === "opened" && defaults && ...)`). When a
+   preference IS stored, the web fires ONE
+   `setPermissionProfile({session_id, update:{mode, network}})` after
+   creation (App.tsx:1956-1972). A headless gate has no stored browser
+   preference, so web-on-the-gate ≡ native: no mode sent. Parity holds on
+   this path; the missing native control is a FEATURE gap, not row 50's
+   cause.
+3. The deciding policy is server-side: the gate profile carries its own
+   execution policy — live-gate/data/profiles/dsflash.json:
+   `sandbox: {enabled: true, mode: "auto", workspace_write: true,
+   allow_network: false, docker: {...}}`. Upstream, the approval flow only
+   asks when the command policy returns Ask
+   (src-octos @4231669 crates/octos-agent/src/policy.rs:28-36:
+   `ApprovalPolicy::Ask` is the DEFAULT — "Ask an interactive client when
+   a command policy returns Decision::Ask"); a workspace-contained shell
+   command under a writable sandbox does not hit Ask, so it executes with
+   no approval card. The permission-profile default (no client override)
+   is WorkspaceWrite + network Deny
+   (src-octos @4231669 crates/octos-core/src/ui_protocol.rs:2349-2357),
+   and WorkspaceWrite deliberately "leaves the inherited (writable)
+   sandbox untouched" (crates/octos-agent/src/policy.rs:234-258).
+4. The pill that motivated the row is NOT a live control: the composer's
+   "Ask for approval" is a static artboard label (it0_composer_2_0, from
+   the lowered composer DSL), and the string exists nowhere in the web
+   source — the web's real control labels are Read/Write/Full access
+   (src-web .../shell/permission-projection.ts:52-60) fed from the
+   server's `permission/profile/list` current mode.
+Follow-up (feature gap, NOT this row's defect): the native app has no
+mode selector and no creation-time `permission/profile/set` (the web's §7
+new-session-defaults). Candidate app card: bind the pill to the server's
+live current mode + a selector that sends `permission/profile/set`
+(client generic `.request()` already proven by r2_replay.rs:293-309).
+Turns spent on this row: 1 (of the 60 cap, coordinated with p0-harness's
+ledger — no re-run needed for a (b) disposition).
