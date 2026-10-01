@@ -1649,45 +1649,86 @@ impl OctoscodeView {
                         }
                         // #32h: THIS is the path the phone's Connect tap takes
                         // (the startup path instrumented in 3f52566/156c321 is
-                        // env-gated). The a1f3aad block was skipped silently on
-                        // the device (no profile/open_workspace line at all
-                        // while Live came up), so per the outer loop: log the
-                        // guard inputs UNCONDITIONALLY, and let the SERVER
-                        // decide whether the profile exists — try session/open
-                        // first regardless of any guard; on failure create +
-                        // adopt + retry. Every branch logs on the macro.
-                        makepad_widgets::log!(
-                            "[octoscode] live: profile={profile} env_profile={}",
-                            std::env::var_os("OCTOS_PROFILE_ID").is_some()
-                        );
-                        if let Err(e) = conv.open_workspace(cwd.clone()).await {
-                            makepad_widgets::log!("[octoscode] session/open failed: {e} — ensuring a profile");
-                            match conv.create_profile().await {
-                                Ok(id) => {
-                                    conv.adopt_profile(id.clone());
-                                    makepad_widgets::log!("[octoscode] profile ready: {id}");
-                                }
-                                Err(e) => {
-                                    makepad_widgets::log!(
-                                        "[octoscode] profile/local/create failed: {e}"
-                                    )
-                                }
+                        // env-gated). c70f1ca's device run exposed the REAL
+                        // freeze: open_workspace().await never resolved
+                        // because the response needs the event drain, and the
+                        // drain only started AFTER this block. The drain goes
+                        // FIRST; ensure+open run in their own task with a
+                        // 15 s timeout so a wedged request can never hang the
+                        // connect path again (the outer loop's prescription).
+                        let drv = conv.clone();
+                        tokio::spawn(async move {
+                            while let Some(evt) = evt_rx.recv().await {
+                                let _ = drv.on_event(evt);
+                                SignalToUI::set_ui_signal();
                             }
-                            match conv.open_workspace(cwd).await {
-                                Ok(_) => makepad_widgets::log!(
-                                    "[octoscode] workspace open: {}",
-                                    conv.session_id()
-                                ),
-                                Err(e) => {
-                                    makepad_widgets::log!("[octoscode] session/open: {e}")
-                                }
-                            }
-                        } else {
+                        });
+                        let conv2 = conv.clone();
+                        tokio::spawn(async move {
                             makepad_widgets::log!(
-                                "[octoscode] workspace open: {}",
-                                conv.session_id()
+                                "[octoscode] live: profile={profile} env_profile={}",
+                                std::env::var_os("OCTOS_PROFILE_ID").is_some()
                             );
-                        }
+                            let open = async {
+                                if let Err(e) = conv2.open_workspace(cwd).await {
+                                    makepad_widgets::log!(
+                                        "[octoscode] session/open failed: {e} — ensuring a profile"
+                                    );
+                                    match tokio::time::timeout(
+                                        std::time::Duration::from_secs(15),
+                                        conv2.create_profile(),
+                                    )
+                                    .await
+                                    {
+                                        Ok(Ok(id)) => {
+                                            conv2.adopt_profile(id.clone());
+                                            makepad_widgets::log!(
+                                                "[octoscode] profile ready: {id}"
+                                            );
+                                        }
+                                        Ok(Err(e)) => makepad_widgets::log!(
+                                            "[octoscode] profile/local/create failed: {e}"
+                                        ),
+                                        Err(_) => makepad_widgets::log!(
+                                            "[octoscode] profile/local/create: timed out"
+                                        ),
+                                    }
+                                    match tokio::time::timeout(
+                                        std::time::Duration::from_secs(15),
+                                        conv2.open_workspace(None),
+                                    )
+                                    .await
+                                    {
+                                        Ok(Ok(_)) => makepad_widgets::log!(
+                                            "[octoscode] workspace open: {}",
+                                            conv2.session_id()
+                                        ),
+                                        Ok(Err(e)) => {
+                                            makepad_widgets::log!("[octoscode] session/open: {e}")
+                                        }
+                                        Err(_) => {
+                                            makepad_widgets::log!("[octoscode] session/open: timed out")
+                                        }
+                                    }
+                                } else {
+                                    makepad_widgets::log!(
+                                        "[octoscode] workspace open: {}",
+                                        conv2.session_id()
+                                    );
+                                }
+                            };
+                            if tokio::time::timeout(
+                                std::time::Duration::from_secs(15),
+                                open,
+                            )
+                            .await
+                            .is_err()
+                            {
+                                makepad_widgets::log!(
+                                    "[octoscode] session/open: timed out (15 s)"
+                                );
+                            }
+                        });
                         // Take over the new transport's event drain.
                         let drv = conv.clone();
                         tokio::spawn(async move {
