@@ -32,6 +32,9 @@ octos-app-transport = { git = "https://github.com/OctoSense-org/OctoSense", rev 
 octos-app-store = { git = "https://github.com/OctoSense-org/OctoSense", rev = "6e9bfd4077cf8181878ac005ad586f908084a4bf" }
 # Our crates.
 octoscode-client = { path = "crates/octoscode-client" }
+# #32h: the solo-profile discovery POST (api/auth/solo) — same spec the
+# octos-app-transport checkout pins (its workspace :123), so one copy builds.
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json", "stream", "multipart"] }
 octoscode-store = { path = "crates/octoscode-store" }
 octoscode-module = { path = "crates/octoscode-module" }
 # The L0 card runtime (card #15b): the SAME renderer card-host used for the

@@ -15,6 +15,8 @@ octoscode-client = { workspace = true }
 octoscode-store = { workspace = true }
 octos-core = { workspace = true }
 octos-app-transport = { workspace = true }
+# #32h: the solo-profile discovery POST (api/auth/solo) before the WS upgrade.
+reqwest = { workspace = true }
 # The L0 card runtime (card #15b) — the same renderer the Gate-B renders used.
 octoscript-makepad = { workspace = true }
 octoscript-widgets = { workspace = true }
@@ -25,7 +27,7 @@ octoscript-ui-l0 = { workspace = true }
 octoscript-render = { path = "../../.forks/octoscript-makepad-fork/crates/octoscript-render" }
 serde = { workspace = true }
 serde_json = { workspace = true }
-tokio = { workspace = true }
+tokio = { workspace = true, features = ["time"] }
 log = { workspace = true }
 url = "2"
 
