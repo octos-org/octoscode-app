@@ -55,7 +55,22 @@ struct ReplayServer {
 }
 
 impl ReplayServer {
+    /// The default (well-formed) `SessionBtwResult` the recording-derived
+    /// shape carries. #P4e2a: `start_with_btw` swaps it for a hostile reply
+    /// to prove the admission rule (btw.ts:36-51).
+    fn default_btw_result() -> serde_json::Value {
+        serde_json::json!({
+            "session_id": "dsflash:main",
+            "answer": "It's a metric that increments on reconnect drops.",
+            "model": null
+        })
+    }
+
     async fn start(btw_advertised: bool) -> Self {
+        Self::start_with_btw(btw_advertised, Self::default_btw_result()).await
+    }
+
+    async fn start_with_btw(btw_advertised: bool, btw_result: serde_json::Value) -> Self {
         use futures_util::{SinkExt, StreamExt};
         use tokio::net::TcpListener;
         use tokio_tungstenite::tungstenite::Message;
@@ -124,9 +139,7 @@ impl ReplayServer {
                         // answer, model? — ui_protocol.rs:3106).
                         serde_json::json!({
                             "jsonrpc": "2.0", "id": id,
-                            "result": {"session_id": "dsflash:main",
-                                       "answer": "It's a metric that increments on reconnect drops.",
-                                       "model": null}
+                            "result": btw_result.clone()
                         })
                     }
                     _ => serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {}}),
@@ -273,6 +286,90 @@ async fn aside_ask_sends_session_btw_and_the_answer_lands() {
         panic!("an empty draft is Unhandled, got {effect:?}");
     };
     assert!(why.contains("empty"), "{why}");
+}
+
+/// #P4e2a — the aside's reply VALIDATION (btw.ts:36-51 `parseSessionBtwResult`,
+/// the rule btw.ts:81-86 enforces). A reply is admitted only when it is a
+/// record carrying THIS Session's id and a non-blank string `answer`; anything
+/// else is `BtwProtocolError("Invalid or wrong-Session aside result")` and must
+/// NEVER reach the panel as an answer. Exercised through the PRODUCTION path
+/// (`resolve` → `apply` → `Conversation::client`), with the hostile reply
+/// served by the same fake server. RED before the #P4e2a change: the old arm
+/// read `v["answer"].as_str().unwrap_or_default()`, so a wrong-Session reply
+/// rendered as `answered` with an EMPTY answer.
+#[tokio::test]
+async fn a_wrong_session_or_blank_aside_reply_is_rejected_as_a_protocol_error() {
+    let _state = state_lock();
+
+    // The pure admission rule, field by field, against the oracle.
+    let ok = ReplayServer::default_btw_result();
+    assert_eq!(
+        sessions::parse_aside_result(&ok, "dsflash:main"),
+        Ok("It's a metric that increments on reconnect drops.".to_owned())
+    );
+    // btw.ts:40 — the session_id must be the one the question went to.
+    let foreign = serde_json::json!({
+        "session_id": "dsflash:other", "answer": "hello", "model": null
+    });
+    assert!(sessions::parse_aside_result(&foreign, "dsflash:main").is_err());
+    // btw.ts:42-43 — the answer must be a non-blank STRING.
+    for blank in ["", "   "] {
+        let v = serde_json::json!({"session_id": "dsflash:main", "answer": blank});
+        assert!(
+            sessions::parse_aside_result(&v, "dsflash:main").is_err(),
+            "a blank answer {blank:?} is a protocol error"
+        );
+    }
+    // A missing answer is not a valid string either.
+    let no_answer = serde_json::json!({"session_id": "dsflash:main"});
+    assert!(sessions::parse_aside_result(&no_answer, "dsflash:main").is_err());
+    // btw.ts:43-45 — model is OPTIONAL, but a present one must be non-blank.
+    let blank_model =
+        serde_json::json!({"session_id": "dsflash:main", "answer": "hi", "model": "  "});
+    assert!(sessions::parse_aside_result(&blank_model, "dsflash:main").is_err());
+    let null_model =
+        serde_json::json!({"session_id": "dsflash:main", "answer": "hi", "model": null});
+    assert!(sessions::parse_aside_result(&null_model, "dsflash:main").is_ok());
+
+    // …and the same rule end-to-end, on the wire, for each hostile shape.
+    for (label, reply) in [
+        (
+            "wrong-Session",
+            serde_json::json!({"session_id": "dsflash:other", "answer": "leaked", "model": null}),
+        ),
+        (
+            "blank-answer",
+            serde_json::json!({"session_id": "dsflash:main", "answer": "   ", "model": null}),
+        ),
+    ] {
+        sessions::reset_state();
+        let server = ReplayServer::start_with_btw(true, reply).await;
+        let conv = connect_and_refresh(&server).await;
+        let ui_handle = conv.ui();
+        let ctx = Ctx::new(&conv.store, &ui_handle);
+        ui_handle.lock().unwrap().set_draft_inner("why?");
+
+        let effect = sessions::resolve("aside.ask", 0, &ctx);
+        let err = sessions::apply(effect, &conv)
+            .await
+            .expect_err(&format!("a {label} reply must be a protocol error"));
+        assert!(
+            err.contains("Invalid or wrong-Session aside result"),
+            "{label}: {err}"
+        );
+        // The panel never shows it: the aside reports unavailable, and NO
+        // answer is projected (the web raises before it can render one).
+        assert_eq!(
+            sessions::query(&ctx, "aside.state").unwrap(),
+            serde_json::json!("unavailable"),
+            "{label}: the panel reports unavailable (btw.ts:85)"
+        );
+        assert_eq!(
+            sessions::query(&ctx, "aside.answer").unwrap(),
+            serde_json::json!(""),
+            "{label}: no answer is projected"
+        );
+    }
 }
 
 // ------------------------------------------------------ §3 fail closed
