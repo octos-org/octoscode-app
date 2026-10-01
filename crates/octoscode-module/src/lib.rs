@@ -55,6 +55,15 @@ script_mod! {
     // `theme.*` ref (class defaults capture at evaluation; the wm_theme bridge
     // documents the same ordering constraint). Loads the persisted preference.
     #(screens::theme::eval_roles(vm))
+    // #P4h1 row 306 — install the recents store and purge the legacy v1 cache
+    // at startup (the web's App.tsx:1019-1023). This is the production caller
+    // that keeps `clear_recent_workspaces` off the test-only list (RULES 3); an
+    // honest failure is logged, never silently swallowed.
+    {
+        if !screens::recents::init_persistence() {
+            ::log::warn!("octoscode: workspace recents: legacy v1 cache could not be purged");
+        }
+    }
     mod.widgets.OctoscodeView = set_type_default() do #(OctoscodeView::register_widget(vm)) {
         ..mod.widgets.RectView
         width: Fill height: Fill

@@ -11,6 +11,9 @@ pub mod history;
 pub mod keys;
 pub mod models;
 pub mod palette;
+// P4h1 rows 304-307: the recent-workspaces cache (the web's
+// `features/workspace/workspace-recents.ts`), with its own storage seam.
+pub mod recents;
 pub mod research;
 // #35b item 1: the ONE card-tap wiring every docked screen shares (connect.rs
 // delegates here; the palette/theme mount paths call it directly).
