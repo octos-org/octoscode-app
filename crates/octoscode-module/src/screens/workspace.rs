@@ -63,6 +63,11 @@ pub const ACTIONS: &[(&str, &str)] = &[
     ("set.model.select", "profile/llm/select for the cached primary route"),
     ("set.permission.set", "permission/profile/set with the clicked segment's mode (index into the cached profiles)"),
     ("set.diagnostics.copy", "copy the diagnostics (UI-local; the host owns the clipboard)"),
+    // #40b — setup-11's own id for the same control; the #35b wired taps and
+    // the click audit emit THIS string, so the alias must pass is_action or
+    // the tap dies as Unhandled before resolve ever sees it (the audit's
+    // last dead row was exactly that).
+    ("error.copy_diagnostics", "alias of set.diagnostics.copy (setup-11's btn_diag)"),
     ("settings.close", "close the settings pane (UI-local until #28e mounts the overlay)"),
 ];
 
@@ -75,6 +80,7 @@ pub const ROUTED: &[&str] = &[
     "set.model.select",
     "set.permission.set",
     "set.diagnostics.copy",
+    "error.copy_diagnostics",
     "settings.close",
 ];
 
@@ -177,7 +183,7 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             Some(mode) => Effect::SetPermission(mode.to_owned()),
             None => Effect::Unhandled(format!("{action}[{index}]")),
         },
-        "set.diagnostics.copy" => Effect::CopyDiagnostics,
+        "set.diagnostics.copy" | "error.copy_diagnostics" => Effect::CopyDiagnostics,
         "settings.close" => Effect::Close,
         other => Effect::Unhandled(other.to_owned()),
     }
