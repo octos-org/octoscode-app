@@ -81,6 +81,7 @@ pub const ACTIONS: &[(&str, &str)] = &[
     ("goal.resume", "two-step: fresh goal/get, then goal/set status=active"),
     ("goal.stop", "two-step: fresh goal/get, then goal/set status=complete"),
     ("loops.refresh", "loop/list"),
+    ("loop.create", "loop/create from the entry text: 'prompt' (self_paced) or 'prompt | 5m' (fixed_interval, 60s..24h)"),
     ("loop.pause", "loop/pause for the row's loop id (index into the cached list)"),
     ("loop.resume", "loop/resume for the row's loop id"),
     ("loop.delete", "loop/delete for the row's loop id"),
@@ -101,6 +102,7 @@ pub const ROUTED: &[&str] = &[
     "goal.resume",
     "goal.stop",
     "loops.refresh",
+    "loop.create",
     "loop.pause",
     "loop.resume",
     "loop.delete",
@@ -753,6 +755,10 @@ pub enum Effect {
     /// Two-step transition to `paused` | `active` | `complete`.
     Transition(String),
     RefreshLists,
+    /// `loop/create` (`store.ts` `createLoop`): a self-paced loop, or a
+    /// fixed-interval one when the entry names an interval
+    /// (`loop-creation.ts` `parseLoopCreationInterval`).
+    LoopCreate { prompt: String, interval_seconds: Option<u64> },
     LoopPause(String),
     LoopResume(String),
     LoopDelete(String),
@@ -783,6 +789,9 @@ pub fn resolve(action: &str, index: usize, value: Option<&str>, ctx: &Ctx<'_>) -
         "loops.refresh" | "loop.pause" | "loop.resume" | "loop.delete" | "loop.fire_now" => {
             gated(ctx.store, "loops", "loop/list")
         }
+        // `capabilities.loopCreate` (AutonomyPanel.tsx LoopCreationControls
+        // `enabled`): the create method AND the loop runtime feature.
+        "loop.create" => gated(ctx.store, "loops", "loop/create"),
         "monitors.refresh" | "monitor.pause" | "monitor.resume" | "monitor.delete"
         | "monitor.create" => gated(ctx.store, "monitors", "monitor/list"),
         _ => false,
@@ -817,6 +826,25 @@ pub fn resolve(action: &str, index: usize, value: Option<&str>, ctx: &Ctx<'_>) -
         "goal.resume" => Effect::Transition("active".to_owned()),
         "goal.stop" => Effect::Transition("complete".to_owned()),
         "loops.refresh" => Effect::RefreshLists,
+        "loop.create" => {
+            let Some(text) = value.map(str::trim).filter(|t| !t.is_empty()) else {
+                return Effect::Unhandled("loop.create[empty]".to_owned());
+            };
+            match text.rsplit_once(" | ") {
+                Some((prompt, interval)) => match parse_loop_interval(interval) {
+                    Some(seconds) if !prompt.trim().is_empty() => Effect::LoopCreate {
+                        prompt: prompt.trim().to_owned(),
+                        interval_seconds: Some(seconds),
+                    },
+                    _ => Effect::Unhandled(format!("loop.create[interval={interval:?}]")),
+                },
+                None if text.len() <= LOOP_PROMPT_MAX_BYTES => Effect::LoopCreate {
+                    prompt: text.to_owned(),
+                    interval_seconds: None,
+                },
+                None => Effect::Unhandled("loop.create[prompt-too-long]".to_owned()),
+            }
+        }
         "loop.pause" => id_at(&state().loops, index).map_or_else(
             || Effect::Unhandled(format!("{action}[{index}]")),
             Effect::LoopPause,
@@ -896,6 +924,7 @@ pub fn family_of(effect: &Effect) -> Option<&'static str> {
             FAMILY_GOAL
         }
         Effect::RefreshLists
+        | Effect::LoopCreate { .. }
         | Effect::LoopPause(_)
         | Effect::LoopResume(_)
         | Effect::LoopDelete(_)
@@ -1049,13 +1078,34 @@ async fn apply_inner(effect: Effect, conv: &Conversation) -> Result<(), String> 
             }
             Ok(())
         }
-        Effect::LoopPause(id) => simple(conv, "loop/pause", "loop_id", &id).await,
-        Effect::LoopResume(id) => simple(conv, "loop/resume", "loop_id", &id).await,
-        Effect::LoopDelete(id) => simple(conv, "loop/delete", "loop_id", &id).await,
-        Effect::LoopFireNow(id) => simple(conv, "loop/fire_now", "loop_id", &id).await,
-        Effect::MonitorPause(id) => simple(conv, "monitor/pause", "monitor_id", &id).await,
-        Effect::MonitorResume(id) => simple(conv, "monitor/resume", "monitor_id", &id).await,
-        Effect::MonitorDelete(id) => simple(conv, "monitor/delete", "monitor_id", &id).await,
+        // A5 — every control folds its own reply into the screen cache the way
+        // the web store does (`store.ts` `controlLoop`/`controlMonitor`: an ID
+        // UPSERT of `result.loop`/`result.monitor`, and a delete FILTERS the
+        // row out), so the open dialog shows the server's answer at once.
+        Effect::LoopCreate { prompt, interval_seconds } => {
+            let mut params = json!({
+                "prompt": prompt,
+                "session_id": conv.session_id(),
+                "mode": if interval_seconds.is_some() { "fixed_interval" } else { "self_paced" },
+            });
+            if let Some(s) = interval_seconds {
+                params["interval_seconds"] = json!(s);
+            }
+            let result = client
+                .request("loop/create", params)
+                .await
+                .map_err(|e| e.to_string())?;
+            record(conv, "loop/create", result["loop"]["loop_id"].as_str());
+            fold_loop_reply(&result, false);
+            Ok(())
+        }
+        Effect::LoopPause(id) => control(conv, "loop/pause", "loop_id", &id).await,
+        Effect::LoopResume(id) => control(conv, "loop/resume", "loop_id", &id).await,
+        Effect::LoopDelete(id) => control(conv, "loop/delete", "loop_id", &id).await,
+        Effect::LoopFireNow(id) => control(conv, "loop/fire_now", "loop_id", &id).await,
+        Effect::MonitorPause(id) => control(conv, "monitor/pause", "monitor_id", &id).await,
+        Effect::MonitorResume(id) => control(conv, "monitor/resume", "monitor_id", &id).await,
+        Effect::MonitorDelete(id) => control(conv, "monitor/delete", "monitor_id", &id).await,
         Effect::MonitorCreate {
             name,
             argv,
@@ -1092,13 +1142,152 @@ async fn apply_inner(effect: Effect, conv: &Conversation) -> Result<(), String> 
     }
 }
 
-async fn simple(conv: &Conversation, method: &str, key: &str, id: &str) -> Result<(), String> {
-    conv.client()
+/// One loop/monitor control (`{loop_id}` / `{monitor_id}`, the recorded
+/// request shape), its reply folded into the screen cache.
+async fn control(conv: &Conversation, method: &str, key: &str, id: &str) -> Result<(), String> {
+    let result = conv
+        .client()
         .request(method, json!({key: id}))
         .await
         .map_err(|e| e.to_string())?;
     record(conv, method, Some(id));
+    let deleted = method.ends_with("/delete");
+    if key == "loop_id" {
+        if deleted {
+            remove_row(&mut state().loops, "loop_id", id);
+        } else {
+            fold_loop_reply(&result, false);
+        }
+    } else if deleted {
+        remove_row(&mut state().monitors, "monitor_id", id);
+    } else {
+        fold_monitor_reply(&result, false);
+    }
     Ok(())
+}
+
+fn remove_row(list: &mut Vec<Value>, key: &str, id: &str) {
+    list.retain(|row| row[key].as_str() != Some(id));
+}
+
+/// ID upsert (never a blind prepend — a `*/updated` notification may already
+/// have landed for the id): replace the row in place, else append.
+fn upsert_row(list: &mut Vec<Value>, key: &str, row: &Value) {
+    let Some(id) = row[key].as_str() else { return };
+    match list.iter_mut().find(|r| r[key].as_str() == Some(id)) {
+        Some(slot) => *slot = row.clone(),
+        None => list.push(row.clone()),
+    }
+}
+
+/// Fold a reply or a `loop/updated` notification body carrying `loop` (and
+/// `deleted: true` for a removal) into the screen cache.
+pub fn fold_loop_reply(body: &Value, notification: bool) {
+    let row = &body["loop"];
+    if !row.is_object() {
+        return;
+    }
+    let mut st = state();
+    if body["deleted"].as_bool() == Some(true) {
+        if let Some(id) = row["loop_id"].as_str() {
+            remove_row(&mut st.loops, "loop_id", id);
+        }
+    } else {
+        upsert_row(&mut st.loops, "loop_id", row);
+    }
+    let _ = notification;
+}
+
+/// [`fold_loop_reply`] for `monitor`.
+pub fn fold_monitor_reply(body: &Value, notification: bool) {
+    let row = &body["monitor"];
+    if !row.is_object() {
+        return;
+    }
+    let mut st = state();
+    if body["deleted"].as_bool() == Some(true) {
+        if let Some(id) = row["monitor_id"].as_str() {
+            remove_row(&mut st.monitors, "monitor_id", id);
+        }
+    } else {
+        upsert_row(&mut st.monitors, "monitor_id", row);
+    }
+    let _ = notification;
+}
+
+/// A5 — keep the screen cache current from the wire, the way the web store
+/// folds `loop/updated`, `monitor/updated`, `session/goal/updated` and
+/// `session/goal/cleared` (`store.ts` applyNotification — generation-gated for
+/// the goal). Called from the host's event drain beside the other screens'
+/// `note_transport_event`.
+pub fn note_transport_event(evt: &octos_app_transport::TransportEvent) {
+    use octos_app_transport::TransportEvent;
+    let payload = match evt {
+        TransportEvent::DurableNotification { payload, .. }
+        | TransportEvent::EphemeralNotification { payload } => payload,
+        _ => return,
+    };
+    let body = octoscode_client::trace::wire_params(payload);
+    note_notification(payload.method(), &body);
+}
+
+/// The pure fold behind [`note_transport_event`] (method + params body).
+pub fn note_notification(method: &str, body: &Value) {
+    match method {
+        "loop/updated" => fold_loop_reply(body, true),
+        "monitor/updated" => fold_monitor_reply(body, true),
+        "session/goal/updated" => {
+            let generation = body["generation"].as_u64().unwrap_or(0);
+            let mut st = state();
+            if admits(st.goal_generation, generation) {
+                st.goal = body["goal"].as_object().map(|o| Value::Object(o.clone()));
+                st.goal_generation = generation;
+            }
+        }
+        "session/goal/cleared" => {
+            let generation = body["generation"].as_u64().unwrap_or(0);
+            let mut st = state();
+            if admits(st.goal_generation, generation) {
+                st.goal = None;
+                st.goal_generation = generation;
+            }
+        }
+        _ => {}
+    }
+}
+
+/// The web's loop-creation limits (`loop-creation.ts:17-19`, Core
+/// `agent_orchestrator.rs:92/93/124`).
+pub const LOOP_MIN_SECONDS: u64 = 60;
+pub const LOOP_MAX_SECONDS: u64 = 86_400;
+pub const LOOP_PROMPT_MAX_BYTES: usize = 8_192;
+
+/// `parseLoopCreationInterval` (`loop-creation.ts`): a whole number and a unit
+/// (`ms s sec secs m min mins h hr hrs d day days`), 60 s ..= 24 h; decimals
+/// and other shapes are not native interval grammar.
+pub fn parse_loop_interval(raw: &str) -> Option<u64> {
+    let v = raw.trim();
+    if v.is_empty() || v.len() > 64 {
+        return None;
+    }
+    let split = v.find(|c: char| !c.is_ascii_digit())?;
+    let (num, unit) = v.split_at(split);
+    if num.is_empty() {
+        return None;
+    }
+    let amount: u128 = num.parse().ok()?;
+    let seconds: u128 = match unit {
+        "ms" => amount / 1_000,
+        "s" | "sec" | "secs" => amount,
+        "m" | "min" | "mins" => amount.checked_mul(60)?,
+        "h" | "hr" | "hrs" => amount.checked_mul(3_600)?,
+        "d" | "day" | "days" => amount.checked_mul(86_400)?,
+        _ => return None,
+    };
+    if seconds < LOOP_MIN_SECONDS as u128 || seconds > LOOP_MAX_SECONDS as u128 {
+        return None;
+    }
+    Some(seconds as u64)
 }
 
 fn record(conv: &Conversation, method: &str, note: Option<&str>) {
@@ -1121,9 +1310,14 @@ pub fn admits(held: u64, incoming: u64) -> bool {
 /// Spawn the effect on the module's runtime (the UI-thread entry).
 pub fn spawn(effect: Effect, rt: &tokio::runtime::Runtime, conv: Arc<Conversation>) {
     rt.spawn(async move {
-        if let Err(e) = apply(effect, &conv).await {
-            ::log::warn!("octoscode: autonomy action: {e}");
+        let what = format!("{effect:?}");
+        match apply(effect, &conv).await {
+            Ok(()) => makepad_widgets::log!("[octoscode] autonomy action done: {what}"),
+            Err(e) => makepad_widgets::log!("[octoscode] autonomy action {what}: {e}"),
         }
+        // A5: the reply was folded into the screen cache AFTER the response
+        // frame woke the UI — wake it again so an open dialog re-lowers.
+        makepad_widgets::SignalToUI::set_ui_signal();
     });
 }
 

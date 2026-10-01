@@ -104,11 +104,46 @@ pub const COPY_SLOTS: &[(&str, &str)] = &[
     ("btn_4_install_label_text", "skills.install_label"),
 ];
 
-/// The control events `service-actions.json` declares for the three cards.
+/// The control events `service-actions.json` declares for the three cards,
+/// plus the context dialog's two compaction-mode halves (A5:
+/// `ContextPanel.tsx` `onModeChange("llm" | "heuristic")`).
 pub fn owns(action: &str) -> bool {
-    matches!(action, "models.test_route" | "models.discover" | "context.compact_now")
-        || action.starts_with("skills.remove_")
+    matches!(
+        action,
+        "models.test_route"
+            | "models.discover"
+            | "context.compact_now"
+            | "context.mode.llm"
+            | "context.mode.heuristic"
+    ) || action.starts_with("skills.remove_")
         || action.starts_with("skills.install_")
+}
+
+/// A5 — the SERVER-CONFIRMED compaction mode per session: the
+/// `session/compact/mode/set` read-back (`res:session/compact/mode/set
+/// {"mode":"heuristic","session_id":…}`, r3-session recording). The web keeps
+/// the confirmed value and selects it (`ContextPanel.tsx` `value={mode ?? ""}`)
+/// — never the requested one before the server answered.
+static COMPACT_MODE: std::sync::Mutex<Option<(String, String)>> = std::sync::Mutex::new(None);
+
+/// The confirmed mode for `session`, if the server has confirmed one.
+pub fn compact_mode(session: &str) -> Option<String> {
+    match COMPACT_MODE.lock().unwrap().as_ref() {
+        Some((s, m)) if s == session => Some(m.clone()),
+        _ => None,
+    }
+}
+
+/// Fold a `session/compact/mode/set` result. Only `llm`/`heuristic` are modes;
+/// anything else is not a confirmation.
+pub fn note_compact_mode(result: &Value) -> Option<String> {
+    let session = result.get("session_id")?.as_str()?;
+    let mode = result.get("mode")?.as_str()?;
+    if !matches!(mode, "llm" | "heuristic") {
+        return None;
+    }
+    *COMPACT_MODE.lock().unwrap() = Some((session.to_owned(), mode.to_owned()));
+    Some(mode.to_owned())
 }
 
 // --------------------------------------------------------------------- bindings
@@ -299,6 +334,22 @@ pub fn note_token_cost(session: &str, window: u64) {
     *WINDOW.lock().unwrap() = Some((session.to_owned(), window));
 }
 
+/// A5 — the context lifecycle's event revision: every `context/*`
+/// notification bumps it, so a `session/status/read` that was issued BEFORE a
+/// newer lifecycle event cannot erase it (`ContextDialog.tsx` `refresh`: "A
+/// delayed read cannot erase newer lifecycle notifications").
+static CONTEXT_REV: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
+/// The current context event revision.
+pub fn context_revision() -> u64 {
+    CONTEXT_REV.load(std::sync::atomic::Ordering::SeqCst)
+}
+
+/// Record that a context lifecycle notification landed.
+pub fn note_context_event() {
+    CONTEXT_REV.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+}
+
 /// Fold one transport event if it carries a token_cost_update.
 pub fn note_transport_event(evt: &octos_app_transport::TransportEvent) {
     use octos_app_transport::TransportEvent;
@@ -307,6 +358,10 @@ pub fn note_transport_event(evt: &octos_app_transport::TransportEvent) {
         | TransportEvent::EphemeralNotification { payload } => payload,
         _ => return,
     };
+    if payload.method().starts_with("context/") {
+        note_context_event();
+        return;
+    }
     if payload.method() != "progress/updated" {
         return;
     }
@@ -487,6 +542,16 @@ pub fn action_params(action: &str, store: &Store) -> Option<(String, Value)> {
     let session = store.active_session().unwrap_or_default();
     match action {
         "context.compact_now" => Some(("session/compact".to_owned(), json!({ "session_id": session }))),
+        // A5 — the recorded request (r3-session): `{"mode":"heuristic",
+        // "session_id":…}`; the web sends the same pair (`context-commands.ts`
+        // `setMode`).
+        "context.mode.llm" | "context.mode.heuristic" => Some((
+            "session/compact/mode/set".to_owned(),
+            json!({
+                "mode": if action.ends_with("llm") { "llm" } else { "heuristic" },
+                "session_id": session,
+            }),
+        )),
         "models.test_route" | "models.discover" => {
             let m = store.domains.profile.llm_models().into_iter().next()?;
             // The store row keeps the route's DISPLAY label ("Official API",
@@ -657,14 +722,109 @@ pub fn fold_sub_providers(v: Value, store: &Store) {
 
 /// Execute one screen action through the production client — the same
 /// `Client::request` generic path the web's `client.ts:488` uses.
+///
+/// A5: the result is FOLDED the way the web's dialogs fold theirs, so the open
+/// dialog shows the server's answer rather than the pre-click state:
+/// * `context.mode.*` — the confirmed mode (`ContextDialog.tsx` `setMode`
+///   keeps `confirmed`, never the requested value), then the authoritative
+///   refresh (`mutate` → `refresh()`);
+/// * `context.compact_now` — the authoritative refresh (the lifecycle
+///   notifications carry the pass itself);
+/// * `skills.install_N` / `skills.remove_N` — the installed list is re-read
+///   (`SkillsDialog.tsx` reloads after a confirmed change).
 pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result<Value, String> {
     let Some((method, params)) = action_params(action, store) else {
         return Err(format!("screens/models: no protocol mapping for {action:?}"));
     };
-    conv.client()
+    let result = conv
+        .client()
         .request(&method, params)
         .await
-        .map_err(|e| format!("{method}: {e}"))
+        .map_err(|e| format!("{method}: {e}"))?;
+    match action {
+        "context.mode.llm" | "context.mode.heuristic" => {
+            if note_compact_mode(&result).is_none() {
+                ::log::warn!("octoscode: {method}: no confirmed mode in the reply");
+            }
+            let _ = refresh_context(conv, store).await;
+        }
+        "context.compact_now" => {
+            let _ = refresh_context(conv, store).await;
+        }
+        a if a.starts_with("skills.install_") || a.starts_with("skills.remove_") => {
+            if let Ok(v) = conv.client().request("profile/skills/list", json!({})).await {
+                fold_skills_list(v, store);
+            }
+        }
+        _ => {}
+    }
+    Ok(result)
+}
+
+/// A5 — the context dialog's AUTHORITATIVE refresh: `session/status/read`
+/// (`ContextDialog.tsx` `refresh`, gated on `SESSION_STATUS_READ`). The read's
+/// `context_state` replaces the session's lifecycle snapshot UNLESS a
+/// lifecycle notification landed while the read was in flight and the read is
+/// not newer than it (generation) — the web's "a delayed read cannot erase
+/// newer lifecycle notifications". Returns whether the read was applied.
+pub async fn refresh_context(conv: &Conversation, store: &Store) -> Result<bool, String> {
+    let Some(session) = store.active_session() else {
+        return Ok(false);
+    };
+    if !crate::screens::dialog::advertises(store, "session/status/read") {
+        return Ok(false);
+    }
+    let revision = context_revision();
+    let status = conv
+        .client()
+        .request(
+            "session/status/read",
+            json!({ "session_id": session, "profile_id": conv.profile() }),
+        )
+        .await
+        .map_err(|e| format!("session/status/read: {e}"))?;
+    Ok(fold_status_read(&status, &session, revision, store))
+}
+
+/// The pure half of [`refresh_context`]: fold one `session/status/read` reply
+/// that was requested at event revision `revision`.
+pub fn fold_status_read(status: &Value, session: &str, revision: u64, store: &Store) -> bool {
+    let incoming = status
+        .get("context_state")
+        .filter(|v| v.is_object())
+        .or_else(|| status.get("context").and_then(|c| c.get("state")))
+        .cloned()
+        .unwrap_or(Value::Null);
+    // Bound to the session it was read for (`status.session_id !== sessionId`
+    // and `incoming.state.session_id !== sessionId` both drop the read).
+    if incoming.get("session_id").and_then(|s| s.as_str()) != Some(session) {
+        return false;
+    }
+    let current = store.domains.session.context(session);
+    if revision != context_revision() {
+        if let Some(cur) = &current {
+            let cur_gen = cur.state.get("generation").and_then(|g| g.as_u64()).unwrap_or(0);
+            let new_gen = incoming.get("generation").and_then(|g| g.as_u64()).unwrap_or(0);
+            if new_gen <= cur_gen {
+                return false;
+            }
+        }
+    }
+    let last = status
+        .get("context")
+        .and_then(|c| c.get("compaction"))
+        .and_then(|c| c.get("last"))
+        .filter(|l| !l.is_null())
+        .cloned();
+    store.domains.session.set_context(
+        session,
+        octoscode_store::domains::session::ContextLifecycle {
+            kind: "session/status/read".to_owned(),
+            state: incoming,
+            detail: last,
+        },
+    );
+    true
 }
 
 // --------------------------------------------------------------------- lowering

@@ -968,6 +968,19 @@ script_mod! {
                         palette_row_name := Label { width: 150 height: Fit text: "" draw_text.text_style.font_size: 13  draw_text.color: theme.color_fg_app}
                         palette_row_desc := Label { width: Fill height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
                     }
+                    // A5 — the row is clickable (the web's listbox option:
+                    // a click runs the command, `CommandPalette.tsx`). Last
+                    // child of the Overlay row, so it takes the press.
+                    palette_row_hit := Button {
+                        width: Fill height: Fill text: ""
+                        draw_bg.color: #00000000
+                        draw_bg.color_hover: #00000008
+                        draw_bg.color_down: #00000014
+                        draw_bg.border_size: 0.0
+                        draw_bg.color_2: #00000000
+                        draw_bg.border_color: #00000000
+                        draw_bg.border_color_2: #00000000
+                    }
                 }
             }
             // #28e2 item 1: the hint's arrows and return were tofu (Inter
@@ -1069,6 +1082,21 @@ script_mod! {
             visible: false
             fleet_splash := Splash {
                 width: Fill height: Fit
+            }
+        }
+
+        // A5 — the dialog host (`screens::dialog`): the Stage-B screens the
+        // palette and the sidebar open (Models, Context, Skills, Goal, Loops,
+        // Monitors, Fleet, Tasks, Code review) as modal dialogs over the
+        // shell — the web's ModalSurface. The LAST overlay child, so it paints
+        // on top and, with the default `EventOrder::Up`, receives presses
+        // first: its backdrop swallows clicks meant for the chrome behind it.
+        // The mounted DSL carries the backdrop, the frame and the close button.
+        dialog_dock := View {
+            width: Fill height: Fill
+            visible: false
+            dialog_splash := Splash {
+                width: Fill height: Fill
             }
         }
 
@@ -1370,6 +1398,13 @@ pub struct OctoscodeView {
     /// was no way back; this flip shows it over the content (Codex-style).
     #[rust]
     sidebar_open: bool,
+    /// A5 — the open dialog's wired taps: `(widget id, action id)` pairs
+    /// inside `dialog_splash` (`screens::dialog::Mounted::taps`).
+    #[rust]
+    dialog_taps: Vec<(LiveId, String)>,
+    /// A5 — the last dialog lowering error, so a broken card logs once.
+    #[rust]
+    dialog_err: Option<String>,
 }
 
 impl OctoscodeView {
@@ -1409,6 +1444,17 @@ impl OctoscodeView {
             {
                 let b = self.bridge.lock().unwrap();
                 seed_synthetic_live(&b.store);
+                // A5 — the dialogs' reference-board fixture (capture seed,
+                // the `fleet::capture_store` precedent) and a dev opener.
+                if std::env::var_os("OCTOSCODE_DIALOG_SEED").is_some() {
+                    screens::dialog::seed_fixture(&b.store);
+                }
+                if let Some(d) = std::env::var("OCTOSCODE_DIALOG")
+                    .ok()
+                    .and_then(|v| screens::dialog::Dialog::from_id(&v))
+                {
+                    screens::dialog::open(d);
+                }
                 let mut u = b.ui.lock().unwrap();
                 u.begin_turn_now("t1");
                 u.end_turn_now(true);
@@ -1537,6 +1583,9 @@ impl OctoscodeView {
                 // token_cost_update progress payloads (workspace-events.ts:6-10).
                 screens::models::note_transport_event(&evt);
                 screens::review::note_transport_event(&evt);
+                // A5 — loop/monitor/goal notifications keep the autonomy
+                // dialogs' cache current (the web store's applyNotification).
+                screens::autonomy::note_transport_event(&evt);
                 let e = drv.on_event(evt);
                 ::log::debug!("[octoscode] {e:?}");
                 SignalToUI::set_ui_signal();
@@ -1557,6 +1606,12 @@ impl OctoscodeView {
     /// the host's, not the module's, so the write must happen here rather than
     /// inside a resolver. #35d.
     fn perform_action(&mut self, cx: &mut Cx, action: &str, index: usize) {
+        // A5 — the dialog host's own ids (open / close / the on-open loads)
+        // route first; no other table owns them (one-owner rule).
+        if screens::dialog::is_action(action) {
+            self.perform_dialog(cx, action);
+            return;
+        }
         // #30b: board-3 autonomy actions route through their own table first
         // (one-owner rule); no other router sees these ids. `goal.set` /
         // `monitor.create` carry the composer draft as their entry text.
@@ -1957,9 +2012,13 @@ impl OctoscodeView {
             let action = action.to_string();
             let store = store.clone();
             rt.spawn(async move {
-                if let Err(e) = screens::models::perform(&conv, &action, &store).await {
-                    ::log::warn!("octoscode: screens: {action:?}: {e}");
+                // A5: the outcome reaches the app log (the click walk's
+                // receipt) and the UI wakes after the fold.
+                match screens::models::perform(&conv, &action, &store).await {
+                    Ok(_) => makepad_widgets::log!("[octoscode] screens: {action} done"),
+                    Err(e) => makepad_widgets::log!("[octoscode] screens: {action}: {e}"),
                 }
+                SignalToUI::set_ui_signal();
             });
             return;
         }
@@ -2106,6 +2165,199 @@ impl OctoscodeView {
         }
     }
 
+    /// A5 — run one dialog-host action (`screens::dialog::resolve`): open a
+    /// dialog (closing the palette, the web's run-dismisses-the-listbox) and
+    /// perform its on-open loads, close it, or run one of the loads.
+    fn perform_dialog(&mut self, cx: &mut Cx, action: &str) {
+        let effect = screens::dialog::resolve(action);
+        makepad_widgets::log!("[octoscode] dialog action: {action}");
+        match &effect {
+            screens::dialog::Effect::Open(_) | screens::dialog::Effect::Close => {
+                let opened = screens::dialog::apply(&effect);
+                if let Some(d) = opened {
+                    let ui = { self.bridge.lock().unwrap().ui.clone() };
+                    if let Ok(mut u) = ui.lock() {
+                        u.set_palette_open(false);
+                    }
+                    for id in d.on_open() {
+                        self.perform_action(cx, id, 0);
+                    }
+                }
+                self.sync_labels(cx);
+                self.view.redraw(cx);
+                return;
+            }
+            screens::dialog::Effect::Unhandled(id) => {
+                ::log::warn!("octoscode: unhandled dialog action {id:?}");
+                return;
+            }
+            _ => {}
+        }
+        let conv = { self.bridge.lock().unwrap().conv.clone() };
+        let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) else {
+            makepad_widgets::log!("[octoscode] dialog load {action}: no connection");
+            return;
+        };
+        let action = action.to_owned();
+        rt.spawn(async move {
+            let out = match effect {
+                screens::dialog::Effect::RefreshProfile => {
+                    screens::models::refresh(&conv, &conv.store).await.map(|n| format!("{n} reads"))
+                }
+                screens::dialog::Effect::RefreshContext => {
+                    screens::models::refresh_context(&conv, &conv.store)
+                        .await
+                        .map(|applied| format!("applied={applied}"))
+                }
+                screens::dialog::Effect::RefreshFleet => {
+                    screens::fleet::refresh(&conv, &conv.store).await.map(|n| format!("{n} reads"))
+                }
+                _ => Ok(String::new()),
+            };
+            match out {
+                Ok(what) => makepad_widgets::log!("[octoscode] dialog load {action}: {what}"),
+                Err(e) => makepad_widgets::log!("[octoscode] dialog load {action}: {e}"),
+            }
+            SignalToUI::set_ui_signal();
+        });
+    }
+
+    /// A5 — run palette row `index` (a [`screens::palette::COMMANDS`] index):
+    /// the row's effect through the existing owners. The palette closes and a
+    /// slash draft that typed the command is consumed (`/btw <question>` keeps
+    /// its question for the aside).
+    fn run_palette_row(&mut self, cx: &mut Cx, index: usize, args: &str) {
+        let (store, ui) = {
+            let b = self.bridge.lock().unwrap();
+            (b.store.clone(), b.ui.clone())
+        };
+        let effect = {
+            let ctx = bindings::Ctx::new(&store, &ui);
+            screens::palette::resolve("palette.run", index, &ctx)
+        };
+        {
+            let mut u = ui.lock().unwrap();
+            u.set_palette_open(false);
+            if u.draft().trim_start().starts_with('/') {
+                u.set_draft_inner(String::new());
+            }
+        }
+        screens::palette::set_query("");
+        match effect {
+            screens::palette::Effect::Run(Some(id), name) => {
+                makepad_widgets::log!("[octoscode] palette run {name} -> {id}");
+                match id {
+                    "aside.ask" => {
+                        if args.trim().is_empty() {
+                            // No question yet: the composer takes the command
+                            // so the user types it (the web completes the
+                            // draft to `/btw `).
+                            ui.lock().unwrap().set_draft_inner("/btw ".to_owned());
+                        } else {
+                            ui.lock().unwrap().set_draft_inner(args.trim().to_owned());
+                            self.perform_action(cx, "aside.ask", 0);
+                        }
+                    }
+                    "permission.cycle" => {
+                        let conv = { self.bridge.lock().unwrap().conv.clone() };
+                        if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                            screens::workspace::spawn(
+                                screens::workspace::Effect::CyclePermissionMode,
+                                rt,
+                                conv,
+                            );
+                        }
+                    }
+                    other => self.perform_action(cx, other, 0),
+                }
+            }
+            screens::palette::Effect::Unhandled(why) => {
+                makepad_widgets::log!("[octoscode] palette run refused: {why}");
+            }
+            _ => {}
+        }
+        self.sync_labels(cx);
+        self.view.redraw(cx);
+    }
+
+    /// A5 — mount the open dialog (or hide the dock): lowered for the
+    /// OctosCode area's current size, its taps published for the Actions loop.
+    fn sync_dialog(&mut self, cx: &mut Cx) {
+        let open = screens::dialog::current();
+        self.view.widget(cx, ids!(dialog_dock)).set_visible(cx, open.is_some());
+        let Some(d) = open else {
+            self.dialog_taps.clear();
+            return;
+        };
+        let size = self.view.area().rect(cx).size;
+        let (mut w, mut h) = if size.x > 0.0 && size.y > 0.0 {
+            (size.x, size.y)
+        } else {
+            (self.window_w.max(990.0), 600.0)
+        };
+        // The same authority sync_chrome takes (#28e3): OCTOSENSE_WINDOW_SIZE
+        // IS the layout size when present, so the phone check (360x780)
+        // lowers the phone sheet even inside the desktop shell's window.
+        if let Some((ew, eh)) = std::env::var("OCTOSENSE_WINDOW_SIZE").ok().and_then(|v| {
+            let (a, b) = v.split_once('x')?;
+            Some((a.parse::<f64>().ok()?, b.parse::<f64>().ok()?))
+        }) {
+            if ew > 0.0 {
+                w = w.min(ew);
+            }
+            if eh > 0.0 {
+                h = h.min(eh);
+            }
+        }
+        let (store, ui) = {
+            let b = self.bridge.lock().unwrap();
+            (b.store.clone(), b.ui.clone())
+        };
+        let lowered = {
+            let ctx = bindings::Ctx::new(&store, &ui);
+            screens::dialog::lower(d, &ctx, w, h)
+        };
+        match lowered {
+            Ok(m) => {
+                if !m.missing.is_empty() {
+                    let key = format!("{:?}", m.missing);
+                    if self.dialog_err.as_deref() != Some(key.as_str()) {
+                        makepad_widgets::log!(
+                            "[octoscode] dialog {}: {} control(s) drawn but not wired: {key}",
+                            d.id(),
+                            m.missing.len()
+                        );
+                        self.dialog_err = Some(key);
+                    }
+                }
+                self.dialog_taps = m
+                    .taps
+                    .iter()
+                    .map(|(n, e)| (LiveId::from_str(n), e.clone()))
+                    .collect();
+                let splash = self.view.splash(cx, ids!(dialog_splash));
+                match self.mounts.mount(cx, &splash, &m.dsl) {
+                    Ok(true) => makepad_widgets::log!(
+                        "[octoscode] dialog {} mounted: frame {:.0}x{:.0} scale {:.3}, {} tap(s)",
+                        d.id(),
+                        m.frame.0,
+                        m.frame.1,
+                        m.scale,
+                        m.taps.len()
+                    ),
+                    Ok(false) => {}
+                    Err(e) => makepad_widgets::log!("[octoscode] dialog {} mount: {e}", d.id()),
+                }
+            }
+            Err(e) => {
+                if self.dialog_err.as_deref() != Some(e.as_str()) {
+                    makepad_widgets::log!("[octoscode] dialog {} lower: {e}", d.id());
+                    self.dialog_err = Some(e);
+                }
+            }
+        }
+    }
+
     /// #29a: run one board-2 screen action (`screens::connect::ACTIONS`).
     /// `value` carries an `input.*` payload (the field's live text) when the
     /// caller has one; without it the input effects no-op (the L0 input
@@ -2212,6 +2464,11 @@ impl OctoscodeView {
                         let drv = conv.clone();
                         tokio::spawn(async move {
                             while let Some(evt) = evt_rx.recv().await {
+                                // A5 — the same screen folds the start()
+                                // drain runs (this is the Connect-tap path).
+                                screens::models::note_transport_event(&evt);
+                                screens::review::note_transport_event(&evt);
+                                screens::autonomy::note_transport_event(&evt);
                                 let _ = drv.on_event(evt);
                                 SignalToUI::set_ui_signal();
                             }
@@ -2715,6 +2972,9 @@ impl OctoscodeView {
         if let Err(e) = self.mounts.mount(cx, &new_chat_splash, &new_chat) {
             makepad_widgets::log!("[octoscode] new-chat mount: {e}");
         }
+        // A5 — the open dialog (screens::dialog), re-lowered with the live
+        // store; the mount cache remounts only when its DSL changed.
+        self.sync_dialog(cx);
         self.sync_chrome(cx);
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
     }
@@ -3005,20 +3265,39 @@ impl Widget for OctoscodeView {
                     // Card #28e — the command palette's rows: (monospace) name
                     // + grey description, first row highlighted by the shell's
                     // hover state.
-                    let rows = palette_commands();
+                    // A5 — the rows are the LIVE suggestions: the commands the
+                    // server advertises, filtered by the slash draft / search
+                    // text over names and aliases (`registry.ts`
+                    // `commandSuggestions`), each running a native effect.
+                    let (rows, sel) = {
+                        let b = bridge.lock().unwrap();
+                        let rows = crate::screens::palette::suggestions(
+                            &b.store,
+                            &crate::screens::palette::query_text(),
+                        );
+                        let sel = crate::screens::palette::selected_suggestion(&b.store);
+                        (rows, sel)
+                    };
+                    // Keep the highlighted option in the 6-row viewport.
+                    if let Some(pos) = sel.and_then(|s| rows.iter().position(|&r| r == s)) {
+                        let first = list.first_id();
+                        if pos < first {
+                            list.set_first_id_and_scroll(pos, 0.0);
+                        } else if pos >= first + 6 {
+                            list.set_first_id_and_scroll(pos + 1 - 6, 0.0);
+                        }
+                    }
                     list.set_item_range(cx, 0, rows.len());
                     while let Some(id) = list.next_visible_item(cx) {
-                        let Some((name, desc)) = rows.get(id) else { continue };
+                        let Some(&row) = rows.get(id) else { continue };
+                        let cmd = &crate::screens::palette::COMMANDS[row];
                         let item = list.item(cx, id, id!(PaletteRowTpl));
                         // #28e2 item 5 -> #31e: the highlight follows the
                         // LIVE selection (↑/↓ move it; CommandPalette.tsx:66's
                         // roving selection), no longer hardcoded row 0.
-                        item.widget(cx, ids!(palette_row_bg)).set_visible(
-                            cx,
-                            id == crate::screens::palette::selected_row(),
-                        );
-                        item.label(cx, ids!(palette_row_name)).set_text(cx, name);
-                        item.label(cx, ids!(palette_row_desc)).set_text(cx, desc);
+                        item.widget(cx, ids!(palette_row_bg)).set_visible(cx, Some(row) == sel);
+                        item.label(cx, ids!(palette_row_name)).set_text(cx, cmd.name);
+                        item.label(cx, ids!(palette_row_desc)).set_text(cx, cmd.description);
                         item.draw_all_unscoped(cx);
                     }
                 } else if uid == review_files_uid {
@@ -3198,6 +3477,11 @@ impl Widget for OctoscodeView {
                     makepad_widgets::log!("[octoscode] nav route: {t}");
                     self.perform_screen_action(&t, None);
                 }
+                // A5 — a known slash command submitted from the composer runs
+                // locally (flow.rs queues it; it never reaches the model).
+                for (row, args) in screens::palette::take_queued() {
+                    self.run_palette_row(cx, row, &args);
+                }
                 self.sync_labels(cx);
             }
             // #28e3 item 1: track the window width — the responsive layout
@@ -3234,6 +3518,32 @@ impl Widget for OctoscodeView {
                     if text == "/" {
                         if let Ok(mut u) = self.bridge.lock().unwrap().ui.lock() {
                             u.set_palette_open(true);
+                        }
+                    }
+                    // A5 — while the draft is a slash command the palette
+                    // filters by it (the web's `commandSuggestions(draft)`);
+                    // typing a plain prompt over an open palette dismisses it.
+                    {
+                        let open = self
+                            .bridge
+                            .lock()
+                            .unwrap()
+                            .ui
+                            .lock()
+                            .map(|u| u.palette_open())
+                            .unwrap_or(false);
+                        if text.trim_start().starts_with('/') {
+                            screens::palette::set_query(&text);
+                            if open {
+                                self.view
+                                    .text_input(cx, &[live_id!(palette_search)])
+                                    .set_text(cx, &text);
+                            }
+                        } else if open && !text.is_empty() {
+                            if let Ok(mut u) = self.bridge.lock().unwrap().ui.lock() {
+                                u.set_palette_open(false);
+                            }
+                            screens::palette::set_query("");
                         }
                     }
                     self.bridge.lock().unwrap().ui.lock().unwrap().set_draft_inner(text.clone());
@@ -3291,6 +3601,48 @@ impl Widget for OctoscodeView {
                                 self.perform_action(cx, base, row.unwrap_or(0));
                             }
                         }
+                    }
+                }
+                // A5 — the open dialog's taps (`screens::dialog::Mounted::taps`),
+                // routed through the same one-owner table; a per-row control
+                // carries its row as the shared `#<row>` suffix.
+                let dialog_taps = self.dialog_taps.clone();
+                for (id, ev) in &dialog_taps {
+                    if self
+                        .view
+                        .button(cx, &[live_id!(dialog_splash), *id])
+                        .clicked(actions)
+                    {
+                        makepad_widgets::log!("[octoscode] dialog tap: {ev}");
+                        let (base, row) = screens::taps::split_row(ev);
+                        self.perform_action(cx, base, row.unwrap_or(0));
+                    }
+                }
+                // A5 — a palette row runs its command on click; the search
+                // field filters like the slash draft does.
+                if let Some(q) = self
+                    .view
+                    .text_input(cx, &[live_id!(palette_search)])
+                    .changed(actions)
+                {
+                    screens::palette::set_query(&q);
+                    self.view.redraw(cx);
+                }
+                let palette_list = self.view.portal_list(cx, ids!(palette_list));
+                let mut palette_hit: Option<usize> = None;
+                for (item_id, item) in palette_list.items_with_actions(actions) {
+                    if item.button(cx, ids!(palette_row_hit)).clicked(actions) {
+                        palette_hit = Some(item_id);
+                    }
+                }
+                if let Some(pos) = palette_hit {
+                    let rows = {
+                        let b = self.bridge.lock().unwrap();
+                        screens::palette::suggestions(&b.store, &screens::palette::query_text())
+                    };
+                    if let Some(&row) = rows.get(pos) {
+                        makepad_widgets::log!("[octoscode] palette row {pos} clicked");
+                        self.run_palette_row(cx, row, "");
                     }
                 }
                 // The #16 `new-chat` component, and the host hit target laid over
@@ -3476,6 +3828,14 @@ impl Widget for OctoscodeView {
                     self.perform_action(cx, bindings::ACTION_SUBMIT, 0);
                 }
             }
+            // A5 — Escape closes the open dialog first (ModalSurface's
+            // `onEscape`); with no dialog the table below owns the key.
+            Event::KeyDown(e)
+                if e.key_code == KeyCode::Escape && screens::dialog::current().is_some() =>
+            {
+                makepad_widgets::log!("[octoscode] key Escape -> dialog close");
+                self.perform_action(cx, screens::dialog::ACTION_CLOSE, 0);
+            }
             Event::KeyDown(e) => {
                 let (ui, store, conv) = {
                     let b = self.bridge.lock().unwrap();
@@ -3539,38 +3899,30 @@ impl Widget for OctoscodeView {
                         open_changed = true;
                     }
                     KeyAction::PaletteRun => {
-                        let ctx = crate::bindings::Ctx::new(&store, &ui);
-                        let effect = crate::screens::palette::resolve(
-                            "palette.run",
-                            crate::screens::palette::selected_row(),
-                            &ctx,
-                        );
-                        // `palette::resolve` returns the screen's own Effect
-                        // (not the wrapped actions::Effect::Screen).
-                        if let crate::screens::palette::Effect::Run(effect_id, name) = effect {
-                            // The web closes the palette when a command runs
-                            // (CommandPalette's run path dismisses the listbox).
-                            ui.lock().unwrap().set_palette_open(false);
-                            open_changed = true;
-                            if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
-                                match effect_id {
-                                    Some("session.refresh") => {
-                                        rt.spawn(async move {
-                                            if let Err(e) = conv.refresh_sessions().await {
-                                                ::log::warn!(
-                                                    "octoscode: palette.run {name}: session.refresh: {e}"
-                                                );
-                                            }
-                                        });
-                                    }
-                                    // Fail closed with the command's own name
-                                    // (the #29d rule): never a silent no-op.
-                                    other => ::log::warn!(
-                                        "octoscode: palette.run {name}: no native effect ({other:?})"
-                                    ),
+                        // A5 — Enter runs the HIGHLIGHTED suggestion (the
+                        // filtered menu's active option) through the row's
+                        // own effect; the web closes the listbox on run.
+                        // A slash draft with ARGUMENTS shows no menu (the
+                        // web's `commandSuggestions`): Enter submits it, and
+                        // the command layer runs it locally (flow.rs).
+                        let _ = &conv;
+                        match crate::screens::palette::selected_suggestion(&store) {
+                            Some(row) => self.run_palette_row(cx, row, ""),
+                            None => {
+                                ui.lock().unwrap().set_palette_open(false);
+                                let draft = ui.lock().unwrap().draft();
+                                if crate::screens::palette::looks_like_slash_command(&draft)
+                                    && draft.trim().contains(char::is_whitespace)
+                                {
+                                    self.perform_action(cx, bindings::ACTION_SUBMIT, 0);
+                                } else {
+                                    makepad_widgets::log!(
+                                        "[octoscode] palette run: no command matches {draft:?}"
+                                    );
                                 }
                             }
                         }
+                        open_changed = true;
                     }
                     KeyAction::ComposerSubmit => {
                         // :237-243 — the bare Enter sends the draft (the same
@@ -3685,20 +4037,6 @@ static NAV_QUEUE: Mutex<Vec<String>> = Mutex::new(Vec::new());
 
 pub struct OctoscodeModule;
 pub static OCTOSCODE_MODULE: OctoscodeModule = OctoscodeModule;
-
-/// Card #28e — the board-4 command palette rows (frame 3): monospace name +
-/// grey description. Static shell data for now; the actions they route land
-/// with the Stage-C command surface.
-fn palette_commands() -> Vec<(&'static str, &'static str)> {
-    vec![
-        ("/model", "Switch model"),
-        ("/monitor", "Add a monitor"),
-        ("/mode", "Change permissions"),
-        ("/compact", "Compact context"),
-        ("/btw", "Ask a side question"),
-        ("/resume", "Resume a session"),
-    ]
-}
 
 impl AppModule for OctoscodeModule {
     fn id(&self) -> &'static str {

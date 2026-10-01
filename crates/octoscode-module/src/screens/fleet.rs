@@ -972,6 +972,21 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
 /// module's own L0 chain (`l0::prepare` → `to_makepad_ui`), renamed per
 /// screen like models.rs.
 pub fn lower(screen_id: &str, ctx: &Ctx<'_>) -> Result<String, String> {
+    let mut tree = lower_tree(screen_id, ctx)?;
+    octoscript_makepad::l0::inspectable(&mut tree);
+    let ui = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&tree))
+        .map_err(|e| format!("to_makepad_ui {screen_id}: {e}"))?;
+    let prefix = format!("scr_{}", screen_id.trim_start_matches("autonomy-"));
+    Ok(ui.replace("beauty_0", &prefix))
+}
+
+/// A5: the card's prepared tree with the live rows and the Done-row recolour
+/// applied, its AUTHORED ids intact (before `inspectable`) — the dialog host
+/// (`screens::dialog`) wires controls by those ids and lowers slot-relative.
+pub fn lower_tree(
+    screen_id: &str,
+    ctx: &Ctx<'_>,
+) -> Result<octoscript_render::UiNode, String> {
     let (card_src, data, kit_dir) = lower_card_src(screen_id, ctx)?;
     let prepared = octoscript_makepad::l0::prepare(&card_src, &data, &kit_dir)
         .map_err(|e| format!("prepare {screen_id}: {e}"))?;
@@ -1013,11 +1028,7 @@ pub fn lower(screen_id: &str, ctx: &Ctx<'_>) -> Result<String, String> {
             }
         }
     }
-    octoscript_makepad::l0::inspectable(&mut tree);
-    let ui = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&tree))
-        .map_err(|e| format!("to_makepad_ui {screen_id}: {e}"))?;
-    let prefix = format!("scr_{}", screen_id.trim_start_matches("autonomy-"));
-    Ok(ui.replace("beauty_0", &prefix))
+    Ok(tree)
 }
 
 // --------------------------------------------------------------------- spawn

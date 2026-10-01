@@ -1128,7 +1128,17 @@ impl Conversation {
         // the old arm refused every leading-slash input, paths included.
         match crate::screens::palette::match_command(&text) {
             None => {}
-            Some(crate::screens::palette::CommandMatch::Known(_, _)) => {}
+            // A5 — a known, runnable command is LOCAL: it runs its native
+            // effect (opens its dialog, …) and never reaches the model. The
+            // host drains the queue on the Signal this raises.
+            Some(crate::screens::palette::CommandMatch::Known(args, name)) => {
+                if crate::screens::palette::queue_run(&name, &args) {
+                    self.ui.lock().unwrap().set_draft_inner(String::new());
+                    makepad_widgets::SignalToUI::set_ui_signal();
+                    ::log::info!("octoscode: command /{name}: queued to run locally");
+                    return Ok(String::new());
+                }
+            }
             Some(crate::screens::palette::CommandMatch::NotRunnable(name)) => {
                 // A KNOWN name the native build cannot run: report WHY and
                 // consume the invocation — never dispatched, never a silent

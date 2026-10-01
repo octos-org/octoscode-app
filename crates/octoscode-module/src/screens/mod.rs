@@ -8,6 +8,9 @@ pub mod autonomy;
 pub mod board3;
 pub mod browser;
 pub mod connect;
+// A5: the dialog host — the Stage-B screens reachable from the palette and
+// the sidebar, lowered slot-relative, wired by node id.
+pub mod dialog;
 pub mod fleet;
 pub mod history;
 pub mod keys;
