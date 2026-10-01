@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "d5ff4f989358363e89a6d47982d486fbe94ec4efab4932517dfc903799ca0aff",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      326.0,
+      697.0,
+      58.0,
+      44.0
+    ],
+    [
+      13.0,
+      473.0,
+      383.0,
+      207.0
+    ],
+    [
+      33.0,
+      362.0,
+      342.0,
+      47.0
+    ],
+    [
+      34.0,
+      293.0,
+      339.0,
+      46.0
+    ],
+    [
+      32.0,
+      291.0,
+      344.0,
+      51.0
+    ],
+    [
+      13.0,
+      122.0,
+      383.0,
+      107.0
+    ],
+    [
+      13.0,
+      48.0,
+      383.0,
+      73.0
+    ],
+    [
+      10.0,
+      45.0,
+      388.0,
+      727.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "scrim_64",
+      "bounds": [
+        10.0,
+        45.0,
+        388.0,
+        727.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "modal_card",
+      "bounds": [
+        16.0,
+        64.0,
+        374.0,
+        640.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 20.0
+    },
+    {
+      "id": "btn_back_row",
+      "bounds": [
+        32.0,
+        112.0,
+        200.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_back",
+      "bounds": [
+        32.0,
+        112.0,
+        200.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "f_folder_row",
+      "bounds": [
+        32.0,
+        150.0,
+        250.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "f_folder_bg",
+      "bounds": [
+        13.0,
+        122.0,
+        383.0,
+        107.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 26.75
+    },
+    {
+      "id": "f_folder",
+      "bounds": [
+        32.0,
+        150.0,
+        250.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_create_row",
+      "bounds": [
+        296.0,
+        150.0,
+        78.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_create_bg",
+      "bounds": [
+        326.0,
+        697.0,
+        58.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293914609,
+      "radius": 13.2
+    },
+    {
+      "id": "btn_create",
+      "bounds": [
+        296.0,
+        150.0,
+        78.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_drill_row",
+      "bounds": [
+        32.0,
+        286.0,
+        200.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_drill",
+      "bounds": [
+        32.0,
+        286.0,
+        200.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_drill_disabled_row",
+      "bounds": [
+        32.0,
+        286.0,
+        260.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_drill_disabled",
+      "bounds": [
+        32.0,
+        286.0,
+        260.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "disc_1",
+      "bounds": [
+        33.0,
+        362.0,
+        342.0,
+        47.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4278387459,
+      "radius": 10.68
+    }
+  ]
+}

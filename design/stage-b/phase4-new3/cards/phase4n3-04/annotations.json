@@ -1,0 +1,367 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "49437d4e5594427a7e2dead4983d9d420d66202879f110cf7567d19e42304e28",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      35.0,
+      562.0,
+      345.0,
+      48.0
+    ],
+    [
+      33.0,
+      560.0,
+      349.0,
+      53.0
+    ],
+    [
+      169.0,
+      515.0,
+      108.0,
+      28.0
+    ],
+    [
+      21.0,
+      496.0,
+      372.0,
+      200.0
+    ],
+    [
+      18.0,
+      493.0,
+      378.0,
+      205.0
+    ],
+    [
+      294.0,
+      426.0,
+      86.0,
+      38.0
+    ],
+    [
+      33.0,
+      337.0,
+      349.0,
+      75.0
+    ],
+    [
+      36.0,
+      262.0,
+      344.0,
+      35.0
+    ],
+    [
+      33.0,
+      259.0,
+      350.0,
+      40.0
+    ],
+    [
+      85.0,
+      142.0,
+      78.0,
+      29.0
+    ],
+    [
+      21.0,
+      98.0,
+      372.0,
+      381.0
+    ],
+    [
+      19.0,
+      95.0,
+      377.0,
+      387.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "fleet_card",
+      "bounds": [
+        0.0,
+        0.0,
+        406.0,
+        776.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "peer_1",
+      "bounds": [
+        21.0,
+        98.0,
+        372.0,
+        381.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 17.59
+    },
+    {
+      "id": "peer_1_avatar",
+      "bounds": [
+        37.262,
+        118.595,
+        32.525,
+        41.189
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293127164,
+      "radius": 16.26
+    },
+    {
+      "id": "peer_1_status",
+      "bounds": [
+        85.0,
+        142.0,
+        78.0,
+        29.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294047726,
+      "radius": 14.5
+    },
+    {
+      "id": "peer_1_adv_row",
+      "bounds": [
+        305.59,
+        121.169,
+        71.148,
+        25.743
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "peer_1_adv",
+      "bounds": [
+        305.59,
+        121.169,
+        71.148,
+        25.743
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "sel_model_row",
+      "bounds": [
+        37.262,
+        262.757,
+        339.475,
+        48.912
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "sel_model_bg",
+      "bounds": [
+        33.0,
+        259.0,
+        350.0,
+        40.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.53
+    },
+    {
+      "id": "sel_model",
+      "bounds": [
+        37.262,
+        262.757,
+        339.475,
+        48.912
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "brief_box",
+      "bounds": [
+        36.0,
+        262.0,
+        344.0,
+        35.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 6.25
+    },
+    {
+      "id": "brief_input",
+      "bounds": [
+        37.262,
+        345.135,
+        339.475,
+        72.081
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_start_row",
+      "bounds": [
+        287.295,
+        432.662,
+        89.443,
+        43.764
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_start_bg",
+      "bounds": [
+        294.0,
+        426.0,
+        86.0,
+        38.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4278584837,
+      "radius": 19.0
+    },
+    {
+      "id": "btn_start",
+      "bounds": [
+        287.295,
+        432.662,
+        89.443,
+        43.764
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "peer_2",
+      "bounds": [
+        21.0,
+        496.0,
+        372.0,
+        200.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 18.67
+    },
+    {
+      "id": "peer_2_avatar",
+      "bounds": [
+        37.262,
+        517.333,
+        32.525,
+        42.667
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294833116,
+      "radius": 16.26
+    },
+    {
+      "id": "peer_2_status",
+      "bounds": [
+        169.0,
+        515.0,
+        108.0,
+        28.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294834152,
+      "radius": 14.0
+    },
+    {
+      "id": "in_steer_row",
+      "bounds": [
+        37.262,
+        570.667,
+        339.475,
+        50.667
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "in_steer_bg",
+      "bounds": [
+        35.0,
+        562.0,
+        345.0,
+        48.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 12.63
+    },
+    {
+      "id": "in_steer",
+      "bounds": [
+        37.262,
+        570.667,
+        339.475,
+        50.667
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_dismiss_row",
+      "bounds": [
+        37.262,
+        637.333,
+        71.148,
+        26.667
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_dismiss",
+      "bounds": [
+        37.262,
+        637.333,
+        71.148,
+        26.667
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "peer_2_rule",
+      "bounds": [
+        122.639,
+        640.0,
+        254.098,
+        1.333
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    }
+  ]
+}

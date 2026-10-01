@@ -35,7 +35,7 @@ ROOT = Path(__file__).resolve().parents[1]
 # The atlas prompt's palette (the same token set the autonomy author uses).
 C = {"white": 0xFFFFFFFF, "panel": 0xFFF7F7F8, "hair": 0xFFE5E5E7, "ink": 0xFF1D1D1F,
      "muted": 0xFF6E6E73, "black": 0xFF000000, "blue": 0xFF2F6FEB, "amber": 0xFFB45309,
-     "green": 0xFF1F883D, "red": 0xFFCF222E, "sel": 0xFFF2F2F7, "chip": 0xFFEFEFF0,
+     "green": 0xFF1F883D, "red": 0xFFCF222E, "sel": 0xFFF2F2F7, "chip": 0xFFEFEFF0, "amber_bg": 0xFFFBF0E3,
      "hl": 0xFFFCE9B8, "dim": 0x99000000, "disabled": 0xFFC7C7CC}
 C_HEX = {k: f"#{v & 0xFFFFFF:06X}" for k, v in C.items()}
 FONT = {400: "self:resources/ux/Inter-400.ttf", 500: "self:resources/ux/Inter-500.ttf",
@@ -246,7 +246,7 @@ def build(num):
 # --------------------------------------------------------------- screen 01
 def build_01(sc):
     """Runtime inventory (atlas-prompt.md #1)."""
-    scrim, card = modal(y=44, h=688)
+    scrim, card = modal(y=44, h=700)
     sc.put(scrim)
     k = [text("t_title", "Runtime inventory", 32, 62, 240, 24, weight=600, size=20),
          text("t_sub", "12 tools · 3 servers", 32, 88, 240, 16, color="muted", size=12)]
@@ -255,37 +255,45 @@ def build_01(sc):
     sc.observe("Search names, status, or tools…", 32, 116, 342, 40)
     sc.control("f_search", "inventory.search.focus", (32, 116, 342, 40))
     # two tabs, "Tools" selected
-    k.append(pill("tab_tools_fill", "Tools", 32, 168, color="black", fg="white"))
-    k.append(pill("tab_mcp", "MCP servers", 104, 168, color="sel"))
+    k.append(surface("tab_tools_fill", 32, 168, 60, 20, bg="black", radius=10))
+    k.append(surface("tab_mcp_fill", 104, 168, 92, 20, bg="sel", radius=10))
     k.append(link("tab_tools", "Tools", 32, 168, 60, color="white", enabled=True))
     k.append(link("tab_mcp", "MCP servers", 104, 168, 92, color="ink", enabled=True))
     sc.control("tab_tools", "inventory.tab.tools", (32, 168, 60, 20))
     sc.control("tab_mcp", "inventory.tab.servers", (104, 168, 92, 20))
     k.append(text("h_tools", "TOOLS", 32, 208, 120, 12, color="muted", size=11,
                   weight=600))
-    y = 230
+    for hid, hx, hw, htxt in (("ch_name", 44, 90, "TOOL"), ("ch_cat", 138, 52, "CAT"),
+                              ("ch_alias", 192, 82, "ALIASES / BACKEND"),
+                              ("ch_cnt", 340, 24, "N")):
+        k.append(text(hid, htxt, hx, 219, hw, 11, color="muted", size=9,
+                      weight=600))
+    y = 236
     for i, (nm, cat, st, alias, backend, cnt) in enumerate([
         ("Bash", "shell", "enabled", "exec, run", "octos", "12"),
         ("Read", "fs", "enabled", "cat, view", "octos", "4"),
+        ("Write", "fs", "enabled", "save", "octos", "3"),
+        ("Edit", "fs", "enabled", "patch", "octos", "8"),
+        ("Grep", "search", "enabled", "find", "octos", "6"),
         ("ImageView", "media", "disabled", "see", "octos", "1"),
     ]):
-        r = surface(f"tool_{i}", 32, y, 342, 52, bg="white", radius=10, border=1)
-        rk = [text(f"tool_{i}_name", nm, 44, y + 8, 180, 16, size=13, weight=500,
+        r = surface(f"tool_{i}", 32, y, 342, 44, bg="white", radius=10, border=1)
+        rk = [text(f"tool_{i}_name", nm, 44, y + 6, 90, 16, size=12, weight=500,
                    mono=True),
-              text(f"tool_{i}_cat", cat, 44, y + 28, 120, 14, color="muted",
-                   size=11),
-              text(f"tool_{i}_alias", f"Aliases: {alias}", 150, y + 8, 130, 14,
-                   color="muted", size=11),
-              text(f"tool_{i}_be", f"Backend: {backend}", 150, y + 26, 130, 14,
-                   color="muted", size=11),
-              text(f"tool_{i}_cnt", cnt, 340, y + 18, 24, 16, color="muted",
-                   size=13)]
+              text(f"tool_{i}_cat", cat, 138, y + 7, 52, 14, color="muted",
+                   size=10),
+              text(f"tool_{i}_alias", f"Aliases: {alias}", 192, y + 6, 82, 14,
+                   color="muted", size=10),
+              text(f"tool_{i}_be", f"Backend: {backend}", 192, y + 22, 82, 14,
+                   color="muted", size=10),
+              text(f"tool_{i}_cnt", cnt, 344, y + 13, 20, 16, color="muted",
+                   size=12)]
         stc = "green" if st == "enabled" else "disabled"
-        rk.insert(3, pill(f"tool_{i}_st", st, 296, y + 6, color=stc, size=10))
+        rk.insert(3, pill(f"tool_{i}_st", st, 282, y + 5, color=stc, size=9))
         r["c"] = rk
         k.append(r)
-        sc.observe(nm, 44, y + 8, 180, 16)
-        y += 58
+        sc.observe(nm, 44, y + 6, 90, 16)
+        y += 50
     k.append(text("h_mcp", "MCP SERVERS", 32, y + 6, 140, 12, color="muted",
                   size=11, weight=600))
     k.append(text("mcp_counts", "connected · 2    connecting · 1    failed · 0",
@@ -297,6 +305,7 @@ def build_01(sc):
     for i, (sid, tr, st, tc, summ) in enumerate([
         ("fs-probe", "stdio", "connected", "6", "workspace file tools"),
         ("web-probe", "http", "connecting", "12", "browser + fetch tools"),
+        ("git-probe", "stdio", "connected", "4", "repository inspection"),
     ]):
         r = surface(f"srv_{i}", 32, y, 342, 48, bg="white", radius=10, border=1)
         rk = [text(f"srv_{i}_id", sid, 44, y + 8, 140, 16, size=13, weight=500,
@@ -326,18 +335,20 @@ def build_02(sc):
     """Workspace create (atlas-prompt.md #2)."""
     scrim, card = modal(y=64, h=640)
     sc.put(scrim)
-    k = [text("t_title", "Add workspace", 32, 82, 240, 24, weight=600, size=20)]
+    k = [text("t_title", "Add workspace", 32, 82, 240, 24, weight=600, size=20),
+         link("btn_close", "\u2715", 330, 82, 24, color="muted", size=15)]
+    sc.control("btn_close", "workspace.create.close", (330, 82, 24, 20))
     # The server's working directory is pinned FIRST.
     k.append(surface("wd_card", 32, 118, 342, 56, bg="sel", radius=10))
     k.append(text("wd_label", "Server's working directory", 44, 126, 240, 16,
                   color="muted", size=12))
     k.append(text("wd_path", "/home/user/octos", 44, 146, 200, 16, size=13,
                   mono=True))
-    k.append(text("wd_help", "Start a new session here", 236, 146, 126, 16,
+    k.append(text("wd_help", "Start a new session here", 252, 146, 118, 16,
                   color="muted", size=11))
     sc.observe("/home/user/octos", 44, 146, 200, 16)
     k.append(link("wd_start", "Start a new session in /home/user/octos", 44, 178,
-                  318, color="blue", size=12))
+                  318, color="blue", size=11))
     sc.control("wd_start", "workspace.start_in_server_root", (44, 178, 318, 20))
     k.append(text("h_recent", "Recent workspaces", 32, 206, 240, 16,
                   color="muted", size=12, weight=600))
@@ -352,10 +363,12 @@ def build_02(sc):
                       mono=True))
         k.append(text(f"rec_{i}_br", br, 210, y + 9, 100, 14, color="muted",
                       size=11))
-        k.append(text(f"rec_{i}_path", path, 44, y + 30, 240, 14, color="muted",
+        k.append(text(f"rec_{i}_path", path, 44, y + 30, 190, 14, color="muted",
                       size=11, mono=True))
-        k.append(link(f"rec_{i}_pick", "Start a new session in …", 44, y + 30, 200,
+        k.append(link(f"rec_{i}_pick", "Start session", 240, y + 30, 86,
                       color="blue", size=11))
+        k.append(text(f"rec_{i}_chev", "\u203a", 356, y + 16, 14, 18,
+                      color="muted", size=14))
         sc.observe(nm, 44, y + 8, 160, 16)
         y += 58
     k.append(divider("div1", 352))
@@ -379,15 +392,18 @@ def build_03(sc):
     scrim, card = modal(y=64, h=640)
     sc.put(scrim)
     k = [text("t_title", "Add workspace", 32, 82, 240, 24, weight=600, size=20),
-         link("btn_back", "Back to workspaces", 32, 112, 200, color="blue", size=12)]
+         link("btn_back", "Back to workspaces", 32, 112, 200, color="blue", size=12),
+         link("btn_close", "\u2715", 330, 82, 24, color="muted", size=15)]
     sc.control("btn_back", "workspace.create.back", (32, 112, 200, 20))
+    sc.control("btn_close", "workspace.create.close", (330, 82, 24, 20))
     k.append(field("f_folder", "notes", 32, 150, 250, 40, size=13))
     sc.observe("notes", 44, 159, 226, 18)
     k.append(btn("btn_create", "Create", 296, 150, 78, 40, radius=12, size=14))
     sc.control("btn_create", "folder.create.submit", (296, 150, 78, 40))
     # A validation line only when the name is invalid.
-    k.append(text("val_name", "Folder name must not be empty.", 32, 200, 300, 14,
-                  color="red", size=11))
+    # the validation line only exists in the invalid state; "notes" is valid,
+    # so the authored card does not show it (atlas-prompt.md #3).
+    k.append(text("val_name", "", 32, 200, 300, 14, color="red", size=11))
     k.append(text("parent_label", "Parent", 32, 232, 120, 14, color="muted",
                   size=12))
     k.append(text("parent_path", "/home/user/octos", 32, 250, 200, 16, size=13,
@@ -396,16 +412,22 @@ def build_03(sc):
     k.append(link("btn_drill", "Open folder browser", 32, 286, 200, color="muted",
                   size=12, enabled=True))
     k.append(link("btn_drill_disabled", "Open folder browser (unavailable)", 32,
-                  286, 260, color="disabled", size=12, enabled=False))
+                  312, 260, color="disabled", size=12, enabled=False))
     sc.control("btn_drill", "folder.browser.open", (32, 286, 200, 20))
     sc.control("btn_drill_disabled", "folder.browser.open", (32, 312, 260, 20),
                enabled=False)
-    k.append(surface("disc_1", 32, 330, 342, 44, bg="sel", radius=10))
-    k.append(text("disc_t", "· 3 existing folders", 44, 342, 200, 16, size=12))
-    k.append(text("disc_l", "notes · drafts · tmp", 44, 360, 240, 14,
-                  color="muted", size=11, mono=True))
+    k.append(surface("disc_1", 32, 336, 342, 132, bg="sel", radius=10))
+    k.append(text("disc_t", "· 3 existing folders", 44, 346, 200, 16, size=12))
+    for j, (dn, dd) in enumerate([("docs", "Mar 12"), ("scripts", "Mar 9"),
+                                  ("tmp", "Feb 28")]):
+        ry = 372 + j * 30
+        k.append(surface(f"disc_{j}_icon", 48, ry, 16, 16, bg="white", radius=4))
+        k.append(text(f"disc_{j}_name", dn, 72, ry, 120, 14, size=12, mono=True))
+        k.append(text(f"disc_{j}_date", dd, 300, ry, 60, 14, color="muted",
+                      size=10))
+        sc.observe(dn, 72, ry, 120, 14)
     k.append(text("note_browser", "The folder browser is available only when the "
-                  "server advertises it.", 32, 392, 342, 28, color="muted", size=11))
+                  "server advertises it.", 32, 484, 342, 28, color="muted", size=11))
     card["c"] = k
     sc.put(card)
 
@@ -416,7 +438,7 @@ def build_04(sc):
     card = surface("fleet_card", 0, 0, ARTW, ARTH, bg="white", radius=0)
     k = [text("t_title", "Fleet", 20, 20, 160, 24, weight=600, size=20),
          text("t_empty", "No peers yet", 246, 26, 140, 16, color="muted", size=12,
-              alignx=2)]
+              alignx=1)]
     k.append(text("loading_models", "Loading models…", 20, 52, 200, 14,
                   color="muted", size=11))
     # peer card 1: the Start form over a model + brief
@@ -453,7 +475,8 @@ def build_04(sc):
            text("peer_2_av", "W", 36, 416, 32, 18, weight=600, size=14),
            text("peer_2_model", "gpt-4o", 78, 408, 140, 16, weight=500, size=13,
                 mono=True),
-           pill("peer_2_status", "Waiting for you", 220, 410, color="amber", size=10),
+           pill("peer_2_status", "Waiting for you", 220, 410, color="amber_bg",
+                fg="amber", size=10),
            field("in_steer", "Enter steering text", 36, 448, 334, 38,
                  color="disabled", size=12),
            link("btn_dismiss", "Dismiss", 36, 498, 70, color="muted", size=12),

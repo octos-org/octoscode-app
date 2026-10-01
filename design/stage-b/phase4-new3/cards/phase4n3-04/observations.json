@@ -1,8 +1,143 @@
 {
-  "width": 406,
-  "height": 776,
-  "observations": [
+  "schema_version": 1,
+  "reference_sha256": "49437d4e5594427a7e2dead4983d9d420d66202879f110cf7567d19e42304e28",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.03446240280096091,
+  "text": [
     {
+      "id": "t_title",
+      "expected_text": "Fleet",
+      "requested_bounds": [
+        20,
+        20,
+        160,
+        24.4
+      ],
+      "status": "observed",
+      "ocr_text": "Fleet",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        29.059304703476485,
+        24.85123966942149,
+        48.15541922290389,
+        16.834710743801654
+      ],
+      "ink_color": [
+        5,
+        5,
+        6
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        23.199999627142862,
+        22.446280804683195,
+        58.00000000000001,
+        22.44628099173555
+      ]
+    },
+    {
+      "id": "t_empty",
+      "expected_text": "No peers yet",
+      "requested_bounds": [
+        246,
+        26,
+        140,
+        16
+      ],
+      "status": "observed",
+      "ocr_text": "No peers yet",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        302.21676891615544,
+        25.65289256198347,
+        87.17791411042946,
+        16.834710743801654
+      ],
+      "ink_color": [
+        154,
+        156,
+        159
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        301.33460509773334,
+        24.29087476281262,
+        90.01650521414625,
+        20.360399088583634
+      ]
+    },
+    {
+      "id": "loading_models",
+      "expected_text": "Loading models\u2026",
+      "requested_bounds": [
+        20,
+        52,
+        200,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "Loading models...",
+      "confidence": 1,
+      "text_similarity": 0.875,
+      "ink_bounds": [
+        29.059304703476485,
+        61.72727272727273,
+        118.72801635991821,
+        16.834710743801654
+      ],
+      "ink_color": [
+        141,
+        141,
+        146
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        23.199999316428595,
+        60.92561959421488,
+        127.60000000000001,
+        19.239669421487626
+      ]
+    },
+    {
+      "id": "peer_1_av",
+      "expected_text": "A",
+      "requested_bounds": [
+        36,
+        104,
+        32,
+        18
+      ],
+      "status": "observed",
+      "ocr_text": "A",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        48.15541922290389,
+        126.66115702479338,
+        10.793456032719837,
+        15.231404958677686
+      ],
+      "ink_color": [
+        25,
+        100,
+        224
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        46.399999930952376,
+        126.66115687782374,
+        14.914285714285715,
+        17.63636363636362
+      ]
+    },
+    {
+      "id": "peer_1_model",
       "expected_text": "anthropic/claude-3.5-sonnet",
       "requested_bounds": [
         78,
@@ -10,14 +145,202 @@
         200,
         16
       ],
+      "status": "observed",
+      "ocr_text": "anthropic/claude-3.5-sonnet",
+      "confidence": 1,
+      "text_similarity": 1.0,
       "ink_bounds": [
-        78,
-        96,
-        200,
-        16
+        87.17791411042946,
+        117.84297520661157,
+        200.09406952965236,
+        15.231404958677686
+      ],
+      "ink_color": [
+        35,
+        37,
+        37
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        84.5142840019048,
+        117.04132240757572,
+        205.4857142857143,
+        17.636363636363708
       ]
     },
     {
+      "id": "peer_1_status_t",
+      "expected_text": "Available",
+      "requested_bounds": [
+        86,
+        121,
+        55.8,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "Available",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        96.31083844580778,
+        150.71074380165288,
+        55.627811860940696,
+        11.223140495867769
+      ],
+      "ink_color": [
+        55,
+        129,
+        54
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        94.43953165978454,
+        150.64228363966524,
+        59.69236624581473,
+        14.566672254199887
+      ]
+    },
+    {
+      "id": "peer_1_adv_t",
+      "expected_text": "Advanced",
+      "requested_bounds": [
+        300,
+        98,
+        70,
+        17
+      ],
+      "status": "observed",
+      "ocr_text": "Advanced",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        311.3496932515338,
+        145.900826446281,
+        64.76073619631902,
+        12.826446280991735
+      ],
+      "ink_color": [
+        70,
+        127,
+        220
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        309.8024569114464,
+        145.52450653421343,
+        68.10937173025948,
+        15.182391852386747
+      ]
+    },
+    {
+      "id": "peer_1_brief",
+      "expected_text": "Strong coding and reasoning model with tool use.",
+      "requested_bounds": [
+        78,
+        146,
+        290,
+        34
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "lbl_model",
+      "expected_text": "Model",
+      "requested_bounds": [
+        36,
+        190,
+        120,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "Model",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        42.34355828220859,
+        236.48760330578511,
+        37.36196319018405,
+        12.826446280991735
+      ],
+      "ink_color": [
+        57,
+        58,
+        59
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        39.556164479427295,
+        236.6634395691873,
+        43.51624308994838,
+        15.681385182152155
+      ]
+    },
+    {
+      "id": "sel_model_text",
+      "expected_text": "anthropic/claude-3.5-sonnet",
+      "requested_bounds": [
+        48,
+        218.0,
+        310,
+        18
+      ],
+      "status": "observed",
+      "ocr_text": "anthropic/claude-3.5-sonnet",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        49.8159509202454,
+        273.3636363636364,
+        210.8875255623722,
+        15.231404958677686
+      ],
+      "ink_color": [
+        66,
+        66,
+        66
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        46.40000217085712,
+        272.5619833909091,
+        217.0857142857143,
+        17.63636363636362
+      ]
+    },
+    {
+      "id": "lbl_brief",
+      "expected_text": "Brief",
+      "requested_bounds": [
+        36,
+        254,
+        120,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "Brief",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        42.34355828220859,
+        315.0495867768595,
+        29.059304703476485,
+        12.024793388429751
+      ],
+      "ink_color": [
+        32,
+        31,
+        30
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        39.77142836428572,
+        314.2479340847108,
+        33.142857142857146,
+        16.033057851239615
+      ]
+    },
+    {
+      "id": "brief_text",
       "expected_text": "Focus on code quality, tests, and minimal diffs.",
       "requested_bounds": [
         48,
@@ -25,14 +348,74 @@
         310,
         36
       ],
-      "ink_bounds": [
-        48,
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "btn_start_t",
+      "expected_text": "Start",
+      "requested_bounds": [
         282,
-        310,
-        36
+        348.5,
+        88,
+        17.08
+      ],
+      "status": "observed",
+      "ocr_text": "Start",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        314.6707566462168,
+        433.6942148760331,
+        45.66462167689162,
+        23.24793388429752
+      ],
+      "ink_color": [
+        4,
+        4,
+        4
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        316.51428539666665,
+        436.09917339338847,
+        41.42857142857143,
+        19.239669421487626
       ]
     },
     {
+      "id": "peer_2_av",
+      "expected_text": "W",
+      "requested_bounds": [
+        36,
+        416,
+        32,
+        18
+      ],
+      "status": "observed",
+      "ocr_text": "W",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        44.834355828220865,
+        523.4793388429752,
+        15.775051124744378,
+        13.62809917355372
+      ],
+      "ink_color": [
+        210,
+        134,
+        28
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        41.42857121314287,
+        521.0743802454546,
+        21.542857142857148,
+        17.63636363636362
+      ]
+    },
+    {
+      "id": "peer_2_model",
       "expected_text": "gpt-4o",
       "requested_bounds": [
         78,
@@ -40,13 +423,523 @@
         140,
         16
       ],
+      "status": "observed",
+      "ocr_text": "gpt-40",
+      "confidence": 1,
+      "text_similarity": 0.8333333333333334,
       "ink_bounds": [
-        78,
-        408,
-        140,
+        87.17791411042946,
+        522.6776859504132,
+        47.32515337423313,
+        15.231404958677686
+      ],
+      "ink_color": [
+        25,
+        25,
+        27
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        84.51428603535715,
+        522.6776858602273,
+        51.371428571428574,
+        17.63636363636362
+      ]
+    },
+    {
+      "id": "peer_2_status_t",
+      "expected_text": "Waiting for you",
+      "requested_bounds": [
+        228,
+        413,
+        93.0,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "Waiting for you",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        178.5071574642127,
+        523.4793388429752,
+        88.83844580777097,
+        13.62809917355372
+      ],
+      "ink_color": [
+        127,
+        92,
+        56
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        175.65714403785708,
+        522.6776858902894,
+        94.45714285714287,
+        17.636363636363708
+      ]
+    },
+    {
+      "id": "in_steer_text",
+      "expected_text": "Enter steering text",
+      "requested_bounds": [
+        48,
+        458.0,
+        310,
+        18
+      ],
+      "status": "observed",
+      "ocr_text": "Enter steering text",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        46.494887525562376,
+        578.7933884297521,
+        144.46625766871168,
+        16.03305785123967
+      ],
+      "ink_color": [
+        112,
+        113,
+        116
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        44.742857838857134,
+        578.7933886061156,
+        149.14285714285714,
+        17.63636363636362
+      ]
+    },
+    {
+      "id": "btn_dismiss_t",
+      "expected_text": "Dismiss",
+      "requested_bounds": [
+        36,
+        498,
+        70,
+        17
+      ],
+      "status": "observed",
+      "ocr_text": "Dismiss",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        40.68302658486708,
+        638.9173553719008,
+        47.32515337423313,
+        12.826446280991735
+      ],
+      "ink_color": [
+        150,
+        151,
+        156
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        38.034805036899634,
+        637.8740411717755,
+        51.53038896833147,
+        16.516380136663255
+      ]
+    },
+    {
+      "id": "peer_2_note",
+      "expected_text": "Only while working",
+      "requested_bounds": [
+        36,
+        512,
+        334,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "Only while working",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        138.65439672801637,
+        665.3719008264462,
+        107.93456032719837,
+        14.429752066115702
+      ],
+      "ink_color": [
+        167,
+        168,
+        172
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        137.54285806809523,
+        665.3719007730027,
+        111.02857142857147,
+        16.033057851239704
+      ]
+    },
+    {
+      "id": "t_noproject",
+      "expected_text": "Open a project first",
+      "requested_bounds": [
+        123,
+        560,
+        160,
         16
+      ],
+      "status": "observed",
+      "ocr_text": "Open a project first",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        129.52147239263803,
+        727.099173553719,
+        130.3517382413088,
+        17.636363636363637
+      ],
+      "ink_color": [
+        155,
+        157,
+        163
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        127.5999990412245,
+        726.29752072987,
+        134.22857142857146,
+        19.23966942148754
       ]
     }
   ],
-  "source": "lane-vision on the measured atlas crops (no external OCR for board 3)"
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "fleet_card",
+      "bounds": [
+        0.0,
+        0.0,
+        406.0,
+        776.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "peer_1",
+      "bounds": [
+        21.0,
+        98.0,
+        372.0,
+        381.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 17.59
+    },
+    {
+      "id": "peer_1_avatar",
+      "bounds": [
+        37.262,
+        118.595,
+        32.525,
+        41.189
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4293127164,
+      "radius": 16.26
+    },
+    {
+      "id": "peer_1_status",
+      "bounds": [
+        85.0,
+        142.0,
+        78.0,
+        29.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294047726,
+      "radius": 14.5
+    },
+    {
+      "id": "peer_1_adv_row",
+      "bounds": [
+        305.59,
+        121.169,
+        71.148,
+        25.743
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "peer_1_adv",
+      "bounds": [
+        305.59,
+        121.169,
+        71.148,
+        25.743
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "sel_model_row",
+      "bounds": [
+        37.262,
+        262.757,
+        339.475,
+        48.912
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "sel_model_bg",
+      "bounds": [
+        33.0,
+        259.0,
+        350.0,
+        40.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.53
+    },
+    {
+      "id": "sel_model",
+      "bounds": [
+        37.262,
+        262.757,
+        339.475,
+        48.912
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "brief_box",
+      "bounds": [
+        36.0,
+        262.0,
+        344.0,
+        35.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 6.25
+    },
+    {
+      "id": "brief_input",
+      "bounds": [
+        37.262,
+        345.135,
+        339.475,
+        72.081
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_start_row",
+      "bounds": [
+        287.295,
+        432.662,
+        89.443,
+        43.764
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_start_bg",
+      "bounds": [
+        294.0,
+        426.0,
+        86.0,
+        38.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4278584837,
+      "radius": 19.0
+    },
+    {
+      "id": "btn_start",
+      "bounds": [
+        287.295,
+        432.662,
+        89.443,
+        43.764
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "peer_2",
+      "bounds": [
+        21.0,
+        496.0,
+        372.0,
+        200.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 18.67
+    },
+    {
+      "id": "peer_2_avatar",
+      "bounds": [
+        37.262,
+        517.333,
+        32.525,
+        42.667
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294833116,
+      "radius": 16.26
+    },
+    {
+      "id": "peer_2_status",
+      "bounds": [
+        169.0,
+        515.0,
+        108.0,
+        28.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294834152,
+      "radius": 14.0
+    },
+    {
+      "id": "in_steer_row",
+      "bounds": [
+        37.262,
+        570.667,
+        339.475,
+        50.667
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "in_steer_bg",
+      "bounds": [
+        35.0,
+        562.0,
+        345.0,
+        48.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 12.63
+    },
+    {
+      "id": "in_steer",
+      "bounds": [
+        37.262,
+        570.667,
+        339.475,
+        50.667
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_dismiss_row",
+      "bounds": [
+        37.262,
+        637.333,
+        71.148,
+        26.667
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_dismiss",
+      "bounds": [
+        37.262,
+        637.333,
+        71.148,
+        26.667
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "peer_2_rule",
+      "bounds": [
+        122.639,
+        640.0,
+        254.098,
+        1.333
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        101.79183841126527,
+        225.99999976000004,
+        223.54285714285717,
+        23.999999999999922
+      ],
+      "confidence": 1,
+      "text": "Strong coding and reasoning"
+    },
+    {
+      "bounds": [
+        101.79183808193878,
+        257.99999996666673,
+        161.66938775510206,
+        19.999999999999932
+      ],
+      "confidence": 1,
+      "text": "model with tool use."
+    },
+    {
+      "bounds": [
+        53.88979237561233,
+        438.0000000999999,
+        283.42040816326534,
+        24.000000000000135
+      ],
+      "confidence": 1,
+      "text": "Focus on code quality, tests,"
+    },
+    {
+      "bounds": [
+        55.88571643132648,
+        468.00000002499996,
+        171.64897959183673,
+        21.99999999999998
+      ],
+      "confidence": 1,
+      "text": "and mrinimal diffs."
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
 }

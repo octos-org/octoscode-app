@@ -1,0 +1,804 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surfacef468f03a0025",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "fleet_card",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfacef468f03a0025",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_title",
+      "native_id": "beauty_0_0_0",
+      "parent": "fleet_card",
+      "kind": "text",
+      "component": "Text840b7001f71f",
+      "semantic_role": "text",
+      "bounds": [
+        20,
+        20,
+        160,
+        24.4
+      ],
+      "text": "Fleet",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 20
+    },
+    {
+      "source_id": "t_empty",
+      "native_id": "beauty_0_0_1",
+      "parent": "fleet_card",
+      "kind": "text",
+      "component": "Text5fc63a7e241d",
+      "semantic_role": "text",
+      "bounds": [
+        246,
+        26,
+        140,
+        16
+      ],
+      "text": "No peers yet",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12
+    },
+    {
+      "source_id": "loading_models",
+      "native_id": "beauty_0_0_2",
+      "parent": "fleet_card",
+      "kind": "text",
+      "component": "Text09ef707ce916",
+      "semantic_role": "text",
+      "bounds": [
+        20,
+        52,
+        200,
+        14
+      ],
+      "text": "Loading models\u2026",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "peer_1",
+      "native_id": "beauty_0_0_3",
+      "parent": "fleet_card",
+      "kind": "stack",
+      "component": "Surface28a1c2e54e11",
+      "semantic_role": "layout",
+      "bounds": [
+        20,
+        80,
+        366,
+        296
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "peer_1_avatar",
+      "native_id": "beauty_0_0_3_0",
+      "parent": "peer_1",
+      "kind": "stack",
+      "component": "Surfaced5435c7b8f5b",
+      "semantic_role": "layout",
+      "bounds": [
+        36,
+        96,
+        32,
+        32
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "peer_1_av",
+      "native_id": "beauty_0_0_3_1",
+      "parent": "peer_1",
+      "kind": "text",
+      "component": "Text685b33af9004",
+      "semantic_role": "text",
+      "bounds": [
+        36,
+        104,
+        32,
+        18
+      ],
+      "text": "A",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "peer_1_model",
+      "native_id": "beauty_0_0_3_2",
+      "parent": "peer_1",
+      "kind": "text",
+      "component": "Textef39c1926771",
+      "semantic_role": "text",
+      "bounds": [
+        78,
+        96,
+        200,
+        16
+      ],
+      "text": "anthropic/claude-3.5-sonnet",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 13
+    },
+    {
+      "source_id": "peer_1_status",
+      "native_id": "beauty_0_0_3_3",
+      "parent": "peer_1",
+      "kind": "stack",
+      "component": "Surface5263a122e2e4",
+      "semantic_role": "layout",
+      "bounds": [
+        78,
+        118,
+        71.8,
+        20
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "peer_1_status_t",
+      "native_id": "beauty_0_0_3_3_0",
+      "parent": "peer_1_status",
+      "kind": "text",
+      "component": "Textb0ce4ee563f0",
+      "semantic_role": "text",
+      "bounds": [
+        86,
+        121,
+        55.8,
+        14
+      ],
+      "text": "Available",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 10
+    },
+    {
+      "source_id": "peer_1_adv_row",
+      "native_id": "beauty_0_0_3_4",
+      "parent": "peer_1",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        300,
+        98,
+        70,
+        20
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "peer_1_adv_t",
+      "native_id": "beauty_0_0_3_4_0",
+      "parent": "peer_1_adv_row",
+      "kind": "text",
+      "component": "Text7d630b6bd848",
+      "semantic_role": "text",
+      "bounds": [
+        300,
+        98,
+        70,
+        17
+      ],
+      "text": "Advanced",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12
+    },
+    {
+      "source_id": "peer_1_adv",
+      "native_id": "beauty_0_0_3_4_1",
+      "parent": "peer_1_adv_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        300,
+        98,
+        70,
+        20
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "peer_1_brief",
+      "native_id": "beauty_0_0_3_5",
+      "parent": "peer_1",
+      "kind": "text",
+      "component": "Text75ee4f0ef332",
+      "semantic_role": "text",
+      "bounds": [
+        78,
+        146,
+        290,
+        34
+      ],
+      "text": "Strong coding and reasoning model with tool use.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12
+    },
+    {
+      "source_id": "lbl_model",
+      "native_id": "beauty_0_0_3_6",
+      "parent": "peer_1",
+      "kind": "text",
+      "component": "Text09ef707ce916",
+      "semantic_role": "text",
+      "bounds": [
+        36,
+        190,
+        120,
+        14
+      ],
+      "text": "Model",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "sel_model_row",
+      "native_id": "beauty_0_0_3_7",
+      "parent": "peer_1",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        36,
+        208,
+        334,
+        38
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "sel_model_bg",
+      "native_id": "beauty_0_0_3_7_0",
+      "parent": "sel_model_row",
+      "kind": "stack",
+      "component": "Surfaced4707dd25870",
+      "semantic_role": "layout",
+      "bounds": [
+        36,
+        208,
+        334,
+        38
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "sel_model_text",
+      "native_id": "beauty_0_0_3_7_1",
+      "parent": "sel_model_row",
+      "kind": "text",
+      "component": "Text6d079c80f2e2",
+      "semantic_role": "text",
+      "bounds": [
+        48,
+        218.0,
+        310,
+        18
+      ],
+      "text": "anthropic/claude-3.5-sonnet",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12
+    },
+    {
+      "source_id": "sel_model",
+      "native_id": "beauty_0_0_3_7_2",
+      "parent": "sel_model_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        36,
+        208,
+        334,
+        38
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "lbl_brief",
+      "native_id": "beauty_0_0_3_8",
+      "parent": "peer_1",
+      "kind": "text",
+      "component": "Text09ef707ce916",
+      "semantic_role": "text",
+      "bounds": [
+        36,
+        254,
+        120,
+        14
+      ],
+      "text": "Brief",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "brief_box",
+      "native_id": "beauty_0_0_3_9",
+      "parent": "peer_1",
+      "kind": "stack",
+      "component": "Surfaced4707dd25870",
+      "semantic_role": "layout",
+      "bounds": [
+        36,
+        272,
+        334,
+        56
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "brief_text",
+      "native_id": "beauty_0_0_3_10",
+      "parent": "peer_1",
+      "kind": "text",
+      "component": "Text6d079c80f2e2",
+      "semantic_role": "text",
+      "bounds": [
+        48,
+        282,
+        310,
+        36
+      ],
+      "text": "Focus on code quality, tests, and minimal diffs.",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12
+    },
+    {
+      "source_id": "brief_input",
+      "native_id": "beauty_0_0_3_11",
+      "parent": "peer_1",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        36,
+        272,
+        334,
+        56
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "btn_start_row",
+      "native_id": "beauty_0_0_3_12",
+      "parent": "peer_1",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        282,
+        340,
+        88,
+        34
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "btn_start_bg",
+      "native_id": "beauty_0_0_3_12_0",
+      "parent": "btn_start_row",
+      "kind": "stack",
+      "component": "Surfaceddfd676580b9",
+      "semantic_role": "layout",
+      "bounds": [
+        282,
+        340,
+        88,
+        34
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "btn_start_t",
+      "native_id": "beauty_0_0_3_12_1",
+      "parent": "btn_start_row",
+      "kind": "text",
+      "component": "Textcd182d906e73",
+      "semantic_role": "text",
+      "bounds": [
+        282,
+        348.5,
+        88,
+        17.08
+      ],
+      "text": "Start",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "btn_start",
+      "native_id": "beauty_0_0_3_12_2",
+      "parent": "btn_start_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        282,
+        340,
+        88,
+        34
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "peer_2",
+      "native_id": "beauty_0_0_4",
+      "parent": "fleet_card",
+      "kind": "stack",
+      "component": "Surface28a1c2e54e11",
+      "semantic_role": "layout",
+      "bounds": [
+        20,
+        392,
+        366,
+        150
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "peer_2_avatar",
+      "native_id": "beauty_0_0_4_0",
+      "parent": "peer_2",
+      "kind": "stack",
+      "component": "Surfaced5435c7b8f5b",
+      "semantic_role": "layout",
+      "bounds": [
+        36,
+        408,
+        32,
+        32
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "peer_2_av",
+      "native_id": "beauty_0_0_4_1",
+      "parent": "peer_2",
+      "kind": "text",
+      "component": "Text685b33af9004",
+      "semantic_role": "text",
+      "bounds": [
+        36,
+        416,
+        32,
+        18
+      ],
+      "text": "W",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "peer_2_model",
+      "native_id": "beauty_0_0_4_2",
+      "parent": "peer_2",
+      "kind": "text",
+      "component": "Textef39c1926771",
+      "semantic_role": "text",
+      "bounds": [
+        78,
+        408,
+        140,
+        16
+      ],
+      "text": "gpt-4o",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 13
+    },
+    {
+      "source_id": "peer_2_status",
+      "native_id": "beauty_0_0_4_3",
+      "parent": "peer_2",
+      "kind": "stack",
+      "component": "Surface9c1ef49c744b",
+      "semantic_role": "layout",
+      "bounds": [
+        220,
+        410,
+        109.0,
+        20
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "peer_2_status_t",
+      "native_id": "beauty_0_0_4_3_0",
+      "parent": "peer_2_status",
+      "kind": "text",
+      "component": "Text53f97087be23",
+      "semantic_role": "text",
+      "bounds": [
+        228,
+        413,
+        93.0,
+        14
+      ],
+      "text": "Waiting for you",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 10
+    },
+    {
+      "source_id": "in_steer_row",
+      "native_id": "beauty_0_0_4_4",
+      "parent": "peer_2",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        36,
+        448,
+        334,
+        38
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "in_steer_bg",
+      "native_id": "beauty_0_0_4_4_0",
+      "parent": "in_steer_row",
+      "kind": "stack",
+      "component": "Surfaced4707dd25870",
+      "semantic_role": "layout",
+      "bounds": [
+        36,
+        448,
+        334,
+        38
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "in_steer_text",
+      "native_id": "beauty_0_0_4_4_1",
+      "parent": "in_steer_row",
+      "kind": "text",
+      "component": "Text45c65ca3e393",
+      "semantic_role": "text",
+      "bounds": [
+        48,
+        458.0,
+        310,
+        18
+      ],
+      "text": "Enter steering text",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12
+    },
+    {
+      "source_id": "in_steer",
+      "native_id": "beauty_0_0_4_4_2",
+      "parent": "in_steer_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        36,
+        448,
+        334,
+        38
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "btn_dismiss_row",
+      "native_id": "beauty_0_0_4_5",
+      "parent": "peer_2",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        36,
+        498,
+        70,
+        20
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "btn_dismiss_t",
+      "native_id": "beauty_0_0_4_5_0",
+      "parent": "btn_dismiss_row",
+      "kind": "text",
+      "component": "Text75ee4f0ef332",
+      "semantic_role": "text",
+      "bounds": [
+        36,
+        498,
+        70,
+        17
+      ],
+      "text": "Dismiss",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12
+    },
+    {
+      "source_id": "btn_dismiss",
+      "native_id": "beauty_0_0_4_5_1",
+      "parent": "btn_dismiss_row",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        36,
+        498,
+        70,
+        20
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "peer_2_rule",
+      "native_id": "beauty_0_0_4_6",
+      "parent": "peer_2",
+      "kind": "stack",
+      "component": "Surface19a87ed4ebd0",
+      "semantic_role": "layout",
+      "bounds": [
+        120,
+        500,
+        250,
+        1
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "peer_2_note",
+      "native_id": "beauty_0_0_4_7",
+      "parent": "peer_2",
+      "kind": "text",
+      "component": "Text09ef707ce916",
+      "semantic_role": "text",
+      "bounds": [
+        36,
+        512,
+        334,
+        14
+      ],
+      "text": "Only while working",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 11
+    },
+    {
+      "source_id": "t_noproject",
+      "native_id": "beauty_0_0_5",
+      "parent": "fleet_card",
+      "kind": "text",
+      "component": "Text5fc63a7e241d",
+      "semantic_role": "text",
+      "bounds": [
+        123,
+        560,
+        160,
+        16
+      ],
+      "text": "Open a project first",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
+  },
+  "contract_sha256": "86f107972d83831a0694444179c866c55c35bfdc9b70cac043c66bc2c2205bbb",
+  "mapping_basis": "mapped.json"
+}

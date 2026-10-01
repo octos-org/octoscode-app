@@ -11,6 +11,16 @@
       ],
       "enabled": true
     },
+    "btn_close": {
+      "event": "workspace.create.close",
+      "source_bounds": [
+        330,
+        82,
+        24,
+        20
+      ],
+      "enabled": true
+    },
     "btn_create": {
       "event": "folder.create.submit",
       "source_bounds": [

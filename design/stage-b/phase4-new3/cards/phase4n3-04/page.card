@@ -1,0 +1,165 @@
+# ledger phase4n3-04@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Fleet" }
+copy t_empty_text { class: user-copy, en: "No peers yet" }
+copy loading_models_text { class: user-copy, en: "Loading models…" }
+copy peer_1_av_text { class: user-copy, en: "A" }
+copy peer_1_model_text { class: user-copy, en: "anthropic/claude-3.5-sonnet" }
+copy peer_1_status_t_text { class: user-copy, en: "Available" }
+copy peer_1_adv_t_text { class: user-copy, en: "Advanced" }
+copy peer_1_brief_text { class: user-copy, en: "Strong coding and reasoning model with tool use." }
+copy lbl_model_text { class: user-copy, en: "Model" }
+copy sel_model_text_text { class: user-copy, en: "anthropic/claude-3.5-sonnet" }
+copy lbl_brief_text { class: user-copy, en: "Brief" }
+copy brief_text_text { class: user-copy, en: "Focus on code quality, tests, and minimal diffs." }
+copy btn_start_t_text { class: user-copy, en: "Start" }
+copy peer_2_av_text { class: user-copy, en: "W" }
+copy peer_2_model_text { class: user-copy, en: "gpt-4o" }
+copy peer_2_status_t_text { class: user-copy, en: "Waiting for you" }
+copy in_steer_text_text { class: user-copy, en: "Enter steering text" }
+copy btn_dismiss_t_text { class: user-copy, en: "Dismiss" }
+copy peer_2_note_text { class: user-copy, en: "Only while working" }
+copy t_noproject_text { class: user-copy, en: "Open a project first" }
+state peer_1_adv_enabled { shape: bool, initial: true }
+state sel_model_enabled { shape: bool, initial: true }
+state brief_input_enabled { shape: bool, initial: true }
+state btn_start_enabled { shape: bool, initial: true }
+state in_steer_enabled { shape: bool, initial: true }
+state btn_dismiss_enabled { shape: bool, initial: true }
+component Surfacef468f03a0025(instance: text) {
+  view Kit(component: "Surfacef468f03a0025", instance: instance) { slot }
+}
+component Text840b7001f71f(instance: text, text: text) {
+  view Kit(component: "Text840b7001f71f", instance: instance, text: text)
+}
+component Text5fc63a7e241d(instance: text, text: text) {
+  view Kit(component: "Text5fc63a7e241d", instance: instance, text: text)
+}
+component Text09ef707ce916(instance: text, text: text) {
+  view Kit(component: "Text09ef707ce916", instance: instance, text: text)
+}
+component Surface28a1c2e54e11(instance: text) {
+  view Kit(component: "Surface28a1c2e54e11", instance: instance) { slot }
+}
+component Surfaced5435c7b8f5b(instance: text) {
+  view Kit(component: "Surfaced5435c7b8f5b", instance: instance) { slot }
+}
+component Text685b33af9004(instance: text, text: text) {
+  view Kit(component: "Text685b33af9004", instance: instance, text: text)
+}
+component Textef39c1926771(instance: text, text: text) {
+  view Kit(component: "Textef39c1926771", instance: instance, text: text)
+}
+component Surface5263a122e2e4(instance: text) {
+  view Kit(component: "Surface5263a122e2e4", instance: instance) { slot }
+}
+component Textb0ce4ee563f0(instance: text, text: text) {
+  view Kit(component: "Textb0ce4ee563f0", instance: instance, text: text)
+}
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Text7d630b6bd848(instance: text, text: text) {
+  view Kit(component: "Text7d630b6bd848", instance: instance, text: text)
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Text75ee4f0ef332(instance: text, text: text) {
+  view Kit(component: "Text75ee4f0ef332", instance: instance, text: text)
+}
+component Surfaced4707dd25870(instance: text) {
+  view Kit(component: "Surfaced4707dd25870", instance: instance) { slot }
+}
+component Text6d079c80f2e2(instance: text, text: text) {
+  view Kit(component: "Text6d079c80f2e2", instance: instance, text: text)
+}
+component Surfaceddfd676580b9(instance: text) {
+  view Kit(component: "Surfaceddfd676580b9", instance: instance) { slot }
+}
+component Textcd182d906e73(instance: text, text: text) {
+  view Kit(component: "Textcd182d906e73", instance: instance, text: text)
+}
+component Surface9c1ef49c744b(instance: text) {
+  view Kit(component: "Surface9c1ef49c744b", instance: instance) { slot }
+}
+component Text53f97087be23(instance: text, text: text) {
+  view Kit(component: "Text53f97087be23", instance: instance, text: text)
+}
+component Text45c65ca3e393(instance: text, text: text) {
+  view Kit(component: "Text45c65ca3e393", instance: instance, text: text)
+}
+component Surface19a87ed4ebd0(instance: text) {
+  view Kit(component: "Surface19a87ed4ebd0", instance: instance)
+}
+
+view root Surfacef468f03a0025(instance: "page") {
+  Surfacef468f03a0025(instance: "fleet_card") {
+    Text840b7001f71f(instance: "t_title", text: copy.t_title_text)
+    Text5fc63a7e241d(instance: "t_empty", text: copy.t_empty_text)
+    Text09ef707ce916(instance: "loading_models", text: copy.loading_models_text)
+    Surface28a1c2e54e11(instance: "peer_1") {
+      Surfaced5435c7b8f5b(instance: "peer_1_avatar") {
+
+      }
+      Text685b33af9004(instance: "peer_1_av", text: copy.peer_1_av_text)
+      Textef39c1926771(instance: "peer_1_model", text: copy.peer_1_model_text)
+      Surface5263a122e2e4(instance: "peer_1_status") {
+        Textb0ce4ee563f0(instance: "peer_1_status_t", text: copy.peer_1_status_t_text)
+      }
+      Group3d2637879433(instance: "peer_1_adv_row") {
+        Text7d630b6bd848(instance: "peer_1_adv_t", text: copy.peer_1_adv_t_text)
+        NativeButton02f1d1bd99b4(instance: "peer_1_adv", enabled: peer_1_adv_enabled)
+      }
+      Text75ee4f0ef332(instance: "peer_1_brief", text: copy.peer_1_brief_text)
+      Text09ef707ce916(instance: "lbl_model", text: copy.lbl_model_text)
+      Group3d2637879433(instance: "sel_model_row") {
+        Surfaced4707dd25870(instance: "sel_model_bg") {
+
+        }
+        Text6d079c80f2e2(instance: "sel_model_text", text: copy.sel_model_text_text)
+        NativeButton02f1d1bd99b4(instance: "sel_model", enabled: sel_model_enabled)
+      }
+      Text09ef707ce916(instance: "lbl_brief", text: copy.lbl_brief_text)
+      Surfaced4707dd25870(instance: "brief_box") {
+
+      }
+      Text6d079c80f2e2(instance: "brief_text", text: copy.brief_text_text)
+      NativeButton02f1d1bd99b4(instance: "brief_input", enabled: brief_input_enabled)
+      Group3d2637879433(instance: "btn_start_row") {
+        Surfaceddfd676580b9(instance: "btn_start_bg") {
+
+        }
+        Textcd182d906e73(instance: "btn_start_t", text: copy.btn_start_t_text)
+        NativeButton02f1d1bd99b4(instance: "btn_start", enabled: btn_start_enabled)
+      }
+    }
+    Surface28a1c2e54e11(instance: "peer_2") {
+      Surfaced5435c7b8f5b(instance: "peer_2_avatar") {
+
+      }
+      Text685b33af9004(instance: "peer_2_av", text: copy.peer_2_av_text)
+      Textef39c1926771(instance: "peer_2_model", text: copy.peer_2_model_text)
+      Surface9c1ef49c744b(instance: "peer_2_status") {
+        Text53f97087be23(instance: "peer_2_status_t", text: copy.peer_2_status_t_text)
+      }
+      Group3d2637879433(instance: "in_steer_row") {
+        Surfaced4707dd25870(instance: "in_steer_bg") {
+
+        }
+        Text45c65ca3e393(instance: "in_steer_text", text: copy.in_steer_text_text)
+        NativeButton02f1d1bd99b4(instance: "in_steer", enabled: in_steer_enabled)
+      }
+      Group3d2637879433(instance: "btn_dismiss_row") {
+        Text75ee4f0ef332(instance: "btn_dismiss_t", text: copy.btn_dismiss_t_text)
+        NativeButton02f1d1bd99b4(instance: "btn_dismiss", enabled: btn_dismiss_enabled)
+      }
+      Surface19a87ed4ebd0(instance: "peer_2_rule")
+      Text09ef707ce916(instance: "peer_2_note", text: copy.peer_2_note_text)
+    }
+    Text5fc63a7e241d(instance: "t_noproject", text: copy.t_noproject_text)
+  }
+}
