@@ -408,8 +408,27 @@ def main():
           "| defined-in-pin", sum(r["server_status"] == "defined" for r in ext_rows))
     ph, prow, upgraded = regenerate_parity(proto_status)
     counts = regenerate_phase4(prow)
+    # Carry the hand-pass columns across the regen (bd6300a/92681ed): keyed
+    # by the row's capability, a lane's manual verdicts survive a refresh.
+    carry = ["phase4_bucket_manual", "phase4_evidence_manual", "operator_confirmed"]
+    prev_path = os.path.join(DOCS, "parity-matrix.csv")
+    prev = {}
+    if os.path.isfile(prev_path):
+        with open(prev_path, newline="") as f:
+            for r in csv.DictReader(f):
+                key = (r.get("capability") or "").strip()
+                if key:
+                    prev[key] = {c: r.get(c, "") for c in carry}
+    for r in prow:
+        key = (r.get("capability") or "").strip()
+        if key in prev:
+            for c in carry:
+                r.setdefault(c, prev[key][c])
+        else:
+            for c in carry:
+                r.setdefault(c, "")
     write_csv(os.path.join(DOCS, "parity-matrix.csv"),
-              ph + ["phase4_bucket", "phase4_evidence"], prow)
+              ph + ["phase4_bucket", "phase4_evidence"] + carry, prow)
     write_phase4_docs(prow, counts)
     ta = sum(c["A"] for c in counts.values())
     tb = sum(c["B"] for c in counts.values())
