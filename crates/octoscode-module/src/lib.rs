@@ -1493,6 +1493,24 @@ impl OctoscodeView {
                 });
             }
             actions::Effect::Open(session) => {
+                // #34a row 190 — re-selecting the CURRENT thread must not
+                // re-open the session: the web treats selecting the active
+                // session as a no-op (runtime-recovery.spec.ts counts
+                // session/open and asserts the transcript is never reset).
+                // Re-opening here RESET the store's timeline from the
+                // canonical hydrate, dropping the live turns (instrumented:
+                // after a reselect the whole timeline emptied; sometimes the
+                // reset raced the live rows — the #33b flake).
+                let already_active = {
+                    let b = self.bridge.lock().unwrap();
+                    b.store.active_session().as_deref() == Some(session.as_str())
+                };
+                if already_active {
+                    ::log::info!(
+                        "octoscode: thread.open {session} — already active, no re-open"
+                    );
+                    return;
+                }
                 let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
                 rt.spawn(async move {
                     match conv.open_session(&session, cwd).await {
