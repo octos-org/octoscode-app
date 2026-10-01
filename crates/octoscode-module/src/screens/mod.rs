@@ -27,6 +27,9 @@ pub mod research;
 // events the phase4-new2 cards declare (grouped tree, statuses, search,
 // collapsed rail, compact drawer).
 pub mod sidebar;
+// #D2b / A3: board 2's settings half (screens 6-12) — one owner for the
+// settings cards' ids AND the native Settings chrome's.
+pub mod settings;
 // #35b item 1: the ONE card-tap wiring every docked screen shares (connect.rs
 // delegates here; the palette/theme mount paths call it directly).
 pub mod taps;
