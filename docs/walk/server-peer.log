@@ -1,0 +1,7 @@
+[replay-serve] scenario=peer fixture=r6-peer-a6ea8505.jsonl: 17 frames; recorded session `dsflash:main`; 0 recorded turns []; 4 standalone notifications
+[replay-serve] listening on ws://127.0.0.1:8384/api/ui-protocol/ws (delay 2ms)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] <- session/list (id=1)

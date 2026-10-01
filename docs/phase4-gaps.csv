@@ -28,7 +28,7 @@ row_id,area,case,reason_class,reason
 142,keyboard,collapses and expands from the keyboard without losing the plan,native-surface,plan surface not mounted under fixtures (goals/loops rows collapse — measured)
 151,peer,"reports a start acknowledgement timeout as unknown, then settles on release",fixture,peer/dispatch + acknowledgement-timeout timing semantics cannot be produced by a recorded fixture
 162,recovery,"restores the origin, tab credential, session, and workspace after refresh",fixture,origin/tab-credential/workspace restore-across-refresh frames absent
-164,settings,separates the Session runtime from the Profile default model,native-surface,no Model/Models section in the drawer (measured) to separate runtime from profile default
+164,settings,separates the Session runtime from the Profile default model,native-surface,"the drawer HAS a Model section (41c run5: models texts=[""Model""] — the earlier id-only recon read was wrong) but the case's runtime-vs-profile-default separation needs that section's own controls, which carry no data under the session fixture"
 174,recovery,restores a pending structured question across a reload,fixture,pending structured question + reload frames absent
 176,settings,preserves workspace launch decisions without exposing profile ids in connect,native-surface,workspace-launch-decision surface absent from the drawer
 181,settings,skill writes hold the profile lock through deferred replies and deduplicate confirmation,fixture,skill-write + profile-lock frames absent from the session fixture

@@ -45,7 +45,7 @@ Reason classes:
 | 142 | keyboard | native-surface | plan surface not mounted under fixtures (goals/loops rows collapse — measured) |
 | 151 | peer | fixture | peer/dispatch + acknowledgement-timeout timing semantics cannot be produced by a recorded fixture |
 | 162 | recovery | fixture | origin/tab-credential/workspace restore-across-refresh frames absent |
-| 164 | settings | native-surface | no Model/Models section in the drawer (measured) to separate runtime from profile default |
+| 164 | settings | native-surface | the drawer HAS a Model section (41c run5) but the runtime-vs-profile separation needs the section's own controls, which carry no data under the session fixture |
 | 174 | recovery | fixture | pending structured question + reload frames absent |
 | 176 | settings | native-surface | workspace-launch-decision surface absent from the drawer |
 | 181 | settings | fixture | skill-write + profile-lock frames absent from the session fixture |

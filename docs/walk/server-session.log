@@ -1,0 +1,7 @@
+[replay-serve] scenario=session fixture=r3-session-a6ea8505.jsonl: 32 frames; recorded session `dsflash:api:main`; 0 recorded turns []; 15 standalone notifications
+[replay-serve] listening on ws://127.0.0.1:8385/api/ui-protocol/ws (delay 2ms)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] <- session/list (id=1)
