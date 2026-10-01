@@ -2306,6 +2306,54 @@ impl OctoscodeView {
             }
             let lowered = if screens::theme::card_for(&which).is_some() {
                 screens::theme::lower(&which, &store)
+            } else if let Some(screen) = screens::autonomy::Screen3::from_env() {
+                // #P4e1c — the autonomy cards (autonomy-03/04/05: Goal, Loops,
+                // Monitors). Before this the ONLY caller of
+                // `autonomy::lower_screen` was the capture example
+                // (`examples/screen_shot_autonomy.rs:223`): the module's whole
+                // action table was live, but no user could reach any of it.
+                // The web shows all three in ONE dialog as three stacked
+                // sections (`AutonomyPanel.tsx:105` <h2>, then :114-115 Goal,
+                // :235-236 Loops, :335-336 Monitors — no tabs), so there is no
+                // tab bar to build; the three cards ARE the three sections.
+                let st = screens::autonomy::state_snapshot();
+                let dsl = match screens::autonomy::lower_screen(screen, &st) {
+                    Ok(dsl) => dsl,
+                    Err(e) => {
+                        // The mount arms below collect a `Result` explicitly,
+                        // so this arm yields the same shape rather than a
+                        // `?` — the enclosing `if/else` is a value
+                        // expression, not a fallible function body.
+                        makepad_widgets::log!("[octoscode] autonomy mount: {e}");
+                        return;
+                    }
+                };
+                // The goal card's Pause/Stop are real Buttons, but their atlas
+                // bounds drifted 4px/16px from the placements this card renders
+                // — far past taps::POS_TOLERANCE — so the shared
+                // `service-actions` path wires nothing. Wire them at the card's
+                // OWN placements, and publish the unwireable controls in the
+                // log so a control that is drawn but not clickable is recorded
+                // rather than silently dead (the #35a defect class).
+                let (dsl, report) = if screen == screens::autonomy::Screen3::Goal {
+                    screens::taps::wire_events_at(&dsl, &screens::autonomy::goal_controls())
+                } else {
+                    (dsl, Vec::new())
+                };
+                let dead: Vec<&str> = report
+                    .iter()
+                    .filter(|(_, _, ok)| !ok)
+                    .map(|(name, _, _)| name.as_str())
+                    .collect();
+                if !dead.is_empty() {
+                    ::log::warn!(
+                        "octoscode: autonomy {:?}: {} control(s) drawn but not clickable: {:?}",
+                        screen,
+                        dead.len(),
+                        dead
+                    );
+                }
+                Ok(dsl)
             } else {
                 crate::screens::palette::lower_screen(&which, &store)
             };
@@ -2500,7 +2548,22 @@ impl OctoscodeView {
         // visible Fill/Fill wrapper shadows clicks under it, but on first run
         // only the first-run chrome is under it.
         let screen_dock_shown = std::env::var("OCTOSCODE_SCREEN")
-            .map(|v| matches!(v.as_str(), "palette" | "error" | "loading"))
+            .map(|v| {
+                // #P4e1c — `goal|loops|monitors` join the docked names. Without
+                // them the mount above builds the card but the dock that would
+                // SHOW it stays hidden, so the card is lowered, wired, and
+                // never seen: the mount would look done and reach nobody. The
+                // names match `autonomy::Screen3::from_env` (autonomy.rs:165).
+                matches!(
+                    v.as_str(),
+                    "palette"
+                        | "error"
+                        | "loading"
+                        | "goal"
+                        | "loops"
+                        | "monitors"
+                )
+            })
             .unwrap_or(false)
             || !live;
         self.view

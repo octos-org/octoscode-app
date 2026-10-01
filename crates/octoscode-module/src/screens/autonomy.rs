@@ -104,18 +104,83 @@ pub const ROUTED: &[&str] = &[
     "monitor.create",
 ];
 
+/// A CLONE of the screen cache, for a caller outside this module that needs to
+/// lower a card (#P4e1c: `lib.rs`'s mount arm).
+///
+/// The cache is a private `MutexGuard`-held `AutonomyState`; the lowering
+/// functions take `&AutonomyState`, and the mount path holds no lock across
+/// `lower_screen`. So the snapshot is taken under the lock and handed over by
+/// value — the caller can never hold the guard, which would deadlock against a
+/// later `resolve` on the UI thread.
+pub fn state_snapshot() -> AutonomyState {
+    state().clone()
+}
+
+/// The goal card's clickable controls, at the card's OWN placements.
+///
+/// #P4e1c — measured, not inferred. `service-actions.json` records the Stage-A
+/// atlas bounds, but this card's `page.data.json` was laid out from a
+/// different pass: Pause sits at [34,559] and Stop at [209,559] against
+/// authored [30,559] and [193,559] — 4px and 16px of drift, far past
+/// `taps::POS_TOLERANCE` (1.5px). So the shared `service-actions` path wires
+/// ZERO goal controls. These are the placements the card actually renders.
+///
+/// Only the two controls that ARE `DesignNativeButton`s appear.
+/// `clear_goal` is authored on a `Text` node (`page.card:112`), and the per-row
+/// loop/monitor controls on `Svg` — neither can carry a handler without a hit
+/// target the design does not have, which would be a new affordance.
+pub fn goal_controls() -> Vec<(String, String, f64, f64)> {
+    vec![
+        ("pause_btn".to_owned(), "goal.pause".to_owned(), 34.0, 559.0),
+        ("stop_btn".to_owned(), "goal.stop".to_owned(), 209.0, 559.0),
+    ]
+}
+
+/// `split_row` — see below.
+///
+/// #P4e1c — the mounted card's per-row controls (a loop row's
+/// pause/play/trash, a monitor row's pause/trash) are one widget each, so the
+/// tap that fires has to name WHICH row. The shared tap dispatch carries a
+/// widget name and an action id and passes a single index
+/// (`lib.rs:2944`), which is 0 for every card tap, so a per-row action routed
+/// through it would always address row 0 — a real defect the mount would have
+/// shipped.
+///
+/// The row is carried IN the id as a `#<row>` suffix, the same shape the
+/// composer uses elsewhere, and stripped here so the action table stays
+/// one-owner: `ACTIONS`/`ROUTED` still list the BARE names.
+///
+/// `"monitor.pause#2"` → `("monitor.pause", Some(2))`; a bare id → `(_, None)`.
+pub fn split_row(action: &str) -> (&str, Option<usize>) {
+    match action.rsplit_once('#') {
+        Some((base, row)) => match row.parse::<usize>() {
+            Ok(index) => (base, Some(index)),
+            // A name that merely contains '#' is a base name, not a row.
+            Err(_) => (action, None),
+        },
+        None => (action, None),
+    }
+}
+
 pub fn is_action(id: &str) -> bool {
-    ACTIONS.iter().any(|(a, _)| *a == id)
+    let (base, _) = split_row(id);
+    ACTIONS.iter().any(|(a, _)| *a == base)
 }
 
 pub fn is_routed(id: &str) -> bool {
-    ROUTED.contains(&id)
+    let (base, _) = split_row(id);
+    ROUTED.contains(&base)
 }
 
 /// The screen's UI-local cache: the last read results (the protocol pushes
-/// goal/loop/monitor notifications, but the lists are read-on-demand — the
-/// web keeps the same in `store.ts` state).
-#[derive(Default)]
+/// goal/loop/monitor notifications, but the lists are read-on-demand —
+/// the web keeps the same in `store.ts` state).
+///
+/// #P4e1c: `Clone` as well as `Default` — [`state_snapshot`] hands the cache to
+/// `lib.rs`'s mount arm by value, and the caller must never hold this module's
+/// lock across a lowering call (that would deadlock against a later `resolve`
+/// on the UI thread). Every field is already `Clone`.
+#[derive(Default, Clone)]
 pub struct AutonomyState {
     pub goal: Option<Value>,
     pub goal_generation: u64,
