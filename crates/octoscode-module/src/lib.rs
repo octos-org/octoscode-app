@@ -1553,6 +1553,57 @@ impl OctoscodeView {
             }
             return;
         }
+        // #D2a: board 2's sidebar half (screens 1-5 — grouped tree, statuses,
+        // search, collapsed rail, compact drawer) owns its 13 card events. They
+        // route through the sidebar table FIRST (one-owner rule); the
+        // conversation router never sees them. `session.open` / `new_chat` /
+        // `workspace.new_chat_here` are the only ones that touch the transport,
+        // and they reuse the router's OWN production ids (`thread.open`,
+        // `session.new` — actions.rs:64/71) rather than minting a session here.
+        if screens::sidebar::is_action(action) {
+            let (store, ui) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.ui.clone())
+            };
+            let effect = {
+                let ctx = bindings::Ctx::new(&store, &ui);
+                screens::sidebar::resolve(action, index, &ctx)
+            };
+            match effect {
+                screens::sidebar::Effect::Unhandled(id) => {
+                    ::log::warn!("octoscode: unhandled sidebar action {id:?}");
+                    return;
+                }
+                // UI-local halves are already applied inside resolve.
+                screens::sidebar::Effect::Applied => {
+                    makepad_widgets::log!("[octoscode] sidebar action: {action}");
+                    return;
+                }
+                screens::sidebar::Effect::NewChat => {
+                    makepad_widgets::log!("[octoscode] sidebar action: {action}");
+                    self.perform_action(cx, bindings::ACTION_NEW_CHAT, 0);
+                    return;
+                }
+                screens::sidebar::Effect::OpenSession { index } => {
+                    makepad_widgets::log!("[octoscode] sidebar action: {action} row {index}");
+                    self.perform_action(cx, "thread.open", index);
+                    return;
+                }
+                screens::sidebar::Effect::NewChatInWorkspace { workspace } => {
+                    // A per-workspace new session is the router's own new-chat
+                    // with the workspace's scope recorded; until the protocol
+                    // carries a per-session workspace scope we mint the session
+                    // and name the workspace on the log line rather than
+                    // silently pretending the scope took.
+                    ::log::info!(
+                        "octoscode: sidebar new chat in workspace {workspace:?} \
+                         (no per-session workspace scope in the protocol yet)"
+                    );
+                    self.perform_action(cx, bindings::ACTION_NEW_CHAT, 0);
+                    return;
+                }
+            }
+        }
         // #30a: the board-3 review screens' ids route through their own table
         // first (one-owner rule); the conversation router never sees them.
         if screens::review::is_action(action) {

@@ -10,6 +10,10 @@ pub mod fleet;
 pub mod keys;
 pub mod models;
 pub mod palette;
+// #D2a: board 2's sidebar half (screens 1-5) — the one owner of the 13 control
+// events the phase4-new2 cards declare (grouped tree, statuses, search,
+// collapsed rail, compact drawer).
+pub mod sidebar;
 // #35b item 1: the ONE card-tap wiring every docked screen shares (connect.rs
 // delegates here; the palette/theme mount paths call it directly).
 pub mod taps;
