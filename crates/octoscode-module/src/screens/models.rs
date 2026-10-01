@@ -188,8 +188,96 @@ fn version_text(v: &Option<String>) -> String {
 /// races converge on one value.
 static WINDOW: std::sync::Mutex<Option<(String, u64)>> = std::sync::Mutex::new(None);
 
-/// Record a token_cost window for a session (the wire fold; also the test
-/// seam — the recorded live-gate value is 1_048_576).
+/// #P4h1 row 300 — the merged `TokenCostUpdate` projection, ported field-for-
+/// field from the web's `mergeTokenCost` (`features/workspace/model.ts:58`):
+///
+/// ```ts
+/// if (!current || current.sessionId !== next.sessionId) return next;
+/// return { ...current, ...entries(next).filter(([, v]) => v !== undefined) };
+/// ```
+///
+/// So a live update for a DIFFERENT session REPLACES the projection, and an
+/// update for the same session MERGES only the fields it actually carries —
+/// a sparse frame that carries `context_window` alone must not erase the
+/// `session_cost` an earlier frame brought. Every recorded token_cost frame is
+/// dense (5/5 fields), which is exactly why this gap survived: the merge only
+/// differs on a sparse frame, and the native fold read `context_window` alone
+/// and kept only that one number.
+static TOKEN_COST: std::sync::Mutex<Option<TokenCostUpdate>> = std::sync::Mutex::new(None);
+
+/// One merged token-cost update: the `sessionId` plus the carried fields, kept
+/// as a JSON object so "this frame did not carry this field" stays
+/// representable (`undefined` is what the web's spread filter drops).
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct TokenCostUpdate {
+    pub session_id: String,
+    /// The carried fields verbatim (the web keeps the typed object whole; a
+    /// JSON object is the same map the wire sends).
+    pub fields: serde_json::Value,
+}
+
+impl TokenCostUpdate {
+    /// The web's `mergeTokenCost`, pure so it is testable without the fold.
+    /// `current` is the projection so far; `next` is the frame that just
+    /// arrived.
+    pub fn merge(
+        current: Option<&TokenCostUpdate>,
+        next: TokenCostUpdate,
+    ) -> TokenCostUpdate {
+        let Some(current) = current else {
+            return next;
+        };
+        // A different session never merges: the web returns `next` outright.
+        if current.session_id != next.session_id {
+            return next;
+        }
+        let serde_json::Value::Object(current_fields) = &current.fields else {
+            return next;
+        };
+        let mut merged = current_fields.clone();
+        if let serde_json::Value::Object(next_fields) = &next.fields {
+            for (key, value) in next_fields {
+                // The web's `value !== undefined` filter. A JSON `null` is NOT
+                // undefined: the web spreads a null over the old value, so we
+                // do too. Absent keys are the only thing dropped.
+                merged.insert(key.clone(), value.clone());
+            }
+        }
+        TokenCostUpdate {
+            session_id: next.session_id,
+            fields: serde_json::Value::Object(merged),
+        }
+    }
+}
+
+/// The merged projection for a session, if the last update named it.
+pub fn token_cost(session: &str) -> Option<TokenCostUpdate> {
+    let guard = TOKEN_COST.lock().unwrap();
+    match guard.as_ref() {
+        Some(u) if u.session_id == session => Some(u.clone()),
+        _ => None,
+    }
+}
+
+/// Fold one token-cost update into the merged projection (`observeTokenCost`,
+/// `use-workspace-product.ts:158-162`). This is the production entry the
+/// `progress/updated` fold below calls.
+pub fn observe_token_cost(next: TokenCostUpdate) -> TokenCostUpdate {
+    let mut guard = TOKEN_COST.lock().unwrap();
+    let merged = TokenCostUpdate::merge(guard.as_ref(), next);
+    *guard = Some(merged.clone());
+    merged
+}
+
+/// Test seam: drop the merged projection.
+pub fn reset_token_cost() {
+    *TOKEN_COST.lock().unwrap() = None;
+}
+
+/// Record a token_cost window for a session. This is the CONTEXT PANEL's slot
+/// (`context.pct` divides by it) and the test seam — the recorded live-gate
+/// value is 1_048_576. The wire fold writes it via [`note_transport_event`],
+/// which also feeds the merged projection.
 pub fn note_token_cost(session: &str, window: u64) {
     *WINDOW.lock().unwrap() = Some((session.to_owned(), window));
 }
@@ -209,13 +297,27 @@ pub fn note_transport_event(evt: &octos_app_transport::TransportEvent) {
     if body["metadata"]["kind"] != "token_cost_update" {
         return;
     }
-    let (Some(window), Some(session)) = (
-        body["metadata"]["token_cost"]["context_window"].as_u64(),
+    let (Some(cost), Some(session)) = (
+        body["metadata"]["token_cost"].as_object(),
         body["session_id"].as_str(),
     ) else {
         return;
     };
-    note_token_cost(session, window);
+    // #P4h1 row 300: fold the WHOLE carried object into the merged projection
+    // first, so the context panel's window is a READER of that projection
+    // rather than a second, un-merged copy of one field.
+    let fields = serde_json::Value::Object(cost.clone());
+    let merged = observe_token_cost(TokenCostUpdate {
+        session_id: session.to_owned(),
+        fields,
+    });
+    if let Some(window) = merged
+        .fields
+        .get("context_window")
+        .and_then(|v| v.as_u64())
+    {
+        note_token_cost(session, window);
+    }
 }
 
 /// Resolve one binding id against the store. `None` = not declared here.
@@ -231,10 +333,24 @@ pub fn query_binding(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
         .session
         .context(&session)
         .and_then(|l| l.state.get("token_estimate").and_then(|v| v.as_u64()));
-    let window = match WINDOW.lock().unwrap().as_ref() {
-        Some((s, w)) if *s == session => Some(*w),
-        _ => None,
-    };
+    // #P4h1 row 300: the window now comes from the MERGED token-cost
+    // projection, which is what the `progress/updated` fold writes. It was a
+    // second, un-merged copy of one field (`WINDOW`) with no other consumer of
+    // the frame, so a sparse frame that carried only `context_window` was the
+    // whole of what native knew about the update. Reading the projection makes
+    // the merge a production path and gives the cost row a source at the same
+    // time.
+    let cost = token_cost(&session);
+    let window = cost
+        .as_ref()
+        .and_then(|u| u.fields.get("context_window"))
+        .and_then(|v| v.as_u64())
+        .or_else(|| match WINDOW.lock().unwrap().as_ref() {
+            // The panel keeps working for a window written by a caller that
+            // only has the one number (the test seam, and any future reader).
+            Some((s, w)) if *s == session => Some(*w),
+            _ => None,
+        });
     let models = store.domains.profile.llm_models();
     let skills = store.domains.profile.installed_skills();
     let registry = store.domains.profile.registry_packages();
