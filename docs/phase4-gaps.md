@@ -293,20 +293,15 @@
 
 ## session:store-hydrate
 - open+hydrate a candidate Session on an isolated transport and buffer its notifications until release — web: src-web/apps/web/src/features/session/candidate-session.ts:73 — transport handled (crates/) but no UI layer cited
-- reject a candidate open that returns a different workspace from the saved link — web: src-web/apps/web/src/features/session/candidate-session.ts:230 — transport handled (crates/) but no UI layer cited
-- durable projection: session/topic scope + per-thread sequence monotonicity + replay-loss recovery — web: src-web/apps/web/src/features/session/durable-session.ts:42 — transport handled (crates/) but no UI layer cited
-- commit an authoritative hydrate: verify the returned session id and adopt the cursor — web: src-web/apps/web/src/features/session/durable-session.ts:82 — transport handled (crates/) but no UI layer cited
 - active Session runtime: connect -> open -> hydrate -> ready with reconnect + authority generation — web: src-web/apps/web/src/features/session/active-session-runtime.ts:406 — transport handled (crates/) but no UI layer cited
 - re-open and hydrate a parked owner without taking its cleanup authority — web: src-web/apps/web/src/features/session/active-session-runtime.ts:74 — transport handled (crates/) but no UI layer cited
 - stale-authority and hydrate-mismatch errors fail closed — web: src-web/apps/web/src/features/session/active-session-runtime.ts:356 — transport handled (crates/) but no UI layer cited
 - session runtime scope key (endpoint/workspace/profile/session/authority epoch) — web: src-web/apps/web/src/features/session/session-scope.ts:18 — needs investigation
 - connection input: endpoint/token/sessionId/profileId/cwd — web: src-web/apps/web/src/features/session/connection-lifecycle.ts:1 — needs investigation
 - topic-scoped notification routing (exact or base#topic; a topicless Session is not a wildcard) — web: src-web/apps/web/src/features/session/scope.ts:7 — transport handled (crates/) but no UI layer cited
-- peer lifecycle events route only by the full originating SessionKey — web: src-web/apps/web/src/features/session/scope.ts:27 — transport handled (crates/) but no UI layer cited
 - durable (localStorage) unsent drafts per authenticated principal — web: src-web/apps/web/src/features/session/durable-session-drafts.ts:37 — needs investigation
 - bounded in-memory draft cache with eviction — web: src-web/apps/web/src/features/session/session-draft-cache.ts:35 — needs investigation
 - per-record composer draft (effort/showReasoning/images + ordered restores) — web: src-web/apps/web/src/features/session/session-composer-drafts.ts:25 — transport handled (crates/) but no UI layer cited
-- coding product capability gate (open+hydrate+turn/start+session/list+durable features) — web: src-web/apps/web/src/features/session/coding-capabilities.ts:28 — transport handled (crates/) but no UI layer cited
 - lazy server runtime: load the transport only on explicit Connect — web: src-web/apps/web/src/features/session/lazy-server-runtime.ts:21 — needs investigation
 - lazy session record manager: deferred per-scope engine — web: src-web/apps/web/src/features/session/lazy-session-record-manager.ts:21 — needs investigation
 - fresh profile-neutral web session id + bind to profile before open — web: src-web/apps/web/src/features/session/session-identity.ts:10 — transport handled (crates/) but no UI layer cited
@@ -328,6 +323,11 @@
 - workspace: product controller (listWorkspaceSessions/deleteSession/observeTokenCost) — web: src-web/apps/web/src/features/workspace/use-workspace-product.ts:42 — transport handled (crates/) but no UI layer cited
 - workspace: request a per-session workspace cwd on open — web: src-web/apps/web/src/features/workspace/use-workspace-product.ts:13 — transport handled (crates/) but no UI layer cited
 - workspace: profile-choice transition moves drafts only after commit — web: src-web/apps/web/src/features/workspace/use-workspace-product.ts:42 — transport handled (crates/) but no UI layer cited
+
+
+## P4d1 manual pass — regen-stable audit overrides (2026-10-01)
+- control/questions: "Esc interrupts the active turn while a question waits" is A by MANUAL flip — the mechanical gate cannot see capability semantics (turn/interrupt is a core method; its protocol-matrix row never carries the tests: note, so the auto-flip is unreachable for ANY capability riding only core methods). The capability IS native end to end: keys.rs:95-103 routes Escape to Interrupt gated only by turn_active; the UserQuestionRequested fold (flow.rs:1438-1440) raises question_pending WITHOUT retiring the live turn (end_turn :1515 is the only clearer); lib.rs:3157 spawns Conversation::interrupt ("turn/interrupt"). Tests: flow.rs::esc_still_interrupts_while_a_question_waits (the question-wait state) + f31e_keys.rs (the resolver table) + #31e live evidence (the Esc path on a live turn). WALK BOUNDARY (recorded per the entry's user-visible rule): the question-WAITING state itself needs the question card surface, which is STOP'd for design flow — the state is test-pinned, not walk-producible; the outer loop may weigh this in acceptance.
+- product-settings: "Profile mutation leases" stays C (re-applied): the regen re-flips it A every run because its methods gained screens+tests evidence via the P4a2 doc-quoting — but the LEASE capability has zero native implementation. See the P4a2 manual pass above.
 
 ## 41b2 manual pass — g-timeline (rows that stay C, with the build/test gap)
 - g-timeline: Parse the native inspection slash grammar (/thread|/threads, /turn, approvals) incl. active-turn UUI — gap: the palette registry (screens/palette.rs:53-58) has /model /monitor /mode /compact /btw /resume but no inspection grammar — web: src-web/apps/web/src/features/inspection/intent.ts:9
@@ -551,4 +551,7 @@
 - g-timeline: Desktop-notification consent — gap: no OS-notification integration or consent policy in the shell; add notifications + a consent-gated first prompt — web desktop-notifications.ts:27
 - g-timeline: Show/close OS notices — gap: no notification-center client in the shell (no show/close/focus-on-click handling) — web desktop-notifications.ts:86
 - g-timeline: Acknowledge attention on window focus — gap: no attention acknowledgement on window activation (and no attention state to clear) — build with the notifications gap above — web use-attention.ts:27
+## P4a2 manual pass — regen-stable audit overrides (2026-10-01)
+- models: "model settings: save a provider/model draft (upsert) and optionally make it the primary route, rebuilding the request once so Test and Save cannot drift" stays A — verified native: run_onboarding builds ONE selection (connect.rs:521) and clones it into BOTH llm/test and llm/upsert (:566/:585), production caller lib.rs:2081, wire-tested f29a_replay.rs. NOTE: this regen flips it automatically; the flip is CORRECT.
+- product-settings: "Profile mutation leases: modal-independent write ownership; duplicate acquisition rejected" is C by AUDIT, not by the mechanical gate — the gate re-flips it A on every regen because its methods (profile/llm/upsert;profile/llm/delete) now carry screens+tests evidence, but the LEASE capability itself (modal-independent write ownership, duplicate-acquisition rejection) has NO native implementation (grep lease|mutation_lease|write_ownership = 0 hits in module/client src). Needs its own surface card; the row's notes + phase4_evidence carry the audit.
 Split after #41c: specific=7 checked in-lane (7 rows), documented gaps=44 (this file). smoke=0 among rows that CAN have a specific check; the 44 above are the rows that cannot, each with its reason.
