@@ -53,6 +53,14 @@ pub const BINDINGS: &[(&str, &str)] = &[
     ("goal.elapsed", "text: time_used_seconds at the atlas granularity ('0s'/'18m'/'1h 30m'; the web has no elapsed formatter — implemented per entry #30b2)"),
     ("goal.can_transition", "bool: status is active|paused (goalCanTransition — pause/resume/stop enabled)"),
     ("goal.available", "bool: the session advertised session/goal/get (fail closed)"),
+    // #P4e1b row 8: the per-family error, empty when none. The web renders
+    // these under `role="alert"` (AutonomyPanel.tsx:227 goal, :328 loops,
+    // :485 monitors), so the card must mark the node as an alert live region
+    // — an error that is only visible is not announced.
+    ("goal.error", "text: the goal family's error, '' when none (role=alert live region)"),
+    ("loops.error", "text: the loops family's error, '' when none (role=alert live region)"),
+    ("monitors.error", "text: the monitors family's error, '' when none (role=alert live region)"),
+    ("agents.error", "text: the agents family's error, '' when none (role=alert live region)"),
     ("loops", "list: [{id,name,cadence,status}] — EXACTLY the store's items; rows instantiate per item (the #17 pattern)"),
     ("loops.count", "int: the loop count (the mounted row count follows it)"),
     ("loops.empty", "text: 'No loops in this session.' when 0 (AutonomyPanel.tsx:238), else ''"),
@@ -608,6 +616,83 @@ fn advertised(store: &Store, method: &str) -> bool {
     store.capabilities().iter().any(|c| c == method)
 }
 
+/// #P4e1b row 3 — the **method half** of the gate, read from the list that
+/// actually carries methods in production.
+///
+/// #P4e1b F1: the old `advertised()` above read `store.capabilities()`, which
+/// `flow.rs:1181` fills from the handshake's `caps.raw.keys()`. The transport's
+/// `Capabilities::parse` (octos-app-transport `capability/mod.rs:137-139`)
+/// early-returns `from_supported_features` when the open reply has a
+/// `supported_features` ARRAY, and that helper (`:121`) puts **only feature
+/// names** into `raw` — so `capabilities()` holds `coding.*`/`approval.*`
+/// features, never method names. Methods arrive separately and land in
+/// `config.supported_methods` (`flow.rs:1231`). The recorded real reply
+/// (`fixtures/r1-autonomy-a6ea8505.jsonl`) confirms both shapes: 34 features
+/// and 106 methods. Comparing a method name against that list was therefore
+/// always false in production, and every autonomy action was refused.
+fn method_advertised(store: &Store, method: &str) -> bool {
+    store.domains.config.supported_methods().iter().any(|m| m == method)
+}
+
+/// #P4e1b row 3 — the **feature half**: the `coding.*` feature each family
+/// requires (web `packages/client/src/autonomy.ts:98-116`,
+/// `supportsMethodWithFeature`; the constants are
+/// `core-contract.ts:31-34`). Fail closed when the feature is absent.
+fn feature_advertised(store: &Store, feature: &str) -> bool {
+    store.capabilities().iter().any(|c| c == feature)
+}
+
+/// The per-family `coding.*` feature id (autonomy.ts:98-116).
+const FEATURE_GOAL: &str = "coding.goal_runtime.v1";
+const FEATURE_LOOP: &str = "coding.loop_runtime.v1";
+const FEATURE_MONITOR: &str = "coding.monitor_runtime.v1";
+const FEATURE_AGENT: &str = "coding.agent_control.v1";
+
+/// #P4e1b rows 6+8: the family names the revision/error/busy fences are keyed
+/// by — the same partition the web keeps in its state slices
+/// (`goalBusy`/`loopsBusy`/`monitorsBusy`/`agentsError`, `store.ts`).
+pub const FAMILY_GOAL: &str = "goal";
+pub const FAMILY_LOOPS: &str = "loops";
+pub const FAMILY_MONITORS: &str = "monitors";
+pub const FAMILY_AGENTS: &str = "agents";
+
+/// #P4e1b row 8: a failed autonomy op records its error for the family ONLY
+/// while the op is still authorized — the store drops it if the authority
+/// moved on (web `autonomy/store.ts` "records the error only while the op
+/// stays authorized" / "drops the error when a newer epoch superseded the
+/// request"). The binding renders it with alert semantics (the web's
+/// `role="alert"`, `AutonomyPanel.tsx:227/:328/:485`).
+pub fn record_family_error(conv: &Conversation, family: &str, epoch: u64, message: &str) {
+    if conv.store.domains.autonomy.record_error(family, epoch, message) {
+        ::log::warn!("octoscode: autonomy {family} error: {message}");
+    }
+}
+
+/// #P4e1b rows 4+6: may this result land? Two fences, both must hold:
+/// * the **authority** still is the one the op was dispatched under — a late
+///   result from a retired commands identity is dropped (web
+///   `autonomy/store.ts:887-889` "epoch admission");
+/// * the **family's** revision is still the one this read took — a superseding
+///   owning event (or a newer refresh) means the snapshot is stale
+///   (`store.ts:350-357`).
+pub fn authorized(conv: &Conversation, family: &str, epoch: u64, rev: u64) -> bool {
+    let a = &conv.store.domains.autonomy;
+    a.epoch_admits(epoch) && a.revision(family) == rev
+}
+
+/// #P4e1b row 3 — every control needs **BOTH** its method and its
+/// `coding.*` feature. Either half missing fails the control closed.
+pub fn gated(store: &Store, family: &str, method: &str) -> bool {
+    let feature = match family {
+        "goal" => FEATURE_GOAL,
+        "loops" => FEATURE_LOOP,
+        "monitors" => FEATURE_MONITOR,
+        "agents" => FEATURE_AGENT,
+        _ => return false,
+    };
+    method_advertised(store, method) && feature_advertised(store, feature)
+}
+
 /// The concrete thing the module does for a routed autonomy action.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Effect {
@@ -642,13 +727,14 @@ pub fn resolve(action: &str, index: usize, value: Option<&str>, ctx: &Ctx<'_>) -
     // are advertised").
     let method_ok = match action {
         "goal.refresh" | "goal.set" | "goal.clear" | "goal.pause" | "goal.resume" | "goal.stop" => {
-            advertised(ctx.store, "session/goal/get") && advertised(ctx.store, "session/goal/set")
+            gated(ctx.store, "goal", "session/goal/get")
+                && gated(ctx.store, "goal", "session/goal/set")
         }
         "loops.refresh" | "loop.pause" | "loop.resume" | "loop.delete" | "loop.fire_now" => {
-            advertised(ctx.store, "loop/list")
+            gated(ctx.store, "loops", "loop/list")
         }
         "monitors.refresh" | "monitor.pause" | "monitor.resume" | "monitor.delete"
-        | "monitor.create" => advertised(ctx.store, "monitor/list"),
+        | "monitor.create" => gated(ctx.store, "monitors", "monitor/list"),
         _ => false,
     };
     if !method_ok {
@@ -751,13 +837,58 @@ fn id_at(list: &[Value], index: usize) -> Option<String> {
         .map(str::to_owned)
 }
 
+/// #P4e1b row 8: which family owns an effect — the error is filed under the
+/// same partition the web uses (`goalError`/`loopsError`/`monitorsError`,
+/// `autonomy/store.ts`), and `Unhandled` owns none.
+pub fn family_of(effect: &Effect) -> Option<&'static str> {
+    Some(match effect {
+        Effect::RefreshGoal | Effect::SetGoal { .. } | Effect::ClearGoal | Effect::Transition(_) => {
+            FAMILY_GOAL
+        }
+        Effect::RefreshLists
+        | Effect::LoopPause(_)
+        | Effect::LoopResume(_)
+        | Effect::LoopDelete(_)
+        | Effect::LoopFireNow(_) => FAMILY_LOOPS,
+        Effect::MonitorPause(_)
+        | Effect::MonitorResume(_)
+        | Effect::MonitorDelete(_)
+        | Effect::MonitorCreate { .. } => FAMILY_MONITORS,
+        Effect::Unhandled(_) => return None,
+    })
+}
+
 /// Perform the effect against the production client (async; spawn from the UI
 /// thread, await from tests/replays).
+///
+/// #P4e1b row 8: the authority epoch is captured here — the op is dispatched
+/// under the authority that is current at this instant — and a failure is
+/// filed under the family's error ONLY while that authority still holds. If
+/// the identity was retired while the request was in flight, the error is
+/// dropped rather than shown (`autonomy/store.ts` "records the error only
+/// while the op stays authorized" / "drops the error when a newer epoch
+/// superseded the request"). The binding renders it as an alert live region.
 pub async fn apply(effect: Effect, conv: &Conversation) -> Result<(), String> {
+    let family = family_of(&effect);
+    let epoch = conv.store.domains.autonomy.epoch();
+    let out = apply_inner(effect, conv).await;
+    if let (Some(family), Err(message)) = (family, &out) {
+        record_family_error(conv, family, epoch, message);
+    }
+    out
+}
+
+async fn apply_inner(effect: Effect, conv: &Conversation) -> Result<(), String> {
     let client = conv.client();
     let ids = json!({"profile_id": conv.profile(), "session_id": conv.session_id()});
     match effect {
         Effect::RefreshGoal => {
+            // #P4e1b row 6: take this family's refresh revision BEFORE the read,
+            // so a notification landing mid-refresh supersedes the snapshot.
+            // #P4e1b row 4: the epoch is captured at dispatch and re-checked
+            // after the await, so a result from a retired identity is dropped.
+            let rev = conv.store.domains.autonomy.bump_revision(FAMILY_GOAL);
+            let epoch = conv.store.domains.autonomy.epoch();
             let result = client
                 .request("session/goal/get", ids)
                 .await
@@ -767,7 +898,7 @@ pub async fn apply(effect: Effect, conv: &Conversation) -> Result<(), String> {
             // hold cannot regress the screen.
             let generation = result["generation"].as_u64().unwrap_or(0);
             let mut st = state();
-            if admits(st.goal_generation, generation) {
+            if authorized(conv, FAMILY_GOAL, epoch, rev) && admits(st.goal_generation, generation) {
                 st.goal = result["goal"].as_object().map(|o| Value::Object(o.clone()));
                 st.goal_generation = generation;
             }
@@ -842,6 +973,13 @@ pub async fn apply(effect: Effect, conv: &Conversation) -> Result<(), String> {
             Ok(())
         }
         Effect::RefreshLists => {
+            // #P4e1b row 6: ONE revision per family — an owning loops event
+            // must not discard the monitors snapshot and vice versa (web
+            // `autonomy/store.ts:350-357` "an unrelated-family owning event
+            // does not discard another family's refresh snapshot").
+            let loops_rev = conv.store.domains.autonomy.bump_revision(FAMILY_LOOPS);
+            let monitors_rev = conv.store.domains.autonomy.bump_revision(FAMILY_MONITORS);
+            let epoch = conv.store.domains.autonomy.epoch();
             let loops = client
                 .request("loop/list", ids.clone())
                 .await
@@ -853,8 +991,12 @@ pub async fn apply(effect: Effect, conv: &Conversation) -> Result<(), String> {
                 .map_err(|e| e.to_string())?;
             record(conv, "monitor/list", None);
             let mut st = state();
-            st.loops = loops["loops"].as_array().cloned().unwrap_or_default();
-            st.monitors = monitors["monitors"].as_array().cloned().unwrap_or_default();
+            if authorized(conv, FAMILY_LOOPS, epoch, loops_rev) {
+                st.loops = loops["loops"].as_array().cloned().unwrap_or_default();
+            }
+            if authorized(conv, FAMILY_MONITORS, epoch, monitors_rev) {
+                st.monitors = monitors["monitors"].as_array().cloned().unwrap_or_default();
+            }
             Ok(())
         }
         Effect::LoopPause(id) => simple(conv, "loop/pause", "loop_id", &id).await,
@@ -1064,7 +1206,15 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
             .as_ref()
             .map(|g| matches!(g["status"].as_str(), Some("active") | Some("paused")))
             .unwrap_or(false)),
-        "goal.available" => json!(advertised(store, "session/goal/get")),
+        "goal.available" => json!(gated(store, "goal", "session/goal/get")),
+        // #P4e1b row 8: '' when authorized-and-clean; the message while the op
+        // still holds authority; '' again once a newer epoch superseded it.
+        "goal.error" => json!(store.domains.autonomy.error(FAMILY_GOAL).unwrap_or_default()),
+        "loops.error" => json!(store.domains.autonomy.error(FAMILY_LOOPS).unwrap_or_default()),
+        "monitors.error" => {
+            json!(store.domains.autonomy.error(FAMILY_MONITORS).unwrap_or_default())
+        }
+        "agents.error" => json!(store.domains.autonomy.error(FAMILY_AGENTS).unwrap_or_default()),
         "loops" => json!(st
             .loops
             .iter()
@@ -1077,7 +1227,7 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
             .collect::<Vec<Value>>()),
         "loops.count" => json!(st.loops.len()),
         "loops.empty" => json!(if st.loops.is_empty() { "No loops in this session." } else { "" }),
-        "loops.available" => json!(advertised(store, "loop/list")),
+        "loops.available" => json!(gated(store, "loops", "loop/list")),
         "monitors" => json!(st
             .monitors
             .iter()
@@ -1099,7 +1249,7 @@ pub fn query(ctx: &Ctx<'_>, id: &str) -> Option<Value> {
             .collect::<Vec<Value>>()),
         "monitors.count" => json!(st.monitors.len()),
         "monitors.empty" => json!(if st.monitors.is_empty() { "No monitors in this session." } else { "" }),
-        "monitors.available" => json!(advertised(store, "monitor/list")),
+        "monitors.available" => json!(gated(store, "monitors", "monitor/list")),
         "monitors.footer" => {
             let total = st.monitors.len();
             let active = st
