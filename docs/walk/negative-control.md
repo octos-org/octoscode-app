@@ -29,3 +29,11 @@ pass** — precisely because the specific checks assert the fixture-dependent
 behaviour the user would SEE. The smoke checks passing on the broken setup is the
 review's point made visible: a green smoke row says "the shell mounted", nothing
 more. This is why results.csv now carries the `depth` column (06b259c).
+
+## Re-verified on #41c (2026-09-30, after the row-specific checks landed)
+
+    WALK_SCENARIO=conversation=session python3 tools/walk/run.py --only conversation --limit 10
+
+→ **rc=1** (`tmp/41c-negative.log`): the specific checks still fail on the broken setup — the streaming,
+order, and timeline-kind checks all FAIL (the fixture never streams an answer), and the runner's summary is
+`fail=10` with `pass by depth specific=0 smoke=0`. The negative control was NOT weakened by the #41c changes.

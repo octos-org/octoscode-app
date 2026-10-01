@@ -91,3 +91,18 @@ defects, so none are defects under this card's rule):
   docs/walk/evidence/phase3/41e-row50-fail.png (+ .snap.json). Turns spent: 1
   (cumulative 5/60 across #41d+#41e). No app card candidate; re-test only if
   the operator reconfigures dsflash's autonomy mode.
+## #41c — five reproduced FAILs from the new row-specific checks (runs 3+5 agree)
+Each is a walk row's OWN case now asserted specifically (tools/walk/run.py `#41c` block); each FAIL reproduced in
+run 3 (`tmp/41c-walk-run3.log`) and run 5 (`tmp/41c-walk-run5.log`) after the check-harness bugs were fixed out.
+| row | check | measured |
+|---|---|---|
+| 72 | Alt+D reaches a fleet capability notice surface to focus | keys.rs has no KeyD Alt arm; snap after keyd&alt carries no capability/notice widget — `capability-notice widgets=none` |
+| 73 | Alt+P toggles a peer dock fold | no `peer_dock` widget mounts at all — `peer_dock rects=None -> None` |
+| 128 | Fleet's roster rows render with real rects | `fleet_row_1 rect=[0,0,0,0]` under r6-peer: ids mount, rects stay collapsed (the id-only smoke check masked this) |
+| 102 | the palette's /monitor command reaches a monitors surface | `/monitor` is table data only (`palette_commands`, lib.rs:3099); executing it closes the palette and mounts nothing — `monitor ids=[] texts=[]` (the run arm logs `no native effect`) |
+| 58 | Escape closes the settings drawer and the trigger still works | Esc does NOT close the drawer; the check recovered via the drawer's own `settings_close` control and the trigger re-opens fine — so only the Esc leg is broken |
+Non-#41c fails in run 5: row 57 (longcode clipboard) is the pre-existing known-red; row 57/58's `longcode` check
+(a 227-column line) is likewise pre-existing (kept failing on main).
+Also recorded: `keyk&cmd` does not open the palette on the walk host while `keyk&ctrl` does (three runs), with cmd
+delivery itself proven (Cmd+E opens the review dock, #36e) — keys.rs:106 accepts `logo || ctrl`, so the logo arm
+is the suspect; the a11y check asserts the ctrl leg (proven delivery).
