@@ -1,0 +1,392 @@
+{
+  "schema_version": 1,
+  "policy_version": "1.1.0",
+  "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
+  "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
+  "manifest_sha256": "7798e463ff63f2302b5f3e88f38b8c465557d83a3020be948454f618c97fd13d",
+  "reference_sha256": "75c3e6d3a8c57ee1c8ca46d0e4fe7712041f53bcdf9544771cd741fd3172d320",
+  "id": "phase4n2-02",
+  "round": null,
+  "phase": "preflight",
+  "pass": true,
+  "errors": [],
+  "elements": [
+    {
+      "id": "page",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "t_head",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "i_pencil",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "t_newchat",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "sf",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "sf_hair",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "i_search",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "t_search",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "seg",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "seg_sel",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "t_seg_l",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "t_seg_r",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "i_sort",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "t_sort",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "i_st0",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "st_t0",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "st_w0",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "i_st1",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "st_t1",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "st_w1",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "i_st2",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "st_t2",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "st_w2",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "i_st3",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "st_t3",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "st_w3",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "i_st4",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "st_t4",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "st_w4",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "i_plus",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "t_addws",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    }
+  ],
+  "scope": "Semantic mapping checks only; geometry, visual fidelity and complete app workflows remain separate."
+}

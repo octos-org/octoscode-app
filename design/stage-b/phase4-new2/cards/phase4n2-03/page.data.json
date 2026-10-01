@@ -1,0 +1,276 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surfaceb4206391250d",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "t_head": {
+        "component": "Text77951e8b1630",
+        "layout": {
+          "x": 15.788241106089629,
+          "y": 27.17293233082707,
+          "w": 94.7373572593801,
+          "h": 27.338345864661655
+        }
+      },
+      "i_pencil": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 22.0,
+          "y": 56.0,
+          "w": 18.0,
+          "h": 18.0,
+          "src": "http://127.0.0.1:8190/ux-images/phase4n2-03/assets/i_pencil-32d2adc5b655.svg"
+        }
+      },
+      "t_newchat": {
+        "component": "Textd43ba81c7a6d",
+        "layout": {
+          "x": 14.959474809971645,
+          "y": 82.01804511278196,
+          "w": 88.77650897226754,
+          "h": 30.839097744360902
+        }
+      },
+      "sf": {
+        "component": "Surfaceca72b7a55b75",
+        "layout": {
+          "x": 13.0,
+          "y": 135.0,
+          "w": 378.0,
+          "h": 58.0
+        }
+      },
+      "sf_hair": {
+        "component": "Surface4fce4f8c128d",
+        "layout": {
+          "x": 11.0,
+          "y": 133.0,
+          "w": 382.0,
+          "h": 63.0
+        }
+      },
+      "i_search": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 34.0,
+          "y": 104.0,
+          "w": 16.0,
+          "h": 16.0,
+          "src": "http://127.0.0.1:8190/ux-images/phase4n2-03/assets/i_search-e0cef4fa0173.svg"
+        }
+      },
+      "t_search": {
+        "component": "Text3b2e2a58ad1d",
+        "layout": {
+          "x": 46.99063032529814,
+          "y": 152.03308270676692,
+          "w": 50.36215334420881,
+          "h": 28.50526315789474
+        }
+      },
+      "i_clear": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 356.0,
+          "y": 104.0,
+          "w": 14.0,
+          "h": 14.0,
+          "src": "http://127.0.0.1:8190/ux-images/phase4n2-03/assets/i_clear-6bf78f6dc84e.svg"
+        }
+      },
+      "seg": {
+        "component": "Surface861330c0bc97",
+        "layout": {
+          "x": 14.0,
+          "y": 214.0,
+          "w": 125.0,
+          "h": 52.0
+        }
+      },
+      "seg_sel": {
+        "component": "Surface75f0e3015ea9",
+        "layout": {
+          "x": 24.0,
+          "y": 152.0,
+          "w": 105.0,
+          "h": 26.0
+        }
+      },
+      "t_seg_l": {
+        "component": "Textb933cae9b757",
+        "layout": {
+          "x": 33.09294701059405,
+          "y": 229.0496240601504,
+          "w": 85.46492659053834,
+          "h": 27.338345864661655
+        }
+      },
+      "t_seg_r": {
+        "component": "Textb925a5c84bc5",
+        "layout": {
+          "x": 173.5501698485679,
+          "y": 229.0496240601504,
+          "w": 17.246329526916803,
+          "h": 22.670676691729323
+        }
+      },
+      "i_sort": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 380.0,
+          "y": 156.0,
+          "w": 14.0,
+          "h": 14.0,
+          "src": "http://127.0.0.1:8190/ux-images/phase4n2-03/assets/i_sort-4a0fec61e082.svg"
+        }
+      },
+      "t_sort": {
+        "component": "Textfd3646c83929",
+        "layout": {
+          "x": 337.68732416744416,
+          "y": 229.0496240601504,
+          "w": 56.98531810766721,
+          "h": 21.503759398496243
+        }
+      },
+      "i_chev_octos": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 24.0,
+          "y": 216.0,
+          "w": 14.0,
+          "h": 14.0,
+          "src": "http://127.0.0.1:8190/ux-images/phase4n2-03/assets/i_chev_octos-4a0fec61e082.svg"
+        }
+      },
+      "t_grp_octos": {
+        "component": "Text95332e64e2a3",
+        "layout": {
+          "x": 12.065313019764059,
+          "y": 307.23308270676694,
+          "w": 69.56933115823817,
+          "h": 22.670676691729323
+        }
+      },
+      "r00_sel": {
+        "component": "Surfacec8acdde93d5e",
+        "layout": {
+          "x": 11.0,
+          "y": 211.0,
+          "w": 213.0,
+          "h": 58.0
+        }
+      },
+      "m1": {
+        "component": "Text2c75faf33992",
+        "layout": {
+          "x": 56,
+          "y": 250,
+          "w": 62,
+          "h": 20
+        }
+      },
+      "hl": {
+        "component": "Surfaceaa77e6b2a2a8",
+        "layout": {
+          "x": 118.0,
+          "y": 251.0,
+          "w": 62.0,
+          "h": 20.0
+        }
+      },
+      "m2": {
+        "component": "Text2c75faf33992",
+        "layout": {
+          "x": 120,
+          "y": 250,
+          "w": 58,
+          "h": 20
+        }
+      },
+      "m3": {
+        "component": "Text2c75faf33992",
+        "layout": {
+          "x": 178,
+          "y": 250,
+          "w": 56,
+          "h": 20
+        }
+      },
+      "r00_w": {
+        "component": "Textef2d27646007",
+        "layout": {
+          "x": 329.20020543684507,
+          "y": 371.4135338345865,
+          "w": 56.32300163132137,
+          "h": 27.338345864661655
+        }
+      },
+      "i_chev_octoscode-app": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 24.0,
+          "y": 308.0,
+          "w": 14.0,
+          "h": 14.0,
+          "src": "http://127.0.0.1:8190/ux-images/phase4n2-03/assets/i_chev_octoscode-app-4a0fec61e082.svg"
+        }
+      },
+      "t_grp_octoscode-app": {
+        "component": "Text594842dc53d5",
+        "layout": {
+          "x": 11.939969286693604,
+          "y": 467.10075187969926,
+          "w": 140.43719412724306,
+          "h": 32.00601503759398
+        }
+      },
+      "empty1": {
+        "component": "Textbe50c81793d2",
+        "layout": {
+          "x": 37.38733846308985,
+          "y": 531.2812030075188,
+          "w": 271.57585644371943,
+          "h": 29.672180451127822
+        }
+      },
+      "clear1": {
+        "component": "Textdefbda05080a",
+        "layout": {
+          "x": 36.93139823457502,
+          "y": 595.4616541353383,
+          "w": 75.53017944535074,
+          "h": 22.670676691729323
+        }
+      },
+      "i_plus": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 24.0,
+          "y": 726.0,
+          "w": 16.0,
+          "h": 16.0,
+          "src": "http://127.0.0.1:8190/ux-images/phase4n2-03/assets/i_plus-5c8b9808e6ad.svg"
+        }
+      },
+      "t_addws": {
+        "component": "Textaa7b5c42b5dc",
+        "layout": {
+          "x": 15.90289701291611,
+          "y": 716.8210526315789,
+          "w": 127.8531810766721,
+          "h": 28.50526315789474
+        }
+      }
+    },
+    "bindings": []
+  }
+}

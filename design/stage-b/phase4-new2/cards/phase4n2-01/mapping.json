@@ -1,0 +1,571 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surfaceb4206391250d",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_head",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text1bb82c26bb9f",
+      "semantic_role": "text",
+      "bounds": [
+        15.669416777260032,
+        27.17293233082707,
+        90.77379095163808,
+        27.338345864661655
+      ],
+      "text": "OctosCode",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-700.ttf",
+      "size": 31.19904199140148
+    },
+    {
+      "source_id": "i_pencil",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        22.0,
+        56.0,
+        18.0,
+        18.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_newchat",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textb9dbbb54438c",
+      "semantic_role": "text",
+      "bounds": [
+        14.811719340209624,
+        82.01804511278196,
+        84.4399375975039,
+        30.839097744360902
+      ],
+      "text": "New chat",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 36.281499789076655
+    },
+    {
+      "source_id": "sf",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfacedfc776213dd1",
+      "semantic_role": "layout",
+      "bounds": [
+        13.0,
+        134.0,
+        378.0,
+        56.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "sf_hair",
+      "native_id": "beauty_0_3_0",
+      "parent": "sf",
+      "kind": "stack",
+      "component": "Surface2ef5910f0d9f",
+      "semantic_role": "layout",
+      "bounds": [
+        11.0,
+        132.0,
+        383.0,
+        61.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "i_search",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        34.0,
+        104.0,
+        16.0,
+        16.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_search",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textc12660bf46b3",
+      "semantic_role": "text",
+      "bounds": [
+        20.317828844732738,
+        148.53233082706768,
+        104.70826833073323,
+        28.50526315789474
+      ],
+      "text": "Search chats",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 32.67368421052632
+    },
+    {
+      "source_id": "seg",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface1c47e4d9977a",
+      "semantic_role": "layout",
+      "bounds": [
+        14.0,
+        212.0,
+        117.0,
+        50.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "seg_sel",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfaceb2ee79a520d8",
+      "semantic_role": "layout",
+      "bounds": [
+        24.0,
+        152.0,
+        105.0,
+        26.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_seg_l",
+      "native_id": "beauty_0_8",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texta01f39b91e42",
+      "semantic_role": "text",
+      "bounds": [
+        32.29347318837579,
+        226.71578947368423,
+        80.63962558502341,
+        26.171428571428574
+      ],
+      "text": "By workspace",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 23.698896510587538
+    },
+    {
+      "source_id": "t_seg_r",
+      "native_id": "beauty_0_9",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textdc09aca520e6",
+      "semantic_role": "text",
+      "bounds": [
+        159.60742642920633,
+        225.54887218045113,
+        16.667706708268334,
+        22.670676691729323
+      ],
+      "text": "All",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 25.662782459504466
+    },
+    {
+      "source_id": "i_sort",
+      "native_id": "beauty_0_10",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        380.0,
+        156.0,
+        14.0,
+        14.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_sort",
+      "native_id": "beauty_0_11",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textc4ba6721649d",
+      "semantic_role": "text",
+      "bounds": [
+        336.1467409127926,
+        225.54887218045113,
+        54.03744149765991,
+        21.503759398496243
+      ],
+      "text": "Recent",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 23.677476385812618
+    },
+    {
+      "source_id": "i_chev_octos",
+      "native_id": "beauty_0_12",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        24.0,
+        216.0,
+        14.0,
+        14.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_grp_octos",
+      "native_id": "beauty_0_13",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text9723b3554cab",
+      "semantic_role": "text",
+      "bounds": [
+        11.48669020111559,
+        301.3984962406015,
+        65.43837753510141,
+        22.670676691729323
+      ],
+      "text": "octos",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 27.17664951290807
+    },
+    {
+      "source_id": "r00_sel",
+      "native_id": "beauty_0_14",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surface17cfaad14117",
+      "semantic_role": "layout",
+      "bounds": [
+        11.0,
+        209.0,
+        193.0,
+        56.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "r00_t",
+      "native_id": "beauty_0_15",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textc98c3e41517a",
+      "semantic_role": "text",
+      "bounds": [
+        35.115801540326146,
+        358.57744360902257,
+        207.95007800312013,
+        28.50526315789474
+      ],
+      "text": "Fix steer queue drop on reconnect",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 25.64475163381115
+    },
+    {
+      "source_id": "r00_w",
+      "native_id": "beauty_0_16",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text48d4b6867650",
+      "semantic_role": "text",
+      "bounds": [
+        366.8451135898347,
+        360.91127819548876,
+        19.201248049922,
+        21.503759398496243
+      ],
+      "text": "2m",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 23.740198177563116
+    },
+    {
+      "source_id": "r01_t",
+      "native_id": "beauty_0_17",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text3e66ed5a3075",
+      "semantic_role": "text",
+      "bounds": [
+        36.12342319894665,
+        414.58947368421053,
+        102.80811232449298,
+        22.670676691729323
+      ],
+      "text": "Add session fork",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 24.139864813549025
+    },
+    {
+      "source_id": "r01_w",
+      "native_id": "beauty_0_18",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textca54eca98bd3",
+      "semantic_role": "text",
+      "bounds": [
+        369.96086362447284,
+        415.75639097744363,
+        15.400936037441499,
+        22.670676691729323
+      ],
+      "text": "1h",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 25.662782459504466
+    },
+    {
+      "source_id": "r02_t",
+      "native_id": "beauty_0_19",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text6fc5afd160b6",
+      "semantic_role": "text",
+      "bounds": [
+        35.21956089015212,
+        471.7684210526316,
+        107.2418096723869,
+        22.670676691729323
+      ],
+      "text": "Review PR #2566",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 24.464200809124538
+    },
+    {
+      "source_id": "r02_w",
+      "native_id": "beauty_0_20",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text3ba79ff30be8",
+      "semantic_role": "text",
+      "bounds": [
+        334.3957726611449,
+        647.9729323308271,
+        53.40405616224649,
+        28.50526315789474
+      ],
+      "text": "Yesterday",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 26.193517195912538
+    },
+    {
+      "source_id": "i_chev_octoscode-app",
+      "native_id": "beauty_0_21",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        24.0,
+        390.0,
+        14.0,
+        14.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_grp_octoscode-app",
+      "native_id": "beauty_0_22",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text1c5b9a8a1075",
+      "semantic_role": "text",
+      "bounds": [
+        10.727961132631716,
+        537.1157894736842,
+        135.74414976599064,
+        32.00601503759398
+      ],
+      "text": "octoscode-app",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 30.06096373007992
+    },
+    {
+      "source_id": "r03_t",
+      "native_id": "beauty_0_23",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textb7e0f2638104",
+      "semantic_role": "text",
+      "bounds": [
+        35.081899017388956,
+        593.1278195488723,
+        182.61466458658347,
+        28.50526315789474
+      ],
+      "text": "Bump octos-core to a6ea8505",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 26.030487005896486
+    },
+    {
+      "source_id": "r03_w",
+      "native_id": "beauty_0_24",
+      "parent": "page",
+      "kind": "text",
+      "component": "Texta6af3be3234c",
+      "semantic_role": "text",
+      "bounds": [
+        368.74526959607493,
+        594.2947368421053,
+        16.034321372854915,
+        21.503759398496243
+      ],
+      "text": "2h",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 23.740198177563116
+    },
+    {
+      "source_id": "r04_t",
+      "native_id": "beauty_0_25",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text608255030630",
+      "semantic_role": "text",
+      "bounds": [
+        36.05698386443178,
+        646.806015037594,
+        128.77691107644307,
+        29.672180451127822
+      ],
+      "text": "Why is hydrate slow?",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 26.75655244982686
+    },
+    {
+      "source_id": "r04_w",
+      "native_id": "beauty_0_26",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textd65893b4a9f4",
+      "semantic_role": "text",
+      "bounds": [
+        335.66254333197173,
+        471.7684210526316,
+        54.03744149765991,
+        28.50526315789474
+      ],
+      "text": "Yesterday",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 26.193517195912538
+    },
+    {
+      "source_id": "i_plus",
+      "native_id": "beauty_0_27",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        24.0,
+        726.0,
+        16.0,
+        16.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_addws",
+      "native_id": "beauty_0_28",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textf16491db901d",
+      "semantic_role": "text",
+      "bounds": [
+        20.18431880189096,
+        717.9879699248121,
+        114.20904836193448,
+        30.839097744360902
+      ],
+      "text": "Add workspace",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 28.80842357465992
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-700.ttf": "b6e29575c0d0aff9c4c8f89763994876000a09fa9d0d1da32133aea5fdbfe0e5",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242"
+  },
+  "contract_sha256": "0c47f4e3d95515ea169390d551c84bdccca1455ca4af17f2e9e4e8b8e8b81dea",
+  "mapping_basis": "mapped.json"
+}

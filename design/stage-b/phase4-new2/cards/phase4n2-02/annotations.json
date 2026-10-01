@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "75c3e6d3a8c57ee1c8ca46d0e4fe7712041f53bcdf9544771cd741fd3172d320",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      139.0,
+      213.0,
+      67.0,
+      50.0
+    ],
+    [
+      13.0,
+      210.0,
+      196.0,
+      56.0
+    ],
+    [
+      15.0,
+      135.0,
+      376.0,
+      56.0
+    ],
+    [
+      13.0,
+      132.0,
+      381.0,
+      62.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "i_pencil",
+      "bounds": [
+        22.0,
+        56.0,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "sf",
+      "bounds": [
+        15.0,
+        135.0,
+        376.0,
+        56.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 14.0
+    },
+    {
+      "id": "sf_hair",
+      "bounds": [
+        13.0,
+        132.0,
+        381.0,
+        62.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 15.5
+    },
+    {
+      "id": "i_search",
+      "bounds": [
+        34.0,
+        104.0,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "seg",
+      "bounds": [
+        13.0,
+        210.0,
+        196.0,
+        56.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294309365,
+      "radius": 14.82
+    },
+    {
+      "id": "seg_sel",
+      "bounds": [
+        139.0,
+        213.0,
+        67.0,
+        50.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.46
+    },
+    {
+      "id": "i_sort",
+      "bounds": [
+        380.0,
+        156.0,
+        14.0,
+        14.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "i_st0",
+      "bounds": [
+        24.0,
+        215.0,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "i_st1",
+      "bounds": [
+        24.0,
+        257.0,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "i_st2",
+      "bounds": [
+        24.0,
+        299.0,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "i_st3",
+      "bounds": [
+        24.0,
+        341.0,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "i_st4",
+      "bounds": [
+        24.0,
+        383.0,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "i_plus",
+      "bounds": [
+        24.0,
+        726.0,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    }
+  ]
+}

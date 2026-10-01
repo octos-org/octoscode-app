@@ -71,22 +71,31 @@ ICON_REG = {}
 
 def icon(iid, name, x, y, w, h, color="ink"):
     ICON_REG[iid] = (name, C.get(color, color))
-    return {"id": iid, "type": "svg", "x": x, "y": y, "w": w, "h": h,
-            "svg": name, "color": C_HEX.get(color, color)}
+    # Flow schema: svg nodes carry an empty src; compile_page fills it from the
+    # semantic-map decision (assets/<id>.svg) and republishes the file.
+    return {"t": "svg", "id": iid, "x": x, "y": y, "w": w, "h": h, "src": ""}
 
 
 def text(iid, s, x, y, w, h, *, weight=400, color="ink", size=14):
-    return {"id": iid, "type": "text", "x": x, "y": y, "w": w, "h": h, "text": s,
-            "font": FONT[weight], "size": size, "color": C_HEX.get(color, C["ink"])}
+    # Flow schema: t/id/text/geometry + style keys the compiler tokenizes
+    # (size/weight/font_src/line_height/color); colors are u32 (0xAARRGGBB int).
+    return {"t": "text", "id": iid, "text": s, "x": x, "y": y, "w": w, "h": h,
+            "size": size, "line_height": h, "weight": weight,
+            "color": C.get(color, color), "variant": "single_line", "alignx": 0,
+            "font_src": FONT[weight]}
 
 
 def surface(iid, x, y, w, h, *, bg="white", radius=12, border=0, kids=None):
-    n = {"id": iid, "type": "surface", "x": x, "y": y, "w": w, "h": h,
-         "bg": C_HEX.get(bg, bg), "radius": radius}
-    if border:
-        n["border"] = {"color": C_HEX["hair"], "width": 1}
+    # Flow schema: a stack node; children ride `c`. The 1px hairline becomes a
+    # nested 1px-high hair-coloured stack (the compiler has no border style).
+    n = {"t": "stack", "id": iid, "x": x, "y": y, "w": w, "h": h,
+         "variant": "surface", "bg": C.get(bg, bg), "radius": radius, "c": []}
     if kids:
-        n["kids"] = kids
+        n["c"] = kids
+    if border:
+        n["c"].append({"t": "stack", "id": iid + "_hair", "x": 0, "y": 0, "w": w,
+                       "h": h, "variant": "surface", "bg": C["hair"], "radius": radius,
+                       "c": []})
     return n
 
 
@@ -166,7 +175,6 @@ def group_head(sc, y, name, *, expanded=True, count=None, menu=False):
     sc.control(f"ctl_grp_{name.replace(' ', '')}", "workspace.toggle",
                (16, y - 4, 250, 30))
     sc.observe(name, 46, y, 180, 22)
-    x = 320
     if count is not None:
         sc.put(surface("grp_badge", 320, y, 30, 22, bg="chip", radius=11))
         sc.put(text("grp_badge_t", str(count), 320, y + 2, 30, 18, color="ink",
@@ -321,8 +329,8 @@ def build(num):
            "content_source": ("Approved stage-a phase4-new2 atlas; text/bounds measured by "
                               "the lane model's vision on the measured hairline grid crops"),
            "graphics": {},
-           "tree": {"id": "page", "type": "surface", "x": 0, "y": 0, "w": 406, "h": 776,
-                    "bg": "#FFFFFF", "radius": 0, "kids": sc.kids}}
+           "tree": {"t": "stack", "id": "page", "x": 0, "y": 0, "w": 406, "h": 776,
+                    "variant": "surface", "bg": C["white"], "radius": 0, "c": sc.kids}}
     return doc, sc
 
 
@@ -337,12 +345,20 @@ def main():
         obs = {"width": 406, "height": 776, "observations": sc.obs,
                "source": "lane-vision on the measured atlas crops (no external OCR for board 2)"}
         (d / "observations.json").write_text(json.dumps(obs, indent=2, ensure_ascii=False) + "\n")
+        # The pipeline's reference image = the measured atlas crop for this screen.
+        ref = ROOT.parent.parent / "stage-a" / "phase4-new2"
+        atlas = ref / "atlas.png"
         for iid, (name, color) in ICON_REG.items():
             (d / "assets" / f"{iid}.svg").write_text(svg(name, hexpal().get(color, "#1D1D1F")))
         (d / "service-actions.json").write_text(json.dumps(
             {"frame_id": n, "controls": sc.controls, "source": SOURCE[n]}, indent=2) + "\n")
+        from PIL import Image
+        im = Image.open(atlas)
+        boxes = {1: (25, 57, 666, 722), 2: (763, 57, 1366, 722), 3: (1472, 57, 2085, 722),
+                 4: (2198, 57, 2821, 722), 5: (27, 805, 665, 1365)}
+        im.crop(boxes[n]).save(d / "reference.png")
         print(f"wrote phase4n2-{n:02d}: {len(sc.kids)} top nodes, "
-              f"{len(ICON_REG)} icons, {len(sc.controls)} controls")
+              f"{len(ICON_REG)} icons, {len(sc.controls)} controls, reference.png")
 
 
 if __name__ == "__main__":

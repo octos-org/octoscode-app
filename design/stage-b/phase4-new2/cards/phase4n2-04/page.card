@@ -1,0 +1,143 @@
+# ledger phase4n2-04@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_head_text { class: user-copy, en: "OctosCode" }
+copy t_newchat_text { class: user-copy, en: "New chat" }
+copy t_search_text { class: user-copy, en: "Search chats" }
+copy t_seg_l_text { class: user-copy, en: "By workspace" }
+copy t_seg_r_text { class: user-copy, en: "All" }
+copy t_sort_text { class: user-copy, en: "Recent" }
+copy t_grp_octos_text { class: user-copy, en: "octos" }
+copy grp_badge_t_text { class: user-copy, en: "3" }
+copy menu_t0_text { class: user-copy, en: "New chat here" }
+copy menu_t1_text { class: user-copy, en: "Rename" }
+copy menu_t2_text { class: user-copy, en: "Remove from sidebar" }
+copy t_grp_octoscode-app_text { class: user-copy, en: "octoscode-app" }
+copy r00_t_text { class: user-copy, en: "Bump octos-core to a6ea8505" }
+copy r00_w_text { class: user-copy, en: "2h" }
+copy r01_t_text { class: user-copy, en: "Why is hydrate slow?" }
+copy r01_w_text { class: user-copy, en: "Yesterday" }
+copy t_addws_text { class: user-copy, en: "Add workspace" }
+component Surfaceb4206391250d(instance: text) {
+  view Kit(component: "Surfaceb4206391250d", instance: instance) { slot }
+}
+component Text868e9080b64c(instance: text, text: text) {
+  view Kit(component: "Text868e9080b64c", instance: instance, text: text)
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Text7522dc2a2424(instance: text, text: text) {
+  view Kit(component: "Text7522dc2a2424", instance: instance, text: text)
+}
+component Surface06e53b1722d3(instance: text) {
+  view Kit(component: "Surface06e53b1722d3", instance: instance) { slot }
+}
+component Surfacea7396eb2806c(instance: text) {
+  view Kit(component: "Surfacea7396eb2806c", instance: instance) { slot }
+}
+component Textdbb4d428205e(instance: text, text: text) {
+  view Kit(component: "Textdbb4d428205e", instance: instance, text: text)
+}
+component Surfacefb10c85792a2(instance: text) {
+  view Kit(component: "Surfacefb10c85792a2", instance: instance) { slot }
+}
+component Surfaceb2ee79a520d8(instance: text) {
+  view Kit(component: "Surfaceb2ee79a520d8", instance: instance) { slot }
+}
+component Text9c6fe6c39087(instance: text, text: text) {
+  view Kit(component: "Text9c6fe6c39087", instance: instance, text: text)
+}
+component Textbe746047212e(instance: text, text: text) {
+  view Kit(component: "Textbe746047212e", instance: instance, text: text)
+}
+component Textb00651a8e41b(instance: text, text: text) {
+  view Kit(component: "Textb00651a8e41b", instance: instance, text: text)
+}
+component Textf397b4b2cc2c(instance: text, text: text) {
+  view Kit(component: "Textf397b4b2cc2c", instance: instance, text: text)
+}
+component Surface632edf7c986b(instance: text) {
+  view Kit(component: "Surface632edf7c986b", instance: instance) { slot }
+}
+component Text28dff8321d16(instance: text, text: text) {
+  view Kit(component: "Text28dff8321d16", instance: instance, text: text)
+}
+component Surface145b682e4b7b(instance: text) {
+  view Kit(component: "Surface145b682e4b7b", instance: instance) { slot }
+}
+component Surfacece7c15b81537(instance: text) {
+  view Kit(component: "Surfacece7c15b81537", instance: instance) { slot }
+}
+component Text00a53ab7e7fa(instance: text, text: text) {
+  view Kit(component: "Text00a53ab7e7fa", instance: instance, text: text)
+}
+component Textfee0b0d9712c(instance: text, text: text) {
+  view Kit(component: "Textfee0b0d9712c", instance: instance, text: text)
+}
+component Text0ce546d1950b(instance: text, text: text) {
+  view Kit(component: "Text0ce546d1950b", instance: instance, text: text)
+}
+component Textdc7834a5b0cb(instance: text, text: text) {
+  view Kit(component: "Textdc7834a5b0cb", instance: instance, text: text)
+}
+component Text5dce2b649501(instance: text, text: text) {
+  view Kit(component: "Text5dce2b649501", instance: instance, text: text)
+}
+component Text39a66bd1a676(instance: text, text: text) {
+  view Kit(component: "Text39a66bd1a676", instance: instance, text: text)
+}
+component Text07d660d100d3(instance: text, text: text) {
+  view Kit(component: "Text07d660d100d3", instance: instance, text: text)
+}
+
+view root Surfaceb4206391250d(instance: "page") {
+  Text868e9080b64c(instance: "t_head", text: copy.t_head_text)
+  Vectore0a378fde04f(instance: "i_pencil")
+  Text7522dc2a2424(instance: "t_newchat", text: copy.t_newchat_text)
+  Surface06e53b1722d3(instance: "sf") {
+    Surfacea7396eb2806c(instance: "sf_hair") {
+
+    }
+  }
+  Vectore0a378fde04f(instance: "i_search")
+  Textdbb4d428205e(instance: "t_search", text: copy.t_search_text)
+  Surfacefb10c85792a2(instance: "seg") {
+
+  }
+  Surfaceb2ee79a520d8(instance: "seg_sel") {
+
+  }
+  Text9c6fe6c39087(instance: "t_seg_l", text: copy.t_seg_l_text)
+  Textbe746047212e(instance: "t_seg_r", text: copy.t_seg_r_text)
+  Vectore0a378fde04f(instance: "i_sort")
+  Textb00651a8e41b(instance: "t_sort", text: copy.t_sort_text)
+  Vectore0a378fde04f(instance: "i_chev_octos")
+  Textf397b4b2cc2c(instance: "t_grp_octos", text: copy.t_grp_octos_text)
+  Surface632edf7c986b(instance: "grp_badge") {
+
+  }
+  Text28dff8321d16(instance: "grp_badge_t", text: copy.grp_badge_t_text)
+  Surface632edf7c986b(instance: "grp_menu_btn") {
+
+  }
+  Vectore0a378fde04f(instance: "i_dots")
+  Surface145b682e4b7b(instance: "menu") {
+    Surfacece7c15b81537(instance: "menu_hair") {
+
+    }
+  }
+  Text00a53ab7e7fa(instance: "menu_t0", text: copy.menu_t0_text)
+  Text00a53ab7e7fa(instance: "menu_t1", text: copy.menu_t1_text)
+  Text00a53ab7e7fa(instance: "menu_t2", text: copy.menu_t2_text)
+  Vectore0a378fde04f(instance: "i_chev_octoscode-app")
+  Textfee0b0d9712c(instance: "t_grp_octoscode-app", text: copy.t_grp_octoscode-app_text)
+  Text0ce546d1950b(instance: "r00_t", text: copy.r00_t_text)
+  Textdc7834a5b0cb(instance: "r00_w", text: copy.r00_w_text)
+  Text5dce2b649501(instance: "r01_t", text: copy.r01_t_text)
+  Text39a66bd1a676(instance: "r01_w", text: copy.r01_w_text)
+  Vectore0a378fde04f(instance: "i_plus")
+  Text07d660d100d3(instance: "t_addws", text: copy.t_addws_text)
+}

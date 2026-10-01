@@ -1,205 +1,771 @@
 {
-  "width": 406,
-  "height": 776,
-  "observations": [
+  "schema_version": 1,
+  "reference_sha256": "d74ce8614ec945fc75d645cc8921095fb139738ee66a4c0f339dfe4305130e83",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.8423497166561724,
+  "text": [
     {
-      "text": "OctosCode",
-      "bounds": [
+      "id": "t_head",
+      "expected_text": "OctosCode",
+      "requested_bounds": [
         20,
         18,
         200,
         24
       ],
+      "status": "observed",
+      "ocr_text": "OctosCode",
       "confidence": 1,
-      "source": "lane-vision"
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        17.10140405616225,
+        29.17293233082707,
+        86.77379095163808,
+        23.338345864661655
+      ],
+      "ink_color": [
+        4,
+        4,
+        4
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        15.119073330702944,
+        27.355177469002747,
+        91.18241278627579,
+        31.511867534648925
+      ]
     },
     {
-      "text": "New chat",
-      "bounds": [
+      "id": "t_newchat",
+      "expected_text": "New chat",
+      "requested_bounds": [
         48,
         54,
         120,
         22
       ],
+      "status": "observed",
+      "ocr_text": "New chat",
       "confidence": 1,
-      "source": "lane-vision"
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        17.734789391575664,
+        84.01804511278196,
+        80.4399375975039,
+        26.839097744360902
+      ],
+      "ink_color": [
+        23,
+        25,
+        25
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        17.66336487956326,
+        85.77827391587044,
+        82.29943743078879,
+        28.85186214275195
+      ]
     },
     {
-      "text": "Search chats",
-      "bounds": [
+      "id": "t_search",
+      "expected_text": "Search chats",
+      "requested_bounds": [
         58,
         102,
         240,
         22
       ],
+      "status": "observed",
+      "ocr_text": "Q Search chats",
       "confidence": 1,
-      "source": "lane-vision"
+      "text_similarity": 0.9230769230769231,
+      "ink_bounds": [
+        22.16848673946958,
+        150.53233082706768,
+        100.70826833073323,
+        24.50526315789474
+      ],
+      "ink_color": [
+        136,
+        140,
+        145
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        21.501556810280388,
+        151.47147125785793,
+        103.71339563862931,
+        25.633633633633575
+      ]
     },
     {
-      "text": "By workspace",
-      "bounds": [
+      "id": "t_seg_l",
+      "expected_text": "By workspace",
+      "requested_bounds": [
         24,
         156,
         105,
         20
       ],
+      "status": "observed",
+      "ocr_text": "By workspace",
       "confidence": 1,
-      "source": "lane-vision"
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        34.2028081123245,
+        228.71578947368423,
+        76.63962558502341,
+        22.171428571428574
+      ],
+      "ink_color": [
+        15,
+        16,
+        16
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        31.619936682866072,
+        226.04204210030028,
+        80.94704049844236,
+        27.963963963964027
+      ]
     },
     {
-      "text": "Recent",
-      "bounds": [
+      "id": "t_seg_r",
+      "expected_text": "All",
+      "requested_bounds": [
+        129,
+        156,
+        105,
+        20
+      ],
+      "status": "observed",
+      "ocr_text": "All",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        160.2464898595944,
+        227.54887218045113,
+        12.667706708268332,
+        18.670676691729323
+      ],
+      "ink_color": [
+        130,
+        133,
+        137
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        158.09968828380062,
+        223.71171185153153,
+        18.97196261682243,
+        27.963963963963938
+      ]
+    },
+    {
+      "id": "t_sort",
+      "expected_text": "Recent",
+      "requested_bounds": [
         330,
         156,
         48,
         20
       ],
+      "status": "observed",
+      "ocr_text": "Recent v",
       "confidence": 1,
-      "source": "lane-vision"
+      "text_similarity": 0.8571428571428571,
+      "ink_bounds": [
+        338.2277691107644,
+        227.54887218045113,
+        50.03744149765991,
+        17.503759398496243
+      ],
+      "ink_color": [
+        64,
+        64,
+        64
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        336.36617290572843,
+        227.7380927457699,
+        54.526222252771475,
+        22.241531967758842
+      ]
     },
     {
-      "text": "octos",
-      "bounds": [
+      "id": "t_grp_octos",
+      "expected_text": "octos",
+      "requested_bounds": [
         46,
         214,
         180,
         22
       ],
+      "status": "observed",
+      "ocr_text": "v octos",
       "confidence": 1,
-      "source": "lane-vision"
+      "text_similarity": 0.8333333333333334,
+      "ink_bounds": [
+        12.667706708268332,
+        303.3984962406015,
+        61.43837753510141,
+        18.670676691729323
+      ],
+      "ink_color": [
+        7,
+        7,
+        7
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        10.094190359710817,
+        300.40025579820286,
+        65.81784887105877,
+        26.058347501554294
+      ]
     },
     {
-      "text": "Fix steer queue drop on reconnect",
-      "bounds": [
+      "id": "r00_t",
+      "expected_text": "Fix steer queue drop on reconnect",
+      "requested_bounds": [
         56,
         250,
         250,
         20
       ],
+      "status": "observed",
+      "ocr_text": "Fix steer queue drop on reconnect",
       "confidence": 1,
-      "source": "lane-vision"
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        37.36973478939158,
+        360.57744360902257,
+        203.95007800312013,
+        24.50526315789474
+      ],
+      "ink_color": [
+        17,
+        17,
+        17
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        35.41432765685364,
+        358.87087049219224,
+        207.42679127725862,
+        30.294294294294303
+      ]
     },
     {
-      "text": "2m",
-      "bounds": [
+      "id": "r00_w",
+      "expected_text": "2m",
+      "requested_bounds": [
         300,
         250,
         84,
         20
       ],
+      "status": "observed",
+      "ocr_text": "2m",
       "confidence": 1,
-      "source": "lane-vision"
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        368.63026521060846,
+        362.91127819548876,
+        15.201248049921999,
+        17.503759398496243
+      ],
+      "ink_color": [
+        116,
+        118,
+        122
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        366.79127740311526,
+        358.8708707876449,
+        20.236760124610594,
+        25.633633633633575
+      ]
     },
     {
-      "text": "Add session fork",
-      "bounds": [
+      "id": "r01_t",
+      "expected_text": "Add session fork",
+      "requested_bounds": [
         56,
         290,
         250,
         20
       ],
+      "status": "observed",
+      "ocr_text": "Add session fork",
       "confidence": 1,
-      "source": "lane-vision"
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        36.736349453978164,
+        416.58947368421053,
+        98.80811232449298,
+        18.670676691729323
+      ],
+      "ink_color": [
+        12,
+        13,
+        13
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        35.41433094984423,
+        414.7987986822824,
+        102.4485981308411,
+        25.633633633633575
+      ]
     },
     {
-      "text": "1h",
-      "bounds": [
+      "id": "r01_w",
+      "expected_text": "1h",
+      "requested_bounds": [
         300,
         290,
         84,
         20
       ],
+      "status": "observed",
+      "ocr_text": "1h",
       "confidence": 1,
-      "source": "lane-vision"
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        371.1638065522621,
+        417.75639097744363,
+        11.400936037441499,
+        18.670676691729323
+      ],
+      "ink_color": [
+        128,
+        130,
+        134
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        368.0560747663552,
+        412.4684681888289,
+        17.70716510903427,
+        27.963963963963938
+      ]
     },
     {
-      "text": "Review PR #2566",
-      "bounds": [
+      "id": "r02_t",
+      "expected_text": "Review PR #2566",
+      "requested_bounds": [
         56,
         330,
         250,
         20
       ],
+      "status": "observed",
+      "ocr_text": "Review PR #2566",
       "confidence": 1,
-      "source": "lane-vision"
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        37.36973478939158,
+        473.7684210526316,
+        103.2418096723869,
+        18.670676691729323
+      ],
+      "ink_color": [
+        24,
+        26,
+        26
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        35.41433156191586,
+        473.05705694054063,
+        107.5077881619938,
+        23.303303303303295
+      ]
     },
     {
-      "text": "Yesterday",
-      "bounds": [
+      "id": "r02_w",
+      "expected_text": "Yesterday",
+      "requested_bounds": [
         300,
         330,
         84,
         20
       ],
+      "status": "observed",
+      "ocr_text": "Yesterday",
       "confidence": 1,
-      "source": "lane-vision"
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        335.06084243369736,
+        649.9729323308271,
+        49.40405616224649,
+        24.50526315789474
+      ],
+      "ink_color": [
+        131,
+        134,
+        139
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        332.499025763362,
+        649.0549859535223,
+        53.50998015121506,
+        25.432039667536188
+      ]
     },
     {
-      "text": "octoscode-app",
-      "bounds": [
+      "id": "t_grp_octoscode-app",
+      "expected_text": "octoscode-app",
+      "requested_bounds": [
         46,
         388,
         180,
         22
       ],
+      "status": "observed",
+      "ocr_text": "v octoscode-app",
       "confidence": 1,
-      "source": "lane-vision"
+      "text_similarity": 0.9285714285714286,
+      "ink_bounds": [
+        12.034321372854915,
+        539.1157894736842,
+        131.74414976599064,
+        28.006015037593986
+      ],
+      "ink_color": [
+        7,
+        7,
+        7
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        8.853583530218055,
+        538.306306206435,
+        136.5981308411215,
+        32.62462462462458
+      ]
     },
     {
-      "text": "Bump octos-core to a6ea8505",
-      "bounds": [
+      "id": "r03_t",
+      "expected_text": "Bump octos-core to a6ea8505",
+      "requested_bounds": [
         56,
         424,
         250,
         20
       ],
+      "status": "observed",
+      "ocr_text": "Bump octos-core to a\u0431ea8505",
       "confidence": 1,
-      "source": "lane-vision"
+      "text_similarity": 0.9629629629629629,
+      "ink_bounds": [
+        37.36973478939158,
+        595.1278195488723,
+        178.61466458658347,
+        24.50526315789474
+      ],
+      "ink_color": [
+        18,
+        19,
+        19
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        35.41432931163033,
+        594.2342344672672,
+        182.13084112149534,
+        27.963963963963938
+      ]
     },
     {
-      "text": "2h",
-      "bounds": [
+      "id": "r03_w",
+      "expected_text": "2h",
+      "requested_bounds": [
         300,
         424,
         84,
         20
       ],
+      "status": "observed",
+      "ocr_text": "2h",
       "confidence": 1,
-      "source": "lane-vision"
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        370.5304212168487,
+        596.2947368421053,
+        12.034321372854915,
+        17.503759398496243
+      ],
+      "ink_color": [
+        67,
+        68,
+        70
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        368.05607491813083,
+        591.9039041835435,
+        17.70716510903427,
+        27.963963963963938
+      ]
     },
     {
-      "text": "Why is hydrate slow?",
-      "bounds": [
+      "id": "r04_t",
+      "expected_text": "Why is hydrate slow?",
+      "requested_bounds": [
         56,
         464,
         250,
         20
       ],
+      "status": "observed",
+      "ocr_text": "Why is hydrate slow?",
       "confidence": 1,
-      "source": "lane-vision"
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        36.736349453978164,
+        648.806015037594,
+        124.77691107644307,
+        25.672180451127822
+      ],
+      "ink_color": [
+        30,
+        31,
+        31
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        35.41432915353066,
+        647.8318319095096,
+        127.74454828660438,
+        27.963963963963938
+      ]
     },
     {
-      "text": "Yesterday",
-      "bounds": [
+      "id": "r04_w",
+      "expected_text": "Yesterday",
+      "requested_bounds": [
         300,
         464,
         84,
         20
       ],
+      "status": "observed",
+      "ocr_text": "Yesterday",
       "confidence": 1,
-      "source": "lane-vision"
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        336.3276131045242,
+        473.7684210526316,
+        50.03744149765991,
+        24.50526315789474
+      ],
+      "ink_color": [
+        78,
+        80,
+        81
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        333.7713547719496,
+        472.1586370607421,
+        53.39186856754099,
+        29.760804001633424
+      ]
     },
     {
-      "text": "Add workspace",
-      "bounds": [
+      "id": "t_addws",
+      "expected_text": "Add workspace",
+      "requested_bounds": [
         48,
         724,
         160,
         20
       ],
+      "status": "observed",
+      "ocr_text": "+Add workspace",
       "confidence": 1,
-      "source": "lane-vision"
+      "text_similarity": 0.9629629629629629,
+      "ink_bounds": [
+        20.901716068642745,
+        719.9879699248121,
+        110.20904836193448,
+        26.839097744360902
+      ],
+      "ink_color": [
+        94,
+        94,
+        95
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        6.170583463774446,
+        709.1018964156641,
+        128.05135856462044,
+        45.24365440574855
+      ]
     }
   ],
-  "source": "lane-vision on the measured atlas crops (no external OCR for board 2)"
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "i_pencil",
+      "bounds": [
+        22.0,
+        56.0,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "sf",
+      "bounds": [
+        13.0,
+        134.0,
+        378.0,
+        56.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 14.0
+    },
+    {
+      "id": "sf_hair",
+      "bounds": [
+        11.0,
+        132.0,
+        383.0,
+        61.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 15.25
+    },
+    {
+      "id": "i_search",
+      "bounds": [
+        34.0,
+        104.0,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "seg",
+      "bounds": [
+        14.0,
+        212.0,
+        117.0,
+        50.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 13.24
+    },
+    {
+      "id": "seg_sel",
+      "bounds": [
+        24.0,
+        152.0,
+        105.0,
+        26.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294704124,
+      "radius": 7.0
+    },
+    {
+      "id": "i_sort",
+      "bounds": [
+        380.0,
+        156.0,
+        14.0,
+        14.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "i_chev_octos",
+      "bounds": [
+        24.0,
+        216.0,
+        14.0,
+        14.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "r00_sel",
+      "bounds": [
+        11.0,
+        209.0,
+        193.0,
+        56.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294638330,
+      "radius": 12.44
+    },
+    {
+      "id": "i_chev_octoscode-app",
+      "bounds": [
+        24.0,
+        390.0,
+        14.0,
+        14.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "i_plus",
+      "bounds": [
+        24.0,
+        726.0,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
 }

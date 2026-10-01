@@ -1,0 +1,226 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "dde871990c509eb1418af9e3b78cfa5143f788c699cf3f9e7323e35c053209a0",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      15.0,
+      212.0,
+      117.0,
+      51.0
+    ],
+    [
+      12.0,
+      209.0,
+      189.0,
+      57.0
+    ],
+    [
+      14.0,
+      134.0,
+      378.0,
+      57.0
+    ],
+    [
+      12.0,
+      132.0,
+      383.0,
+      62.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "i_pencil",
+      "bounds": [
+        22.0,
+        56.0,
+        18.0,
+        18.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "sf",
+      "bounds": [
+        14.0,
+        134.0,
+        378.0,
+        57.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 14.25
+    },
+    {
+      "id": "sf_hair",
+      "bounds": [
+        12.0,
+        132.0,
+        383.0,
+        62.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 15.5
+    },
+    {
+      "id": "i_search",
+      "bounds": [
+        34.0,
+        104.0,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "seg",
+      "bounds": [
+        20.0,
+        148.0,
+        214.0,
+        34.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 9.0
+    },
+    {
+      "id": "seg_sel",
+      "bounds": [
+        24.0,
+        152.0,
+        105.0,
+        26.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294704124,
+      "radius": 7.0
+    },
+    {
+      "id": "i_sort",
+      "bounds": [
+        380.0,
+        156.0,
+        14.0,
+        14.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "i_chev_octos",
+      "bounds": [
+        24.0,
+        216.0,
+        14.0,
+        14.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "grp_badge",
+      "bounds": [
+        320.0,
+        214.0,
+        30.0,
+        22.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.0
+    },
+    {
+      "id": "grp_menu_btn",
+      "bounds": [
+        356.0,
+        214.0,
+        30.0,
+        22.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.0
+    },
+    {
+      "id": "i_dots",
+      "bounds": [
+        362.0,
+        218.0,
+        18.0,
+        14.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "menu",
+      "bounds": [
+        15.0,
+        212.0,
+        117.0,
+        51.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 4.9
+    },
+    {
+      "id": "menu_hair",
+      "bounds": [
+        12.0,
+        209.0,
+        189.0,
+        57.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294704123,
+      "radius": 5.48
+    },
+    {
+      "id": "i_chev_octoscode-app",
+      "bounds": [
+        24.0,
+        268.0,
+        14.0,
+        14.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "i_plus",
+      "bounds": [
+        24.0,
+        726.0,
+        16.0,
+        16.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    }
+  ]
+}
