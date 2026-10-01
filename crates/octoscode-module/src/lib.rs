@@ -2588,6 +2588,17 @@ impl Widget for OctoscodeView {
                     .text_input(cx, &[live_id!(i0_composer_0)])
                     .changed(actions)
                 {
+                    // #36g item 2: on Android the IME commits Enter as a
+                    // newline character INSIDE the text (KEYCODE_ENTER rarely arrives as
+                    // a key event — the device swallowed it). The web
+                    // composer SENDS on bare Enter and only newlines via
+                    // Alt+Enter / Ctrl+J (ComposerInput.tsx:237-243), so a
+                    // trailing newline IS the send gesture: strip it and
+                    // submit.
+                    let (text, submit) = match text.strip_suffix('\n') {
+                        Some(stripped) => (stripped.to_owned(), true),
+                        None => (text, false),
+                    };
                     // Card #28e item 5: "/" typed into an EMPTY composer opens
                     // the command palette (board 4 frame 3).
                     if text == "/" {
@@ -2600,6 +2611,12 @@ impl Widget for OctoscodeView {
                     // so the external-sync below never writes back over it.
                     self.composer_synced = Some(text.clone());
                     makepad_widgets::log!("[octoscode] draft synced: {} chars", text.len());
+                    if submit {
+                        makepad_widgets::log!(
+                            "[octoscode] composer newline -> submit (IME Enter)"
+                        );
+                        self.perform_action(bindings::ACTION_SUBMIT, 0);
+                    }
                 }
                 if self.view.button(cx, ids!(refresh)).clicked(actions) {
                     self.perform_action("session.refresh", 0);
