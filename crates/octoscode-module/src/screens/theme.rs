@@ -322,6 +322,16 @@ const TOKENS: &[(&str, &str)] = &[
     // the send control's disc: black in light, white in dark (both atlases)
     ("#050505", "#f5f5f7"),
     ("#030202", "#f5f5f7"),
+    // #36f: the conversation components' artboard INK literals — the
+    // measured pill sat at 1.00:1 on these. The bubble's SURFACE is NOT a
+    // table key on purpose: #f5f5f7 is ALSO the dark ink token, so a key
+    // here eats the correct light text on every dark line (the double-
+    // retint cut proved it — the text came out #2c2c2e-on-#2c2c2e). The
+    // surface is rewritten role-scoped in bubble_dark_surface instead.
+    ("#fafbfb", "#f5f5f7"),
+    ("#434343", "#e8e8ea"),
+    ("#252525", "#e8e8ea"),
+    ("#1c1f22", "#98989d"),
     // #31d re-capture round: the setup-08 (palette) and autonomy-01 (review)
     // kits carry NEAR-BLACK text and mid-grey hints outside the first table —
     // the dark captures' low-contrast command names came from exactly these.
