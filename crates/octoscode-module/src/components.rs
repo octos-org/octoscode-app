@@ -1089,13 +1089,18 @@ mod tests {
             "draw_text.color: #fafbfbff\n",
             "draw_text.color: #434343ff\n",
             "draw_text.color: #252525ff\n",
-            "draw_text.color: #1c1f22ff"
+            "draw_bg.color: #1c1f22ff"
         );
         let out = crate::screens::theme::retint_dsl(dsl);
         assert!(out.contains("#f5f5f7ff"), "bubble text unmapped");
         assert!(!out.contains("#434343ff"), "pill ink unmapped (1.00:1 on the device)");
         assert!(!out.contains("#252525ff"), "secondary ink unmapped");
-        assert!(!out.contains("#1c1f22ff"), "timestamp ink unmapped");
+        // #1c1f22 is the SHELL's dark surface token: retint must leave it
+        // (the f31d fixed-point), and the bubble's role pin owns the ink.
+        assert!(
+            out.contains("draw_bg.color: #1c1f22ff"),
+            "retint no longer fixes the dark surface token"
+        );
         // The SURFACE is role-scoped: #f5f5f7 is also the dark ink, so the
         // table must never carry it — the bubble layer rewrites draw_bg
         // lines only, and retint passes the result through untouched.
@@ -1111,6 +1116,13 @@ mod tests {
                 "retint ate the corrected dark surface"
             );
         }
+        // The bubble's dark INK (the #1c1f22 timestamp) is the pin's job —
+        // retint cannot take it (the shell's own dark token).
+        let ts = bubble_dark_surface("draw_text.color: #1c1f22ff");
+        assert!(
+            ts.contains("draw_text.color: #f5f5f7ff"),
+            "the timestamp ink stayed light-board on the dark bubble"
+        );
         // ...and the text side of the SAME literal survives retint as ink:
         assert!(
             crate::screens::theme::retint_dsl("draw_text.color: #fafbfbff").contains("#f5f5f7ff"),

@@ -331,7 +331,11 @@ const TOKENS: &[(&str, &str)] = &[
     ("#fafbfb", "#f5f5f7"),
     ("#434343", "#e8e8ea"),
     ("#252525", "#e8e8ea"),
-    ("#1c1f22", "#98989d"),
+    // NOTE: #1c1f22 is deliberately NOT a key — it is the SHELL's dark
+    // surface token, and a key here breaks retint's dark fixed-point
+    // (f31d_retint_dark_rewrites_tokens: the dark output must re-retint to
+    // itself). The user bubble's #1c1f22 timestamp ink is handled by the
+    // role-scoped pin in bubble_dark_surface instead.
     // #31d re-capture round: the setup-08 (palette) and autonomy-01 (review)
     // kits carry NEAR-BLACK text and mid-grey hints outside the first table —
     // the dark captures' low-contrast command names came from exactly these.
