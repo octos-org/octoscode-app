@@ -244,14 +244,26 @@ def run_screen(cfg: dict, bin_path: pathlib.Path, app_port: int, rows: list) -> 
                 continue
             time.sleep(0.6)
             after_log = app.log()
-            # /log diff, but only NAMED action evidence — a bare redraw log
-            # line ("design root: …") fires on any repaint and is not a click
-            # effect (the first run's false "respond" rows).
-            before_lines = set(before_log.splitlines())
-            new_lines = [l for l in after_log.splitlines()
-                         if l not in before_lines and ACTION_LOG.search(l)]
+            # Count-based evidence: only NAMED action lines count (a bare
+            # redraw line like "design root: …" fires on any repaint), and a
+            # line identical to one already on the log is a hit only if its
+            # COUNT grew — two controls on one arm fire the same line twice
+            # (review_toggle then review_close both -> review.toggle), which a
+            # set-difference judge would miss.
+            before_counts: dict[str, int] = {}
+            for l in before_log.splitlines():
+                if ACTION_LOG.search(l):
+                    before_counts[l] = before_counts.get(l, 0) + 1
+            new_named = []
+            after_counts: dict[str, int] = {}
+            for l in after_log.splitlines():
+                if not ACTION_LOG.search(l):
+                    continue
+                after_counts[l] = after_counts.get(l, 0) + 1
+                if after_counts[l] > before_counts.get(l, 0):
+                    new_named.append(l)
             action_line = next((l.split("[octoscode]", 1)[1].strip()[:100]
-                                for l in reversed(new_lines)), "")
+                                for l in reversed(new_named)), "")
             after_snap = app.snap()
             changed = len(snapshot_fingerprint(after_snap) ^ before_fp)
             before_fp = snapshot_fingerprint(after_snap)
