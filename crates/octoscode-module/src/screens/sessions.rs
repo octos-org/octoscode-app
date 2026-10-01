@@ -103,6 +103,38 @@ pub fn seed_attachments_live(items: Vec<(String, usize, String)>) {
         .collect();
 }
 
+/// #P4e2a — `parseSessionBtwResult` (`packages/client/src/btw.ts:34-52`):
+/// an aside result is admitted ONLY when it is a record, carries THIS
+/// Session's id, and has a non-blank string `answer`; an optional `model`,
+/// when present, must itself be a non-blank string. Anything else is the
+/// web's `BtwProtocolError("Invalid or wrong-Session aside result")` —
+/// never a blank or foreign answer rendered as if it were the reply.
+pub fn parse_aside_result(value: &Value, asked_session: &str) -> Result<String, String> {
+    const INVALID: &str = "Invalid or wrong-Session aside result";
+    let Some(obj) = value.as_object() else {
+        return Err(INVALID.to_owned());
+    };
+    // btw.ts:40 — the session_id must equal the one the question was sent to.
+    if obj.get("session_id").and_then(Value::as_str) != Some(asked_session) {
+        return Err(INVALID.to_owned());
+    }
+    // btw.ts:42-43 — a string, and not whitespace-only.
+    let answer = obj.get("answer").and_then(Value::as_str).unwrap_or_default();
+    if answer.trim().is_empty() {
+        return Err(INVALID.to_owned());
+    }
+    // btw.ts:43-45 — model is optional, but a present one must be non-blank.
+    if let Some(model) = obj.get("model") {
+        if !model.is_null() {
+            match model.as_str() {
+                Some(m) if !m.trim().is_empty() => {}
+                _ => return Err(INVALID.to_owned()),
+            }
+        }
+    }
+    Ok(answer.to_owned())
+}
+
 /// Probe/test seam: seed the aside as ANSWERED (question + answer on the
 /// panel — the capture proves the live slots).
 pub fn seed_aside(question: &str, answer: &str) {
@@ -365,18 +397,27 @@ pub async fn apply(effect: Effect, conv: &Conversation) -> Result<(), String> {
             .map_err(|e| e.to_string()),
         Effect::AsideAsk(question) => {
             let client = conv.client();
+            let asked = conv.session_id();
             let result = client
                 .request(
                     "session/btw",
                     json!({
-                        "session_id": conv.session_id(),
+                        "session_id": asked,
                         "question": question,
                     }),
                 )
                 .await
                 .map_err(|e| e.to_string());
             let answer = match result {
-                Ok(v) => v["answer"].as_str().unwrap_or_default().to_owned(),
+                Ok(v) => match parse_aside_result(&v, &asked) {
+                    Ok(answer) => answer,
+                    Err(e) => {
+                        // A reply that is not THIS Session's, or is blank, is a
+                        // protocol error — never a shown answer (btw.ts:81-87).
+                        state().lock().unwrap().aside_state = "unavailable";
+                        return Err(e);
+                    }
+                },
                 Err(e) => {
                     // Typed admission failure: the draft was never consumed
                     // (lazy-btw-controller.ts:85) — the panel says unavailable.
