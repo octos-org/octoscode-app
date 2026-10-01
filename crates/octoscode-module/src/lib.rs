@@ -121,6 +121,38 @@ script_mod! {
                         draw_svg.svg: file_resource(#(crate::design::icon_resource("chevron_down.svg")))
                         draw_svg.preserve_viewbox: true
                     }
+                    // #40b — the closed-state openers. The review toggle hit
+                    // and the settings close both live INSIDE their overlays,
+                    // so in the closed state there was no laid-out control to
+                    // open them (#40a: the toggle's rect was [0,0,0,0] and the
+                    // click died — the audit's dead-review-toggle row). The
+                    // sidebar header is always mounted; these two text
+                    // buttons are the always-laid-out entry points (the
+                    // in-panel pill / close still toggle back).
+                    review_open_hit := Button {
+                        width: Fit height: Fit text: "Review"
+                        draw_text.text_style.font_size: 11
+                        draw_text.color: theme.color_text_muted
+                        draw_bg.color: #00000000
+                        draw_bg.color_hover: #00000010
+                        draw_bg.color_down: #00000020
+                        draw_bg.border_size: 0.0
+                        draw_bg.color_2: #00000000
+                        draw_bg.border_color: #00000000
+                        draw_bg.border_color_2: #00000000
+                    }
+                    settings_open_hit := Button {
+                        width: Fit height: Fit text: "Settings"
+                        draw_text.text_style.font_size: 11
+                        draw_text.color: theme.color_text_muted
+                        draw_bg.color: #00000000
+                        draw_bg.color_hover: #00000010
+                        draw_bg.color_down: #00000020
+                        draw_bg.border_size: 0.0
+                        draw_bg.color_2: #00000000
+                        draw_bg.border_color: #00000000
+                        draw_bg.border_color_2: #00000000
+                    }
                 }
                 // Card #21c item 7: `New chat` is #16's own `new-chat` component
                 // at the top of the thread column (scene 01). A transparent hit
@@ -761,25 +793,77 @@ script_mod! {
                 width: 420 height: Fill flow: Down spacing: 10
                 visible: true
                 draw_bg.color: theme.color_bg_app
-                settings_header := View {
-                    width: Fill height: Fit flow: Right spacing: 8
-                    Label {
-                        width: Fill height: Fit text: "Session settings"
-                        draw_text.text_style.font_size: 14
-                     draw_text.color: theme.color_text_muted}
-                    // #28e2 item 1: "✕" was tofu — the close SVG (same as the
-                    // review header's).
-                    settings_close_wrap := View {
-                        width: 28 height: 28 flow: Overlay
-                        settings_close_icon := Svg {
-                            width: 12 height: 12
-                            align: Align{x: 0.5 y: 0.5}
-                            animating: false
-                            draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_close.svg")))
-                            draw_svg.preserve_viewbox: true
+                // #40b — the #38c mechanism, verbatim. Instrument-proven on
+                // this fork: SolidView IGNORES padding (the drawer-level
+                // inset measured no effect across seven rounds), and every
+                // child-level trick (button margin, row margin, row padding,
+                // trailing spacers) laid out inside the un-insetted box, so
+                // the last control stayed flush at the window's right edge
+                // (right=900, `Disconnect` clipped — #40a). A plain inner
+                // View DOES honor padding (conversation_inner moved the
+                // bubble 900 -> 894), so the content lives there now.
+                settings_inner := View {
+                    width: Fill height: Fill flow: Down spacing: 10
+                    padding: Inset{right: 16}
+                    settings_header := View {
+                        width: Fill height: Fit flow: Right spacing: 8
+                        // Fill label: the empirically good header state —
+                        // the close wrap measured its full 28×28 slot with
+                        // it (Fit variants measured 0).
+                        Label {
+                            // #40b — Fit: a Fill sibling in this fork's Right
+                            // row steals from the LAST Fit child (the close
+                            // wrap measured 14 or 0 with Fill here); with Fit
+                            // the wrap keeps its 28x28 slot (round-4 truth).
+                            width: Fit height: Fit text: "Session settings"
+                            draw_text.text_style.font_size: 14
+                            draw_text.color: theme.color_text_muted}
+                        // #28e2 item 1: "✕" was tofu — the close SVG (same as
+                        // the review header's).
+                        settings_close_wrap := View {
+                            width: 28 height: 28 flow: Overlay
+                            settings_close_icon := Svg {
+                                width: 12 height: 12
+                                align: Align{x: 0.5 y: 0.5}
+                                animating: false
+                                draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_close.svg")))
+                                draw_svg.preserve_viewbox: true
+                            }
+                            // #40b — a deterministic hit slot: Fill inside
+                            // the Overlay measured 14 or 0 across rounds;
+                            // the explicit 28×28 keeps the full square
+                            // clickable.
+                            settings_close := Button {
+                                width: 28 height: 28 text: ""
+                                draw_bg.color: #00000000
+                                draw_bg.color_hover: #00000010
+                                draw_bg.color_down: #00000020
+                                draw_bg.border_size: 0.0
+                                draw_bg.color_2: #00000000
+                                draw_bg.border_color: #00000000
+                                draw_bg.border_color_2: #00000000
+                            }
                         }
-                        settings_close := Button {
-                            width: Fill height: Fill text: ""
+                    }
+                    Label { width: Fill height: Fit text: "Model" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
+                    Label { width: Fill height: Fit text: "Permissions" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
+                    Label { width: Fill height: Fit text: "Sandbox" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
+                    Label { width: Fill height: Fit text: "Context" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
+                    // #34a row 165 — the web keeps the server connection actions
+                    // in General settings (product.spec.ts:1435: "Octos server",
+                    // Disconnect -> token screen -> Connect). The drawer gains the
+                    // General section with the action; the click flips the store's
+                    // connection row to Offline (the same state the transport-loss
+                    // path sets) and logs, never silently.
+                    Label { width: Fill height: Fit text: "General" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
+                    settings_conn := View {
+                        width: Fill height: Fit flow: Right spacing: 8
+                        // #40b — Fit: no Fill sibling, so `Disconnect`
+                        // keeps its own Fit slot (77px) instead of being
+                        // pushed past the row box (right=900, clipped).
+                        Label { width: Fit height: Fit text: "Octos server" draw_text.text_style.font_size: 12  draw_text.color: theme.color_fg_app}
+                        settings_disconnect := Button {
+                            width: Fit height: Fit text: "Disconnect"
                             draw_bg.color: #00000000
                             draw_bg.color_hover: #00000010
                             draw_bg.color_down: #00000020
@@ -788,31 +872,6 @@ script_mod! {
                             draw_bg.border_color: #00000000
                             draw_bg.border_color_2: #00000000
                         }
-                    }
-                }
-                Label { width: Fill height: Fit text: "Model" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
-                Label { width: Fill height: Fit text: "Permissions" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
-                Label { width: Fill height: Fit text: "Sandbox" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
-                Label { width: Fill height: Fit text: "Context" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
-                // #34a row 165 — the web keeps the server connection actions
-                // in General settings (product.spec.ts:1435: "Octos server",
-                // Disconnect -> token screen -> Connect). The drawer gains the
-                // General section with the action; the click flips the store's
-                // connection row to Offline (the same state the transport-loss
-                // path sets) and logs, never silently.
-                Label { width: Fill height: Fit text: "General" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
-                settings_conn := View {
-                    width: Fill height: Fit flow: Right spacing: 8
-                    Label { width: Fill height: Fit text: "Octos server" draw_text.text_style.font_size: 12  draw_text.color: theme.color_fg_app}
-                    settings_disconnect := Button {
-                        width: Fit height: Fit text: "Disconnect"
-                        draw_bg.color: #00000000
-                        draw_bg.color_hover: #00000010
-                        draw_bg.color_down: #00000020
-                        draw_bg.border_size: 0.0
-                        draw_bg.color_2: #00000000
-                        draw_bg.border_color: #00000000
-                        draw_bg.border_color_2: #00000000
                     }
                 }
             }
@@ -1455,8 +1514,24 @@ impl OctoscodeView {
                 ::log::warn!("octoscode: unhandled screen action {id:?}");
                 return;
             }
-            if matches!(effect, screens::workspace::Effect::Close | screens::workspace::Effect::CopyDiagnostics) {
-                return; // UI-local until #28e mounts the overlay
+            if let screens::workspace::Effect::CopyDiagnostics = &effect {
+                // #40b — the click audit's last dead row: this click was a
+                // silent no-op ("UI-local"). The fork exposes no clipboard
+                // API in reach, so the copy emits the store's diagnostics
+                // summary on the route log — the observable, honest payload
+                // (the same `[octoscode] route ... ->` channel every routed
+                // action reports through; the audit's ACTION_LOG watches it).
+                let total = store.diagnostics.total();
+                let methods = store.diagnostics.methods();
+                ::log::info!(
+                    "[octoscode] route error.copy_diagnostics -> {total} notifications across {} methods: {}",
+                    methods.len(),
+                    methods.join(", ")
+                );
+                return;
+            }
+            if matches!(effect, screens::workspace::Effect::Close) {
+                return; // UI-local: the error card closes itself
             }
             if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
                 screens::workspace::spawn(effect, rt, conv);
@@ -2687,6 +2762,30 @@ impl Widget for OctoscodeView {
     }
 
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        // #36g device round: on Android the platform marks itself packaged
+        // (package_root = Some("makepad"), android.rs:3455) but the packaged
+        // script-resource branch is compiled OUT for android (res.rs,
+        // #[cfg(not(target_os = "android"))]), so EVERY script resource —
+        // the svgs among them — silently lands CxScriptResourceData::Error
+        // (the res.rs tail) and DrawSvg draws 0x0 (the phone /snap: every
+        // Svg is [0,0,0,0], the shell's own chevron included). package_root
+        // is pub (cx.rs:67): clearing it routes loads through load_file_direct —
+        // the materialized root's absolute paths, which exist in the app's
+        // files dir (the fonts already load from there). A failed svg load
+        // is retried on every draw (load_svg never caches a missing
+        // handle), so the icons recover on the next frame after this runs.
+        #[cfg(target_os = "android")]
+        {
+            static PKG_ROOT_CLEARED: std::sync::OnceLock<()> = std::sync::OnceLock::new();
+            PKG_ROOT_CLEARED.get_or_init(|| {
+                if cx.package_root.is_some() {
+                    cx.package_root = None;
+                    makepad_widgets::log!(
+                        "[octoscode] package_root cleared: script resources load from the materialized root (android's packaged branch is compiled out)"
+                    );
+                }
+            });
+        }
         self.view.handle_event(cx, event, scope);
         if !self.started {
             self.started = true;
@@ -2722,6 +2821,17 @@ impl Widget for OctoscodeView {
                     .text_input(cx, &[live_id!(i0_composer_0)])
                     .changed(actions)
                 {
+                    // #36g item 2: on Android the IME commits Enter as a
+                    // newline character INSIDE the text (KEYCODE_ENTER rarely arrives as
+                    // a key event — the device swallowed it). The web
+                    // composer SENDS on bare Enter and only newlines via
+                    // Alt+Enter / Ctrl+J (ComposerInput.tsx:237-243), so a
+                    // trailing newline IS the send gesture: strip it and
+                    // submit.
+                    let (text, submit) = match text.strip_suffix('\n') {
+                        Some(stripped) => (stripped.to_owned(), true),
+                        None => (text, false),
+                    };
                     // Card #28e item 5: "/" typed into an EMPTY composer opens
                     // the command palette (board 4 frame 3).
                     if text == "/" {
@@ -2734,6 +2844,12 @@ impl Widget for OctoscodeView {
                     // so the external-sync below never writes back over it.
                     self.composer_synced = Some(text.clone());
                     makepad_widgets::log!("[octoscode] draft synced: {} chars", text.len());
+                    if submit {
+                        makepad_widgets::log!(
+                            "[octoscode] composer newline -> submit (IME Enter)"
+                        );
+                        self.perform_action(cx, bindings::ACTION_SUBMIT, 0);
+                    }
                 }
                 if self.view.button(cx, ids!(refresh)).clicked(actions) {
                     self.perform_action(cx, "session.refresh", 0);
@@ -2869,13 +2985,17 @@ impl Widget for OctoscodeView {
                         }
                     }
                 }
-                // Card #28e — the board-4 chrome controls.
+                // Card #28e — the board-4 chrome controls. #40b: the sidebar
+                // header's closed-state openers route the same toggles.
                 if self.view.button(cx, ids!(review_toggle_hit)).clicked(actions)
                     || self.view.button(cx, ids!(review_close)).clicked(actions)
+                    || self.view.button(cx, ids!(review_open_hit)).clicked(actions)
                 {
                     self.perform_action(cx, "review.toggle", 0);
                 }
-                if self.view.button(cx, ids!(settings_close)).clicked(actions) {
+                if self.view.button(cx, ids!(settings_close)).clicked(actions)
+                    || self.view.button(cx, ids!(settings_open_hit)).clicked(actions)
+                {
                     self.perform_action(cx, "settings.toggle", 0);
                 }
                 // #34a row 165 — the drawer's General section carries the
@@ -2905,6 +3025,33 @@ impl Widget for OctoscodeView {
             // Card #31e — the keyboard surface routes through the ONE
             // resolver (`screens::keys::resolve`); every rule cites its web
             // source there. #28e's chrome chords are preserved in the table.
+            // #36g device round: the 6T never sees a key event for the
+            // keyboard's Enter and the IME commits no trailing newline (the
+            // /log shows draft synced 1..8 then send_hit clicked, no submit
+            // line). The platform route that DOES fire:
+            // performEditorAction (MakepadInputConnection.java:832) ->
+            // onImeEditorAction -> android.rs constructs Event::ImeAction
+            // (:1491-1492). The action button on the single-line composer IS
+            // Enter (the web: bare Enter submits, ComposerInput.tsx:237-243).
+            // Android-only: desktop submits via KeyDown ReturnKey already.
+            #[cfg(target_os = "android")]
+            Event::ImeAction(_) => {
+                // Bind the value FIRST: the tail expression's temporary
+                // FlowUi guard borrows through `b`, so it outlives the
+                // inner block where `b` drops (E0597 on the android target
+                // — the desktop cfg never compiled this arm).
+                let palette_open = {
+                    let b = self.bridge.lock().unwrap();
+                    let open = b.ui.lock().unwrap().palette_open();
+                    open
+                };
+                if palette_open {
+                    makepad_widgets::log!("[octoscode] ime action ignored (palette open)");
+                } else {
+                    makepad_widgets::log!("[octoscode] ime action -> submit (IME Enter)");
+                    self.perform_action(cx, bindings::ACTION_SUBMIT, 0);
+                }
+            }
             Event::KeyDown(e) => {
                 let (ui, store, conv) = {
                     let b = self.bridge.lock().unwrap();

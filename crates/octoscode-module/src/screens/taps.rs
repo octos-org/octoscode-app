@@ -156,10 +156,13 @@ pub fn wired_taps(dsl: &str) -> Vec<(String, String)> {
 }
 
 /// Inject `on_click: || { NAV(t: "<event>") }` into the DesignNativeButton
-/// block whose abs_pos matches (x, y) within [`POS_TOLERANCE`]px. Idempotent: a
-/// block already carrying on_click is skipped. Returns the DSL unchanged when no
-/// block matches (the caller's wired count then stays put — visible in the
-/// card-events log).
+/// block whose abs_pos matches (x, y) within [`POS_TOLERANCE`]px. #40b: the
+/// tolerance must absorb the cards' own authored drift (setup-11's btn_diag:
+/// mapped.json abs_pos 25.0,472.0 vs service-actions bounds 26,473 — 1px of
+/// OCR/mapping noise dropped the injection and left the button dead).
+/// Idempotent: a block already carrying on_click is skipped. Returns the DSL
+/// unchanged when no block matches (the caller's wired count then stays put —
+/// visible in the card-events log).
 fn inject_click(dsl: &str, event: &str, x: f64, y: f64) -> String {
     let lines: Vec<&str> = dsl.lines().collect();
     let mut out: Vec<String> = Vec::with_capacity(lines.len() + 1);

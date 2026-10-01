@@ -1061,6 +1061,28 @@ def v_fold(app):
                 f"(no receipt folded -> no fold line)")
 
 
+@check("review", "the closed-state review opener lays out and opens the panel by click")
+def v_closed_opener(app):
+    # #40b defect 1: the in-panel toggle hit lives INSIDE the closed overlay
+    # (rect [0,0,0,0] — #40a's dead click). The sidebar header now carries an
+    # always-mounted opener; assert it lays out CLOSED and its click opens
+    # the panel (the in-panel pill closes it again — round-trip proven live).
+    hit = None
+    for _ in range(20):
+        d = app.snap()
+        hit = app.rect(d, "review_open_hit")
+        if hit and hit[2] > 0:
+            break
+        time.sleep(0.5)
+    if not (hit and hit[2] > 0):
+        return False, f"closed-state opener not laid out: {hit}"
+    app.click(int(hit[0] + hit[2] / 2), int(hit[1] + hit[3] / 2))
+    app.wait_for(lambda s: (app.rect(s, "review_panel") or [0, 0, 0, 0])[2] > 0,
+                 timeout=10, what="the review panel to open by click")
+    pw = (app.rect(app.snap(), "review_panel") or [0, 0, 0, 0])[2]
+    return pw > 0, f"opener={hit} panel w={pw}"
+
+
 @check("review", "the review toggle is keyboard/click reachable")
 def v_toggle(app):
     d = app.snap()
@@ -1068,6 +1090,43 @@ def v_toggle(app):
 
 
 # ---- settings: the settings drawer (#28e) ---------------------------------- #
+@check("settings", "the drawer's close hit is a real 28x28 slot and Disconnect ends inside the window")
+def s_close_disconnect(app):
+    # #40b defects 1+2: the close button measured 14 or 0 across rounds (the
+    # fork's Right rows steal from the last Fit child to feed Fill siblings)
+    # and `Disconnect` sat flush at the window's right edge (right=900,
+    # clipped — #40a; #38c fixed the conversation column only). With no Fill
+    # sibling in the rows: close is a full 28x28 hit, Disconnect ends inside
+    # the window, and the close click closes the drawer.
+    hit = None
+    for _ in range(20):
+        d = app.snap()
+        hit = app.rect(d, "settings_open_hit")
+        if hit and hit[2] > 0:
+            break
+        time.sleep(0.5)
+    if not (hit and hit[2] > 0):
+        return False, f"closed-state opener not laid out: {hit}"
+    win = app.rect(app.snap(), "main_window")
+    app.click(int(hit[0] + hit[2] / 2), int(hit[1] + hit[3] / 2))
+    app.wait_for(lambda s: (app.rect(s, "settings_drawer") or [0, 0, 0, 0])[2] > 0,
+                 timeout=10, what="the drawer to open by click")
+    d = app.snap()
+    sc = app.rect(d, "settings_close")
+    disc = app.rect(d, "settings_disconnect")
+    winr = win[0] + win[2]
+    close_ok = bool(sc) and sc[2] >= 28
+    disc_ok = bool(disc) and disc[0] + disc[2] <= winr - 4
+    closed = False
+    if sc and sc[2] > 0:
+        app.click(int(sc[0] + sc[2] / 2), int(sc[1] + sc[3] / 2))
+        time.sleep(1.5)
+        closed = (app.rect(app.snap(), "settings_drawer") or [0, 0, 0, 0])[2] == 0
+    ok = close_ok and disc_ok and closed
+    return ok, (f"close={sc} disconnect_right={disc and disc[0] + disc[2]} "
+                f"window_right={winr} close_click_closes={closed}")
+
+
 @check("settings", "the settings drawer mounts with its close control")
 def s_drawer(app):
     d = app.snap()
@@ -1364,6 +1423,8 @@ SPECIFIC_CHECKS = {
     "a failed local command restores the typed input and sends nothing",
     "a real coding turn streams, terminates, and the timeline survives a refresh",
     "a live turn keeps running while a sibling session is focused",
+    "the closed-state review opener lays out and opens the panel by click",
+    "the drawer's close hit is a real 28x28 slot and Disconnect ends inside the window",
 }
 for _c in CHECKS:
     _c["specific"] = _c["name"] in SPECIFIC_CHECKS
