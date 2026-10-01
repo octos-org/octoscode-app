@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "0e6b248781a866d372cf882b759075f7ea03a0d6ce0d8560a4a554b4ee6c97b1",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      26.0,
+      565.0,
+      353.0,
+      47.0
+    ],
+    [
+      30.0,
+      490.0,
+      346.0,
+      45.0
+    ],
+    [
+      27.0,
+      487.0,
+      352.0,
+      51.0
+    ],
+    [
+      59.0,
+      136.0,
+      288.0,
+      210.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "vf",
+      "bounds": [
+        59.0,
+        136.0,
+        288.0,
+        210.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294111986,
+      "radius": 12.35
+    },
+    {
+      "id": "vf_br_tl",
+      "bounds": [
+        78.0,
+        152.0,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "vf_br_tr",
+      "bounds": [
+        306.0,
+        152.0,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "vf_br_bl",
+      "bounds": [
+        78.0,
+        310.0,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "vf_br_br",
+      "bounds": [
+        306.0,
+        310.0,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "div_l",
+      "bounds": [
+        40.0,
+        432.55,
+        140.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "div_r",
+      "bounds": [
+        226.0,
+        432.55,
+        140.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "pair_link",
+      "bounds": [
+        28.0,
+        490.0,
+        350.0,
+        44.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "pair_submit",
+      "bounds": [
+        128.0,
+        562.0,
+        150.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "pair_submit_surface",
+      "bounds": [
+        128.0,
+        562.0,
+        150.0,
+        48.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4279111438,
+      "radius": 24.0
+    },
+    {
+      "id": "pair_submit_control",
+      "bounds": [
+        128.0,
+        562.0,
+        150.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "pair_fallback",
+      "bounds": [
+        26.0,
+        565.0,
+        353.0,
+        47.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "pair_fallback_surface",
+      "bounds": [
+        26.0,
+        565.0,
+        353.0,
+        47.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279111182
+    },
+    {
+      "id": "pair_fallback_control",
+      "bounds": [
+        26.0,
+        565.0,
+        353.0,
+        47.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ]
+}

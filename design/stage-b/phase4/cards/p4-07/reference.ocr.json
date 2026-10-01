@@ -1,0 +1,168 @@
+{
+  "width": 812.0,
+  "height": 1552.0,
+  "observations": [
+    {
+      "bounds": [
+        2.2556,
+        69.9302,
+        351.8667,
+        41.0698
+      ],
+      "confidence": 1.0,
+      "text": "7. Provider rejected"
+    },
+    {
+      "bounds": [
+        31.5778,
+        153.3953,
+        42.8556,
+        63.1628
+      ],
+      "confidence": 1.0,
+      "text": "<"
+    },
+    {
+      "bounds": [
+        256.8303,
+        198.9394,
+        289.3172,
+        53.284
+      ],
+      "confidence": 1.0,
+      "text": "Edit provider"
+    },
+    {
+      "bounds": [
+        42.8556,
+        257.1628,
+        76.6889,
+        24.814
+      ],
+      "confidence": 1.0,
+      "text": "Name"
+    },
+    {
+      "bounds": [
+        72.1778,
+        313.5581,
+        327.0555,
+        33.8372
+      ],
+      "confidence": 1.0,
+      "text": "DeepSeek \u2022 Official API"
+    },
+    {
+      "bounds": [
+        42.6881,
+        384.8618,
+        126.646,
+        26.5787
+      ],
+      "confidence": 1.0,
+      "text": "Base URL"
+    },
+    {
+      "bounds": [
+        72.1778,
+        444.3953,
+        387.9556,
+        33.8372
+      ],
+      "confidence": 0.5,
+      "text": "https://api.deepseek.com/v1"
+    },
+    {
+      "bounds": [
+        40.6,
+        509.814,
+        101.5,
+        31.5814
+      ],
+      "confidence": 1.0,
+      "text": "API key"
+    },
+    {
+      "bounds": [
+        47.3667,
+        642.907,
+        487.2,
+        31.5814
+      ],
+      "confidence": 1.0,
+      "text": "The provider rejected this key (401)."
+    },
+    {
+      "bounds": [
+        49.6222,
+        685.7674,
+        239.0889,
+        31.5814
+      ],
+      "confidence": 1.0,
+      "text": "Your draft is kept."
+    },
+    {
+      "bounds": [
+        42.6995,
+        734.8582,
+        99.5566,
+        30.3998
+      ],
+      "confidence": 1.0,
+      "text": "Models"
+    },
+    {
+      "bounds": [
+        67.6667,
+        803.0,
+        387.9555,
+        34.0
+      ],
+      "confidence": 1.0,
+      "text": "deepseek-v4-flash (default)"
+    },
+    {
+      "bounds": [
+        67.5466,
+        874.5549,
+        180.6846,
+        32.9832
+      ],
+      "confidence": 1.0,
+      "text": "deepseek-v4"
+    },
+    {
+      "bounds": [
+        67.6667,
+        945.186,
+        207.5111,
+        31.5814
+      ],
+      "confidence": 1.0,
+      "text": "deepseek-chat"
+    },
+    {
+      "bounds": [
+        142.1,
+        1064.7442,
+        117.2889,
+        31.5814
+      ],
+      "confidence": 1.0,
+      "text": "Cancel"
+    },
+    {
+      "bounds": [
+        493.9667,
+        1064.7442,
+        144.3556,
+        38.3488
+      ],
+      "confidence": 1.0,
+      "text": "Try again"
+    }
+  ],
+  "image_sha256": "6dd789b5d18f34b568f48404e6542f7d04e175f70778daed9391c13f639b2699",
+  "engine": "Apple Vision VNRecognizeTextRequest accurate, en-US (pyobjc)"
+}

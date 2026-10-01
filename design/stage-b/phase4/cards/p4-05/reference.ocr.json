@@ -1,0 +1,98 @@
+{
+  "width": 812.0,
+  "height": 1552.0,
+  "observations": [
+    {
+      "bounds": [
+        -0.1633,
+        154.9074,
+        171.7489,
+        39.8363
+      ],
+      "confidence": 1.0,
+      "text": "5. Paired"
+    },
+    {
+      "bounds": [
+        29.3222,
+        252.6512,
+        49.6222,
+        72.186
+      ],
+      "confidence": 1.0,
+      "text": "<"
+    },
+    {
+      "bounds": [
+        251.0607,
+        328.5075,
+        303.4341,
+        67.2517
+      ],
+      "confidence": 1.0,
+      "text": "Connection"
+    },
+    {
+      "bounds": [
+        83.0473,
+        494.9601,
+        113.5943,
+        38.731
+      ],
+      "confidence": 1.0,
+      "text": "Server"
+    },
+    {
+      "bounds": [
+        412.7667,
+        496.2791,
+        322.5444,
+        42.8605
+      ],
+      "confidence": 1.0,
+      "text": "192.168.1.20:50190"
+    },
+    {
+      "bounds": [
+        489.1203,
+        634.1445,
+        244.2704,
+        46.8506
+      ],
+      "confidence": 1.0,
+      "text": "Today, 9:41 PM"
+    },
+    {
+      "bounds": [
+        80.9933,
+        635.5103,
+        115.4468,
+        39.6073
+      ],
+      "confidence": 1.0,
+      "text": "Paired"
+    },
+    {
+      "bounds": [
+        83.4556,
+        776.0,
+        424.0444,
+        43.0
+      ],
+      "confidence": 1.0,
+      "text": "Stays on this device only"
+    },
+    {
+      "bounds": [
+        234.5778,
+        1238.0,
+        313.5222,
+        46.0
+      ],
+      "confidence": 1.0,
+      "text": "Forget this device"
+    }
+  ],
+  "image_sha256": "4e6f37456011fe135f2e1c67be547f91a2726d5b43bec4ceab0c6b9ef5eb55bd",
+  "engine": "Apple Vision VNRecognizeTextRequest accurate, en-US (pyobjc)"
+}

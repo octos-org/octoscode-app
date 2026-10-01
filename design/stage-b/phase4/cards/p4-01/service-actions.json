@@ -1,0 +1,46 @@
+{
+  "frame_id": 1,
+  "controls": {
+    "pair_scan": {
+      "event": "pair.scan",
+      "source_bounds": [
+        66,
+        140,
+        274,
+        204
+      ],
+      "enabled": true
+    },
+    "pair_submit": {
+      "event": "pair.submit",
+      "source_bounds": [
+        128,
+        562,
+        150,
+        48
+      ],
+      "enabled": true
+    },
+    "pair_fallback": {
+      "event": "pair.fallback",
+      "source_bounds": [
+        78,
+        624,
+        250,
+        30
+      ],
+      "enabled": true
+    },
+    "pair_link": {
+      "event": "pair.paste",
+      "source_bounds": [
+        28,
+        490,
+        350,
+        44
+      ],
+      "enabled": true
+    }
+  },
+  "source": "pairing"
+}

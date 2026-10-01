@@ -1,0 +1,103 @@
+# ledger p4-01@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Pair with Octos" }
+copy t_cap1_text { class: user-copy, en: "Scan the pairing QR shown in Octos" }
+copy t_cap2_text { class: user-copy, en: "on your computer" }
+copy t_or_text { class: user-copy, en: "Or" }
+copy t_link_label_text { class: user-copy, en: "Paste pairing link" }
+copy pair_link_text { class: user-copy, en: "" }
+copy pair_link_placeholder { class: user-copy, en: "octos://pair?code=…" }
+copy pair_submit_label_text { class: user-copy, en: "Pair" }
+copy pair_fallback_label_text { class: user-copy, en: "Enter server and token instead" }
+state pair_link_enabled { shape: bool, initial: true }
+state pair_submit_control_enabled { shape: bool, initial: true }
+state pair_fallback_control_enabled { shape: bool, initial: true }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Text50753d4e7787(instance: text, text: text) {
+  view Kit(component: "Text50753d4e7787", instance: instance, text: text)
+}
+component Surfacec81a3687418e(instance: text) {
+  view Kit(component: "Surfacec81a3687418e", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component Text68315eb37e89(instance: text, text: text) {
+  view Kit(component: "Text68315eb37e89", instance: instance, text: text)
+}
+component Textc4ad7208463a(instance: text, text: text) {
+  view Kit(component: "Textc4ad7208463a", instance: instance, text: text)
+}
+component Surfacec4c38149242a(instance: text) {
+  view Kit(component: "Surfacec4c38149242a", instance: instance) { slot }
+}
+component Textfb98c520c9d5(instance: text, text: text) {
+  view Kit(component: "Textfb98c520c9d5", instance: instance, text: text)
+}
+component Text3d3491d16aa8(instance: text, text: text) {
+  view Kit(component: "Text3d3491d16aa8", instance: instance, text: text)
+}
+component Input36d5f46a2e5c(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Input36d5f46a2e5c", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+}
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surfaceb15baac10224(instance: text) {
+  view Kit(component: "Surfaceb15baac10224", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Text95ba0a0f6fbb(instance: text, text: text) {
+  view Kit(component: "Text95ba0a0f6fbb", instance: instance, text: text)
+}
+component Surfacecd8633225e2f(instance: text) {
+  view Kit(component: "Surfacecd8633225e2f", instance: instance) { slot }
+}
+component Text471cbcdf3da8(instance: text, text: text) {
+  view Kit(component: "Text471cbcdf3da8", instance: instance, text: text)
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Text50753d4e7787(instance: "t_title", text: copy.t_title_text)
+  Surfacec81a3687418e(instance: "vf") {
+
+  }
+  Vectore0a378fde04f(instance: "vf_br_tl")
+  Vectore0a378fde04f(instance: "vf_br_tr")
+  Vectore0a378fde04f(instance: "vf_br_bl")
+  Vectore0a378fde04f(instance: "vf_br_br")
+  Text68315eb37e89(instance: "t_cap1", text: copy.t_cap1_text)
+  Textc4ad7208463a(instance: "t_cap2", text: copy.t_cap2_text)
+  Surfacec4c38149242a(instance: "div_l") {
+
+  }
+  Surfacec4c38149242a(instance: "div_r") {
+
+  }
+  Textfb98c520c9d5(instance: "t_or", text: copy.t_or_text)
+  Text3d3491d16aa8(instance: "t_link_label", text: copy.t_link_label_text)
+  Input36d5f46a2e5c(instance: "pair_link", text: copy.pair_link_text, placeholder: copy.pair_link_placeholder, enabled: pair_link_enabled) {
+
+  }
+  KitButton2c6804b990a5(instance: "pair_submit") {
+    Surfaceb15baac10224(instance: "pair_submit_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "pair_submit_control", enabled: pair_submit_control_enabled)
+    Text95ba0a0f6fbb(instance: "pair_submit_label", text: copy.pair_submit_label_text)
+  }
+  KitButton2c6804b990a5(instance: "pair_fallback") {
+    Surfacecd8633225e2f(instance: "pair_fallback_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "pair_fallback_control", enabled: pair_fallback_control_enabled)
+    Text471cbcdf3da8(instance: "pair_fallback_label", text: copy.pair_fallback_label_text)
+  }
+}
