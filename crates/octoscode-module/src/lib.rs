@@ -1035,6 +1035,23 @@ script_mod! {
             }
         }
 
+        // #M2 — the FLEET dock (autonomy-06, the peers card). This slot is
+        // what was missing: `screens::fleet::lower` had ZERO call sites, so the
+        // card was never shown even though its handlers were already routed
+        // (`fleet::is_action` at :1538 -> resolve -> spawn). Fit/Follows height
+        // rather than Fill, because the fleet card is a list that grows with the
+        // peer count and must not stretch the window (the Fill/Fill slot above
+        // is for a full-window screen; the review card uses the same measured
+        // idiom in its column).
+        fleet_dock := View {
+            width: Fill height: Fit
+            align: Align{x: 1.0 y: 0.0}
+            visible: false
+            fleet_splash := Splash {
+                width: Fill height: Fit
+            }
+        }
+
     }
 }
 
@@ -2486,6 +2503,47 @@ impl OctoscodeView {
                 makepad_widgets::log!("[octoscode] screen mount: {e}");
             }
         }
+        // #M2 — MOUNT the fleet card (autonomy-06). This is the call the card is
+        // about: before it, `screens::fleet::lower` had ZERO call sites, so the
+        // authored peers card was never evaluated into the live view tree even
+        // though its handlers were already routed (`fleet::is_action` above ->
+        // `resolve` -> `spawn` -> the production client).
+        //
+        // Shape copied from the docked review card (the `open` gate + env
+        // override), NOT from a new design: it reuses the authored
+        // `design/stage-b/autonomy/cards/autonomy-06` card as-is.
+        //
+        // The open gate: `OCTOSCODE_CHROME=fleet` is the deterministic
+        // headless-capture opener (the same contract as review/settings/palette
+        // — a headless run cannot click a toggle). There is no user tap for it
+        // YET, so the card is reachable by that env but not by hand; that limit
+        // is recorded in the matrix evidence rather than claimed as a click.
+        //
+        // Taps need no new wiring: the lowered card's `on_click: || { NAV(t: …) }`
+        // handlers are published into `screen_taps` by the same
+        // `taps::wired_taps` pass the screen dock uses, and `taps::owner_of`
+        // routes them to `fleet::is_action`. So mounting is sufficient to make
+        // the row controls live.
+        {
+            let fleet_open = chrome_env().3;
+            self.view.widget(cx, ids!(fleet_dock)).set_visible(cx, fleet_open);
+            if fleet_open {
+                let dsl = {
+                    let b = self.bridge.lock().unwrap();
+                    let ctx = bindings::Ctx::new(&b.store, &b.ui);
+                    screens::fleet::lower("autonomy-06", &ctx)
+                };
+                match dsl {
+                    Ok(dsl) => {
+                        let fleet_splash = self.view.splash(cx, ids!(fleet_splash));
+                        if let Err(e) = self.mounts.mount(cx, &fleet_splash, &dsl) {
+                            makepad_widgets::log!("[octoscode] fleet mount: {e}");
+                        }
+                    }
+                    Err(e) => makepad_widgets::log!("[octoscode] fleet lower: {e}"),
+                }
+            }
+        }
         // #28e4 item 2: the first-run card area mounts the REAL board-2
         // Connect screen (setup-01, #29a) — `screens::connect::lower_screen`
         // lowers the authored Stage B card with the ConnectUi copies applied,
@@ -2569,9 +2627,10 @@ impl OctoscodeView {
     /// dimmer visibility, and the GOALS/LOOPS/FLEET sidebar sections.
     fn sync_chrome(&mut self, cx: &mut Cx) {
         // Card #28e — the headless-capture gate: `OCTOSCODE_CHROME=review|
-        // settings|palette` pre-opens that surface deterministically (a
+        // settings|palette|fleet` pre-opens that surface deterministically (a
         // headless run cannot click the toggle). Parsed once per process.
-        let (env_review, env_settings, env_palette) = chrome_env();
+        // #M2: `fleet` is the 4th arm (see chrome_env).
+        let (env_review, env_settings, env_palette, _env_fleet) = chrome_env();
         let (live, review, settings, palette) = {
             let b = self.bridge.lock().unwrap();
             (
@@ -2752,13 +2811,21 @@ impl OctoscodeView {
 }
 
 /// Card #28e — the `OCTOSCODE_CHROME` capture gate, parsed once.
-fn chrome_env() -> (bool, bool, bool) {
-    static CHROME: std::sync::OnceLock<(bool, bool, bool)> = std::sync::OnceLock::new();
+/// `OCTOSCODE_CHROME=review|settings|palette|fleet` pre-opens a surface
+/// deterministically (a headless run cannot click the toggle).
+///
+/// #M2: `fleet` added — the fleet card (`autonomy-06`) had **no** opener at
+/// all, which is why `screens::fleet::lower` had 0 call sites. Returns a 4-tuple;
+/// BOTH call sites are migrated in the same commit as this change
+/// (`lib.rs:2293` review, `lib.rs:2574` the chrome table) — the #P4f2 lesson
+/// about a signature change riding alone.
+fn chrome_env() -> (bool, bool, bool, bool) {
+    static CHROME: std::sync::OnceLock<(bool, bool, bool, bool)> = std::sync::OnceLock::new();
     *CHROME.get_or_init(|| {
         let v = std::env::var("OCTOSCODE_CHROME")
             .unwrap_or_default()
             .to_lowercase();
-        (v == "review", v == "settings", v == "palette")
+        (v == "review", v == "settings", v == "palette", v == "fleet")
     })
 }
 
