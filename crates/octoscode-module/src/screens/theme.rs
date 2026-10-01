@@ -170,6 +170,21 @@ pub fn diff_tint_hexes() -> (&'static str, &'static str) {
 /// `theme.set` / `OCTOSCODE_THEME`: set the preference from its stored string.
 /// Unknown values are rejected (`use-theme.ts:11-13` only accepts
 /// light/dark, else system — here the caller keeps the current preference).
+/// #37b — serialises tests that READ or FLIP the global theme. The resolved
+/// mode is process-global, and the lib-test binary runs its tests on many
+/// threads: a flipper (the #36g ink test flips light and restores dark)
+/// running concurrently with a lower()-based assertion flips the token
+/// bytes BETWEEN that test's two lowers — the_composer_dsl_is_draft_free_
+/// and_stable failed 14/15 rounds at --test-threads=8 exactly this way
+/// (idle lowered in light, typed in dark). Every test that lowers, retints
+/// or sets the preference holds this lock for its whole body; poisoning is
+/// ignored (a panicking holder must not cascade into unrelated failures).
+#[cfg(test)]
+pub fn test_lock() -> std::sync::MutexGuard<'static, ()> {
+    static LOCK: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    LOCK.lock().unwrap_or_else(|p| p.into_inner())
+}
+
 pub fn set_preference(value: &str) -> bool {
     match Theme::parse(value) {
         Some(pref) => {
