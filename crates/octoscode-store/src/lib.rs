@@ -95,6 +95,15 @@ impl Store {
         self.domains.session.set_active(id);
     }
 
+    /// The server confirmed a session OPEN — seed it into the list (#34b's
+    /// replay half: a static fixture's `session/list` reply never names the
+    /// freshly-minted id, so without the seed the active id would dangle).
+    /// Web: `session/opened` seeds the tab-known registry
+    /// (`known-session-registry.ts`).
+    pub fn note_session_opened(&self, id: &str, title: Option<String>) {
+        self.domains.session.note_opened(id, title);
+    }
+
     pub fn active_session(&self) -> Option<String> {
         self.domains.session.active()
     }

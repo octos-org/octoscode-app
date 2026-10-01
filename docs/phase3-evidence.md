@@ -1,7 +1,84 @@
 # Phase 3 evidence pack — main @ be44817 (card #38a, lane task/38a)
 
-All numbers below are fresh from this branch (be44817), each with its command.
-App binary: vendored rebuild of be44817 (`tmp/viz/21d/sync.sh` -> Finished; the
+## Closing check @ 3e9fb24 (card #40a, task/40a) — the supervisor's final numbers
+
+Every number fresh on `task/40a` (main @ 3e9fb24), each with its command. App
+binary: vendored rebuild of 3e9fb24 (`tmp/viz/21d/sync.sh` -> Finished 29.68s
+after restoring the vendored manifest's `reqwest` workspace dep — build
+scaffolding only). Captures: `docs/walk/evidence/phase3/live/40a-live-*.png`,
+each VIEWED.
+
+### Suites
+| suite | command | result |
+|---|---|---|
+| unit+integration | `ctest --workspace --lib --tests` | **TOTAL passed=514 failed=0** (tmp/40a-ctest.log) |
+| full walk (replay) | `python3 tools/walk/run.py --limit 999` | **rc=0, pass=115, fail=0 — specific=64 / smoke=51**, 35 distinct checks (results.csv committed 55afa52) |
+| negative control | `WALK_SCENARIO=conversation=session --only conversation` | **rc=1 as required** (streaming/kinds checks FAIL) |
+| walk --live | `--live --limit 999 --port 8370` (OCTOS_LIVE_TOKEN_FILE) | **rc=0, scripted rows 2, specific=2 / smoke=0** — row 1 `streamed+terminal=1.9s prose=2 bubbles_laid_out=2`; row 2 `background turn terminal, prose rows=2` (results_live.csv) |
+| click audit | `python3 tools/walk/click_audit.py --app-bin <vendored> --out docs/walk/click-audit.csv` | **SURFACE 35 controls, 18 with an expected action: 8 respond / 1 dead / 9 shadowed-by-dock / 10 documented-unwired (+7 unmapped)** — #35c's button routing moved 8/1/9/10 from #38a's 2/8/6/8 |
+
+Walk honesty note: the FIRST full run on 3e9fb24 was 108/7 — all seven runner-side,
+none an app defect: the two live checks ran against replay fixtures (no mirror
+filter), conv_fits snapped before `now` laid out, and v_badge/v_fold asserted the
+authored `+62 −5`/`unmodified` copy that #36c replaced with computed totals (the
+walk fixtures carry no diff receipt; with-receipt rendering is f36c's 6 passing
+unit tests). Fixed in 21b64e8 (replay-mode mirror filter, now-poll, empty-state
+contract); a `diffpreview` replay scenario was tried and reverted (r30a lacks an
+open-result frame — the loader panics).
+
+### A REAL live session WITHOUT OCTOS_PROFILE_ID (#32h self-discovery)
+App started with NO `OCTOS_PROFILE_ID` (only the remote bridge env), driven through
+the UI, captures in phase3/live/ (all viewed; /snap numbers for every assertion):
+- **Connect via the UI**: first-run Connect screen; the app discovered the gate's
+  profile itself and reached `conn: Live   sessions: 1` 1 s after clicking
+  Connect (40a-live-1-connect.png). Fresh UI-connect instances mint
+  `octoscode-<n>:main` session ids (three instances: 4436/4861/62…); the walk's
+  `--live` app resolved the gate's `dsflash` profile and listed its sessions.
+- **New chat** (40a-live-2-newchat.png): BOTH sessions listed —
+  `dsflash:main` AND the fresh `dsflash:01a0f5d3…` (#34b's merge fold live).
+- **Turn 1 streamed** (40a-live-3-turn1.png): "what does main.rs print? just the
+  number" -> terminal, prose rows=2.
+- **Turn 2 interrupted** (40a-live-4-turn2.png): Esc mid-turn -> verdict rows
+  `Interrupted` (turn 1's row reads `Worked for 5s ›`).
+- **Back to the first thread** (40a-live-5-threadback.png): the original row
+  found by title and re-selected — both sessions still listed; the NEW session
+  re-selected afterwards replays its turns (prose=2; #34b: "re-selecting the
+  first shows its turn").
+- **Review** (40a-live-6-review.png): panel `r=[370,76,530,603]`, title `Review
+  r=[374,80,68,29]` fully visible. HONESTY: the in-flow toggle click did NOT
+  open the panel (the hit target had rect [0,0,0,0] in that state — the click
+  audit's 1 remaining dead row); the capture uses the `OCTOSCODE_CHROME=review`
+  start gate on a fresh session, so the body shows the designed EMPTY state (no
+  diff receipt folded — the #36c rows+diff rendering is proven by f36c's unit
+  tests, not re-proven live here).
+- **Settings** (40a-live-8-settings.png): `OCTOSCODE_CHROME=settings`; Session
+  settings + Model / Permissions / Sandbox / Context / General + Octos server /
+  Disconnect all laid out (`settings_close` zero-width noted — the close glyph
+  paints, the hit slot does not). NEW observation: the Disconnect label is
+  CLIPPED at the window's right edge at 900 wide — the #38c right inset covered
+  the conversation column only; the settings drawer needs the same treatment
+  (open-items table).
+- **Palette** (40a-live-7-palette.png): opened by `/` in the live session —
+  search `r=[220,207,544,34]`, all six commands with descriptions
+  (/model /monitor /resume /btw /mode /compact) + move/run/esc footer.
+
+### Open items (regenerated from outer/polish-backlog.md, OPEN section only)
+| open item | card/owner |
+|---|---|
+| user-bubble keeps old height after the #16e pitch fix (empty band under text) | #16e review |
+| 29c: provider card keeps 2-row height with 1 model | #29c |
+| board 3.4/3.5 loops+monitors native text ~10% smaller than atlas (accepted 8.5) | accepted |
+| 30e theme: dark pair only; 'system' resolves dark; in-memory; components don't switch | #30e (Phase 3) |
+| 30b monitors: paused shows pause icon; commands ellipsize ~20 chars | #30b |
+| 30c fleet: 0-peers full-height card; sample goal heading; meta line lost; 'Done' green; 3rd task overflows | #30c |
+| 30a/28e: first-run Connect card top-left over the sidebar header, clips left edge (P3 first item) | #28e |
+| whole-app live gate (80b9f33): window overflow right — RESIDUAL: the settings drawer still clips Disconnect at 900 wide (#38c fixed the conversation column only) | next app card |
+| final live check: #32i review capture BLANK — RESOLVED (#38a replaced it; this run re-proves title [374,80,68,29]) | done |
+| NEW (this run): the review toggle hit target did not lay out in the live flow (rect 0,0,0,0 — the click audit's 1 remaining dead row) | next app card |
+| NEW (this run): settings drawer clips `Disconnect` at the right edge at 900 wide | next app card |
+
+All numbers above are fresh from this branch (be44817), each with its command. App
+binary: vendored rebuild of be44817 (`tmp/viz/21d/sync.sh` -> Finished; the
 vendored workspace needed `octoscript-render` added to its `[patch]` section —
 build scaffolding only, no app code changed). Captures: `docs/walk/evidence/phase3/`.
 

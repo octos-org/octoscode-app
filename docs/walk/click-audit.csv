@@ -1,7 +1,7 @@
 screen,instance,widget,rect,text,expected_action,observed
-connect-first-run,beauty_0_0_2_0,TextInput,"[352, 226, 286, 26]",http://127.0.0.1:50190,,nothing
-connect-first-run,beauty_0_0_4_0,TextInput,"[352, 355, 286, 26]",,,nothing
-connect-first-run,beauty_0_0_6,KitButton,"[338, 565, 314, 44]",Connect,connect,log: screen action: connect
+connect-first-run,beauty_0_0_2_0,TextInput,"[295, 223, 286, 26]",http://127.0.0.1:50190,,nothing
+connect-first-run,beauty_0_0_4_0,TextInput,"[295, 347, 286, 26]",,,nothing
+connect-first-run,beauty_0_0_6,KitButton,"[281, 565, 314, 44]",Connect,connect,log: screen action: connect
 dock-palette,i0_newchat,KitButton,"[66, 139, 225, 76]",New chat,session.new,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
 dock-palette,i0_threadrow,KitButton,"[66, 257, 225, 78]",Why does main.rs print 5?,thread.open,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
 dock-palette,i0_composer_0,TextInput,"[349, 403, 300, 42]",Ask Octos anything,,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
@@ -22,14 +22,14 @@ dock-loading,i0_composer_0,TextInput,"[349, 403, 300, 42]",Ask Octos anything,,"
 dock-loading,plus_hit,Button,"[340, 516, 36, 36]",,(unwired),"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
 dock-loading,mic_hit,Button,"[615, 514, 36, 36]",,(unwired),"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
 dock-loading,send_hit,Button,"[659, 508, 44, 44]",,composer.submit,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
-chrome-review,i0_newchat,KitButton,"[66, 139, 225, 76]",New chat,session.new,nothing
-chrome-review,i0_threadrow,KitButton,"[66, 257, 225, 78]",Why does main.rs print 5?,thread.open,nothing
+chrome-review,i0_newchat,KitButton,"[66, 139, 225, 76]",New chat,session.new,log: new_chat clicked
+chrome-review,i0_threadrow,KitButton,"[66, 257, 225, 78]",Why does main.rs print 5?,thread.open,log: thread row 0 clicked
 chrome-review,i0_composer_0,TextInput,"[349, 403, 300, 42]",Ask Octos anything,,nothing
 chrome-review,plus_hit,Button,"[340, 516, 36, 36]",,(unwired),nothing
 chrome-review,mic_hit,Button,"[615, 514, 36, 36]",,(unwired),nothing
 chrome-review,send_hit,Button,"[659, 508, 44, 44]",,composer.submit,log: send_hit clicked
-chrome-settings,i0_newchat,KitButton,"[66, 139, 225, 76]",New chat,session.new,nothing
-chrome-settings,i0_threadrow,KitButton,"[66, 257, 225, 78]",Why does main.rs print 5?,thread.open,nothing
+chrome-settings,i0_newchat,KitButton,"[66, 139, 225, 76]",New chat,session.new,log: new_chat clicked
+chrome-settings,i0_threadrow,KitButton,"[66, 257, 225, 78]",Why does main.rs print 5?,thread.open,log: thread row 0 clicked
 chrome-settings,i0_composer_0,TextInput,"[349, 403, 300, 42]",Ask Octos anything,,nothing
 chrome-settings,plus_hit,Button,"[340, 516, 36, 36]",,(unwired),nothing
 chrome-settings,mic_hit,Button,"[615, 514, 36, 36]",,(unwired),nothing

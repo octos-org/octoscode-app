@@ -66,16 +66,24 @@ fn session_list_and_count_and_active() {
 }
 
 #[test]
-fn replacing_the_list_clears_an_active_id_that_is_gone() {
+fn list_merge_keeps_locally_known_sessions_the_reply_omits() {
     let store = Store::new();
     store.set_sessions(vec![session("a"), session("b")]);
     store.set_active(Some("b".into()));
 
-    // "b" is gone from the new list -> the active id must not dangle.
+    // The gate's catalog reply can lag the tab (#34b): a reply naming only
+    // "a" must not drop the locally-known "b" (the #39a row-2 live defect —
+    // the sidebar emptied and the running turn became unreachable).
     store.set_sessions(vec![session("a")]);
-    assert_eq!(store.active_session(), None);
+    let listed = store.sessions();
+    let ids: Vec<&str> = listed.iter().map(|s| s.id.as_str()).collect();
+    assert!(ids.contains(&"a") && ids.contains(&"b"), "{ids:?}");
+    assert_eq!(store.session_count(), 2);
+    // The active id survives a lagging reply (it cannot dangle: the merged
+    // list keeps every locally-known row).
+    assert_eq!(store.active_session().as_deref(), Some("b"));
 
-    // ...but an id that survives stays active.
+    // An id that survives stays active (unchanged contract).
     store.set_active(Some("a".into()));
     store.set_sessions(vec![session("a"), session("c")]);
     assert_eq!(store.active_session().as_deref(), Some("a"));
