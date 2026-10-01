@@ -1648,30 +1648,40 @@ impl OctoscodeView {
                             ui.endpoint_error = None;
                         }
                         // #32h: THIS is the path the phone's Connect tap takes
-                        // (the startup path I instrumented in 3f52566/156c321
-                        // is env-gated and the phone has no env) — and it
-                        // stopped at "transport live": no profile, no
-                        // session/open, so every later submit had nowhere to
-                        // open a turn (sessions: 0). Ensure a profile that
-                        // EXISTS, adopt it, then open the workspace — all
-                        // logged on the makepad macro. `needs_profile` is
-                        // false for the onboarding arm (the profile it passes
-                        // is server-verified) and for an explicit env.
-                        let needs_profile = std::env::var_os("OCTOS_PROFILE_ID").is_none()
-                            && profile == "octoscode";
-                        if needs_profile {
+                        // (the startup path instrumented in 3f52566/156c321 is
+                        // env-gated). The a1f3aad block was skipped silently on
+                        // the device (no profile/open_workspace line at all
+                        // while Live came up), so per the outer loop: log the
+                        // guard inputs UNCONDITIONALLY, and let the SERVER
+                        // decide whether the profile exists — try session/open
+                        // first regardless of any guard; on failure create +
+                        // adopt + retry. Every branch logs on the macro.
+                        makepad_widgets::log!(
+                            "[octoscode] live: profile={profile} env_profile={}",
+                            std::env::var_os("OCTOS_PROFILE_ID").is_some()
+                        );
+                        if let Err(e) = conv.open_workspace(cwd.clone()).await {
+                            makepad_widgets::log!("[octoscode] session/open failed: {e} — ensuring a profile");
                             match conv.create_profile().await {
                                 Ok(id) => {
                                     conv.adopt_profile(id.clone());
                                     makepad_widgets::log!("[octoscode] profile ready: {id}");
                                 }
-                                Err(e) => makepad_widgets::log!(
-                                    "[octoscode] profile/local/create failed: {e}"
-                                ),
+                                Err(e) => {
+                                    makepad_widgets::log!(
+                                        "[octoscode] profile/local/create failed: {e}"
+                                    )
+                                }
                             }
-                        }
-                        if let Err(e) = conv.open_workspace(cwd).await {
-                            makepad_widgets::log!("[octoscode] session/open: {e}");
+                            match conv.open_workspace(cwd).await {
+                                Ok(_) => makepad_widgets::log!(
+                                    "[octoscode] workspace open: {}",
+                                    conv.session_id()
+                                ),
+                                Err(e) => {
+                                    makepad_widgets::log!("[octoscode] session/open: {e}")
+                                }
+                            }
                         } else {
                             makepad_widgets::log!(
                                 "[octoscode] workspace open: {}",
