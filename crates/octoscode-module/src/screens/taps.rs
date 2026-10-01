@@ -110,6 +110,11 @@ pub fn wire_card_events_dir(dsl: &str, card_dir: &std::path::Path) -> String {
             if b.len() < 2 {
                 continue;
             }
+            // #FX1 — the row rides in the id, derived from the CONTROL NAME (not
+            // the event: most per-row events already name their own row, and
+            // their resolvers take no index at all — see `row_of`). So this is
+            // the ONE shared place a per-row tap gets its row, for every card.
+            let event = &with_row(event, _name);
             let (before, after) = (out.clone(), inject_click(&out, event, b[0], b[1]));
             if after.len() != before.len() {
                 wired += 1;
@@ -197,6 +202,112 @@ pub fn wired_taps(dsl: &str) -> Vec<(String, String)> {
         i += 1;
     }
     out
+}
+
+/// #FX1 — the row a control name addresses, or `None` for a non-row control.
+///
+/// The card's control names carry the row they belong to: `thread_1`,
+/// `mon_1`, `row_2`, `file_3`, `model_row_0`, `browser_row_2`. That is the ONLY
+/// place the row is knowable at wiring time, and it is the right source — NOT
+/// the event name.
+///
+/// Deriving it from the EVENT would double-encode: most per-row events already
+/// name their row (`provider.model.0`, `browser.enter.2`,
+/// `session.resume.row_1`) and their resolvers take **no index parameter at
+/// all** (`provider::resolve(id, value)` at provider.rs:343,
+/// `browser::resolve(id, value)` at browser.rs:344 — each decodes the row from
+/// the id itself), so a second row would make the id unresolvable.
+///
+/// ## The number is a NAME SUFFIX, not a resolver index
+///
+/// Measured across every per-row card's `service-actions.json`, the two card
+/// families differ in TWO ways at once, which is why this function only PARSES
+/// and [`with_row`] decides whether a conversion is needed:
+///
+/// | family | ids | base | what the event looks like |
+/// |---|---|---|---|
+/// | autonomy / conversation | `mon_1`, `thread_1`, `file_1`, `row_1` | 1-based | ONE shared event (`monitor.toggle`, `thread.open`) |
+/// | provider / browser | `model_row_0`, `browser_row_0` | 0-based | the event ALREADY names the row (`provider.model.0`) |
+///
+/// The 0-based family never needs a conversion: its event already carries the
+/// row, so no index is ever derived from its name. The 1-based family is
+/// exactly the shared-event case where one is.
+pub fn row_of(control_name: &str) -> Option<usize> {
+    let tail = control_name.rsplit('_').next()?;
+    // `str::parse` accepts a leading '+', which is not a row number; require
+    // digits only.
+    if tail.is_empty() || !tail.bytes().all(|b| b.is_ascii_digit()) {
+        return None;
+    }
+    tail.parse().ok()
+}
+
+/// Whether an action id ALREADY names the row it addresses.
+///
+/// Two spellings are in use: the dotted form (`provider.model.0`,
+/// `browser.enter.3`) and the `monitor.pause#2` suffix this module adds. Both
+/// count. An id that names its own row is routed VERBATIM: its resolver matches
+/// the literal id and takes **no index** (`provider::resolve(id, value)` at
+/// provider.rs:343, `browser::resolve(id, value)` at browser.rs:344), so
+/// appending a second row would make the id match nothing at all.
+pub fn event_names_its_own_row(event: &str) -> bool {
+    if split_row(event).1.is_some() {
+        return true;
+    }
+    match event.rsplit_once('.') {
+        Some((_, tail)) => !tail.is_empty() && tail.bytes().all(|b| b.is_ascii_digit()),
+        None => false,
+    }
+}
+
+/// #FX1 — split a routed action id into its base action and the ROW it
+/// addresses, from the shared `#<row>` suffix.
+///
+/// This is #P4e1c's `autonomy::split_row`, promoted here because the suffix is
+/// now written by the SHARED wiring path for every per-row card, not just
+/// autonomy's. It stays additive: an id with no suffix splits to itself, so
+/// every existing caller and test keeps working.
+///
+/// `"monitor.pause#2"` → `("monitor.pause", Some(2))`; a bare id → `(_, None)`;
+/// `"goal#x"` (a name that merely contains '#') → `("goal#x", None)`.
+pub fn split_row(action: &str) -> (&str, Option<usize>) {
+    match action.rsplit_once('#') {
+        Some((base, row)) if !row.is_empty() && row.bytes().all(|b| b.is_ascii_digit()) => {
+            match row.parse::<usize>() {
+                Ok(index) => (base, Some(index)),
+                Err(_) => (action, None),
+            }
+        }
+        _ => (action, None),
+    }
+}
+
+/// Suffix an event with the row its control name addresses, unless the event
+/// already names one.
+///
+/// Keeping the suffix OFF an event that already carries its own row is what
+/// stops the double-encoding described on [`row_of`]: `provider.model.0` is
+/// routed exactly as authored, while `mon_1`'s `monitor.toggle` becomes
+/// `monitor.toggle#0` and reaches row 0 instead of silently addressing whatever
+/// the host defaulted to.
+pub fn with_row(event: &str, control_name: &str) -> String {
+    // The event already names its own row (`provider.model.0`): route it
+    // VERBATIM. Its resolver matches the literal id and takes no index, so a
+    // suffix here would make the id match nothing.
+    if event_names_its_own_row(event) {
+        return event.to_owned();
+    }
+    let Some(n) = row_of(control_name) else {
+        return event.to_owned();
+    };
+    // Reaching here means the event is SHARED across rows (`monitor.toggle`,
+    // `thread.open`), and every such card numbers its rows from 1 — measured:
+    // mon_1/thread_1/file_1/row_1, while the dotted family that names its own
+    // row numbers from 0. So the derived index is n-1: `thread_1` must reach
+    // store row 0, or `thread.open` opens the SECOND session when the user
+    // clicked the first. n >= 1 always holds here, because a shared-event card
+    // never names its first row 0.
+    format!("{event}#{}", n - 1)
 }
 
 /// Inject `on_click: || { NAV(t: "<event>") }` into the DesignNativeButton
@@ -339,6 +450,89 @@ text: \"Copy\"
         let same = wire_card_events(BUTTON_DSL, "setup-99-does-not-exist");
         assert_eq!(same, BUTTON_DSL);
         assert!(!wired_taps(&same).iter().any(|(n, _)| n == "btn_reload"));
+    }
+
+    // ---- #FX1: the row semantics, pinned per card family -------------------
+    //
+    // Two bugs lived here and both were mine. `row_of` is a PURE PARSE of the
+    // control name (no base conversion), and `with_row` is the only place that
+    // converts — so these tests pin the two halves separately, which is the
+    // split that makes both bugs impossible to reintroduce at once.
+
+    #[test]
+    fn row_of_parses_the_name_suffix_without_converting_its_base() {
+        // autonomy-05/08, conversation-01/07 number from 1; p4-06/07/08 from 0.
+        // `row_of` reports what the NAME says — converting here is what broke
+        // the 0-based family (`model_row_2` must not become 1).
+        assert_eq!(row_of("mon_1"), Some(1));
+        assert_eq!(row_of("mon_2"), Some(2));
+        assert_eq!(row_of("thread_5"), Some(5));
+        assert_eq!(row_of("file_3"), Some(3));
+        assert_eq!(row_of("row_4"), Some(4));
+        assert_eq!(row_of("model_row_0"), Some(0));
+        assert_eq!(row_of("model_row_2"), Some(2));
+        assert_eq!(row_of("browser_row_0"), Some(0));
+        assert_eq!(row_of("browser_row_3"), Some(3));
+    }
+
+    #[test]
+    fn a_control_that_is_not_a_row_has_no_row() {
+        // A single-shot control keeps the old behaviour: no suffix, row 0.
+        for name in ["new_loop", "clear_goal", "pause_btn", "btn_diag", "goal"] {
+            assert_eq!(row_of(name), None, "{name} is not a row control");
+        }
+        // A trailing non-number is not a row, and `+2` is not a row either
+        // (`usize::from_str` would otherwise accept a leading plus).
+        assert_eq!(row_of("row_+2"), None);
+        assert_eq!(row_of("row_"), None);
+    }
+
+    #[test]
+    fn an_event_that_already_names_its_row_is_routed_verbatim() {
+        // The double-encode guard, in BOTH spellings. `provider::resolve(id,
+        // value)` and `browser::resolve(id, value)` match the literal id and
+        // take NO index, so `provider.model.0#0` would match nothing and the
+        // row would be lost in the other direction.
+        assert_eq!(with_row("provider.model.0", "model_row_0"), "provider.model.0");
+        assert_eq!(with_row("browser.enter.3", "browser_row_3"), "browser.enter.3");
+        // The dotted test covers both the recogniser and the verdict.
+        assert!(event_names_its_own_row("provider.model.0"));
+        assert!(event_names_its_own_row("browser.enter.3"));
+        assert!(!event_names_its_own_row("monitor.toggle"));
+        assert!(!event_names_its_own_row("thread.open"));
+        // A dotted id whose tail is not a number is not a row id.
+        assert!(!event_names_its_own_row("model.change.v2"));
+    }
+
+    #[test]
+    fn a_shared_event_gets_the_row_converted_from_the_1_based_name() {
+        // The conversion lives HERE, not in `row_of`: only a shared event needs
+        // an index derived from a 1-based name, and `thread_1` must reach store
+        // row 0 — handing `thread.open` a 1 opens the SECOND session when the
+        // user clicked the first.
+        assert_eq!(with_row("monitor.toggle", "mon_1"), "monitor.toggle#0");
+        assert_eq!(with_row("monitor.toggle", "mon_2"), "monitor.toggle#1");
+        assert_eq!(with_row("thread.open", "thread_1"), "thread.open#0");
+        assert_eq!(with_row("thread.open", "thread_3"), "thread.open#2");
+        // A non-row control is untouched.
+        assert_eq!(with_row("loop.new", "new_loop"), "loop.new");
+    }
+
+    #[test]
+    fn split_row_round_trips_what_with_row_wrote() {
+        for (event, control, want) in [
+            ("monitor.toggle", "mon_2", 1usize),
+            ("thread.open", "thread_3", 2),
+            ("loop.new", "new_loop", 0),
+        ] {
+            let wired = with_row(event, control);
+            let (base, row) = split_row(&wired);
+            assert_eq!(base, event, "the base action survives the round trip");
+            assert_eq!(row.unwrap_or(0), want, "and so does the row: {wired}");
+        }
+        // A name that merely contains '#' is a base name, not a row.
+        assert_eq!(split_row("goal#x"), ("goal#x", None));
+        assert_eq!(split_row("goal.pause"), ("goal.pause", None));
     }
 
     #[test]
