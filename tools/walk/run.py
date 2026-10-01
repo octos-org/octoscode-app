@@ -1675,7 +1675,11 @@ def main():
         # deliveries) — row 50 needs the model to RAISE an approval card on
         # its own; the other live-only rows need browser-only state (#41d).
         wanted = {1, 2, 3, 33}
-        targets = [(i, area_of(r) or "", r)
+        # row 33's case text matches no AREA_PATTERN (area_of -> None), but
+        # its check is registered under "composer" — give the area explicitly
+        # so scenario_for resolves (#41d final-run KeyError '').
+        wanted_area = {33: "composer"}
+        targets = [(i, area_of(r) or wanted_area.get(i, ""), r)
                    for i, r in enumerate(rows, start=1) if i in wanted]
     try:
         procs = LiveGate(args.port) if args.live else Procs(args.port)
