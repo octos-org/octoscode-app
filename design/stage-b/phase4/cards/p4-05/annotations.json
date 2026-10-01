@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "4e6f37456011fe135f2e1c67be547f91a2726d5b43bec4ceab0c6b9ef5eb55bd",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      21.0,
+      362.0,
+      362.0,
+      68.0
+    ],
+    [
+      21.0,
+      291.0,
+      362.0,
+      70.0
+    ],
+    [
+      21.0,
+      223.0,
+      362.0,
+      67.0
+    ],
+    [
+      21.0,
+      223.0,
+      362.0,
+      207.0
+    ],
+    [
+      19.0,
+      220.0,
+      367.0,
+      213.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "pair_back_chev",
+      "bounds": [
+        15.0,
+        130.0,
+        14.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "pair_back_control",
+      "bounds": [
+        5.0,
+        121.0,
+        34.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "conn_card",
+      "bounds": [
+        21.0,
+        223.0,
+        362.0,
+        207.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 12.67
+    },
+    {
+      "id": "conn_div1",
+      "bounds": [
+        36.0,
+        296.0,
+        334.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "conn_div2",
+      "bounds": [
+        36.0,
+        366.0,
+        334.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "pair_forget",
+      "bounds": [
+        117.0,
+        608.0,
+        172.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "pair_forget_surface",
+      "bounds": [
+        117.0,
+        608.0,
+        172.0,
+        40.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901245
+    },
+    {
+      "id": "pair_forget_control",
+      "bounds": [
+        117.0,
+        608.0,
+        172.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ]
+}

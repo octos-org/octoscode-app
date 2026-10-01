@@ -1,0 +1,54 @@
+# ledger p4-02@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Pair with Octos" }
+copy t_pairing_text { class: user-copy, en: "Pairing with 192.168.1.20..." }
+copy t_once_text { class: user-copy, en: "This code works once." }
+copy pair_cancel_label_text { class: user-copy, en: "Cancel" }
+state pair_back_control_enabled { shape: bool, initial: true }
+state pair_cancel_control_enabled { shape: bool, initial: true }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Vectore0a378fde04f(instance: text) {
+  view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Text3a53b5f544cc(instance: text, text: text) {
+  view Kit(component: "Text3a53b5f544cc", instance: instance, text: text)
+}
+component Textc2ece9102309(instance: text, text: text) {
+  view Kit(component: "Textc2ece9102309", instance: instance, text: text)
+}
+component Texte714a10c0d1d(instance: text, text: text) {
+  view Kit(component: "Texte714a10c0d1d", instance: instance, text: text)
+}
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surface310c17824b92(instance: text) {
+  view Kit(component: "Surface310c17824b92", instance: instance) { slot }
+}
+component Text4e367bcfe1e5(instance: text, text: text) {
+  view Kit(component: "Text4e367bcfe1e5", instance: instance, text: text)
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Vectore0a378fde04f(instance: "pair_back_chev")
+  NativeButton02f1d1bd99b4(instance: "pair_back_control", enabled: pair_back_control_enabled)
+  Text3a53b5f544cc(instance: "t_title", text: copy.t_title_text)
+  Vectore0a378fde04f(instance: "spinner")
+  Textc2ece9102309(instance: "t_pairing", text: copy.t_pairing_text)
+  Texte714a10c0d1d(instance: "t_once", text: copy.t_once_text)
+  KitButton2c6804b990a5(instance: "pair_cancel") {
+    Surface310c17824b92(instance: "pair_cancel_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "pair_cancel_control", enabled: pair_cancel_control_enabled)
+    Text4e367bcfe1e5(instance: "pair_cancel_label", text: copy.pair_cancel_label_text)
+  }
+}

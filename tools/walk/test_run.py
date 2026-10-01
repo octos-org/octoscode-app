@@ -62,6 +62,72 @@ class RowReason(unittest.TestCase):
         self.assertNotIn("all pass", reason)
 
 
+class EnvGroups(unittest.TestCase):
+    """#43b: the launch env a row needs is DATA (`ENV_GROUPS`), and a row that is
+    a TEMPLATE (row 183 runs at every viewport width) needs MORE THAN ONE
+    instance — `env_group_for` alone would launch only the first width."""
+
+    def _row(self, case):
+        return {"case": case, "spec": "e2e/x.spec.ts", "protocol_methods": ""}
+
+    def test_first_run_row_gets_the_no_connect_instance(self):
+        row = self._row("starts a first workspace with the keyboard and focuses "
+                        "the useful field when adding another")
+        self.assertEqual(run.env_group_for(row), ("keyboard", "first-run"))
+        self.assertTrue(run.ENV_GROUPS[("keyboard", "first-run")]["first_run"])
+
+    def test_template_row_gets_every_viewport_width(self):
+        # The area is `peer` — AREA_PATTERNS["peer"]'s `lease` matches
+        # "re-LEASE-readiness" (run.py:177), the same verdict phase4-gaps.csv:35
+        # records. The keys must follow `area_of`, not the row's wording, and
+        # `area_of` reads case + SPEC, so the fixture needs the real spec.
+        row = {"case": "settings preserves its geometry while model management "
+                       "loads at ${viewport.width}px",
+               "spec": "e2e/release-readiness.spec.ts", "protocol_methods": ""}
+        self.assertEqual(run.area_of(row), "peer")
+        self.assertEqual(run.env_groups_for(row),
+                         [("peer", "viewport-1280"), ("peer", "viewport-720")])
+        # The representative key is the first; the row's verdict is the AND.
+        self.assertEqual(run.env_group_for(row), ("peer", "viewport-1280"))
+
+    def test_theme_row_gets_the_light_instance(self):
+        row = self._row("manual light preserves readable conversation and "
+                        "settings colors on a dark OS")
+        self.assertEqual(run.env_group_for(row), ("settings", "theme-light"))
+        self.assertEqual(
+            run.ENV_GROUPS[("settings", "theme-light")]["env"],
+            {"OCTOSCODE_THEME": "light"})
+
+    def test_ordinary_row_keeps_the_default_connected_env(self):
+        """A row with no entry must run on the pre-#43b connected instance."""
+        for case in ("accepts a typed prompt and streams an answer",
+                     "renders the review badge with the live counts",
+                     "opens the palette by '/' and runs a command"):
+            self.assertIsNone(run.env_group_for(self._row(case)), case)
+
+    def test_every_group_names_checks_that_exist(self):
+        """A typo in `checks=` would silently run ZERO checks — and an empty run
+        is never `pass` (decided_status), so the row would go red for a wrong
+        reason. Pin the names against the registry."""
+        known = {c["name"] for c in run.CHECKS}
+        for key, spec in run.ENV_GROUPS.items():
+            self.assertTrue(spec.get("checks"), f"{key} declares no checks")
+            for name in spec["checks"]:
+                self.assertIn(name, known, f"{key} names an unregistered check")
+            self.assertTrue(spec.get("rows"), f"{key} matches no row")
+
+    def test_every_group_check_is_registered_under_its_own_area(self):
+        """A check named by group A but registered under area B would never run
+        against A's instance (main() filters by area first)."""
+        by_name = {}
+        for c in run.CHECKS:
+            by_name.setdefault(c["name"], set()).add(c["area"])
+        for key, spec in run.ENV_GROUPS.items():
+            for name in spec["checks"]:
+                self.assertIn(key[0], by_name[name],
+                              f"{key} names a check not registered under {key[0]}")
+
+
 class CheckApplies(unittest.TestCase):
     """#19c item 3: a per-check `rows=` selector scopes that check to walk rows."""
 

@@ -639,6 +639,9 @@ impl NotificationHandler for GoalUpdatedHandler {
     fn handle(&self, n: &UiNotification) {
         if let UiNotification::SessionGoalUpdated(e) = n {
             self.store.note_seen(Self::METHOD);
+            // #P4e1b row 6: an OWNING goal event supersedes an in-flight
+            // `session/goal/get` snapshot (web `autonomy/store.ts:350-357`).
+            self.store.domains.autonomy.supersede_family("goal");
             self.store.domains.autonomy.apply_goal_update(
                 &e.session_id.0,
                 goal_from_ui(&e.goal),
@@ -676,6 +679,11 @@ impl NotificationHandler for LoopUpdatedHandler {
     fn handle(&self, n: &UiNotification) {
         if let UiNotification::LoopUpdated(e) = n {
             self.store.note_seen(Self::METHOD);
+            // #P4e1b row 6: this is an OWNING event for the loops family, so it
+            // supersedes any in-flight `loop/list` snapshot (web
+            // `autonomy/store.ts:350-357`). Only the loops revision moves — an
+            // unrelated-family event must not discard another family's refresh.
+            self.store.domains.autonomy.supersede_family("loops");
             // `deleted: true` removes the row (web `LoopUpdatedEvent.deleted`).
             if e.deleted == Some(true) {
                 self.store.domains.autonomy.remove_loop(&e.loop_state.loop_id);
@@ -712,6 +720,10 @@ impl NotificationHandler for MonitorUpdatedHandler {
     fn handle(&self, n: &UiNotification) {
         if let UiNotification::MonitorUpdated(e) = n {
             self.store.note_seen(Self::METHOD);
+            // #P4e1b row 6: an OWNING monitors event supersedes an in-flight
+            // `monitor/list` snapshot; only the monitors family moves, so a
+            // concurrent loops refresh is untouched (web `autonomy/store.ts:350-357`).
+            self.store.domains.autonomy.supersede_family("monitors");
             if e.deleted == Some(true) {
                 self.store.domains.autonomy.remove_monitor(&e.monitor_state.monitor_id);
             } else {

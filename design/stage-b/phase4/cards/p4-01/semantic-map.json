@@ -1,0 +1,218 @@
+{
+  "schema_version": 1,
+  "policy_version": "1.1.0",
+  "contract_sha256": "82b1e05691fbea803df200819f2b1af26f01d0403c6654cbbd5059144a4492aa",
+  "reference_sha256": "0e6b248781a866d372cf882b759075f7ea03a0d6ce0d8560a4a554b4ee6c97b1",
+  "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
+  "elements": [
+    {
+      "id": "page",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_title",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "vf",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "vf_br_tl",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/vf_br_tl.svg",
+        "sha256": "7113754ee3f8cdda34703fc3179de6be2f05379026bca2fa6d4a8bd2afeb4c44",
+        "method": "reference_svg",
+        "reference_sha256": "0e6b248781a866d372cf882b759075f7ea03a0d6ce0d8560a4a554b4ee6c97b1",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "vf_br_tr",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/vf_br_tr.svg",
+        "sha256": "9ad268cfb92a6bafc8c3a73ab1372820fb571db480917d5b6a078cfac38aed96",
+        "method": "reference_svg",
+        "reference_sha256": "0e6b248781a866d372cf882b759075f7ea03a0d6ce0d8560a4a554b4ee6c97b1",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "vf_br_bl",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/vf_br_bl.svg",
+        "sha256": "7a9a8daaa9ccc75ee7ea90b54c6c0702c6a9365bb62d391f3d3e303f69b49d5f",
+        "method": "reference_svg",
+        "reference_sha256": "0e6b248781a866d372cf882b759075f7ea03a0d6ce0d8560a4a554b4ee6c97b1",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "vf_br_br",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/vf_br_br.svg",
+        "sha256": "51c6d92e9d1f1f02f3a9e634bdd43f9f070400c91e1a7c68332745f051c0423c",
+        "method": "reference_svg",
+        "reference_sha256": "0e6b248781a866d372cf882b759075f7ea03a0d6ce0d8560a4a554b4ee6c97b1",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "t_cap1",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_cap2",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "div_l",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "div_r",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_or",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_link_label",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "pair_link_wrap",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "pair_link_field",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "pair_link",
+      "role": "input",
+      "basis": "authored input node",
+      "confidence": 1.0,
+      "decision": "declared",
+      "behavior": {
+        "event": "changed",
+        "target": "pair_link",
+        "property": "text"
+      }
+    },
+    {
+      "id": "pair_submit",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "pair_submit_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "pair_submit_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "pair_submit_label",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "pair_fallback",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "pair_fallback_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "pair_fallback_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "pair_fallback_label",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    }
+  ]
+}

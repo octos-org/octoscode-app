@@ -501,6 +501,13 @@ pub struct Conversation {
     /// `workspace_root` (the web's `requireExactWorkspace` resume path,
     /// `candidate-session.ts:230-243`).
     pending_open_cwd: Mutex<Option<String>>,
+    /// #P4e1b row 4: bumped by every `session/open`, so each open presents a
+    /// NEW commands identity to the autonomy fence and retires the previous
+    /// one (web `autonomy/store.ts:208-213`: a new object for the same
+    /// session id, a re-auth, a reconnect or a Core restart all reset ALL
+    /// data, watermarks, revisions and busy holders). Starts at 0 and is
+    /// bumped BEFORE the open is sent, so the reply arm reads the new value.
+    open_seq: Mutex<u64>,
     started: Instant,
 }
 
@@ -646,6 +653,7 @@ impl Conversation {
                 session_id: Mutex::new(format!("{profile}:main")),
                 workspace_opened: Mutex::new(false),
                 pending_open_cwd: Mutex::new(None),
+                open_seq: Mutex::new(0),
                 started: Instant::now(),
             },
             evt_rx,
@@ -654,6 +662,16 @@ impl Conversation {
 
     pub fn profile(&self) -> String {
         self.profile.lock().unwrap().clone()
+    }
+
+    /// #P4e1b row 4: the commands identity this connection currently
+    /// presents to the autonomy fence. The `open_seq` counter makes every
+    /// `session/open` a NEW identity for the same session id — which is
+    /// exactly the case the web treats as an authority reset
+    /// (`autonomy/store.ts:208-213`).
+    pub fn identity(&self) -> String {
+        let seq = *self.open_seq.lock().unwrap();
+        format!("{}#{}", self.profile(), seq)
     }
 
     /// #32h: take the server-verified profile id (`profile/local/create`'s
@@ -735,6 +753,13 @@ impl Conversation {
         cwd: Option<String>,
     ) -> Result<String, String> {
         let session_id = octos_core::SessionKey(id.to_owned());
+        // #P4e1b row 4: retire the previous commands identity BEFORE the open
+        // goes out, so the reply arm binds the NEW one and any result captured
+        // under the old identity is refused from the moment it is issued.
+        {
+            let mut seq = self.open_seq.lock().unwrap();
+            *seq += 1;
+        }
         // #P4g1 row 204: remember what THIS open asked for, so the reply arm
         // can fail closed on a different returned workspace.
         *self.pending_open_cwd.lock().unwrap() = cwd.clone();
@@ -792,6 +817,60 @@ impl Conversation {
     pub async fn start_turn(&self, text: impl Into<String>) -> Result<String, ClientError> {
         let turn_id = TurnId::new().0.to_string();
         self.start_turn_with_id(text, turn_id).await
+    }
+
+    /// `turn/start` carrying PRE-UPLOADED attachments.
+    ///
+    /// P4d4 row 2: the media batch is taken at the ACCEPTED local enqueue
+    /// boundary and rides THIS turn's params. `media` is omitted entirely when
+    /// the batch is empty (octos-core `ui_protocol.rs:2044-2045`,
+    /// `skip_serializing_if = "Vec::is_empty"`), so a text-only turn is
+    /// byte-identical to [`Conversation::start_turn`].
+    pub async fn start_turn_with_media(
+        &self,
+        text: impl Into<String>,
+        media: Vec<crate::screens::media::TurnMedia>,
+    ) -> Result<String, ClientError> {
+        let turn_id = TurnId::new().0.to_string();
+        let text: String = text.into();
+        let mut params = serde_json::json!({
+            "session_id": self.session_id(),
+            "turn_id": turn_id,
+            "input": [{"kind": "text", "text": text}],
+        });
+        if !media.is_empty() {
+            params["media"] = serde_json::Value::Array(media.iter().map(|m| m.to_value()).collect());
+        }
+        self.trace.record(
+            self.started,
+            Direction::Out,
+            "turn/start",
+            None,
+            Some(format!("turn={turn_id}")),
+        );
+        // The optimistic row is the same as a text-only send.
+        self.store.domains.session.timeline.upsert_user_message(
+            &self.session_id(),
+            &turn_id,
+            &text,
+            serde_json::json!({"optimistic": true}),
+        );
+        {
+            let mut ui = self.ui.lock().unwrap();
+            ui.begin_turn(&turn_id, self.started);
+            ui.set_draft_inner(String::new());
+        }
+        match self.client.request("turn/start", params).await {
+            Ok(_) => {
+                makepad_widgets::log!("[octoscode] turn started: {turn_id}");
+                Ok(turn_id)
+            }
+            Err(e) => {
+                // #34a's rule: a FAILED send restores the draft.
+                self.ui.lock().unwrap().set_draft_inner(text.clone());
+                Err(e)
+            }
+        }
     }
 
     /// `turn/start` with an explicit `turn_id`.
@@ -1219,6 +1298,20 @@ impl Conversation {
                 self.store
                     .note_session_opened(&r.opened.session_id.0, None);
                 self.store.set_active(Some(r.opened.session_id.0.clone()));
+                // #P4e1b rows 4+9: bind the autonomy state to THIS commands
+                // identity and the session the open reply names. The identity is
+                // per-socket-and-open: any later open, reconnect or re-auth
+                // presents a new one, and the fence then drops every late
+                // result, busy marker and carried-over row (web
+                // `features/autonomy/store.ts:208-231` `#syncAuthority`).
+                self.store
+                    .domains
+                    .autonomy
+                    .bind_identity(&self.identity());
+                self.store
+                    .domains
+                    .autonomy
+                    .bind_session(&r.opened.session_id.0);
                 // #P4g1 row 217: the open reply's `UiProtocolCapabilities`
                 // carries the advertised methods AND features — record both
                 // and evaluate the web's coding gate

@@ -1,0 +1,328 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "3bf85f94c7517d93f2346b6da3b7bf773cfd0e2fabcc8152e44670903f2928bb",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t_title",
+      "expected_text": "Choose workspace folder",
+      "requested_bounds": [
+        60.9,
+        109.41,
+        268.41,
+        30.0
+      ],
+      "status": "observed",
+      "ocr_text": "Choose workspace folder",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        63.0,
+        110.0,
+        264.5,
+        25.0
+      ],
+      "ink_color": [
+        8,
+        8,
+        8
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        60.9,
+        109.407,
+        268.4111,
+        27.093
+      ]
+    },
+    {
+      "id": "t_crumbs",
+      "expected_text": "/ \u203a private",
+      "requested_bounds": [
+        24.6,
+        159.0,
+        100.79,
+        21.5
+      ],
+      "status": "observed",
+      "ocr_text": "/ \u203a private",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        26.0,
+        159.5,
+        98.5,
+        19.5
+      ],
+      "ink_color": [
+        109,
+        110,
+        110
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        24.60185,
+        158.9992,
+        100.7908,
+        21.5016
+      ]
+    },
+    {
+      "id": "t_cal1",
+      "expected_text": "The server won't list this folder.",
+      "requested_bounds": [
+        92.37,
+        224.38,
+        239.38,
+        21.57
+      ],
+      "status": "observed",
+      "ocr_text": "The server won't list this folder.",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        94.5,
+        227.5,
+        233.5,
+        15.5
+      ],
+      "ink_color": [
+        82,
+        83,
+        83
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        92.36695,
+        224.38205,
+        239.37725,
+        21.56825
+      ]
+    },
+    {
+      "id": "t_cal2",
+      "expected_text": "Pick another folder or type a path",
+      "requested_bounds": [
+        93.61,
+        268.44,
+        249.24,
+        20.3
+      ],
+      "status": "observed",
+      "ocr_text": "Pick another folder or type a path",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        95.5,
+        269.5,
+        245.0,
+        19.0
+      ],
+      "ink_color": [
+        80,
+        79,
+        80
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        93.60555,
+        268.44185,
+        249.2389,
+        20.30235
+      ]
+    },
+    {
+      "id": "t_cal3",
+      "expected_text": "you can access.",
+      "requested_bounds": [
+        92.48,
+        300.0,
+        119.54,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "you can access.",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        94.5,
+        301.0,
+        114.5,
+        14.5
+      ],
+      "ink_color": [
+        82,
+        82,
+        82
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        92.4778,
+        300.0,
+        119.54445,
+        16.0
+      ]
+    },
+    {
+      "id": "browser_back_label",
+      "expected_text": "Back to /home/user",
+      "requested_bounds": [
+        128.0,
+        394.0,
+        139.0,
+        22.5
+      ],
+      "status": "observed",
+      "ocr_text": "Back to /home/user",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        130.5,
+        397.5,
+        133.0,
+        16.0
+      ],
+      "ink_color": [
+        16,
+        16,
+        16
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        128.56665,
+        397.0,
+        137.5889,
+        18.06975
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "cal_refused",
+      "bounds": [
+        27.0,
+        201.0,
+        355.0,
+        136.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294440951,
+      "radius": 13.2
+    },
+    {
+      "id": "browser_back",
+      "bounds": [
+        67.0,
+        382.0,
+        260.0,
+        49.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "browser_back_surface",
+      "bounds": [
+        67.0,
+        382.0,
+        260.0,
+        49.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 24.5
+    },
+    {
+      "id": "browser_back_control",
+      "bounds": [
+        67.0,
+        382.0,
+        260.0,
+        49.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "browser_path_wrap",
+      "bounds": [
+        28.0,
+        488.0,
+        350.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "browser_path_field",
+      "bounds": [
+        25.0,
+        483.0,
+        356.0,
+        56.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 14.0
+    },
+    {
+      "id": "browser_path",
+      "bounds": [
+        42.0,
+        488.0,
+        322.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        -0.3778,
+        67.0699,
+        309.9184,
+        44.067
+      ],
+      "confidence": 1.0,
+      "text": "9. Folder refused"
+    },
+    {
+      "bounds": [
+        69.4964,
+        1002.5222,
+        122.6516,
+        43.2348
+      ],
+      "confidence": 1.0,
+      "text": "/ private"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

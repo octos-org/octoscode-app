@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "policy_version": "1.1.0",
+  "contract_sha256": "f2481ae375ef753ecaccb16e83c804fd5536ba07a6ae52880be37b6187a2eba4",
+  "reference_sha256": "2e0b9de79e8cd1e4164b67852c273fcf18e8e11ef75e87a2c0c71e7a245d7597",
+  "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
+  "elements": [
+    {
+      "id": "page",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_title",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_crumbs",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "row_0",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "fld_0",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/fld_0.svg",
+        "sha256": "cba5fa12f954048a4d2c879f71b5152be7265e37826fa7bb61010e762895754f",
+        "method": "reference_svg",
+        "reference_sha256": "2e0b9de79e8cd1e4164b67852c273fcf18e8e11ef75e87a2c0c71e7a245d7597",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "t_row_0",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "row_0_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "row_1",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "fld_1",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/fld_1.svg",
+        "sha256": "cba5fa12f954048a4d2c879f71b5152be7265e37826fa7bb61010e762895754f",
+        "method": "reference_svg",
+        "reference_sha256": "2e0b9de79e8cd1e4164b67852c273fcf18e8e11ef75e87a2c0c71e7a245d7597",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "t_row_1",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "row_1_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "row_2",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "fld_2",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/fld_2.svg",
+        "sha256": "cba5fa12f954048a4d2c879f71b5152be7265e37826fa7bb61010e762895754f",
+        "method": "reference_svg",
+        "reference_sha256": "2e0b9de79e8cd1e4164b67852c273fcf18e8e11ef75e87a2c0c71e7a245d7597",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "t_row_2",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "row_2_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "row_3",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "fld_3",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "confidence": 1.0,
+      "decision": "reviewed",
+      "asset": {
+        "path": "assets/fld_3.svg",
+        "sha256": "cba5fa12f954048a4d2c879f71b5152be7265e37826fa7bb61010e762895754f",
+        "method": "reference_svg",
+        "reference_sha256": "2e0b9de79e8cd1e4164b67852c273fcf18e8e11ef75e87a2c0c71e7a245d7597",
+        "fit": "stretch",
+        "clip": true,
+        "notes": "Visually measured source icon reconstructed as vector paths; no text or embedded raster"
+      }
+    },
+    {
+      "id": "t_row_3",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "row_3_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "t_hidden",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "browser_path_wrap",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "browser_path_field",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "browser_path",
+      "role": "input",
+      "basis": "authored input node",
+      "confidence": 1.0,
+      "decision": "declared",
+      "behavior": {
+        "event": "changed",
+        "target": "browser_path",
+        "property": "text"
+      }
+    },
+    {
+      "id": "browser_use",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "browser_use_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "browser_use_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "browser_use_label",
+      "role": "text",
+      "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    }
+  ]
+}

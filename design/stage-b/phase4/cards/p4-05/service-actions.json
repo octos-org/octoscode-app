@@ -1,0 +1,26 @@
+{
+  "frame_id": 5,
+  "controls": {
+    "pair_back": {
+      "event": "pair.back",
+      "source_bounds": [
+        5,
+        121,
+        34,
+        40
+      ],
+      "enabled": true
+    },
+    "pair_forget": {
+      "event": "pair.forget",
+      "source_bounds": [
+        117,
+        608,
+        172,
+        40
+      ],
+      "enabled": true
+    }
+  },
+  "source": "pairing"
+}

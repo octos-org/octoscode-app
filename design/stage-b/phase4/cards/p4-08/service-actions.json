@@ -1,0 +1,66 @@
+{
+  "frame_id": 8,
+  "controls": {
+    "browser_row_0": {
+      "event": "browser.enter.0",
+      "source_bounds": [
+        28,
+        196,
+        350,
+        48
+      ],
+      "enabled": true
+    },
+    "browser_row_1": {
+      "event": "browser.enter.1",
+      "source_bounds": [
+        28,
+        248,
+        350,
+        48
+      ],
+      "enabled": true
+    },
+    "browser_row_2": {
+      "event": "browser.enter.2",
+      "source_bounds": [
+        28,
+        308,
+        350,
+        48
+      ],
+      "enabled": true
+    },
+    "browser_row_3": {
+      "event": "browser.enter.3",
+      "source_bounds": [
+        28,
+        364,
+        350,
+        48
+      ],
+      "enabled": true
+    },
+    "browser_use": {
+      "event": "browser.use",
+      "source_bounds": [
+        15,
+        557,
+        373,
+        54
+      ],
+      "enabled": true
+    },
+    "browser_path": {
+      "event": "browser.path",
+      "source_bounds": [
+        28,
+        490,
+        350,
+        48
+      ],
+      "enabled": true
+    }
+  },
+  "source": "workspace-browser"
+}

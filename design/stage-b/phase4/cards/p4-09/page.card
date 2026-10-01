@@ -1,0 +1,83 @@
+# ledger p4-09@1.0.0
+# level: L0
+# profile: ui/l0
+# Static design fixture, runtime native Kit composition.
+theme light
+copy t_title_text { class: user-copy, en: "Choose workspace folder" }
+copy t_crumbs_text { class: user-copy, en: "/ › private" }
+copy t_cal1_text { class: user-copy, en: "The server won't list this folder." }
+copy t_cal2_text { class: user-copy, en: "Pick another folder or type a path" }
+copy t_cal3_text { class: user-copy, en: "you can access." }
+copy browser_back_label_text { class: user-copy, en: "Back to /home/user" }
+copy browser_path_text { class: user-copy, en: "/private" }
+copy browser_path_placeholder { class: user-copy, en: "" }
+state browser_back_control_enabled { shape: bool, initial: true }
+state browser_path_enabled { shape: bool, initial: true }
+component Surface16fae9a63e16(instance: text) {
+  view Kit(component: "Surface16fae9a63e16", instance: instance) { slot }
+}
+component Text208602c94c37(instance: text, text: text) {
+  view Kit(component: "Text208602c94c37", instance: instance, text: text)
+}
+component Text81dc8feb211c(instance: text, text: text) {
+  view Kit(component: "Text81dc8feb211c", instance: instance, text: text)
+}
+component Surface047c70a52d99(instance: text) {
+  view Kit(component: "Surface047c70a52d99", instance: instance) { slot }
+}
+component Text9f22e56ee86c(instance: text, text: text) {
+  view Kit(component: "Text9f22e56ee86c", instance: instance, text: text)
+}
+component Text3ad305aa9e9d(instance: text, text: text) {
+  view Kit(component: "Text3ad305aa9e9d", instance: instance, text: text)
+}
+component Text732311b2d228(instance: text, text: text) {
+  view Kit(component: "Text732311b2d228", instance: instance, text: text)
+}
+component KitButton2c6804b990a5(instance: text) {
+  view Kit(component: "KitButton2c6804b990a5", instance: instance) { slot }
+}
+component Surfacee383a5572ee4(instance: text) {
+  view Kit(component: "Surfacee383a5572ee4", instance: instance) { slot }
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Text1e7134e67639(instance: text, text: text) {
+  view Kit(component: "Text1e7134e67639", instance: instance, text: text)
+}
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Surfacee82a3a65acee(instance: text) {
+  view Kit(component: "Surfacee82a3a65acee", instance: instance) { slot }
+}
+component Inputbf8299260317(instance: text, text: text, placeholder: text, enabled: bool) {
+  view Kit(component: "Inputbf8299260317", instance: instance, text: text, placeholder: placeholder, enabled: enabled) { slot }
+}
+
+view root Surface16fae9a63e16(instance: "page") {
+  Text208602c94c37(instance: "t_title", text: copy.t_title_text)
+  Text81dc8feb211c(instance: "t_crumbs", text: copy.t_crumbs_text)
+  Surface047c70a52d99(instance: "cal_refused") {
+
+  }
+  Text9f22e56ee86c(instance: "t_cal1", text: copy.t_cal1_text)
+  Text3ad305aa9e9d(instance: "t_cal2", text: copy.t_cal2_text)
+  Text732311b2d228(instance: "t_cal3", text: copy.t_cal3_text)
+  KitButton2c6804b990a5(instance: "browser_back") {
+    Surfacee383a5572ee4(instance: "browser_back_surface") {
+
+    }
+    NativeButton02f1d1bd99b4(instance: "browser_back_control", enabled: browser_back_control_enabled)
+    Text1e7134e67639(instance: "browser_back_label", text: copy.browser_back_label_text)
+  }
+  Group3d2637879433(instance: "browser_path_wrap") {
+    Surfacee82a3a65acee(instance: "browser_path_field") {
+
+    }
+    Inputbf8299260317(instance: "browser_path", text: copy.browser_path_text, placeholder: copy.browser_path_placeholder, enabled: browser_path_enabled) {
+
+    }
+  }
+}

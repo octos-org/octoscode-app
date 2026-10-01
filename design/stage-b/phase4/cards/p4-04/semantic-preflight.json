@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "policy_version": "1.1.0",
+  "policy_sha256": "905acb5826694a93b2ca16e46dda7566256724308b5d09e4877f279ce146072e",
+  "evaluator_sha256": "415f7e230e9f3be1b55f38a345a6c904fb6b730eeaa316f3ece88f65cf38598c",
+  "manifest_sha256": "3f1c4249ba4a812c1f87de28753d2823336a35766c5c84a5ca759f9e10cbd3fd",
+  "reference_sha256": "6c5d01edd66c6d4f140a5df01ff802189d0c14a826a3c7db7a597959c5118910",
+  "id": "p4-04",
+  "round": null,
+  "phase": "preflight",
+  "pass": true,
+  "errors": [],
+  "elements": [
+    {
+      "id": "page",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "t_title",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "cal_nosup",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "cal_info",
+      "role": "icon",
+      "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
+      "expected_widgets": [
+        "Svg",
+        "Icon",
+        "Image"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a matching kit icon or reference-derived SVG. A source crop requires a recorded visual feature that cannot be reproduced faithfully with the available vector renderer."
+    },
+    {
+      "id": "t_cal1",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "t_cal2",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "cal_other",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "t_cal3",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "t_cal4",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "t_cal5",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    },
+    {
+      "id": "pair_fallback",
+      "role": "button",
+      "basis": "authored KitButton composition",
+      "expected_widgets": [
+        "Button",
+        "KitButton"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a native control and verify its declared action."
+    },
+    {
+      "id": "pair_fallback_surface",
+      "role": "layout",
+      "basis": "authored stack node",
+      "expected_widgets": [
+        "View"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Compose layout containers with explicit spacing, sizing and clipping."
+    },
+    {
+      "id": "pair_fallback_control",
+      "role": "button",
+      "basis": "authored button node",
+      "expected_widgets": [
+        "Button",
+        "KitButton"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use a native control and verify its declared action."
+    },
+    {
+      "id": "pair_fallback_label",
+      "role": "text",
+      "basis": "authored text node",
+      "expected_widgets": [
+        "Label",
+        "TextFlow"
+      ],
+      "actual_widget": null,
+      "issues": [],
+      "repair": "Use native text with a bundled font, exact copy and measured line layout."
+    }
+  ],
+  "scope": "Semantic mapping checks only; geometry, visual fidelity and complete app workflows remain separate."
+}
