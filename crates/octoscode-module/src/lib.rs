@@ -2382,6 +2382,11 @@ impl OctoscodeView {
             // screens have no home yet. The handler keeps the #29d screens.
             let screen_splash = self.view.splash(cx, ids!(screen_splash));
             let store = { self.bridge.lock().unwrap().store.clone() };
+            // #M1: `models::lower` needs a `Ctx` (store + the flow's UI state).
+            // The bridge carries both, and the bridge lock must be released
+            // before the mount arms run, so clone the `ui` handle here — the
+            // same `b.ui.clone()` the mounted screens already use (lib.rs:1520).
+            let ui = { self.bridge.lock().unwrap().ui.clone() };
             // #30e — OCTOSCODE_THEME seeds the preference (system default),
             // and the theme-wired card names lower through screens::theme,
             // which selects the dark Stage B card or its light twin by the
@@ -2398,7 +2403,17 @@ impl OctoscodeView {
             if let Some(files) = cx.get_data_dir() {
                 crate::design::set_host_dir(Some(files));
             }
-            let lowered = if screens::theme::card_for(&which).is_some() {
+            // #M1: the models/skills/context cards (setup-07 Model settings,
+            // setup-09 Context panel, setup-10 Skills). These three had
+            // handlers wired (refresh/owns/perform) but `models::lower` had
+            // 0 call sites, so every skills/models/context row was
+            // production-path yet user-UNREACHABLE — RULES 3's "exists but
+            // nobody can get there". Mounted here, reusing the existing
+            // accepted Stage-B cards; no new design.
+            let lowered = if screens::models::card_for(&which).is_some() {
+                let ctx = bindings::Ctx::new(&store, &ui);
+                screens::models::lower(&which, &ctx)
+            } else if screens::theme::card_for(&which).is_some() {
                 screens::theme::lower(&which, &store)
             } else if let Some(screen) = screens::autonomy::Screen3::from_env() {
                 // #P4e1c — the autonomy cards (autonomy-03/04/05: Goal, Loops,
