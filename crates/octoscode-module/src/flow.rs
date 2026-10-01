@@ -1041,15 +1041,58 @@ impl Conversation {
         // HERE, before dispatch: the draft clear lives in
         // `start_turn_with_id`, so returning early keeps the user's text
         // editable in the composer.
-        if let Some(rest) = text.trim().strip_prefix('/') {
-            let known = crate::screens::palette::COMMANDS.iter().any(|c| {
-                let name = c.name.trim_start_matches('/');
-                rest == name || rest.starts_with(&format!("{name} "))
-            });
-            if !known {
+        // #P4d3 — the web's command layer (registry.ts:647 looksLikeSlashCommand,
+        // :654 parseCommandInvocation, :656 findCommand, :679
+        // commandAvailability): parse the invocation, resolve it against the
+        // ported 47-command registry, act on the match. A PATH-shaped input
+        // ("/home/user/x/y", "/c/d") is a PROMPT and reaches the model verbatim —
+        // the old arm refused every leading-slash input, paths included.
+        match crate::screens::palette::match_command(&text) {
+            None => {}
+            Some(crate::screens::palette::CommandMatch::Known(_, _)) => {}
+            Some(crate::screens::palette::CommandMatch::NotRunnable(name)) => {
+                // A KNOWN name the native build cannot run: report WHY and
+                // consume the invocation — never dispatched, never a silent
+                // no-op (registry.ts:478's fail-closed explanation).
+                let session = self.session_id();
+                self.store.domains.session.timeline.append(
+                    &session,
+                    Some(crate::screens::palette::next_receipt_turn()),
+                    crate::screens::palette::REPORT_KIND,
+                    format!(
+                        "/{name} is not available in this native build — \
+                         nothing was sent to the model."
+                    ),
+                );
+                self.ui.lock().unwrap().set_draft_inner(String::new());
+                // #P4a's lesson, again: an async arm on the tokio thread that
+                // mutates the store never repaints by itself — wake the UI or
+                // the receipt stays invisible until some other event draws.
+                makepad_widgets::SignalToUI::set_ui_signal();
                 ::log::info!(
-                    "octoscode: composer.submit: unresolved local command `/{rest}` \
-                     — kept in the composer, never sent"
+                    "octoscode: command /{name}: not runnable natively — \
+                     receipt appended, composer cleared"
+                );
+                return Ok(String::new());
+            }
+            Some(crate::screens::palette::CommandMatch::Unknown(name)) => {
+                // A slash-shaped input that names nothing: fail closed
+                // VISIBLY (the receipt row) and keep the text editable — the
+                // web's surface-recovery rule (surface-recovery.spec.ts:186).
+                let session = self.session_id();
+                self.store.domains.session.timeline.append(
+                    &session,
+                    Some(crate::screens::palette::next_receipt_turn()),
+                    crate::screens::palette::REPORT_KIND,
+                    format!(
+                        "Unsupported command: /{name} — kept in the composer, \
+                         nothing was sent to the model."
+                    ),
+                );
+                makepad_widgets::SignalToUI::set_ui_signal();
+                ::log::info!(
+                    "octoscode: command /{name}: unknown — receipt appended, \
+                     draft kept"
                 );
                 return Ok(String::new());
             }

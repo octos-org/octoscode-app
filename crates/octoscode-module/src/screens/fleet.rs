@@ -88,7 +88,8 @@ pub fn owns(action: &str) -> bool {
     matches!(
         action,
         "peer.steer" | "peer_1_steer" | "peer_2_steer" | "peer_3_steer" | "task.cancel"
-            | "task.open.running"
+            | "task.open.running" | "peer.start" | "peer_1_start" | "peer_2_start"
+            | "peer_3_start"
     )
 }
 
@@ -302,6 +303,17 @@ pub fn action_params(
                 }),
             ))
         }
+        "peer.start" | "peer_1_start" | "peer_2_start" | "peer_3_start" => {
+            // Admissible only through the fail-closed gate.
+            if !start_admitted(store) {
+                return None;
+            }
+            let slug = peer_rows(store).into_iter().nth(row)?.name;
+            Some((
+                "peer.start".to_owned(),
+                json!({ "slug": slug, "model": "inherit", "brief": steer_text }),
+            ))
+        }
         _ => None,
     }
 }
@@ -317,6 +329,10 @@ pub enum Effect {
     CancelTask,
     /// `task/output/read` the running card's output.
     OpenRunning,
+    /// #P4a4 row `Start control flow`: start peer row `row` — acquire the
+    /// driver seat, then emit exactly ONE `peer/dispatch`. The brief is the
+    /// composer's current draft.
+    Start { row: usize },
     /// The id was not one of this screen set's.
     Unhandled(String),
 }
@@ -343,6 +359,7 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             row,
             text: ctx.ui.lock().unwrap().draft(),
         },
+        "peer.start" | "peer_1_start" | "peer_2_start" | "peer_3_start" => Effect::Start { row },
         "task.cancel" => Effect::CancelTask,
         "task.open.running" => Effect::OpenRunning,
         other => Effect::Unhandled(other.to_owned()),
@@ -1009,17 +1026,137 @@ pub fn lower(screen_id: &str, ctx: &Ctx<'_>) -> Result<String, String> {
 /// `perform_action` arm; the workspace.rs `spawn` shape). The wire frame
 /// comes from the ONE pure table ([`action_params`]) — the effect only names
 /// the row and carries the steer draft captured at route time.
+/// #P4a4 row `Start control flow` — the fail-closed capability gate, the
+/// web's `peerDispatchAdmitted` (`control/peer-dispatch-commands.ts:47`)
+/// reduced to what the store keeps: `peer/dispatch` must be requested AND the
+/// `external_driver_v1` feature must be among the accepted capabilities. An
+/// absent block is NOT admitted — never a guess. (Deviation: the native store
+/// keeps the FEATURE list, not the method list, so the method half is gated
+/// by the requested-features set the transport connects with —
+/// `octoscode-client/src/features.rs`.)
+pub fn start_admitted(store: &Store) -> bool {
+    store
+        .capabilities()
+        .iter()
+        .any(|c| c == "external_driver_v1")
+}
+
+/// A SECOND Start must mint a DISTINCT operation id (the row's clause; the
+/// web mints one per activation and reuses it verbatim across RETRIES of the
+/// same staging). No uuid crate: a process-global counter + the ms clock.
+fn mint_operation_id(slug: &str) -> String {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    static SEQ: AtomicU64 = AtomicU64::new(1);
+    let n = SEQ.fetch_add(1, Ordering::Relaxed);
+    format!("op-{}-{slug}-{n}", now_ms())
+}
+
+fn now_ms() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0)
+}
+
+/// The full Start chain: acquire the driver seat, then dispatch EXACTLY ONCE
+/// (the web: one activation ⇒ exactly one `peer/dispatch` frame,
+/// `peer-dispatch-commands.ts:35-80`; the frame is the web's wire encoding
+/// verbatim — camelCase, `dispatch.kind = "new_brief"`, the requested model
+/// lane echoed, the kickoff input carried when there is one). A REFUSED
+/// dispatch keeps the brief in the composer for retry ("a refused Start keeps
+/// the brief visible for retry", FleetView.harness.test.tsx:372); only a
+/// SUCCESS consumes it.
+async fn run_start(
+    conv: Arc<Conversation>,
+    ui: std::sync::Arc<Mutex<FlowUi>>,
+    slug: String,
+    model: String,
+    brief: String,
+) {
+    use octoscode_client::domains::peer::PeerDispatch;
+    use octoscode_client::domains::session::SessionDriverAcquire;
+
+    let session = conv.store.active_session().unwrap_or_default();
+    // 1. the driver seat (caller-held fence — no ambient acquire).
+    let fence = match conv
+        .client()
+        .call::<SessionDriverAcquire>(serde_json::json!({
+            "session_id": session, "slug": slug,
+        }))
+        .await
+    {
+        Ok(v) => v,
+        Err(e) => {
+            ::log::warn!("octoscode: fleet start: driver seat refused: {e}");
+            return; // the brief stays; the operator can retry
+        }
+    };
+    // 2. EXACTLY ONE dispatch, the web's frame verbatim.
+    let operation_id = mint_operation_id(&slug);
+    let params = serde_json::json!({
+        "driverId": fence["driverId"],
+        "epoch": fence["epoch"],
+        "controlToken": fence["controlToken"],
+        "operationId": operation_id,
+        "model": model,
+        "dispatch": { "kind": "new_brief", "brief": brief, "title": slug },
+        "kickoffInput": [{ "kind": "text", "text": brief }],
+    });
+    match conv.client().call::<PeerDispatch>(params).await {
+        Ok(_) => {
+            ui.lock().unwrap().set_draft_inner("");
+            ::log::info!("octoscode: fleet start: peer/{slug} dispatched ({operation_id})");
+        }
+        Err(e) => {
+            // Task words, never protocol vocabulary — the refusal keeps the
+            // brief for retry and names nothing internal.
+            ::log::warn!("octoscode: fleet start: couldn't start that peer: {e}");
+        }
+    }
+}
+
 pub fn spawn(
     effect: Effect,
     rt: &tokio::runtime::Runtime,
     conv: &Arc<Conversation>,
-    ui: &Mutex<FlowUi>,
+    ui: &std::sync::Arc<Mutex<FlowUi>>,
     store: &Store,
 ) {
+    // #P4a4: the Start chain is its own async flow (acquire -> ONE dispatch),
+    // not a single request/response — route it before the generic arm.
+    if let Effect::Start { row } = &effect {
+        if !start_admitted(store) {
+            ::log::warn!("octoscode: fleet start: peer/dispatch not admitted (missing external_driver_v1)");
+            return;
+        }
+        let Some(slug) = peer_rows(store).into_iter().nth(*row).map(|p| p.name) else {
+            ::log::warn!("octoscode: fleet start: no peer row {row}");
+            return;
+        };
+        let (brief, model) = {
+            let ui = ui.lock().unwrap();
+            let d = ui.draft();
+            (d, "inherit".to_owned())
+        };
+        if brief.trim().is_empty() {
+            ::log::warn!("octoscode: fleet start: nothing to start — the brief is empty");
+            return;
+        }
+        // The gate passed: run the chain. ui is Arc'd in lib.rs.
+        let conv = conv.clone();
+        let ui = ui.clone();
+        rt.spawn(async move {
+            run_start(conv, ui, slug, model, brief).await;
+        });
+        return;
+    }
     let (action, row, text) = match &effect {
         Effect::Steer { row, text } => ("peer.steer", *row, text.clone()),
         Effect::CancelTask => ("task.cancel", 0, String::new()),
         Effect::OpenRunning => ("task.open.running", 0, String::new()),
+        // Routed above (the if-let returned); the match only needs the arms
+        // the compiler cannot prove unreachable.
+        Effect::Start { .. } => return,
         Effect::Unhandled(id) => {
             ::log::warn!("octoscode: fleet action unhandled {id:?}");
             return;

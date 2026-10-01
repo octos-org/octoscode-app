@@ -223,7 +223,7 @@ fn the_action_table_maps_the_card_controls_to_their_wire_frames() {
 
     // The row-pinned control ids are unambiguous (one-owner rule): the bare
     // event takes the router's index, the pinned names take their own row.
-    let ui = Mutex::new(FlowUi::default());
+    let ui = std::sync::Arc::new(Mutex::new(FlowUi::default()));
     let ctx = Ctx::new(&store, &ui);
     assert!(matches!(
         fleet::resolve("peer_3_steer", 9, &ctx),
@@ -292,7 +292,7 @@ fn replay_refresh_then_the_actions_over_the_recorded_frames() {
     // The actions go through the module's own spawn (lib.rs's arm): the
     // server must SEE the two frames the production client sends — neither
     // method has a fixture, so the wire shape IS the evidence.
-    let ui = Mutex::new(FlowUi::default());
+    let ui = std::sync::Arc::new(Mutex::new(FlowUi::default()));
     ui.lock().unwrap().set_draft_inner("hold the queue");
     let ctx = Ctx::new(&store, &ui);
     fleet::spawn(
@@ -340,7 +340,7 @@ fn replay_refresh_then_the_actions_over_the_recorded_frames() {
 #[test]
 fn the_bindings_cover_the_cards_and_the_lowered_cards_carry_the_live_values() {
     let store = fleet::capture_store();
-    let ui = Mutex::new(FlowUi::default());
+    let ui = std::sync::Arc::new(Mutex::new(FlowUi::default()));
     let ctx = Ctx::new(&store, &ui);
 
     // Coverage: every declared id resolves (Some) — a deliberate no-live-value
@@ -470,7 +470,7 @@ fn tasks_store(running: &[&str], done: &[&str], lines: &[&str]) -> Arc<Store> {
 
 #[test]
 fn fleet_rows_are_one_per_item_with_status_styles_and_zero_is_the_empty_state() {
-    let ui = Mutex::new(FlowUi::default());
+    let ui = std::sync::Arc::new(Mutex::new(FlowUi::default()));
 
     // 0 peers → the web's empty state, NO rows (authored sample rows gone).
     let store = peers_store(&[]);
@@ -520,7 +520,7 @@ fn fleet_rows_are_one_per_item_with_status_styles_and_zero_is_the_empty_state() 
 
 #[test]
 fn tasks_rows_are_one_per_item_and_zero_is_the_empty_state() {
-    let ui = Mutex::new(FlowUi::default());
+    let ui = std::sync::Arc::new(Mutex::new(FlowUi::default()));
 
     // 0 tasks → the web's empty state, neither fixed card renders.
     let store = tasks_store(&[], &[], &[]);

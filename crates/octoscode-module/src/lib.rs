@@ -1756,6 +1756,42 @@ impl OctoscodeView {
         };
         // Entry #29c: the stage-C screens own their action ids (the cards'
         // service-actions events); route them through the production client.
+        if screens::research::owns(action) {
+            let action = action.to_string();
+            let store = store.clone();
+            rt.spawn(async move {
+                if let Err(e) =
+                    screens::research::perform(&conv, &action, &store, None).await
+                {
+                    ::log::warn!("octoscode: screens: {action:?}: {e}");
+                }
+            });
+            return;
+        }
+        // P4f1: the history mutations (undo/rewind/fork) behind the history
+        // dialog's three titles. The dialog itself is a design-flow surface;
+        // these are the production paths it dispatches into.
+        if screens::history::owns(action) {
+            let action = action.to_string();
+            let store = store.clone();
+            rt.spawn(async move {
+                if let Err(e) =
+                    screens::history::perform(&conv, &action, &store, None).await
+                {
+                    ::log::warn!("octoscode: screens: {action:?}: {e}");
+                }
+            });
+            return;
+        }
+        if screens::transcript::owns(action) {
+            let store = store.clone();
+            rt.spawn(async move {
+                if let Err(e) = screens::transcript::perform(&conv, &store).await {
+                    ::log::warn!("octoscode: screens: composer.copy_transcript: {e}");
+                }
+            });
+            return;
+        }
         if screens::models::owns(action) {
             let action = action.to_string();
             let store = store.clone();
