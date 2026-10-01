@@ -528,8 +528,18 @@ script_mod! {
             visible: false
 
             // Card #28e item 3 (board 4 frame 1): the 560 px Review panel, toggled by the
-            // Review affordance (an "Edited files" card later; the header pill
-            // works today). Empty for now — the header + scope pill only.
+            // Review affordance. #36c: the body was header-only ("Empty for
+            // now — the header + scope pill only"), so a live preview showed
+            // "+62 -5" with no file rows and no diff. The panel now mounts a
+            // PortalList of file rows + the selected file's diff, fed from the
+            // screen cache through the same `bindings::query` path the other
+            // lists use (`turn.active` at :2142) — `bindings.rs:172-173` routes
+            // `review::query`, so `review.file{N}.path/add/del` and
+            // `review.line{N}` resolve live. The web reference is
+            // `DiffReviewDialog.tsx:125-146` (`preview.files.map(...)` as
+            // `<details className="diff-file">` rows, hunks beneath) with the
+            // explicit empty state at :120-122; the 8 line slots are the card's
+            // own `review.line0..7` bindings.
             review_panel := SolidView {
                 width: 560 height: Fill flow: Down spacing: 6
                 visible: true
@@ -539,11 +549,38 @@ script_mod! {
                     Label {
                         width: Fit height: Fit text: "Review"
                         draw_text.text_style.font_size: 14
+                        // #36c r1: a Label's default is
+                        // `theme.color_label_outer` (the linked rev,
+                        // `widgets/src/label.rs:23`), and THIS APP never assigns
+                        // that role: `desktop_style.rs:201-215` installs a style
+                        // sheet only from `MAKEPAD_WIDGET_STYLE` or an
+                        // iOS/Android `OsType`, and on macOS falls to `_ =>
+                        // None` (line 209), so no sheet is ever installed and
+                        // the role stays unset. Measured on the same capture:
+                        // labels WITH an explicit colour draw ink (`+62 −5` 357
+                        // dark px, the row's `M` 135), labels WITHOUT draw none
+                        // (`Review` 0, `Last turn` 0, `path` 0, `line_text` 0).
+                        // So every label in the panel needs an explicit colour.
+                        draw_text.color: theme.color_fg_app
                     }
-                    // #28e2 item 4: the board's diff totals (static chrome —
-                    // `StartedReview` carries no +/- counts).
-                    Label {
-                        width: Fit height: Fit text: "+62 −5"
+                    // #36c r1: the totals are the LIVE sums over the fetched
+                    // preview — `review.rs:341-348` folds `review.add` /
+                    // `review.del` from `st.files` (the web sums the same
+                    // preview, DiffReviewDialog.tsx:34-41), and draw_walk sets
+                    // them below. This used to hardcode the board's static
+                    // "+62 -5", which is why a review with different files still
+                    // showed 62/5 and made the empty body look inconsistent.
+                    // #36c r1: an explicit colour is REQUIRED here — the
+                    // default `theme.color_label_outer` is never assigned (see
+                    // the "Review" label above), so this is the one header label
+                    // that already drew ink (357 dark px on the capture).
+                    // Empty until the first fetch lands — `sync_labels` writes the
+                    // live `+n −n` sums (see the arms above). No placeholder
+                    // number is honest: the board's "+62 −5" was fiction, and so
+                    // would be any other hardcoded total. The web shows no
+                    // totals before the preview either (DiffReviewDialog.tsx:78).
+                    review_totals := Label {
+                        width: Fit height: Fit text: ""
                         draw_text.text_style.font_size: 11
                         draw_text.color: theme.color_text_muted
                     }
@@ -558,6 +595,10 @@ script_mod! {
                             Label {
                                 width: Fit height: Fit text: "Last turn"
                                 draw_text.text_style.font_size: 11
+                                // #36c r1: explicit colour — without it this
+                                // label drew ZERO ink (the default role is
+                                // never assigned; see the "Review" label above).
+                                draw_text.color: theme.color_fg_app
                             }
                             Svg {
                                 width: 8 height: 8
@@ -600,6 +641,38 @@ script_mod! {
                             draw_bg.border_color: #00000000
                             draw_bg.border_color_2: #00000000
                         }
+                    }
+                }
+                // #36c: the review BODY — a file-row list plus the selected
+                // file's diff, both fed from the screen cache in draw_walk.
+                //
+                // A `PortalList` under a Fit-height parent computes zero visible
+                // rows (the f3 captures behind `palette_list:704`), so both
+                // lists below carry an explicit height.
+                review_files := PortalList {
+                    width: Fill height: 132 flow: Down
+                    ReviewFileRowTpl := View {
+                        width: Fill height: 32 flow: Right spacing: 8
+                        padding: Inset{left: 12 right: 12}
+                        review_file_status := Label { width: 14 height: Fit text: "M" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
+                        // #36c r1: the counts come BEFORE the Fill path. With
+                        // `path` first, the row's fixed parts (14+44+44 plus
+                        // 3x8 spacing) exceeded the 336px inner width, so the
+                        // Fill resolved NEGATIVE and the two count labels were
+                        // pushed to r=[0,0,0,0] — text set but never drawn. The
+                        // path takes Fill last and gets 210px.
+                        review_file_add := Label { width: 44 height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: #3a8a3a }
+                        review_file_del := Label { width: 44 height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: #b04040 }
+                        review_file_path := Label { width: Fill height: Fit text: "" draw_text.text_style.font_size: 12 draw_text.color: theme.color_fg_app }
+                    }
+                }
+                review_diff := PortalList {
+                    width: Fill height: 372 flow: Down
+                    ReviewLineRowTpl := View {
+                        width: Fill height: 20 flow: Right spacing: 8
+                        padding: Inset{left: 12 right: 12}
+                        review_line_num := Label { width: 34 height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
+                        review_line_text := Label { width: Fill height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: theme.color_fg_app }
                     }
                 }
             }
@@ -1046,6 +1119,13 @@ pub struct OctoscodeView {
     /// Card #28e — the command palette's `PortalList` uid (0 = not captured).
     #[rust]
     palette_uid: u64,
+    /// #36c — the review sheet's two body lists (file rows + the selected
+    /// file's diff), captured like the palette's so `draw_walk` can tell which
+    /// `PortalList` a draw step belongs to (0 = not captured yet).
+    #[rust]
+    review_files_uid: u64,
+    #[rust]
+    review_diff_uid: u64,
     /// #28e3 item 1: the window's inner width, tracked from
     /// `WindowGeomChange` (0 = no event yet — treated as wide).
     #[rust]
@@ -1733,6 +1813,35 @@ impl OctoscodeView {
         self.view
             .label(cx, ids!(sessions))
             .set_text(cx, &format!("sessions: {sessions}"));
+        // #36c r1: the review header's +/- totals are the LIVE sums over the
+        // fetched preview. `review.rs:341-348` folds `review.add` / `review.del`
+        // from `st.files` — the same sum the web does over the same preview
+        // (`DiffReviewDialog.tsx:34-41`). This used to hardcode the board's
+        // static "+62 -5", so a review of any other files still showed 62/5.
+        // Read the same way as `turn.active` below, and only when the sheet is
+        // open: a hidden header must not churn every frame.
+        {
+            let b = self.bridge.lock().unwrap();
+            let open =
+                b.ui.lock().map(|u| u.review_open()).unwrap_or(false) || chrome_env().0;
+            if open {
+                let ctx = bindings::Ctx::new(&b.store, &b.ui);
+                let s = |id: &str| {
+                    bindings::query(&ctx, id)
+                        .and_then(|v| v.as_str().map(str::to_owned))
+                        .unwrap_or_default()
+                };
+                let (add, del) = (s("review.add"), s("review.del"));
+                // With no preview folded the bindings resolve to None and the
+                // authored placeholder stays (the web's empty state shows no
+                // totals either, DiffReviewDialog.tsx:78).
+                if !add.is_empty() || !del.is_empty() {
+                    self.view
+                        .label(cx, ids!(review_totals))
+                        .set_text(cx, &format!("{add} {del}"));
+                }
+            }
+        }
         // The #16 `composer` component is the dock's look. It is NOT virtualized
         // (one instance), so it is lowered here rather than in `draw_walk`; its
         // two live slots are the draft and the idle placeholder. Card #21b: it is
@@ -2101,9 +2210,16 @@ impl Widget for OctoscodeView {
             self.thread_uid = self.view.portal_list(cx, ids!(thread_list)).widget_uid().0;
             self.timeline_uid = self.view.portal_list(cx, ids!(timeline_list)).widget_uid().0;
             self.palette_uid = self.view.portal_list(cx, ids!(palette_list)).widget_uid().0;
+            self.review_files_uid = self.view.portal_list(cx, ids!(review_files)).widget_uid().0;
+            self.review_diff_uid = self.view.portal_list(cx, ids!(review_diff)).widget_uid().0;
         }
-        let (thread_uid, timeline_uid, palette_uid) =
-            (self.thread_uid, self.timeline_uid, self.palette_uid);
+        let (thread_uid, timeline_uid, palette_uid, review_files_uid, review_diff_uid) = (
+            self.thread_uid,
+            self.timeline_uid,
+            self.palette_uid,
+            self.review_files_uid,
+            self.review_diff_uid,
+        );
         // Both the lowering cache and the mount cache are taken OUT of self so the
         // loop body borrows only `bridge` (a local Arc) — `self.view.draw_walk`
         // already holds `self.view`.
@@ -2179,6 +2295,91 @@ impl Widget for OctoscodeView {
                         );
                         item.label(cx, ids!(palette_row_name)).set_text(cx, name);
                         item.label(cx, ids!(palette_row_desc)).set_text(cx, desc);
+                        item.draw_all_unscoped(cx);
+                    }
+                } else if uid == review_files_uid {
+                    // #36c: the review sheet's file rows, from the screen cache
+                    // through `bindings::query` (bindings.rs:172-173 routes
+                    // `review::query`, so `review.file{N}.path/add/del` resolve
+                    // live — the same read path as `turn.active` above).
+                    //
+                    // The card's own bindings expose THREE file slots
+                    // (`review.file1..3.*`), so the visible window is the
+                    // intersection of what the cache holds and what is bound.
+                    let (paths, adds, dels) = {
+                        let b = bridge.lock().unwrap();
+                        let ctx = bindings::Ctx::new(&b.store, &b.ui);
+                        let s = |id: &str| {
+                            bindings::query(&ctx, id)
+                                .and_then(|v| v.as_str().map(str::to_owned))
+                                .unwrap_or_default()
+                        };
+                        let files: Vec<(String, String, String)> = (1..=3)
+                            .map(|n| {
+                                (
+                                    s(&format!("review.file{n}.path")),
+                                    s(&format!("review.file{n}.add")),
+                                    s(&format!("review.file{n}.del")),
+                                )
+                            })
+                            .take_while(|(p, _, _)| !p.is_empty())
+                            .collect();
+                        (
+                            files.iter().map(|f| f.0.clone()).collect::<Vec<_>>(),
+                            files.iter().map(|f| f.1.clone()).collect::<Vec<_>>(),
+                            files.iter().map(|f| f.2.clone()).collect::<Vec<_>>(),
+                        )
+                    };
+                    list.set_item_range(cx, 0, paths.len());
+                    while let Some(id) = list.next_visible_item(cx) {
+                        let (Some(path), Some(add), Some(del)) =
+                            (paths.get(id), adds.get(id), dels.get(id))
+                        else {
+                            continue;
+                        };
+                        let item = list.item(cx, id, id!(ReviewFileRowTpl));
+                        item.label(cx, ids!(review_file_status))
+                            .set_text(cx, if id == 0 { "M" } else { " " });
+                        item.label(cx, ids!(review_file_path)).set_text(cx, path);
+                        item.label(cx, ids!(review_file_add)).set_text(cx, add);
+                        item.label(cx, ids!(review_file_del)).set_text(cx, del);
+                        item.draw_all_unscoped(cx);
+                    }
+                } else if uid == review_diff_uid {
+                    // #36c: the SELECTED file's diff — the eight
+                    // `review.line0..7` / `review.num0..7` card slots. The
+                    // window is the slots that actually resolve, so a short
+                    // preview shows short rather than blank filler rows.
+                    let lines: Vec<(String, String)> = {
+                        let b = bridge.lock().unwrap();
+                        let ctx = bindings::Ctx::new(&b.store, &b.ui);
+                        let s = |id: &str| {
+                            bindings::query(&ctx, id)
+                                .and_then(|v| v.as_str().map(str::to_owned))
+                                .unwrap_or_default()
+                        };
+                        (0..8)
+                            .map(|i| {
+                                (
+                                    s(&format!("review.line{i}")),
+                                    s(&format!("review.num{i}")),
+                                )
+                            })
+                            .collect()
+                    };
+                    let shown = lines
+                        .iter()
+                        .rposition(|(text, _)| !text.is_empty())
+                        .map(|last| last + 1)
+                        .unwrap_or(0);
+                    list.set_item_range(cx, 0, shown);
+                    while let Some(id) = list.next_visible_item(cx) {
+                        let Some((text, num)) = lines.get(id) else {
+                            continue;
+                        };
+                        let item = list.item(cx, id, id!(ReviewLineRowTpl));
+                        item.label(cx, ids!(review_line_num)).set_text(cx, num);
+                        item.label(cx, ids!(review_line_text)).set_text(cx, text);
                         item.draw_all_unscoped(cx);
                     }
                 }
