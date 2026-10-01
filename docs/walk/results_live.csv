@@ -1,7 +1,7 @@
 row_id,area,spec,case,status,depth,evidence,reason
-1,recovery,e2e-live/glm-model.spec.ts,runs a coding turn with the expected runtime model and restores it after refresh,pass,specific,,"1 checks, all pass"
-2,conversation,e2e-live/glm-model.spec.ts,keeps a background turn alive while a sibling Session is focused,pass,specific,,"1 checks, all pass"
-3,conversation,e2e-live/turn-collision.spec.ts,discloses the other client's turn instead of claiming it,pass,smoke,,"1 checks, all pass"
+1,recovery,e2e-live/glm-model.spec.ts,runs a coding turn with the expected runtime model and restores it after refresh,live-only,,,"live-only: needs a real model turn (Phase 4, outer loop)"
+2,conversation,e2e-live/glm-model.spec.ts,keeps a background turn alive while a sibling Session is focused,live-only,,,"live-only: needs a real model turn (Phase 4, outer loop)"
+3,conversation,e2e-live/turn-collision.spec.ts,discloses the other client's turn instead of claiming it,live-only,,,"live-only: needs a real model turn (Phase 4, outer loop)"
 4,settings,e2e/attention.spec.ts,desktop notifications require Settings opt-in and stay silent while reading,live-only,,,live-only: state the replay fixtures cannot produce
 5,conversation,e2e/attention.spec.ts,a hidden current Session completion notifies once and returning clears its badge,live-only,,,live-only: state the replay fixtures cannot produce
 6,,e2e/attention.spec.ts,denied desktop permission keeps tab counts working and Disconnect clears attention,not-yet-implemented,,,missing: Track background turn transitions and maintain an unread count; prefix the tab title '(n) title' [partial]
@@ -31,7 +31,7 @@ row_id,area,spec,case,status,depth,evidence,reason
 30,,e2e/copy-conversation.spec.ts,copies the conversation as Markdown from the server's history,not-yet-implemented,,,"missing: Copy a Session conversation as Markdown, read from the server canonical history (not the bounded rendered timeline) [partial]"
 31,conversation,e2e/copy-conversation.spec.ts,says there is nothing to copy for a conversation with no messages yet,not-yet-implemented,,,"missing: Copy a Session conversation as Markdown, read from the server canonical history (not the bounded rendered timeline) [partial]"
 32,,e2e/copy-conversation.spec.ts,keeps the phone header for the workspace title: no copy button there,skipped,,,skipped: operator-confirmation-pending (A responsive-layout assertion about which header control renders at a phone viewport.)
-33,composer,e2e/delivered-files.spec.ts,"shows files the agent delivers, previews images, downloads them, and keeps them on reload",fail,smoke,docs/walk/evidence/area-composer.snap.json,failing checks: files the agent delivers render as attachments with captions
+33,,e2e/delivered-files.spec.ts,"shows files the agent delivers, previews images, downloads them, and keeps them on reload",live-only,,,live-only: state the replay fixtures cannot produce
 34,,e2e/delivered-files.spec.ts,says a file could not be loaded instead of failing silently,not-yet-implemented,,,missing: native capability not yet built (see docs/parity-matrix.csv)
 35,review,e2e/diff-review.spec.ts,"diff syntax and word marks preserve inert, selectable text in both themes and on mobile",live-only,,,live-only: state the replay fixtures cannot produce
 36,review,e2e/diff-review.spec.ts,large previews remain complete and use the plain-text performance fallback,not-yet-implemented,,,"missing: diff review dialog: decorate changed lines with word-level change marks and per-file syntax highlighting, bounded so a large preview falls back to plain text [missing]"
@@ -48,7 +48,7 @@ row_id,area,spec,case,status,depth,evidence,reason
 47,recovery,e2e/driver-discovery.spec.ts,transitions healthy -> refused across a transport reconnect on the SAME record,not-yet-implemented,,,missing: external driver disclosure: walk the session/driver/get operations chain [missing]
 48,recovery,e2e/driver-discovery.spec.ts,transitions malformed -> healthy across a transport reconnect on the SAME record,not-yet-implemented,,,missing: external driver disclosure: walk the session/driver/get operations chain [missing]
 49,,e2e/driver-discovery.spec.ts,"observes a deterministic discovery request: one walk, real params, terminal page",not-yet-implemented,,,missing: external driver disclosure: walk the session/driver/get operations chain [missing]
-50,approval,e2e/final-input.spec.ts,approval shortcuts ignore modified keys and IME composition,live-only,,,live-only: state the replay fixtures cannot produce
+50,approval,e2e/final-input.spec.ts,approval shortcuts ignore modified keys and IME composition,fail,smoke,docs/walk/evidence/area-approval.snap.json,failing checks: a shell prompt under Ask-for-approval raises an approval card
 51,approval,e2e/final-input.spec.ts,long approval remains readable and actionable in a short phone viewport,live-only,,,live-only: state the replay fixtures cannot produce
 52,,e2e/final-input.spec.ts,connection actions can be reached by scrolling at 320×320,not-yet-implemented,,,missing: native capability not yet built (see docs/parity-matrix.csv)
 53,,e2e/final-input.spec.ts,long questions retain free text and selections after a failed response,not-yet-implemented,,,missing: native capability not yet built (see docs/parity-matrix.csv)

@@ -74,3 +74,20 @@ defects, so none are defects under this card's rule):
   198/199 stay unscripted (approvals the model must raise itself, phone
   viewports, browser clipboard/link surfaces) — dispositions in
   .peer/report-41d.md.
+
+## #41e — live FAIL (REAL dsflash gate, row 50, the ONE allowed prompt): the gate executes shell commands without raising an approval
+
+- **row 50** ("approval shortcuts ignore modified keys and IME composition" — its
+  live prerequisite is an approval card existing at all): the card allowed one
+  prompt; `run \`ls\` in a shell` was sent under dsflash. The turn ran for real
+  (2s; a `bash` tool cell -> "done"; the prose renders the ls output table) and
+  NO approval card ever appeared — the failure snap carries ZERO widgets whose
+  id contains "approval" (not even zero-width), i.e. no `approval/requested`
+  notification arrived and the shell never had a card to show. NOT a native
+  shell defect: the gate's autonomy configuration executes the tool call
+  directly. This empirically closes row 50's prerequisite — the model/gate will
+  not produce the approval state on demand (the composer's "Ask for approval"
+  label is static component art; the mode is the gate's). Capture:
+  docs/walk/evidence/phase3/41e-row50-fail.png (+ .snap.json). Turns spent: 1
+  (cumulative 5/60 across #41d+#41e). No app card candidate; re-test only if
+  the operator reconfigures dsflash's autonomy mode.
