@@ -573,7 +573,7 @@ async fn a_replay_lossy_triggers_a_hydrate_that_clears_the_lossy_phase() {
 
 #[tokio::test]
 async fn a_tui_only_command_reports_and_starts_no_turn() {
-    let server = ReplayServer::start_with_stream(vec![]).await;
+    let server = ReplayServer::start_with_stream(vec![], None).await;
     let (conv, _events) = Conversation::connect(&server.base_url, "dummy", "dsflash", None, None)
         .expect("connect");
     conv.open_workspace(None).await.expect("session/open");
