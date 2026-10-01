@@ -144,31 +144,16 @@ pub fn goal_controls() -> Vec<(String, String, f64, f64)> {
     ]
 }
 
-/// `split_row` — see below.
+/// #FX1 — the `#<row>` suffix is now the SHARED mechanism, so this is a
+/// delegate to [`crate::screens::taps::split_row`] rather than a second copy.
 ///
-/// #P4e1c — the mounted card's per-row controls (a loop row's
-/// pause/play/trash, a monitor row's pause/trash) are one widget each, so the
-/// tap that fires has to name WHICH row. The shared tap dispatch carries a
-/// widget name and an action id and passes a single index
-/// (`lib.rs:2944`), which is 0 for every card tap, so a per-row action routed
-/// through it would always address row 0 — a real defect the mount would have
-/// shipped.
-///
-/// The row is carried IN the id as a `#<row>` suffix, the same shape the
-/// composer uses elsewhere, and stripped here so the action table stays
-/// one-owner: `ACTIONS`/`ROUTED` still list the BARE names.
-///
-/// `"monitor.pause#2"` → `("monitor.pause", Some(2))`; a bare id → `(_, None)`.
-pub fn split_row(action: &str) -> (&str, Option<usize>) {
-    match action.rsplit_once('#') {
-        Some((base, row)) => match row.parse::<usize>() {
-            Ok(index) => (base, Some(index)),
-            // A name that merely contains '#' is a base name, not a row.
-            Err(_) => (action, None),
-        },
-        None => (action, None),
-    }
-}
+/// #P4e1c introduced the suffix here as an autonomy-only workaround for the
+/// host dispatching every card tap with row 0. #FX1 fixed that in the shared
+/// path (`taps::with_row` stamps the row from the card's control name, and
+/// `lib.rs` splits it back out at the dispatcher), so the suffix is written and
+/// read for every per-row card now. Two copies of a parse rule is exactly the
+/// one-owner split this module is written to avoid, so the duplicate is gone.
+pub use crate::screens::taps::split_row;
 
 pub fn is_action(id: &str) -> bool {
     let (base, _) = split_row(id);
