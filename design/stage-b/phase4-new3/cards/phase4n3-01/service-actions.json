@@ -1,0 +1,46 @@
+{
+  "frame_id": 1,
+  "controls": {
+    "f_search": {
+      "event": "inventory.search.focus",
+      "source_bounds": [
+        32,
+        116,
+        342,
+        40
+      ],
+      "enabled": true
+    },
+    "tab_tools": {
+      "event": "inventory.tab.tools",
+      "source_bounds": [
+        32,
+        168,
+        60,
+        20
+      ],
+      "enabled": true
+    },
+    "tab_mcp": {
+      "event": "inventory.tab.servers",
+      "source_bounds": [
+        104,
+        168,
+        92,
+        20
+      ],
+      "enabled": true
+    },
+    "btn_close": {
+      "event": "inventory.close",
+      "source_bounds": [
+        330,
+        60,
+        24,
+        20
+      ],
+      "enabled": true
+    }
+  },
+  "source": "phase4-new3-screen-01"
+}

@@ -1,0 +1,37 @@
+{
+  "width": 406,
+  "height": 776,
+  "observations": [
+    {
+      "expected_text": "notes",
+      "requested_bounds": [
+        44,
+        159,
+        226,
+        18
+      ],
+      "ink_bounds": [
+        44,
+        159,
+        226,
+        18
+      ]
+    },
+    {
+      "expected_text": "/home/user/octos",
+      "requested_bounds": [
+        32,
+        250,
+        200,
+        16
+      ],
+      "ink_bounds": [
+        32,
+        250,
+        200,
+        16
+      ]
+    }
+  ],
+  "source": "lane-vision on the measured atlas crops (no external OCR for board 3)"
+}

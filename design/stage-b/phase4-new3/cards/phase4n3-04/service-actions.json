@@ -1,0 +1,66 @@
+{
+  "frame_id": 4,
+  "controls": {
+    "peer_1_adv": {
+      "event": "fleet.peer.advanced",
+      "source_bounds": [
+        300,
+        98,
+        70,
+        20
+      ],
+      "enabled": true
+    },
+    "sel_model": {
+      "event": "fleet.start.model.select",
+      "source_bounds": [
+        36,
+        208,
+        334,
+        38
+      ],
+      "enabled": true
+    },
+    "brief_input": {
+      "event": "fleet.start.brief",
+      "source_bounds": [
+        36,
+        272,
+        334,
+        56
+      ],
+      "enabled": true
+    },
+    "btn_start": {
+      "event": "fleet.start.submit",
+      "source_bounds": [
+        282,
+        340,
+        88,
+        34
+      ],
+      "enabled": true
+    },
+    "in_steer": {
+      "event": "fleet.peer.steer",
+      "source_bounds": [
+        36,
+        448,
+        334,
+        38
+      ],
+      "enabled": true
+    },
+    "btn_dismiss": {
+      "event": "fleet.peer.dismiss",
+      "source_bounds": [
+        36,
+        498,
+        70,
+        20
+      ],
+      "enabled": true
+    }
+  },
+  "source": "phase4-new3-screen-04"
+}
