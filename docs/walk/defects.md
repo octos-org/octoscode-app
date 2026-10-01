@@ -156,3 +156,13 @@ live current mode + a selector that sends `permission/profile/set`
 (client generic `.request()` already proven by r2_replay.rs:293-309).
 Turns spent on this row: 1 (of the 60 cap, coordinated with p0-harness's
 ledger — no re-run needed for a (b) disposition).
+
+## Pre-existing (main-carried): the hermetic scan trips on design/stage-a/phase4-new/atlas-prompt.md (#P4b2 found while running the ACK suite)
+
+`octoscode-client --test repo_hermetic no_machine_paths_or_secrets_anywhere_tracked` FAILS:
+`design/stage-a/phase4-new/atlas-prompt.md: literal /Users/`. A/B: the file (and its 2 literals) arrive
+from origin/main `99b7a4f` (`git show 99b7a4f:design/stage-a/phase4-new/atlas-prompt.md | grep -c /Users/` → 2);
+this lane's committed files scan clean (`git ls-files docs/walk/evidence | xargs grep -l /Users/` → empty).
+Known-red for main to fix (scrub to `<WORKSPACE>` per the fixture-hygiene rule); recorded here so the next
+lane's full-suite read is not surprised. Full suite on task/P4b2 @ merge `d29f3e2` with --no-fail-fast:
+TOTAL passed=531 failed=1 (this file).
