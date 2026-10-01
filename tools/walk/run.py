@@ -932,6 +932,7 @@ LIVE_CHECK_NAMES = frozenset({
     "a live turn keeps running while a sibling session is focused",
     "files the agent delivers render as attachments with captions",
     "a turn started by another client is disclosed as theirs",
+    "a shell prompt under Ask-for-approval raises an approval card",
 })
 
 # #41d — the operator's hard cap on REAL model turns for this card. Every
@@ -1116,6 +1117,51 @@ def c3_live_foreign_turn(app):
         time.sleep(1)
     return False, ("no foreign-turn disclosure surfaced in the strip "
                    "(instrument: which texts carried the turn)")
+
+
+@check("approval", "a shell prompt under Ask-for-approval raises an approval card",
+       rows=("approval shortcuts ignore modified keys",))
+def a50_live_approval_raised(app):
+    # Row 50's ONE attempt (the card allows a single prompt): dsflash is
+    # asked to run a shell command; if the gate's autonomy config routes the
+    # tool call through an approval, the app must surface an approval card
+    # (the replay era recorded 'approval/requested reaches the store but has
+    # no widget' — this is the live re-test). The composer's
+    # 'Ask for approval' label is static component art (probe: clicking it
+    # changes nothing), so the mode is the gate's, not the shell's.
+    def working(s):
+        return "workingrow" in app.kinds(s)
+    def comp():
+        for _ in range(24):
+            d = app.snap()
+            r = app.rect_re(d, COMPOSER_INPUT_RE)
+            if r and r[2] > 0:
+                return r
+            time.sleep(0.5)
+    r = comp(); app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
+    app.clear_composer(); app.type("run `ls` in a shell")
+    app.send()
+    spend_turn()  # #41e budget — ONE attempt for row 50
+    seen = None
+    for _ in range(90):
+        d = app.snap()
+        ids = app.widget_ids(d)
+        card = next((i for i in ids if "approval" in i.lower()
+                     and (app.rect(d, i) or [0, 0, 0, 0])[2] > 0), None)
+        if card:
+            seen = (card, app.rect(d, card))
+            break
+        if "workingrow" not in app.kinds(d) and _ > 8:
+            # terminal without an approval: keep watching a few beats, then
+            # report precisely what the store/surface showed
+            break
+        time.sleep(1)
+    if seen:
+        return True, f"approval card raised: {seen[0]} r={seen[1]}"
+    d = app.snap()
+    kinds = [i for i in app.widget_ids(d) if "approval" in i.lower()]
+    return False, (f"no approval card in 90s (ids containing approval: "
+                   f"{kinds[:6] or 'none'}; tool cells ran without a card?)")
 
 
 @check("review", "the review panel is mounted with its header and scope pill")
@@ -1674,11 +1720,17 @@ def main():
         # restore, 2 background turn, 3 foreign-turn disclosure, 33 file
         # deliveries) — row 50 needs the model to RAISE an approval card on
         # its own; the other live-only rows need browser-only state (#41d).
-        wanted = {1, 2, 3, 33}
+        wanted = {1, 2, 3, 33, 50}
         # row 33's case text matches no AREA_PATTERN (area_of -> None), but
         # its check is registered under "composer" — give the area explicitly
         # so scenario_for resolves (#41d final-run KeyError '').
-        wanted_area = {33: "composer"}
+        wanted_area = {33: "composer", 50: "approval"}
+        # WALK_LIVE_ROWS="50" narrows the run to specific rows — #41e's
+        # cross-run turn accounting: re-running already-proven rows would
+        # spend REAL turns for no new information.
+        override = os.environ.get("WALK_LIVE_ROWS", "")
+        if override.strip():
+            wanted = {int(x) for x in override.split(",") if x.strip().isdigit()}
         targets = [(i, area_of(r) or wanted_area.get(i, ""), r)
                    for i, r in enumerate(rows, start=1) if i in wanted]
     try:
