@@ -313,6 +313,86 @@ fn dark_connect_palette() {
     octoscode_module::screens::theme::set_preference("light");
 }
 
+/// The outer loop's r1 question: does LIGHT still render light? Item 3's dark
+/// remap must not leak into the light palette.
+///
+/// These assert the CARD BACKGROUND VALUE that the app actually paints, for
+/// every preference the shell offers — `Light`, `Dark`, and `System` resolved
+/// against BOTH OS appearances (`theme::resolved`, theme.rs:126-137: `System`
+/// consults the injected OS reader, falling back to dark when none is set).
+/// The value asserted is the card's own `draw_bg.color`, i.e. what a pixel
+/// sampler reads off the rendered card.
+#[test]
+fn light_palette_still_renders_a_light_card_background() {
+    let _guard = palette_lock();
+    use octoscode_module::screens::theme as t;
+    let bg_of = |dsl: &str| -> String {
+        let h = node_head(dsl, "beauty_0_0").expect("card head");
+        let at = h.find("draw_bg.color: #").expect("card paints a bg");
+        h[at + 16..at + 23].to_owned()
+    };
+
+    for (pref, os_dark, want_light) in [
+        ("light", false, true),
+        ("light", true, true),
+        ("dark", false, false),
+        ("dark", true, false),
+    ] {
+        // `System` with an OS reader that reports dark, and one that reports
+        // light — the two arms of theme.rs:131-136.
+        t::set_os_reader(if os_dark { os_dark_true } else { os_light_false });
+        assert!(t::set_preference(pref), "preference {pref} must be storable");
+        let dsl = lowered();
+        let bg = bg_of(&dsl);
+        let lum = |hex: &str| -> f64 {
+            let v = |i: usize| u8::from_str_radix(&hex[i..i + 2], 16).unwrap_or(0) as f64;
+            0.2126 * v(0) + 0.7152 * v(2) + 0.0722 * v(4)
+        };
+        if want_light {
+            assert!(
+                lum(&bg) > 200.0,
+                "preference {pref} (OS dark={os_dark}) must paint a LIGHT card, got {bg}"
+            );
+        } else {
+            assert!(
+                lum(&bg) < 90.0,
+                "preference {pref} (OS dark={os_dark}) must paint a DARK card, got {bg}"
+            );
+        }
+    }
+
+    // System on a light OS -> light, System on a dark OS -> dark.
+    t::set_os_reader(os_light_false);
+    assert!(t::set_preference("system"), "system must be storable");
+    assert_eq!(t::resolved(), "light", "System on a light OS must resolve light");
+    assert!(
+        lum_of(&bg_of(&lowered())) > 200.0,
+        "System on a light OS must paint a light card"
+    );
+    t::set_os_reader(os_dark_true);
+    assert_eq!(t::resolved(), "dark", "System on a dark OS must resolve dark");
+    assert!(
+        lum_of(&bg_of(&lowered())) < 90.0,
+        "System on a dark OS must paint a dark card"
+    );
+
+    t::clear_os_reader();
+    t::set_preference("light");
+}
+
+fn lum_of(hex: &str) -> f64 {
+    let v = |i: usize| u8::from_str_radix(&hex[i..i + 2], 16).unwrap_or(0) as f64;
+    0.2126 * v(0) + 0.7152 * v(2) + 0.0722 * v(4)
+}
+
+fn os_dark_true() -> bool {
+    true
+}
+
+fn os_light_false() -> bool {
+    false
+}
+
 /// Machine-readable geometry beside the human doc (RULES: CSV with a header).
 #[test]
 fn write_the_geometry_row() {
