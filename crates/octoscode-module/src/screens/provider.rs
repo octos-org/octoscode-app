@@ -149,20 +149,28 @@ fn redact_keyed_runs(s: &str) -> String {
 
 /// The `Bearer <token>` pass (`model-settings.ts:541`).
 fn redact_bearer(s: &str) -> String {
-    let lower = s.to_ascii_lowercase();
+    // The scan and the slice must run over the SAME string: lowercasing can
+    // change byte lengths for non-ASCII, so a position found in a lowercased
+    // copy is not a position in the original.
     let mut out = String::with_capacity(s.len());
-    let mut rest = s;
-    while let Some(pos) = lower.find("bearer ") {
-        let after = pos + "bearer ".len();
-        out.push_str(&rest[..after]);
-        let tail = &rest[after..];
-        let end = tail
+    let mut i = 0usize;
+    while i < s.len() {
+        let tail = &s[i..];
+        if !tail[..tail.len().min(7)].eq_ignore_ascii_case("bearer ") {
+            let ch = tail.chars().next().expect("i is a char boundary");
+            out.push(ch);
+            i += ch.len_utf8();
+            continue;
+        }
+        let after = 7usize; // "bearer ".len() == 7
+        out.push_str(&s[i..i + after]);
+        let token = &s[i + after..];
+        let end = token
             .find(|c: char| c.is_whitespace() || c == ',' || c == ';')
-            .unwrap_or(tail.len());
+            .unwrap_or(token.len());
         out.push_str("[redacted]");
-        rest = &tail[end..];
+        i += after + end;
     }
-    out.push_str(rest);
     out
 }
 

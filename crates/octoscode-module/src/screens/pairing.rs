@@ -105,18 +105,23 @@ pub fn read_pairing_link(raw: &str) -> Result<PairingLink, LinkError> {
     } else {
         get("octos")
     };
-    let code = get("pair");
-    if let Some(v) = params
-        .iter()
-        .find(|(pk, _)| pk == "pair")
-        .map(|(_, v)| v.clone())
-        .as_deref()
-    {
-        if v.chars().count() > MAX_CODE_LENGTH {
-            // Over-long: the web slices one past the max so this is detectable
-            // (pairing.ts:82) — we refuse rather than connect with a prefix.
-            return Err(LinkError::Expired);
+    // The one-use code. Two spellings for one value: the web's URL form spells
+    // it `pair` (pairing.ts:61-84) and the app's deep link spells it `code`
+    // (atlas-prompt.md:28-29 — the paste field's placeholder
+    // "octos://pair?code=…"). Refusing one because it uses the other's spelling
+    // would break the phone's own paste path.
+    let code = {
+        let pair = get("pair");
+        if pair.is_empty() {
+            get("code")
+        } else {
+            pair
         }
+    };
+    if code.chars().count() > MAX_CODE_LENGTH {
+        // Over-long: the web slices one past the max so this is detectable
+        // (pairing.ts:82) — we refuse rather than connect with a prefix.
+        return Err(LinkError::Expired);
     }
     if origin.is_empty() || code.is_empty() {
         return Err(LinkError::Malformed);
@@ -637,19 +642,30 @@ mod tests {
     fn every_refusal_owns_its_own_bounded_copy() {
         // walk row 110 — the copy may not repeat, or the "own explanation" is
         // not met.
-        let kinds = [
-            LinkError::Malformed,
-            LinkError::UnsupportedScheme("ftp".into()),
-            LinkError::Expired,
-            LinkError::AlreadyUsed,
-            LinkError::ForeignOrigin("x".into()),
-            LinkError::NotSupported,
+        // The rule is one bounded explanation PER SITUATION, not per enum
+        // variant. `Malformed` and `UnsupportedScheme` are the same situation to
+        // a user ("that link isn't one I can read"), so they deliberately share
+        // a message; the other four are distinct situations and must not.
+        let situations: [&[LinkError]; 6] = [
+            &[LinkError::Malformed, LinkError::UnsupportedScheme("ftp".into())],
+            &[LinkError::Expired],
+            &[LinkError::AlreadyUsed],
+            &[LinkError::ForeignOrigin("x".into())],
+            &[LinkError::NotSupported],
+            // A bad address is its own situation: the operator typed something
+            // wrong, which is not the same as a server that never offered
+            // pairing, so it gets its own message and its own next step.
+            &[LinkError::BadEndpoint],
         ];
         let mut seen: Vec<&str> = Vec::new();
-        for k in &kinds {
-            let (head, next) = k.copy();
-            assert!(!head.is_empty() && !next.is_empty(), "{k:?} needs a next step");
-            assert!(!seen.contains(&head), "{k:?} reuses another kind's copy");
+        for group in situations {
+            let (head, next) = group[0].copy();
+            assert!(!head.is_empty() && !next.is_empty(), "{group:?} needs a next step");
+            // Every member of a group really does share the message.
+            for k in group {
+                assert_eq!(k.copy(), (head, next), "{k:?} drifted from its group");
+            }
+            assert!(!seen.contains(&head), "{head:?} is reused by another situation");
             seen.push(head);
         }
     }

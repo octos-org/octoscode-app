@@ -387,7 +387,16 @@ pub fn apply(ui: &mut BrowserUi, effect: Effect) -> Option<Effect> {
             ui.refuse(r);
             None
         }
-        transport @ (Effect::Use(_) | Effect::Create(_)) => Some(transport),
+        // The name is PRE-VALIDATED before the transport can be reached: an
+        // invalid name never leaves this module (walk 164).
+        Effect::Create(_) => {
+            if ui.name_problem().is_some() {
+                None
+            } else {
+                Some(Effect::Create(ui.new_folder.trim().to_owned()))
+            }
+        }
+        transport @ Effect::Use(_) => Some(transport),
         Effect::Unhandled => None,
     }
 }
