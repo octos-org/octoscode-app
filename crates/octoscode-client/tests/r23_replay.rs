@@ -321,14 +321,17 @@ fn replayed_tool_payloads_drive_the_tool_domain() {
 #[test]
 fn replayed_plan_updated_replaces_the_session_plan() {
     let frames = load_fixture();
-    let (store, _) = replay_into_store(&frames);
     let session = session_of(&frames);
 
     // The recorded plan's own values (hermetic: read from the fixture).
-    let recorded = frames
+    let plan_at = frames
         .iter()
-        .find(|f| f.method == "plan/updated")
+        .position(|f| f.method == "plan/updated")
         .expect("the fixture carries plan/updated");
+    let recorded = &frames[plan_at];
+
+    // Replay UP TO the plan/updated: it lands with the authoring turn kept.
+    let (store, _) = replay_into_store(&frames[..=plan_at]);
     let plan = store
         .domains
         .task
@@ -343,6 +346,29 @@ fn replayed_plan_updated_replaces_the_session_plan() {
         "the authoring turn is kept for clearing"
     );
     assert_eq!(plan.updated_at_ms, recorded.body["plan"]["updated_at_ms"].as_i64().unwrap());
+
+    // #P4b1 [14]: the AUTHORING turn's terminal drops the plan (the web's
+    // clearPlanForTurn, plan.ts:31). The recording continues to exactly that
+    // terminal (turn ...243's turn_terminal), and no new plan arrives after
+    // it — so the END-of-replay state is "no plan". The old expectation here
+    // (the plan survives the whole replay) pinned the pre-wiring behaviour.
+    let turn_id = recorded.body["turn_id"].as_str().expect("plan turn_id");
+    let term_at = plan_at
+        + 1
+        + frames[plan_at + 1..]
+            .iter()
+            .position(|f| {
+                f.method == "projection/envelope"
+                    && f.body["payload"]["type"] == "turn_terminal"
+                    && (f.body["turn_id"].as_str() == Some(turn_id)
+                        || f.body["payload"]["turn_id"].as_str() == Some(turn_id))
+            })
+            .expect("the recording carries the authoring turn's terminal");
+    let (store, _) = replay_into_store(&frames[..=term_at]);
+    assert!(
+        store.domains.task.plan(&session).is_none(),
+        "the authoring turn's terminal drops the plan (plan.ts:31)"
+    );
 }
 
 // -------------------------------------------------------------- approvals
