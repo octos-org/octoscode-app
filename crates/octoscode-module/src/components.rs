@@ -528,7 +528,19 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
     // becomes `Fit`, so each node takes its content's height. Chrome kinds
     // (buttons, the composer dock) keep their measured box.
     let ui = match kind {
+        // #36f: in dark resolution the components' light-artboard literals
+        // become the theme roles the shell assigns (#32f pattern) — the
+        // measured bubble was surface #f5f5f7 with #fafbfb text (1.05:1,
+        // invisible) and the composer's pill labels were #434343/#252525 on
+        // the #1c1f22 surface (1.00:1). Light stays byte-identical (the
+        // replay tests pin the lowered string).
         ItemKind::UserBubble => bubble_live_layout(&ui),
+        // Card #21e item 3: the send control is a flat black disc. #36f
+        // item 3: its artboard margin (left 328 on the 374 board) put the
+        // disc 11px past the mounted 333 column (device /snap: composer_5
+        // [339,612,5,38] vs column right 344) — re-anchored to 287 in
+        // flat_send_button. Dark is retint_dsl at the tail of lower().
+        ItemKind::Composer => flat_send_button(&ui),
         // Card #21d item 5: a session title is live and unbounded, so the row's
         // single-line label must ELLIPSIZE rather than hard-clip ("…print").
         ItemKind::ThreadRow => ellipsize_single_line(&ui),
@@ -550,8 +562,6 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
         ItemKind::AnswerActions => right_align_timestamp(&ui),
         // Card #21e item 6: fenced code must not soft-wrap.
         ItemKind::AssistantProse => reachable_code(&fit_heights(&ui)),
-        // Card #21e item 3: the send control is a flat black disc.
-        ItemKind::Composer => flat_send_button(&ui),
         // Card #21e item 8: the activity row's spinner keeps its 18px box.
         ItemKind::WorkingRow => working_row_layout(&ui),
         ItemKind::WorkedFor => worked_for_style(&ui),
@@ -560,6 +570,12 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
     // Card #21d item 6: resolve every emitted `http_resource(…)` icon to the
     // component's own file on disk, so the app needs no dev asset server.
     let ui = localize_asset_resources(&ui);
+    // #36f item 2: component svgs lower as ABSOLUTE BUILD-MACHINE paths
+    // (file_resource("<build-machine>/…/components/<id>/assets/icon_….svg"));
+    // the phone has no such path, so the answer-actions icons draw NOTHING
+    // on the device (the #32g font-path lesson, svg edition). Re-point them
+    // through the materialized-root resolver.
+    let ui = localize_component_icons(&ui);
     // #31d workflow 1: EVERY mounted component reads the app-wide token set —
     // `retint_dsl` is the byte passthrough in light (no repaint churn) and the
     // token rewrite in dark.
@@ -575,12 +591,67 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
 /// hard-clips ("One wo…"). Let the boxes hug (`width: Fit`) and the labels wrap,
 /// and cap the whole bubble at 80% of the column. The `user_align` wrapper
 /// right-aligns it (card #21c item 4).
+/// #36f item 1 — the bubble's dark SURFACE, by role. The live card carries
+/// the same literal for its surface and its text (#fafbfb; the repo copy
+/// carries #f5f5f7/#fafbfb), so a retint TABLE entry cannot serve both:
+/// #f5f5f7 is also the dark INK token and a key there eats the correct
+/// light text on every dark line (measured: the double-retint cut left the
+/// text #2c2c2e on #2c2c2e). Only `draw_bg.color:` lines are the surface.
+fn bubble_dark_surface(ui: &str) -> String {
+    ui.lines()
+        .map(|l| {
+            if l.contains("draw_bg.color:") {
+                pin_opaque_hex(l, "2c2c2e")
+            } else if l.contains("draw_text.color:") {
+                pin_opaque_hex(l, "f5f5f7")
+            } else {
+                l.to_owned()
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n")
+}
+
+/// Overwrite the FIRST color run after '#' with `rgb` (keeping the 6/8-digit
+/// shape); translucent fills (alpha != ff) are left untouched so they keep
+/// compositing — the same rule retint_dsl applies. Value-INDEPENDENT by
+/// design: the bubble's literals live in kit references that move under us
+/// (the shared materialized root was touched mid-card), so matching exact
+/// values cannot be stable; the ROLE is stable (a draw_bg line on the user
+/// bubble is its raised fill, a draw_text line is the message ink).
+fn pin_opaque_hex(line: &str, rgb: &str) -> String {
+    let bytes = line.as_bytes();
+    let Some(hash) = line.find('#') else { return line.to_owned() };
+    let mut n = 0usize;
+    while n < 8 && hash + 1 + n < bytes.len() && bytes[hash + 1 + n].is_ascii_hexdigit() {
+        n += 1;
+    }
+    if n != 6 && n != 8 {
+        return line.to_owned();
+    }
+    if n == 8 && &bytes[hash + 7..hash + 9] != b"ff" {
+        return line.to_owned(); // translucent: keep compositing
+    }
+    let mut out = String::with_capacity(line.len());
+    out.push_str(&line[..hash + 1]);
+    out.push_str(rgb);
+    if n == 8 {
+        out.push_str("ff");
+    }
+    out
+}
+
 fn bubble_live_layout(ui: &str) -> String {
+    let ui = if crate::screens::theme::resolved() == "dark" {
+        bubble_dark_surface(ui)
+    } else {
+        ui.to_owned()
+    };
     // Heights hug (card #21c); the ROOT also hugs, capped at 80% of the column,
     // so a long message widens to the cap then wraps. Inner boxes keep the
     // measured widths the artboard gave them (`Fill` under a `Fit` root collapses
     // to the minimum — measured: a 16px-wide bubble), and the labels WRAP.
-    let s = fit_heights(ui);
+    let s = fit_heights(&ui);
     // Card #21e item 7: symmetric vertical padding (the artboard's absolute tops
     // leave the last wrapped line on the bottom edge).
     let s = symmetric_bubble_padding(&s);
@@ -709,9 +780,17 @@ fn flat_send_button(ui: &str) -> String {
         "draw_bg.radius: 18 draw_bg.ellipse: 0 draw_bg.border_width: 0 draw_bg.border_position: 0 \
          draw_bg.border_color: #00000000 draw_bg.color2: #00000000 draw_bg.gradient: 0.0",
     );
-    s.replace(
+    let s = s.replace(
         "show_bg: true draw_bg.color: #040303ff",
         "show_bg: true draw_bg.color: #000000ff",
+    );
+    // #36f item 3: the disc's left margin is 374-artboard math; the mounted
+    // composer is 333 wide, so 328 put the disc 11px past the column (device
+    // /snap: composer_5 [339,612,5,38] vs column right 344). Keep the
+    // artboard's 10px right inset: 333 - 36 - 10 = 287.
+    s.replace(
+        "margin: Inset{left: 328 top: 118.222 right: 0 bottom: 0}",
+        "margin: Inset{left: 287 top: 118.222 right: 0 bottom: 0}",
     )
 }
 
@@ -839,6 +918,43 @@ fn set_first_width_fit_capped(ui: &str, cap: &str) -> String {
 /// the recorded fixtures name the design lab's ad-hoc `:8170` server — which is
 /// not ours to run. The bytes are already on disk beside the component, so bind
 /// the file directly and the icons load with no asset server at all.
+/// #36f item 2 — re-point `file_resource("…/components/<id>/assets/<file>")`
+/// at the MATERIALIZED design root (`design::font_file` resolves root-first,
+/// device-verified in #32g for the kit faces). Non-component paths and
+/// already-relative ones pass through.
+fn localize_component_icons(ui: &str) -> String {
+    const MARK: &str = "file_resource(\"";
+    let mut out = String::with_capacity(ui.len());
+    let mut rest = ui;
+    while let Some(at) = rest.find(MARK) {
+        let (head, tail) = rest.split_at(at);
+        out.push_str(head);
+        let after = &tail[MARK.len()..];
+        let Some(endq) = after.find('"') else {
+            out.push_str(tail);
+            return out;
+        };
+        let path = &after[..endq];
+        if let Some(rel) = path.split_once("/components/") {
+            // keep the components/ layer: font_file resolves under the
+            // design ROOT, and the assets live at
+            // <root>/components/<id>/assets/<file>
+            let resolved =
+                crate::design::font_file(&format!("components/{}", rel.1))
+                    .display()
+                    .to_string();
+            out.push_str(&format!("file_resource({resolved:?})"));
+        } else {
+            out.push_str(&format!("file_resource({path:?})"));
+        }
+        // the rewrite replaced the call INCLUDING its closing paren — drop
+        // the original's (the same contract localize_asset_resources runs on)
+        rest = after[endq + 1..].strip_prefix(')').unwrap_or(&after[endq + 1..]);
+    }
+    out.push_str(rest);
+    out
+}
+
 fn localize_asset_resources(ui: &str) -> String {
     const MARK: &str = "http_resource(\"";
     let root = components_dir();
@@ -959,6 +1075,100 @@ mod tests {
     /// every keystroke changed the DSL, missed the mount cache (mount.rs:95
     /// compares strings) and remounted the whole composer with a NEW
     /// TextInput — the Android IME lost its target after the first character.
+    /// #36f — the measured dark repro (384x788, OCTOSCODE_THEME=dark): the
+    /// user bubble was surface #f5f5f7 with #fafbfb text = 1.05:1 and the
+    /// composer's pill ink #434343/#252525 on the #1c1f22 card = 1.00:1,
+    /// because lower()'s dark layer (retint_dsl) had no table entries for
+    /// the components' artboard literals. FAILS ON MAIN (retint passes the
+    /// literals through); passes once the four keys exist.
+    #[test]
+    fn dark_retint_maps_the_component_artboard_literals() {
+        // The INKS ride retint (role-blind is correct for text: light inks
+        // map to the dark palette's light inks).
+        let dsl = concat!(
+            "draw_text.color: #fafbfbff\n",
+            "draw_text.color: #434343ff\n",
+            "draw_text.color: #252525ff\n",
+            "draw_bg.color: #1c1f22ff"
+        );
+        let out = crate::screens::theme::retint_dsl(dsl);
+        assert!(out.contains("#f5f5f7ff"), "bubble text unmapped");
+        assert!(!out.contains("#434343ff"), "pill ink unmapped (1.00:1 on the device)");
+        assert!(!out.contains("#252525ff"), "secondary ink unmapped");
+        // #1c1f22 is the SHELL's dark surface token: retint must leave it
+        // (the f31d fixed-point), and the bubble's role pin owns the ink.
+        assert!(
+            out.contains("draw_bg.color: #1c1f22ff"),
+            "retint no longer fixes the dark surface token"
+        );
+        // The SURFACE is role-scoped: #f5f5f7 is also the dark ink, so the
+        // table must never carry it — the bubble layer rewrites draw_bg
+        // lines only, and retint passes the result through untouched.
+        for surface in ["#fafbfbff", "#f5f5f7ff"] {
+            let line = format!("show_bg: true draw_bg.color: {surface}");
+            let fixed = bubble_dark_surface(&line);
+            assert!(
+                fixed.contains("#2c2c2eff"),
+                "the bubble surface stayed light-board {surface} (1.05:1 on the device)"
+            );
+            assert!(
+                crate::screens::theme::retint_dsl(&fixed).contains("#2c2c2eff"),
+                "retint ate the corrected dark surface"
+            );
+        }
+        // The bubble's dark INK (the #1c1f22 timestamp) is the pin's job —
+        // retint cannot take it (the shell's own dark token).
+        let ts = bubble_dark_surface("draw_text.color: #1c1f22ff");
+        assert!(
+            ts.contains("draw_text.color: #f5f5f7ff"),
+            "the timestamp ink stayed light-board on the dark bubble"
+        );
+        // ...and the text side of the SAME literal survives retint as ink:
+        assert!(
+            crate::screens::theme::retint_dsl("draw_text.color: #fafbfbff").contains("#f5f5f7ff"),
+            "the text ink lost its light value"
+        );
+    }
+
+    /// #36f diagnostic: the FULL lowering path (not just retint) — tests
+    /// have no OS-appearance reader, so resolved() falls back to dark and
+    /// this runs the real dark pipeline. Asserts the surface key lands; on
+    /// failure the panic prints the ACTUAL draw_bg line (ground truth for
+    /// the "surface does not retint" contradiction).
+    /// #36f item 3 — the send disc rode the 374-wide artboard margin
+    /// (left 328), 11px past the mounted 333 column (device /snap on the
+    /// pre-fix tree: composer_5 [339,612,5,38] vs column right 344).
+    /// Fails on main (no re-anchor there); 333-36-10 = 287.
+    #[test]
+    fn the_send_disc_stays_inside_the_mounted_column() {
+        let dsl = lower(ItemKind::Composer, "t0", &[]).expect("lower");
+        assert!(
+            dsl.contains("margin: Inset{left: 287"),
+            "the send disc still carries the 374-artboard margin"
+        );
+        assert!(!dsl.contains("left: 328"), "the overflowing margin survived");
+    }
+
+    #[test]
+    fn the_lowered_bubble_surface_retints_in_dark() {
+        // The full dark pipeline: bubble_dark_surface rewrites the draw_bg
+        // lines role-scoped, retint maps the inks, and neither eats the
+        // other's output (#2c2c2e is not in the light key set).
+        let dsl = lower(ItemKind::UserBubble, "t0", &[]).expect("lower");
+        let line = dsl
+            .lines()
+            .find(|l| l.contains("draw_bg.color:") && l.contains("show_bg"))
+            .unwrap_or("(no show_bg surface line in the lowered DSL)");
+        assert!(
+            dsl.contains("#2c2c2eff"),
+            "the lowered bubble surface did not retint to the dark token — actual line: {line}"
+        );
+        assert!(
+            dsl.contains("draw_text.color: #f5f5f7ff"),
+            "the bubble text lost its light ink on the dark surface"
+        );
+    }
+
     #[test]
     fn the_composer_dsl_is_draft_free_and_stable() {
         let store = Arc::new(Store::new());
