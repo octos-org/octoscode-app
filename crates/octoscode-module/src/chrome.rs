@@ -449,6 +449,27 @@ script_mod! {
         }
     }
 
+    // The web's collapsed rail (`.collapsed`, 56 px): expand, New chat,
+    // Search (expands + focuses the field), Add workspace — icon buttons
+    // with 36 px hit targets.
+    let OcRailButton = View{
+        width: 36 height: 36 flow: Overlay align: Align{x: 0.5 y: 0.5}
+        rb_icon := Svg{
+            width: 18 height: 18 animating: false
+            draw_svg.svg: file_resource(#(crate::chrome::icon("pencil")))
+            draw_svg.preserve_viewbox: true
+        }
+        rb_hit := OcHit{draw_bg.border_radius: 10.0}
+    }
+    mod.widgets.OcSidebarRail = View{
+        width: Fill height: Fill flow: Down spacing: 12 align: Align{x: 0.5}
+        padding: Inset{top: 6}
+        rail_expand := OcRailButton{rb_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("panel")))}}}
+        rail_new_chat := OcRailButton{rb_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("pencil")))}}}
+        rail_search := OcRailButton{rb_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("search")))}}}
+        rail_add := OcRailButton{rb_icon +: {draw_svg +: {svg: file_resource(#(crate::chrome::icon("plus")))}}}
+    }
+
     // The sidebar footer: + Add workspace.
     mod.widgets.OcSidebarFoot = View{
         width: Fill height: Fit flow: Down
@@ -1408,6 +1429,25 @@ impl ChromeRuntime {
         if c(cx, live_id!(sb_add_hit)) {
             out.push(Intent::Action("workspace.add", 0));
         }
+        // The collapse toggle and the collapsed rail.
+        if c(cx, live_id!(sidebar_collapse)) {
+            out.push(Intent::Action("sidebar.collapse", 0));
+        }
+        if sb.rail {
+            let rail = |cx: &mut Cx, id: LiveId| clicked(cx, view, &[id, live_id!(rb_hit)], actions);
+            if rail(cx, live_id!(rail_expand)) {
+                out.push(Intent::Action("sidebar.expand", 0));
+            }
+            if rail(cx, live_id!(rail_new_chat)) {
+                out.push(Intent::Action("new_chat", 0));
+            }
+            if rail(cx, live_id!(rail_search)) {
+                out.push(Intent::Action("search.open", 0));
+            }
+            if rail(cx, live_id!(rail_add)) {
+                out.push(Intent::Action("workspace.add", 0));
+            }
+        }
         let list = view.portal_list(cx, ids!(thread_list));
         for click in sidebar_list_clicks(cx, &list, store, actions) {
             out.push(match click {
@@ -1446,8 +1486,23 @@ impl ChromeRuntime {
         show(cx, view, ids!(drawer_close_slot), drawer);
         show(cx, view, ids!(hd_menu), compact);
         // The drawer is min(320, w - 48) wide (NavigationSurface.module.css
-        // .drawer); the column is the web's 280.
-        let sidebar_w = if compact { (window_w - 48.0).min(320.0).max(240.0) } else { 280.0 };
+        // .drawer); the column is the web's 280, its collapsed rail 56.
+        let rail = sb.rail && !compact;
+        let sidebar_w = if compact {
+            (window_w - 48.0).min(320.0).max(240.0)
+        } else if rail {
+            56.0
+        } else {
+            280.0
+        };
+        show(cx, view, ids!(oc_sidebar_rail), rail);
+        show(cx, view, ids!(oc_sidebar_body), !rail);
+        show(cx, view, ids!(oc_sidebar_foot), !rail);
+        show(cx, view, ids!(sidebar_header), !rail);
+        show(cx, view, ids!(sidebar_collapse_slot), !compact && !rail);
+        if crate::screens::sidebar::take_focus_search() {
+            view.widget(cx, ids!(sb_search)).set_key_focus(cx);
+        }
         // Settings: the centred dialog on desktop, a full sheet on compact.
         let (frame_margin, max_w, max_h, radius) = if compact {
             (0.0, window_w.max(1.0), window_h.max(1.0), 1.0)
@@ -1459,6 +1514,10 @@ impl ChromeRuntime {
             self.applied = key;
             let mut col = view.widget(cx, ids!(threads_column));
             script_apply_eval!(cx, col, { width: #(sidebar_w) });
+            // The desktop spacer reserves the column + its 1 px rule.
+            let spacer_w = sidebar_w + 1.0;
+            let mut spacer = view.widget(cx, ids!(sidebar_spacer));
+            script_apply_eval!(cx, spacer, { width: #(spacer_w) });
             let mut frame = view.widget(cx, ids!(settings_frame));
             script_apply_eval!(cx, frame, {
                 margin: #(frame_margin)

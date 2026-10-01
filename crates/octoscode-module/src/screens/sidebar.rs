@@ -23,7 +23,7 @@
 //!   workspace.menu, workspace.new_chat_here,
 //!   sidebar.mode.grouped, sidebar.mode.flat, sidebar.sort,
 //!   search.focus, search.clear, drawer.open, drawer.close,
-//!   workspace.rename.cancel
+//!   workspace.rename.cancel, sidebar.collapse, sidebar.expand, search.open
 //!
 //! Workspace-scoped ids address a GROUP by its index in the last projection
 //! ([`project`] records the order), the same item-index contract the native
@@ -63,6 +63,11 @@ pub const ACTIONS: &[(&str, &str)] = &[
     ("drawer.open", "open the compact/mobile navigation drawer"),
     ("sidebar.sort", "cycle the session order (Recent / Oldest)"),
     ("workspace.rename.cancel", "abandon an in-progress workspace rename"),
+    // The web's collapsed rail (`.collapsed`, 56 px; ProductSidebar.tsx:532
+    // "Collapse sidebar" / "Expand sidebar").
+    ("sidebar.collapse", "collapse the sidebar to its 56 px icon rail"),
+    ("sidebar.expand", "expand the sidebar from its rail"),
+    ("search.open", "expand the sidebar and focus Search chats (the rail's search)"),
 ];
 
 /// Whether `id` is one of this screen's action ids.
@@ -90,13 +95,16 @@ impl Mode {
     }
 }
 
-/// The session order (the board's "Recent ▾").
+/// The session order (the board's "Recent ▾"; the web's three order modes,
+/// `ProductSidebarOrderMode`, ProductSidebar.tsx:39 and :1125-1142).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Sort {
-    /// Newest first (the web's default `Last opened`).
+    /// Newest first (the web's `updated`).
     Recent,
-    /// Oldest first.
+    /// Oldest first (the web's `oldest`, "Least recently opened").
     Oldest,
+    /// The server's own order (the web's `manual`, "Fixed order").
+    Fixed,
 }
 
 impl Sort {
@@ -104,6 +112,7 @@ impl Sort {
         match self {
             Sort::Recent => "Recent",
             Sort::Oldest => "Oldest",
+            Sort::Fixed => "Fixed",
         }
     }
 }
@@ -135,6 +144,10 @@ pub struct SidebarUi {
     /// A folder-browser request raised by `workspace.add` (the host consumes
     /// it with [`take_add_request`]).
     pub add_requested: bool,
+    /// The sidebar is collapsed to its icon rail (desktop only).
+    pub rail: bool,
+    /// The search field should take key focus (the host consumes it).
+    pub focus_search: bool,
 }
 
 /// A projected group's identity: its key and the path a new session there
@@ -161,6 +174,8 @@ impl Default for SidebarUi {
             hidden: BTreeSet::new(),
             last_groups: Vec::new(),
             add_requested: false,
+            rail: false,
+            focus_search: false,
         }
     }
 }
@@ -247,6 +262,11 @@ pub fn menu_for() -> Option<(usize, String)> {
 /// Close the overflow menu (a click outside it).
 pub fn close_menu() {
     sidebar().lock().unwrap().menu_for = None;
+}
+
+/// Consume a pending search-focus request (the host focuses the field).
+pub fn take_focus_search() -> bool {
+    std::mem::take(&mut sidebar().lock().unwrap().focus_search)
 }
 
 /// Consume a pending `workspace.add` request (the host opens the browser).
@@ -409,9 +429,11 @@ pub fn project_with(store: &Store, ui: &SidebarUi, now: u64, recents: &[String])
     let mut keyed: Vec<(usize, Option<u64>, String)> =
         keys.into_iter().enumerate().map(|(i, k)| (i, newest(&k), k)).collect();
     keyed.sort_by(|a, b| match (a.1, b.1) {
+        _ if ui.sort == Sort::Fixed => a.0.cmp(&b.0),
         (Some(x), Some(y)) => match ui.sort {
             Sort::Recent => y.cmp(&x),
             Sort::Oldest => x.cmp(&y),
+            Sort::Fixed => std::cmp::Ordering::Equal,
         },
         (Some(_), None) => std::cmp::Ordering::Less,
         (None, Some(_)) => std::cmp::Ordering::Greater,
@@ -445,9 +467,11 @@ pub fn project_with(store: &Store, ui: &SidebarUi, now: u64, recents: &[String])
     };
     fn ordered_by(sort: Sort, mut v: Vec<&Item>) -> Vec<&Item> {
         v.sort_by(|a, b| match (a.updated_ms, b.updated_ms) {
+            _ if sort == Sort::Fixed => a.store_index.cmp(&b.store_index),
             (Some(x), Some(y)) => match sort {
                 Sort::Recent => y.cmp(&x),
                 Sort::Oldest => x.cmp(&y),
+                Sort::Fixed => std::cmp::Ordering::Equal,
             },
             (Some(_), None) => std::cmp::Ordering::Less,
             (None, Some(_)) => std::cmp::Ordering::Greater,
@@ -573,9 +597,10 @@ pub fn session_status(store: &Store, id: &str, active: Option<&str>) -> Status {
     if listed_running || (is_active && store.domains.turn.in_flight_count() > 0) {
         return Status::Running;
     }
-    // The newest TERMINAL turn of this session's timeline decides; an
-    // interrupted turn is not a work outcome (the web skips non complete/error
-    // terminals and keeps scanning older ones).
+    // The newest TERMINAL turn of this session's timeline decides
+    // (`terminal = timeline.findLast(latestTurnOutcome)`,
+    // SessionSidebar.tsx:65-98): completed -> completed, anything else ->
+    // failed (an interrupted turn reads "Stopped", `terminal_label`).
     let entries = store.domains.session.timeline.entries(id);
     let mut seen: Vec<String> = Vec::new();
     for e in entries.iter().rev() {
@@ -586,8 +611,8 @@ pub fn session_status(store: &Store, id: &str, active: Option<&str>) -> Status {
         seen.push(turn.to_owned());
         match store.domains.turn.terminal(turn).as_deref() {
             Some("completed") => return Status::Done,
-            Some("errored") | Some("rate_limited") => return Status::Failed,
-            _ => {}
+            Some(_) => return Status::Failed,
+            None => {}
         }
     }
     Status::Idle
@@ -618,8 +643,9 @@ pub fn split_chars(text: &str, range: (usize, usize)) -> (String, String, String
     )
 }
 
-/// The web's `formatRelativeTime` (relative-time.ts:1-17): now / Nm / Nh /
-/// Nd / a short date. The board renders one day as "Yesterday".
+/// The web's `formatRelativeTime` (relative-time.ts:1-17), bucket for
+/// bucket: now / Nm / Nh / Nd / a short date. (The board's "Yesterday" is the
+/// image's copy; the native label follows the web, "1d".)
 pub fn relative_label(then_ms: u64, now_ms: u64) -> String {
     let elapsed = now_ms.saturating_sub(then_ms);
     const MIN: u64 = 60_000;
@@ -631,8 +657,6 @@ pub fn relative_label(then_ms: u64, now_ms: u64) -> String {
         format!("{}m", elapsed / MIN)
     } else if elapsed < DAY {
         format!("{}h", elapsed / HOUR)
-    } else if elapsed < 2 * DAY {
-        "Yesterday".to_owned()
     } else if elapsed < 7 * DAY {
         format!("{}d", elapsed / DAY)
     } else {
@@ -876,7 +900,8 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
         "sidebar.sort" => {
             s.sort = match s.sort {
                 Sort::Recent => Sort::Oldest,
-                Sort::Oldest => Sort::Recent,
+                Sort::Oldest => Sort::Fixed,
+                Sort::Fixed => Sort::Recent,
             };
             Effect::Applied
         }
@@ -892,6 +917,22 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
         }
         "drawer.open" => {
             s.drawer_open = true;
+            Effect::Applied
+        }
+        "sidebar.collapse" => {
+            s.rail = true;
+            s.menu_for = None;
+            Effect::Applied
+        }
+        "sidebar.expand" => {
+            s.rail = false;
+            Effect::Applied
+        }
+        "search.open" => {
+            // The rail's magnifier: expand, then focus Search chats.
+            s.rail = false;
+            s.search_focused = true;
+            s.focus_search = true;
             Effect::Applied
         }
         "drawer.close" => {
@@ -1052,10 +1093,18 @@ mod tests {
         for id in CARD_EVENTS {
             assert!(is_action(id), "{id} must be owned by screens::sidebar");
         }
-        for id in ["drawer.open", "sidebar.sort", "workspace.rename.cancel"] {
+        const CHROME: &[&str] = &[
+            "drawer.open",
+            "sidebar.sort",
+            "workspace.rename.cancel",
+            "sidebar.collapse",
+            "sidebar.expand",
+            "search.open",
+        ];
+        for id in CHROME {
             assert!(is_action(id), "{id} (native chrome) must be owned here");
         }
-        assert_eq!(ACTIONS.len(), CARD_EVENTS.len() + 3, "no undeclared owners");
+        assert_eq!(ACTIONS.len(), CARD_EVENTS.len() + CHROME.len(), "no undeclared owners");
     }
 
     #[test]
@@ -1080,10 +1129,10 @@ mod tests {
                 "[v octos 3]",
                 "Fix steer queue drop on reconnect | 2m | Idle",
                 "Add session fork | 1h | Idle",
-                "Review PR #2566 | Yesterday | Idle",
+                "Review PR #2566 | 1d | Idle",
                 "[v octoscode-app 2]",
                 "Bump octos-core to a6ea8505 | 2h | Idle",
-                "Why is hydrate slow? | Yesterday | Idle",
+                "Why is hydrate slow? | 1d | Idle",
             ]
         );
         // The active session's row is the selected one.
@@ -1099,10 +1148,14 @@ mod tests {
         assert_eq!(titles.len(), 5);
         assert!(titles[0].starts_with("Fix steer queue"));
         assert!(titles[4].starts_with("Why is hydrate slow?"));
-        // Oldest flips the order.
+        // Oldest flips the order; Fixed keeps the server's (store) order.
         let ui = SidebarUi { mode: Mode::Flat, sort: Sort::Oldest, ..Default::default() };
         let p = project_with(&store, &ui, NOW, &[]);
         assert!(rows_text(&p)[0].starts_with("Why is hydrate slow?"));
+        let ui = SidebarUi { mode: Mode::Flat, sort: Sort::Fixed, ..Default::default() };
+        let p = project_with(&store, &ui, NOW, &[]);
+        let fixed: Vec<String> = rows_text(&p).iter().map(|r| r.split(" |").next().unwrap().to_owned()).collect();
+        assert_eq!(fixed[2], "Review PR #2566", "store order, not recency");
     }
 
     #[test]
@@ -1138,10 +1191,10 @@ mod tests {
         assert_eq!(st("s3"), Status::Done);
         assert_eq!(st("s4"), Status::Failed, "the NEWEST terminal decides");
         assert_eq!(st("s5"), Status::Idle);
-        // An interrupted newest turn is skipped: the older completed decides.
+        // An interrupted newest turn is a failed outcome ("Stopped").
         tl.append("s3", Some("t3b".into()), EntryKind::ASSISTANT_TEXT, "x".into());
         store.domains.turn.set_terminal("t3b", "interrupted");
-        assert_eq!(st("s3"), Status::Done);
+        assert_eq!(st("s3"), Status::Failed);
     }
 
     #[test]
@@ -1156,7 +1209,7 @@ mod tests {
                 "note: No chats in octos match \u{201c}hydrate\u{201d}",
                 "---",
                 "[v octoscode-app 2]",
-                "Why is hydrate slow? | Yesterday | Idle",
+                "Why is hydrate slow? | 1d | Idle",
                 "clear",
             ]
         );
@@ -1268,6 +1321,24 @@ mod tests {
     }
 
     #[test]
+    fn the_rail_collapses_and_its_search_expands_and_focuses() {
+        let _g = crate::screens::theme::test_lock();
+        reset_state();
+        let store = board_store();
+        let ctx = ctx_for(&store);
+        resolve("sidebar.collapse", 0, &ctx);
+        assert!(snapshot().rail);
+        resolve("search.open", 0, &ctx);
+        let s = snapshot();
+        assert!(!s.rail && s.search_focused);
+        assert!(take_focus_search(), "the host gets one focus request");
+        assert!(!take_focus_search());
+        resolve("sidebar.collapse", 0, &ctx);
+        resolve("sidebar.expand", 0, &ctx);
+        assert!(!snapshot().rail);
+    }
+
+    #[test]
     fn clear_restores_every_row() {
         let _g = crate::screens::theme::test_lock();
         reset_state();
@@ -1286,7 +1357,7 @@ mod tests {
         assert_eq!(relative_label(NOW - 30_000, NOW), "now");
         assert_eq!(relative_label(NOW - 2 * 60_000, NOW), "2m");
         assert_eq!(relative_label(NOW - 60 * 60_000, NOW), "1h");
-        assert_eq!(relative_label(NOW - 26 * 3_600_000, NOW), "Yesterday");
+        assert_eq!(relative_label(NOW - 26 * 3_600_000, NOW), "1d");
         assert_eq!(relative_label(NOW - 3 * 86_400_000, NOW), "3d");
         assert_eq!(parse_rfc3339_ms("2026-10-01T15:39:00Z"), Some(1_790_869_140_000));
         assert_eq!(

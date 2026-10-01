@@ -357,6 +357,18 @@ script_mod! {
                         draw_text.text_style: theme.oc_text_brand
                         draw_text.color: theme.color_fg_app
                     }
+                    // Desktop: collapse to the rail (the web's sidebar
+                    // toggle, ProductSidebar.tsx:532).
+                    sidebar_collapse_slot := View {
+                        width: 32 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                        Svg {
+                            width: 17 height: 17
+                            animating: false
+                            draw_svg.svg: file_resource(#(crate::chrome::icon("panel_muted")))
+                            draw_svg.preserve_viewbox: true
+                        }
+                        sidebar_collapse := mod.widgets.OcHitRound {}
+                    }
                     drawer_close_slot := View {
                         width: 32 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
                         visible: false
@@ -369,6 +381,8 @@ script_mod! {
                         drawer_close := mod.widgets.OcHitRound {}
                     }
                 }
+                // The collapsed rail (desktop): chrome.rs `OcSidebarRail`.
+                oc_sidebar_rail := mod.widgets.OcSidebarRail { visible: false }
                 // New chat, Search chats, By workspace | All + Recent, and
                 // the tree (`thread_list`): chrome.rs `OcSidebarBody`.
                 oc_sidebar_body := mod.widgets.OcSidebarBody {}
@@ -2986,7 +3000,9 @@ impl OctoscodeView {
             (goal_txt, loops, fleet)
         };
         let any = !goals.is_empty() || !loops.is_empty() || !fleet.is_empty();
-        self.view.widget(cx, ids!(autonomy_sections)).set_visible(cx, any);
+        // A3: the collapsed rail shows no sections (it is icons only).
+        let rail = screens::sidebar::snapshot().rail && !self.chrome.compact;
+        self.view.widget(cx, ids!(autonomy_sections)).set_visible(cx, any && !rail);
         self.view.label(cx, ids!(goal_row_1)).set_text(cx, &goals);
         let mut set_rows = |ids: &[LiveId], rows: &[String]| {
             for (i, id) in ids.iter().enumerate() {
