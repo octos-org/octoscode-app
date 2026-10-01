@@ -134,6 +134,36 @@ struct Inner {
     /// `candidate-session.ts:230-243 validateCandidateWorkspace`).
     workspace_roots: HashMap<String, String>,
     workspace_rejects: HashMap<String, (String, String)>,
+    /// Per-session thinking preferences (the web's reasoning-effort panel):
+    /// effort low|medium|high|max, show-reasoning, default-on. Board-3's
+    /// screens/board3.rs writes them; the strip/composer read them.
+    thinking: HashMap<String, ThinkingPrefs>,
+    /// The resume dialog's selected candidate (screen 7): selecting a row
+    /// arms the confirm gate; the gate itself refuses without the exact
+    /// typed match (the web's disabled-until-confirmed button).
+    pending_resume: HashMap<String, usize>,
+}
+
+/// The thinking-effort panel's three values. The store keeps them per
+/// session; the fail-closed default is row 11's contract.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ThinkingPrefs {
+    pub effort: String,
+    pub show_reasoning: bool,
+    pub default_on: bool,
+    /// Which folded thinking blocks are open (the card authors `row_0` open).
+    pub expanded: Vec<String>,
+}
+
+impl Default for ThinkingPrefs {
+    fn default() -> Self {
+        Self {
+            effort: "high".into(),
+            show_reasoning: true,
+            default_on: true,
+            expanded: vec!["row_0".into()],
+        }
+    }
 }
 
 /// One context lifecycle event, flattened from the `context/*` notifications
@@ -252,6 +282,58 @@ impl Sessions {
             .map(|(k, (a, b))| (k.clone(), a.clone(), b.clone()))
             .collect()
     }
+    /// The session's thinking prefs, or the fail-closed default (row 11).
+    pub fn thinking(&self, sid: &str) -> ThinkingPrefs {
+        self.inner
+            .lock()
+            .unwrap()
+            .thinking
+            .get(sid)
+            .cloned()
+            .unwrap_or_default()
+    }
+
+    pub fn set_thinking_effort(&self, sid: &str, effort: &str) {
+        let mut i = self.inner.lock().unwrap();
+        let mut t = i.thinking.get(sid).cloned().unwrap_or_default();
+        t.effort = effort.to_owned();
+        i.thinking.insert(sid.to_owned(), t);
+    }
+
+    pub fn set_show_reasoning(&self, sid: &str, on: bool) {
+        let mut i = self.inner.lock().unwrap();
+        let mut t = i.thinking.get(sid).cloned().unwrap_or_default();
+        t.show_reasoning = on;
+        i.thinking.insert(sid.to_owned(), t);
+    }
+
+    pub fn set_thinking_default_on(&self, sid: &str, on: bool) {
+        let mut i = self.inner.lock().unwrap();
+        let mut t = i.thinking.get(sid).cloned().unwrap_or_default();
+        t.default_on = on;
+        i.thinking.insert(sid.to_owned(), t);
+    }
+
+    pub fn set_thinking_expanded(&self, sid: &str, expanded: Vec<String>) {
+        let mut i = self.inner.lock().unwrap();
+        let mut t = i.thinking.get(sid).cloned().unwrap_or_default();
+        t.expanded = expanded;
+        i.thinking.insert(sid.to_owned(), t);
+    }
+
+    /// The resume dialog's selected candidate row (None = nothing selected).
+    pub fn pending_resume(&self, sid: &str) -> Option<usize> {
+        self.inner.lock().unwrap().pending_resume.get(sid).copied()
+    }
+
+    pub fn set_pending_resume(&self, sid: &str, row: usize) {
+        self.inner
+            .lock()
+            .unwrap()
+            .pending_resume
+            .insert(sid.to_owned(), row);
+    }
+
     pub fn active(&self) -> Option<String> {
         self.inner.lock().unwrap().active.clone()
     }
