@@ -1,0 +1,96 @@
+{
+  "frame_id": 6,
+  "controls": {
+    "key_eye": {
+      "event": "provider.key.reveal",
+      "source_bounds": [
+        342,
+        378,
+        36,
+        36
+      ],
+      "enabled": true
+    },
+    "model_row_0": {
+      "event": "provider.model.0",
+      "source_bounds": [
+        28,
+        462,
+        350,
+        34
+      ],
+      "enabled": true
+    },
+    "model_row_1": {
+      "event": "provider.model.1",
+      "source_bounds": [
+        28,
+        503,
+        350,
+        34
+      ],
+      "enabled": true
+    },
+    "model_row_2": {
+      "event": "provider.model.2",
+      "source_bounds": [
+        28,
+        545,
+        350,
+        34
+      ],
+      "enabled": true
+    },
+    "prov_cancel": {
+      "event": "provider.cancel",
+      "source_bounds": [
+        21,
+        607,
+        161,
+        48
+      ],
+      "enabled": true
+    },
+    "prov_save": {
+      "event": "provider.save",
+      "source_bounds": [
+        203,
+        604,
+        176,
+        53
+      ],
+      "enabled": true
+    },
+    "prov_name": {
+      "event": "provider.name",
+      "source_bounds": [
+        28,
+        218,
+        350,
+        44
+      ],
+      "enabled": true
+    },
+    "prov_url": {
+      "event": "provider.url",
+      "source_bounds": [
+        28,
+        296,
+        350,
+        44
+      ],
+      "enabled": true
+    },
+    "prov_key": {
+      "event": "provider.key",
+      "source_bounds": [
+        28,
+        374,
+        350,
+        44
+      ],
+      "enabled": true
+    }
+  },
+  "source": "provider-editor"
+}

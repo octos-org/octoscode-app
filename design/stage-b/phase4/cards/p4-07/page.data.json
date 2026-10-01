@@ -1,0 +1,401 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "prov_back_chev": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 16.0,
+          "y": 82.0,
+          "w": 14.0,
+          "h": 22.0,
+          "src": "http://127.0.0.1:8170/ux-images/p4-07/assets/prov_back_chev-7bb4adb11d58.svg"
+        }
+      },
+      "prov_back_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 6.0,
+          "y": 73.0,
+          "w": 34.0,
+          "h": 40.0
+        }
+      },
+      "t_title": {
+        "component": "Text89934ded995a",
+        "layout": {
+          "x": 129.2945932289035,
+          "y": 98.5,
+          "w": 141.0,
+          "h": 26.5
+        }
+      },
+      "t_name_label": {
+        "component": "Textd74aceeaacec",
+        "layout": {
+          "x": 21.193931398416886,
+          "y": 126.5,
+          "w": 40.0,
+          "h": 15.0
+        }
+      },
+      "prov_name_wrap": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 28.0,
+          "y": 218.0,
+          "w": 350.0,
+          "h": 44.0
+        }
+      },
+      "prov_name_field": {
+        "component": "Surfacefcf282909461",
+        "layout": {
+          "x": 22.0,
+          "y": 211.0,
+          "w": 358.0,
+          "h": 33.0
+        }
+      },
+      "prov_name": {
+        "component": "Inputef5e5b66e067",
+        "layout": {
+          "x": 42.0,
+          "y": 218.0,
+          "w": 322.0,
+          "h": 44.0
+        }
+      },
+      "t_url_label": {
+        "component": "Text065c393b3866",
+        "layout": {
+          "x": 21.193931398416886,
+          "y": 191.0,
+          "w": 65.0,
+          "h": 15.0
+        }
+      },
+      "prov_url_wrap": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 28.0,
+          "y": 296.0,
+          "w": 350.0,
+          "h": 44.0
+        }
+      },
+      "prov_url_field": {
+        "component": "Surfacefb58f5eb0487",
+        "layout": {
+          "x": 20.0,
+          "y": 271.0,
+          "w": 363.0,
+          "h": 41.0
+        }
+      },
+      "prov_url": {
+        "component": "Inputef5e5b66e067",
+        "layout": {
+          "x": 42.0,
+          "y": 296.0,
+          "w": 322.0,
+          "h": 44.0
+        }
+      },
+      "t_key_label": {
+        "component": "Text1ef2362f896e",
+        "layout": {
+          "x": 21.606471816283925,
+          "y": 253.5,
+          "w": 51.0,
+          "h": 18.5
+        }
+      },
+      "prov_key_wrap": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 28.0,
+          "y": 372.0,
+          "w": 350.0,
+          "h": 44.0
+        }
+      },
+      "prov_key_field": {
+        "component": "Surfacef35db8eba6d9",
+        "layout": {
+          "x": 21.0,
+          "y": 391.0,
+          "w": 358.0,
+          "h": 34.0
+        }
+      },
+      "prov_key": {
+        "component": "Inputef5e5b66e067",
+        "layout": {
+          "x": 42.0,
+          "y": 372.0,
+          "w": 322.0,
+          "h": 44.0
+        }
+      },
+      "key_eye": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 350.0,
+          "y": 386.0,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/p4-07/assets/key_eye-edb457c4d419.svg"
+        }
+      },
+      "key_eye_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 342.0,
+          "y": 378.0,
+          "w": 36.0,
+          "h": 36.0
+        }
+      },
+      "cal_red": {
+        "component": "Surface465a7af11b6e",
+        "layout": {
+          "x": 22.0,
+          "y": 274.0,
+          "w": 358.0,
+          "h": 35.0
+        }
+      },
+      "t_cal1": {
+        "component": "Text6052f4508957",
+        "layout": {
+          "x": 24.804932735426007,
+          "y": 318.5,
+          "w": 243.5,
+          "h": 19.5
+        }
+      },
+      "t_cal2": {
+        "component": "Texte37f1967a42d",
+        "layout": {
+          "x": 25.61880687563195,
+          "y": 341.0,
+          "w": 120.5,
+          "h": 18.5
+        }
+      },
+      "t_models_label": {
+        "component": "Text5b91138fd68b",
+        "layout": {
+          "x": 20.909451421017845,
+          "y": 367.5,
+          "w": 50.5,
+          "h": 15.0
+        }
+      },
+      "chk_0": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 40.0,
+          "y": 399.5,
+          "w": 18.0,
+          "h": 18.0,
+          "src": "http://127.0.0.1:8170/ux-images/p4-07/assets/chk_0-4929767ff39f.svg"
+        }
+      },
+      "t_model_0": {
+        "component": "Textc4607b763430",
+        "layout": {
+          "x": 35.255627813906955,
+          "y": 399.5,
+          "w": 194.0,
+          "h": 19.5
+        }
+      },
+      "model_0_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 28.0,
+          "y": 394.0,
+          "w": 350.0,
+          "h": 34.0
+        }
+      },
+      "chk_1": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 40.0,
+          "y": 435.28,
+          "w": 18.0,
+          "h": 18.0,
+          "src": "http://127.0.0.1:8170/ux-images/p4-07/assets/chk_1-4929767ff39f.svg"
+        }
+      },
+      "t_model_1": {
+        "component": "Text3a870ad04548",
+        "layout": {
+          "x": 35.24528301886792,
+          "y": 435.5,
+          "w": 91.0,
+          "h": 19.0
+        }
+      },
+      "model_1_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 28.0,
+          "y": 430.0,
+          "w": 350.0,
+          "h": 34.0
+        }
+      },
+      "chk_2": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 40.0,
+          "y": 470.59,
+          "w": 18.0,
+          "h": 18.0,
+          "src": "http://127.0.0.1:8170/ux-images/p4-07/assets/chk_2-4929767ff39f.svg"
+        }
+      },
+      "t_model_2": {
+        "component": "Textf54a9faac2e8",
+        "layout": {
+          "x": 34.770440251572325,
+          "y": 470.5,
+          "w": 105.0,
+          "h": 18.5
+        }
+      },
+      "model_2_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 28.0,
+          "y": 466.0,
+          "w": 350.0,
+          "h": 34.0
+        }
+      },
+      "prov_cancel": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 22.0,
+          "y": 519.0,
+          "w": 152.0,
+          "h": 43.0
+        }
+      },
+      "prov_cancel_surface": {
+        "component": "Surfaceedcbe1f9731a",
+        "layout": {
+          "x": 22.0,
+          "y": 519.0,
+          "w": 152.0,
+          "h": 43.0
+        }
+      },
+      "prov_cancel_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 22.0,
+          "y": 519.0,
+          "w": 152.0,
+          "h": 43.0
+        }
+      },
+      "prov_cancel_label": {
+        "component": "Textc7f6ffd3f227",
+        "layout": {
+          "x": 71.54299674267101,
+          "y": 531.5,
+          "w": 53.0,
+          "h": 17.0
+        }
+      },
+      "prov_retry": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 199.0,
+          "y": 517.0,
+          "w": 169.0,
+          "h": 47.0
+        }
+      },
+      "prov_retry_surface": {
+        "component": "Surface1da1d32c1790",
+        "layout": {
+          "x": 199.0,
+          "y": 517.0,
+          "w": 169.0,
+          "h": 47.0
+        }
+      },
+      "prov_retry_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 199.0,
+          "y": 517.0,
+          "w": 169.0,
+          "h": 47.0
+        }
+      },
+      "prov_retry_label": {
+        "component": "Textcb957cac5349",
+        "layout": {
+          "x": 247.73192771084337,
+          "y": 531.5,
+          "w": 72.5,
+          "h": 21.0
+        }
+      }
+    },
+    "bindings": [
+      {
+        "id": "prov_name",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "prov_name",
+          "property": "text"
+        }
+      },
+      {
+        "id": "prov_url",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "prov_url",
+          "property": "text"
+        }
+      },
+      {
+        "id": "prov_key",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "prov_key",
+          "property": "text"
+        }
+      }
+    ]
+  }
+}

@@ -512,6 +512,43 @@ mod tests {
     }
 
     #[test]
+    fn strip_labels_are_constructed_never_fed_from_timeline_text() {
+        // #P4b2 row `strip state/thinking text from the session status strip
+        // label`: both strip labels are CONSTRUCTED (`conn: …` /
+        // `Working · Ns`), never fed from timeline text — reasoning or
+        // state-looking transcript entries cannot leak into them.
+        let (store, ui) = fixture();
+        ui.lock().unwrap().begin_turn_now("t1");
+        store.domains.session.timeline.append(
+            "octoscode:main",
+            Some("t1".into()),
+            octoscode_store::EntryKind::REASONING,
+            "conn: Deceived   sessions: 999 thinking…".into(),
+        );
+        store.domains.session.timeline.append(
+            "octoscode:main",
+            Some("t1".into()),
+            octoscode_store::EntryKind::ASSISTANT_TEXT,
+            "Working · 0s (state text)".into(),
+        );
+        // The hostile texts ARE in the transcript…
+        let entries = q(&store, &ui, "timeline.entries");
+        let joined = entries.to_string();
+        assert!(joined.contains("thinking…") && joined.contains("state text"),
+            "the hostile entries are in the timeline: {joined}");
+        // …but the labels stay the constructed lines.
+        assert_eq!(
+            q(&store, &ui, "summary"),
+            json!("conn: Live   sessions: 2"),
+            "the summary stays the constructed conn+count line"
+        );
+        let act = q(&store, &ui, "turn.activity");
+        let act = act.as_str().unwrap();
+        assert!(act.starts_with("Working · "), "constructed activity label; got {act}");
+        assert!(!act.contains("state text"), "no timeline text leaks; got {act}");
+    }
+
+    #[test]
     fn binding_composer_draft_round_trips() {
         let (store, ui) = fixture();
         assert_eq!(q(&store, &ui, "composer.draft"), json!(""));

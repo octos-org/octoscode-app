@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "6c5d01edd66c6d4f140a5df01ff802189d0c14a826a3c7db7a597959c5118910",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      19.0,
+      563.0,
+      343.0,
+      54.0
+    ],
+    [
+      30.0,
+      334.0,
+      345.0,
+      120.0
+    ],
+    [
+      27.0,
+      332.0,
+      350.0,
+      124.0
+    ],
+    [
+      30.0,
+      218.0,
+      345.0,
+      89.0
+    ],
+    [
+      27.0,
+      215.0,
+      350.0,
+      95.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "cal_nosup",
+      "bounds": [
+        30.0,
+        218.0,
+        345.0,
+        89.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294440951,
+      "radius": 13.59
+    },
+    {
+      "id": "cal_info",
+      "bounds": [
+        70.0,
+        240.5,
+        20.0,
+        20.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "cal_other",
+      "bounds": [
+        30.0,
+        334.0,
+        345.0,
+        120.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294440951,
+      "radius": 13.41
+    },
+    {
+      "id": "pair_fallback",
+      "bounds": [
+        19.0,
+        563.0,
+        343.0,
+        54.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "pair_fallback_surface",
+      "bounds": [
+        19.0,
+        563.0,
+        343.0,
+        54.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279176975,
+      "radius": 27.0
+    },
+    {
+      "id": "pair_fallback_control",
+      "bounds": [
+        19.0,
+        563.0,
+        343.0,
+        54.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ]
+}

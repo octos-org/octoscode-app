@@ -55,6 +55,15 @@ script_mod! {
     // `theme.*` ref (class defaults capture at evaluation; the wm_theme bridge
     // documents the same ordering constraint). Loads the persisted preference.
     #(screens::theme::eval_roles(vm))
+    // #P4h1 row 306 — install the recents store and purge the legacy v1 cache
+    // at startup (the web's App.tsx:1019-1023). This is the production caller
+    // that keeps `clear_recent_workspaces` off the test-only list (RULES 3); an
+    // honest failure is logged, never silently swallowed.
+    {
+        if !screens::recents::init_persistence() {
+            ::log::warn!("octoscode: workspace recents: legacy v1 cache could not be purged");
+        }
+    }
     mod.widgets.OctoscodeView = set_type_default() do #(OctoscodeView::register_widget(vm)) {
         ..mod.widgets.RectView
         width: Fill height: Fill
@@ -1054,8 +1063,37 @@ pub(crate) struct Bridge {
 /// notification-distribution path belongs to the client domain's card, and
 /// the fake server's frames never reached it (nine probe rounds showed the
 /// store empty while the wire carried the pushes).
-fn seed_approvals(store: &Arc<Store>) {
-    use octoscode_store::domains::approval::PendingApproval;
+/// Which #D1 screen set owns a name in `OCTOSCODE_SCREEN`.
+///
+/// The nine phase4 cards are one board with three seams: the five pairing cards
+/// (`screens::pairing`), the two provider-editor cards (`screens::provider`)
+/// and the two folder-browser cards (`screens::browser`). Each set owns its own
+/// action ids — `fd1_phase4_wiring.rs::the_three_sets_do_not_overlap` pins that
+/// an id is never claimed twice.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Phase4Set {
+    Pairing,
+    Provider,
+    Browser,
+}
+
+/// Map an `OCTOSCODE_SCREEN` name to the #D1 screen set that owns it, or `None`
+/// when the name is not one of #D1's nine cards.
+///
+/// The names are the atlas's own screen numbers, so a screenshot in a report
+/// names the same card the env var mounts. WHICH card of the set is mounted is
+/// the set's own live state (`<set>::lower_mounted`), not this table's job —
+/// that is why the enum is all this needs to carry.
+fn phase4_screen(which: &str) -> Option<Phase4Set> {
+    Some(match which {
+        "p4-01" | "p4-02" | "p4-03" | "p4-04" | "p4-05" => Phase4Set::Pairing,
+        "p4-06" | "p4-07" => Phase4Set::Provider,
+        "p4-08" | "p4-09" => Phase4Set::Browser,
+        _ => return None,
+    })
+}
+
+fn seed_approvals(store: &Arc<Store>) {    use octoscode_store::domains::approval::PendingApproval;
     for id in ["a1-approve-me", "a2-approve-session", "a3-deny-me"] {
         store.domains.approval.push(PendingApproval {
             id: id.to_owned(),
@@ -1807,6 +1845,55 @@ impl OctoscodeView {
         };
         // Entry #29c: the stage-C screens own their action ids (the cards'
         // service-actions events); route them through the production client.
+        if screens::research::owns(action) {
+            let action = action.to_string();
+            let store = store.clone();
+            rt.spawn(async move {
+                if let Err(e) =
+                    screens::research::perform(&conv, &action, &store, None).await
+                {
+                    ::log::warn!("octoscode: screens: {action:?}: {e}");
+                }
+            });
+            return;
+        }
+        // P4f1: the history mutations (undo/rewind/fork) behind the history
+        // dialog's three titles. The dialog itself is a design-flow surface;
+        // these are the production paths it dispatches into.
+        if screens::history::owns(action) {
+            let action = action.to_string();
+            let store = store.clone();
+            rt.spawn(async move {
+                if let Err(e) =
+                    screens::history::perform(&conv, &action, &store, None).await
+                {
+                    ::log::warn!("octoscode: screens: {action:?}: {e}");
+                }
+            });
+            return;
+        }
+        // P4d4: the media (attachment draft) and peers (roster axis) surfaces.
+        // The dialogs themselves are design-flow surfaces; these own the state
+        // and production paths they dispatch into.
+        if screens::media::owns(action) || screens::peers::owns(action) {
+            let action = action.to_owned();
+            let store = store.clone();
+            rt.spawn(async move {
+                if let Err(e) = screens::perform_control(&conv, &action, &store).await {
+                    ::log::warn!("octoscode: screens: {action:?}: {e}");
+                }
+            });
+            return;
+        }
+        if screens::transcript::owns(action) {
+            let store = store.clone();
+            rt.spawn(async move {
+                if let Err(e) = screens::transcript::perform(&conv, &store).await {
+                    ::log::warn!("octoscode: screens: composer.copy_transcript: {e}");
+                }
+            });
+            return;
+        }
         if screens::models::owns(action) {
             let action = action.to_string();
             let store = store.clone();
@@ -2312,6 +2399,18 @@ impl OctoscodeView {
             }
             let lowered = if screens::theme::card_for(&which).is_some() {
                 screens::theme::lower(&which, &store)
+            } else if let Some(set) = phase4_screen(&which) {
+                // #D1: the nine phase4 cards (pairing p4-01..05, the provider
+                // editor p4-06/07, the workspace browser p4-08/09). They live
+                // under design/stage-b/phase4, not stage-b/setup, so they miss
+                // the theme/palette lookup above and need their own arm. WHICH
+                // card of the set mounts is the set's own live state, so the
+                // name only has to say who owns it.
+                match set {
+                    Phase4Set::Pairing => screens::pairing::lower_mounted(),
+                    Phase4Set::Provider => screens::provider::lower_mounted(),
+                    Phase4Set::Browser => screens::browser::lower_mounted(),
+                }
             } else if screens::sidebar::card_for(&which).is_some() {
                 // #D2a: board 2's sidebar half (screens 1-5). Without this arm
                 // the five phase4n2 cards were reachable from NO mount path, so

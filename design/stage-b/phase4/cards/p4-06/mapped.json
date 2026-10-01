@@ -1,0 +1,634 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "10cd5bbd141138aa20779484ae3dc4e62997570b0f25201115bcf955ab66d1d3",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "text",
+        "id": "t_title",
+        "text": "Edit provider",
+        "x": 118.14300151591713,
+        "y": 153.5,
+        "w": 153.0,
+        "h": 28.5,
+        "size": 25.35421930267812,
+        "line_height": 28.5,
+        "weight": 600,
+        "color": 4278848010,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": -0.459554488799057,
+        "font_asc": -0.12766063456632648,
+        "font_desc": -0.041772959183673464
+      },
+      {
+        "t": "text",
+        "id": "t_name_label",
+        "text": "Name",
+        "x": 20.515831134564642,
+        "y": 193.0,
+        "w": 42.5,
+        "h": 16.5,
+        "size": 16.886543535620053,
+        "line_height": 16.5,
+        "weight": 400,
+        "color": 4279045388,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -2.0111037818821464,
+        "font_asc": -0.12277343750000003,
+        "font_desc": 0.11007812500000003
+      },
+      {
+        "t": "stack",
+        "id": "prov_name_wrap",
+        "x": 28.0,
+        "y": 218.0,
+        "w": 350.0,
+        "h": 44.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "prov_name_field",
+            "x": 21.0,
+            "y": 217.0,
+            "w": 361.0,
+            "h": 41.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294901502,
+            "radius": 11.18,
+            "border": 1,
+            "bordercolor": 4292006615
+          },
+          {
+            "t": "input",
+            "id": "prov_name",
+            "text": "DeepSeek \u2022 Official API",
+            "placeholder": "",
+            "x": 42.0,
+            "y": 218.0,
+            "w": 322.0,
+            "h": 44.0,
+            "size": 15,
+            "line_height": 44.0,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "enabled": 1,
+            "c": []
+          }
+        ]
+      },
+      {
+        "t": "text",
+        "id": "t_url_label",
+        "text": "Base URL",
+        "x": 20.515831134564642,
+        "y": 272.0,
+        "w": 69.5,
+        "h": 16.5,
+        "size": 16.886543535620053,
+        "line_height": 16.5,
+        "weight": 400,
+        "color": 4279637269,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -1.3182717678100258,
+        "font_asc": -0.12277343750000003,
+        "font_desc": 0.11007812500000003
+      },
+      {
+        "t": "stack",
+        "id": "prov_url_wrap",
+        "x": 28.0,
+        "y": 296.0,
+        "w": 350.0,
+        "h": 44.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "prov_url_field",
+            "x": 21.0,
+            "y": 294.0,
+            "w": 361.0,
+            "h": 41.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294901502,
+            "radius": 11.18,
+            "border": 1,
+            "bordercolor": 4292006615
+          },
+          {
+            "t": "input",
+            "id": "prov_url",
+            "text": "https://api.deepseek.com/v1",
+            "placeholder": "",
+            "x": 42.0,
+            "y": 296.0,
+            "w": 322.0,
+            "h": 44.0,
+            "size": 15,
+            "line_height": 44.0,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "enabled": 1,
+            "c": []
+          }
+        ]
+      },
+      {
+        "t": "text",
+        "id": "t_key_label",
+        "text": "API key",
+        "x": 20.565762004175365,
+        "y": 347.5,
+        "w": 55.0,
+        "h": 20.0,
+        "size": 17.102296450939455,
+        "line_height": 20.0,
+        "weight": 400,
+        "color": 4279966491,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -1.5347947112038962,
+        "font_asc": -0.124267578125,
+        "font_desc": -0.08374023437500011
+      },
+      {
+        "t": "stack",
+        "id": "prov_key_wrap",
+        "x": 28.0,
+        "y": 374.0,
+        "w": 350.0,
+        "h": 44.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "prov_key_field",
+            "x": 21.0,
+            "y": 370.0,
+            "w": 361.0,
+            "h": 41.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294901502,
+            "radius": 11.18,
+            "border": 1,
+            "bordercolor": 4292006615
+          },
+          {
+            "t": "input",
+            "id": "prov_key",
+            "text": "\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022",
+            "placeholder": "",
+            "x": 42.0,
+            "y": 374.0,
+            "w": 322.0,
+            "h": 44.0,
+            "size": 15,
+            "line_height": 44.0,
+            "weight": 400,
+            "color": 4280098079,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "enabled": 1,
+            "c": []
+          }
+        ]
+      },
+      {
+        "t": "svg",
+        "id": "key_eye",
+        "x": 350.0,
+        "y": 386.0,
+        "w": 20.0,
+        "h": 20.0,
+        "src": ""
+      },
+      {
+        "t": "button",
+        "id": "key_eye_control",
+        "x": 342.0,
+        "y": 378.0,
+        "w": 36.0,
+        "h": 36.0,
+        "enabled": 1
+      },
+      {
+        "t": "text",
+        "id": "t_models_label",
+        "text": "Models",
+        "x": 20.76074025115664,
+        "y": 431.5,
+        "w": 51.5,
+        "h": 16.5,
+        "size": 16.92002643754131,
+        "line_height": 16.5,
+        "weight": 600,
+        "color": 4279768856,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": -2.152346331791145,
+        "font_asc": -0.12300781250000004,
+        "font_desc": 0.11177734375000006
+      },
+      {
+        "t": "svg",
+        "id": "chk_0",
+        "x": 40.0,
+        "y": 467.0,
+        "w": 18.0,
+        "h": 18.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t_model_0",
+        "text": "deepseek-v4-flash (default)",
+        "x": 36.15957978989495,
+        "y": 467.5,
+        "w": 197.0,
+        "h": 21.5,
+        "size": 17.92896448224112,
+        "line_height": 21.5,
+        "weight": 500,
+        "color": 4280427042,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": -1.8063935814060874,
+        "font_asc": -0.08522600446428574,
+        "font_desc": -0.07444196428571431
+      },
+      {
+        "t": "button",
+        "id": "model_0_control",
+        "x": 28.0,
+        "y": 462.0,
+        "w": 350.0,
+        "h": 34.0,
+        "enabled": 1
+      },
+      {
+        "t": "svg",
+        "id": "chk_1",
+        "x": 40.0,
+        "y": 508.5,
+        "w": 18.0,
+        "h": 18.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t_model_1",
+        "text": "deepseek-v4",
+        "x": 36.144654088050316,
+        "y": 510.5,
+        "w": 94.0,
+        "h": 21.0,
+        "size": 18.247379454926623,
+        "line_height": 21.0,
+        "weight": 500,
+        "color": 4280558372,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": -2.4527253668763094,
+        "font_asc": -0.13160615808823528,
+        "font_desc": -0.07249540441176477
+      },
+      {
+        "t": "button",
+        "id": "model_1_control",
+        "x": 28.0,
+        "y": 503.0,
+        "w": 350.0,
+        "h": 34.0,
+        "enabled": 1
+      },
+      {
+        "t": "svg",
+        "id": "chk_2",
+        "x": 40.0,
+        "y": 549.93,
+        "w": 18.0,
+        "h": 18.0,
+        "src": ""
+      },
+      {
+        "t": "text",
+        "id": "t_model_2",
+        "text": "deepseek-chat",
+        "x": 36.144654088050316,
+        "y": 552.0,
+        "w": 107.0,
+        "h": 21.0,
+        "size": 18.247379454926623,
+        "line_height": 21.0,
+        "weight": 500,
+        "color": 4280558628,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": -2.3141596785464693,
+        "font_asc": -0.13160615808823528,
+        "font_desc": -0.07249540441176477
+      },
+      {
+        "t": "button",
+        "id": "model_2_control",
+        "x": 28.0,
+        "y": 545.0,
+        "w": 350.0,
+        "h": 34.0,
+        "enabled": 1
+      },
+      {
+        "t": "stack",
+        "id": "prov_cancel",
+        "x": 21.0,
+        "y": 607.0,
+        "w": 161.0,
+        "h": 48.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "prov_cancel_surface",
+            "x": 21.0,
+            "y": 607.0,
+            "w": 161.0,
+            "h": 48.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294835709,
+            "radius": 24.0,
+            "border": 1,
+            "bordercolor": 4293256679
+          },
+          {
+            "t": "button",
+            "id": "prov_cancel_control",
+            "x": 21.0,
+            "y": 607.0,
+            "w": 161.0,
+            "h": 48.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "prov_cancel_label",
+            "text": "Cancel",
+            "x": 74.3957654723127,
+            "y": 621.5,
+            "w": 54.0,
+            "h": 19.0,
+            "size": 20.01302931596091,
+            "line_height": 19.0,
+            "weight": 500,
+            "color": 4279110925,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": -2.775895765472312,
+            "font_asc": -0.13151041666666663,
+            "font_desc": 0.1290690104166665
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      },
+      {
+        "t": "stack",
+        "id": "prov_save",
+        "x": 203.0,
+        "y": 604.0,
+        "w": 176.0,
+        "h": 53.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "prov_save_surface",
+            "x": 203.0,
+            "y": 604.0,
+            "w": 176.0,
+            "h": 53.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4279176975,
+            "radius": 26.5
+          },
+          {
+            "t": "button",
+            "id": "prov_save_control",
+            "x": 203.0,
+            "y": 604.0,
+            "w": 176.0,
+            "h": 53.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "prov_save_label",
+            "text": "Save",
+            "x": 273.96416938110747,
+            "y": 621.5,
+            "w": 38.5,
+            "h": 19.0,
+            "size": 20.01302931596091,
+            "line_height": 19.0,
+            "weight": 500,
+            "color": 4294835709,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": -3.7019543973941347,
+            "font_asc": -0.13151041666666663,
+            "font_desc": 0.1290690104166665
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_name_wrap",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_name_field",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_name",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_url_wrap",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_url_field",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_url",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_key_wrap",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_key_field",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_key",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "key_eye",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "key_eye_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "chk_0",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "model_0_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "chk_1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "model_1_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "chk_2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "model_2_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_cancel",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_cancel_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_cancel_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_save",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_save_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "prov_save_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t_title",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.018125365380527222
+    },
+    {
+      "id": "t_name_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.11909505208333336
+    },
+    {
+      "id": "t_url_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.07806640624999996
+    },
+    {
+      "id": "t_key_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.0897420247395833
+    },
+    {
+      "id": "t_models_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12720703125000007
+    },
+    {
+      "id": "t_model_0",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1007528116414835
+    },
+    {
+      "id": "t_model_1",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.13441521139705878
+    },
+    {
+      "id": "t_model_2",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.12682148054534306
+    },
+    {
+      "id": "prov_cancel_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1387044270833333
+    },
+    {
+      "id": "prov_save_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.18497721354166657
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

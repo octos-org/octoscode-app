@@ -1,0 +1,135 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "t_title": {
+        "component": "Text213f9ee3b17f",
+        "layout": {
+          "x": 112.60606060606061,
+          "y": 159.5,
+          "w": 182.91269841269843,
+          "h": 24.0
+        }
+      },
+      "cal_nosup": {
+        "component": "Surface9e232933b194",
+        "layout": {
+          "x": 30.0,
+          "y": 218.0,
+          "w": 345.0,
+          "h": 89.0
+        }
+      },
+      "cal_info": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 70.0,
+          "y": 240.5,
+          "w": 20.0,
+          "h": 20.0,
+          "src": "http://127.0.0.1:8170/ux-images/p4-04/assets/cal_info-0baedd5575c5.svg"
+        }
+      },
+      "t_cal1": {
+        "component": "Text167fd8406758",
+        "layout": {
+          "x": 101.65396341463415,
+          "y": 242.0,
+          "w": 207.5,
+          "h": 22.5
+        }
+      },
+      "t_cal2": {
+        "component": "Text84b55bde8dbb",
+        "layout": {
+          "x": 102.12550200803213,
+          "y": 267.5,
+          "w": 58.5,
+          "h": 22.5
+        }
+      },
+      "cal_other": {
+        "component": "Surface8b2100bbe9a3",
+        "layout": {
+          "x": 30.0,
+          "y": 334.0,
+          "w": 345.0,
+          "h": 120.0
+        }
+      },
+      "t_cal3": {
+        "component": "Text589f5760b5e7",
+        "layout": {
+          "x": 47.29771784232365,
+          "y": 359.0,
+          "w": 212.5,
+          "h": 23.0
+        }
+      },
+      "t_cal4": {
+        "component": "Texte92dcf57db3e",
+        "layout": {
+          "x": 47.52224469160768,
+          "y": 387.0,
+          "w": 153.5,
+          "h": 22.5
+        }
+      },
+      "t_cal5": {
+        "component": "Texte264a98085cb",
+        "layout": {
+          "x": 47.80083857442348,
+          "y": 413.0,
+          "w": 114.0,
+          "h": 23.0
+        }
+      },
+      "pair_fallback": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 19.0,
+          "y": 563.0,
+          "w": 343.0,
+          "h": 54.0
+        }
+      },
+      "pair_fallback_surface": {
+        "component": "Surfacebe3dbbc617cb",
+        "layout": {
+          "x": 19.0,
+          "y": 563.0,
+          "w": 343.0,
+          "h": 54.0
+        }
+      },
+      "pair_fallback_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 19.0,
+          "y": 563.0,
+          "w": 343.0,
+          "h": 54.0
+        }
+      },
+      "pair_fallback_label": {
+        "component": "Text93acade43e2f",
+        "layout": {
+          "x": 103.36633663366337,
+          "y": 580.0,
+          "w": 169.0,
+          "h": 19.0
+        }
+      }
+    },
+    "bindings": []
+  }
+}

@@ -1,0 +1,241 @@
+{
+  "$kit": {
+    "theme": "light",
+    "placements": {
+      "page": {
+        "component": "Surface16fae9a63e16",
+        "layout": {
+          "x": 0,
+          "y": 0,
+          "w": 406,
+          "h": 776
+        }
+      },
+      "t_title": {
+        "component": "Text50753d4e7787",
+        "layout": {
+          "x": 106.10606060606061,
+          "y": 89.0,
+          "w": 196.84126984126985,
+          "h": 24.0
+        }
+      },
+      "vf": {
+        "component": "Surfacec81a3687418e",
+        "layout": {
+          "x": 59.0,
+          "y": 136.0,
+          "w": 288.0,
+          "h": 210.0
+        }
+      },
+      "vf_br_tl": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 78.0,
+          "y": 152.0,
+          "w": 22.0,
+          "h": 22.0,
+          "src": "http://127.0.0.1:8170/ux-images/p4-01/assets/vf_br_tl-7113754ee3f8.svg"
+        }
+      },
+      "vf_br_tr": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 306.0,
+          "y": 152.0,
+          "w": 22.0,
+          "h": 22.0,
+          "src": "http://127.0.0.1:8170/ux-images/p4-01/assets/vf_br_tr-9ad268cfb92a.svg"
+        }
+      },
+      "vf_br_bl": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 78.0,
+          "y": 310.0,
+          "w": 22.0,
+          "h": 22.0,
+          "src": "http://127.0.0.1:8170/ux-images/p4-01/assets/vf_br_bl-7a9a8daaa9cc.svg"
+        }
+      },
+      "vf_br_br": {
+        "component": "Vectore0a378fde04f",
+        "layout": {
+          "x": 306.0,
+          "y": 310.0,
+          "w": 22.0,
+          "h": 22.0,
+          "src": "http://127.0.0.1:8170/ux-images/p4-01/assets/vf_br_br-51c6d92e9d1f.svg"
+        }
+      },
+      "t_cap1": {
+        "component": "Text68315eb37e89",
+        "layout": {
+          "x": 67.56309944472488,
+          "y": 361.0,
+          "w": 271.0,
+          "h": 20.0
+        }
+      },
+      "t_cap2": {
+        "component": "Textc4ad7208463a",
+        "layout": {
+          "x": 136.66685082872928,
+          "y": 385.0,
+          "w": 135.5,
+          "h": 18.5
+        }
+      },
+      "div_l": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 40.0,
+          "y": 432.55,
+          "w": 140.0,
+          "h": 1.0
+        }
+      },
+      "div_r": {
+        "component": "Surfacec4c38149242a",
+        "layout": {
+          "x": 226.0,
+          "y": 432.55,
+          "w": 140.0,
+          "h": 1.0
+        }
+      },
+      "t_or": {
+        "component": "Textfb98c520c9d5",
+        "layout": {
+          "x": 194.78235294117647,
+          "y": 426.0,
+          "w": 20.229411764705883,
+          "h": 13.0
+        }
+      },
+      "t_link_label": {
+        "component": "Text3d3491d16aa8",
+        "layout": {
+          "x": 31.04618879353862,
+          "y": 462.5,
+          "w": 126.0,
+          "h": 20.0
+        }
+      },
+      "pair_link_wrap": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 28.0,
+          "y": 484.0,
+          "w": 350.0,
+          "h": 48.0
+        }
+      },
+      "pair_link_field": {
+        "component": "Surface86bc6db63f02",
+        "layout": {
+          "x": 27.0,
+          "y": 487.0,
+          "w": 352.0,
+          "h": 51.0
+        }
+      },
+      "pair_link": {
+        "component": "Input508f95901acf",
+        "layout": {
+          "x": 42.0,
+          "y": 484.0,
+          "w": 322.0,
+          "h": 48.0
+        }
+      },
+      "pair_submit": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 128.0,
+          "y": 562.0,
+          "w": 150.0,
+          "h": 48.0
+        }
+      },
+      "pair_submit_surface": {
+        "component": "Surfaceb15baac10224",
+        "layout": {
+          "x": 128.0,
+          "y": 562.0,
+          "w": 150.0,
+          "h": 48.0
+        }
+      },
+      "pair_submit_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 128.0,
+          "y": 562.0,
+          "w": 150.0,
+          "h": 48.0
+        }
+      },
+      "pair_submit_label": {
+        "component": "Text95ba0a0f6fbb",
+        "layout": {
+          "x": 186.03333333333333,
+          "y": 580.0,
+          "w": 33.5,
+          "h": 18.0
+        }
+      },
+      "pair_fallback": {
+        "component": "KitButton2c6804b990a5",
+        "layout": {
+          "x": 26.0,
+          "y": 565.0,
+          "w": 353.0,
+          "h": 47.0
+        }
+      },
+      "pair_fallback_surface": {
+        "component": "Surfacecd8633225e2f",
+        "layout": {
+          "x": 26.0,
+          "y": 565.0,
+          "w": 353.0,
+          "h": 47.0
+        }
+      },
+      "pair_fallback_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 26.0,
+          "y": 565.0,
+          "w": 353.0,
+          "h": 47.0
+        }
+      },
+      "pair_fallback_label": {
+        "component": "Text471cbcdf3da8",
+        "layout": {
+          "x": 78.0,
+          "y": 629.0,
+          "w": 250.0,
+          "h": 21.0
+        }
+      }
+    },
+    "bindings": [
+      {
+        "id": "pair_link",
+        "role": "input",
+        "basis": "authored input node",
+        "confidence": 1.0,
+        "decision": "declared",
+        "behavior": {
+          "event": "changed",
+          "target": "pair_link",
+          "property": "text"
+        }
+      }
+    ]
+  }
+}

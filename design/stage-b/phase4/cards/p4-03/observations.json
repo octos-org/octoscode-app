@@ -1,0 +1,363 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "2b5d5f5886d5b1d5342973132341134f9369ea38ff76b13a7843357b2c4a17f7",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t_title",
+      "expected_text": "Pair with Octos",
+      "requested_bounds": [
+        108.27,
+        93.5,
+        187.21,
+        30.0
+      ],
+      "status": "observed",
+      "ocr_text": "Pair with Octos",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        110.5,
+        93.5,
+        183.5,
+        20.0
+      ],
+      "ink_color": [
+        10,
+        10,
+        10
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        108.26665,
+        93.5,
+        187.2111,
+        22.6744
+      ]
+    },
+    {
+      "id": "t_cal1",
+      "expected_text": "This pairing link was already used.",
+      "requested_bounds": [
+        55.26,
+        175.95,
+        276.31,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "This pairing link was already used.",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        56.5,
+        176.5,
+        272.0,
+        17.5
+      ],
+      "ink_color": [
+        208,
+        14,
+        16
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        55.2611,
+        175.9535,
+        276.30555,
+        19.1744
+      ]
+    },
+    {
+      "id": "t_cal2",
+      "expected_text": "Ask Octos for a new code.",
+      "requested_bounds": [
+        55.26,
+        212.0,
+        213.15,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "Ask Octos for a new code.",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        56.0,
+        212.5,
+        209.5,
+        14.0
+      ],
+      "ink_color": [
+        104,
+        104,
+        105
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        55.2611,
+        212.0,
+        213.15,
+        18.093
+      ]
+    },
+    {
+      "id": "t_srv_label",
+      "expected_text": "Server",
+      "requested_bounds": [
+        25.89,
+        289.71,
+        53.1,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "Server",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        27.0,
+        290.0,
+        50.0,
+        14.0
+      ],
+      "ink_color": [
+        17,
+        17,
+        17
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        25.89005,
+        289.70665,
+        53.1032,
+        16.12165
+      ]
+    },
+    {
+      "id": "t_tok_label",
+      "expected_text": "Access token",
+      "requested_bounds": [
+        25.94,
+        404.92,
+        104.88,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "Access token",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        26.5,
+        405.5,
+        102.0,
+        13.5
+      ],
+      "ink_color": [
+        14,
+        14,
+        14
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        25.9389,
+        404.9186,
+        104.88335,
+        15.7907
+      ]
+    },
+    {
+      "id": "connect_submit_label",
+      "expected_text": "Connect",
+      "requested_bounds": [
+        160.0,
+        614.0,
+        72.0,
+        22.5
+      ],
+      "status": "observed",
+      "ocr_text": "Connect",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        161.5,
+        619.0,
+        67.0,
+        15.0
+      ],
+      "ink_color": [
+        251,
+        251,
+        251
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        160.0104,
+        617.51125,
+        71.3181,
+        18.08215
+      ]
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "cal_red",
+      "bounds": [
+        27.0,
+        146.0,
+        352.0,
+        106.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294898933,
+      "radius": 14.77
+    },
+    {
+      "id": "connect_server_wrap",
+      "bounds": [
+        28.0,
+        322.0,
+        350.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "connect_server_field",
+      "bounds": [
+        26.0,
+        319.0,
+        353.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.75
+    },
+    {
+      "id": "connect_server",
+      "bounds": [
+        42.0,
+        322.0,
+        322.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "connect_token_wrap",
+      "bounds": [
+        28.0,
+        436.0,
+        350.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "connect_token_field",
+      "bounds": [
+        26.0,
+        435.0,
+        353.0,
+        55.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.75
+    },
+    {
+      "id": "connect_token",
+      "bounds": [
+        42.0,
+        436.0,
+        322.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "connect_submit",
+      "bounds": [
+        128.0,
+        600.0,
+        150.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "connect_submit_surface",
+      "bounds": [
+        128.0,
+        600.0,
+        150.0,
+        48.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4279176975,
+      "radius": 24.0
+    },
+    {
+      "id": "connect_submit_control",
+      "bounds": [
+        128.0,
+        600.0,
+        150.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        0.0,
+        -0.0,
+        281.9444,
+        41.0
+      ],
+      "confidence": 1.0,
+      "text": "3. Link problem"
+    },
+    {
+      "bounds": [
+        87.9667,
+        676.7442,
+        426.3,
+        38.3488
+      ],
+      "confidence": 1.0,
+      "text": "http://192.168.1.20:50190"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

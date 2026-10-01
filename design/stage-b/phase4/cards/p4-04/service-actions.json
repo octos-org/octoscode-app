@@ -1,0 +1,16 @@
+{
+  "frame_id": 4,
+  "controls": {
+    "pair_fallback": {
+      "event": "pair.fallback",
+      "source_bounds": [
+        19,
+        563,
+        343,
+        54
+      ],
+      "enabled": true
+    }
+  },
+  "source": "pairing"
+}

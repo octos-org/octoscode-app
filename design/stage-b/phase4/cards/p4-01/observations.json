@@ -1,0 +1,469 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "0e6b248781a866d372cf882b759075f7ea03a0d6ce0d8560a4a554b4ee6c97b1",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.0,
+  "text": [
+    {
+      "id": "t_title",
+      "expected_text": "Pair with Octos",
+      "requested_bounds": [
+        106.01,
+        90.0,
+        195.11,
+        30.0
+      ],
+      "status": "observed",
+      "ocr_text": "Pair with Octos",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        108.0,
+        91.0,
+        191.5,
+        20.0
+      ],
+      "ink_color": [
+        9,
+        9,
+        9
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        106.0111,
+        90.0,
+        195.10555,
+        24.0
+      ]
+    },
+    {
+      "id": "t_cap1",
+      "expected_text": "Scan the pairing QR shown in Octos",
+      "requested_bounds": [
+        67.67,
+        360.93,
+        269.54,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "Scan the pairing QR shown in Octos",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        68.5,
+        363.0,
+        267.0,
+        16.0
+      ],
+      "ink_color": [
+        93,
+        93,
+        93
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        67.66665,
+        360.93025,
+        269.5389,
+        19.1744
+      ]
+    },
+    {
+      "id": "t_cap2",
+      "expected_text": "on your computer",
+      "requested_bounds": [
+        136.28,
+        386.42,
+        135.75,
+        21.0
+      ],
+      "status": "observed",
+      "ocr_text": "on your computer",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        137.5,
+        387.0,
+        131.5,
+        14.5
+      ],
+      "ink_color": [
+        98,
+        97,
+        98
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        136.2793,
+        386.4175,
+        135.7519,
+        17.16595
+      ]
+    },
+    {
+      "id": "t_or",
+      "expected_text": "Or",
+      "requested_bounds": [
+        193.98,
+        426.35,
+        19.17,
+        18.0
+      ],
+      "status": "observed",
+      "ocr_text": "Or",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        195.5,
+        428.0,
+        15.0,
+        9.0
+      ],
+      "ink_color": [
+        104,
+        104,
+        104
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        193.9778,
+        426.34885,
+        19.1722,
+        12.407
+      ]
+    },
+    {
+      "id": "t_link_label",
+      "expected_text": "Paste pairing link",
+      "requested_bounds": [
+        31.58,
+        463.5,
+        125.18,
+        19.5
+      ],
+      "status": "observed",
+      "ocr_text": "Paste pairing link",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        32.5,
+        464.5,
+        122.0,
+        16.0
+      ],
+      "ink_color": [
+        21,
+        21,
+        20
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        31.5778,
+        463.5,
+        125.18335,
+        18.1163
+      ]
+    },
+    {
+      "id": "pair_submit_label",
+      "expected_text": "Pair",
+      "requested_bounds": [
+        185.0,
+        576.0,
+        36.0,
+        22.5
+      ],
+      "status": "observed",
+      "ocr_text": "Pair",
+      "confidence": 1.0,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        187.5,
+        582.0,
+        29.5,
+        14.0
+      ],
+      "ink_color": [
+        252,
+        252,
+        252
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        184.95555,
+        579.7442,
+        33.83335,
+        16.9186
+      ]
+    },
+    {
+      "id": "pair_fallback_label",
+      "expected_text": "Enter server and token instead",
+      "requested_bounds": [
+        78.0,
+        629.0,
+        250.0,
+        21.0
+      ],
+      "status": "missing_or_ocr_unresolved"
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "vf",
+      "bounds": [
+        59.0,
+        136.0,
+        288.0,
+        210.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294111986,
+      "radius": 12.35
+    },
+    {
+      "id": "vf_br_tl",
+      "bounds": [
+        78.0,
+        152.0,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "vf_br_tr",
+      "bounds": [
+        306.0,
+        152.0,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "vf_br_bl",
+      "bounds": [
+        78.0,
+        310.0,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "vf_br_br",
+      "bounds": [
+        306.0,
+        310.0,
+        22.0,
+        22.0
+      ],
+      "method": "graphic extent projected from observed parent; visual annotation needed",
+      "reviewed": false
+    },
+    {
+      "id": "div_l",
+      "bounds": [
+        40.0,
+        432.55,
+        140.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "div_r",
+      "bounds": [
+        226.0,
+        432.55,
+        140.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "pair_link_wrap",
+      "bounds": [
+        28.0,
+        484.0,
+        350.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "pair_link_field",
+      "bounds": [
+        27.0,
+        487.0,
+        352.0,
+        51.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 12.75
+    },
+    {
+      "id": "pair_link",
+      "bounds": [
+        42.0,
+        484.0,
+        322.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "pair_submit",
+      "bounds": [
+        128.0,
+        562.0,
+        150.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "pair_submit_surface",
+      "bounds": [
+        128.0,
+        562.0,
+        150.0,
+        48.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4279111438,
+      "radius": 24.0
+    },
+    {
+      "id": "pair_submit_control",
+      "bounds": [
+        128.0,
+        562.0,
+        150.0,
+        48.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "pair_fallback",
+      "bounds": [
+        26.0,
+        565.0,
+        353.0,
+        47.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false
+    },
+    {
+      "id": "pair_fallback_surface",
+      "bounds": [
+        26.0,
+        565.0,
+        353.0,
+        47.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4279111182
+    },
+    {
+      "id": "pair_fallback_control",
+      "bounds": [
+        26.0,
+        565.0,
+        353.0,
+        47.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        0.0,
+        -0.0,
+        315.7778,
+        38.3488
+      ],
+      "confidence": 1.0,
+      "text": "1. Pair this device"
+    },
+    {
+      "bounds": [
+        604.4889,
+        309.0465,
+        58.6444,
+        58.6512
+      ],
+      "confidence": 0.5,
+      "text": "7"
+    },
+    {
+      "bounds": [
+        146.6111,
+        606.814,
+        54.1333,
+        56.3953
+      ],
+      "confidence": 1.0,
+      "text": "L"
+    },
+    {
+      "bounds": [
+        87.9667,
+        1010.6047,
+        340.5889,
+        36.093
+      ],
+      "confidence": 1.0,
+      "text": "octos://pair?code=..."
+    },
+    {
+      "bounds": [
+        162.4,
+        1276.7907,
+        20.3,
+        11.2791
+      ],
+      "confidence": 1.0,
+      "text": "-"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

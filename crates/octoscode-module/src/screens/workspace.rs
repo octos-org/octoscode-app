@@ -37,6 +37,7 @@ use serde_json::{json, Value};
 
 use crate::bindings::Ctx;
 use crate::flow::{Conversation, Direction};
+use crate::screens::recents;
 
 /// The board-2 data slots (setup cards 04/05/06).
 pub const BINDINGS: &[(&str, &str)] = &[
@@ -198,7 +199,25 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
 pub async fn apply(effect: Effect, conv: &Conversation) -> Result<(), String> {
     match effect {
         Effect::Refresh => refresh(conv).await,
-        Effect::Open(cwd) => conv.open_workspace(Some(cwd)).await.map(|_| ()),
+        Effect::Open(cwd) => {
+            // #P4h1 row 305: the web remembers a workspace at the OPEN, not at
+            // a picker render (`App.tsx:1031` — `rememberWorkspace(storage,
+            // connection.endpoint, cwd)` on the open path). Recording it here
+            // is what makes the cache a production path rather than a helper
+            // only tests call (RULES 3). It is a navigation cache, so it is
+            // written AFTER the open succeeds — a failed open must not leave a
+            // row the user never reached — and a write that fails never fails
+            // the open (the web catches the storage throw, and
+            // `remember_workspace` returns the new list either way).
+            conv.open_workspace(Some(cwd.clone())).await?;
+            recents::remember_workspace(
+                &*recents::store(),
+                &recents::endpoint(),
+                &cwd,
+                recents::now_ms(),
+            );
+            Ok(())
+        }
         Effect::Browse(path) => {
             let result = conv
                 .client()

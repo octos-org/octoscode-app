@@ -1,0 +1,320 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "4e6f37456011fe135f2e1c67be547f91a2726d5b43bec4ceab0c6b9ef5eb55bd",
+  "tree": {
+    "t": "stack",
+    "id": "page",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "c": [
+      {
+        "t": "svg",
+        "id": "pair_back_chev",
+        "x": 15.0,
+        "y": 130.0,
+        "w": 14.0,
+        "h": 22.0,
+        "src": ""
+      },
+      {
+        "t": "button",
+        "id": "pair_back_control",
+        "x": 5.0,
+        "y": 121.0,
+        "w": 34.0,
+        "h": 40.0,
+        "enabled": 1
+      },
+      {
+        "t": "text",
+        "id": "t_title",
+        "text": "Connection",
+        "x": 129.10195707070707,
+        "y": 166.5,
+        "w": 147.84859006734007,
+        "h": 25.5,
+        "size": 27.7979797979798,
+        "line_height": 25.5,
+        "weight": 600,
+        "color": 4278979596,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-600.ttf",
+        "tracking": -0.9225589225589235,
+        "font_asc": -0.1345952943313954,
+        "font_desc": 0.1580327943313954
+      },
+      {
+        "t": "stack",
+        "id": "conn_card",
+        "x": 21.0,
+        "y": 223.0,
+        "w": 362.0,
+        "h": 207.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4294901502,
+        "radius": 12.67,
+        "border": 1,
+        "bordercolor": 4293256679
+      },
+      {
+        "t": "stack",
+        "id": "conn_div1",
+        "x": 36.0,
+        "y": 296.0,
+        "w": 334.0,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 0
+      },
+      {
+        "t": "stack",
+        "id": "conn_div2",
+        "x": 36.0,
+        "y": 366.0,
+        "w": 334.0,
+        "h": 1.0,
+        "c": [],
+        "variant": "surface",
+        "bg": 4293256679,
+        "radius": 0
+      },
+      {
+        "t": "text",
+        "id": "t_srv_k",
+        "text": "Server",
+        "x": 41.92964169381108,
+        "y": 247.0,
+        "w": 56.0,
+        "h": 19.5,
+        "size": 20.68013029315961,
+        "line_height": 19.5,
+        "weight": 500,
+        "color": 4279440148,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": -2.4059283387622146,
+        "font_asc": -0.134734122983871,
+        "font_desc": 0.13229271673387105
+      },
+      {
+        "t": "text",
+        "id": "t_srv_v",
+        "text": "192.168.1.20:50190",
+        "x": 209.55890205239447,
+        "y": 247.5,
+        "w": 159.0,
+        "h": 19.0,
+        "size": 20.07675621558485,
+        "line_height": 19.0,
+        "weight": 400,
+        "color": 4283716692,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -1.3428411578213801,
+        "font_asc": -0.13176529255319158,
+        "font_desc": 0.13182762632978726
+      },
+      {
+        "t": "text",
+        "id": "t_pair_k",
+        "text": "Paired",
+        "x": 41.87619047619047,
+        "y": 317.0,
+        "w": 55.5,
+        "h": 19.5,
+        "size": 20.154920634920636,
+        "line_height": 19.5,
+        "weight": 500,
+        "color": 4279834649,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-500.ttf",
+        "tracking": -1.393396825396826,
+        "font_asc": -0.11268271169354838,
+        "font_desc": 0.12977255544354835
+      },
+      {
+        "t": "text",
+        "id": "t_pair_v",
+        "text": "Today, 9:41 PM",
+        "x": 245.4876700586826,
+        "y": 317.0,
+        "w": 122.5,
+        "h": 24.0,
+        "size": 21.155629794061408,
+        "line_height": 24.0,
+        "weight": 400,
+        "color": 4283979864,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -2.599513598777319,
+        "font_asc": -0.13684549534574475,
+        "font_desc": -0.06133435837765966
+      },
+      {
+        "t": "text",
+        "id": "t_stays",
+        "text": "Stays on this device only",
+        "x": 41.81933842239186,
+        "y": 386.5,
+        "w": 213.0,
+        "h": 24.0,
+        "size": 20.844783715012724,
+        "line_height": 24.0,
+        "weight": 400,
+        "color": 4279440148,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": -1.4443384223918585,
+        "font_asc": -0.121337890625,
+        "font_desc": -0.06274414062499983
+      },
+      {
+        "t": "stack",
+        "id": "pair_forget",
+        "x": 117.0,
+        "y": 608.0,
+        "w": 172.0,
+        "h": 40.0,
+        "c": [
+          {
+            "t": "stack",
+            "id": "pair_forget_surface",
+            "x": 117.0,
+            "y": 608.0,
+            "w": 172.0,
+            "h": 40.0,
+            "c": [],
+            "variant": "surface",
+            "bg": 4294901245,
+            "radius": 0
+          },
+          {
+            "t": "button",
+            "id": "pair_forget_control",
+            "x": 117.0,
+            "y": 608.0,
+            "w": 172.0,
+            "h": 40.0,
+            "enabled": 1
+          },
+          {
+            "t": "text",
+            "id": "pair_forget_label",
+            "text": "Forget this device",
+            "x": 116.7605421686747,
+            "y": 618.5,
+            "w": 157.0,
+            "h": 25.0,
+            "size": 21.59036144578313,
+            "line_height": 25.0,
+            "weight": 500,
+            "color": 4291694865,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-500.ttf",
+            "tracking": -1.7492912827781713,
+            "font_asc": -0.1192801339285714,
+            "font_desc": -0.06724330357142866
+          }
+        ],
+        "kit": "{\"widget\": \"KitButton\", \"bindings\": {\"control\": [1], \"label\": [2]}}"
+      }
+    ],
+    "variant": "surface",
+    "bg": 4294901502
+  },
+  "changes": [
+    {
+      "id": "page",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "pair_back_chev",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "pair_back_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "conn_card",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "conn_div1",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "conn_div2",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "pair_forget",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "pair_forget_surface",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "pair_forget_control",
+      "source": "observed non-text annotation"
+    },
+    {
+      "id": "t_title",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.03318798449612406
+    },
+    {
+      "id": "t_srv_k",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.116340095766129
+    },
+    {
+      "id": "t_srv_v",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.0668853645181477
+    },
+    {
+      "id": "t_pair_k",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.06913432459677422
+    },
+    {
+      "id": "t_pair_v",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.1228757368172054
+    },
+    {
+      "id": "t_stays",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.06929016113281254
+    },
+    {
+      "id": "pair_forget_label",
+      "source": "Vision OCR ink bounds plus bundled font glyph metrics",
+      "font_family_verified_in_reference": false,
+      "tracking_em": -0.0810218618697479
+    }
+  ],
+  "limits": [
+    "Measured fixed artboard; not a responsive production application."
+  ]
+}

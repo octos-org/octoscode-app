@@ -1,0 +1,106 @@
+{
+  "frame_id": 7,
+  "controls": {
+    "prov_back": {
+      "event": "provider.back",
+      "source_bounds": [
+        6,
+        73,
+        34,
+        40
+      ],
+      "enabled": true
+    },
+    "key_eye": {
+      "event": "provider.key.reveal",
+      "source_bounds": [
+        342,
+        378,
+        36,
+        36
+      ],
+      "enabled": true
+    },
+    "model_row_0": {
+      "event": "provider.model.0",
+      "source_bounds": [
+        28,
+        394,
+        350,
+        34
+      ],
+      "enabled": true
+    },
+    "model_row_1": {
+      "event": "provider.model.1",
+      "source_bounds": [
+        28,
+        430,
+        350,
+        34
+      ],
+      "enabled": true
+    },
+    "model_row_2": {
+      "event": "provider.model.2",
+      "source_bounds": [
+        28,
+        466,
+        350,
+        34
+      ],
+      "enabled": true
+    },
+    "prov_cancel": {
+      "event": "provider.cancel",
+      "source_bounds": [
+        22,
+        519,
+        152,
+        43
+      ],
+      "enabled": true
+    },
+    "prov_retry": {
+      "event": "provider.retry",
+      "source_bounds": [
+        199,
+        517,
+        169,
+        47
+      ],
+      "enabled": true
+    },
+    "prov_name": {
+      "event": "provider.name",
+      "source_bounds": [
+        28,
+        218,
+        350,
+        44
+      ],
+      "enabled": true
+    },
+    "prov_url": {
+      "event": "provider.url",
+      "source_bounds": [
+        28,
+        296,
+        350,
+        44
+      ],
+      "enabled": true
+    },
+    "prov_key": {
+      "event": "provider.key",
+      "source_bounds": [
+        28,
+        372,
+        350,
+        44
+      ],
+      "enabled": true
+    }
+  },
+  "source": "provider-editor"
+}

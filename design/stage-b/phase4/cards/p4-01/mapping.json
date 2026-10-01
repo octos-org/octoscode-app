@@ -1,0 +1,444 @@
+{
+  "schema_version": 1,
+  "elements": [
+    {
+      "source_id": "page",
+      "native_id": "beauty_0",
+      "parent": null,
+      "kind": "stack",
+      "component": "Surface16fae9a63e16",
+      "semantic_role": "layout",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_title",
+      "native_id": "beauty_0_0",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text50753d4e7787",
+      "semantic_role": "text",
+      "bounds": [
+        106.10606060606061,
+        89.0,
+        196.84126984126985,
+        24.0
+      ],
+      "text": "Pair with Octos",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-600.ttf",
+      "size": 25.858585858585858
+    },
+    {
+      "source_id": "vf",
+      "native_id": "beauty_0_1",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfacec81a3687418e",
+      "semantic_role": "layout",
+      "bounds": [
+        59.0,
+        136.0,
+        288.0,
+        210.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "vf_br_tl",
+      "native_id": "beauty_0_2",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        78.0,
+        152.0,
+        22.0,
+        22.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "vf_br_tr",
+      "native_id": "beauty_0_3",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        306.0,
+        152.0,
+        22.0,
+        22.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "vf_br_bl",
+      "native_id": "beauty_0_4",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        78.0,
+        310.0,
+        22.0,
+        22.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "vf_br_br",
+      "native_id": "beauty_0_5",
+      "parent": "page",
+      "kind": "svg",
+      "component": "Vectore0a378fde04f",
+      "semantic_role": "icon",
+      "bounds": [
+        306.0,
+        310.0,
+        22.0,
+        22.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_cap1",
+      "native_id": "beauty_0_6",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text68315eb37e89",
+      "semantic_role": "text",
+      "bounds": [
+        67.56309944472488,
+        361.0,
+        271.0,
+        20.0
+      ],
+      "text": "Scan the pairing QR shown in Octos",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 16.541140837960626
+    },
+    {
+      "source_id": "t_cap2",
+      "native_id": "beauty_0_7",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textc4ad7208463a",
+      "semantic_role": "text",
+      "bounds": [
+        136.66685082872928,
+        385.0,
+        135.5,
+        18.5
+      ],
+      "text": "on your computer",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 16.406629834254144
+    },
+    {
+      "source_id": "div_l",
+      "native_id": "beauty_0_8",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfacec4c38149242a",
+      "semantic_role": "layout",
+      "bounds": [
+        40.0,
+        432.55,
+        140.0,
+        1.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "div_r",
+      "native_id": "beauty_0_9",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Surfacec4c38149242a",
+      "semantic_role": "layout",
+      "bounds": [
+        226.0,
+        432.55,
+        140.0,
+        1.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "t_or",
+      "native_id": "beauty_0_10",
+      "parent": "page",
+      "kind": "text",
+      "component": "Textfb98c520c9d5",
+      "semantic_role": "text",
+      "bounds": [
+        194.78235294117647,
+        426.0,
+        20.229411764705883,
+        13.0
+      ],
+      "text": "Or",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 12.047058823529412
+    },
+    {
+      "source_id": "t_link_label",
+      "native_id": "beauty_0_11",
+      "parent": "page",
+      "kind": "text",
+      "component": "Text3d3491d16aa8",
+      "semantic_role": "text",
+      "bounds": [
+        31.04618879353862,
+        462.5,
+        126.0,
+        20.0
+      ],
+      "text": "Paste pairing link",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 16.541140837960626
+    },
+    {
+      "source_id": "pair_link_wrap",
+      "native_id": "beauty_0_12",
+      "parent": "page",
+      "kind": "stack",
+      "component": "Group3d2637879433",
+      "semantic_role": "layout",
+      "bounds": [
+        28.0,
+        484.0,
+        350.0,
+        48.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "pair_link_field",
+      "native_id": "beauty_0_12_0",
+      "parent": "pair_link_wrap",
+      "kind": "stack",
+      "component": "Surface86bc6db63f02",
+      "semantic_role": "layout",
+      "bounds": [
+        27.0,
+        487.0,
+        352.0,
+        51.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "pair_link",
+      "native_id": "beauty_0_12_1",
+      "parent": "pair_link_wrap",
+      "kind": "input",
+      "component": "Input508f95901acf",
+      "semantic_role": "input",
+      "bounds": [
+        42.0,
+        484.0,
+        322.0,
+        48.0
+      ],
+      "text": "",
+      "enabled": 1,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 15
+    },
+    {
+      "source_id": "pair_submit",
+      "native_id": "beauty_0_13",
+      "parent": "page",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        128.0,
+        562.0,
+        150.0,
+        48.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "pair_submit_surface",
+      "native_id": "beauty_0_13_0",
+      "parent": "pair_submit",
+      "kind": "stack",
+      "component": "Surfaceb15baac10224",
+      "semantic_role": "layout",
+      "bounds": [
+        128.0,
+        562.0,
+        150.0,
+        48.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "pair_submit_control",
+      "native_id": "beauty_0_13_1",
+      "parent": "pair_submit",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        128.0,
+        562.0,
+        150.0,
+        48.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "pair_submit_label",
+      "native_id": "beauty_0_13_2",
+      "parent": "pair_submit",
+      "kind": "text",
+      "component": "Text95ba0a0f6fbb",
+      "semantic_role": "text",
+      "bounds": [
+        186.03333333333333,
+        580.0,
+        33.5,
+        18.0
+      ],
+      "text": "Pair",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-500.ttf",
+      "size": 18.204444444444444
+    },
+    {
+      "source_id": "pair_fallback",
+      "native_id": "beauty_0_14",
+      "parent": "page",
+      "kind": "stack",
+      "component": "KitButton2c6804b990a5",
+      "semantic_role": "button",
+      "bounds": [
+        26.0,
+        565.0,
+        353.0,
+        47.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "pair_fallback_surface",
+      "native_id": "beauty_0_14_0",
+      "parent": "pair_fallback",
+      "kind": "stack",
+      "component": "Surfacecd8633225e2f",
+      "semantic_role": "layout",
+      "bounds": [
+        26.0,
+        565.0,
+        353.0,
+        47.0
+      ],
+      "text": null,
+      "enabled": null,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "pair_fallback_control",
+      "native_id": "beauty_0_14_1",
+      "parent": "pair_fallback",
+      "kind": "button",
+      "component": "NativeButton02f1d1bd99b4",
+      "semantic_role": "button",
+      "bounds": [
+        26.0,
+        565.0,
+        353.0,
+        47.0
+      ],
+      "text": null,
+      "enabled": 1,
+      "font": null,
+      "size": null
+    },
+    {
+      "source_id": "pair_fallback_label",
+      "native_id": "beauty_0_14_2",
+      "parent": "pair_fallback",
+      "kind": "text",
+      "component": "Text471cbcdf3da8",
+      "semantic_role": "text",
+      "bounds": [
+        78.0,
+        629.0,
+        250.0,
+        21.0
+      ],
+      "text": "Enter server and token instead",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    }
+  ],
+  "fonts": {
+    "self:resources/ux/Inter-600.ttf": "c68ee119fdc75a0c3daaf3af8afb3f556a5c961c58d4690076a13a56fd8c4242",
+    "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
+    "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
+  },
+  "contract_sha256": "82b1e05691fbea803df200819f2b1af26f01d0403c6654cbbd5059144a4492aa",
+  "mapping_basis": "mapped.json"
+}
