@@ -41,6 +41,7 @@
 - permission menu: read the coding permission profile and present the presets, routing a dangerous preset through an explicit confirmation instead of a direct selection — web: src-web/apps/web/src/features/product-controls/selection-policy.ts:20 — transport handled (crates/) but no UI layer cited
 - session control bar: the composer's two control seats (permission left, model right) whose missing capabilities remove the seat instead of exposing a dead control — web: src-web/apps/web/src/features/product-controls/SessionControlBar.tsx:840 — transport handled (crates/) but no UI layer cited
 - settings shell: a General/Models two-column settings surface that restricts navigation to the sections this shell owns and omits the Models section when no slot is supplied — web: src-web/apps/web/src/features/product-controls/SettingsDialog.tsx:64 — needs investigation
+- model settings: save a provider/model draft (upsert) and optionally make it the primary route, rebuilding the request once so Test and Save cannot drift — web: src-web/apps/web/src/features/models/model-settings.ts:345 — transport handled (crates/) but no UI layer cited
 - model settings: delete a configured provider/model route — web: src-web/apps/web/src/features/models/model-settings.ts:402 — transport handled (crates/) but no UI layer cited
 
 ## g-autonomy2
@@ -90,6 +91,7 @@
 - Mutations are gated on advertised capability (supportsMethod) and locked while known Profile work is running — web: src-web/apps/web/src/features/research/ResearchDialog.tsx:58; src-web/apps/web/src/features/research/ResearchDialog.tsx:66; src-web/apps/web/src/features/research/ResearchDialog.tsx:76-79 — transport handled (crates/) but no UI layer cited
 - Lazy syntax highlighting: a code block highlights only when scrolled into view (IntersectionObserver), and a missing grammar falls back to plain, copyable code — web: src-web/apps/web/src/features/markdown/CodeBlock.tsx:27-121; src-web/apps/web/src/features/markdown/highlight.ts:22-215 — needs investigation
 - Copy a code block: writes the trimmed code (no trailing newline) to the clipboard, shows Copied for 1s, and reports a failure without losing the code — web: src-web/apps/web/src/features/markdown/CodeBlock.tsx:45; src-web/apps/web/src/features/markdown/CodeBlock.tsx:69-88; src-web/apps/web/src/features/markdown/CodeBlock.tsx:94-107 — needs investigation
+- Keyless-core compatibility probe: negotiate a keyless family with a non-empty compatibility value rather than an invented env name — web: src-web/apps/web/src/features/onboarding/onboarding-submission.ts:14; src-web/apps/web/src/features/onboarding/onboarding-submission.ts:48-51 — transport handled (crates/) but no UI layer cited
 - Credential redaction and latest-request-wins: the API key is never echoed back in an error, and a superseded prepare/submit cannot publish its result — web: src-web/apps/web/src/features/onboarding/use-onboarding.ts:61-71; src-web/apps/web/src/features/onboarding/use-onboarding.ts:94-123; src-web/apps/web/src/features/onboarding/use-onboarding.ts:173-183 — transport handled (crates/) but no UI layer cited
 - Session settings pane: a ModalSurface drawer with Model, Permissions, Sandbox and Advanced sections — web: src-web/apps/web/src/features/session-config/SessionConfigPane.tsx:176-260 — needs investigation
 - Permissions section: approval policy selector (on-request / never ask), readback from the runtime policy stamp, next-message timing disclosure, Saving/Saved/Failed+Retry — web: src-web/apps/web/src/features/session-config/permissions-section.tsx:32-97 — transport handled (crates/) but no UI layer cited
@@ -202,6 +204,7 @@
 - Desktop notifications toggle row (aria-pressed, pending/available, error as alert) — web: src-web/apps/web/src/features/product-settings/GeneralSettingsContent.tsx:213 — needs investigation
 - Copy redacted diagnostics snapshot (connection status, recovery detail, app identity; no credentials) — web: src-web/apps/web/src/features/product-settings/GeneralSettingsContent.tsx:248 — needs investigation
 - Stop server row (only when the server advertises server/shutdown), with a confirm dialog — web: src-web/apps/web/src/features/product-settings/GeneralSettingsContent.tsx:315 — transport handled (crates/) but no UI layer cited
+- Profile mutation leases: modal-independent write ownership; duplicate acquisition rejected — web: src-web/apps/web/src/features/product-settings/profile-mutation-leases.ts:1 — transport handled (crates/) but no UI layer cited
 
 ## g-timeline
 - Copy conversation link from Settings — only with a confirmed session reference, action locked — web: src-web/apps/web/src/features/session-links/CopySessionLink.tsx:11 — needs investigation

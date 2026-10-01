@@ -310,6 +310,13 @@ async fn main() {
                             }]}
                         })).await;
                     }
+                    // #P4a1 — echo the requested mode as the read-back.
+                    "permission/profile/set" => {
+                        send(&tx, serde_json::json!({
+                            "jsonrpc": "2.0", "id": id,
+                            "result": {"current": {"mode": v["params"]["update"]["mode"]}}
+                        })).await;
+                    }
                     "turn/start" => {
                         send(&tx, serde_json::json!({
                             "jsonrpc": "2.0", "id": id, "result": {"accepted": true}
