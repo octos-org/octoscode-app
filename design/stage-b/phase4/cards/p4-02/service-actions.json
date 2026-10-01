@@ -14,10 +14,10 @@
     "pair_cancel": {
       "event": "pair.cancel",
       "source_bounds": [
-        133,
+        131,
         622,
-        140,
-        44
+        144,
+        48
       ],
       "enabled": true
     }

@@ -44,10 +44,10 @@
     "browser_use": {
       "event": "browser.use",
       "source_bounds": [
-        28,
-        560,
-        350,
-        48
+        15,
+        557,
+        373,
+        54
       ],
       "enabled": true
     },

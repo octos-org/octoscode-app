@@ -271,34 +271,34 @@ impl ProviderUi {
 
 /// The action ids these two cards emit, with what each one means.
 pub const ACTIONS: &[(&str, &str)] = &[
-    ("prov.name", "the Name field's live text (p4-06/p4-07)"),
-    ("prov.url", "the Base URL field's live text (p4-06/p4-07)"),
-    ("prov.key", "the API key field's live text — read at dispatch, never shown"),
-    ("key.eye", "reveal/hide the masked key (the key stays masked on a refusal)"),
-    ("model.row.0", "make the first listed model the default"),
-    ("model.row.1", "make the second listed model the default"),
-    ("model.row.2", "make the third listed model the default"),
+    ("provider.name", "the Name field's live text (p4-06/p4-07)"),
+    ("provider.url", "the Base URL field's live text (p4-06/p4-07)"),
+    ("provider.key", "the API key field's live text — read at dispatch, never shown"),
+    ("provider.key.reveal", "reveal/hide the masked key (the key stays masked on a refusal)"),
+    ("provider.model.0", "make the first listed model the default"),
+    ("provider.model.1", "make the second listed model the default"),
+    ("provider.model.2", "make the third listed model the default"),
     ("prov.test", "test the connection with the draft's values"),
-    ("prov.save", "save the draft (profile/llm/upsert)"),
-    ("prov.cancel", "discard the editor and return to Settings"),
-    ("prov.retry", "re-test after a rejection, with the draft kept"),
-    ("prov.back", "step back from the rejected editor"),
+    ("provider.save", "save the draft (profile/llm/upsert)"),
+    ("provider.cancel", "discard the editor and return to Settings"),
+    ("provider.retry", "re-test after a rejection, with the draft kept"),
+    ("provider.back", "step back from the rejected editor"),
 ];
 
 /// The ids [`resolve`] routes.
 pub const ROUTED: &[&str] = &[
-    "prov.name",
-    "prov.url",
-    "prov.key",
-    "key.eye",
-    "model.row.0",
-    "model.row.1",
-    "model.row.2",
+    "provider.name",
+    "provider.url",
+    "provider.key",
+    "provider.key.reveal",
+    "provider.model.0",
+    "provider.model.1",
+    "provider.model.2",
     "prov.test",
-    "prov.save",
-    "prov.cancel",
-    "prov.retry",
-    "prov.back",
+    "provider.save",
+    "provider.cancel",
+    "provider.retry",
+    "provider.back",
 ];
 
 pub fn is_action(id: &str) -> bool {
@@ -342,25 +342,25 @@ pub enum Effect {
 /// Route one action id to its effect. `value` carries an `input` payload.
 pub fn resolve(id: &str, value: Option<&str>) -> Effect {
     match id {
-        "prov.name" => Effect::Input {
+        "provider.name" => Effect::Input {
             field: "prov.family",
             value: value.unwrap_or_default().to_owned(),
         },
-        "prov.url" => Effect::Input {
-            field: "prov.url",
+        "provider.url" => Effect::Input {
+            field: "provider.url",
             value: value.unwrap_or_default().to_owned(),
         },
-        "prov.key" => Effect::Input {
-            field: "prov.key",
+        "provider.key" => Effect::Input {
+            field: "provider.key",
             value: value.unwrap_or_default().to_owned(),
         },
-        "key.eye" => Effect::ToggleKey,
-        "model.row.0" => Effect::SelectModel(0),
-        "model.row.1" => Effect::SelectModel(1),
-        "model.row.2" => Effect::SelectModel(2),
+        "provider.key.reveal" => Effect::ToggleKey,
+        "provider.model.0" => Effect::SelectModel(0),
+        "provider.model.1" => Effect::SelectModel(1),
+        "provider.model.2" => Effect::SelectModel(2),
         "prov.test" => Effect::Test,
-        "prov.save" => Effect::Save,
-        "prov.cancel" | "prov.retry" | "prov.back" => Effect::Close,
+        "provider.save" => Effect::Save,
+        "provider.cancel" | "provider.retry" | "provider.back" => Effect::Close,
         _ => Effect::Unhandled,
     }
 }
@@ -371,8 +371,8 @@ pub fn apply(ui: &mut ProviderUi, effect: Effect) -> Option<Effect> {
         Effect::Input { field, value } => {
             match field {
                 "prov.family" => ui.family = value,
-                "prov.url" => ui.base_url = value,
-                "prov.key" => ui.key = value,
+                "provider.url" => ui.base_url = value,
+                "provider.key" => ui.key = value,
                 _ => {}
             }
             None
@@ -455,7 +455,7 @@ pub fn lower_screen(screen: Screen, ui: &ProviderUi) -> Result<String, String> {
 pub fn query(ui: &ProviderUi, id: &str) -> Option<Value> {
     match id {
         "prov.family" => Some(Value::String(ui.family.clone())),
-        "prov.url" => Some(Value::String(ui.base_url.clone())),
+        "provider.url" => Some(Value::String(ui.base_url.clone())),
         "prov.model" => Some(Value::String(ui.model.clone())),
         "prov.route" => Some(Value::String(ui.route.clone())),
         "prov.models" => Some(Value::Array(
@@ -512,7 +512,7 @@ mod tests {
         ui.reject("boom");
         for id in [
             "prov.family",
-            "prov.url",
+            "provider.url",
             "prov.model",
             "prov.route",
             "prov.models",

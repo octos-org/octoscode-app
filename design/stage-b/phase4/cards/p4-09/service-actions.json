@@ -4,10 +4,10 @@
     "browser_back": {
       "event": "browser.back",
       "source_bounds": [
-        28,
+        67,
         382,
-        350,
-        44
+        260,
+        49
       ],
       "enabled": true
     },

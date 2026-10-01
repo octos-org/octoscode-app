@@ -24,10 +24,10 @@
     "pair_fallback": {
       "event": "pair.fallback",
       "source_bounds": [
-        78,
-        624,
-        250,
-        30
+        26,
+        565,
+        353,
+        47
       ],
       "enabled": true
     },

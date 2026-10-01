@@ -54,20 +54,20 @@
     "prov_cancel": {
       "event": "provider.cancel",
       "source_bounds": [
-        40,
-        518,
-        120,
-        40
+        22,
+        519,
+        152,
+        43
       ],
       "enabled": true
     },
     "prov_retry": {
       "event": "provider.retry",
       "source_bounds": [
-        216,
-        518,
-        150,
-        40
+        199,
+        517,
+        169,
+        47
       ],
       "enabled": true
     },

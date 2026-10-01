@@ -44,20 +44,20 @@
     "prov_cancel": {
       "event": "provider.cancel",
       "source_bounds": [
-        60,
-        606,
-        120,
-        44
+        21,
+        607,
+        161,
+        48
       ],
       "enabled": true
     },
     "prov_save": {
       "event": "provider.save",
       "source_bounds": [
-        226,
-        606,
-        120,
-        44
+        203,
+        604,
+        176,
+        53
       ],
       "enabled": true
     },
