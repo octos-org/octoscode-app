@@ -127,23 +127,16 @@ fn resume_rows(store: &Arc<crate::Store>) -> Vec<Value> {
             // The card's meta grammar: "<host> • <when> • <n> turns".
             let host = s.id.split(':').next().unwrap_or("octos").to_owned();
             let when = s.updated_at.clone().unwrap_or_default();
-            // #P4g2 row 231, part 2: the web normalizes BOTH fields at
-            // ingestion — `entry.title?.trim() || null` and the same for
-            // `last_prompt` (workspace-session-catalog.ts:83-88) — so a
-            // whitespace-only title is null and falls through to the prompt.
-            let title = s
-                .title
-                .as_deref()
-                .map(str::trim)
-                .filter(|t| !t.is_empty())
-                .map(str::to_owned)
-                .or_else(|| {
-                    s.last_prompt
-                        .as_deref()
-                        .map(str::trim)
-                        .filter(|t| !t.is_empty())
-                        .map(str::to_owned)
-                });
+            // #P4h1 row 301: the shared label STEM
+            // (`Session::label_stem`), which is the web's ingestion rule
+            // (`workspace-session-catalog.ts:79-80` — `title?.trim() || null`,
+            // then `last_prompt?.trim() || null`). This projection keeps the
+            // `null`: the web's sidebar row has NO id fallback
+            // (`workspace-session-catalog.ts:120` — `entry.title ??
+            // entry.lastPrompt`), unlike the display label
+            // (`model.ts:71` — `|| session.id`). It replaces the duplicated
+            // local copy of the trim rule.
+            let title = s.label_stem();
             json!({
                 "id": s.id,
                 "title": title,

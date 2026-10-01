@@ -64,7 +64,12 @@ pub fn thread_rows(store: &Arc<Store>) -> Vec<ThreadRow> {
         .sessions()
         .into_iter()
         .map(|s| ThreadRow {
-            title: s.title.unwrap_or_else(|| s.id.clone()),
+            // #P4h1 row 301: the ONE label rule (the web's `sessionLabel`,
+            // features/workspace/model.ts:71) — title, then last_prompt, then
+            // the id. This projection used to skip straight to the id on a
+            // missing title, so an untitled session showed its raw id instead
+            // of the prompt the web shows. See `Session::display_label`.
+            title: s.display_label(),
             meta: format!("{} messages", s.message_count),
             active: active.as_deref() == Some(s.id.as_str()),
         })

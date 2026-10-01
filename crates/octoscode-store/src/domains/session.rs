@@ -26,6 +26,42 @@ pub struct Session {
     pub active_turn: bool,
 }
 
+impl Session {
+    /// The shared label STEM: the trimmed title, else the trimmed last prompt,
+    /// else `None`. The web normalizes both fields at ingestion
+    /// (`workspace-session-catalog.ts:79-80` — `entry.title?.trim() || null`,
+    /// the same for `last_prompt`), so a whitespace-only title never wins over
+    /// a real prompt. `None` = this row has no human label at all.
+    ///
+    /// The two web projections differ only in what they do with that `None`:
+    /// the sidebar row keeps it `null` (`workspace-session-catalog.ts:120` —
+    /// `title: entry.title ?? entry.lastPrompt`) while the display label falls
+    /// back to the id (`model.ts:71` — `... || session.id`). So the stem lives
+    /// here and each projection layers its own fallback.
+    pub fn label_stem(&self) -> Option<String> {
+        let trimmed = |value: &Option<String>| -> Option<String> {
+            value
+                .as_deref()
+                .map(str::trim)
+                .filter(|t| !t.is_empty())
+                .map(str::to_owned)
+        };
+        trimmed(&self.title).or_else(|| trimmed(&self.last_prompt))
+    }
+
+    /// #P4h1 row 301 — the DISPLAY label, ported from the web's `sessionLabel`
+    /// (`features/workspace/model.ts:71`):
+    /// `session.title?.trim() || session.last_prompt?.trim() || session.id`.
+    ///
+    /// The sidebar's `thread_rows` read this. It used to pass the title
+    /// through and fall straight to the id, so an untitled session showed its
+    /// raw id instead of the last prompt the web shows — and a whitespace-only
+    /// title rendered as blank.
+    pub fn display_label(&self) -> String {
+        self.label_stem().unwrap_or_else(|| self.id.clone())
+    }
+}
+
 /// The whole-job orchestration snapshot (`session/orchestration`,
 /// `SessionOrchestrationEvent` `ui_protocol.rs:5170`). Mirrors the wire fields
 /// so the UI can render a job indicator that survives the

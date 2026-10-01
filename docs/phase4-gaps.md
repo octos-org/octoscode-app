@@ -261,11 +261,8 @@
 ## session:list-sidebar
 - workspace session catalog read through session/list {cwd, profile_id} — web: src-web/apps/web/src/features/session/workspace-session-catalog.ts:154 — transport handled (crates/) but no UI layer cited
 - merge server catalog rows with tab-known refs (server title wins, recency = max) — web: src-web/apps/web/src/features/session/workspace-session-catalog.ts:107 — transport handled (crates/) but no UI layer cited
-- stale-while-revalidate refresh per workspace (keep last attested rows on error) — web: src-web/apps/web/src/features/session/workspace-session-catalog.ts:177 — transport handled (crates/) but no UI layer cited
 - only full sessions of the requested profile are projected — web: src-web/apps/web/src/features/session/workspace-session-catalog.ts:66 — transport handled (crates/) but no UI layer cited
 - tab-known registry of opened Sessions, bounded to 100 by recency — web: src-web/apps/web/src/features/session/known-session-registry.ts:57 — transport handled (crates/) but no UI layer cited
-- retained forks/peers merge into the known registry without stealing focus — web: src-web/apps/web/src/features/session/retained-session-catalog.ts:7 — transport handled (crates/) but no UI layer cited
-- sidebar row projection (title falls back to last prompt) — web: src-web/apps/web/src/features/session/workspace-session-catalog.ts:94 — transport handled (crates/) but no UI layer cited
 - switch to another Session (fresh open without the other session's replay cursor) — web: src-web/apps/web/src/features/session/use-octos-session.ts:3184 — transport handled (crates/) but no UI layer cited
 - open a Session with launch resolution and an exact-workspace requirement — web: src-web/apps/web/src/features/session/use-octos-session.ts:3199 — transport handled (crates/) but no UI layer cited
 - list a workspace's Sessions for the sidebar — web: src-web/apps/web/src/features/session/use-octos-session.ts:3630 — transport handled (crates/) but no UI layer cited
