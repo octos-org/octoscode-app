@@ -106,16 +106,31 @@ pub struct ContextLifecycle {
 }
 
 impl Sessions {
-    /// Replace the list (from `session/list`). Keeps the active id if it still
-    /// exists, else clears it.
+    /// Fold a `session/list` reply into the list (#34b — the #39a row-2 live
+    /// defect). The web's sidebar is the tab-known registry AUGMENTED by the
+    /// workspace catalog (`App.tsx:747-756`: the catalog "is keyed to the
+    /// profile this connection opens sessions under"; it only adds) — a
+    /// catalog read never REMOVES a session the tab already knows. The real
+    /// gate proved why: after New chat its reply named only the fresh session
+    /// (the catalog lags the tab), so the old replace folded `dsflash:main`
+    /// out of the store — the sidebar emptied (`sessions: 0` on #39a's run)
+    /// and the running turn became unreachable. Server rows WIN on update;
+    /// locally-known rows the reply omits are RETAINED after them.
     pub fn set_list(&self, sessions: Vec<Session>) {
         let mut i = self.inner.lock().unwrap();
+        let server_ids: Vec<String> = sessions.iter().map(|s| s.id.clone()).collect();
+        let mut merged = sessions;
+        for known in i.sessions.drain(..) {
+            if !server_ids.contains(&known.id) {
+                merged.push(known);
+            }
+        }
         if let Some(active) = &i.active {
-            if !sessions.iter().any(|s| &s.id == active) {
+            if !merged.iter().any(|s| &s.id == active) {
                 i.active = None;
             }
         }
-        i.sessions = sessions;
+        i.sessions = merged;
     }
 
     pub fn list(&self) -> Vec<Session> {
