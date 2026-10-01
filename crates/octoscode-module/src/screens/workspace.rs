@@ -450,6 +450,10 @@ async fn set_permission(conv: &Conversation, mode: &str) -> Result<(), String> {
         Some(mode.to_owned()),
     );
     state().permission_mode = result["current"]["mode"].as_str().map(str::to_owned);
+    // #P4a1 — the read-back must REACH the pill: wake the UI thread so the
+    // composer re-lowers with the fresh `set.permission_mode` binding (an
+    // async arm on the tokio thread never repaints by itself).
+    makepad_widgets::SignalToUI::set_ui_signal();
     Ok(())
 }
 

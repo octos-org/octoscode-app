@@ -758,9 +758,14 @@ def cp_pill_cycle(app):
                   if (w.get("t") or "").strip() in MODES
                   and (w.get("r") or [0, 0, 0, 0])[2] > 0), None)
         return ((w.get("t") or "").strip(), w.get("r")) if w else (None, None)
-    t0, r0 = pill(app.snap())
+    t0, r0 = None, None
+    for _ in range(20):
+        t0, r0 = pill(app.snap())
+        if r0:
+            break
+        time.sleep(0.5)
     if not r0:
-        return False, "approval pill not laid out"
+        return False, "approval pill not laid out (polled 10s)"
     def cycle(expect_diff):
         app.click(int(r0[0] + r0[2] / 2), int(r0[1] + r0[3] / 2))
         for _ in range(20):
