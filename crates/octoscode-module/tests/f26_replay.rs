@@ -82,6 +82,100 @@ fn recorded_user_turns(frames: &[Frame]) -> std::collections::BTreeSet<String> {
         .collect()
 }
 
+// ------------------------- §3 canonical hydrate rebuilds the transcript (#P4b2)
+
+#[tokio::test]
+async fn a_hydrate_rebuilds_the_transcript_through_the_production_path() {
+    // The full production chain: a real transport `SessionHydrated` (raised
+    // by the lossy resync, exactly like §2) whose result carries the
+    // authoritative `messages` — the flow must rebuild the transcript in seq
+    // order (web `restoreCanonicalHydrate`, canonical-hydrate.ts:31) WITHOUT
+    // deleting or overwriting the live optimistic row ("ambiguous identity
+    // never deletes a transcript row").
+    let lossy = Frame {
+        dir: "in".to_owned(),
+        method: "protocol/replay_lossy".to_owned(),
+        body: serde_json::json!({
+            "session_id": "dsflash:main",
+            "dropped_count": 3,
+            "last_durable_cursor": {"stream": "main", "seq": 9}
+        }),
+    };
+    let messages = serde_json::json!([
+        {"seq": 10, "role": "user", "content": "why 5?",
+         "turn_id": "0b3f6d5e-1111-4111-8111-111111111111",
+         "persisted_at": "2026-09-30T00:00:00Z"},
+        {"seq": 11, "role": "assistant", "content": "because five",
+         "turn_id": "0b3f6d5e-1111-4111-8111-111111111111",
+         "reasoning_content": "counting to five",
+         "persisted_at": "2026-09-30T00:00:01Z"}
+    ]);
+    let server = ReplayServer::start_with_hydrate(vec![lossy], messages).await;
+    let (conv, mut events) = Conversation::connect(&server.base_url, "dummy", "dsflash", None, None)
+        .expect("connect");
+    conv.open_workspace(None).await.expect("session/open");
+    // A LIVE optimistic row (card #26 §1) the snapshot does NOT contain.
+    conv.start_turn_with_id("live prompt".to_owned(), "t-live".to_owned())
+        .await
+        .expect("turn/start");
+
+    // Drain until the rebuild has landed: the live row + the three hydrated
+    // entries (user, its reasoning, the answer).
+    let saw = drain_until(&conv, &mut events, |_| {
+        conv.store.domains.session.timeline.len("dsflash:main") >= 4
+    })
+    .await;
+    let joined = saw.join(" | ");
+
+    // The production trigger really fired.
+    let received = server.received.lock().unwrap().clone();
+    assert!(
+        received.contains(&"session/hydrate".to_owned()),
+        "the lossy resync must produce session/hydrate; sent {received:?}"
+    );
+
+    let es = conv.store.domains.session.timeline.entries("dsflash:main");
+    assert_eq!(es.len(), 4, "live row + 3 hydrated entries; got {joined}");
+
+    // The LIVE row survives, untouched (never deleted, never overwritten).
+    let live = es.iter().find(|e| e.text == "live prompt").expect("live row survives");
+    assert_eq!(live.kind, octoscode_store::EntryKind::USER_MESSAGE);
+    assert!(!live.finalized, "the live row is not a durable receipt");
+    assert!(live.data.get("hydrate_id").is_none(), "the live row was not rewritten");
+
+    // The hydrated rows: seq order (10 before 11), the captured reasoning as
+    // its own entry right before the answer, all finalized with identities.
+    let hyd: Vec<&octoscode_store::TimelineEntry> =
+        es.iter().filter(|e| e.data.get("hydrate_id").is_some()).collect();
+    assert_eq!(hyd.len(), 3, "every hydrated row carries its seq identity");
+    let texts: Vec<&str> = hyd.iter().map(|e| e.text.as_str()).collect();
+    assert_eq!(
+        texts,
+        vec!["why 5?", "counting to five", "because five"],
+        "seq order; reasoning immediately before its answer"
+    );
+    let kinds: Vec<octoscode_store::EntryKind> =
+        hyd.iter().map(|e| e.kind).collect();
+    assert_eq!(
+        kinds,
+        vec![
+            octoscode_store::EntryKind::USER_MESSAGE,
+            octoscode_store::EntryKind::REASONING,
+            octoscode_store::EntryKind::ASSISTANT_TEXT,
+        ]
+    );
+    assert!(
+        hyd.iter().all(|e| e.finalized),
+        "durable receipts absorb no further deltas (#21i semantics)"
+    );
+    assert!(
+        hyd.iter().all(|e| e.data["hydrate_id"].as_str().unwrap_or("").starts_with("hydrate:")),
+        "idempotency identities present (content `hydrate:seq:N`, its reasoning \
+         `hydrate:reasoning:seq:N`): {:?}",
+        hyd.iter().map(|e| e.data["hydrate_id"].clone()).collect::<Vec<_>>()
+    );
+}
+
 // ---------------------------------------------------------------- fake server
 
 /// A fake WS server that replays frames and answers the lifecycle RPCs.
@@ -107,10 +201,15 @@ impl ReplayServer {
             })
             .cloned()
             .collect();
-        Self::start_with_stream(stream).await
+        Self::start_with_stream(stream, None).await
     }
 
-    async fn start_with_stream(stream_frames: Vec<Frame>) -> Self {
+    async fn start_with_stream(
+        stream_frames: Vec<Frame>,
+        // #P4b2: `messages` merged into the `session/hydrate` result (None
+        // keeps the minimal checkpoint-only snapshot).
+        hydrate_messages: Option<serde_json::Value>,
+    ) -> Self {
         let listener = TcpListener::bind("127.0.0.1:0").await.expect("bind");
         let addr = listener.local_addr().expect("addr");
         let received = Arc::new(Mutex::new(Vec::new()));
@@ -188,7 +287,7 @@ impl ReplayServer {
                             .as_str()
                             .unwrap_or("dsflash:main")
                             .to_owned();
-                        let frame = serde_json::json!({
+                        let mut frame = serde_json::json!({
                             "jsonrpc": "2.0", "id": id,
                             "result": {
                                 "session_id": session,
@@ -196,6 +295,9 @@ impl ReplayServer {
                                 "projection_thread_sequences": {"thread-x": 7}
                             }
                         });
+                        if let Some(msgs) = &hydrate_messages {
+                            frame["result"]["messages"] = msgs.clone();
+                        }
                         let _ = tx.lock().await.send(Message::Text(frame.to_string().into())).await;
                     }
                     _ => {
@@ -217,6 +319,12 @@ impl ReplayServer {
             base_url: format!("http://{addr}"),
             received,
         }
+    }
+
+    /// #P4b2: like `start_with_stream`, but the `session/hydrate` result also
+    /// carries the authoritative `messages` array.
+    async fn start_with_hydrate(stream_frames: Vec<Frame>, messages: serde_json::Value) -> Self {
+        Self::start_with_stream(stream_frames, Some(messages)).await
     }
 }
 
@@ -382,7 +490,7 @@ async fn an_empty_draft_starts_no_turn() {
     // settled routed to `composer.submit` with the already-cleared draft and
     // minted an empty optimistic row. The web refuses the same at its submit
     // entry (`use-turn-controller.ts:631` `!text.trim()`).
-    let server = ReplayServer::start_with_stream(vec![]).await;
+    let server = ReplayServer::start_with_stream(vec![], None).await;
     let (conv, _events) = Conversation::connect(&server.base_url, "dummy", "dsflash", None, None)
         .expect("connect");
     conv.open_workspace(None).await.expect("session/open");
@@ -421,7 +529,7 @@ async fn a_replay_lossy_triggers_a_hydrate_that_clears_the_lossy_phase() {
             "last_durable_cursor": {"stream": "main", "seq": 9}
         }),
     };
-    let server = ReplayServer::start_with_stream(vec![lossy]).await;
+    let server = ReplayServer::start_with_stream(vec![lossy], None).await;
     let (conv, mut events) = Conversation::connect(&server.base_url, "dummy", "dsflash", None, None)
         .expect("connect");
     conv.open_workspace(None).await.expect("session/open");

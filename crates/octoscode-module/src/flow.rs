@@ -496,6 +496,11 @@ pub struct Conversation {
     /// #32h: set by open_workspace_as — submit must never target an
     /// un-opened session (the web's first message creates the thread).
     workspace_opened: Mutex<bool>,
+    /// #P4g1 row 204: the cwd the in-flight `session/open` requested, so the
+    /// reply arm can compare it with the server's returned
+    /// `workspace_root` (the web's `requireExactWorkspace` resume path,
+    /// `candidate-session.ts:230-243`).
+    pending_open_cwd: Mutex<Option<String>>,
     started: Instant,
 }
 
@@ -640,6 +645,7 @@ impl Conversation {
                 profile: Mutex::new(profile.to_owned()),
                 session_id: Mutex::new(format!("{profile}:main")),
                 workspace_opened: Mutex::new(false),
+                pending_open_cwd: Mutex::new(None),
                 started: Instant::now(),
             },
             evt_rx,
@@ -729,6 +735,9 @@ impl Conversation {
         cwd: Option<String>,
     ) -> Result<String, String> {
         let session_id = octos_core::SessionKey(id.to_owned());
+        // #P4g1 row 204: remember what THIS open asked for, so the reply arm
+        // can fail closed on a different returned workspace.
+        *self.pending_open_cwd.lock().unwrap() = cwd.clone();
         // Record the outbound frame BEFORE `cwd` moves into the params.
         self.frames.out(
             "session/open",
@@ -1173,6 +1182,36 @@ impl Conversation {
                 FlowEvent::Capabilities(n)
             }
             TransportEvent::RpcResult(LifecycleResult::SessionOpen(r)) => {
+                // #P4g1 row 204: a resume that ASKED for a workspace must not
+                // accept an open that answers a different one — the web's
+                // `validateCandidateWorkspace` throws "The server opened a
+                // different workspace from the saved link."
+                // (`candidate-session.ts:230-243`; fresh launches pass no cwd
+                // and may be canonicalized, exactly like the web's
+                // `requireExactWorkspace = false` default.) Fail closed:
+                // record the reject, never adopt this open's authority.
+                let requested = self.pending_open_cwd.lock().unwrap().take();
+                if let (Some(req), Some(actual)) =
+                    (requested.as_deref(), r.opened.workspace_root.as_deref())
+                {
+                    if !req.is_empty() && req != actual {
+                        ::log::warn!(
+                            "octoscode: session/open returned workspace {actual:?} for requested {req:?} — open rejected"
+                        );
+                        self.store.domains.session.note_workspace_reject(
+                            &r.opened.session_id.0,
+                            req,
+                            actual,
+                        );
+                        return FlowEvent::Other("session/open-workspace-mismatch".to_owned());
+                    }
+                }
+                if let Some(root) = &r.opened.workspace_root {
+                    self.store
+                        .domains
+                        .session
+                        .set_workspace_root(&r.opened.session_id.0, root);
+                }
                 // #34b — seed the opened session BEFORE anything folds a
                 // session/list reply: the web treats an opened session as
                 // known immediately (known-session-registry), so the reply's
@@ -1180,6 +1219,22 @@ impl Conversation {
                 self.store
                     .note_session_opened(&r.opened.session_id.0, None);
                 self.store.set_active(Some(r.opened.session_id.0.clone()));
+                // #P4g1 row 217: the open reply's `UiProtocolCapabilities`
+                // carries the advertised methods AND features — record both
+                // and evaluate the web's coding gate
+                // (coding-capabilities.ts:38-66 via
+                // `octoscode_client::features::missing_coding_session_requirements`).
+                let caps = &r.opened.capabilities;
+                self.store
+                    .domains
+                    .config
+                    .set_supported_methods(caps.supported_methods.clone());
+                self.store.domains.config.set_coding_gate(
+                    octoscode_client::features::missing_coding_session_requirements(
+                        &caps.supported_methods,
+                        &caps.supported_features,
+                    ),
+                );
                 FlowEvent::WorkspaceOpened(r.opened.session_id.0.clone())
             }
             TransportEvent::SessionsListed { sessions } => {
@@ -1194,6 +1249,23 @@ impl Conversation {
             }
             TransportEvent::DurableNotification { payload, .. }
             | TransportEvent::EphemeralNotification { payload } => {
+                // #P4g1 rows 205/213: the runtime scope gate. The durable
+                // projection (projection/envelope, protocol/replay_lossy)
+                // routes by session scope — out-of-scope frames are
+                // `wrong_session` ignores on the web
+                // (`durable-session.ts:117-124`) — and peer lifecycle events
+                // route ONLY by their full originating SessionKey
+                // (`scope.ts:27-31`). Foreign frames are logged by name and
+                // never reach a handler or the UI fold (no silent drop: the
+                // log line + this FlowEvent record the drop).
+                if self.out_of_runtime_scope(payload) {
+                    ::log::debug!(
+                        "octoscode: {} for a foreign session dropped (runtime scope {:?})",
+                        payload.method(),
+                        self.store.active_session()
+                    );
+                    return FlowEvent::Other(format!("wrong-session {}", payload.method()));
+                }
                 let ev = self.note_notification(payload);
                 self.registry.lock().unwrap().dispatch(payload);
                 // Card #26 §2: a `protocol/replay_lossy` just marked the session
@@ -1210,12 +1282,68 @@ impl Conversation {
                     result.clone(),
                 ) {
                     Ok(h) => {
-                        if let Some(seqs) = &h.projection_thread_sequences {
-                            self.store.domains.turn.fold_hydrate(seqs);
+                        // #P4g1 row 206: verify the returned session id BEFORE
+                        // committing anything — the web's `commitHydrate`
+                        // throws `Hydrate returned session …, expected …`
+                        // (`durable-session.ts:83-87`; the
+                        // `HydrateSessionMismatchError` "inherently fatal"
+                        // routing fault, `active-session-runtime.ts:371-380`).
+                        // Fail closed: fold nothing, keep the lossy phase so
+                        // the resync stays owed, and name the mismatch in the
+                        // log (no silent drop).
+                        if h.session_id.0 != *session_id {
+                            ::log::warn!(
+                                "octoscode: session/hydrate returned session {} for requested {session_id} — hydrate commit rejected",
+                                h.session_id.0
+                            );
+                            FlowEvent::Other("session/hydrate-mismatch".to_owned())
+                        } else {
+                            if let Some(seqs) = &h.projection_thread_sequences {
+                                self.store.domains.turn.fold_hydrate(seqs);
+                            }
+                            // #P4g1 row 206: adopt the hydrate's cursor — the
+                            // web's `commitHydrate` takes
+                            // `#cursor = { ...result.cursor }`
+                            // (`durable-session.ts:84`); max-wins in the store.
+                            self.store.domains.turn.adopt_hydrate_cursor(
+                                &h.cursor.stream,
+                                h.cursor.seq,
+                            );
+                            // Card #P4b2 (canonical hydrate recovery): rebuild the
+                            // transcript from the authoritative snapshot — the
+                            // web's `restoreCanonicalHydrate`
+                            // (`timeline/canonical-hydrate.ts:31`) reduced to the
+                            // store's rules: seq order, durable bodies finalized,
+                            // idempotent by seq identity, NEVER a delete. Sits
+                            // INSIDE the #P4g1 mismatch guard's else: only a
+                            // matching snapshot commits anything.
+                            let rows: Vec<octoscode_store::timeline::HydratedRow> = h
+                                .messages
+                                .iter()
+                                .flatten()
+                                .map(|m| octoscode_store::timeline::HydratedRow {
+                                    seq: m.seq,
+                                    role: m.role.as_str(),
+                                    content: m.content.as_str(),
+                                    turn_id: m.turn_id.as_ref().map(|t| t.0.to_string()),
+                                    reasoning: m.reasoning_content.as_deref(),
+                                })
+                                .collect();
+                            let added = if rows.is_empty() {
+                                0
+                            } else {
+                                self.store
+                                    .domains
+                                    .session
+                                    .timeline
+                                    .fold_hydrated_messages(&session_id, &rows)
+                            };
+                            self.store.domains.config.mark_recovered(&session_id);
+                            ::log::info!(
+                                "octoscode: session/hydrate folded for {session_id} (+{added} rows)"
+                            );
+                            FlowEvent::Other("session/hydrate".to_owned())
                         }
-                        self.store.domains.config.mark_recovered(&session_id);
-                        ::log::info!("octoscode: session/hydrate folded for {session_id}");
-                        FlowEvent::Other("session/hydrate".to_owned())
                     }
                     Err(e) => {
                         ::log::warn!("octoscode: session/hydrate decode: {e}");
@@ -1233,6 +1361,41 @@ impl Conversation {
 
     /// Record the flow's own view of a notification (tool rows, turn timing,
     /// pending approvals) — the things the store's domain handlers do not keep.
+    /// #P4g1 rows 205/213 — the runtime scope gate, the module's seam for the
+    /// web's `notificationMatchesSessionScope`
+    /// (`src-web/apps/web/src/features/session/scope.ts:7-44`) +
+    /// `DurableProjector.observe`'s `wrong_session` ignore
+    /// (`durable-session.ts:117-124`):
+    /// - `projection/envelope` and `protocol/replay_lossy` are DURABLE
+    ///   projections of ONE session: a frame whose session is not the
+    ///   runtime's active session is a `wrong_session` ignore on the web and
+    ///   must not reach a handler or the UI fold here.
+    /// - `peer/staged` / `peer/closed` "route only by their full originating
+    ///   SessionKey" (`scope.ts:27-31`) — slug/topic are payload, never the
+    ///   routing key.
+    /// - A topicless/legacy bare envelope decodes with the EMPTY session key;
+    ///   the web passes an undefined `session_id` through for non-peer events
+    ///   (`scope.ts:23-24`), so the empty key passes too.
+    /// Foreign frames are never a silent drop: the caller logs them by name
+    /// and records a `wrong-session <method>` FlowEvent.
+    fn out_of_runtime_scope(&self, n: &UiNotification) -> bool {
+        let active = self.store.active_session();
+        let foreign = |sid: &str| match &active {
+            Some(a) => a != sid,
+            None => true,
+        };
+        match n {
+            UiNotification::EnvelopeV2(frame) => {
+                !frame.session_id.0.is_empty() && foreign(&frame.session_id.0)
+            }
+            UiNotification::ReplayLossy(e) => foreign(&e.session_id.0),
+            // Peer lifecycle: the full originating SessionKey, exactly.
+            UiNotification::PeerStaged(e) => foreign(&e.session_id.0),
+            UiNotification::PeerClosed(e) => foreign(&e.session_id.0),
+            _ => false,
+        }
+    }
+
     fn note_notification(&self, n: &UiNotification) -> FlowEvent {
         let mut ui = self.ui.lock().unwrap();
         match n {
@@ -1566,6 +1729,45 @@ mod tests {
         // turn-B's own terminal does.
         ui.note_outcome("turn-B", "interrupted");
         assert_eq!(ui.worked_for(), "Interrupted");
+    }
+
+    /// #P4d1 row 147 — Esc still interrupts while a user question waits. The
+    /// question fold only raises `question_pending` (the
+    /// UserQuestionRequested arm); it never clears the live turn, so the
+    /// keyboard's Escape keeps routing to Interrupt (the web:
+    /// UserQuestionPanel.tsx:79 onEscape -> onInterrupt). Only the turn's
+    /// OWN terminal retires it — then Esc is a no-op again.
+    #[test]
+    fn esc_still_interrupts_while_a_question_waits() {
+        let mut ui = FlowUi::default();
+        ui.begin_turn_now("turn-q");
+        ui.set_pending_for_test(false, true);
+        // The question wait never ends the live turn…
+        assert!(
+            ui.turn_active(),
+            "a pending question must not retire the live turn"
+        );
+        // …so the keyboard's Escape still routes to Interrupt.
+        let action = crate::screens::keys::resolve(
+            makepad_widgets::KeyCode::Escape,
+            false, false, false, false,
+            false, // palette_open
+            false, // approval_pending
+            ui.turn_active(),
+            true,  // draft_empty
+        );
+        assert_eq!(action, crate::screens::keys::KeyAction::Interrupt);
+        // The turn's own terminal is what retires it — then Esc ignores.
+        ui.end_turn_now(false);
+        assert!(!ui.turn_active());
+        let action = crate::screens::keys::resolve(
+            makepad_widgets::KeyCode::Escape,
+            false, false, false, false,
+            false, false,
+            ui.turn_active(),
+            true,
+        );
+        assert_eq!(action, crate::screens::keys::KeyAction::Ignore);
     }
 
     /// Card #21d item 4: the label must be the atlas's `Sep 28, 9:41 PM`

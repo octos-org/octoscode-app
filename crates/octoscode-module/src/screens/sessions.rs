@@ -115,7 +115,11 @@ pub fn seed_aside(question: &str, answer: &str) {
 /// One resume row as the card's slot sees it (`store.sessions()` order —
 /// parity 331: candidates listed WITHOUT creating or selecting records).
 fn resume_rows(store: &Arc<crate::Store>) -> Vec<Value> {
-    store
+    // #P4g2 row 231: the web's row projection falls the title back to the
+    // row's last prompt (`workspace-session-catalog.ts:124`
+    // `title: entry.title ?? entry.lastPrompt`); the old native projection
+    // passed the bare title through.
+    let mut rows: Vec<Value> = store
         .sessions()
         .into_iter()
         .take(RESUME_ROWS)
@@ -123,14 +127,49 @@ fn resume_rows(store: &Arc<crate::Store>) -> Vec<Value> {
             // The card's meta grammar: "<host> • <when> • <n> turns".
             let host = s.id.split(':').next().unwrap_or("octos").to_owned();
             let when = s.updated_at.clone().unwrap_or_default();
+            // #P4g2 row 231, part 2: the web normalizes BOTH fields at
+            // ingestion — `entry.title?.trim() || null` and the same for
+            // `last_prompt` (workspace-session-catalog.ts:83-88) — so a
+            // whitespace-only title is null and falls through to the prompt.
+            let title = s
+                .title
+                .as_deref()
+                .map(str::trim)
+                .filter(|t| !t.is_empty())
+                .map(str::to_owned)
+                .or_else(|| {
+                    s.last_prompt
+                        .as_deref()
+                        .map(str::trim)
+                        .filter(|t| !t.is_empty())
+                        .map(str::to_owned)
+                });
             json!({
                 "id": s.id,
-                "title": s.title,
+                "title": title,
                 "meta": format!("{} • {} • {} turns", host, when, s.message_count),
                 "active_turn": s.active_turn,
             })
         })
-        .collect()
+        .collect();
+    // #P4g2 row 230: retained peers merge into the known rows WITHOUT
+    // stealing focus — appended AFTER the session rows (the web's
+    // `mergeConfirmedRetainedSessions` gives retained entries
+    // `lastOpenedAt: 0`, sorting them last — retained-session-catalog.ts:18)
+    // and no `session/open` is issued for them. Open peers only: a
+    // `peer/closed` peer is gone, so its row drops out.
+    for p in store.domains.peer.list() {
+        if p.closed || rows.len() >= RESUME_ROWS {
+            continue;
+        }
+        rows.push(json!({
+            "id": p.topic.clone().unwrap_or_else(|| format!("peer-{}", p.name)),
+            "title": p.name,
+            "meta": format!("peer • staged • {}", p.name),
+            "active_turn": false,
+        }));
+    }
+    rows
 }
 
 // ---- tables (one-owner: these ids exist nowhere else) ------------------------

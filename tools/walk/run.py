@@ -746,6 +746,41 @@ def t_new_chat(app):
 
 
 # ---- composer: draft, send, timeline, input round-trip -------------------- #
+@check("composer", "the approval pill cycles the permission mode and reflects the read-back")
+def cp_pill_cycle(app):
+    # #P4a1 — the pill was static art; clicking it now sends the web's
+    # permission/profile/set (permissions-section.tsx:27-28) and the label
+    # reflects the reply's `current.mode` read-back. Replay echoes the
+    # requested mode, so the cycle is fully observable offline.
+    MODES = ("Ask for approval", "read_only", "workspace_write")
+    def pill(d):
+        w = next((w for w in d.get("s", [])
+                  if (w.get("t") or "").strip() in MODES
+                  and (w.get("r") or [0, 0, 0, 0])[2] > 0), None)
+        return ((w.get("t") or "").strip(), w.get("r")) if w else (None, None)
+    t0, r0 = None, None
+    for _ in range(20):
+        t0, r0 = pill(app.snap())
+        if r0:
+            break
+        time.sleep(0.5)
+    if not r0:
+        return False, "approval pill not laid out (polled 10s)"
+    def cycle(expect_diff):
+        app.click(int(r0[0] + r0[2] / 2), int(r0[1] + r0[3] / 2))
+        for _ in range(20):
+            t, r = pill(app.snap())
+            if t and t != expect_diff:
+                return t, r
+            time.sleep(0.5)
+        return None, r0
+    t1, r1 = cycle(t0)
+    t2, r2 = cycle(t1 or "") if (r1 and t1) else (None, r0)
+    ok = (t1 in ("read_only", "workspace_write")
+          and t2 in ("read_only", "workspace_write") and t1 != t2)
+    return ok, f"pill cycle: {t0!r} -> {t1!r} -> {t2!r} (read-back reflected)"
+
+
 @check("composer", "the draft is a single TextInput with a placeholder")
 def comp_draft(app):
     ph = next((w.get("t") for w in app.snap().get("s", [])
@@ -1711,6 +1746,25 @@ def r_live(app):
     return "Live" in s, f"status={s!r}"
 
 
+@check("recovery", "the status strip labels stay constructed (no timeline text leaks)",
+       rows=("p4b2-parity-evidence-only",))
+def r_strip_purity(app):
+    # #P4b2 §8.23 evidence for the parity row `Strip state/thinking text from
+    # the session status strip label`: the strip text read from the LIVE /snap
+    # must be exactly the constructed shape (store summary() "conn: …   sessions: N")
+    # — never timeline text, even though this very fixture streams reasoning
+    # deltas into the transcript. rows= is a non-matching token on purpose:
+    # this check is parity EVIDENCE, it must not claim any walk row's depth.
+    d = app.snap()
+    st = (app.text_of(d, "status") or "").strip()
+    import re as _re
+    ok = bool(_re.fullmatch(r"conn: \S+\s+sessions: \d+", st))
+    leaked = [w.get("t") for w in d.get("s", [])
+              if w.get("t") and ("thinking…" in str(w.get("t")))
+              and str(w.get("i", "")) .startswith("status")]
+    return ok and not leaked, f"status strip from /snap: {st!r} (constructed={ok}, leak={bool(leaked)})"
+
+
 @check("recovery", "a replayed turn lands in the module's own transcript",
        rows=("replay", "reconnect", "recovery"))
 def r_replay(app):
@@ -1838,7 +1892,7 @@ SPECIFIC_CHECKS = {
     "a 227-column code line stays fully readable (wrapped, tail visible)",
     "the palette opens by '/', lists its commands and executes one by keyboard",
     "a TUI-only slash command reports fail-closed and a path prompt still turns",
-    "a queued follow-up drains as its own turn and a reselect replays nothing",
+    "a follow-up drains as its own turn and a reselect replays nothing",
     "General settings carries the server connection action",
     "a failed local command restores the typed input and sends nothing",
     "a real coding turn streams, terminates, and the timeline survives a refresh",
@@ -1853,6 +1907,7 @@ SPECIFIC_CHECKS = {
     "the a11y keyboard guarantees hold: Ctrl+K, Esc, / all route",
     # from origin/main (#36g follow-ups):
     "the closed-state review opener lays out and opens the panel by click",
+    "the approval pill cycles the permission mode and reflects the read-back",
     "the drawer's close hit is a real 28x28 slot and Disconnect ends inside the window",
 }
 for _c in CHECKS:

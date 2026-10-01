@@ -43,7 +43,10 @@ pub enum KeyAction {
     PaletteMove(isize),
     /// Run the palette's selected command (Enter while open).
     PaletteRun,
-    /// Interrupt the live turn (Esc, no overlay).
+    /// Interrupt the live turn (Esc, no overlay) — the wire frame is
+    /// "turn/interrupt" (Conversation::interrupt; the web's
+    /// ComposerInput.tsx:245-252, and UserQuestionPanel.tsx:79 keeps the
+    /// same Escape route while a question card waits — #P4d1 row 147).
     Interrupt,
     /// Y — approve for this request only (`ApprovalPanel.tsx:46-48`).
     ApprovalApproveRequest,
