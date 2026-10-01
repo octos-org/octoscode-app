@@ -121,6 +121,50 @@ pub fn wire_card_events_dir(dsl: &str, card_dir: &std::path::Path) -> String {
     out
 }
 
+/// Wire EXPLICIT (event, x, y) controls into a lowered `dsl`, bypassing the
+/// card's authored `source_bounds`.
+///
+/// [`wire_card_events_dir`] matches each control's Stage-A atlas
+/// `source_bounds` against the emitted `abs_pos` and tolerates 1.5px of drift
+/// (`POS_TOLERANCE`). The autonomy cards are authored from a DIFFERENT atlas
+/// pass than the one their `page.data.json` was laid out from, so the two
+/// disagree by far more than 1.5px — measured (P4e1c): goal's Pause sits 4px
+/// and Stop 16px right of its authored bounds, so the shared helper wires
+/// **zero** goal controls. This function instead takes the card's OWN
+/// placements (the geometry the card actually renders), so a handler follows
+/// what is on screen rather than what the atlas recorded.
+///
+/// Additive: `wire_card_events_dir` keeps its authored-bounds path, so no
+/// existing caller's behaviour changes.
+///
+/// Each control is `(name, event, x, y)`. The returned report is
+/// `(name, event, wired)`; `wired: false` is the honest record of a control
+/// the card drew but the DSL cannot click (an `Svg` icon, a `Text` node) — the
+/// caller reports those rather than pretending they are live.
+pub fn wire_events_at(
+    dsl: &str,
+    controls: &[(String, String, f64, f64)],
+) -> (String, Vec<(String, String, bool)>) {
+    let mut out = dsl.to_owned();
+    let mut report = Vec::with_capacity(controls.len());
+    for (name, event, x, y) in controls {
+        out = inject_click(&out, event, *x, *y);
+        // Whether the control is wired is decided by the DSL CARRYING the
+        // handler, never by a length delta: `inject_click` rebuilds through
+        // `lines()` + `join("\n")`, which drops a trailing newline, so a card
+        // with no Button at all still changed length while wiring nothing.
+        // A length-based flag reported those as wired — the false "verified"
+        // RULES calls the worst outcome.
+        let wired = out.contains(&format!("NAV(t: {event:?})"));
+        report.push((name.clone(), event.clone(), wired));
+    }
+    makepad_widgets::log!(
+        "[octoscode] card events: {} tap(s) wired at card placements",
+        report.iter().filter(|(_, _, w)| *w).count()
+    );
+    (out, report)
+}
+
 /// #32h item 1 (the dispatch layer, the outer loop's L4): the (widget name,
 /// action id) pairs the wired taps created. The host maps the names to live
 /// widget ids and routes the clicks — nothing dispatched clicks inside the
