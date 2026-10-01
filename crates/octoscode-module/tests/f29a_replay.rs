@@ -188,6 +188,54 @@ async fn the_recorded_run_creates_the_profile_and_propagates_the_real_test_failu
     assert_eq!(recorded_create.body["profile_id"], "octos-dev");
 }
 
+// #P4a2 — the keyless NEGOTIATION hits the wire: with a keyless family
+// (empty env) and an empty key input, the run sends the web's exact
+// non-empty probe value as the test key (octos#2123 via
+// onboarding-submission.ts:51-53 `wireApiKey = apiKey ||
+// KEYLESS_CORE_PROBE`; the native mirror is screens/connect.rs
+// KEYLESS_PROBE behind the same requires_key gate).
+#[tokio::test]
+async fn an_empty_key_on_a_keyless_family_negotiates_the_probe_value_on_the_wire() {
+    let frames = fixture();
+    let server = ReplayServer::start(frames.clone()).await;
+    let conv = connected(&server).await;
+
+    // The panel's prepare hands the run its ALREADY-FETCHED catalog
+    // (use-onboarding.ts:91); the recorded one is mutated to the keyless
+    // shape (env = ""), exactly the field selectionFromCatalog reads.
+    let mut catalog: octoscode_client::domains::profile::LlmCatalogResult =
+        serde_json::from_value(recorded(&frames, "profile/llm/catalog").body)
+            .expect("the recorded catalog parses");
+    catalog
+        .families
+        .iter_mut()
+        .find(|f| f.id == "deepseek")
+        .expect("the recorded catalog advertises deepseek")
+        .env = String::new();
+
+    // The run with an EMPTY key: the replayed test verdict still fails the
+    // run (the fixture's recorded 401) — the WIRE is what this asserts.
+    let _ = connect::run_onboarding(
+        conv.client(),
+        "octos-dev",
+        "octos-dev",
+        "",
+        Provider::DeepSeek,
+        Some(catalog),
+    )
+    .await;
+
+    let test = server.sent("profile/llm/test").expect("llm/test sent");
+    assert_eq!(
+        test["api_key"], "octoscode-web-keyless-probe",
+        "an empty key must negotiate to the web's exact probe value on the wire"
+    );
+    assert_eq!(
+        test["selection"]["route"]["api_key_env"], "",
+        "the keyless family keeps its empty env (the web's selectionFromCatalog)"
+    );
+}
+
 #[tokio::test]
 async fn the_recorded_catalog_parses_and_the_radio_derives_the_official_route() {
     let frames = fixture();
