@@ -980,6 +980,29 @@ pub async fn perform(
     Ok(text.to_owned())
 }
 
+/// Install a prepared draft on this authority, so a caller that has already
+/// selected/uploaded through the store's own API hands the SAME store to the
+/// send path. Without it `perform` would mint its own empty draft and the batch
+/// would never be built.
+pub fn seed_draft_for_test(
+    conv: &crate::flow::Conversation,
+    scope: &AttachmentScope,
+    drafts: &Arc<AttachmentDraftStore>,
+) {
+    // Key on the conversation's own authority so `perform` finds this store.
+    draft_map()
+        .lock()
+        .unwrap()
+        .insert(conv.session_id(), drafts.clone());
+    let _ = scope;
+}
+
+/// Forget this authority's draft, so a text-only send sees an EMPTY draft
+/// (the web's `takeForTurn` on an empty store yields an empty batch).
+pub fn clear_draft_for_test(conv: &crate::flow::Conversation) {
+    draft_map().lock().unwrap().remove(&conv.session_id());
+}
+
 /// The bound authority for this conversation: the Session is the authority key
 /// and the Profile is the scope's Profile.
 fn current_scope(conv: &crate::flow::Conversation) -> AttachmentScope {
@@ -990,13 +1013,19 @@ fn current_scope(conv: &crate::flow::Conversation) -> AttachmentScope {
     }
 }
 
+/// THE one draft map, shared by the seed helper and the send path. Two
+/// separate `static OnceLock`s would silently give them different maps.
+fn draft_map() -> &'static Mutex<HashMap<String, Arc<AttachmentDraftStore>>> {
+    use std::sync::OnceLock;
+    static DRAFTS: OnceLock<Mutex<HashMap<String, Arc<AttachmentDraftStore>>>> = OnceLock::new();
+    DRAFTS.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
 /// The per-Session draft store, keyed on the authority in an `Arc`, so a draft
 /// survives an ordinary Session switch and is dropped when the last handle goes
 /// (attachment-drafts.ts:54-59). No leak, and no second throwaway store.
 fn drafts_for(scope: &AttachmentScope) -> Arc<AttachmentDraftStore> {
-    use std::sync::OnceLock;
-    static DRAFTS: OnceLock<Mutex<HashMap<String, Arc<AttachmentDraftStore>>>> = OnceLock::new();
-    let map = DRAFTS.get_or_init(|| Mutex::new(HashMap::new()));
+    let map = draft_map();
     let key = scope.authority_key.clone();
     let mut m = map.lock().unwrap();
     // A retired authority starts a fresh, empty draft.

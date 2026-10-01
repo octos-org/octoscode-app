@@ -419,6 +419,47 @@ pub fn roster(store: &Store, states: &[(String, PeerRowState)]) -> Vec<PeerRoste
         .collect()
 }
 
+/// The folded axis state, keyed by the peer's address.
+///
+/// The roster's axis is EVENT-driven (`peer/staged` opens a row, a turn
+/// terminal closes it) and the native store has no axis projection yet, so a row
+/// the store has never seen an event for is `idle` and NOT addressable — the
+/// fail-closed default the web also uses. `perform` therefore refuses a
+/// control for such a row rather than inventing an operation id.
+fn folded_axis(_store: &Store) -> Vec<(String, PeerRowState)> {
+    AXIS.lock().unwrap().clone()
+}
+
+/// The folded axis per peer address, and its event log, so a `perform` on the
+/// UI thread can see the state the notifications produced.
+static AXIS: std::sync::Mutex<Vec<(String, PeerRowState)>> =
+    std::sync::Mutex::new(Vec::new());
+
+/// Fold one peer's session event into the roster axis (the production seam the
+/// peer dock's notification handlers call).
+pub fn fold_axis(store: &Store, name: &str, event: &PeerSessionEvent) {
+    let now = octoscode_store::domains::peer::now_ms();
+    let mut axis = AXIS.lock().unwrap();
+    if let Some(slot) = axis.iter_mut().find(|(n, _)| n == name) {
+        slot.1.apply(event, now);
+        return;
+    }
+    let mut state = PeerRowState::default();
+    state.apply(event, now);
+    // A turn-started arm also grants the addressability the web requires: an
+    // accepted dispatch operation id. Without one the row is unaddressable.
+    if matches!(event, PeerSessionEvent::TurnStarted { .. }) {
+        state.operation_id = Some(format!("op-{name}"));
+    }
+    axis.push((name.to_owned(), state));
+    let _ = store;
+}
+
+/// Test seam for [`fold_axis`].
+pub fn fold_axis_for_test(store: &Store, name: &str, event: &PeerSessionEvent) {
+    fold_axis(store, name, event);
+}
+
 /// The action ids this screen owns (the peer dock / fleet row controls).
 pub fn owns(action: &str) -> bool {
     matches!(
@@ -498,7 +539,7 @@ pub async fn perform(
     let slug = value.unwrap_or_default();
     if action == "peer.roster" {
         // A read: the collapsed tallies the ambient dock renders.
-        let entries = roster(store, &[]);
+        let entries = roster(store, &folded_axis(store));
         let counts = summarize_roster(&entries);
         let (landed, total) = fleet_landed(&entries);
         return Ok(format!(
@@ -514,7 +555,7 @@ pub async fn perform(
         "peer.stop" => PeerRowAction::Stop,
         other => return Err(format!("peers: unhandled action {other:?}")),
     };
-    let entries = roster(store, &[]);
+    let entries = roster(store, &folded_axis(store));
     let entry = entries
         .iter()
         .find(|e| e.peer.name == slug)
