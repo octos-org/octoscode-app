@@ -1056,6 +1056,10 @@ impl Conversation {
                     ),
                 );
                 self.ui.lock().unwrap().set_draft_inner(String::new());
+                // #P4a's lesson, again: an async arm on the tokio thread that
+                // mutates the store never repaints by itself — wake the UI or
+                // the receipt stays invisible until some other event draws.
+                makepad_widgets::SignalToUI::set_ui_signal();
                 ::log::info!(
                     "octoscode: command /{name}: not runnable natively — \
                      receipt appended, composer cleared"
@@ -1076,6 +1080,7 @@ impl Conversation {
                          nothing was sent to the model."
                     ),
                 );
+                makepad_widgets::SignalToUI::set_ui_signal();
                 ::log::info!(
                     "octoscode: command /{name}: unknown — receipt appended, \
                      draft kept"
