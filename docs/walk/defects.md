@@ -36,3 +36,21 @@ defects, so none are defects under this card's rule):
   first bubble (raw whole-snap text double-counts via the thread-row title's two
   instances). Capture: docs/walk/evidence/area-composer.png (final full run);
   retests tmp/33b-composer-retest2.log, full run tmp/33b-walk-final3.log.
+
+## #39a — live FAIL (REAL dsflash gate, --live run 3)
+
+- **row 2** (conversation, "keeps a background turn alive while a sibling Session is
+  focused"): a real turn was started, then a sibling session was focused via New
+  chat. At that point the sidebar `thread_list` rendered ZERO rows and the status
+  label flipped to `conn: Live   sessions: 0` (it read `sessions: 1` at mount); the
+  original session's row (`dsflash:main`) never came back within the ~23 s
+  observation window (15 s title-text poll + waits), so the background turn's
+  outcome was unreachable in the UI. Check: `a live turn keeps running while a
+  sibling session is focused` -> "the original session row never came back".
+  Candidate causes (unverified): `session/list` not refreshed after `session/new`,
+  or the new-session navigation dropping the store's session rows. Capture:
+  docs/walk/evidence/phase3/39a-live-row2-fail.png (+ .snap.json: empty
+  thread_list, status `sessions: 0`, timeline showing only the fresh session's
+  newchat/composer widgets). Row 1 (a real coding turn streams, terminates, and
+  the timeline keeps bubble+answer) PASSED in the same run
+  (streamed+terminal=1.7 s, prose=2, bubbles laid out=2).
