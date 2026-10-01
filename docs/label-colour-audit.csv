@@ -1,0 +1,3 @@
+file,line,has_text_colour,total_blocks
+crates/octoscode-module/src/lib.rs,all,true,38
+crates/octoscode-module/src/lib.rs,without_text_colour,false,0
