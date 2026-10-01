@@ -933,12 +933,14 @@ mod tests {
 
 // ------------------------------------------------- the production surface
 
-/// The action ids this screen owns (the composer's attachment control).
+/// The action ids this screen owns TODAY.
+///
+/// Only `media.submit` is dispatched; `media.select`/`media.upload`/
+/// `media.remove` have no production caller until the AttachmentsDialog lands
+/// (a design-flow surface), so claiming them here would be RULES 3's
+/// "test-only == missing" in reverse.
 pub fn owns(action: &str) -> bool {
-    matches!(
-        action,
-        "media.select" | "media.upload" | "media.submit" | "media.remove"
-    )
+    action == "media.submit"
 }
 
 /// The production send path: the draft is consumed ONLY at the ACCEPTED local
@@ -958,7 +960,10 @@ pub async fn perform(
     store: &Store,
     value: Option<&str>,
 ) -> Result<String, String> {
-    let _ = (store, action);
+    let _ = store;
+    if action != "media.submit" {
+        return Err(format!("media: unhandled action {action:?}"));
+    }
     let text = value.unwrap_or_default();
     let scope = current_scope(conv);
     let drafts = drafts_for(&scope);
