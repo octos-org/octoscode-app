@@ -38,7 +38,7 @@ SCENARIO_PORT = 8387  # this lane's documented block (8380–8389)
 DEAD_URL = "http://127.0.0.1:8399"  # nothing listens — the app stays first-run
 
 ACTION_LOG = re.compile(
-    r"\[octoscode\].*(clicked|perform|route|draft synced|->)")
+    r"\[octoscode\].*(clicked|perform|route|card tap|screen action|draft synced|->)")
 
 # Host-chrome controls are the same on every docked screen; their actions come
 # from lib.rs's host arms (cited), NOT from a screen ACTIONS table.
