@@ -155,60 +155,24 @@
             "id": "tab_tools_fill",
             "x": 32,
             "y": 168,
-            "w": 50.1,
+            "w": 60,
             "h": 20,
-            "variant": "pill",
+            "c": [],
+            "variant": "surface",
             "bg": 4278190080,
-            "radius": 10,
-            "c": [
-              {
-                "t": "text",
-                "id": "tab_tools_fill_t",
-                "text": "Tools",
-                "x": 40,
-                "y": 171,
-                "w": 34.1,
-                "h": 14,
-                "size": 11,
-                "line_height": 13.42,
-                "weight": 500,
-                "color": 4294967295,
-                "variant": "single_line",
-                "alignx": 0,
-                "font_src": "self:resources/ux/Inter-500.ttf",
-                "tracking": 0.0
-              }
-            ]
+            "radius": 10
           },
           {
             "t": "stack",
             "id": "tab_mcp_fill",
             "x": 104,
             "y": 168,
-            "w": 91.0,
+            "w": 92,
             "h": 20,
-            "variant": "pill",
+            "c": [],
+            "variant": "surface",
             "bg": 4294111991,
-            "radius": 10,
-            "c": [
-              {
-                "t": "text",
-                "id": "tab_mcp_fill_t",
-                "text": "MCP servers",
-                "x": 112,
-                "y": 171,
-                "w": 75.0,
-                "h": 14,
-                "size": 11,
-                "line_height": 13.42,
-                "weight": 500,
-                "color": 4280098079,
-                "variant": "single_line",
-                "alignx": 0,
-                "font_src": "self:resources/ux/Inter-500.ttf",
-                "tracking": 0.0
-              }
-            ]
+            "radius": 10
           },
           {
             "t": "stack",

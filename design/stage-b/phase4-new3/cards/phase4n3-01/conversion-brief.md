@@ -141,54 +141,22 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "id": "tab_tools_fill",
     "x": 32,
     "y": 168,
-    "w": 50.1,
+    "w": 60,
     "h": 20,
     "role": "layout",
     "native_candidates": [
       "View"
-    ]
-  },
-  {
-    "id": "tab_tools_fill_t",
-    "x": 40,
-    "y": 171,
-    "w": 34.1,
-    "h": 14,
-    "text": "Tools",
-    "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 11,
-    "weight": 500,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
     ]
   },
   {
     "id": "tab_mcp_fill",
     "x": 104,
     "y": 168,
-    "w": 91.0,
+    "w": 92,
     "h": 20,
     "role": "layout",
     "native_candidates": [
       "View"
-    ]
-  },
-  {
-    "id": "tab_mcp_fill_t",
-    "x": 112,
-    "y": 171,
-    "w": 75.0,
-    "h": 14,
-    "text": "MCP servers",
-    "font_src": "self:resources/ux/Inter-500.ttf",
-    "size": 11,
-    "weight": 500,
-    "role": "text",
-    "native_candidates": [
-      "Label",
-      "TextFlow"
     ]
   },
   {

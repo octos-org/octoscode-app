@@ -111,6 +111,45 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "btn_close_row",
+    "x": 330,
+    "y": 82,
+    "w": 24,
+    "h": 20,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "btn_close_t",
+    "x": 330,
+    "y": 82,
+    "w": 24,
+    "h": 18.3,
+    "text": "\u2715",
+    "font_src": "self:resources/ux/Inter-400.ttf",
+    "size": 15,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "btn_close",
+    "x": 330,
+    "y": 82,
+    "w": 24,
+    "h": 20,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
     "id": "f_folder_row",
     "x": 32,
     "y": 150,
@@ -300,7 +339,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "btn_drill_disabled_row",
     "x": 32,
-    "y": 286,
+    "y": 312,
     "w": 260,
     "h": 20,
     "role": "layout",
@@ -311,7 +350,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "btn_drill_disabled_t",
     "x": 32,
-    "y": 286,
+    "y": 312,
     "w": 260,
     "h": 17,
     "text": "Open folder browser (unavailable)",
@@ -327,7 +366,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
   {
     "id": "btn_drill_disabled",
     "x": 32,
-    "y": 286,
+    "y": 312,
     "w": 260,
     "h": 20,
     "role": "button",

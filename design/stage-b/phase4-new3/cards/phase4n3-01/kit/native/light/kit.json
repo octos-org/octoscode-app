@@ -82,6 +82,18 @@
       "value": 4278190080,
       "property": "bg"
     },
+    "size_3fdba35f04dc": {
+      "value": 13,
+      "property": "size"
+    },
+    "line_height_6f417393dc03": {
+      "value": 15.86,
+      "property": "line_height"
+    },
+    "color_f807212b6748": {
+      "value": 4294967295,
+      "property": "color"
+    },
     "size_4fc82b26aecb": {
       "value": 11,
       "property": "size"
@@ -94,21 +106,9 @@
       "value": 500,
       "property": "weight"
     },
-    "color_f807212b6748": {
-      "value": 4294967295,
-      "property": "color"
-    },
     "font_src_cb352dc03af3": {
       "value": "self:resources/ux/Inter-500.ttf",
       "property": "font_src"
-    },
-    "size_3fdba35f04dc": {
-      "value": 13,
-      "property": "size"
-    },
-    "line_height_6f417393dc03": {
-      "value": 15.86,
-      "property": "line_height"
     },
     "bg_d3727bcbe31e": {
       "value": 4280256573,
@@ -317,10 +317,10 @@
       },
       "slot": false
     },
-    "Surface566158604ce0": {
+    "Surfaced5469d4a181d": {
       "style": {
         "t": "stack",
-        "variant": "pill",
+        "variant": "surface",
         "bg": {
           "$token": "bg_33c64e1da9ef"
         },
@@ -330,78 +330,6 @@
       },
       "props": {},
       "slot": true
-    },
-    "Textb014b7fa954a": {
-      "style": {
-        "t": "text",
-        "size": {
-          "$token": "size_4fc82b26aecb"
-        },
-        "line_height": {
-          "$token": "line_height_46267923268f"
-        },
-        "weight": {
-          "$token": "weight_0604cd3138fe"
-        },
-        "color": {
-          "$token": "color_f807212b6748"
-        },
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": {
-          "$token": "font_src_cb352dc03af3"
-        },
-        "tracking": {
-          "$token": "tracking_8aed642bf511"
-        }
-      },
-      "props": {
-        "text": "text"
-      },
-      "slot": false
-    },
-    "Surface7b33a3d4a9a8": {
-      "style": {
-        "t": "stack",
-        "variant": "pill",
-        "bg": {
-          "$token": "bg_da6da7821846"
-        },
-        "radius": {
-          "$token": "radius_4a44dc153642"
-        }
-      },
-      "props": {},
-      "slot": true
-    },
-    "Text4a1bcd055c05": {
-      "style": {
-        "t": "text",
-        "size": {
-          "$token": "size_4fc82b26aecb"
-        },
-        "line_height": {
-          "$token": "line_height_46267923268f"
-        },
-        "weight": {
-          "$token": "weight_0604cd3138fe"
-        },
-        "color": {
-          "$token": "color_e0ccdd36059a"
-        },
-        "variant": "single_line",
-        "alignx": 0,
-        "font_src": {
-          "$token": "font_src_cb352dc03af3"
-        },
-        "tracking": {
-          "$token": "tracking_8aed642bf511"
-        }
-      },
-      "props": {
-        "text": "text"
-      },
-      "slot": false
     },
     "Text8b8f48254c8b": {
       "style": {

@@ -84,39 +84,21 @@
         }
       },
       "tab_tools_fill": {
-        "component": "Surface566158604ce0",
+        "component": "Surfaced5469d4a181d",
         "layout": {
           "x": 32,
           "y": 168,
-          "w": 50.1,
+          "w": 60,
           "h": 20
-        }
-      },
-      "tab_tools_fill_t": {
-        "component": "Textb014b7fa954a",
-        "layout": {
-          "x": 40,
-          "y": 171,
-          "w": 34.1,
-          "h": 14
         }
       },
       "tab_mcp_fill": {
-        "component": "Surface7b33a3d4a9a8",
+        "component": "Surfaced4707dd25870",
         "layout": {
           "x": 104,
           "y": 168,
-          "w": 91.0,
+          "w": 92,
           "h": 20
-        }
-      },
-      "tab_mcp_fill_t": {
-        "component": "Text4a1bcd055c05",
-        "layout": {
-          "x": 112,
-          "y": 171,
-          "w": 75.0,
-          "h": 14
         }
       },
       "tab_tools_row": {

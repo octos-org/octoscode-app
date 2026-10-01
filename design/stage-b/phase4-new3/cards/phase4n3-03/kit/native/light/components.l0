@@ -19,6 +19,9 @@ component Text7d630b6bd848(instance: text, text: text) {
 component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
   view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
 }
+component Textfa6531db81c6(instance: text, text: text) {
+  view Kit(component: "Textfa6531db81c6", instance: instance, text: text)
+}
 component Surfaced4707dd25870(instance: text) {
   view Kit(component: "Surfaced4707dd25870", instance: instance) { slot }
 }

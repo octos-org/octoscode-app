@@ -4,6 +4,7 @@
 # Static design fixture, runtime native Kit composition.
 theme light
 copy t_title_text { class: user-copy, en: "Add workspace" }
+copy btn_close_t_text { class: user-copy, en: "✕" }
 copy wd_label_text { class: user-copy, en: "Server's working directory" }
 copy wd_path_text { class: user-copy, en: "/home/user/octos" }
 copy wd_help_text { class: user-copy, en: "Start a new session here" }
@@ -22,6 +23,7 @@ copy f_path_ph_text { class: user-copy, en: "/path/to/project" }
 copy btn_enter_t_text { class: user-copy, en: "Enter" }
 copy help_browse_text { class: user-copy, en: "Choosing a folder fills the path box." }
 copy btn_browse_t_text { class: user-copy, en: "Browse server folders…" }
+state btn_close_enabled { shape: bool, initial: true }
 state wd_start_enabled { shape: bool, initial: true }
 state rec_0_pick_enabled { shape: bool, initial: true }
 state rec_1_pick_enabled { shape: bool, initial: true }
@@ -40,6 +42,15 @@ component Surface11a4cded75fe(instance: text) {
 component Text840b7001f71f(instance: text, text: text) {
   view Kit(component: "Text840b7001f71f", instance: instance, text: text)
 }
+component Group3d2637879433(instance: text) {
+  view Kit(component: "Group3d2637879433", instance: instance) { slot }
+}
+component Textfa6531db81c6(instance: text, text: text) {
+  view Kit(component: "Textfa6531db81c6", instance: instance, text: text)
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
 component Surfaced4707dd25870(instance: text) {
   view Kit(component: "Surfaced4707dd25870", instance: instance) { slot }
 }
@@ -52,14 +63,8 @@ component Textc9b85a486b80(instance: text, text: text) {
 component Text09ef707ce916(instance: text, text: text) {
   view Kit(component: "Text09ef707ce916", instance: instance, text: text)
 }
-component Group3d2637879433(instance: text) {
-  view Kit(component: "Group3d2637879433", instance: instance) { slot }
-}
 component Text7d630b6bd848(instance: text, text: text) {
   view Kit(component: "Text7d630b6bd848", instance: instance, text: text)
-}
-component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
-  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
 }
 component Textd514fa7b4cc2(instance: text, text: text) {
   view Kit(component: "Textd514fa7b4cc2", instance: instance, text: text)
@@ -92,6 +97,10 @@ view root Surfacef468f03a0025(instance: "page") {
   }
   Surface11a4cded75fe(instance: "modal_card") {
     Text840b7001f71f(instance: "t_title", text: copy.t_title_text)
+    Group3d2637879433(instance: "btn_close_row") {
+      Textfa6531db81c6(instance: "btn_close_t", text: copy.btn_close_t_text)
+      NativeButton02f1d1bd99b4(instance: "btn_close", enabled: btn_close_enabled)
+    }
     Surfaced4707dd25870(instance: "wd_card") {
 
     }

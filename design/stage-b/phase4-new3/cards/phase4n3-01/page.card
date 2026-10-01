@@ -6,8 +6,6 @@ theme light
 copy t_title_text { class: user-copy, en: "Runtime inventory" }
 copy t_sub_text { class: user-copy, en: "12 tools · 3 servers" }
 copy f_search_text_text { class: user-copy, en: "Search names, status, or tools…" }
-copy tab_tools_fill_t_text { class: user-copy, en: "Tools" }
-copy tab_mcp_fill_t_text { class: user-copy, en: "MCP servers" }
 copy tab_tools_t_text { class: user-copy, en: "Tools" }
 copy tab_mcp_t_text { class: user-copy, en: "MCP servers" }
 copy h_tools_text { class: user-copy, en: "TOOLS" }
@@ -75,17 +73,8 @@ component Text0caa141626b1(instance: text, text: text) {
 component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
   view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
 }
-component Surface566158604ce0(instance: text) {
-  view Kit(component: "Surface566158604ce0", instance: instance) { slot }
-}
-component Textb014b7fa954a(instance: text, text: text) {
-  view Kit(component: "Textb014b7fa954a", instance: instance, text: text)
-}
-component Surface7b33a3d4a9a8(instance: text) {
-  view Kit(component: "Surface7b33a3d4a9a8", instance: instance) { slot }
-}
-component Text4a1bcd055c05(instance: text, text: text) {
-  view Kit(component: "Text4a1bcd055c05", instance: instance, text: text)
+component Surfaced5469d4a181d(instance: text) {
+  view Kit(component: "Surfaced5469d4a181d", instance: instance) { slot }
 }
 component Text8b8f48254c8b(instance: text, text: text) {
   view Kit(component: "Text8b8f48254c8b", instance: instance, text: text)
@@ -147,11 +136,11 @@ view root Surfacef468f03a0025(instance: "page") {
       Text0caa141626b1(instance: "f_search_text", text: copy.f_search_text_text)
       NativeButton02f1d1bd99b4(instance: "f_search", enabled: f_search_enabled)
     }
-    Surface566158604ce0(instance: "tab_tools_fill") {
-      Textb014b7fa954a(instance: "tab_tools_fill_t", text: copy.tab_tools_fill_t_text)
+    Surfaced5469d4a181d(instance: "tab_tools_fill") {
+
     }
-    Surface7b33a3d4a9a8(instance: "tab_mcp_fill") {
-      Text4a1bcd055c05(instance: "tab_mcp_fill_t", text: copy.tab_mcp_fill_t_text)
+    Surfaced4707dd25870(instance: "tab_mcp_fill") {
+
     }
     Group3d2637879433(instance: "tab_tools_row") {
       Text8b8f48254c8b(instance: "tab_tools_t", text: copy.tab_tools_t_text)

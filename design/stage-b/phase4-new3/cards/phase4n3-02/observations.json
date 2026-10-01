@@ -1,8 +1,90 @@
 {
-  "width": 406,
-  "height": 776,
-  "observations": [
+  "schema_version": 1,
+  "reference_sha256": "33b8eb78028ea1ceb7277952faceb3f07cb7b7425bbc7b1f035094053933e78f",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.06408012050645284,
+  "text": [
     {
+      "id": "t_title",
+      "expected_text": "Add workspace",
+      "requested_bounds": [
+        32,
+        82,
+        240,
+        24.4
+      ],
+      "status": "observed",
+      "ocr_text": "Add workspace",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        32.54852320675106,
+        210.03305785123968,
+        123.34177215189874,
+        19.2396694214876
+      ],
+      "ink_color": [
+        8,
+        8,
+        8
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        30.83544351518987,
+        208.42975222644623,
+        128.48101265822785,
+        22.44628099173555
+      ]
+    },
+    {
+      "id": "btn_close_t",
+      "expected_text": "\u2715",
+      "requested_bounds": [
+        330,
+        82,
+        24,
+        18.3
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "wd_label",
+      "expected_text": "Server's working directory",
+      "requested_bounds": [
+        44,
+        126,
+        240,
+        16
+      ],
+      "status": "observed",
+      "ocr_text": "Server's working directory",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        31.691983122362867,
+        270.1570247933884,
+        162.74261603375527,
+        16.03305785123967
+      ],
+      "ink_color": [
+        51,
+        51,
+        51
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        29.12236405611814,
+        269.3553718321133,
+        166.168776371308,
+        19.239669421487626
+      ]
+    },
+    {
+      "id": "wd_path",
       "expected_text": "/home/user/octos",
       "requested_bounds": [
         44,
@@ -10,14 +92,85 @@
         200,
         16
       ],
+      "status": "observed",
+      "ocr_text": "/home/user/octos",
+      "confidence": 1,
+      "text_similarity": 1.0,
       "ink_bounds": [
-        44,
-        146,
-        200,
-        16
+        77.0886075949367,
+        425.6776859504132,
+        113.91983122362869,
+        12.024793388429751
+      ],
+      "ink_color": [
+        82,
+        82,
+        84
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        75.37552860818562,
+        424.876033009752,
+        118.20253164556962,
+        14.429752066115697
       ]
     },
     {
+      "id": "wd_help",
+      "expected_text": "Start a new session here",
+      "requested_bounds": [
+        252,
+        146,
+        118,
+        16
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "wd_start_t",
+      "expected_text": "Start a new session in /home/user/octos",
+      "requested_bounds": [
+        44,
+        178,
+        318,
+        17
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "h_recent",
+      "expected_text": "Recent workspaces",
+      "requested_bounds": [
+        32,
+        206,
+        240,
+        16
+      ],
+      "status": "observed",
+      "ocr_text": "Recent workspaces",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        31.691983122362867,
+        359.1404958677686,
+        117.34599156118144,
+        15.231404958677686
+      ],
+      "ink_color": [
+        54,
+        55,
+        55
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        29.098451854531802,
+        357.4038667486196,
+        121.67651425132266,
+        19.50631570421955
+      ]
+    },
+    {
+      "id": "rec_0_name",
       "expected_text": "octos",
       "requested_bounds": [
         44,
@@ -25,14 +178,85 @@
         160,
         16
       ],
+      "status": "observed",
+      "ocr_text": "octos",
+      "confidence": 1,
+      "text_similarity": 1.0,
       "ink_bounds": [
-        44,
-        238,
-        160,
-        16
+        77.0886075949367,
+        403.2314049586777,
+        37.687763713080166,
+        11.223140495867769
+      ],
+      "ink_color": [
+        43,
+        42,
+        44
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        73.60402697820585,
+        402.2920641041993,
+        42.94384464634118,
+        16.308433375082743
       ]
     },
     {
+      "id": "rec_0_br",
+      "expected_text": "feat/steer-queue",
+      "requested_bounds": [
+        210,
+        239,
+        100,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "rec_0_path",
+      "expected_text": "/home/user/octos",
+      "requested_bounds": [
+        44,
+        260,
+        190,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "/home/user/octos",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        32.54852320675106,
+        298.21487603305786,
+        128.48101265822785,
+        13.62809917355372
+      ],
+      "ink_color": [
+        34,
+        35,
+        36
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        29.12236382362869,
+        298.2148759643447,
+        133.62025316455697,
+        16.033057851239704
+      ]
+    },
+    {
+      "id": "rec_0_pick_t",
+      "expected_text": "Start a new session in \u2026",
+      "requested_bounds": [
+        240,
+        260,
+        122,
+        17
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "rec_1_name",
       "expected_text": "octoscode-app",
       "requested_bounds": [
         44,
@@ -40,28 +264,502 @@
         160,
         16
       ],
+      "status": "observed",
+      "ocr_text": "octoscode-app",
+      "confidence": 1,
+      "text_similarity": 1.0,
       "ink_bounds": [
-        44,
-        296,
-        160,
-        16
+        77.0886075949367,
+        477.78512396694214,
+        102.78481012658227,
+        15.231404958677686
+      ],
+      "ink_color": [
+        40,
+        41,
+        41
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        75.30055285266612,
+        477.3806207448346,
+        106.36091987191374,
+        18.445369641642976
       ]
     },
     {
-      "expected_text": "/path/to/project",
+      "id": "rec_1_br",
+      "expected_text": "main",
+      "requested_bounds": [
+        210,
+        297,
+        100,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "rec_1_path",
+      "expected_text": "/home/user/octoscode-app",
       "requested_bounds": [
         44,
-        381,
+        318,
+        190,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "rec_1_pick_t",
+      "expected_text": "Start a new session in \u2026",
+      "requested_bounds": [
+        240,
+        318,
+        122,
+        17
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "f_path_text",
+      "expected_text": "",
+      "requested_bounds": [
+        44,
+        383.0,
         226,
         18
       ],
-      "ink_bounds": [
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "f_path_ph",
+      "expected_text": "/path/to/project",
+      "requested_bounds": [
         44,
-        381,
+        383.0,
         226,
         18
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "btn_enter_t",
+      "expected_text": "Enter",
+      "requested_bounds": [
+        296,
+        383.5,
+        78,
+        17.08
+      ],
+      "status": "observed",
+      "ocr_text": "Enter",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        314.3502109704641,
+        616.4710743801653,
+        51.392405063291136,
+        24.049586776859503
+      ],
+      "ink_color": [
+        4,
+        4,
+        3
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        316.5773753205999,
+        618.1313861367307,
+        46.938075761754796,
+        20.72896296918887
       ]
+    },
+    {
+      "id": "help_browse",
+      "expected_text": "Choosing a folder fills the path box.",
+      "requested_bounds": [
+        32,
+        424,
+        300,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "Choosing a folder fills the path box.",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        25.696202531645568,
+        674.99173553719,
+        220.13080168776372,
+        16.834710743801654
+      ],
+      "ink_color": [
+        156,
+        158,
+        161
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        22.270045020675035,
+        674.99173553719,
+        226.12658227848095,
+        19.23966942148754
+      ]
+    },
+    {
+      "id": "btn_browse_t",
+      "expected_text": "Browse server folders\u2026",
+      "requested_bounds": [
+        32,
+        448,
+        200,
+        17
+      ],
+      "status": "missing_or_ocr_unresolved"
     }
   ],
-  "source": "lane-vision on the measured atlas crops (no external OCR for board 3)"
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4290888648
+    },
+    {
+      "id": "scrim_64",
+      "bounds": [
+        8.0,
+        183.0,
+        391.0,
+        585.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "modal_card",
+      "bounds": [
+        16.0,
+        64.0,
+        374.0,
+        640.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 20.0
+    },
+    {
+      "id": "wd_card",
+      "bounds": [
+        30.0,
+        388.0,
+        348.0,
+        63.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 11.25
+    },
+    {
+      "id": "wd_start_row",
+      "bounds": [
+        44.0,
+        178.0,
+        318.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "wd_start",
+      "bounds": [
+        44.0,
+        178.0,
+        318.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "rec_0",
+      "bounds": [
+        27.0,
+        386.0,
+        354.0,
+        68.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 13.08
+    },
+    {
+      "id": "rec_0_pick_row",
+      "bounds": [
+        44.0,
+        260.0,
+        200.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "rec_0_pick",
+      "bounds": [
+        44.0,
+        260.0,
+        200.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "rec_1",
+      "bounds": [
+        30.0,
+        465.0,
+        348.0,
+        60.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 11.54
+    },
+    {
+      "id": "rec_1_pick_row",
+      "bounds": [
+        44.0,
+        318.0,
+        200.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "rec_1_pick",
+      "bounds": [
+        44.0,
+        318.0,
+        200.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "div1",
+      "bounds": [
+        20.0,
+        352.0,
+        366.0,
+        1.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false
+    },
+    {
+      "id": "f_path_row",
+      "bounds": [
+        32.0,
+        372.0,
+        250.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "f_path_bg",
+      "bounds": [
+        27.0,
+        463.0,
+        354.0,
+        65.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 16.25
+    },
+    {
+      "id": "f_path",
+      "bounds": [
+        32.0,
+        372.0,
+        250.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_enter_row",
+      "bounds": [
+        296.0,
+        372.0,
+        78.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_enter_bg",
+      "bounds": [
+        296.0,
+        605.0,
+        88.0,
+        46.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4278584837,
+      "radius": 13.8
+    },
+    {
+      "id": "btn_enter",
+      "bounds": [
+        296.0,
+        372.0,
+        78.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_browse_row",
+      "bounds": [
+        32.0,
+        448.0,
+        200.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_browse",
+      "bounds": [
+        32.0,
+        448.0,
+        200.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        23.89007937976578,
+        31.545517200168156,
+        114.21984100341797,
+        28.90896511077885
+      ],
+      "confidence": 1,
+      "text": "New chat"
+    },
+    {
+      "bounds": [
+        23.330166628783303,
+        79.58907412101819,
+        165.1781463623047,
+        27.505937576293924
+      ],
+      "confidence": 1,
+      "text": "No workspace open"
+    },
+    {
+      "bounds": [
+        299.9999986,
+        370.00000007999995,
+        140.00000000000003,
+        20.000000000000043
+      ],
+      "confidence": 1,
+      "text": "(path not reported)"
+    },
+    {
+      "bounds": [
+        293.94476986440026,
+        499.7654406855518,
+        84.11045837402344,
+        20.46911811828604
+      ],
+      "confidence": 1,
+      "text": "Start a new"
+    },
+    {
+      "bounds": [
+        293.83143204608547,
+        527.2117917869534,
+        90.33713531494139,
+        21.576416015625032
+      ],
+      "confidence": 1,
+      "text": "session in ..."
+    },
+    {
+      "bounds": [
+        295.932299590933,
+        595.6863763541262,
+        82.13539886474612,
+        18.627246856689432
+      ],
+      "confidence": 1,
+      "text": "Start a new"
+    },
+    {
+      "bounds": [
+        88.00000295999993,
+        623.99999996,
+        296,
+        19.999999999999932
+      ],
+      "confidence": 1,
+      "text": "/home/user/octoscode-app session in ..."
+    },
+    {
+      "bounds": [
+        27.890697417011467,
+        721.4313976774791,
+        122.21860504150392,
+        25.13720512390143
+      ],
+      "confidence": 1,
+      "text": "Workspace path"
+    },
+    {
+      "bounds": [
+        42.00000304999992,
+        776,
+        244.00000000000003,
+        24.00000000000003
+      ],
+      "confidence": 1,
+      "text": "Enter a path or choose a folder..."
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
 }

@@ -168,72 +168,36 @@
       "native_id": "beauty_0_1_3",
       "parent": "modal_card",
       "kind": "stack",
-      "component": "Surface566158604ce0",
+      "component": "Surfaced5469d4a181d",
       "semantic_role": "layout",
       "bounds": [
         32,
         168,
-        50.1,
+        60,
         20
       ],
       "text": null,
       "enabled": null,
       "font": null,
       "size": null
-    },
-    {
-      "source_id": "tab_tools_fill_t",
-      "native_id": "beauty_0_1_3_0",
-      "parent": "tab_tools_fill",
-      "kind": "text",
-      "component": "Textb014b7fa954a",
-      "semantic_role": "text",
-      "bounds": [
-        40,
-        171,
-        34.1,
-        14
-      ],
-      "text": "Tools",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-500.ttf",
-      "size": 11
     },
     {
       "source_id": "tab_mcp_fill",
       "native_id": "beauty_0_1_4",
       "parent": "modal_card",
       "kind": "stack",
-      "component": "Surface7b33a3d4a9a8",
+      "component": "Surfaced4707dd25870",
       "semantic_role": "layout",
       "bounds": [
         104,
         168,
-        91.0,
+        92,
         20
       ],
       "text": null,
       "enabled": null,
       "font": null,
       "size": null
-    },
-    {
-      "source_id": "tab_mcp_fill_t",
-      "native_id": "beauty_0_1_4_0",
-      "parent": "tab_mcp_fill",
-      "kind": "text",
-      "component": "Text4a1bcd055c05",
-      "semantic_role": "text",
-      "bounds": [
-        112,
-        171,
-        75.0,
-        14
-      ],
-      "text": "MCP servers",
-      "enabled": null,
-      "font": "self:resources/ux/Inter-500.ttf",
-      "size": 11
     },
     {
       "source_id": "tab_tools_row",
@@ -1213,6 +1177,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "b8e30c4b56b11fd0af9d692ec5f77ad1a39e446f4fe1a686ee0d422165171061",
+  "contract_sha256": "c5664b5761af968c0e39ac33a762f14f083bd5482c414c2d8db062cfbe479316",
   "mapping_basis": "mapped.json"
 }

@@ -1,23 +1,176 @@
 {
-  "width": 406,
-  "height": 776,
-  "observations": [
+  "schema_version": 1,
+  "reference_sha256": "d5ff4f989358363e89a6d47982d486fbe94ec4efab4932517dfc903799ca0aff",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.07592720758864968,
+  "text": [
     {
-      "expected_text": "notes",
+      "id": "t_title",
+      "expected_text": "Add workspace",
       "requested_bounds": [
-        44,
-        159,
-        226,
-        18
+        32,
+        82,
+        240,
+        24.4
       ],
+      "status": "observed",
+      "ocr_text": "Add workspace",
+      "confidence": 1,
+      "text_similarity": 1.0,
       "ink_bounds": [
-        44,
-        159,
-        226,
-        18
+        35.56837606837607,
+        77.7603305785124,
+        135.33333333333334,
+        20.041322314049587
+      ],
+      "ink_color": [
+        8,
+        8,
+        8
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        32.90124171473741,
+        75.02477536112147,
+        142.40264762161127,
+        24.71077977330235
       ]
     },
     {
+      "id": "btn_back_t",
+      "expected_text": "Back to workspaces",
+      "requested_bounds": [
+        32,
+        112,
+        200,
+        17
+      ],
+      "status": "observed",
+      "ocr_text": "Back to workspaces",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        35.56837606837607,
+        429.6859504132231,
+        131.86324786324786,
+        16.03305785123967
+      ],
+      "ink_color": [
+        53,
+        113,
+        214
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        32.96581267717947,
+        429.68595058958675,
+        137.06837606837604,
+        17.63636363636362
+      ]
+    },
+    {
+      "id": "btn_close_t",
+      "expected_text": "\u2715",
+      "requested_bounds": [
+        330,
+        82,
+        24,
+        18.3
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "f_folder_text",
+      "expected_text": "notes",
+      "requested_bounds": [
+        44,
+        161.0,
+        226,
+        18
+      ],
+      "status": "observed",
+      "ocr_text": "notes",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        48.581196581196586,
+        314.24793388429754,
+        39.03846153846154,
+        8.818181818181818
+      ],
+      "ink_color": [
+        53,
+        54,
+        55
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        44.94211505736037,
+        310.62605931442585,
+        45.449103053818405,
+        16.863583446534204
+      ]
+    },
+    {
+      "id": "btn_create_t",
+      "expected_text": "Create",
+      "requested_bounds": [
+        296,
+        161.5,
+        78,
+        17.08
+      ],
+      "status": "observed",
+      "ocr_text": "Create",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        172.63675213675214,
+        375.1735537190083,
+        61.5940170940171,
+        23.24793388429752
+      ],
+      "ink_color": [
+        4,
+        4,
+        4
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        175.2393157621795,
+        376.776859530854,
+        57.25641025641026,
+        19.239669421487626
+      ]
+    },
+    {
+      "id": "val_name",
+      "expected_text": "Folder name must not be empty.",
+      "requested_bounds": [
+        32,
+        200,
+        300,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "parent_label",
+      "expected_text": "Parent",
+      "requested_bounds": [
+        32,
+        232,
+        120,
+        14.64
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "parent_path",
       "expected_text": "/home/user/octos",
       "requested_bounds": [
         32,
@@ -25,13 +178,419 @@
         200,
         16
       ],
+      "status": "observed",
+      "ocr_text": "/home/user/octos",
+      "confidence": 1,
+      "text_similarity": 1.0,
       "ink_bounds": [
+        35.56837606837607,
+        181.17355371900825,
+        138.80341880341882,
+        14.429752066115702
+      ],
+      "ink_color": [
+        37,
+        37,
+        38
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        32.96581299444444,
+        181.1735536502952,
+        144.008547008547,
+        16.033057851239615
+      ]
+    },
+    {
+      "id": "btn_drill_t",
+      "expected_text": "Open folder browser",
+      "requested_bounds": [
         32,
-        250,
+        286,
+        200,
+        17
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "btn_drill_disabled_t",
+      "expected_text": "Open folder browser (unavailable)",
+      "requested_bounds": [
+        32,
+        312,
+        260,
+        17
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "disc_t",
+      "expected_text": "\u00b7 3 existing folders",
+      "requested_bounds": [
+        44,
+        342,
         200,
         16
+      ],
+      "status": "observed",
+      "ocr_text": "7 \u2022 3 existing folders",
+      "confidence": 1,
+      "text_similarity": 0.9523809523809523,
+      "ink_bounds": [
+        34.700854700854705,
+        495.42148760330576,
+        156.15384615384616,
+        16.834710743801654
+      ],
+      "ink_color": [
+        28,
+        30,
+        30
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        31.230769859722205,
+        495.4214878438017,
+        161.35897435897436,
+        19.239669421487626
       ]
+    },
+    {
+      "id": "disc_l",
+      "expected_text": "notes \u00b7 drafts \u00b7 tmp",
+      "requested_bounds": [
+        44,
+        360,
+        240,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "note_browser",
+      "expected_text": "The folder browser is available only when the server advertises it.",
+      "requested_bounds": [
+        32,
+        392,
+        342,
+        28
+      ],
+      "status": "missing_or_ocr_unresolved"
     }
   ],
-  "source": "lane-vision on the measured atlas crops (no external OCR for board 3)"
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "scrim_64",
+      "bounds": [
+        10.0,
+        45.0,
+        388.0,
+        727.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "modal_card",
+      "bounds": [
+        16.0,
+        64.0,
+        374.0,
+        640.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 20.0
+    },
+    {
+      "id": "btn_back_row",
+      "bounds": [
+        32.0,
+        112.0,
+        200.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_back",
+      "bounds": [
+        32.0,
+        112.0,
+        200.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "f_folder_row",
+      "bounds": [
+        32.0,
+        150.0,
+        250.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "f_folder_bg",
+      "bounds": [
+        13.0,
+        122.0,
+        383.0,
+        107.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 26.75
+    },
+    {
+      "id": "f_folder",
+      "bounds": [
+        32.0,
+        150.0,
+        250.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_create_row",
+      "bounds": [
+        296.0,
+        150.0,
+        78.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_create_bg",
+      "bounds": [
+        326.0,
+        697.0,
+        58.0,
+        44.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4293914609,
+      "radius": 13.2
+    },
+    {
+      "id": "btn_create",
+      "bounds": [
+        296.0,
+        150.0,
+        78.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_drill_row",
+      "bounds": [
+        32.0,
+        286.0,
+        200.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_drill",
+      "bounds": [
+        32.0,
+        286.0,
+        200.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_drill_disabled_row",
+      "bounds": [
+        32.0,
+        286.0,
+        260.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_drill_disabled",
+      "bounds": [
+        32.0,
+        286.0,
+        260.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "disc_1",
+      "bounds": [
+        33.0,
+        362.0,
+        342.0,
+        47.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4278387459,
+      "radius": 10.68
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        37.99999871250003,
+        182.000000075,
+        206,
+        24.00000000000003
+      ],
+      "confidence": 1,
+      "text": "Server's working directory"
+    },
+    {
+      "bounds": [
+        275.9999987,
+        224.00000008333333,
+        155.99999999999997,
+        21.99999999999998
+      ],
+      "confidence": 1,
+      "text": "(path not reported)"
+    },
+    {
+      "bounds": [
+        38.00000102857142,
+        321.99999991428564,
+        144,
+        20.000000000000043
+      ],
+      "confidence": 1,
+      "text": "Create new folder"
+    },
+    {
+      "bounds": [
+        77.99999962000001,
+        677.9999998000001,
+        46.00000000000001,
+        19.999999999999932
+      ],
+      "confidence": 1,
+      "text": "docs"
+    },
+    {
+      "bounds": [
+        77.96300117715083,
+        735.879189191041,
+        78.0739974975586,
+        24.241621017456076
+      ],
+      "confidence": 1,
+      "text": "scripts"
+    },
+    {
+      "bounds": [
+        77.99999955000001,
+        798.000000025,
+        36,
+        21.99999999999998
+      ],
+      "confidence": 1,
+      "text": "tmp"
+    },
+    {
+      "bounds": [
+        261.99999872,
+        676.00000026,
+        168.00000000000003,
+        25.999999999999968
+      ],
+      "confidence": 1,
+      "text": "Apr 28, 2025 14:21"
+    },
+    {
+      "bounds": [
+        261.9999989375,
+        736.000000075,
+        169.99999999999997,
+        23.999999999999922
+      ],
+      "confidence": 1,
+      "text": "May 2, 2025 09:13"
+    },
+    {
+      "bounds": [
+        261.93335853965857,
+        795.7308052287704,
+        104.1332855224609,
+        26.538389205932518
+      ],
+      "confidence": 1,
+      "text": "May 6, 2025"
+    },
+    {
+      "bounds": [
+        375.9999993,
+        796.0000001,
+        56.00000000000001,
+        20.000000000000043
+      ],
+      "confidence": 1,
+      "text": "10:02"
+    },
+    {
+      "bounds": [
+        36.000002259999945,
+        880.00000024,
+        318,
+        24.00000000000003
+      ],
+      "confidence": 1,
+      "text": "The folder browser is available only when"
+    },
+    {
+      "bounds": [
+        34.00000185999997,
+        912.00000002,
+        186,
+        21.99999999999998
+      ],
+      "confidence": 1,
+      "text": "the server advertises it."
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
 }

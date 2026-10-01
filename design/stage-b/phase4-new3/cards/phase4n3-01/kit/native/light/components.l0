@@ -25,17 +25,8 @@ component Text0caa141626b1(instance: text, text: text) {
 component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
   view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
 }
-component Surface566158604ce0(instance: text) {
-  view Kit(component: "Surface566158604ce0", instance: instance) { slot }
-}
-component Textb014b7fa954a(instance: text, text: text) {
-  view Kit(component: "Textb014b7fa954a", instance: instance, text: text)
-}
-component Surface7b33a3d4a9a8(instance: text) {
-  view Kit(component: "Surface7b33a3d4a9a8", instance: instance) { slot }
-}
-component Text4a1bcd055c05(instance: text, text: text) {
-  view Kit(component: "Text4a1bcd055c05", instance: instance, text: text)
+component Surfaced5469d4a181d(instance: text) {
+  view Kit(component: "Surfaced5469d4a181d", instance: instance) { slot }
 }
 component Text8b8f48254c8b(instance: text, text: text) {
   view Kit(component: "Text8b8f48254c8b", instance: instance, text: text)

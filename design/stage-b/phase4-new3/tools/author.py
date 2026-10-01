@@ -255,8 +255,8 @@ def build_01(sc):
     sc.observe("Search names, status, or tools…", 32, 116, 342, 40)
     sc.control("f_search", "inventory.search.focus", (32, 116, 342, 40))
     # two tabs, "Tools" selected
-    k.append(pill("tab_tools_fill", "Tools", 32, 168, color="black", fg="white"))
-    k.append(pill("tab_mcp_fill", "MCP servers", 104, 168, color="sel"))
+    k.append(surface("tab_tools_fill", 32, 168, 60, 20, bg="black", radius=10))
+    k.append(surface("tab_mcp_fill", 104, 168, 92, 20, bg="sel", radius=10))
     k.append(link("tab_tools", "Tools", 32, 168, 60, color="white", enabled=True))
     k.append(link("tab_mcp", "MCP servers", 104, 168, 92, color="ink", enabled=True))
     sc.control("tab_tools", "inventory.tab.tools", (32, 168, 60, 20))
@@ -326,14 +326,16 @@ def build_02(sc):
     """Workspace create (atlas-prompt.md #2)."""
     scrim, card = modal(y=64, h=640)
     sc.put(scrim)
-    k = [text("t_title", "Add workspace", 32, 82, 240, 24, weight=600, size=20)]
+    k = [text("t_title", "Add workspace", 32, 82, 240, 24, weight=600, size=20),
+         link("btn_close", "\u2715", 330, 82, 24, color="muted", size=15)]
+    sc.control("btn_close", "workspace.create.close", (330, 82, 24, 20))
     # The server's working directory is pinned FIRST.
     k.append(surface("wd_card", 32, 118, 342, 56, bg="sel", radius=10))
     k.append(text("wd_label", "Server's working directory", 44, 126, 240, 16,
                   color="muted", size=12))
     k.append(text("wd_path", "/home/user/octos", 44, 146, 200, 16, size=13,
                   mono=True))
-    k.append(text("wd_help", "Start a new session here", 236, 146, 126, 16,
+    k.append(text("wd_help", "Start a new session here", 252, 146, 118, 16,
                   color="muted", size=11))
     sc.observe("/home/user/octos", 44, 146, 200, 16)
     k.append(link("wd_start", "Start a new session in /home/user/octos", 44, 178,
@@ -352,9 +354,9 @@ def build_02(sc):
                       mono=True))
         k.append(text(f"rec_{i}_br", br, 210, y + 9, 100, 14, color="muted",
                       size=11))
-        k.append(text(f"rec_{i}_path", path, 44, y + 30, 240, 14, color="muted",
+        k.append(text(f"rec_{i}_path", path, 44, y + 30, 190, 14, color="muted",
                       size=11, mono=True))
-        k.append(link(f"rec_{i}_pick", "Start a new session in …", 44, y + 30, 200,
+        k.append(link(f"rec_{i}_pick", "Start a new session in …", 240, y + 30, 122,
                       color="blue", size=11))
         sc.observe(nm, 44, y + 8, 160, 16)
         y += 58
@@ -379,8 +381,10 @@ def build_03(sc):
     scrim, card = modal(y=64, h=640)
     sc.put(scrim)
     k = [text("t_title", "Add workspace", 32, 82, 240, 24, weight=600, size=20),
-         link("btn_back", "Back to workspaces", 32, 112, 200, color="blue", size=12)]
+         link("btn_back", "Back to workspaces", 32, 112, 200, color="blue", size=12),
+         link("btn_close", "\u2715", 330, 82, 24, color="muted", size=15)]
     sc.control("btn_back", "workspace.create.back", (32, 112, 200, 20))
+    sc.control("btn_close", "workspace.create.close", (330, 82, 24, 20))
     k.append(field("f_folder", "notes", 32, 150, 250, 40, size=13))
     sc.observe("notes", 44, 159, 226, 18)
     k.append(btn("btn_create", "Create", 296, 150, 78, 40, radius=12, size=14))
@@ -396,7 +400,7 @@ def build_03(sc):
     k.append(link("btn_drill", "Open folder browser", 32, 286, 200, color="muted",
                   size=12, enabled=True))
     k.append(link("btn_drill_disabled", "Open folder browser (unavailable)", 32,
-                  286, 260, color="disabled", size=12, enabled=False))
+                  312, 260, color="disabled", size=12, enabled=False))
     sc.control("btn_drill", "folder.browser.open", (32, 286, 200, 20))
     sc.control("btn_drill_disabled", "folder.browser.open", (32, 312, 260, 20),
                enabled=False)

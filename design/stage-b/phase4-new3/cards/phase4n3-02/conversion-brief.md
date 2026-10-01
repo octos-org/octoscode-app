@@ -72,6 +72,45 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "btn_close_row",
+    "x": 330,
+    "y": 82,
+    "w": 24,
+    "h": 20,
+    "role": "layout",
+    "native_candidates": [
+      "View"
+    ]
+  },
+  {
+    "id": "btn_close_t",
+    "x": 330,
+    "y": 82,
+    "w": 24,
+    "h": 18.3,
+    "text": "\u2715",
+    "font_src": "self:resources/ux/Inter-400.ttf",
+    "size": 15,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
+    ]
+  },
+  {
+    "id": "btn_close",
+    "x": 330,
+    "y": 82,
+    "w": 24,
+    "h": 20,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
     "id": "wd_card",
     "x": 32,
     "y": 118,
@@ -116,9 +155,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "wd_help",
-    "x": 236,
+    "x": 252,
     "y": 146,
-    "w": 126,
+    "w": 118,
     "h": 16,
     "text": "Start a new session here",
     "font_src": "self:resources/ux/Inter-400.ttf",
@@ -232,7 +271,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "id": "rec_0_path",
     "x": 44,
     "y": 260,
-    "w": 240,
+    "w": 190,
     "h": 14,
     "text": "/home/user/octos",
     "font_src": "self:resources/ux/Inter-400.ttf",
@@ -246,9 +285,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "rec_0_pick_row",
-    "x": 44,
+    "x": 240,
     "y": 260,
-    "w": 200,
+    "w": 122,
     "h": 20,
     "role": "layout",
     "native_candidates": [
@@ -257,9 +296,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "rec_0_pick_t",
-    "x": 44,
+    "x": 240,
     "y": 260,
-    "w": 200,
+    "w": 122,
     "h": 17,
     "text": "Start a new session in \u2026",
     "font_src": "self:resources/ux/Inter-400.ttf",
@@ -273,9 +312,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "rec_0_pick",
-    "x": 44,
+    "x": 240,
     "y": 260,
-    "w": 200,
+    "w": 122,
     "h": 20,
     "role": "button",
     "native_candidates": [
@@ -330,7 +369,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "id": "rec_1_path",
     "x": 44,
     "y": 318,
-    "w": 240,
+    "w": 190,
     "h": 14,
     "text": "/home/user/octoscode-app",
     "font_src": "self:resources/ux/Inter-400.ttf",
@@ -344,9 +383,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "rec_1_pick_row",
-    "x": 44,
+    "x": 240,
     "y": 318,
-    "w": 200,
+    "w": 122,
     "h": 20,
     "role": "layout",
     "native_candidates": [
@@ -355,9 +394,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "rec_1_pick_t",
-    "x": 44,
+    "x": 240,
     "y": 318,
-    "w": 200,
+    "w": 122,
     "h": 17,
     "text": "Start a new session in \u2026",
     "font_src": "self:resources/ux/Inter-400.ttf",
@@ -371,9 +410,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
   },
   {
     "id": "rec_1_pick",
-    "x": 44,
+    "x": 240,
     "y": 318,
-    "w": 200,
+    "w": 122,
     "h": 20,
     "role": "button",
     "native_candidates": [

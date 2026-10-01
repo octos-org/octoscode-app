@@ -42,6 +42,26 @@
       "value": 0.0,
       "property": "tracking"
     },
+    "size_e629fa6598d7": {
+      "value": 15,
+      "property": "size"
+    },
+    "line_height_6f24b1982871": {
+      "value": 18.3,
+      "property": "line_height"
+    },
+    "weight_26d228663f13": {
+      "value": 400,
+      "property": "weight"
+    },
+    "color_5e6b06fd707a": {
+      "value": 4285427315,
+      "property": "color"
+    },
+    "font_src_86ab34a300f7": {
+      "value": "self:resources/ux/Inter-400.ttf",
+      "property": "font_src"
+    },
     "bg_da6da7821846": {
       "value": 4294111991,
       "property": "bg"
@@ -57,18 +77,6 @@
     "line_height_905c74a521c4": {
       "value": 14.64,
       "property": "line_height"
-    },
-    "weight_26d228663f13": {
-      "value": 400,
-      "property": "weight"
-    },
-    "color_5e6b06fd707a": {
-      "value": 4285427315,
-      "property": "color"
-    },
-    "font_src_86ab34a300f7": {
-      "value": "self:resources/ux/Inter-400.ttf",
-      "property": "font_src"
     },
     "size_3fdba35f04dc": {
       "value": 13,
@@ -201,6 +209,51 @@
       },
       "slot": false
     },
+    "Group3d2637879433": {
+      "style": {
+        "t": "stack"
+      },
+      "props": {},
+      "slot": true
+    },
+    "Textfa6531db81c6": {
+      "style": {
+        "t": "text",
+        "size": {
+          "$token": "size_e629fa6598d7"
+        },
+        "line_height": {
+          "$token": "line_height_6f24b1982871"
+        },
+        "weight": {
+          "$token": "weight_26d228663f13"
+        },
+        "color": {
+          "$token": "color_5e6b06fd707a"
+        },
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_86ab34a300f7"
+        },
+        "tracking": {
+          "$token": "tracking_8aed642bf511"
+        }
+      },
+      "props": {
+        "text": "text"
+      },
+      "slot": false
+    },
+    "NativeButton02f1d1bd99b4": {
+      "style": {
+        "t": "button"
+      },
+      "props": {
+        "enabled": "enabled"
+      },
+      "slot": false
+    },
     "Surfaced4707dd25870": {
       "style": {
         "t": "stack",
@@ -302,13 +355,6 @@
       },
       "slot": false
     },
-    "Group3d2637879433": {
-      "style": {
-        "t": "stack"
-      },
-      "props": {},
-      "slot": true
-    },
     "Text7d630b6bd848": {
       "style": {
         "t": "text",
@@ -335,15 +381,6 @@
       },
       "props": {
         "text": "text"
-      },
-      "slot": false
-    },
-    "NativeButton02f1d1bd99b4": {
-      "style": {
-        "t": "button"
-      },
-      "props": {
-        "enabled": "enabled"
       },
       "slot": false
     },

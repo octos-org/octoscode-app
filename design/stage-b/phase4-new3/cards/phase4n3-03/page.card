@@ -5,6 +5,7 @@
 theme light
 copy t_title_text { class: user-copy, en: "Add workspace" }
 copy btn_back_t_text { class: user-copy, en: "Back to workspaces" }
+copy btn_close_t_text { class: user-copy, en: "✕" }
 copy f_folder_text_text { class: user-copy, en: "notes" }
 copy btn_create_t_text { class: user-copy, en: "Create" }
 copy val_name_text { class: user-copy, en: "Folder name must not be empty." }
@@ -16,6 +17,7 @@ copy disc_t_text { class: user-copy, en: "· 3 existing folders" }
 copy disc_l_text { class: user-copy, en: "notes · drafts · tmp" }
 copy note_browser_text { class: user-copy, en: "The folder browser is available only when the server advertises it." }
 state btn_back_enabled { shape: bool, initial: true }
+state btn_close_enabled { shape: bool, initial: true }
 state f_folder_enabled { shape: bool, initial: true }
 state btn_create_enabled { shape: bool, initial: true }
 state btn_drill_enabled { shape: bool, initial: true }
@@ -40,6 +42,9 @@ component Text7d630b6bd848(instance: text, text: text) {
 }
 component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
   view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
+component Textfa6531db81c6(instance: text, text: text) {
+  view Kit(component: "Textfa6531db81c6", instance: instance, text: text)
 }
 component Surfaced4707dd25870(instance: text) {
   view Kit(component: "Surfaced4707dd25870", instance: instance) { slot }
@@ -78,6 +83,10 @@ view root Surfacef468f03a0025(instance: "page") {
     Group3d2637879433(instance: "btn_back_row") {
       Text7d630b6bd848(instance: "btn_back_t", text: copy.btn_back_t_text)
       NativeButton02f1d1bd99b4(instance: "btn_back", enabled: btn_back_enabled)
+    }
+    Group3d2637879433(instance: "btn_close_row") {
+      Textfa6531db81c6(instance: "btn_close_t", text: copy.btn_close_t_text)
+      NativeButton02f1d1bd99b4(instance: "btn_close", enabled: btn_close_enabled)
     }
     Group3d2637879433(instance: "f_folder_row") {
       Surfaced4707dd25870(instance: "f_folder_bg") {

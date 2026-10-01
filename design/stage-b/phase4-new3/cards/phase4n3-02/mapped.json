@@ -51,6 +51,42 @@
      },
      {
       "t": "stack",
+      "id": "btn_close_row",
+      "x": 330,
+      "y": 82,
+      "w": 24,
+      "h": 20,
+      "c": [
+       {
+        "t": "text",
+        "id": "btn_close_t",
+        "text": "\u2715",
+        "x": 330,
+        "y": 82,
+        "w": 24,
+        "h": 18.3,
+        "size": 15,
+        "line_height": 18.3,
+        "weight": 400,
+        "color": 4285427315,
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": "self:resources/ux/Inter-400.ttf",
+        "tracking": 0.0
+       },
+       {
+        "t": "button",
+        "id": "btn_close",
+        "x": 330,
+        "y": 82,
+        "w": 24,
+        "h": 20,
+        "enabled": 1
+       }
+      ]
+     },
+     {
+      "t": "stack",
       "id": "wd_card",
       "x": 32,
       "y": 118,
@@ -99,9 +135,9 @@
       "t": "text",
       "id": "wd_help",
       "text": "Start a new session here",
-      "x": 236,
+      "x": 252,
       "y": 146,
-      "w": 126,
+      "w": 118,
       "h": 16,
       "size": 11,
       "line_height": 13.42,
@@ -219,7 +255,7 @@
       "text": "/home/user/octos",
       "x": 44,
       "y": 260,
-      "w": 240,
+      "w": 190,
       "h": 14,
       "size": 11,
       "line_height": 13.42,
@@ -233,18 +269,18 @@
      {
       "t": "stack",
       "id": "rec_0_pick_row",
-      "x": 44,
+      "x": 240,
       "y": 260,
-      "w": 200,
+      "w": 122,
       "h": 20,
       "c": [
        {
         "t": "text",
         "id": "rec_0_pick_t",
         "text": "Start a new session in \u2026",
-        "x": 44,
+        "x": 240,
         "y": 260,
-        "w": 200,
+        "w": 122,
         "h": 17,
         "size": 11,
         "line_height": 13.42,
@@ -258,9 +294,9 @@
        {
         "t": "button",
         "id": "rec_0_pick",
-        "x": 44,
+        "x": 240,
         "y": 260,
-        "w": 200,
+        "w": 122,
         "h": 20,
         "enabled": 1
        }
@@ -320,7 +356,7 @@
       "text": "/home/user/octoscode-app",
       "x": 44,
       "y": 318,
-      "w": 240,
+      "w": 190,
       "h": 14,
       "size": 11,
       "line_height": 13.42,
@@ -334,18 +370,18 @@
      {
       "t": "stack",
       "id": "rec_1_pick_row",
-      "x": 44,
+      "x": 240,
       "y": 318,
-      "w": 200,
+      "w": 122,
       "h": 20,
       "c": [
        {
         "t": "text",
         "id": "rec_1_pick_t",
         "text": "Start a new session in \u2026",
-        "x": 44,
+        "x": 240,
         "y": 318,
-        "w": 200,
+        "w": 122,
         "h": 17,
         "size": 11,
         "line_height": 13.42,
@@ -359,9 +395,9 @@
        {
         "t": "button",
         "id": "rec_1_pick",
-        "x": 44,
+        "x": 240,
         "y": 318,
-        "w": 200,
+        "w": 122,
         "h": 20,
         "enabled": 1
        }

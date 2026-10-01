@@ -123,6 +123,42 @@
           },
           {
             "t": "stack",
+            "id": "btn_close_row",
+            "x": 330,
+            "y": 82,
+            "w": 24,
+            "h": 20,
+            "c": [
+              {
+                "t": "text",
+                "id": "btn_close_t",
+                "text": "✕",
+                "x": 330,
+                "y": 82,
+                "w": 24,
+                "h": 18.3,
+                "size": 15,
+                "line_height": 18.3,
+                "weight": 400,
+                "color": 4285427315,
+                "variant": "single_line",
+                "alignx": 0,
+                "font_src": "self:resources/ux/Inter-400.ttf",
+                "tracking": 0.0
+              },
+              {
+                "t": "button",
+                "id": "btn_close",
+                "x": 330,
+                "y": 82,
+                "w": 24,
+                "h": 20,
+                "enabled": 1
+              }
+            ]
+          },
+          {
+            "t": "stack",
             "id": "f_folder_row",
             "x": 32,
             "y": 150,
@@ -308,7 +344,7 @@
             "t": "stack",
             "id": "btn_drill_disabled_row",
             "x": 32,
-            "y": 286,
+            "y": 312,
             "w": 260,
             "h": 20,
             "c": [
@@ -317,7 +353,7 @@
                 "id": "btn_drill_disabled_t",
                 "text": "Open folder browser (unavailable)",
                 "x": 32,
-                "y": 286,
+                "y": 312,
                 "w": 260,
                 "h": 17,
                 "size": 12,
@@ -333,7 +369,7 @@
                 "t": "button",
                 "id": "btn_drill_disabled",
                 "x": 32,
-                "y": 286,
+                "y": 312,
                 "w": 260,
                 "h": 20,
                 "enabled": 0

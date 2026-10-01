@@ -38,6 +38,33 @@
           "h": 24.4
         }
       },
+      "btn_close_row": {
+        "component": "Group3d2637879433",
+        "layout": {
+          "x": 330,
+          "y": 82,
+          "w": 24,
+          "h": 20
+        }
+      },
+      "btn_close_t": {
+        "component": "Textfa6531db81c6",
+        "layout": {
+          "x": 330,
+          "y": 82,
+          "w": 24,
+          "h": 18.3
+        }
+      },
+      "btn_close": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 330,
+          "y": 82,
+          "w": 24,
+          "h": 20
+        }
+      },
       "wd_card": {
         "component": "Surfaced4707dd25870",
         "layout": {
@@ -68,9 +95,9 @@
       "wd_help": {
         "component": "Text09ef707ce916",
         "layout": {
-          "x": 236,
+          "x": 252,
           "y": 146,
-          "w": 126,
+          "w": 118,
           "h": 16
         }
       },
@@ -142,34 +169,34 @@
         "layout": {
           "x": 44,
           "y": 260,
-          "w": 240,
+          "w": 190,
           "h": 14
         }
       },
       "rec_0_pick_row": {
         "component": "Group3d2637879433",
         "layout": {
-          "x": 44,
+          "x": 240,
           "y": 260,
-          "w": 200,
+          "w": 122,
           "h": 20
         }
       },
       "rec_0_pick_t": {
         "component": "Textd85a44242f71",
         "layout": {
-          "x": 44,
+          "x": 240,
           "y": 260,
-          "w": 200,
+          "w": 122,
           "h": 17
         }
       },
       "rec_0_pick": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 44,
+          "x": 240,
           "y": 260,
-          "w": 200,
+          "w": 122,
           "h": 20
         }
       },
@@ -205,34 +232,34 @@
         "layout": {
           "x": 44,
           "y": 318,
-          "w": 240,
+          "w": 190,
           "h": 14
         }
       },
       "rec_1_pick_row": {
         "component": "Group3d2637879433",
         "layout": {
-          "x": 44,
+          "x": 240,
           "y": 318,
-          "w": 200,
+          "w": 122,
           "h": 20
         }
       },
       "rec_1_pick_t": {
         "component": "Textd85a44242f71",
         "layout": {
-          "x": 44,
+          "x": 240,
           "y": 318,
-          "w": 200,
+          "w": 122,
           "h": 17
         }
       },
       "rec_1_pick": {
         "component": "NativeButton02f1d1bd99b4",
         "layout": {
-          "x": 44,
+          "x": 240,
           "y": 318,
-          "w": 200,
+          "w": 122,
           "h": 20
         }
       },
