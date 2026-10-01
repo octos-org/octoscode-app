@@ -78,8 +78,8 @@ script_mod! {
         // state can go to /g metadata").
         header_meta := View {
             width: 0 height: 0 flow: Right
-            status := Label { width: 0 height: 0 draw_text.text_style.font_size: 1 text: "" }
-            sessions := Label { width: 0 height: 0 draw_text.text_style.font_size: 1 text: "" }
+            status := Label { width: 0 height: 0 draw_text.text_style.font_size: 1 text: ""  draw_text.color: theme.color_text_muted}
+            sessions := Label { width: 0 height: 0 draw_text.text_style.font_size: 1 text: ""  draw_text.color: theme.color_text_muted}
         }
         // Card #17 (D12): native columns + virtualized L0 items. The host owns
         // structure + scale; each list item's LOOK comes from an L0 component
@@ -178,13 +178,13 @@ script_mod! {
                                 width: Fill height: Fit text: ""
                                 draw_text.text_style.font_size: 13
                                 max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                            }
+                             draw_text.color: theme.color_fg_app}
                         }
                         goal_row_2 := Label {
                             width: Fill height: 32 text: ""
                             draw_text.text_style.font_size: 13
                             max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                        }
+                         draw_text.color: theme.color_fg_app}
                     }
                     Label {
                         width: Fill height: Fit text: "LOOPS"
@@ -197,12 +197,12 @@ script_mod! {
                             width: Fill height: 32 text: ""
                             draw_text.text_style.font_size: 13
                             max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                        }
+                         draw_text.color: theme.color_fg_app}
                         loop_row_2 := Label {
                             width: Fill height: 32 text: ""
                             draw_text.text_style.font_size: 13
                             max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                        }
+                         draw_text.color: theme.color_fg_app}
                     }
                     Label {
                         width: Fill height: Fit text: "FLEET"
@@ -232,7 +232,7 @@ script_mod! {
                                 width: Fill height: Fit text: ""
                                 draw_text.text_style.font_size: 13
                                 max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                            }
+                             draw_text.color: theme.color_fg_app}
                         }
                         fleet_wrap_2 := View {
                             width: Fill height: 32 flow: Right spacing: 6
@@ -249,7 +249,7 @@ script_mod! {
                                 width: Fill height: Fit text: ""
                                 draw_text.text_style.font_size: 13
                                 max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                            }
+                             draw_text.color: theme.color_fg_app}
                         }
                         fleet_wrap_3 := View {
                             width: Fill height: 32 flow: Right spacing: 6
@@ -266,7 +266,7 @@ script_mod! {
                                 width: Fill height: Fit text: ""
                                 draw_text.text_style.font_size: 13
                                 max_lines: 1 text_overflow: TextOverflow.Ellipsis
-                            }
+                             draw_text.color: theme.color_fg_app}
                         }
                     }
                 }
@@ -705,7 +705,7 @@ script_mod! {
                     Label {
                         width: Fill height: Fit text: "Session settings"
                         draw_text.text_style.font_size: 14
-                    }
+                     draw_text.color: theme.color_text_muted}
                     // #28e2 item 1: "✕" was tofu — the close SVG (same as the
                     // review header's).
                     settings_close_wrap := View {
@@ -742,7 +742,7 @@ script_mod! {
                 Label { width: Fill height: Fit text: "General" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
                 settings_conn := View {
                     width: Fill height: Fit flow: Right spacing: 8
-                    Label { width: Fill height: Fit text: "Octos server" draw_text.text_style.font_size: 12 }
+                    Label { width: Fill height: Fit text: "Octos server" draw_text.text_style.font_size: 12  draw_text.color: theme.color_fg_app}
                     settings_disconnect := Button {
                         width: Fit height: Fit text: "Disconnect"
                         draw_bg.color: #00000000
@@ -801,7 +801,7 @@ script_mod! {
                     palette_row_inner := View {
                         width: Fill height: Fill flow: Right spacing: 8
                         padding: Inset{left: 6 top: 8}
-                        palette_row_name := Label { width: 150 height: Fit text: "" draw_text.text_style.font_size: 13 }
+                        palette_row_name := Label { width: 150 height: Fit text: "" draw_text.text_style.font_size: 13  draw_text.color: theme.color_fg_app}
                         palette_row_desc := Label { width: Fill height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
                     }
                 }
