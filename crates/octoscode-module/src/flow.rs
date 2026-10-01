@@ -922,6 +922,26 @@ impl Conversation {
             ::log::debug!("octoscode: composer.submit ignored (empty draft)");
             return Ok(String::new());
         }
+        // #34a row 209 — a slash command is LOCAL on the web: it never
+        // reaches the model, and a failed/unknown command restores the input
+        // (`surface-recovery.spec.ts:186` "restores input and never sends
+        // command text to the model"). An unresolved command fails closed
+        // HERE, before dispatch: the draft clear lives in
+        // `start_turn_with_id`, so returning early keeps the user's text
+        // editable in the composer.
+        if let Some(rest) = text.trim().strip_prefix('/') {
+            let known = crate::screens::palette::COMMANDS.iter().any(|c| {
+                let name = c.name.trim_start_matches('/');
+                rest == name || rest.starts_with(&format!("{name} "))
+            });
+            if !known {
+                ::log::info!(
+                    "octoscode: composer.submit: unresolved local command `/{rest}` \
+                     — kept in the composer, never sent"
+                );
+                return Ok(String::new());
+            }
+        }
         self.start_turn(text).await
     }
 
