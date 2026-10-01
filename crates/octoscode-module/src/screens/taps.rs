@@ -94,7 +94,13 @@ pub fn wire_card_events_dir(dsl: &str, card_dir: &std::path::Path) -> String {
     let mut out = dsl.to_owned();
     let mut wired = 0usize;
     if let Some(controls) = v.get("controls").and_then(|c| c.as_object()) {
-        for (_name, c) in controls {
+        // Pass 1: collect the wireable controls, and per event the SMALLEST
+        // row its controls name — the family's own numbering decides whether
+        // the derived index passes through (0-based) or shifts down (1-based).
+        let mut wireable: Vec<(&str, &str, Vec<f64>)> = Vec::new();
+        let mut family_min: std::collections::HashMap<&str, usize> =
+            std::collections::HashMap::new();
+        for (name, c) in controls {
             let (Some(event), Some(b)) = (
                 c.get("event").and_then(|e| e.as_str()),
                 c.get("source_bounds").and_then(|b| b.as_array()),
@@ -110,11 +116,21 @@ pub fn wire_card_events_dir(dsl: &str, card_dir: &std::path::Path) -> String {
             if b.len() < 2 {
                 continue;
             }
-            // #FX1 — the row rides in the id, derived from the CONTROL NAME (not
-            // the event: most per-row events already name their own row, and
-            // their resolvers take no index at all — see `row_of`). So this is
-            // the ONE shared place a per-row tap gets its row, for every card.
-            let event = &with_row(event, _name);
+            if let Some(n) = row_of(name) {
+                family_min
+                    .entry(event)
+                    .and_modify(|m| *m = (*m).min(n))
+                    .or_insert(n);
+            }
+            wireable.push((name, event, b));
+        }
+        // Pass 2: wire. #FX1 — the row rides in the id, derived from the
+        // CONTROL NAME (not the event: most per-row events already name their
+        // own row, and their resolvers take no index at all — see `row_of`).
+        // So this is the ONE shared place a per-row tap gets its row, for
+        // every card.
+        for (name, event, b) in wireable {
+            let event = &with_row_in_family(event, name, family_min.get(event).copied());
             let (before, after) = (out.clone(), inject_click(&out, event, b[0], b[1]));
             if after.len() != before.len() {
                 wired += 1;
@@ -234,12 +250,22 @@ pub fn wired_taps(dsl: &str) -> Vec<(String, String)> {
 /// exactly the shared-event case where one is.
 pub fn row_of(control_name: &str) -> Option<usize> {
     let tail = control_name.rsplit('_').next()?;
-    // `str::parse` accepts a leading '+', which is not a row number; require
-    // digits only.
-    if tail.is_empty() || !tail.bytes().all(|b| b.is_ascii_digit()) {
+    // The row is the maximal digit SUFFIX of the last segment. `thread_1`
+    // ends in bare digits (`"1"`), and the phase4n2 sidebar cards GLUE the
+    // digits to the family word in one segment (`ctl_row2` -> `"row2"`,
+    // measured in their service-actions.json). `str::parse` accepts a leading
+    // '+', which is not a row number, so the remainder before the digits must
+    // be empty or a plain alphabetic family word — anything else
+    // (`"search"`, no digits at all) is not a row.
+    let digits = tail.len() - tail.trim_end_matches(|b: char| b.is_ascii_digit()).len();
+    if digits == 0 {
         return None;
     }
-    tail.parse().ok()
+    let (prefix, num) = tail.split_at(tail.len() - digits);
+    if !prefix.is_empty() && !prefix.bytes().all(|b| b.is_ascii_alphabetic()) {
+        return None;
+    }
+    num.parse().ok()
 }
 
 /// Whether an action id ALREADY names the row it addresses.
@@ -291,6 +317,23 @@ pub fn split_row(action: &str) -> (&str, Option<usize>) {
 /// `monitor.toggle#0` and reaches row 0 instead of silently addressing whatever
 /// the host defaulted to.
 pub fn with_row(event: &str, control_name: &str) -> String {
+    with_row_in_family(event, control_name, None)
+}
+
+/// [`with_row`] with the card's own numbering made explicit: `family_min_row`
+/// is the smallest row number found among the SAME event's controls in the
+/// card. A family that names a row 0 (`ctl_row0..ctl_row4`, the phase4n2
+/// sidebar cards) is 0-based and the derived row passes through — stamping
+/// n-1 there would address the row BELOW the click. A family whose first row
+/// is 1 (`thread_1..`, `mon_1..` — every previously measured shared-event
+/// card) is 1-based and the index is n-1, so `thread_1` reaches store row 0.
+/// `None` (a lone control, no family evidence) keeps the historical 1-based
+/// contract.
+pub fn with_row_in_family(
+    event: &str,
+    control_name: &str,
+    family_min_row: Option<usize>,
+) -> String {
     // The event already names its own row (`provider.model.0`): route it
     // VERBATIM. Its resolver matches the literal id and takes no index, so a
     // suffix here would make the id match nothing.
@@ -300,14 +343,8 @@ pub fn with_row(event: &str, control_name: &str) -> String {
     let Some(n) = row_of(control_name) else {
         return event.to_owned();
     };
-    // Reaching here means the event is SHARED across rows (`monitor.toggle`,
-    // `thread.open`), and every such card numbers its rows from 1 — measured:
-    // mon_1/thread_1/file_1/row_1, while the dotted family that names its own
-    // row numbers from 0. So the derived index is n-1: `thread_1` must reach
-    // store row 0, or `thread.open` opens the SECOND session when the user
-    // clicked the first. n >= 1 always holds here, because a shared-event card
-    // never names its first row 0.
-    format!("{event}#{}", n - 1)
+    let index = if family_min_row == Some(0) { n } else { n - 1 };
+    format!("{event}#{}", index)
 }
 
 /// Inject `on_click: || { NAV(t: "<event>") }` into the DesignNativeButton
