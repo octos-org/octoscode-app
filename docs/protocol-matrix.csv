@@ -13,7 +13,7 @@ approval/auto_resolved,notification,,,,octos-core/src/ui_protocol.rs:1129,packag
 approval/cancelled,notification,,,,octos-core/src/ui_protocol.rs:1131,packages/client/src/interaction.ts,1,handled,octoscode-client/src/domains/approval.rs,
 approval/decided,notification,,,,octos-core/src/ui_protocol.rs:1130,packages/client/src/interaction.ts,3,handled,octoscode-client/src/domains/approval.rs,
 approval/requested,notification,,,,octos-core/src/ui_protocol.rs:1128,apps/web/src/features/session/background-turn-manager.ts;apps/web/src/features/session/session-interaction-ledger.ts;apps/web/src/features/session/session-peer-coordinator.ts,8,handled,octoscode-client/src/domains/approval.rs,
-approval/respond,request,,,,octos-core/src/ui_protocol.rs:1036,apps/web/src/features/session/session-interaction-ledger.ts;packages/client/src/client.ts,6,handled,octoscode-client/src/domains/approval.rs,
+approval/respond,request,,,,octos-core/src/ui_protocol.rs:1036,apps/web/src/features/session/session-interaction-ledger.ts;packages/client/src/client.ts,6,handled,octoscode-client/src/domains/approval.rs;octoscode-module/src/lib.rs,
 approval/scopes/list,request,,,,octos-core/src/ui_protocol.rs:1037,apps/web/src/features/commands/registry.ts;apps/web/src/features/inspection/inspection-controller.ts;packages/client/src/inspection.ts,4,handled,octoscode-client/src/domains/approval.rs,
 background/activity,notification,,,,octos-core/src/ui_protocol.rs:1321,,0,handled,octoscode-client/src/domains/mod.rs,
 config/capabilities/list,?,,,,octos-core/src/ui_protocol.rs:1030,packages/client/src/client.ts,1,handled,octoscode-client/src/domains/config.rs,
