@@ -539,3 +539,19 @@
 - workspace: workspace: clear recents (both v2 + legacy keys, report failure honestly) — gap: no clear path — web: src-web/apps/web/src/features/workspace/workspace-recents.ts:65
 - workspace: workspace: derive a human name from a host path — gap: the name-derivation helper is untested — web: src-web/apps/web/src/features/workspace/workspace-recents.ts:81
 - workspace: workspace: profile-choice transition moves drafts only after commit — gap: no profile-choice transition natively — web: src-web/apps/web/src/features/workspace/use-workspace-product.ts:42
+
+## 41b3 stricter-rule pass — B->C moves (each with the one-line native gap)
+- g-autonomy: btw aside: each aside is owned — gap: aside state is process-global screen state and is not swapped/staled on session switch (the f29d process-global note); add per-session aside scoping — web packages/client/src/btw.ts:54-90
+- g-autonomy2: Authority epoch — gap: no commands-identity/epoch natively; stale-drop is proven only for goals (f30b:397 generation admission) — extend it to all autonomy commands — web autonomy/store.ts:214
+- g-autonomy2: Error surfacing under role=alert — gap: no accessible error announcement natively (autonomy errors render in-screen with no alert semantics); add an announced error path + test — web AutonomyPanel.tsx:92
+- g-composer: New-session defaults persisted — gap: no per-endpoint new-session defaults remembered natively (permission mode/network policy); persist them in module prefs and apply at connect — web session-defaults.ts:11-135
+- g-composer: Announcements + live region — gap: peer-state changes are visual-only; no announcement layer — add accessible announcements for waiting-for-approval/finished peers — web fleet-model.ts:440-460
+- g-composer: Product copy (zh) — gap: no i18n layer natively (locale from the environment only); fleet copy is English-only — the same locale gap as the g-timeline preference rows — web fleet-copy.ts:14-88
+- g-control: Client-side search filter — gap: no inventory UI to filter (the tool/MCP inventory rows stay C); the search lands with that dialog — web InventoryDialog.tsx:74
+- g-settings: Desktop notifications toggle row — gap: no notifications feature to toggle (see the g-timeline consent/notices gaps); the row lands with shell notifications — web GeneralSettingsContent.tsx:213
+- error: per-surface error boundary — gap: a surface failure aborts the process (panic = abort); no per-surface isolation — add catch_unwind boundaries that keep the rest of the app mounted — web SurfaceBoundary.tsx:16
+- error: unavailable-surface fallback — gap: fail-closed surfaces render authored empty copy; no explicit unavailable fallback (modal vs inline, labelled) — web SurfaceBoundary.tsx:44
+- error: Suspense loading fallback — gap: the native loading card has no cancel action — add cancel-to-dismiss — web SurfaceBoundary.tsx:29
+- g-timeline: Desktop-notification consent — gap: no OS-notification integration or consent policy in the shell; add notifications + a consent-gated first prompt — web desktop-notifications.ts:27
+- g-timeline: Show/close OS notices — gap: no notification-center client in the shell (no show/close/focus-on-click handling) — web desktop-notifications.ts:86
+- g-timeline: Acknowledge attention on window focus — gap: no attention acknowledgement on window activation (and no attention state to clear) — build with the notifications gap above — web use-attention.ts:27
