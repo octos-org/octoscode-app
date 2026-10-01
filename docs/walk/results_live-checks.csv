@@ -1,0 +1,3 @@
+row_id,area,spec,case,check,status,evidence,reason
+1,recovery,e2e-live/glm-model.spec.ts,runs a coding turn with the expected runtime model and restores it after refresh,"a real coding turn streams, terminates, and the timeline survives a refresh",pass,,streamed+terminal=1.7s prose=2 bubbles_laid_out=2 (refresh control absent in this shell — persistence slice)
+2,conversation,e2e-live/glm-model.spec.ts,keeps a background turn alive while a sibling Session is focused,a live turn keeps running while a sibling session is focused,fail,docs/walk/evidence/area-conversation.snap.json,exception: the original session row never came back
