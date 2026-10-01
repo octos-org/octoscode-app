@@ -61,6 +61,8 @@ enum Mode {
     Replay,
     /// The recorded locked answer for every claim.
     Locked,
+    /// The recorded expired answer for every claim.
+    Expired,
     /// The contract's bare 404 for every route (see the module docs).
     NotSupported,
 }
@@ -124,6 +126,10 @@ async fn serve(mode: Mode) -> Server {
                     }
                     (Mode::Locked, "POST", "/pair/claim") => {
                         let r = recorded("pair_code_locked");
+                        (r.status, Some(r.body))
+                    }
+                    (Mode::Expired, "POST", "/pair/claim") => {
+                        let r = recorded("pair_code_expired");
                         (r.status, Some(r.body))
                     }
                     (Mode::Replay, "POST", "/pair/claim") => {
@@ -218,6 +224,15 @@ async fn a_locked_code_is_pair_code_locked() {
     assert_eq!(
         claim_pairing_code(&link(server.port, PRINTED)).await,
         Err(PairingErrorKind::CodeLocked)
+    );
+}
+
+#[tokio::test]
+async fn an_expired_code_is_pair_code_expired() {
+    let server = serve(Mode::Expired).await;
+    assert_eq!(
+        claim_pairing_code(&link(server.port, PRINTED)).await,
+        Err(PairingErrorKind::CodeExpired)
     );
 }
 

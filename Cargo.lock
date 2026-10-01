@@ -5180,6 +5180,7 @@ dependencies = [
 name = "octoscode-module"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "futures-util",
  "log",
  "makepad-app-module",
