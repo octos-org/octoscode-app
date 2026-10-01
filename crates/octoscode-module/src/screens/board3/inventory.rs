@@ -363,22 +363,13 @@ fn server_dot(status: &str) -> &'static str {
 }
 
 /// Natural height of the dialog's content (for the shell's fit/scroll call).
-fn natural_h(st: &InvState, compact: bool) -> f64 {
-    let header = 32.0 + 4.0 + 18.0 + 12.0 + 38.0 + 12.0 + 34.0 + 14.0;
-    let row_h = if compact { 56.0 } else { 38.0 };
-    let rows = match st.tab {
-        Tab::Tools => st.tools.as_ref().map(|t| t.1.len()).unwrap_or(0),
-        Tab::Mcp => st.servers.as_ref().map(|s| s.0.len()).unwrap_or(0),
-    };
-    header + 22.0 + 30.0 + rows as f64 * (row_h + 1.0) + 40.0
-}
 
 pub fn build(d: &mut Dsl, st: &InvState, frame: &Frame, _store: &Store) {
     let width = frame.dialog_w(760.0);
     let compact = frame.compact(width);
     let pad = ui::dialog_pad(frame, width);
     let inner_w = width - 2.0 * pad;
-    let scrolls = ui::shell_open(d, frame, width, natural_h(st, compact));
+    ui::shell_open(d, frame, width);
 
     // Header: title + refresh + close (`InventoryDialog.tsx:109-119`).
     let row = d.anon();
@@ -421,9 +412,7 @@ pub fn build(d: &mut Dsl, st: &InvState, frame: &Frame, _store: &Store) {
     );
     d.gap(W::Fill, 14.0);
 
-    if scrolls {
-        ui::scroll_open(d);
-    }
+    ui::body_open(d, frame, width, 160.0);
     if st.loading {
         d.text("b3_inv_loading", "Loading runtime inventory…", &ui::meta());
     }
@@ -434,9 +423,7 @@ pub fn build(d: &mut Dsl, st: &InvState, frame: &Frame, _store: &Store) {
         Tab::Tools => tools_table(d, st, compact, inner_w),
         Tab::Mcp => servers_table(d, st, compact, inner_w),
     }
-    if scrolls {
-        d.close();
-    }
+    ui::body_close(d);
     ui::shell_close(d);
 }
 

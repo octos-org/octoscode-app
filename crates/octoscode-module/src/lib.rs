@@ -2758,6 +2758,12 @@ impl OctoscodeView {
     fn sync_board3(&mut self, cx: &mut Cx) {
         let rect = self.view.area().rect(cx);
         screens::board3::host::set_frame(rect.size.x, rect.size.y);
+        // A finished job's clipboard text ("Copy as Markdown") is written
+        // here, on the UI thread that owns `cx`.
+        if let Some(text) = screens::board3::host::take_clipboard() {
+            cx.copy_to_clipboard(&text);
+            makepad_widgets::log!("[octoscode] board3 clipboard: {} bytes", text.len());
+        }
         let store = { self.bridge.lock().unwrap().store.clone() };
         let lowered = screens::board3::host::lower_open(&store);
         self.view.widget(cx, ids!(board3_dock)).set_visible(cx, lowered.is_some());
@@ -2827,6 +2833,23 @@ impl OctoscodeView {
             Outcome::Clipboard(text) => {
                 cx.copy_to_clipboard(&text);
                 makepad_widgets::log!("[octoscode] board3 clipboard: {} bytes", text.len());
+            }
+            Outcome::Close => screens::board3::host::close(),
+            Outcome::PickFiles => {
+                // The platform picker, filtered to the web's four image types
+                // (`attachment-drafts.ts:6-8`); the answer arrives as a
+                // FileDialogAction in a later actions pass.
+                cx.open_select_file_dialog(
+                    FileDialog::new()
+                        .set_title("Choose image files".to_owned())
+                        .add_filter(
+                            "Images".to_owned(),
+                            ["png", "jpg", "jpeg", "gif", "webp"].iter().map(|s| s.to_string()).collect(),
+                        )
+                        .set_multiple(true)
+                        .set_id(live_id!(b3_images)),
+                );
+                makepad_widgets::log!("[octoscode] board3 image picker opened");
             }
             Outcome::Done | Outcome::Unrouted => {}
         }
@@ -3433,7 +3456,8 @@ impl Widget for OctoscodeView {
                         b3_dirty = true;
                     }
                     if input.returned(actions).is_some() {
-                        let outcome = screens::board3::host::input_returned(key);
+                        let store = { self.bridge.lock().unwrap().store.clone() };
+                        let outcome = screens::board3::host::input_returned(key, &store);
                         makepad_widgets::log!("[octoscode] board3 return in {key} -> {outcome:?}");
                         self.board3_outcome(cx, outcome);
                         b3_dirty = true;
@@ -3442,6 +3466,17 @@ impl Widget for OctoscodeView {
                 if b3_dirty {
                     let store = { self.bridge.lock().unwrap().store.clone() };
                     self.board3_visibility(cx, &store);
+                }
+                // A4 — the image picker's answer (screen 10).
+                for action in actions.iter() {
+                    if let Some(FileDialogAction::FileSelected { id, paths }) =
+                        action.downcast_ref::<FileDialogAction>()
+                    {
+                        if *id == live_id!(b3_images) {
+                            makepad_widgets::log!("[octoscode] board3 images chosen: {}", paths.len());
+                            screens::board3::host::files_chosen(paths);
+                        }
+                    }
                 }
                 // The #16 `new-chat` component, and the host hit target laid over
                 // it.
@@ -3625,6 +3660,30 @@ impl Widget for OctoscodeView {
                     makepad_widgets::log!("[octoscode] ime action -> submit (IME Enter)");
                     self.perform_action(cx, bindings::ACTION_SUBMIT, 0);
                 }
+            }
+            // A4 — a file dropped on the open images dialog selects it (the
+            // same draft path as the picker; screen 10).
+            Event::Drag(e)
+                if screens::board3::host::open_dialog()
+                    == Some(screens::board3::host::Dialog::Images) =>
+            {
+                *e.response.lock().unwrap() = DragResponse::Copy;
+            }
+            Event::Drop(e)
+                if screens::board3::host::open_dialog()
+                    == Some(screens::board3::host::Dialog::Images) =>
+            {
+                let paths: Vec<std::path::PathBuf> = e
+                    .items
+                    .iter()
+                    .filter_map(|item| match item {
+                        DragItem::FilePath { path, .. } => Some(std::path::PathBuf::from(path)),
+                        _ => None,
+                    })
+                    .collect();
+                makepad_widgets::log!("[octoscode] board3 images dropped: {}", paths.len());
+                screens::board3::host::files_chosen(&paths);
+                self.sync_labels(cx);
             }
             Event::KeyDown(e) if e.key_code == KeyCode::Escape
                 && screens::board3::host::is_open() =>

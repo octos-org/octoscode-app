@@ -94,6 +94,37 @@ fn fmt_num(v: f64) -> String {
     }
 }
 
+/// An estimate of a single-line run's width in design px (Inter's advance
+/// widths by glyph class; mono is 0.6em). A `Fit` box whose only sizing
+/// child is an Overlay `Fill` tap target measured 0 wide (the /snap of the
+/// first build: `b3_insp_copy_btn_box [0,0,0,0]`), so pills and links carry
+/// an explicit width from this estimate instead.
+pub fn text_w(s: &str, px: f64, face: Face) -> f64 {
+    if face == Face::Mono {
+        return (s.chars().count() as f64 * 0.6 * px).ceil();
+    }
+    let em: f64 = s
+        .chars()
+        .map(|c| match c {
+            'i' | 'l' | 'j' | '.' | ',' | '\'' | '|' | ':' | ';' | '!' | 'I' => 0.27,
+            ' ' | 'f' | 't' | 'r' | '(' | ')' | '/' | '-' => 0.34,
+            'm' | 'w' => 0.86,
+            'M' | 'W' => 0.92,
+            'A'..='Z' => 0.68,
+            '0'..='9' => 0.58,
+            '…' => 0.9,
+            c if (c as u32) > 0x2e80 => 1.0, // CJK
+            _ => 0.56,
+        })
+        .sum();
+    let weight = match face {
+        Face::Semibold => 1.05,
+        Face::Medium => 1.025,
+        _ => 1.0,
+    };
+    (em * px * weight).ceil()
+}
+
 /// Escape a runtime string for a DSL string literal (`text: "…"`). Debug
 /// formatting escapes quotes, backslashes and control characters.
 pub fn lit(s: &str) -> String {
@@ -354,6 +385,11 @@ impl Dsl {
             Btn::Ghost => (tok::TRANSPARENT, tok::TEXT, None),
         };
         let radius = if matches!(kind, Btn::Outline) && height > 34.0 { 10.0 } else { height / 2.0 };
+        // A Fit pill gets an explicit width (see `text_w`).
+        let width = match width {
+            W::Fit => W::Px(text_w(label, 13.0, Face::Medium) + 32.0),
+            w => w,
+        };
         self.surface(
             &format!("{id}_box"),
             &format!(
@@ -368,7 +404,7 @@ impl Dsl {
         let inner = self.anon();
         self.view(
             &inner,
-            "width: Fill height: Fill flow: Right align: Align{x: 0.5 y: 0.5} padding: Inset{left: 16 right: 16 top: 0 bottom: 0}",
+            "width: Fill height: Fill flow: Right align: Align{x: 0.5 y: 0.5} padding: Inset{left: 12 right: 12 top: 0 bottom: 0}",
         );
         self.text(&format!("{id}_label"), label, &Txt::new(13.0, Face::Medium, fg));
         self.close();
@@ -381,7 +417,13 @@ impl Dsl {
     /// A text link (blue), optionally tappable.
     pub fn link(&mut self, id: &str, label: &str, event: Option<&str>, px: f64) {
         let wrap = format!("{id}_box");
-        self.view(&wrap, "width: Fit height: Fit flow: Overlay");
+        // Explicit box (see `text_w`): the tap target must not measure 0.
+        let w = text_w(label, px, Face::Regular) + 4.0;
+        let h = (px * 1.6).ceil();
+        self.view(
+            &wrap,
+            &format!("width: {} height: {} flow: Overlay align: Align{{x: 0.0 y: 0.5}}", fmt_num(w), fmt_num(h)),
+        );
         self.text(&format!("{id}_label"), label, &Txt::new(px, Face::Regular, tok::BLUE));
         if let Some(ev) = event {
             self.tap(id, ev);
@@ -538,15 +580,12 @@ pub fn dialog_pad(frame: &Frame, width: f64) -> f64 {
     }
 }
 
-/// Open the backdrop + the centred card. `natural_h` is the content's
-/// estimated natural height (header + body + footer, without the card
-/// padding). When it does not fit the frame the card pins to the frame's
-/// max height and the caller wraps its body in [`scroll_open`] (the web's
-/// `max-height` + `overflow: auto`). Returns whether the body must scroll.
-pub fn shell_open(d: &mut Dsl, frame: &Frame, width: f64, natural_h: f64) -> bool {
-    let max_h = frame.dialog_max_h();
+/// Open the backdrop + the centred card (the web's `.backdrop` grid +
+/// `.dialog`). The card hugs its content; [`body_open`] caps the body so the
+/// whole card never exceeds the frame's max height (the web's `max-height:
+/// calc(100dvh - 32px)` + `overflow: auto`).
+pub fn shell_open(d: &mut Dsl, frame: &Frame, width: f64) {
     let pad = dialog_pad(frame, width);
-    let card_h = if natural_h + 2.0 * pad > max_h { Some(max_h) } else { None };
     d.view(
         "b3_root",
         "width: Fill height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5}",
@@ -555,27 +594,39 @@ pub fn shell_open(d: &mut Dsl, frame: &Frame, width: f64, natural_h: f64) -> boo
     d.surface(
         "b3_dialog",
         &format!(
-            "width: {} height: {} flow: Down padding: Inset{{left: {p} right: {p} top: {p} bottom: {p}}}",
+            "width: {} height: Fit flow: Down padding: Inset{{left: {p} right: {p} top: {p} bottom: {p}}}",
             fmt_num(width),
-            card_h.map(fmt_num).unwrap_or_else(|| "Fit".into()),
             p = fmt_num(pad)
         ),
         tok::SURFACE,
         16.0,
         Some(tok::HAIRLINE),
     );
-    card_h.is_some()
 }
 
-/// The scrolling body region (only when [`shell_open`] said so).
-pub fn scroll_open(d: &mut Dsl) {
+/// The body region: a `Fit` scroll view capped at what the frame leaves after
+/// the card padding and the dialog's fixed chrome (`chrome_h`: header +
+/// footer). It hugs short content and scrolls long content —
+/// `ScrollYView` resolves a `Fit` height against `max_height`
+/// (makepad `scroll_bars.rs:372-378`).
+pub fn body_open(d: &mut Dsl, frame: &Frame, width: f64, chrome_h: f64) {
+    let pad = dialog_pad(frame, width);
+    let max_body = (frame.dialog_max_h() - 2.0 * pad - chrome_h).max(120.0).floor();
     // The right inset is the scroll bar's gutter: measured on the phone
     // layout, the bar drew over the first rows' status chips without it.
     d.open(
         "b3_scroll",
         "ScrollYView",
-        "width: Fill height: Fill flow: Down padding: Inset{left: 0 top: 0 right: 10 bottom: 0}",
+        &format!(
+            "width: Fill height: Fit max_height: {} flow: Down padding: Inset{{left: 0 top: 0 right: 10 bottom: 0}}",
+            fmt_num(max_body)
+        ),
     );
+}
+
+/// Close [`body_open`].
+pub fn body_close(d: &mut Dsl) {
+    d.close();
 }
 
 /// Close the card and the backdrop root.
@@ -601,6 +652,168 @@ pub fn close_glyph(d: &mut Dsl, event: &str) {
     d.icon("b3_close_icon", "icon_close.svg", 12.0, tok::MUTED);
     d.tap("b3_close", event);
     d.close();
+}
+
+/// A 28x28 icon button (refresh, copy).
+pub fn icon_button(d: &mut Dsl, id: &str, file: &str, size: f64, event: &str) {
+    d.view(&format!("{id}_box"), "width: 28 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}");
+    d.icon(&format!("{id}_icon"), file, size, tok::MUTED);
+    d.tap(id, event);
+    d.close();
+}
+
+/// Open a bordered section card (the board's grouped boxes, radius 12).
+pub fn card_open(d: &mut Dsl, id: &str, spacing: f64) {
+    d.surface(
+        id,
+        &format!(
+            "width: Fill height: Fit flow: Down spacing: {} padding: Inset{{left: 14 right: 14 top: 12 bottom: 12}}",
+            fmt_num(spacing)
+        ),
+        tok::SURFACE,
+        12.0,
+        Some(tok::HAIRLINE),
+    );
+}
+
+/// A section heading inside a card (13px medium, the board's "Thread graph").
+pub fn section_title(d: &mut Dsl, id: &str, text: &str) {
+    d.text(id, text, &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
+}
+
+/// A small grey field label above a control ("Workspace path").
+pub fn field_label(d: &mut Dsl, id: &str, text: &str) {
+    d.text(id, text, &Txt::new(12.0, Face::Medium, tok::MUTED).w(W::Fill));
+}
+
+/// The amber caution banner (screen 7): warning glyph, a bold line, a body.
+pub fn banner(d: &mut Dsl, id: &str, head: &str, body: &str) {
+    d.surface(
+        id,
+        "width: Fill height: Fit flow: Right spacing: 10 padding: Inset{left: 12 right: 12 top: 10 bottom: 10}",
+        tok::AMBER_BG,
+        10.0,
+        Some(tok::AMBER_LINE),
+    );
+    d.icon(&format!("{id}_icon"), "b3_warning.svg", 16.0, tok::AMBER);
+    let col = d.anon();
+    d.view(&col, "width: Fill height: Fit flow: Down spacing: 3");
+    d.text(&format!("{id}_head"), head, &Txt::new(12.5, Face::Medium, tok::TEXT).w(W::Fill).wrap());
+    if !body.is_empty() {
+        d.text(&format!("{id}_body"), body, &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+    }
+    d.close();
+    d.close();
+}
+
+/// A read-only monospace value in a hairline box (the board's link field),
+/// with an optional trailing icon button.
+pub fn mono_box(d: &mut Dsl, id: &str, value: &str, trailing: Option<(&str, &str, &str)>) {
+    d.surface(
+        id,
+        "width: Fill height: 36 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 6 padding: Inset{left: 10 right: 4 top: 0 bottom: 0}",
+        tok::SURFACE,
+        8.0,
+        Some("#d9d9dcff"),
+    );
+    d.text(&format!("{id}_value"), value, &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill));
+    if let Some((tid, file, event)) = trailing {
+        icon_button(d, tid, file, 14.0, event);
+    }
+    d.close();
+}
+
+/// The web's relative-time label (`features/shell/relative-time.ts:1-17`):
+/// `now` under a minute, then `Nm`, `Nh`, `Nd` under a week, then a short
+/// date (`Sep 24`). `then_ms`/`now_ms` are Unix milliseconds.
+pub fn rel_time(now_ms: u64, then_ms: u64) -> String {
+    let secs = now_ms.saturating_sub(then_ms) / 1000;
+    if secs < 60 {
+        return "now".into();
+    }
+    let mins = secs / 60;
+    if mins < 60 {
+        return format!("{mins}m");
+    }
+    let hours = mins / 60;
+    if hours < 24 {
+        return format!("{hours}h");
+    }
+    let days = hours / 24;
+    if days < 7 {
+        return format!("{days}d");
+    }
+    short_date(then_ms)
+}
+
+/// `Intl.DateTimeFormat(undefined, {month: "short", day: "numeric"})` in the
+/// en-US shape (`Sep 24`), computed in UTC (no tz database in the module).
+pub fn short_date(ms: u64) -> String {
+    const MONTHS: [&str; 12] = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    let days = (ms / 86_400_000) as i64;
+    // Civil-from-days (Howard Hinnant), UTC.
+    let z = days + 719_468;
+    let era = z.div_euclid(146_097);
+    let doe = z - era * 146_097;
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let day = doy - (153 * mp + 2) / 5 + 1;
+    let month = if mp < 10 { mp + 3 } else { mp - 9 };
+    format!("{} {}", MONTHS[(month - 1) as usize], day)
+}
+
+/// Parse an RFC 3339 / ISO-8601 UTC timestamp (`2026-10-01T15:04:05Z`, with
+/// optional fraction or `+00:00`) to Unix ms. Server `updated_at` values use
+/// this shape; anything else is `None` (the row then shows no time).
+pub fn parse_iso_ms(s: &str) -> Option<u64> {
+    let s = s.trim();
+    if s.len() < 19 {
+        return None;
+    }
+    let num = |a: usize, b: usize| s.get(a..b)?.parse::<i64>().ok();
+    let (y, mo, d) = (num(0, 4)?, num(5, 7)?, num(8, 10)?);
+    let (h, mi, se) = (num(11, 13)?, num(14, 16)?, num(17, 19)?);
+    // days-from-civil
+    let y2 = if mo <= 2 { y - 1 } else { y };
+    let era = y2.div_euclid(400);
+    let yoe = y2 - era * 400;
+    let mp = (mo + 9) % 12;
+    let doy = (153 * mp + 2) / 5 + d - 1;
+    let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    let days = era * 146_097 + doe - 719_468;
+    let mut ms = ((days * 86_400 + h * 3600 + mi * 60 + se) * 1000) as i64;
+    // An explicit numeric offset (`+08:00`) shifts to UTC.
+    let tail = &s[19..];
+    let tail = tail.trim_start_matches(|c: char| c == '.' || c.is_ascii_digit());
+    if let Some(off) = tail.strip_prefix('+').or_else(|| tail.strip_prefix('-')) {
+        if off.len() >= 5 {
+            let oh: i64 = off[0..2].parse().ok()?;
+            let om: i64 = off[3..5].parse().ok()?;
+            let sign = if tail.starts_with('+') { 1 } else { -1 };
+            ms -= sign * (oh * 3600 + om * 60) * 1000;
+        }
+    }
+    (ms >= 0).then_some(ms as u64)
+}
+
+/// Unix ms now.
+pub fn now_ms() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0)
+}
+
+/// The last path segment (`/home/user/octos` → `octos`), the web's
+/// `workspaceName` rule.
+pub fn leaf(path: &str) -> String {
+    path.trim_end_matches(['/', '\\'])
+        .rsplit(['/', '\\'])
+        .next()
+        .filter(|s| !s.is_empty())
+        .unwrap_or(path)
+        .to_owned()
 }
 
 #[cfg(test)]
@@ -644,12 +857,32 @@ mod tests {
     }
 
     #[test]
-    fn a_tall_body_pins_the_card_and_scrolls() {
+    fn the_body_is_capped_by_the_frame_minus_chrome() {
         let desk = Frame::DESKTOP;
         let mut d = Dsl::new();
-        assert!(shell_open(&mut d, &desk, 760.0, 900.0));
-        let mut d2 = Dsl::new();
-        assert!(!shell_open(&mut d2, &desk, 760.0, 300.0));
+        shell_open(&mut d, &desk, 760.0);
+        body_open(&mut d, &desk, 760.0, 150.0);
+        body_close(&mut d);
+        shell_close(&mut d);
+        let dsl = d.finish();
+        // 571 max - 2*20 padding - 150 chrome = 381
+        assert!(dsl.contains("height: Fit max_height: 381"), "{dsl}");
+        assert_eq!(dsl.matches('{').count(), dsl.matches('}').count());
+    }
+
+    #[test]
+    fn relative_time_is_the_web_formatter() {
+        let now = 1_759_331_045_000; // 2025-10-01T15:04:05Z
+        assert_eq!(rel_time(now, now - 30_000), "now");
+        assert_eq!(rel_time(now, now - 2 * 60_000), "2m");
+        assert_eq!(rel_time(now, now - 3 * 3_600_000), "3h");
+        assert_eq!(rel_time(now, now - 2 * 86_400_000), "2d");
+        assert_eq!(rel_time(now, now - 8 * 86_400_000), "Sep 23");
+        assert_eq!(parse_iso_ms("2025-10-01T15:04:05Z"), Some(now));
+        assert_eq!(parse_iso_ms("2025-10-01T15:04:05.123+00:00"), Some(now));
+        assert_eq!(parse_iso_ms("2025-10-01T23:04:05+08:00"), Some(now));
+        assert_eq!(parse_iso_ms("yesterday"), None);
+        assert_eq!(leaf("/home/user/octos/"), "octos");
     }
 
     #[test]

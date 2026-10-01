@@ -16,9 +16,16 @@ use octoscode_store::Store;
 // user reaches is the flow-laid-out dialog family in `board3/` (see
 // `board3/ui.rs` for why: runtime lists + a desktop window shorter than the
 // 406x776 artboard).
+pub mod checkpoints;
 pub mod host;
+pub mod images;
+pub mod inspector;
 pub mod inventory;
+pub mod resume;
+pub mod switcher;
+pub mod thinking;
 pub mod ui;
+pub mod wscreate;
 
 const CARDS: &str = "stage-b/phase4-new3/cards";
 
@@ -172,12 +179,14 @@ mod tests {
     fn thinking_prefs_default_fail_closed_and_flip() {
         let store = Store::new();
         store.domains.session.set_active(Some("dsflash:main".into()));
-        // Row 11's contract: show-thinking defaults ON (fails closed).
+        // Row 11's contract: show-thinking defaults ON (fails closed). A4:
+        // the effort defaults to the Profile default ("") and every block is
+        // folded, the web's own defaults (reasoning/model.ts, App.tsx:515).
         let p = store.domains.session.thinking("dsflash:main");
-        assert_eq!(p.effort, "high");
+        assert_eq!(p.effort, "");
         assert!(p.show_reasoning);
         assert!(p.default_on);
-        assert_eq!(p.expanded, vec!["row_0".to_owned()]);
+        assert!(p.expanded.is_empty());
         perform("thinking.effort.low", &store).expect("effort");
         perform("thinking_collapse_all", &store).expect("collapse");
         let p = store.domains.session.thinking("dsflash:main");

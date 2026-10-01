@@ -467,6 +467,29 @@ impl AttachmentDraftStore {
         }
     }
 
+    /// A4 — "Cancel uploads" (`attachment-drafts.ts:240-253`): abort every
+    /// in-flight transfer and reset those rows to `selected`; a late receipt
+    /// is then ignored by `complete_upload`'s abort check. Nothing on the
+    /// server is deleted ("A canceled transfer may already have reached the
+    /// server.").
+    pub fn cancel_uploads(&self) {
+        let flights: Vec<(String, Arc<AtomicBool>)> =
+            self.cancelled.lock().unwrap().iter().map(|(k, v)| (k.clone(), v.clone())).collect();
+        let mut i = self.inner.lock().unwrap();
+        for (id, abort) in flights {
+            abort.store(true, Ordering::SeqCst);
+            if let Some(entry) = i.entries.get_mut(&id) {
+                if entry.draft.status == DraftStatus::Uploading {
+                    entry.draft.status = DraftStatus::Selected;
+                    entry.draft.error = None;
+                }
+            }
+            if i.claimed.remove(&id) {
+                i.uploading = i.uploading.saturating_sub(1);
+            }
+        }
+    }
+
     /// Removes the local draft reference only; NEVER deletes a server file
     /// (`remove`, attachment-drafts.ts:255-260).
     pub fn remove(&self, id: &str) {
@@ -1006,6 +1029,39 @@ pub fn seed_draft_for_test(
 /// (the web's `takeForTurn` on an empty store yields an empty batch).
 pub fn clear_draft_for_test(conv: &crate::flow::Conversation) {
     draft_map().lock().unwrap().remove(&conv.session_id());
+}
+
+/// A4 — the conversation's draft store (the AttachmentsDialog's handle).
+pub fn drafts_for_conv(conv: &crate::flow::Conversation) -> Arc<AttachmentDraftStore> {
+    drafts_for(&current_scope(conv))
+}
+
+/// A4 — the draft store for a session id when one was already created (the
+/// dialog lowers without a conversation handle).
+pub fn drafts_for_session(session: &str) -> Option<Arc<AttachmentDraftStore>> {
+    draft_map().lock().unwrap().get(session).cloned()
+}
+
+/// A4 — the composer's send boundary (`session-composer-drafts.ts:183-188`):
+/// an empty draft sends text only (`None`); a draft with any row that is not
+/// uploaded refuses the send and KEEPS the draft; an all-ready draft hands
+/// its batch to this turn and is consumed.
+pub fn take_for_submit(conv: &crate::flow::Conversation) -> Result<Option<Vec<TurnMedia>>, String> {
+    let Some(drafts) = drafts_for_session(&conv.session_id()) else { return Ok(None) };
+    let entries = drafts.entries();
+    if entries.is_empty() {
+        return Ok(None);
+    }
+    if entries.iter().any(|e| e.status != DraftStatus::Ready) {
+        return Err("Upload or remove every selected image before sending. Your draft was kept.".to_owned());
+    }
+    let scope = current_scope(conv);
+    let mut batch: Vec<TurnMedia> = Vec::new();
+    let accepted = drafts.submit_turn(&scope, |media| {
+        batch = media.to_vec();
+        true
+    })?;
+    Ok(accepted.then_some(batch))
 }
 
 /// The bound authority for this conversation: the Session is the authority key
