@@ -840,7 +840,11 @@ fn set_node_font_size(dsl: &str, node: &str, size: f64) -> String {
     let Some(npos) = dsl.find(&format!("{node} := ")) else {
         return dsl.to_owned();
     };
-    let window_end = (npos + 700).min(dsl.len());
+    // A1: `font_size` follows the whole font family in the label head, and the
+    // family grew (the bundled sans CJK member + its lazy fallback,
+    // design::cjk_members): at 700 chars the size was out of reach and this
+    // rewrite silently stopped (f36a measured the 11.89 pt run again).
+    let window_end = (npos + 2500).min(dsl.len());
     let key = "font_size: ";
     let Some(fpos) = dsl[npos..window_end].find(key) else {
         return dsl.to_owned();

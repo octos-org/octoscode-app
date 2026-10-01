@@ -406,15 +406,22 @@ script_mod! {
                         width: Fill height: Fit flow: Overlay
                         padding: Inset{left: 24 right: 24}
                         item_splash := Splash { width: Fill height: Fit }
+                        // A1: shown only on clickable rows (draw_walk). The
+                        // gradient is DISABLED (`color_2` < -0.5): at
+                        // #00000000 it mixed toward the theme's focus stop
+                        // after a click and washed the disclosed row white.
                         row_hit := Button {
                             width: Fill height: Fill text: ""
                             draw_bg.color: #00000000
-                            draw_bg.color_hover: #00000000
-                            draw_bg.color_down: #00000000
+                            draw_bg.color_hover: #00000008
+                            draw_bg.color_down: #00000010
+                            draw_bg.color_focus: #00000000
+                            draw_bg.color_disabled: #00000000
                             draw_bg.border_size: 0.0
-                            draw_bg.color_2: #00000000
+                            draw_bg.border_radius: 5.0
+                            draw_bg.color_2: vec4(-1.0, -1.0, -1.0, -1.0)
                             draw_bg.border_color: #00000000
-                            draw_bg.border_color_2: #00000000
+                            draw_bg.border_color_2: vec4(-1.0, -1.0, -1.0, -1.0)
                         }
                     }
                 }
@@ -1244,6 +1251,10 @@ pub struct OctoscodeView {
     /// A1 — the conversation geometry last applied to the dock/rows.
     #[rust]
     applied_metrics: Option<ConvMetrics>,
+    /// A1 — how far the shell's dock reaches into the module (px), added
+    /// under the composer.
+    #[rust]
+    dock_overlap: f64,
     /// #32h TOP: the composer text the WIDGET currently holds (changed
     /// events and our own set_text keep it current). The store draft is
     /// pushed to the widget ONLY when it differs — a real external change
@@ -2756,8 +2767,23 @@ impl OctoscodeView {
     /// drawer all narrow it). On a change the lowering cache drops (rows
     /// embed the column-dependent caps) and the composer dock re-centres;
     /// the timeline rows read the same metrics per draw.
-    fn track_conversation_geometry(&mut self, cx: &mut Cx) {
-        let win_w = self.view.area().rect(cx).size.x;
+    fn track_conversation_geometry(&mut self, cx: &mut Cx, shell: DVec2) {
+        let module = self.view.area().rect(cx);
+        let win_w = module.size.x;
+        // The desktop shell's dock floats over the bottom ~90 px of its window
+        // (#28e2: dock top y≈810 at 900 tall). A floating module window ends
+        // above it; a MAXIMIZED one reaches into it and the dock covered the
+        // composer (measured: module bottom 888 of 900). Inset the composer
+        // by exactly the overlap — never on the phone shell (no dock).
+        const DOCK_ZONE: f64 = 92.0;
+        let dock_overlap = if shell.x > conv_layout::PHONE_BREAKPOINT && shell.y > 0.0 && module.size.y > 0.0 {
+            (DOCK_ZONE - (shell.y - (module.pos.y + module.size.y))).clamp(0.0, DOCK_ZONE)
+        } else {
+            0.0
+        };
+        let dock_overlap = dock_overlap.round();
+        let dock_changed = (dock_overlap - self.dock_overlap).abs() > 0.5;
+        self.dock_overlap = dock_overlap;
         let pane_w = self
             .view
             .widget(cx, ids!(conversation_column))
@@ -2780,7 +2806,7 @@ impl OctoscodeView {
         }
         let changed = conv_layout::set_geometry(win_w, pane_w);
         let m = conv_layout::current();
-        if !changed && self.applied_metrics == Some(m) {
+        if !changed && !dock_changed && self.applied_metrics == Some(m) {
             return;
         }
         self.applied_metrics = Some(m);
@@ -2793,7 +2819,7 @@ impl OctoscodeView {
                 conv_layout::Density::Phone => (8.0, 10.0),
             };
             dock.layout.padding.top = top;
-            dock.layout.padding.bottom = bottom;
+            dock.layout.padding.bottom = bottom + dock_overlap;
         }
         // Lowered rows embed the column width (bubble/prose caps): drop the
         // lowering cache so every visible row re-lowers once.
@@ -2866,6 +2892,10 @@ impl OctoscodeView {
         self.view.widget(cx, ids!(base)).set_visible(cx, live);
         self.view.widget(cx, ids!(first_run)).set_visible(cx, !live);
         self.view.widget(cx, ids!(threads_column)).set_visible(cx, show_sidebar);
+        // A1: the sidebar's hairline goes with it — left visible, it (plus the
+        // row's 10 px spacing) shifted the phone transcript 11 px right of
+        // centre (measured gutters 27 / 16 at 412 wide).
+        self.view.widget(cx, ids!(sidebar_rule)).set_visible(cx, show_sidebar);
         // The toggle itself only exists while WIDTH hides the sidebar (and the
         // shell is live — the first-run screen has its own chrome).
         self.view.widget(cx, ids!(sidebar_toggle)).set_visible(cx, live && width_hides_sidebar);
@@ -3033,7 +3063,8 @@ impl Widget for OctoscodeView {
         );
         // A1: the conversation geometry from the measured layout (BEFORE the
         // lowering cache is taken: a width change drops it).
-        self.track_conversation_geometry(cx);
+        let shell = cx.owning_window_or_root_pass_size();
+        self.track_conversation_geometry(cx, shell);
         let metrics = conv_layout::current();
         // A1: the empty conversation — the mark, the question and the hint,
         // centered over the empty transcript (Timeline.tsx:111-134).
@@ -3291,6 +3322,13 @@ impl Widget for OctoscodeView {
         }
         self.cache = cache;
         self.mounts = mounts;
+        // A1: the areas now hold THIS frame's layout. A resize (the WM
+        // maximizing the module, a panel opening) is only visible here, so
+        // re-check: a change drops the cache and redraws once more with the
+        // right column (before this, the first post-resize frame kept the
+        // old column until some unrelated event).
+        let shell = cx.owning_window_or_root_pass_size();
+        self.track_conversation_geometry(cx, shell);
         DrawStep::done()
     }
 
