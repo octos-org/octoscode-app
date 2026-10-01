@@ -3036,9 +3036,14 @@ impl Widget for OctoscodeView {
             // Android-only: desktop submits via KeyDown ReturnKey already.
             #[cfg(target_os = "android")]
             Event::ImeAction(_) => {
+                // Bind the value FIRST: the tail expression's temporary
+                // FlowUi guard borrows through `b`, so it outlives the
+                // inner block where `b` drops (E0597 on the android target
+                // — the desktop cfg never compiled this arm).
                 let palette_open = {
                     let b = self.bridge.lock().unwrap();
-                    b.ui.lock().unwrap().palette_open()
+                    let open = b.ui.lock().unwrap().palette_open();
+                    open
                 };
                 if palette_open {
                     makepad_widgets::log!("[octoscode] ime action ignored (palette open)");
