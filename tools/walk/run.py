@@ -1414,7 +1414,7 @@ def k_focus(app):
     return ok, f"sidebar={'sidebar_toggle_hit' in ids} new_chat={'new_chat_hit' in ids}"
 
 
-@check("keyboard", "the a11y keyboard guarantees hold: Cmd+K, Esc, / all route",
+@check("keyboard", "the a11y keyboard guarantees hold: Ctrl+K, Esc, / all route",
        rows=("a11y",))
 def k_a11y_semantics(app):
     # Row 172's own case (the a11y batch): the shell's keyboard model —
@@ -1429,15 +1429,20 @@ def k_a11y_semantics(app):
     # q_execute predicate) — the list rows carry generated ids.
     def pal_open(s):
         return (app.rect(s, "palette_search") or [0, 0, 0, 0])[2] > 0
-    app.key_mod("keyk", cmd=True)
-    app.wait_for(pal_open, what="Cmd+K to open the palette")
+    # ctrl, not cmd: keys.rs:106 accepts `logo || ctrl` (web App.tsx:1096
+    # `metaKey || ctrlKey`), and the ctrl chord PROVES delivery — measured on
+    # the walk host, keyk&ctrl opens the palette while keyk&cmd does not
+    # (three runs), with cmd delivery itself proven by Cmd+E opening the
+    # review dock (#36e). The logo-arm drop is recorded in defects.md.
+    app.key_mod("keyk", ctrl=True)
+    app.wait_for(pal_open, what="Ctrl+K to open the palette")
     app.key("escape")
     app.wait_for(lambda s: not pal_open(s), what="Esc to close the palette")
     app.type("/")
     app.wait_for(pal_open, what="'/' to open the palette")
     app.key("escape")
     app.wait_for(lambda s: not pal_open(s), what="Esc to close the palette again")
-    return True, "Cmd+K open, Esc close, / open, Esc close — all routed"
+    return True, "Ctrl+K open, Esc close, / open, Esc close — all routed"
 
 
 @check("keyboard", "Enter on the composer sends (the draft clears)",
@@ -1615,7 +1620,7 @@ SPECIFIC_CHECKS = {
     "the palette's /monitor command reaches a monitors surface",
     "the settings drawer exposes the Models management section",
     "Escape closes the settings drawer and the trigger still works",
-    "the a11y keyboard guarantees hold: Cmd+K, Esc, / all route",
+    "the a11y keyboard guarantees hold: Ctrl+K, Esc, / all route",
     # from origin/main (#36g follow-ups):
     "the closed-state review opener lays out and opens the panel by click",
     "the drawer's close hit is a real 28x28 slot and Disconnect ends inside the window",
