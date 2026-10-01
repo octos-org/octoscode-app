@@ -1628,6 +1628,25 @@ def r_live(app):
     return "Live" in s, f"status={s!r}"
 
 
+@check("recovery", "the status strip labels stay constructed (no timeline text leaks)",
+       rows=("p4b2-parity-evidence-only",))
+def r_strip_purity(app):
+    # #P4b2 §8.23 evidence for the parity row `Strip state/thinking text from
+    # the session status strip label`: the strip text read from the LIVE /snap
+    # must be exactly the constructed shape (store summary() "conn: …   sessions: N")
+    # — never timeline text, even though this very fixture streams reasoning
+    # deltas into the transcript. rows= is a non-matching token on purpose:
+    # this check is parity EVIDENCE, it must not claim any walk row's depth.
+    d = app.snap()
+    st = (app.text_of(d, "status") or "").strip()
+    import re as _re
+    ok = bool(_re.fullmatch(r"conn: \S+\s+sessions: \d+", st))
+    leaked = [w.get("t") for w in d.get("s", [])
+              if w.get("t") and ("thinking…" in str(w.get("t")))
+              and str(w.get("i", "")) .startswith("status")]
+    return ok and not leaked, f"status strip from /snap: {st!r} (constructed={ok}, leak={bool(leaked)})"
+
+
 @check("recovery", "a replayed turn lands in the module's own transcript",
        rows=("replay", "reconnect", "recovery"))
 def r_replay(app):
