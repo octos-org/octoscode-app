@@ -56,6 +56,21 @@ fn r1() -> Vec<Frame> {
     load("r1-autonomy-a6ea8505.jsonl")
 }
 
+/// The recorded notification body for `method` whose value satisfies `pred` —
+/// a recording carries the SAME method several times over a run (r1 streams
+/// monitor/updated active -> paused -> active -> deleted), so a test that
+/// wants the paused frame must select it rather than take the first.
+fn notification_where(
+    method: &str,
+    pred: impl Fn(&serde_json::Value) -> bool,
+) -> serde_json::Value {
+    r1()
+        .iter()
+        .find(|f| f.dir == "in" && f.method == method && pred(&f.body))
+        .map(|f| f.body.clone())
+        .unwrap_or_else(|| panic!("r1 carries a matching {method} notification"))
+}
+
 /// The first recorded notification body for `method`.
 fn notification(method: &str) -> serde_json::Value {
     r1()
@@ -412,6 +427,156 @@ async fn pause_is_a_two_step_read_then_set() {
         "the fresh objective rides the transition set"
     );
     assert_eq!(au::query(&c, "goal.status").unwrap(), serde_json::json!("paused"));
+}
+
+/// #P4e1a row 44 — `goal.clear` reaches the wire through the PRODUCTION path
+/// (`resolve` → `apply` → `Conversation::client`), the body matches the
+/// recording's own outbound frame key-for-key, and the goal leaves the
+/// screen state so the card renders its no-goal form.
+#[tokio::test]
+async fn goal_clear_sends_the_recorded_body_and_empties_the_card() {
+    let (conv, server, store, ui, _serial) = wired().await;
+    let c = ctx(&store, &ui);
+    au::apply(au::Effect::RefreshGoal, &conv).await.expect("get");
+    assert_eq!(
+        au::query(&c, "goal.objective").unwrap(),
+        serde_json::json!("r1 replay probe"),
+        "precondition: the recorded goal is on the card"
+    );
+
+    au::apply(au::resolve("goal.clear", 0, None, &c), &conv)
+        .await
+        .expect("clear");
+
+    // The send happened, and its keys are exactly the recording's own.
+    let params = server.params_of("session/goal/clear").expect("clear params");
+    let recorded = recorded_out("session/goal/clear");
+    for key in recorded.as_object().unwrap().keys() {
+        assert!(
+            params.get(key).is_some(),
+            "recorded key {key} missing from the sent clear params: {params}"
+        );
+    }
+    assert_eq!(params["session_id"], serde_json::json!("dsflash:main"));
+    // The card no longer shows the goal (the web's cleared form).
+    assert_eq!(au::query(&c, "goal.objective").unwrap(), serde_json::Value::Null);
+    assert_eq!(au::query(&c, "goal.status").unwrap(), serde_json::Value::Null);
+    assert_eq!(au::query(&c, "goal.can_transition").unwrap(), serde_json::json!(false));
+    assert_eq!(au::query(&c, "goal.fill").unwrap(), serde_json::Value::Null);
+}
+
+/// #P4e1a row 49 — the monitor row actions pause/resume/delete reach the wire
+/// with the RECORDED monitor id (`monitor_01`), and an out-of-range row never
+/// leaves the module (parity 49).
+#[tokio::test]
+async fn monitor_rows_route_with_the_recorded_id() {
+    let (conv, server, store, ui, _serial) = wired().await;
+    let c = ctx(&store, &ui);
+    au::apply(au::Effect::RefreshLists, &conv).await.expect("lists");
+
+    let rows = au::query(&c, "monitors").unwrap();
+    let row = &rows.as_array().unwrap()[0];
+    assert_eq!(row["id"], serde_json::json!("monitor_01"));
+    assert_eq!(row["name"], serde_json::json!("r1 replay monitor"));
+
+    for (id, method) in [
+        ("monitor.pause", "monitor/pause"),
+        ("monitor.resume", "monitor/resume"),
+        ("monitor.delete", "monitor/delete"),
+    ] {
+        au::apply(au::resolve(id, 0, None, &c), &conv)
+            .await
+            .unwrap_or_else(|e| panic!("{id}: {e}"));
+        let params = server.params_of(method).unwrap_or_else(|| panic!("{method} sent"));
+        assert_eq!(
+            params["monitor_id"],
+            serde_json::json!("monitor_01"),
+            "{method} carries the recorded monitor id"
+        );
+    }
+
+    // A row index the cached list does not have never reaches the wire.
+    assert_eq!(
+        au::resolve("monitor.pause", 5, None, &c),
+        au::Effect::Unhandled("monitor.pause[5]".to_owned())
+    );
+}
+
+/// #P4e1a row 51 — the flood-pause reason SURFACES: a monitor the recording
+/// paused with `pause_reason` renders as `status (reason)` on the row
+/// (AutonomyPanel.tsx:354-356), and the reason survives the store's
+/// `monitor/expired` path (store/autonomy.rs:279-291 `mark_monitor_expired`).
+#[test]
+fn a_paused_monitor_surfaces_its_pause_reason() {
+    let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+    au::reset_state();
+    let store = Arc::new(Store::new());
+    let ui = Mutex::new(FlowUi::default());
+    let c = ctx(&store, &ui);
+
+    // The PAUSED recorded monitor/updated frame (r1 at_ms 9621) carries
+    // pause_reason:"user" — the first in-bound frame is the active one.
+    let recorded =
+        notification_where("monitor/updated", |b| b["monitor"]["status"] == "paused")
+            ["monitor"]
+            .clone();
+    assert_eq!(
+        recorded["pause_reason"],
+        serde_json::json!("user"),
+        "the recording is the source of the reason"
+    );
+    au::update_state(|st| st.monitors = vec![recorded.clone()]);
+
+    // The card text is the status with the reason in parentheses.
+    let st = au::AutonomyState { monitors: vec![recorded], ..Default::default() };
+    let lowered = au::lower_tree(au::Screen3::Monitors, &st).unwrap();
+    let inv = |id: &str| {
+        lowered
+            .inventory
+            .iter()
+            .find(|v| v["original_id"] == serde_json::json!(id))
+            .unwrap_or_else(|| panic!("no {id} in the inventory"))
+            .clone()
+    };
+    assert_eq!(
+        inv("mon_1_state")["text"],
+        serde_json::json!("paused (user)"),
+        "the reason rides the status text (AutonomyPanel.tsx:354)"
+    );
+
+    // The store's flood path sets status=expired AND keeps the reason.
+    let mon_store = octoscode_store::Store::new();
+    mon_store.domains.autonomy.set_monitors(vec![octoscode_store::domains::autonomy::MonitorRecord {
+        monitor_id: "monitor_01".into(),
+        session_id: "dsflash:main".into(),
+        profile_id: Some("_main".into()),
+        name: "r1 replay monitor".into(),
+        mode: "poll".into(),
+        status: "paused".into(),
+        pause_reason: Some("flood".into()),
+        fires_used: 0,
+        last_fired_at_ms: None,
+        expires_at_ms: None,
+        updated_at_ms: 0,
+    }]);
+    assert!(
+        mon_store
+            .domains
+            .autonomy
+            .mark_monitor_expired("monitor_01", Some("flood cap".into())),
+        "monitor/expired lands for a known id"
+    );
+    let after = mon_store
+        .domains
+        .autonomy
+        .monitor("monitor_01")
+        .expect("the monitor is still there");
+    assert_eq!(after.status, "expired");
+    assert_eq!(
+        after.pause_reason.as_deref(),
+        Some("flood cap"),
+        "the pause reason is the surfaced flood reason"
+    );
 }
 
 /// §4 — generation admission (parity 46): a stale result cannot regress a
