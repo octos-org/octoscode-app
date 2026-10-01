@@ -1,6 +1,6 @@
 row_id,area,spec,case,status,depth,evidence,reason
 1,recovery,e2e-live/glm-model.spec.ts,runs a coding turn with the expected runtime model and restores it after refresh,pass,specific,,"1 checks, all pass"
-2,conversation,e2e-live/glm-model.spec.ts,keeps a background turn alive while a sibling Session is focused,fail,specific,docs/walk/evidence/area-conversation.snap.json,failing checks: a live turn keeps running while a sibling session is focused
+2,conversation,e2e-live/glm-model.spec.ts,keeps a background turn alive while a sibling Session is focused,pass,specific,,"1 checks, all pass"
 3,conversation,e2e-live/turn-collision.spec.ts,discloses the other client's turn instead of claiming it,live-only,,,"live-only: needs a real model turn (Phase 4, outer loop)"
 4,settings,e2e/attention.spec.ts,desktop notifications require Settings opt-in and stay silent while reading,live-only,,,live-only: state the replay fixtures cannot produce
 5,conversation,e2e/attention.spec.ts,a hidden current Session completion notifies once and returning clears its badge,live-only,,,live-only: state the replay fixtures cannot produce
