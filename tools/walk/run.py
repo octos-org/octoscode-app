@@ -516,6 +516,81 @@ class Procs:
         self.servers.clear()
 
 
+class LiveGate:
+    """`--live` mode: the app talks to the RUNNING real gate (the outer
+    loop's `octos serve`, dsflash) instead of a replay server (#39a). No
+    server is started; the app's env comes from the live-gate recipe, with
+    every host-specific value read from the environment (nothing committed):
+
+      OCTOS_LIVE_URL          default http://127.0.0.1:50190
+      OCTOS_LIVE_TOKEN_FILE   required — the gate's bearer token file
+      OCTOS_LIVE_WORKSPACE    optional — OCTOS_WORKSPACE_CWD for the app
+      OCTOS_LIVE_PROFILE      default dsflash
+    """
+
+    def __init__(self, app_port: int, shell_cwd=None):
+        self.app_port = app_port
+        self.shell_cwd = shell_cwd or (
+            pathlib.Path(os.environ["OCTOSCODE_SHELL_CWD"])
+            if os.environ.get("OCTOSCODE_SHELL_CWD") else None)
+        token_file = os.environ.get("OCTOS_LIVE_TOKEN_FILE")
+        if not token_file or not pathlib.Path(token_file).is_file():
+            raise PrereqError(
+                "--live needs OCTOS_LIVE_TOKEN_FILE pointing at the live "
+                "gate's bearer-token file (the gate itself must already be "
+                "listening on OCTOS_LIVE_URL, default "
+                "http://127.0.0.1:50190)")
+        self.env_extra = {
+            "OCTOS_BASE_URL": os.environ.get("OCTOS_LIVE_URL",
+                                             "http://127.0.0.1:50190"),
+            "OCTOS_BEARER": pathlib.Path(token_file).read_text().strip(),
+            "OCTOS_PROFILE_ID": os.environ.get("OCTOS_LIVE_PROFILE", "dsflash"),
+            "MAKEPAD_HIDE_WINDOWS": "1",
+            "MAKEPAD_WM_TEST_APP": "octoscode",
+            "HEADLESS_ARGS": "--module octoscode",
+            "HEADLESS_STATE": str(ROOT / "tmp" / "walk" / "headless-live"),
+        }
+        ws = os.environ.get("OCTOS_LIVE_WORKSPACE")
+        if ws:
+            self.env_extra["OCTOS_WORKSPACE_CWD"] = ws
+        self.app = None
+
+    def start_server(self, scenario: str):
+        print(f"  [live] using the RUNNING real gate "
+              f"({self.env_extra['OCTOS_BASE_URL']}) — no replay server")
+
+    def start_app(self, scenario: str):
+        self.stop_app()
+        state = ROOT / "tmp" / "walk" / "headless-live"
+        state.mkdir(parents=True, exist_ok=True)
+        env = os.environ.copy()
+        env.update(self.env_extra)
+        cwd = self.shell_cwd or default_shell_cwd(BIN)
+        r = subprocess.run(["bash", str(HEADLESS), "start", str(BIN),
+                            str(self.app_port)],
+                           env=env, cwd=str(cwd), capture_output=True,
+                           text=True, timeout=120)
+        if r.returncode != 0:
+            raise PrereqError(f"the live app did not start on {self.app_port}:\n"
+                              + (r.stdout or "")[-500:] + (r.stderr or "")[-500:])
+        self.app = self.app_port
+        app = App(self.app_port)
+        app.wait_for(lambda s: "thread_list" in app.widget_ids(s), timeout=180.0,
+                     what="the module to mount against the live gate")
+
+    def stop_app(self):
+        if self.app is None:
+            return
+        env = os.environ.copy()
+        env["HEADLESS_STATE"] = str(ROOT / "tmp" / "walk" / "headless-live")
+        subprocess.run(["bash", str(HEADLESS), "stop", str(self.app)],
+                       env=env, capture_output=True, text=True, timeout=60)
+        self.app = None
+
+    def stop_all(self):
+        self.stop_app()
+
+
 # --------------------------------------------------------------------------- #
 # Checks. Each returns (passed, reason). `rows` scopes it to the walk rows it
 # covers (card #19c item 3): ALL, or lowercase substrings of case/protocol_methods.
@@ -812,7 +887,82 @@ def p_rows(app):
     return ok, f"goal_ring={'goal_ring' in app.widget_ids(d)} loop_row={'loop_row_1' in app.widget_ids(d)}"
 
 
-# ---- review: the review panel (board 3.01/#30a) ---------------------------- #
+# ---- live-only rows against the REAL gate (#39a, --live) -------------------- #
+# These run ONLY in --live mode (they drive real model turns through the
+# outer loop's octos serve); against replay fixtures they would be nonsense.
+LIVE_CHECK_NAMES = frozenset({
+    "a real coding turn streams, terminates, and the timeline survives a refresh",
+    "a live turn keeps running while a sibling session is focused",
+})
+
+@check("recovery", "a real coding turn streams, terminates, and the timeline survives a refresh",
+       rows=("expected runtime model",))
+def r1_live_turn_refresh(app):
+    # Row 1's live slice: one short REAL turn, then the session refresh —
+    # the timeline must restore (bubble + answer still in the store).
+    def proses(s):
+        return sum(1 for w in s.get("s", []) if "assistantprose" in str(w.get("i", "")))
+    def working(s):
+        return "workingrow" in app.kinds(s)
+    def comp():
+        for _ in range(24):
+            d = app.snap()
+            r = app.rect_re(d, COMPOSER_INPUT_RE)
+            if r and r[2] > 0:
+                return r
+            time.sleep(0.5)
+    r = comp(); app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
+    app.clear_composer(); app.type("what does main.rs print? answer with just the number")
+    t_send = time.time()
+    app.send()
+    app.wait_for(working, timeout=30, what="the live turn to go live")
+    app.wait_for(lambda s: not working(s), timeout=180,
+                 what="the live turn to terminate")
+    stream_secs = time.time() - t_send
+    before = proses(app.snap())
+    rb = app.rect(app.snap(), "refresh")
+    app.click(int(rb[0] + rb[2] / 2), int(rb[1] + rb[3] / 2))
+    time.sleep(3.0)
+    after = proses(app.snap())
+    ok = stream_secs < 180 and after >= before > 0
+    return ok, f"streamed+terminal={stream_secs:.1f}s prose before/after refresh={before}/{after}"
+
+@check("conversation", "a live turn keeps running while a sibling session is focused",
+       rows=("background turn alive",))
+def c2_live_background(app):
+    # Row 2's live slice: start a REAL turn, focus a sibling session
+    # (New chat), come back — the turn must have finished in the background
+    # (answer present, not stuck Working).
+    def proses(s):
+        return sum(1 for w in s.get("s", []) if "assistantprose" in str(w.get("i", "")))
+    def working(s):
+        return "workingrow" in app.kinds(s)
+    def comp():
+        for _ in range(24):
+            d = app.snap()
+            r = app.rect_re(d, COMPOSER_INPUT_RE)
+            if r and r[2] > 0:
+                return r
+            time.sleep(0.5)
+    r = comp(); app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
+    app.clear_composer(); app.type("count to three, digits only")
+    app.send()
+    app.wait_for(working, timeout=30, what="the background turn to go live")
+    # focus a sibling: New chat mints a fresh session
+    nb = app.rect(app.snap(), "new_chat_hit") or app.rect(app.snap(), "newchat")
+    app.click(int(nb[0] + nb[2] / 2), int(nb[1] + nb[3] / 2))
+    time.sleep(8.0)  # away from the session while the turn runs
+    # come back: the newest thread row is the original session
+    tr = app.rect_re(app.snap(), THREAD_ROW_RE)
+    app.click(int(tr[0] + tr[2] / 2), int(tr[1] + tr[3] / 2))
+    app.wait_for(lambda s: not working(s), timeout=180,
+                 what="the background turn to have finished")
+    time.sleep(1.5)
+    proses_now = proses(app.snap())
+    ok = proses_now >= 1
+    return ok, f"background turn terminal, prose rows={proses_now}"
+
+
 @check("review", "the review panel is mounted with its header and scope pill")
 def v_panel(app):
     d = app.snap()
@@ -1133,6 +1283,8 @@ SPECIFIC_CHECKS = {
     "a queued follow-up drains as its own turn and a reselect replays nothing",
     "General settings carries the server connection action",
     "a failed local command restores the typed input and sends nothing",
+    "a real coding turn streams, terminates, and the timeline survives a refresh",
+    "a live turn keeps running while a sibling session is focused",
 }
 for _c in CHECKS:
     _c["specific"] = _c["name"] in SPECIFIC_CHECKS
@@ -1254,12 +1406,15 @@ def main():
     ap.add_argument("--port", type=int, default=APP_PORT)
     ap.add_argument("--no-build", action="store_true",
                     help="do not build the replay server if it is missing; just report it")
+    ap.add_argument("--live", action="store_true",
+                    help="run the live-only rows against the RUNNING real gate "
+                         "(OCTOS_LIVE_TOKEN_FILE required; no replay server)")
     args = ap.parse_args()
 
     # Fail fast on the documented prerequisites, with a message that says exactly
     # what to run (card #19b, defect 2). Building the replay server is cached.
     try:
-        check_prereqs(build_replay=not args.no_build)
+        check_prereqs(build_replay=not (args.no_build or args.live))
     except PrereqError as e:
         print(f"tools/walk: {e}", file=sys.stderr)
         return 2
@@ -1268,7 +1423,17 @@ def main():
     EVIDENCE.mkdir(parents=True, exist_ok=True)
     rows = load_rows()
     targets = select_targets(args.limit)
-    procs = Procs(args.port)
+    if args.live:
+        # #39a: exactly the live-only rows a real model can serve today —
+        # row 1 (a real coding turn + refresh) and row 2 (a background turn
+        # survives focusing a sibling). Row 50 (approval shortcuts) needs the
+        # model to RAISE an approval card on its own; not scriptable yet.
+        targets = [t for t in targets if t[0] in (1, 2)]
+    try:
+        procs = LiveGate(args.port) if args.live else Procs(args.port)
+    except PrereqError as e:
+        print(f"tools/walk: {e}", file=sys.stderr)
+        return 2
 
     areas = sorted({a for _, a, _ in targets})
     if args.only:
@@ -1290,6 +1455,12 @@ def main():
         app = App(procs.app_port)
         # Run each check ONCE against this area's app; record its status.
         area_checks = [c for c in CHECKS if c["area"] == area]
+        if args.live:
+            # #39a: --live runs EXACTLY the live-specific set — the replay
+            # checks' assertions (fixture texts, replay counts) are nonsense
+            # against a real gate.
+            area_checks = [c for c in area_checks
+                           if c["name"] in LIVE_CHECK_NAMES]
         results = []
         evidence = ""
         for chk in area_checks:
@@ -1369,11 +1540,12 @@ def main():
                              "status": "not-yet-implemented", "evidence": "",
                              "reason": f"missing: {missing_capability(spec)}"})
 
-    with open(WALK / "results.csv", "w", newline="") as f:
+    live_suffix = "_live" if args.live else ""
+    with open(WALK / f"results{live_suffix}.csv", "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=["row_id", "area", "spec", "case", "status", "depth", "evidence", "reason"])
         w.writeheader()
         w.writerows(out_rows)
-    with open(WALK / "results-checks.csv", "w", newline="") as f:
+    with open(WALK / f"results{live_suffix}-checks.csv", "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=["row_id", "area", "spec", "case", "check", "status", "evidence", "reason"])
         w.writeheader()
         w.writerows(check_rows)
