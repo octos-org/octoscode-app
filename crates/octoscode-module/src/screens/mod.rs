@@ -9,8 +9,10 @@ pub mod connect;
 pub mod fleet;
 pub mod history;
 pub mod keys;
+pub mod media;
 pub mod models;
 pub mod palette;
+pub mod peers;
 // P4h1 rows 304-307: the recent-workspaces cache (the web's
 // `features/workspace/workspace-recents.ts`), with its own storage seam.
 pub mod recents;
@@ -23,3 +25,19 @@ pub mod workspace;
 pub mod review;
 pub mod sessions;
 pub mod theme;
+
+/// P4d4: the ONE production entry point for the control surfaces (media +
+/// peers), so `lib.rs`'s action router has a single target to call.
+pub async fn perform_control(
+    conv: &crate::flow::Conversation,
+    action: &str,
+    store: &octoscode_store::Store,
+) -> Result<String, String> {
+    if media::owns(action) {
+        return media::perform(conv, action, store, None).await;
+    }
+    if peers::owns(action) {
+        return peers::perform(conv, action, store, None).await;
+    }
+    Err(format!("control: unhandled action {action:?}"))
+}

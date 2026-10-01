@@ -794,6 +794,60 @@ impl Conversation {
         self.start_turn_with_id(text, turn_id).await
     }
 
+    /// `turn/start` carrying PRE-UPLOADED attachments.
+    ///
+    /// P4d4 row 2: the media batch is taken at the ACCEPTED local enqueue
+    /// boundary and rides THIS turn's params. `media` is omitted entirely when
+    /// the batch is empty (octos-core `ui_protocol.rs:2044-2045`,
+    /// `skip_serializing_if = "Vec::is_empty"`), so a text-only turn is
+    /// byte-identical to [`Conversation::start_turn`].
+    pub async fn start_turn_with_media(
+        &self,
+        text: impl Into<String>,
+        media: Vec<crate::screens::media::TurnMedia>,
+    ) -> Result<String, ClientError> {
+        let turn_id = TurnId::new().0.to_string();
+        let text: String = text.into();
+        let mut params = serde_json::json!({
+            "session_id": self.session_id(),
+            "turn_id": turn_id,
+            "input": [{"kind": "text", "text": text}],
+        });
+        if !media.is_empty() {
+            params["media"] = serde_json::Value::Array(media.iter().map(|m| m.to_value()).collect());
+        }
+        self.trace.record(
+            self.started,
+            Direction::Out,
+            "turn/start",
+            None,
+            Some(format!("turn={turn_id}")),
+        );
+        // The optimistic row is the same as a text-only send.
+        self.store.domains.session.timeline.upsert_user_message(
+            &self.session_id(),
+            &turn_id,
+            &text,
+            serde_json::json!({"optimistic": true}),
+        );
+        {
+            let mut ui = self.ui.lock().unwrap();
+            ui.begin_turn(&turn_id, self.started);
+            ui.set_draft_inner(String::new());
+        }
+        match self.client.request("turn/start", params).await {
+            Ok(_) => {
+                makepad_widgets::log!("[octoscode] turn started: {turn_id}");
+                Ok(turn_id)
+            }
+            Err(e) => {
+                // #34a's rule: a FAILED send restores the draft.
+                self.ui.lock().unwrap().set_draft_inner(text.clone());
+                Err(e)
+            }
+        }
+    }
+
     /// `turn/start` with an explicit `turn_id`.
     ///
     /// The web mints the turn id client-side and sends it in the request

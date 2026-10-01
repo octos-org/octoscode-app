@@ -1792,6 +1792,19 @@ impl OctoscodeView {
             });
             return;
         }
+        // P4d4: the media (attachment draft) and peers (roster axis) surfaces.
+        // The dialogs themselves are design-flow surfaces; these own the state
+        // and production paths they dispatch into.
+        if screens::media::owns(action) || screens::peers::owns(action) {
+            let action = action.to_owned();
+            let store = store.clone();
+            rt.spawn(async move {
+                if let Err(e) = screens::perform_control(&conv, &action, &store).await {
+                    ::log::warn!("octoscode: screens: {action:?}: {e}");
+                }
+            });
+            return;
+        }
         if screens::transcript::owns(action) {
             let store = store.clone();
             rt.spawn(async move {
