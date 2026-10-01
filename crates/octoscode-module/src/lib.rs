@@ -679,10 +679,71 @@ script_mod! {
                 review_diff := PortalList {
                     width: Fill height: 372 flow: Down
                     ReviewLineRowTpl := View {
-                        width: Fill height: 20 flow: Right spacing: 8
-                        padding: Inset{left: 12 right: 12}
-                        review_line_num := Label { width: 34 height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
-                        review_line_text := Label { width: Fill height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: theme.color_fg_app }
+                        // The tint layers are a BACKDROP, so the row itself is a
+                        // `flow: Overlay` stack: a `flow: Right` row laid the two
+                        // SolidViews out as SIBLINGS (measured w=276 beside the
+                        // labels, painting white) instead of behind them.
+                        // The labels sit in their own inner `flow: Right` child,
+                        // which keeps the web's 12px gutters.
+                        width: Fill height: 20 flow: Overlay
+                        // #36e item 2: the web's +/− line tint
+                        // (`DiffReviewDialog.module.css:45-54`) — an ADDED line
+                        // takes a success-coloured fill, a REMOVED line an
+                        // error-coloured one, a CONTEXT line none. The web tints
+                        // the changed WORD; a native row is one Label, so the row
+                        // carries the fill (the nearest faithful form).
+                        //
+                        // Two PRE-COLOURED layers toggled with `set_visible`, the
+                        // app's own precedent for a per-row fill
+                        // (`palette_row_bg`, :809 + :2328) — the linked Makepad
+                        // rev has no `set_bg_color`, so a per-row colour cannot be
+                        // set after mounting.
+                        //
+                        // The colour is a LITERAL hex spliced in at lower time
+                        // from `theme::resolved()` — NOT a `theme.*` role: a new
+                        // role is not readable by a widget default here, and
+                        // naming one aborted the module's `script_mod`
+                        // (`property … not found in prototype chain` ->
+                        // `OctoscodeView not found` -> the whole app unmounted).
+                        // This is the same shape the design emitter uses when it
+                        // writes `hex_rgba` literals
+                        // (`octoscript-makepad/src/design.rs:733-735`), and
+                        // `lib.rs:121` is the `#(...)` splice precedent.
+                        // A HARD-CODED literal per palette, not a `#(...)`
+                        // splice: measured, a spliced `draw_bg.color` delivers
+                        // NOTHING here (a hardcoded literal in the same row
+                        // paints — the A/B and the control layer both
+                        // discriminate). `draw_walk` shows the pair matching
+                        // `theme::resolved()` and the line's mark.
+                        review_line_bg_add_light := SolidView {
+                            width: Fill height: Fill
+                            draw_bg.color: #cef2dc
+                            visible: false
+                        }
+                        review_line_bg_del_light := SolidView {
+                            width: Fill height: Fill
+                            draw_bg.color: #fbd4d4
+                            visible: false
+                        }
+                        review_line_bg_add_dark := SolidView {
+                            width: Fill height: Fill
+                            draw_bg.color: #1d442f
+                            visible: false
+                        }
+                        review_line_bg_del_dark := SolidView {
+                            width: Fill height: Fill
+                            draw_bg.color: #462425
+                            visible: false
+                        }
+
+                        // The row's own 12px gutters and right-aligned flow, in an
+                        // inner child so the layers above stay full-bleed.
+                        View {
+                            width: Fill height: Fill flow: Right spacing: 8
+                            padding: Inset{left: 12 right: 12}
+                            review_line_num := Label { width: 34 height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
+                            review_line_text := Label { width: Fill height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: theme.color_fg_app }
+                        }
                     }
                 }
             }
@@ -2512,7 +2573,14 @@ impl Widget for OctoscodeView {
                     // `review.line0..7` / `review.num0..7` card slots. The
                     // window is the slots that actually resolve, so a short
                     // preview shows short rather than blank filler rows.
-                    let lines: Vec<(String, String)> = {
+                    // #36e item 2: the third field is the line's KIND, read from
+                    // the cache rather than a binding — `review.markN` exists
+                    // only for N=2..6 and there is no `review.kindN`, so a
+                    // binding-driven tint would tint the wrong rows.
+                    // `Line::mark` (`review.rs:145`) already collapses the wire
+                    // kinds to added/removed/context, the same collapse as the
+                    // web's `diffKind` (`diff-presentation.ts:17-23`).
+                    let lines: Vec<(String, String, &'static str)> = {
                         let b = bridge.lock().unwrap();
                         let ctx = bindings::Ctx::new(&b.store, &b.ui);
                         let s = |id: &str| {
@@ -2520,28 +2588,65 @@ impl Widget for OctoscodeView {
                                 .and_then(|v| v.as_str().map(str::to_owned))
                                 .unwrap_or_default()
                         };
+                        let marks: Vec<&'static str> = {
+                            let st = crate::screens::review::ui();
+                            (0..8)
+                                .map(|i| {
+                                    st.lines
+                                        .get(i)
+                                        .map(crate::screens::review::Line::mark)
+                                        .unwrap_or("")
+                                })
+                                .collect()
+                        };
                         (0..8)
                             .map(|i| {
                                 (
                                     s(&format!("review.line{i}")),
                                     s(&format!("review.num{i}")),
+                                    marks[i],
                                 )
                             })
                             .collect()
                     };
                     let shown = lines
                         .iter()
-                        .rposition(|(text, _)| !text.is_empty())
+                        .rposition(|(text, _, _)| !text.is_empty())
                         .map(|last| last + 1)
                         .unwrap_or(0);
                     list.set_item_range(cx, 0, shown);
                     while let Some(id) = list.next_visible_item(cx) {
-                        let Some((text, num)) = lines.get(id) else {
+                        let Some((text, num, mark)) = lines.get(id) else {
                             continue;
                         };
                         let item = list.item(cx, id, id!(ReviewLineRowTpl));
                         item.label(cx, ids!(review_line_num)).set_text(cx, num);
                         item.label(cx, ids!(review_line_text)).set_text(cx, text);
+                        // The web's +/− tint (DiffReviewDialog.module.css:45-54):
+                        // added green, removed red, context none. The four
+                        // layers are HARD-CODED literals (two per palette) and
+                        // this feed shows the one matching the resolved palette
+                        // and the line's mark. Two measured facts forced this
+                        // shape: the linked rev has no `set_bg_color`, so a
+                        // colour cannot be set after mounting; and a `#(...)`
+                        // spliced `draw_bg.color` delivers NOTHING (an A/B in
+                        // one run: hardcoded `#00ff00` painted, the spliced
+                        // layer beside it stayed the panel colour), so the hex
+                        // has to be authored in the script.
+                        let dark = crate::screens::theme::resolved() == "dark";
+                        let (add_id, del_id) = if dark {
+                            (
+                                live_id!(review_line_bg_add_dark),
+                                live_id!(review_line_bg_del_dark),
+                            )
+                        } else {
+                            (
+                                live_id!(review_line_bg_add_light),
+                                live_id!(review_line_bg_del_light),
+                            )
+                        };
+                        item.widget(cx, &[add_id]).set_visible(cx, *mark == "+");
+                        item.widget(cx, &[del_id]).set_visible(cx, *mark == "-");
                         item.draw_all_unscoped(cx);
                     }
                 }
