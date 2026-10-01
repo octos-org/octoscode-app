@@ -571,7 +571,7 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
     // component's own file on disk, so the app needs no dev asset server.
     let ui = localize_asset_resources(&ui);
     // #36f item 2: component svgs lower as ABSOLUTE BUILD-MACHINE paths
-    // (file_resource("/Users/…/design/components/<id>/assets/icon_….svg"));
+    // (file_resource("<build-machine>/…/components/<id>/assets/icon_….svg"));
     // the phone has no such path, so the answer-actions icons draw NOTHING
     // on the device (the #32g font-path lesson, svg edition). Re-point them
     // through the materialized-root resolver.
