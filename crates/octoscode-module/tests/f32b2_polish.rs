@@ -81,23 +81,31 @@ fn aside_user_bubble_hugs_its_content() {
 
 /// Item 3: the "68%" label centres in the progress ring's hole (the authored
 /// position clipped the ring's lower arc).
+///
+/// Superseded by #36a: centring the run in a 40.2-wide box was not enough —
+/// the ring is a CIRCLE, and that box's corners (half-diagonal 23.61) sat on
+/// the stroke outside the ⌀34.23 hole. The label is now sized to the run
+/// (29.04 x 13.86, 11.45pt) and seated on the ring centre (313, 275.5) with a
+/// dark scrim behind the white glyph. This test keeps the seat assertion;
+/// f36a_ring_label owns the geometry and legibility checks.
 #[test]
 fn attachments_pct_label_centres_in_the_ring() {
     let store = Arc::new(Store::new());
     store.domains.session.set_active(Some("dsflash:main".into()));
     octoscode_module::screens::sessions::seed_attachments(vec![("a.png", 1024), ("b.png", 2048)]);
     let att = octoscode_module::screens::sessions::lower_screen("attachments", &store).unwrap();
-    // Review v2: the ~21px run fits the ~34px hole once the TEXT centres in
-    // its box (authored align x:0 seated the run on the ink arc). Box centred
-    // on the ring centre, run centred in the box.
+    // Box sized to the run and centred on the ring centre, run centred in it.
     assert!(
         att.contains(
-            "att2_pct := Label {\nwidth: 40.2 height: 24.76\nabs_pos: vec2(292.9, 263.12)"
+            "att2_pct := Label {\nwidth: 29 height: 13.6\nabs_pos: vec2(298.5, 268.7)"
         ),
-        "the label box centres on the ring centre"
+        "the label box centres on the ring centre (#36a r2 geometry)"
     );
     assert!(
-        !att.contains("vec2(275.04, 294.73)") && !att.contains("vec2(292.9, 295)"),
-        "neither the authored nor the below-ring position may remain"
+        !att.contains("vec2(275.04, 294.73)")
+            && !att.contains("vec2(292.9, 295)")
+            && !att.contains("vec2(292.9, 263.12)")
+            && !att.contains("vec2(298.48, 268.57)"),
+        "neither the authored, the below-ring, nor either #36a box may remain"
     );
 }
