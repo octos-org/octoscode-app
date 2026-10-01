@@ -428,14 +428,22 @@ async fn each_component_binds_a_real_item_from_the_recorded_turn() {
         );
     }
 
-    // ---- composer: the draft + the idle placeholder ------------------------
+    // ---- composer: the idle placeholder; the live draft is OUT by design ---
+    // #32h TOP: the draft no longer rides the lowered DSL — every keystroke
+    // used to change the DSL, miss the mount cache (mount.rs:95) and remount
+    // the composer with a NEW TextInput, so the Android IME lost its target
+    // after the first character. The focused widget owns its text; the store
+    // reaches it only on a real external change (lib.rs composer_synced).
     {
         ui.lock().unwrap().set_draft_inner("draft text");
         {
             let ctx = Ctx::new(&store, &ui);
             let copies = components::item_copies(ItemKind::Composer, &ctx, 0, None).unwrap();
             let dsl = components::lower(ItemKind::Composer, "0", &copies).unwrap();
-            assert!(dsl.contains(&esc("draft text")), "composer shows the live draft");
+            assert!(
+                !dsl.contains(&esc("draft text")),
+                "composer bakes the live draft into the DSL (typing then kills the IME target)"
+            );
             assert!(
                 dsl.contains(&esc("Ask Octos anything")),
                 "composer keeps its idle placeholder"

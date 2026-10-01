@@ -693,7 +693,235 @@ pub fn lower_screen(screen: Screen, ui: &ConnectUi) -> Result<String, String> {
     .map_err(|e| format!("l0::prepare: {e}"))?;
     let mut tree = prepared.tree;
     octoscript_makepad::l0::inspectable(&mut tree);
-    crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&tree)).map_err(|e| format!("to_makepad_ui: {e}"))
+    let dsl = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&tree))
+        .map_err(|e| format!("to_makepad_ui: {e}"))?;
+    Ok(mask_secret_inputs(&wire_events(&dsl, screen), screen))
+}
+
+/// #32h item 1 (the dispatch layer, the outer loop's L4): the (widget name,
+/// action id) pairs the wired taps created. The host maps the names to live
+/// widget ids and routes the clicks — nothing dispatched clicks inside the
+/// mounted screen to the screens' action tables (Stage C tested the tables
+/// by calling ids directly, never by clicking).
+pub fn wired_taps(dsl: &str) -> Vec<(String, String)> {
+    let lines: Vec<&str> = dsl.lines().collect();
+    let mut out = Vec::new();
+    let mut i = 0;
+    while i < lines.len() {
+        let l = lines[i];
+        if let Some(rest) = l.strip_suffix(" {") {
+            if let Some((name, kind)) = rest.split_once(":=") {
+                if kind.trim() == "DesignNativeButton" {
+                    let mut j = i + 1;
+                    while j < lines.len() && lines[j].trim() != "}" {
+                        if let Some(e) = lines[j].trim().strip_prefix("on_click: || { NAV(t: ") {
+                            let ev = e.trim_end_matches(") }").trim_matches('"');
+                            out.push((name.trim().to_owned(), ev.to_owned()));
+                        }
+                        j += 1;
+                    }
+                    i = j;
+                }
+            }
+        }
+        i += 1;
+    }
+    out
+}
+
+/// #32h item 5: the token / API-key fields must MASK typed input (the web:
+/// ConnectionPanel.tsx:255 `type={showToken ? "text" : "password"}`); the
+/// mapped card carries no password flag, so the lowered DesignInput echoes
+/// the token in plain text (the device capture). Flip `is_password: true`
+/// on the DesignInput blocks that sit inside a secret field's authored
+/// rect. Non-secret inputs (Server, Profile name) keep their echo.
+fn mask_secret_inputs(dsl: &str, screen: Screen) -> String {
+    let Ok(text) = crate::design::file(&format!(
+        "stage-b/setup/cards/{}/service-actions.json",
+        screen.card_dir()
+    )) else {
+        return dsl.to_owned();
+    };
+    let Ok(v) = serde_json::from_str::<serde_json::Value>(text.as_ref()) else {
+        return dsl.to_owned();
+    };
+    let mut secrets: Vec<(f64, f64, f64, f64)> = Vec::new();
+    if let Some(controls) = v.get("controls").and_then(|c| c.as_object()) {
+        for (name, c) in controls {
+            let ev = c.get("event").and_then(|e| e.as_str()).unwrap_or("");
+            let secret = (name.contains("token") || name.contains("apikey"))
+                && ev.starts_with("input.");
+            if !secret {
+                continue;
+            }
+            if let Some(b) = c.get("source_bounds").and_then(|b| b.as_array()) {
+                let b: Vec<f64> = b.iter().filter_map(|x| x.as_f64()).collect();
+                if b.len() == 4 {
+                    secrets.push((b[0], b[1], b[2], b[3]));
+                }
+            }
+        }
+    }
+    if secrets.is_empty() {
+        return dsl.to_owned();
+    }
+    let lines: Vec<&str> = dsl.lines().collect();
+    let mut out: Vec<String> = Vec::with_capacity(lines.len());
+    let mut in_input = false;
+    let mut mask_this = false;
+    for l in lines {
+        let trimmed = l.trim_end();
+        if let Some(rest) = trimmed.strip_suffix(" {") {
+            in_input = rest.split_once(":=").is_some_and(|(_, k)| k.trim() == "DesignInput");
+            mask_this = false;
+            out.push(l.to_owned());
+            continue;
+        }
+        if trimmed == "}" {
+            in_input = false;
+            mask_this = false;
+            out.push(l.to_owned());
+            continue;
+        }
+        let mut line = l.to_owned();
+        if in_input {
+            if let Some(p) = trimmed.strip_prefix("abs_pos: vec2(") {
+                let p = p.trim_end_matches(')');
+                let mut it = p.split(',');
+                if let (Some(px), Some(py)) = (it.next(), it.next()) {
+                    if let (Ok(x), Ok(y)) = (px.trim().parse::<f64>(), py.trim().parse::<f64>()) {
+                        mask_this = secrets.iter().any(|(bx, by, bw, bh)| {
+                            x >= *bx && x <= bx + bw && y >= *by && y <= by + bh
+                        });
+                    }
+                }
+            }
+            if mask_this && trimmed.contains("is_password: false") {
+                // The flag rides the same line as empty_text:
+                // `empty_text: "" is_password: false` — an exact-match
+                // condition never fired (the 66c865a follow-up).
+                line = l.replace("is_password: false", "is_password: true");
+            }
+        }
+        out.push(line);
+    }
+    out.join("\n")
+}
+
+/// #32h item 1 (layer 2): the cards' own event contract
+/// (`service-actions.json` controls) had NO consumer — the lowered button
+/// blocks carried no on_click at all (the 118-line dump: on_click: 0), so a
+/// tap hit the native Button and nothing fired it; the NAV global (now
+/// registered) had nothing to route. Wire each CLICK control's event to the
+/// emitted block whose abs_pos matches the control's authored
+/// source_bounds: `on_click: || { NAV(t: "<event>") }` on the
+/// DesignNativeButton (the only widget class the dialect attaches handlers
+/// to — fork lib.rs:365-368). Field controls (input.*) stay unwired: they
+/// are live text, and the masked ones are handled in item 5.
+fn wire_events(dsl: &str, screen: Screen) -> String {
+    let Ok(text) = crate::design::file(&format!(
+        "stage-b/setup/cards/{}/service-actions.json",
+        screen.card_dir()
+    )) else {
+        return dsl.to_owned();
+    };
+    let Ok(v) = serde_json::from_str::<serde_json::Value>(text.as_ref()) else {
+        return dsl.to_owned();
+    };
+    let mut out = dsl.to_owned();
+    let mut wired = 0usize;
+    if let Some(controls) = v.get("controls").and_then(|c| c.as_object()) {
+        for (_name, c) in controls {
+            let (Some(event), Some(b)) = (
+                c.get("event").and_then(|e| e.as_str()),
+                c.get("source_bounds").and_then(|b| b.as_array()),
+            ) else {
+                continue;
+            };
+            if event.starts_with("input.") {
+                continue; // live text, not a tap
+            }
+            let Some(b) = b.iter().map(|x| x.as_f64()).collect::<Option<Vec<_>>>() else {
+                continue;
+            };
+            let (before, after) = (out.clone(), inject_click(&out, event, b[0], b[1]));
+            if after.len() != before.len() {
+                wired += 1;
+            }
+            out = after;
+        }
+    }
+    makepad_widgets::log!(
+        "[octoscode] card events: {wired} tap(s) wired for {}",
+        screen.card_dir()
+    );
+    out
+}
+
+/// Inject `on_click: || { NAV(t: "<event>") }` into the DesignNativeButton
+/// block whose abs_pos matches (x, y) within 0.5px (the lowering rounds
+/// through f32). Idempotent: a block already carrying on_click is skipped.
+/// Returns the DSL unchanged when no block matches (the caller's wired
+/// count then stays put — visible in the card-events log).
+fn inject_click(dsl: &str, event: &str, x: f64, y: f64) -> String {
+    let lines: Vec<&str> = dsl.lines().collect();
+    let mut out: Vec<String> = Vec::with_capacity(lines.len() + 1);
+    let mut i = 0;
+    while i < lines.len() {
+        let line = lines[i];
+        out.push(line.to_owned());
+        i += 1;
+        // A block header: `<name> := <Kind> {`
+        let Some(rest) = line.strip_suffix(" {") else { continue };
+        let Some((_name, kind)) = rest.split_once(":=") else { continue };
+        // Handlers attach ONLY to the native Button instances.
+        if kind.trim() != "DesignNativeButton" {
+            continue;
+        }
+        // Scan the (flat) block: match abs_pos, find the insert point.
+        let mut pos_ok = false;
+        let mut already = false;
+        let mut insert_after = None;
+        let mut j = i;
+        while j < lines.len() {
+            let l = lines[j];
+            if l.trim() == "}" {
+                break;
+            }
+            if l.contains("on_click") {
+                already = true;
+            }
+            if let Some(p) = l.trim().strip_prefix("abs_pos: vec2(") {
+                let p = p.trim_end_matches(')');
+                let mut it = p.split(',');
+                let ok = match (it.next(), it.next()) {
+                    (Some(px), Some(py)) => {
+                        px.trim().parse::<f64>().is_ok_and(|vx| (vx - x).abs() < 0.5)
+                            && py.trim().parse::<f64>().is_ok_and(|vy| (vy - y).abs() < 0.5)
+                    }
+                    _ => false,
+                };
+                if ok {
+                    pos_ok = true;
+                    insert_after = Some(j);
+                }
+            }
+            if l.trim() == "enabled: true" {
+                insert_after = Some(j);
+            }
+            j += 1;
+        }
+        if already || !pos_ok {
+            continue;
+        }
+        let at = insert_after.unwrap_or(i - 1);
+        for l in &lines[i..=at] {
+            out.push((*l).to_owned());
+        }
+        out.push(format!("on_click: || {{ NAV(t: {event:?}) }}"));
+        i = at + 1;
+    }
+    out.join("\n")
 }
 
 #[cfg(test)]

@@ -218,7 +218,14 @@ pub fn slots(kind: ItemKind) -> &'static [Binding] {
         }
         ItemKind::AnswerActions => &[Binding { copy: "t11_text", binding: "answer.timestamp" }],
         ItemKind::Composer => &[
-            Binding { copy: "composer_idle_input_text", binding: "composer.draft" },
+            // #32h TOP: the live draft is NOT baked into the lowered DSL any
+            // more — every keystroke used to change the DSL, miss the mount
+            // cache (mount.rs:95 compares strings) and remount the whole
+            // composer with a NEW TextInput, so the Android IME lost its
+            // target after the first character (the device: val stuck at
+            // "S"). The widget owns its text while focused; the store draft
+            // reaches it only on a real external change (lib.rs
+            // composer_synced). The placeholder stays authored.
             Binding { copy: "composer_idle_input_placeholder", binding: "composer.placeholder" },
             // The model pill (`v4-flash ▾`) and the approval pill are the
             // component's own copy — static until `composer.model` is declared.
@@ -528,7 +535,16 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
         // Card #21d item 5: scene 01's new-chat row carries a compose icon at
         // its right edge (beauty-host renders it too: 446 ink px in the
         // component's own right 20%). The #16 ledger omits the node, so add it.
-        ItemKind::NewChat => new_chat_with_compose_icon(&ui),
+        // #32h B: the measured label ink is near-black (#070606ff) — invisible
+        // on the dark shell. Bind the fg to the THEME ROLE the shell already
+        // assigns per resolved mode (lib.rs script_mod references
+        // theme.color_fg_app; theme.rs fills it), the #32f title pattern.
+        ItemKind::NewChat => new_chat_with_compose_icon(
+            &ui.replace(
+                "draw_text.color: #070606ff",
+                "draw_text.color: theme.color_fg_app",
+            ),
+        ),
         // Card #21e item 5: the timestamp sits at the artboard's own x=243.64 in a
         // 364px row, which lands mid-column once mounted in a wider slot.
         ItemKind::AnswerActions => right_align_timestamp(&ui),
@@ -928,4 +944,48 @@ pub fn action_for(kind: ItemKind, control: &str) -> Option<&'static str> {
         .iter()
         .find(|(k, c, _)| *k == kind && *c == control)
         .map(|(_, _, a)| *a)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::bindings;
+    use crate::flow::FlowUi;
+    use octoscode_store::Store;
+    use std::sync::{Arc, Mutex};
+
+    /// #32h TOP — the typing fix's structural proof: the live draft must not
+    /// ride the lowered composer DSL. When it did (composer_idle_input_text),
+    /// every keystroke changed the DSL, missed the mount cache (mount.rs:95
+    /// compares strings) and remounted the whole composer with a NEW
+    /// TextInput — the Android IME lost its target after the first character.
+    #[test]
+    fn the_composer_dsl_is_draft_free_and_stable() {
+        let store = Arc::new(Store::new());
+        let ui = Arc::new(Mutex::new(FlowUi::default()));
+        ui.lock().unwrap().set_draft_inner("hello ime");
+        let ctx = bindings::Ctx::new(&store, &ui);
+        let copies = item_copies(ItemKind::Composer, &ctx, 0, None).expect("copies");
+        assert!(
+            !copies
+                .iter()
+                .any(|(id, _)| id == "composer_idle_input_text"),
+            "the live draft rides the lowered DSL again"
+        );
+        assert!(
+            copies
+                .iter()
+                .any(|(id, _)| id == "composer_idle_input_placeholder"),
+            "the placeholder copy vanished"
+        );
+        // Whatever the draft, the lowered DSL is byte-identical — the mount
+        // cache hits while typing, so the composer never remounts.
+        let idle = lower(ItemKind::Composer, "t0", &[]).expect("lower");
+        ui.lock().unwrap().set_draft_inner("different text entirely");
+        let ctx2 = bindings::Ctx::new(&store, &ui);
+        let copies2 = item_copies(ItemKind::Composer, &ctx2, 0, None).expect("copies2");
+        let typed = lower(ItemKind::Composer, "t0", &copies2).expect("lower 2");
+        assert_eq!(idle, typed, "typing changed the lowered DSL");
+        assert!(!typed.contains("different text entirely"));
+    }
 }

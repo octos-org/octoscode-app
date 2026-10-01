@@ -981,6 +981,30 @@ pub struct OctoscodeView {
     runtime: Option<tokio::runtime::Runtime>,
     #[rust]
     started: bool,
+    /// #32h item 1: the mounted card's tap wiring — (widget id, action id)
+    /// pairs from the lowered card's wired DesignNativeButton blocks. The
+    /// Event::Actions loop routes their clicks into the screens' tables
+    /// (the outer loop's L4: nothing dispatched in-splash clicks — Stage C
+    /// had tested the tables by calling ids directly, never by clicking).
+    #[rust]
+    splash_taps: Vec<(LiveId, String)>,
+    /// #32h: the 1 Hz remount guard — sync_labels runs on EVERY Signal and
+    /// the phone's transport events arrive constantly, so the first-run card
+    /// was re-lowered + re-wired each time (device log: "card events: 1
+    /// tap(s) wired" at 1 Hz), dropping taps mid-remount and unseating the
+    /// mask. The card's only live inputs are these two copies; unchanged
+    /// copies = skip the whole lower+mount.
+    #[rust]
+    connect_key: Option<(String, String)>,
+    /// #32h TOP: the composer text the WIDGET currently holds (changed
+    /// events and our own set_text keep it current). The store draft is
+    /// pushed to the widget ONLY when it differs — a real external change
+    /// (send-clear, new chat, restore) — never on the typing path: baking
+    /// the draft into the DSL remounted the composer every keystroke and
+    /// killed the Android IME target (the device: val stuck at the first
+    /// character).
+    #[rust]
+    composer_synced: Option<String>,
     /// The memoised per-item lowerings (a `PortalList` re-instantiates its
     /// visible rows every frame; without this the CPU re-lowers them each
     /// frame). See [`screen::Cache`].
@@ -1521,6 +1545,9 @@ impl OctoscodeView {
     /// caller has one; without it the input effects no-op (the L0 input
     /// wiring lands with #28e's containers).
     fn perform_screen_action(&self, action: &str, value: Option<&str>) {
+        // #32h: the terminal proof line (makepad macro — reaches logcat on
+        // Android, unlike ::log::info!), fired for EVERY routed screen action.
+        makepad_widgets::log!("[octoscode] screen action: {action}");
         let (bridge, store, conv, screens) = {
             let b = self.bridge.lock().unwrap();
             (self.bridge.clone(), b.store.clone(), b.conv.clone(), b.screens.clone())
@@ -1588,9 +1615,10 @@ impl OctoscodeView {
         let handle = rt.handle().clone();
         match transport {
             screens::connect::Effect::Connect { server, token } => {
-                // #32g item 6: the device must show whether the tap arrived —
-                // log the endpoint, NEVER the token.
-                ::log::info!("[octoscode] connect: {server}");
+                // #32h: ::log::info! is NOT routed to logcat on Android (the
+                // outer loop's diagnosis — no connect line was ever visible
+                // on the 6T); makepad_widgets::log! reaches the platform log.
+                makepad_widgets::log!("[octoscode] connect: {server}");
                 let profile =
                     std::env::var("OCTOS_PROFILE_ID").unwrap_or_else(|_| "octoscode".to_string());
                 connect_now(handle, bridge, store, screens, server, token, profile);
@@ -1679,6 +1707,22 @@ impl OctoscodeView {
                 .and_then(|v| v.as_bool())
                 .unwrap_or(false)
         };
+        // #32h TOP: external draft changes reach the EXISTING TextInput via
+        // set_text — the lowered DSL no longer carries the draft, so typing
+        // never remounts the composer (the mount cache hits: the DSL is
+        // stable while focused).
+        let store_draft = { self.bridge.lock().unwrap().ui.lock().unwrap().draft() };
+        if self.composer_synced.as_deref() != Some(store_draft.as_str()) {
+            if store_draft.is_empty() && self.composer_synced.is_none() {
+                // Initial state: the authored empty text is already right.
+                self.composer_synced = Some(store_draft);
+            } else {
+                self.view
+                    .text_input(cx, &[live_id!(i0_composer_0)])
+                    .set_text(cx, &store_draft);
+                self.composer_synced = Some(store_draft);
+            }
+        }
         let composer = {
             let mut cache = std::mem::take(&mut self.cache);
             let c = cache
@@ -1702,8 +1746,12 @@ impl OctoscodeView {
             composer
         };
         let composer_splash = self.view.splash(cx, ids!(composer_splash));
-        if let Err(e) = self.mounts.mount(cx, &composer_splash, &composer) {
-            makepad_widgets::log!("[octoscode] composer mount: {e}");
+        match self.mounts.mount(cx, &composer_splash, &composer) {
+            Err(e) => makepad_widgets::log!("[octoscode] composer mount: {e}"),
+            // #32h TOP: one line per REAL remount — the per-key typing test
+            // asserts this fires only at the initial mount, never per char.
+            Ok(true) => makepad_widgets::log!("[octoscode] composer remounted"),
+            Ok(false) => {}
         }
         // #29d — the Stage C screens (board 2.8/2.11/2.12) mount into the review
         // column's temporary slot while #28e's shell (drawer + palette overlay)
@@ -1763,14 +1811,29 @@ impl OctoscodeView {
         // renders it — so first-run mounts through the dock.
         let live = { self.bridge.lock().unwrap().store.is_live() };
         if !live {
-            let splash = self.view.splash(cx, ids!(screen_splash));
-            let lowered = {
+            let key = {
                 let b = self.bridge.lock().unwrap();
                 let ui = b.screens.lock().unwrap();
-                screens::connect::lower_screen(screens::connect::Screen::Connect, &ui)
+                (ui.server.clone(), ui.token.clone())
             };
-            match lowered {
-                Ok(dsl) => {
+            if self.connect_key.as_ref() == Some(&key) {
+                // copies unchanged: the mounted card is current.
+            } else {
+                let splash = self.view.splash(cx, ids!(screen_splash));
+                let lowered = {
+                    let b = self.bridge.lock().unwrap();
+                    let ui = b.screens.lock().unwrap();
+                    screens::connect::lower_screen(screens::connect::Screen::Connect, &ui)
+                };
+                match lowered {
+                    Ok(dsl) => {
+                        self.connect_key = Some(key);
+                        // #32h item 1: keep the card's tap wiring — the Event::
+                        // Actions loop routes these (L4).
+                        self.splash_taps = screens::connect::wired_taps(&dsl)
+                            .into_iter()
+                            .map(|(n, e)| (LiveId::from_str(&n), e))
+                            .collect();
                     // #31a item 3: centre the card in the first-run area (not
                     // over the sidebar header, no left clipping — the arm-A
                     // probe had it at x=12). A plain View wrapper carries the
@@ -1785,7 +1848,8 @@ impl OctoscodeView {
                         makepad_widgets::log!("[octoscode] connect mount: {e}");
                     }
                 }
-                Err(e) => makepad_widgets::log!("[octoscode] connect lower: {e}"),
+                    Err(e) => makepad_widgets::log!("[octoscode] connect lower: {e}"),
+                }
             }
         }
         // Card #21d item 5: the `new-chat` component (#16) is the thread
@@ -1837,6 +1901,18 @@ impl OctoscodeView {
                         self.window_w = w;
                     }
                 }
+            }
+        }
+        // #32h A: a phone that never resized (the app opens full-screen; no
+        // WindowGeomChange arrives) kept window_w at 0.0 and got the DESKTOP
+        // shell — the sidebar stayed at 384 px and the composer sat off the
+        // right edge (device /snap: i0_composer_0 [295,512,89,48]). Seed the
+        // width from the root view's LAID-OUT rect when no event/env ever
+        // set it: the instrument numbers are the truth on every target.
+        if self.window_w == 0.0 {
+            let w = self.view.area().rect(cx).size.x;
+            if w > 0.0 {
+                self.window_w = w;
             }
         }
         // #28e3 item 1: the responsive layout. The center column keeps a
@@ -2082,7 +2158,16 @@ impl Widget for OctoscodeView {
             self.sync_labels(cx);
         }
         match event {
-            Event::Signal => self.sync_labels(cx),
+            Event::Signal => {
+                // #32h item 1: drain the card taps the NAV global enqueued
+                // (eval thread) into the same router the native chrome uses.
+                let taps: Vec<String> = NAV_QUEUE.lock().unwrap().drain(..).collect();
+                for t in taps {
+                    makepad_widgets::log!("[octoscode] nav route: {t}");
+                    self.perform_screen_action(&t, None);
+                }
+                self.sync_labels(cx);
+            }
             // #28e3 item 1: track the window width — the responsive layout
             // (center min 420, review overlay when narrow, sidebar hidden
             // below 760) re-derives in `sync_chrome`.
@@ -2109,10 +2194,26 @@ impl Widget for OctoscodeView {
                         }
                     }
                     self.bridge.lock().unwrap().ui.lock().unwrap().set_draft_inner(text.clone());
+                    // The widget is the source here: remember what it holds
+                    // so the external-sync below never writes back over it.
+                    self.composer_synced = Some(text.clone());
                     makepad_widgets::log!("[octoscode] draft synced: {} chars", text.len());
                 }
                 if self.view.button(cx, ids!(refresh)).clicked(actions) {
                     self.perform_action("session.refresh", 0);
+                }
+                // #32h item 1 (L4): route the mounted card's wired taps into
+                // the screens' tables — the ButtonAction from inside the
+                // splash was in this very actions vec, but nothing queried it.
+                for (id, ev) in &self.splash_taps {
+                    if self
+                        .view
+                        .button(cx, &[live_id!(screen_splash), *id])
+                        .clicked(actions)
+                    {
+                        makepad_widgets::log!("[octoscode] card tap: {ev}");
+                        self.perform_screen_action(ev, None);
+                    }
                 }
                 // The #16 `new-chat` component overlaid by a host hit target.
                 if self.view.button(cx, ids!(new_chat_hit)).clicked(actions) {
@@ -2370,6 +2471,16 @@ impl Widget for OctoscodeView {
     }
 }
 
+// #32h item 1: the lowered cards' tap targets emit `on_click: || { NAV(t:
+// "connect") }` (octoscript-makepad lib.rs:450) and NAV is "a global the
+// host registers" (fork lib.rs:359) — nobody did. An unregistered global
+// evaluates to NIL (kit.rs:141-143), so every card tap silently did
+// nothing: no connection, no log (the phone symptom). The callback runs on
+// the eval thread: log, enqueue, wake; the Signal arm drains into the SAME
+// router the native chrome uses (perform_screen_action → the screens'
+// table → Effect::Connect).
+static NAV_QUEUE: Mutex<Vec<String>> = Mutex::new(Vec::new());
+
 pub struct OctoscodeModule;
 pub static OCTOSCODE_MODULE: OctoscodeModule = OctoscodeModule;
 
@@ -2403,6 +2514,25 @@ impl AppModule for OctoscodeModule {
         // Same source OctoSense's ai-host uses (`Host::platform(
         // cx.get_data_dir())` -> /data/user/0/<pkg>/files/octos-home).
         crate::design::set_host_dir(vm.cx_mut().get_data_dir());
+        // #32h item 1: the lowered cards' buttons emit `on_click: || { NAV(t:
+        // "…") }` (fork lib.rs:450) and NAV is "a global the host registers"
+        // (fork lib.rs:359) — nobody did. An unregistered global evaluates to
+        // NIL (kit.rs:141-143), so every card tap silently did nothing: no
+        // connection, no log (the phone symptom). The callback runs on the
+        // eval thread: log + enqueue + wake; the Event::Signal arm drains
+        // into the SAME router the native chrome taps use.
+        let nav = octoscript_render::add_global_fn(
+            vm,
+            &[(live_id!(t), makepad_widgets::ScriptValue::NIL)],
+            |vm, a| {
+                let t = octoscript_render::string_prop(vm, a, live_id!(t)).unwrap_or_default();
+                makepad_widgets::log!("[octoscode] nav tap: {t}");
+                NAV_QUEUE.lock().unwrap().push(t);
+                SignalToUI::set_ui_signal();
+                makepad_widgets::ScriptValue::NIL
+            },
+        );
+        vm.set_injected_global(live_id!(NAV), nav);
         script_mod(vm);
         // Card #21b: the design/kit vocabulary every lowered #16 component names
         // (`DesignSurface`, `KitButton`, …) must be in THIS VM — the isolate the
