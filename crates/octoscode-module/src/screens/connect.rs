@@ -693,7 +693,7 @@ pub fn lower_screen(screen: Screen, ui: &ConnectUi) -> Result<String, String> {
     .map_err(|e| format!("l0::prepare: {e}"))?;
     let mut tree = prepared.tree;
     octoscript_makepad::l0::inspectable(&mut tree);
-    octoscript_makepad::design::to_makepad_ui(&tree).map_err(|e| format!("to_makepad_ui: {e}"))
+    crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&tree)).map_err(|e| format!("to_makepad_ui: {e}"))
 }
 
 #[cfg(test)]

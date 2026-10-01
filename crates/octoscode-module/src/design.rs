@@ -162,6 +162,20 @@ pub fn root() -> PathBuf {
                 dir.display()
             );
         }
+        // (a) the faces are visible in the log: count + one full path.
+        let faces: Vec<&str> = table()
+            .iter()
+            .filter(|(p, _)| p.starts_with("ux/") && p.ends_with(".ttf"))
+            .map(|(p, _)| *p)
+            .collect();
+        if !faces.is_empty() {
+            makepad_widgets::log!(
+                "[octoscode] design embed: {} font face(s) under {} (e.g. {})",
+                faces.len(),
+                dir.join("ux/").display(),
+                dir.join(faces[0]).display()
+            );
+        }
         let _ = std::fs::write(&marker, total);
         dir
     })
@@ -195,6 +209,101 @@ pub fn dir(rel: &str) -> PathBuf {
         Some(base) if base.join(rel).is_dir() => base.join(rel),
         _ => root().join(rel),
     }
+}
+
+/// #32g item 1: the lowered DSL names kit faces as
+/// `crate_resource("self:resources/ux/<file>")` — the crate's own resources,
+/// which the APK does NOT package (the phone drew every card in the mono
+/// fallback). Rewrite to the renderer's other supported form,
+/// `file_resource("<absolute path>")` (the renderer itself lowers `file:`
+/// sources to exactly this): the dev checkout's copy when present (desktop
+/// byte-identical), else the materialized design root (`ux/…` rides in the
+/// embed).
+pub fn with_fonts(lowered: Result<String, String>) -> Result<String, String> {
+    // Generalised (#32g, outer loop device evidence): rewrite EVERY
+    // crate_resource("self:resources/…") — the kit faces AND the kit/icon
+    // svgs — to the materialized root's absolute path. The needle captures
+    // the full relative path after self:resources/ (ux/Inter-400.ttf,
+    // icons/chevron_down.svg, …).
+    const NEEDLE: &str = "crate_resource(\"self:resources/";
+    let dsl = lowered?;
+    if !dsl.contains(NEEDLE) {
+        return Ok(dsl);
+    }
+    let mut out = String::with_capacity(dsl.len());
+    let mut rest = dsl.as_str();
+    while let Some(i) = rest.find(NEEDLE) {
+        out.push_str(&rest[..i]);
+        rest = &rest[i + NEEDLE.len()..];
+        let Some(end) = rest.find('"') else {
+            out.push_str(NEEDLE);
+            break;
+        };
+        let rel = &rest[..end];
+        // Skip past the quoted name FIRST — the original crate_resource's
+        // closing `)` follows the quote. (The previous strip ran BEFORE the
+        // skip: a silent no-op, the `)` survived, and the doubled `))`
+        // broke the DSL parse — "Expected } not found" — the whole card
+        // drew nothing.)
+        rest = &rest[end + 1..];
+        let path = font_file(rel);
+        if path.is_file() {
+            // (b) the absolute, packaged path; consume the original `)`.
+            out.push_str(&format!("file_resource({path:?})"));
+            rest = rest.strip_prefix(')').unwrap_or(rest);
+        } else {
+            // (c) never draw nothing: keep the crate-relative form (a
+            // broken materialization degrades to the mono fallback, not an
+            // empty family); the `)` in rest closes it.
+            out.push_str(NEEDLE);
+            out.push_str(rel);
+            out.push('"');
+        }
+    }
+    out.push_str(rest);
+    Ok(out)
+}
+
+/// The resource STRING for one of the module's own icons
+/// (`icons/<file>.svg`) — the spliced value for the script_mod! literals
+/// (`draw_svg.svg: #(crate::design::icon_resource("chevron_down.svg"))`):
+/// a literal `crate_resource("self:…")` resolves against the BUILD
+/// machine's manifest path (script/res.rs:1067 concatenates
+/// ScriptMod::cargo_manifest_path), which does not exist on the phone; the
+/// spliced runtime value carries the materialized root's absolute path.
+pub fn icon_resource(name: &str) -> String {
+    font_file(&format!("icons/{name}")).display().to_string()
+}
+
+/// The absolute file for a kit face (`ux/<file>.ttf`): the MATERIALIZED
+/// design root first — it exists on every target (desktop: `$HOME`/host
+/// files dir; phone: the app's own storage, device-verified in #32f) and is
+/// what the outer loop's device log demanded (`font member` must never name
+/// the build machine: 9394a44 resolved the checkout path, which only exists
+/// where the APK was built). The dev checkout is the LAST resort. The first
+/// resolution is logged once — the device log then shows which tree won.
+pub fn font_file(rel: &str) -> PathBuf {
+    let resolved = {
+        let from_root = root().join(rel);
+        if from_root.is_file() {
+            from_root
+        } else {
+            let own = Path::new(manifest_dir()).join("resources").join(rel);
+            if own.is_file() {
+                own
+            } else {
+                from_root
+            }
+        }
+    };
+    static LOGGED: OnceLock<()> = OnceLock::new();
+    LOGGED.get_or_init(|| {
+        makepad_widgets::log!(
+            "[octoscode] font faces resolve under {}",
+            resolved.display()
+        );
+    });
+    resolved
 }
 
 #[cfg(test)]
@@ -270,6 +379,60 @@ mod tests {
         // The disk copy equals the embedded copy (byte-for-byte).
         let embedded_text = file("cards/index.json").expect("embedded");
         assert_eq!(text, embedded_text.as_ref());
+    }
+
+    #[test]
+    fn kit_fonts_rewrite_to_packaged_files() {
+        let dsl = "x := crate_resource(\"self:resources/ux/Inter-400.ttf\")";
+        let out = with_fonts(Ok(dsl.to_owned())).expect("ok");
+        assert!(out.contains("file_resource("), "{out}");
+        assert!(!out.contains("self:resources/ux/"), "{out}");
+        // The emitted path carries the ux/ DIRECTORY (b408a89's regression:
+        // the needle consumed the prefix and the face was sought at the
+        // root — the family rendered empty and the card drew no text).
+        let start = out.find('"').expect("quoted path") + 1;
+        let end = out[start..].find('"').expect("closing") + start;
+        let path = &out[start..end];
+        assert!(path.ends_with("ux/Inter-400.ttf"), "{path}");
+        assert!(Path::new(path).is_file(), "{path}");
+        // The emitted call is well-formed: the original `crate_resource`'s
+        // closing paren is consumed — a doubled `))` is the parse breaker
+        // that blanked the whole card (b408a89).
+        assert!(!out.contains("))"), "{out}");
+        assert!(out.ends_with(".ttf\")"), "{out}");
+    }
+
+    #[test]
+    fn a_face_missing_on_disk_keeps_the_original_reference() {
+        // (c): the guard never points the renderer at a nonexistent file —
+        // the original form stays (the mono fallback), never an empty family.
+        let dsl = "x := crate_resource(\"self:resources/ux/NotARealFace.ttf\")";
+        let out = with_fonts(Ok(dsl.to_owned())).expect("ok");
+        assert!(
+            out.contains("crate_resource(\"self:resources/ux/NotARealFace.ttf\")"),
+            "{out}"
+        );
+        assert!(!out.contains("file_resource("), "{out}");
+    }
+
+    #[test]
+    fn the_materialized_root_carries_the_five_faces() {
+        let dir = root();
+        for f in [
+            "ux/Inter-400.ttf",
+            "ux/Inter-500.ttf",
+            "ux/Inter-600.ttf",
+            "ux/Inter-700.ttf",
+            "ux/LiberationMono-Regular.ttf",
+        ] {
+            let p = dir.join(f);
+            assert!(p.is_file(), "missing {}", p.display());
+            assert!(
+                std::fs::metadata(&p).map(|m| m.len() > 100_000).unwrap_or(false),
+                "{} is not a real face",
+                p.display()
+            );
+        }
     }
 
     #[test]

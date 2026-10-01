@@ -511,7 +511,7 @@ pub fn lower(kind: ItemKind, token: &str, copies: &[(String, String)]) -> Result
     // `abs_pos`, which makepad applies at the WINDOW origin — right for the
     // Gate-B renders (the card IS the window) but wrong for an item at (300,219),
     // whose nodes would pin to (0,0) and be clipped away by the slot.
-    let ui = octoscript_makepad::design::to_makepad_ui_in_slot(&tree)?;
+    let ui = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui_in_slot(&tree))?;
     let ui = ui.replace("beauty_0", &format!("i{token}_{}", kind.id().replace('-', "")));
     // Card #21c item 3: content-driven height. Every node the component emits
     // carries the MEASURED artboard height of the fixture it was compiled from
@@ -571,7 +571,12 @@ fn bubble_live_layout(ui: &str) -> String {
     let s = set_first_width_fit_capped(&s, "80%");
     let mut s = s.replace("flow: Right\n", "flow: Right{wrap: true}\n");
     s = s.replace("flow: Right ", "flow: Right{wrap: true} ");
-    format!("user_align := View{{width:Fill height:Fit flow:Down align: Align{{x: 1.0}} {s}}}")
+    // #32b2 item 2: the wrapper insets the bubble from the column's right
+    // edge — the PortalList's scrollbar (`bar_size: 10, bar_side_margin: 3`,
+    // scroll_bar.rs:25-27 ≈ a 13px handle) draws over the list's last pixels,
+    // and a Fill wrapper put the bubble's right edge under it (the same
+    // inset the #21e timestamp took).
+    format!("user_align := View{{width:Fill height:Fit flow:Down align: Align{{x: 1.0}} padding: Inset{{right: 20}} {s}}}")
 }
 
 /// Card #21e item 8 — the activity row's spinner keeps its own 18px box.

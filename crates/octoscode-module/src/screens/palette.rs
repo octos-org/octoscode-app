@@ -345,7 +345,7 @@ pub fn lower_screen(which: &str, store: &std::sync::Arc<Store>) -> Result<String
     // rejects its `source:` property on these screens (mount.rs:68, observed in
     // the first probe run). These three screens are FIXED chrome (no runtime
     // prose), so measured coordinates are within the RULES 8.10 carve-out.
-    let mut dsl = octoscript_makepad::design::to_makepad_ui(&prepared.tree)?;
+    let mut dsl = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&prepared.tree))?;
 
     // Live slots: the store/screen state replaces the authored copy before the
     // cache compares, so a state flip repaints exactly once.
