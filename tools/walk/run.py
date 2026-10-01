@@ -1020,6 +1020,55 @@ def r_replay(app):
     return True, f"timeline kinds={app.kinds(app.snap())}"
 
 
+@check("conversation", "the conversation content fits the window (bubble and timestamp end inside the right edge)",
+       rows=("timeline",))
+def conv_fits(app):
+    # #38c (backlog 80b9f33): the module window ends at the scene's right
+    # edge, and the full-width bubble row plus the right-aligned `now`
+    # timestamp ended AT x=900 — clipped by the screen. Measured on main:
+    # bubble row right=900, now right=900, margin 0. The fix insets the
+    # conversation column; the contract: window ⊆ scene, and the laid-out
+    # tail bubble row and the `now` timestamp end strictly inside the column
+    # (right ≤ column right − 4).
+    r = None
+    for _ in range(20):
+        d = app.snap()
+        r = app.rect_re(d, COMPOSER_INPUT_RE)
+        if r and r[2] > 0:
+            break
+        time.sleep(0.5)
+    app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
+    app.clear_composer(); app.type("walk fits probe"); app.send()
+    app.wait_for(lambda s: "workingrow" not in app.kinds(s), timeout=60,
+                 what="the probe turn to terminate")
+    time.sleep(1.0)
+    d = app.snap()
+    win = app.rect(d, "main_window")
+    scene = app.rect(d, "scene")
+    col = app.rect(d, "timeline_list")
+    assert win and scene and col, "window/scene/column missing from /snap"
+    win_right = win[0] + win[2]
+    scene_right = scene[0] + scene[2]
+    col_right = col[0] + col[2]
+    rights, nows = [], []
+    for w in d.get("s", []):
+        m = INSTANCE_KIND_RE.match(str(w.get("i", "")))
+        rr = w.get("r") or [0, 0, 0, 0]
+        if not (m and rr[2] > 0):
+            continue
+        if m.group(1) == "userbubble":
+            rights.append(rr[0] + rr[2])
+        if (w.get("t") or "").strip().lower() == "now":
+            nows.append(rr[0] + rr[2])
+    in_scene = win_right <= scene_right and win[2] <= scene[2]
+    bubble_ok = bool(rights) and max(rights) <= col_right - 4
+    now_ok = bool(nows) and max(nows) <= col_right - 4
+    ok = in_scene and bubble_ok and now_ok
+    return ok, (f"window_right={win_right} scene_right={scene_right} "
+                f"bubble_right={max(rights) if rights else None} "
+                f"now_right={max(nows) if nows else None} col_right={col_right}")
+
+
 # ---- recovery: failed local command (row 209, #33b) ------------------------ #
 @check("recovery", "a failed local command restores the typed input and sends nothing",
        rows=("local-command",))
