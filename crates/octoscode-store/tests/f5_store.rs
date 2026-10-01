@@ -121,6 +121,7 @@ fn approval_push_still_accepts_a_prebuilt_row() {
         decided: false,
         auto_resolved: false,
         cancelled: false,
+        preview_id: None,
     });
     assert_eq!(store.domains.approval.pending().len(), 1);
 }

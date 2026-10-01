@@ -187,6 +187,7 @@ fn the_approval_lifecycle_notifications_drive_the_card_states() {
         decided: false,
         auto_resolved: false,
         cancelled: false,
+        preview_id: None,
     };
     store.domains.approval.push(mk(AUTO_ID));
     store.domains.approval.push(mk(CANCEL_ID));

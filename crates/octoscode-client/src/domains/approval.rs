@@ -27,10 +27,24 @@ impl NotificationHandler for ApprovalRequestedHandler {
             self.store.note_seen(Self::METHOD);
             // Keep the pending approval so the sheet has something to render
             // and `approval/respond` has an id to answer.
-            self.store
-                .domains
-                .approval
-                .request(&requested.approval_id.0.to_string(), Some(requested.tool_name.clone()));
+            //
+            // #P4f2 row 7: also keep the diff preview id the PAYLOAD carries
+            // (`typedDetails.diff.preview_id`, web `approvalDiffPreviewId` —
+            // `packages/client/src/interaction.ts:94-102`), validated through
+            // the shared protocol-id gate so a non-id string cannot bind `D`.
+            // The web reads only this one contract location and never scrapes
+            // prose ("it never recursively scrapes prose", :104).
+            let preview_id = requested
+                .typed_details
+                .as_ref()
+                .and_then(|d| d.diff.as_ref())
+                .map(|d| crate::protocol_id::preview_id_string(&d.preview_id))
+                .filter(|id| crate::protocol_id::is_protocol_uuid(&serde_json::json!(id)));
+            self.store.domains.approval.request_with_preview(
+                &requested.approval_id.0.to_string(),
+                Some(requested.tool_name.clone()),
+                preview_id,
+            );
         }
     }
 }

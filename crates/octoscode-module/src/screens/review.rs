@@ -281,6 +281,20 @@ pub fn note_envelope(body: &Value) {
     }
 }
 
+/// #P4f2 row 7: adopt a preview id announced by an APPROVAL payload, not by a
+/// `turn_terminal` projection.
+///
+/// The web binds `D` on the showing approval and calls
+/// `onReviewDiff(previewId)` with the id read off that card
+/// (`ApprovalPanel.tsx:45`, `approvalDiffPreviewId` —
+/// `packages/client/src/interaction.ts:94-102`). Natively the shell hands the
+/// id here, and [`Effect::ScopeCycle`]'s existing `diff/preview/get` call
+/// fetches it — no second fetch path, and the card's rows render from the same
+/// [`fold_preview`].
+pub fn set_preview_id(preview_id: String) {
+    state().preview_id = Some(preview_id);
+}
+
 // ------------------------------------------------------------------- bindings
 
 /// Per-file +/− counts over the file's hunk lines

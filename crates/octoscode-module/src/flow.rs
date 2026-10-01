@@ -1846,6 +1846,7 @@ mod tests {
             false, false, false, false,
             false, // palette_open
             false, // approval_pending
+            None,  // approval_preview (#P4f2 row 7 — no approval is showing)
             ui.turn_active(),
             true,  // draft_empty
         );
@@ -1857,6 +1858,7 @@ mod tests {
             makepad_widgets::KeyCode::Escape,
             false, false, false, false,
             false, false,
+            None, // approval_preview (#P4f2 row 7)
             ui.turn_active(),
             true,
         );

@@ -1101,6 +1101,7 @@ fn seed_approvals(store: &Arc<Store>) {    use octoscode_store::domains::approva
             decided: false,
             auto_resolved: false,
             cancelled: false,
+            preview_id: None,
         });
     }
 }
@@ -3262,6 +3263,10 @@ impl Widget for OctoscodeView {
                 let approval_pending =
                     crate::screens::keys::oldest_pending_id(&store).is_some()
                         || ui.lock().unwrap().approval_pending();
+                // #P4f2 row 7: the SHOWING approval's diff preview id, from the
+                // same FIFO row the decision keys answer, so `D` and Y/S/N can
+                // never act on different cards.
+                let approval_preview = crate::screens::keys::preview_id(&store);
                 let action = crate::screens::keys::resolve(
                     e.key_code,
                     e.modifiers.shift,
@@ -3270,6 +3275,7 @@ impl Widget for OctoscodeView {
                     e.modifiers.logo,
                     palette_open,
                     approval_pending,
+                    approval_preview,
                     turn_active,
                     draft_empty,
                 );
@@ -3388,6 +3394,25 @@ impl Widget for OctoscodeView {
                                 ::log::warn!("octoscode: keyboard decision: no pending approval");
                             }
                         }
+                    }
+                    // #P4f2 row 7 — `ApprovalPanel.tsx:45`: D opens the diff
+                    // review for the SHOWING approval. Hand the preview id to
+                    // the review screen (the same `diff/preview/get` production
+                    // path `ScopeCycle` uses), then reveal it. A non-diff
+                    // approval never reaches here: `resolve` returns `Ignore`
+                    // when the id is absent, like the web's `&& previewId`.
+                    KeyAction::ApprovalReviewDiff(preview_id) => {
+                        crate::screens::review::set_preview_id(preview_id);
+                        if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                            let conv = conv.clone();
+                            rt.spawn(async move {
+                                let e = crate::screens::review::Effect::ScopeCycle;
+                                if let Err(err) = crate::screens::review::perform(e, &conv).await {
+                                    ::log::warn!("octoscode: D diff review: {err}");
+                                }
+                            });
+                        }
+                        ui.lock().unwrap().toggle_review();
                     }
                     // registry.ts:614 — the parity shortcut resolves; the
                     // approval surface it reveals lands with the approval

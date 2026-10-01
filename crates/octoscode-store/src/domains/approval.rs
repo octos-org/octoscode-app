@@ -14,6 +14,14 @@ pub struct PendingApproval {
     /// Set when the server cancelled the approval before any client could
     /// respond (`approval/cancelled`). A cancelled row is no longer actionable.
     pub cancelled: bool,
+    /// #P4f2 row 7: the diff preview id the approval PAYLOAD carries
+    /// (`typedDetails.diff.preview_id`, web
+    /// `approvalDiffPreviewId` — `packages/client/src/interaction.ts:94-102`).
+    /// `D` is bound only when this is present, exactly like the web's
+    /// `if (key === "d" && previewId && onReviewDiff)`
+    /// (`ApprovalPanel.tsx:45`). `None` = a non-diff approval, and D stays
+    /// inert.
+    pub preview_id: Option<String>,
 }
 
 /// One standing approval scope, flattened from `ApprovalScopeEntry`
@@ -63,8 +71,24 @@ impl Approvals {
     /// Create a pending row from the wire ids alone (the common case: a fresh
     /// `approval/requested`). Keeps existing rows for the same id.
     pub fn request(&self, id: &str, target: Option<String>) {
+        self.request_with_preview(id, target, None)
+    }
+
+    /// #P4f2 row 7: as [`Approvals::request`], plus the diff preview id the
+    /// approval payload carried. `None` = a non-diff approval.
+    pub fn request_with_preview(
+        &self,
+        id: &str,
+        target: Option<String>,
+        preview_id: Option<String>,
+    ) {
         let mut i = self.inner.lock().unwrap();
-        if i.pending.iter().any(|a| a.id == id) {
+        if let Some(existing) = i.pending.iter_mut().find(|a| a.id == id) {
+            // An update to the same id may still carry the preview id, but must
+            // never clear a decision already recorded.
+            if preview_id.is_some() {
+                existing.preview_id = preview_id;
+            }
             return;
         }
         i.pending.push(PendingApproval {
@@ -73,7 +97,21 @@ impl Approvals {
             decided: false,
             auto_resolved: false,
             cancelled: false,
+            preview_id,
         });
+    }
+
+    /// #P4f2 row 7: the preview id of the oldest ACTIONABLE pending approval —
+    /// what `D` binds to (web: the card that is showing decides, and the
+    /// keydown handler reads THAT card's preview id).
+    pub fn oldest_preview_id(&self) -> Option<String> {
+        self.inner
+            .lock()
+            .unwrap()
+            .pending
+            .iter()
+            .find(|a| !a.decided && !a.cancelled)
+            .and_then(|a| a.preview_id.clone())
     }
 
     pub fn pending(&self) -> Vec<PendingApproval> {

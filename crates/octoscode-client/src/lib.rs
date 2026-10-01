@@ -19,6 +19,7 @@
 mod method;
 pub mod domains;
 pub mod features;
+pub mod protocol_id;
 pub mod registry;
 pub mod trace;
 
