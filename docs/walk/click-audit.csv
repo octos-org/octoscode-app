@@ -2,35 +2,45 @@ screen,instance,widget,rect,text,expected_action,observed
 connect-first-run,beauty_0_0_2_0,TextInput,"[295, 223, 286, 26]",http://127.0.0.1:50190,,nothing
 connect-first-run,beauty_0_0_4_0,TextInput,"[295, 347, 286, 26]",,,nothing
 connect-first-run,beauty_0_0_6,KitButton,"[281, 565, 314, 44]",Connect,connect,log: screen action: connect
-dock-palette,i0_newchat,KitButton,"[66, 139, 225, 76]",New chat,session.new,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
-dock-palette,i0_threadrow,KitButton,"[66, 257, 225, 78]",Why does main.rs print 5?,thread.open,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
-dock-palette,i0_composer_0,TextInput,"[349, 403, 300, 42]",Ask Octos anything,,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
-dock-palette,plus_hit,Button,"[340, 516, 36, 36]",,(unwired),"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
-dock-palette,mic_hit,Button,"[615, 514, 36, 36]",,(unwired),"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
-dock-palette,send_hit,Button,"[659, 508, 44, 44]",,composer.submit,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
-dock-error,i0_newchat,KitButton,"[66, 139, 225, 76]",New chat,session.new,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
-dock-error,i0_threadrow,KitButton,"[66, 257, 225, 78]",Why does main.rs print 5?,thread.open,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
-dock-error,i0_composer_0,TextInput,"[349, 403, 300, 42]",Ask Octos anything,,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
-dock-error,plus_hit,Button,"[340, 516, 36, 36]",,(unwired),"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
-dock-error,mic_hit,Button,"[615, 514, 36, 36]",,(unwired),"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
-dock-error,send_hit,Button,"[659, 508, 44, 44]",,composer.submit,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
+dock-palette,review_open_hit,Button,"[184, 101, 72, 30]",Review,,state: 66 widget deltas
+dock-palette,settings_open_hit,Button,"[260, 101, 44, 30]",Settings,,state: 32 widget deltas
+dock-palette,i0_newchat,KitButton,"[66, 140, 225, 76]",New chat,session.new,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+dock-palette,i0_threadrow,KitButton,"[66, 258, 225, 78]",Why does main.rs print 5?,thread.open,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+dock-palette,i0_composer_0,TextInput,"[349, 403, 300, 42]",Ask Octos anything,,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+dock-palette,plus_hit,Button,"[340, 516, 36, 36]",,(unwired),shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+dock-palette,mic_hit,Button,"[615, 514, 36, 36]",,(unwired),shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+dock-palette,send_hit,Button,"[659, 508, 44, 44]",,composer.submit,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+dock-error,review_open_hit,Button,"[184, 101, 72, 30]",Review,,state: 66 widget deltas
+dock-error,settings_open_hit,Button,"[260, 101, 44, 30]",Settings,,state: 32 widget deltas
+dock-error,i0_newchat,KitButton,"[66, 140, 225, 76]",New chat,session.new,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+dock-error,i0_threadrow,KitButton,"[66, 258, 225, 78]",Why does main.rs print 5?,thread.open,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+dock-error,i0_composer_0,TextInput,"[349, 403, 300, 42]",Ask Octos anything,,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+dock-error,plus_hit,Button,"[340, 516, 36, 36]",,(unwired),shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+dock-error,mic_hit,Button,"[615, 514, 36, 36]",,(unwired),shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+dock-error,send_hit,Button,"[659, 508, 44, 44]",,composer.submit,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
 dock-error,btn_reload,KitButton,"[54, 387, 276, 66]",Reload,error.reload,log: card tap: error.reload
-dock-error,btn_diag,KitButton,"[54, 472, 277, 65]",Copy diagnostics,error.copy_diagnostics,nothing
-dock-loading,i0_newchat,KitButton,"[66, 139, 225, 76]",New chat,session.new,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
-dock-loading,i0_threadrow,KitButton,"[66, 257, 225, 78]",Why does main.rs print 5?,thread.open,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
-dock-loading,i0_composer_0,TextInput,"[349, 403, 300, 42]",Ask Octos anything,,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
-dock-loading,plus_hit,Button,"[340, 516, 36, 36]",,(unwired),"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
-dock-loading,mic_hit,Button,"[615, 514, 36, 36]",,(unwired),"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
-dock-loading,send_hit,Button,"[659, 508, 44, 44]",,composer.submit,"shadowed: the visible dock overlays the chrome (by design) — click lands on the dock, not the control"
-chrome-review,i0_newchat,KitButton,"[66, 139, 225, 76]",New chat,session.new,log: new_chat clicked
-chrome-review,i0_threadrow,KitButton,"[66, 257, 225, 78]",Why does main.rs print 5?,thread.open,log: thread row 0 clicked
-chrome-review,i0_composer_0,TextInput,"[349, 403, 300, 42]",Ask Octos anything,,nothing
-chrome-review,plus_hit,Button,"[340, 516, 36, 36]",,(unwired),nothing
-chrome-review,mic_hit,Button,"[615, 514, 36, 36]",,(unwired),nothing
-chrome-review,send_hit,Button,"[659, 508, 44, 44]",,composer.submit,log: send_hit clicked
-chrome-settings,i0_newchat,KitButton,"[66, 139, 225, 76]",New chat,session.new,log: new_chat clicked
-chrome-settings,i0_threadrow,KitButton,"[66, 257, 225, 78]",Why does main.rs print 5?,thread.open,log: thread row 0 clicked
-chrome-settings,i0_composer_0,TextInput,"[349, 403, 300, 42]",Ask Octos anything,,nothing
-chrome-settings,plus_hit,Button,"[340, 516, 36, 36]",,(unwired),nothing
-chrome-settings,mic_hit,Button,"[615, 514, 36, 36]",,(unwired),nothing
-chrome-settings,send_hit,Button,"[659, 508, 44, 44]",,composer.submit,log: send_hit clicked
+dock-error,btn_diag,KitButton,"[54, 472, 277, 65]",Copy diagnostics,error.copy_diagnostics,log: screen action: error.copy_diagnostics
+dock-loading,review_open_hit,Button,"[184, 101, 72, 30]",Review,,state: 66 widget deltas
+dock-loading,settings_open_hit,Button,"[260, 101, 44, 30]",Settings,,state: 32 widget deltas
+dock-loading,i0_newchat,KitButton,"[66, 140, 225, 76]",New chat,session.new,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+dock-loading,i0_threadrow,KitButton,"[66, 258, 225, 78]",Why does main.rs print 5?,thread.open,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+dock-loading,i0_composer_0,TextInput,"[349, 403, 300, 42]",Ask Octos anything,,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+dock-loading,plus_hit,Button,"[340, 516, 36, 36]",,(unwired),shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+dock-loading,mic_hit,Button,"[615, 514, 36, 36]",,(unwired),shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+dock-loading,send_hit,Button,"[659, 508, 44, 44]",,composer.submit,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+chrome-review,review_open_hit,Button,"[184, 101, 72, 30]",Review,,state: 66 widget deltas
+chrome-review,settings_open_hit,Button,"[260, 101, 44, 30]",Settings,,state: 32 widget deltas
+chrome-review,i0_newchat,KitButton,"[66, 140, 225, 76]",New chat,session.new,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+chrome-review,i0_threadrow,KitButton,"[66, 258, 225, 78]",Why does main.rs print 5?,thread.open,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+chrome-review,i0_composer_0,TextInput,"[349, 403, 300, 42]",Ask Octos anything,,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+chrome-review,plus_hit,Button,"[340, 516, 36, 36]",,(unwired),shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+chrome-review,mic_hit,Button,"[615, 514, 36, 36]",,(unwired),shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+chrome-review,send_hit,Button,"[659, 508, 44, 44]",,composer.submit,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+chrome-settings,review_open_hit,Button,"[184, 101, 72, 30]",Review,,state: 66 widget deltas
+chrome-settings,settings_open_hit,Button,"[260, 101, 44, 30]",Settings,,state: 32 widget deltas
+chrome-settings,i0_newchat,KitButton,"[66, 140, 225, 76]",New chat,session.new,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+chrome-settings,i0_threadrow,KitButton,"[66, 258, 225, 78]",Why does main.rs print 5?,thread.open,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+chrome-settings,i0_composer_0,TextInput,"[349, 403, 300, 42]",Ask Octos anything,,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+chrome-settings,plus_hit,Button,"[340, 516, 36, 36]",,(unwired),shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+chrome-settings,mic_hit,Button,"[615, 514, 36, 36]",,(unwired),shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
+chrome-settings,send_hit,Button,"[659, 508, 44, 44]",,composer.submit,shadowed: the modal dimmer covers the chrome (by design) — click lands on the dimmer
