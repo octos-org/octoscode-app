@@ -1,0 +1,183 @@
+{
+  "width": 406,
+  "height": 776,
+  "observations": [
+    {
+      "text": "OctosCode",
+      "bounds": [
+        20,
+        18,
+        200,
+        24
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "New chat",
+      "bounds": [
+        48,
+        54,
+        120,
+        22
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Search chats",
+      "bounds": [
+        58,
+        102,
+        240,
+        22
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "By workspace",
+      "bounds": [
+        24,
+        156,
+        105,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Recent",
+      "bounds": [
+        330,
+        156,
+        48,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Running",
+      "bounds": [
+        48,
+        214,
+        240,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "2m",
+      "bounds": [
+        300,
+        214,
+        84,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Waiting for input",
+      "bounds": [
+        48,
+        256,
+        240,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "1h",
+      "bounds": [
+        300,
+        256,
+        84,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Done",
+      "bounds": [
+        48,
+        298,
+        240,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Yesterday",
+      "bounds": [
+        300,
+        298,
+        84,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Failed",
+      "bounds": [
+        48,
+        340,
+        240,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "2h",
+      "bounds": [
+        300,
+        340,
+        84,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Idle",
+      "bounds": [
+        48,
+        382,
+        240,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Yesterday",
+      "bounds": [
+        300,
+        382,
+        84,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Add workspace",
+      "bounds": [
+        48,
+        724,
+        160,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    }
+  ],
+  "source": "lane-vision on the measured atlas crops (no external OCR for board 2)"
+}

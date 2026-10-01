@@ -1,0 +1,339 @@
+{
+  "schema_version": 1,
+  "id": "phase4n2-03",
+  "app": "octoscode",
+  "number": 3,
+  "title": "Sidebar search",
+  "structure": "Native component reconstructed from the approved board-2 atlas",
+  "artboard": [
+    406,
+    776
+  ],
+  "font_family": "Inter",
+  "palette": {
+    "name": "OctosCode",
+    "page": "#FFFFFF",
+    "panel": "#F7F7F8",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "accent": "#2F6FEB"
+  },
+  "content_source": "Approved stage-a phase4-new2 atlas; text/bounds measured by the lane model's vision on the measured hairline grid crops",
+  "graphics": {},
+  "tree": {
+    "id": "page",
+    "type": "surface",
+    "x": 0,
+    "y": 0,
+    "w": 406,
+    "h": 776,
+    "bg": "#FFFFFF",
+    "radius": 0,
+    "kids": [
+      {
+        "id": "t_head",
+        "type": "text",
+        "x": 20,
+        "y": 18,
+        "w": 200,
+        "h": 24,
+        "text": "OctosCode",
+        "font": "self:resources/ux/Inter-700.ttf",
+        "size": 19,
+        "color": "#1D1D1F"
+      },
+      {
+        "id": "i_pencil",
+        "type": "svg",
+        "x": 22,
+        "y": 56,
+        "w": 18,
+        "h": 18,
+        "svg": "pencil",
+        "color": "#1D1D1F"
+      },
+      {
+        "id": "t_newchat",
+        "type": "text",
+        "x": 48,
+        "y": 54,
+        "w": 120,
+        "h": 22,
+        "text": "New chat",
+        "font": "self:resources/ux/Inter-500.ttf",
+        "size": 14,
+        "color": "#1D1D1F"
+      },
+      {
+        "id": "sf",
+        "type": "surface",
+        "x": 20,
+        "y": 92,
+        "w": 366,
+        "h": 40,
+        "bg": "#FFFFFF",
+        "radius": 10,
+        "border": {
+          "color": "#E5E5E7",
+          "width": 1
+        }
+      },
+      {
+        "id": "i_search",
+        "type": "svg",
+        "x": 34,
+        "y": 104,
+        "w": 16,
+        "h": 16,
+        "svg": "search",
+        "color": "#6E6E73"
+      },
+      {
+        "id": "t_search",
+        "type": "text",
+        "x": 58,
+        "y": 102,
+        "w": 240,
+        "h": 22,
+        "text": "hydrate",
+        "font": "self:resources/ux/Inter-400.ttf",
+        "size": 14,
+        "color": "#1D1D1F"
+      },
+      {
+        "id": "i_clear",
+        "type": "svg",
+        "x": 356,
+        "y": 104,
+        "w": 14,
+        "h": 14,
+        "svg": "close",
+        "color": "#6E6E73"
+      },
+      {
+        "id": "seg",
+        "type": "surface",
+        "x": 20,
+        "y": 148,
+        "w": 214,
+        "h": 34,
+        "bg": "#EFEFF0",
+        "radius": 9
+      },
+      {
+        "id": "seg_sel",
+        "type": "surface",
+        "x": 24,
+        "y": 152,
+        "w": 105,
+        "h": 26,
+        "bg": "#FFFFFF",
+        "radius": 7
+      },
+      {
+        "id": "t_seg_l",
+        "type": "text",
+        "x": 24,
+        "y": 156,
+        "w": 105,
+        "h": 20,
+        "text": "By workspace",
+        "font": "self:resources/ux/Inter-500.ttf",
+        "size": 13,
+        "color": "#1D1D1F"
+      },
+      {
+        "id": "t_seg_r",
+        "type": "text",
+        "x": 129,
+        "y": 156,
+        "w": 105,
+        "h": 20,
+        "text": "All",
+        "font": "self:resources/ux/Inter-500.ttf",
+        "size": 13,
+        "color": "#6E6E73"
+      },
+      {
+        "id": "i_sort",
+        "type": "svg",
+        "x": 380,
+        "y": 156,
+        "w": 14,
+        "h": 14,
+        "svg": "chev-down",
+        "color": "#1D1D1F"
+      },
+      {
+        "id": "t_sort",
+        "type": "text",
+        "x": 330,
+        "y": 156,
+        "w": 48,
+        "h": 20,
+        "text": "Recent",
+        "font": "self:resources/ux/Inter-400.ttf",
+        "size": 13,
+        "color": "#1D1D1F"
+      },
+      {
+        "id": "i_chev_octos",
+        "type": "svg",
+        "x": 24,
+        "y": 216,
+        "w": 14,
+        "h": 14,
+        "svg": "chev-down",
+        "color": "#1D1D1F"
+      },
+      {
+        "id": "t_grp_octos",
+        "type": "text",
+        "x": 46,
+        "y": 214,
+        "w": 180,
+        "h": 22,
+        "text": "octos",
+        "font": "self:resources/ux/Inter-600.ttf",
+        "size": 15,
+        "color": "#1D1D1F"
+      },
+      {
+        "id": "r00_sel",
+        "type": "surface",
+        "x": 16,
+        "y": 244,
+        "w": 374,
+        "h": 36,
+        "bg": "#F2F2F7",
+        "radius": 8
+      },
+      {
+        "id": "m1",
+        "type": "text",
+        "x": 56,
+        "y": 250,
+        "w": 62,
+        "h": 20,
+        "text": "Why is ",
+        "font": "self:resources/ux/Inter-400.ttf",
+        "size": 14,
+        "color": "#1D1D1F"
+      },
+      {
+        "id": "hl",
+        "type": "surface",
+        "x": 118,
+        "y": 251,
+        "w": 62,
+        "h": 20,
+        "bg": "#FCE9B8",
+        "radius": 3
+      },
+      {
+        "id": "m2",
+        "type": "text",
+        "x": 120,
+        "y": 250,
+        "w": 58,
+        "h": 20,
+        "text": "hydrate",
+        "font": "self:resources/ux/Inter-400.ttf",
+        "size": 14,
+        "color": "#1D1D1F"
+      },
+      {
+        "id": "m3",
+        "type": "text",
+        "x": 178,
+        "y": 250,
+        "w": 56,
+        "h": 20,
+        "text": " slow?",
+        "font": "self:resources/ux/Inter-400.ttf",
+        "size": 14,
+        "color": "#1D1D1F"
+      },
+      {
+        "id": "r00_w",
+        "type": "text",
+        "x": 300,
+        "y": 250,
+        "w": 84,
+        "h": 20,
+        "text": "Yesterday",
+        "font": "self:resources/ux/Inter-400.ttf",
+        "size": 12,
+        "color": "#6E6E73"
+      },
+      {
+        "id": "i_chev_octoscode-app",
+        "type": "svg",
+        "x": 24,
+        "y": 308,
+        "w": 14,
+        "h": 14,
+        "svg": "chev-down",
+        "color": "#1D1D1F"
+      },
+      {
+        "id": "t_grp_octoscode-app",
+        "type": "text",
+        "x": 46,
+        "y": 306,
+        "w": 180,
+        "h": 22,
+        "text": "octoscode-app",
+        "font": "self:resources/ux/Inter-600.ttf",
+        "size": 15,
+        "color": "#1D1D1F"
+      },
+      {
+        "id": "empty1",
+        "type": "text",
+        "x": 56,
+        "y": 340,
+        "w": 300,
+        "h": 20,
+        "text": "No chats in octoscode-app match \"hydrate\"",
+        "font": "self:resources/ux/Inter-400.ttf",
+        "size": 14,
+        "color": "#6E6E73"
+      },
+      {
+        "id": "clear1",
+        "type": "text",
+        "x": 56,
+        "y": 370,
+        "w": 110,
+        "h": 20,
+        "text": "Clear search",
+        "font": "self:resources/ux/Inter-400.ttf",
+        "size": 14,
+        "color": "#2F6FEB"
+      },
+      {
+        "id": "i_plus",
+        "type": "svg",
+        "x": 24,
+        "y": 726,
+        "w": 16,
+        "h": 16,
+        "svg": "plus",
+        "color": "#1D1D1F"
+      },
+      {
+        "id": "t_addws",
+        "type": "text",
+        "x": 48,
+        "y": 724,
+        "w": 160,
+        "h": 20,
+        "text": "Add workspace",
+        "font": "self:resources/ux/Inter-500.ttf",
+        "size": 14,
+        "color": "#1D1D1F"
+      }
+    ]
+  }
+}

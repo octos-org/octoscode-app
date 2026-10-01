@@ -1,0 +1,106 @@
+{
+  "frame_id": 3,
+  "controls": {
+    "ctl_newchat": {
+      "event": "new_chat",
+      "source_bounds": [
+        20,
+        50,
+        140,
+        30
+      ],
+      "enabled": true
+    },
+    "ctl_search_clear": {
+      "event": "search.clear",
+      "source_bounds": [
+        348,
+        98,
+        26,
+        26
+      ],
+      "enabled": true
+    },
+    "ctl_search": {
+      "event": "search.focus",
+      "source_bounds": [
+        20,
+        92,
+        366,
+        40
+      ],
+      "enabled": true
+    },
+    "ctl_seg_ws": {
+      "event": "sidebar.mode.grouped",
+      "source_bounds": [
+        24,
+        152,
+        105,
+        26
+      ],
+      "enabled": true
+    },
+    "ctl_seg_all": {
+      "event": "sidebar.mode.flat",
+      "source_bounds": [
+        129,
+        152,
+        105,
+        26
+      ],
+      "enabled": true
+    },
+    "ctl_grp_octos": {
+      "event": "workspace.toggle",
+      "source_bounds": [
+        16,
+        210,
+        250,
+        30
+      ],
+      "enabled": true
+    },
+    "ctl_row0": {
+      "event": "session.open",
+      "source_bounds": [
+        16,
+        244,
+        374,
+        36
+      ],
+      "enabled": true
+    },
+    "ctl_grp_octoscode-app": {
+      "event": "workspace.toggle",
+      "source_bounds": [
+        16,
+        302,
+        250,
+        30
+      ],
+      "enabled": true
+    },
+    "ctl_clear_search": {
+      "event": "search.clear",
+      "source_bounds": [
+        50,
+        364,
+        122,
+        30
+      ],
+      "enabled": true
+    },
+    "ctl_addws": {
+      "event": "workspace.add",
+      "source_bounds": [
+        16,
+        718,
+        220,
+        32
+      ],
+      "enabled": true
+    }
+  },
+  "source": "phase4-new2-screen-03"
+}

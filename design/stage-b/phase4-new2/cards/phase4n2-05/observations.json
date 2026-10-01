@@ -1,0 +1,216 @@
+{
+  "width": 406,
+  "height": 776,
+  "observations": [
+    {
+      "text": "close",
+      "bounds": [
+        322,
+        18,
+        16,
+        16
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "OctosCode",
+      "bounds": [
+        20,
+        18,
+        200,
+        24
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "New chat",
+      "bounds": [
+        48,
+        54,
+        120,
+        22
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Search chats",
+      "bounds": [
+        58,
+        102,
+        240,
+        22
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "By workspace",
+      "bounds": [
+        24,
+        156,
+        105,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Recent",
+      "bounds": [
+        330,
+        156,
+        48,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "octos",
+      "bounds": [
+        46,
+        214,
+        180,
+        22
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Fix steer queue drop on reconnect",
+      "bounds": [
+        50,
+        250,
+        250,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "2m",
+      "bounds": [
+        300,
+        250,
+        84,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Add session fork",
+      "bounds": [
+        50,
+        290,
+        250,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "1h",
+      "bounds": [
+        300,
+        290,
+        84,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Review PR #2566",
+      "bounds": [
+        50,
+        330,
+        250,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Yesterday",
+      "bounds": [
+        300,
+        330,
+        84,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "octoscode-app",
+      "bounds": [
+        46,
+        388,
+        180,
+        22
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Bump octos-core to a6ea8505",
+      "bounds": [
+        50,
+        424,
+        250,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "2h",
+      "bounds": [
+        300,
+        424,
+        84,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Why is hydrate slow?",
+      "bounds": [
+        50,
+        464,
+        250,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Yesterday",
+      "bounds": [
+        300,
+        464,
+        84,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    },
+    {
+      "text": "Add workspace",
+      "bounds": [
+        48,
+        724,
+        160,
+        20
+      ],
+      "confidence": 1,
+      "source": "lane-vision"
+    }
+  ],
+  "source": "lane-vision on the measured atlas crops (no external OCR for board 2)"
+}
