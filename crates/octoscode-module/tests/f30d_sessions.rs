@@ -181,7 +181,11 @@ async fn resume_stages_never_opens_and_confirm_opens_on_the_wire() {
     let ctx = Ctx::new(&conv.store, &ui_handle);
     let titles = sessions::query(&ctx, "resume.rows[].title").unwrap();
     let titles = titles.as_array().unwrap();
-    assert_eq!(titles.len(), 3, "three recorded rows folded");
+    // #34b: the list fold MERGES, so the reply's three recorded rows come
+    // first and the seeded open session (dsflash:main, known to the tab)
+    // is retained after them — the #39a live defect was exactly this row
+    // being dropped by the old replace.
+    assert_eq!(titles.len(), 4, "3 recorded rows + the retained open session");
     assert_eq!(titles[0], serde_json::json!("Add session fork"));
 
     // Staging NEVER opens (resume-binding.ts:152): connect's own session/open
@@ -414,7 +418,11 @@ fn lowered_screens_carry_the_live_slots() {
     assert!(live.contains("text: \"Live row\""), "the live title swapped in");
     assert!(live.contains("text: \"dsflash • 5m ago • 7 turns\""), "the live meta grammar (host = the id's profile prefix)");
     assert!(live.contains("text: \"Resume \\\"Live row\\\"?\""), "the staged confirm");
-    assert!(!live.contains("text: \"Add session fork\""), "the authored copy is replaced");
+    // #34b: the fold merges, so the tab-known rows the reply omits are
+    // RETAINED (the web's catalog only adds — App.tsx:747-756); the old
+    // negative (authored copy replaced) encoded the replace that dropped a
+    // running session on the real gate.
+    assert!(live.contains("text: \"Add session fork\""), "the merge retains the tab-known rows");
 
     // Attachments: the count slot follows the draft.
     sessions::seed_attachments(vec![("a.png", 1_258_291)]);
