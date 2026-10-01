@@ -1634,7 +1634,7 @@ impl OctoscodeView {
             let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
             let waker: Arc<dyn Fn() + Send + Sync> = Arc::new(|| SignalToUI::set_ui_signal());
             handle.spawn(async move {
-                match Conversation::connect(&server, &token, &profile, cwd, Some(waker.clone())) {
+                match Conversation::connect(&server, &token, &profile, cwd.clone(), Some(waker.clone())) {
                     Ok((conv, evt_rx)) => {
                         let conv = Arc::new(conv);
                         let mut evt_rx = evt_rx;
@@ -1647,6 +1647,37 @@ impl OctoscodeView {
                             ui.raw_error = None;
                             ui.endpoint_error = None;
                         }
+                        // #32h: THIS is the path the phone's Connect tap takes
+                        // (the startup path I instrumented in 3f52566/156c321
+                        // is env-gated and the phone has no env) — and it
+                        // stopped at "transport live": no profile, no
+                        // session/open, so every later submit had nowhere to
+                        // open a turn (sessions: 0). Ensure a profile that
+                        // EXISTS, adopt it, then open the workspace — all
+                        // logged on the makepad macro. `needs_profile` is
+                        // false for the onboarding arm (the profile it passes
+                        // is server-verified) and for an explicit env.
+                        let needs_profile = std::env::var_os("OCTOS_PROFILE_ID").is_none()
+                            && profile == "octoscode";
+                        if needs_profile {
+                            match conv.create_profile().await {
+                                Ok(id) => {
+                                    conv.adopt_profile(id.clone());
+                                    makepad_widgets::log!("[octoscode] profile ready: {id}");
+                                }
+                                Err(e) => makepad_widgets::log!(
+                                    "[octoscode] profile/local/create failed: {e}"
+                                ),
+                            }
+                        }
+                        if let Err(e) = conv.open_workspace(cwd).await {
+                            makepad_widgets::log!("[octoscode] session/open: {e}");
+                        } else {
+                            makepad_widgets::log!(
+                                "[octoscode] workspace open: {}",
+                                conv.session_id()
+                            );
+                        }
                         // Take over the new transport's event drain.
                         let drv = conv.clone();
                         tokio::spawn(async move {
@@ -1658,6 +1689,7 @@ impl OctoscodeView {
                     }
                     Err(e) => {
                         store.set_connection("Offline".to_owned(), false);
+                        makepad_widgets::log!("[octoscode] transport open failed: {e}");
                         if let Ok(mut ui) = screens.lock() {
                             ui.note_connect_error(&e, &screens::connect::clock_12h());
                         }
