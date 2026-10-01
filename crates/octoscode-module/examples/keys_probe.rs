@@ -249,9 +249,57 @@ impl AppMain for App {
         // schedule from here. Without this call the server never runs (the
         // empty-receipt bug the first drive exposed).
         start_server();
+        // #36c: seed a review preview ONCE so the review sheet's capture shows
+        // real file rows + diff lines. In production the cache is filled by
+        // `review::perform` after a `diff/preview/get` round-trip
+        // (`screens/review.rs:483-491`), which this host never issues — so
+        // without this the body renders the (web-correct) EMPTY state and the
+        // capture cannot show the rows. Same fold, same fixture shape as
+        // f30a; the fixture is the recorded r5-turn preview.
+        seed_review_preview_once();
         self.ui.handle_event(cx, event, &mut Scope::empty());
     }
 }
+
+/// #36c — fold ONE recorded preview into the review cache (see the
+/// `handle_event` call above). Once per process.
+fn seed_review_preview_once() {
+    use std::sync::Once;
+    static ONCE: Once = Once::new();
+    ONCE.call_once(|| {
+        let v: serde_json::Value = serde_json::from_str(REVIEW_PREVIEW_JSON)
+            .expect("the recorded preview fixture must parse");
+        octoscode_module::screens::review::fold_preview(&v);
+        let mut ui = octoscode_module::screens::review::ui();
+        ui.last_turn_id = Some("01920000-0000-7000-8000-0000000000a1".into());
+        ui.preview_id = Some("01920000-0000-7000-8000-0000000000f1".into());
+        ui.blocked = None;
+        makepad_widgets::log!("[keys-probe] review preview seeded (3 files)");
+    });
+}
+
+/// The recorded r5-turn `diff/preview/get` shape, same fixture f30a folds
+/// (`tests/f30a_review.rs:35-59`).
+const REVIEW_PREVIEW_JSON: &str = r##"{
+  "status": "ready", "source": "pending_store",
+  "preview": {"session_id": "dsflash:main", "preview_id": "01920000-0000-7000-8000-0000000000f1",
+    "title": "Working tree",
+    "files": [
+      {"path": "crates/app/src/main.rs", "status": "modified", "hunks": [{"header": "@@",
+        "lines": [
+          {"kind": "context", "content": "fn main() {", "old_line": 1, "new_line": 1},
+          {"kind": "removed", "content": "    run(old);", "old_line": 2},
+          {"kind": "added", "content": "    run(new);", "new_line": 2},
+          {"kind": "added", "content": "    check();", "new_line": 3}
+        ]}]},
+      {"path": "docs/b.md", "status": "added", "hunks": [{"header": "@@",
+        "lines": [
+          {"kind": "added", "content": "# b", "new_line": 1},
+          {"kind": "context", "content": "", "new_line": 2}
+        ]}]},
+      {"path": "docs/c.md", "status": "deleted", "hunks": [{"header": "@@",
+        "lines": [{"kind": "removed", "content": "gone", "old_line": 1}]}]}
+    ]}}"##;
 
 script_mod! {
     use mod.prelude.widgets.*
