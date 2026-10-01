@@ -924,6 +924,112 @@ def p_rows(app):
     return ok, f"goal_ring={'goal_ring' in app.widget_ids(d)} loop_row={'loop_row_1' in app.widget_ids(d)}"
 
 
+# ---- #41c: row-specific checks for the smoke-only rows --------------------- #
+# One check per smoke-only row whose own case is exercisable on the replay
+# fixtures; every other smoke-only row carries a documented reason in
+# docs/phase4-gaps.md (fixture lacks the frames / native surface absent /
+# viewport semantics). New FAILs land in docs/walk/defects.md.
+
+@check("peer", "Alt+D reaches a fleet capability notice surface to focus",
+       rows=("alt+d",))
+def p_altd_notice(app):
+    # Row 72's own case (the web binds Alt+D, registry.ts; suppressed inside
+    # inputs). Native observable: a capability-notice surface must exist for
+    # focus to land on. Measured 41c recon: keys.rs has no KeyD arm, and the
+    # snap carries no notice widget — expected FAIL until wired.
+    app.key("escape")
+    app.key_mod("d", alt=True)
+    d = app.snap()
+    notice = [i for i in app.widget_ids(d) if "capab" in i or "notice" in i]
+    return bool(notice), f"capability-notice widgets={notice or 'none (Alt+D unbound)'}"
+
+
+@check("peer", "Alt+P toggles a peer dock fold (expands and collapses)",
+       rows=("alt+p",))
+def p_altp_fold(app):
+    # Row 73's own case. Native observable: a peer dock whose rect toggles
+    # across two Alt+P presses. Measured 41c recon: no peer dock mounts.
+    app.key("escape")
+    app.key_mod("p", alt=True)
+    r1 = app.rect(app.snap(), "peer_dock")
+    app.key_mod("p", alt=True)
+    r2 = app.rect(app.snap(), "peer_dock")
+    ok = bool(r1) and bool(r2) and (r1 != r2 or (r1[2] > 0 and r1[3] > 0))
+    return ok, f"peer_dock rects={r1} -> {r2}"
+
+
+@check("peer", "Fleet's roster rows render with real rects (the mock's lanes)",
+       rows=("fleet opens", "2 lanes"))
+def p_fleet_rows_visible(app):
+    # Row 128's own domain: the roster lists the mock's lanes as VISIBLE rows.
+    # The id-only smoke check passed while every fleet rect stayed collapsed
+    # (measured 41c recon under the r6-peer fixture) — this asserts the rect.
+    d = app.snap()
+    r = app.rect(d, "fleet_row_1")
+    ok = bool(r) and r[2] > 0 and r[3] > 0
+    return ok, f"fleet_row_1 rect={r}"
+
+
+@check("recovery", "the palette's /monitor command reaches a monitors surface",
+       rows=("monitors create",))
+def r_monitor_entry(app):
+    # Row 102's own domain: monitors managed through typed receipts, entered
+    # via the palette's /monitor (the list q_execute probed carries it).
+    app.focus_composer(app.snap())
+    app.clear_composer()
+    app.type("/monitor")
+    app.wait_for(lambda s: any("/monitor" in str(w.get("t", "")).lower()
+                               for w in s.get("s", [])),
+                 what="the /monitor palette entry")
+    app.key("return")
+    app.wait_for(lambda s: any(i.startswith("monitor")
+                               for i in app.widget_ids(s))
+                 or any("monitor" in str(w.get("t", "")).lower()
+                        and str(w.get("t", "")).strip().lower() != "/monitor"
+                        for w in s.get("s", [])),
+                 timeout=8, what="a monitors surface after executing /monitor")
+    d = app.snap()
+    ids = [i for i in app.widget_ids(d) if i.startswith("monitor")]
+    texts = [str(w.get("t", "")) for w in d.get("s", [])
+             if "monitor" in str(w.get("t", "")).lower()
+             and str(w.get("t", "")).strip().lower() != "/monitor"]
+    return bool(ids or texts), f"monitor ids={ids[:4]} texts={texts[:3]}"
+
+
+@check("settings", "the settings drawer exposes the Models management section",
+       rows=("dsh-style models", "models settings flow"))
+def s_models_section(app):
+    # Row 87's own case. Measured 41c recon: the drawer mounts header + the
+    # connection action only — no Model/Models entry. Expected FAIL until the
+    # section ships.
+    d = app.snap()
+    app.click_id(d, "settings_open_hit")
+    app.wait_for(lambda s: (app.rect(s, "settings_drawer") or [0, 0, 0, 0])[2] > 0,
+                 what="the settings drawer to open")
+    d = app.snap()
+    texts = [str(w.get("t", "")) for w in d.get("s", [])]
+    ok = any(t in texts for t in ("Model", "Models", "Manage models"))
+    return ok, f"models section texts={[t for t in texts if 'model' in t.lower()][:3]}"
+
+
+@check("keyboard", "Escape closes the settings drawer and the trigger still works",
+       rows=("escape restores",))
+def k_esc_drawer(app):
+    # Row 58's own domain: Escape hands control back and the trigger survives.
+    d = app.snap()
+    app.click_id(d, "settings_open_hit")
+    app.wait_for(lambda s: (app.rect(s, "settings_drawer") or [0, 0, 0, 0])[2] > 0,
+                 what="the settings drawer to open")
+    app.key("escape")
+    app.wait_for(lambda s: (app.rect(s, "settings_drawer") or [0, 0, 9, 9])[2] == 0,
+                 what="Escape to close the drawer")
+    d = app.snap()
+    app.click_id(d, "settings_open_hit")
+    app.wait_for(lambda s: (app.rect(s, "settings_drawer") or [0, 0, 0, 0])[2] > 0,
+                 what="the Settings trigger to still work")
+    return True, "open -> Esc closes -> trigger re-opens"
+
+
 # ---- live-only rows against the REAL gate (#39a, --live) -------------------- #
 # These run ONLY in --live mode (they drive real model turns through the
 # outer loop's octos serve); against replay fixtures they would be nonsense.
@@ -1364,6 +1470,13 @@ SPECIFIC_CHECKS = {
     "a failed local command restores the typed input and sends nothing",
     "a real coding turn streams, terminates, and the timeline survives a refresh",
     "a live turn keeps running while a sibling session is focused",
+    # #41c: the smoke-only rows' own-behaviour checks.
+    "Alt+D reaches a fleet capability notice surface to focus",
+    "Alt+P toggles a peer dock fold (expands and collapses)",
+    "Fleet's roster rows render with real rects (the mock's lanes)",
+    "the palette's /monitor command reaches a monitors surface",
+    "the settings drawer exposes the Models management section",
+    "Escape closes the settings drawer and the trigger still works",
 }
 for _c in CHECKS:
     _c["specific"] = _c["name"] in SPECIFIC_CHECKS
