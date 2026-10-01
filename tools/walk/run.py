@@ -930,7 +930,29 @@ def p_rows(app):
 LIVE_CHECK_NAMES = frozenset({
     "a real coding turn streams, terminates, and the timeline survives a refresh",
     "a live turn keeps running while a sibling session is focused",
+    "files the agent delivers render as attachments with captions",
+    "a turn started by another client is disclosed as theirs",
 })
+
+# #41d — the operator's hard cap on REAL model turns for this card. Every
+# live check charges its turns through spend_turn(); the runner refuses to
+# send turn 61.
+LIVE_TURN_BUDGET = 60
+_TURNS = {"used": 0}
+
+
+def turns_used() -> int:
+    return _TURNS["used"]
+
+
+def spend_turn(n: int = 1) -> int:
+    """Charge n REAL model turns to the #41d budget; hard-stop past the cap."""
+    _TURNS["used"] += n
+    if _TURNS["used"] > LIVE_TURN_BUDGET:
+        raise PrereqError(
+            f"#41d turn budget exhausted: {_TURNS['used']} turns > "
+            f"{LIVE_TURN_BUDGET} — no further live sends")
+    return _TURNS["used"]
 
 @check("recovery", "a real coding turn streams, terminates, and the timeline survives a refresh",
        rows=("expected runtime model",))
@@ -952,6 +974,7 @@ def r1_live_turn_refresh(app):
     app.clear_composer(); app.type("what does main.rs print? answer with just the number")
     t_send = time.time()
     app.send()
+    spend_turn()  # #41d budget
     app.wait_for(working, timeout=30, what="the live turn to go live")
     app.wait_for(lambda s: not working(s), timeout=180,
                  what="the live turn to terminate")
@@ -991,6 +1014,7 @@ def c2_live_background(app):
     r = comp(); app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
     app.clear_composer(); app.type("count to three, digits only")
     app.send()
+    spend_turn()  # #41d budget
     app.wait_for(working, timeout=30, what="the background turn to go live")
     # focus a sibling: New chat mints a fresh session
     nb = app.rect(app.snap(), "new_chat_hit") or app.rect(app.snap(), "newchat")
@@ -1016,6 +1040,82 @@ def c2_live_background(app):
     proses_now = proses(app.snap())
     ok = proses_now >= 1
     return ok, f"background turn terminal, prose rows={proses_now}"
+
+
+@check("composer", "files the agent delivers render as attachments with captions",
+       rows=("shows files the agent delivers",))
+def c33_live_deliveries(app):
+    # Row 33's live slice: one short turn asking for two files; the
+    # deliveries must surface in the timeline as laid-out attachment rows
+    # with caption text (the downloads/reload halves stay web-only).
+    def atts(d):
+        return [(str(w.get("i")), (w.get("t") or "")[:40]) for w in d.get("s", [])
+                if "attach" in str(w.get("i", "")).lower()
+                and (w.get("r") or [0, 0, 0, 0])[2] > 0]
+    def working(s):
+        return "workingrow" in app.kinds(s)
+    def comp():
+        for _ in range(24):
+            d = app.snap()
+            r = app.rect_re(d, COMPOSER_INPUT_RE)
+            if r and r[2] > 0:
+                return r
+            time.sleep(0.5)
+    r = comp(); app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
+    app.clear_composer()
+    app.type("create two small files note-a.txt and note-b.txt in this workspace")
+    app.send()
+    spend_turn()  # #41d budget
+    app.wait_for(lambda s: not working(s), timeout=180,
+                 what="the delivery turn to finish")
+    time.sleep(1.5)
+    found = atts(app.snap())
+    ok = len(found) >= 1
+    return ok, f"attachment rows laid out={len(found)} {found[:2]}"
+
+
+@check("conversation", "a turn started by another client is disclosed as theirs",
+       rows=("discloses the other client's turn",))
+def c3_live_foreign_turn(app):
+    # Row 3's live slice: an OUT-OF-BAND turn lands on the same session —
+    # the check itself drives one raw-protocol turn (charged to the #41d
+    # budget) — and the app's session strip must DISCLOSE it as the other
+    # client's instead of claiming it as ours.
+    import base64
+    gate = os.environ.get("OCTOS_LIVE_URL", "http://127.0.0.1:50190")
+    ws_url = gate.replace("http", "ws", 1) + "/api/ui-protocol/ws"
+    token = pathlib.Path(os.environ["OCTOS_LIVE_TOKEN_FILE"]).read_text().strip()
+    from websocket import create_connection  # the audit's dependency
+    ws = create_connection(ws_url, header={"Authorization": f"Bearer {token}"},
+                           timeout=20)
+    def rpc(method, params, mid):
+        ws.send(json.dumps({"jsonrpc": "2.0", "id": str(mid),
+                            "method": method, "params": params}))
+    try:
+        rpc("session/open", {"session_id": "dsflash:main", "profile_id": "dsflash"}, 1)
+        time.sleep(1.0)
+        ws.recv()
+        rpc("turn/start", {"session_id": "dsflash:main", "turn_id": "41d-foreign-1",
+                           "input": [{"kind": "text",
+                                      "text": "reply with just the word: ping"}]}, 2)
+        spend_turn()  # #41d budget — this turn is REAL
+        for _ in range(6):
+            try:
+                ws.recv()
+            except Exception:
+                break
+    finally:
+        ws.close()
+    for _ in range(60):
+        d = app.snap()
+        strip = " ".join((w.get("t") or "") for w in d.get("s", []))
+        low = strip.lower()
+        if any(k in low for k in ("other client", "another client", "remote",
+                                  "not yours", "foreign")):
+            return True, f"strip discloses the foreign turn: {strip[:70]!r}"
+        time.sleep(1)
+    return False, ("no foreign-turn disclosure surfaced in the strip "
+                   "(instrument: which texts carried the turn)")
 
 
 @check("review", "the review panel is mounted with its header and scope pill")
@@ -1570,8 +1670,16 @@ def main():
         # model to RAISE an approval card on its own; not scriptable yet.
         # select_targets EXCLUDES live-only rows (needs == "real-turn" is
         # skipped), so --live builds its targets straight from the rows.
-        wanted = {1, 2}
-        targets = [(i, area_of(r) or "", r)
+        # {1,2,3,33}: the rows the real model can serve today (1 real turn +
+        # restore, 2 background turn, 3 foreign-turn disclosure, 33 file
+        # deliveries) — row 50 needs the model to RAISE an approval card on
+        # its own; the other live-only rows need browser-only state (#41d).
+        wanted = {1, 2, 3, 33}
+        # row 33's case text matches no AREA_PATTERN (area_of -> None), but
+        # its check is registered under "composer" — give the area explicitly
+        # so scenario_for resolves (#41d final-run KeyError '').
+        wanted_area = {33: "composer"}
+        targets = [(i, area_of(r) or wanted_area.get(i, ""), r)
                    for i, r in enumerate(rows, start=1) if i in wanted]
     try:
         procs = LiveGate(args.port) if args.live else Procs(args.port)
@@ -1720,6 +1828,7 @@ def main():
     print(f"   total                {len(out_rows)}")
     print(f"   scripted rows        {len(targets)}  (areas: {areas})")
     print(f"   per-check rows       {len(check_rows)}  (docs/walk/results{live_suffix}-checks.csv)")
+    print(f"   live turns used      {turns_used()} / {LIVE_TURN_BUDGET} (hard cap, #41d)")
     by_depth = Counter((r["status"], r.get("depth", "")) for r in out_rows)
     print(f"   pass by depth        specific={by_depth.get(('pass', 'specific'), 0)}"
           f" smoke={by_depth.get(('pass', 'smoke'), 0)}"
