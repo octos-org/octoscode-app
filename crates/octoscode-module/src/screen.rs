@@ -79,6 +79,26 @@ pub fn thread_rows(store: &Arc<Store>) -> Vec<ThreadRow> {
 /// The timeline rows (the center column), in display order. `live` = a turn is
 /// in flight (`turn.active`), which appends a `working-row` to the last turn.
 pub fn timeline_rows(store: &Arc<Store>, live: bool) -> Vec<Row> {
+    timeline_rows_folded(store, live, &[])
+}
+
+/// [`timeline_rows`] with the person's tool-group folds applied (A1):
+/// a settled turn named in `folded` keeps its "Worked for" header but hides
+/// its tool rows.
+///
+/// A1 display order per turn — the work, then its result:
+///
+/// ```text
+///   user-bubble
+///   worked-for            (settled: the disclosure header, board 4 frame 1)
+///   tool-cell × N         (one card per turn; hidden while folded)
+///   assistant-prose       (the final answer)
+///   working-row           (live tail)  |  answer-actions (settled tail)
+/// ```
+///
+/// Before A1 the answer sat ABOVE the calls that produced it and the
+/// "Worked for" row came after them, detached from the answer it times.
+pub fn timeline_rows_folded(store: &Arc<Store>, live: bool, folded: &[String]) -> Vec<Row> {
     let Some(session) = store.active_session() else {
         return Vec::new();
     };
@@ -106,27 +126,18 @@ pub fn timeline_rows(store: &Arc<Store>, live: bool) -> Vec<Row> {
             out.push(Row { kind: ItemKind::UserBubble, index: *i, turn: turn_of(turn) });
         }
         // assistant-prose: the turn's FINAL assistant text (deltas folded).
-        if let Some((i, _, _)) = group
+        let prose = group
             .iter()
             .filter(|(_, k, t)| {
                 (*k == EntryKind::ASSISTANT_TEXT || *k == crate::screens::palette::REPORT_KIND)
                     && !t.is_empty()
             })
             .next_back()
-        {
             // #P4d3: REPORT_KIND (command receipts) rides the same prose row —
             // a receipt turn's group holds only report rows, and the pick is
             // the FINAL text, so the last receipt wins.
-            out.push(Row { kind: ItemKind::AssistantProse, index: *i, turn: turn_of(turn) });
-        }
-        // tool-cell × N: the turn's tool calls, in order. The `index` is the
-        // tool's ordinal within the turn (the `tools[]` binding's own index).
+            .map(|(i, _, _)| Row { kind: ItemKind::AssistantProse, index: *i, turn: turn_of(turn) });
         let tool_calls = group.iter().filter(|(_, k, _)| *k == EntryKind::TOOL_CALL).count();
-        for k in 0..tool_calls {
-            out.push(Row { kind: ItemKind::ToolCell, index: k, turn: turn_of(turn) });
-        }
-        // tail: a live last turn shows the activity row; a settled turn shows
-        // the worked-for disclosure + the answer actions.
         // #32i item 1: the web removes the working row when the turn
         // completes ("Worked for Ns", timeline/model.ts). The global live
         // flag can OUTLIVE the turn — `turn.active` ORs the session row's
@@ -135,17 +146,34 @@ pub fn timeline_rows(store: &Arc<Store>, live: bool) -> Vec<Row> {
         // no terminal yet. A settled last turn discloses, even with
         // live=true (the "Working · 0s" leftover: flow had cleared, the row
         // fell back to the authored placeholder).
-        let live_tail =
-            is_last && live && store.domains.turn.terminal(turn).is_none();
-        if live_tail {
-            out.push(Row { kind: ItemKind::WorkingRow, index: 0, turn: turn_of(turn) });
+        let live_tail = is_last && live && store.domains.turn.terminal(turn).is_none();
         // **Card #21j**: the settled tail discloses a turn's OWN terminal, so it
         // renders only when that turn actually settled or produced a reply. A
         // turn with neither (e.g. a prompt whose `turn/start` never came back —
         // a replay-driven capture mints such a group) has nothing to disclose;
         // before #21j it rendered a blank pill carrying another turn's label.
-        } else if !group.is_empty() && turn_settled_or_replied(store, turn, group) {
+        let settled = !live_tail && !group.is_empty() && turn_settled_or_replied(store, turn, group);
+        // worked-for: the settled turn's disclosure header, above its work.
+        if settled {
             out.push(Row { kind: ItemKind::WorkedFor, index: 0, turn: turn_of(turn) });
+        }
+        // tool-cell × N: the turn's tool calls, in order. The `index` is the
+        // tool's ordinal within the turn (the `tools[]` binding's own index).
+        // A settled turn the person folded keeps only its header.
+        let folded_here = settled && !turn.is_empty() && folded.iter().any(|t| t == turn);
+        if !folded_here {
+            for k in 0..tool_calls {
+                out.push(Row { kind: ItemKind::ToolCell, index: k, turn: turn_of(turn) });
+            }
+        }
+        if let Some(row) = prose {
+            out.push(row);
+        }
+        // tail: a live last turn shows the activity row; a settled turn shows
+        // the answer actions (copy / feedback / share + time).
+        if live_tail {
+            out.push(Row { kind: ItemKind::WorkingRow, index: 0, turn: turn_of(turn) });
+        } else if settled {
             out.push(Row { kind: ItemKind::AnswerActions, index: 0, turn: turn_of(turn) });
         }
     }
@@ -316,16 +344,31 @@ mod tests {
 
         let rows = timeline_rows(&store, false);
         let kinds: Vec<ItemKind> = rows.iter().map(|r| r.kind).collect();
+        // A1: the work, then its result — the "Worked for" header heads the
+        // turn's tool group (board 4 frame 1), the answer follows the calls
+        // that produced it, the actions close the turn.
         assert_eq!(
             kinds,
             vec![
                 ItemKind::UserBubble,      // user FIRST (not its arrival slot)
-                ItemKind::AssistantProse,  // the folded answer
+                ItemKind::WorkedFor,       // the settled turn's disclosure header
                 ItemKind::ToolCell,        // the tool call
-                ItemKind::WorkedFor,       // settled tail
-                ItemKind::AnswerActions,
+                ItemKind::AssistantProse,  // the folded answer
+                ItemKind::AnswerActions,   // settled tail
             ],
-            "reasoning is folded (no row); user first; answer before tools"
+            "reasoning is folded (no row); user first; header, calls, answer, actions"
+        );
+        // A folded turn keeps its header and answer, hides its calls.
+        let folded = timeline_rows_folded(&store, false, &["t1".to_owned()]);
+        let kinds: Vec<ItemKind> = folded.iter().map(|r| r.kind).collect();
+        assert_eq!(
+            kinds,
+            vec![
+                ItemKind::UserBubble,
+                ItemKind::WorkedFor,
+                ItemKind::AssistantProse,
+                ItemKind::AnswerActions,
+            ]
         );
         // The user row projects the folded user entry.
         let entries = store.domains.session.timeline.entries("s1");

@@ -34,8 +34,11 @@ pub mod actions;
 pub mod bindings;
 pub mod cards;
 pub mod components;
+pub mod conv_layout;
+pub mod credentials;
 pub mod design;
 pub mod fallback;
+pub mod fluid;
 pub mod l0_host;
 pub mod flow;
 pub mod mount;
@@ -48,6 +51,7 @@ use flow::{Conversation, FlowUi};
 // cache types are aliased to bare idents here.
 use mount::MountCache as ComponentMounts;
 use screen::Cache as ScreenCache;
+use conv_layout::Metrics as ConvMetrics;
 
 /// #P4h1 row 306 — install the recents store and purge the legacy v1 cache at
 /// startup (the web's App.tsx:1019-1023). This is the production caller that
@@ -372,53 +376,41 @@ script_mod! {
             }
 
             conversation_column := View {
-                width: Fill height: Fill flow: Down spacing: 6
-                // Card #28e item 2 (board 4): the conversation column is centered
-                // with a max width of 720 px. `align.x: 0.5` centers the
-                // `max_width: 720` child inside the Fill column.
+                width: Fill height: Fill flow: Down spacing: 0
+                // A1: the transcript list spans the whole pane (its scrollbar
+                // sits at the pane's edge, never over a bubble), and each row
+                // centers its content in the web's column
+                // (`clamp(736px, 62vw, 1040px)`, ≥24 px gutters —
+                // `conv_layout::Metrics`): `draw_walk` sets every row's side
+                // padding from the live window width. The composer dock below
+                // centers the composer the same way (`--dsw-layout-chat-wide`).
                 align: Align{x: 0.5 y: 0.0}
                 conversation_inner := View {
-                    width: Fill height: Fill flow: Down spacing: 6
-                    max_width: 720
-                    // #28e2 item 2: the OctoSense dock floats over the window's
-                    // bottom ~90px (measured dock top y≈810 at 1440×900), which
-                    // cut the composer's control row (+ · Ask for approval ·
-                    // model · mic · send) off the captures. Reserve that strip
-                    // so the whole composer card is visible at 1440×900 and
-                    // 900×800 alike.
-                    // #38c (backlog 80b9f33): the shell hands the module a
-                    // window that ends AT the screen's right edge (measured:
-                    // window [54,76,846,603] in a 900-wide scene — 54 px left
-                    // margin, 0 right), so a full-width bubble row and the
-                    // right-aligned `now` timestamp ended at x=900, clipped by
-                    // the screen. The window rect is the shell's; the CONTENT
-                    // must fit it: a right inset keeps the bubble and the
-                    // timestamp inside the column with a margin
-                    // (bubble right ≤ column right − 12, asserted by the walk
-                    // check `the conversation content fits…`).
-                    padding: Inset{bottom: 96 right: 16}
+                    width: Fill height: Fill flow: Overlay
                 // Card #21c item 2: the component IS the item. No native `kind`
                 // label and no row chrome — the row is just the lowered
                 // component plus a transparent hit target.
                 timeline_list := PortalList {
                     width: Fill height: Fill flow: Down drag_scrolling: true
                     // Card #21c L2: tail the newest item so a newly appended
-                    // turn scrolls into view. Without it the list stayed pinned
-                    // to row 0 and turn 2 (`Worked for` alone changed) never
-                    // showed. `auto_tail` only tails while already at the end
-                    // (portal_list.rs:770), so scrolling up to read is preserved.
+                    // turn scrolls into view. `auto_tail` only tails while
+                    // already at the end (portal_list.rs:770), so scrolling up
+                    // to read is preserved.
                     auto_tail: true
                     TimelineItemTpl := View {
                         // Card #21c item 3: the row height comes from the lowered
                         // component (`Splash height: Fit` measures its root), so a
                         // bubble hugs its text and prose is not clipped.
+                        // A1: `padding` left/right is set per draw to center
+                        // the row in the column (draw_walk).
                         width: Fill height: Fit flow: Overlay
+                        padding: Inset{left: 24 right: 24}
                         item_splash := Splash { width: Fill height: Fit }
                         row_hit := Button {
                             width: Fill height: Fill text: ""
                             draw_bg.color: #00000000
-                            draw_bg.color_hover: #00000010
-                            draw_bg.color_down: #00000020
+                            draw_bg.color_hover: #00000000
+                            draw_bg.color_down: #00000000
                             draw_bg.border_size: 0.0
                             draw_bg.color_2: #00000000
                             draw_bg.border_color: #00000000
@@ -426,118 +418,32 @@ script_mod! {
                         }
                     }
                 }
-                // Card #21c item 5: ONE composer — the #16 `composer` component is
-                // the whole input surface (its own input + `+` + mic + send). The
-                // old native TextInput + `Steer now / Send / ×` row is GONE. The
-                // component's own controls live in the Splash isolate and do not
-                // report to the host, so transparent host hit targets are laid
-                // over its fixed control rects (fixed chrome, RULES: measured
-                // layout is for chrome) and routed to the declared action ids.
-                composer_row := View {
-                    width: Fill height: Fit flow: Overlay
-                    composer_splash := Splash { width: Fill height: 190 }
-                    composer_hits := View {
-                        width: Fill height: 190 flow: Overlay
-                        plus_hit := Button {
-                            width: 36 height: 36 text: ""
-                            margin: Inset{left: 5.0 top: 123.0}
-                            draw_bg.color: #00000000
-                            draw_bg.color_hover: #00000010
-                            draw_bg.color_down: #00000020
-                            draw_bg.border_size: 0.0
-                            draw_bg.color_2: #00000000
-                            draw_bg.border_color: #00000000
-                            draw_bg.border_color_2: #00000000
-                            draw_bg.color_hover: #00000000
-                            draw_bg.color_down: #00000000
-                            draw_bg.color_focus: #00000000
-                            draw_bg.color_disabled: #00000000
-                            draw_bg.color_2_hover: #00000000
-                            draw_bg.color_2_down: #00000000
-                            draw_bg.color_2_focus: #00000000
-                            draw_bg.color_2_disabled: #00000000
-                            draw_bg.border_color_hover: #00000000
-                            draw_bg.border_color_down: #00000000
-                            draw_bg.border_color_focus: #00000000
-                            draw_bg.border_color_disabled: #00000000
-                            draw_bg.border_color_2_hover: #00000000
-                            draw_bg.border_color_2_down: #00000000
-                            draw_bg.border_color_2_focus: #00000000
-                            draw_bg.border_color_2_disabled: #00000000
-                        }
-                        mic_hit := Button {
-                            width: 36 height: 36 text: ""
-                            margin: Inset{left: 280.0 top: 121.0}
-                            draw_bg.color: #00000000
-                            draw_bg.color_hover: #00000010
-                            draw_bg.color_down: #00000020
-                            draw_bg.border_size: 0.0
-                            draw_bg.color_2: #00000000
-                            draw_bg.border_color: #00000000
-                            draw_bg.border_color_2: #00000000
-                            draw_bg.color_hover: #00000000
-                            draw_bg.color_down: #00000000
-                            draw_bg.color_focus: #00000000
-                            draw_bg.color_disabled: #00000000
-                            draw_bg.color_2_hover: #00000000
-                            draw_bg.color_2_down: #00000000
-                            draw_bg.color_2_focus: #00000000
-                            draw_bg.color_2_disabled: #00000000
-                            draw_bg.border_color_hover: #00000000
-                            draw_bg.border_color_down: #00000000
-                            draw_bg.border_color_focus: #00000000
-                            draw_bg.border_color_disabled: #00000000
-                            draw_bg.border_color_2_hover: #00000000
-                            draw_bg.border_color_2_down: #00000000
-                            draw_bg.border_color_2_focus: #00000000
-                            draw_bg.border_color_2_disabled: #00000000
-                        }
-                        // #P4a1 — the approval pill's hit target (the
-                        // component's pill art sits at left 49 / top 121,
-                        // 122x46 in the composer artboard): click cycles the
-                        // session's permission mode on the wire.
-                        approval_pill_hit := Button {
-                            width: 122 height: 46 text: ""
-                            margin: Inset{left: 49.0 top: 121.0}
-                            draw_bg.color: #00000000
-                            draw_bg.color_hover: #00000010
-                            draw_bg.color_down: #00000020
-                            draw_bg.border_size: 0.0
-                            draw_bg.color_2: #00000000
-                            draw_bg.border_color: #00000000
-                            draw_bg.border_color_2: #00000000
-                        }
-                        send_hit := Button {
-                            width: 44 height: 44 text: ""
-                            margin: Inset{left: 324.0 top: 115.0}
-                            draw_bg.color: #00000000
-                            draw_bg.color_hover: #00000010
-                            draw_bg.color_down: #00000020
-                            draw_bg.border_size: 0.0
-                            draw_bg.color_2: #00000000
-                            draw_bg.border_color: #00000000
-                            draw_bg.border_color_2: #00000000
-                            draw_bg.color_hover: #00000000
-                            draw_bg.color_down: #00000000
-                            draw_bg.color_focus: #00000000
-                            draw_bg.color_disabled: #00000000
-                            draw_bg.color_2_hover: #00000000
-                            draw_bg.color_2_down: #00000000
-                            draw_bg.color_2_focus: #00000000
-                            draw_bg.color_2_disabled: #00000000
-                            draw_bg.border_color_hover: #00000000
-                            draw_bg.border_color_down: #00000000
-                            draw_bg.border_color_focus: #00000000
-                            draw_bg.border_color_disabled: #00000000
-                            draw_bg.border_color_2_hover: #00000000
-                            draw_bg.border_color_2_down: #00000000
-                            draw_bg.border_color_2_focus: #00000000
-                            draw_bg.border_color_2_disabled: #00000000
-                        }
+                // A1: the empty conversation (Timeline.tsx:111-134,
+                // conversation-02) — centered in the transcript area, shown
+                // while the session has no rows.
+                empty_state := View {
+                    width: Fill height: Fill flow: Down
+                    align: Align{x: 0.5 y: 0.42}
+                    visible: false
+                    empty_splash := Splash { width: Fill height: Fit }
+                }
+                } // conversation_inner
+                // A1: the composer dock — the fluid `composer` component
+                // (fluid.rs) centered at the web's composer width, its side
+                // padding set from the live metrics in sync_chrome. The hit
+                // targets (`plus_hit`, `approval_pill_hit`, `mic_hit`,
+                // `send_hit`) are real controls INSIDE the component now, laid
+                // out by its own flow — no overlay at artboard coordinates.
+                composer_dock := View {
+                    width: Fill height: Fit flow: Down
+                    padding: Inset{left: 24 right: 24 top: 10 bottom: 16}
+                    composer_row := View {
+                        width: Fill height: Fit flow: Down
+                        composer_splash := Splash { width: Fill height: Fit }
                     }
                 }
-            } // conversation_inner
-        }
+            } // conversation_column
+
 
             // #28e3 item 1: flow spacers — at wide windows they reserve the
             // docked panels' room (the panels themselves paint in right-aligned
@@ -1326,6 +1232,18 @@ pub struct OctoscodeView {
     /// copies = skip the whole lower+mount.
     #[rust]
     connect_key: Option<(String, String)>,
+    /// A1 — the mounted Connect card's FIELD inputs: (widget id, `input.*`
+    /// event). The Event::Actions loop routes each one's typed text to its
+    /// event, so the token the person types reaches the connect.
+    #[rust]
+    connect_inputs: Vec<(LiveId, String)>,
+    /// A1 — the remembered token still to be pushed into the freshly mounted
+    /// Connect card's (masked) token input.
+    #[rust]
+    connect_token_pending: bool,
+    /// A1 — the conversation geometry last applied to the dock/rows.
+    #[rust]
+    applied_metrics: Option<ConvMetrics>,
     /// #32h TOP: the composer text the WIDGET currently holds (changed
     /// events and our own set_text keep it current). The store draft is
     /// pushed to the widget ONLY when it differs — a real external change
@@ -1376,6 +1294,34 @@ impl OctoscodeView {
     // #28e4 merge: the #28e2 signature (cx — the palette search field is
     // pre-filled through it) carries main's #29d error-screen seed.
     fn start(&mut self, cx: &mut Cx) {
+        // A1 — the Connect card remembers the last server and ITS token
+        // (credentials.rs; "Stored for this server only"). Prefilled, never
+        // auto-sent: the person still presses Connect.
+        {
+            let (server, token) = credentials::prefill();
+            let b = self.bridge.lock().unwrap();
+            let mut ui = b.screens.lock().unwrap();
+            if let Some(server) = server {
+                ui.endpoint_error = screens::connect::endpoint_error(&server);
+                ui.server = server;
+            }
+            if let Some(token) = token {
+                ui.token = token;
+                self.connect_token_pending = true;
+            }
+        }
+        // A1 — `OCTOSENSE_WINDOW_SIZE=WxH` (the phone-size check, RULES:
+        // "reproduce phone issues on desktop at 360x780") now constrains the
+        // module's own width, so the responsive layout the env selects is
+        // also the width it lays out at (the shell window itself ignores the
+        // env). A width at or above the module's window changes nothing.
+        if let Ok(sz) = std::env::var("OCTOSENSE_WINDOW_SIZE") {
+            if let Some(w) = sz.split_once('x').and_then(|(w, _)| w.parse::<f64>().ok()) {
+                if w > 0.0 {
+                    self.view.walk.max_width = Some(FitBound::Abs(w));
+                }
+            }
+        }
         // #29d — seed the error screen the way the host's crash boundary would
         // (`OCTOSCODE_ERROR_SEED`; the `OCTOSCODE_SYNTHETIC_TIMELINE` precedent:
         // a proof-only seed, no transport). The sample carries secrets so the
@@ -2199,6 +2145,8 @@ impl OctoscodeView {
                             ui.failure = None;
                             ui.raw_error = None;
                             ui.endpoint_error = None;
+                            // A1: the bridge now holds THIS attempt's store.
+                            ui.attempt_attached = true;
                         }
                         // #32h: THIS is the path the phone's Connect tap takes
                         // (the startup path instrumented in 3f52566/156c321 is
@@ -2301,6 +2249,28 @@ impl OctoscodeView {
                 // outer loop's diagnosis — no connect line was ever visible
                 // on the 6T); makepad_widgets::log! reaches the platform log.
                 makepad_widgets::log!("[octoscode] connect: {server}");
+                // A1: "Stored for this server only" — remember the address
+                // (the web's durable endpoint) and this origin's token
+                // (credentials.rs: per origin, 0600). The token is never
+                // logged; only whether one was stored.
+                if let Err(e) = credentials::remember_server(&server) {
+                    makepad_widgets::log!("[octoscode] connect: {e}");
+                }
+                if !token.trim().is_empty() {
+                    match credentials::remember_token(&server, &token) {
+                        Ok(()) => makepad_widgets::log!(
+                            "[octoscode] connect: token stored for {}",
+                            credentials::origin(&server).unwrap_or_default()
+                        ),
+                        Err(e) => makepad_widgets::log!("[octoscode] connect: {e}"),
+                    }
+                }
+                if let Ok(mut ui) = screens.lock() {
+                    ui.connecting = true;
+                    ui.attempt_attached = false;
+                    ui.failure = None;
+                    ui.raw_error = None;
+                }
                 let profile =
                     std::env::var("OCTOS_PROFILE_ID").unwrap_or_else(|_| "octoscode".to_string());
                 connect_now(handle, bridge, store, screens, server, token, profile, true);
@@ -2657,48 +2627,14 @@ impl OctoscodeView {
         // mis-seats the measured DSL to 133x700 while the dock seats and
         // renders it — so first-run mounts through the dock.
         let live = { self.bridge.lock().unwrap().store.is_live() };
-        if !live {
-            let key = {
-                let b = self.bridge.lock().unwrap();
-                let ui = b.screens.lock().unwrap();
-                (ui.server.clone(), ui.token.clone())
-            };
-            if self.connect_key.as_ref() == Some(&key) {
-                // copies unchanged: the mounted card is current.
-            } else {
-                let splash = self.view.splash(cx, ids!(screen_splash));
-                let lowered = {
-                    let b = self.bridge.lock().unwrap();
-                    let ui = b.screens.lock().unwrap();
-                    screens::connect::lower_screen(screens::connect::Screen::Connect, &ui)
-                };
-                match lowered {
-                    Ok(dsl) => {
-                        self.connect_key = Some(key);
-                        // #32h item 1: keep the card's tap wiring — the Event::
-                        // Actions loop routes these (L4). #35b: the same
-                        // `screen_taps` slot every docked card publishes into.
-                        self.screen_taps = screens::connect::wired_taps(&dsl)
-                            .into_iter()
-                            .map(|(n, e)| (LiveId::from_str(&n), e))
-                            .collect();
-                    // #31a item 3: centre the card in the first-run area (not
-                    // over the sidebar header, no left clipping — the arm-A
-                    // probe had it at x=12). A plain View wrapper carries the
-                    // slot's Fill walk and centers the natural-size card via
-                    // align; the lowered string itself stays byte-identical
-                    // (the f21/f29a replay tests assert on it).
-                    let centered = format!(
-                        "View {{\nwidth: Fill height: Fill\nflow: Overlay\nalign: Align{{x: 0.5 y: 0.5}}\n{}\n}}",
-                        dsl
-                    );
-                    if let Err(e) = self.mounts.mount(cx, &splash, &centered) {
-                        makepad_widgets::log!("[octoscode] connect mount: {e}");
-                    }
-                }
-                    Err(e) => makepad_widgets::log!("[octoscode] connect lower: {e}"),
-                }
-            }
+        // A docked OCTOSCODE_SCREEN owns `screen_splash` (mounted above); the
+        // setup names (connect / connect_failed / onboarding) fall through to
+        // the first-run card, as before.
+        let docked_env = std::env::var("OCTOSCODE_SCREEN")
+            .map(|v| !v.is_empty() && !matches!(v.as_str(), "connect" | "connect_failed" | "onboarding"))
+            .unwrap_or(false);
+        if !live && !docked_env {
+            self.mount_connect_card(cx);
         }
         // Card #21d item 5: the `new-chat` component (#16) is the thread
         // column's first row. The row existed but was never mounted, so it
@@ -2722,6 +2658,149 @@ impl OctoscodeView {
     /// Card #28e — move the chrome state (FlowUi flags + store) onto the view:
     /// the first-run swap, the review panel / settings drawer / palette /
     /// dimmer visibility, and the GOALS/LOOPS/FLEET sidebar sections.
+    /// A1 — mount the first-run Connect card ([`fluid::connect_card`]) into
+    /// the screen dock, centered in the pane right of the sidebar.
+    ///
+    /// The mount key covers what the card DRAWS except the typed field texts:
+    /// typing must never remount the inputs (the #32h lesson — a remount
+    /// replaces the focused TextInput). The remembered token is pushed into
+    /// the masked input after each mount; the live endpoint validation line
+    /// is set in place.
+    fn mount_connect_card(&mut self, cx: &mut Cx) {
+        let m = conv_layout::current();
+        let left = if m.density == conv_layout::Density::Phone {
+            0.0
+        } else {
+            conv_layout::SIDEBAR_W
+        };
+        // A Connect still "in flight" after the transport gave up is a failed
+        // attempt (the dial is asynchronous; only a URL error comes back from
+        // `Conversation::connect` itself).
+        {
+            let b = self.bridge.lock().unwrap();
+            let state = b.store.connection();
+            let mut ui = b.screens.lock().unwrap();
+            let gave_up = state == "Failed"
+                || state
+                    .strip_prefix("Reconnecting { attempt: ")
+                    .and_then(|r| r.trim_end_matches(" }").parse::<u32>().ok())
+                    .is_some_and(|n| n >= 2);
+            if ui.connecting && ui.attempt_attached && gave_up {
+                ui.note_connect_error(
+                    "Could not open the Octos UI Protocol connection",
+                    &screens::connect::clock_12h(),
+                );
+            }
+        }
+        let (view, token, endpoint_error) = {
+            let b = self.bridge.lock().unwrap();
+            let ui = b.screens.lock().unwrap();
+            (ui.view(), ui.token.clone(), ui.endpoint_error)
+        };
+        let key = (
+            view.error.clone(),
+            format!(
+                "{}|{}|{}|{:?}|{}",
+                view.error_actions,
+                view.last_tried,
+                view.connecting,
+                m.density,
+                screens::theme::resolved()
+            ),
+        );
+        if self.connect_key.as_ref() != Some(&key) {
+            let dsl = screens::theme::retint_dsl(&fluid::connect_card(&view, &m, left));
+            let splash = self.view.splash(cx, ids!(screen_splash));
+            match self.mounts.mount(cx, &splash, &dsl) {
+                Ok(_) => {
+                    self.connect_key = Some(key);
+                    self.connect_token_pending = true;
+                    // The card's two controls and two fields, routed by id
+                    // (the screen_taps / connect_inputs loops in
+                    // handle_event) to the board-2 action table.
+                    self.screen_taps = vec![
+                        (live_id!(connect_btn), "connect".to_owned()),
+                        (live_id!(connect_solo), "connect.use_local_solo".to_owned()),
+                    ];
+                    self.connect_inputs = vec![
+                        (live_id!(connect_server), "input.server".to_owned()),
+                        (live_id!(connect_token), "input.token".to_owned()),
+                    ];
+                }
+                Err(e) => makepad_widgets::log!("[octoscode] connect mount: {e}"),
+            }
+        }
+        if self.connect_token_pending {
+            self.connect_token_pending = false;
+            if !token.is_empty() {
+                // Masked by the input itself (`is_password: true`); never
+                // logged.
+                self.view
+                    .text_input(cx, &[live_id!(screen_splash), live_id!(connect_token)])
+                    .set_text(cx, &token);
+            }
+        }
+        // The live validation line takes room only while it says something.
+        self.view
+            .label(cx, &[live_id!(screen_splash), live_id!(connect_server_error)])
+            .set_text(cx, endpoint_error.unwrap_or(""));
+        self.view
+            .widget(cx, &[live_id!(screen_splash), live_id!(connect_server_error)])
+            .set_visible(cx, endpoint_error.is_some());
+    }
+
+    /// A1 — track the conversation geometry ([`conv_layout::Metrics`]) from
+    /// the MEASURED layout of the previous frame: the module's own width
+    /// (the shell's WM resizes it without any window event) and the
+    /// conversation pane's (the sidebar, the review panel and the settings
+    /// drawer all narrow it). On a change the lowering cache drops (rows
+    /// embed the column-dependent caps) and the composer dock re-centres;
+    /// the timeline rows read the same metrics per draw.
+    fn track_conversation_geometry(&mut self, cx: &mut Cx) {
+        let win_w = self.view.area().rect(cx).size.x;
+        let pane_w = self
+            .view
+            .widget(cx, ids!(conversation_column))
+            .area()
+            .rect(cx)
+            .size
+            .x;
+        if win_w <= 0.0 {
+            return;
+        }
+        // The responsive breakpoints (sidebar < 760) follow the module's
+        // REAL width: a WM resize of the module window fires no window event
+        // (WindowGeomChange reports the shell's native window).
+        if std::env::var_os("OCTOSENSE_WINDOW_SIZE").is_none() && (win_w - self.window_w).abs() > 0.5 {
+            self.window_w = win_w;
+            SignalToUI::set_ui_signal();
+        }
+        if pane_w <= 0.0 {
+            return;
+        }
+        let changed = conv_layout::set_geometry(win_w, pane_w);
+        let m = conv_layout::current();
+        if !changed && self.applied_metrics == Some(m) {
+            return;
+        }
+        self.applied_metrics = Some(m);
+        if let Some(mut dock) = self.view.view(cx, ids!(composer_dock)).borrow_mut() {
+            let side = m.composer_side_pad();
+            dock.layout.padding.left = side;
+            dock.layout.padding.right = side;
+            let (top, bottom) = match m.density {
+                conv_layout::Density::Desktop => (10.0, 16.0),
+                conv_layout::Density::Phone => (8.0, 10.0),
+            };
+            dock.layout.padding.top = top;
+            dock.layout.padding.bottom = bottom;
+        }
+        // Lowered rows embed the column width (bubble/prose caps): drop the
+        // lowering cache so every visible row re-lowers once.
+        self.cache = ScreenCache::default();
+        self.view.redraw(cx);
+    }
+
     fn sync_chrome(&mut self, cx: &mut Cx) {
         // Card #28e — the headless-capture gate: `OCTOSCODE_CHROME=review|
         // settings|palette|fleet` pre-opens that surface deterministically (a
@@ -2776,6 +2855,14 @@ impl OctoscodeView {
         // #31a: below 760 the sidebar hides but the toggle can bring it back.
         let width_hides_sidebar = self.window_w != 0.0 && self.window_w < 760.0;
         let show_sidebar = !width_hides_sidebar || self.sidebar_open;
+        // A1: at phone width the first-run sidebar hides like the live one;
+        // the Connect card then takes the whole screen.
+        self.view
+            .widget(cx, ids!(first_run_sidebar))
+            .set_visible(cx, !width_hides_sidebar);
+        self.view
+            .widget(cx, ids!(first_run_rule))
+            .set_visible(cx, !width_hides_sidebar);
         self.view.widget(cx, ids!(base)).set_visible(cx, live);
         self.view.widget(cx, ids!(first_run)).set_visible(cx, !live);
         self.view.widget(cx, ids!(threads_column)).set_visible(cx, show_sidebar);
@@ -2944,6 +3031,40 @@ impl Widget for OctoscodeView {
             self.review_files_uid,
             self.review_diff_uid,
         );
+        // A1: the conversation geometry from the measured layout (BEFORE the
+        // lowering cache is taken: a width change drops it).
+        self.track_conversation_geometry(cx);
+        let metrics = conv_layout::current();
+        // A1: the empty conversation — the mark, the question and the hint,
+        // centered over the empty transcript (Timeline.tsx:111-134).
+        {
+            let (empty, workspace) = {
+                let b = self.bridge.lock().unwrap();
+                let rows_empty = screen::timeline_rows(&b.store, false).is_empty();
+                let ws = b.store.active_session().and_then(|s| {
+                    b.store
+                        .domains
+                        .session
+                        .workspace_root(&s)
+                        .and_then(|root| {
+                            std::path::Path::new(root.trim_end_matches('/'))
+                                .file_name()
+                                .map(|n| n.to_string_lossy().to_string())
+                        })
+                });
+                (rows_empty, ws)
+            };
+            self.view.widget(cx, ids!(empty_state)).set_visible(cx, empty);
+            if empty {
+                let dsl = screens::theme::retint_dsl(&fluid::empty_state(workspace.as_deref(), &metrics));
+                let splash = self.view.splash(cx, ids!(empty_splash));
+                if let Err(e) = self.mounts.mount(cx, &splash, &dsl) {
+                    makepad_widgets::log!("[octoscode] empty-state mount: {e}");
+                }
+            }
+        }
+        let row_side = metrics.column_side_pad();
+        let folded = { self.bridge.lock().unwrap().ui.lock().unwrap().folded_turns() };
         // Both the lowering cache and the mount cache are taken OUT of self so the
         // loop body borrows only `bridge` (a local Arc) — `self.view.draw_walk`
         // already holds `self.view`.
@@ -2982,7 +3103,7 @@ impl Widget for OctoscodeView {
                         let live = bindings::query(&ctx, "turn.active")
                             .and_then(|v| v.as_bool())
                             .unwrap_or(false);
-                        let rows = screen::timeline_rows(&b.store, live);
+                        let rows = screen::timeline_rows_folded(&b.store, live, &folded);
                         (live, rows)
                     };
                     let _ = live;
@@ -2990,6 +3111,21 @@ impl Widget for OctoscodeView {
                     while let Some(id) = list.next_visible_item(cx) {
                         let Some(row) = rows.get(id) else { continue };
                         let item = list.item(cx, id, id!(TimelineItemTpl));
+                        // A1: center the row in the web's column (the list
+                        // spans the pane; its scrollbar stays at the edge).
+                        if let Some(mut v) = item.as_view().borrow_mut() {
+                            v.layout.padding.left = row_side;
+                            v.layout.padding.right = row_side;
+                        }
+                        // A1: only the rows that DO something on a click
+                        // carry the hit target (a transparent full-row button
+                        // over prose/bubbles swallowed text interaction).
+                        let clickable = matches!(
+                            row.kind,
+                            components::ItemKind::ToolCell
+                                | components::ItemKind::WorkedFor
+                        );
+                        item.widget(cx, ids!(row_hit)).set_visible(cx, clickable);
                         // Card #21c item 2: no native kind label on screen; the
                         // kind is carried by the component's own node ids in `/g`.
                         let body = cache
@@ -3265,6 +3401,29 @@ impl Widget for OctoscodeView {
                 // (it needs `cx` for the clipboard), so the immutable borrow
                 // would otherwise span the call (E0502). The list is a handful
                 // of (id, action) pairs and only changes on a remount.
+                // A1: the Connect card's FIELDS — their typed text reaches the
+                // board-2 table (`input.server` live validation, `input.token`
+                // for the connect). Before A1 nothing read them, so every
+                // Connect went out with an empty token.
+                let connect_inputs = self.connect_inputs.clone();
+                for (id, ev) in &connect_inputs {
+                    if let Some(text) = self
+                        .view
+                        .text_input(cx, &[live_id!(screen_splash), *id])
+                        .changed(actions)
+                    {
+                        self.perform_screen_action(ev, Some(&text));
+                    }
+                    if self
+                        .view
+                        .text_input(cx, &[live_id!(screen_splash), *id])
+                        .returned(actions)
+                        .is_some()
+                    {
+                        // Enter in either field connects (the web's form submit).
+                        self.perform_screen_action("connect", None);
+                    }
+                }
                 let screen_taps = self.screen_taps.clone();
                 for (id, ev) in &screen_taps {
                     if self
@@ -3386,27 +3545,65 @@ impl Widget for OctoscodeView {
                     let live = bindings::query(&ctx, "turn.active")
                         .and_then(|v| v.as_bool())
                         .unwrap_or(false);
-                    let rows = screen::timeline_rows(&b.store, live);
+                    let folded = b.ui.lock().unwrap().folded_turns();
+                    let rows = screen::timeline_rows_folded(&b.store, live, &folded);
                     (live, rows)
                 };
                 let _ = live;
                 for (item_id, item) in timeline_list.items_with_actions(actions) {
                     let Some(row) = rows.get(item_id) else { continue };
+                    // A1: the copy control is the icon itself (the row no
+                    // longer carries a full-width hit target).
+                    if row.kind == components::ItemKind::AnswerActions
+                        && item.button(cx, ids!(answer_copy_hit)).clicked(actions)
+                    {
+                        if let Some(action) = components::action_for(row.kind, "copy") {
+                            self.perform_action(cx, action, 0);
+                        }
+                        continue;
+                    }
                     if !item.button(cx, ids!(row_hit)).clicked(actions) {
                         continue;
                     }
-                    // Each row kind owns a different control id.
-                    let control = match row.kind {
-                        components::ItemKind::ToolCell => "expand",
-                        components::ItemKind::AnswerActions => "copy",
-                        _ => continue,
-                    };
-                    if let Some(action) = components::action_for(row.kind, control) {
-                        if action == "tool.toggle" {
-                            self.perform_action(cx, action, row.index);
-                        } else {
-                            self.perform_action(cx, action, 0);
+                    match row.kind {
+                        // A1: the "Worked for" header folds / unfolds its
+                        // turn's tool group (`answer.expand`, the disclosure
+                        // the worked-for row owns — UI-local, per turn).
+                        components::ItemKind::WorkedFor => {
+                            if let Some(turn) = row.turn.as_deref() {
+                                let folded = {
+                                    let b = self.bridge.lock().unwrap();
+                                    let mut u = b.ui.lock().unwrap();
+                                    u.toggle_turn_fold(turn)
+                                };
+                                makepad_widgets::log!(
+                                    "[octoscode] answer.expand: turn {turn} tools {}",
+                                    if folded { "folded" } else { "shown" }
+                                );
+                                self.view.redraw(cx);
+                            }
                         }
+                        // A1: a tool row discloses ITS OWN call's output — the
+                        // row's turn + ordinal resolve the call id (the flow's
+                        // global `tools[index]` named another turn's call).
+                        components::ItemKind::ToolCell => {
+                            let key = {
+                                let b = self.bridge.lock().unwrap();
+                                let ctx = bindings::Ctx::new(&b.store, &b.ui);
+                                components::tool_key(&ctx, row.index, row.turn.as_deref())
+                            };
+                            let open = {
+                                let b = self.bridge.lock().unwrap();
+                                let mut u = b.ui.lock().unwrap();
+                                u.toggle_expanded(&key)
+                            };
+                            makepad_widgets::log!(
+                                "[octoscode] tool.toggle: {key} {}",
+                                if open { "open" } else { "closed" }
+                            );
+                            self.view.redraw(cx);
+                        }
+                        _ => {}
                     }
                 }
                 // Card #28e — the board-4 chrome controls. #40b: the sidebar
