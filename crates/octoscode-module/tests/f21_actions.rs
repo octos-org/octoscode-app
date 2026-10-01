@@ -269,3 +269,41 @@ async fn routed_item_actions_reach_the_protocol_on_the_replay_server() {
         );
     }
 }
+
+// #34b — New chat must not drop the previous session when the session/list
+// reply lags the tab (the #39a row-2 live defect: the sidebar emptied and the
+// running turn became unreachable). This stub's list reply names ONLY
+// dsflash:main — a fresh chat's id is NEVER in it — so the session/opened
+// seed (the web's known-session registry) plus the merge fold are what keep
+// both rows and a non-dangling active id.
+#[tokio::test]
+async fn new_chat_keeps_the_previous_session_when_the_list_reply_lags() {
+    let server = ReplayServer::start(fixture()).await;
+    let (conv, _events) =
+        Conversation::connect(&server.base_url, "dummy", "dsflash", None, None).expect("connect");
+    conv.open_workspace(None).await.expect("session/open");
+    // Let the handshake settle so the initial list reply is folded.
+    tokio::time::sleep(Duration::from_millis(60)).await;
+    assert!(
+        conv.store.sessions().iter().any(|s| s.id == "dsflash:main"),
+        "the initial session is listed"
+    );
+
+    let fresh = conv.new_chat(None).await.expect("new chat");
+    assert_ne!(fresh, "dsflash:main");
+
+    // The seed is SYNCHRONOUS with the open (open_workspace_as adopts and
+    // seeds before folding the reply), so the settled state is immediate.
+    let listed = conv.store.sessions();
+    let ids: Vec<&str> = listed.iter().map(|s| s.id.as_str()).collect();
+    assert!(
+        ids.contains(&"dsflash:main"),
+        "the previous session survives a lagging reply: {ids:?}"
+    );
+    assert!(ids.contains(&fresh.as_str()), "the fresh session is listed: {ids:?}");
+    assert_eq!(
+        conv.store.active_session().as_deref(),
+        Some(fresh.as_str()),
+        "the fresh chat is active — the reply omitted it, the seed must prevent the dangle"
+    );
+}
