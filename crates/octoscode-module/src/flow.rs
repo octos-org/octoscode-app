@@ -503,6 +503,40 @@ impl Conversation {
     /// The base URL carries the web's `ui_feature=` query params
     /// ([`octoscode_client::features`]) — our transport clones `base_url`
     /// verbatim, so they reach the socket as the web sends them.
+        /// #32h: discover a REAL profile id before the WS upgrade. The server
+    /// accepts any `X-Profile-Id` on the socket, but the session is scoped
+    /// to that header — a non-existent profile never answers session/open
+    /// (the silent submit: the baked "octoscode" does not exist). The solo
+    /// login (POST api/auth/solo — anonymous, the web's "Use local solo
+    /// server" flow) returns the server's local user whose id IS a verified
+    /// top-level profile id (`resolve_solo_user` keeps only users passing
+    /// `is_top_level_profile_id` — solo_auth.rs:127, auth_handlers.rs:59).
+    /// None = discovery unavailable; the caller falls back and the ensure
+    /// chain still guards the session.
+    pub async fn discover_solo_profile(base: &str) -> Option<String> {
+        let url = format!("{}/api/auth/solo", base.trim_end_matches('/'));
+        let call = reqwest::Client::new()
+            .post(&url)
+            .json(&serde_json::json!({}))
+            .send();
+        let resp = tokio::time::timeout(std::time::Duration::from_secs(15), call)
+            .await
+            .ok()?
+            .ok()?;
+        let body: serde_json::Value = tokio::time::timeout(
+            std::time::Duration::from_secs(15),
+            resp.json(),
+        )
+        .await
+        .ok()?
+        .ok()?;
+        let id = body.get("user")?.get("id")?.as_str()?.to_owned();
+        if id.is_empty() {
+            return None;
+        }
+        Some(id)
+    }
+
     pub fn connect(
         base: &str,
         bearer: &str,

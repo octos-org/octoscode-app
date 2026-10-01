@@ -1630,11 +1630,41 @@ impl OctoscodeView {
                                 screens: Arc<Mutex<screens::connect::ConnectUi>>,
                                 server: String,
                                 token: String,
-                                profile: String| {
+                                profile: String,
+                                discover: bool| {
             let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
             let waker: Arc<dyn Fn() + Send + Sync> = Arc::new(|| SignalToUI::set_ui_signal());
             handle.spawn(async move {
-                match Conversation::connect(&server, &token, &profile, cwd.clone(), Some(waker.clone())) {
+                // #32h: discover a REAL profile id BEFORE the upgrade — the
+                // X-Profile-Id header is baked into TransportConfig at
+                // connect time and the session is scoped to it: the outer
+                // loop's curl shows ANY header gets the 101, but a
+                // non-existent profile never answers session/open (the
+                // silent submit). The solo login's user.id is a server-
+                // verified top-level profile id; an explicit
+                // OCTOS_PROFILE_ID (the desktop gate) is honored as-is; the
+                // onboarding arm passes discover=false (its id already comes
+                // from the server).
+                let effective = if discover {
+                    match std::env::var("OCTOS_PROFILE_ID") {
+                        Ok(explicit) => explicit,
+                        Err(_) => match Conversation::discover_solo_profile(&server).await {
+                            Some(id) => {
+                                makepad_widgets::log!("[octoscode] profile discovered: {id}");
+                                id
+                            }
+                            None => {
+                                makepad_widgets::log!(
+                                    "[octoscode] profile discovery unavailable — falling back to {profile}"
+                                );
+                                profile
+                            }
+                        },
+                    }
+                } else {
+                    profile
+                };
+                match Conversation::connect(&server, &token, &effective, cwd.clone(), Some(waker.clone())) {
                     Ok((conv, evt_rx)) => {
                         let conv = Arc::new(conv);
                         let mut evt_rx = evt_rx;
@@ -1666,7 +1696,7 @@ impl OctoscodeView {
                         let conv2 = conv.clone();
                         tokio::spawn(async move {
                             makepad_widgets::log!(
-                                "[octoscode] live: profile={profile} env_profile={}",
+                                "[octoscode] live: profile={effective} env_profile={}",
                                 std::env::var_os("OCTOS_PROFILE_ID").is_some()
                             );
                             let open = async {
@@ -1750,7 +1780,7 @@ impl OctoscodeView {
                 makepad_widgets::log!("[octoscode] connect: {server}");
                 let profile =
                     std::env::var("OCTOS_PROFILE_ID").unwrap_or_else(|_| "octoscode".to_string());
-                connect_now(handle, bridge, store, screens, server, token, profile);
+                connect_now(handle, bridge, store, screens, server, token, profile, true);
             }
             // The web's `onConfigured` (`onboarding-submission.ts:126`): once
             // the provider is saved, open the canonical session — here a
@@ -1787,7 +1817,7 @@ impl OctoscodeView {
                             }
                             connect_now(
                                 handle, bridge, store2, screens2, server,
-                                String::new(), out.profile_id,
+                                String::new(), out.profile_id, false,
                             );
                         }
                         Err(e) => {

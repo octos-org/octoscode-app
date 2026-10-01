@@ -5191,6 +5191,7 @@ dependencies = [
  "octoscript-render",
  "octoscript-ui-l0",
  "octoscript-widgets",
+ "reqwest 0.12.28",
  "serde",
  "serde_json",
  "tokio",
