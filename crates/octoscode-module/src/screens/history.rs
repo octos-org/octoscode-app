@@ -282,52 +282,60 @@ pub fn blocked_reason(store: &Store, session_id: &str, mode: HistoryMode) -> Opt
     // workspace (a file undo touches every conversation in it); for rewind/fork,
     // the bound record only. Ported onto the state the native store actually
     // keeps: a live turn, a standing question, or unsettled recovery.
-    let question_pending = store
-        .domains
-        .approval
-        .question()
-        .map(|q| q.session_id == session_id)
-        .unwrap_or(false);
-    let recovery_unsettled = store.domains.config.recovery(session_id).phase
-        != octoscode_store::domains::config::LossyPhase::Healthy;
-    let busy = |id: &str| -> bool {
-        // A turn in flight anywhere on this connection.
-        store.domains.turn.in_flight_count() > 0
+    // The web's "affected" set: for undo, every open record in the same
+    // workspace (a file undo touches every conversation in it); for rewind/fork,
+    // the bound record only. Ported onto the state the native store keeps.
+    //
+    // `Turns` tracks in-flight turns in ONE global set (no per-session map), so
+    // live-turn state is only attributable to the BOUND record. A sibling is
+    // judged on the per-session signals alone — that is what makes row 4's rule
+    // hold: a busy sibling in the same workspace blocks, a busy record in
+    // ANOTHER workspace does not.
+    let live_turn = store.domains.turn.in_flight_count() > 0;
+    let busy = |id: &str, own: bool| -> bool {
+        // A live turn for this session (`SessionInfo.active_turn`).
+        store
+            .domains
+            .session
+            .list()
+            .iter()
+            .any(|s| s.id == id && s.active_turn)
+            // The unattributable global in-flight set, bound-scoped only.
+            || (own && live_turn)
+            // A standing question awaiting the person, for this session.
             || store
                 .domains
-                .session
-                .list()
-                .iter()
-                .any(|s| s.id == id && s.active_turn)
-            || (id == session_id && question_pending)
+                .approval
+                .question()
+                .map(|q| q.session_id == id)
+                .unwrap_or(false)
+            // Recovery not settled: the engine marks a lossy session unready.
             || store.domains.config.recovery(id).phase
                 != octoscode_store::domains::config::LossyPhase::Healthy
     };
     match mode {
         HistoryMode::Undo => {
+            // Siblings: SAME workspace only (the web's `workspaceRoot` arm).
             let workspace = store.domains.session.workspace_root(session_id);
             for sibling in store.domains.session.list() {
-                if busy(&sibling.id)
+                if sibling.id == session_id {
+                    continue;
+                }
+                if busy(&sibling.id, false)
                     && store.domains.session.workspace_root(&sibling.id) == workspace
                 {
                     return Some(SETTLE.to_owned());
                 }
             }
-            // `session/list` may not carry the bound record itself; check it too.
-            if busy(session_id) {
+            if busy(session_id, true) {
                 return Some(SETTLE.to_owned());
             }
         }
         _ => {
-            if busy(session_id) {
+            if busy(session_id, true) {
                 return Some(SETTLE.to_owned());
             }
         }
-    }
-    // The web checks recovery per candidate as its own `state.recovery.phase`
-    // arm; the bound record's own unsettled recovery blocks every mode.
-    if recovery_unsettled {
-        return Some(SETTLE.to_owned());
     }
     None
 }
