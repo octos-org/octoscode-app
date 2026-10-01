@@ -650,6 +650,27 @@ script_mod! {
                 Label { width: Fill height: Fit text: "Permissions" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
                 Label { width: Fill height: Fit text: "Sandbox" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
                 Label { width: Fill height: Fit text: "Context" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
+                // #34a row 165 — the web keeps the server connection actions
+                // in General settings (product.spec.ts:1435: "Octos server",
+                // Disconnect -> token screen -> Connect). The drawer gains the
+                // General section with the action; the click flips the store's
+                // connection row to Offline (the same state the transport-loss
+                // path sets) and logs, never silently.
+                Label { width: Fill height: Fit text: "General" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
+                settings_conn := View {
+                    width: Fill height: Fit flow: Right spacing: 8
+                    Label { width: Fill height: Fit text: "Octos server" draw_text.text_style.font_size: 12 }
+                    settings_disconnect := Button {
+                        width: Fit height: Fit text: "Disconnect"
+                        draw_bg.color: #00000000
+                        draw_bg.color_hover: #00000010
+                        draw_bg.color_down: #00000020
+                        draw_bg.border_size: 0.0
+                        draw_bg.color_2: #00000000
+                        draw_bg.border_color: #00000000
+                        draw_bg.border_color_2: #00000000
+                    }
+                }
             }
         }
 
@@ -2143,6 +2164,7 @@ impl Widget for OctoscodeView {
                 for (item_id, item) in thread_list.items_with_actions(actions) {
                     if item.button(cx, ids!(row_hit)).clicked(actions) {
                         self.perform_action("thread.open", item_id);
+
                     }
                 }
                 let timeline_list = self.view.portal_list(cx, ids!(timeline_list));
@@ -2183,6 +2205,19 @@ impl Widget for OctoscodeView {
                 }
                 if self.view.button(cx, ids!(settings_close)).clicked(actions) {
                     self.perform_action("settings.toggle", 0);
+                }
+                // #34a row 165 — the drawer's General section carries the
+                // server connection action (product.spec.ts:1435). The native
+                // Disconnect flips the store's connection row to Offline —
+                // the same state the transport-loss path sets — and logs;
+                // never a silent no-op.
+                if self.view.button(cx, ids!(settings_disconnect)).clicked(actions) {
+                    let b = self.bridge.lock().unwrap();
+                    b.store.set_connection("Offline".to_owned(), false);
+                    ::log::info!(
+                        "octoscode: settings.disconnect — connection set Offline \
+                         (reconnect via the connect screen)"
+                    );
                 }
                 // #31a: the <760 sidebar toggle.
                 if self.view.button(cx, ids!(sidebar_toggle_hit)).clicked(actions) {
