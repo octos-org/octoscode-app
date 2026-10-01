@@ -2553,6 +2553,30 @@ impl Widget for OctoscodeView {
     }
 
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        // #36g device round: on Android the platform marks itself packaged
+        // (package_root = Some("makepad"), android.rs:3455) but the packaged
+        // script-resource branch is compiled OUT for android (res.rs,
+        // #[cfg(not(target_os = "android"))]), so EVERY script resource —
+        // the svgs among them — silently lands CxScriptResourceData::Error
+        // (the res.rs tail) and DrawSvg draws 0x0 (the phone /snap: every
+        // Svg is [0,0,0,0], the shell's own chevron included). package_root
+        // is pub (cx.rs:67): clearing it routes loads through load_file_direct —
+        // the materialized root's absolute paths, which exist in the app's
+        // files dir (the fonts already load from there). A failed svg load
+        // is retried on every draw (load_svg never caches a missing
+        // handle), so the icons recover on the next frame after this runs.
+        #[cfg(target_os = "android")]
+        {
+            static PKG_ROOT_CLEARED: std::sync::OnceLock<()> = std::sync::OnceLock::new();
+            PKG_ROOT_CLEARED.get_or_init(|| {
+                if cx.package_root.is_some() {
+                    cx.package_root = None;
+                    makepad_widgets::log!(
+                        "[octoscode] package_root cleared: script resources load from the materialized root (android's packaged branch is compiled out)"
+                    );
+                }
+            });
+        }
         self.view.handle_event(cx, event, scope);
         if !self.started {
             self.started = true;
@@ -2782,6 +2806,28 @@ impl Widget for OctoscodeView {
             // Card #31e — the keyboard surface routes through the ONE
             // resolver (`screens::keys::resolve`); every rule cites its web
             // source there. #28e's chrome chords are preserved in the table.
+            // #36g device round: the 6T never sees a key event for the
+            // keyboard's Enter and the IME commits no trailing newline (the
+            // /log shows draft synced 1..8 then send_hit clicked, no submit
+            // line). The platform route that DOES fire:
+            // performEditorAction (MakepadInputConnection.java:832) ->
+            // onImeEditorAction -> android.rs constructs Event::ImeAction
+            // (:1491-1492). The action button on the single-line composer IS
+            // Enter (the web: bare Enter submits, ComposerInput.tsx:237-243).
+            // Android-only: desktop submits via KeyDown ReturnKey already.
+            #[cfg(target_os = "android")]
+            Event::ImeAction(_) => {
+                let palette_open = {
+                    let b = self.bridge.lock().unwrap();
+                    b.ui.lock().unwrap().palette_open()
+                };
+                if palette_open {
+                    makepad_widgets::log!("[octoscode] ime action ignored (palette open)");
+                } else {
+                    makepad_widgets::log!("[octoscode] ime action -> submit (IME Enter)");
+                    self.perform_action(bindings::ACTION_SUBMIT, 0);
+                }
+            }
             Event::KeyDown(e) => {
                 let (ui, store, conv) = {
                     let b = self.bridge.lock().unwrap();
