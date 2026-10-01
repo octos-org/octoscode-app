@@ -605,6 +605,46 @@ pub fn query(ui: &PairingUi, id: &str) -> Option<Value> {
 /// It is deliberately absent rather than stubbed: adding an `Option<Value>`
 /// that is always `None` would imply a store path that does not exist.
 
+/// The UI-local pairing state this screen keeps between taps (the web keeps it
+/// in component state too). One `OnceLock`, the shape `workspace.rs:117-123`
+/// established, so a production mount can read the live state without threading
+/// a handle through the shell.
+fn state() -> std::sync::MutexGuard<'static, PairingUi> {
+    static STATE: std::sync::OnceLock<std::sync::Mutex<PairingUi>> =
+        std::sync::OnceLock::new();
+    STATE
+        .get_or_init(|| std::sync::Mutex::new(PairingUi::new()))
+        .lock()
+        .unwrap()
+}
+
+/// Replace the live pairing state (the shell's action path).
+pub fn set(ui: PairingUi) {
+    *state() = ui;
+}
+
+/// Apply one effect to the LIVE state and return the transport effect. This is
+/// the production entry point the action path calls; [`resolve_in`] +
+/// [`apply`] stay pure for the tests.
+pub fn perform(id: &str, value: Option<&str>) -> Option<Effect> {
+    let effect = {
+        let ui = state();
+        resolve_in(id, value, &ui)
+    };
+    let mut ui = state();
+    let out = apply(&mut ui, effect);
+    let _ = &mut ui;
+    out
+}
+
+/// The live pairing card, for the production mount. Without this the screen is
+/// reachable only from a test, and RULES.md "production path" would score it
+/// missing.
+pub fn lower_mounted() -> Result<String, String> {
+    let ui = state();
+    lower_screen(ui.screen, &ui)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

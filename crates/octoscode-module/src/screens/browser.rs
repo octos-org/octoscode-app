@@ -490,6 +490,42 @@ fn json_u32(n: u32) -> Value {
     Value::from(n)
 }
 
+/// The live browser state between taps (the web keeps it in reducer state).
+/// One `OnceLock`, the shape `workspace.rs:117-123` established.
+fn state() -> std::sync::MutexGuard<'static, BrowserUi> {
+    static STATE: std::sync::OnceLock<std::sync::Mutex<BrowserUi>> =
+        std::sync::OnceLock::new();
+    STATE
+        .get_or_init(|| std::sync::Mutex::new(BrowserUi::default()))
+        .lock()
+        .unwrap()
+}
+
+/// Replace the live browser state (the transport's listing result).
+pub fn set(ui: BrowserUi) {
+    *state() = ui;
+}
+
+/// Apply one action to the LIVE state and return the transport effect. The
+/// production entry point; [`resolve`] + [`apply`] stay pure for the tests.
+pub fn perform(id: &str, value: Option<&str>) -> Option<Effect> {
+    apply(&mut state(), resolve(id, value))
+}
+
+/// A whitelisted refusal from the transport, routed to the live state: the
+/// current folder and the last good listing survive (walk 221).
+pub fn perform_refused(typed: bool, kind: &str, banned_root: Option<String>) {
+    if let Some(r) = refusal_from(typed, kind, banned_root) {
+        apply(&mut state(), Effect::Refused(r));
+    }
+}
+
+/// The live browser card, for the production mount.
+pub fn lower_mounted() -> Result<String, String> {
+    let ui = state();
+    lower_screen(ui.screen, &ui)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

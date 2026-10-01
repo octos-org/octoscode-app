@@ -473,6 +473,42 @@ pub fn query(ui: &ProviderUi, id: &str) -> Option<Value> {
     }
 }
 
+/// The live editor state between taps (the web keeps it in component state
+// too). One `OnceLock`, the shape `workspace.rs:117-123` established.
+fn state() -> std::sync::MutexGuard<'static, ProviderUi> {
+    static STATE: std::sync::OnceLock<std::sync::Mutex<ProviderUi>> =
+        std::sync::OnceLock::new();
+    STATE
+        .get_or_init(|| std::sync::Mutex::new(ProviderUi::new("deepseek")))
+        .lock()
+        .unwrap()
+}
+
+/// Replace the live draft (the shell's action path / a family change).
+pub fn set(ui: ProviderUi) {
+    *state() = ui;
+}
+
+/// Apply one action to the LIVE draft and return the transport effect. The
+/// production entry point; [`resolve`] + [`apply`] stay pure for the tests.
+pub fn perform(id: &str, value: Option<&str>) -> Option<Effect> {
+    apply(&mut state(), resolve(id, value))
+}
+
+/// A typed refusal from the transport, routed to the live draft so the copy is
+/// redacted against the key BEFORE it can reach a copy id.
+pub fn perform_failed(reason: &str) {
+    apply(&mut state(), Effect::Failed {
+        reason: reason.to_owned(),
+    });
+}
+
+/// The live editor card, for the production mount.
+pub fn lower_mounted() -> Result<String, String> {
+    let ui = state();
+    lower_screen(ui.screen, &ui)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

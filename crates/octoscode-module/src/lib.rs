@@ -1039,8 +1039,37 @@ pub(crate) struct Bridge {
 /// notification-distribution path belongs to the client domain's card, and
 /// the fake server's frames never reached it (nine probe rounds showed the
 /// store empty while the wire carried the pushes).
-fn seed_approvals(store: &Arc<Store>) {
-    use octoscode_store::domains::approval::PendingApproval;
+/// Which #D1 screen set owns a name in `OCTOSCODE_SCREEN`.
+///
+/// The nine phase4 cards are one board with three seams: the five pairing cards
+/// (`screens::pairing`), the two provider-editor cards (`screens::provider`)
+/// and the two folder-browser cards (`screens::browser`). Each set owns its own
+/// action ids — `fd1_phase4_wiring.rs::the_three_sets_do_not_overlap` pins that
+/// an id is never claimed twice.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Phase4Set {
+    Pairing,
+    Provider,
+    Browser,
+}
+
+/// Map an `OCTOSCODE_SCREEN` name to the #D1 screen set that owns it, or `None`
+/// when the name is not one of #D1's nine cards.
+///
+/// The names are the atlas's own screen numbers, so a screenshot in a report
+/// names the same card the env var mounts. WHICH card of the set is mounted is
+/// the set's own live state (`<set>::lower_mounted`), not this table's job —
+/// that is why the enum is all this needs to carry.
+fn phase4_screen(which: &str) -> Option<Phase4Set> {
+    Some(match which {
+        "p4-01" | "p4-02" | "p4-03" | "p4-04" | "p4-05" => Phase4Set::Pairing,
+        "p4-06" | "p4-07" => Phase4Set::Provider,
+        "p4-08" | "p4-09" => Phase4Set::Browser,
+        _ => return None,
+    })
+}
+
+fn seed_approvals(store: &Arc<Store>) {    use octoscode_store::domains::approval::PendingApproval;
     for id in ["a1-approve-me", "a2-approve-session", "a3-deny-me"] {
         store.domains.approval.push(PendingApproval {
             id: id.to_owned(),
@@ -2246,6 +2275,18 @@ impl OctoscodeView {
             }
             let lowered = if screens::theme::card_for(&which).is_some() {
                 screens::theme::lower(&which, &store)
+            } else if let Some(set) = phase4_screen(&which) {
+                // #D1: the nine phase4 cards (pairing p4-01..05, the provider
+                // editor p4-06/07, the workspace browser p4-08/09). They live
+                // under design/stage-b/phase4, not stage-b/setup, so they miss
+                // the theme/palette lookup above and need their own arm. WHICH
+                // card of the set mounts is the set's own live state, so the
+                // name only has to say who owns it.
+                match set {
+                    Phase4Set::Pairing => screens::pairing::lower_mounted(),
+                    Phase4Set::Provider => screens::provider::lower_mounted(),
+                    Phase4Set::Browser => screens::browser::lower_mounted(),
+                }
             } else {
                 crate::screens::palette::lower_screen(&which, &store)
             };
