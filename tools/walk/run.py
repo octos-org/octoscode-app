@@ -982,13 +982,15 @@ def r_monitor_entry(app):
                                for w in s.get("s", [])),
                  what="the /monitor palette entry")
     app.key("return")
-    app.wait_for(lambda s: any(i.startswith("monitor")
-                               for i in app.widget_ids(s))
-                 or any("monitor" in str(w.get("t", "")).lower()
-                        and str(w.get("t", "")).strip().lower() != "/monitor"
-                        for w in s.get("s", [])),
-                 timeout=8, what="a monitors surface after executing /monitor")
-    d = app.snap()
+    try:
+        d = app.wait_for(lambda s: any(i.startswith("monitor")
+                                       for i in app.widget_ids(s))
+                         or any("monitor" in str(w.get("t", "")).lower()
+                                and str(w.get("t", "")).strip().lower() != "/monitor"
+                                for w in s.get("s", [])),
+                         timeout=8, what="a monitors surface after executing /monitor")
+    except AssertionError:
+        d = app.snap()
     ids = [i for i in app.widget_ids(d) if i.startswith("monitor")]
     texts = [str(w.get("t", "")) for w in d.get("s", [])
              if "monitor" in str(w.get("t", "")).lower()
@@ -1009,10 +1011,11 @@ def s_models_section(app):
     d = app.snap()
     texts = [str(w.get("t", "")) for w in d.get("s", [])]
     ok = any(t in texts for t in ("Model", "Models", "Manage models"))
+    app.key("escape")  # hygiene: leave the drawer closed for later checks
     return ok, f"models section texts={[t for t in texts if 'model' in t.lower()][:3]}"
 
 
-@check("keyboard", "Escape closes the settings drawer and the trigger still works",
+@check("recovery", "Escape closes the settings drawer and the trigger still works",
        rows=("escape restores",))
 def k_esc_drawer(app):
     # Row 58's own domain: Escape hands control back and the trigger survives.
@@ -1027,7 +1030,12 @@ def k_esc_drawer(app):
     app.click_id(d, "settings_open_hit")
     app.wait_for(lambda s: (app.rect(s, "settings_drawer") or [0, 0, 0, 0])[2] > 0,
                  what="the Settings trigger to still work")
-    return True, "open -> Esc closes -> trigger re-opens"
+    # Hygiene: close the drawer so later area runs start clean (it overlays
+    # the composer's right half otherwise).
+    app.key("escape")
+    app.wait_for(lambda s: (app.rect(s, "settings_drawer") or [0, 0, 9, 9])[2] == 0,
+                 what="the drawer to close again")
+    return True, "open -> Esc closes -> trigger re-opens -> Esc closes"
 
 
 # ---- live-only rows against the REAL gate (#39a, --live) -------------------- #
@@ -1302,6 +1310,35 @@ def k_focus(app):
     return ok, f"sidebar={'sidebar_toggle_hit' in ids} new_chat={'new_chat_hit' in ids}"
 
 
+@check("keyboard", "the a11y keyboard guarantees hold: Cmd+K, Esc, / all route",
+       rows=("a11y",))
+def k_a11y_semantics(app):
+    # Row 172's own case (the a11y batch): the shell's keyboard model —
+    # Cmd+K opens the palette, Esc closes it, / re-opens, Esc closes.
+    app.key("escape")
+    app.key_mod("k", cmd=True)
+    app.wait_for(lambda s: any(str(w.get("i", "")).startswith("palette_row")
+                               and (w.get("r") or [0, 0, 0, 0])[2] > 0
+                               for w in s.get("s", [])),
+                 what="Cmd+K to open the palette")
+    app.key("escape")
+    app.wait_for(lambda s: not any(str(w.get("i", "")).startswith("palette_row")
+                                   and (w.get("r") or [0, 0, 0, 0])[2] > 0
+                                   for w in s.get("s", [])),
+                 what="Esc to close the palette")
+    app.type("/")
+    app.wait_for(lambda s: any(str(w.get("i", "")).startswith("palette_row")
+                               and (w.get("r") or [0, 0, 0, 0])[2] > 0
+                               for w in s.get("s", [])),
+                 what="'/' to open the palette")
+    app.key("escape")
+    app.wait_for(lambda s: not any(str(w.get("i", "")).startswith("palette_row")
+                                   and (w.get("r") or [0, 0, 0, 0])[2] > 0
+                                   for w in s.get("s", [])),
+                 what="Esc to close the palette again")
+    return True, "Cmd+K open, Esc close, / open, Esc close — all routed"
+
+
 @check("keyboard", "Enter on the composer sends (the draft clears)",
        rows=("enter", "send", "submit"))
 def k_enter(app):
@@ -1477,6 +1514,7 @@ SPECIFIC_CHECKS = {
     "the palette's /monitor command reaches a monitors surface",
     "the settings drawer exposes the Models management section",
     "Escape closes the settings drawer and the trigger still works",
+    "the a11y keyboard guarantees hold: Cmd+K, Esc, / all route",
 }
 for _c in CHECKS:
     _c["specific"] = _c["name"] in SPECIFIC_CHECKS
