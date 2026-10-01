@@ -1108,6 +1108,7 @@ mod tests {
     /// literals through); passes once the four keys exist.
     #[test]
     fn dark_retint_maps_the_component_artboard_literals() {
+        let _theme = crate::screens::theme::test_lock();
         // The INKS ride retint (role-blind is correct for text: light inks
         // map to the dark palette's light inks).
         let dsl = concat!(
@@ -1170,6 +1171,7 @@ mod tests {
     /// falls back to dark; light is set explicitly and restored.
     #[test]
     fn the_answer_action_icons_carry_theme_ink() {
+        let _theme = crate::screens::theme::test_lock();
         let dark = lower(ItemKind::AnswerActions, "t0", &[]).expect("lower");
         assert!(
             dark.contains("draw_svg.color: #f5f5f7ff"),
@@ -1186,6 +1188,7 @@ mod tests {
 
     #[test]
     fn the_send_disc_stays_inside_the_mounted_column() {
+        let _theme = crate::screens::theme::test_lock();
         let dsl = lower(ItemKind::Composer, "t0", &[]).expect("lower");
         assert!(
             dsl.contains("margin: Inset{left: 287"),
@@ -1196,6 +1199,7 @@ mod tests {
 
     #[test]
     fn the_lowered_bubble_surface_retints_in_dark() {
+        let _theme = crate::screens::theme::test_lock();
         // The full dark pipeline: bubble_dark_surface rewrites the draw_bg
         // lines role-scoped, retint maps the inks, and neither eats the
         // other's output (#2c2c2e is not in the light key set).
@@ -1216,6 +1220,7 @@ mod tests {
 
     #[test]
     fn the_composer_dsl_is_draft_free_and_stable() {
+        let _theme = crate::screens::theme::test_lock();
         let store = Arc::new(Store::new());
         let ui = Arc::new(Mutex::new(FlowUi::default()));
         ui.lock().unwrap().set_draft_inner("hello ime");
