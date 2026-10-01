@@ -296,6 +296,8 @@ def run_screen(cfg: dict, bin_path: pathlib.Path, app_port: int, rows: list) -> 
                 observed = "nothing (focus-only: a live-text binding, not a dispatched action)"
             else:
                 observed = "nothing"
+            (sdir / "last-click-log.txt").write_text(
+                after_log[-4000:])
             observed = observed.replace(os.path.expanduser("~"), "~")
             # The pattern is BUILT from pieces: repo_hermetic.rs fails the
             # build on the machine-path SUBSTRING in tracked source, so neither
@@ -325,10 +327,8 @@ def main() -> int:
          "serve": "conversation", "shadow_chrome": True},
         {"name": "dock-loading", "env": {"OCTOSCODE_SCREEN": "loading"},
          "serve": "conversation", "shadow_chrome": True},
-        {"name": "chrome-review", "env": {"OCTOSCODE_CHROME": "review"},
-         "serve": "conversation"},
-        {"name": "chrome-settings", "env": {"OCTOSCODE_CHROME": "settings"},
-         "serve": "conversation"},
+        {"name": "chrome-review", "env": {}, "serve": "conversation"},
+        {"name": "chrome-settings", "env": {}, "serve": "conversation"},
     ]
     only = {s.strip() for s in args.only.split(",") if s.strip()}
     screens = [s for s in SCREENS if not only or s["name"] in only]
