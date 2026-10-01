@@ -1248,6 +1248,10 @@ pub struct OctoscodeView {
     /// Connect card's (masked) token input.
     #[rust]
     connect_token_pending: bool,
+    /// A1 — the token field's eye toggle: the person chose to SEE the token
+    /// (masked by default, like the web's password field).
+    #[rust]
+    token_visible: bool,
     /// A1 — the conversation geometry last applied to the dock/rows.
     #[rust]
     applied_metrics: Option<ConvMetrics>,
@@ -2750,6 +2754,7 @@ impl OctoscodeView {
                     .text_input(cx, &[live_id!(screen_splash), live_id!(connect_token)])
                     .set_text(cx, &token);
             }
+            self.apply_token_visibility(cx);
         }
         // The live validation line takes room only while it says something.
         self.view
@@ -2758,6 +2763,21 @@ impl OctoscodeView {
         self.view
             .widget(cx, &[live_id!(screen_splash), live_id!(connect_server_error)])
             .set_visible(cx, endpoint_error.is_some());
+    }
+
+    /// A1 — the token field's eye: masked (eye shown) by default; revealed
+    /// (eye-off shown) only while the person asked to see it.
+    fn apply_token_visibility(&mut self, cx: &mut Cx) {
+        let visible = self.token_visible;
+        self.view
+            .text_input(cx, &[live_id!(screen_splash), live_id!(connect_token)])
+            .set_is_password(cx, !visible);
+        self.view
+            .widget(cx, &[live_id!(screen_splash), live_id!(connect_eye_show)])
+            .set_visible(cx, !visible);
+        self.view
+            .widget(cx, &[live_id!(screen_splash), live_id!(connect_eye_hide)])
+            .set_visible(cx, visible);
     }
 
     /// A1 — track the conversation geometry ([`conv_layout::Metrics`]) from
@@ -3461,6 +3481,20 @@ impl Widget for OctoscodeView {
                         // Enter in either field connects (the web's form submit).
                         self.perform_screen_action("connect", None);
                     }
+                }
+                // A1: the token field's eye (show / hide the typed token).
+                if !self.connect_inputs.is_empty()
+                    && self
+                        .view
+                        .button(cx, &[live_id!(screen_splash), live_id!(connect_eye)])
+                        .clicked(actions)
+                {
+                    self.token_visible = !self.token_visible;
+                    makepad_widgets::log!(
+                        "[octoscode] connect: token {}",
+                        if self.token_visible { "shown" } else { "masked" }
+                    );
+                    self.apply_token_visibility(cx);
                 }
                 let screen_taps = self.screen_taps.clone();
                 for (id, ev) in &screen_taps {

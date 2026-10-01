@@ -661,19 +661,20 @@ pub fn working_row(tok: &str, text: &str, m: &Metrics) -> String {
 /// phone width; on a 680 px column the right edge detached it).
 pub fn answer_actions(tok: &str, timestamp: &str, m: &Metrics) -> String {
     let s = scale(m.density);
+    // Each icon sits at the LEFT of a full 28 px hit box, so the first one is
+    // flush with the answer's text edge without a negative margin (that
+    // margin clipped the copy target to 22 px — the A1 /snap check).
     let btn = |id: &str, file: &str, hit_id: Option<&str>| {
         format!(
-            "View{{width: 28 height: 28 flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n{}{}}}\n",
+            "View{{width: 28 height: 28 flow: Overlay align: Align{{x: 0.0 y: 0.5}}\n{}{}}}\n",
             svg(id, &format!("components/answer-actions/assets/{file}"), 16.0, MUTED),
             hit_id.map(|h| hit(h, 6.0)).unwrap_or_default(),
         )
     };
     format!(
         "View{{width: Fill height: Fit flow: Down padding: Inset{{top: 2 bottom: 12}}\n\
-         i{tok}_answeractions := View{{width: Fill height: 28 flow: Right align: Align{{y: 0.5}} spacing: 2 \
-         margin: Inset{{left: -6}}\n\
+         i{tok}_answeractions := View{{width: Fill height: 28 flow: Right align: Align{{y: 0.5}} spacing: 2\n\
          {copy}{thumbs}{share}\
-         View{{width: 6 height: 1}}\n\
          {time}}}\n}}\n",
         // The copy control routes `answer.copy` (lib.rs, by this hit id in
         // the row's own scope).
@@ -874,9 +875,24 @@ pub fn connect_card(c: &ConnectView, m: &Metrics, left: f64) -> String {
     let phone = m.density == Density::Phone;
     let (pad_x, pad_top) = if phone { (20.0, 24.0) } else { (32.0, 28.0) };
     let field = |id: &str, text: &str, placeholder: &str, password: bool| {
+        // The token field carries the board's eye control (board 4 frame 4;
+        // the web's Show/Hide, ConnectionPanel.tsx:262-270): two icons, the
+        // host shows one and flips the input's masking on a click.
+        let eye = if password {
+            format!(
+                "connect_eye_wrap := View{{width: 28 height: 28 flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n\
+                 {show}{hide}{hit}}}\n",
+                show = svg("connect_eye_show", "eye.svg", 16.0, MUTED),
+                hide = svg("connect_eye_hide", "eye_off.svg", 16.0, MUTED)
+                    .replacen("Svg{", "Svg{visible: false ", 1),
+                hit = hit("connect_eye", 6.0),
+            )
+        } else {
+            String::new()
+        };
         format!(
-            "RoundedView{{width: Fill height: 42 flow: Down align: Align{{y: 0.5}} \
-             padding: Inset{{left: 12 right: 12}} \
+            "RoundedView{{width: Fill height: 42 flow: Right align: Align{{y: 0.5}} spacing: 6 \
+             padding: Inset{{left: 12 right: {pr}}} \
              draw_bg +: {{color: {SURFACE} border_radius: 4.0 border_size: 1.0 border_color: #d2d2d5ff}}\n\
              {id} := DesignInput{{width: Fill height: Fit padding: 0 margin: 0 text: {text:?} \
              empty_text: {placeholder:?} is_password: {password}\n\
@@ -885,7 +901,8 @@ pub fn connect_card(c: &ConnectView, m: &Metrics, left: f64) -> String {
              draw_cursor +: {{color: {INK}}}\n\
              draw_selection +: {{color: #2f6feb33 color_hover: #2f6feb33 color_focus: #2f6feb40 \
              color_down: #2f6feb40 color_empty: #2f6feb33 color_disabled: #2f6feb33}}\n\
-             }}\n}}\n",
+             }}\n{eye}}}\n",
+            pr = if password { 7.0 } else { 12.0 },
             st = style(Face::Regular, 14.0, 20.0),
         )
     };
