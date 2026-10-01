@@ -2848,7 +2848,7 @@ impl Widget for OctoscodeView {
                         makepad_widgets::log!(
                             "[octoscode] composer newline -> submit (IME Enter)"
                         );
-                        self.perform_action(bindings::ACTION_SUBMIT, 0);
+                        self.perform_action(cx, bindings::ACTION_SUBMIT, 0);
                     }
                 }
                 if self.view.button(cx, ids!(refresh)).clicked(actions) {
@@ -3044,7 +3044,7 @@ impl Widget for OctoscodeView {
                     makepad_widgets::log!("[octoscode] ime action ignored (palette open)");
                 } else {
                     makepad_widgets::log!("[octoscode] ime action -> submit (IME Enter)");
-                    self.perform_action(bindings::ACTION_SUBMIT, 0);
+                    self.perform_action(cx, bindings::ACTION_SUBMIT, 0);
                 }
             }
             Event::KeyDown(e) => {
