@@ -855,6 +855,60 @@ def comp_timeline(app):
     return "timeline_list" in app.widget_ids(app.snap()), "timeline_list present"
 
 
+@check("composer", "a TUI-only slash command reports fail-closed and a path prompt still turns")
+def cp_command_receipts(app):
+    # #P4d3 rows 2+3: '/title' is a KNOWN name the native build cannot run —
+    # a receipt row appears in the timeline and the composer clears
+    # (registry.ts:478's fail-closed explanation). '/bogus' names nothing —
+    # receipt + the text STAYS editable (surface-recovery.spec.ts:186). A
+    # PATH-shaped input is a prompt: it dispatches a real turn.
+    def comp():
+        for _ in range(20):
+            d = app.snap()
+            r = app.rect_re(d, COMPOSER_INPUT_RE)
+            if r and r[2] > 0:
+                return r
+            time.sleep(0.5)
+    def texts(d):
+        return [str(w.get("t") or "") for w in d.get("s", [])
+                if (w.get("r") or [0, 0, 0, 0])[2] > 0]
+    def wait_text(needle):
+        for _ in range(16):
+            d = app.snap()
+            if any(needle in t for t in texts(d)):
+                return True
+            time.sleep(0.5)
+        return False
+    r = comp(); app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
+    # 1. TUI-only known name -> receipt, cleared composer
+    app.clear_composer(); app.type("/title"); app.key("return")
+    got_receipt = wait_text("/title is not available")
+    time.sleep(1.0)
+    d = app.snap()
+    cleared = (app.draft(d) or "") in ("", PLACEHOLDER)
+    # 2. unknown name -> receipt, text kept
+    app.clear_composer(); app.type("/bogus"); app.key("return")
+    got_unknown = wait_text("Unsupported command: /bogus")
+    time.sleep(1.0)
+    d = app.snap()
+    kept = (app.draft(d) or "") == "/bogus"
+    # 3. a path reaches the model: a working row appears (a real turn)
+    app.clear_composer(); app.type("/Users/x/proj/main.rs"); app.key("return")
+    turned = False
+    for _ in range(24):
+        if "workingrow" in app.kinds(app.snap()):
+            turned = True
+            break
+        time.sleep(0.5)
+    for _ in range(60):
+        if "workingrow" not in app.kinds(app.snap()):
+            break
+        time.sleep(1)
+    ok = got_receipt and cleared and got_unknown and kept and turned
+    return ok, (f"title_receipt={got_receipt} cleared={cleared} "
+                f"bogus_receipt={got_unknown} kept={kept} path_turn={turned}")
+
+
 @check("composer", "a typed draft round-trips through the composer")
 def comp_input_roundtrip(app):
     app.type_into_composer("survive me")
@@ -1754,6 +1808,7 @@ SPECIFIC_CHECKS = {
     "Enter on the composer sends (the draft clears)",
     "a 227-column code line stays fully readable (wrapped, tail visible)",
     "the palette opens by '/', lists its commands and executes one by keyboard",
+    "a TUI-only slash command reports fail-closed and a path prompt still turns",
     "a queued follow-up drains as its own turn and a reselect replays nothing",
     "General settings carries the server connection action",
     "a failed local command restores the typed input and sends nothing",
