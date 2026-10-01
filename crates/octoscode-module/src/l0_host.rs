@@ -229,10 +229,9 @@ fn live_copies(slot: cards::Slot, values: &dyn Fn(&str) -> Option<serde_json::Va
             if let Some(p) = text("composer.placeholder").filter(|s| !s.is_empty()) {
                 out.push(("composer_idle_input_placeholder".to_owned(), p));
             }
-            out.push((
-                "composer_idle_input_text".to_owned(),
-                text("composer.draft").unwrap_or_default(),
-            ));
+            // #32h TOP: no composer_idle_input_text push — the draft must not
+            // ride the lowered DSL (the keystroke remount that killed the
+            // IME target). See components.rs ItemKind::Composer.
         }
         // conversation-04 TOOL CELLS. `tool_1..3` are `t01/t02`, `t03/t04`,
         // `t05/t06` (name, then its detail line).

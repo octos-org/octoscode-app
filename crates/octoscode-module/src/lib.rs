@@ -996,6 +996,15 @@ pub struct OctoscodeView {
     /// copies = skip the whole lower+mount.
     #[rust]
     connect_key: Option<(String, String)>,
+    /// #32h TOP: the composer text the WIDGET currently holds (changed
+    /// events and our own set_text keep it current). The store draft is
+    /// pushed to the widget ONLY when it differs — a real external change
+    /// (send-clear, new chat, restore) — never on the typing path: baking
+    /// the draft into the DSL remounted the composer every keystroke and
+    /// killed the Android IME target (the device: val stuck at the first
+    /// character).
+    #[rust]
+    composer_synced: Option<String>,
     /// The memoised per-item lowerings (a `PortalList` re-instantiates its
     /// visible rows every frame; without this the CPU re-lowers them each
     /// frame). See [`screen::Cache`].
@@ -1698,6 +1707,22 @@ impl OctoscodeView {
                 .and_then(|v| v.as_bool())
                 .unwrap_or(false)
         };
+        // #32h TOP: external draft changes reach the EXISTING TextInput via
+        // set_text — the lowered DSL no longer carries the draft, so typing
+        // never remounts the composer (the mount cache hits: the DSL is
+        // stable while focused).
+        let store_draft = { self.bridge.lock().unwrap().ui.lock().unwrap().draft() };
+        if self.composer_synced.as_deref() != Some(store_draft.as_str()) {
+            if store_draft.is_empty() && self.composer_synced.is_none() {
+                // Initial state: the authored empty text is already right.
+                self.composer_synced = Some(store_draft);
+            } else {
+                self.view
+                    .text_input(cx, &[live_id!(i0_composer_0)])
+                    .set_text(cx, &store_draft);
+                self.composer_synced = Some(store_draft);
+            }
+        }
         let composer = {
             let mut cache = std::mem::take(&mut self.cache);
             let c = cache
@@ -1721,8 +1746,12 @@ impl OctoscodeView {
             composer
         };
         let composer_splash = self.view.splash(cx, ids!(composer_splash));
-        if let Err(e) = self.mounts.mount(cx, &composer_splash, &composer) {
-            makepad_widgets::log!("[octoscode] composer mount: {e}");
+        match self.mounts.mount(cx, &composer_splash, &composer) {
+            Err(e) => makepad_widgets::log!("[octoscode] composer mount: {e}"),
+            // #32h TOP: one line per REAL remount — the per-key typing test
+            // asserts this fires only at the initial mount, never per char.
+            Ok(true) => makepad_widgets::log!("[octoscode] composer remounted"),
+            Ok(false) => {}
         }
         // #29d — the Stage C screens (board 2.8/2.11/2.12) mount into the review
         // column's temporary slot while #28e's shell (drawer + palette overlay)
@@ -2153,6 +2182,9 @@ impl Widget for OctoscodeView {
                         }
                     }
                     self.bridge.lock().unwrap().ui.lock().unwrap().set_draft_inner(text.clone());
+                    // The widget is the source here: remember what it holds
+                    // so the external-sync below never writes back over it.
+                    self.composer_synced = Some(text.clone());
                     makepad_widgets::log!("[octoscode] draft synced: {} chars", text.len());
                 }
                 if self.view.button(cx, ids!(refresh)).clicked(actions) {
