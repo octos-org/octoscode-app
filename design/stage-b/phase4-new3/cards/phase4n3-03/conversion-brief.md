@@ -255,7 +255,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "y": 200,
     "w": 300,
     "h": 14,
-    "text": "Folder name must not be empty.",
+    "text": "",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 11,
     "weight": 400,

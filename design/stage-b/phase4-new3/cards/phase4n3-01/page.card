@@ -21,12 +21,30 @@ copy tool_1_alias_text { class: user-copy, en: "Aliases: cat, view" }
 copy tool_1_st_t_text { class: user-copy, en: "enabled" }
 copy tool_1_be_text { class: user-copy, en: "Backend: octos" }
 copy tool_1_cnt_text { class: user-copy, en: "4" }
-copy tool_2_name_text { class: user-copy, en: "ImageView" }
-copy tool_2_cat_text { class: user-copy, en: "media" }
-copy tool_2_alias_text { class: user-copy, en: "Aliases: see" }
-copy tool_2_st_t_text { class: user-copy, en: "disabled" }
+copy tool_2_name_text { class: user-copy, en: "Write" }
+copy tool_2_cat_text { class: user-copy, en: "fs" }
+copy tool_2_alias_text { class: user-copy, en: "Aliases: save" }
+copy tool_2_st_t_text { class: user-copy, en: "enabled" }
 copy tool_2_be_text { class: user-copy, en: "Backend: octos" }
-copy tool_2_cnt_text { class: user-copy, en: "1" }
+copy tool_2_cnt_text { class: user-copy, en: "3" }
+copy tool_3_name_text { class: user-copy, en: "Edit" }
+copy tool_3_cat_text { class: user-copy, en: "fs" }
+copy tool_3_alias_text { class: user-copy, en: "Aliases: patch" }
+copy tool_3_st_t_text { class: user-copy, en: "enabled" }
+copy tool_3_be_text { class: user-copy, en: "Backend: octos" }
+copy tool_3_cnt_text { class: user-copy, en: "8" }
+copy tool_4_name_text { class: user-copy, en: "Grep" }
+copy tool_4_cat_text { class: user-copy, en: "search" }
+copy tool_4_alias_text { class: user-copy, en: "Aliases: find" }
+copy tool_4_st_t_text { class: user-copy, en: "enabled" }
+copy tool_4_be_text { class: user-copy, en: "Backend: octos" }
+copy tool_4_cnt_text { class: user-copy, en: "6" }
+copy tool_5_name_text { class: user-copy, en: "ImageView" }
+copy tool_5_cat_text { class: user-copy, en: "media" }
+copy tool_5_alias_text { class: user-copy, en: "Aliases: see" }
+copy tool_5_st_t_text { class: user-copy, en: "disabled" }
+copy tool_5_be_text { class: user-copy, en: "Backend: octos" }
+copy tool_5_cnt_text { class: user-copy, en: "1" }
 copy h_mcp_text { class: user-copy, en: "MCP SERVERS" }
 copy mcp_counts_text { class: user-copy, en: "connected · 2    connecting · 1    failed · 0" }
 copy srv_0_id_text { class: user-copy, en: "fs-probe" }
@@ -39,6 +57,11 @@ copy srv_1_sum_text { class: user-copy, en: "browser + fetch tools" }
 copy srv_1_dot_t_text { class: user-copy, en: "" }
 copy srv_1_tr_t_text { class: user-copy, en: "http" }
 copy srv_1_tc_text { class: user-copy, en: "12" }
+copy srv_2_id_text { class: user-copy, en: "git-probe" }
+copy srv_2_sum_text { class: user-copy, en: "repository inspection" }
+copy srv_2_dot_t_text { class: user-copy, en: "" }
+copy srv_2_tr_t_text { class: user-copy, en: "stdio" }
+copy srv_2_tc_text { class: user-copy, en: "4" }
 copy empty_tools_text { class: user-copy, en: "No matching tools." }
 copy empty_servers_text { class: user-copy, en: "No matching servers." }
 copy btn_close_t_text { class: user-copy, en: "✕" }
@@ -88,29 +111,38 @@ component Text1413998a2de4(instance: text, text: text) {
 component Surface7a7bef822439(instance: text) {
   view Kit(component: "Surface7a7bef822439", instance: instance) { slot }
 }
-component Textef39c1926771(instance: text, text: text) {
-  view Kit(component: "Textef39c1926771", instance: instance, text: text)
+component Texta25561378d1a(instance: text, text: text) {
+  view Kit(component: "Texta25561378d1a", instance: instance, text: text)
 }
-component Text09ef707ce916(instance: text, text: text) {
-  view Kit(component: "Text09ef707ce916", instance: instance, text: text)
+component Textf9fb559f9ffd(instance: text, text: text) {
+  view Kit(component: "Textf9fb559f9ffd", instance: instance, text: text)
 }
 component Surfaced58a017b209b(instance: text) {
   view Kit(component: "Surfaced58a017b209b", instance: instance) { slot }
 }
-component Textb0ce4ee563f0(instance: text, text: text) {
-  view Kit(component: "Textb0ce4ee563f0", instance: instance, text: text)
-}
-component Text638628278134(instance: text, text: text) {
-  view Kit(component: "Text638628278134", instance: instance, text: text)
+component Text028e2755ab02(instance: text, text: text) {
+  view Kit(component: "Text028e2755ab02", instance: instance, text: text)
 }
 component Surface3ec9062c8dc7(instance: text) {
   view Kit(component: "Surface3ec9062c8dc7", instance: instance) { slot }
+}
+component Text09ef707ce916(instance: text, text: text) {
+  view Kit(component: "Text09ef707ce916", instance: instance, text: text)
+}
+component Textef39c1926771(instance: text, text: text) {
+  view Kit(component: "Textef39c1926771", instance: instance, text: text)
 }
 component Texta79ff800c359(instance: text, text: text) {
   view Kit(component: "Texta79ff800c359", instance: instance, text: text)
 }
 component Surface5263a122e2e4(instance: text) {
   view Kit(component: "Surface5263a122e2e4", instance: instance) { slot }
+}
+component Textb0ce4ee563f0(instance: text, text: text) {
+  view Kit(component: "Textb0ce4ee563f0", instance: instance, text: text)
+}
+component Text638628278134(instance: text, text: text) {
+  view Kit(component: "Text638628278134", instance: instance, text: text)
 }
 component Surface39fbc2f19eae(instance: text) {
   view Kit(component: "Surface39fbc2f19eae", instance: instance) { slot }
@@ -152,34 +184,64 @@ view root Surfacef468f03a0025(instance: "page") {
     }
     Text1413998a2de4(instance: "h_tools", text: copy.h_tools_text)
     Surface7a7bef822439(instance: "tool_0") {
-      Textef39c1926771(instance: "tool_0_name", text: copy.tool_0_name_text)
-      Text09ef707ce916(instance: "tool_0_cat", text: copy.tool_0_cat_text)
-      Text09ef707ce916(instance: "tool_0_alias", text: copy.tool_0_alias_text)
+      Texta25561378d1a(instance: "tool_0_name", text: copy.tool_0_name_text)
+      Textf9fb559f9ffd(instance: "tool_0_cat", text: copy.tool_0_cat_text)
+      Textf9fb559f9ffd(instance: "tool_0_alias", text: copy.tool_0_alias_text)
       Surfaced58a017b209b(instance: "tool_0_st") {
-        Textb0ce4ee563f0(instance: "tool_0_st_t", text: copy.tool_0_st_t_text)
+        Text028e2755ab02(instance: "tool_0_st_t", text: copy.tool_0_st_t_text)
       }
-      Text09ef707ce916(instance: "tool_0_be", text: copy.tool_0_be_text)
-      Text638628278134(instance: "tool_0_cnt", text: copy.tool_0_cnt_text)
+      Textf9fb559f9ffd(instance: "tool_0_be", text: copy.tool_0_be_text)
+      Text75ee4f0ef332(instance: "tool_0_cnt", text: copy.tool_0_cnt_text)
     }
     Surface7a7bef822439(instance: "tool_1") {
-      Textef39c1926771(instance: "tool_1_name", text: copy.tool_1_name_text)
-      Text09ef707ce916(instance: "tool_1_cat", text: copy.tool_1_cat_text)
-      Text09ef707ce916(instance: "tool_1_alias", text: copy.tool_1_alias_text)
+      Texta25561378d1a(instance: "tool_1_name", text: copy.tool_1_name_text)
+      Textf9fb559f9ffd(instance: "tool_1_cat", text: copy.tool_1_cat_text)
+      Textf9fb559f9ffd(instance: "tool_1_alias", text: copy.tool_1_alias_text)
       Surfaced58a017b209b(instance: "tool_1_st") {
-        Textb0ce4ee563f0(instance: "tool_1_st_t", text: copy.tool_1_st_t_text)
+        Text028e2755ab02(instance: "tool_1_st_t", text: copy.tool_1_st_t_text)
       }
-      Text09ef707ce916(instance: "tool_1_be", text: copy.tool_1_be_text)
-      Text638628278134(instance: "tool_1_cnt", text: copy.tool_1_cnt_text)
+      Textf9fb559f9ffd(instance: "tool_1_be", text: copy.tool_1_be_text)
+      Text75ee4f0ef332(instance: "tool_1_cnt", text: copy.tool_1_cnt_text)
     }
     Surface7a7bef822439(instance: "tool_2") {
-      Textef39c1926771(instance: "tool_2_name", text: copy.tool_2_name_text)
-      Text09ef707ce916(instance: "tool_2_cat", text: copy.tool_2_cat_text)
-      Text09ef707ce916(instance: "tool_2_alias", text: copy.tool_2_alias_text)
-      Surface3ec9062c8dc7(instance: "tool_2_st") {
-        Textb0ce4ee563f0(instance: "tool_2_st_t", text: copy.tool_2_st_t_text)
+      Texta25561378d1a(instance: "tool_2_name", text: copy.tool_2_name_text)
+      Textf9fb559f9ffd(instance: "tool_2_cat", text: copy.tool_2_cat_text)
+      Textf9fb559f9ffd(instance: "tool_2_alias", text: copy.tool_2_alias_text)
+      Surfaced58a017b209b(instance: "tool_2_st") {
+        Text028e2755ab02(instance: "tool_2_st_t", text: copy.tool_2_st_t_text)
       }
-      Text09ef707ce916(instance: "tool_2_be", text: copy.tool_2_be_text)
-      Text638628278134(instance: "tool_2_cnt", text: copy.tool_2_cnt_text)
+      Textf9fb559f9ffd(instance: "tool_2_be", text: copy.tool_2_be_text)
+      Text75ee4f0ef332(instance: "tool_2_cnt", text: copy.tool_2_cnt_text)
+    }
+    Surface7a7bef822439(instance: "tool_3") {
+      Texta25561378d1a(instance: "tool_3_name", text: copy.tool_3_name_text)
+      Textf9fb559f9ffd(instance: "tool_3_cat", text: copy.tool_3_cat_text)
+      Textf9fb559f9ffd(instance: "tool_3_alias", text: copy.tool_3_alias_text)
+      Surfaced58a017b209b(instance: "tool_3_st") {
+        Text028e2755ab02(instance: "tool_3_st_t", text: copy.tool_3_st_t_text)
+      }
+      Textf9fb559f9ffd(instance: "tool_3_be", text: copy.tool_3_be_text)
+      Text75ee4f0ef332(instance: "tool_3_cnt", text: copy.tool_3_cnt_text)
+    }
+    Surface7a7bef822439(instance: "tool_4") {
+      Texta25561378d1a(instance: "tool_4_name", text: copy.tool_4_name_text)
+      Textf9fb559f9ffd(instance: "tool_4_cat", text: copy.tool_4_cat_text)
+      Textf9fb559f9ffd(instance: "tool_4_alias", text: copy.tool_4_alias_text)
+      Surfaced58a017b209b(instance: "tool_4_st") {
+        Text028e2755ab02(instance: "tool_4_st_t", text: copy.tool_4_st_t_text)
+      }
+      Textf9fb559f9ffd(instance: "tool_4_be", text: copy.tool_4_be_text)
+      Text75ee4f0ef332(instance: "tool_4_cnt", text: copy.tool_4_cnt_text)
+    }
+    Surface7a7bef822439(instance: "tool_5") {
+      Texta25561378d1a(instance: "tool_5_name", text: copy.tool_5_name_text)
+      Textf9fb559f9ffd(instance: "tool_5_cat", text: copy.tool_5_cat_text)
+      Textf9fb559f9ffd(instance: "tool_5_alias", text: copy.tool_5_alias_text)
+      Surface3ec9062c8dc7(instance: "tool_5_st") {
+        Text028e2755ab02(instance: "tool_5_st_t", text: copy.tool_5_st_t_text)
+      }
+      Textf9fb559f9ffd(instance: "tool_5_be", text: copy.tool_5_be_text)
+      Text75ee4f0ef332(instance: "tool_5_cnt", text: copy.tool_5_cnt_text)
     }
     Text1413998a2de4(instance: "h_mcp", text: copy.h_mcp_text)
     Text09ef707ce916(instance: "mcp_counts", text: copy.mcp_counts_text)
@@ -204,6 +266,17 @@ view root Surfacef468f03a0025(instance: "page") {
         Textb0ce4ee563f0(instance: "srv_1_tr_t", text: copy.srv_1_tr_t_text)
       }
       Text638628278134(instance: "srv_1_tc", text: copy.srv_1_tc_text)
+    }
+    Surface7a7bef822439(instance: "srv_2") {
+      Textef39c1926771(instance: "srv_2_id", text: copy.srv_2_id_text)
+      Text09ef707ce916(instance: "srv_2_sum", text: copy.srv_2_sum_text)
+      Surfaced58a017b209b(instance: "srv_2_dot") {
+        Texta79ff800c359(instance: "srv_2_dot_t", text: copy.srv_2_dot_t_text)
+      }
+      Surface5263a122e2e4(instance: "srv_2_tr") {
+        Textb0ce4ee563f0(instance: "srv_2_tr_t", text: copy.srv_2_tr_t_text)
+      }
+      Text638628278134(instance: "srv_2_tc", text: copy.srv_2_tc_text)
     }
     Texta07edffbdc18(instance: "empty_tools", text: copy.empty_tools_text)
     Texta07edffbdc18(instance: "empty_servers", text: copy.empty_servers_text)

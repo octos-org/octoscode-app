@@ -46,6 +46,9 @@ component Textef39c1926771(instance: text, text: text) {
 component Textd85a44242f71(instance: text, text: text) {
   view Kit(component: "Textd85a44242f71", instance: instance, text: text)
 }
+component Text0caa141626b1(instance: text, text: text) {
+  view Kit(component: "Text0caa141626b1", instance: instance, text: text)
+}
 component Surface19a87ed4ebd0(instance: text) {
   view Kit(component: "Surface19a87ed4ebd0", instance: instance)
 }

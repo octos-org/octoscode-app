@@ -267,25 +267,28 @@ def build_01(sc):
     for i, (nm, cat, st, alias, backend, cnt) in enumerate([
         ("Bash", "shell", "enabled", "exec, run", "octos", "12"),
         ("Read", "fs", "enabled", "cat, view", "octos", "4"),
+        ("Write", "fs", "enabled", "save", "octos", "3"),
+        ("Edit", "fs", "enabled", "patch", "octos", "8"),
+        ("Grep", "search", "enabled", "find", "octos", "6"),
         ("ImageView", "media", "disabled", "see", "octos", "1"),
     ]):
-        r = surface(f"tool_{i}", 32, y, 342, 52, bg="white", radius=10, border=1)
-        rk = [text(f"tool_{i}_name", nm, 44, y + 8, 180, 16, size=13, weight=500,
+        r = surface(f"tool_{i}", 32, y, 342, 44, bg="white", radius=10, border=1)
+        rk = [text(f"tool_{i}_name", nm, 44, y + 6, 90, 16, size=12, weight=500,
                    mono=True),
-              text(f"tool_{i}_cat", cat, 44, y + 28, 120, 14, color="muted",
-                   size=11),
-              text(f"tool_{i}_alias", f"Aliases: {alias}", 150, y + 8, 130, 14,
-                   color="muted", size=11),
-              text(f"tool_{i}_be", f"Backend: {backend}", 150, y + 26, 130, 14,
-                   color="muted", size=11),
-              text(f"tool_{i}_cnt", cnt, 340, y + 18, 24, 16, color="muted",
-                   size=13)]
+              text(f"tool_{i}_cat", cat, 138, y + 7, 52, 14, color="muted",
+                   size=10),
+              text(f"tool_{i}_alias", f"Aliases: {alias}", 192, y + 6, 82, 14,
+                   color="muted", size=10),
+              text(f"tool_{i}_be", f"Backend: {backend}", 192, y + 22, 82, 14,
+                   color="muted", size=10),
+              text(f"tool_{i}_cnt", cnt, 344, y + 13, 20, 16, color="muted",
+                   size=12)]
         stc = "green" if st == "enabled" else "disabled"
-        rk.insert(3, pill(f"tool_{i}_st", st, 296, y + 6, color=stc, size=10))
+        rk.insert(3, pill(f"tool_{i}_st", st, 282, y + 5, color=stc, size=9))
         r["c"] = rk
         k.append(r)
-        sc.observe(nm, 44, y + 8, 180, 16)
-        y += 58
+        sc.observe(nm, 44, y + 6, 90, 16)
+        y += 50
     k.append(text("h_mcp", "MCP SERVERS", 32, y + 6, 140, 12, color="muted",
                   size=11, weight=600))
     k.append(text("mcp_counts", "connected · 2    connecting · 1    failed · 0",
@@ -297,6 +300,7 @@ def build_01(sc):
     for i, (sid, tr, st, tc, summ) in enumerate([
         ("fs-probe", "stdio", "connected", "6", "workspace file tools"),
         ("web-probe", "http", "connecting", "12", "browser + fetch tools"),
+        ("git-probe", "stdio", "connected", "4", "repository inspection"),
     ]):
         r = surface(f"srv_{i}", 32, y, 342, 48, bg="white", radius=10, border=1)
         rk = [text(f"srv_{i}_id", sid, 44, y + 8, 140, 16, size=13, weight=500,
@@ -356,8 +360,10 @@ def build_02(sc):
                       size=11))
         k.append(text(f"rec_{i}_path", path, 44, y + 30, 190, 14, color="muted",
                       size=11, mono=True))
-        k.append(link(f"rec_{i}_pick", "Start a new session in …", 240, y + 30, 122,
+        k.append(link(f"rec_{i}_pick", "Start session", 240, y + 30, 86,
                       color="blue", size=11))
+        k.append(text(f"rec_{i}_chev", "\u203a", 356, y + 16, 14, 18,
+                      color="muted", size=14))
         sc.observe(nm, 44, y + 8, 160, 16)
         y += 58
     k.append(divider("div1", 352))
@@ -390,8 +396,9 @@ def build_03(sc):
     k.append(btn("btn_create", "Create", 296, 150, 78, 40, radius=12, size=14))
     sc.control("btn_create", "folder.create.submit", (296, 150, 78, 40))
     # A validation line only when the name is invalid.
-    k.append(text("val_name", "Folder name must not be empty.", 32, 200, 300, 14,
-                  color="red", size=11))
+    # the validation line only exists in the invalid state; "notes" is valid,
+    # so the authored card does not show it (atlas-prompt.md #3).
+    k.append(text("val_name", "", 32, 200, 300, 14, color="red", size=11))
     k.append(text("parent_label", "Parent", 32, 232, 120, 14, color="muted",
                   size=12))
     k.append(text("parent_path", "/home/user/octos", 32, 250, 200, 16, size=13,

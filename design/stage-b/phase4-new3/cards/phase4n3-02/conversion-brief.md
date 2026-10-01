@@ -287,7 +287,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "id": "rec_0_pick_row",
     "x": 240,
     "y": 260,
-    "w": 122,
+    "w": 86,
     "h": 20,
     "role": "layout",
     "native_candidates": [
@@ -298,9 +298,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "id": "rec_0_pick_t",
     "x": 240,
     "y": 260,
-    "w": 122,
+    "w": 86,
     "h": 17,
-    "text": "Start a new session in \u2026",
+    "text": "Start session",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 11,
     "weight": 400,
@@ -314,12 +314,28 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "id": "rec_0_pick",
     "x": 240,
     "y": 260,
-    "w": 122,
+    "w": 86,
     "h": 20,
     "role": "button",
     "native_candidates": [
       "Button",
       "KitButton"
+    ]
+  },
+  {
+    "id": "rec_0_chev",
+    "x": 356,
+    "y": 246,
+    "w": 14,
+    "h": 18,
+    "text": "\u203a",
+    "font_src": "self:resources/ux/Inter-400.ttf",
+    "size": 14,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
     ]
   },
   {
@@ -385,7 +401,7 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "id": "rec_1_pick_row",
     "x": 240,
     "y": 318,
-    "w": 122,
+    "w": 86,
     "h": 20,
     "role": "layout",
     "native_candidates": [
@@ -396,9 +412,9 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "id": "rec_1_pick_t",
     "x": 240,
     "y": 318,
-    "w": 122,
+    "w": 86,
     "h": 17,
-    "text": "Start a new session in \u2026",
+    "text": "Start session",
     "font_src": "self:resources/ux/Inter-400.ttf",
     "size": 11,
     "weight": 400,
@@ -412,12 +428,28 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "id": "rec_1_pick",
     "x": 240,
     "y": 318,
-    "w": 122,
+    "w": 86,
     "h": 20,
     "role": "button",
     "native_candidates": [
       "Button",
       "KitButton"
+    ]
+  },
+  {
+    "id": "rec_1_chev",
+    "x": 356,
+    "y": 304,
+    "w": 14,
+    "h": 18,
+    "text": "\u203a",
+    "font_src": "self:resources/ux/Inter-400.ttf",
+    "size": 14,
+    "weight": 400,
+    "role": "text",
+    "native_candidates": [
+      "Label",
+      "TextFlow"
     ]
   },
   {

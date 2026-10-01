@@ -338,7 +338,7 @@
         300,
         14
       ],
-      "text": "Folder name must not be empty.",
+      "text": "",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
       "size": 11
@@ -565,6 +565,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "5e37aa2a36a456b4bd9423bb85beeed9df38b5ac57e217e1d7106885c4c03047",
+  "contract_sha256": "2d9d7d5f5097722250430c58db89ec4e23cbb4dd515defa91c40619171d21527",
   "mapping_basis": "mapped.json"
 }

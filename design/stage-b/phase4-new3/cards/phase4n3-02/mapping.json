@@ -353,7 +353,7 @@
       "bounds": [
         240,
         260,
-        122,
+        86,
         20
       ],
       "text": null,
@@ -371,10 +371,10 @@
       "bounds": [
         240,
         260,
-        122,
+        86,
         17
       ],
-      "text": "Start a new session in \u2026",
+      "text": "Start session",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
       "size": 11
@@ -389,7 +389,7 @@
       "bounds": [
         240,
         260,
-        122,
+        86,
         20
       ],
       "text": null,
@@ -398,8 +398,26 @@
       "size": null
     },
     {
-      "source_id": "rec_1",
+      "source_id": "rec_0_chev",
       "native_id": "beauty_0_1_13",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Text0caa141626b1",
+      "semantic_role": "text",
+      "bounds": [
+        356,
+        246,
+        14,
+        18
+      ],
+      "text": "\u203a",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
+      "source_id": "rec_1",
+      "native_id": "beauty_0_1_14",
       "parent": "modal_card",
       "kind": "stack",
       "component": "Surface7a7bef822439",
@@ -417,7 +435,7 @@
     },
     {
       "source_id": "rec_1_name",
-      "native_id": "beauty_0_1_14",
+      "native_id": "beauty_0_1_15",
       "parent": "modal_card",
       "kind": "text",
       "component": "Textef39c1926771",
@@ -435,7 +453,7 @@
     },
     {
       "source_id": "rec_1_br",
-      "native_id": "beauty_0_1_15",
+      "native_id": "beauty_0_1_16",
       "parent": "modal_card",
       "kind": "text",
       "component": "Text09ef707ce916",
@@ -453,7 +471,7 @@
     },
     {
       "source_id": "rec_1_path",
-      "native_id": "beauty_0_1_16",
+      "native_id": "beauty_0_1_17",
       "parent": "modal_card",
       "kind": "text",
       "component": "Text09ef707ce916",
@@ -471,7 +489,7 @@
     },
     {
       "source_id": "rec_1_pick_row",
-      "native_id": "beauty_0_1_17",
+      "native_id": "beauty_0_1_18",
       "parent": "modal_card",
       "kind": "stack",
       "component": "Group3d2637879433",
@@ -479,7 +497,7 @@
       "bounds": [
         240,
         318,
-        122,
+        86,
         20
       ],
       "text": null,
@@ -489,7 +507,7 @@
     },
     {
       "source_id": "rec_1_pick_t",
-      "native_id": "beauty_0_1_17_0",
+      "native_id": "beauty_0_1_18_0",
       "parent": "rec_1_pick_row",
       "kind": "text",
       "component": "Textd85a44242f71",
@@ -497,17 +515,17 @@
       "bounds": [
         240,
         318,
-        122,
+        86,
         17
       ],
-      "text": "Start a new session in \u2026",
+      "text": "Start session",
       "enabled": null,
       "font": "self:resources/ux/Inter-400.ttf",
       "size": 11
     },
     {
       "source_id": "rec_1_pick",
-      "native_id": "beauty_0_1_17_1",
+      "native_id": "beauty_0_1_18_1",
       "parent": "rec_1_pick_row",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -515,7 +533,7 @@
       "bounds": [
         240,
         318,
-        122,
+        86,
         20
       ],
       "text": null,
@@ -524,8 +542,26 @@
       "size": null
     },
     {
+      "source_id": "rec_1_chev",
+      "native_id": "beauty_0_1_19",
+      "parent": "modal_card",
+      "kind": "text",
+      "component": "Text0caa141626b1",
+      "semantic_role": "text",
+      "bounds": [
+        356,
+        304,
+        14,
+        18
+      ],
+      "text": "\u203a",
+      "enabled": null,
+      "font": "self:resources/ux/Inter-400.ttf",
+      "size": 14
+    },
+    {
       "source_id": "div1",
-      "native_id": "beauty_0_1_18",
+      "native_id": "beauty_0_1_20",
       "parent": "modal_card",
       "kind": "stack",
       "component": "Surface19a87ed4ebd0",
@@ -543,7 +579,7 @@
     },
     {
       "source_id": "f_path_row",
-      "native_id": "beauty_0_1_19",
+      "native_id": "beauty_0_1_21",
       "parent": "modal_card",
       "kind": "stack",
       "component": "Group3d2637879433",
@@ -561,7 +597,7 @@
     },
     {
       "source_id": "f_path_bg",
-      "native_id": "beauty_0_1_19_0",
+      "native_id": "beauty_0_1_21_0",
       "parent": "f_path_row",
       "kind": "stack",
       "component": "Surfaced4707dd25870",
@@ -579,7 +615,7 @@
     },
     {
       "source_id": "f_path_text",
-      "native_id": "beauty_0_1_19_1",
+      "native_id": "beauty_0_1_21_1",
       "parent": "f_path_row",
       "kind": "text",
       "component": "Text1914bedecf20",
@@ -597,7 +633,7 @@
     },
     {
       "source_id": "f_path_ph",
-      "native_id": "beauty_0_1_19_2",
+      "native_id": "beauty_0_1_21_2",
       "parent": "f_path_row",
       "kind": "text",
       "component": "Text1914bedecf20",
@@ -615,7 +651,7 @@
     },
     {
       "source_id": "f_path",
-      "native_id": "beauty_0_1_19_3",
+      "native_id": "beauty_0_1_21_3",
       "parent": "f_path_row",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -633,7 +669,7 @@
     },
     {
       "source_id": "btn_enter_row",
-      "native_id": "beauty_0_1_20",
+      "native_id": "beauty_0_1_22",
       "parent": "modal_card",
       "kind": "stack",
       "component": "Group3d2637879433",
@@ -651,7 +687,7 @@
     },
     {
       "source_id": "btn_enter_bg",
-      "native_id": "beauty_0_1_20_0",
+      "native_id": "beauty_0_1_22_0",
       "parent": "btn_enter_row",
       "kind": "stack",
       "component": "Surface26187bf5e7ec",
@@ -669,7 +705,7 @@
     },
     {
       "source_id": "btn_enter_t",
-      "native_id": "beauty_0_1_20_1",
+      "native_id": "beauty_0_1_22_1",
       "parent": "btn_enter_row",
       "kind": "text",
       "component": "Textcd182d906e73",
@@ -687,7 +723,7 @@
     },
     {
       "source_id": "btn_enter",
-      "native_id": "beauty_0_1_20_2",
+      "native_id": "beauty_0_1_22_2",
       "parent": "btn_enter_row",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -705,7 +741,7 @@
     },
     {
       "source_id": "help_browse",
-      "native_id": "beauty_0_1_21",
+      "native_id": "beauty_0_1_23",
       "parent": "modal_card",
       "kind": "text",
       "component": "Text09ef707ce916",
@@ -723,7 +759,7 @@
     },
     {
       "source_id": "btn_browse_row",
-      "native_id": "beauty_0_1_22",
+      "native_id": "beauty_0_1_24",
       "parent": "modal_card",
       "kind": "stack",
       "component": "Group3d2637879433",
@@ -741,7 +777,7 @@
     },
     {
       "source_id": "btn_browse_t",
-      "native_id": "beauty_0_1_22_0",
+      "native_id": "beauty_0_1_24_0",
       "parent": "btn_browse_row",
       "kind": "text",
       "component": "Text7d630b6bd848",
@@ -759,7 +795,7 @@
     },
     {
       "source_id": "btn_browse",
-      "native_id": "beauty_0_1_22_1",
+      "native_id": "beauty_0_1_24_1",
       "parent": "btn_browse_row",
       "kind": "button",
       "component": "NativeButton02f1d1bd99b4",
@@ -781,6 +817,6 @@
     "self:resources/ux/Inter-400.ttf": "b6724fa153562e675ad77673f50bddfc5caf2fcd9e4be279f2d0aa56bb210488",
     "self:resources/ux/Inter-500.ttf": "a72a127e3850c1fb05d969c181932a4088008c8e4cd580f0372231f52ef03603"
   },
-  "contract_sha256": "423f450b5886482f9ead318b136c1fafd85d1a8ae45b1c9c382d7bb54944a64e",
+  "contract_sha256": "d24aec1b8944554099d36d611c85da7ced8efef3294cde07dd30025884e8a026",
   "mapping_basis": "mapped.json"
 }

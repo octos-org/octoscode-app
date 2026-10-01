@@ -246,12 +246,23 @@
     },
     {
       "id": "rec_0_pick_t",
-      "expected_text": "Start a new session in \u2026",
+      "expected_text": "Start session",
       "requested_bounds": [
         240,
         260,
-        122,
+        86,
         17
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "rec_0_chev",
+      "expected_text": "\u203a",
+      "requested_bounds": [
+        356,
+        246,
+        14,
+        18
       ],
       "status": "missing_or_ocr_unresolved"
     },
@@ -311,12 +322,23 @@
     },
     {
       "id": "rec_1_pick_t",
-      "expected_text": "Start a new session in \u2026",
+      "expected_text": "Start session",
       "requested_bounds": [
         240,
         318,
-        122,
+        86,
         17
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "rec_1_chev",
+      "expected_text": "\u203a",
+      "requested_bounds": [
+        356,
+        304,
+        14,
+        18
       ],
       "status": "missing_or_ocr_unresolved"
     },

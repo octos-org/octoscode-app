@@ -307,16 +307,16 @@
             "id": "rec_0_pick_row",
             "x": 240,
             "y": 260,
-            "w": 122,
+            "w": 86,
             "h": 20,
             "c": [
               {
                 "t": "text",
                 "id": "rec_0_pick_t",
-                "text": "Start a new session in …",
+                "text": "Start session",
                 "x": 240,
                 "y": 260,
-                "w": 122,
+                "w": 86,
                 "h": 17,
                 "size": 11,
                 "line_height": 13.42,
@@ -332,11 +332,28 @@
                 "id": "rec_0_pick",
                 "x": 240,
                 "y": 260,
-                "w": 122,
+                "w": 86,
                 "h": 20,
                 "enabled": 1
               }
             ]
+          },
+          {
+            "t": "text",
+            "id": "rec_0_chev",
+            "text": "›",
+            "x": 356,
+            "y": 246,
+            "w": 14,
+            "h": 18,
+            "size": 14,
+            "line_height": 17.08,
+            "weight": 400,
+            "color": 4285427315,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": 0.0
           },
           {
             "t": "stack",
@@ -408,16 +425,16 @@
             "id": "rec_1_pick_row",
             "x": 240,
             "y": 318,
-            "w": 122,
+            "w": 86,
             "h": 20,
             "c": [
               {
                 "t": "text",
                 "id": "rec_1_pick_t",
-                "text": "Start a new session in …",
+                "text": "Start session",
                 "x": 240,
                 "y": 318,
-                "w": 122,
+                "w": 86,
                 "h": 17,
                 "size": 11,
                 "line_height": 13.42,
@@ -433,11 +450,28 @@
                 "id": "rec_1_pick",
                 "x": 240,
                 "y": 318,
-                "w": 122,
+                "w": 86,
                 "h": 20,
                 "enabled": 1
               }
             ]
+          },
+          {
+            "t": "text",
+            "id": "rec_1_chev",
+            "text": "›",
+            "x": 356,
+            "y": 304,
+            "w": 14,
+            "h": 18,
+            "size": 14,
+            "line_height": 17.08,
+            "weight": 400,
+            "color": 4285427315,
+            "variant": "single_line",
+            "alignx": 0,
+            "font_src": "self:resources/ux/Inter-400.ttf",
+            "tracking": 0.0
           },
           {
             "t": "stack",

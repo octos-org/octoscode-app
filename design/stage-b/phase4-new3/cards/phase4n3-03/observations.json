@@ -149,7 +149,7 @@
     },
     {
       "id": "val_name",
-      "expected_text": "Folder name must not be empty.",
+      "expected_text": "",
       "requested_bounds": [
         32,
         200,

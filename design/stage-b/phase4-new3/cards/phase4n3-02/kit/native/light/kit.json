@@ -106,10 +106,6 @@
       "value": "self:resources/ux/Inter-500.ttf",
       "property": "font_src"
     },
-    "bg_642da6636bd0": {
-      "value": 4293256679,
-      "property": "bg"
-    },
     "size_8527a891e224": {
       "value": 14,
       "property": "size"
@@ -117,6 +113,10 @@
     "line_height_ae688f7e03ff": {
       "value": 17.08,
       "property": "line_height"
+    },
+    "bg_642da6636bd0": {
+      "value": 4293256679,
+      "property": "bg"
     },
     "color_e7bb3ed424ea": {
       "value": 4291282892,
@@ -472,6 +472,35 @@
         },
         "color": {
           "$token": "color_5ab339f4f62e"
+        },
+        "variant": "single_line",
+        "alignx": 0,
+        "font_src": {
+          "$token": "font_src_86ab34a300f7"
+        },
+        "tracking": {
+          "$token": "tracking_8aed642bf511"
+        }
+      },
+      "props": {
+        "text": "text"
+      },
+      "slot": false
+    },
+    "Text0caa141626b1": {
+      "style": {
+        "t": "text",
+        "size": {
+          "$token": "size_8527a891e224"
+        },
+        "line_height": {
+          "$token": "line_height_ae688f7e03ff"
+        },
+        "weight": {
+          "$token": "weight_26d228663f13"
+        },
+        "color": {
+          "$token": "color_5e6b06fd707a"
         },
         "variant": "single_line",
         "alignx": 0,

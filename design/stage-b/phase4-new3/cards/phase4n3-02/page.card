@@ -13,11 +13,13 @@ copy h_recent_text { class: user-copy, en: "Recent workspaces" }
 copy rec_0_name_text { class: user-copy, en: "octos" }
 copy rec_0_br_text { class: user-copy, en: "feat/steer-queue" }
 copy rec_0_path_text { class: user-copy, en: "/home/user/octos" }
-copy rec_0_pick_t_text { class: user-copy, en: "Start a new session in …" }
+copy rec_0_pick_t_text { class: user-copy, en: "Start session" }
+copy rec_0_chev_text { class: user-copy, en: "›" }
 copy rec_1_name_text { class: user-copy, en: "octoscode-app" }
 copy rec_1_br_text { class: user-copy, en: "main" }
 copy rec_1_path_text { class: user-copy, en: "/home/user/octoscode-app" }
-copy rec_1_pick_t_text { class: user-copy, en: "Start a new session in …" }
+copy rec_1_pick_t_text { class: user-copy, en: "Start session" }
+copy rec_1_chev_text { class: user-copy, en: "›" }
 copy f_path_text_text { class: user-copy, en: "" }
 copy f_path_ph_text { class: user-copy, en: "/path/to/project" }
 copy btn_enter_t_text { class: user-copy, en: "Enter" }
@@ -78,6 +80,9 @@ component Textef39c1926771(instance: text, text: text) {
 component Textd85a44242f71(instance: text, text: text) {
   view Kit(component: "Textd85a44242f71", instance: instance, text: text)
 }
+component Text0caa141626b1(instance: text, text: text) {
+  view Kit(component: "Text0caa141626b1", instance: instance, text: text)
+}
 component Surface19a87ed4ebd0(instance: text) {
   view Kit(component: "Surface19a87ed4ebd0", instance: instance)
 }
@@ -122,6 +127,7 @@ view root Surfacef468f03a0025(instance: "page") {
       Textd85a44242f71(instance: "rec_0_pick_t", text: copy.rec_0_pick_t_text)
       NativeButton02f1d1bd99b4(instance: "rec_0_pick", enabled: rec_0_pick_enabled)
     }
+    Text0caa141626b1(instance: "rec_0_chev", text: copy.rec_0_chev_text)
     Surface7a7bef822439(instance: "rec_1") {
 
     }
@@ -132,6 +138,7 @@ view root Surfacef468f03a0025(instance: "page") {
       Textd85a44242f71(instance: "rec_1_pick_t", text: copy.rec_1_pick_t_text)
       NativeButton02f1d1bd99b4(instance: "rec_1_pick", enabled: rec_1_pick_enabled)
     }
+    Text0caa141626b1(instance: "rec_1_chev", text: copy.rec_1_chev_text)
     Surface19a87ed4ebd0(instance: "div1")
     Group3d2637879433(instance: "f_path_row") {
       Surfaced4707dd25870(instance: "f_path_bg") {

@@ -8,7 +8,7 @@ copy btn_back_t_text { class: user-copy, en: "Back to workspaces" }
 copy btn_close_t_text { class: user-copy, en: "✕" }
 copy f_folder_text_text { class: user-copy, en: "notes" }
 copy btn_create_t_text { class: user-copy, en: "Create" }
-copy val_name_text { class: user-copy, en: "Folder name must not be empty." }
+copy val_name_text { class: user-copy, en: "" }
 copy parent_label_text { class: user-copy, en: "Parent" }
 copy parent_path_text { class: user-copy, en: "/home/user/octos" }
 copy btn_drill_t_text { class: user-copy, en: "Open folder browser" }
