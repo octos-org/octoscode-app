@@ -190,6 +190,22 @@ impl Turns {
         }
     }
 
+    /// #P4g1 row 206: adopt an authoritative hydrate's cursor — the canonical
+    /// `(stream, seq)` advances to the hydrate's checkpoint (the web's
+    /// `commitHydrate` takes `#cursor = { ...result.cursor }`,
+    /// `src-web/apps/web/src/features/session/durable-session.ts:84`). Max
+    /// wins, so a late out-of-order hydrate cannot move the cursor backwards.
+    pub fn adopt_hydrate_cursor(&self, stream: &str, seq: u64) {
+        let mut i = self.inner.lock().unwrap();
+        let advance = match &i.envelopes.cursor {
+            Some((_, cur)) => seq > *cur,
+            None => true,
+        };
+        if advance {
+            i.envelopes.cursor = Some((stream.to_owned(), seq));
+        }
+    }
+
     /// Frames dropped for a non-increasing `seq`, in arrival order.
     pub fn dropped_envelopes(&self) -> Vec<(String, u64)> {
         self.inner.lock().unwrap().envelopes.dropped.clone()

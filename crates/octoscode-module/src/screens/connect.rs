@@ -490,8 +490,8 @@ pub struct OnboardingOutcome {
 
 /// The onboarding sequence, the web's `submitOnboarding`
 /// (`onboarding-submission.ts:34-126`) on the production client:
-/// catalog → `profile/local/create` → `profile/llm/test` →
-/// `profile/llm/upsert` (`set_primary: true`). `catalog` passes the panel's
+/// catalog → "profile/local/create" → "profile/llm/test" →
+/// "profile/llm/upsert" (`set_primary: true`). `catalog` passes the panel's
 /// already-fetched catalog (`None` = fetch it here, the `prepare` step,
 /// `use-onboarding.ts:91`). Every failure is the web's own message.
 pub async fn run_onboarding(
