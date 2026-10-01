@@ -1,0 +1,45 @@
+row_id,area,case,reason_class,reason
+4,settings,desktop notifications require Settings opt-in and stay silent while reading,native-surface,no notifications opt-in section in the settings drawer (41c recon: header + connection action only)
+9,settings,accepts a profile-routable web identity but closes a scoped mismatch,fixture,profile-identity frames (scoped mismatch) absent from the session fixture
+10,settings,binds a cross-profile launch to the resolved profile before open,fixture,cross-profile launch binding frames absent from the session fixture
+13,recovery,an external-held session restores uploaded media and reasoning for an explicit retry,fixture,external-held-session media/reasoning restore frames absent
+14,recovery,Resume chat and an owned seat release control before sending once,fixture,peer/control seat-release frames absent from r6-peer (measured: 0 peer/control frames)
+20,recovery,keeps the workspace restore receipt through canonical refresh without rewinding its conversation,fixture,workspace restore receipt + canonical refresh frames absent
+66,recovery,restores and resolves a parked question on its owning Session with exact ids,fixture,parked-question restore/resolve frames absent
+86,settings,canceling a provider confirmation preserves Settings at ${viewport.width}px,native-surface,no provider-confirmation surface; also viewport-width semantics the fixed 900px walk window cannot vary
+98,recovery,"goal pause, resume and stop preserve the current objective and budget, and newer notifications cancel stale transitions",fixture,goal pause/resume/stop receipt frames absent
+106,keyboard,starts a first workspace with the keyboard and focuses the useful field when adding another,harness,first-run flow never mounts: the walk app auto-connects to the replay server (same class as CONNECT_MISSING)
+115,recovery,"staging renders idle, then a peer turn flips the row to live",fixture,peer-turn frames that flip a staging row to live are absent (fleet/goals/loops rows collapse under fixtures — measured)
+117,recovery,a peer turn terminal lands the row as done while its sibling stays unlanded,fixture,peer-turn terminal frames absent (same collapse)
+119,recovery,"removes exactly the done row, keeps the live row, and announces the count",fixture,peer-turn terminal frames absent (same collapse)
+120,peer,no seat panel when peer/control is unadvertised (no-method),fixture,needs an advertised-vs-unadvertised fixture PAIR to distinguish absence-by-design from absence-by-missing-surface; r6-peer has no peer/control either way
+121,peer,no seat panel when external_driver_v1 is unadvertised (no-feature),fixture,same pair requirement as row 120 for external_driver_v1
+122,peer,each of the four commands emits exactly ONE peer/control frame,fixture,"peer/control frames absent from r6-peer (measured: gather x6, prepare x3, control x0)"
+123,peer,an accepted receipt renders its slug and duplicate:false,fixture,peer/control accepted-receipt frames absent
+125,peer,a refused RECEIPT renders the typed peer_control_refused refusal,fixture,peer_control_refused typed-refusal frames absent
+126,peer,"a driver_fence_stale typed error drops the seat, keeps the §6 label",fixture,driver_fence_stale typed-error frames absent
+127,peer,commands are keyboard-reachable and still emit exactly one frame,fixture,peer/control frames absent (same as 122); no command surface to drive
+129,peer,Start stays disabled until a model is chosen and a brief is typed,native-surface,Fleet onboarding (Start/brief) surface not mounted under fixtures (roster rows collapse — measured)
+130,peer,Start acquires then emits exactly ONE peer/dispatch and adopts a Fleet row,fixture,peer/dispatch frames absent (measured: dispatch x0 in r6-peer)
+135,peer,a stale lease refuses peer/dispatch with the bounded §6 label,fixture,peer/dispatch + stale-lease error frames absent
+136,peer,"a refused peer/dispatch renders the bounded label, never server copy",fixture,peer/dispatch refusal frames absent
+137,peer,the protocol console renders ONLY behind Fleet's Advanced disclosure,native-surface,protocol console / Advanced disclosure surface not mounted under fixtures
+138,peer,an unknown lane is unconstructible: the picker is the ONLY lane source,native-surface,lane picker surface not mounted under fixtures
+142,keyboard,collapses and expands from the keyboard without losing the plan,native-surface,plan surface not mounted under fixtures (goals/loops rows collapse — measured)
+151,peer,"reports a start acknowledgement timeout as unknown, then settles on release",fixture,peer/dispatch + acknowledgement-timeout timing semantics cannot be produced by a recorded fixture
+162,recovery,"restores the origin, tab credential, session, and workspace after refresh",fixture,origin/tab-credential/workspace restore-across-refresh frames absent
+164,settings,separates the Session runtime from the Profile default model,native-surface,no Model/Models section in the drawer (measured) to separate runtime from profile default
+174,recovery,restores a pending structured question across a reload,fixture,pending structured question + reload frames absent
+176,settings,preserves workspace launch decisions without exposing profile ids in connect,native-surface,workspace-launch-decision surface absent from the drawer
+181,settings,skill writes hold the profile lock through deferred replies and deduplicate confirmation,fixture,skill-write + profile-lock frames absent from the session fixture
+183,peer,settings preserves its geometry while model management loads at ${viewport.width}px,harness,${viewport.width} semantics; the walk window is fixed at 900px and the runner cannot vary the viewport per row
+184,peer,skip link bypasses navigation and multiline commands retain valid accessibility semantics,native-surface,skip-link surface absent; multiline command a11y semantics need the commands surface
+185,peer,empty session search offers a direct way back and replies use the chat column,native-surface,no session-search surface in the native shell to exercise the empty-search way back
+186,recovery,"resume lists unverified candidates, refuses bare IDs, and requires confirmation plus canonical history",native-surface,"the /resume candidates list is not implemented (41c recon: palette closes, no candidates surface)"
+187,recovery,canceling a held historical open cannot install a late transcript or steal a new selection,fixture,held historical-open + late-transcript frames absent
+188,recovery,resuming an already retained busy historical Session never reopens or resets its turn,fixture,retained busy historical-session frames absent
+189,recovery,reasoning visibility is retained per Session and does not change captured model effort,fixture,per-session reasoning visibility + model-effort frames absent
+204,recovery,keeps per-Session transcripts distinct and restores the pre-reload Session,fixture,multi-session transcripts (distinct sessions across a reload) absent from the single-session r3 fixture
+207,recovery,a slow model-management import can be canceled and never opens after cancellation,fixture,slow model-management import frames + cancel timing cannot be produced by a recorded fixture
+210,recovery,a late clipboard command result does not enter a different conversation,fixture,late clipboard command-result injection timing cannot be produced by a recorded fixture
+212,settings,manual light preserves readable conversation and settings colors on a dark OS,harness,needs per-row theme env control; the runner fixes the app env at launch (OCTOSCODE_THEME is process-wide)
