@@ -753,7 +753,9 @@ pub fn composer(c: &ComposerView, m: &Metrics) -> String {
          {mic}\
          i0_composer_5 := View{{width: 32 height: 32 flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n\
          RoundedView{{width: 32 height: 32 draw_bg +: {{color: #000000ff border_radius: 16.0}}}}\n\
-         {send_icon}{send_hit}}}\n\
+         composer_send_icon := View{{width: 16 height: 16 flow: Overlay\n{send_icon}}}\n\
+         composer_stop_icon := View{{width: 16 height: 16 flow: Overlay visible: false\n{stop_icon}}}\n\
+         {send_hit}}}\n\
          }}\n}}\n",
         min_h = (s.body_line + 4.0).round(),
         placeholder = c.placeholder,
@@ -777,6 +779,9 @@ pub fn composer(c: &ComposerView, m: &Metrics) -> String {
         model_chev = svg("i0_composer_4_chev", "chevron_down.svg", 12.0, MUTED),
         mic = icon_btn("mic_hit", "icon_mic1.svg", 18.0),
         send_icon = svg("i0_composer_5_0", "components/composer/assets/icon_send.svg", 16.0, "#ffffffff"),
+        // The running turn's STOP glyph (conversation-08 `stop2`): shown by
+        // the host while `turn.active`, so the DSL never changes per turn.
+        stop_icon = svg("i0_composer_5_1", "components/composer/assets/icon_stop.svg", 16.0, "#ffffffff"),
         send_hit = hit("send_hit", 16.0),
     )
 }
@@ -1107,6 +1112,10 @@ mod tests {
         }
         assert!(!dsl.contains("margin: Inset{left: 287"), "no artboard-anchored controls");
         assert!(dsl.contains("assets/icon_send"), "the kit's own send glyph");
+        // Both glyphs ride the DSL (the host shows one): a turn starting or
+        // ending must not change the mount string and remount the input.
+        assert!(dsl.contains("composer_send_icon := View") && dsl.contains("composer_stop_icon := View"));
+        assert!(dsl.contains("assets/icon_stop"), "the running turn's stop glyph");
     }
 
     #[test]

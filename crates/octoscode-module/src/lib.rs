@@ -1518,6 +1518,17 @@ impl OctoscodeView {
     /// the host's, not the module's, so the write must happen here rather than
     /// inside a resolver. #35d.
     fn perform_action(&mut self, cx: &mut Cx, action: &str, index: usize) {
+        // A1: sending re-follows the latest turn, like the web's
+        // `jumpToLatest` (use-conversation-scroll.ts:85-96). `auto_tail` only
+        // follows while the list already sits at its end, so after the person
+        // had scrolled up to read, their new prompt and its answer streamed
+        // in below the viewport (measured in the A1 capture session).
+        if action == bindings::ACTION_SUBMIT {
+            if let Some(mut list) = self.view.portal_list(cx, ids!(timeline_list)).borrow_mut() {
+                list.set_tail_range(true);
+            }
+            self.view.redraw(cx);
+        }
         // #30b: board-3 autonomy actions route through their own table first
         // (one-owner rule); no other router sees these ids. `goal.set` /
         // `monitor.create` carry the composer draft as their entry text.
@@ -2429,18 +2440,10 @@ impl OctoscodeView {
         };
         // Card #21f item 1b: while a turn runs the SAME dock is the STOP control
         // (atlas conversation-08 `stop2`, a white 12×12 rounded square on the flat
-        // black disc). The composer component carries one send glyph, so swap it
-        // for the stop asset — otherwise the arrow persists through the whole
-        // running turn (`g3b-turn2-running.png`). The mount cache compares the DSL
-        // string, so the swap also forces exactly one repaint when `turn.active`
-        // flips either way.
-        let composer = if composer_live {
-            composer
-                .replace("icon_send-3fe1783d764e.svg", "icon_stop.svg")
-                .replace("icon_send.svg", "icon_stop.svg")
-        } else {
-            composer
-        };
+        // black disc). A1: the fluid composer carries BOTH glyphs and the host
+        // shows one — the old DSL swap (send.svg -> stop.svg) changed the mount
+        // string, so every turn start/end REMOUNTED the composer and replaced
+        // the TextInput the person was typing in.
         let composer_splash = self.view.splash(cx, ids!(composer_splash));
         match self.mounts.mount(cx, &composer_splash, &composer) {
             Err(e) => makepad_widgets::log!("[octoscode] composer mount: {e}"),
@@ -2449,6 +2452,12 @@ impl OctoscodeView {
             Ok(true) => makepad_widgets::log!("[octoscode] composer remounted"),
             Ok(false) => {}
         }
+        self.view
+            .widget(cx, &[live_id!(composer_splash), live_id!(composer_send_icon)])
+            .set_visible(cx, !composer_live);
+        self.view
+            .widget(cx, &[live_id!(composer_splash), live_id!(composer_stop_icon)])
+            .set_visible(cx, composer_live);
         // #29d — the Stage C screens (board 2.8/2.11/2.12) mount into the review
         // column's temporary slot while #28e's shell (drawer + palette overlay)
         // is pending. OCTOSCODE_SCREEN=palette|error|loading names one; unset

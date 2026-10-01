@@ -154,8 +154,14 @@ def conversation(rows, rep):
     clipped = [w["i"] for w in texts if not inside(w["r"], pane_r) or not inside(w["r"], mod_r)]
     rep.check("no clipped text", not clipped, f"{len(texts)} text widgets inside pane+module; out: {clipped[:6]}",
               f"text {len(texts)}/{len(texts) - len(clipped)} inside")
-    # Hit targets >= 28 px.
-    hits = [w for w in rows if w["ty"] == "Button" and (
+    # Hit targets >= 28 px (a row cut by the scrolled list's own edge is a
+    # viewport clip, not a small target: skip rows touching the list edges).
+    lst = find(rows, "timeline_list")
+    def cut(w):
+        if lst is None or w["i"] != "row_hit":
+            return False
+        return w["r"][1] <= lst["r"][1] + 1 or bottom(w["r"]) >= bottom(lst["r"]) - 1
+    hits = [w for w in rows if w["ty"] == "Button" and not cut(w) and (
         w["i"] in ("send_hit", "mic_hit", "plus_hit", "approval_pill_hit", "answer_copy_hit", "row_hit"))]
     small = [(w["i"], w["r"][2], w["r"][3]) for w in hits if w["r"][2] < 28 - 0.5 or w["r"][3] < 28 - 0.5]
     rep.check("controls >= 28 px", not small, f"{len(hits)} hit targets; too small: {small}",
