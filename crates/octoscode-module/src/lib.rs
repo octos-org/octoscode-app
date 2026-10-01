@@ -1072,6 +1072,19 @@ script_mod! {
             }
         }
 
+        // A4 — the native board-3 dialogs (inventory, workspace create,
+        // fleet, inspector, thinking effort, resume, images, history,
+        // session switcher). LAST in the Overlay so the open dialog and its
+        // backdrop paint over all chrome; hidden (with its Fill/Fill
+        // wrapper) while no dialog is open, so it never shadows a click.
+        board3_dock := View {
+            width: Fill height: Fill
+            visible: false
+            board3_splash := Splash {
+                width: Fill height: Fill
+            }
+        }
+
     }
 }
 
@@ -1318,6 +1331,12 @@ pub struct OctoscodeView {
     /// (`screens::taps::owner_of`).
     #[rust]
     screen_taps: Vec<(LiveId, String)>,
+    /// A4 — the open board-3 dialog's taps (from `taps::wired_taps` over the
+    /// mounted DSL) and its text inputs (widget id, input key).
+    #[rust]
+    b3_taps: Vec<(LiveId, String)>,
+    #[rust]
+    b3_inputs: Vec<(LiveId, String)>,
     /// #32h: the 1 Hz remount guard — sync_labels runs on EVERY Signal and
     /// the phone's transport events arrive constantly, so the first-run card
     /// was re-lowered + re-wired each time (device log: "card events: 1
@@ -1557,6 +1576,16 @@ impl OctoscodeView {
     /// the host's, not the module's, so the write must happen here rather than
     /// inside a resolver. #35d.
     fn perform_action(&mut self, cx: &mut Cx, action: &str, index: usize) {
+        // A4 — the native board-3 surfaces own every `b3.*` id (one owner):
+        // UI-local first (no connection needed to switch a tab or close),
+        // then the job/clipboard the action asked for.
+        if screens::board3::host::routes(action) {
+            let store = { self.bridge.lock().unwrap().store.clone() };
+            let outcome = screens::board3::host::perform(action, index, &store);
+            makepad_widgets::log!("[octoscode] board3 action {action} #{index} -> {outcome:?}");
+            self.board3_outcome(cx, outcome);
+            return;
+        }
         // #30b: board-3 autonomy actions route through their own table first
         // (one-owner rule); no other router sees these ids. `goal.set` /
         // `monitor.create` carry the composer draft as their entry text.
@@ -2641,6 +2670,10 @@ impl OctoscodeView {
                 }
             }
         }
+        // A4 — mount the open board-3 dialog (or hide its dock). The frame is
+        // the module's own laid-out rect, so the dialog sizes like the web's
+        // `min(<max>px, 100%)` card on the desktop window AND a phone.
+        self.sync_board3(cx);
         // #28e4 item 2: the first-run card area mounts the REAL board-2
         // Connect screen (setup-01, #29a) — `screens::connect::lower_screen`
         // lowers the authored Stage B card with the ConnectUi copies applied,
@@ -2717,6 +2750,86 @@ impl OctoscodeView {
         }
         self.sync_chrome(cx);
         ::log::info!("[octoscode] {text} | sessions: {sessions}");
+    }
+
+    /// A4 — mount the open board-3 dialog into `board3_splash` (the mount
+    /// cache dedupes an unchanged DSL), publish its taps through the shared
+    /// `taps::wired_taps` path, and apply the inputs' live visibility.
+    fn sync_board3(&mut self, cx: &mut Cx) {
+        let rect = self.view.area().rect(cx);
+        screens::board3::host::set_frame(rect.size.x, rect.size.y);
+        let store = { self.bridge.lock().unwrap().store.clone() };
+        let lowered = screens::board3::host::lower_open(&store);
+        self.view.widget(cx, ids!(board3_dock)).set_visible(cx, lowered.is_some());
+        let Some(lowered) = lowered else {
+            self.b3_taps.clear();
+            self.b3_inputs.clear();
+            return;
+        };
+        self.b3_taps = screens::taps::wired_taps(&lowered.dsl)
+            .into_iter()
+            .map(|(n, e)| (LiveId::from_str(&n), e))
+            .collect();
+        self.b3_inputs = lowered
+            .inputs
+            .iter()
+            .map(|(n, k)| (LiveId::from_str(n), k.clone()))
+            .collect();
+        let splash = self.view.splash(cx, ids!(board3_splash));
+        match self.mounts.mount(cx, &splash, &lowered.dsl) {
+            Err(e) => makepad_widgets::log!("[octoscode] board3 mount: {e}"),
+            Ok(true) => makepad_widgets::log!(
+                "[octoscode] board3 mounted {:?}: {} tap(s), {} input(s)",
+                screens::board3::host::open_dialog(),
+                self.b3_taps.len(),
+                self.b3_inputs.len()
+            ),
+            Ok(false) => {}
+        }
+        self.board3_visibility(cx, &store);
+    }
+
+    /// A4 — the inputs drive row/empty-state/validation visibility WITHOUT a
+    /// remount (a remount would rebuild the focused TextInput).
+    fn board3_visibility(&mut self, cx: &mut Cx, store: &Store) {
+        for (id, vis) in screens::board3::host::live_visibility(store) {
+            self.view
+                .widget(cx, &[live_id!(board3_splash), LiveId::from_str(&id)])
+                .set_visible(cx, vis);
+        }
+        self.view.redraw(cx);
+    }
+
+    /// A4 — carry out what a board-3 action asked for: a transport job on
+    /// the runtime (wakes the UI when the reply is folded), or a clipboard
+    /// write (the host owns `cx`).
+    fn board3_outcome(&mut self, cx: &mut Cx, outcome: screens::board3::host::Outcome) {
+        use screens::board3::host::Outcome;
+        match outcome {
+            Outcome::Spawn(job) => {
+                let conv = { self.bridge.lock().unwrap().conv.clone() };
+                match (self.runtime.as_ref(), conv) {
+                    (Some(rt), Some(conv)) => {
+                        rt.spawn(async move {
+                            match screens::board3::host::run(job.clone(), &conv).await {
+                                Ok(s) => makepad_widgets::log!("[octoscode] board3 {job:?}: {s}"),
+                                Err(e) => makepad_widgets::log!("[octoscode] board3 {job:?} failed: {e}"),
+                            }
+                            SignalToUI::set_ui_signal();
+                        });
+                    }
+                    _ => {
+                        screens::board3::host::job_unavailable(&job);
+                        makepad_widgets::log!("[octoscode] board3 {job:?}: no connection");
+                    }
+                }
+            }
+            Outcome::Clipboard(text) => {
+                cx.copy_to_clipboard(&text);
+                makepad_widgets::log!("[octoscode] board3 clipboard: {} bytes", text.len());
+            }
+            Outcome::Done | Outcome::Unrouted => {}
+        }
     }
 
     /// Card #28e — move the chrome state (FlowUi flags + store) onto the view:
@@ -3293,6 +3406,43 @@ impl Widget for OctoscodeView {
                         }
                     }
                 }
+                // A4 — the open board-3 dialog's taps: the same shared path
+                // (`wired_taps` published them; `split_row` decodes the #FX1
+                // row suffix), routed to the one owner via perform_action.
+                let b3_taps = self.b3_taps.clone();
+                for (id, ev) in &b3_taps {
+                    if self
+                        .view
+                        .button(cx, &[live_id!(board3_splash), *id])
+                        .clicked(actions)
+                    {
+                        makepad_widgets::log!("[octoscode] board3 tap: {ev}");
+                        let (base, row) = screens::taps::split_row(ev);
+                        self.perform_action(cx, base, row.unwrap_or(0));
+                    }
+                }
+                // A4 — the dialog's text inputs: `changed` updates the live
+                // value (filters re-apply by visibility, no remount);
+                // `returned` runs the field's primary action.
+                let b3_inputs = self.b3_inputs.clone();
+                let mut b3_dirty = false;
+                for (id, key) in &b3_inputs {
+                    let input = self.view.text_input(cx, &[live_id!(board3_splash), *id]);
+                    if let Some(text) = input.changed(actions) {
+                        screens::board3::host::input_changed(key, &text);
+                        b3_dirty = true;
+                    }
+                    if input.returned(actions).is_some() {
+                        let outcome = screens::board3::host::input_returned(key);
+                        makepad_widgets::log!("[octoscode] board3 return in {key} -> {outcome:?}");
+                        self.board3_outcome(cx, outcome);
+                        b3_dirty = true;
+                    }
+                }
+                if b3_dirty {
+                    let store = { self.bridge.lock().unwrap().store.clone() };
+                    self.board3_visibility(cx, &store);
+                }
                 // The #16 `new-chat` component, and the host hit target laid over
                 // it.
                 //
@@ -3475,6 +3625,15 @@ impl Widget for OctoscodeView {
                     makepad_widgets::log!("[octoscode] ime action -> submit (IME Enter)");
                     self.perform_action(cx, bindings::ACTION_SUBMIT, 0);
                 }
+            }
+            Event::KeyDown(e) if e.key_code == KeyCode::Escape
+                && screens::board3::host::is_open() =>
+            {
+                // A4 — Escape closes the open board-3 dialog first
+                // (`ui/ModalSurface.tsx` onEscape), never interrupting a turn.
+                screens::board3::host::close();
+                makepad_widgets::log!("[octoscode] board3 closed (Escape)");
+                self.sync_labels(cx);
             }
             Event::KeyDown(e) => {
                 let (ui, store, conv) = {

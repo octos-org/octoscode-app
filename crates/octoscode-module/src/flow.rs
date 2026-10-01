@@ -1126,6 +1126,25 @@ impl Conversation {
         // ported 47-command registry, act on the match. A PATH-shaped input
         // ("/home/user/x/y", "/c/d") is a PROMPT and reaches the model verbatim —
         // the old arm refused every leading-slash input, paths included.
+        // A4 — the board-3 surfaces answer their web commands locally
+        // (`/tools`, `/mcp`, `/threads`, `/turn`, `/permissions`,
+        // `/thinking`, `/resume`, `/images`, `/rewind`, `/undo`, `/fork`,
+        // `/sessions`, `/vimmode`; registry.ts intents). The invocation never
+        // reaches the model: open the surface, clear the draft, run its load.
+        if let Some((name, args)) = crate::screens::palette::parse_command_invocation(&text) {
+            if let Some(outcome) = crate::screens::board3::host::command(&name, &args, &self.store) {
+                self.ui.lock().unwrap().set_draft_inner(String::new());
+                makepad_widgets::SignalToUI::set_ui_signal();
+                makepad_widgets::log!("[octoscode] command /{name}: board-3 surface ({outcome:?})");
+                if let crate::screens::board3::host::Outcome::Spawn(job) = outcome {
+                    if let Err(e) = crate::screens::board3::host::run(job, self).await {
+                        makepad_widgets::log!("[octoscode] command /{name}: {e}");
+                    }
+                    makepad_widgets::SignalToUI::set_ui_signal();
+                }
+                return Ok(String::new());
+            }
+        }
         match crate::screens::palette::match_command(&text) {
             None => {}
             Some(crate::screens::palette::CommandMatch::Known(_, _)) => {}

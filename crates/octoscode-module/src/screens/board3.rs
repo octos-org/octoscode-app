@@ -11,6 +11,15 @@
 //! candidate gate, the strip's read-only projections.
 use octoscode_store::Store;
 
+// A4 — the NATIVE board-3 surfaces (all twelve screens). The static Stage-B
+// cards above stay for the `OCTOSCODE_SCREEN=p4n3-0N` dev mount; what the
+// user reaches is the flow-laid-out dialog family in `board3/` (see
+// `board3/ui.rs` for why: runtime lists + a desktop window shorter than the
+// 406x776 artboard).
+pub mod host;
+pub mod inventory;
+pub mod ui;
+
 const CARDS: &str = "stage-b/phase4-new3/cards";
 
 /// `OCTOSCODE_SCREEN` → the board-3 card to mount. Only these four; #D1's
