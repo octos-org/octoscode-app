@@ -22,6 +22,19 @@ copy r03_w_text { class: user-copy, en: "2h" }
 copy r04_t_text { class: user-copy, en: "Why is hydrate slow?" }
 copy r04_w_text { class: user-copy, en: "Yesterday" }
 copy t_addws_text { class: user-copy, en: "Add workspace" }
+state ctl_drawer_close_control_enabled { shape: bool, initial: true }
+state ctl_newchat_control_enabled { shape: bool, initial: true }
+state ctl_search_control_enabled { shape: bool, initial: true }
+state ctl_seg_ws_control_enabled { shape: bool, initial: true }
+state ctl_seg_all_control_enabled { shape: bool, initial: true }
+state ctl_grp_octos_control_enabled { shape: bool, initial: true }
+state ctl_row0_control_enabled { shape: bool, initial: true }
+state ctl_row1_control_enabled { shape: bool, initial: true }
+state ctl_row2_control_enabled { shape: bool, initial: true }
+state ctl_grp_octoscode_app_control_enabled { shape: bool, initial: true }
+state ctl_row3_control_enabled { shape: bool, initial: true }
+state ctl_row4_control_enabled { shape: bool, initial: true }
+state ctl_addws_control_enabled { shape: bool, initial: true }
 component Surfaceb4206391250d(instance: text) {
   view Kit(component: "Surfaceb4206391250d", instance: instance) { slot }
 }
@@ -36,6 +49,9 @@ component Surface13b18c6e4e55(instance: text) {
 }
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
 }
 component Text1fc805239139(instance: text, text: text) {
   view Kit(component: "Text1fc805239139", instance: instance, text: text)
@@ -124,9 +140,11 @@ view root Surfaceb4206391250d(instance: "page") {
 
   }
   Vectore0a378fde04f(instance: "i_close")
+  NativeButton02f1d1bd99b4(instance: "ctl_drawer_close_control", enabled: ctl_drawer_close_control_enabled)
   Text1fc805239139(instance: "t_head", text: copy.t_head_text)
   Vectore0a378fde04f(instance: "i_pencil")
   Text89651214c705(instance: "t_newchat", text: copy.t_newchat_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_newchat_control", enabled: ctl_newchat_control_enabled)
   Surface6713cb6430de(instance: "sf") {
     Surface4fce4f8c128d(instance: "sf_hair") {
 
@@ -134,6 +152,7 @@ view root Surfaceb4206391250d(instance: "page") {
   }
   Vectore0a378fde04f(instance: "i_search")
   Text5208cc241f47(instance: "t_search", text: copy.t_search_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_search_control", enabled: ctl_search_control_enabled)
   Surfaceefa0eff9d2a2(instance: "seg") {
 
   }
@@ -142,25 +161,35 @@ view root Surfaceb4206391250d(instance: "page") {
   }
   Text4e4b098a0e31(instance: "t_seg_l", text: copy.t_seg_l_text)
   Text65fb2a97a566(instance: "t_seg_r", text: copy.t_seg_r_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_seg_ws_control", enabled: ctl_seg_ws_control_enabled)
+  NativeButton02f1d1bd99b4(instance: "ctl_seg_all_control", enabled: ctl_seg_all_control_enabled)
   Vectore0a378fde04f(instance: "i_sort")
   Text713f6845d3ca(instance: "t_sort", text: copy.t_sort_text)
   Vectore0a378fde04f(instance: "i_chev_octos")
   Text5a3a1583586e(instance: "t_grp_octos", text: copy.t_grp_octos_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_grp_octos_control", enabled: ctl_grp_octos_control_enabled)
   Surfaceb816a9ebc468(instance: "r00_sel") {
 
   }
   Textfeff761086cf(instance: "r00_t", text: copy.r00_t_text)
   Text5478e70add08(instance: "r00_w", text: copy.r00_w_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_row0_control", enabled: ctl_row0_control_enabled)
   Text7e41035ead5b(instance: "r01_t", text: copy.r01_t_text)
   Text8ead38574bf2(instance: "r01_w", text: copy.r01_w_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_row1_control", enabled: ctl_row1_control_enabled)
   Text65cf4191286c(instance: "r02_t", text: copy.r02_t_text)
   Text7c5cacbf4062(instance: "r02_w", text: copy.r02_w_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_row2_control", enabled: ctl_row2_control_enabled)
   Vectore0a378fde04f(instance: "i_chev_octoscode_app")
   Text2e0b9a0d7780(instance: "t_grp_octoscode_app", text: copy.t_grp_octoscode_app_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_grp_octoscode_app_control", enabled: ctl_grp_octoscode_app_control_enabled)
   Texta79abdbfdd38(instance: "r03_t", text: copy.r03_t_text)
   Text8ddc74180da5(instance: "r03_w", text: copy.r03_w_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_row3_control", enabled: ctl_row3_control_enabled)
   Text88ed35e0bd3c(instance: "r04_t", text: copy.r04_t_text)
   Text76f9c888fee6(instance: "r04_w", text: copy.r04_w_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_row4_control", enabled: ctl_row4_control_enabled)
   Vectore0a378fde04f(instance: "i_plus")
   Textfaefc4e17da3(instance: "t_addws", text: copy.t_addws_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_addws_control", enabled: ctl_addws_control_enabled)
 }

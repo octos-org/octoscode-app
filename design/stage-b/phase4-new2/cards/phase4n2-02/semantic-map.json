@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "3ecce764bd743f1d09bb859c1e19e42d5c82ffa70e7f8282d681d42d0ca02c8e",
+  "contract_sha256": "c8b1d274760c09903d52e2168c688f4f30a4519c9c3d154c300273ab89173233",
   "reference_sha256": "75c3e6d3a8c57ee1c8ca46d0e4fe7712041f53bcdf9544771cd741fd3172d320",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -43,6 +43,13 @@
       "decision": "declared"
     },
     {
+      "id": "ctl_newchat_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "sf",
       "role": "layout",
       "basis": "authored stack node",
@@ -80,6 +87,13 @@
       "decision": "declared"
     },
     {
+      "id": "ctl_search_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "seg",
       "role": "layout",
       "basis": "authored stack node",
@@ -104,6 +118,20 @@
       "id": "t_seg_r",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "ctl_seg_ws_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "ctl_seg_all_control",
+      "role": "button",
+      "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -161,6 +189,13 @@
       "decision": "declared"
     },
     {
+      "id": "ctl_strow0_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "i_st1",
       "role": "icon",
       "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
@@ -187,6 +222,13 @@
       "id": "st_w1",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "ctl_strow1_control",
+      "role": "button",
+      "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -221,6 +263,13 @@
       "decision": "declared"
     },
     {
+      "id": "ctl_strow2_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "i_st3",
       "role": "icon",
       "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
@@ -247,6 +296,13 @@
       "id": "st_w3",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "ctl_strow3_control",
+      "role": "button",
+      "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -281,6 +337,13 @@
       "decision": "declared"
     },
     {
+      "id": "ctl_strow4_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "i_plus",
       "role": "icon",
       "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
@@ -300,6 +363,13 @@
       "id": "t_addws",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "ctl_addws_control",
+      "role": "button",
+      "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     }

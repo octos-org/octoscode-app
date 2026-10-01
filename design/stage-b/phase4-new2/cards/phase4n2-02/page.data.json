@@ -39,6 +39,15 @@
           "h": 30.839097744360902
         }
       },
+      "ctl_newchat_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 20.0,
+          "y": 50.0,
+          "w": 140.0,
+          "h": 30.0
+        }
+      },
       "sf": {
         "component": "Surfacedfc776213dd1",
         "layout": {
@@ -76,6 +85,15 @@
           "h": 28.50526315789474
         }
       },
+      "ctl_search_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 20.0,
+          "y": 92.0,
+          "w": 366.0,
+          "h": 40.0
+        }
+      },
       "seg": {
         "component": "Surface90d6ac3d63b2",
         "layout": {
@@ -110,6 +128,24 @@
           "y": 226.71578947368423,
           "w": 18.139303482587067,
           "h": 21.503759398496243
+        }
+      },
+      "ctl_seg_ws_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 24.0,
+          "y": 152.0,
+          "w": 105.0,
+          "h": 26.0
+        }
+      },
+      "ctl_seg_all_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 129.0,
+          "y": 152.0,
+          "w": 105.0,
+          "h": 26.0
         }
       },
       "i_sort": {
@@ -159,6 +195,15 @@
           "h": 22.670676691729323
         }
       },
+      "ctl_strow0_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 208.0,
+          "w": 374.0,
+          "h": 36.0
+        }
+      },
       "i_st1": {
         "component": "Vectore0a378fde04f",
         "layout": {
@@ -185,6 +230,15 @@
           "y": 372.5804511278196,
           "w": 15.446102819237149,
           "h": 22.670676691729323
+        }
+      },
+      "ctl_strow1_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 250.0,
+          "w": 374.0,
+          "h": 36.0
         }
       },
       "i_st2": {
@@ -215,6 +269,15 @@
           "h": 27.338345864661655
         }
       },
+      "ctl_strow2_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 292.0,
+          "w": 374.0,
+          "h": 36.0
+        }
+      },
       "i_st3": {
         "component": "Vectore0a378fde04f",
         "layout": {
@@ -241,6 +304,15 @@
           "y": 496.27368421052637,
           "w": 17.466003316749585,
           "h": 22.670676691729323
+        }
+      },
+      "ctl_strow3_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 334.0,
+          "w": 374.0,
+          "h": 36.0
         }
       },
       "i_st4": {
@@ -271,6 +343,15 @@
           "h": 27.338345864661655
         }
       },
+      "ctl_strow4_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 376.0,
+          "w": 374.0,
+          "h": 36.0
+        }
+      },
       "i_plus": {
         "component": "Vectore0a378fde04f",
         "layout": {
@@ -288,6 +369,15 @@
           "y": 724.9894736842106,
           "w": 127.21393034825871,
           "h": 29.672180451127822
+        }
+      },
+      "ctl_addws_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 718.0,
+          "w": 220.0,
+          "h": 32.0
         }
       }
     },

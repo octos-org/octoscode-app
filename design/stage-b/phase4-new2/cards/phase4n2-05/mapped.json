@@ -70,6 +70,15 @@
         "src": ""
       },
       {
+        "t": "button",
+        "id": "ctl_drawer_close_control",
+        "x": 314.0,
+        "y": 10.0,
+        "w": 32.0,
+        "h": 32.0,
+        "enabled": 1
+      },
+      {
         "t": "text",
         "id": "t_head",
         "text": "OctosCode",
@@ -115,6 +124,15 @@
         "tracking": -11.687098709870986,
         "font_asc": -0.18501752831660334,
         "font_desc": 0.17281049706660334
+      },
+      {
+        "t": "button",
+        "id": "ctl_newchat_control",
+        "x": 20.0,
+        "y": 50.0,
+        "w": 140.0,
+        "h": 30.0,
+        "enabled": 1
       },
       {
         "t": "stack",
@@ -168,6 +186,15 @@
         "tracking": -10.04883504279811,
         "font_asc": -0.17130785545532645,
         "font_desc": 0.1683781679553265
+      },
+      {
+        "t": "button",
+        "id": "ctl_search_control",
+        "x": 20.0,
+        "y": 92.0,
+        "w": 366.0,
+        "h": 40.0,
+        "enabled": 1
       },
       {
         "t": "stack",
@@ -232,6 +259,24 @@
         "font_desc": 0.16620691043814434
       },
       {
+        "t": "button",
+        "id": "ctl_seg_ws_control",
+        "x": 24.0,
+        "y": 152.0,
+        "w": 105.0,
+        "h": 26.0,
+        "enabled": 1
+      },
+      {
+        "t": "button",
+        "id": "ctl_seg_all_control",
+        "x": 129.0,
+        "y": 152.0,
+        "w": 105.0,
+        "h": 26.0,
+        "enabled": 1
+      },
+      {
         "t": "svg",
         "id": "i_sort",
         "x": 380.0,
@@ -288,6 +333,15 @@
         "font_desc": 0.159154518363402
       },
       {
+        "t": "button",
+        "id": "ctl_grp_octos_control",
+        "x": 16.0,
+        "y": 210.0,
+        "w": 250.0,
+        "h": 30.0,
+        "enabled": 1
+      },
+      {
         "t": "stack",
         "id": "r00_sel",
         "x": 8.0,
@@ -338,6 +392,15 @@
         "font_desc": 0.1593531609337827
       },
       {
+        "t": "button",
+        "id": "ctl_row0_control",
+        "x": 16.0,
+        "y": 244.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
+      },
+      {
         "t": "text",
         "id": "r01_t",
         "text": "Add session fork",
@@ -374,6 +437,15 @@
         "tracking": -14.152575612307155,
         "font_asc": -0.17120717890893467,
         "font_desc": 0.17120717890893472
+      },
+      {
+        "t": "button",
+        "id": "ctl_row1_control",
+        "x": 16.0,
+        "y": 284.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
       },
       {
         "t": "text",
@@ -414,6 +486,15 @@
         "font_desc": -0.04181208834478811
       },
       {
+        "t": "button",
+        "id": "ctl_row2_control",
+        "x": 16.0,
+        "y": 324.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
+      },
+      {
         "t": "svg",
         "id": "i_chev_octoscode_app",
         "x": 24.0,
@@ -440,6 +521,15 @@
         "tracking": -9.85463598246617,
         "font_asc": -0.1771806539948454,
         "font_desc": -0.02692090850515466
+      },
+      {
+        "t": "button",
+        "id": "ctl_grp_octoscode_app_control",
+        "x": 16.0,
+        "y": 384.0,
+        "w": 250.0,
+        "h": 30.0,
+        "enabled": 1
       },
       {
         "t": "text",
@@ -480,6 +570,15 @@
         "font_desc": 0.1652001449742268
       },
       {
+        "t": "button",
+        "id": "ctl_row3_control",
+        "x": 16.0,
+        "y": 418.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
+      },
+      {
         "t": "text",
         "id": "r04_t",
         "text": "Why is hydrate slow?",
@@ -518,6 +617,15 @@
         "font_desc": -0.04181208834478811
       },
       {
+        "t": "button",
+        "id": "ctl_row4_control",
+        "x": 16.0,
+        "y": 458.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
+      },
+      {
         "t": "svg",
         "id": "i_plus",
         "x": 24.0,
@@ -544,6 +652,15 @@
         "tracking": -6.634162832276039,
         "font_asc": -0.15717119039948457,
         "font_desc": -0.04693037210051554
+      },
+      {
+        "t": "button",
+        "id": "ctl_addws_control",
+        "x": 16.0,
+        "y": 718.0,
+        "w": 220.0,
+        "h": 32.0,
+        "enabled": 1
       }
     ]
   },

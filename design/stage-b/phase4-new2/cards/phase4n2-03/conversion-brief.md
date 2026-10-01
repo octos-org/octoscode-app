@@ -75,6 +75,18 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "ctl_newchat_control",
+    "x": 20.0,
+    "y": 50.0,
+    "w": 140.0,
+    "h": 30.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
     "id": "sf",
     "x": 20,
     "y": 92,
@@ -131,6 +143,30 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "native_candidates": []
   },
   {
+    "id": "ctl_search_clear_control",
+    "x": 348.0,
+    "y": 98.0,
+    "w": 26.0,
+    "h": 26.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "ctl_search_control",
+    "x": 20.0,
+    "y": 92.0,
+    "w": 366.0,
+    "h": 40.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
     "id": "seg",
     "x": 20,
     "y": 148,
@@ -185,6 +221,30 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "ctl_seg_ws_control",
+    "x": 24.0,
+    "y": 152.0,
+    "w": 105.0,
+    "h": 26.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
+    "id": "ctl_seg_all_control",
+    "x": 129.0,
+    "y": 152.0,
+    "w": 105.0,
+    "h": 26.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
     "id": "i_sort",
     "x": 380,
     "y": 156,
@@ -232,6 +292,18 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "native_candidates": [
       "Label",
       "TextFlow"
+    ]
+  },
+  {
+    "id": "ctl_grp_octos_control",
+    "x": 16.0,
+    "y": 210.0,
+    "w": 250.0,
+    "h": 30.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
     ]
   },
   {
@@ -321,6 +393,18 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "ctl_row0_control",
+    "x": 16.0,
+    "y": 244.0,
+    "w": 374.0,
+    "h": 36.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
     "id": "i_chev_octoscode_app",
     "x": 24,
     "y": 308,
@@ -343,6 +427,18 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "native_candidates": [
       "Label",
       "TextFlow"
+    ]
+  },
+  {
+    "id": "ctl_grp_octoscode_app_control",
+    "x": 16.0,
+    "y": 302.0,
+    "w": 250.0,
+    "h": 30.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
     ]
   },
   {
@@ -378,6 +474,18 @@ legacy Studio capture/gate adapters require their own evidence schema.
     ]
   },
   {
+    "id": "ctl_clear_search_control",
+    "x": 50.0,
+    "y": 364.0,
+    "w": 122.0,
+    "h": 30.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
+    ]
+  },
+  {
     "id": "i_plus",
     "x": 24,
     "y": 726,
@@ -400,6 +508,18 @@ legacy Studio capture/gate adapters require their own evidence schema.
     "native_candidates": [
       "Label",
       "TextFlow"
+    ]
+  },
+  {
+    "id": "ctl_addws_control",
+    "x": 16.0,
+    "y": 718.0,
+    "w": 220.0,
+    "h": 32.0,
+    "role": "button",
+    "native_candidates": [
+      "Button",
+      "KitButton"
     ]
   }
 ]

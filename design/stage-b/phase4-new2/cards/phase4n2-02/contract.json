@@ -73,6 +73,15 @@
         "font_src": "self:resources/ux/Inter-500.ttf"
       },
       {
+        "t": "button",
+        "id": "ctl_newchat_control",
+        "x": 20.0,
+        "y": 50.0,
+        "w": 140.0,
+        "h": 30.0,
+        "enabled": 1
+      },
+      {
         "t": "stack",
         "id": "sf",
         "x": 20,
@@ -121,6 +130,15 @@
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "button",
+        "id": "ctl_search_control",
+        "x": 20.0,
+        "y": 92.0,
+        "w": 366.0,
+        "h": 40.0,
+        "enabled": 1
       },
       {
         "t": "stack",
@@ -177,6 +195,24 @@
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-500.ttf"
+      },
+      {
+        "t": "button",
+        "id": "ctl_seg_ws_control",
+        "x": 24.0,
+        "y": 152.0,
+        "w": 105.0,
+        "h": 26.0,
+        "enabled": 1
+      },
+      {
+        "t": "button",
+        "id": "ctl_seg_all_control",
+        "x": 129.0,
+        "y": 152.0,
+        "w": 105.0,
+        "h": 26.0,
+        "enabled": 1
       },
       {
         "t": "svg",
@@ -245,6 +281,15 @@
         "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {
+        "t": "button",
+        "id": "ctl_strow0_control",
+        "x": 16.0,
+        "y": 208.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
+      },
+      {
         "t": "svg",
         "id": "i_st1",
         "x": 24,
@@ -284,6 +329,15 @@
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "button",
+        "id": "ctl_strow1_control",
+        "x": 16.0,
+        "y": 250.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
       },
       {
         "t": "svg",
@@ -327,6 +381,15 @@
         "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {
+        "t": "button",
+        "id": "ctl_strow2_control",
+        "x": 16.0,
+        "y": 292.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
+      },
+      {
         "t": "svg",
         "id": "i_st3",
         "x": 24,
@@ -366,6 +429,15 @@
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "button",
+        "id": "ctl_strow3_control",
+        "x": 16.0,
+        "y": 334.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
       },
       {
         "t": "svg",
@@ -409,6 +481,15 @@
         "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {
+        "t": "button",
+        "id": "ctl_strow4_control",
+        "x": 16.0,
+        "y": 376.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
+      },
+      {
         "t": "svg",
         "id": "i_plus",
         "x": 24,
@@ -432,6 +513,15 @@
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-500.ttf"
+      },
+      {
+        "t": "button",
+        "id": "ctl_addws_control",
+        "x": 16.0,
+        "y": 718.0,
+        "w": 220.0,
+        "h": 32.0,
+        "enabled": 1
       }
     ]
   }

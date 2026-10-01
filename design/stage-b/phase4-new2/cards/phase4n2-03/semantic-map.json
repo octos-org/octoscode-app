@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "9a4db1fb10668c122e840a4ffd45168fe19400f0b429a813d4266a212fc86ad9",
+  "contract_sha256": "bb1aea3cf60756bd5b8d3164b2acf13f1a37b5e16631367440c3d4b2e5e265b6",
   "reference_sha256": "2dc2cfabadfe094b439b4fa6d0a60c70b77971b77f7da02dfb6b1f0d8bd61dde",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -39,6 +39,13 @@
       "id": "t_newchat",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "ctl_newchat_control",
+      "role": "button",
+      "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -96,6 +103,20 @@
       }
     },
     {
+      "id": "ctl_search_clear_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "ctl_search_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "seg",
       "role": "layout",
       "basis": "authored stack node",
@@ -120,6 +141,20 @@
       "id": "t_seg_r",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "ctl_seg_ws_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "ctl_seg_all_control",
+      "role": "button",
+      "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -170,6 +205,13 @@
       "decision": "declared"
     },
     {
+      "id": "ctl_grp_octos_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "r00_sel",
       "role": "layout",
       "basis": "authored stack node",
@@ -212,6 +254,13 @@
       "decision": "declared"
     },
     {
+      "id": "ctl_row0_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "i_chev_octoscode_app",
       "role": "icon",
       "basis": "Line icon reconstructed as vector paths from the reference; no raster or UI text.",
@@ -235,6 +284,13 @@
       "decision": "declared"
     },
     {
+      "id": "ctl_grp_octoscode_app_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "empty1",
       "role": "text",
       "basis": "authored text node",
@@ -245,6 +301,13 @@
       "id": "clear1",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "ctl_clear_search_control",
+      "role": "button",
+      "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -268,6 +331,13 @@
       "id": "t_addws",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "ctl_addws_control",
+      "role": "button",
+      "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     }

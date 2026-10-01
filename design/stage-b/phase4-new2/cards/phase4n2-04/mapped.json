@@ -60,6 +60,15 @@
         "font_desc": 0.17387939343693973
       },
       {
+        "t": "button",
+        "id": "ctl_newchat_control",
+        "x": 20.0,
+        "y": 50.0,
+        "w": 140.0,
+        "h": 30.0,
+        "enabled": 1
+      },
+      {
         "t": "stack",
         "id": "sf",
         "x": 14.0,
@@ -111,6 +120,15 @@
         "tracking": -8.696395691091878,
         "font_asc": -0.17023397229381443,
         "font_desc": 0.16730428479381443
+      },
+      {
+        "t": "button",
+        "id": "ctl_search_control",
+        "x": 20.0,
+        "y": 92.0,
+        "w": 366.0,
+        "h": 40.0,
+        "enabled": 1
       },
       {
         "t": "stack",
@@ -175,6 +193,24 @@
         "font_desc": 0.15808147417310997
       },
       {
+        "t": "button",
+        "id": "ctl_seg_ws_control",
+        "x": 24.0,
+        "y": 152.0,
+        "w": 105.0,
+        "h": 26.0,
+        "enabled": 1
+      },
+      {
+        "t": "button",
+        "id": "ctl_seg_all_control",
+        "x": 129.0,
+        "y": 152.0,
+        "w": 105.0,
+        "h": 26.0,
+        "enabled": 1
+      },
+      {
         "t": "svg",
         "id": "i_sort",
         "x": 380.0,
@@ -231,6 +267,15 @@
         "font_desc": 0.16456483401793384
       },
       {
+        "t": "button",
+        "id": "ctl_grp_octos_control",
+        "x": 16.0,
+        "y": 210.0,
+        "w": 250.0,
+        "h": 30.0,
+        "enabled": 1
+      },
+      {
         "t": "stack",
         "id": "grp_badge",
         "x": 320.0,
@@ -283,6 +328,15 @@
         "src": ""
       },
       {
+        "t": "button",
+        "id": "ctl_grp_menu_control",
+        "x": 356.0,
+        "y": 210.0,
+        "w": 34.0,
+        "h": 30.0,
+        "enabled": 1
+      },
+      {
         "t": "stack",
         "id": "menu",
         "x": 15.0,
@@ -324,6 +378,15 @@
         "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {
+        "t": "button",
+        "id": "ctl_menu0_control",
+        "x": 326.0,
+        "y": 252.0,
+        "w": 142.0,
+        "h": 28.0,
+        "enabled": 1
+      },
+      {
         "t": "text",
         "id": "menu_t1",
         "text": "Rename",
@@ -340,6 +403,15 @@
         "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {
+        "t": "button",
+        "id": "ctl_menu1_control",
+        "x": 326.0,
+        "y": 282.0,
+        "w": 142.0,
+        "h": 28.0,
+        "enabled": 1
+      },
+      {
         "t": "text",
         "id": "menu_t2",
         "text": "Remove from sidebar",
@@ -354,6 +426,15 @@
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "button",
+        "id": "ctl_menu2_control",
+        "x": 326.0,
+        "y": 312.0,
+        "w": 142.0,
+        "h": 28.0,
+        "enabled": 1
       },
       {
         "t": "svg",
@@ -382,6 +463,15 @@
         "tracking": -8.052225261998425,
         "font_asc": -0.17734072970360826,
         "font_desc": -0.02676083279639163
+      },
+      {
+        "t": "button",
+        "id": "ctl_grp_octoscode_app_control",
+        "x": 16.0,
+        "y": 262.0,
+        "w": 250.0,
+        "h": 30.0,
+        "enabled": 1
       },
       {
         "t": "text",
@@ -422,6 +512,15 @@
         "font_desc": 0.15696564245060138
       },
       {
+        "t": "button",
+        "id": "ctl_row0_control",
+        "x": 16.0,
+        "y": 296.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
+      },
+      {
         "t": "text",
         "id": "r01_t",
         "text": "Why is hydrate slow?",
@@ -460,6 +559,15 @@
         "font_desc": -0.0431516457259451
       },
       {
+        "t": "button",
+        "id": "ctl_row1_control",
+        "x": 16.0,
+        "y": 336.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
+      },
+      {
         "t": "svg",
         "id": "i_plus",
         "x": 24.0,
@@ -486,6 +594,15 @@
         "tracking": -7.687280853772715,
         "font_asc": -0.17178679859087853,
         "font_desc": -0.032314763909121524
+      },
+      {
+        "t": "button",
+        "id": "ctl_addws_control",
+        "x": 16.0,
+        "y": 718.0,
+        "w": 220.0,
+        "h": 32.0,
+        "enabled": 1
       }
     ]
   },

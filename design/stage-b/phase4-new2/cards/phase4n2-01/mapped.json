@@ -60,6 +60,15 @@
         "font_desc": 0.17387939343693973
       },
       {
+        "t": "button",
+        "id": "ctl_newchat_control",
+        "x": 20.0,
+        "y": 50.0,
+        "w": 140.0,
+        "h": 30.0,
+        "enabled": 1
+      },
+      {
         "t": "stack",
         "id": "sf",
         "x": 13.0,
@@ -111,6 +120,15 @@
         "tracking": -8.901670582373534,
         "font_asc": -0.17023397229381443,
         "font_desc": 0.16730428479381443
+      },
+      {
+        "t": "button",
+        "id": "ctl_search_control",
+        "x": 20.0,
+        "y": 92.0,
+        "w": 366.0,
+        "h": 40.0,
+        "enabled": 1
       },
       {
         "t": "stack",
@@ -175,6 +193,24 @@
         "font_desc": 0.1632770656310406
       },
       {
+        "t": "button",
+        "id": "ctl_seg_ws_control",
+        "x": 24.0,
+        "y": 152.0,
+        "w": 105.0,
+        "h": 26.0,
+        "enabled": 1
+      },
+      {
+        "t": "button",
+        "id": "ctl_seg_all_control",
+        "x": 129.0,
+        "y": 152.0,
+        "w": 105.0,
+        "h": 26.0,
+        "enabled": 1
+      },
+      {
         "t": "svg",
         "id": "i_sort",
         "x": 380.0,
@@ -231,6 +267,15 @@
         "font_desc": 0.1563878796764257
       },
       {
+        "t": "button",
+        "id": "ctl_grp_octos_control",
+        "x": 16.0,
+        "y": 210.0,
+        "w": 250.0,
+        "h": 30.0,
+        "enabled": 1
+      },
+      {
         "t": "stack",
         "id": "r00_sel",
         "x": 11.0,
@@ -281,6 +326,15 @@
         "font_desc": 0.15696564245060138
       },
       {
+        "t": "button",
+        "id": "ctl_row0_control",
+        "x": 16.0,
+        "y": 244.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
+      },
+      {
         "t": "text",
         "id": "r01_t",
         "text": "Add session fork",
@@ -317,6 +371,15 @@
         "tracking": -11.0289373036293,
         "font_asc": -0.1632770656310406,
         "font_desc": 0.1632770656310406
+      },
+      {
+        "t": "button",
+        "id": "ctl_row1_control",
+        "x": 16.0,
+        "y": 284.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
       },
       {
         "t": "text",
@@ -357,6 +420,15 @@
         "font_desc": -0.0431516457259451
       },
       {
+        "t": "button",
+        "id": "ctl_row2_control",
+        "x": 16.0,
+        "y": 324.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
+      },
+      {
         "t": "svg",
         "id": "i_chev_octoscode_app",
         "x": 24.0,
@@ -383,6 +455,15 @@
         "tracking": -7.334827890869455,
         "font_asc": -0.17467947104542525,
         "font_desc": -0.029422091454574584
+      },
+      {
+        "t": "button",
+        "id": "ctl_grp_octoscode_app_control",
+        "x": 16.0,
+        "y": 384.0,
+        "w": 250.0,
+        "h": 30.0,
+        "enabled": 1
       },
       {
         "t": "text",
@@ -423,6 +504,15 @@
         "font_desc": 0.15696564245060138
       },
       {
+        "t": "button",
+        "id": "ctl_row3_control",
+        "x": 16.0,
+        "y": 418.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
+      },
+      {
         "t": "text",
         "id": "r04_t",
         "text": "Why is hydrate slow?",
@@ -461,6 +551,15 @@
         "font_desc": -0.0431516457259451
       },
       {
+        "t": "button",
+        "id": "ctl_row4_control",
+        "x": 16.0,
+        "y": 458.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
+      },
+      {
         "t": "svg",
         "id": "i_plus",
         "x": 24.0,
@@ -487,6 +586,15 @@
         "tracking": -8.604317085783793,
         "font_asc": -0.17178679859087853,
         "font_desc": -0.032314763909121524
+      },
+      {
+        "t": "button",
+        "id": "ctl_addws_control",
+        "x": 16.0,
+        "y": 718.0,
+        "w": 220.0,
+        "h": 32.0,
+        "enabled": 1
       }
     ]
   },

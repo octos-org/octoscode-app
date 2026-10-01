@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "policy_version": "1.1.0",
-  "contract_sha256": "cf01c1ca778c94844842bad72bfa3d4ddd91570bb7d31d8604a1a002bc6e4054",
+  "contract_sha256": "a88b15cc44a91ffd8a75b7e41a8a4b97b39f758fb32d3c8f77942aa2cb73ee1a",
   "reference_sha256": "4130b6e53891ecf8fbfbb4c37c8e533349cafe0e639fffee0c2eecf809d42d1a",
   "classification_scope": "Authored intent and explicit review candidates; no claim of automatic visual recognition.",
   "elements": [
@@ -57,6 +57,13 @@
       }
     },
     {
+      "id": "ctl_drawer_close_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "t_head",
       "role": "text",
       "basis": "authored text node",
@@ -83,6 +90,13 @@
       "id": "t_newchat",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "ctl_newchat_control",
+      "role": "button",
+      "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -124,6 +138,13 @@
       "decision": "declared"
     },
     {
+      "id": "ctl_search_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "seg",
       "role": "layout",
       "basis": "authored stack node",
@@ -148,6 +169,20 @@
       "id": "t_seg_r",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "ctl_seg_ws_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "ctl_seg_all_control",
+      "role": "button",
+      "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -198,6 +233,13 @@
       "decision": "declared"
     },
     {
+      "id": "ctl_grp_octos_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "r00_sel",
       "role": "layout",
       "basis": "authored stack node",
@@ -219,6 +261,13 @@
       "decision": "declared"
     },
     {
+      "id": "ctl_row0_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "r01_t",
       "role": "text",
       "basis": "authored text node",
@@ -233,6 +282,13 @@
       "decision": "declared"
     },
     {
+      "id": "ctl_row1_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "r02_t",
       "role": "text",
       "basis": "authored text node",
@@ -243,6 +299,13 @@
       "id": "r02_w",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "ctl_row2_control",
+      "role": "button",
+      "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -270,6 +333,13 @@
       "decision": "declared"
     },
     {
+      "id": "ctl_grp_octoscode_app_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "r03_t",
       "role": "text",
       "basis": "authored text node",
@@ -284,6 +354,13 @@
       "decision": "declared"
     },
     {
+      "id": "ctl_row3_control",
+      "role": "button",
+      "basis": "authored button node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
       "id": "r04_t",
       "role": "text",
       "basis": "authored text node",
@@ -294,6 +371,13 @@
       "id": "r04_w",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "ctl_row4_control",
+      "role": "button",
+      "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     },
@@ -317,6 +401,13 @@
       "id": "t_addws",
       "role": "text",
       "basis": "authored text node",
+      "confidence": 1.0,
+      "decision": "declared"
+    },
+    {
+      "id": "ctl_addws_control",
+      "role": "button",
+      "basis": "authored button node",
       "confidence": 1.0,
       "decision": "declared"
     }

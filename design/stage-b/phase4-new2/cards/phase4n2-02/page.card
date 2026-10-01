@@ -20,6 +20,16 @@ copy st_w3_text { class: user-copy, en: "2h" }
 copy st_t4_text { class: user-copy, en: "Idle" }
 copy st_w4_text { class: user-copy, en: "Yesterday" }
 copy t_addws_text { class: user-copy, en: "Add workspace" }
+state ctl_newchat_control_enabled { shape: bool, initial: true }
+state ctl_search_control_enabled { shape: bool, initial: true }
+state ctl_seg_ws_control_enabled { shape: bool, initial: true }
+state ctl_seg_all_control_enabled { shape: bool, initial: true }
+state ctl_strow0_control_enabled { shape: bool, initial: true }
+state ctl_strow1_control_enabled { shape: bool, initial: true }
+state ctl_strow2_control_enabled { shape: bool, initial: true }
+state ctl_strow3_control_enabled { shape: bool, initial: true }
+state ctl_strow4_control_enabled { shape: bool, initial: true }
+state ctl_addws_control_enabled { shape: bool, initial: true }
 component Surfaceb4206391250d(instance: text) {
   view Kit(component: "Surfaceb4206391250d", instance: instance) { slot }
 }
@@ -31,6 +41,9 @@ component Vectore0a378fde04f(instance: text) {
 }
 component Text0cff11dd08eb(instance: text, text: text) {
   view Kit(component: "Text0cff11dd08eb", instance: instance, text: text)
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
 }
 component Surfacedfc776213dd1(instance: text) {
   view Kit(component: "Surfacedfc776213dd1", instance: instance) { slot }
@@ -82,6 +95,7 @@ view root Surfaceb4206391250d(instance: "page") {
   Textf230148480c9(instance: "t_head", text: copy.t_head_text)
   Vectore0a378fde04f(instance: "i_pencil")
   Text0cff11dd08eb(instance: "t_newchat", text: copy.t_newchat_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_newchat_control", enabled: ctl_newchat_control_enabled)
   Surfacedfc776213dd1(instance: "sf") {
     Surfacea7396eb2806c(instance: "sf_hair") {
 
@@ -89,6 +103,7 @@ view root Surfaceb4206391250d(instance: "page") {
   }
   Vectore0a378fde04f(instance: "i_search")
   Texte74aed036a27(instance: "t_search", text: copy.t_search_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_search_control", enabled: ctl_search_control_enabled)
   Surface90d6ac3d63b2(instance: "seg") {
 
   }
@@ -97,23 +112,31 @@ view root Surfaceb4206391250d(instance: "page") {
   }
   Text8a5c0f265c04(instance: "t_seg_l", text: copy.t_seg_l_text)
   Textf4ca166138ed(instance: "t_seg_r", text: copy.t_seg_r_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_seg_ws_control", enabled: ctl_seg_ws_control_enabled)
+  NativeButton02f1d1bd99b4(instance: "ctl_seg_all_control", enabled: ctl_seg_all_control_enabled)
   Vectore0a378fde04f(instance: "i_sort")
   Text686d214c228c(instance: "t_sort", text: copy.t_sort_text)
   Vectore0a378fde04f(instance: "i_st0")
   Textfdf64fc3a2b6(instance: "st_t0", text: copy.st_t0_text)
   Textbeea07b8430a(instance: "st_w0", text: copy.st_w0_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_strow0_control", enabled: ctl_strow0_control_enabled)
   Vectore0a378fde04f(instance: "i_st1")
   Textfdf64fc3a2b6(instance: "st_t1", text: copy.st_t1_text)
   Text0a95e30173fe(instance: "st_w1", text: copy.st_w1_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_strow1_control", enabled: ctl_strow1_control_enabled)
   Vectore0a378fde04f(instance: "i_st2")
   Textfdf64fc3a2b6(instance: "st_t2", text: copy.st_t2_text)
   Textfca4bcc86e69(instance: "st_w2", text: copy.st_w2_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_strow2_control", enabled: ctl_strow2_control_enabled)
   Vectore0a378fde04f(instance: "i_st3")
   Textfdf64fc3a2b6(instance: "st_t3", text: copy.st_t3_text)
   Textb28241447a6d(instance: "st_w3", text: copy.st_w3_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_strow3_control", enabled: ctl_strow3_control_enabled)
   Vectore0a378fde04f(instance: "i_st4")
   Textfdf64fc3a2b6(instance: "st_t4", text: copy.st_t4_text)
   Textbbf2f34dbb1c(instance: "st_w4", text: copy.st_w4_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_strow4_control", enabled: ctl_strow4_control_enabled)
   Vectore0a378fde04f(instance: "i_plus")
   Textef0766624837(instance: "t_addws", text: copy.t_addws_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_addws_control", enabled: ctl_addws_control_enabled)
 }

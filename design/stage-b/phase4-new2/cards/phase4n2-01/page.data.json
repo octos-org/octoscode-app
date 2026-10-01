@@ -39,6 +39,15 @@
           "h": 30.839097744360902
         }
       },
+      "ctl_newchat_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 20.0,
+          "y": 50.0,
+          "w": 140.0,
+          "h": 30.0
+        }
+      },
       "sf": {
         "component": "Surfacedfc776213dd1",
         "layout": {
@@ -76,6 +85,15 @@
           "h": 28.50526315789474
         }
       },
+      "ctl_search_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 20.0,
+          "y": 92.0,
+          "w": 366.0,
+          "h": 40.0
+        }
+      },
       "seg": {
         "component": "Surface1c47e4d9977a",
         "layout": {
@@ -110,6 +128,24 @@
           "y": 225.54887218045113,
           "w": 16.667706708268334,
           "h": 22.670676691729323
+        }
+      },
+      "ctl_seg_ws_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 24.0,
+          "y": 152.0,
+          "w": 105.0,
+          "h": 26.0
+        }
+      },
+      "ctl_seg_all_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 129.0,
+          "y": 152.0,
+          "w": 105.0,
+          "h": 26.0
         }
       },
       "i_sort": {
@@ -150,6 +186,15 @@
           "h": 22.670676691729323
         }
       },
+      "ctl_grp_octos_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 210.0,
+          "w": 250.0,
+          "h": 30.0
+        }
+      },
       "r00_sel": {
         "component": "Surface17cfaad14117",
         "layout": {
@@ -177,6 +222,15 @@
           "h": 21.503759398496243
         }
       },
+      "ctl_row0_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 244.0,
+          "w": 374.0,
+          "h": 36.0
+        }
+      },
       "r01_t": {
         "component": "Text3e66ed5a3075",
         "layout": {
@@ -195,6 +249,15 @@
           "h": 22.670676691729323
         }
       },
+      "ctl_row1_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 284.0,
+          "w": 374.0,
+          "h": 36.0
+        }
+      },
       "r02_t": {
         "component": "Text6fc5afd160b6",
         "layout": {
@@ -211,6 +274,15 @@
           "y": 647.9729323308271,
           "w": 53.40405616224649,
           "h": 28.50526315789474
+        }
+      },
+      "ctl_row2_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 324.0,
+          "w": 374.0,
+          "h": 36.0
         }
       },
       "i_chev_octoscode_app": {
@@ -232,6 +304,15 @@
           "h": 32.00601503759398
         }
       },
+      "ctl_grp_octoscode_app_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 384.0,
+          "w": 250.0,
+          "h": 30.0
+        }
+      },
       "r03_t": {
         "component": "Textb7e0f2638104",
         "layout": {
@@ -248,6 +329,15 @@
           "y": 594.2947368421053,
           "w": 16.034321372854915,
           "h": 21.503759398496243
+        }
+      },
+      "ctl_row3_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 418.0,
+          "w": 374.0,
+          "h": 36.0
         }
       },
       "r04_t": {
@@ -268,6 +358,15 @@
           "h": 28.50526315789474
         }
       },
+      "ctl_row4_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 458.0,
+          "w": 374.0,
+          "h": 36.0
+        }
+      },
       "i_plus": {
         "component": "Vectore0a378fde04f",
         "layout": {
@@ -285,6 +384,15 @@
           "y": 717.9879699248121,
           "w": 114.20904836193448,
           "h": 30.839097744360902
+        }
+      },
+      "ctl_addws_control": {
+        "component": "NativeButton02f1d1bd99b4",
+        "layout": {
+          "x": 16.0,
+          "y": 718.0,
+          "w": 220.0,
+          "h": 32.0
         }
       }
     },

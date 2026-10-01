@@ -18,6 +18,16 @@ copy t_grp_octoscode_app_text { class: user-copy, en: "octoscode-app" }
 copy empty1_text { class: user-copy, en: "No chats in octoscode-app match \"hydrate\"" }
 copy clear1_text { class: user-copy, en: "Clear search" }
 copy t_addws_text { class: user-copy, en: "Add workspace" }
+state ctl_newchat_control_enabled { shape: bool, initial: true }
+state ctl_search_clear_control_enabled { shape: bool, initial: true }
+state ctl_search_control_enabled { shape: bool, initial: true }
+state ctl_seg_ws_control_enabled { shape: bool, initial: true }
+state ctl_seg_all_control_enabled { shape: bool, initial: true }
+state ctl_grp_octos_control_enabled { shape: bool, initial: true }
+state ctl_row0_control_enabled { shape: bool, initial: true }
+state ctl_grp_octoscode_app_control_enabled { shape: bool, initial: true }
+state ctl_clear_search_control_enabled { shape: bool, initial: true }
+state ctl_addws_control_enabled { shape: bool, initial: true }
 component Surfaceb4206391250d(instance: text) {
   view Kit(component: "Surfaceb4206391250d", instance: instance) { slot }
 }
@@ -29,6 +39,9 @@ component Vectore0a378fde04f(instance: text) {
 }
 component Textd43ba81c7a6d(instance: text, text: text) {
   view Kit(component: "Textd43ba81c7a6d", instance: instance, text: text)
+}
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
 }
 component Surfaceca72b7a55b75(instance: text) {
   view Kit(component: "Surfaceca72b7a55b75", instance: instance) { slot }
@@ -86,6 +99,7 @@ view root Surfaceb4206391250d(instance: "page") {
   Text77951e8b1630(instance: "t_head", text: copy.t_head_text)
   Vectore0a378fde04f(instance: "i_pencil")
   Textd43ba81c7a6d(instance: "t_newchat", text: copy.t_newchat_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_newchat_control", enabled: ctl_newchat_control_enabled)
   Surfaceca72b7a55b75(instance: "sf") {
     Surface4fce4f8c128d(instance: "sf_hair") {
 
@@ -94,6 +108,8 @@ view root Surfaceb4206391250d(instance: "page") {
   Vectore0a378fde04f(instance: "i_search")
   Text3b2e2a58ad1d(instance: "t_search", text: copy.t_search_text)
   Vectore0a378fde04f(instance: "i_clear")
+  NativeButton02f1d1bd99b4(instance: "ctl_search_clear_control", enabled: ctl_search_clear_control_enabled)
+  NativeButton02f1d1bd99b4(instance: "ctl_search_control", enabled: ctl_search_control_enabled)
   Surface861330c0bc97(instance: "seg") {
 
   }
@@ -102,10 +118,13 @@ view root Surfaceb4206391250d(instance: "page") {
   }
   Textb933cae9b757(instance: "t_seg_l", text: copy.t_seg_l_text)
   Textb925a5c84bc5(instance: "t_seg_r", text: copy.t_seg_r_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_seg_ws_control", enabled: ctl_seg_ws_control_enabled)
+  NativeButton02f1d1bd99b4(instance: "ctl_seg_all_control", enabled: ctl_seg_all_control_enabled)
   Vectore0a378fde04f(instance: "i_sort")
   Textfd3646c83929(instance: "t_sort", text: copy.t_sort_text)
   Vectore0a378fde04f(instance: "i_chev_octos")
   Text95332e64e2a3(instance: "t_grp_octos", text: copy.t_grp_octos_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_grp_octos_control", enabled: ctl_grp_octos_control_enabled)
   Surfacec8acdde93d5e(instance: "r00_sel") {
 
   }
@@ -116,10 +135,14 @@ view root Surfaceb4206391250d(instance: "page") {
   Text2c75faf33992(instance: "m2", text: copy.m2_text)
   Text2c75faf33992(instance: "m3", text: copy.m3_text)
   Textef2d27646007(instance: "r00_w", text: copy.r00_w_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_row0_control", enabled: ctl_row0_control_enabled)
   Vectore0a378fde04f(instance: "i_chev_octoscode_app")
   Text594842dc53d5(instance: "t_grp_octoscode_app", text: copy.t_grp_octoscode_app_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_grp_octoscode_app_control", enabled: ctl_grp_octoscode_app_control_enabled)
   Textbe50c81793d2(instance: "empty1", text: copy.empty1_text)
   Textdefbda05080a(instance: "clear1", text: copy.clear1_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_clear_search_control", enabled: ctl_clear_search_control_enabled)
   Vectore0a378fde04f(instance: "i_plus")
   Textaa7b5c42b5dc(instance: "t_addws", text: copy.t_addws_text)
+  NativeButton02f1d1bd99b4(instance: "ctl_addws_control", enabled: ctl_addws_control_enabled)
 }

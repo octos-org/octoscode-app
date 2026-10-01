@@ -73,6 +73,15 @@
         "font_src": "self:resources/ux/Inter-500.ttf"
       },
       {
+        "t": "button",
+        "id": "ctl_newchat_control",
+        "x": 20.0,
+        "y": 50.0,
+        "w": 140.0,
+        "h": 30.0,
+        "enabled": 1
+      },
+      {
         "t": "stack",
         "id": "sf",
         "x": 20,
@@ -121,6 +130,15 @@
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "button",
+        "id": "ctl_search_control",
+        "x": 20.0,
+        "y": 92.0,
+        "w": 366.0,
+        "h": 40.0,
+        "enabled": 1
       },
       {
         "t": "stack",
@@ -179,6 +197,24 @@
         "font_src": "self:resources/ux/Inter-500.ttf"
       },
       {
+        "t": "button",
+        "id": "ctl_seg_ws_control",
+        "x": 24.0,
+        "y": 152.0,
+        "w": 105.0,
+        "h": 26.0,
+        "enabled": 1
+      },
+      {
+        "t": "button",
+        "id": "ctl_seg_all_control",
+        "x": 129.0,
+        "y": 152.0,
+        "w": 105.0,
+        "h": 26.0,
+        "enabled": 1
+      },
+      {
         "t": "svg",
         "id": "i_sort",
         "x": 380,
@@ -227,6 +263,15 @@
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-600.ttf"
+      },
+      {
+        "t": "button",
+        "id": "ctl_grp_octos_control",
+        "x": 16.0,
+        "y": 210.0,
+        "w": 250.0,
+        "h": 30.0,
+        "enabled": 1
       },
       {
         "t": "stack",
@@ -278,6 +323,15 @@
         "src": ""
       },
       {
+        "t": "button",
+        "id": "ctl_grp_menu_control",
+        "x": 356.0,
+        "y": 210.0,
+        "w": 34.0,
+        "h": 30.0,
+        "enabled": 1
+      },
+      {
         "t": "stack",
         "id": "menu",
         "x": 322,
@@ -319,6 +373,15 @@
         "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {
+        "t": "button",
+        "id": "ctl_menu0_control",
+        "x": 326.0,
+        "y": 252.0,
+        "w": 142.0,
+        "h": 28.0,
+        "enabled": 1
+      },
+      {
         "t": "text",
         "id": "menu_t1",
         "text": "Rename",
@@ -335,6 +398,15 @@
         "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {
+        "t": "button",
+        "id": "ctl_menu1_control",
+        "x": 326.0,
+        "y": 282.0,
+        "w": 142.0,
+        "h": 28.0,
+        "enabled": 1
+      },
+      {
         "t": "text",
         "id": "menu_t2",
         "text": "Remove from sidebar",
@@ -349,6 +421,15 @@
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-400.ttf"
+      },
+      {
+        "t": "button",
+        "id": "ctl_menu2_control",
+        "x": 326.0,
+        "y": 312.0,
+        "w": 142.0,
+        "h": 28.0,
+        "enabled": 1
       },
       {
         "t": "svg",
@@ -374,6 +455,15 @@
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-600.ttf"
+      },
+      {
+        "t": "button",
+        "id": "ctl_grp_octoscode_app_control",
+        "x": 16.0,
+        "y": 262.0,
+        "w": 250.0,
+        "h": 30.0,
+        "enabled": 1
       },
       {
         "t": "text",
@@ -408,6 +498,15 @@
         "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {
+        "t": "button",
+        "id": "ctl_row0_control",
+        "x": 16.0,
+        "y": 296.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
+      },
+      {
         "t": "text",
         "id": "r01_t",
         "text": "Why is hydrate slow?",
@@ -440,6 +539,15 @@
         "font_src": "self:resources/ux/Inter-400.ttf"
       },
       {
+        "t": "button",
+        "id": "ctl_row1_control",
+        "x": 16.0,
+        "y": 336.0,
+        "w": 374.0,
+        "h": 36.0,
+        "enabled": 1
+      },
+      {
         "t": "svg",
         "id": "i_plus",
         "x": 24,
@@ -463,6 +571,15 @@
         "variant": "single_line",
         "alignx": 0,
         "font_src": "self:resources/ux/Inter-500.ttf"
+      },
+      {
+        "t": "button",
+        "id": "ctl_addws_control",
+        "x": 16.0,
+        "y": 718.0,
+        "w": 220.0,
+        "h": 32.0,
+        "enabled": 1
       }
     ]
   }

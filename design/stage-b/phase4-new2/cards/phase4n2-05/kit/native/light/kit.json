@@ -531,6 +531,15 @@
       "props": {},
       "slot": false
     },
+    "NativeButton02f1d1bd99b4": {
+      "style": {
+        "t": "button"
+      },
+      "props": {
+        "enabled": "enabled"
+      },
+      "slot": false
+    },
     "Text1fc805239139": {
       "style": {
         "t": "text",

@@ -114,6 +114,20 @@ class Scene:
 
     def control(self, cid, event, bounds, *, enabled=True):
         self.controls[cid] = {"event": event, "source_bounds": list(bounds), "enabled": enabled}
+        # #D2a: a control must ALSO be a node. Recording the metadata alone
+        # left the card with no clickable widget at all — measured: the five
+        # cards' contract trees carry only stack/svg/text, while the working
+        # setup-11 carries a `button` node per control. l0::prepare emits a
+        # DesignNativeButton per button node and taps::wire_card_events attaches
+        # on_click to exactly those, so a metadata-only control made the whole
+        # 13-action wiring unreachable (RULES §3: test-only == missing).
+        # Id is <cid>_control — the autonomy author's idiom (autonomy
+        # author.py:184), so the mounted widget id names the control it routes.
+        # Appended last, so the control paints over the visual it hits.
+        x, y, w, h = bounds
+        self.put({"t": "button", "id": f"{cid}_control",
+                  "x": float(x), "y": float(y), "w": float(w), "h": float(h),
+                  "enabled": 1 if enabled else 0})
 
     def observe(self, s, x, y, w, h):
         self.obs.append({"text": s, "bounds": [x, y, w, h], "confidence": 1,

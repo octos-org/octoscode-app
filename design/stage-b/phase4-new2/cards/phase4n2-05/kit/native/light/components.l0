@@ -13,6 +13,9 @@ component Surface13b18c6e4e55(instance: text) {
 component Vectore0a378fde04f(instance: text) {
   view Kit(component: "Vectore0a378fde04f", instance: instance)
 }
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
 component Text1fc805239139(instance: text, text: text) {
   view Kit(component: "Text1fc805239139", instance: instance, text: text)
 }

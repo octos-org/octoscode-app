@@ -439,6 +439,15 @@
       },
       "slot": false
     },
+    "NativeButton02f1d1bd99b4": {
+      "style": {
+        "t": "button"
+      },
+      "props": {
+        "enabled": "enabled"
+      },
+      "slot": false
+    },
     "Surfaceca72b7a55b75": {
       "style": {
         "t": "stack",

@@ -10,6 +10,9 @@ component Vectore0a378fde04f(instance: text) {
 component Textd43ba81c7a6d(instance: text, text: text) {
   view Kit(component: "Textd43ba81c7a6d", instance: instance, text: text)
 }
+component NativeButton02f1d1bd99b4(instance: text, enabled: bool) {
+  view Kit(component: "NativeButton02f1d1bd99b4", instance: instance, enabled: enabled)
+}
 component Surfaceca72b7a55b75(instance: text) {
   view Kit(component: "Surfaceca72b7a55b75", instance: instance) { slot }
 }
