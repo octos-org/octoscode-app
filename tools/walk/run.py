@@ -872,6 +872,12 @@ def cp_command_receipts(app):
     def texts(d):
         return [str(w.get("t") or "") for w in d.get("s", [])
                 if (w.get("r") or [0, 0, 0, 0])[2] > 0]
+    def diag(tag, d):
+        # one line of state per step: what the composer holds, whether the
+        # palette is up, whether a receipt is laid out, whether a turn is live
+        return (f"{tag}[draft={app.draft(d)!r} "
+                f"palette={(app.rect(d, 'palette_search') or [0, 0, 0, 0])[2]} "
+                f"receipt={any('not available' in t or 'Unsupported' in t for t in texts(d))}]")
     def wait_text(needle):
         for _ in range(16):
             d = app.snap()
@@ -879,9 +885,31 @@ def cp_command_receipts(app):
                 return True
             time.sleep(0.5)
         return False
+    app.key("escape")  # clear any palette/focus the earlier checks left up
+    time.sleep(1.0)
+    # A fresh session (the sidebar's New chat) makes the receipts' viewport
+    # position deterministic: earlier checks' hydrate/reselect chains refill
+    # the timeline and the auto_tail'd list can leave a brand-new group
+    # outside the instantiated window. A new chat is the same path a user
+    # takes; the behaviour under test is unchanged.
+    d0 = app.snap()
+    nc = next((w.get('r') for w in d0.get('s', [])
+               if (w.get('t') or '') == 'New chat' and (w.get('r') or [0, 0, 0, 0])[2] > 0), None)
+    new_chat = False
+    if nc:
+        app.click(int(nc[0] + nc[2] / 2), int(nc[1] + nc[3] / 2))
+        time.sleep(2.0)
+        new_chat = True
     r = comp(); app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
+    steps: list[str] = []
     # 1. TUI-only known name -> receipt, cleared composer
     app.clear_composer(); app.type("/title"); app.key("return")
+    for i in range(16):
+        d = app.snap()
+        if any("/title is not available" in t for t in texts(d)):
+            break
+        steps.append(diag(f"title t+{i}", d))
+        time.sleep(0.5)
     got_receipt = wait_text("/title is not available")
     time.sleep(1.0)
     d = app.snap()
@@ -905,8 +933,9 @@ def cp_command_receipts(app):
             break
         time.sleep(1)
     ok = got_receipt and cleared and got_unknown and kept and turned
-    return ok, (f"title_receipt={got_receipt} cleared={cleared} "
-                f"bogus_receipt={got_unknown} kept={kept} path_turn={turned}")
+    return ok, (f"new_chat={new_chat} title_receipt={got_receipt} cleared={cleared} "
+                f"bogus_receipt={got_unknown} kept={kept} path_turn={turned} "
+                f"steps={' '.join(steps[:6])}")
 
 
 @check("composer", "a typed draft round-trips through the composer")
