@@ -517,6 +517,7 @@ impl Conversation {
     /// None = discovery unavailable; the caller falls back and the ensure
     /// chain still guards the session.
     pub async fn discover_solo_profile(base: &str) -> Option<String> {
+        // Step 1: the solo login (anonymous) mints an admin session token.
         let url = format!("{}/api/auth/solo", base.trim_end_matches('/'));
         let call = reqwest::Client::new()
             .post(&url)
@@ -533,11 +534,45 @@ impl Conversation {
         .await
         .ok()?
         .ok()?;
-        let id = body.get("user")?.get("id")?.as_str()?.to_owned();
-        if id.is_empty() {
+        let token = body.get("token")?.as_str()?.to_owned();
+        let solo_id = body.get("user")?.get("id")?.as_str()?.to_owned();
+        if solo_id.is_empty() {
             return None;
         }
-        Some(id)
+        // Step 2 (the outer loop's device finding): an EXISTING profile can
+        // still have NO runtime — turn/start dies with -32603 "No
+        // ProfileRuntime registered" (the device: 'octoscode-desktop' had no
+        // model; 'dsflash' carries config.llm.primary). Rank the admin list:
+        // a profile whose llm config has a primary rides first; the solo
+        // id (which certainly exists) is the fallback.
+        let list_url = format!("{}/api/admin/profiles", base.trim_end_matches('/'));
+        let call = reqwest::Client::new()
+            .get(&list_url)
+            .header("Authorization", format!("Bearer {token}"))
+            .send();
+        let list: Option<serde_json::Value> =
+            match tokio::time::timeout(std::time::Duration::from_secs(15), call).await {
+                Ok(Ok(resp)) => tokio::time::timeout(
+                    std::time::Duration::from_secs(15),
+                    resp.json::<serde_json::Value>(),
+                )
+                .await
+                .ok()
+                .and_then(|r| r.ok()),
+                _ => None,
+            };
+        if let Some(rows) = list.as_ref().and_then(|v| v.as_array()) {
+            let runnable = rows.iter().find_map(|row| {
+                let id = row.get("id")?.as_str()?;
+                row.pointer("/config/llm/primary")
+                    .is_some()
+                    .then(|| id.to_owned())
+            });
+            if let Some(id) = runnable {
+                return Some(id);
+            }
+        }
+        Some(solo_id)
     }
 
     pub fn connect(
@@ -804,6 +839,15 @@ impl Conversation {
             }
             Err(e) => {
                 makepad_widgets::log!("[octoscode] turn/start failed for {turn_id}: {e}");
+                // #34a's rule (the /bogus fix): a FAILED send restores the
+                // user's text — the clear happened optimistically before the
+                // request, so put it back (and drop the optimistic row's
+                // turn from live, the web's dispatch rollback).
+                self.ui.lock().unwrap().set_draft_inner(text.clone());
+                makepad_widgets::log!(
+                    "[octoscode] draft restored: {} chars",
+                    text.chars().count()
+                );
                 Err(e)
             }
         }
