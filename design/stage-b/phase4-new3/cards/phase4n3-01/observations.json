@@ -1,0 +1,1690 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "9ca1e9931959e20be9724198c37f242ff7ab46dc82a1a058ccebe133f1fd1ff0",
+  "artboard": [
+    406,
+    776
+  ],
+  "opaque": true,
+  "aspect_error": 0.08579978015714695,
+  "text": [
+    {
+      "id": "t_title",
+      "expected_text": "Runtime inventory",
+      "requested_bounds": [
+        32,
+        62,
+        240,
+        24
+      ],
+      "status": "observed",
+      "ocr_text": "Runtime inventory",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        20.168466522678184,
+        24.049586776859503,
+        162.22462203023755,
+        20.041322314049587
+      ],
+      "ink_color": [
+        7,
+        7,
+        7
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        17.50000114999998,
+        22.446281163518265,
+        168.0,
+        24.049586776859552
+      ]
+    },
+    {
+      "id": "t_sub",
+      "expected_text": "12 tools \u00b7 3 servers",
+      "requested_bounds": [
+        32,
+        88,
+        240,
+        16
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "f_search_text",
+      "expected_text": "Search names, status, or tools\u2026",
+      "requested_bounds": [
+        44,
+        127.0,
+        318,
+        18
+      ],
+      "status": "observed",
+      "ocr_text": "Search names, status, or tools...",
+      "confidence": 1,
+      "text_similarity": 0.9375,
+      "ink_bounds": [
+        60.505399568034555,
+        80.96694214876032,
+        216.59179265658744,
+        15.231404958677686
+      ],
+      "ink_color": [
+        134,
+        135,
+        137
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        55.99999720000006,
+        80.16528929628099,
+        223.99999999999997,
+        19.23966942148754
+      ]
+    },
+    {
+      "id": "tab_tools_fill_t",
+      "expected_text": "Tools",
+      "requested_bounds": [
+        40,
+        171,
+        34.1,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "Tools",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        85.05831533477321,
+        133.07438016528926,
+        46.475161987041034,
+        23.24793388429752
+      ],
+      "ink_color": [
+        254,
+        254,
+        254
+      ],
+      "light_foreground": true,
+      "ocr_bounds": [
+        87.49999964999999,
+        134.67768600385676,
+        42.00000000000003,
+        19.23966942148754
+      ]
+    },
+    {
+      "id": "tab_mcp_t",
+      "expected_text": "MCP servers",
+      "requested_bounds": [
+        112,
+        171,
+        75.0,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "MCP servers",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        254.29805615550754,
+        137.08264462809916,
+        81.55075593952483,
+        12.024793388429751
+      ],
+      "ink_color": [
+        89,
+        90,
+        91
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        251.97173227540978,
+        136.15311419605055,
+        85.8065366744995,
+        16.288812842250827
+      ]
+    },
+    {
+      "id": "tab_tools_t",
+      "expected_text": "Tools",
+      "requested_bounds": [
+        32,
+        168,
+        60,
+        17
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "tab_mcp_t",
+      "expected_text": "MCP servers",
+      "requested_bounds": [
+        104,
+        168,
+        92,
+        17
+      ],
+      "status": "observed",
+      "ocr_text": "MCP servers",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        254.29805615550754,
+        137.08264462809916,
+        81.55075593952483,
+        12.024793388429751
+      ],
+      "ink_color": [
+        89,
+        90,
+        91
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        251.97173227540978,
+        136.15311419605055,
+        85.8065366744995,
+        16.288812842250827
+      ]
+    },
+    {
+      "id": "h_tools",
+      "expected_text": "TOOLS",
+      "requested_bounds": [
+        32,
+        208,
+        120,
+        12
+      ],
+      "status": "observed",
+      "ocr_text": "Tool",
+      "confidence": 1,
+      "text_similarity": 0.8888888888888888,
+      "ink_bounds": [
+        17.5377969762419,
+        191.59504132231405,
+        20.168466522678184,
+        9.6198347107438
+      ],
+      "ink_color": [
+        68,
+        68,
+        70
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        12.249999628125009,
+        190.7933885099173,
+        29.75,
+        12.826446280991778
+      ]
+    },
+    {
+      "id": "tool_0_name",
+      "expected_text": "Bash",
+      "requested_bounds": [
+        44,
+        238,
+        180,
+        16
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "tool_0_cat",
+      "expected_text": "shell",
+      "requested_bounds": [
+        44,
+        258,
+        120,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "tool_0_alias",
+      "expected_text": "Aliases: exec, run",
+      "requested_bounds": [
+        150,
+        238,
+        130,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "tool_0_st_t",
+      "expected_text": "enabled",
+      "requested_bounds": [
+        304,
+        239,
+        43.4,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "enabled",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        173.6241900647948,
+        227.6694214876033,
+        39.46004319654427,
+        9.6198347107438
+      ],
+      "ink_color": [
+        76,
+        76,
+        78
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        169.75000026249998,
+        226.06611555818174,
+        47.24999999999999,
+        14.429752066115782
+      ]
+    },
+    {
+      "id": "tool_0_be",
+      "expected_text": "Backend: octos",
+      "requested_bounds": [
+        150,
+        256,
+        130,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "tool_0_cnt",
+      "expected_text": "12",
+      "requested_bounds": [
+        340,
+        248,
+        24,
+        16
+      ],
+      "status": "observed",
+      "ocr_text": "12",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        371.80129589632827,
+        227.6694214876033,
+        12.276457883369329,
+        10.421487603305785
+      ],
+      "ink_color": [
+        114,
+        114,
+        116
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        367.49999980749993,
+        226.06611578264454,
+        19.250000000000004,
+        14.429752066115782
+      ]
+    },
+    {
+      "id": "tool_1_name",
+      "expected_text": "Read",
+      "requested_bounds": [
+        44,
+        296,
+        180,
+        16
+      ],
+      "status": "observed",
+      "ocr_text": "read",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        239.3909287257019,
+        228.47107438016528,
+        23.676025917926562,
+        9.6198347107438
+      ],
+      "ink_color": [
+        76,
+        76,
+        77
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        234.49999960624993,
+        227.6694215677686,
+        31.50000000000004,
+        12.826446280991693
+      ]
+    },
+    {
+      "id": "tool_1_cat",
+      "expected_text": "fs",
+      "requested_bounds": [
+        44,
+        316,
+        120,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "tool_1_alias",
+      "expected_text": "Aliases: cat, view",
+      "requested_bounds": [
+        150,
+        296,
+        130,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "tool_1_st_t",
+      "expected_text": "enabled",
+      "requested_bounds": [
+        304,
+        297,
+        43.4,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "enabled",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        173.6241900647948,
+        296.61157024793386,
+        39.46004319654427,
+        9.6198347107438
+      ],
+      "ink_color": [
+        59,
+        62,
+        64
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        171.49999998749996,
+        293.4049586204251,
+        45.5,
+        16.033057851239615
+      ]
+    },
+    {
+      "id": "tool_1_be",
+      "expected_text": "Backend: octos",
+      "requested_bounds": [
+        150,
+        314,
+        130,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "tool_1_cnt",
+      "expected_text": "4",
+      "requested_bounds": [
+        340,
+        306,
+        24,
+        16
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "tool_2_name",
+      "expected_text": "ImageView",
+      "requested_bounds": [
+        44,
+        354,
+        180,
+        16
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "tool_2_cat",
+      "expected_text": "media",
+      "requested_bounds": [
+        44,
+        374,
+        120,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "tool_2_alias",
+      "expected_text": "Aliases: see",
+      "requested_bounds": [
+        150,
+        354,
+        130,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "tool_2_st_t",
+      "expected_text": "disabled",
+      "requested_bounds": [
+        304,
+        355,
+        49.6,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "disabled",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        172.7473002159827,
+        398.42148760330576,
+        42.09071274298056,
+        9.6198347107438
+      ],
+      "ink_color": [
+        67,
+        68,
+        69
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        169.5371803238279,
+        396.9881978098323,
+        49.4256405830383,
+        15.693025699331738
+      ]
+    },
+    {
+      "id": "tool_2_be",
+      "expected_text": "Backend: octos",
+      "requested_bounds": [
+        150,
+        372,
+        130,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "tool_2_cnt",
+      "expected_text": "1",
+      "requested_bounds": [
+        340,
+        364,
+        24,
+        16
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "h_mcp",
+      "expected_text": "MCP SERVERS",
+      "requested_bounds": [
+        32,
+        410,
+        140,
+        12
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "mcp_counts",
+      "expected_text": "connected \u00b7 2    connecting \u00b7 1    failed \u00b7 0",
+      "requested_bounds": [
+        150,
+        410,
+        224,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "connected \u2022 2 connecting \u2022 1",
+      "confidence": 1,
+      "text_similarity": 0.835820895522388,
+      "ink_bounds": [
+        14.907127429805614,
+        515.4628099173553,
+        186.77753779697622,
+        11.223140495867769
+      ],
+      "ink_color": [
+        92,
+        92,
+        93
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        12.250001604166636,
+        513.057851159504,
+        192.5,
+        16.033057851239704
+      ]
+    },
+    {
+      "id": "srv_0_id",
+      "expected_text": "fs-probe",
+      "requested_bounds": [
+        44,
+        440,
+        140,
+        16
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "srv_0_sum",
+      "expected_text": "workspace file tools",
+      "requested_bounds": [
+        44,
+        460,
+        200,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "srv_0_dot_t",
+      "expected_text": "",
+      "requested_bounds": [
+        267,
+        447,
+        0.0,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "srv_0_tr_t",
+      "expected_text": "stdio",
+      "requested_bounds": [
+        208,
+        442,
+        31.0,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "stdio",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        93.82721382289417,
+        613.2644628099174,
+        28.06047516198704,
+        9.6198347107438
+      ],
+      "ink_color": [
+        86,
+        87,
+        87
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        89.24999964999999,
+        612.4628099975207,
+        35.00000000000002,
+        14.429752066115697
+      ]
+    },
+    {
+      "id": "srv_0_tc",
+      "expected_text": "6",
+      "requested_bounds": [
+        340,
+        440,
+        24,
+        16
+      ],
+      "status": "observed",
+      "ocr_text": "6",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        376.18574514038875,
+        329.4793388429752,
+        5.26133909287257,
+        10.421487603305785
+      ],
+      "ink_color": [
+        45,
+        44,
+        47
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        374.4999999375,
+        328.6776860191263,
+        8.750000000000005,
+        12.826446280991778
+      ]
+    },
+    {
+      "id": "srv_1_id",
+      "expected_text": "web-probe",
+      "requested_bounds": [
+        44,
+        494,
+        140,
+        16
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "srv_1_sum",
+      "expected_text": "browser + fetch tools",
+      "requested_bounds": [
+        44,
+        514,
+        200,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "srv_1_dot_t",
+      "expected_text": "",
+      "requested_bounds": [
+        267,
+        501,
+        0.0,
+        14
+      ],
+      "status": "missing_or_ocr_unresolved"
+    },
+    {
+      "id": "srv_1_tr_t",
+      "expected_text": "http",
+      "requested_bounds": [
+        208,
+        496,
+        24.8,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "http",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        94.70410367170625,
+        679.801652892562,
+        24.552915766738657,
+        12.826446280991735
+      ],
+      "ink_color": [
+        115,
+        115,
+        117
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        87.49999986875,
+        678.1983468869835,
+        34.999999999999986,
+        17.63636363636362
+      ]
+    },
+    {
+      "id": "srv_1_tc",
+      "expected_text": "12",
+      "requested_bounds": [
+        340,
+        494,
+        24,
+        16
+      ],
+      "status": "observed",
+      "ocr_text": "12",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        261.31317494600427,
+        580.396694214876,
+        11.399568034557234,
+        9.6198347107438
+      ],
+      "ink_color": [
+        119,
+        118,
+        120
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        255.5000002625,
+        580.3966940946281,
+        20.999999999999993,
+        12.826446280991693
+      ]
+    },
+    {
+      "id": "empty_tools",
+      "expected_text": "No matching tools.",
+      "requested_bounds": [
+        236,
+        544,
+        138,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "No matching tools.",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        271.83585313174945,
+        464.1570247933884,
+        111.36501079913606,
+        14.429752066115702
+      ],
+      "ink_color": [
+        138,
+        138,
+        142
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        267.7499985125,
+        463.35537192086775,
+        119.0,
+        17.63636363636362
+      ]
+    },
+    {
+      "id": "empty_servers",
+      "expected_text": "No matching servers.",
+      "requested_bounds": [
+        236,
+        562,
+        138,
+        14
+      ],
+      "status": "observed",
+      "ocr_text": "No matching servers.",
+      "confidence": 1,
+      "text_similarity": 1.0,
+      "ink_bounds": [
+        247.28293736501078,
+        723.0909090909091,
+        135.91792656587472,
+        16.03305785123967
+      ],
+      "ink_color": [
+        139,
+        141,
+        145
+      ],
+      "light_foreground": false,
+      "ocr_bounds": [
+        243.25000027708333,
+        723.0909092378788,
+        141.75,
+        17.636363636363708
+      ]
+    },
+    {
+      "id": "btn_close_t",
+      "expected_text": "\u2715",
+      "requested_bounds": [
+        330,
+        60,
+        24,
+        17
+      ],
+      "status": "missing_or_ocr_unresolved"
+    }
+  ],
+  "non_text": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "scrim_44",
+      "bounds": [
+        0.0,
+        0.0,
+        406.0,
+        776.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "modal_card",
+      "bounds": [
+        16.0,
+        44.0,
+        374.0,
+        688.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 20.0
+    },
+    {
+      "id": "f_search_row",
+      "bounds": [
+        32.0,
+        116.0,
+        342.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "f_search_bg",
+      "bounds": [
+        14.0,
+        123.0,
+        378.0,
+        41.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294375159,
+      "radius": 10.25
+    },
+    {
+      "id": "f_search",
+      "bounds": [
+        32.0,
+        116.0,
+        342.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "tab_tools_fill",
+      "bounds": [
+        32.0,
+        168.0,
+        50.1,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "tab_mcp",
+      "bounds": [
+        104.0,
+        168.0,
+        91.0,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "tab_tools_row",
+      "bounds": [
+        32.0,
+        168.0,
+        60.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "tab_tools",
+      "bounds": [
+        32.0,
+        168.0,
+        60.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "tab_mcp_row",
+      "bounds": [
+        104.0,
+        168.0,
+        92.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "tab_mcp",
+      "bounds": [
+        104.0,
+        168.0,
+        92.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "tool_0",
+      "bounds": [
+        32.0,
+        230.0,
+        342.0,
+        52.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.0
+    },
+    {
+      "id": "tool_0_st",
+      "bounds": [
+        165.0,
+        220.0,
+        57.0,
+        26.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294046195,
+      "radius": 13.0
+    },
+    {
+      "id": "tool_1",
+      "bounds": [
+        32.0,
+        288.0,
+        342.0,
+        52.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.0
+    },
+    {
+      "id": "tool_1_st",
+      "bounds": [
+        165.0,
+        288.0,
+        57.0,
+        27.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294177781,
+      "radius": 13.5
+    },
+    {
+      "id": "tool_2",
+      "bounds": [
+        32.0,
+        346.0,
+        342.0,
+        52.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 10.0
+    },
+    {
+      "id": "tool_2_st",
+      "bounds": [
+        165.0,
+        389.0,
+        57.0,
+        27.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294177780,
+      "radius": 13.5
+    },
+    {
+      "id": "srv_0",
+      "bounds": [
+        32.0,
+        432.0,
+        342.0,
+        48.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "srv_0_dot",
+      "bounds": [
+        262.0,
+        444.0,
+        10.0,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 5.0
+    },
+    {
+      "id": "srv_0_tr",
+      "bounds": [
+        200.0,
+        439.0,
+        47.0,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835710,
+      "radius": 10.0
+    },
+    {
+      "id": "srv_1",
+      "bounds": [
+        32.0,
+        486.0,
+        342.0,
+        48.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "srv_1_dot",
+      "bounds": [
+        262.0,
+        498.0,
+        10.0,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 5.0
+    },
+    {
+      "id": "srv_1_tr",
+      "bounds": [
+        200.0,
+        493.0,
+        40.8,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "btn_close_row",
+      "bounds": [
+        330.0,
+        60.0,
+        24.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_close",
+      "bounds": [
+        330.0,
+        60.0,
+        24.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ],
+  "unmapped_ocr": [
+    {
+      "bounds": [
+        33.92672391840517,
+        98.00000009999997,
+        21.95258620689656,
+        22.00000000000009
+      ],
+      "confidence": 1,
+      "text": "Q"
+    },
+    {
+      "bounds": [
+        105.6167647438216,
+        235.5549307519975,
+        62.17595238521181,
+        22.890138626098608
+      ],
+      "confidence": 1,
+      "text": "Category"
+    },
+    {
+      "bounds": [
+        13.943090425932972,
+        281.92916461031473,
+        57.92847337393925,
+        22.141670227050696
+      ],
+      "confidence": 1,
+      "text": "fs.read"
+    },
+    {
+      "bounds": [
+        13.93419125811961,
+        323.88910979451725,
+        67.92472073127485,
+        22.221780776977518
+      ],
+      "confidence": 1,
+      "text": "fs.write"
+    },
+    {
+      "bounds": [
+        103.57985524846892,
+        281.3769572155698,
+        68.245462006536,
+        23.246086120605387
+      ],
+      "confidence": 1,
+      "text": "filesystem"
+    },
+    {
+      "bounds": [
+        103.66972144532635,
+        325.6321497371363,
+        68.06572782582249,
+        20.735700607299798
+      ],
+      "confidence": 1,
+      "text": "filesystem"
+    },
+    {
+      "bounds": [
+        13.909048874615785,
+        369.64675150822467,
+        113.8758663473458,
+        20.706498146057122
+      ],
+      "confidence": 1,
+      "text": "git.status git"
+    },
+    {
+      "bounds": [
+        13.791642960792228,
+        409.0336863573993,
+        114.1106802348433,
+        23.932626724243224
+      ],
+      "confidence": 1,
+      "text": "git.commit git"
+    },
+    {
+      "bounds": [
+        13.969828903362036,
+        449.99999990000003,
+        131.7155172413793,
+        21.99999999999998
+      ],
+      "confidence": 1,
+      "text": "shell.exec shell"
+    },
+    {
+      "bounds": [
+        13.853266505062829,
+        495.60749039939196,
+        66.09088243287185,
+        20.785018920898487
+      ],
+      "confidence": 1,
+      "text": "http.get"
+    },
+    {
+      "bounds": [
+        13.896903879522172,
+        535.744812830505,
+        75.98205582848911,
+        22.51037406921388
+      ],
+      "confidence": 1,
+      "text": "http.post"
+    },
+    {
+      "bounds": [
+        101.70969188177867,
+        495.75361464925953,
+        62.00734072718128,
+        18.492771148681726
+      ],
+      "confidence": 1,
+      "text": "network"
+    },
+    {
+      "bounds": [
+        103.75384783072465,
+        535.9313982905801,
+        61.91040881748857,
+        20.137203216552706
+      ],
+      "confidence": 1,
+      "text": "network"
+    },
+    {
+      "bounds": [
+        193.5818961326293,
+        233.99999978,
+        49.892241379310356,
+        21.99999999999998
+      ],
+      "confidence": 1,
+      "text": "Status"
+    },
+    {
+      "bounds": [
+        189.59051769040946,
+        323.99999975000003,
+        55.879310344827594,
+        20.000000000000043
+      ],
+      "confidence": 1,
+      "text": "enabled"
+    },
+    {
+      "bounds": [
+        195.517238673576,
+        407.83553971575384,
+        54.00431642861201,
+        20.328920364379833
+      ],
+      "confidence": 1,
+      "text": "enabled"
+    },
+    {
+      "bounds": [
+        195.5775864862931,
+        449.99999978000005,
+        51.88793103448276,
+        21.99999999999998
+      ],
+      "confidence": 1,
+      "text": "enabled"
+    },
+    {
+      "bounds": [
+        191.58620749525863,
+        535.9999999199999,
+        59.870689655172406,
+        20.000000000000043
+      ],
+      "confidence": 1,
+      "text": "disabled"
+    },
+    {
+      "bounds": [
+        11.97413775142242,
+        684.0000000800001,
+        17.96120689655173,
+        16.000000000000053
+      ],
+      "confidence": 1,
+      "text": "ID"
+    },
+    {
+      "bounds": [
+        101.78017101681037,
+        682.000000075,
+        111.75862068965516,
+        17.999999999999993
+      ],
+      "confidence": 1,
+      "text": "Transport Status"
+    },
+    {
+      "bounds": [
+        13.969827187068974,
+        724.0000001999999,
+        127.7241379310345,
+        20.000000000000043
+      ],
+      "confidence": 1,
+      "text": "filesystem stdio"
+    },
+    {
+      "bounds": [
+        11.974138489827576,
+        759.99999988,
+        55.879310344827594,
+        24.00000000000003
+      ],
+      "confidence": 1,
+      "text": "github"
+    },
+    {
+      "bounds": [
+        13.937125727028484,
+        803.8982821623138,
+        67.91885114538258,
+        22.203435897827113
+      ],
+      "confidence": 1,
+      "text": "postgres"
+    },
+    {
+      "bounds": [
+        95.75273774804364,
+        803.9065997481714,
+        45.98159361707754,
+        20.186800003051722
+      ],
+      "confidence": 1,
+      "text": "stdio"
+    },
+    {
+      "bounds": [
+        13.969828018606316,
+        849.9999998833333,
+        51.88793103448276,
+        17.999999999999993
+      ],
+      "confidence": 1,
+      "text": "sentry"
+    },
+    {
+      "bounds": [
+        171.62931095778941,
+        723.9999999142857,
+        85.81465517241375,
+        16.000000000000053
+      ],
+      "confidence": 1,
+      "text": "\u2022 connected"
+    },
+    {
+      "bounds": [
+        169.6063499986595,
+        763.8654089757654,
+        87.86488401478731,
+        18.269183158874576
+      ],
+      "confidence": 1,
+      "text": "\u2022 connected"
+    },
+    {
+      "bounds": [
+        169.52645021998845,
+        803.5520345894693,
+        90.02037714267598,
+        22.895931243896577
+      ],
+      "confidence": 1,
+      "text": "\u2022 connecting"
+    },
+    {
+      "bounds": [
+        169.63362017410202,
+        846.0000001166667,
+        61.86637931034483,
+        17.999999999999993
+      ],
+      "confidence": 1,
+      "text": "\u2022 failed"
+    },
+    {
+      "bounds": [
+        265.4267223218535,
+        236.00000008,
+        181.60775862068968,
+        19.999999999999932
+      ],
+      "confidence": 1,
+      "text": "Aliases Backend Count"
+    },
+    {
+      "bounds": [
+        333.17436903139156,
+        283.67604839230404,
+        48.108157527857784,
+        16.647903442382706
+      ],
+      "confidence": 1,
+      "text": "native"
+    },
+    {
+      "bounds": [
+        269.41810374762935,
+        323.9999999142857,
+        41.909482758620655,
+        19.999999999999932
+      ],
+      "confidence": 1,
+      "text": "write"
+    },
+    {
+      "bounds": [
+        329.20986422262996,
+        321.8043840137499,
+        54.041479053168466,
+        22.391231536865313
+      ],
+      "confidence": 1,
+      "text": "native"
+    },
+    {
+      "bounds": [
+        269.3497131929228,
+        367.60876931191814,
+        111.89540259591467,
+        20.78246116638172
+      ],
+      "confidence": 1,
+      "text": "status native"
+    },
+    {
+      "bounds": [
+        427.0775861320582,
+        367.9999998,
+        9.978448275862076,
+        15.999999999999947
+      ],
+      "confidence": 1,
+      "text": "8"
+    },
+    {
+      "bounds": [
+        269.3242515344525,
+        409.45909520662514,
+        111.94632563097724,
+        21.08180999755848
+      ],
+      "confidence": 1,
+      "text": "commit native"
+    },
+    {
+      "bounds": [
+        269.4181035730064,
+        453.9999999125,
+        19.956896551724153,
+        17.999999999999993
+      ],
+      "confidence": 1,
+      "text": "sh"
+    },
+    {
+      "bounds": [
+        333.2320607216129,
+        449.88997151424076,
+        49.98846528447908,
+        22.220056533813498
+      ],
+      "confidence": 1,
+      "text": "native"
+    },
+    {
+      "bounds": [
+        427.0775861071121,
+        451.99999970000005,
+        9.978448275862076,
+        17.999999999999886
+      ],
+      "confidence": 1,
+      "text": "9"
+    },
+    {
+      "bounds": [
+        267.4224139178341,
+        495.99999975000003,
+        29.935344827586228,
+        20.000000000000043
+      ],
+      "confidence": 1,
+      "text": "get"
+    },
+    {
+      "bounds": [
+        333.2801719348276,
+        496.0000001000001,
+        47.89655172413792,
+        17.999999999999993
+      ],
+      "confidence": 1,
+      "text": "native"
+    },
+    {
+      "bounds": [
+        427.0775861071121,
+        494.00000021017047,
+        9.978448275862076,
+        15.99999904632567
+      ],
+      "confidence": 1,
+      "text": "0"
+    },
+    {
+      "bounds": [
+        269.41810382745683,
+        537.9999998799999,
+        37.91810344827585,
+        20.000000000000043
+      ],
+      "confidence": 1,
+      "text": "post"
+    },
+    {
+      "bounds": [
+        333.06648398646126,
+        537.412289707607,
+        48.323927616250934,
+        19.175420761108448
+      ],
+      "confidence": 1,
+      "text": "native"
+    },
+    {
+      "bounds": [
+        425.08189668477013,
+        538.0000007435037,
+        11.97413793103448,
+        15.99999904632567
+      ],
+      "confidence": 1,
+      "text": "0"
+    },
+    {
+      "bounds": [
+        255.40688717669966,
+        639.8373261788726,
+        69.93191355672376,
+        18.325347900390543
+      ],
+      "confidence": 1,
+      "text": "failed\u2022 \u00a9"
+    },
+    {
+      "bounds": [
+        267.42241531481676,
+        682.00000025,
+        125.72844827586208,
+        19.999999999999932
+      ],
+      "confidence": 1,
+      "text": "toolCount Summary"
+    },
+    {
+      "bounds": [
+        335.2758620490086,
+        724.0000001799999,
+        117.7456896551724,
+        17.999999999999993
+      ],
+      "confidence": 1,
+      "text": "Local filesystem access"
+    },
+    {
+      "bounds": [
+        299.3534481760776,
+        763.99999986,
+        9.978448275862076,
+        14.000000000000007
+      ],
+      "confidence": 1,
+      "text": "9"
+    },
+    {
+      "bounds": [
+        337.27155025231684,
+        764.000000075,
+        117.7456896551724,
+        17.999999999999993
+      ],
+      "confidence": 1,
+      "text": "GitHub APl integration"
+    },
+    {
+      "bounds": [
+        329.2887915567888,
+        806.000000075,
+        123.73275862068967,
+        17.999999999999993
+      ],
+      "confidence": 1,
+      "text": "PostgreSQL database"
+    },
+    {
+      "bounds": [
+        331.2844815612069,
+        848.00000006,
+        119.74137931034481,
+        17.999999999999993
+      ],
+      "confidence": 1,
+      "text": "Sentry issue tracking"
+    }
+  ],
+  "non_text_ocr": [],
+  "limits": [
+    "OCR cannot prove font family, hierarchy or control behavior.",
+    "Unannotated non-text elements require visual review."
+  ]
+}

@@ -1,0 +1,407 @@
+{
+  "schema_version": 1,
+  "reference_sha256": "9ca1e9931959e20be9724198c37f242ff7ab46dc82a1a058ccebe133f1fd1ff0",
+  "method": "automatic proposals; unreviewed source-image measurements",
+  "candidate_rectangles": [
+    [
+      165.0,
+      424.0,
+      57.0,
+      27.0
+    ],
+    [
+      165.0,
+      389.0,
+      57.0,
+      27.0
+    ],
+    [
+      165.0,
+      356.0,
+      57.0,
+      27.0
+    ],
+    [
+      165.0,
+      322.0,
+      57.0,
+      27.0
+    ],
+    [
+      165.0,
+      288.0,
+      57.0,
+      27.0
+    ],
+    [
+      165.0,
+      254.0,
+      57.0,
+      26.0
+    ],
+    [
+      165.0,
+      220.0,
+      57.0,
+      26.0
+    ],
+    [
+      17.0,
+      126.0,
+      184.0,
+      36.0
+    ],
+    [
+      200.0,
+      123.0,
+      192.0,
+      41.0
+    ],
+    [
+      14.0,
+      123.0,
+      190.0,
+      41.0
+    ],
+    [
+      14.0,
+      123.0,
+      378.0,
+      41.0
+    ],
+    [
+      16.0,
+      65.0,
+      375.0,
+      43.0
+    ],
+    [
+      13.0,
+      63.0,
+      380.0,
+      47.0
+    ]
+  ],
+  "elements": [
+    {
+      "id": "page",
+      "bounds": [
+        0,
+        0,
+        406,
+        776
+      ],
+      "method": "image canvas",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "scrim_44",
+      "bounds": [
+        0.0,
+        0.0,
+        406.0,
+        776.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502
+    },
+    {
+      "id": "modal_card",
+      "bounds": [
+        16.0,
+        44.0,
+        374.0,
+        688.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 20.0
+    },
+    {
+      "id": "f_search_row",
+      "bounds": [
+        32.0,
+        116.0,
+        342.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "f_search_bg",
+      "bounds": [
+        14.0,
+        123.0,
+        378.0,
+        41.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294375159,
+      "radius": 10.25
+    },
+    {
+      "id": "f_search",
+      "bounds": [
+        32.0,
+        116.0,
+        342.0,
+        40.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "tab_tools_fill",
+      "bounds": [
+        32.0,
+        168.0,
+        50.1,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "tab_mcp",
+      "bounds": [
+        104.0,
+        168.0,
+        91.0,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "tab_tools_row",
+      "bounds": [
+        32.0,
+        168.0,
+        60.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "tab_tools",
+      "bounds": [
+        32.0,
+        168.0,
+        60.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "tab_mcp_row",
+      "bounds": [
+        104.0,
+        168.0,
+        92.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "tab_mcp",
+      "bounds": [
+        104.0,
+        168.0,
+        92.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "tool_0",
+      "bounds": [
+        32.0,
+        230.0,
+        342.0,
+        52.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.0
+    },
+    {
+      "id": "tool_0_st",
+      "bounds": [
+        165.0,
+        220.0,
+        57.0,
+        26.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294046195,
+      "radius": 13.0
+    },
+    {
+      "id": "tool_1",
+      "bounds": [
+        32.0,
+        288.0,
+        342.0,
+        52.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 10.0
+    },
+    {
+      "id": "tool_1_st",
+      "bounds": [
+        165.0,
+        288.0,
+        57.0,
+        27.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294177781,
+      "radius": 13.5
+    },
+    {
+      "id": "tool_2",
+      "bounds": [
+        32.0,
+        346.0,
+        342.0,
+        52.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901246,
+      "radius": 10.0
+    },
+    {
+      "id": "tool_2_st",
+      "bounds": [
+        165.0,
+        389.0,
+        57.0,
+        27.0
+      ],
+      "method": "reference edge contour with contained OCR text anchors",
+      "reviewed": false,
+      "bg": 4294177780,
+      "radius": 13.5
+    },
+    {
+      "id": "srv_0",
+      "bounds": [
+        32.0,
+        432.0,
+        342.0,
+        48.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "srv_0_dot",
+      "bounds": [
+        262.0,
+        444.0,
+        10.0,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 5.0
+    },
+    {
+      "id": "srv_0_tr",
+      "bounds": [
+        200.0,
+        439.0,
+        47.0,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835710,
+      "radius": 10.0
+    },
+    {
+      "id": "srv_1",
+      "bounds": [
+        32.0,
+        486.0,
+        342.0,
+        48.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "srv_1_dot",
+      "bounds": [
+        262.0,
+        498.0,
+        10.0,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294835709,
+      "radius": 5.0
+    },
+    {
+      "id": "srv_1_tr",
+      "bounds": [
+        200.0,
+        493.0,
+        40.8,
+        20.0
+      ],
+      "method": "surface contour unresolved; requested geometry retained",
+      "reviewed": false,
+      "bg": 4294901502,
+      "radius": 10.0
+    },
+    {
+      "id": "btn_close_row",
+      "bounds": [
+        330.0,
+        60.0,
+        24.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    },
+    {
+      "id": "btn_close",
+      "bounds": [
+        330.0,
+        60.0,
+        24.0,
+        20.0
+      ],
+      "method": "inferred semantic extent from observed parent",
+      "reviewed": false
+    }
+  ]
+}

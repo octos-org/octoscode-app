@@ -1,0 +1,52 @@
+{
+  "width": 406,
+  "height": 776,
+  "observations": [
+    {
+      "expected_text": "anthropic/claude-3.5-sonnet",
+      "requested_bounds": [
+        78,
+        96,
+        200,
+        16
+      ],
+      "ink_bounds": [
+        78,
+        96,
+        200,
+        16
+      ]
+    },
+    {
+      "expected_text": "Focus on code quality, tests, and minimal diffs.",
+      "requested_bounds": [
+        48,
+        282,
+        310,
+        36
+      ],
+      "ink_bounds": [
+        48,
+        282,
+        310,
+        36
+      ]
+    },
+    {
+      "expected_text": "gpt-4o",
+      "requested_bounds": [
+        78,
+        408,
+        140,
+        16
+      ],
+      "ink_bounds": [
+        78,
+        408,
+        140,
+        16
+      ]
+    }
+  ],
+  "source": "lane-vision on the measured atlas crops (no external OCR for board 3)"
+}

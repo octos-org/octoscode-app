@@ -1,0 +1,36 @@
+{
+  "frame_id": 2,
+  "controls": {
+    "wd_start": {
+      "event": "workspace.start_in_server_root",
+      "source_bounds": [
+        44,
+        178,
+        318,
+        20
+      ],
+      "enabled": true
+    },
+    "btn_enter": {
+      "event": "workspace.create.submit",
+      "source_bounds": [
+        296,
+        372,
+        78,
+        40
+      ],
+      "enabled": true
+    },
+    "btn_browse": {
+      "event": "workspace.browse.open",
+      "source_bounds": [
+        32,
+        448,
+        200,
+        20
+      ],
+      "enabled": true
+    }
+  },
+  "source": "phase4-new3-screen-02"
+}

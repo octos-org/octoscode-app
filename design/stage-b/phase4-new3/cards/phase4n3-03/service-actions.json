@@ -1,0 +1,46 @@
+{
+  "frame_id": 3,
+  "controls": {
+    "btn_back": {
+      "event": "workspace.create.back",
+      "source_bounds": [
+        32,
+        112,
+        200,
+        20
+      ],
+      "enabled": true
+    },
+    "btn_create": {
+      "event": "folder.create.submit",
+      "source_bounds": [
+        296,
+        150,
+        78,
+        40
+      ],
+      "enabled": true
+    },
+    "btn_drill": {
+      "event": "folder.browser.open",
+      "source_bounds": [
+        32,
+        286,
+        200,
+        20
+      ],
+      "enabled": true
+    },
+    "btn_drill_disabled": {
+      "event": "folder.browser.open",
+      "source_bounds": [
+        32,
+        312,
+        260,
+        20
+      ],
+      "enabled": false
+    }
+  },
+  "source": "phase4-new3-screen-03"
+}
