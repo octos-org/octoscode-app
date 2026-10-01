@@ -106,7 +106,10 @@ mod tests {
             "simple, case-insensitive"
         );
         assert!(is_protocol_uuid(&json!("{018f3e2a-1b2c-7def-8901-234567890abc}")));
-        assert!(is_protocol_uuid(&json!("{018f3e2a1b2c7def8901234567890abc}")));
+        // Braces count only at EXACTLY 38 chars (protocol-id.ts:27), which is
+        // 1 + 36 + 1 — the HYPHENATED form. A SIMPLE (32) id in braces is 34
+        // chars, so the web rejects it, and so must we.
+        assert!(!is_protocol_uuid(&json!("{018f3e2a1b2c7def8901234567890abc}")));
         assert!(is_protocol_uuid(&json!("urn:uuid:018f3e2a-1b2c-7def-8901-234567890abc")));
 
         // A URN-wrapped SIMPLE id is not an accepted shape.
