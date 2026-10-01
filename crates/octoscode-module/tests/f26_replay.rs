@@ -617,7 +617,7 @@ async fn a_tui_only_command_reports_and_starts_no_turn() {
     assert!(reports.iter().any(|e| e.text.contains("Unsupported command: /bogus")));
 
     // A PATH-shaped input is a PROMPT: it reaches the model verbatim.
-    conv.ui().lock().unwrap().set_draft_inner("/Users/x/proj/main.rs");
+    conv.ui().lock().unwrap().set_draft_inner("/home/user/x/proj/main.rs");
     let received_before = server.received.lock().unwrap().len();
     let id = conv.submit_draft().await.expect("submit is not an error");
     assert!(!id.is_empty(), "a path prompt starts a real turn");

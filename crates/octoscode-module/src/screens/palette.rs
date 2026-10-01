@@ -124,7 +124,7 @@ pub const WEB_COMMANDS: &[WebCommand] = &[
 
 /// `registry.ts:647` `looksLikeSlashCommand` — a leading "/" followed by a
 /// first token WITHOUT "/" or "\\" is a command invocation; a path
-/// ("/Users/x/y" or "/c/d") is a prompt and must be PRESERVED verbatim.
+/// ("/home/user/x/y" or "/c/d") is a prompt and must be PRESERVED verbatim.
 pub fn looks_like_slash_command(input: &str) -> bool {
     let trimmed = input.trim_start();
     let Some(rest) = trimmed.strip_prefix('/') else { return false };
@@ -573,7 +573,7 @@ mod p4d3_tests {
     #[test]
     fn path_shaped_leading_slash_is_a_prompt_not_a_command() {
         // registry.ts:647 — the row-2 preservation rule.
-        assert!(!looks_like_slash_command("/Users/x/y"));
+        assert!(!looks_like_slash_command("/home/user/x/y"));
         assert!(!looks_like_slash_command("/c/rust/main.rs"));
         assert!(!looks_like_slash_command("  /a/b mixed"));
         assert!(looks_like_slash_command("/model"));
@@ -619,7 +619,7 @@ mod p4d3_tests {
             Some(CommandMatch::Unknown(n)) if n == "bogus"
         ));
         // paths are None (prompts)
-        assert!(match_command("/Users/x/y").is_none());
+        assert!(match_command("/home/user/x/y").is_none());
     }
 
     #[test]

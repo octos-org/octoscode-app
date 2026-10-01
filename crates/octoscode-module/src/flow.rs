@@ -1045,7 +1045,7 @@ impl Conversation {
         // :654 parseCommandInvocation, :656 findCommand, :679
         // commandAvailability): parse the invocation, resolve it against the
         // ported 47-command registry, act on the match. A PATH-shaped input
-        // ("/Users/x/y", "/c/d") is a PROMPT and reaches the model verbatim —
+        // ("/home/user/x/y", "/c/d") is a PROMPT and reaches the model verbatim —
         // the old arm refused every leading-slash input, paths included.
         match crate::screens::palette::match_command(&text) {
             None => {}

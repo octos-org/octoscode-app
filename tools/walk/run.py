@@ -956,7 +956,7 @@ def cp_command_receipts(app):
     d = app.snap()
     kept = (app.draft(d) or "") == "/bogus"
     # 3. a path reaches the model: a working row appears (a real turn)
-    app.clear_composer(); app.type("/Users/x/proj/main.rs"); app.key("return")
+    app.clear_composer(); app.type("/home/user/x/proj/main.rs"); app.key("return")
     turned = False
     for _ in range(24):
         if "workingrow" in app.kinds(app.snap()):
