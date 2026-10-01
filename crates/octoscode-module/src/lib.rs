@@ -3114,7 +3114,17 @@ impl Widget for OctoscodeView {
                                 self.perform_screen_action(ev, None);
                             }
                             screens::taps::Owner::Action => {
-                                self.perform_action(cx, ev, 0);
+                                // #FX1 — the row the tapped control addresses.
+                                // It is NOT the widget name and NOT a guessed
+                                // default: the shared wiring path stamped it
+                                // onto the action id from the card's own control
+                                // naming (`taps::row_of`), because `screen_taps`
+                                // carries (widget, action) and no row at all.
+                                // A control with no row suffix keeps the old
+                                // behaviour (row 0), which is correct for every
+                                // single-shot control.
+                                let (base, row) = screens::taps::split_row(ev);
+                                self.perform_action(cx, base, row.unwrap_or(0));
                             }
                         }
                     }
