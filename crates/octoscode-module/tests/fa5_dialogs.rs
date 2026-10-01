@@ -57,6 +57,15 @@ fn recorded(frames: &[Frame], method: &str) -> Vec<Value> {
         .collect()
 }
 
+/// r1-autonomy's recorded `session/open` result (capabilities: 34 features,
+/// 106 methods), the reply the replay server sends as `{"opened": …}`.
+fn recorded_open() -> Value {
+    recorded(&fixture("r1-autonomy-a6ea8505.jsonl"), "session/open")
+        .into_iter()
+        .find(|b| b.get("active_profile_id").is_some())
+        .expect("r1 recorded the open result")
+}
+
 /// Re-point a recorded body at the session the test opened (the replay
 /// server's own rewrite, `examples/replay_serve.rs` `rewrite_session`).
 fn repoint(v: &Value, from: &str, to: &str) -> Value {
@@ -152,10 +161,14 @@ async fn the_compaction_mode_click_sends_the_recorded_request_and_selects_the_re
     let r3 = fixture("r3-session-a6ea8505.jsonl");
     let reply = recorded(&r3, "session/compact/mode/set").remove(0);
     assert_eq!(reply["mode"], "heuristic", "the recording's confirmed mode");
-    let server = Server::start(vec![(
-        "session/compact/mode/set".into(),
-        repoint(&reply, "dsflash:api:main", "dsflash:main"),
-    )])
+    let server = Server::start(vec![
+        // The recorded open reply advertises the methods the dialog gates on.
+        ("session/open".into(), json!({"opened": recorded_open()})),
+        (
+            "session/compact/mode/set".into(),
+            repoint(&reply, "dsflash:api:main", "dsflash:main"),
+        ),
+    ])
     .await;
     let conv = connect(&server).await;
     let store = conv.store.clone();
@@ -332,6 +345,39 @@ fn the_recorded_notifications_keep_the_dialog_cache_current() {
     // The older set (generation 1) cannot resurrect the cleared goal (2).
     autonomy::note_notification("session/goal/updated", &goal);
     assert!(autonomy::state_snapshot().goal.is_none(), "generation-gated");
+}
+
+/// Compact now: the outcome line is the web's (`ContextDialog.tsx` mutate)
+/// over the RECORDED reply — r3's pass refused with a typed reason.
+#[test]
+fn the_compaction_outcome_is_the_web_line_over_the_recorded_reply() {
+    let r3 = fixture("r3-session-a6ea8505.jsonl");
+    let reply = recorded(&r3, "session/compact").remove(0);
+    let (line, ok) = models::compaction_outcome(&reply);
+    assert!(!ok, "r3's pass did not compact");
+    assert_eq!(
+        line,
+        format!("Compaction {}: no_safe_semantic_boundary", reply["status"].as_str().unwrap())
+    );
+    assert_eq!(models::compaction_outcome(&json!({"compacted": true})).0, "Context compacted.");
+    assert_eq!(models::compaction_outcome(&json!({"status": "skipped"})).0, "Compaction skipped.");
+}
+
+/// A create notification that lands BEFORE its reply does not duplicate the
+/// row (`store.ts:669` ID upsert, never a blind prepend).
+#[test]
+fn a_create_notification_before_its_reply_does_not_duplicate_the_row() {
+    let _s = serial();
+    autonomy::reset_state();
+    let r1 = fixture("r1-autonomy-a6ea8505.jsonl");
+    let created = recorded(&r1, "loop/updated").remove(0);
+    autonomy::note_notification("loop/updated", &created);
+    autonomy::fold_loop_reply(&created, false);
+    assert_eq!(autonomy::state_snapshot().loops.len(), 1, "one row per loop id");
+    let monitor = recorded(&r1, "monitor/updated").remove(0);
+    autonomy::note_notification("monitor/updated", &monitor);
+    autonomy::fold_monitor_reply(&monitor, false);
+    assert_eq!(autonomy::state_snapshot().monitors.len(), 1);
 }
 
 /// The palette lists the commands the server advertises (r1's recorded

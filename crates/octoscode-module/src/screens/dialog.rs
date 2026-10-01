@@ -201,11 +201,20 @@ pub fn close() {
 /// (the web renders each family's error under its section with
 /// `role="alert"`, `AutonomyPanel.tsx:227/:328/:485`; a create/steer with no
 /// text is refused before any request, like the web's `required` field).
-static NOTICE: Mutex<Option<(Dialog, String)>> = Mutex::new(None);
+static NOTICE: Mutex<Option<(Dialog, String, bool)>> = Mutex::new(None);
 
+/// An ALERT notice (red, the web's `role="alert"` error line).
 pub fn set_notice(text: impl Into<String>) {
     if let Some(d) = current() {
-        *NOTICE.lock().unwrap() = Some((d, text.into()));
+        *NOTICE.lock().unwrap() = Some((d, text.into(), true));
+    }
+}
+
+/// An informational notice (secondary grey, the web's `role="status"`
+/// result line — e.g. "Context compacted.").
+pub fn set_info(text: impl Into<String>) {
+    if let Some(d) = current() {
+        *NOTICE.lock().unwrap() = Some((d, text.into(), false));
     }
 }
 
@@ -215,8 +224,13 @@ pub fn clear_notice() {
 
 /// The notice for dialog `d`, if one is up.
 pub fn notice(d: Dialog) -> Option<String> {
+    notice_tone(d).map(|(t, _)| t)
+}
+
+/// The notice for dialog `d` and whether it is an alert.
+pub fn notice_tone(d: Dialog) -> Option<(String, bool)> {
     match NOTICE.lock().unwrap().as_ref() {
-        Some((n, t)) if *n == d => Some(t.clone()),
+        Some((n, t, alert)) if *n == d => Some((t.clone(), *alert)),
         _ => None,
     }
 }
@@ -307,7 +321,7 @@ pub fn apply(effect: &Effect) -> Option<Dialog> {
 /// Append the notice line under the card's content (post-normalize card
 /// coordinates), growing the frame containers to hold it. The line keeps the
 /// card's own body face (cloned from its first text node) in the atlas red.
-fn append_notice(tree: &mut UiNode, text: &str, card: (f64, f64)) -> (f64, f64) {
+fn append_notice(tree: &mut UiNode, text: &str, alert: bool, card: (f64, f64)) -> (f64, f64) {
     let (w, h) = card;
     let mut proto: Option<UiNode> = None;
     walk(tree, &mut |n| {
@@ -327,7 +341,7 @@ fn append_notice(tree: &mut UiNode, text: &str, card: (f64, f64)) -> (f64, f64) 
     a.h = Some(line_h as f32);
     a.size = Some(13.5);
     a.weight = Some(400);
-    a.color = Some(0xffcf_222e);
+    a.color = Some(if alert { 0xffcf_222e } else { 0xff6e_6e73 });
     a.alignx = Some(0.0);
     a.variant = None;
     a.fillw = None;
@@ -633,6 +647,14 @@ fn live_models(tree: &mut UiNode, ctx: &Ctx<'_>) {
     if mine.len() < 2 {
         remove(tree, &["t_pro", "inner_div"]);
     }
+    // Each operation is gated on its own advertised method
+    // (`model-settings.ts:211`: read-only when the method is absent).
+    if !advertises(ctx.store, "profile/llm/test") {
+        remove(tree, &["btn_test"]);
+    }
+    if !advertises(ctx.store, "profile/llm/fetch_models") {
+        remove(tree, &["btn_discover"]);
+    }
     match mine.iter().position(|m| m.selected) {
         Some(0) => {}
         Some(1) => {
@@ -765,6 +787,15 @@ fn live_context(tree: &mut UiNode, ctx: &Ctx<'_>) {
             n.attrs.color = Some(if on { 0xff00_0000 } else { 0xff6e_6e73 });
             n.attrs.weight = Some(if on { 600 } else { 400 });
         }
+    }
+    // Fail closed (`ContextPanel.tsx`: `compactAvailable` / `modeAvailable`):
+    // a control the server does not advertise is not drawn at all.
+    if !advertises(ctx.store, "session/compact") {
+        remove(tree, &["btn_compact"]);
+    }
+    if !advertises(ctx.store, "session/compact/mode/set") {
+        remove(tree, &["t_comp", "seg_box", "seg_div", "t_llm", "t_heur"]);
+        return;
     }
     if let (Some(m), Some((bx, by, bw, bh)), Some((dx, _, _, _))) =
         (mode.as_deref(), rect_of(tree, "seg_box"), rect_of(tree, "seg_div"))
@@ -1208,7 +1239,8 @@ pub fn controls(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState) -> Vec<Control> {
 pub fn wire(tree: &mut UiNode, controls: &[Control]) -> Vec<Control> {
     let mut missing = Vec::new();
     for c in controls {
-        // The two synthetic halves of the context segmented control.
+        // The two synthetic halves of the context segmented control (absent
+        // when the server does not advertise the mode method: not drawn).
         if c.node == "seg_llm_hit" || c.node == "seg_heur_hit" {
             if let (Some((bx, by, bw, bh)), Some((dx, _, _, _))) =
                 (rect_of(tree, "seg_box"), rect_of(tree, "seg_div"))
@@ -1218,8 +1250,6 @@ pub fn wire(tree: &mut UiNode, controls: &[Control]) -> Vec<Control> {
                 if !insert_after(tree, "t_heur", hit) {
                     missing.push(c.clone());
                 }
-            } else {
-                missing.push(c.clone());
             }
             continue;
         }
@@ -1446,6 +1476,20 @@ const SHEET_BELOW: f64 = 520.0;
 /// The desktop margin around the frame (`.backdrop { padding: 16px }`).
 const MARGIN: f64 = 16.0;
 
+/// The autonomy family's recorded error (#P4e1b row 8: kept only while the
+/// op stays authorized), shown as the dialog's alert line — the web renders
+/// `goalError` / `loopsError` / `monitorsError` under its section with
+/// `role="alert"` (`AutonomyPanel.tsx:227/:328/:485`).
+fn family_error(d: Dialog, ctx: &Ctx<'_>) -> Option<(String, bool)> {
+    let family = match d {
+        Dialog::Goal => crate::screens::autonomy::FAMILY_GOAL,
+        Dialog::Loops => crate::screens::autonomy::FAMILY_LOOPS,
+        Dialog::Monitors => crate::screens::autonomy::FAMILY_MONITORS,
+        _ => return None,
+    };
+    ctx.store.domains.autonomy.error(family).map(|e| (e, true))
+}
+
 /// The per-dialog live edits, then the shared button-label centring.
 fn live(d: Dialog, tree: &mut UiNode, ctx: &Ctx<'_>, st: &AutonomyState) {
     match d {
@@ -1471,8 +1515,8 @@ pub fn lower(d: Dialog, ctx: &Ctx<'_>, avail_w: f64, avail_h: f64) -> Result<Mou
     let frames = frame_ids(&tree);
     let slot = close_slot(&tree, cw, &frames);
     clear_close(&mut tree, slot, &frames);
-    let (cw, ch) = match notice(d) {
-        Some(text) => append_notice(&mut tree, &text, (cw, ch)),
+    let (cw, ch) = match notice_tone(d).or_else(|| family_error(d, ctx)) {
+        Some((text, alert)) => append_notice(&mut tree, &text, alert, (cw, ch)),
         None => (cw, ch),
     };
 
@@ -2018,6 +2062,45 @@ mod tests {
         assert_eq!(notice(Dialog::Loops), None, "closing clears the notice");
         assert!(notice_for_refusal("goal.pause[not-advertised]").is_some());
         assert!(notice_for_refusal("loop.pause[3]").is_none());
+    }
+
+    /// A failed autonomy op's family error shows as the dialog's alert line
+    /// (`AutonomyPanel.tsx:328` `role="alert"`), only while it is recorded
+    /// (the store keeps it only while the op stays authorized).
+    #[test]
+    fn a_family_error_shows_as_the_dialog_alert() {
+        let _s = serial();
+        let (store, ui) = full();
+        let ctx = Ctx::new(&store, &ui);
+        clear_notice();
+        let a = &store.domains.autonomy;
+        a.bind_identity("client-1:dsflash:main");
+        assert!(a.record_error("loops", a.epoch(), "loop/pause: rpc error -32602 (no such loop)"));
+        let m = lower(Dialog::Loops, &ctx, 990.0, 603.0).unwrap();
+        assert!(m.dsl.contains("no such loop"), "the loops error renders");
+        let goal = lower(Dialog::Goal, &ctx, 990.0, 603.0).unwrap();
+        assert!(!goal.dsl.contains("no such loop"), "only its own family");
+        a.clear_error("loops");
+        let m = lower(Dialog::Loops, &ctx, 990.0, 603.0).unwrap();
+        assert!(!m.dsl.contains("no such loop"));
+    }
+
+    /// Fail closed: a context control the server does not advertise is not
+    /// drawn (`ContextPanel.tsx` compactAvailable / modeAvailable), and the
+    /// models route operations follow their own methods.
+    #[test]
+    fn unadvertised_controls_are_not_drawn() {
+        let _s = serial();
+        let (store, ui) = full();
+        store.domains.config.set_supported_methods(vec!["profile/llm/list".into()]);
+        store.set_capabilities(vec![]);
+        let ctx = Ctx::new(&store, &ui);
+        let m = lower(Dialog::Context, &ctx, 990.0, 603.0).unwrap();
+        let ev = events(&m);
+        assert!(!ev.iter().any(|e| e.starts_with("context.")), "{ev:?}");
+        assert!(!m.dsl.contains("\"Compact now\"") && !m.dsl.contains("\"Heuristic\""));
+        let m = lower(Dialog::Models, &ctx, 990.0, 603.0).unwrap();
+        assert!(!events(&m).iter().any(|e| e.starts_with("models.")), "read-only models");
     }
 
     /// The card SVGs resolve to their on-disk assets (the `:8170` design-lab

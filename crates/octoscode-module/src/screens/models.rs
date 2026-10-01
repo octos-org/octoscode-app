@@ -736,11 +736,15 @@ pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result
     let Some((method, params)) = action_params(action, store) else {
         return Err(format!("screens/models: no protocol mapping for {action:?}"));
     };
-    let result = conv
-        .client()
-        .request(&method, params)
-        .await
-        .map_err(|e| format!("{method}: {e}"))?;
+    let result = match conv.client().request(&method, params).await {
+        Ok(v) => v,
+        Err(e) => {
+            // The open dialog shows the failure under its controls (the web
+            // dialogs' `setError(errorText(cause))` alert line).
+            crate::screens::dialog::set_notice(format!("{e}"));
+            return Err(format!("{method}: {e}"));
+        }
+    };
     match action {
         "context.mode.llm" | "context.mode.heuristic" => {
             if note_compact_mode(&result).is_none() {
@@ -749,7 +753,48 @@ pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result
             let _ = refresh_context(conv, store).await;
         }
         "context.compact_now" => {
+            // `ContextDialog.tsx` mutate("compact"): the outcome line —
+            // "Context compacted." or "Compaction {status}: {reason}".
+            let (line, ok) = compaction_outcome(&result);
+            if ok {
+                crate::screens::dialog::set_info(line);
+            } else {
+                crate::screens::dialog::set_notice(line);
+            }
             let _ = refresh_context(conv, store).await;
+        }
+        "models.test_route" => {
+            // `LlmTestResult` {applied, message, error}.
+            match result.get("error").and_then(|e| e.as_str()).filter(|e| !e.is_empty()) {
+                Some(err) => crate::screens::dialog::set_notice(format!("Route test failed: {err}")),
+                None => {
+                    let msg = result.get("message").and_then(|m| m.as_str()).unwrap_or("");
+                    crate::screens::dialog::set_info(if msg.is_empty() {
+                        "Route test finished.".to_owned()
+                    } else {
+                        format!("Route test: {msg}")
+                    });
+                }
+            }
+        }
+        "models.discover" => {
+            // `LlmFetchModelsResult` {models, reason, status}.
+            let models: Vec<&str> = result
+                .get("models")
+                .and_then(|m| m.as_array())
+                .map(|a| a.iter().filter_map(|v| v.as_str()).collect())
+                .unwrap_or_default();
+            if models.is_empty() {
+                let why = result.get("reason").and_then(|r| r.as_str()).unwrap_or("no models reported");
+                crate::screens::dialog::set_notice(format!("Model discovery: {why}"));
+            } else {
+                crate::screens::dialog::set_info(format!(
+                    "Found {} model{}: {}",
+                    models.len(),
+                    if models.len() == 1 { "" } else { "s" },
+                    models.join(", ")
+                ));
+            }
         }
         a if a.starts_with("skills.install_") || a.starts_with("skills.remove_") => {
             if let Ok(v) = conv.client().request("profile/skills/list", json!({})).await {
@@ -759,6 +804,20 @@ pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result
         _ => {}
     }
     Ok(result)
+}
+
+/// The web's compaction result line (`ContextDialog.tsx` `mutate`):
+/// `compacted ? "Context compacted." : "Compaction {status}{: reason | .}"`.
+/// Returns the line and whether the pass compacted.
+pub fn compaction_outcome(result: &Value) -> (String, bool) {
+    if result.get("compacted").and_then(|c| c.as_bool()) == Some(true) {
+        return ("Context compacted.".to_owned(), true);
+    }
+    let status = result.get("status").and_then(|s| s.as_str()).unwrap_or("not completed");
+    match result.get("reason").and_then(|r| r.as_str()).filter(|r| !r.is_empty()) {
+        Some(reason) => (format!("Compaction {status}: {reason}"), false),
+        None => (format!("Compaction {status}."), false),
+    }
 }
 
 /// A5 — the context dialog's AUTHORITATIVE refresh: `session/status/read`
