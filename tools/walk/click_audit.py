@@ -51,6 +51,10 @@ CHROME: list[tuple[str, str]] = [
     ("composer_0", ""),                # the draft TextInput: focus only
     ("plus_hit", "(unwired)"),         # lib.rs:2140-2142: hit targets only, ids
     ("mic_hit", "(unwired)"),          # reserved "for a later card"
+    # #40b: the closed-state openers live in the always-mounted sidebar
+    # header (lib.rs:2949-2957 route both to the same toggles).
+    ("review_open_hit", "review.toggle"),
+    ("settings_open_hit", "settings.toggle"),
 ]
 
 # Per-screen expectations, from each screen's ACTIONS table (screens/*.rs).
@@ -380,10 +384,14 @@ def main() -> int:
     shadowed = sum(1 for r in real if r[6].startswith("shadowed:"))
     dimmed = sum(1 for r in real if r[6].startswith("shadowed: the modal"))
     focus = sum(1 for r in real if r[6].startswith("nothing (focus-only"))
+    # #41d: a text input with no routed action is a FOCUS-ONLY control by
+    # design (the composer draft, the connect form) — counted, not unmapped.
+    focus_input = sum(1 for r in rows if not r[5] and "input" in r[2].lower())
     print(f"SURFACE: {total} controls, {len(real)} with an expected action: "
           f"{respond} respond, {dead} dead, {dismissed} dismissed-by-earlier-click, "
           f"{shadowed} shadowed-by-dock ({dimmed} by the modal dimmer), {focus} focus-only-bindings, "
-          f"{unwired} documented-unwired (+{total - len(real) - unwired} unmapped)", flush=True)
+          f"{focus_input} focus-only inputs, "
+          f"{unwired} documented-unwired (+{total - len(real) - unwired - focus_input} unmapped)", flush=True)
     return 0
 
 
