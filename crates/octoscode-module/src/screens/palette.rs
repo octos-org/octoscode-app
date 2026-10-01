@@ -553,3 +553,73 @@ pub fn screen_cards_dir() -> std::path::PathBuf {
 fn escape_splash(text: &str) -> String {
     text.replace('\\', "\\\\").replace('"', "\\\"")
 }
+
+#[cfg(test)]
+mod p4d3_tests {
+    use super::*;
+
+    #[test]
+    fn path_shaped_leading_slash_is_a_prompt_not_a_command() {
+        // registry.ts:647 — the row-2 preservation rule.
+        assert!(!looks_like_slash_command("/Users/x/y"));
+        assert!(!looks_like_slash_command("/c/rust/main.rs"));
+        assert!(!looks_like_slash_command("  /a/b mixed"));
+        assert!(looks_like_slash_command("/model"));
+        assert!(looks_like_slash_command("/"));
+        assert!(looks_like_slash_command("  /model gpt-4"));
+        assert!(!looks_like_slash_command("plain prompt"));
+    }
+
+    #[test]
+    fn invocation_parse_splits_name_and_args() {
+        assert_eq!(
+            parse_command_invocation("/model gpt-4"),
+            Some(("model".into(), "gpt-4".into()))
+        );
+        assert_eq!(
+            parse_command_invocation("/resume"),
+            Some(("resume".into(), String::new()))
+        );
+        assert_eq!(parse_command_invocation("/a/b"), None);
+    }
+
+    #[test]
+    fn the_registry_carries_the_web_slice_and_resolves_fail_closed() {
+        assert_eq!(WEB_COMMANDS.len(), 47);
+        // alias resolution (registry.ts:656 findCommand)
+        assert!(matches!(
+            match_command("/quit"),
+            Some(CommandMatch::NotRunnable(_))
+        ));
+        // runnable = the palette atlas slice (the Stage B card's rows)
+        assert!(matches!(
+            match_command("/resume"),
+            Some(CommandMatch::Known(_, _))
+        ));
+        // TUI-only: KNOWN name, not runnable here — report, never dispatch
+        assert!(matches!(
+            match_command("/title"),
+            Some(CommandMatch::NotRunnable(n)) if n == "title"
+        ));
+        // unknown slash-shaped input
+        assert!(matches!(
+            match_command("/bogus"),
+            Some(CommandMatch::Unknown(n)) if n == "bogus"
+        ));
+        // paths are None (prompts)
+        assert!(match_command("/Users/x/y").is_none());
+    }
+
+    #[test]
+    fn cold_report_titles_match_the_local_report_contract() {
+        assert_eq!(local_report_title(&LocalReport::Help), "Commands");
+        assert_eq!(
+            local_report_title(&LocalReport::NotRunnable { command: "title".into() }),
+            "/title is not available in this native build"
+        );
+        assert_eq!(
+            local_report_title(&LocalReport::Unsupported { command: "bogus".into() }),
+            "Unsupported command: /bogus"
+        );
+    }
+}

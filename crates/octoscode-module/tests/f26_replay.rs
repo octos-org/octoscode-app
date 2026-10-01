@@ -460,3 +460,69 @@ async fn a_replay_lossy_triggers_a_hydrate_that_clears_the_lossy_phase() {
     // The lossy observation is still recorded (the #22 projection).
     assert_eq!(conv.store.domains.config.replay_loss("dsflash:main").unwrap().dropped_count, 3);
 }
+
+// --------------------------------- §P4d3 the command layer through submit
+
+#[tokio::test]
+async fn a_tui_only_command_reports_and_starts_no_turn() {
+    let server = ReplayServer::start_with_stream(vec![]).await;
+    let (conv, _events) = Conversation::connect(&server.base_url, "dummy", "dsflash", None, None)
+        .expect("connect");
+    conv.open_workspace(None).await.expect("session/open");
+
+    // KNOWN name, TUI-only build: the receipt lands in the transcript (the
+    // production REPORT_KIND row), the composer clears, and NO turn/start
+    // reaches the wire (registry.ts:478 fail-closed explanation).
+    conv.ui().lock().unwrap().set_draft_inner("/title");
+    let id = conv.submit_draft().await.expect("submit is not an error");
+    assert!(id.is_empty());
+    let reports = conv
+        .store
+        .domains
+        .session
+        .timeline
+        .of_kind(&conv.session_id(), octoscode_module::screens::palette::REPORT_KIND);
+    assert!(
+        reports.iter().any(|e| e.text.contains("/title is not available")),
+        "a fail-closed receipt was appended: {:?}",
+        reports.iter().map(|e| &e.text).collect::<Vec<_>>()
+    );
+    assert!(conv.ui().lock().unwrap().draft().is_empty(), "cleared");
+    let received = server.received.lock().unwrap().clone();
+    assert!(
+        !received.contains(&"turn/start".to_owned()),
+        "a TUI-only command must send no turn/start; sent {received:?}"
+    );
+
+    // UNKNOWN name: receipt appended, the text STAYS editable
+    // (surface-recovery.spec.ts:186).
+    conv.ui().lock().unwrap().set_draft_inner("/bogus");
+    let id = conv.submit_draft().await.expect("submit is not an error");
+    assert!(id.is_empty());
+    assert_eq!(conv.ui().lock().unwrap().draft(), "/bogus", "kept");
+    let reports = conv
+        .store
+        .domains
+        .session
+        .timeline
+        .of_kind(&conv.session_id(), octoscode_module::screens::palette::REPORT_KIND);
+    assert!(reports.iter().any(|e| e.text.contains("Unsupported command: /bogus")));
+
+    // A PATH-shaped input is a PROMPT: it reaches the model verbatim.
+    conv.ui().lock().unwrap().set_draft_inner("/Users/x/proj/main.rs");
+    let received_before = server.received.lock().unwrap().len();
+    let id = conv.submit_draft().await.expect("submit is not an error");
+    assert!(!id.is_empty(), "a path prompt starts a real turn");
+    let received = server.received.lock().unwrap().clone();
+    assert!(
+        received.iter().skip(received_before).any(|m| m == "turn/start"),
+        "the path prompt dispatched turn/start; got {received:?}"
+    );
+    let reports_after = conv
+        .store
+        .domains
+        .session
+        .timeline
+        .of_kind(&conv.session_id(), octoscode_module::screens::palette::REPORT_KIND);
+    assert_eq!(reports.len(), reports_after.len(), "no receipt for a path");
+}
