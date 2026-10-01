@@ -483,7 +483,13 @@ pub struct Conversation {
     client: Client,
     cmd_tx: tokio::sync::mpsc::Sender<OutboundCommand>,
     registry: Mutex<Registry>,
-    profile: String,
+    /// #32h: mutable AFTER connect — the phone has no OCTOS_PROFILE_ID, so
+    /// the baked fallback ("octoscode") may not exist server-side and every
+    /// session/open dies with -32120 "agent is outside the requested
+    /// profile scope" (fixture: the server's active profile is
+    /// `<name>-<pid>`, what `profile/local/create` mints). connect_now
+    /// ensures + adopts the real id (adopt_profile) before the first turn.
+    profile: Mutex<String>,
     /// Card #14 defect 4: mutable, so a New chat adopts a fresh id and a resume
     /// adopts a listed one. Read through [`Conversation::session_id`].
     session_id: Mutex<String>,
@@ -559,7 +565,7 @@ impl Conversation {
                 client: Client::with_trace(cmd_tx.clone(), frames.clone()),
                 cmd_tx,
                 registry: Mutex::new(registry),
-                profile: profile.to_owned(),
+                profile: Mutex::new(profile.to_owned()),
                 session_id: Mutex::new(format!("{profile}:main")),
                 started: Instant::now(),
             },
@@ -567,8 +573,19 @@ impl Conversation {
         ))
     }
 
-    pub fn profile(&self) -> &str {
-        &self.profile
+    pub fn profile(&self) -> String {
+        self.profile.lock().unwrap().clone()
+    }
+
+    /// #32h: take the server-verified profile id (`profile/local/create`'s
+    /// `profile_id`) and re-prefix the not-yet-opened session id, so the
+    /// next `session/open` / `turn/start` carries a profile that EXISTS.
+    pub fn adopt_profile(&self, id: String) {
+        *self.profile.lock().unwrap() = id.clone();
+        let mut sid = self.session_id.lock().unwrap();
+        if sid.ends_with(":main") {
+            *sid = format!("{id}:main");
+        }
     }
 
     /// The session the flow currently drives — `<profile>:main` until a
@@ -605,7 +622,7 @@ impl Conversation {
     /// `profile/local/create` — onboard a profile on a fresh solo serve
     /// (the precondition; not a matrix row).
     pub async fn create_profile(&self) -> Result<String, ClientError> {
-        let id = format!("{}-{}", self.profile, std::process::id());
+        let id = format!("{}-{}", self.profile(), std::process::id());
         let result = self
             .client
             .request(
@@ -644,14 +661,14 @@ impl Conversation {
             "session/open",
             &serde_json::json!({
                 "session_id": session_id.0,
-                "profile_id": self.profile,
+                "profile_id": self.profile(),
                 "cwd": cwd,
             }),
         );
         let params = SessionOpenParams {
             session_id: session_id.clone(),
             topic: None,
-            profile_id: Some(self.profile.clone()),
+            profile_id: Some(self.profile()),
             cwd,
             sandbox: None,
             after: None,
@@ -747,7 +764,7 @@ impl Conversation {
                 Ok(turn_id)
             }
             Err(e) => {
-                ::log::error!("octoscode: turn/start failed for {turn_id}: {e}");
+                makepad_widgets::log!("[octoscode] turn/start failed for {turn_id}: {e}");
                 Err(e)
             }
         }
@@ -837,7 +854,7 @@ impl Conversation {
     /// resolved profile is embedded exactly once). Resume stays possible: an
     /// existing id is simply passed to [`Conversation::open_session`].
     pub fn fresh_session_id(&self) -> String {
-        Self::fresh_session_id_for(&self.profile)
+        Self::fresh_session_id_for(&self.profile())
     }
 
     /// The id-minting rule, as a pure function so it is testable without a
@@ -867,7 +884,7 @@ impl Conversation {
     /// `:23`). Resume is unchanged: [`Conversation::open_session`] takes any
     /// existing id the server listed.
     pub async fn new_chat(&self, cwd: Option<String>) -> Result<String, String> {
-        let id = Self::fresh_session_id_for(&self.profile);
+        let id = Self::fresh_session_id_for(&self.profile());
         ::log::info!("octoscode: new chat -> {id}");
         self.open_workspace_as(&id, cwd).await
     }

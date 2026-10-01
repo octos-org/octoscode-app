@@ -1174,10 +1174,24 @@ impl OctoscodeView {
                 SignalToUI::set_ui_signal();
                 return;
             }
-            // Optionally onboard a profile (the live gate's `profile/local/create`).
-            if std::env::var("OCTOS_CREATE_PROFILE").is_ok() {
-                if let Err(e) = drv.create_profile().await {
-                    ::log::warn!("octoscode: profile/local/create: {e}");
+            // #32h: ensure a profile that EXISTS server-side and adopt it —
+            // the baked fallback ("octoscode", no env on the phone) gets
+            // every session/open rejected with -32120 "agent is outside the
+            // requested profile scope" (fixture: the server's active profile
+            // is `<name>-<pid>`, what profile/local/create mints), and the
+            // failures rode ::log::* which never reaches logcat — the silent
+            // submit. The desktop live gate keeps its explicit env.
+            let ensure_profile = std::env::var_os("OCTOS_CREATE_PROFILE").is_some()
+                || std::env::var_os("OCTOS_PROFILE_ID").is_none();
+            if ensure_profile {
+                match drv.create_profile().await {
+                    Ok(id) => {
+                        drv.adopt_profile(id.clone());
+                        makepad_widgets::log!("[octoscode] profile ready: {id}");
+                    }
+                    Err(e) => {
+                        makepad_widgets::log!("[octoscode] profile/local/create failed: {e}")
+                    }
                 }
             }
             while let Some(evt) = evt_rx.recv().await {
@@ -1470,14 +1484,14 @@ impl OctoscodeView {
                 rt.spawn(async move {
                     match conv.new_chat(cwd).await {
                         Ok(id) => ::log::info!("octoscode: new chat opened {id}"),
-                        Err(e) => ::log::warn!("octoscode: session.new: {e}"),
+                        Err(e) => makepad_widgets::log!("[octoscode] new chat dropped: {e}"),
                     }
                 });
             }
             actions::Effect::Submit => {
                 rt.spawn(async move {
                     if let Err(e) = conv.submit_draft().await {
-                        ::log::warn!("octoscode: composer.submit: {e}");
+                        makepad_widgets::log!("[octoscode] submit dropped: {e}");
                     }
                 });
             }
@@ -2395,7 +2409,7 @@ impl Widget for OctoscodeView {
                         if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
                             rt.spawn(async move {
                                 if let Err(e) = conv.submit_draft().await {
-                                    ::log::warn!("octoscode: composer.submit: {e}");
+                                    makepad_widgets::log!("[octoscode] submit dropped: {e}");
                                 }
                             });
                         }
