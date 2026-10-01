@@ -1524,10 +1524,7 @@ impl OctoscodeView {
         // had scrolled up to read, their new prompt and its answer streamed
         // in below the viewport (measured in the A1 capture session).
         if action == bindings::ACTION_SUBMIT {
-            if let Some(mut list) = self.view.portal_list(cx, ids!(timeline_list)).borrow_mut() {
-                list.set_tail_range(true);
-            }
-            self.view.redraw(cx);
+            self.follow_latest(cx);
         }
         // #30b: board-3 autonomy actions route through their own table first
         // (one-owner rule); no other router sees these ids. `goal.set` /
@@ -2774,6 +2771,16 @@ impl OctoscodeView {
             .set_visible(cx, endpoint_error.is_some());
     }
 
+    /// A1 — follow the latest turn again (the web's `jumpToLatest` on send):
+    /// the timeline enters tail mode, so the new prompt and its streamed
+    /// answer stay in view even after the person scrolled up to read.
+    fn follow_latest(&mut self, cx: &mut Cx) {
+        if let Some(mut list) = self.view.portal_list(cx, ids!(timeline_list)).borrow_mut() {
+            list.set_tail_range(true);
+        }
+        self.view.redraw(cx);
+    }
+
     /// A1 — the token field's eye: masked (eye shown) by default; revealed
     /// (eye-off shown) only while the person asked to see it.
     fn apply_token_visibility(&mut self, cx: &mut Cx) {
@@ -3853,6 +3860,8 @@ impl Widget for OctoscodeView {
                     KeyAction::ComposerSubmit => {
                         // :237-243 — the bare Enter sends the draft (the same
                         // production path the composer's send affordance takes).
+                        // A1: and re-follows the latest turn, like the send click.
+                        self.follow_latest(cx);
                         if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
                             rt.spawn(async move {
                                 if let Err(e) = conv.submit_draft().await {
