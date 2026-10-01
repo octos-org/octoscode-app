@@ -1657,6 +1657,45 @@ mod tests {
         assert_eq!(ui.worked_for(), "Interrupted");
     }
 
+    /// #P4d1 row 147 — Esc still interrupts while a user question waits. The
+    /// question fold only raises `question_pending` (the
+    /// UserQuestionRequested arm); it never clears the live turn, so the
+    /// keyboard's Escape keeps routing to Interrupt (the web:
+    /// UserQuestionPanel.tsx:79 onEscape -> onInterrupt). Only the turn's
+    /// OWN terminal retires it — then Esc is a no-op again.
+    #[test]
+    fn esc_still_interrupts_while_a_question_waits() {
+        let mut ui = FlowUi::default();
+        ui.begin_turn_now("turn-q");
+        ui.set_pending_for_test(false, true);
+        // The question wait never ends the live turn…
+        assert!(
+            ui.turn_active(),
+            "a pending question must not retire the live turn"
+        );
+        // …so the keyboard's Escape still routes to Interrupt.
+        let action = crate::screens::keys::resolve(
+            makepad_widgets::KeyCode::Escape,
+            false, false, false, false,
+            false, // palette_open
+            false, // approval_pending
+            ui.turn_active(),
+            true,  // draft_empty
+        );
+        assert_eq!(action, crate::screens::keys::KeyAction::Interrupt);
+        // The turn's own terminal is what retires it — then Esc ignores.
+        ui.end_turn_now(false);
+        assert!(!ui.turn_active());
+        let action = crate::screens::keys::resolve(
+            makepad_widgets::KeyCode::Escape,
+            false, false, false, false,
+            false, false,
+            ui.turn_active(),
+            true,
+        );
+        assert_eq!(action, crate::screens::keys::KeyAction::Ignore);
+    }
+
     /// Card #21d item 4: the label must be the atlas's `Sep 28, 9:41 PM`
     /// (`design/components/answer-actions/page.card:6`), and a just-finished
     /// turn reads `now` (the web's `relative-time.ts:1-18` rule, `< 60s`).
