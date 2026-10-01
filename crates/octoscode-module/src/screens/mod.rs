@@ -9,8 +9,10 @@ pub mod connect;
 pub mod fleet;
 pub mod history;
 pub mod keys;
+pub mod media;
 pub mod models;
 pub mod palette;
+pub mod peers;
 pub mod research;
 // #35b item 1: the ONE card-tap wiring every docked screen shares (connect.rs
 // delegates here; the palette/theme mount paths call it directly).
@@ -20,3 +22,19 @@ pub mod workspace;
 pub mod review;
 pub mod sessions;
 pub mod theme;
+
+/// P4d4: the ONE production entry point for the control surfaces (media +
+/// peers), so `lib.rs`'s action router has a single target to call.
+pub async fn perform_control(
+    conv: &crate::flow::Conversation,
+    action: &str,
+    store: &octoscode_store::Store,
+) -> Result<String, String> {
+    if media::owns(action) {
+        return media::perform(conv, action, store, None).await;
+    }
+    if peers::owns(action) {
+        return peers::perform(conv, action, store, None).await;
+    }
+    Err(format!("control: unhandled action {action:?}"))
+}
