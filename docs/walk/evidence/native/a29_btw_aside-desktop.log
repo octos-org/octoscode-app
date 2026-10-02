@@ -1,5 +1,5 @@
 == native walk a29_btw_aside [desktop] (tools/walk/a29_btw_aside.py)
--- run 1: exit 0 in 87 s
+-- run 1: exit 0 in 86 s
 PASS the app opened X (the composer is ready)
 PASS the sidebar lists X and Y
 TYPE 'In one short paragraph: what does main.rs print, and why?'
@@ -118,7 +118,7 @@ SHOT desktop-11-zh-folded
 [replay-serve] session/btw #5 asked: session_id=dsflash:main question="which test covers redeliver?"
 [replay-serve] -> session/btw #5 answered after 10000 ms (btw: synthetic SessionBtwResult) session_id=dsflash:main
 [replay-serve] <- turn/start (id=36)
-[replay-serve] replaying 01a0e75b-dfb8-708a-a7ce-5d29c534f2f6 as 01a0fead-dea6-7390-a766-07ea7d9948e0 (163 recorded frames)
+[replay-serve] replaying 01a0e75b-dfb8-708a-a7ce-5d29c534f2f6 as 01a0feb6-7458-7185-98b3-6ab619e347a4 (163 recorded frames)
 [replay-serve] <- session/list (id=37)
 [replay-serve] <- session/list (id=38)
 [replay-serve] <- session/btw (id=39)

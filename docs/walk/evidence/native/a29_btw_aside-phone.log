@@ -1,5 +1,5 @@
 == native walk a29_btw_aside [phone] (tools/walk/a29_btw_aside.py)
--- run 1: exit 0 in 88 s
+-- run 1: exit 0 in 87 s
 PASS the app opened X (the composer is ready)
 CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
 PASS the sidebar lists X and Y
@@ -136,7 +136,7 @@ SHOT phone-11-zh-folded
 [replay-serve] session/btw #5 asked: session_id=dsflash:main question="which test covers redeliver?"
 [replay-serve] -> session/btw #5 answered after 10000 ms (btw: synthetic SessionBtwResult) session_id=dsflash:main
 [replay-serve] <- turn/start (id=36)
-[replay-serve] replaying 01a0e75b-dfb8-708a-a7ce-5d29c534f2f6 as 01a0feaf-5447-701e-8015-d67edde96dd8 (163 recorded frames)
+[replay-serve] replaying 01a0e75b-dfb8-708a-a7ce-5d29c534f2f6 as 01a0feb7-e077-764b-90d6-cfb008f02a98 (163 recorded frames)
 [replay-serve] <- session/list (id=37)
 [replay-serve] <- session/btw (id=38)
 [replay-serve] session/btw #6 asked: session_id=dsflash:main question="为什么要先排空队列？"
