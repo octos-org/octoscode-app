@@ -1,0 +1,25 @@
+== 1. the sidebar draws ONE row per listed Session
+PASS wire: the app listed the Sessions (session/list)
+PASS sidebar: one row per Session — the six listed titles, each once — ['Fix steer queue drop on reconnect', 'Add session fork', 'Review PR #2566', 'Why is hydrate slow?', 'Bump octos-core to a6ea8505', 'Legacy chat']
+PASS sidebar: the rows' labels share one height (uniform rows) — [17]
+SHOT 01-sidebar-rows-desktop
+== 2. a row CLICK opens that Session
+CLICK sidebar row 'Review PR #2566' r=[92, 364, 206, 17]
+PASS sidebar: 'Review PR #2566' CLICK
+PASS wire: session/open for a8:api:beta
+PASS header: the opened Session's title — Review PR #2566
+PASS sidebar: the opened row is the selected one — Review PR #2566
+SHOT 02-sidebar-selected-desktop
+== 3. a Session deleted from the switcher (/sessions) leaves the sidebar
+TYPE '/sessions'
+KEY Return
+PASS switcher: /sessions opens 'Open a different session' — Open a different session
+PASS switcher: the row 'Why is hydrate slow?' offers delete
+CLICK b3_switch_row_3_delete r=[727, 419, 28, 28] at (741,433)
+PASS switcher: delete asks first ('Delete?')
+CLICK b3_switch_row_3_confirm_yes r=[706, 419, 38, 28] at (725,433)
+PASS wire: ONE session/delete for a8:api:hollow — [{'session_id': 'a8:api:hollow'}]
+CLICK b3_close r=[745, 184, 28, 28] at (759,198)
+PASS sidebar: the deleted Session's row is gone; the other five stay, each once — ['Fix steer queue drop on reconnect', 'Add session fork', 'Review PR #2566', 'Bump octos-core to a6ea8505', 'Legacy chat']
+SHOT 03-sidebar-after-delete-desktop
+== 12/12 checks passed

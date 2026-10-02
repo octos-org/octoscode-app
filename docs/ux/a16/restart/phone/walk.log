@@ -1,0 +1,98 @@
+== 1. the strip CLICK opens Session settings: the Model card's truth, no restart notice
+CLICK b3_strip_tap r=[12, 663, 336, 62] at (180,694)
+PASS pane: strip CLICK -> 'Session settings' with the Model card
+PASS pane: 'Saved for this profile:' names the Profile default — DeepSeek V4 Flash
+PASS pane: 'Session runtime' names the status's runtime model — deepseek-v4-flash
+PASS pane: no restart notice — the runtime IS the Profile default and nothing hinted a restart
+SHOT 01-pane-no-restart-phone
+CLICK b3_close r=[300, 111, 28, 28] at (314,125)
+PASS pane: the close glyph CLICK closes it
+== 2. the model menu: the r2-route fallback answers r2's recorded restart_required
+CLICK model_seat_hit r=[129, 781, 139, 30] at (198,796)
+    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
+    log: [I] apps/octoscode/module/src/lib.rs:3332:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4138:42 - [octoscode] board3 PermissionLoad: 4 preset(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3430:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4138:42 - [octoscode] board3 StatusRead: deepseek-v4-flash
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3761:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/lib.rs:3332:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:3332:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:5461:21 - [octoscode] strip tap
+    log: [I] apps/octoscode/module/src/lib.rs:1634:13 - [octoscode] board3 action b3.strip.settings #0 -> Spawn(PaneLoad)
+    log: [I] apps/octoscode/module/src/lib.rs:4138:42 - [octoscode] board3 PaneLoad: status=true models=4 perms=4 driver=Nobody
+    log: [I] apps/octoscode/module/src/lib.rs:3958:17 - [octoscode] board3 mounted Some(SessionPane): 10 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3958:17 - [octoscode] board3 mounted Some(SessionPane): 12 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5360:25 - [octoscode] board3 tap: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:1634:13 - [octoscode] board3 action b3.close #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:6130:17 - [octoscode] nav tap: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:5127:21 - [octoscode] nav route: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:2932:9 - [octoscode] screen action: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:5551:21 - [octoscode] model seat clicked
+    log: [I] apps/octoscode/module/src/lib.rs:4138:42 - [octoscode] board3 ModelsLoad: 4 model(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3958:17 - [octoscode] board3 mounted Some(ModelMenu): 3 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3332:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:3958:17 - [octoscode] board3 mounted Some(ModelMenu): 4 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3958:17 - [octoscode] board3 mounted Some(ModelMenu): 4 tap(s), 0 input(s)
+CLICK b3_model_opt_1 r=[20, 583, 284, 44] at (162,605)
+    log: [I] apps/octoscode/module/src/lib.rs:5360:25 - [octoscode] board3 tap: b3.model.choose#1
+    log: [I] apps/octoscode/module/src/lib.rs:1634:13 - [octoscode] board3 action b3.model.choose #1 -> Spawn(ModelSelect(1))
+    log: [I] apps/octoscode/module/src/lib.rs:4138:42 - [octoscode] board3 ModelSelect(1): Saved. The server keeps running deepseek-v4-flash until it restarts
+    log: [I] apps/octoscode/module/src/lib.rs:3958:17 - [octoscode] board3 mounted Some(ModelMenu): 1 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3958:17 - [octoscode] board3 mounted Some(ModelMenu): 4 tap(s), 0 input(s)
+CLICK outside the menu at (162,396)
+PASS model: seat CLICK -> r2-route CLICK -> 'Saved. The server keeps running deepseek-v4-flash until it restarts'
+CLICK b3_strip_tap r=[12, 663, 336, 62] at (180,694)
+PASS pane: strip CLICK reopens it
+PASS pane: the web's restart notice (the last answer was restart_required; equal strings never disprove it) — Profile default is DeepSeek V4 Flash. This Octos process is still serving deepseek-v4-flash. Restart Octos to apply the new default.
+PASS restart notice: pane numeric checks — frame=328x741 centre_dx=0.0 margins L=16 R=16 labels=21 outside=0 overlaps=0 controls=4 under28=0
+PASS restart notice: the notice block sits inside the Model card and holds its whole text — block=[46, 290, 258, 87] text=[58, 299, 234, 69] card=[32, 167, 286, 456]
+SHOT 02-pane-restart-hint-phone
+CLICK b3_close r=[300, 111, 28, 28] at (314,125)
+PASS pane: closed
+== 3. Kimi K3 answers reloaded (the hint goes out) — but the runtime is not the new Profile default
+CLICK model_seat_hit r=[127, 781, 141, 30] at (198,796)
+    log: [I] apps/octoscode/module/src/lib.rs:5360:25 - [octoscode] board3 tap: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:1634:13 - [octoscode] board3 action b3.close #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:6130:17 - [octoscode] nav tap: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:5127:21 - [octoscode] nav route: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:2932:9 - [octoscode] screen action: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:5461:21 - [octoscode] strip tap
+    log: [I] apps/octoscode/module/src/lib.rs:1634:13 - [octoscode] board3 action b3.strip.settings #0 -> Spawn(PaneLoad)
+    log: [I] apps/octoscode/module/src/lib.rs:4138:42 - [octoscode] board3 PaneLoad: status=true models=4 perms=4 driver=Nobody
+    log: [I] apps/octoscode/module/src/lib.rs:3958:17 - [octoscode] board3 mounted Some(SessionPane): 12 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3958:17 - [octoscode] board3 mounted Some(SessionPane): 12 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5360:25 - [octoscode] board3 tap: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:1634:13 - [octoscode] board3 action b3.close #0 -> Done
+    log: [I] apps/octoscode/module/src/lib.rs:6130:17 - [octoscode] nav tap: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:5127:21 - [octoscode] nav route: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:2932:9 - [octoscode] screen action: b3.close
+    log: [I] apps/octoscode/module/src/lib.rs:5551:21 - [octoscode] model seat clicked
+    log: [I] apps/octoscode/module/src/lib.rs:4138:42 - [octoscode] board3 ModelsLoad: 4 model(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3958:17 - [octoscode] board3 mounted Some(ModelMenu): 4 tap(s), 0 input(s)
+CLICK b3_model_opt_2 r=[20, 599, 284, 44] at (162,621)
+    log: [I] apps/octoscode/module/src/lib.rs:5360:25 - [octoscode] board3 tap: b3.model.choose#2
+    log: [I] apps/octoscode/module/src/lib.rs:1634:13 - [octoscode] board3 action b3.model.choose #2 -> Spawn(ModelSelect(2))
+    log: [I] apps/octoscode/module/src/lib.rs:4138:42 - [octoscode] board3 ModelSelect(2): Saved. Your next message uses kimi-k3
+    log: [I] apps/octoscode/module/src/lib.rs:3958:17 - [octoscode] board3 mounted Some(ModelMenu): 1 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3332:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:3958:17 - [octoscode] board3 mounted Some(ModelMenu): 4 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3958:17 - [octoscode] board3 mounted Some(ModelMenu): 4 tap(s), 0 input(s)
+CLICK outside the menu at (162,415)
+PASS model: seat CLICK -> Kimi K3 CLICK -> 'Saved. Your next message uses kimi-k3'
+CLICK b3_strip_tap r=[12, 663, 336, 62] at (180,694)
+PASS pane: strip CLICK reopens it
+PASS pane: 'Saved for this profile:' is now Kimi K3 — Kimi K3
+PASS pane: the runtime (deepseek-v4-flash) is not the Profile default -> the notice on its own — Profile default is Kimi K3. This Octos process is still serving deepseek-v4-flash. Restart Octos to apply the new default.
+PASS pane: this app's own menu choice is not 'changed in another tab or app' (one last-seen selection)
+PASS identity notice: pane numeric checks — frame=328x741 centre_dx=0.0 margins L=16 R=16 labels=21 outside=0 overlaps=0 controls=4 under28=0
+PASS identity notice: the notice block sits inside the Model card and holds its whole text — block=[46, 290, 258, 87] text=[58, 299, 234, 69] card=[32, 167, 286, 456]
+SHOT 03-pane-restart-identity-phone
+CLICK b3_close r=[300, 111, 28, 28] at (314,125)
+PASS pane: closed
+== 4. the wire
+PASS wire: profile/llm/select x2
+PASS wire: session/status/read on every pane open (>= 3)
+== 21/21 checks passed
