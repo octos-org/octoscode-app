@@ -27,10 +27,10 @@
 [replay-serve] -> profile/llm/list (recorded reply)
 [replay-serve] <- skill/action/job/list (id=12)
 [replay-serve] -> skill/action/job/list dsflash:main (5 jobs) {"profile_id":"dsflash","session_id":"dsflash:main"}
-[replay-serve] => skill/action/job/updated (before the list reply) "job-q3" "succeeded"
-[replay-serve] => skill/action/job/updated (before the list reply) "job-notes" "queued"
 [replay-serve] <- profile/skills/list (id=13)
 [replay-serve] -> profile/skills/list (skill-jobs: two installed)
+[replay-serve] => skill/action/job/updated (before the list reply) "job-q3" "succeeded"
+[replay-serve] => skill/action/job/updated (before the list reply) "job-notes" "queued"
 [replay-serve] <- profile/sub_providers/list (id=14)
 [replay-serve] -> profile/sub_providers/list (recorded reply)
 [replay-serve] -> skill/action/job/list reply sent (after the racing updates)
