@@ -534,11 +534,76 @@ fn note(d: &mut Dsl, id: &str, text: &str) {
 }
 
 /// A status line: a round light and its sentence (board 3 #1's "● connected").
+/// The light sits on the FIRST line's centre (a 12.5 px line box is 15 px
+/// tall), so a sentence that wraps on a phone keeps it beside its start.
 fn status_line(d: &mut Dsl, id: &str, text: &str, ok: bool) {
     let row = d.anon();
-    d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 7");
+    d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.0} spacing: 7");
+    let light = d.anon();
+    d.view(&light, "width: Fit height: Fit padding: Inset{top: 3.5}");
     d.dot(if ok { tok::GREEN } else { tok::RED }, 8.0);
+    d.close();
     d.text(id, text, &Txt::new(12.5, Face::Regular, if ok { tok::GREEN_TEXT } else { tok::RED_TEXT }).w(W::Fill).wrap());
+    d.close();
+}
+
+/// `stateNotice` (`ModelManagementSection.module.css:150-166`): the loading
+/// line in the web's quiet box — the tip fill and hairline of the read-only
+/// note (board 1 #4's neutral callout), without its glyph, as on the web.
+fn state_notice(d: &mut Dsl, id: &str, text: &str) {
+    d.surface(
+        &format!("{id}_box"),
+        "width: Fill height: Fit flow: Right padding: Inset{left: 13 right: 13 top: 11 bottom: 11}",
+        tok::SURFACE2,
+        10.0,
+        Some(tok::HAIRLINE),
+    );
+    d.text(id, text, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+    d.close();
+}
+
+/// `stateError` (`ModelManagementSection.tsx:1203-1217`, `.module.css:168-175`
+/// and `:683-686`): an UNREAD configuration's cause in board 1 #3's light red
+/// callout, "Try again" beside it (under it on a phone).
+fn state_error(d: &mut Dsl, st: &RoutesState, msg: &str, compact: bool) {
+    d.surface(
+        "b3_routes_error_box",
+        &format!(
+            "width: Fill height: Fit flow: {} align: Align{{x: 0.0 y: 0.5}} spacing: {} padding: Inset{{left: 13 right: 13 top: 11 bottom: 11}}",
+            if compact { "Down" } else { "Right" },
+            if compact { 10 } else { 12 }
+        ),
+        tok::RED_BG,
+        10.0,
+        Some("#f3c4c7ff"),
+    );
+    let cause = d.anon();
+    d.view(&cause, "width: Fill height: Fit flow: Down");
+    ui::error_line(d, "b3_routes_error", copy::LOAD_FAILED, msg);
+    d.close();
+    d.button("b3_routes_retry", copy::TRY_AGAIN, "b3.routes.retry", if st.busy { Btn::OutlineOff } else { Btn::Outline }, W::Fit, 32.0);
+    d.close();
+}
+
+/// `emptyState` (`ModelManagementSection.tsx:1403-1408`, `.module.css:613-633`):
+/// the title and hint in a bordered box (26 / 16 insets), centred while the
+/// hint fits on one line, left-aligned where it must wrap (a phone).
+fn empty_state(d: &mut Dsl, body_w: f64) {
+    let fits = ui::text_w(copy::EMPTY_HINT, 12.0, Face::Regular) + 34.0 <= body_w;
+    d.surface(
+        "b3_routes_empty_box",
+        &format!(
+            "width: Fill height: Fit flow: Down spacing: 3 align: Align{{x: {} y: 0.0}} padding: Inset{{left: 16 right: 16 top: 26 bottom: 26}}",
+            if fits { "0.5" } else { "0.0" }
+        ),
+        tok::SURFACE,
+        12.0,
+        Some(tok::HAIRLINE),
+    );
+    let w = if fits { W::Fit } else { W::Fill };
+    d.text("b3_routes_empty", EMPTY, &ui::body_medium().w(w));
+    let hint = ui::meta().w(w);
+    d.text("b3_routes_empty_hint", copy::EMPTY_HINT, &if fits { hint } else { hint.wrap() });
     d.close();
 }
 
@@ -776,13 +841,10 @@ pub fn build(d: &mut Dsl, st: &RoutesState, frame: &Frame, store: &Store) {
     heading(d, st, proj.state == ViewState::Ready, caps, compact);
     d.gap(W::Fill, 4.0);
     match &proj.state {
-        ViewState::Loading => d.text("b3_routes_loading", copy::LOADING, &ui::meta()),
-        ViewState::Error(msg) => {
-            // An UNREAD configuration: its cause and "Try again" — never the
-            // empty state (`model-management-projection.ts:57-63`).
-            ui::error_line(d, "b3_routes_error", copy::LOAD_FAILED, msg);
-            d.button("b3_routes_retry", copy::TRY_AGAIN, "b3.routes.retry", if st.busy { Btn::OutlineOff } else { Btn::Outline }, W::Fit, 32.0);
-        }
+        ViewState::Loading => state_notice(d, "b3_routes_loading", copy::LOADING),
+        // An UNREAD configuration: its cause and "Try again" — never the
+        // empty state (`model-management-projection.ts:57-63`).
+        ViewState::Error(msg) => state_error(d, st, msg, compact),
         ViewState::Unavailable(msg) => note(d, "b3_routes_unavailable", msg),
         ViewState::Ready => {
             if !caps.can_save() {
@@ -812,8 +874,7 @@ pub fn build(d: &mut Dsl, st: &RoutesState, frame: &Frame, store: &Store) {
             d.gap(W::Fill, 4.0);
         }
         if st.routes.is_empty() {
-            d.text("b3_routes_empty", EMPTY, &ui::body_medium().w(W::Fill));
-            d.text("b3_routes_empty_hint", copy::EMPTY_HINT, &ui::meta().w(W::Fill).wrap());
+            empty_state(d, inner_w + 28.0);
         }
         for (i, r) in st.routes.iter().enumerate() {
             route_card(d, st, i, r, proj.providers.get(i), inner_w, caps, compact);

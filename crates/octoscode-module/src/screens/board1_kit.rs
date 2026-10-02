@@ -238,10 +238,12 @@ pub fn pill_outline_fit(id: &str, label: &str, height: f64) -> String {
 
 /// A23 — a status line: a round dot and its sentence (board 3's status
 /// light, "● connected"): green for a passed probe, red for a failed one.
+/// The dot sits on the FIRST line's centre (a 14 px line box is 17 px tall),
+/// so a sentence that wraps on a phone keeps it beside its start.
 pub fn status_line(id: &str, text: &str, ok: bool) -> String {
     let (dot, ink) = if ok { ("#1f883dff", "#166534ff") } else { (RED, RED) };
     format!(
-        "View {{ width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8\nDesignSurface {{ width: 8 height: 8 show_bg: true draw_bg.color: {dot} draw_bg.radius: 4 draw_bg.ellipse: 1 draw_bg.border_width: 0 draw_bg.border_position: 0 draw_bg.border_color: {CLEAR} }}\n{}}}\n",
+        "View {{ width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.0}} spacing: 8\nDesignSurface {{ width: 8 height: 8 margin: Inset{{top: 4.5}} show_bg: true draw_bg.color: {dot} draw_bg.radius: 4 draw_bg.ellipse: 1 draw_bg.border_width: 0 draw_bg.border_position: 0 draw_bg.border_color: {CLEAR} }}\n{}}}\n",
         Text::new(id, text).px(14.0).color(ink).fill().dsl()
     )
 }
