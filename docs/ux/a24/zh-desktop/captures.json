@@ -1,0 +1,86 @@
+[
+ {
+  "name": "zh-settings-preferences",
+  "surface": "Settings > Preferences",
+  "png": "docs/ux/a24/zh-desktop/zh-settings-preferences.png",
+  "checks": "cjk=11 outside=0 overflow=0 truncated=0 overlaps=0 controls=12 under28=0",
+  "ok": true
+ },
+ {
+  "name": "zh-settings-general",
+  "surface": "Settings > General",
+  "png": "docs/ux/a24/zh-desktop/zh-settings-general.png",
+  "checks": "cjk=13 outside=0 overflow=0 truncated=0 overlaps=0 controls=11 under28=0",
+  "ok": true
+ },
+ {
+  "name": "zh-settings-permissions",
+  "surface": "Settings > Permissions",
+  "png": "docs/ux/a24/zh-desktop/zh-settings-permissions.png",
+  "checks": "cjk=9 outside=0 overflow=0 truncated=0 overlaps=0 controls=12 under28=0",
+  "ok": true
+ },
+ {
+  "name": "zh-settings-model",
+  "surface": "Settings > Model",
+  "png": "docs/ux/a24/zh-desktop/zh-settings-model.png",
+  "checks": "cjk=10 outside=0 overflow=0 truncated=0 overlaps=0 controls=14 under28=0",
+  "ok": true
+ },
+ {
+  "name": "zh-settings-sandbox",
+  "surface": "Settings > Sandbox",
+  "png": "docs/ux/a24/zh-desktop/zh-settings-sandbox.png",
+  "checks": "cjk=10 outside=0 overflow=0 truncated=0 overlaps=0 controls=11 under28=0",
+  "ok": true
+ },
+ {
+  "name": "zh-settings-connection",
+  "surface": "Settings > Connection",
+  "png": "docs/ux/a24/zh-desktop/zh-settings-connection.png",
+  "checks": "cjk=11 outside=0 overflow=0 truncated=0 overlaps=0 controls=11 under28=0",
+  "ok": true
+ },
+ {
+  "name": "zh-settings-about",
+  "surface": "Settings > About",
+  "png": "docs/ux/a24/zh-desktop/zh-settings-about.png",
+  "checks": "cjk=7 outside=0 overflow=0 truncated=0 overlaps=0 controls=8 under28=0",
+  "ok": true
+ },
+ {
+  "name": "zh-shell",
+  "surface": "shell (sidebar, header, composer, strip)",
+  "png": "docs/ux/a24/zh-desktop/zh-shell.png",
+  "checks": "cjk=15 outside=0 overflow=0 truncated=0 overlaps=0 controls=25 under28=0",
+  "ok": true
+ },
+ {
+  "name": "zh-permission-menu",
+  "surface": "composer permission menu",
+  "png": "docs/ux/a24/zh-desktop/zh-permission-menu.png",
+  "checks": "cjk=2 outside=0 overflow=0 truncated=0 overlaps=0 controls=1 under28=0",
+  "ok": true
+ },
+ {
+  "name": "zh-slash-menu",
+  "surface": "slash menu",
+  "png": "docs/ux/a24/zh-desktop/zh-slash-menu.png",
+  "checks": "cjk=5 outside=0 overflow=0 truncated=0 overlaps=0 controls=6 under28=0",
+  "ok": true
+ },
+ {
+  "name": "zh-connect",
+  "surface": "Connect card (board 1)",
+  "png": "docs/ux/a24/zh-desktop/zh-connect.png",
+  "checks": "cjk=4 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0",
+  "ok": true
+ },
+ {
+  "name": "zh-pairing",
+  "surface": "Pair with Octos (board 1 p4-01)",
+  "png": "docs/ux/a24/zh-desktop/zh-pairing.png",
+  "checks": "cjk=0 outside=0 overflow=0 truncated=0 overlaps=0 controls=4 under28=0",
+  "ok": true
+ }
+]
