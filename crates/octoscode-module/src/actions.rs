@@ -91,6 +91,21 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
     }
 }
 
+/// A22 — perform a turn-scoped effect on the conversation: the one place the
+/// host's Stop button, the Escape key, `/stop` and the steer action reach the
+/// wire (lib.rs spawns this for the [`Effect`] [`resolve`] returned). `None`
+/// for an effect that is not turn-scoped.
+pub async fn perform_turn(
+    effect: Effect,
+    conv: &crate::flow::Conversation,
+) -> Option<Result<serde_json::Value, octoscode_client::ClientError>> {
+    match effect {
+        Effect::Interrupt(turn) => Some(conv.interrupt(&turn).await),
+        Effect::Steer(text) => Some(conv.steer(&text).await),
+        _ => None,
+    }
+}
+
 /// The action ids this router performs (the §3 set) — the coverage contract a
 /// test checks against [`bindings::ACTIONS`].
 pub const ROUTED: &[&str] = &[

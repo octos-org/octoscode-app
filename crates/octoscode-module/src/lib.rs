@@ -2299,17 +2299,14 @@ impl OctoscodeView {
                     }
                 });
             }
-            actions::Effect::Steer(text) => {
+            // A22 — the turn-scoped effects have ONE performer
+            // (`actions::perform_turn`): the Stop button, Escape and `/stop`
+            // all resolve `turn.interrupt` and reach the wire through it.
+            effect @ (actions::Effect::Steer(_) | actions::Effect::Interrupt(_)) => {
+                let name = action.to_owned();
                 rt.spawn(async move {
-                    if let Err(e) = conv.steer(&text).await {
-                        ::log::warn!("octoscode: turn.steer: {e}");
-                    }
-                });
-            }
-            actions::Effect::Interrupt(turn) => {
-                rt.spawn(async move {
-                    if let Err(e) = conv.interrupt(&turn).await {
-                        ::log::warn!("octoscode: turn.interrupt: {e}");
+                    if let Some(Err(e)) = actions::perform_turn(effect, &conv).await {
+                        ::log::warn!("octoscode: {name}: {e}");
                     }
                 });
             }
@@ -5985,16 +5982,19 @@ impl OctoscodeView {
                         }
                     }
                     KeyAction::Interrupt => {
-                        // :245-252 — Esc with a live turn interrupts it.
+                        // :245-252 — Esc with a live turn interrupts it: the
+                        // SAME action as the Stop button (A22: one resolver,
+                        // one performer, `actions::perform_turn`).
                         if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
-                            let turn = ui.lock().unwrap().active_turn();
-                            if let Some(turn) = turn {
-                                rt.spawn(async move {
-                                    if let Err(e) = conv.interrupt(&turn).await {
-                                        ::log::warn!("octoscode: turn.interrupt: {e}");
-                                    }
-                                });
-                            }
+                            let effect = {
+                                let ctx = bindings::Ctx::new(&store, &ui);
+                                actions::resolve(bindings::ACTION_INTERRUPT, 0, &ctx)
+                            };
+                            rt.spawn(async move {
+                                if let Some(Err(e)) = actions::perform_turn(effect, &conv).await {
+                                    ::log::warn!("octoscode: turn.interrupt: {e}");
+                                }
+                            });
                         }
                     }
                     // ApprovalPanel.tsx:46-54 — the keyboard decides the
