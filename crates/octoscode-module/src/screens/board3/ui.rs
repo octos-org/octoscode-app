@@ -418,6 +418,25 @@ impl Dsl {
     /// with a hairline; `Disabled` = grey, no tap target (fail closed — a
     /// disabled control must not route anything).
     pub fn button(&mut self, id: &str, label: &str, event: &str, kind: Btn, width: W, height: f64) {
+        self.button_ids(&format!("{id}_box"), &format!("{id}_label"), id, label, event, kind, width, height);
+    }
+
+    /// [`Dsl::button`] with explicit widget ids for its surface, its label
+    /// and its tap target (A14: the A5 dialog host keeps the
+    /// `<base>_surface` / `<base>_label` / `<base>_control` names its walks
+    /// and tests address).
+    #[allow(clippy::too_many_arguments)]
+    pub fn button_ids(
+        &mut self,
+        box_id: &str,
+        label_id: &str,
+        tap_id: &str,
+        label: &str,
+        event: &str,
+        kind: Btn,
+        width: W,
+        height: f64,
+    ) {
         let (fill, fg, border) = match kind {
             Btn::Primary => (tok::BLACK, tok::WHITE, None),
             Btn::Outline => (tok::SURFACE, tok::TEXT, Some("#c7c7ccff")),
@@ -437,7 +456,7 @@ impl Dsl {
             w => w,
         };
         self.surface(
-            &format!("{id}_box"),
+            box_id,
             &format!(
                 "width: {} height: {} flow: Overlay align: Align{{x: 0.5 y: 0.5}}",
                 width.dsl(),
@@ -452,28 +471,59 @@ impl Dsl {
             &inner,
             "width: Fill height: Fill flow: Right align: Align{x: 0.5 y: 0.5} padding: Inset{left: 12 right: 12 top: 0 bottom: 0}",
         );
-        self.text(&format!("{id}_label"), label, &Txt::new(13.0, Face::Medium, fg));
+        self.text(label_id, label, &Txt::new(13.0, Face::Medium, fg));
         self.close();
         if !matches!(kind, Btn::Disabled | Btn::OutlineOff) {
-            self.tap(id, event);
+            self.tap(tap_id, event);
         }
         self.close();
     }
 
     /// A text link (blue), optionally tappable.
     pub fn link(&mut self, id: &str, label: &str, event: Option<&str>, px: f64) {
-        let wrap = format!("{id}_box");
+        self.link_ids(&format!("{id}_box"), &format!("{id}_label"), id, label, event, px, tok::BLUE);
+    }
+
+    /// [`Dsl::link`] with explicit ids and ink (A14: the dialog host's
+    /// `+ New loop` keeps `…_control`, a skill's Remove keeps `t_removeN` /
+    /// `t_removeN_hit`; a destructive link is red, a paused one faint).
+    #[allow(clippy::too_many_arguments)]
+    pub fn link_ids(
+        &mut self,
+        box_id: &str,
+        label_id: &str,
+        tap_id: &str,
+        label: &str,
+        event: Option<&str>,
+        px: f64,
+        color: &'static str,
+    ) {
         // Explicit box (see `text_w`): the tap target must not measure 0.
         let w = text_w(label, px, Face::Regular) + 4.0;
         // >= 28 px high: the brief's minimum hit size.
         let h = (px * 1.6).ceil().max(28.0);
         self.view(
-            &wrap,
+            box_id,
             &format!("width: {} height: {} flow: Overlay align: Align{{x: 0.0 y: 0.5}}", fmt_num(w), fmt_num(h)),
         );
-        self.text(&format!("{id}_label"), label, &Txt::new(px, Face::Regular, tok::BLUE));
+        self.text(label_id, label, &Txt::new(px, Face::Regular, color));
         if let Some(ev) = event {
-            self.tap(id, ev);
+            self.tap(tap_id, ev);
+        }
+        self.close();
+    }
+
+    /// A14 — a line icon in a square hit box: the glyph is `<base>`
+    /// (`size` px), its box `<base>_box` (`hit` px, centred) and, when
+    /// `event` is given, the tap `<base>_hit` over the whole box (>= 28 px).
+    pub fn icon_hit(&mut self, base: &str, file: &str, size: f64, hit: f64, event: Option<&str>) {
+        self.view(
+            &format!("{base}_box"),
+            &format!("width: {h} height: {h} flow: Overlay align: Align{{x: 0.5 y: 0.5}}", h = fmt_num(hit)),
+        );
+        self.icon(base, file, size, tok::MUTED);
+        if let Some(ev) = event {
+            self.tap(&format!("{base}_hit"), ev);
         }
         self.close();
     }
@@ -516,16 +566,49 @@ impl Dsl {
             8.0,
             Some("#d9d9dcff"),
         );
-        let face = if mono { Face::Mono } else { Face::Regular };
-        let style = text_style(face, 13.0);
-        let props = format!(
-            "width: Fill height: Fit padding: Inset{{left: 0 right: 0 top: 4 bottom: 4}} margin: 0\ntext: {} empty_text: {}\nflow: Right is_read_only: false\ndraw_bg +: {{pixel: fn() {{return vec4(0.0, 0.0, 0.0, 0.0)}}}}\ndraw_text +: {{color: {t} color_hover: {t} color_focus: {t} color_down: {t} color_disabled: {f} color_empty: {f} color_empty_hover: {f} color_empty_focus: {f}}}\ndraw_text.text_style: {style}\ndraw_cursor +: {{color: {t}}}\ndraw_selection +: {{color: #2f6feb33 color_hover: #2f6feb33 color_focus: #2f6feb40 color_down: #2f6feb40 color_empty: #00000000 color_disabled: #00000000}}",
-            lit(text),
-            lit(placeholder),
-            t = tok::TEXT,
-            f = tok::FAINT,
+        self.open(id, "TextInput", &input_props(text, placeholder, mono, false));
+        self.close();
+        self.close();
+    }
+
+    /// A14 — [`Dsl::input`] with a leading line icon (the registry search's
+    /// magnifier): the glyph and the text share the field's centre line
+    /// (both centred by the field's `align y: 0.5`; a judge capture had the
+    /// placeholder 9 px under the glyph).
+    #[allow(clippy::too_many_arguments)]
+    pub fn input_icon(&mut self, id: &str, key: &str, text: &str, placeholder: &str, icon: &str, height: f64) {
+        self.inputs.push((id.to_owned(), key.to_owned()));
+        self.surface(
+            &format!("{id}_field"),
+            &format!(
+                "width: Fill height: {} flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8 padding: Inset{{left: 10 right: 10 top: 0 bottom: 0}}",
+                fmt_num(height)
+            ),
+            tok::SURFACE,
+            8.0,
+            Some("#d9d9dcff"),
         );
-        self.open(id, "TextInput", &props);
+        self.icon(&format!("{id}_icon"), icon, 16.0, tok::MUTED);
+        self.open(id, "TextInput", &input_props(text, placeholder, false, false));
+        self.close();
+        self.close();
+    }
+
+    /// A14 — a multi-line text field (the review instructions' `<textarea>`):
+    /// the text wraps from the field's top-left corner.
+    pub fn input_multiline(&mut self, id: &str, key: &str, text: &str, placeholder: &str, height: f64) {
+        self.inputs.push((id.to_owned(), key.to_owned()));
+        self.surface(
+            &format!("{id}_field"),
+            &format!(
+                "width: Fill height: {} flow: Down align: Align{{x: 0.0 y: 0.0}} padding: Inset{{left: 10 right: 10 top: 6 bottom: 6}}",
+                fmt_num(height)
+            ),
+            tok::SURFACE,
+            8.0,
+            Some("#d9d9dcff"),
+        );
+        self.open(id, "TextInput", &input_props(text, placeholder, false, true));
         self.close();
         self.close();
     }
@@ -609,6 +692,26 @@ impl Dsl {
     }
 }
 
+/// The kit's `TextInput` properties: 13 px text (mono or Inter), transparent
+/// background (the field surface paints), faint placeholder; `multiline`
+/// wraps and fills the field.
+fn input_props(text: &str, placeholder: &str, mono: bool, multiline: bool) -> String {
+    let face = if mono { Face::Mono } else { Face::Regular };
+    let style = text_style(face, 13.0);
+    let (walk, flow) = if multiline {
+        ("width: Fill height: Fill", "flow: Right{wrap: true} is_multiline: true")
+    } else {
+        ("width: Fill height: Fit", "flow: Right")
+    };
+    format!(
+        "{walk} padding: Inset{{left: 0 right: 0 top: 4 bottom: 4}} margin: 0\ntext: {} empty_text: {}\n{flow} is_read_only: false\ndraw_bg +: {{pixel: fn() {{return vec4(0.0, 0.0, 0.0, 0.0)}}}}\ndraw_text +: {{color: {t} color_hover: {t} color_focus: {t} color_down: {t} color_disabled: {f} color_empty: {f} color_empty_hover: {f} color_empty_focus: {f}}}\ndraw_text.text_style: {style}\ndraw_cursor +: {{color: {t}}}\ndraw_selection +: {{color: #2f6feb33 color_hover: #2f6feb33 color_focus: #2f6feb40 color_down: #2f6feb40 color_empty: #00000000 color_disabled: #00000000}}",
+        lit(text),
+        lit(placeholder),
+        t = tok::TEXT,
+        f = tok::FAINT,
+    )
+}
+
 /// Segmented-control look.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Seg {
@@ -668,11 +771,48 @@ pub fn dialog_pad(frame: &Frame, width: f64) -> f64 {
     }
 }
 
+/// The widget ids one dialog family's frame carries. Board 3's dialogs use
+/// [`B3_IDS`]; A14: the A5 dialog host (`screens::dialog`) draws the SAME
+/// frame under the ids its walks and the judge tour address
+/// (`dialog_frame`, `dialog_scroll`, `dialog_close`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ShellIds {
+    pub root: &'static str,
+    pub backdrop: &'static str,
+    pub backdrop_box: &'static str,
+    pub backdrop_hit: &'static str,
+    /// The backdrop's routed event; `None` = a press that routes nothing.
+    pub backdrop_event: Option<&'static str>,
+    pub dialog: &'static str,
+    pub scroll: &'static str,
+    /// The close glyph's tap (its box is `<close>_box`, its icon
+    /// `<close>_icon`).
+    pub close: &'static str,
+}
+
+/// Board 3's own frame ids.
+pub const B3_IDS: ShellIds = ShellIds {
+    root: "b3_root",
+    backdrop: "b3_backdrop",
+    backdrop_box: "b3_backdrop_box",
+    backdrop_hit: "b3_backdrop_hit",
+    backdrop_event: Some("b3.noop"),
+    dialog: "b3_dialog",
+    scroll: "b3_scroll",
+    close: "b3_close",
+};
+
 /// Open the backdrop + the centred card (the web's `.backdrop` grid +
 /// `.dialog`). The card hugs its content; [`body_open`] caps the body so the
 /// whole card never exceeds the frame's max height (the web's `max-height:
 /// calc(100dvh - 32px)` + `overflow: auto`).
 pub fn shell_open(d: &mut Dsl, frame: &Frame, width: f64) {
+    shell_open_ids(d, frame, width, &B3_IDS);
+}
+
+/// [`shell_open`] under another family's ids (the same frame, backdrop and
+/// keyboard behaviour).
+pub fn shell_open_ids(d: &mut Dsl, frame: &Frame, width: f64, ids: &ShellIds) {
     let pad = dialog_pad(frame, width);
     // A8 — the root pans its content above an on-screen keyboard (makepad's
     // `KeyboardView`: the focused field stays visible while typing, the way a
@@ -681,19 +821,29 @@ pub fn shell_open(d: &mut Dsl, frame: &Frame, width: f64) {
     // set right under it, above the keyboard too. No keyboard (the desktop),
     // no shift.
     d.open(
-        "b3_root",
+        ids.root,
         "KeyboardView",
         "width: Fill height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5} keyboard_min_shift: 56.",
     );
-    d.rule("b3_backdrop", "width: Fill height: Fill", tok::MASK);
+    d.rule(ids.backdrop, "width: Fill height: Fill", tok::MASK);
     // The backdrop is modal: it swallows presses so nothing under it (the
     // sidebar, the composer) reacts, and it does not close the dialog
     // (`ui/ModalSurface.tsx`: Escape or the close control only).
-    d.view("b3_backdrop_box", "width: Fill height: Fill flow: Overlay");
-    d.tap("b3_backdrop_hit", "b3.noop");
+    d.view(ids.backdrop_box, "width: Fill height: Fill flow: Overlay");
+    match ids.backdrop_event {
+        Some(ev) => d.tap(ids.backdrop_hit, ev),
+        None => {
+            // A transparent button that takes the press and routes nothing.
+            let _ = writeln!(
+                d.out,
+                "{} := Button {{ width: Fill height: Fill text: \"\" draw_bg.color: #00000000 draw_bg.color_hover: #00000000 draw_bg.color_down: #00000000 draw_bg.border_size: 0.0 draw_bg.color_2: #00000000 draw_bg.border_color: #00000000 draw_bg.border_color_2: #00000000 }}",
+                ids.backdrop_hit
+            );
+        }
+    }
     d.close();
     d.surface(
-        "b3_dialog",
+        ids.dialog,
         &format!(
             "width: {} height: Fit flow: Down padding: Inset{{left: {p} right: {p} top: {p} bottom: {p}}}",
             fmt_num(width),
@@ -711,12 +861,17 @@ pub fn shell_open(d: &mut Dsl, frame: &Frame, width: f64) {
 /// `ScrollYView` resolves a `Fit` height against `max_height`
 /// (makepad `scroll_bars.rs:372-378`).
 pub fn body_open(d: &mut Dsl, frame: &Frame, width: f64, chrome_h: f64) {
+    body_open_id(d, frame, width, chrome_h, B3_IDS.scroll);
+}
+
+/// [`body_open`] with the scroll view's id.
+pub fn body_open_id(d: &mut Dsl, frame: &Frame, width: f64, chrome_h: f64, scroll_id: &str) {
     let pad = dialog_pad(frame, width);
     let max_body = (frame.dialog_max_h() - 2.0 * pad - chrome_h).max(120.0).floor();
     // The right inset is the scroll bar's gutter: measured on the phone
     // layout, the bar drew over the first rows' status chips without it.
     d.open(
-        "b3_scroll",
+        scroll_id,
         "ScrollYView",
         &format!(
             "width: Fill height: Fit max_height: {} flow: Down padding: Inset{{left: 0 top: 0 right: 10 bottom: 0}}",
@@ -749,10 +904,21 @@ pub fn header(d: &mut Dsl, title_text: &str, close_event: &str) {
 
 /// The 28x28 close target with the module's own close icon.
 pub fn close_glyph(d: &mut Dsl, event: &str) {
-    d.view("b3_close_box", "width: 28 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}");
-    d.icon("b3_close_icon", "b3_close.svg", 15.0, tok::TEXT);
-    d.tap("b3_close", event);
+    close_glyph_id(d, B3_IDS.close, event);
+}
+
+/// [`close_glyph`] under another tap id (`<id>_box`, `<id>_icon`, `<id>`).
+pub fn close_glyph_id(d: &mut Dsl, id: &str, event: &str) {
+    d.view(&format!("{id}_box"), "width: 28 height: 28 flow: Overlay align: Align{x: 0.5 y: 0.5}");
+    d.icon(&format!("{id}_icon"), "b3_close.svg", 15.0, tok::TEXT);
+    d.tap(id, event);
     d.close();
+}
+
+/// The session / Profile scope line under a dialog's title (the board's
+/// `dsflash:main` subtitle, the web's `.scope`).
+pub fn scope() -> Txt {
+    Txt::new(11.5, Face::Mono, tok::MUTED)
 }
 
 /// A 28x28 icon button (refresh, copy).

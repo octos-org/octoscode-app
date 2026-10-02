@@ -206,18 +206,18 @@ fn title_case(id: &str) -> String {
 /// One provider card head: `"{display label} • {route}"` (the web renders the
 /// family label next to the route; the authored head reads
 /// "DeepSeek • Official API").
-fn provider_head(m: &ProfileLlmModel) -> String {
+pub(crate) fn provider_head(m: &ProfileLlmModel) -> String {
     format!("{} • {}", family_label(&m.provider), m.route.as_deref().unwrap_or("default route"))
 }
 
-fn provider_count(models: &[&ProfileLlmModel]) -> String {
+pub(crate) fn provider_count(models: &[&ProfileLlmModel]) -> String {
     let n = models.len();
     format!("{n} model{}" , if n == 1 { "" } else { "s" })
 }
 
 /// A model row: `"{model} (default)"` marks the selected route — the atlas
 /// `t_flash "deepseek-v4-flash (default)"` (`ProfileLlmModel.selected`).
-fn model_row(m: &ProfileLlmModel) -> String {
+pub(crate) fn model_row(m: &ProfileLlmModel) -> String {
     if m.selected {
         format!("{} (default)", m.model)
     } else {
