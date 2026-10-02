@@ -841,46 +841,63 @@ pub fn build(d: &mut Dsl, st: &RoutesState, frame: &Frame, store: &Store) {
     d.gap(W::Fill, 10.0);
     ui::body_open(d, frame, width, 60.0);
     heading(d, st, proj.state == ViewState::Ready, caps, compact);
-    d.gap(W::Fill, 4.0);
+    // The web section's rhythm (`.section` gap 14, `.providerRows` gap 10):
+    // one SECTION gap before every block, ROWS between provider cards.
+    const SECTION: f64 = 12.0;
+    const ROWS: f64 = 10.0;
     match &proj.state {
-        ViewState::Loading => state_notice(d, "b3_routes_loading", copy::LOADING),
+        ViewState::Loading => {
+            d.gap(W::Fill, SECTION);
+            state_notice(d, "b3_routes_loading", copy::LOADING);
+        }
         // An UNREAD configuration: its cause and "Try again" — never the
         // empty state (`model-management-projection.ts:57-63`).
-        ViewState::Error(msg) => state_error(d, st, msg, compact),
-        ViewState::Unavailable(msg) => note(d, "b3_routes_unavailable", msg),
+        ViewState::Error(msg) => {
+            d.gap(W::Fill, SECTION);
+            state_error(d, st, msg, compact);
+        }
+        ViewState::Unavailable(msg) => {
+            d.gap(W::Fill, SECTION);
+            note(d, "b3_routes_unavailable", msg);
+        }
         ViewState::Ready => {
             if !caps.can_save() {
+                d.gap(W::Fill, SECTION);
                 note(d, "b3_routes_readonly_note", copy::READ_ONLY);
             }
             if caps.can_save() || caps.delete {
+                d.gap(W::Fill, SECTION);
                 ui::banner(d, "b3_routes_warning", copy::RUNTIME_WARNING, "");
             }
         }
     }
     if let Some(n) = &st.notice {
+        d.gap(W::Fill, SECTION);
         status_line(d, "b3_routes_notice", n, true);
     }
     if proj.state == ViewState::Ready {
         if let Some(e) = &st.error {
+            d.gap(W::Fill, SECTION);
             d.text("b3_routes_error", e, &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
         }
         if let Some(i) = st.deleting {
             if let Some(r) = st.routes.get(i) {
                 let name = proj.providers.get(i).map(|p| p.name().to_owned()).unwrap_or_else(|| r.name());
+                d.gap(W::Fill, SECTION);
                 delete_card(d, st, r, &name, compact);
-                d.gap(W::Fill, 4.0);
             }
         }
         if let Some(r) = st.editing.and_then(|i| st.routes.get(i)) {
+            d.gap(W::Fill, SECTION);
             editor(d, st, r, store, compact, inner_w);
-            d.gap(W::Fill, 4.0);
         }
         if st.routes.is_empty() {
+            d.gap(W::Fill, SECTION);
             empty_state(d, inner_w + 28.0);
         }
         for (i, r) in st.routes.iter().enumerate() {
+            d.gap(W::Fill, if i == 0 { SECTION } else { ROWS });
             route_card(d, st, i, r, proj.providers.get(i), inner_w, caps, compact);
-            d.gap(W::Fill, 4.0);
         }
     }
     ui::body_close(d);
