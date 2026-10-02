@@ -64,6 +64,10 @@ pub struct ConsoleState {
     pub steer_snap: HashMap<String, String>,
     pub disclosure_open: bool,
     pub seat: SeatPanel,
+    /// An Acquire / Release seat is in flight (single-flight).
+    pub seat_busy: bool,
+    /// The last acquire / release failure (a bounded label).
+    pub seat_note: Option<String>,
     /// The roster identities the last lowering drew (`row#n` → n / 4).
     pub drawn: Vec<String>,
     /// The master's live turn (the seat target's expected turn).
@@ -191,15 +195,21 @@ pub fn perform(st: &mut FleetState, rest: &str, index: usize, store: &Store) -> 
             })
         }
         "release" => {
-            if !fleet_driver::seat_held(&session) {
+            if !fleet_driver::seat_held(&session) || st.console.seat_busy {
                 return HostOutcome::Done;
             }
+            st.console.seat_busy = true;
+            st.console.seat_note = None;
             HostOutcome::Spawn(Job::FleetSeatRelease)
         }
         "acquire" => {
-            if !fleet_driver::seat_parked(&session) {
+            // P2q: the seat is OPT-IN — offered whenever this app does not
+            // hold it (never automatic), and only on a ready record.
+            if fleet_driver::seat_held(&session) || st.console.seat_busy || !fleet_driver::control_ready(store) {
                 return HostOutcome::Done;
             }
+            st.console.seat_busy = true;
+            st.console.seat_note = None;
             HostOutcome::Spawn(Job::FleetSeatAcquire)
         }
         "seat" => {
@@ -274,6 +284,31 @@ pub async fn run_row(conv: &crate::flow::Conversation, identity: String, action:
     r
 }
 
+/// "Acquire seat" / "Release seat" (`acquireControlSeat` /
+/// `releaseControlSeat`): ONE acquire (CAS on the walked revision) or ONE
+/// release (`next: external`, parked), then the re-walk
+/// (`refreshControlInventory`) so the disclosure — and the next CAS — follow
+/// the lease. A refusal leaves the bounded label.
+pub async fn run_seat_change(conv: &crate::flow::Conversation, acquire: bool) -> Result<String, String> {
+    let r = if acquire {
+        fleet_driver::acquire_seat(conv).await.map(|_| "seat acquired".to_owned())
+    } else {
+        fleet_driver::release_seat(conv).await.map(|_| "seat released".to_owned())
+    };
+    let note = r.as_ref().err().map(|e| fleet_driver::control_refusal_label(e.refusal_kind().unwrap_or("")).to_owned());
+    // Re-walk either way: a refused CAS (`driver_revision_conflict`) needs
+    // the moved revision for the next attempt.
+    let _ = fleet_driver::load_inventory(conv).await;
+    super::session_pane::mirror_inventory(&conv.store);
+    let mut st = super::host::state();
+    st.fleet.console.seat_busy = false;
+    st.fleet.console.seat_note = note;
+    if r.is_ok() {
+        st.fleet.console.seat = SeatPanel::Idle;
+    }
+    r.map_err(|e| e.to_string())
+}
+
 pub async fn run_seat(conv: &crate::flow::Conversation, kind: String, live_turn: Option<String>) -> Result<String, String> {
     let r = fleet_driver::seat_control(conv, &kind, live_turn.as_deref()).await;
     let mut st = super::host::state();
@@ -292,6 +327,34 @@ fn fact(d: &mut Dsl, id: &str, label: &str, value: &str) {
     d.text(&format!("{id}_k"), label, &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Px(84.0)));
     d.text(&format!("{id}_v"), value, &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill).wrap());
     d.close();
+}
+
+/// How many Fit buttons go on one line inside `avail` px: all of them when
+/// they fit, else pairs, else one per line. A `Right{wrap}` row has no line
+/// gap, so its wrapped lines would touch — the rows are laid out explicitly.
+fn per_row(labels: &[&str], avail: f64, spacing: f64) -> usize {
+    let w = |l: &str| ui::text_w(l, 13.0, Face::Medium) + 32.0;
+    let fits = |k: usize| {
+        labels.chunks(k.max(1)).all(|c| c.iter().map(|l| w(l)).sum::<f64>() + spacing * (c.len() as f64 - 1.0) <= avail)
+    };
+    if fits(labels.len()) {
+        labels.len()
+    } else if fits(2) {
+        2
+    } else {
+        1
+    }
+}
+
+/// Open a button grid: a Down column whose rows `grid_row` opens.
+fn grid_open(d: &mut Dsl, spacing: f64) {
+    let col = d.anon();
+    d.view(&col, &format!("width: Fill height: Fit flow: Down spacing: {spacing}"));
+}
+
+fn grid_row(d: &mut Dsl, spacing: f64) {
+    let row = d.anon();
+    d.view(&row, &format!("width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: {spacing}"));
 }
 
 fn disclosure_seat(d: &mut Dsl, st: &FleetState, store: &Store) {
@@ -329,28 +392,41 @@ fn disclosure_seat(d: &mut Dsl, st: &FleetState, store: &Store) {
     d.close();
 }
 
-fn seat_panel(d: &mut Dsl, st: &FleetState, store: &Store) {
+/// `derivePeerControlSeat`: mounted only on a READY record
+/// (`deriveControlReadiness`) whose seat this app holds AND whose target
+/// exists (the held acquire's pending work + the master's live turn).
+fn seat_panel(d: &mut Dsl, st: &FleetState, store: &Store, content_w: f64) {
     let session = store.active_session().unwrap_or_default();
-    if !fleet_driver::seat_held(&session)
+    if !fleet_driver::control_ready(store)
+        || !fleet_driver::seat_held(&session)
         || fleet_driver::seat_target(&session, st.console.live_turn.as_deref()).is_none()
     {
         return;
     }
     ui::card_open(d, "b3_fleet_seat", 8.0);
     ui::section_title(d, "b3_fleet_seat_title", "Peer control");
-    let row = d.anon();
-    d.view(&row, "width: Fill height: Fit flow: Right{wrap: true} align: Align{x: 0.0 y: 0.5} spacing: 8");
+    // The "Commands" group: the four, one line when they fit.
+    let labels: Vec<&str> = SEAT_COMMANDS.iter().map(|(_, l)| *l).collect();
+    let per = per_row(&labels, content_w, 8.0);
     let sending = matches!(st.console.seat, SeatPanel::Sending(_));
+    grid_open(d, 8.0);
     for (i, (_, label)) in SEAT_COMMANDS.iter().enumerate() {
+        if i % per == 0 {
+            if i > 0 {
+                d.close();
+            }
+            grid_row(d, 8.0);
+        }
         d.button(
             &format!("b3_fleet_seat_cmd_{i}"),
             label,
             &format!("b3.fleet.console.seat#{i}"),
             if sending { Btn::OutlineOff } else { Btn::Outline },
-            W::Fit,
+            if per == 1 { W::Fill } else { W::Fit },
             32.0,
         );
     }
+    d.close();
     d.close();
     match &st.console.seat {
         SeatPanel::Sending(k) => d.text("b3_fleet_seat_state", &format!("Sending {k}…"), &ui::meta().w(W::Fill)),
@@ -366,13 +442,12 @@ fn seat_panel(d: &mut Dsl, st: &FleetState, store: &Store) {
     d.close();
 }
 
-fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, inner_w: f64) {
+fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, content_w: f64) {
     if !fleet_driver::control_advertised(store) {
         return;
     }
     let session = store.active_session().unwrap_or_default();
     let held = fleet_driver::seat_held(&session);
-    let parked = fleet_driver::seat_parked(&session);
     ui::card_open(d, "b3_fleet_console", 8.0);
     ui::section_title(d, "b3_fleet_console_title", "Peer controller");
     let binding = fleet_driver::held_binding(&session)
@@ -417,23 +492,70 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, inner_w: 
     d.input("b3_fleet_console_brief", "fleet.console.brief", &st.console.brief_snap, "", false, 34.0);
     ui::field_label(d, "b3_fleet_console_title_label", "Title");
     d.input("b3_fleet_console_title", "fleet.console.title", &st.console.title_snap, "", false, 34.0);
-    let row = d.anon();
-    d.view(&row, "width: Fill height: Fit flow: Right{wrap: true} align: Align{x: 0.0 y: 0.5} spacing: 8");
+    // The Staging group: Dispatch, Release seat and — whenever this app does
+    // not hold the seat (P2q: opt-in; after a release, a hand-back or an
+    // expiry) — Acquire seat; one line when they fit, else stacked.
+    let busy = st.console.seat_busy;
+    let offer = !held && fleet_driver::control_ready(store);
+    let acquire_label = if busy { "Acquiring…" } else { "Acquire seat" };
+    let mut labels = vec!["Dispatch", "Release seat"];
+    if offer {
+        labels.push(acquire_label);
+    }
+    let per = per_row(&labels, content_w, 8.0);
+    let bw = if per == 1 { W::Fill } else { W::Fit };
     let dispatchable = held && keys.contains(&lane) && !st.console.brief.trim().is_empty();
     let sending = st.console.outcome == ConsoleOutcome::Sending;
+    grid_open(d, 8.0);
+    grid_row(d, 8.0);
     d.button(
         "b3_fleet_console_dispatch",
         "Dispatch",
         "b3.fleet.console.dispatch",
         if dispatchable && !sending { Btn::Primary } else { Btn::Disabled },
-        W::Fit,
+        bw.clone(),
         32.0,
     );
-    d.button("b3_fleet_console_release", "Release seat", "b3.fleet.console.release", if held { Btn::Outline } else { Btn::OutlineOff }, W::Fit, 32.0);
-    if parked {
-        d.button("b3_fleet_console_acquire", "Acquire seat", "b3.fleet.console.acquire", Btn::Outline, W::Fit, 32.0);
+    if per == 1 {
+        d.close();
+        grid_row(d, 8.0);
+    }
+    d.button(
+        "b3_fleet_console_release",
+        "Release seat",
+        "b3.fleet.console.release",
+        if held && !busy { Btn::Outline } else { Btn::OutlineOff },
+        bw.clone(),
+        32.0,
+    );
+    if offer {
+        if per < 3 {
+            d.close();
+            grid_row(d, 8.0);
+        }
+        d.button(
+            "b3_fleet_console_acquire",
+            acquire_label,
+            "b3.fleet.console.acquire",
+            if busy { Btn::OutlineOff } else { Btn::Outline },
+            bw,
+            32.0,
+        );
     }
     d.close();
+    d.close();
+    // `peerControlFenceStaleIn`: the lease was revoked under us — the seat
+    // is gone, its bounded label stays (role alert in the web).
+    if !held && fleet_driver::seat_expired(&session) {
+        d.text(
+            "b3_fleet_console_expired",
+            fleet_driver::control_refusal_label("driver_fence_stale"),
+            &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap(),
+        );
+    }
+    if let Some(note) = &st.console.seat_note {
+        d.text("b3_fleet_console_seat_note", note, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
+    }
     // "Session peers" — the console roster.
     let rows = console_rows(store);
     st.console.drawn = rows.iter().map(|(id, _, _)| id.clone()).collect();
@@ -448,29 +570,32 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, inner_w: 
         d.view(&head, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
         d.text(&format!("{id}_glyph"), g, &Txt::new(13.0, Face::Regular, tok::TEXT));
         d.text(&format!("{id}_word"), word, &Txt::new(11.5, Face::Regular, tok::MUTED));
-        d.text(&format!("{id}_slug"), &super::inventory::fit(slug, inner_w - 160.0, 12.0, true), &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill));
+        d.text(&format!("{id}_slug"), &super::inventory::fit(slug, content_w - 132.0, 12.0, true), &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill));
         d.close();
         if *activity != "reaped" {
             let steer = st.console.steer.get(identity).cloned().unwrap_or_default();
-            let acts = d.anon();
-            d.view(&acts, "width: Fill height: Fit flow: Right{wrap: true} align: Align{x: 0.0 y: 0.5} spacing: 6");
+            let names = ["Approve", "Deny", "Steer", "Interrupt"];
+            // The row card's own 10 px insets.
+            let per = per_row(&names, content_w - 20.0, 6.0);
+            grid_open(d, 6.0);
             for (ai, a) in ROW_ACTIONS.iter().enumerate() {
+                if ai % per == 0 {
+                    if ai > 0 {
+                        d.close();
+                    }
+                    grid_row(d, 6.0);
+                }
                 let blank = *a == "steer" && steer.trim().is_empty();
-                let label = match *a {
-                    "approve" => "Approve",
-                    "deny" => "Deny",
-                    "steer" => "Steer",
-                    _ => "Interrupt",
-                };
                 d.button(
                     &format!("{id}_act_{ai}"),
-                    label,
+                    names[ai],
                     &format!("b3.fleet.console.row#{}", ri * 4 + ai),
                     if blank || sending { Btn::OutlineOff } else { Btn::Outline },
-                    W::Fit,
+                    if per == 1 { W::Fill } else { W::Fit },
                     30.0,
                 );
             }
+            d.close();
             d.close();
             let snap = st.console.steer_snap.get(identity).cloned().unwrap_or_default();
             d.input(&format!("{id}_steer"), &format!("fleet.console.steer#{ri}"), &snap, "", false, 32.0);
@@ -514,8 +639,18 @@ fn controller_console(d: &mut Dsl, st: &mut FleetState, store: &Store, inner_w: 
 /// The Advanced body: the three seats, in `SessionControlBar` order.
 pub fn build(d: &mut Dsl, st: &mut FleetState, store: &Store, inner_w: f64) {
     disclosure_seat(d, st, store);
-    seat_panel(d, st, store);
-    controller_console(d, st, store, inner_w);
+    // The cards' content width: the column less their 14 px insets.
+    seat_panel(d, st, store, inner_w - 28.0);
+    controller_console(d, st, store, inner_w - 28.0);
+}
+
+/// The session pane's Advanced children (`App.tsx:3341-3349`:
+/// `<SessionControlBar ariaLabel="Session controller" permission={null}
+/// model={null} … />`): the control seat and the controller console — the
+/// pane draws the driver disclosure itself.
+pub fn session_controls(d: &mut Dsl, st: &mut FleetState, store: &Store, content_w: f64) {
+    seat_panel(d, st, store, content_w);
+    controller_console(d, st, store, content_w);
 }
 
 #[cfg(test)]

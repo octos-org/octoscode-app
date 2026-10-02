@@ -526,7 +526,7 @@ pub fn lane_source_admitted(store: &Store, profile: &str) -> bool {
 /// `fleetStartAdmitted` (fleet-model.ts:296-306): control supported, an
 /// advertised lane chosen, a non-blank brief.
 pub fn start_admitted(st: &FleetState, store: &Store) -> bool {
-    fleet_driver::control_ready(store) && st.chosen_lane().is_some() && !st.brief.trim().is_empty()
+    fleet_driver::control_supported(store) && st.chosen_lane().is_some() && !st.brief.trim().is_empty()
 }
 
 // ------------------------------------------------------------- transport
@@ -1056,7 +1056,8 @@ pub fn build(d: &mut Dsl, st: &mut FleetState, frame: &Frame, store: &Store) {
     let list = rows(store, now);
     st.drawn = list.clone();
     let groups = group(&list);
-    let control_ready = fleet_driver::control_ready(store);
+    // `controlSupported` (FleetView.tsx:242-243): both methods + the record ready.
+    let control_ready = fleet_driver::control_supported(store);
     let advertised = fleet_driver::control_advertised(store);
     d.view("b3_root", "width: Fill height: Fill flow: Right");
     if x0 > 0.0 {

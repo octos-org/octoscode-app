@@ -276,7 +276,10 @@ pub fn lower_open(store: &Store) -> Option<Lowered> {
         Dialog::Permission => super::seats::build_permission(&mut d, &st.seats, &st.frame, store),
         Dialog::ModelMenu => super::seats::build_models(&mut d, &st.seats, &st.frame, store),
         Dialog::Routes => super::routes::build(&mut d, &st.routes, &st.frame, store),
-        Dialog::SessionPane => super::session_pane::build(&mut d, &st.pane, &st.frame, store),
+        Dialog::SessionPane => {
+            let s = &mut *st;
+            super::session_pane::build(&mut d, &s.pane, &mut s.fleet, &s.frame, store)
+        }
         Dialog::Launch => crate::screens::launch::build(&mut d, &st.frame),
         Dialog::Images => {
             let session = store.domains.session.active().unwrap_or_default();
@@ -838,7 +841,8 @@ pub fn job_unavailable(job: &Job) {
         Job::FleetRow { key, .. } => {
             st.fleet.row_note.insert(key.clone(), msg);
         }
-        Job::FleetSeatAcquire | Job::FleetSeatRelease | Job::FleetConsoleRow { .. } => {}
+        Job::FleetSeatAcquire | Job::FleetSeatRelease => st.fleet.console.seat_busy = false,
+        Job::FleetConsoleRow { .. } => {}
         Job::FleetSeatControl { .. } => {
             st.fleet.console.seat = super::fleet_console::SeatPanel::Refused(msg);
         }
@@ -956,17 +960,11 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
         }
         Job::FleetStart { operation_id, lane, brief } => super::fleetview::run_start(conv, operation_id, lane, brief).await,
         Job::FleetRow { key, identity, action, text } => super::fleetview::run_row(conv, key, identity, action, text).await,
-        Job::FleetSeatAcquire => crate::screens::fleet_driver::acquire_seat(conv).await.map(|_| "seat acquired".to_owned()).map_err(|e| e.to_string()),
-        Job::FleetSeatRelease => {
-            let released = crate::screens::fleet_driver::release_seat(conv).await;
-            // The web re-walks after a release (`releaseControlSeat` ->
-            // `refreshControlInventory`), so the next acquire's CAS reads the
-            // revision the release moved, and the disclosure follows it.
-            if released.is_ok() {
-                let _ = crate::screens::fleet_driver::load_inventory(conv).await;
-            }
-            released.map(|_| "seat released".to_owned()).map_err(|e| e.to_string())
-        }
+        // The web re-walks after an acquire or a release
+        // (`refreshControlInventory`), so the next CAS reads the revision the
+        // lease moved, and the disclosure follows it.
+        Job::FleetSeatAcquire => super::fleet_console::run_seat_change(conv, true).await,
+        Job::FleetSeatRelease => super::fleet_console::run_seat_change(conv, false).await,
         Job::FleetSeatControl { kind, live_turn } => super::fleet_console::run_seat(conv, kind, live_turn).await,
         Job::FleetConsoleDispatch { lane, brief, title } => super::fleet_console::run_dispatch(conv, lane, brief, title).await,
         Job::FleetConsoleRow { identity, action, text } => super::fleet_console::run_row(conv, identity, action, text).await,

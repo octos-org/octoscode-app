@@ -1958,8 +1958,13 @@ pub struct Holder {
     pub revision: u64,
 }
 
-/// This client's stable driver id (the web's `stablePeerDriverId`).
-pub const NATIVE_DRIVER_ID: &str = "octoscode-native";
+/// This client's stable driver id (the web's `stablePeerDriverId`:
+/// `octoscode-native:<uuid>`, minted once per install) — the SAME id the
+/// Fleet's seat, the session pane and the composer's handover present, so a
+/// binding under it is always "this app" (`seatHolderKind` SELF).
+pub fn native_driver_id() -> String {
+    crate::screens::fleet_driver::driver_id()
+}
 
 /// Record (or clear, with `None`) the foreign holder of a session.
 pub fn set_held(session: &str, holder: Option<Holder>) {
@@ -2008,7 +2013,7 @@ pub fn take_over_params(session: &str) -> serde_json::Value {
         .unwrap_or(0);
     serde_json::json!({
         "session_id": session,
-        "driver_id": NATIVE_DRIVER_ID,
+        "driver_id": crate::screens::fleet_driver::acquiring_driver_id(),
         "expected_revision": revision,
         "lease_seconds": 60,
     })

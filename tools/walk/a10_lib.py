@@ -454,7 +454,8 @@ def run_session(walk_fn, *, mode: str, outdir: str, port: int = 8420, replay_por
         e["OCTOSENSE_WINDOW_SIZE"] = "360x780"
     # Brief §8 (test isolation): every launched app keeps its state in a
     # per-run temp dir, never the operator's home (drafts, credentials,
-    # preferences, notification consent, recents, show-thinking, downloads).
+    # preferences, notification consent, recents, show-thinking, downloads,
+    # the driver id and the session pane's Advanced memory).
     iso = state / f"iso-{port}-{int(time.time() * 1000)}"
     for sub in ("credentials", "recents", "downloads"):
         (iso / sub).mkdir(parents=True, exist_ok=True)
@@ -466,6 +467,8 @@ def run_session(walk_fn, *, mode: str, outdir: str, port: int = 8420, replay_por
         "OCTOSCODE_RECENTS_DIR": str(iso / "recents"),
         "OCTOSCODE_SHOW_THINKING_FILE": str(iso / "show-thinking.json"),
         "OCTOSCODE_DOWNLOAD_DIR": str(iso / "downloads"),
+        "OCTOSCODE_DRIVER_ID_PATH": str(iso / "driver-id"),
+        "OCTOSCODE_PANE_ADVANCED_FILE": str(iso / "session-pane-advanced.json"),
     })
     if replay_port:
         bin_ = pathlib.Path(os.environ.get("CARGO_TARGET_DIR") or (ROOT / "target")) / "debug" / "examples" / "replay_serve"
