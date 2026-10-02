@@ -26,21 +26,53 @@
 use std::fmt::Write as _;
 
 /// Colours (`#rrggbbaa`, the form the lowered cards use).
+///
+/// A18 — the TEXT inks meet WCAG 4.5:1 on every fill they are drawn on (the
+/// web's e2e `theme.spec.ts:72-112` runs axe's color-contrast rule in light
+/// mode and expects zero violations). The board's #6E6E73 secondary read
+/// 4.46:1 on `CHIP` and its #A1A1A6 faint 2.57:1 on white, so the light text
+/// levels are the web's (`app/theme.css:82-83`): the web keeps no text level
+/// below ~5.8:1, its secondary and tertiary are one visual level, and the
+/// hierarchy it keeps is primary vs the rest — as here. The pairs are
+/// declared (and tested, light and dark) in `screens::theme::CONTRAST_PAIRS`.
 pub mod tok {
     pub const TEXT: &str = "#1d1d1fff";
-    pub const MUTED: &str = "#6e6e73ff";
-    pub const FAINT: &str = "#a1a1a6ff";
+    /// Secondary text: the web's `--dsw-alias-label-secondary` (light).
+    pub const MUTED: &str = "#61666bff";
+    /// Tertiary text (hints, captions, "not reported", menu titles, group
+    /// headers, placeholders): the web's `--dsw-alias-label-tertiary` (light).
+    pub const FAINT: &str = "#5f646bff";
+    /// The label of a control that cannot be used right now (a disabled or
+    /// unarmed button, an unavailable option) — NEVER informational text.
+    /// Exempt from 4.5:1 (axe skips disabled controls; WCAG 1.4.3 "inactive
+    /// user interface component"); listed in `screens::theme::EXEMPT_INKS`.
+    pub const DISABLED_INK: &str = "#a1a1a6ff";
     pub const HAIRLINE: &str = "#e5e5e7ff";
     pub const SURFACE: &str = "#ffffffff";
     pub const SURFACE2: &str = "#f7f7f8ff";
     pub const CHIP: &str = "#f0f0f2ff";
     pub const BLACK: &str = "#000000ff";
     pub const WHITE: &str = "#ffffffff";
+    /// The board's blue for fills, toggles, focus rings and selection —
+    /// text takes [`BLUE_TEXT`] (#2F6FEB read 4.03:1 on `BLUE_BG`).
     pub const BLUE: &str = "#2f6febff";
+    /// Blue TEXT (links, blue chips, notes): the web's link/info blue
+    /// `--dsw-alias-state-business-primary` (light), >= 4.57:1 on every fill.
+    pub const BLUE_TEXT: &str = "#3564c6ff";
     pub const BLUE_BG: &str = "#eaf1fdff";
+    /// The board's green for marks, dots and fills — text takes
+    /// [`GREEN_TEXT`] (#1F883D read 3.98:1 on `GREEN_BG`).
     pub const GREEN: &str = "#1f883dff";
+    /// Green TEXT: the web's `--dsw-alias-state-success-text` (light).
+    pub const GREEN_TEXT: &str = "#166534ff";
     pub const GREEN_BG: &str = "#e6f4eaff";
+    /// The board's red for fills, dots and icons — text takes [`RED_TEXT`].
     pub const RED: &str = "#cf222eff";
+    /// Red TEXT (errors, destructive links, red chips): the web's
+    /// `--dsw-alias-state-error-text` (light); its dark twin #FF6B6B keeps an
+    /// error readable on a dark surface (#CF222E read 3.27:1 on the dark
+    /// `RED_BG`).
+    pub const RED_TEXT: &str = "#c50f0fff";
     pub const RED_BG: &str = "#fdececff";
     pub const AMBER: &str = "#a35a00ff";
     pub const AMBER_BG: &str = "#fff3e0ff";
@@ -227,7 +259,7 @@ pub fn failure(d: &mut Dsl, id: &str, lead: &str, cause: &str) {
     let cause = clean_cause(cause);
     let col = d.anon();
     d.view(&col, "width: Fill height: Fit flow: Down spacing: 2");
-    d.text(id, lead, &Txt::new(13.0, Face::Medium, tok::RED).w(W::Fill).wrap());
+    d.text(id, lead, &Txt::new(13.0, Face::Medium, tok::RED_TEXT).w(W::Fill).wrap());
     if !cause.is_empty() && cause != lead {
         d.text(&format!("{id}_detail"), &cause, &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
     }
@@ -242,7 +274,7 @@ pub fn error_line(d: &mut Dsl, id: &str, lead: &str, msg: &str) {
     if is_protocol_error(msg) {
         failure(d, id, lead, msg);
     } else {
-        d.text(id, &clean_cause(msg), &Txt::new(12.5, Face::Regular, tok::RED).w(W::Fill).wrap());
+        d.text(id, &clean_cause(msg), &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
 }
 
@@ -542,9 +574,9 @@ impl Dsl {
         let (fill, fg, border) = match kind {
             Btn::Primary => (tok::BLACK, tok::WHITE, None),
             Btn::Outline => (tok::SURFACE, tok::TEXT, Some("#c7c7ccff")),
-            Btn::OutlineOff => (tok::SURFACE, tok::FAINT, Some(tok::HAIRLINE)),
+            Btn::OutlineOff => (tok::SURFACE, tok::DISABLED_INK, Some(tok::HAIRLINE)),
             Btn::Secondary => (tok::CHIP, tok::TEXT, None),
-            Btn::Disabled => (tok::DISABLED_BG, tok::FAINT, None),
+            Btn::Disabled => (tok::DISABLED_BG, tok::DISABLED_INK, None),
             Btn::Ghost => (tok::TRANSPARENT, tok::TEXT, None),
         };
         let radius = if matches!(kind, Btn::Outline | Btn::OutlineOff) && height > 34.0 {
@@ -583,7 +615,7 @@ impl Dsl {
 
     /// A text link (blue), optionally tappable.
     pub fn link(&mut self, id: &str, label: &str, event: Option<&str>, px: f64) {
-        self.link_ids(&format!("{id}_box"), &format!("{id}_label"), id, label, event, px, tok::BLUE);
+        self.link_ids(&format!("{id}_box"), &format!("{id}_label"), id, label, event, px, tok::BLUE_TEXT);
     }
 
     /// [`Dsl::link`] with explicit ids and ink (A14: the dialog host's
@@ -806,11 +838,12 @@ fn input_props(text: &str, placeholder: &str, mono: bool, multiline: bool) -> St
         ("width: Fill height: Fit", "flow: Right")
     };
     format!(
-        "{walk} padding: Inset{{left: 0 right: 0 top: 4 bottom: 4}} margin: 0\ntext: {} empty_text: {}\n{flow} is_read_only: false\ndraw_bg +: {{pixel: fn() {{return vec4(0.0, 0.0, 0.0, 0.0)}}}}\ndraw_text +: {{color: {t} color_hover: {t} color_focus: {t} color_down: {t} color_disabled: {f} color_empty: {f} color_empty_hover: {f} color_empty_focus: {f}}}\ndraw_text.text_style: {style}\ndraw_cursor +: {{color: {t}}}\ndraw_selection +: {{color: #2f6feb33 color_hover: #2f6feb33 color_focus: #2f6feb40 color_down: #2f6feb40 color_empty: #00000000 color_disabled: #00000000}}",
+        "{walk} padding: Inset{{left: 0 right: 0 top: 4 bottom: 4}} margin: 0\ntext: {} empty_text: {}\n{flow} is_read_only: false\ndraw_bg +: {{pixel: fn() {{return vec4(0.0, 0.0, 0.0, 0.0)}}}}\ndraw_text +: {{color: {t} color_hover: {t} color_focus: {t} color_down: {t} color_disabled: {off} color_empty: {f} color_empty_hover: {f} color_empty_focus: {f}}}\ndraw_text.text_style: {style}\ndraw_cursor +: {{color: {t}}}\ndraw_selection +: {{color: #2f6feb33 color_hover: #2f6feb33 color_focus: #2f6feb40 color_down: #2f6feb40 color_empty: #00000000 color_disabled: #00000000}}",
         lit(text),
         lit(placeholder),
         t = tok::TEXT,
         f = tok::FAINT,
+        off = tok::DISABLED_INK,
     )
 }
 
@@ -1219,7 +1252,7 @@ mod tests {
         let dsl = d.finish();
         let lead = dsl.find("x_error := Label").unwrap();
         let detail = dsl.find("x_error_detail := Label").unwrap();
-        assert!(lead < detail && dsl[lead..detail].contains(tok::RED) && dsl[detail..].contains(tok::MUTED));
+        assert!(lead < detail && dsl[lead..detail].contains(tok::RED_TEXT) && dsl[detail..].contains(tok::MUTED));
         let cause = dsl[detail..].split("text: \"").nth(1).unwrap().split('"').next().unwrap();
         assert_eq!(cause.chars().count(), 512);
         // error_line(): a plain message shows alone.

@@ -326,7 +326,7 @@ pub fn approval_card(
     );
     if let Some(r) = risk {
         let (fg, bg, line) = match r.to_ascii_lowercase().as_str() {
-            "high" | "critical" => (tok::RED, tok::RED_BG, Some("#f5c2c7ff")),
+            "high" | "critical" => (tok::RED_TEXT, tok::RED_BG, Some("#f5c2c7ff")),
             "medium" | "moderate" => (tok::AMBER, tok::AMBER_BG, Some(tok::AMBER_LINE)),
             _ => (tok::MUTED, tok::SURFACE2, Some(tok::HAIRLINE)),
         };
@@ -368,7 +368,7 @@ pub fn approval_card(
     if let Some((id, err)) = &ui_state.error {
         if id == &p.id {
             d.gap(W::Fill, 6.0);
-            d.text("cv_ap_error", err, &Txt::new(12.5, Face::Regular, tok::RED).w(W::Fill).wrap());
+            d.text("cv_ap_error", err, &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
         }
     }
     d.gap(W::Fill, if look.phone { 16.0 } else { 14.0 });
@@ -505,7 +505,7 @@ pub fn question_card(d: &mut Dsl, q: &PendingQuestion, qs: &[Question], st: &Que
     d.close(); // scroll
     if let Some(err) = &st.error {
         d.gap(W::Fill, 8.0);
-        d.text("cv_q_error", err, &Txt::new(12.5, Face::Regular, tok::RED).w(W::Fill).wrap());
+        d.text("cv_q_error", err, &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
     d.gap(W::Fill, 14.0);
     let reason = submit_blocked_reason(st.busy, &st.answers).unwrap_or("Choose an option to continue");

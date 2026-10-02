@@ -333,7 +333,7 @@ fn open(b: &mut B<'_>, title_local: &str, title: &str, scope: &str, notice: Opti
     if let Some((text, alert)) = notice {
         let text = dlg::display_error(text);
         b.gap(6.0);
-        let ink = if *alert { tok::RED } else { tok::MUTED };
+        let ink = if *alert { tok::RED_TEXT } else { tok::MUTED };
         b.text("dialog_notice", &text, &Txt::new(12.5, Face::Regular, ink).w(W::Fill).wrap());
         let lines = (ui::text_w(&text, 12.5, Face::Regular) / (b.width - 2.0 * b.pad)).ceil().max(1.0);
         chrome += 6.0 + lines * 16.0;
@@ -714,7 +714,7 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
             "Remove",
             (!locked).then_some(ev.as_str()),
             12.5,
-            if locked { tok::FAINT } else { tok::RED },
+            if locked { tok::DISABLED_INK } else { tok::RED_TEXT },
         );
         b.close();
     }
@@ -767,7 +767,7 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
                 b.text(
                     &format!("{rid}_installed"),
                     &format!("Installed: {}", p.installed_skills.join(", ")),
-                    &Txt::new(12.5, Face::Regular, tok::GREEN).w(W::Fill).wrap(),
+                    &Txt::new(12.5, Face::Regular, tok::GREEN_TEXT).w(W::Fill).wrap(),
                 );
             }
             b.close();
@@ -814,7 +814,7 @@ fn skills(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
 /// green, paused / budget-limited / blocked amber, terminal grey.
 pub fn goal_badge(status: &str) -> (String, (&'static str, &'static str)) {
     let (word, ink) = match status {
-        "active" => ("Active", (tok::GREEN, tok::GREEN_BG)),
+        "active" => ("Active", (tok::GREEN_TEXT, tok::GREEN_BG)),
         "paused" => ("Paused", (tok::AMBER, tok::AMBER_BG)),
         "budget_limited" => ("Budget limited", (tok::AMBER, tok::AMBER_BG)),
         "blocked" => ("Blocked", (tok::AMBER, tok::AMBER_BG)),
@@ -881,7 +881,7 @@ fn goal(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(Strin
         b.pill("stop_btn", "Stop", "goal.stop", Btn::Outline, W::Fit);
     }
     b.d.gap(W::Fill, 1.0);
-    b.link("clear_goal", "Clear goal", Some("goal.clear"), tok::RED);
+    b.link("clear_goal", "Clear goal", Some("goal.clear"), tok::RED_TEXT);
     b.close();
     b.close();
     finish(b);
@@ -937,7 +937,7 @@ fn loops(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(Stri
         b.close();
     }
     b.gap(8.0);
-    b.link("new_loop", "+ New loop", Some(&format!("{}loop.create", dlg::ACTION_FORM)), tok::BLUE);
+    b.link("new_loop", "+ New loop", Some(&format!("{}loop.create", dlg::ACTION_FORM)), tok::BLUE_TEXT);
     finish(b);
 }
 
@@ -1006,7 +1006,7 @@ fn monitors(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(S
     }
     if au::gated(ctx.store, "monitors", "monitor/create") {
         b.gap(8.0);
-        b.link("new_monitor", "+ New monitor", Some(&format!("{}monitor.create", dlg::ACTION_FORM)), tok::BLUE);
+        b.link("new_monitor", "+ New monitor", Some(&format!("{}monitor.create", dlg::ACTION_FORM)), tok::BLUE_TEXT);
     }
     finish(b);
 }
@@ -1020,7 +1020,7 @@ fn peer_ink(s: Status) -> (&'static str, &'static str) {
     } else if matches!(s, Status::WaitingApproval | Status::WaitingAnswer) {
         (tok::AMBER, tok::AMBER_BG)
     } else {
-        (tok::GREEN, tok::GREEN_BG)
+        (tok::GREEN_TEXT, tok::GREEN_BG)
     }
 }
 
@@ -1064,7 +1064,7 @@ fn fleet(b: &mut B<'_>, ctx: &Ctx<'_>, notice: Option<&(String, bool)>) {
             b.chip(&format!("{id}_status"), &word, peer_ink(p.status));
             let (label, tap) = (b.id(&format!("{id}_steer")), b.id(&format!("{id}_steer_hit")));
             let ev = format!("peer.steer#{i}");
-            b.d.link_ids(&format!("{label}_box"), &label, &tap, "Steer", Some(&ev), 13.0, tok::BLUE);
+            b.d.link_ids(&format!("{label}_box"), &label, &tap, "Steer", Some(&ev), 13.0, tok::BLUE_TEXT);
             b.close();
         }
         b.close();
@@ -1096,8 +1096,8 @@ fn empty_box(b: &mut B<'_>, local: &str, text: &str) {
 /// A task state's chip ink.
 fn task_ink(state: &str) -> (&'static str, &'static str) {
     match state {
-        "running" | "done" | "completed" => (tok::GREEN, tok::GREEN_BG),
-        "failed" => (tok::RED, tok::RED_BG),
+        "running" | "done" | "completed" => (tok::GREEN_TEXT, tok::GREEN_BG),
+        "failed" => (tok::RED_TEXT, tok::RED_BG),
         "pending" => (tok::AMBER, tok::AMBER_BG),
         _ => (tok::MUTED, tok::CHIP),
     }
@@ -1321,7 +1321,7 @@ fn form_card(b: &mut B<'_>, ctx: &Ctx<'_>, f: &Form) {
     }
     if let Some(err) = &f.error {
         b.gap(8.0);
-        b.text("ff_error", err, &para(tok::RED));
+        b.text("ff_error", err, &para(tok::RED_TEXT));
     }
     b.gap(16.0);
     let avail = b.inner;

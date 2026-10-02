@@ -365,6 +365,25 @@ const TOKENS: &[(&str, &str)] = &[
     ("#6e6e73", "#98989d"),
     ("#919295", "#98989d"),
     ("#9a9aa0", "#98989d"),
+    // A18: the web's light text levels (`app/theme.css:79-85`), which the
+    // kits' secondary / tertiary / placeholder / link / success inks now are
+    // (CONTRAST_PAIRS): secondary keeps its dark twin; tertiary and the
+    // placeholder read the old faint grey (#A1A1A6: 6.4:1 on #1C1F22);
+    // the link blue and the success green take the web's dark values.
+    ("#61666b", "#98989d"),
+    ("#5f646b", "#a1a1a6"),
+    ("#646970", "#a1a1a6"),
+    ("#3564c6", "#679efe"),
+    ("#166534", "#86efac"),
+    ("#c50f0f", "#ff6b6b"),
+    // the board-3 blue tint (a selected option, a running chip): its dark
+    // twin under the link blue's dark value (5.42:1; the light tint left
+    // in place read 2.66:1 under it).
+    ("#eaf1fd", "#1d2a40"),
+    // the board-3 disabled / terminal fill: a terminal peer's chip keeps its
+    // secondary label readable in dark (#98989D read 2.37:1 on the light
+    // fill left in place; 4.85:1 on the twin).
+    ("#e9e9eb", "#2c2c2e"),
     // the send control's disc: black in light, white in dark (both atlases)
     ("#050505", "#f5f5f7"),
     ("#030202", "#f5f5f7"),
@@ -640,14 +659,23 @@ pub fn os_is_dark_macos() -> bool {
 // the first paint. A live `theme.cycle` re-assigns the roles for every widget
 // created AFTER it and persists for the shell's next launch (disclosed).
 pub fn role_assignments() -> String {
+    role_assignments_for(resolved() == "dark")
+}
+
+/// [`role_assignments`] for an explicit palette (A18: the contrast guard reads
+/// both without flipping the process-global preference).
+pub fn role_assignments_for(dark: bool) -> String {
     // LIGHT pins the shell's CURRENT literals (byte-identical light mode); DARK
     // is the Stage B dark token set at the role level. Both modes assign — the
     // shell DSL references the roles, so the stock values must never leak in.
-    if resolved() == "light" {
+    // A18: light secondary is the web's `--dsw-alias-label-secondary` — the
+    // board's #6E6E73 read 4.46:1 on `color_bg_even` (the sidebar's segment
+    // track, Settings > Model's thinking segments).
+    if !dark {
         r#"mod.theme.color_bg_app = #ffffff
 mod.theme.color_bg_odd = #f7f7f8
 mod.theme.color_bg_even = #f0f0f2
-mod.theme.color_text_muted = #6e6e73
+mod.theme.color_text_muted = #61666b
 mod.theme.color_outset_1 = #e5e5e7
 mod.theme.color_outset_2 = #e5e5e7
 mod.theme.color_fg_app = #1d1d1f
@@ -671,6 +699,31 @@ mod.widgets.Window.pass.clear_color = #1c1f22
 "#
         .to_owned()
     }
+}
+
+/// A18 — the shell's accent TEXT inks, per palette: `(name, light, dark)`.
+/// chrome.rs splices them into its templates (`chrome::ink`, like its icons)
+/// because a NEW `theme.*` role is not readable by a widget default on this
+/// host (see [`diff_tint_hexes`]). Light keeps the board's values; dark takes
+/// the web's dark link / error text (`app/theme.css:85,88`): the shared
+/// #2F6FEB read 3.62:1 and #C4141B 2.73:1 on the dark window.
+pub const SHELL_INKS: &[(&str, &str, &str)] = &[
+    // "Change", "Advanced…", "Clear search"
+    ("link", "#2f6feb", "#679efe"),
+    // "Stop server…", the shutdown error
+    ("danger", "#d1242f", "#ff6b6b"),
+    // "Forget server"
+    ("danger_strong", "#c4141b", "#ff6b6b"),
+];
+
+/// The startup palette's value of a [`SHELL_INKS`] entry (`#rrggbb`).
+pub fn shell_ink(name: &str) -> &'static str {
+    let dark = resolved() == "dark";
+    SHELL_INKS
+        .iter()
+        .find(|(n, _, _)| *n == name)
+        .map(|(_, light, dark_v)| if dark { *dark_v } else { *light })
+        .unwrap_or("#ff00ff")
 }
 
 /// Assign the shell's theme roles in THIS VM (the `wm_theme::apply` pattern:
@@ -702,4 +755,413 @@ pub fn eval_roles(vm: &mut makepad_widgets::ScriptVm) -> bool {
         ::log::warn!("octoscode_theme: {e}");
     }
     true
+}
+
+// ---- A18: the contrast guard ---------------------------------------------------
+//
+// The web's e2e `theme.spec.ts:72-112` runs axe's color-contrast rule on the
+// conversation and on Settings, in manual light mode on a dark OS, and expects
+// ZERO violations. Natively every TEXT ink is declared below against every fill
+// it is drawn on; the tests compute the WCAG 2.x ratio of each pair in BOTH
+// palettes, so a colour edit — a kit token, a TOKENS dark twin, a shell role,
+// a shell ink — fails a test instead of silently regressing. Inks that are not
+// informational text are listed, with the reason, in [`EXEMPT_INKS`]. The
+// end-to-end proof is measured on the app's own pixels:
+// tools/judge/contrast_walk.py.
+
+/// WCAG 2.x 1.4.3: body text.
+pub const BODY_TEXT: f64 = 4.5;
+/// WCAG 2.x: large text (>= 24 px, >= 18.66 px bold) and UI glyphs (1.4.11).
+pub const LARGE_OR_GLYPH: f64 = 3.0;
+
+/// A colour as each palette draws it.
+#[derive(Clone, Copy, Debug)]
+pub enum Swatch {
+    /// A kit literal on a surface that follows the theme ([`retint_dsl`]:
+    /// fluid, the conversation surfaces, the board-3 transcript rows and the
+    /// status strip, A14's dialog kit): dark is its [`TOKENS`] twin (itself
+    /// when it has none).
+    Themed(&'static str),
+    /// A kit literal on a surface drawn with its light palette in BOTH themes
+    /// (the board-3 dialogs, board 1's sheets): the same in dark.
+    Fixed(&'static str),
+    /// A shell theme role ([`role_assignments_for`]).
+    Role(&'static str),
+    /// A shell accent ink ([`SHELL_INKS`]).
+    Shell(&'static str),
+}
+
+/// One text ink on one fill it is drawn on.
+#[derive(Clone, Copy, Debug)]
+pub struct ContrastPair {
+    pub ink: Swatch,
+    pub fill: Swatch,
+    /// [`BODY_TEXT`] or [`LARGE_OR_GLYPH`].
+    pub min: f64,
+    /// Where the pair is drawn (named in a failure).
+    pub at: &'static str,
+}
+
+const fn pair(ink: Swatch, fill: Swatch, min: f64, at: &'static str) -> ContrastPair {
+    ContrastPair { ink, fill, min, at }
+}
+
+use super::board1_kit as b1;
+use super::board3::ui::tok;
+use crate::fluid as fl;
+use Swatch::{Fixed, Role, Shell, Themed};
+
+/// Every TEXT ink against every fill it is drawn on (see the section note).
+pub const CONTRAST_PAIRS: &[ContrastPair] = &[
+    // ---- the shell (chrome.rs): header, sidebar, new-chat defaults line,
+    //      Settings, the sidebar's menus — theme roles + shell inks.
+    pair(Role("color_fg_app"), Role("color_bg_app"), BODY_TEXT, "shell primary text on the window"),
+    pair(Role("color_fg_app"), Role("color_bg_odd"), BODY_TEXT, "shell primary text on the raised grey"),
+    pair(Role("color_fg_app"), Role("color_bg_even"), BODY_TEXT, "a selected sidebar row; the selected segment's label"),
+    pair(Role("color_text_muted"), Role("color_bg_app"), BODY_TEXT, "shell secondary text; the Search chats / rename placeholders"),
+    pair(Role("color_text_muted"), Role("color_bg_odd"), BODY_TEXT, "shell secondary text on the raised grey"),
+    pair(Role("color_text_muted"), Role("color_bg_even"), BODY_TEXT, "a segment's inactive label on its track ('All', Settings > Model)"),
+    pair(Shell("link"), Role("color_bg_app"), BODY_TEXT, "'Change', 'Advanced…', 'Clear search'"),
+    pair(Shell("danger"), Role("color_bg_app"), BODY_TEXT, "'Stop server…', the shutdown error"),
+    pair(Shell("danger_strong"), Role("color_bg_app"), BODY_TEXT, "'Forget server'"),
+    pair(Fixed("#ffffff"), Fixed("#d1242f"), BODY_TEXT, "the Stop server confirm's label on its red fill"),
+    pair(Fixed("#ffffff"), Fixed("#1d1d1f"), BODY_TEXT, "the rename form's Save"),
+    pair(Fixed("#ffffff"), Fixed("#000000"), BODY_TEXT, "the held banner's Take over"),
+    // ---- the conversation components (fluid.rs; themed by retint_dsl).
+    pair(Themed(fl::INK), Themed(fl::SURFACE), BODY_TEXT, "answer prose, the empty state, the connect card"),
+    pair(Themed(fl::INK), Themed(fl::TIP), BODY_TEXT, "a tool group, a code block"),
+    pair(Themed(fl::INK), Themed(fl::RAISED), BODY_TEXT, "inline code chips, the tool output well"),
+    pair(Themed(fl::MUTED), Themed(fl::SURFACE), BODY_TEXT, "the empty state's hint, the connect field's placeholder"),
+    pair(Themed(fl::MUTED), Themed(fl::TIP), BODY_TEXT, "a code block's Copy label, tool meta"),
+    pair(Themed(fl::MUTED), Themed(fl::RAISED), BODY_TEXT, "tool output meta"),
+    pair(Themed(fl::GREEN), Themed(fl::SURFACE), LARGE_OR_GLYPH, "the success check glyph"),
+    pair(Themed(fl::RED), Themed(fl::SURFACE), LARGE_OR_GLYPH, "the failure mark glyph"),
+    // ---- board 3 on the theme's surfaces: the transcript rows (notice,
+    //      thinking, file, receipt, fold bar), the status strip, the
+    //      conversation surfaces (question / approval cards, plan, Trajectory).
+    pair(Themed(tok::TEXT), Themed(tok::SURFACE), BODY_TEXT, "a notice's title, a file name, the strip's facts"),
+    pair(Themed(tok::TEXT), Themed(tok::SURFACE2), BODY_TEXT, "a thinking block, a takeover card"),
+    pair(Themed(tok::TEXT), Themed(tok::CHIP), BODY_TEXT, "a chip, an option row"),
+    pair(Themed(tok::TEXT), Themed(tok::BLUE_BG), BODY_TEXT, "a selected question option"),
+    pair(Themed(tok::MUTED), Themed(tok::SURFACE), BODY_TEXT, "a notice's body, file meta, the strip's caption"),
+    pair(Themed(tok::MUTED), Themed(tok::SURFACE2), BODY_TEXT, "thinking meta, card help"),
+    pair(Themed(tok::MUTED), Themed(tok::CHIP), BODY_TEXT, "a neutral chip"),
+    pair(Themed(tok::MUTED), Themed(tok::BLUE_BG), BODY_TEXT, "a selected option's description"),
+    pair(Themed(tok::MUTED), Themed(tok::DISABLED_BG), BODY_TEXT, "A14's dialogs: a terminal peer's status chip"),
+    pair(Themed(tok::FAINT), Themed(tok::SURFACE), BODY_TEXT, "'Model not reported', question hints, placeholders"),
+    pair(Themed(tok::FAINT), Themed(tok::SURFACE2), BODY_TEXT, "the approval card's tool line and key hint, plan statuses"),
+    pair(Themed(tok::FAINT), Themed(tok::CHIP), BODY_TEXT, "a hint on a chip"),
+    pair(Themed(tok::BLUE_TEXT), Themed(tok::SURFACE), BODY_TEXT, "links: Expand all / Collapse all, Stop turn, the strip's transition"),
+    pair(Themed(tok::BLUE_TEXT), Themed(tok::SURFACE2), BODY_TEXT, "a link inside a card; the task eyebrow"),
+    pair(Themed(tok::BLUE_TEXT), Themed(tok::BLUE_BG), BODY_TEXT, "a running task chip"),
+    pair(Themed(tok::GREEN_TEXT), Themed(tok::GREEN_BG), BODY_TEXT, "a completed task chip"),
+    pair(Themed(tok::RED_TEXT), Themed(tok::SURFACE), BODY_TEXT, "a file's download error, a card's error line"),
+    pair(Themed(tok::RED_TEXT), Themed(tok::SURFACE2), BODY_TEXT, "an error inside a card"),
+    pair(Themed(tok::RED_TEXT), Themed(tok::RED_BG), BODY_TEXT, "a failed task chip, a high-risk approval"),
+    pair(Themed(tok::AMBER), Themed(tok::AMBER_BG), BODY_TEXT, "a medium-risk approval chip"),
+    pair(Themed(tok::WHITE), Themed(tok::BLACK), BODY_TEXT, "a primary pill's label (inverted in dark)"),
+    // ---- board-3 dialogs (light in both themes): the session pane, the
+    //      composer's menus, Fleet, Routes, Inspector, Agents, History, …
+    pair(Fixed(tok::TEXT), Fixed(tok::SURFACE), BODY_TEXT, "dialog text"),
+    pair(Fixed(tok::TEXT), Fixed(tok::SURFACE2), BODY_TEXT, "a card in a dialog"),
+    pair(Fixed(tok::TEXT), Fixed(tok::CHIP), BODY_TEXT, "a secondary pill, a chip"),
+    pair(Fixed(tok::MUTED), Fixed(tok::SURFACE), BODY_TEXT, "dialog secondary text"),
+    pair(Fixed(tok::MUTED), Fixed(tok::SURFACE2), BODY_TEXT, "a segment's label, card help"),
+    pair(Fixed(tok::MUTED), Fixed(tok::CHIP), BODY_TEXT, "a neutral chip (complete, unknown)"),
+    pair(Fixed(tok::MUTED), Fixed(tok::DISABLED_BG), BODY_TEXT, "a terminal peer's status chip"),
+    pair(Fixed(tok::FAINT), Fixed(tok::SURFACE), BODY_TEXT, "a menu title, a model group header, a row's description"),
+    pair(Fixed(tok::FAINT), Fixed(tok::SURFACE2), BODY_TEXT, "a key chip, a hint on a card"),
+    pair(Fixed(tok::FAINT), Fixed(tok::CHIP), BODY_TEXT, "a hint on a chip"),
+    pair(Fixed(tok::BLUE_TEXT), Fixed(tok::SURFACE), BODY_TEXT, "a dialog link, a notice"),
+    pair(Fixed(tok::BLUE_TEXT), Fixed(tok::SURFACE2), BODY_TEXT, "a link inside a card"),
+    pair(Fixed(tok::BLUE_TEXT), Fixed(tok::BLUE_BG), BODY_TEXT, "a starting peer chip, an allowed decision, a lane's initial"),
+    pair(Fixed(tok::GREEN_TEXT), Fixed(tok::SURFACE), BODY_TEXT, "a success note ('Saved', 'Sent')"),
+    pair(Fixed(tok::GREEN_TEXT), Fixed(tok::SURFACE2), BODY_TEXT, "a success note inside a card"),
+    pair(Fixed(tok::GREEN_TEXT), Fixed(tok::GREEN_BG), BODY_TEXT, "a working / active chip, a diff's + marker"),
+    pair(Fixed(tok::RED_TEXT), Fixed(tok::SURFACE), BODY_TEXT, "a dialog error, a destructive link"),
+    pair(Fixed(tok::RED_TEXT), Fixed(tok::SURFACE2), BODY_TEXT, "an error inside a card"),
+    pair(Fixed(tok::RED_TEXT), Fixed(tok::RED_BG), BODY_TEXT, "a failed chip, a diff's - marker, an error box"),
+    pair(Fixed(tok::AMBER), Fixed(tok::SURFACE), BODY_TEXT, "a waiting note"),
+    pair(Fixed(tok::AMBER), Fixed(tok::AMBER_BG), BODY_TEXT, "a waiting / paused chip"),
+    pair(Fixed(tok::WHITE), Fixed(tok::BLACK), BODY_TEXT, "a primary pill's label"),
+    pair(Fixed(tok::WHITE), Fixed(tok::RED), BODY_TEXT, "an armed danger action's label"),
+    // ---- board 1's sheets (Connect, pairing, folder browser, provider).
+    pair(Fixed(b1::INK), Fixed(b1::WHITE), BODY_TEXT, "sheet text"),
+    pair(Fixed(b1::INK), Fixed(b1::SUBTLE), BODY_TEXT, "a subtle row"),
+    pair(Fixed(b1::INK), Fixed(b1::SELECTED), BODY_TEXT, "a selected row"),
+    pair(Fixed(b1::MUTED), Fixed(b1::WHITE), BODY_TEXT, "sheet secondary text"),
+    pair(Fixed(b1::MUTED), Fixed(b1::SUBTLE), BODY_TEXT, "a subtle row's detail"),
+    pair(Fixed(b1::MUTED), Fixed(b1::SELECTED), BODY_TEXT, "a selected row's detail"),
+    pair(Fixed(b1::FAINT), Fixed(b1::WHITE), BODY_TEXT, "the pairing scan note"),
+    pair(Fixed(b1::PLACEHOLDER), Fixed(b1::WHITE), BODY_TEXT, "a field's placeholder"),
+    pair(Fixed(b1::BLUE), Fixed(b1::WHITE), BODY_TEXT, "a sheet link ('Pair with a link instead')"),
+    pair(Fixed(b1::RED), Fixed(b1::WHITE), BODY_TEXT, "a field error"),
+    pair(Fixed(b1::RED), Fixed(b1::RED_BG), BODY_TEXT, "an error box"),
+    pair(Fixed(b1::WHITE), Fixed(b1::BLACK), BODY_TEXT, "a primary pill's label"),
+];
+
+/// Inks that are NOT informational text, each with why it may stay under
+/// 4.5:1 (WCAG 1.4.3 exempts inactive UI components and decoration; axe's
+/// color-contrast rule skips disabled controls).
+pub const EXEMPT_INKS: &[(&str, &str)] = &[
+    (
+        tok::DISABLED_INK,
+        "board 3: the label of a control that cannot be used right now — Btn::Disabled / OutlineOff, an unarmed \
+         danger action, an option with no event, a Restore that is blocked — and a disabled field's text",
+    ),
+    ("#8e8e93", "the shell: a disabled field's text (`color_disabled`) and the idle server dot (a status glyph)"),
+];
+
+/// `#rrggbb` (lower case) of a swatch in one palette.
+pub fn swatch_hex(s: Swatch, dark: bool) -> String {
+    fn rgb(h: &str) -> String {
+        h.get(0..7).unwrap_or(h).to_ascii_lowercase()
+    }
+    match s {
+        Swatch::Fixed(h) => rgb(h),
+        Swatch::Themed(h) if dark => {
+            let key = rgb(h);
+            TOKENS.iter().find(|(l, _)| *l == key).map(|(_, d)| (*d).to_owned()).unwrap_or(key)
+        }
+        Swatch::Themed(h) => rgb(h),
+        Swatch::Role(name) => role_assignments_for(dark)
+            .lines()
+            .find_map(|l| l.strip_prefix(&format!("mod.theme.{name} = ")).map(rgb))
+            .unwrap_or_else(|| format!("#role-{name}-unassigned")),
+        Swatch::Shell(name) => SHELL_INKS
+            .iter()
+            .find(|(n, _, _)| *n == name)
+            .map(|(_, l, d)| rgb(if dark { d } else { l }))
+            .unwrap_or_else(|| format!("#shell-{name}-missing")),
+    }
+}
+
+/// The WCAG 2.x contrast ratio of two `#rrggbb` colours: relative luminance
+/// with the sRGB linearisation, `(L1 + 0.05) / (L2 + 0.05)`.
+pub fn wcag_ratio(a: &str, b: &str) -> f64 {
+    fn lum(h: &str) -> f64 {
+        let v = u32::from_str_radix(h.trim_start_matches('#').get(0..6).unwrap_or("000000"), 16).unwrap_or(0);
+        let lin = |c: u32| {
+            let c = c as f64 / 255.0;
+            if c <= 0.04045 { c / 12.92 } else { ((c + 0.055) / 1.055).powf(2.4) }
+        };
+        0.2126 * lin((v >> 16) & 0xff) + 0.7152 * lin((v >> 8) & 0xff) + 0.0722 * lin(v & 0xff)
+    }
+    let (la, lb) = (lum(a), lum(b));
+    (la.max(lb) + 0.05) / (la.min(lb) + 0.05)
+}
+
+#[cfg(test)]
+mod contrast_tests {
+    use super::*;
+
+    fn failures(dark: bool) -> Vec<String> {
+        CONTRAST_PAIRS
+            .iter()
+            .filter_map(|p| {
+                let (ink, fill) = (swatch_hex(p.ink, dark), swatch_hex(p.fill, dark));
+                let r = wcag_ratio(&ink, &fill);
+                (r + 1e-9 < p.min).then(|| {
+                    format!(
+                        "{} {ink} on {fill} = {r:.2}:1 < {}:1 — {} ({:?} on {:?})",
+                        if dark { "dark" } else { "light" },
+                        p.min,
+                        p.at,
+                        p.ink,
+                        p.fill
+                    )
+                })
+            })
+            .collect()
+    }
+
+    /// The guard: every declared TEXT ink meets its WCAG minimum on every
+    /// fill it is drawn on, in the light AND the dark palette.
+    #[test]
+    fn every_text_ink_meets_wcag_on_every_fill_in_both_palettes() {
+        let mut bad = failures(false);
+        bad.extend(failures(true));
+        assert!(bad.is_empty(), "contrast below WCAG:\n{}", bad.join("\n"));
+    }
+
+    /// The guard has teeth: the board values A18 replaced fail it (the web's
+    /// axe gate failed on exactly these), so a revert is caught.
+    #[test]
+    fn the_replaced_board_inks_fail_the_rule() {
+        for (ink, fill, what) in [
+            ("#a1a1a6", "#ffffff", "board 3's faint 'Model not reported' (2.57:1)"),
+            ("#8e8e93", "#ffffff", "board 1's faint / the Search chats placeholder (3.26:1)"),
+            ("#6e6e73", "#f0f0f2", "the secondary 'All' segment on its track (4.46:1)"),
+            ("#2f6feb", "#eaf1fd", "blue chip text on the blue tint (4.03:1)"),
+            ("#1f883d", "#e6f4ea", "green chip text on the green tint (3.98:1)"),
+            ("#2f6feb", "#1c1f22", "a dark-theme link (3.62:1)"),
+            ("#c4141b", "#1c1f22", "'Forget server' in dark (2.73:1)"),
+            ("#1d1d1f", "#1c1f22", "an unmapped notice title on the dark transcript (1.02:1)"),
+        ] {
+            assert!(wcag_ratio(ink, fill) < BODY_TEXT, "{what}");
+        }
+    }
+
+    /// The ratio is the WCAG formula (reference values).
+    #[test]
+    fn wcag_ratio_matches_the_reference_values() {
+        assert!((wcag_ratio("#000000", "#ffffff") - 21.0).abs() < 1e-9);
+        assert!((wcag_ratio("#ffffff", "#ffffff") - 1.0).abs() < 1e-9);
+        assert!((wcag_ratio("#777777", "#ffffff") - 4.48).abs() < 0.01);
+        assert_eq!(format!("{:.2}", wcag_ratio("#61666b", "#ffffff")), "5.80");
+    }
+
+    /// An exempt ink is never declared as informational text, and a declared
+    /// ink never sits in the exemption list.
+    #[test]
+    fn exempt_inks_are_not_declared_text() {
+        for (ink, why) in EXEMPT_INKS {
+            assert!(!why.is_empty(), "every exemption says why");
+            let key = ink.get(0..7).unwrap_or(ink).to_ascii_lowercase();
+            for p in CONTRAST_PAIRS {
+                let declared = match p.ink {
+                    Swatch::Fixed(h) | Swatch::Themed(h) => h.get(0..7).unwrap_or(h).to_ascii_lowercase() == key,
+                    _ => false,
+                };
+                assert!(!declared, "{ink} is exempt ({why}) but declared as text at {}", p.at);
+            }
+        }
+    }
+
+    /// Every swatch resolves in both palettes (a role or a shell ink that a
+    /// palette does not assign would silently read as the stock colour).
+    #[test]
+    fn every_swatch_resolves_in_both_palettes() {
+        for p in CONTRAST_PAIRS {
+            for dark in [false, true] {
+                for s in [p.ink, p.fill] {
+                    let h = swatch_hex(s, dark);
+                    assert!(
+                        h.len() == 7 && u32::from_str_radix(&h[1..], 16).is_ok(),
+                        "{s:?} does not resolve in {} ({h}) — {}",
+                        if dark { "dark" } else { "light" },
+                        p.at
+                    );
+                }
+            }
+        }
+    }
+
+    /// [`retint_dsl`]'s dark output is a fixed point: no dark twin is itself a
+    /// light key (A18 added keys — the web's light text levels — and twins).
+    #[test]
+    fn dark_twins_are_never_light_keys() {
+        for (light, dark) in TOKENS {
+            assert!(
+                !TOKENS.iter().any(|(l, _)| l == dark),
+                "the dark twin {dark} of {light} is also a light key: a second retint would move it"
+            );
+        }
+    }
+
+    /// The source scan: board 3's text inks are TEXT tokens. A `Txt` (a text
+    /// run) or a chip's `(fg, tint)` naming a FILL or ACCENT token directly —
+    /// `tok::BLUE` (4.03:1 on its tint), `tok::GREEN`, `tok::RED`,
+    /// `tok::HAIRLINE`, … — fails here with the text token to use.
+    #[test]
+    fn board3_text_runs_use_text_tokens() {
+        const TEXT_TOKENS: &[&str] = &[
+            "TEXT", "MUTED", "FAINT", "DISABLED_INK", "WHITE", "BLUE_TEXT", "GREEN_TEXT", "RED_TEXT", "AMBER",
+        ];
+        const TINTS: &[&str] = &["BLUE_BG", "GREEN_BG", "RED_BG", "AMBER_BG", "CHIP", "SURFACE2", "DISABLED_BG"];
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/screens");
+        let mut files = Vec::new();
+        let mut stack = vec![root];
+        while let Some(dir) = stack.pop() {
+            for e in std::fs::read_dir(&dir).expect("screens dir").flatten() {
+                let p = e.path();
+                if p.is_dir() {
+                    stack.push(p);
+                } else if p.extension().is_some_and(|x| x == "rs") {
+                    files.push(p);
+                }
+            }
+        }
+        let tokens_in = |s: &str| -> Vec<String> {
+            s.match_indices("tok::")
+                .map(|(i, _)| s[i + 5..].chars().take_while(|c| c.is_ascii_alphanumeric() || *c == '_').collect())
+                .collect()
+        };
+        let mut bad = Vec::new();
+        for f in &files {
+            let src = std::fs::read_to_string(f).unwrap_or_default();
+            let name = f.file_name().unwrap().to_string_lossy().to_string();
+            // `Txt::new(<px>, <face>, <ink>)`: every token in the call names a text ink.
+            for (at, _) in src.match_indices("Txt::new(") {
+                let rest = &src[at + 9..];
+                let mut depth = 1;
+                let end = rest
+                    .char_indices()
+                    .find(|(_, c)| {
+                        match c {
+                            '(' => depth += 1,
+                            ')' => depth -= 1,
+                            _ => {}
+                        }
+                        depth == 0
+                    })
+                    .map(|(i, _)| i)
+                    .unwrap_or(rest.len());
+                for t in tokens_in(&rest[..end]) {
+                    if !TEXT_TOKENS.contains(&t.as_str()) {
+                        let line = src[..at].lines().count();
+                        bad.push(format!("{name}:{line}: Txt ink tok::{t}"));
+                    }
+                }
+            }
+            // A chip's `(tok::FG, tok::TINT` pair: the fg is a text ink.
+            for (at, _) in src.match_indices("(tok::") {
+                let seg: String = src[at + 1..].chars().take_while(|c| *c != ')' && *c != '\n').collect();
+                let toks = tokens_in(&seg);
+                if toks.len() >= 2 && TINTS.contains(&toks[1].as_str()) && !TEXT_TOKENS.contains(&toks[0].as_str()) {
+                    let line = src[..at].lines().count();
+                    bad.push(format!("{name}:{line}: chip ink tok::{} on tok::{}", toks[0], toks[1]));
+                }
+            }
+        }
+        assert!(
+            bad.is_empty(),
+            "text drawn in a non-text token (use BLUE_TEXT / GREEN_TEXT / RED_TEXT, FAINT, or DISABLED_INK for a disabled control):\n{}",
+            bad.join("\n")
+        );
+    }
+
+    /// The shell's colour literals on text are declared or exempt: chrome.rs
+    /// draws its text in roles and spliced shell inks; a raw `#rrggbb` on a
+    /// `draw_text` must be a [`CONTRAST_PAIRS`] ink or an [`EXEMPT_INKS`] one.
+    #[test]
+    fn shell_text_literals_are_declared_or_exempt() {
+        let src = include_str!("../chrome.rs");
+        let declared: Vec<String> = CONTRAST_PAIRS
+            .iter()
+            .filter_map(|p| match p.ink {
+                Swatch::Fixed(h) => Some(h.get(0..7).unwrap_or(h).to_ascii_lowercase()),
+                _ => None,
+            })
+            .chain(EXEMPT_INKS.iter().map(|(h, _)| h.get(0..7).unwrap_or(h).to_ascii_lowercase()))
+            .collect();
+        let mut bad = Vec::new();
+        for (n, line) in src.lines().enumerate() {
+            let Some(i) = line.find("draw_text") else { continue };
+            let tail = &line[i..];
+            let mut rest = tail;
+            while let Some(j) = rest.find("color") {
+                let after = &rest[j..];
+                let hex = after.find('#').filter(|k| *k < 24).map(|k| &after[k..]);
+                if let Some(h) = hex {
+                    let lit: String = h.chars().take(7).collect::<String>().to_ascii_lowercase();
+                    if lit.len() == 7 && lit[1..].chars().all(|c| c.is_ascii_hexdigit()) && !declared.contains(&lit) {
+                        bad.push(format!("chrome.rs:{}: {lit}", n + 1));
+                    }
+                }
+                rest = &after[5..];
+            }
+        }
+        assert!(bad.is_empty(), "undeclared text colours in chrome.rs:\n{}", bad.join("\n"));
+    }
 }

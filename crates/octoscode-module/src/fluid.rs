@@ -25,8 +25,10 @@ use crate::conv_layout::{Density, Metrics};
 
 /// Primary text (`color_fg_app`).
 pub const INK: &str = "#1d1d1fff";
-/// Secondary text (`color_text_muted`).
-pub const MUTED: &str = "#6e6e73ff";
+/// Secondary text (`color_text_muted`): A18 — the web's
+/// `--dsw-alias-label-secondary` (light), >= 4.5:1 on every fill here
+/// (`screens::theme::CONTRAST_PAIRS`); dark is #98989D via `retint_dsl`.
+pub const MUTED: &str = "#61666bff";
 /// Hairlines and card borders (`color_outset_1`).
 pub const BORDER: &str = "#e5e5e7ff";
 /// The page / card surface (`color_bg_app`).
@@ -1505,7 +1507,7 @@ pub fn connect_card_with_offer(
              draw_bg +: {{color: {SURFACE} border_radius: 4.0 border_size: 1.0 border_color: #d2d2d5ff}}\n\
              {id} := DesignInput{{width: Fill height: Fit padding: 0 margin: 0 text: {text:?} \
              empty_text: {placeholder:?} is_password: {password}\n\
-             draw_text +: {{color: {INK} color_empty: #9a9aa0ff text_style: {st} \
+             draw_text +: {{color: {INK} color_empty: {MUTED} text_style: {st} \
              get_color: fn() {{return mix(self.color, self.color_empty, self.empty)}}}}\n\
              draw_cursor +: {{color: {INK}}}\n\
              draw_selection +: {{color: #2f6feb33 color_hover: #2f6feb33 color_focus: #2f6feb40 \

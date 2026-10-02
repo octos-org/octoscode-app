@@ -1046,7 +1046,7 @@ fn row(d: &mut Dsl, i: usize, r: &Row, current: bool, enabled: bool, compact: bo
 /// with micro text; a disabled one routes nothing.
 fn pill(d: &mut Dsl, id: &str, label: &str, event: &str, kind: Btn, w: f64) {
     let (fg, border) = match kind {
-        Btn::OutlineOff => (tok::FAINT, tok::HAIRLINE),
+        Btn::OutlineOff => (tok::DISABLED_INK, tok::HAIRLINE),
         _ => (tok::TEXT, "#c7c7ccff"),
     };
     d.surface(

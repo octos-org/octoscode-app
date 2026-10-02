@@ -831,7 +831,7 @@ fn choice_row(d: &mut Dsl, id: &str, title: &str, sub: Option<&str>, on: bool, e
     d.text(
         &format!("{id}_title"),
         &ui::fit_w(title, budget, 13.0, Face::Regular),
-        &Txt::new(13.0, if on { Face::Medium } else { Face::Regular }, if event.is_some() || on { tok::TEXT } else { tok::FAINT }),
+        &Txt::new(13.0, if on { Face::Medium } else { Face::Regular }, if event.is_some() || on { tok::TEXT } else { tok::DISABLED_INK }),
     );
     if let Some(s) = sub {
         d.text(&format!("{id}_sub"), &ui::fit_w(s, budget, 12.0, Face::Regular), &Txt::new(12.0, Face::Regular, tok::MUTED));
@@ -881,7 +881,7 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
         );
         d.text("b3_sc_holder_head", "Another app is using this session", &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
         if let Some(n) = &st.resume_notice {
-            status_line(d, "b3_sc_holder_notice", n, tok::RED);
+            status_line(d, "b3_sc_holder_notice", n, tok::RED_TEXT);
         }
         let (label, kind) = if st.resume_busy { ("Resuming chat…", Btn::Disabled) } else { ("Resume chat", Btn::Outline) };
         d.button("b3_sc_resume", label, "b3.sc.resume_chat", kind, W::Fit, 32.0);
@@ -944,7 +944,7 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
     // The creation-time default's failure is the pane's notice too
     // (`App.tsx:3270-3277`).
     if let Some(n) = st.model_notice.clone().or_else(crate::screens::session_defaults::apply_error) {
-        let color = if n.starts_with("Couldn't") { tok::RED } else { tok::GREEN };
+        let color = if n.starts_with("Couldn't") { tok::RED_TEXT } else { tok::GREEN_TEXT };
         status_line(d, "b3_sc_model_notice", &n, color);
     }
     d.close();
@@ -1009,12 +1009,12 @@ pub fn build(d: &mut Dsl, st: &PaneState, fleet: &mut super::fleetview::FleetSta
     }
     match &st.perm_save {
         Some(SaveState::Saving) => status_line(d, "b3_sc_perm_state", "Saving…", tok::MUTED),
-        Some(SaveState::Saved) => status_line(d, "b3_sc_perm_state", "Saved", tok::GREEN),
+        Some(SaveState::Saved) => status_line(d, "b3_sc_perm_state", "Saved", tok::GREEN_TEXT),
         Some(SaveState::Failed(m)) => {
             let row = d.anon();
             d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10");
             let text = format!("Failed: {m}");
-            d.text("b3_sc_perm_state", &ui::fit_w(&text, inner_w - 60.0, 12.0, Face::Regular), &Txt::new(12.0, Face::Regular, tok::RED));
+            d.text("b3_sc_perm_state", &ui::fit_w(&text, inner_w - 60.0, 12.0, Face::Regular), &Txt::new(12.0, Face::Regular, tok::RED_TEXT));
             d.link("b3_sc_perm_retry", "Retry", Some("b3.sc.perm.retry"), 12.5);
             d.close();
         }
@@ -1159,7 +1159,7 @@ fn advanced(d: &mut Dsl, st: &PaneState, store: &Store, foreign: bool, inner_w: 
             let why = if store.active_session().is_none() { "No session is open" } else { "Not reported by this server" };
             status_line(d, "b3_sc_driver_none", why, tok::MUTED);
         }
-        Inventory::Error(reason) => status_line(d, "b3_sc_driver_error", dd::error_label(reason), tok::RED),
+        Inventory::Error(reason) => status_line(d, "b3_sc_driver_error", dd::error_label(reason), tok::RED_TEXT),
         Inventory::Complete { operations, disclosure, .. } => {
             d.hairline();
             d.text("b3_sc_driver_mode", dd::mode_label(disclosure), &Txt::new(13.0, Face::Semibold, tok::TEXT));

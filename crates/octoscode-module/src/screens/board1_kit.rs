@@ -16,11 +16,19 @@
 //! Every helper returns a DSL fragment; ids carry the `b1_` prefix so the host
 //! can find a control anywhere in the tree (`board1::collect`).
 
-/// Board palette (atlas-prompt.md "Visual language").
+/// Board palette (atlas-prompt.md "Visual language"). A18: the grey TEXT
+/// levels are the web's (`app/theme.css:79-83`) — the board's #6E6E73 read
+/// 4.46:1 on `SELECTED`-grey fills and its #8E8E93 3.26:1 on white, below the
+/// web's axe gate (WCAG 4.5:1); the pairs are tested in
+/// `screens::theme::CONTRAST_PAIRS`.
 pub const INK: &str = "#1d1d1fff";
-pub const MUTED: &str = "#6e6e73ff";
-pub const FAINT: &str = "#8e8e93ff";
-pub const PLACEHOLDER: &str = "#8e8e93ff";
+/// `--dsw-alias-label-secondary` (light).
+pub const MUTED: &str = "#61666bff";
+/// `--dsw-alias-label-tertiary` (light).
+pub const FAINT: &str = "#5f646bff";
+/// `--dsw-alias-label-caption` (light), the web's placeholder ink
+/// (`styles.css` `.composer textarea::placeholder`).
+pub const PLACEHOLDER: &str = "#646970ff";
 pub const HAIR: &str = "#e5e5e7ff";
 pub const FIELD_EDGE: &str = "#d2d2d7ff";
 pub const WHITE: &str = "#ffffffff";

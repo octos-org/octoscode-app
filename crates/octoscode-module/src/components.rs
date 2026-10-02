@@ -1603,7 +1603,7 @@ mod tests {
         let light = lower(ItemKind::AnswerActions, "t1", &[]).expect("lower");
         crate::screens::theme::set_preference("dark");
         assert!(
-            light.contains("draw_svg.color: #6e6e73ff"),
+            light.contains(&format!("draw_svg.color: {}", crate::fluid::MUTED)),
             "the icons lost the muted light ink"
         );
     }

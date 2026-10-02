@@ -415,7 +415,7 @@ pub fn lower(row: &TRow, store: &Store) -> String {
                 (_, _, Some(b)) => size_label(b),
                 _ => e.data.get("mime").and_then(|m| m.as_str()).unwrap_or("").to_owned(),
             };
-            d.text(&format!("b3_tl_file_meta_{id}"), &meta, &Txt::new(12.0, Face::Regular, if st.error.is_some() { tok::RED } else { tok::MUTED }).w(W::Fill));
+            d.text(&format!("b3_tl_file_meta_{id}"), &meta, &Txt::new(12.0, Face::Regular, if st.error.is_some() { tok::RED_TEXT } else { tok::MUTED }).w(W::Fill));
             d.close();
             let btns = d.anon();
             d.view(&btns, "width: Fit height: Fit flow: Down spacing: 8");
@@ -444,7 +444,11 @@ pub fn lower(row: &TRow, store: &Store) -> String {
             d.close();
         }
     }
-    d.finish()
+    // A18 — the rows sit on the transcript's own surface, which follows the
+    // theme: in dark the kit's light literals map to the dark set (the byte
+    // passthrough in light). Unmapped, a dark transcript drew the notice's
+    // #1D1D1F title at 1.02:1 and its secondary body at 3.26:1.
+    crate::screens::theme::retint_dsl(&d.finish())
 }
 
 /// A13 — a receipt's type: the web's system entry is 13 px tertiary ink
@@ -670,8 +674,20 @@ mod tests {
         let base = crate::screen::timeline_rows(&s, false);
         assert_eq!(base.iter().filter(|r| r.kind == ItemKind::AssistantProse).count(), 3);
         // The row keeps the receipt's exact words, small and muted, with the
-        // info glyph — never the answer's Markdown renderer.
-        let dsl = lower(&TRow::Receipt(r1), &s);
+        // info glyph — never the answer's Markdown renderer. A18: rows follow
+        // the theme, so the light lowering carries the light muted ink and the
+        // dark one its twin.
+        let (dsl, dark) = {
+            let _theme = crate::screens::theme::test_lock();
+            let prev = crate::screens::theme::preference();
+            crate::screens::theme::set_preference("light");
+            let light = lower(&TRow::Receipt(r1), &s);
+            crate::screens::theme::set_preference("dark");
+            let dark = lower(&TRow::Receipt(r1), &s);
+            crate::screens::theme::set_preference(&prev);
+            (light, dark)
+        };
+        assert!(dark.contains("#98989dff") && !dark.contains(tok::MUTED), "the dark row takes the muted twin");
         assert!(dsl.contains(&format!("b3_tl_receipt_{r1} := Label")), "{dsl}");
         assert!(dsl.contains(&ui::lit(status)), "the exact receipt text");
         assert!(dsl.contains("b3_info.svg"), "the info glyph");
