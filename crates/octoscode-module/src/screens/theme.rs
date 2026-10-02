@@ -1319,9 +1319,11 @@ pub const CONTRAST_PAIRS: &[ContrastPair] = &[
     pair(Shell("accent"), Shell("accent_tint"), LARGE_OR_GLYPH, "the phone Settings rail's selected icon on its chip"),
     // ---- A26: error toasts (screens::toasts, board-3 notice kit on the
     //      theme's surfaces).
-    pair(Themed(tok::RED_TEXT), Themed(tok::SURFACE), BODY_TEXT, "a toast's lead"),
-    pair(Themed(tok::MUTED), Themed(tok::SURFACE), BODY_TEXT, "a toast's cause, its count line"),
-    pair(Themed(tok::RED), Themed(tok::SURFACE), LARGE_OR_GLYPH, "a toast's error mark"),
+    pair(Themed(tok::RED_TEXT), Themed(tok::SURFACE), BODY_TEXT, "a toast's lead (light card)"),
+    pair(Themed(tok::MUTED), Themed(tok::SURFACE), BODY_TEXT, "a toast's cause, its count, the note (light card)"),
+    pair(Themed(tok::RED_TEXT), Themed(tok::CHIP), BODY_TEXT, "a toast's lead on the raised card of a dark look"),
+    pair(Themed(tok::MUTED), Themed(tok::CHIP), BODY_TEXT, "a toast's cause / note on the raised card of a dark look"),
+    pair(Themed(tok::RED_TEXT), Themed(tok::RED_BG), LARGE_OR_GLYPH, "a toast's error mark on its tint"),
     // ---- board-3 dialogs (light in both themes): the session pane, the
     //      composer's menus, Fleet, Routes, Inspector, Agents, History, …
     pair(Fixed(tok::TEXT), Fixed(tok::SURFACE), BODY_TEXT, "dialog text"),

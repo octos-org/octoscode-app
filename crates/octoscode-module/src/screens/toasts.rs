@@ -253,9 +253,10 @@ pub fn dropped_line(n: u32) -> String {
     }
 }
 
-/// The note's height (one 11.5 px line in its 6 px padded pill) and the gap.
-const NOTE_H: f64 = 30.0;
-const GAP: f64 = 8.0;
+/// The note's height (one 11.5 px line, 7 + 8 px padding) and the 1 px
+/// hairline between rows.
+const NOTE_H: f64 = 31.0;
+const GAP: f64 = 1.0;
 
 /// A toast's estimated height at `width` (the kit's advance estimate):
 /// 10 + 10 px padding, the 3 px top inset, the lead (16 px lines), the cause
@@ -317,16 +318,27 @@ pub fn lower(width: f64, room: f64) -> Option<Lowered> {
     }
     let waiting = (items.len() - shown.len()) as u32;
     set_drawn(&shown.iter().map(|t| t.id).collect::<Vec<_>>());
+    // ONE notice card (board 3's row lists: "each row is separated by a
+    // hairline divider, not a box"), so nothing under the stack shows
+    // between its rows; raised over a dark look's window (the window and
+    // the light card are both the surface colour there).
+    let fill = if crate::screens::theme::resolved() == "dark" { tok::CHIP } else { tok::SURFACE };
     let mut d = Dsl::new();
-    d.view("a26_toasts", &format!("width: {} height: Fit flow: Down spacing: 8", width.round()));
-    for t in shown {
+    d.surface(
+        "a26_toasts",
+        &format!("width: {} height: Fit flow: Down padding: 0", width.round()),
+        fill,
+        12.0,
+        Some(tok::HAIRLINE),
+    );
+    for (i, t) in shown.into_iter().enumerate() {
         let id = t.id;
-        d.surface(
+        if i > 0 {
+            d.hairline();
+        }
+        d.view(
             &format!("a26_toast_{id}"),
             "width: Fill height: Fit flow: Right spacing: 10 align: Align{x: 0.0 y: 0.0} padding: Inset{left: 12 right: 6 top: 10 bottom: 10}",
-            tok::SURFACE,
-            12.0,
-            Some(tok::HAIRLINE),
         );
         // The notice row's icon chip, with the error mark.
         d.surface(
@@ -339,7 +351,9 @@ pub fn lower(width: f64, room: f64) -> Option<Lowered> {
         let mark = crate::design::icon_resource("a26_error.svg");
         d.raw(&format!(
             "a26_toast_mark_{id} := Svg {{\nwidth: 15 height: 15 animating: false draw_svg.svg: file_resource({mark:?}) draw_svg.preserve_viewbox: true draw_svg.color: {}\n}}",
-            tok::RED
+            // The red TEXT ink: Solarized's red fill read 2.67:1 on its tint
+            // (screens::theme::CONTRAST_PAIRS).
+            tok::RED_TEXT
         ));
         d.close();
         let col = d.anon();
@@ -362,12 +376,10 @@ pub fn lower(width: f64, room: f64) -> Option<Lowered> {
     }
     let dropped = dropped + waiting;
     if dropped > 0 {
-        d.surface(
+        d.hairline();
+        d.view(
             "a26_toasts_dropped_box",
-            "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} padding: Inset{left: 12 right: 12 top: 6 bottom: 6}",
-            tok::SURFACE,
-            10.0,
-            Some(tok::HAIRLINE),
+            "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} padding: Inset{left: 14 right: 12 top: 7 bottom: 8}",
         );
         d.text("a26_toasts_dropped", &dropped_line(dropped), &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill));
         d.close();
@@ -469,6 +481,38 @@ mod tests {
             assert!(dismiss(*id));
         }
         assert_eq!(snapshot(), (vec![], 0));
+        reset();
+    }
+
+    /// The lowered stack evaluates in the app VM (the call `MountCache::mount`
+    /// makes) in both looks, and every × it routes exists in the evaluated
+    /// tree — a control the DSL lost is a dead tap.
+    #[test]
+    fn the_stack_evaluates_in_the_app_vm_with_every_dismiss() {
+        use makepad_widgets::*;
+        let _g = guard();
+        reset();
+        for i in 0..4 {
+            push("Couldn't start a new chat.", &format!("session/open refused ({i})"));
+        }
+        push("Couldn't start a new chat.", "session/open refused (3)");
+        let mut cx = Cx::new(Box::new(|_, _| {}));
+        cx.with_vm(makepad_widgets::script_mod);
+        cx.with_vm(octoscript_widgets::design::script_mod);
+        cx.with_vm(octoscript_widgets::kit::script_mod);
+        for dark in [false, true] {
+            crate::screens::theme::set_preference(if dark { "dark" } else { "light" });
+            let low = lower(360.0, 1000.0).expect("the stack");
+            assert!(low.dsl.contains("×2"), "the repeat counts: {}", low.dsl);
+            let view = crate::mount::eval_component(&mut cx, MAIN_SPLASH_VM_ID, &low.dsl)
+                .unwrap_or_else(|e| panic!("dark={dark}: {e}\n{}", low.dsl));
+            assert_eq!(low.taps.len(), CAPACITY);
+            for (id, ev) in &low.taps {
+                assert!(!view.widget(&mut cx, &[LiveId::from_str(id)]).is_empty(), "{id} ({ev}) is not in the tree");
+            }
+            assert!(!view.widget(&mut cx, ids!(a26_toasts_dropped)).is_empty(), "the note");
+        }
+        crate::screens::theme::reset_state();
         reset();
     }
 
