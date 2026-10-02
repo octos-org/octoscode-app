@@ -993,7 +993,8 @@ pub struct ConnectView {
 /// Ids the host routes: `connect_server` / `connect_token` (inputs →
 /// `input.server` / `input.token`), `connect_btn` (→ `connect`),
 /// `connect_solo` (→ `connect.use_local_solo`), `connect_server_error`
-/// (the live validation line, set by the host without a remount).
+/// (the live validation line, set by the host without a remount), and A2's
+/// `b1_connect_pair` (→ `b1.open.pairing`, routed by `board1::collect`).
 pub fn connect_card(c: &ConnectView, m: &Metrics, left: f64) -> String {
     let phone = m.density == Density::Phone;
     let (pad_x, pad_top) = if phone { (20.0, 24.0) } else { (32.0, 28.0) };

@@ -2198,6 +2198,9 @@ impl OctoscodeView {
                 };
                 if let Ok(mut ui) = screens_ui.lock() {
                     ui.token.clear();
+                    // A1: the per-origin token store forgets it too, or the
+                    // next start would prefill the forgotten credential.
+                    credentials::forget_token(&ui.server);
                 }
                 store.set_connection("Offline".to_owned(), false);
                 self.connect_key = None;
