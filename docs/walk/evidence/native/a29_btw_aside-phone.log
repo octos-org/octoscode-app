@@ -1,0 +1,144 @@
+== native walk a29_btw_aside [phone] (tools/walk/a29_btw_aside.py)
+-- run 1: exit 0 in 87 s
+PASS the app opened X (the composer is ready)
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+PASS the sidebar lists X and Y
+CLICK drawer_close r=[270, 87, 32, 32] at (286,103)
+TYPE 'In one short paragraph: what does main.rs print, and why?'
+KEY Return
+PASS the main prompt started a turn
+TAP the keyboard's hide chevron (337,513)
+TYPE '/btw why does redeliver drain the whole queue first?'
+KEY Return
+PASS wire: session/btw #1 carries X's id and the question — [replay-serve] session/btw #1 asked: session_id=dsflash:main question="why does redeliver drain the whole queue first?"
+PASS wire: session/btw #1 carries X
+PASS X: the panel shows above X's composer
+PASS X: Aside — /btw · Answering… · the scope line · the note — 'Aside — /btw' 'Answering…' 'octos · Fix steer queue drop on reconnect'
+PASS X: the accepted aside consumed the composer's text
+PASS X: the main turn keeps working above the aside
+PASS answering: panel frame=336x201 centre_dx=0.0 margins L=16 R=18 labels=4 outside=0 overlaps=0 controls=2 under28=0 composer-width=True above=True h<=388=True — {"frame": [12, 450, 336, 201], "composer": [12, 729, 336, 93], "c": {"ok": true, "frame": [12, 450, 336, 201], "centre_dx": 0.0, "margins": [16, 18], "labels": 4, "outside": [], "overlaps": [], "controls": 2, "under28": []}}
+TAP the keyboard's hide chevron (337,513)
+SHOT phone-1-answering
+PASS the main turn settles
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK row 'Why is hydrate slow?' r=[38, 340, 231, 17]
+PASS CLICK Y's row while X's aside answers
+PASS Y is on screen (the header names Y) — 'Why is hydrate slow?'
+PASS Y: no aside (Y holds none)
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+PASS X's row marks its answering aside (blue dot) — chip=[222, 307, 46, 18] run=True
+PASS Y's row carries no marker — None
+PASS layout: Fix steer queu…'s marker sits on its row (centred, after the title, before the time) — chip=[222, 307, 46, 18] title=[38, 308, 178, 17] time=[[275, 309, 19, 15]]
+SHOT phone-2-switched-marker
+CLICK drawer_close r=[270, 87, 32, 32] at (286,103)
+PASS wire: session/btw #1 answered (X's id echoed) — [replay-serve] -> session/btw #1 answered after 10000 ms (btw: synthetic SessionBtwResult) session_id=dsflash:main
+PASS the answer never shows in Y
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+PASS X's row marks an answered aside (no dot) — chip=[232, 307, 36, 18] run=False
+PASS layout: Fix steer queu…'s marker sits on its row (centred, after the title, before the time) — chip=[232, 307, 36, 18] title=[38, 308, 188, 17] time=[[275, 309, 19, 15]]
+SHOT phone-3-answered-in-x-marker
+CLICK row 'Fix steer queue drop on reconnect' r=[38, 308, 188, 17]
+PASS CLICK X's row
+PASS back on X: the whole answer — 'Draining first keeps the order stable: `redeliver` resends from a snapshot, so a message that arrives mid-resend waits 
+PASS back on X: no Answering… once answered
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+PASS X on screen: its row shows no marker (the panel shows instead) — None
+CLICK drawer_close r=[270, 87, 32, 32] at (286,103)
+PASS answered: panel frame=336x272 centre_dx=0.0 margins L=16 R=18 labels=3 outside=0 overlaps=0 controls=2 under28=0 composer-width=True above=True h<=388=True — {"frame": [12, 379, 336, 272], "composer": [12, 729, 336, 93], "c": {"ok": true, "frame": [12, 379, 336, 272], "centre_dx": 0.0, "margins": [16, 18], "labels": 3, "outside": [], "overlaps": [], "controls": 2, "under28": []}}
+SHOT phone-4-answered
+CLICK btw_aside_toggle_hit r=[28, 387, 129, 36] at (92,405)
+PASS CLICK the chevron
+PASS folded: one row (› Aside — /btw · question · Close; the question keeps >= 60 px) — question=[157, 618, 107, 17]
+PASS folded: the row is one line tall (<= 52 px) — [12, 603, 336, 48]
+PASS folded: panel frame=336x48 centre_dx=0.0 margins L=12 R=22 labels=3 outside=0 overlaps=0 controls=2 under28=0 composer-width=True above=True h<=388=True — {"frame": [12, 603, 336, 48], "composer": [12, 729, 336, 93], "c": {"ok": true, "frame": [12, 603, 336, 48], "centre_dx": 0.0, "margins": [12, 22], "labels": 3, "outside": [], "overlaps": [], "controls": 2, "under28": []}}
+SHOT phone-5-folded
+CLICK btw_aside_toggle_hit r=[20, 609, 248, 36] at (144,627)
+PASS CLICK the chevron again: unfolded
+TYPE '/btw does redeliver keep the order across a reconnect?'
+KEY Return
+PASS wire: session/btw #2 carries X — [replay-serve] session/btw #2 asked: session_id=dsflash:main question="does redeliver keep the order across a reconnect?"
+PASS the connection drops while it answers: the stale copy — 'The Session connection changed before the aside completed.'
+PASS stale: the muted cause
+PASS the link comes back
+PASS still stale once the link is back (terminal)
+PASS stale: panel frame=336x239 centre_dx=0.0 margins L=16 R=18 labels=5 outside=0 overlaps=0 controls=2 under28=0 composer-width=True above=True h<=388=True — {"frame": [12, 412, 336, 239], "composer": [12, 729, 336, 93], "c": {"ok": true, "frame": [12, 412, 336, 239], "centre_dx": 0.0, "margins": [16, 18], "labels": 5, "outside": [], "overlaps": [], "controls": 2, "under28": []}}
+TAP the keyboard's hide chevron (337,513)
+SHOT phone-6-stale
+KEY Return
+PASS an empty submit dismisses the aside
+TYPE '/btw'
+KEY Return
+PASS the usage hint (intent.ts:103)
+PASS no question: nothing sent — 2 -> 2
+PASS no panel for a hint
+TAP the keyboard's hide chevron (337,513)
+SHOT phone-7-hint
+TYPE '/btw is the queue persisted across restarts?'
+KEY Return
+PASS wire: session/btw #3 carries X — [replay-serve] session/btw #3 asked: session_id=dsflash:main question="is the queue persisted across restarts?"
+PASS failed: the web's copy (red lead, muted cause) — 'The aside could not be answered.'
+PASS failed: panel frame=336x189 centre_dx=0.0 margins L=16 R=18 labels=5 outside=0 overlaps=0 controls=2 under28=0 composer-width=True above=True h<=388=True — {"frame": [12, 462, 336, 189], "composer": [12, 729, 336, 93], "c": {"ok": true, "frame": [12, 462, 336, 189], "centre_dx": 0.0, "margins": [16, 18], "labels": 5, "outside": [], "overlaps": [], "controls": 2, "under28": []}}
+TAP the keyboard's hide chevron (337,513)
+SHOT phone-8-failed
+CLICK btw_aside_close_hit r=[274, 472, 62, 32] at (305,488)
+PASS CLICK Close on the failed aside
+TYPE '/btw what does steer_dropped count?'
+KEY Return
+PASS wire: session/btw #4 carries X — [replay-serve] session/btw #4 asked: session_id=dsflash:main question="what does steer_dropped count?"
+PASS answering again
+TAP the keyboard's hide chevron (337,513)
+CLICK btw_aside_close_hit r=[274, 485, 62, 32] at (305,501)
+PASS CLICK Close
+PASS Close: the aside is gone
+PASS wire: session/btw #4 answered later
+PASS the late answer stays hidden
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+PASS …and no marker
+CLICK drawer_close r=[270, 87, 32, 32] at (286,103)
+TYPE '/btw which test covers redeliver?'
+KEY Return
+PASS wire: session/btw #5 carries X — [replay-serve] session/btw #5 asked: session_id=dsflash:main question="which test covers redeliver?"
+PASS answered
+TYPE 'And add a test for it.'
+KEY Return
+PASS an admitted prompt clears the settled aside
+PASS log: the aside cleared on admission
+PASS the prompt went out as a turn
+CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
+CLICK sb_settings_hit r=[10, 812, 292, 34] at (156,829)
+PASS Settings opens from the sidebar footer
+CLICK set_rail_preferences r=[8, 384, 40, 40] at (28,404)
+PASS Preferences shows
+PASS Language: 简体中文
+CLICK set_back r=[8, 84, 40, 40] at (28,104)
+TYPE '/btw 为什么要先排空队列？'
+KEY Return
+PASS zh: 旁问 — /btw · 关闭 · 正在回答… · 此旁问不会保存到对话。 — '旁问 — /btw' '关闭' '正在回答…' '此旁问不会保存到对话。'
+PASS zh answering: panel frame=336x176 centre_dx=0.0 margins L=16 R=18 labels=4 outside=0 overlaps=0 controls=2 under28=0 composer-width=True above=True h<=388=True — {"frame": [12, 475, 336, 176], "composer": [12, 729, 336, 93], "c": {"ok": true, "frame": [12, 475, 336, 176], "centre_dx": 0.0, "margins": [16, 18], "labels": 4, "outside": [], "overlaps": [], "controls": 2, "under28": []}}
+TAP the keyboard's hide chevron (337,513)
+SHOT phone-9-zh-answering
+PASS zh: answered
+PASS zh answered: panel frame=336x194 centre_dx=0.0 margins L=16 R=18 labels=3 outside=0 overlaps=0 controls=2 under28=0 composer-width=True above=True h<=388=True — {"frame": [12, 457, 336, 194], "composer": [12, 729, 336, 93], "c": {"ok": true, "frame": [12, 457, 336, 194], "centre_dx": 0.0, "margins": [16, 18], "labels": 3, "outside": [], "overlaps": [], "controls": 2, "under28": []}}
+SHOT phone-10-zh-answered
+CLICK btw_aside_toggle_hit r=[28, 465, 117, 36] at (86,483)
+PASS zh: CLICK the chevron
+PASS zh folded: one row, the question keeps its room
+PASS zh folded: panel frame=336x48 centre_dx=0.0 margins L=12 R=22 labels=3 outside=0 overlaps=0 controls=2 under28=0 composer-width=True above=True h<=388=True — {"frame": [12, 603, 336, 48], "composer": [12, 729, 336, 93], "c": {"ok": true, "frame": [12, 603, 336, 48], "centre_dx": 0.0, "margins": [12, 22], "labels": 3, "outside": [], "overlaps": [], "controls": 2, "under28": []}}
+SHOT phone-11-zh-folded
+== 67/67 checks passed
+-- fixture log tail:
+[replay-serve] session/btw #3 asked: session_id=dsflash:main question="is the queue persisted across restarts?"
+[replay-serve] -> session/btw #3 answered after 10000 ms (btw: synthetic SessionBtwResult) session_id=error
+[replay-serve] <- session/btw (id=34)
+[replay-serve] session/btw #4 asked: session_id=dsflash:main question="what does steer_dropped count?"
+[replay-serve] -> session/btw #4 answered after 10000 ms (btw: synthetic SessionBtwResult) session_id=dsflash:main
+[replay-serve] <- session/btw (id=35)
+[replay-serve] session/btw #5 asked: session_id=dsflash:main question="which test covers redeliver?"
+[replay-serve] -> session/btw #5 answered after 10000 ms (btw: synthetic SessionBtwResult) session_id=dsflash:main
+[replay-serve] <- turn/start (id=36)
+[replay-serve] replaying 01a0e75b-dfb8-708a-a7ce-5d29c534f2f6 as 01a0feb7-e077-764b-90d6-cfb008f02a98 (163 recorded frames)
+[replay-serve] <- session/list (id=37)
+[replay-serve] <- session/btw (id=38)
+[replay-serve] session/btw #6 asked: session_id=dsflash:main question="为什么要先排空队列？"
+[replay-serve] <- session/list (id=39)
+[replay-serve] -> session/btw #6 answered after 10000 ms (btw: synthetic SessionBtwResult) session_id=dsflash:main

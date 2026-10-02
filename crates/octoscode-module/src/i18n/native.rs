@@ -79,6 +79,36 @@ pub static NATIVE_ZH: &[(&str, &str, &str)] = &[
     ),
     ("This server does not provide diff previews.", "此服务器不提供差异预览。", "A10: a server without diff/preview/get"),
     ("Code review…", "代码审查…", "A10: the no-preview state's way to the Code review dialog (/review)"),
+    // ---- A29: the /btw aside (parity row 6; board 4 regions 4/5 and README
+    // "Row 6"). The web renders the controller's FAILED / STALE strings and
+    // the /btw usage reason untranslated (lazy-btw-controller.ts:52-54,
+    // intent.ts:103); the board splits each failure into a red lead and a
+    // muted cause, so both halves are entries too. 旁问 and 会话 are the web
+    // catalog's terms (旁问 — /btw, 此旁问不会保存到对话。).
+    (
+        "The aside could not be answered. Try again.",
+        "无法回答此旁问。请重试。",
+        "lazy-btw-controller.ts:52 FAILED",
+    ),
+    ("The aside could not be answered.", "无法回答此旁问。", "FAILED's red lead (board 4 region 5c's notice shape)"),
+    ("Try again.", "请重试。", "FAILED's muted cause"),
+    (
+        "The Session connection changed before the aside completed. Ask again when it is ready.",
+        "旁问完成前，会话连接已变更。请在连接就绪后重新提问。",
+        "lazy-btw-controller.ts:53-54 STALE",
+    ),
+    (
+        "The Session connection changed before the aside completed.",
+        "旁问完成前，会话连接已变更。",
+        "board 4 region 5c, the red lead",
+    ),
+    ("Ask again when it is ready.", "请在连接就绪后重新提问。", "board 4 region 5c, the muted cause"),
+    ("Answered", "已回答", "board 4 region 5b, the collapsed row's state word"),
+    (
+        "Use /btw <question> for a temporary side answer. Nothing was sent to the model.",
+        "使用 /btw <问题> 获取临时旁问回答。未向模型发送任何内容。",
+        "intent.ts:103, the /btw usage reason",
+    ),
 ];
 
 fn table() -> &'static HashMap<&'static str, &'static str> {

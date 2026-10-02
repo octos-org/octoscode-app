@@ -1,0 +1,18 @@
+PASS a private octos serve is up on its own port — 127.0.0.1:50311
+PASS the hidden app is up and connected (composer shown)
+PASS the app's event loop is responsive
+PASS X is open and selected in the sidebar — [64, 292, 260, 32]
+PASS the composer holds exactly the typed /btw command — '/btw In two sentences: why would a message queue drain fully'
+PASS X: the panel shows Answering… above X's composer — Answering…
+PASS CLICK New chat while X's aside answers
+PASS Y (a new Session) is selected and shows no aside — selected=[64, 324, 260, 32]
+PASS the answer arrived while Y was on screen (settled into X) — [I] apps/octoscode/module/src/flow_btw.rs:108:9 - [octoscode] aside dsflash:main #1 -> Answered
+PASS Y still shows no aside after the answer
+PASS exactly one sidebar row carries the aside marker, and it is not the selected (Y) row — chips=[[270, 299, 36, 18]] selected=[64, 324, 260, 32]
+PASS back on the marked row: the whole answer — 'Because most brokers resume from the last committed offset and redeliver in order, so after a reconnect the client replays the whole backlog (including any pre
+PASS trace: session/btw carries X's id (the first Session opened) — session_id=dsflash:main opens=['dsflash:main', 'dsflash:api:01a0fea2-6e7c-7516-a2e3-d41477a36924', 'dsflash:main']
+PASS trace: the reply echoes X's id — reply session_id=dsflash:main
+PASS trace: exactly one session/btw (one model call) — 1
+PASS trace: the answer arrived after Y's open went out (it landed while Y was on screen) — Y open at 5201 ms, the answer at 6494 ms
+PASS trace: X opened, then Y while it answered, then X again — opens=['dsflash:main', 'dsflash:api:01a0fea2-6e7c-7516-a2e3-d41477a36924', 'dsflash:main']
+PASS no saved file carries the token (whole / first 8 / last 8) — 0 hits
