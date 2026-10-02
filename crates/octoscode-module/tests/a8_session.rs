@@ -663,7 +663,13 @@ async fn resume_refuses_an_empty_history_and_puts_the_previous_session_back() {
     assert_eq!(conv.session_id(), before, "the previous Session is put back");
     assert_eq!(conv.store.active_session().as_deref(), Some(before.as_str()), "the placeholder is not left selected");
     assert!(conv.store.sessions().iter().any(|s| s.id == "a8:api:hollow"), "the server's catalog row stays listed");
-    assert_eq!(server.params_of("session/hydrate").last().unwrap()["include"], json!(["messages"]));
+    assert!(
+        server
+            .params_of("session/hydrate")
+            .iter()
+            .any(|p| p["session_id"] == json!("a8:api:hollow") && p["include"] == json!(["messages"])),
+        "the candidate's canonical history was read"
+    );
     assert!(server.params_of("turn/start").is_empty(), "resuming never starts a turn");
 }
 

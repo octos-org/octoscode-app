@@ -610,7 +610,7 @@ pub struct Conversation {
     /// session id, a re-auth, a reconnect or a Core restart all reset ALL
     /// data, watermarks, revisions and busy holders). Starts at 0 and is
     /// bumped BEFORE the open is sent, so the reply arm reads the new value.
-    open_seq: Mutex<u64>,
+    open_seq: Arc<Mutex<u64>>,
     started: Instant,
     /// A4 — the HTTP side of the same server (the web's `mediaCommands`:
     /// `/api/upload`, `/api/files`, `packages/client/src/media.ts:14-35`) and
@@ -786,7 +786,7 @@ impl Conversation {
                 epoch: AUTHORITY_EPOCH.fetch_add(1, std::sync::atomic::Ordering::SeqCst) + 1,
                 was_live: Mutex::new(false),
                 hydrate_gen: Mutex::new(HashMap::new()),
-                open_seq: Mutex::new(0),
+                open_seq: Arc::new(Mutex::new(0)),
                 started: Instant::now(),
                 http_base: http_base_of(base),
                 bearer: bearer.to_owned(),
@@ -1356,6 +1356,73 @@ impl Conversation {
         self.creation_defaults.applied()
     }
 
+    /// A8 — restore the Session's PARKED interactions (approvals and user
+    /// questions still pending server-side) from its canonical hydrate
+    /// (`session/hydrate {include: ["pending_approvals"]}`; the transport's
+    /// own hydrate asks for messages only). Folded only when the reply names
+    /// this Session AND no newer generation started meanwhile (the web:
+    /// "restore a parked approval/question from a canonical hydrate with its
+    /// generation"); each restored interaction must belong to this Session.
+    fn spawn_restore_parked(&self, session: String, methods: &[String]) {
+        // Only where a parked interaction can be answered (`approval/respond`
+        // or `user_question/respond` advertised) and read canonically.
+        let answerable = methods.iter().any(|m| m == "approval/respond" || m == "user_question/respond");
+        if !answerable || !methods.iter().any(|m| m == "session/hydrate") {
+            return;
+        }
+        let Ok(handle) = tokio::runtime::Handle::try_current() else { return };
+        let client = self.client.clone();
+        let store = self.store.clone();
+        let gen_cell = self.open_seq.clone();
+        let generation = *gen_cell.lock().unwrap();
+        handle.spawn(async move {
+            let reply = client
+                .call::<octoscode_client::domains::session::SessionHydrate>(octos_core::ui_protocol::SessionHydrateParams {
+                    session_id: octos_core::SessionKey(session.clone()),
+                    after: None,
+                    include: vec!["pending_approvals".to_owned()],
+                })
+                .await;
+            let Ok(h) = reply else { return };
+            if h.session_id.0 != session || *gen_cell.lock().unwrap() != generation {
+                ::log::warn!("octoscode: parked interactions for {session} from a retired generation — not restored");
+                return;
+            }
+            let (mut approvals, mut questions) = (0, 0);
+            for a in h.pending_approvals.unwrap_or_default() {
+                if a.session_id.0 != session {
+                    continue;
+                }
+                let preview = a
+                    .typed_details
+                    .as_ref()
+                    .and_then(|d| d.diff.as_ref())
+                    .map(|d| octoscode_client::protocol_id::preview_id_string(&d.preview_id))
+                    .filter(|id| octoscode_client::protocol_id::is_protocol_uuid(&serde_json::json!(id)));
+                store.domains.approval.request_with_preview(&a.approval_id.0.to_string(), Some(a.tool_name.clone()), preview);
+                approvals += 1;
+            }
+            for q in h.pending_questions.unwrap_or_default() {
+                if q.session_id.0 != session {
+                    continue;
+                }
+                store.domains.approval.set_question(octoscode_store::domains::approval::PendingQuestion {
+                    question_id: q.question_id.0.to_string(),
+                    session_id: q.session_id.0.clone(),
+                    turn_id: q.turn_id.0.to_string(),
+                    title: q.title.clone(),
+                    body: q.body.clone(),
+                    questions: serde_json::to_value(&q.questions).unwrap_or(serde_json::Value::Null),
+                });
+                questions += 1;
+            }
+            if approvals + questions > 0 {
+                makepad_widgets::log!("[octoscode] restored {approvals} parked approval(s), {questions} question(s) for {session}");
+                makepad_widgets::SignalToUI::set_ui_signal();
+            }
+        });
+    }
+
     /// A8 — the reconnect path (`active-session-runtime.ts` recovery): bump
     /// the generation BEFORE anything goes out (every result captured under
     /// the old one is now stale), re-open the active Session at its workspace
@@ -1758,6 +1825,9 @@ impl Conversation {
                     .domains
                     .config
                     .set_supported_methods(caps.supported_methods.clone());
+                // A8 — parked interactions come back from the canonical
+                // hydrate of THIS open (`session-interaction-ledger.ts:137`).
+                self.spawn_restore_parked(r.opened.session_id.0.clone(), &caps.supported_methods);
                 // A8 — the ONE creation-time `permission/profile/set` for a
                 // session `new_chat` created (`App.tsx:1936-1975`): only the
                 // armed fresh id, once; a failure is surfaced, never retried.

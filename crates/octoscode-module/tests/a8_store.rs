@@ -69,11 +69,27 @@ impl FakeServer {
                                 "capabilities": {
                                     "version": {"protocol": "octos-ui/v1alpha1", "schema_version": 1, "jsonrpc": "2.0"},
                                     "capabilities_schema_version": 2,
-                                    "supported_methods": ["session/open", "session/hydrate", "session/list"],
+                                    "supported_methods": ["session/open", "session/hydrate", "session/list", "approval/respond", "user_question/respond"],
                                     "supported_notifications": [],
                                     "supported_features": ["state.session_hydrate.v1"]
                                 }
                             }}),
+                            "session/hydrate" if p["include"] == json!(["pending_approvals"]) => json!({
+                                "session_id": session, "cursor": {"stream": session, "seq": 12},
+                                // The recorded r23 approval/question shapes; one foreign row.
+                                "pending_approvals": [
+                                    {"approval_id": "01a0eb92-9444-7101-aa6f-10065886f57d", "body": "Run command: sudo -n true", "risk": "unspecified",
+                                     "session_id": session, "title": "Approve command", "tool_name": "bash", "turn_id": "01920000-0000-7000-8000-000000000241"},
+                                    {"approval_id": "01a0eb92-9444-7101-aa6f-10065886f57e", "body": "Run command: rm", "risk": "unspecified",
+                                     "session_id": "someone:else", "title": "Approve command", "tool_name": "bash", "turn_id": "01920000-0000-7000-8000-000000000242"}
+                                ],
+                                "pending_questions": [
+                                    {"body": "Which color?", "question_id": "01a0eb8f-7b23-7030-9f26-a284864217a0",
+                                     "questions": [{"allow_free_text": true, "header": "Color choice", "multi_select": false,
+                                                    "options": [{"description": "Calm.", "label": "Blue"}], "question": "Which color?"}],
+                                     "session_id": session, "title": "Which color would you like to pick?", "turn_id": "01920000-0000-7000-8000-000000000240"}
+                                ]
+                            }),
                             "session/hydrate" => json!({
                                 "session_id": session, "cursor": {"stream": session, "seq": 12},
                                 "messages": [
@@ -113,6 +129,11 @@ impl FakeServer {
 
     fn params_of(&self, method: &str) -> Vec<Value> {
         self.seen.lock().unwrap().iter().filter(|(m, _)| m == method).map(|(_, p)| p.clone()).collect()
+    }
+
+    /// The transport's canonical message hydrates (not the parked-interaction reads).
+    fn message_hydrates(&self) -> Vec<Value> {
+        self.params_of("session/hydrate").into_iter().filter(|p| p["include"] == json!(["messages"])).collect()
     }
 }
 
@@ -171,7 +192,7 @@ async fn a_reconnect_reopens_the_active_session_and_hydrates_under_a_new_generat
     let opens = server.params_of("session/open");
     assert_eq!(opens.len(), 2, "the active Session is re-opened after the reconnect");
     assert_eq!(opens[1]["session_id"], json!(session));
-    assert_eq!(server.params_of("session/hydrate")[0]["session_id"], json!(session), "then hydrated canonically");
+    assert_eq!(server.message_hydrates()[0]["session_id"], json!(session), "then hydrated canonically");
     assert!(seen.iter().any(|e| *e == FlowEvent::Other("session/hydrate".into())), "{seen:?}");
     assert!(conv.store.domains.session.timeline.len(&session) >= 2, "the canonical history folded");
     // The first Live of a connection is NOT a reconnect.
@@ -194,7 +215,7 @@ async fn a_hydrate_from_a_retired_generation_fails_closed() {
         "the stale reply is refused: {seen:?}"
     );
     assert_eq!(conv.store.domains.session.timeline.len(&session), 0, "nothing committed from the retired generation");
-    assert_eq!(server.count("session/hydrate"), 1, "a healthy session is not re-asked");
+    assert_eq!(server.message_hydrates().len(), 1, "a healthy session is not re-asked");
 }
 
 #[tokio::test]
@@ -215,7 +236,7 @@ async fn a_stale_reply_for_an_owed_resync_is_asked_again_under_the_new_generatio
     })
     .await;
     assert!(seen.iter().any(|e| *e == FlowEvent::Other("session/hydrate-stale-authority".into())));
-    assert_eq!(server.count("session/hydrate"), 2, "asked again under the current generation");
+    assert_eq!(server.message_hydrates().len(), 2, "asked again under the current generation");
     assert_eq!(
         conv.store.domains.config.recovery(&session).phase,
         octoscode_store::domains::config::LossyPhase::Healthy,
@@ -300,4 +321,38 @@ async fn a_failed_send_returns_the_prompt_to_its_own_session() {
     assert!(send.await.unwrap().is_err(), "the server refused the turn");
     assert_eq!(drafts::get(&a_key).as_deref(), Some("prompt for A"), "the prompt went back to A");
     assert_eq!(conv.ui_ref().lock().unwrap().draft(), "", "never into the other Session's composer");
+}
+
+#[tokio::test]
+async fn an_open_restores_its_parked_approvals_and_questions_from_the_canonical_hydrate() {
+    let server = FakeServer::start(Duration::ZERO).await;
+    let (conv, _ev) = connected(&server).await;
+    let session = conv.session_id();
+    // The open asked for the pending sections of THIS Session…
+    for _ in 0..40 {
+        if !conv.store.domains.approval.pending().is_empty() {
+            break;
+        }
+        tokio::time::sleep(Duration::from_millis(50)).await;
+    }
+    let reads: Vec<Value> = server.params_of("session/hydrate").into_iter().filter(|p| p["include"] == json!(["pending_approvals"])).collect();
+    assert_eq!(reads[0], json!({"session_id": session, "include": ["pending_approvals"]}));
+    // …and the parked interactions are back (never another Session's).
+    let pending = conv.store.domains.approval.pending();
+    assert_eq!(pending.iter().map(|a| a.id.as_str()).collect::<Vec<_>>(), ["01a0eb92-9444-7101-aa6f-10065886f57d"]);
+    assert_eq!(pending[0].target.as_deref(), Some("bash"));
+    let q = conv.store.domains.approval.question().expect("the parked question");
+    assert_eq!((q.question_id.as_str(), q.session_id.as_str()), ("01a0eb8f-7b23-7030-9f26-a284864217a0", session.as_str()));
+}
+
+#[tokio::test]
+async fn a_parked_restore_from_a_retired_generation_is_dropped() {
+    let server = FakeServer::start(Duration::from_millis(400)).await;
+    let (conv, _ev) = connected(&server).await;
+    // The first open's restore is in flight; another open retires its generation.
+    conv.open_session(&conv.session_id(), None).await.unwrap();
+    tokio::time::sleep(Duration::from_millis(150)).await;
+    // Only the newest open's restore may land (it is held back too).
+    let early = conv.store.domains.approval.pending().len();
+    assert_eq!(early, 0, "nothing restored from the retired generation");
 }
