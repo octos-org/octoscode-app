@@ -414,7 +414,7 @@ pub fn code_block(
         lang_label = label(&format!("i{tok}_code_{k}_lang"), label_text, &banner_style, MUTED, "width: Fit height: Fit"),
         copy_label = label(
             &format!("i{tok}_code_{k}_copy_label"),
-            if copied { "Copied" } else { "Copy" },
+            tr(if copied { "Copied" } else { "Copy" }),
             &copy_style,
             if copied { INK } else { MUTED },
             "width: Fit height: Fit",
@@ -1296,10 +1296,10 @@ fn recovery_notice(phase: &str, queued: bool, m: &Metrics) -> String {
     };
     let mut buttons = String::new();
     if phase != "unavailable" {
-        buttons.push_str(&btn("recovery_check_hit", if checking { "Checking status…" } else { "Check status" }, !checking));
+        buttons.push_str(&btn("recovery_check_hit", tr(if checking { "Checking status…" } else { "Check status" }), !checking));
     }
     if !checking {
-        buttons.push_str(&btn("recovery_continue_hit", "Continue without it", true));
+        buttons.push_str(&btn("recovery_continue_hit", tr("Continue without it"), true));
     }
     let footer = if queued {
         label(
