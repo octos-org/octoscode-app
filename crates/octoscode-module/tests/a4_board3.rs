@@ -528,7 +528,9 @@ async fn the_strip_reads_the_session_model_once_and_shows_it() {
     assert!(host::strip_status_needed(&session));
     assert!(!host::strip_status_needed(&session), "asked once per session");
     host::run(Job::StatusRead, &conv).await.expect("status read");
-    assert_eq!(server.params_of("session/status/read")[0], json!({"session_id": session}));
+    // A15 — the read names the Profile (the server's `raw_profile_id` takes
+    // `profile_id` first; a `<profile>:main` id embeds none).
+    assert_eq!(server.params_of("session/status/read")[0], json!({"session_id": session, "profile_id": PROFILE}));
     let (model, state, _perm) = strip::facts(&conv.store, &host::state().strip, None, None);
     assert_eq!(model, "DeepSeek V4 Flash");
     assert_eq!(state, "Ready");

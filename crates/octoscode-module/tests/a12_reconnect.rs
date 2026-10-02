@@ -364,10 +364,17 @@ async fn a_streamed_turn_is_not_duplicated_by_the_reconnect_rehydrate_and_the_ne
         .await,
         "the turn streamed live"
     );
-    sent.await.unwrap().expect("turn/start accepted");
+    let turn = sent.await.unwrap().expect("turn/start accepted");
     let count = |c: &Conversation, k: EntryKind| c.store.domains.session.timeline.of_kind(&session, k).len();
+    // A15 — the startup open hydrates too (the web's open -> hydrate), so
+    // this server's canned history is already on screen: the streamed turn
+    // is ONE prompt and ONE answer of its own, and the re-hydrate below must
+    // add nothing to either count.
+    let of_turn = |c: &Conversation, k: EntryKind| {
+        c.store.domains.session.timeline.of_kind(&session, k).into_iter().filter(|e| e.turn_id.as_deref() == Some(turn.as_str())).count()
+    };
+    assert_eq!((of_turn(&conv, EntryKind::USER_MESSAGE), of_turn(&conv, EntryKind::ASSISTANT_TEXT)), (1, 1));
     let (users, answers) = (count(&conv, EntryKind::USER_MESSAGE), count(&conv, EntryKind::ASSISTANT_TEXT));
-    assert_eq!((users, answers), (1, 1));
 
     server.stop().await;
     assert!(fold_until(&conv, &mut events, 10, |c| c.store.outage().is_some()).await);
@@ -379,8 +386,10 @@ async fn a_streamed_turn_is_not_duplicated_by_the_reconnect_rehydrate_and_the_ne
     );
     // Let the hydrate reply fold.
     fold_until(&conv, &mut events, 2, |_| false).await;
-    assert_eq!(count(&conv, EntryKind::USER_MESSAGE), 1, "the prompt shows once after the re-hydrate");
-    assert_eq!(count(&conv, EntryKind::ASSISTANT_TEXT), 1, "the answer shows once after the re-hydrate");
+    assert_eq!(of_turn(&conv, EntryKind::USER_MESSAGE), 1, "the prompt shows once after the re-hydrate");
+    assert_eq!(of_turn(&conv, EntryKind::ASSISTANT_TEXT), 1, "the answer shows once after the re-hydrate");
+    assert_eq!(count(&conv, EntryKind::USER_MESSAGE), users, "the re-hydrate added no prompt");
+    assert_eq!(count(&conv, EntryKind::ASSISTANT_TEXT), answers, "the re-hydrate added no answer");
 
     // The next prompt streams on the recovered connection.
     let next = {
@@ -388,7 +397,7 @@ async fn a_streamed_turn_is_not_duplicated_by_the_reconnect_rehydrate_and_the_ne
         tokio::spawn(async move { c.start_turn("and again?").await })
     };
     assert!(
-        fold_until(&conv, &mut events, 10, |c| c.store.domains.session.timeline.of_kind(&session, EntryKind::ASSISTANT_TEXT).len() == 2)
+        fold_until(&conv, &mut events, 10, |c| c.store.domains.session.timeline.of_kind(&session, EntryKind::ASSISTANT_TEXT).len() == answers + 1)
             .await,
         "the next turn streamed after the reconnect"
     );

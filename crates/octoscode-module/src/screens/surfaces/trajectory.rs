@@ -333,9 +333,13 @@ pub async fn refresh(conv: &crate::flow::Conversation, st: &std::sync::Mutex<Tra
             None
         }
     };
+    // A15 — the read names the Profile (see `board3::strip::load_status`):
+    // this app's `<profile>:main` id embeds none, and a token connection's
+    // fallback (`_main`) is not a configured profile.
+    let profile = conv.profile();
     let status = async {
         if avail.status {
-            Some(client.request("session/status/read", json!({ "session_id": session })).await)
+            Some(client.request("session/status/read", json!({ "session_id": session, "profile_id": profile })).await)
         } else {
             None
         }
