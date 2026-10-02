@@ -1349,6 +1349,17 @@ pub struct OctoscodeView {
     /// A3: the window's inner height (the settings frame's max height).
     #[rust]
     window_h: f64,
+    /// A29 — the transcript's at-end state at its last two draws (a growing
+    /// list alternates a growth draw and its tail correction).
+    #[rust]
+    tail_seen: [bool; 2],
+    /// A29 — while the aside panel shows over a transcript that was following
+    /// its newest row, the transcript keeps following it (the web's
+    /// ResizeObserver, `use-conversation-scroll.ts:158-171`): the person's
+    /// scroll travel when the hold was armed. A scroll or a press in the
+    /// transcript releases it, and so does the panel going away.
+    #[rust]
+    tail_hold: Option<f64>,
     /// A9 — the open A9 surface's taps and text inputs (`a9_splash`).
     #[rust]
     a9_taps: Vec<(LiveId, String)>,
@@ -3818,22 +3829,27 @@ impl OctoscodeView {
         } else {
             String::new()
         };
-        // Whether the transcript sits at its newest row BEFORE the dock
-        // changes height (the last draw's answer).
-        let at_end = self
-            .view
-            .portal_list(cx, ids!(timeline_list))
-            .borrow()
-            .is_some_and(|l| l.is_at_end());
+        // Whether the transcript follows its newest row BEFORE the dock
+        // changes height (either of the last two draws: a growing list
+        // alternates a growth draw and its tail correction).
+        let list = self.view.portal_list(cx, ids!(timeline_list));
+        let at_end = list.is_at_end() || self.tail_seen.iter().any(|b| *b);
         self.view.widget(cx, ids!(aside_row)).set_visible(cx, !dsl.is_empty());
+        if dsl.is_empty() {
+            self.tail_hold = None;
+        }
         let splash = self.view.splash(cx, ids!(aside_splash));
         match self.mounts.mount(cx, &splash, &screens::theme::retint_dsl(&dsl)) {
             Err(e) => makepad_widgets::log!("[octoscode] aside mount: {e}"),
             Ok(true) => {
                 // The dock grew or shrank: a transcript that was following
-                // its newest row keeps following it (measured: mounting the
-                // panel left the main turn's live rows under the dock).
-                if at_end {
+                // its newest row keeps following it while the panel shows
+                // (measured: mounting the panel left the main turn's live
+                // rows under the dock).
+                if !dsl.is_empty() && (at_end || self.tail_hold.is_some()) {
+                    if self.tail_hold.is_none() {
+                        self.tail_hold = Some(list.user_scroll_travel());
+                    }
                     self.follow_latest(cx);
                 }
                 let state = store
@@ -4956,6 +4972,8 @@ impl OctoscodeView {
         let mut cache = std::mem::take(&mut self.cache);
         let mut mounts = std::mem::take(&mut self.mounts);
         let bridge = self.bridge.clone();
+        let mut tail_seen = self.tail_seen;
+        let hold = self.tail_hold.is_some();
 
         while let Some(step) = self.view.draw_walk(cx, scope, walk).step() {
             if let Some(mut list) = step.as_portal_list().borrow_mut() {
@@ -4968,6 +4986,14 @@ impl OctoscodeView {
                     let store = { bridge.lock().unwrap().store.clone() };
                     chrome::draw_sidebar_list(cx, &mut list, &store, None);
                 } else if uid == timeline_uid {
+                    // A29 — the aside's tail hold: the shorter viewport's
+                    // scroll-bar reset (makepad portal_list.rs:2327) must not
+                    // drop a following transcript's newest rows under the
+                    // panel.
+                    tail_seen = [tail_seen[1], list.is_at_end()];
+                    if hold {
+                        list.set_tail_range(true);
+                    }
                     // The CENTER column: one component per timeline entry, in
                     // display order (`screen::timeline_rows`).
                     let (live, rows) = {
@@ -4983,6 +5009,13 @@ impl OctoscodeView {
                     };
                     let _ = live;
                     list.set_item_range(cx, 0, rows.len());
+                    // A29 — held: lay out from the newest row (the tail
+                    // adjustment needs the last row drawn, which a shorter
+                    // viewport no longer reaches) and fill upward, as a
+                    // submit does.
+                    if hold && !rows.is_empty() {
+                        list.set_first_id_and_scroll(rows.len() - 1, 0.0);
+                    }
                     while let Some(id) = list.next_visible_item(cx) {
                         let Some(trow) = rows.get(id) else { continue };
                         let item = list.item(cx, id, id!(TimelineItemTpl));
@@ -5189,6 +5222,7 @@ impl OctoscodeView {
         }
         self.cache = cache;
         self.mounts = mounts;
+        self.tail_seen = tail_seen;
         // A6: a row the person just opened is revealed (its grown body in
         // view, its header kept) — the list never re-measures it otherwise.
         self.surfaces_after_draw(cx);
@@ -5236,6 +5270,23 @@ impl OctoscodeView {
             });
         }
         self.view.handle_event(cx, event, scope);
+        // A29 — a scroll in the transcript, or a press inside it, ends the
+        // aside's tail hold (the person is reading back or opening a row).
+        if let Some(at) = self.tail_hold {
+            let list = self.view.portal_list(cx, ids!(timeline_list));
+            let rect = list.area().rect(cx);
+            let pressed = match event {
+                Event::MouseDown(e) => rect.contains(e.abs),
+                Event::TouchUpdate(e) => e
+                    .touches
+                    .iter()
+                    .any(|t| t.state == makepad_widgets::makepad_platform::event::finger::TouchState::Start && rect.contains(t.abs)),
+                _ => false,
+            };
+            if pressed || list.user_scroll_travel() != at {
+                self.tail_hold = None;
+            }
+        }
         if !self.started {
             self.started = true;
             self.start(cx);
