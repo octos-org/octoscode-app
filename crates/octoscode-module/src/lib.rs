@@ -838,14 +838,17 @@ script_mod! {
                         visible: false
                     }
                     palette_row_inner := View {
-                        width: Fill height: Fill flow: Right spacing: 8
+                        width: Fill height: Fill flow: Right spacing: 12
                         // A5: both labels centre on the row (a shared top
                         // inset put the 11 pt description above the 13 pt
-                        // name's baseline).
-                        padding: Inset{left: 6}
+                        // name's baseline). The name fits its text and the
+                        // description takes the rest, right-aligned (setup-08;
+                        // a fixed 150 px name column wrapped the description
+                        // at phone width).
+                        padding: Inset{left: 6 right: 10}
                         align: Align{y: 0.5}
-                        palette_row_name := Label { width: 150 height: Fit text: "" draw_text.text_style.font_size: 13  draw_text.color: theme.color_fg_app}
-                        palette_row_desc := Label { width: Fill height: Fit text: "" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
+                        palette_row_name := Label { width: Fit height: Fit text: "" draw_text.text_style.font_size: 13  draw_text.color: theme.color_fg_app}
+                        palette_row_desc := Label { width: Fill height: Fit align: Align{x: 1.0} text: "" draw_text.text_style.font_size: 11 draw_text.color: theme.color_text_muted }
                     }
                     // A5 — the row is clickable (the web's listbox option:
                     // a click runs the command, `CommandPalette.tsx`). Last
@@ -864,13 +867,14 @@ script_mod! {
             }
             // #28e2 item 1: the hint's arrows and return were tofu (Inter
             // lacks those glyphs) — small SVGs instead of text glyphs.
+            // A5: setup-08's footer — a rule, then the hint centred.
+            SolidView { width: Fill height: 1 draw_bg.color: theme.color_outset_1 }
             palette_hint := View {
                 width: Fill height: Fit flow: Right spacing: 4
                 // A5: the 9 px glyph SVGs centre on the 10 pt labels (they sat
-                // on the line's top), and the hint starts at the rows' text
-                // edge (row padding 6).
-                align: Align{y: 0.5}
-                padding: Inset{left: 6 top: 2 bottom: 2}
+                // on the line's top); the hint is centred (setup-08).
+                align: Align{x: 0.5 y: 0.5}
+                padding: Inset{top: 4 bottom: 2}
                 Svg {
                     width: 9 height: 9
                     animating: false
@@ -883,7 +887,7 @@ script_mod! {
                     draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_arrow_down.svg")))
                     draw_svg.preserve_viewbox: true
                 }
-                Label { width: Fit height: Fit text: "move" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
+                Label { width: Fit height: Fit text: "to move" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
                 Label { width: Fit height: Fit text: "·" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
                 Svg {
                     width: 9 height: 9
@@ -891,7 +895,7 @@ script_mod! {
                     draw_svg.svg: file_resource(#(crate::design::icon_resource("icon_return.svg")))
                     draw_svg.preserve_viewbox: true
                 }
-                Label { width: Fit height: Fit text: "run" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
+                Label { width: Fit height: Fit text: "to run" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
                 Label { width: Fit height: Fit text: "· esc" draw_text.text_style.font_size: 10 draw_text.color: theme.color_text_muted }
             }
         } // palette
