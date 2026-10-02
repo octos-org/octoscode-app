@@ -40,13 +40,55 @@ impl NotificationHandler for ApprovalRequestedHandler {
                 .and_then(|d| d.diff.as_ref())
                 .map(|d| crate::protocol_id::preview_id_string(&d.preview_id))
                 .filter(|id| crate::protocol_id::is_protocol_uuid(&serde_json::json!(id)));
+            let id = requested.approval_id.0.to_string();
             self.store.domains.approval.request_with_preview(
-                &requested.approval_id.0.to_string(),
+                &id,
                 Some(requested.tool_name.clone()),
                 preview_id,
             );
+            // A6: the takeover card's payload (`ApprovalPanel.tsx:58-87`:
+            // title, body, risk, tool, kind, the typed command), scoped to
+            // the session + turn the request names.
+            self.store.domains.approval.set_detail(&id, approval_detail(requested));
         }
     }
+}
+
+/// A6 — the card payload of one `approval/requested` (the web's
+/// `parseApprovalRequested`, `interaction.ts:41-79`, plus `approvalCommand`,
+/// `ApprovalPanel.tsx:131-139`: `typed_details.command.command_line`, else
+/// its `argv` joined by spaces when every element is a string).
+pub fn approval_detail(
+    requested: &octos_core::ui_protocol::ApprovalRequestedEvent,
+) -> octoscode_store::domains::approval::ApprovalDetail {
+    let command = requested
+        .typed_details
+        .as_ref()
+        .and_then(|d| serde_json::to_value(d).ok())
+        .and_then(|v| command_of(&v));
+    octoscode_store::domains::approval::ApprovalDetail {
+        session_id: requested.session_id.0.clone(),
+        turn_id: requested.turn_id.0.to_string(),
+        tool_name: requested.tool_name.clone(),
+        title: requested.title.clone(),
+        body: requested.body.clone(),
+        kind: requested.approval_kind.clone(),
+        risk: requested.risk.clone(),
+        command,
+    }
+}
+
+/// `approvalCommand` (`ApprovalPanel.tsx:131-139`) over the wire JSON of
+/// `typed_details`: `command.command_line` if it is a string, else
+/// `command.argv` joined by spaces if every element is a string, else none.
+pub fn command_of(typed_details: &serde_json::Value) -> Option<String> {
+    let command = typed_details.get("command")?.as_object()?;
+    if let Some(line) = command.get("command_line").and_then(|v| v.as_str()) {
+        return Some(line.to_owned());
+    }
+    let argv = command.get("argv")?.as_array()?;
+    let parts: Option<Vec<&str>> = argv.iter().map(|a| a.as_str()).collect();
+    parts.map(|p| p.join(" "))
 }
 
 /// `approval/scopes/list` — the Session's standing approval scopes.
@@ -110,10 +152,29 @@ impl NotificationHandler for ApprovalAutoResolvedHandler {
     fn handle(&self, notification: &UiNotification) {
         if let UiNotification::ApprovalAutoResolved(auto) = notification {
             self.store.note_seen(Self::METHOD);
-            self.store
-                .domains
-                .approval
-                .settle(&auto.approval_id.0.to_string(), true);
+            let id = auto.approval_id.0.to_string();
+            self.store.domains.approval.settle(&id, true);
+            // A6: the auto-resolve "toast" (parity row: "toast on
+            // auto-resolve", 'Auto-approved' / 'Auto-denied') as a transcript
+            // notice on the turn it unblocked. A policy decided without asking,
+            // so no card ever showed: this line is the person's only record.
+            // Deterministic id `approval:<id>`: a replayed (durable) event
+            // updates the same row, never a second one.
+            let approved = matches!(auto.decision, octos_core::ui_protocol::ApprovalDecision::Approve);
+            let title = if approved { "Auto-approved" } else { "Auto-denied" };
+            let body = format!("{} · matched the {} scope", auto.tool_name, auto.scope);
+            self.store.domains.session.timeline.upsert_notice(
+                &auto.session_id.0,
+                Some(auto.turn_id.0.to_string()),
+                &format!("approval:{id}"),
+                format!("{title}: {body}"),
+                serde_json::json!({
+                    "title": title,
+                    "message": body,
+                    "kind": "approval_auto_resolved",
+                    "approval_id": id,
+                }),
+            );
         }
     }
 }

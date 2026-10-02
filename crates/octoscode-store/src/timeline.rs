@@ -219,6 +219,102 @@ impl Timeline {
         id
     }
 
+    /// A6 — [`Timeline::append_delta`] for a TIMED block (reasoning): the
+    /// entry records when it was first seen (`data.started_ms`) and the latest
+    /// streamed time (`data.ended_ms`), the web's `appendText`
+    /// (`timeline/model.ts:669-678`: `startedAtMs: existing?.startedAtMs ??
+    /// Date.now()`, `endedAtMs: Date.now()`), so the folded header can say
+    /// `12 s · 340 words` (`folds.ts:53-91`). `now_ms` is the caller's clock
+    /// (Unix ms) so a replay test is deterministic.
+    pub fn append_delta_timed(
+        &self,
+        session: &str,
+        turn_id: Option<&str>,
+        kind: EntryKind,
+        text: &str,
+        now_ms: u64,
+    ) -> u64 {
+        let id = self.append_delta(session, turn_id, kind, text);
+        let mut map = self.inner.lock().unwrap();
+        if let Some(e) = map
+            .get_mut(session)
+            .and_then(|es| es.iter_mut().find(|e| e.id == id))
+        {
+            // A finalized (hydrated) block keeps its own record untouched.
+            if !e.finalized {
+                if !e.data.is_object() {
+                    e.data = serde_json::json!({});
+                }
+                if let Some(obj) = e.data.as_object_mut() {
+                    obj.entry("started_ms").or_insert(serde_json::json!(now_ms));
+                    obj.insert("ended_ms".to_owned(), serde_json::json!(now_ms));
+                }
+            }
+        }
+        id
+    }
+
+    /// A6 — a system notice with a DETERMINISTIC id (the web's
+    /// `addSystemMessage` upsert, `timeline/entry-model.ts:70-78` +
+    /// `upsert` `:112-124`): the same `notice_id` updates ONE row in place
+    /// instead of appending a duplicate — a replayed terminal, or a turn's
+    /// `turn/error` AND its `turn_terminal` (both name `terminal:<turn>`).
+    /// The id rides `data.notice_id`. Returns the row's entry id.
+    pub fn upsert_notice(
+        &self,
+        session: &str,
+        turn_id: Option<String>,
+        notice_id: &str,
+        text: String,
+        data: serde_json::Value,
+    ) -> u64 {
+        let mut data = if data.is_object() { data } else { serde_json::json!({}) };
+        if let Some(obj) = data.as_object_mut() {
+            obj.insert("notice_id".to_owned(), serde_json::json!(notice_id));
+        }
+        let mut map = self.inner.lock().unwrap();
+        let entries = map.entry(session.to_owned()).or_default();
+        if let Some(e) = entries.iter_mut().find(|e| {
+            e.kind == EntryKind::SYSTEM_NOTICE
+                && e.data.get("notice_id").and_then(|v| v.as_str()) == Some(notice_id)
+        }) {
+            e.text = text;
+            e.data = data;
+            if turn_id.is_some() {
+                e.turn_id = turn_id;
+            }
+            return e.id;
+        }
+        let id = self.next_id.fetch_add(1, Ordering::Relaxed);
+        let mut e = TimelineEntry::new(id, turn_id, EntryKind::SYSTEM_NOTICE);
+        e.text = text;
+        e.data = data;
+        entries.push(e);
+        id
+    }
+
+    /// A6 — the next free ordinal notice id `<prefix>:<n>` (the web's
+    /// `nextNoticeId`, `entry-model.ts:101-110`): `n` starts at the session's
+    /// entry count and skips ids already taken, so two same-millisecond
+    /// warnings keep two rows and the id never depends on the wall clock.
+    pub fn next_notice_id(&self, session: &str, prefix: &str) -> String {
+        let map = self.inner.lock().unwrap();
+        let entries = map.get(session).map(Vec::as_slice).unwrap_or(&[]);
+        let taken = |id: &str| {
+            entries
+                .iter()
+                .any(|e| e.data.get("notice_id").and_then(|v| v.as_str()) == Some(id))
+        };
+        let mut ordinal = entries.len();
+        loop {
+            let id = format!("{prefix}:{ordinal}");
+            if !taken(&id) {
+                return id;
+            }
+            ordinal += 1;
+        }
+    }
+
     /// Fold a **finalized** assistant message (`assistant_persisted`).
     ///
     /// Card #21i: the web's fold makes the persisted body the segment's
@@ -429,6 +525,43 @@ impl Timeline {
     }
 }
 
+
+#[cfg(test)]
+mod a6_tests {
+    use super::*;
+
+    #[test]
+    fn a_notice_id_upserts_one_row_and_ordinals_never_collide() {
+        let tl = Timeline::default();
+        let a = tl.upsert_notice("s", Some("t1".into()), "terminal:t1", "x".into(), serde_json::json!({"code": "e"}));
+        let b = tl.upsert_notice("s", Some("t1".into()), "terminal:t1", "y".into(), serde_json::json!({"code": "e2"}));
+        assert_eq!(a, b, "the same id is one row");
+        assert_eq!(tl.len("s"), 1);
+        assert_eq!(tl.entries("s")[0].text, "y");
+        // Same-millisecond warnings keep two rows (web model.test.ts:1611).
+        let w1 = tl.next_notice_id("s", "warning");
+        tl.upsert_notice("s", None, &w1, "w".into(), serde_json::json!({}));
+        let w2 = tl.next_notice_id("s", "warning");
+        assert_ne!(w1, w2);
+        tl.upsert_notice("s", None, &w2, "w".into(), serde_json::json!({}));
+        assert_eq!(tl.len("s"), 3);
+        // Deterministic: the id is a function of the transcript, not a clock.
+        let other = Timeline::default();
+        other.upsert_notice("s", Some("t1".into()), "terminal:t1", "x".into(), serde_json::json!({}));
+        assert_eq!(other.next_notice_id("s", "warning"), w1);
+    }
+
+    #[test]
+    fn a_timed_block_records_first_seen_and_latest_stream_time() {
+        let tl = Timeline::default();
+        let id = tl.append_delta_timed("s", Some("t"), EntryKind::REASONING, "Weighing ", 1_000);
+        tl.append_delta_timed("s", Some("t"), EntryKind::REASONING, "two options", 13_400);
+        let e = tl.entries("s").into_iter().find(|e| e.id == id).unwrap();
+        assert_eq!(e.text, "Weighing two options");
+        assert_eq!(e.data["started_ms"], serde_json::json!(1_000));
+        assert_eq!(e.data["ended_ms"], serde_json::json!(13_400));
+    }
+}
 
 #[cfg(test)]
 mod p4b2_tests {

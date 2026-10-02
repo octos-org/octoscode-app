@@ -395,6 +395,22 @@ impl FlowUi {
         self.folded_turns.clone()
     }
 
+    /// A6 — replace the folded turns (Expand all opens every tool group).
+    pub fn set_folded_turns(&mut self, turns: Vec<String>) {
+        self.folded_turns = turns;
+    }
+
+    /// A6 — the disclosed tool rows' keys (the fold memory, `folds.ts`).
+    pub fn expanded_keys(&self) -> Vec<String> {
+        self.expanded.clone()
+    }
+
+    /// A6 — replace the disclosed tool rows (Expand all / Collapse all /
+    /// pruning, `folds.ts:22-44`).
+    pub fn set_expanded_keys(&mut self, keys: Vec<String>) {
+        self.expanded = keys;
+    }
+
     /// Card #28e — UI-local chrome state (board 4). All three are toggles the
     /// view reads on every redraw; none reaches the protocol.
     pub fn review_open(&self) -> bool {

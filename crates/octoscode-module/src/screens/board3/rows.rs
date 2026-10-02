@@ -102,7 +102,9 @@ pub fn timeline_folded(store: &Arc<Store>, live: bool, folded: &[String]) -> Vec
         }
     }
     let mut out: Vec<TRow> = Vec::with_capacity(base.len() + 8);
-    if any_thinking {
+    // A6: the fold bar heads the transcript whenever a foldable block exists
+    // — a visible reasoning block OR a tool call (`Timeline.tsx:72-75`).
+    if any_thinking || crate::screens::surfaces::folds::has_foldable(store, &session) {
         out.push(TRow::FoldBar);
     }
     let take = |per_turn: &mut Vec<(String, Extras)>, turn: &str| -> Option<Extras> {
@@ -176,7 +178,17 @@ pub fn notice_parts(e: &TimelineEntry) -> (String, String) {
             "completed" => "Turn complete",
             _ => "Turn failed",
         };
-        return (title.to_owned(), String::new());
+        // A6: the readable error rides the terminal notice
+        // (`octoscode_client::domains::turn::terminal_notice`): the server's
+        // message, or `Server error (<code>).` — never protocol metadata.
+        let body = e.data.get("message").and_then(|m| m.as_str()).unwrap_or("").to_owned();
+        return (title.to_owned(), body);
+    }
+    // A6: a notice that carries its own title (the approval auto-resolve
+    // "toast", `Auto-approved` / `Auto-denied`).
+    if let Some(title) = e.data.get("title").and_then(|t| t.as_str()) {
+        let body = e.data.get("message").and_then(|m| m.as_str()).unwrap_or("").to_owned();
+        return (title.to_owned(), body);
     }
     if let (Some(code), Some(msg)) = (
         e.data.get("code").and_then(|c| c.as_str()),
@@ -248,8 +260,16 @@ pub fn lower(row: &TRow, store: &Store) -> String {
     match row {
         TRow::Base(_) => return String::new(),
         TRow::FoldBar => {
+            // A6: the TRANSCRIPT's fold bar covers reasoning AND tool blocks
+            // (`App.tsx:2589-2603`), so it routes to the surfaces' fold owner
+            // (`surfaces::folds`); the /thinking dialog keeps its own
+            // reasoning-only bar (`b3.think.*`).
             d.view("b3_tl_fold", "width: Fill height: Fit flow: Down padding: Inset{left: 4 right: 21 top: 2 bottom: 6}");
-            super::thinking::fold_bar(&mut d, "b3_tl_fold");
+            let row = d.anon();
+            d.view(&row, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 18");
+            d.link("b3_tl_fold_expand", "Expand all", Some("cv.fold.expand_all"), 12.5);
+            d.link("b3_tl_fold_collapse", "Collapse all", Some("cv.fold.collapse_all"), 12.5);
+            d.close();
             d.close();
         }
         TRow::Thinking(id) => {

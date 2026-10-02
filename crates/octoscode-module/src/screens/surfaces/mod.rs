@@ -1,0 +1,779 @@
+//! A6 — the conversation pane's SURFACES: the approval and user-question
+//! takeovers (Gate-B `conversation-05` / `-06`), the plan checklist card and
+//! the Trajectory tab with its task detail (`conversation-10`, the web's
+//! supervision feature), and the transcript's fold-all / view-state rules.
+//!
+//! One owner for every `cv.*` action id ([`routes`]); the host (`lib.rs`)
+//! mounts the four lowerings into their slots — the takeover and the plan
+//! card in the composer dock, the Trajectory pane in the conversation
+//! column, the task detail in its own top dock — and routes their wired taps
+//! (`taps::wired_taps`, the shared #FX1 path) back here. Transport work runs
+//! through [`run`] on the host's runtime, always the production client.
+pub mod folds;
+pub mod plan;
+pub mod takeover;
+pub mod trajectory;
+pub mod view;
+
+use std::sync::{Arc, Mutex, MutexGuard, OnceLock};
+
+use octoscode_store::Store;
+use serde_json::json;
+
+use crate::conv_layout::{Density, Metrics};
+use crate::flow::FlowUi;
+use crate::screens::board3::ui::{Dsl, Frame};
+
+/// The conversation pane's view (`conversationTab`, `App.tsx:654`).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum Tab {
+    #[default]
+    Chat,
+    Trajectory,
+}
+
+/// Which takeover owns the composer now (`App.tsx:2759-2826`: an approval
+/// first, then a question).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Takeover {
+    Approval(String),
+    Question(String),
+}
+
+/// All the surfaces' UI state (what the protocol never carries).
+#[derive(Debug, Clone, Default)]
+pub struct State {
+    pub tab: Tab,
+    pub frame: Option<Frame>,
+    pub approval: takeover::ApprovalUi,
+    pub question: takeover::QuestionUi,
+    pub plan: plan::PlanUi,
+    pub view: view::ViewState,
+}
+
+static STATE: OnceLock<Mutex<State>> = OnceLock::new();
+static TRAJ: OnceLock<Mutex<trajectory::TrajState>> = OnceLock::new();
+
+/// The surfaces' state behind its one lock.
+pub fn state() -> MutexGuard<'static, State> {
+    STATE
+        .get_or_init(|| Mutex::new(State::default()))
+        .lock()
+        .unwrap_or_else(|p| p.into_inner())
+}
+
+/// The Trajectory's state (its own lock: the loaders hold it across no
+/// await, but they run on the runtime while the UI reads the main state).
+pub fn traj() -> &'static Mutex<trajectory::TrajState> {
+    TRAJ.get_or_init(|| Mutex::new(trajectory::TrajState::default()))
+}
+
+/// Test seam.
+pub fn reset() {
+    *state() = State::default();
+    *traj().lock().unwrap_or_else(|p| p.into_inner()) = trajectory::TrajState::default();
+}
+
+/// Wake the UI thread (a job folded something a surface shows).
+pub fn wake() {
+    makepad_widgets::SignalToUI::set_ui_signal();
+}
+
+/// The host reports the module's laid-out size (the dialog frame).
+pub fn set_frame(w: f64, h: f64) {
+    if w > 0.0 && h > 0.0 {
+        state().frame = Some(Frame { avail_w: w, avail_h: h });
+    }
+}
+
+fn frame() -> Frame {
+    state().frame.unwrap_or(Frame::DESKTOP)
+}
+
+/// Whether `action` is one of these surfaces' ids (one owner).
+pub fn routes(action: &str) -> bool {
+    action.starts_with("cv.")
+}
+
+// ------------------------------------------------------------- the takeover
+
+/// The takeover the ACTIVE session shows, if any. Approvals win
+/// (`App.tsx:2759`); a question needs the advertised method and feature
+/// (`session-interaction-ledger.ts:254-262`) and a parseable payload.
+pub fn takeover(store: &Store) -> Option<Takeover> {
+    let session = store.active_session()?;
+    if let Some((p, _)) = store.domains.approval.showing(&session) {
+        return Some(Takeover::Approval(p.id));
+    }
+    let q = store.domains.approval.question()?;
+    if q.session_id != session || !question_supported(store) {
+        return None;
+    }
+    takeover::parse_questions(&q.questions).filter(|qs| !qs.is_empty())?;
+    Some(Takeover::Question(q.question_id))
+}
+
+/// `supportsMethod(USER_QUESTION_RESPOND) && supportsFeature(USER_QUESTION_V1)`.
+pub fn question_supported(store: &Store) -> bool {
+    store.domains.config.supported_methods().iter().any(|m| m == "user_question/respond")
+        && store.domains.config.has_capability("user_question.v1")
+}
+
+/// The takeover card's look from the live conversation geometry.
+pub fn look(m: &Metrics) -> takeover::Look {
+    let f = frame();
+    takeover::Look {
+        phone: m.density == Density::Phone,
+        width: m.composer_w,
+        max_h: (f.avail_h - 120.0).clamp(240.0, 620.0),
+    }
+}
+
+/// What the host mounts.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct Lowered {
+    pub dsl: String,
+    pub taps: Vec<(String, String)>,
+    pub inputs: Vec<(String, String)>,
+}
+
+impl Lowered {
+    fn from(d: Dsl) -> Self {
+        let taps = d.taps.clone();
+        let inputs = d.inputs.clone();
+        Lowered { dsl: crate::screens::theme::retint_dsl(&d.finish()), taps, inputs }
+    }
+}
+
+/// Lower the active session's takeover card (`None` = the composer shows).
+pub fn lower_takeover(store: &Store, m: &Metrics) -> Option<Lowered> {
+    let t = takeover(store)?;
+    let session = store.active_session()?;
+    let look = look(m);
+    let mut d = Dsl::new();
+    match t {
+        Takeover::Approval(_) => {
+            let (p, a) = store.domains.approval.showing(&session)?;
+            let ui = state().approval.clone();
+            takeover::approval_card(&mut d, &p, &a, &ui, &look);
+        }
+        Takeover::Question(_) => {
+            let q = store.domains.approval.question()?;
+            let qs = takeover::parse_questions(&q.questions)?;
+            let st = {
+                let mut s = state();
+                s.question.bind(&q, qs.len());
+                s.question.clone()
+            };
+            takeover::question_card(&mut d, &q, &qs, &st, &look);
+        }
+    }
+    Some(Lowered::from(d))
+}
+
+/// The live (post-mount) visibility the typed answers drive without a
+/// remount: the question's live/disabled submit pair and its reason line.
+pub fn live_visibility(store: &Store) -> Vec<(String, bool)> {
+    match takeover(store) {
+        Some(Takeover::Question(_)) => {
+            let st = state();
+            let blocked = takeover::submit_blocked_reason(st.question.busy, &st.question.answers);
+            vec![
+                ("cv_q_submit_box".into(), blocked.is_none()),
+                ("cv_q_submit_off_box".into(), blocked.is_some()),
+                ("cv_q_reason".into(), blocked.is_some()),
+            ]
+        }
+        _ => Vec::new(),
+    }
+}
+
+/// The reason line's live text (it changes with the draft, no remount).
+pub fn live_reason(store: &Store) -> Option<String> {
+    match takeover(store) {
+        Some(Takeover::Question(_)) => {
+            let st = state();
+            takeover::submit_blocked_reason(st.question.busy, &st.question.answers).map(str::to_owned)
+        }
+        _ => None,
+    }
+}
+
+// --------------------------------------------------------------- the plan
+
+/// Lower the plan card (`None` = no card: no feature, no plan, an empty
+/// checklist, or a takeover owns the composer, `App.tsx:2657-2667`).
+pub fn lower_plan(store: &Store, m: &Metrics) -> Option<String> {
+    if takeover(store).is_some() || tab() == Tab::Trajectory {
+        return None;
+    }
+    let plan = plan::visible_plan(store)?;
+    let ui = state().plan.clone();
+    let mut d = Dsl::new();
+    plan::card(&mut d, &plan, &ui, m.composer_w, m.density == Density::Phone, crate::screens::board3::ui::now_ms() as i64);
+    Some(crate::screens::theme::retint_dsl(&d.finish()))
+}
+
+// --------------------------------------------------------- the trajectory
+
+pub fn tab() -> Tab {
+    state().tab
+}
+
+/// Whether the header shows the Chat | Trajectory tabs.
+pub fn tabs_available(store: &Store) -> bool {
+    store.is_live() && store.active_session().is_some() && trajectory::Avail::of(store).any()
+}
+
+/// The pane the column shows: the Trajectory only while available (the
+/// web falls back to Chat when the surfaces disappear, `App.tsx:992-1006`).
+pub fn showing_trajectory(store: &Store) -> bool {
+    if tab() != Tab::Trajectory {
+        return false;
+    }
+    if !tabs_available(store) {
+        state().tab = Tab::Chat;
+        return false;
+    }
+    true
+}
+
+pub fn lower_trajectory(store: &Store, pane_w: f64, phone: bool) -> Option<Lowered> {
+    if !showing_trajectory(store) {
+        return None;
+    }
+    let st = traj().lock().unwrap_or_else(|p| p.into_inner()).clone();
+    let mut d = Dsl::new();
+    trajectory::pane(&mut d, store, &st, pane_w, phone);
+    Some(Lowered::from(d))
+}
+
+pub fn detail_open() -> bool {
+    traj().lock().unwrap_or_else(|p| p.into_inner()).detail.active
+}
+
+pub fn lower_detail(store: &Store) -> Option<Lowered> {
+    let st = traj().lock().unwrap_or_else(|p| p.into_inner()).clone();
+    if !st.detail.active {
+        return None;
+    }
+    let mut d = Dsl::new();
+    trajectory::detail_dialog(&mut d, store, &st, &frame());
+    Some(Lowered::from(d))
+}
+
+/// A session switch refreshes the Trajectory once for the new session.
+pub fn trajectory_refresh_needed(store: &Store) -> bool {
+    let Some(session) = store.active_session() else { return false };
+    showing_trajectory(store)
+        && traj().lock().unwrap_or_else(|p| p.into_inner()).refreshed_for.as_deref() != Some(session.as_str())
+}
+
+/// Feed a live notification to the open task detail (`observeNotification`,
+/// `use-supervision.ts:477-525`: `task/output/delta` for the session).
+pub fn observe(n: &octos_core::app_ui::AppUiBackendEvent, active_session: Option<&str>) {
+    if let octos_core::app_ui::AppUiBackendEvent::TaskOutputDelta(e) = n {
+        if Some(e.session_id.0.as_str()) != active_session {
+            return;
+        }
+        let mut st = traj().lock().unwrap_or_else(|p| p.into_inner());
+        if trajectory::append_delta(&mut st.detail, &e.task_id.0.to_string(), e.cursor.offset, &e.text) {
+            drop(st);
+            wake();
+        }
+    }
+}
+
+// ------------------------------------------------------------------ jobs
+
+/// Transport work an action asks for (run by the host on its runtime).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Job {
+    /// `approval/respond` (`ApprovalPanel.tsx:100-125`).
+    Approve { approval_id: String, session_id: String, decision: String, scope: String },
+    /// `user_question/respond` (`answers.ts:44-55` -> `client.ts:558`).
+    Answer { question_id: String, session_id: String, answers: String },
+    /// `task/list` + `session/status/read`.
+    Refresh,
+    /// `task/output/read` + `task/artifact/list` for one task.
+    OpenTask(String),
+    MoreOutput,
+    CancelTask(String),
+    ReadArtifact(usize),
+    MoreArtifact,
+}
+
+/// What an action asks of the host.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Outcome {
+    Done,
+    Spawn(Job),
+    /// Route another (non-surface) id through the host router.
+    Action(String),
+    /// Open the diff review for this preview id (the `D` path,
+    /// `ApprovalPanel.tsx:45` / `:93-99`).
+    ReviewDiff(String),
+    Unrouted,
+}
+
+/// Route one `cv.*` action. `index` is the `#<row>` the tap path decoded.
+pub fn perform(action: &str, index: usize, store: &Store, ui: &Arc<Mutex<FlowUi>>) -> Outcome {
+    let session = store.active_session().unwrap_or_default();
+    match action {
+        "cv.noop" => Outcome::Done,
+        // ---- the approval card
+        "cv.approval.once" | "cv.approval.session" | "cv.approval.deny" => {
+            let Some((p, _)) = store.domains.approval.showing(&session) else { return Outcome::Done };
+            let mut st = state();
+            if st.approval.busy.is_some() {
+                return Outcome::Done; // `busy` disables every decision
+            }
+            st.approval.busy = Some(p.id.clone());
+            st.approval.error = None;
+            st.view.focus_inside = true;
+            let (decision, scope) = match action {
+                "cv.approval.once" => ("approve", "request"),
+                "cv.approval.session" => ("approve", "session"),
+                _ => ("deny", "request"),
+            };
+            Outcome::Spawn(Job::Approve {
+                approval_id: p.id,
+                session_id: session,
+                decision: decision.into(),
+                scope: scope.into(),
+            })
+        }
+        "cv.approval.diff" => match store.domains.approval.showing(&session).and_then(|(p, _)| p.preview_id) {
+            Some(id) => Outcome::ReviewDiff(id),
+            None => Outcome::Done,
+        },
+        // ---- the question card
+        "cv.q.opt" => {
+            let Some(q) = store.domains.approval.question() else { return Outcome::Done };
+            let Some(qs) = takeover::parse_questions(&q.questions) else { return Outcome::Done };
+            let (qi, oi) = (index / 100, index % 100);
+            let (Some(question), mut st) = (qs.get(qi), state()) else { return Outcome::Done };
+            st.question.bind(&q, qs.len());
+            if st.question.busy {
+                return Outcome::Done;
+            }
+            let Some((label, _)) = question.options.get(oi) else { return Outcome::Done };
+            let next = takeover::toggle_option(question, &st.question.answers[qi], label);
+            st.question.answers[qi] = next;
+            // The mounted free text follows the draft on this remount.
+            st.question.free_snap = st.question.answers.iter().map(|a| a.free_text.clone()).collect();
+            st.question.focus = (qi, oi);
+            st.view.focus_inside = true;
+            Outcome::Done
+        }
+        "cv.q.submit" => submit_question(store),
+        "cv.q.stop" => Outcome::Action(crate::bindings::ACTION_INTERRUPT.to_owned()),
+        // ---- the plan card
+        "cv.plan.toggle" => {
+            let mut st = state();
+            st.plan.collapsed = !st.plan.collapsed;
+            Outcome::Done
+        }
+        // ---- the tabs + the Trajectory
+        "cv.tab.chat" => {
+            state().tab = Tab::Chat;
+            Outcome::Done
+        }
+        "cv.tab.trajectory" => {
+            if !tabs_available(store) {
+                return Outcome::Done;
+            }
+            state().tab = Tab::Trajectory;
+            if trajectory_refresh_needed(store) {
+                Outcome::Spawn(Job::Refresh)
+            } else {
+                Outcome::Done
+            }
+        }
+        "cv.traj.refresh" => Outcome::Spawn(Job::Refresh),
+        "cv.task.open" | "cv.task.cancel" => {
+            let rows = store.domains.task.session_rows(&session);
+            let Some(t) = rows.get(index) else { return Outcome::Done };
+            if action == "cv.task.open" {
+                Outcome::Spawn(Job::OpenTask(t.id.clone()))
+            } else {
+                Outcome::Spawn(Job::CancelTask(t.id.clone()))
+            }
+        }
+        "cv.detail.close" => {
+            // `closeTaskDetail` invalidates the in-flight reads (`:251`).
+            traj().lock().unwrap_or_else(|p| p.into_inner()).detail = trajectory::Detail::default();
+            Outcome::Done
+        }
+        "cv.detail.more" => Outcome::Spawn(Job::MoreOutput),
+        "cv.art.read" => Outcome::Spawn(Job::ReadArtifact(index)),
+        "cv.art.more" => Outcome::Spawn(Job::MoreArtifact),
+        // ---- the transcript's fold bar
+        "cv.fold.expand_all" => {
+            folds::expand_all(store, ui);
+            Outcome::Done
+        }
+        "cv.fold.collapse_all" => {
+            folds::collapse_all(store, ui);
+            Outcome::Done
+        }
+        _ => Outcome::Unrouted,
+    }
+}
+
+/// The question's submit (`UserQuestionPanel.tsx:53-57`): only a complete,
+/// idle draft goes out; Enter anywhere in the card lands here too.
+pub fn submit_question(store: &Store) -> Outcome {
+    let Some(q) = store.domains.approval.question() else { return Outcome::Done };
+    let Some(qs) = takeover::parse_questions(&q.questions) else { return Outcome::Done };
+    let mut st = state();
+    st.question.bind(&q, qs.len());
+    if st.question.busy || !takeover::answers_complete(&st.question.answers) {
+        return Outcome::Done;
+    }
+    st.question.busy = true;
+    st.question.error = None;
+    st.view.focus_inside = true;
+    Outcome::Spawn(Job::Answer {
+        question_id: q.question_id.clone(),
+        session_id: q.session_id.clone(),
+        answers: takeover::to_wire_answers(&st.question.answers).to_string(),
+    })
+}
+
+/// A text input changed (`cv.q.other#<question>`): the draft only — the
+/// mounted input keeps its own text, so no remount follows a keystroke.
+pub fn input_changed(key: &str, text: &str) {
+    let (base, row) = crate::screens::taps::split_row(key);
+    if base == "cv.q.other" {
+        let qi = row.unwrap_or(0);
+        let mut st = state();
+        if let Some(a) = st.question.answers.get_mut(qi) {
+            a.free_text = text.to_owned();
+        }
+        st.view.focus_inside = true;
+    }
+}
+
+/// A job could not run (no live conversation): fail closed, visibly.
+pub fn job_unavailable(job: &Job) {
+    let msg = "Not connected to the server.".to_owned();
+    match job {
+        Job::Approve { approval_id, .. } => {
+            let mut st = state();
+            st.approval.busy = None;
+            st.approval.error = Some((approval_id.clone(), msg));
+        }
+        Job::Answer { .. } => {
+            let mut st = state();
+            st.question.busy = false;
+            st.question.error = Some(msg);
+        }
+        _ => {
+            let mut t = traj().lock().unwrap_or_else(|p| p.into_inner());
+            t.loading = false;
+            t.error = Some(msg);
+        }
+    }
+}
+
+fn readable(e: &octoscode_client::ClientError) -> String {
+    match e {
+        octoscode_client::ClientError::Rpc { error, .. } => error.message.clone(),
+        other => other.to_string(),
+    }
+}
+
+/// Run a job through the production client.
+pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, String> {
+    match job {
+        Job::Approve { approval_id, session_id, decision, scope } => {
+            // ApprovalPanel.tsx:100-125 -> session-interaction-ledger.ts:432-447:
+            // the generation-checked owning session, the scope, no note.
+            let r = conv
+                .client()
+                .request(
+                    "approval/respond",
+                    json!({
+                        "session_id": session_id,
+                        "approval_id": approval_id,
+                        "decision": decision,
+                        "approval_scope": scope,
+                    }),
+                )
+                .await;
+            let outcome = match r {
+                Ok(v) if v.get("accepted").and_then(|a| a.as_bool()) != Some(true) => {
+                    Err("The server rejected the response".to_owned())
+                }
+                Ok(v) if v.get("approval_id").and_then(|a| a.as_str()) != Some(approval_id.as_str()) => {
+                    Err("The server responded for another interaction".to_owned())
+                }
+                Ok(_) => Ok(()),
+                Err(e) => Err(readable(&e)),
+            };
+            let mut st = state();
+            st.approval.busy = None;
+            match outcome {
+                Ok(()) => {
+                    // Accepted: the record is done (`:465`); the durable
+                    // `approval/decided` settles the same row again, harmlessly.
+                    conv.store.domains.approval.decide(&approval_id);
+                    st.approval.error = None;
+                    Ok(format!("{decision}/{scope} accepted"))
+                }
+                Err(e) => {
+                    st.approval.error = Some((approval_id, e.clone()));
+                    Err(e)
+                }
+            }
+        }
+        Job::Answer { question_id, session_id, answers } => {
+            let answers: serde_json::Value = serde_json::from_str(&answers).unwrap_or(json!([]));
+            let r = conv
+                .client()
+                .request(
+                    "user_question/respond",
+                    json!({ "session_id": session_id, "question_id": question_id, "answers": answers }),
+                )
+                .await;
+            let outcome = match r {
+                Ok(v) if v.get("accepted").and_then(|a| a.as_bool()) != Some(true) => {
+                    Err("The server rejected the response".to_owned())
+                }
+                Ok(v) if v.get("question_id").and_then(|a| a.as_str()) != Some(question_id.as_str()) => {
+                    Err("The server responded for another interaction".to_owned())
+                }
+                Ok(_) => Ok(()),
+                Err(e) => Err(readable(&e)),
+            };
+            let mut st = state();
+            st.question.busy = false;
+            match outcome {
+                Ok(()) => {
+                    conv.store.domains.approval.clear_question_if(&question_id);
+                    st.question.error = None;
+                    Ok("answer accepted".into())
+                }
+                Err(e) => {
+                    // A failed response keeps every selection and the typed
+                    // text (`final-input.spec.ts`: "retain free text and
+                    // selections after a failed response").
+                    st.question.error = Some(e.clone());
+                    Err(e)
+                }
+            }
+        }
+        Job::Refresh => trajectory::refresh(conv, traj()).await,
+        Job::OpenTask(id) => trajectory::open_task(conv, traj(), id).await,
+        Job::MoreOutput => trajectory::load_more(conv, traj()).await,
+        Job::CancelTask(id) => trajectory::cancel(conv, traj(), id).await,
+        Job::ReadArtifact(i) => trajectory::read_artifact(conv, traj(), i).await,
+        Job::MoreArtifact => trajectory::more_artifact(conv, traj()).await,
+    }
+}
+
+// ------------------------------------------------------------- keyboard
+
+/// What a key does to the surfaces (the host performs it).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum KeyOutcome {
+    /// Not ours: the key falls through to the shell's resolver.
+    Pass,
+    /// Swallowed (no composer submit behind a takeover).
+    Swallow,
+    /// Perform this `cv.*` action.
+    Action(String, usize),
+}
+
+/// One key while a takeover shows. `text_focus` = one of the card's text
+/// inputs holds key focus (its keys are typing, `UserQuestionPanel.tsx:
+/// 107-121` moves only between checkboxes). Modifier chords never act
+/// (`ApprovalPanel.tsx:36-43`); a key the IME consumed for a composition
+/// never reaches the app (the platform's `MacosImeKeyboard::end_key_down`
+/// forwards a Return that commits a candidate as consumed), which is the
+/// native form of the web's `isComposing || keyCode === 229` guard.
+pub fn key(store: &Store, key: &str, shift: bool, ctrl: bool, alt: bool, logo: bool, text_focus: bool) -> KeyOutcome {
+    let Some(t) = takeover(store) else { return KeyOutcome::Pass };
+    if ctrl || alt || logo {
+        return KeyOutcome::Pass;
+    }
+    match t {
+        Takeover::Approval(_) => {
+            if text_focus {
+                return KeyOutcome::Pass;
+            }
+            match key {
+                "y" if !shift => KeyOutcome::Action("cv.approval.once".into(), 0),
+                "s" if !shift => KeyOutcome::Action("cv.approval.session".into(), 0),
+                "n" if !shift => KeyOutcome::Action("cv.approval.deny".into(), 0),
+                "d" if !shift => KeyOutcome::Action("cv.approval.diff".into(), 0),
+                // Return behind the card must never send the hidden draft.
+                "Enter" => KeyOutcome::Swallow,
+                _ => KeyOutcome::Pass,
+            }
+        }
+        Takeover::Question(_) => {
+            // Enter ANYWHERE in the card sends the answer (`:59-68`) —
+            // inputs included; Shift+Enter too (the web ignores modifiers
+            // except the composition guard).
+            if key == "Enter" {
+                return KeyOutcome::Action("cv.q.submit".into(), 0);
+            }
+            if text_focus {
+                return KeyOutcome::Pass;
+            }
+            let Some(q) = store.domains.approval.question() else { return KeyOutcome::Pass };
+            let Some(qs) = takeover::parse_questions(&q.questions) else { return KeyOutcome::Pass };
+            let mut st = state();
+            st.question.bind(&q, qs.len());
+            let (qi, oi) = st.question.focus;
+            let Some(question) = qs.get(qi) else { return KeyOutcome::Pass };
+            if let Some(delta) = takeover::arrow_delta(key) {
+                let next = takeover::next_option_index(oi, delta, question.options.len());
+                st.question.focus = (qi, next);
+                st.question.focus_visible = true;
+                st.view.focus_inside = true;
+                // A radio group selects as it moves (the browser's native
+                // radio arrows); a checkbox group only moves focus (`:107-121`).
+                if !question.multi_select {
+                    return KeyOutcome::Action("cv.q.opt".into(), qi * 100 + next);
+                }
+                return KeyOutcome::Swallow;
+            }
+            if key == "Space" {
+                st.question.focus_visible = true;
+                return KeyOutcome::Action("cv.q.opt".into(), qi * 100 + oi);
+            }
+            KeyOutcome::Pass
+        }
+    }
+}
+
+/// The focus-restore decision for this sync (`focus-restore.ts`): returns
+/// true once when the takeover just disappeared while holding the keyboard.
+pub fn take_focus_restore(showing: bool) -> bool {
+    let mut st = state();
+    let restore = view::restore_focus(st.view.takeover_was, showing, st.view.focus_inside);
+    if !showing {
+        st.view.focus_inside = false;
+    }
+    st.view.takeover_was = showing;
+    restore
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use octoscode_store::domains::approval::{ApprovalDetail, PendingQuestion};
+
+    fn live_store() -> Arc<Store> {
+        let s = Arc::new(Store::new());
+        s.set_active(Some("s1".into()));
+        s.set_connection("Live".into(), true);
+        s.domains.config.set_supported_methods(vec!["user_question/respond".into(), "task/list".into()]);
+        s.set_capabilities(vec!["user_question.v1".into(), "plan.todos.v1".into()]);
+        s
+    }
+
+    fn lock() -> std::sync::MutexGuard<'static, ()> {
+        static L: Mutex<()> = Mutex::new(());
+        let g = L.lock().unwrap_or_else(|p| p.into_inner());
+        reset();
+        g
+    }
+
+    #[test]
+    fn an_approval_takes_over_before_a_question_and_only_in_its_session() {
+        let _g = lock();
+        let s = live_store();
+        s.domains.approval.set_question(PendingQuestion {
+            question_id: "q1".into(),
+            session_id: "s1".into(),
+            turn_id: "t1".into(),
+            title: "Pick".into(),
+            body: String::new(),
+            questions: json!([{"header": "H", "question": "Pick", "options": [{"label": "A", "description": ""}]}]),
+        });
+        assert_eq!(takeover(&s), Some(Takeover::Question("q1".into())));
+        s.domains.approval.request("a1", None);
+        s.domains.approval.set_detail("a1", ApprovalDetail { session_id: "s2".into(), ..Default::default() });
+        assert_eq!(takeover(&s), Some(Takeover::Question("q1".into())), "another session's approval waits there");
+        s.domains.approval.request("a2", None);
+        s.domains.approval.set_detail("a2", ApprovalDetail { session_id: "s1".into(), ..Default::default() });
+        assert_eq!(takeover(&s), Some(Takeover::Approval("a2".into())));
+    }
+
+    #[test]
+    fn approval_keys_are_bare_keys_and_return_never_sends_the_hidden_draft() {
+        let _g = lock();
+        let s = live_store();
+        s.domains.approval.request("a1", None);
+        s.domains.approval.set_detail("a1", ApprovalDetail { session_id: "s1".into(), ..Default::default() });
+        assert_eq!(key(&s, "y", false, false, false, false, false), KeyOutcome::Action("cv.approval.once".into(), 0));
+        assert_eq!(key(&s, "s", false, false, false, false, false), KeyOutcome::Action("cv.approval.session".into(), 0));
+        assert_eq!(key(&s, "n", false, false, false, false, false), KeyOutcome::Action("cv.approval.deny".into(), 0));
+        for (c, a, l) in [(true, false, false), (false, true, false), (false, false, true)] {
+            assert_eq!(key(&s, "y", false, c, a, l, false), KeyOutcome::Pass, "a chord never decides");
+        }
+        assert_eq!(key(&s, "y", true, false, false, false, false), KeyOutcome::Pass, "Shift+Y is not Y");
+        assert_eq!(key(&s, "Enter", false, false, false, false, false), KeyOutcome::Swallow);
+        // A decision is one in flight at a time.
+        let ui = Arc::new(Mutex::new(FlowUi::default()));
+        assert!(matches!(perform("cv.approval.once", 0, &s, &ui), Outcome::Spawn(Job::Approve { .. })));
+        assert_eq!(perform("cv.approval.deny", 0, &s, &ui), Outcome::Done, "busy: no second decision");
+    }
+
+    #[test]
+    fn the_question_card_moves_selects_and_submits_only_when_complete() {
+        let _g = lock();
+        let s = live_store();
+        s.domains.approval.set_question(PendingQuestion {
+            question_id: "q1".into(),
+            session_id: "s1".into(),
+            turn_id: "t1".into(),
+            title: "Pick".into(),
+            body: String::new(),
+            questions: json!([
+                {"header": "Color", "question": "Which?", "multi_select": false, "allow_free_text": true,
+                 "options": [{"label": "Blue", "description": ""}, {"label": "Red", "description": ""}]},
+                {"header": "Extras", "question": "Any?", "multi_select": true, "allow_free_text": false,
+                 "options": [{"label": "Tests", "description": ""}, {"label": "Docs", "description": ""}]}
+            ]),
+        });
+        let ui = Arc::new(Mutex::new(FlowUi::default()));
+        assert_eq!(submit_question(&s), Outcome::Done, "incomplete: nothing goes out");
+        // ArrowDown in the radio group selects as it moves (wrapping).
+        assert_eq!(key(&s, "ArrowDown", false, false, false, false, false), KeyOutcome::Action("cv.q.opt".into(), 1));
+        perform("cv.q.opt", 1, &s, &ui);
+        assert_eq!(state().question.answers[0].selected, vec!["Red"]);
+        // Into the checkbox group by a click, then arrows only MOVE focus.
+        perform("cv.q.opt", 100, &s, &ui);
+        assert_eq!(key(&s, "ArrowUp", false, false, false, false, false), KeyOutcome::Swallow);
+        assert_eq!(state().question.focus, (1, 1));
+        assert_eq!(key(&s, "Space", false, false, false, false, false), KeyOutcome::Action("cv.q.opt".into(), 101));
+        perform("cv.q.opt", 101, &s, &ui);
+        assert_eq!(state().question.answers[1].selected, vec!["Tests", "Docs"]);
+        // Typing never moves focus; Enter anywhere submits.
+        assert_eq!(key(&s, "ArrowDown", false, false, false, false, true), KeyOutcome::Pass);
+        assert_eq!(key(&s, "Enter", false, false, false, false, true), KeyOutcome::Action("cv.q.submit".into(), 0));
+        match submit_question(&s) {
+            Outcome::Spawn(Job::Answer { answers, .. }) => assert_eq!(
+                answers,
+                json!([{"selected_labels": ["Red"]}, {"selected_labels": ["Tests", "Docs"]}]).to_string()
+            ),
+            other => panic!("{other:?}"),
+        }
+        assert_eq!(submit_question(&s), Outcome::Done, "busy: one send at a time");
+    }
+
+    #[test]
+    fn focus_returns_to_the_composer_only_off_a_removed_card_that_held_it() {
+        let _g = lock();
+        assert!(!take_focus_restore(true));
+        state().view.focus_inside = true;
+        assert!(!take_focus_restore(true), "still showing");
+        assert!(take_focus_restore(false), "removed while holding focus");
+        assert!(!take_focus_restore(false), "once");
+    }
+}
