@@ -480,6 +480,79 @@ pub async fn start_with(
     StartOutcome::Accepted { slug: receipt.slug, operation_id: receipt.operation_id, duplicate: receipt.duplicate }
 }
 
+/// A model-staged peer's background open (`session-peer-coordinator.ts`
+/// `#open`): when remote control is READY it stages through `peer/dispatch`
+/// with the operator's last lane choice (`peerLaneChoiceRef`; none chosen →
+/// the typed `driver_model_unavailable` refusal, zero frames); otherwise it
+/// opens the peer session and queues ONE kickoff turn.
+pub async fn open_staged(conv: &Conversation, req: peers::OpenRequest) {
+    let store = conv.store.clone();
+    if !control_ready(&store) {
+        if let Err(e) = peers::open_peer(conv, &req).await {
+            ::log::warn!("octoscode: peer {} open: {e}", req.identity);
+        }
+        return;
+    }
+    let (lane, keys) = {
+        let st = crate::screens::board3::host::state();
+        (st.fleet.chosen_lane().unwrap_or_default(), st.fleet.lane_keys())
+    };
+    let scope = scope(conv);
+    if !keys.contains(&lane) {
+        store.domains.peer.mark_not_started(&req.identity, false, dispatch_refusal_label("driver_model_unavailable"));
+        return;
+    }
+    let Some(fence) = held_fence(&scope.session_id) else {
+        store.domains.peer.mark_not_started(&req.identity, false, dispatch_refusal_label("driver_fence_stale"));
+        return;
+    };
+    let brief = store.domains.peer.row(&req.identity).map(|r| r.brief).unwrap_or_default();
+    let request = xd::DispatchRequest {
+        operation_id: xd::new_operation_id(),
+        model: lane,
+        target: xd::DispatchTarget::NewBrief { brief, title: Some(req.slug.clone()), worktree: None },
+        kickoff_text: Some(req.prompt.clone()),
+        goal_id: None,
+        task_id: None,
+    };
+    match xd::dispatch(conv.client(), &scope, &fence, &request).await {
+        Ok(receipt) => {
+            store.domains.peer.mark_started(
+                &req.identity,
+                &receipt.adopted_session_id,
+                &receipt.slug,
+                Some(&receipt.operation_id),
+                Some(&receipt.adopted_turn_id),
+                Some(&receipt.model),
+                peers::now_ms(),
+            );
+            let _ = conv
+                .client()
+                .request(
+                    "session/open",
+                    serde_json::json!({
+                        "session_id": receipt.adopted_session_id,
+                        "profile_id": scope.profile_id,
+                        "cwd": receipt.workspace_root,
+                    }),
+                )
+                .await;
+        }
+        Err(e) => match e.refusal_kind() {
+            Some(k) => {
+                store.domains.peer.mark_not_started(&req.identity, false, dispatch_refusal_label(k));
+            }
+            None => {
+                store.domains.peer.mark_not_started(
+                    &req.identity,
+                    true,
+                    "Peer dispatch could not be confirmed. Inspect the peer session; do not automatically retry.",
+                );
+            }
+        },
+    }
+}
+
 // ------------------------------------------------------------ row control
 
 /// Build ONE product row command from the row's REAL attention facts

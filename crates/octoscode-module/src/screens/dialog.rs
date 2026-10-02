@@ -1786,7 +1786,8 @@ pub fn controls(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState) -> Vec<Control> {
             v
         }
         Dialog::Fleet => {
-            let n = ctx.store.domains.peer.list().len();
+            // A10: the slice's rows are the Fleet union (same order as the card).
+            let n = crate::screens::board3::fleetview::rows(ctx.store, crate::screens::peers::now_ms()).len();
             (0..n).map(|i| ctl(format!("peer_r{i}_steer"), format!("peer.steer#{i}"))).collect()
         }
         Dialog::Tasks => {
@@ -2666,6 +2667,8 @@ pub fn seed_fixture(store: &octoscode_store::Store) {
         store.domains.peer.upsert(Peer::named(name));
     }
     store.domains.peer.mark_closed("review");
+    // A10: the per-session Fleet slice reads the roster (the union).
+    crate::screens::fleet::seed_capture_roster(store);
     // The Tasks card's running + settled rows (the atlas command), the
     // `fleet::capture_store` shapes.
     use octoscode_store::domains::task::TaskSnapshot;

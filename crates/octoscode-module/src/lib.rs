@@ -1442,6 +1442,8 @@ impl OctoscodeView {
                 // A5 — loop/monitor/goal notifications keep the autonomy
                 // dialogs' cache current (the web store's applyNotification).
                 screens::autonomy::note_transport_event(&evt);
+                // A10 — peer/staged + peer/closed drive the peer manager.
+                screens::peers::note_transport_event(&drv, &evt);
                 let e = drv.on_event(evt);
                 ::log::debug!("[octoscode] {e:?}");
                 SignalToUI::set_ui_signal();
@@ -1951,6 +1953,8 @@ impl OctoscodeView {
                     ::log::info!("octoscode: connection.retry connected");
                     rt.spawn(async move {
                         while let Some(evt) = evt_rx.recv().await {
+                            // A10 — the peer manager's staged/closed.
+                            screens::peers::note_transport_event(&conv, &evt);
                             let e = conv.on_event(evt);
                             ::log::debug!("[octoscode] {e:?}");
                             SignalToUI::set_ui_signal();
@@ -2735,6 +2739,8 @@ impl OctoscodeView {
                                 screens::models::note_transport_event(&evt);
                                 screens::review::note_transport_event(&evt);
                                 screens::autonomy::note_transport_event(&evt);
+                                // A10 — the peer manager's staged/closed.
+                                screens::peers::note_transport_event(&drv, &evt);
                                 let _ = drv.on_event(evt);
                                 SignalToUI::set_ui_signal();
                             }
@@ -3355,6 +3361,8 @@ impl OctoscodeView {
         {
             let ui = { self.bridge.lock().unwrap().ui.clone() };
             let active_turn = ui.lock().unwrap().active_turn();
+            // A10 — the Fleet's control seat targets the master's live turn.
+            screens::board3::host::set_live_turn(active_turn.clone());
             let mode = {
                 let ctx = bindings::Ctx::new(&store, &ui);
                 screens::workspace::query(&ctx, "set.permission_mode")

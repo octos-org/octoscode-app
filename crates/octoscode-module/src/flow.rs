@@ -1534,6 +1534,13 @@ impl Conversation {
             }
             TransportEvent::DurableNotification { payload, .. }
             | TransportEvent::EphemeralNotification { payload } => {
+                // A10: a TRACKED peer session's own frames (a roster row
+                // that is not the active master session) fold into that row
+                // and never reach the master's timeline or UI
+                // (`peerSessionEventFor`, session-peer-coordinator.ts:139).
+                if crate::screens::peers::fold_frame(&self.store, payload) {
+                    return FlowEvent::Other(format!("peer-session {}", payload.method()));
+                }
                 // #P4g1 rows 205/213: the runtime scope gate. The durable
                 // projection (projection/envelope, protocol/replay_lossy)
                 // routes by session scope — out-of-scope frames are

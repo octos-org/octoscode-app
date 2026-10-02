@@ -614,6 +614,15 @@ impl Peers {
         removed
     }
 
+    /// Drop ONE row from the roster (an acknowledged close / a capture
+    /// trim); its tombstone, if any, survives.
+    pub fn clear_roster_row(&self, identity: &str) {
+        let mut i = self.inner.lock().unwrap();
+        i.rows.retain(|r| r.identity != identity);
+        i.pre_block.remove(identity);
+        i.revision += 1;
+    }
+
     /// Record the walked inventory (or its loading / error state).
     pub fn set_inventory(&self, inventory: Option<FleetInventory>) {
         let mut i = self.inner.lock().unwrap();

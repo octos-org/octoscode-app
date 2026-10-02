@@ -184,6 +184,35 @@ pub fn fold_frame(store: &Store, n: &UiNotification) -> bool {
     true
 }
 
+/// The drain-loop hook (`lib.rs`, beside the other screens' folds): a
+/// `peer/staged` from the CONFIRMED master scope stages a row and runs its
+/// background open (`fleet_driver::open_staged`); `peer/closed` closes it.
+pub fn note_transport_event(conv: &Arc<crate::flow::Conversation>, evt: &octos_app_transport::TransportEvent) {
+    use octos_app_transport::TransportEvent;
+    let payload = match evt {
+        TransportEvent::DurableNotification { payload, .. } | TransportEvent::EphemeralNotification { payload } => payload,
+        _ => return,
+    };
+    match payload {
+        UiNotification::PeerStaged(e) => {
+            if let Some(req) = observe_staged(&conv.store, &conv.session_id(), &conv.profile(), e) {
+                makepad_widgets::log!("[octoscode] peer staged: {} (opening in the background)", req.identity);
+                let c = conv.clone();
+                tokio::spawn(async move {
+                    crate::screens::fleet_driver::open_staged(&c, req).await;
+                    makepad_widgets::SignalToUI::set_ui_signal();
+                });
+            }
+        }
+        UiNotification::PeerClosed(e) => {
+            if observe_closed(&conv.store, &conv.session_id(), &conv.profile(), e) {
+                makepad_widgets::log!("[octoscode] peer closed: {}", e.slug);
+            }
+        }
+        _ => {}
+    }
+}
+
 /// The session id a notification is scoped to (the frames a peer session
 /// sends; `None` for an unscoped frame).
 pub fn notification_session(n: &UiNotification) -> Option<String> {
