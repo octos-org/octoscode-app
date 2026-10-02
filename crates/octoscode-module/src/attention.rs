@@ -305,18 +305,19 @@ pub const ON_MESSAGE: &str = "Desktop notifications are on.";
 pub const NOT_GRANTED_MESSAGE: &str = "Permission was not granted. You can enable notifications later.";
 /// :80.
 pub const REQUEST_FAILED_MESSAGE: &str =
-    "Could not enable desktop notifications. Try again when system permissions are available.";
+    "Could not enable desktop notifications. Try again when permissions allow.";
 /// :92.
 pub const PERMISSION_CHANGED_MESSAGE: &str = "Notification permission changed.";
 /// :112.
 pub const SHOW_FAILED_MESSAGE: &str = "OctosCode could not show a desktop notification.";
 
-/// :72 — where the person allows them natively.
+/// :72 — where the person allows them natively (one line on the desktop
+/// row: `every_desktop_message_fits_one_line_of_the_row`).
 pub fn blocked_message() -> &'static str {
     if cfg!(target_os = "android") {
-        "Notifications are blocked. Allow them in Android Settings › Apps › OctosCode › Notifications to enable them here."
+        "Notifications are blocked. Allow them in Settings › Apps › OctosCode › Notifications."
     } else {
-        "Notifications are blocked. Allow OctosCode in System Settings › Notifications to enable them here."
+        "Notifications are blocked. Allow OctosCode in System Settings › Notifications."
     }
 }
 
@@ -432,19 +433,20 @@ impl DesktopNotifications {
             }
             self.awaiting = None;
             self.known = true;
-            if status == Authorization::Unavailable {
-                self.settings.available = false;
-                self.save(os, false, UNAVAILABLE_MESSAGE, false);
-                return;
-            }
-            if error.is_some() {
-                self.save(os, false, REQUEST_FAILED_MESSAGE, true);
-                return;
-            }
+            // The state the request left behind decides; an error only
+            // matters when nothing was decided (a genuine failure, :76-83).
+            // macOS answers a refused app's request with `granted: NO` AND
+            // an error ("Notifications are not allowed for this
+            // application") — that is "blocked" (:72), not "could not".
             match status {
+                Authorization::Unavailable => {
+                    self.settings.available = false;
+                    self.save(os, false, UNAVAILABLE_MESSAGE, false);
+                }
                 Authorization::Granted => self.save(os, true, ON_MESSAGE, false),
                 Authorization::Denied => self.save(os, false, blocked_message(), true),
-                _ => self.save(os, false, NOT_GRANTED_MESSAGE, true),
+                Authorization::NotDetermined if error.is_some() => self.save(os, false, REQUEST_FAILED_MESSAGE, true),
+                Authorization::NotDetermined => self.save(os, false, NOT_GRANTED_MESSAGE, true),
             }
             return;
         }
@@ -1260,6 +1262,25 @@ mod tests {
         assert_eq!(os.saves, vec![false, false]);
     }
 
+    /// Measured on macOS 26 (tools/walk/a25_live_macos.py, a refused bundle):
+    /// the request completes with granted = NO and the error "Notifications
+    /// are not allowed for this application" — the settled status (Denied)
+    /// decides: blocked, not "could not enable".
+    #[test]
+    fn a_refused_request_that_also_reports_an_error_still_reads_blocked() {
+        let mut os = Fake::default();
+        let mut d = known(&mut os, Authorization::Denied);
+        d.toggle(&mut os);
+        d.authorization(
+            &mut os,
+            Authorization::Denied,
+            true,
+            Some("Notifications are not allowed for this application".into()),
+        );
+        assert_eq!(d.settings().message, blocked_message());
+        assert!(d.settings().error && !d.settings().enabled && !d.settings().pending);
+    }
+
     #[test]
     fn a_granted_request_turns_it_on_and_persists_and_off_persists_too() {
         let mut os = Fake::default();
@@ -1532,6 +1553,29 @@ mod tests {
         c.observe(&mut os, &obs(Some(1), vec![turn("s1", "t1", TurnState::Completed)], "s1"));
         assert!(os.posts.is_empty());
         assert_eq!(c.tracker.count(), 1, "the unread count still moves");
+    }
+
+    /// Every desktop message is ONE line under the Desktop notifications row
+    /// (the help label is 499 px wide at 990 px, Inter 9.75 pt = 13 px): a
+    /// second line pushed the General section past the Settings frame when
+    /// the Current workspace row also wraps (seen live, A25).
+    #[test]
+    fn every_desktop_message_fits_one_line_of_the_row() {
+        use crate::screens::board3::ui::{text_w, Face};
+        let messages = [
+            DEFAULT_MESSAGE,
+            UNAVAILABLE_MESSAGE,
+            ON_MESSAGE,
+            NOT_GRANTED_MESSAGE,
+            REQUEST_FAILED_MESSAGE,
+            PERMISSION_CHANGED_MESSAGE,
+            SHOW_FAILED_MESSAGE,
+            blocked_message(),
+        ];
+        for m in messages {
+            let w = text_w(m, 13.0, Face::Regular);
+            assert!(w <= 490.0, "{w:.0} px: {m}");
+        }
     }
 
     #[test]

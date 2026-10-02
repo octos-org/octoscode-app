@@ -13,18 +13,18 @@
 [replay-serve] <- profile/sub_providers/list (id=8)
 [replay-serve] <- session/status/read (id=9)
 [replay-serve] <- turn/start (id=10)
-[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0fdc1-332e-7566-8334-7f603bdf8783 (5 recorded frames)
+[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0fdd2-3b9a-770e-8cca-1706ccb03366 (5 recorded frames)
 [replay-serve] <- session/list (id=11)
 [replay-serve] <- session/list (id=12)
 [replay-serve] <- session/open (id=13)
 [replay-serve] <- session/list (id=14)
 [replay-serve] holding the switch's session/list for 6 s
-[replay-serve] <- session/hydrate (id=15)
-[replay-serve] <- session/list (id=16)
-[replay-serve] holding the switch's session/list for 6 s
+[replay-serve] <- permission/profile/list (id=15)
+[replay-serve] <- session/status/read (id=16)
 [replay-serve] <- session/hydrate (id=17)
-[replay-serve] <- permission/profile/list (id=18)
-[replay-serve] <- session/status/read (id=19)
+[replay-serve] <- session/list (id=18)
+[replay-serve] holding the switch's session/list for 6 s
+[replay-serve] <- session/hydrate (id=19)
 [replay-serve] <- session/open (id=20)
 [replay-serve] <- session/list (id=21)
 [replay-serve] holding the switch's session/list for 6 s
@@ -35,13 +35,13 @@
 [replay-serve] holding the switch's session/list for 6 s
 [replay-serve] <- session/hydrate (id=26)
 [replay-serve] <- turn/start (id=27)
-[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0fdc1-462d-72f6-97a5-0d478fc7e33a (5 recorded frames)
+[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0fdd2-4d9b-7407-a458-71d6a283fb35 (5 recorded frames)
 [replay-serve] <- session/list (id=28)
 [replay-serve] holding the switch's session/list for 6 s
 [replay-serve] <- session/list (id=29)
 [replay-serve] holding the switch's session/list for 6 s
 [replay-serve] <- turn/start (id=30)
-[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0fdc1-6214-76b6-84a0-8ee86805d741 (5 recorded frames)
+[replay-serve] replaying 01920000-0000-7000-8000-0000000000f4 as 01a0fdd2-693a-7664-8095-888dfeeff7ad (5 recorded frames)
 [replay-serve] <- session/list (id=31)
 [replay-serve] holding the switch's session/list for 6 s
 [replay-serve] <- session/list (id=32)

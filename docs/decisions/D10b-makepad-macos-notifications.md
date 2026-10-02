@@ -119,7 +119,7 @@ calls `request_notification_authorization`, a due notice `post_notification`, fo
 3. Tap the toggle: the row reads "Enabling…" and Android 15 shows its "Allow OctosCode to send you
    notifications?" dialog. Allow → the toggle turns ON, "Desktop notifications are on." Deny →
    OFF with the red "Permission was not granted…" (first refusal: Android may ask again) or
-   "Notifications are blocked. Allow them in Android Settings › Apps › OctosCode › Notifications…"
+   "Notifications are blocked. Allow them in Settings › Apps › OctosCode › Notifications."
    (refused for good).
 4. With it ON, send a prompt and pull the notification shade down before the turn ends (the
    window loses focus, the app stays in the foreground): one notification appears — title = the

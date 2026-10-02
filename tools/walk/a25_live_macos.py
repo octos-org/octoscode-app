@@ -180,14 +180,23 @@ def find(wid: str):
 
 
 def click(wid: str) -> bool:
-    w = find(wid)
-    if not w:
-        note(f"CLICK {wid}: not visible")
-        return False
-    x, y, ww, hh = w["r"]
-    get(f"/click?x={x + ww / 2}&y={y + hh / 2}&wait=1")
-    time.sleep(0.4)
-    return True
+    """CLICK at the widget's rect; a transient instrument error (a 404 while
+    the window re-lays out) is retried, never fatal."""
+    for attempt in range(3):
+        w = find(wid)
+        if not w:
+            time.sleep(0.6)
+            continue
+        x, y, ww, hh = w["r"]
+        try:
+            get(f"/click?x={x + ww / 2}&y={y + hh / 2}&wait=1")
+            time.sleep(0.4)
+            return True
+        except Exception as e:  # noqa: BLE001
+            note(f"CLICK {wid}: retry after {e}")
+            time.sleep(0.8)
+    note(f"CLICK {wid}: not visible or not clickable")
+    return False
 
 
 LOG: list[str] = []
@@ -432,6 +441,22 @@ def main() -> int:
                 rc = 3
         elif status == "Denied":
             note("denied: allow \"OctosCode A25\" in System Settings > Notifications, then re-run")
+            if REQUEST:
+                # A decided permission is never asked again: the request
+                # answers at once (the real completion handler) with no UI.
+                mark = len(LOG)
+                click("settings_open_hit")
+                click("tg_notify")
+                answered = wait_log("requested: true", 10, mark)
+                check("denied: the request answers at once from the real center",
+                      bool(answered) and "status: Denied" in answered, scrub_paths(answered or ""))
+                time.sleep(1.0)
+                frames = nc("find", "OctosCode A25") or []
+                check("denied: macOS showed no prompt", not frames, json.dumps(frames))
+                alert = (find("notify_alert") or {}).get("t", "")
+                check("denied: the row reads the blocked alert, the toggle stays off",
+                      alert.startswith("Notifications are blocked") and bool(find("tg_notify")), alert)
+                grab("denied-blocked")
             rc = 4
         elif status == "Granted":
             run_granted()

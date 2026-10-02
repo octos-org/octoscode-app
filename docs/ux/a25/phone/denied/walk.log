@@ -1,29 +1,29 @@
 CLICK settings_open_hit r=[308, 85, 36, 30] at (326,100)
 PASS denied: Settings > General shows the row
 CLICK tg_notify r=[292, 145, 44, 32] at (314,161)
-PASS denied: the toggle stays off and the message is an alert — {"toggle": true, "on": false, "state": "", "help": "", "alert": "Notifications are blocked. Allow OctosCode in System Settings \u203a Notifications to enable them here."}
+PASS denied: the toggle stays off and the message is an alert — {"toggle": true, "on": false, "state": "", "help": "", "alert": "Notifications are blocked. Allow OctosCode in System Settings \u203a Notifications."}
     log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
     log: [I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under <PATH>
     log: [I] apps/octoscode/module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
-    log: [I] apps/octoscode/module/src/attention.rs:936:9 - [octoscode] attention: start (platform api true, focused false)
-    log: [I] apps/octoscode/module/src/attention.rs:856:9 - [octoscode] attention(fake os): authorization not-determined requested=false
+    log: [I] apps/octoscode/module/src/attention.rs:938:9 - [octoscode] attention: start (platform api true, focused false)
+    log: [I] apps/octoscode/module/src/attention.rs:858:9 - [octoscode] attention(fake os): authorization not-determined requested=false
     log: [I] apps/octoscode/module/src/lib.rs:1585:13 - [octoscode] startup: Explicit("dsflash:main")
-    log: [I] apps/octoscode/module/src/lib.rs:3289:17 - [octoscode] composer remounted
     log: [I] apps/octoscode/module/src/flow.rs:1022:9 - [octoscode] history of dsflash:main could not be read: session/hydrate returned an invalid result: missing field `session_id`
+    log: [I] apps/octoscode/module/src/lib.rs:3289:17 - [octoscode] composer remounted
     log: [I] apps/octoscode/module/src/lib.rs:4089:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
     log: [I] apps/octoscode/module/src/lib.rs:3387:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4089:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
     log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
     log: [I] apps/octoscode/module/src/lib.rs:3704:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
-    log: [I] apps/octoscode/module/src/lib.rs:4089:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
-    log: [I] apps/octoscode/module/src/attention.rs:982:9 - [octoscode] attention: os Authorization { status: NotDetermined, requested: false, error: None }
+    log: [I] apps/octoscode/module/src/attention.rs:984:9 - [octoscode] attention: os Authorization { status: NotDetermined, requested: false, error: None }
     log: [I] apps/octoscode/module/src/lib.rs:3289:17 - [octoscode] composer remounted
     log: [I] apps/octoscode/module/src/lib.rs:4175:13 - [octoscode] chrome: OpenSettings
     log: [I] apps/octoscode/module/src/lib.rs:1806:13 - [octoscode] settings action: settings.panel.open
     log: [I] apps/octoscode/module/src/lib.rs:4175:13 - [octoscode] chrome: Action("notifications_toggle.toggle", 0)
     log: [I] apps/octoscode/module/src/lib.rs:1806:13 - [octoscode] settings action: notifications_toggle.toggle
-    log: [I] apps/octoscode/module/src/attention.rs:856:9 - [octoscode] attention(fake os): authorization denied requested=true
-    log: [I] apps/octoscode/module/src/attention.rs:982:9 - [octoscode] attention: os Authorization { status: Denied, requested: true, error: None }
+    log: [I] apps/octoscode/module/src/attention.rs:858:9 - [octoscode] attention(fake os): authorization denied requested=true
+    log: [I] apps/octoscode/module/src/attention.rs:984:9 - [octoscode] attention: os Authorization { status: Denied, requested: true, error: None }
 PASS denied: one request
 SHOT row-denied
-PASS ux row-denied: 10/10 numeric checks — failed=[] rects={'row': [81, 135, 255, 135], 'title': [81, 152, 150, 18], 'control': [292, 145, 44, 32], 'message': [81, 179, 191, 77]}
+PASS ux row-denied: 10/10 numeric checks — failed=[] rects={'row': [81, 135, 255, 115], 'title': [81, 152, 150, 18], 'control': [292, 145, 44, 32], 'message': [81, 179, 191, 57]}
 == 4/4 checks passed
