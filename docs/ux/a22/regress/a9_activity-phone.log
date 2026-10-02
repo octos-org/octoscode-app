@@ -37,7 +37,7 @@ SHOT <repo>/tmp/a22-regress/scratch/a9_activity-phone/out/phone-activity-blocked
 PASS × closes Activity
 == WALK a9 activity phone: 32/32 passed
 -- fixture log tail:
-[replay-serve] <- permission/profile/list (id=25)
+[replay-serve] <- session/status/read (id=25)
 [replay-serve] <- session/hydrate (id=26)
 [replay-serve] <- session/list (id=27)
 [replay-serve] holding the switch's session/list for 6 s

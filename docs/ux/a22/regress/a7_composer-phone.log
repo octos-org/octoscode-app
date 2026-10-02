@@ -51,7 +51,7 @@ PASS history: a valid name arms Create
 PASS history: the typed name stays in the field — 'walk-fork'
 PASS history: the fork opens in the background (selection unchanged) — 'Conversation fork opened in the background. Your selection was not changed.'
 PASS history: the dialog names the child — 'Fork: a7:walk-fork'
-PASS history: the sidebar lists the forked conversation — ['Fork · walk-fork', 'Fix steer queue drop on reconnect']
+PASS history: the sidebar lists the forked conversation — ['Fix steer queue drop on reconnect', 'Fork · walk-fork']
 PASS history: /undo opens Undo workspace changes
 PASS history: Restore asks for confirmation first
 PASS history: Confirm restores the snapshot — 'Workspace snapshot restored. Conversation history was not changed.'
@@ -62,9 +62,7 @@ PASS peer: the row names the peer — '↳ read-only peer · review-diff · stee
 PASS peer: back on the master the composer is editable
 PASS attention: Settings opens
 PASS attention: Desktop notifications are off until the Settings action (no prompt)
-PASS attention: the toggle opts in
-PASS attention: the opt-in is persisted
-PASS attention: turning it off persists too
+PASS attention: no notification backend here — the row says Unavailable
 PASS media: /images opens the images dialog
 PASS media: a dropped PNG fills slot 0 (selected, not uploaded) — 'walk-shot.png · 0.00 MiB · image/png · Selected; not uploaded'
 PASS media: Upload is offered
@@ -76,7 +74,7 @@ PASS media: the late receipt was ignored (not uploaded) — 'walk-shot.png · 0.
 PASS media: removing an in-flight entry frees the slot
 PASS media: its late receipt does not resurrect it
 PASS media: the picker is available again
-== WALK phone main: 67/67 passed
+== WALK phone main: 65/65 passed
 -- fixture restart with {'A7_SERVE_HELD': 'octos-tui', 'A7_SERVE_RELEASE_DELAY_MS': '1500'}
 -- run 4: exit 0 in 3 s
 PASS seat: the held banner names the other app — 'This session is open in octos-tui. You can read along; take over to send.'

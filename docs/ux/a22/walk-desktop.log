@@ -15,7 +15,7 @@ PASS 203: history first, then the live turn — each prompt once — ['First pro
 PASS 203: the replayed answer the history holds is drawn once — ['The live answer arrived after the history.', 'The hydrate cursor is adopted max-wins.']
 PASS 203 wire: the live events went out BEFORE the history reply — push@15 reply@19
 PASS 203 wire: one open, one history read for the Session — opens 1, history reads 1
-PASS 203 layout: transcript rows inside the conversation column — [[359, 436, 660, 18], [740, 352, 263, 18], [775, 202, 228, 18]]
+PASS 203 layout: transcript rows inside the conversation column — [[359, 436, 660, 18], [775, 202, 228, 18], [359, 250, 660, 18]]
   shot docs/ux/a22/desktop-03-203-history-then-live.png
 PASS 216: back to 'Startup chat' (CLICK)
 PASS 216: /thinking opens Thinking effort
@@ -58,7 +58,7 @@ PASS 236 layout: 'Startup chat' dot left of its title, centred on the row — do
 PASS 236 layout: 'Pick a branch' dot left of its title, centred on the row — dot [75, 301, 7, 7] title [92, 296, 194, 17] row [64, 288, 260, 32]
 PASS 236 layout: 'Run the test suite' dot left of its title, centred on the row — dot [75, 333, 7, 7] title [92, 328, 194, 17] row [64, 320, 260, 32]
 PASS 236 layout: 'Build the release' dot left of its title, centred on the row — dot [72, 362, 13, 13] title [92, 360, 194, 17] row [64, 352, 260, 32]
-PASS 236 layout: 'Review the hydrate path' dot left of its title, centred on the row — dot [72, 394, 13, 13] title [92, 392, 194, 17] row [64, 384, 260, 32]
+PASS 236 layout: 'Review the hydrate path' dot left of its title, centred on the row — dot [72, 394, 13, 13] title [92, 392, 203, 17] row [64, 384, 260, 32]
   shot docs/ux/a22/desktop-09-236-background-done.png
 == WALK a22 sessions desktop: 53/53 passed
    state dir (serve log, trace): <tmp>

@@ -1,5 +1,5 @@
 == native walk a9_activity [desktop] (tools/walk/a9_activity_walk.py)
--- run 1: exit 0 in 22 s
+-- run 1: exit 0 in 21 s
 PASS palette /activity opens Activity
 PASS the catalog reads arrive (3 rows) — 3 rows
 PASS one task/list per confirmed session, nothing opened — ['[replay-serve] -> task/list a9walk:api:review', '[replay-serve] -> task/list a9walk:main', '[replay-serve] -> task/list a9walk:api:fork', '[replay-serve] -> task/list a9walk:api:bump', '[replay-serve] -> task/list a9walk:api:hydrate']
