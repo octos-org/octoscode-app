@@ -1,9 +1,9 @@
 [headless] launch: MAKEPAD_HIDE_WINDOWS=1 <PATH> --remote 8483 --module octoscode --test-action page:0 --test-action launch-octoscode
-[makepad-remote] listening on 127.0.0.1:8483 pid=78296 app=octosense grabs=<TMP>
-[headless] up: pid 78296  port 8483  log <PATH>
+[makepad-remote] listening on 127.0.0.1:8483 pid=37215 app=octosense grabs=<TMP>
+[headless] up: pid 37215  port 8483  log <PATH>
 [headless] drive it:  curl -s http://127.0.0.1:8483/snap?q=Button   |   harness/headless.sh shot 8483 out.png
 CLICK sidebar_toggle_hit r=[12, 82, 36, 36] at (30,100)
-PASS the sidebar lists Session X and Session Y — ['Session X — clean the scratch dir', 'Main', 'Session Y — release notes']
+PASS the sidebar lists Session X and Session Y — ['Main', 'Session X — clean the scratch dir', 'Session Y — release notes']
 CLICK sb_r_title 'Session X — clean the scratch dir' r=[38, 308, 235, 17]
 PASS CLICK row 'Session X' -> session/open X
 TYPE 'please run rm -rf scratch_dir in this repo'
@@ -62,5 +62,5 @@ SHOT phone-06-y-answered
 PASS wire: nothing was ever answered on Y for X
 == 30/30 checks passed
 gq: {"png":["<TMP>"],"quit":1}
-[headless] pid 78296 exited after /gq
+[headless] pid 37215 exited after /gq
 [headless] port 8483 free

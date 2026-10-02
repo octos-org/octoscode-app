@@ -13,7 +13,7 @@
 {"method":"session/list","params":{"cwd":"/home/user/a20-ws","profile_id":"a20"}}
 {"method":"session/hydrate","params":{"include":["pending_approvals"],"session_id":"a20:api:xray"}}
 {"method":"session/status/read","params":{"profile_id":"a20","session_id":"a20:api:xray"}}
-{"method":"turn/start","params":{"input":[{"kind":"text","text":"please run rm -rf scratch_dir in this repo"}],"session_id":"a20:api:xray","turn_id":"01a0fdbb-b549-720a-a9f1-1bf0268648e0"}}
+{"method":"turn/start","params":{"input":[{"kind":"text","text":"please run rm -rf scratch_dir in this repo"}],"session_id":"a20:api:xray","turn_id":"01a0fdd6-37da-7476-9060-9934839a1235"}}
 {"method":"session/list","params":{"cwd":"/home/user/a20-ws","profile_id":"a20"}}
 {"method":"session/open","params":{"cwd":"/home/user/a20-ws","profile_id":"a20","session_id":"a20:api:yankee"}}
 {"method":"session/list","params":{}}
@@ -21,14 +21,14 @@
 {"method":"session/list","params":{"cwd":"/home/user/a20-ws","profile_id":"a20"}}
 {"method":"session/hydrate","params":{"include":["pending_approvals"],"session_id":"a20:api:yankee"}}
 {"method":"session/status/read","params":{"profile_id":"a20","session_id":"a20:api:yankee"}}
-{"method":"turn/start","params":{"input":[{"kind":"text","text":"ask me which color to use"}],"session_id":"a20:api:yankee","turn_id":"01a0fdbb-d120-75dd-816c-d6956d852357"}}
+{"method":"turn/start","params":{"input":[{"kind":"text","text":"ask me which color to use"}],"session_id":"a20:api:yankee","turn_id":"01a0fdd6-53cf-77da-8497-23437bd9fc91"}}
 {"method":"session/list","params":{"cwd":"/home/user/a20-ws","profile_id":"a20"}}
 {"method":"session/open","params":{"after":{"seq":101,"stream":"a20:api:xray"},"cwd":"/home/user/a20-ws","profile_id":"a20","session_id":"a20:api:xray"}}
 {"method":"session/list","params":{"cwd":"/home/user/a20-ws","profile_id":"a20"}}
-{"method":"session/status/read","params":{"profile_id":"a20","session_id":"a20:api:xray"}}
 {"method":"session/hydrate","params":{"include":["messages"],"session_id":"a20:api:xray"}}
 {"method":"session/list","params":{"cwd":"/home/user/a20-ws","profile_id":"a20"}}
 {"method":"session/hydrate","params":{"include":["pending_approvals"],"session_id":"a20:api:xray"}}
+{"method":"session/status/read","params":{"profile_id":"a20","session_id":"a20:api:xray"}}
 {"method":"approval/respond","params":{"approval_id":"01a0e773-f844-7d50-a20a-000000000001","approval_scope":"request","decision":"approve","session_id":"a20:api:xray"}}
 {"method":"session/open","params":{"cwd":"/home/user/a20-ws","profile_id":"a20","session_id":"a20:api:yankee"}}
 {"method":"session/list","params":{"cwd":"/home/user/a20-ws","profile_id":"a20"}}

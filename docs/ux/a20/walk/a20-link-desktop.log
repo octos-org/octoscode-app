@@ -1,6 +1,6 @@
 [headless] launch: MAKEPAD_HIDE_WINDOWS=1 <PATH> --remote 8483 --module octoscode
-[makepad-remote] listening on 127.0.0.1:8483 pid=53149 app=octosense grabs=<TMP>
-[headless] up: pid 53149  port 8483  log <PATH>
+[makepad-remote] listening on 127.0.0.1:8483 pid=42864 app=octosense grabs=<TMP>
+[headless] up: pid 42864  port 8483  log <PATH>
 [headless] drive it:  curl -s http://127.0.0.1:8483/snap?q=Button   |   harness/headless.sh shot 8483 out.png
 PASS the panel 'Open saved conversation' is offered — 'Open saved conversation'
 PASS panel: the workspace the link names — '/home/user/a20-link-ws'
@@ -29,11 +29,11 @@ PASS wire: still nothing opened for the link
 SHOT desktop-13-link-dismissed
 == 18/18 checks passed
 gq: {"png":["<TMP>"],"quit":1}
-[headless] pid 53149 exited after /gq
+[headless] pid 42864 exited after /gq
 [headless] port 8483 free
 [headless] launch: MAKEPAD_HIDE_WINDOWS=1 <PATH> --remote 8483 --module octoscode
-[makepad-remote] listening on 127.0.0.1:8483 pid=55982 app=octosense grabs=<TMP>
-[headless] up: pid 55982  port 8483  log <PATH>
+[makepad-remote] listening on 127.0.0.1:8483 pid=45449 app=octosense grabs=<TMP>
+[headless] up: pid 45449  port 8483  log <PATH>
 [headless] drive it:  curl -s http://127.0.0.1:8483/snap?q=Button   |   harness/headless.sh shot 8483 out.png
 PASS B: the panel is offered
 CLICK b3_link_open r=[641, 497, 148, 34] at (715,514)
@@ -45,11 +45,11 @@ PASS B: the linked Session is on screen
 SHOT desktop-14-link-opened
 == 6/6 checks passed
 gq: {"png":["<TMP>"],"quit":1}
-[headless] pid 55982 exited after /gq
+[headless] pid 45449 exited after /gq
 [headless] port 8483 free
 [headless] launch: MAKEPAD_HIDE_WINDOWS=1 <PATH> --remote 8483 --module octoscode
-[makepad-remote] listening on 127.0.0.1:8483 pid=58005 app=octosense grabs=<TMP>
-[headless] up: pid 58005  port 8483  log <PATH>
+[makepad-remote] listening on 127.0.0.1:8483 pid=46918 app=octosense grabs=<TMP>
+[headless] up: pid 46918  port 8483  log <PATH>
 [headless] drive it:  curl -s http://127.0.0.1:8483/snap?q=Button   |   harness/headless.sh shot 8483 out.png
 PASS C: an invalid link says so — 'This conversation link is invalid'
 SHOT desktop-15-link-invalid
@@ -59,5 +59,5 @@ PASS C: dismissed, normal entry
 PASS C: wire: nothing opened for it
 == 4/4 checks passed
 gq: {"png":["<TMP>"],"quit":1}
-[headless] pid 58005 exited after /gq
+[headless] pid 46918 exited after /gq
 [headless] port 8483 free
