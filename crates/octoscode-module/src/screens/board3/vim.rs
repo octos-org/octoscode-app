@@ -30,6 +30,7 @@
 use makepad_widgets::KeyCode;
 
 use super::ui::{self, tok, Btn, Dsl, Face, Frame, Txt, W};
+use crate::i18n::{tr, tr1};
 
 /// Insert or Normal (`VimModeState.mode`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -562,17 +563,18 @@ fn badge(d: &mut Dsl, id: &str, label: &str, live: bool) {
 fn badges(d: &mut Dsl, st: &VimState) {
     let row = d.anon();
     d.view(&row, "width: Fill height: Fit flow: Right{wrap: true} align: Align{x: 0.0 y: 0.5} spacing: 8");
-    let mode = if !st.enabled {
+    // The mode names the web's composer note uses (Vim · 普通 / Vim · 插入).
+    let mode = tr(if !st.enabled {
         "OFF"
     } else if st.mode == Mode::Normal {
         "NORMAL"
     } else {
         "INSERT"
-    };
+    });
     badge(d, "b3_vim_mode", mode, st.enabled);
     match st.pending {
-        Some(p) => badge(d, "b3_vim_pending", &format!("PENDING  {p}"), true),
-        None => badge(d, "b3_vim_pending", "PENDING  —", false),
+        Some(p) => badge(d, "b3_vim_pending", &tr1("PENDING  {value0}", &p.to_string()), true),
+        None => badge(d, "b3_vim_pending", tr("PENDING  —"), false),
     }
     d.close();
 }
@@ -605,18 +607,18 @@ pub fn legend(d: &mut Dsl, st: &VimState, width: W) {
     d.gap(W::Fill, 4.0);
     let head = d.anon();
     d.view(&head, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5}");
-    d.text("b3_vim_head_key", "Key", &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Px(72.0)));
-    d.text("b3_vim_head_action", "Action", &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Fill));
+    d.text("b3_vim_head_key", tr("Key"), &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Px(72.0)));
+    d.text("b3_vim_head_action", tr("Action"), &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Fill));
     d.close();
     d.hairline();
     let rows = d.anon();
     d.view(&rows, "width: Fill height: Fit flow: Down");
     for (i, (k, a)) in LEGEND.iter().enumerate() {
-        key_row(d, &format!("b3_vim_row_{i}"), k, a, 72.0);
+        key_row(d, &format!("b3_vim_row_{i}"), k, tr(a), 72.0);
     }
     d.close();
     d.gap(W::Fill, 6.0);
-    let help = "Press ? for more help";
+    let help = tr("Press ? for more help");
     d.view(
         "b3_vim_help_box",
         &format!("width: {} height: 28 flow: Overlay align: Align{{x: 0.0 y: 0.5}}", ui::text_w(help, 13.0, Face::Regular) + 4.0),
@@ -632,10 +634,10 @@ pub fn build_help(d: &mut Dsl, st: &VimState, frame: &Frame) {
     let width = frame.dialog_w(520.0);
     let compact = frame.compact(width);
     ui::shell_open(d, frame, width);
-    ui::header(d, "Vim keys", "b3.close");
+    ui::header(d, tr("Vim keys"), "b3.close");
     d.text(
         "b3_vim_scope",
-        "Composer editing · Normal mode keys",
+        tr("Composer editing · Normal mode keys"),
         &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill),
     );
     d.gap(W::Fill, 12.0);
@@ -645,28 +647,28 @@ pub fn build_help(d: &mut Dsl, st: &VimState, frame: &Frame) {
     let key_w = if compact { 64.0 } else { 88.0 };
     for (g, (title, rows)) in HELP.iter().enumerate() {
         ui::card_open(d, &format!("b3_vim_group_{g}"), 0.0);
-        ui::section_title(d, &format!("b3_vim_group_{g}_title"), title);
+        ui::section_title(d, &format!("b3_vim_group_{g}_title"), tr(title));
         d.gap(W::Fill, 4.0);
         for (i, (k, a)) in rows.iter().enumerate() {
             if i > 0 {
                 d.hairline();
             }
-            key_row(d, &format!("b3_vim_g{g}_{i}"), k, a, key_w);
+            key_row(d, &format!("b3_vim_g{g}_{i}"), k, tr(a), key_w);
         }
         d.close();
         d.gap(W::Fill, 10.0);
     }
     d.text(
         "b3_vim_note",
-        "Enter sends the prompt in both modes. Any other key does nothing in Normal mode — it never types text. A second Escape still stops a running turn.",
+        tr("Enter sends the prompt in both modes. Any other key does nothing in Normal mode — it never types text. A second Escape still stops a running turn."),
         &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     ui::body_close(d);
     d.gap(W::Fill, 12.0);
     let foot = d.anon();
     d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5} spacing: 8");
-    d.button("b3_vim_off", "Turn off Vim editing", "b3.vim.off", Btn::Outline, W::Fit, 36.0);
-    d.button("b3_vim_done", "Done", "b3.close", Btn::Primary, W::Fit, 36.0);
+    d.button("b3_vim_off", tr("Turn off Vim editing"), "b3.vim.off", Btn::Outline, W::Fit, 36.0);
+    d.button("b3_vim_done", crate::i18n::tr_ctx("button", "Done"), "b3.close", Btn::Primary, W::Fit, 36.0);
     d.close();
     ui::shell_close(d);
 }

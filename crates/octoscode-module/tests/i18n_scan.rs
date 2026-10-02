@@ -57,11 +57,15 @@ const CONVERTED: &[&str] = &[
     "screens/board3/routes.rs",
     "screens/board3/rows.rs",
     "screens/board3/session_pane.rs",
+    "screens/board3/inspector.rs",
+    "screens/board3/switcher.rs",
+    "screens/board3/thinking.rs",
+    "screens/board3/vim.rs",
 ];
 
 /// The phase-2 ceiling: bypasses left in the rest of `screens/` (A24 phase 1
 /// measured this). Lower it as screens are converted; it must reach 0.
-const REMAINING_CEILING: usize = 142;
+const REMAINING_CEILING: usize = 100;
 
 /// (call prefix, text-argument indices). A prefix starting with `.` or `::`
 /// matches a method / path call; otherwise the name must stand alone.

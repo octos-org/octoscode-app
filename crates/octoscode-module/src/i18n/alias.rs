@@ -86,6 +86,9 @@ pub static ALIASES: &[Alias] = &[
     ),
     a("No recent workspaces yet.", "No recent workspace paths", "features/workspace-create/NewSessionWorkspacePicker.tsx:287"),
     a("Browse folders\u{2026}", "Browse\u{2026}", "features/workspace-create/NewSessionWorkspacePicker.tsx:360"),
+    // ---- the thinking-effort dialog (web features/reasoning/ReasoningDialog.tsx;
+    // the board's segment says "Max" for REASONING_CHOICES' "Maximum")
+    a("Max", "Maximum", "features/reasoning/ReasoningDialog.tsx:80"),
 ];
 
 /// The web key a native string renders through, if it is an alias.

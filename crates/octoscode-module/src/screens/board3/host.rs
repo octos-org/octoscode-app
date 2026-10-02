@@ -997,7 +997,7 @@ pub fn lower_strip(store: &Store, active_turn: Option<&str>, mode: Option<&str>)
     let mut st = state();
     // A8 — a peer this app started holds the seat (the pane's disclosure).
     st.strip.self_held = super::session_pane::own_held(&st.pane);
-    let note = st.vim.enabled.then(|| super::vim::note(&st.vim));
+    let note = st.vim.enabled.then(|| crate::i18n::tr(super::vim::note(&st.vim)));
     super::strip::lower(store, &st.strip, active_turn, mode, note)
 }
 
