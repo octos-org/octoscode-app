@@ -1130,29 +1130,36 @@ def card_tap_error_reload(app):
 
 
 # ---- peer: the fleet/peer surfaces (board 4 + #23 peer cards) -------------- #
-@check("peer", "the fleet roster renders its rows and slot dots")
+# A5 (judge, board 2): the pre-board-2 GOALS / LOOPS / FLEET sidebar sections
+# were removed (they squeezed the approved sidebar tree). The fleet roster is
+# A4's footer Fleet pane; goals and loops are the autonomy dialogs (/goal,
+# /loop), which docs/ux/a5-dialogs/walk/walk.log clicks through.
+@check("peer", "the fleet roster is reached from the sidebar footer's Fleet entry")
 def p_roster(app):
     d = app.snap()
-    ok = ("fleet_list" in app.widget_ids(d)
-          and "fleet_row_1" in app.widget_ids(d)
-          and "fleet_slot_1" in app.widget_ids(d))
-    return ok, f"fleet ids={sorted(i for i in app.widget_ids(d) if i.startswith('fleet_'))[:6]}"
+    r = app.rect(d, "fleet_nav_hit")
+    ok = bool(r) and r[2] >= 28 and r[3] >= 28
+    return ok, f"fleet_nav_hit rect={r}"
 
 
-@check("peer", "the sidebar hosts the GOALS/LOOPS/FLEET sections")
+@check("peer", "the board-2 sidebar carries no GOALS/LOOPS/FLEET sections")
 def p_sections(app):
     d = app.snap()
     texts = [w.get("t", "") for w in d.get("s", [])]
-    ok = all(t in texts for t in ("GOALS", "LOOPS", "FLEET"))
-    return ok, f"sections={[t for t in texts if t in ('GOALS','LOOPS','FLEET')]}"
+    stray = [t for t in texts if t in ("GOALS", "LOOPS", "FLEET")]
+    return not stray, f"stray sections={stray}"
 
 
-@check("peer", "the goals/loops lists render their rows",
+@check("peer", "goals and loops open as dialogs from the palette",
        rows=("goal", "loop", "plan", "trajectory"))
 def p_rows(app):
+    app.clear_composer()
+    app.type_into_composer("/")
     d = app.snap()
-    ok = "goals_list" in app.widget_ids(d) and "loops_list" in app.widget_ids(d)
-    return ok, f"goal_ring={'goal_ring' in app.widget_ids(d)} loop_row={'loop_row_1' in app.widget_ids(d)}"
+    rows = [w.get("t", "") for w in d.get("s", []) if w.get("i") == "palette_row_name"]
+    app.key("escape")
+    ok = "/goal" in rows and "/loop" in rows
+    return ok, f"palette rows={rows}"
 
 
 # ---- #41c: row-specific checks for the smoke-only rows --------------------- #
@@ -1195,10 +1202,11 @@ def p_fleet_rows_visible(app):
     # Row 128's own domain: the roster lists the mock's lanes as VISIBLE rows.
     # The id-only smoke check passed while every fleet rect stayed collapsed
     # (measured 41c recon under the r6-peer fixture) — this asserts the rect.
+    # A5: the sidebar fleet rows are gone; the roster opens from the footer.
     d = app.snap()
-    r = app.rect(d, "fleet_row_1")
+    r = app.rect(d, "fleet_nav_hit")
     ok = bool(r) and r[2] > 0 and r[3] > 0
-    return ok, f"fleet_row_1 rect={r}"
+    return ok, f"fleet_nav_hit rect={r}"
 
 
 @check("recovery", "the palette's /monitor command reaches a monitors surface",

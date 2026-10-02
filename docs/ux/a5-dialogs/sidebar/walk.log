@@ -1,0 +1,40 @@
+SHOT sidebar
+PASS the sidebar column is laid out — threads_column=[54, 76, 280, 603]
+PASS no GOALS/LOOPS/FLEET section in the board-2 sidebar — stray=[]
+PASS thread_list keeps its height (not squeezed to a row) — thread_list=[64, 256, 260, 347]
+PASS no two sidebar texts overlap — 15 texts; overlaps=[]
+PASS the session rows are visible — 5 session row(s)
+CLICK i0_composer_0 'Ask Octos anything' r=[375, 585, 629, 28] at (690,599)
+TYPE '/'
+    log: [octoscode] draft synced: 1 chars
+TYPE 'go'
+    log: [octoscode] draft synced: 3 chars
+CLICK palette_row_name '/goal' r=[286, 252, 46, 28] at (309,266)
+    log: [octoscode] palette row 0 clicked
+    log: [octoscode] palette run /goal -> dialog.open.goal
+    log: [octoscode] dialog action: dialog.open.goal
+    log: [octoscode] dialog goal mounted: frame 414x541 scale 1.000, 4 tap(s)
+PASS /goal opens its dialog with the data — ['Goal', 'Fix steer queue on reconnect', 'Active', 'Token budget', '41k / 100k', 'Elapsed']
+SHOT from-goal
+CLICK dialog_close '' r=[696, 152, 28, 28] at (710,166)
+    log: [octoscode] dialog tap: dialog.close
+    log: [octoscode] dialog action: dialog.close
+    log: [octoscode] nav tap: dialog.close
+CLICK i0_composer_0 'Ask Octos anything' r=[375, 585, 629, 28] at (690,599)
+TYPE '/'
+    log: [octoscode] draft synced: 1 chars
+TYPE 'lo'
+    log: [octoscode] draft synced: 3 chars
+CLICK palette_row_name '/loop' r=[286, 252, 48, 28] at (310,266)
+    log: [octoscode] palette row 0 clicked
+    log: [octoscode] palette run /loop -> dialog.open.loops
+    log: [octoscode] dialog action: dialog.open.loops
+    log: [octoscode] dialog loops mounted: frame 426x447 scale 1.000, 10 tap(s)
+PASS /loop opens its dialog with the data — ['Loops', '+ New loop', 'Run CI smoke', 'every 15m', 'Sync main', 'every 30m']
+SHOT from-loop
+CLICK dialog_close '' r=[722, 178, 28, 28] at (736,192)
+    log: [octoscode] dialog tap: dialog.close
+    log: [octoscode] dialog action: dialog.close
+    log: [octoscode] nav tap: dialog.close
+PASS the fleet is the footer's Fleet entry (A4) — fleet_nav_hit=[64, 637, 260, 34]
+== SIDEBAR CHECK: all passed

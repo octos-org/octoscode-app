@@ -977,6 +977,35 @@ script_mod! {
                         }
                         OcRowHelp{text: "Shows the model's reasoning while it works"}
                     }
+                    // A5: the web's Settings > Models section opens with the
+                    // profile model picker (App.tsx:3555 ModelsSettingsContent);
+                    // here that is the Models dialog (screens::dialog), opened
+                    // over Settings and closed back to it. Shown when the server
+                    // advertises profile/llm/list (the /model gate).
+                    set_models_row := View{
+                        width: Fill height: Fit flow: Down visible: false
+                        OcRule{}
+                        View{
+                            width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                            View{
+                                width: Fill height: 34 flow: Overlay
+                                View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "All models"}}
+                                View{
+                                    width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
+                                    View{
+                                        width: 112 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                        RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
+                                        OcLabel{text: "Open" draw_text +: {text_style +: {font_size: 9.75}}}
+                                        set_models_manage := OcHit{draw_bg.border_radius: 9.0}
+                                    }
+                                }
+                            }
+                            View{
+                                width: Fill height: Fit flow: Down padding: Inset{right: 124}
+                                OcRowHelp{text: "Each provider's models"}
+                            }
+                        }
+                    }
                     // #A2 (board 1 screens 6-7): the web's "Model providers"
                     // (ModelManagementSection.tsx:1263): its Edit opens the
                     // provider editor (screens::board1 `b1.open.provider`).
@@ -1486,6 +1515,10 @@ impl ChromeRuntime {
             if clicked(cx, view, &[live_id!(set_model), live_id!(vb_hit)], actions) {
                 out.push(Intent::Action("settings.model.next", 0));
             }
+            // A5: "Manage models…" opens the Models dialog over Settings.
+            if c(cx, live_id!(set_models_manage)) {
+                out.push(Intent::Action("dialog.open.models", 0));
+            }
             // Settings is modal (the web's ModalSurface): nothing under it.
             // Disconnect lives in the Connection section and keeps the
             // shell's own handler (lib.rs `settings_disconnect`).
@@ -1772,6 +1805,7 @@ impl ChromeRuntime {
         set_segment(cx, view, live_id!(th_off), "Off", thinking == settings::Thinking::Off);
         set_segment(cx, view, live_id!(th_on), "On", thinking == settings::Thinking::On);
         set_segment(cx, view, live_id!(th_high), "High", thinking == settings::Thinking::High);
+        show(cx, view, ids!(set_models_row), crate::screens::dialog::advertises(store, "profile/llm/list"));
         // Sandbox (new-chat defaults).
         set_toggle(cx, view, live_id!(tg_sb_write), st.sandbox.workspace_write);
         set_toggle(cx, view, live_id!(tg_sb_network), st.sandbox.network);

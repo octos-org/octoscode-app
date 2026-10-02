@@ -1241,6 +1241,23 @@ impl Conversation {
         // ported 47-command registry, act on the match. A PATH-shaped input
         // ("/home/user/x/y", "/c/d") is a PROMPT and reaches the model verbatim —
         // the old arm refused every leading-slash input, paths included.
+        // A5 — the web's `isLocalShellBang` (`intent.ts:175`): a `!command`
+        // runs on the TUI host only, so it is REPORTED and never sent to the
+        // model; the text stays editable (`local-report.ts:97`).
+        if crate::screens::palette::is_local_shell_bang(&text) {
+            let session = self.session_id();
+            self.store.domains.session.timeline.append(
+                &session,
+                Some(crate::screens::palette::next_receipt_turn()),
+                crate::screens::palette::REPORT_KIND,
+                "Local shell unavailable — Octoscode's ! command runs on the TUI host. \
+                 This app cannot execute a local process, so nothing was sent."
+                    .to_owned(),
+            );
+            makepad_widgets::SignalToUI::set_ui_signal();
+            ::log::info!("octoscode: local shell bang: receipt appended, draft kept");
+            return Ok(String::new());
+        }
         // A4 — the board-3 surfaces answer their web commands locally
         // (`/tools`, `/mcp`, `/threads`, `/turn`, `/permissions`,
         // `/thinking`, `/resume`, `/images`, `/rewind`, `/undo`, `/fork`,
@@ -1262,7 +1279,17 @@ impl Conversation {
         }
         match crate::screens::palette::match_command(&text) {
             None => {}
-            Some(crate::screens::palette::CommandMatch::Known(_, _)) => {}
+            // A5 — a known, runnable command is LOCAL: it runs its native
+            // effect (opens its dialog, …) and never reaches the model. The
+            // host drains the queue on the Signal this raises.
+            Some(crate::screens::palette::CommandMatch::Known(args, name)) => {
+                if crate::screens::palette::queue_run(&name, &args) {
+                    self.ui.lock().unwrap().set_draft_inner(String::new());
+                    makepad_widgets::SignalToUI::set_ui_signal();
+                    makepad_widgets::log!("[octoscode] command /{name}: queued to run locally");
+                    return Ok(String::new());
+                }
+            }
             Some(crate::screens::palette::CommandMatch::NotRunnable(name)) => {
                 // A KNOWN name the native build cannot run: report WHY and
                 // consume the invocation — never dispatched, never a silent

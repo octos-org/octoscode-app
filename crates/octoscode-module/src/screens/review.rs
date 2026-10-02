@@ -317,10 +317,13 @@ fn file_counts(file: &Value) -> (u64, u64) {
 /// The typed withholding reason, precedence per `native-review.ts:33-55`.
 /// (`authorityChanged` needs RPC-authority identity the store does not keep —
 /// not detectable here; the other four are.)
-fn blocked_reason(store: &Store, ui: &crate::flow::FlowUi) -> Option<&'static str> {
-    let caps = store.capabilities();
-    let method_ok = caps.iter().any(|c| c == "review/start");
-    let feature_ok = caps.iter().any(|c| c == "review.start.v1");
+pub fn blocked_reason(store: &Store, ui: &crate::flow::FlowUi) -> Option<&'static str> {
+    // A5: the METHOD half reads the negotiated method list (where the
+    // transport puts methods — `config.supported_methods`, the #P4e1b F1
+    // finding); the capability list carries only feature names, so reading the
+    // method there withheld review from every real server.
+    let method_ok = crate::screens::dialog::advertises(store, "review/start");
+    let feature_ok = crate::screens::dialog::advertises(store, "review.start.v1");
     if !(method_ok && feature_ok) {
         return Some("This server does not advertise native code review.");
     }
@@ -534,9 +537,14 @@ pub async fn perform(effect: Effect, conv: &Conversation) -> Result<(), String> 
 pub fn spawn(effect: Effect, rt: &tokio::runtime::Runtime, conv: std::sync::Arc<Conversation>) {
     apply(&effect);
     rt.spawn(async move {
-        if let Err(e) = perform(effect, &conv).await {
-            ::log::warn!("octoscode: screens/review: {e}");
+        let what = format!("{effect:?}");
+        match perform(effect, &conv).await {
+            Ok(()) => makepad_widgets::log!("[octoscode] review action done: {what}"),
+            Err(e) => makepad_widgets::log!("[octoscode] screens/review: {e}"),
         }
+        // A5: the receipt folds after the response frame woke the UI — wake it
+        // again so an open review dialog shows the receipt.
+        makepad_widgets::SignalToUI::set_ui_signal();
     });
 }
 
@@ -759,6 +767,33 @@ pub fn rebuild_diff_rows(card_src: &str) -> (String, Vec<(usize, String, u64)>) 
 }
 
 pub fn lower_screen(card: &str, ctx: &Ctx<'_>) -> Result<String, String> {
+    let (mut tree, code_texts) = lower_tree(card, ctx)?;
+    octoscript_makepad::l0::inspectable(&mut tree);
+    let ui = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&tree))
+        .map_err(|e| format!("to_makepad_ui {card}: {e}"))?;
+    let prefix = format!("scr_{}", card.trim_start_matches("autonomy-"));
+    // #31d workflow 1: the review cards are LIGHT-authored (autonomy-01 bg
+    // #fcfcfc) — the app-wide token set rewrites them in dark mode. (The
+    // dark-atlas faces autonomy-03/04/05 keep their literals — see theme.rs.)
+    // #31d2 ③: the live rebuild estimates each code row's box from chars*8
+    // (the authored mono ratio); live Inter runs wider, so a long line clips
+    // mid-glyph at the box edge. Ellipsize the diff code rows (the entry's
+    // "ellipsize or scroll like light mode") — depth-tracked instance scan,
+    // the same production-DSL idiom components.rs uses.
+    Ok(crate::screens::theme::retint_dsl(&diff_row_ellipsis(
+        &ui.replace("beauty_0", &prefix),
+        &code_texts,
+    )))
+}
+
+/// A5: the card's prepared tree with the live values applied and its AUTHORED
+/// ids intact (before `inspectable`), plus the live diff-row texts the
+/// ellipsis pass keys on — the dialog host (`screens::dialog`) wires controls
+/// by those ids and lowers slot-relative.
+pub fn lower_tree(
+    card: &str,
+    ctx: &Ctx<'_>,
+) -> Result<(octoscript_render::UiNode, Vec<String>), String> {
     let (mut card_src, mut data, kit_dir) = lower_card_src(card)?;
     // #30a2 ①: the diff body renders the SELECTED file's real hunks, one row
     // per line (before the copy injection, which then fills ln/dl texts).
@@ -919,23 +954,7 @@ pub fn lower_screen(card: &str, ctx: &Ctx<'_>) -> Result<String, String> {
         .collect();
     let prepared = octoscript_makepad::l0::prepare(&card_src, &data, &kit_dir)
         .map_err(|e| format!("prepare {card}: {e}"))?;
-    let mut tree = prepared.tree;
-    octoscript_makepad::l0::inspectable(&mut tree);
-    let ui = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&tree))
-        .map_err(|e| format!("to_makepad_ui {card}: {e}"))?;
-    let prefix = format!("scr_{}", card.trim_start_matches("autonomy-"));
-    // #31d workflow 1: the review cards are LIGHT-authored (autonomy-01 bg
-    // #fcfcfc) — the app-wide token set rewrites them in dark mode. (The
-    // dark-atlas faces autonomy-03/04/05 keep their literals — see theme.rs.)
-    // #31d2 ③: the live rebuild estimates each code row's box from chars*8
-    // (the authored mono ratio); live Inter runs wider, so a long line clips
-    // mid-glyph at the box edge. Ellipsize the diff code rows (the entry's
-    // "ellipsize or scroll like light mode") — depth-tracked instance scan,
-    // the same production-DSL idiom components.rs uses.
-    Ok(crate::screens::theme::retint_dsl(&diff_row_ellipsis(
-        &ui.replace("beauty_0", &prefix),
-        &code_texts,
-    )))
+    Ok((prepared.tree, code_texts))
 }
 
 /// Append `max_lines: 1 text_overflow: TextOverflow.Ellipsis` to every diff

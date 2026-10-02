@@ -40,23 +40,134 @@ pub const LOADING_CARD: &str = "setup-12";
 pub struct Command {
     pub name: &'static str,
     pub description: &'static str,
-    /// `methodsAny` — advertised via `config/announce_capabilities`.
+    /// `methodsAny` — at least one must be advertised (a method `a/b` is read
+    /// from the negotiated method list, a feature `a.b.v1` from the
+    /// capability list — `dialog::advertises`).
     pub methods_any: &'static [&'static str],
+    /// `methodsAll` + `featuresAll` (`registry.ts:52` `CommandRequirement`):
+    /// every one must be advertised.
+    pub requires_all: &'static [&'static str],
+    /// The web's aliases (`registry.ts` `aliases`) — the suggestion filter
+    /// matches them too (`commandSuggestions`).
+    pub aliases: &'static [&'static str],
     /// The native effect running it has today. Commands the native client
     /// cannot fulfil yet keep `effect: None` and stay disabled with the
     /// parity matrix's own status (fail closed, never a silent no-op).
     pub effect: Option<&'static str>,
 }
 
-/// The Stage B atlas slice (`setup-08` rows t_cmd0..t_cmd5), in registry order.
+/// The Stage B atlas slice (`setup-08` rows t_cmd0..t_cmd5) first, in its own
+/// order, then the commands that open the native dialogs (A5), in the web
+/// registry's order (`registry.ts:87`). Every row runs a native effect; the
+/// gates are the web's requirements for the same command.
 pub const COMMANDS: &[Command] = &[
-    Command { name: "/model", description: "Switch model", methods_any: &["state.session_hydrate.v1"], effect: None },
-    Command { name: "/monitor", description: "Add a monitor", methods_any: &["coding.monitor_runtime.v1"], effect: None },
-    Command { name: "/mode", description: "Change permissions", methods_any: &["approval.typed.v1"], effect: None },
-    Command { name: "/compact", description: "Compact context", methods_any: &["context.lifecycle.v1"], effect: None },
-    Command { name: "/btw", description: "Ask a side question", methods_any: &["session/btw"], effect: None },
-    Command { name: "/resume", description: "Resume a session", methods_any: &["state.session_hydrate.v1"], effect: Some("session.refresh") },
+    // A5: `/model` opens the Models dialog (`App.tsx:1488` intent `models`,
+    // requirement `profile/llm/list`).
+    Command { name: "/model", description: "Show model settings", methods_any: &["profile/llm/list"], requires_all: &[], aliases: &["models"], effect: Some("dialog.open.models") },
+    // A5: `/monitor` opens the Monitors section (intent `autonomy`; methodsAny
+    // monitor/create|list + coding.autonomy.v1 + coding.monitor_runtime.v1).
+    Command { name: "/monitor", description: "Manage session monitors", methods_any: &["monitor/create", "monitor/list"], requires_all: &["coding.autonomy.v1", "coding.monitor_runtime.v1"], aliases: &["monitors"], effect: Some("dialog.open.monitors") },
+    // A5: the composer's approval pill, from the keyboard
+    // (`permission/profile/set`, the pill's own production path).
+    // A5: no "permissions" alias — the web's /permissions (approval scopes)
+    // is A4's inspector, reached by its own row below.
+    Command { name: "/mode", description: "Change permissions", methods_any: &["approval.typed.v1"], requires_all: &[], aliases: &[], effect: Some("permission.cycle") },
+    // A5: `/compact` is the web's alias of `/context` (`registry.ts:331`):
+    // it opens the Context dialog, where Compact now runs.
+    Command { name: "/compact", description: "Context and compaction", methods_any: &["context.lifecycle.v1", "session/compact"], requires_all: &[], aliases: &["context", "ctx", "compress"], effect: Some("dialog.open.context") },
+    Command { name: "/btw", description: "Ask a side question", methods_any: &["session/btw"], requires_all: &[], aliases: &["aside"], effect: Some("aside.ask") },
+    // A5: the row runs the typed command (`compose:`): A4's resume surface.
+    Command { name: "/resume", description: "Resume a session", methods_any: &["state.session_hydrate.v1"], requires_all: &[], aliases: &[], effect: Some("compose:/resume") },
+    // ---- A5: the dialog commands beyond the atlas slice (web order).
+    Command { name: "/review", description: "Run native code review", methods_any: &["review/start"], requires_all: &["review.start.v1"], aliases: &["code-review"], effect: Some("dialog.open.review") },
+    Command { name: "/peer", description: "Inspect and steer peers", methods_any: &["peer/prepare", "peer/gather"], requires_all: &[], aliases: &["peers", "fleet"], effect: Some("dialog.open.fleet") },
+    Command { name: "/ps", description: "Show background tasks", methods_any: &["task/list"], requires_all: &[], aliases: &["tasks"], effect: Some("dialog.open.tasks") },
+    // A5: the web's `interrupt` intent (`registry.ts:272`, methodsAll
+    // turn/interrupt; App.tsx:1333 `conversation.interrupt()`): the composer
+    // Stop button's own action.
+    Command { name: "/stop", description: "Stop the active turn", methods_any: &["turn/interrupt"], requires_all: &[], aliases: &["interrupt", "esc"], effect: Some("turn.interrupt") },
+    Command { name: "/skills", description: "Manage installed skills", methods_any: &["profile/skills/list"], requires_all: &[], aliases: &["skill"], effect: Some("dialog.open.skills") },
+    Command { name: "/goal", description: "Inspect and manage the goal", methods_any: &["session/goal/get", "session/goal/set", "session/goal/clear"], requires_all: &["coding.autonomy.v1", "coding.goal_runtime.v1"], aliases: &["agents", "agent"], effect: Some("dialog.open.goal") },
+    Command { name: "/loop", description: "Inspect and manage loops", methods_any: &["loop/create", "loop/list"], requires_all: &["coding.autonomy.v1", "coding.loop_runtime.v1"], aliases: &["loops"], effect: Some("dialog.open.loops") },
+    // ---- A5: the board-3 surfaces (A4) — every command that opens a screen
+    // is a palette row. `compose:/name` submits the command through the SAME
+    // command layer typing uses (flow.rs -> board3::host::command), so a row
+    // and the typed command can never diverge. Gates: the web's requirements
+    // (`registry.ts`).
+    Command { name: "/rewind", description: "Rewind to an earlier turn", methods_any: &["session/rollback"], requires_all: &["session/hydrate"], aliases: &["backtrack"], effect: Some("compose:/rewind") },
+    Command { name: "/threads", description: "Inspect the thread graph", methods_any: &["thread/graph/get"], requires_all: &["state.thread_graph.v1"], aliases: &["thread"], effect: Some("compose:/threads") },
+    Command { name: "/turn", description: "Inspect the active turn", methods_any: &["turn/state/get"], requires_all: &["state.turn_state_get.v1"], aliases: &[], effect: Some("compose:/turn") },
+    Command { name: "/permissions", description: "Remembered decisions", methods_any: &["approval/scopes/list"], requires_all: &[], aliases: &["permission"], effect: Some("compose:/permissions") },
+    Command { name: "/thinking", description: "Set thinking effort", methods_any: &["turn/start"], requires_all: &[], aliases: &["think"], effect: Some("compose:/thinking") },
+    Command { name: "/images", description: "Attach images", methods_any: &["turn/start"], requires_all: &[], aliases: &[], effect: Some("compose:/images") },
+    Command { name: "/sessions", description: "Browse sessions", methods_any: &["session/list"], requires_all: &[], aliases: &["ss"], effect: Some("compose:/sessions") },
+    Command { name: "/tools", description: "Inspect tool availability", methods_any: &["tool/status/list"], requires_all: &[], aliases: &["tool-settings"], effect: Some("compose:/tools") },
+    Command { name: "/mcp", description: "Inspect MCP connections", methods_any: &["mcp/status/list"], requires_all: &[], aliases: &[], effect: Some("compose:/mcp") },
 ];
+
+/// A5 — the web's `commandSuggestions(draft)` (`registry.ts:722`): only for a
+/// slash-shaped draft with NO arguments; an empty name lists everything; a
+/// name filters by prefix over the command name AND its aliases; commands the
+/// server does not advertise are hidden (`commandAvailability`). Returns
+/// indices into [`COMMANDS`], in table order.
+pub fn suggestions(store: &Store, query: &str) -> Vec<usize> {
+    let q = query.trim_start();
+    let q = q.strip_prefix('/').unwrap_or(q);
+    if q.contains(char::is_whitespace) {
+        return Vec::new(); // `/btw why …` carries arguments: no menu
+    }
+    let q = q.to_ascii_lowercase();
+    COMMANDS
+        .iter()
+        .enumerate()
+        .filter(|(_, c)| available(store, c))
+        .filter(|(_, c)| {
+            q.is_empty()
+                || c.name.trim_start_matches('/').starts_with(&q)
+                || c.aliases.iter().any(|a| a.starts_with(&q))
+        })
+        .map(|(i, _)| i)
+        .collect()
+}
+
+/// The highlighted row: the selection when it is among the suggestions, else
+/// the first suggestion (the web's listbox keeps the active option visible).
+pub fn selected_suggestion(store: &Store) -> Option<usize> {
+    let (sel, query) = {
+        let s = screen().lock().unwrap();
+        (s.selected, s.query.clone())
+    };
+    let rows = suggestions(store, &query);
+    if rows.contains(&sel) {
+        Some(sel)
+    } else {
+        rows.first().copied()
+    }
+}
+
+/// The query the menu filters by (the composer draft while it is a slash
+/// command, the web's suggestion source).
+pub fn set_query(text: &str) {
+    screen().lock().unwrap().query = text.to_owned();
+}
+
+pub fn query_text() -> String {
+    screen().lock().unwrap().query.clone()
+}
+
+/// `commandAvailability` for one row: a native effect, ONE of `methods_any`
+/// (when listed) and ALL of `requires_all`.
+pub fn available(store: &Store, cmd: &Command) -> bool {
+    if cmd.effect.is_none() {
+        return false;
+    }
+    let any = cmd.methods_any.is_empty()
+        || cmd.methods_any.iter().any(|m| crate::screens::dialog::advertises(store, m));
+    any && cmd
+        .requires_all
+        .iter()
+        .all(|m| crate::screens::dialog::advertises(store, m))
+}
 
 /// #P4d3 — the web's implemented-slice registry, ported verbatim in order
 /// (`registry.ts:87` WEB_COMMANDS: 45 entries, 33 implemented / 12 TUI-only).
@@ -168,15 +279,60 @@ pub fn match_command(input: &str) -> Option<CommandMatch> {
         c.name == candidate || c.aliases.contains(&candidate)
     });
     match found {
-        // The PALETTE atlas slice stays the runnable set (the Stage B card
-        // renders it); the wider web slice is known-but-not-runnable here
-        // unless the effect column already wires it.
-        Some(c) if c.implemented && COMMANDS.iter().any(|p| {
-            p.name.trim_start_matches('/') == c.name
-        }) => Some(CommandMatch::Known(args, c.name.to_owned())),
+        // The PALETTE table is the runnable set; the wider web slice is
+        // known-but-not-runnable here unless a row runs it. A5: a row runs a
+        // web command by its name OR one of its aliases (`/context` is the
+        // `/compact` row's alias, `registry.ts:331`).
+        Some(c) if c.implemented && command_index(c.name).is_some() => {
+            Some(CommandMatch::Known(args, c.name.to_owned()))
+        }
         Some(c) => Some(CommandMatch::NotRunnable(c.name.to_owned())),
         None => Some(CommandMatch::Unknown(candidate.to_owned())),
     }
+}
+
+/// A5 — the web's `isLocalShellBang` (`intent.ts:175`): after NFKC-style
+/// folding of the full-width `！` and dropping leading whitespace and
+/// format characters (`\p{Cf}`: zero-width spaces/joiners, BOM, word
+/// joiner, bidi marks), the input starts with `!`.
+pub fn is_local_shell_bang(input: &str) -> bool {
+    let is_format = |c: char| {
+        matches!(c, '\u{00AD}' | '\u{061C}' | '\u{180E}' | '\u{200B}'..='\u{200F}'
+            | '\u{202A}'..='\u{202E}' | '\u{2060}'..='\u{2064}' | '\u{2066}'..='\u{206F}' | '\u{FEFF}')
+    };
+    input
+        .trim_start_matches(|c: char| c.is_whitespace() || is_format(c))
+        .starts_with(['!', '\u{FF01}'])
+}
+
+/// The [`COMMANDS`] row that runs web command `name` (by name or alias).
+pub fn command_index(name: &str) -> Option<usize> {
+    let name = name.trim_start_matches('/');
+    COMMANDS.iter().position(|p| {
+        p.name.trim_start_matches('/') == name || p.aliases.contains(&name)
+    })
+}
+
+/// A5 — a KNOWN command submitted from the composer runs LOCALLY, never as a
+/// prompt (the web's command layer: `submitComposer` → `commandIntent`, the
+/// text never reaches the model). The conversation layer cannot open a dialog
+/// itself, so it queues the run here and wakes the UI; the host drains the
+/// queue on its next Signal and performs the row's effect.
+static QUEUED: std::sync::Mutex<Vec<(usize, String)>> = std::sync::Mutex::new(Vec::new());
+
+pub fn queue_run(name: &str, args: &str) -> bool {
+    match command_index(name) {
+        Some(i) => {
+            QUEUED.lock().unwrap().push((i, args.to_owned()));
+            true
+        }
+        None => false,
+    }
+}
+
+/// The queued `(row, args)` runs, oldest first.
+pub fn take_queued() -> Vec<(usize, String)> {
+    std::mem::take(&mut *QUEUED.lock().unwrap())
 }
 
 /// The command-report transcript row's own kind — one line in the owning
@@ -273,15 +429,7 @@ pub fn owns_action(id: &str) -> bool {
 }
 
 fn advertised(store: &std::sync::Arc<Store>, cmd: &Command) -> bool {
-    if cmd.effect.is_none() {
-        return false;
-    }
-    let caps = store.capabilities();
-    cmd.methods_any.iter().any(|m| {
-        caps.iter().any(|c| {
-            c == m || (m.ends_with('*') && c.starts_with(m.trim_end_matches('*')))
-        })
-    })
+    available(store, cmd)
 }
 
 /// Resolve one of this module's binding ids (JSON only — a card never sees a
@@ -410,6 +558,21 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             let n = COMMANDS.len() as isize;
             if n == 0 {
                 return Effect::Unhandled(action.to_owned());
+            }
+            // A5: with a filtered menu the walk is over the VISIBLE rows (the
+            // web's listbox options), wrapping inside them; with nothing
+            // visible (no capabilities yet) the table walk is unchanged.
+            let rows = suggestions(ctx.store, &s.query);
+            if !rows.is_empty() {
+                let step = index as isize; // usize::MAX casts to -1
+                let at = rows.iter().position(|&r| r == s.selected);
+                let next = match at {
+                    Some(p) => (p as isize + step).rem_euclid(rows.len() as isize) as usize,
+                    None if step < 0 => rows.len() - 1,
+                    None => 0,
+                };
+                s.selected = rows[next];
+                return Effect::Move(step);
             }
             // `CommandPalette.tsx:44-49`: (selected + dir + len) % len.
             let next = ((s.selected as isize + index as isize).rem_euclid(n)) as usize;

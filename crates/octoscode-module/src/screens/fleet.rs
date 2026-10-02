@@ -285,7 +285,9 @@ pub fn action_params(
             ))
         }
         "task.cancel" => {
-            let task = running_task(store)?;
+            // A5: row-aware — each generated run block's Cancel addresses
+            // its own running task (`run_r{i}_cancel_control` → row i).
+            let task = running_tasks(store).into_iter().nth(row)?;
             Some((
                 "task/cancel".to_owned(),
                 json!({ "task_id": task.id, "session_id": session }),
@@ -325,8 +327,8 @@ pub enum Effect {
     /// per-row `steerDrafts`, `FleetView.tsx:226-227`; the native screen set
     /// has one draft — reported).
     Steer { row: usize, text: String },
-    /// `task/cancel` the running task.
-    CancelTask,
+    /// `task/cancel` the running task in run block `row`.
+    CancelTask { row: usize },
     /// `task/output/read` the running card's output.
     OpenRunning,
     /// #P4a4 row `Start control flow`: start peer row `row` — acquire the
@@ -360,7 +362,7 @@ pub fn resolve(action: &str, index: usize, ctx: &Ctx<'_>) -> Effect {
             text: ctx.ui.lock().unwrap().draft(),
         },
         "peer.start" | "peer_1_start" | "peer_2_start" | "peer_3_start" => Effect::Start { row },
-        "task.cancel" => Effect::CancelTask,
+        "task.cancel" => Effect::CancelTask { row: index },
         "task.open.running" => Effect::OpenRunning,
         other => Effect::Unhandled(other.to_owned()),
     }
@@ -972,6 +974,21 @@ fn rewrite_tasks_rows(card_src: String, data: &mut Value, ctx: &Ctx<'_>) -> Stri
 /// module's own L0 chain (`l0::prepare` → `to_makepad_ui`), renamed per
 /// screen like models.rs.
 pub fn lower(screen_id: &str, ctx: &Ctx<'_>) -> Result<String, String> {
+    let mut tree = lower_tree(screen_id, ctx)?;
+    octoscript_makepad::l0::inspectable(&mut tree);
+    let ui = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&tree))
+        .map_err(|e| format!("to_makepad_ui {screen_id}: {e}"))?;
+    let prefix = format!("scr_{}", screen_id.trim_start_matches("autonomy-"));
+    Ok(ui.replace("beauty_0", &prefix))
+}
+
+/// A5: the card's prepared tree with the live rows and the Done-row recolour
+/// applied, its AUTHORED ids intact (before `inspectable`) — the dialog host
+/// (`screens::dialog`) wires controls by those ids and lowers slot-relative.
+pub fn lower_tree(
+    screen_id: &str,
+    ctx: &Ctx<'_>,
+) -> Result<octoscript_render::UiNode, String> {
     let (card_src, data, kit_dir) = lower_card_src(screen_id, ctx)?;
     let prepared = octoscript_makepad::l0::prepare(&card_src, &data, &kit_dir)
         .map_err(|e| format!("prepare {screen_id}: {e}"))?;
@@ -1013,11 +1030,7 @@ pub fn lower(screen_id: &str, ctx: &Ctx<'_>) -> Result<String, String> {
             }
         }
     }
-    octoscript_makepad::l0::inspectable(&mut tree);
-    let ui = crate::design::with_fonts(octoscript_makepad::design::to_makepad_ui(&tree))
-        .map_err(|e| format!("to_makepad_ui {screen_id}: {e}"))?;
-    let prefix = format!("scr_{}", screen_id.trim_start_matches("autonomy-"));
-    Ok(ui.replace("beauty_0", &prefix))
+    Ok(tree)
 }
 
 // --------------------------------------------------------------------- spawn
@@ -1150,9 +1163,21 @@ pub fn spawn(
         });
         return;
     }
+    // A5 — a steer with no text never leaves the client (the web's row input
+    // is required before Steer, `FleetView.tsx` steerDrafts); the open dialog
+    // says where the text comes from.
+    if let Effect::Steer { text, .. } = &effect {
+        if text.trim().is_empty() {
+            ::log::warn!("octoscode: fleet steer: nothing to send — the steering text is empty");
+            crate::screens::dialog::set_notice(
+                "Type the steering text in the composer first, then choose Steer.",
+            );
+            return;
+        }
+    }
     let (action, row, text) = match &effect {
         Effect::Steer { row, text } => ("peer.steer", *row, text.clone()),
-        Effect::CancelTask => ("task.cancel", 0, String::new()),
+        Effect::CancelTask { row } => ("task.cancel", *row, String::new()),
         Effect::OpenRunning => ("task.open.running", 0, String::new()),
         // Routed above (the if-let returned); the match only needs the arms
         // the compiler cannot prove unreachable.
@@ -1171,10 +1196,13 @@ pub fn spawn(
     if matches!(effect, Effect::Steer { .. }) {
         ui.lock().unwrap().set_draft_inner("");
     }
-    ::log::info!("octoscode: fleet action -> {method}");
+    makepad_widgets::log!("[octoscode] fleet action -> {method}");
     let conv = conv.clone();
     rt.spawn(async move {
         if let Err(e) = conv.client().request(&method, params).await {
+            // A5: the open dialog shows the refusal (the web rows' error).
+            crate::screens::dialog::set_notice(format!("{e}"));
+            makepad_widgets::SignalToUI::set_ui_signal();
             ::log::warn!("octoscode: fleet {method}: {e}");
         }
     });

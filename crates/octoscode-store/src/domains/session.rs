@@ -374,6 +374,25 @@ impl Sessions {
         self.inner.lock().unwrap().orchestration.get(session).cloned()
     }
 
+    /// A5 — apply a context lifecycle NOTIFICATION under the web's
+    /// generation rule (`context-events.ts:25` `applyContextNotification`):
+    /// an event whose `context_state.generation` is OLDER than the held
+    /// snapshot's is dropped (a delayed or replayed frame never regresses the
+    /// occupancy); an equal generation applies (a failed compaction keeps its
+    /// generation, its retry must still show). Returns whether it applied.
+    pub fn apply_context_notification(&self, session: &str, event: ContextLifecycle) -> bool {
+        let generation = |s: &serde_json::Value| s.get("generation").and_then(|g| g.as_u64());
+        let mut inner = self.inner.lock().unwrap();
+        let held = inner.context.get(session).and_then(|c| generation(&c.state));
+        if let (Some(new), Some(old)) = (generation(&event.state), held) {
+            if new < old {
+                return false;
+            }
+        }
+        inner.context.insert(session.to_owned(), event);
+        true
+    }
+
     /// Record a context lifecycle event (`context/compaction_started`,
     /// `context/compaction_completed`, `context/normalization_reported`).
     pub fn set_context(&self, session: &str, event: ContextLifecycle) {

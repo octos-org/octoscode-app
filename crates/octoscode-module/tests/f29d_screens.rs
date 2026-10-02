@@ -118,12 +118,12 @@ fn palette_commands_fail_closed_without_their_capability() {
     assert!(!enabled[4].as_bool().unwrap(), "/btw still gated off");
 
     let effect = palette::resolve("palette.run", 5, &ctx);
-    let ScreenEffect::Run(Some("session.refresh"), name) = effect else {
-        panic!("the gated /resume runs session.refresh, got {effect:?}");
+    // A5: the row submits `/resume` through the command layer — the same
+    // path typing takes (A4's resume surface, `board3::host::command`).
+    let ScreenEffect::Run(Some("compose:/resume"), name) = effect else {
+        panic!("the gated /resume runs the typed command, got {effect:?}");
     };
     assert_eq!(name, "/resume");
-    // The native effect is one the router already owns (production path).
-    assert!(octoscode_module::actions::is_routed("session.refresh"));
 }
 
 // ---------------------------------------------------------- §3 keyboard parity
@@ -363,9 +363,9 @@ impl ReplayServer {
     }
 }
 
-/// `palette.run` for `/resume` routes the EXISTING production effect
-/// (`session.refresh`) over the real recorded wire: the store folds the
-/// recording's session rows and the socket carries `session/list`.
+/// `palette.run` for `/resume` runs the typed command over the real recorded
+/// wire (A5: `compose:/resume` -> the command layer -> A4's resume surface):
+/// the socket carries its `session/list` catalog read.
 #[tokio::test]
 async fn palette_run_resume_routes_the_production_refresh_on_the_real_wire() {
     let _state = state_lock();
@@ -394,14 +394,15 @@ async fn palette_run_resume_routes_the_production_refresh_on_the_real_wire() {
         "/resume is enabled under the recorded capabilities"
     );
 
-    // Run it: the resolved effect is the router's own production effect.
+    // Run it: A5 — the row submits `/resume` through the command layer, the
+    // path typing takes (A4's resume surface and its `session/list` load).
     let effect = palette::resolve("palette.run", 5, &ctx);
-    let ScreenEffect::Run(Some("session.refresh"), "/resume") = &effect else {
-        panic!("the palette routes /resume to session.refresh, got {effect:?}");
+    let ScreenEffect::Run(Some("compose:/resume"), "/resume") = &effect else {
+        panic!("the palette routes /resume through the command layer, got {effect:?}");
     };
-    // Perform it exactly as `perform_action`'s Run arm does.
-    let n = conv.refresh_sessions().await.expect("session.refresh");
-    assert!(n >= 0);
+    // Perform it exactly as `run_palette_row`'s compose arm does.
+    conv.set_draft("/resume");
+    conv.submit_draft().await.expect("the command layer runs /resume");
     assert!(
         server
             .received
