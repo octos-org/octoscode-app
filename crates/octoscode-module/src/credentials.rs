@@ -21,6 +21,15 @@
 //! The directory: `OCTOSCODE_CREDENTIALS_DIR` (tests, the headless harness),
 //! else the host's app data dir (Android's files dir, handed over through
 //! `design::host_dir`), else `$HOME/.octoscode/credentials`.
+//!
+//! A21 (parity row 195, built the web's way): the token belongs to ONE
+//! connection identity, as in the web's tab envelope — connecting to another
+//! server drops the previous server's token ([`remember_server`]), a token of
+//! any other origin (the per-origin memory the web retired with its
+//! "device-memory feature", `remembered-token.ts`) is purged at start
+//! ([`purge_device_memory`]) and Forget removes every one
+//! ([`forget_all_tokens`]). Only the address outlives the identity. The
+//! tab's `autoConnect` marker lives here too (`auto-connect`).
 use std::io::Write;
 use std::path::{Path, PathBuf};
 
@@ -158,8 +167,18 @@ pub fn forget_token(server: &str) {
     forget_token_in(&dir(), server)
 }
 
+/// Remember the server address. A21: it is the connection's identity
+/// origin from now on, so a token saved for any OTHER origin goes with the
+/// previous identity (the web's tab envelope holds one endpoint + token,
+/// `preferences.ts:118-135`; `ConnectionGate.tsx:266-307` clears the
+/// remembered tokens on an identity change).
 pub fn remember_server(server: &str) -> Result<(), String> {
-    remember_server_in(&dir(), server)
+    let d = dir();
+    let n = forget_tokens_except_in(&d, Some(server));
+    if n > 0 {
+        makepad_widgets::log!("[octoscode] connection: the previous server's token removed (one connection identity)");
+    }
+    remember_server_in(&d, server)
 }
 
 pub fn last_server() -> Option<String> {
@@ -170,14 +189,114 @@ pub fn forget_server() {
     forget_server_in(&dir())
 }
 
-// A21 failing-first stubs (main's behaviour: per-origin device memory).
-pub fn forget_all_tokens() {}
-pub fn purge_device_memory() {}
-pub fn auto_connect() -> Option<bool> {
-    None
+// ---- A21: the web's tab / durable split (parity row 195) -------------------
+//
+// The web keeps ONE connection identity per tab: only the origin is durable
+// (`preferences.ts:15,54-57,111-114`), the token lives in the tab envelope
+// with that endpoint (`:17,59-70,123-136`) and is replaced with it on any
+// identity change (`:118-135`; `ConnectionGate.tsx:266-307`). It retired its
+// per-origin "device memory" (`remembered-token.ts:1` "Remove credentials
+// saved by the former device-memory feature") and purges it at every start
+// (`ConnectionGate.tsx:204-206`), on an identity change (`:275`) and on
+// Forget (`:329`). Natively the app window is the one tab, and a relaunch is
+// that tab's refresh ("Refresh is now a recovery event rather than a
+// logout", ADR 0017; `architecture.md:150-157`): the CURRENT identity's
+// token outlives a relaunch, no other origin's ever does.
+
+/// The token files in `dir` and the origin each one belongs to.
+fn token_files(dir: &Path) -> Vec<(PathBuf, Option<String>)> {
+    let Ok(rd) = std::fs::read_dir(dir) else { return Vec::new() };
+    rd.filter_map(|e| e.ok())
+        .filter_map(|e| {
+            let name = e.file_name().to_string_lossy().to_string();
+            let hex = name.strip_suffix(".token")?.to_owned();
+            let bytes: Option<Vec<u8>> = (0..hex.len())
+                .step_by(2)
+                .map(|i| hex.get(i..i + 2).and_then(|b| u8::from_str_radix(b, 16).ok()))
+                .collect();
+            let origin = bytes.and_then(|b| String::from_utf8(b).ok());
+            Some((e.path(), origin))
+        })
+        .collect()
 }
-pub fn set_auto_connect(_on: bool) {}
-pub fn clear_auto_connect() {}
+
+/// Remove every saved token except `keep`'s origin (`None`: all of them).
+/// Returns how many were removed (logged by origin count only).
+pub fn forget_tokens_except_in(dir: &Path, keep: Option<&str>) -> usize {
+    let keep = keep.and_then(origin);
+    let mut n = 0;
+    for (path, o) in token_files(dir) {
+        if keep.is_some() && o == keep {
+            continue;
+        }
+        if std::fs::remove_file(&path).is_ok() {
+            n += 1;
+        }
+    }
+    n
+}
+
+fn auto_connect_file(dir: &Path) -> PathBuf {
+    dir.join("auto-connect")
+}
+
+/// The tab's auto-connect marker (`preferences.ts:66` `autoConnect`):
+/// `Some(true)` once the connection authenticated (`App.tsx:848-852`),
+/// `Some(false)` after a Connect not yet accepted (`ConnectionGate.tsx:267-268`)
+/// or a Disconnect (`:311-316`), `None` when never written (a device the
+/// previous build used: it dialed its server at every launch).
+pub fn auto_connect_in(dir: &Path) -> Option<bool> {
+    match std::fs::read_to_string(auto_connect_file(dir)).ok()?.trim() {
+        "1" => Some(true),
+        "0" => Some(false),
+        _ => None,
+    }
+}
+
+pub fn set_auto_connect_in(dir: &Path, on: bool) -> Result<(), String> {
+    if auto_connect_in(dir) == Some(on) {
+        return Ok(());
+    }
+    write_private(&auto_connect_file(dir), if on { "1" } else { "0" }).map_err(|e| format!("store auto-connect: {e}"))
+}
+
+pub fn clear_auto_connect_in(dir: &Path) {
+    let _ = std::fs::remove_file(auto_connect_file(dir));
+}
+
+/// Forget (`clearRememberedTokens` + `clearConnectionPreferences`): every
+/// origin's token goes.
+pub fn forget_all_tokens() {
+    let n = forget_tokens_except_in(&dir(), None);
+    if n > 0 {
+        makepad_widgets::log!("[octoscode] connection: {n} saved token(s) removed");
+    }
+}
+
+/// At start (`ConnectionGate.tsx:204-206`): a token saved for any origin
+/// other than the remembered server's is the former device memory — purged.
+pub fn purge_device_memory() {
+    let d = dir();
+    let keep = last_server_in(&d);
+    let n = forget_tokens_except_in(&d, keep.as_deref());
+    if n > 0 {
+        makepad_widgets::log!("[octoscode] connection: {n} token(s) of other servers purged (one connection identity)");
+    }
+}
+
+pub fn auto_connect() -> Option<bool> {
+    auto_connect_in(&dir())
+}
+
+pub fn set_auto_connect(on: bool) {
+    if let Err(e) = set_auto_connect_in(&dir(), on) {
+        makepad_widgets::log!("[octoscode] {e}");
+    }
+}
+
+pub fn clear_auto_connect() {
+    clear_auto_connect_in(&dir())
+}
 
 /// The connect screen's prefill at start: the last server and ITS token.
 pub fn prefill() -> (Option<String>, Option<String>) {

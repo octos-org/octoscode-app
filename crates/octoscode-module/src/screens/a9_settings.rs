@@ -204,6 +204,9 @@ pub fn forget_saved(server: &str) {
     // A19 — and the remembered Session/profile/workspace (the web's
     // forgetConnection clears its tab connection, `ConnectionGate.tsx:319-356`).
     crate::screens::remembered::forget(server);
+    // A21 — and the rest of the tab: the confirmed principal's drafts, the
+    // tab drafts, every saved token, the auto-connect marker.
+    crate::screens::bootstrap::forget_tab(server);
 }
 
 pub const ACTION_DISCONNECT: &str = "a9.leave.disconnect";
