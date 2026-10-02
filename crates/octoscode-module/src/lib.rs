@@ -1336,6 +1336,9 @@ impl OctoscodeView {
     // #28e4 merge: the #28e2 signature (cx — the palette search field is
     // pre-filled through it) carries main's #29d error-screen seed.
     fn start(&mut self, cx: &mut Cx) {
+        // A19 — the one-time migration's marker, read before any connect can
+        // rewrite A1's last-server (screens::remembered).
+        screens::remembered::note_process_start();
         // A1 — the Connect card remembers the last server and ITS token
         // (credentials.rs; "Stored for this server only"). Prefilled, never
         // auto-sent: the person still presses Connect.
@@ -1441,8 +1444,12 @@ impl OctoscodeView {
         let base =
             std::env::var("OCTOS_BASE_URL").unwrap_or_else(|_| "http://127.0.0.1:50082".to_string());
         let bearer = std::env::var("OCTOS_BEARER").unwrap_or_default();
-        let profile =
-            std::env::var("OCTOS_PROFILE_ID").unwrap_or_else(|_| "octoscode".to_string());
+        // A19 — the web's launch: a fresh connection carries NO profile id
+        // (`connection-bootstrap.ts:21`) and `launch/resolve` decides; a
+        // remembered open is restored; OCTOS_PROFILE_ID is a dev/test
+        // override only (screens::launch::Start).
+        let start = screens::launch::plan(&base);
+        let profile = start.profile();
         // The workspace cwd the web passes to `session/open` (`session-defaults.ts:5-7`).
         let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
 
@@ -1480,6 +1487,8 @@ impl OctoscodeView {
         let conv = Arc::new(conv);
         // A7: the turn controller starts queued prompts on the runtime.
         conv.attach();
+        // A19 — committed opens are remembered (never the dev/test override's).
+        conv.remember_opens(start.remembers());
 
         {
             let mut b = self.bridge.lock().unwrap();
@@ -1526,35 +1535,11 @@ impl OctoscodeView {
             });
         }
 
-        // Drive the conversation: open the workspace, then drain events.
+        // Drive the conversation: the event drain, then (its own task) the
+        // connect-time launch. The drain is a task of its own: a restore
+        // waits on the open's answer, which the drain folds.
         let drv = conv.clone();
         runtime.spawn(async move {
-            // #32h: ensure a profile that EXISTS server-side BEFORE the first
-            // session/open. The previous order ran open_workspace FIRST: on
-            // the phone it failed (the baked fallback "octoscode" does not
-            // exist; -32120 "agent is outside the requested profile scope"),
-            // logged via ::log (invisible on logcat) and RETURNED — the
-            // ensure block below never ran (the outer loop's device test of
-            // fbbaa08: no "profile ready" line at all). The desktop live
-            // gate keeps its explicit env.
-            let ensure_profile = std::env::var_os("OCTOS_CREATE_PROFILE").is_some()
-                || std::env::var_os("OCTOS_PROFILE_ID").is_none();
-            if ensure_profile {
-                match drv.create_profile().await {
-                    Ok(id) => {
-                        drv.adopt_profile(id.clone());
-                        makepad_widgets::log!("[octoscode] profile ready: {id}");
-                    }
-                    Err(e) => {
-                        makepad_widgets::log!("[octoscode] profile/local/create failed: {e}")
-                    }
-                }
-            }
-            if let Err(e) = drv.open_workspace(cwd).await {
-                makepad_widgets::log!("[octoscode] session/open: {e}");
-                SignalToUI::set_ui_signal();
-                return;
-            }
             while let Some(evt) = evt_rx.recv().await {
                 // #29c: the screens' occupancy window folds from the
                 // token_cost_update progress payloads (workspace-events.ts:6-10).
@@ -1569,6 +1554,16 @@ impl OctoscodeView {
                 ::log::debug!("[octoscode] {e:?}");
                 SignalToUI::set_ui_signal();
             }
+        });
+        // A19 — no profile is created at start any more: the web never
+        // creates one outside its onboarding panel (`onboarding-submission.ts:59`,
+        // its only `profile/local/create`); the #32h auto-create minted a stray
+        // `octoscode-<pid>` per launch and hid `no_profile` from the panel.
+        let st = conv.clone();
+        runtime.spawn(async move {
+            let r = screens::launch::startup(&st, start, cwd).await;
+            makepad_widgets::log!("[octoscode] startup: {r:?}");
+            SignalToUI::set_ui_signal();
         });
 
         self.runtime = Some(runtime);
@@ -2132,8 +2127,8 @@ impl OctoscodeView {
             // falling back to the env default before any connection.
             let base = screens::recents::endpoint();
             let bearer = std::env::var("OCTOS_BEARER").unwrap_or_default();
-            let profile =
-                std::env::var("OCTOS_PROFILE_ID").unwrap_or_else(|_| "octoscode".to_string());
+            // A19 — the plan's profile (override, else remembered, else none).
+            let profile = screens::launch::planned_profile(&base);
             let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
             let connected = {
                 let _guard = rt.enter();
@@ -2958,46 +2953,25 @@ impl OctoscodeView {
                                 screens: Arc<Mutex<screens::connect::ConnectUi>>,
                                 server: String,
                                 token: String,
-                                profile: String,
-                                discover: bool| {
+                                start: screens::launch::Start| {
             let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
             let waker: Arc<dyn Fn() + Send + Sync> = Arc::new(|| SignalToUI::set_ui_signal());
             handle.spawn(async move {
-                // #32h: discover a REAL profile id BEFORE the upgrade — the
-                // X-Profile-Id header is baked into TransportConfig at
-                // connect time and the session is scoped to it: the outer
-                // loop's curl shows ANY header gets the 101, but a
-                // non-existent profile never answers session/open (the
-                // silent submit). The solo login's user.id is a server-
-                // verified top-level profile id; an explicit
-                // OCTOS_PROFILE_ID (the desktop gate) is honored as-is; the
-                // onboarding arm passes discover=false (its id already comes
-                // from the server).
-                let effective = if discover {
-                    match std::env::var("OCTOS_PROFILE_ID") {
-                        Ok(explicit) => explicit,
-                        Err(_) => match Conversation::discover_solo_profile(&server).await {
-                            Some(id) => {
-                                makepad_widgets::log!("[octoscode] profile discovered: {id}");
-                                id
-                            }
-                            None => {
-                                makepad_widgets::log!(
-                                    "[octoscode] profile discovery unavailable — falling back to {profile}"
-                                );
-                                profile
-                            }
-                        },
-                    }
-                } else {
-                    profile
-                };
-                match Conversation::connect(&server, &token, &effective, cwd.clone(), Some(waker.clone())) {
+                // A19 — the connection carries the plan's profile id: none on
+                // a fresh connection (`connection-bootstrap.ts:21`; the
+                // `launch/resolve` answer decides), the remembered one on a
+                // restore, OCTOS_PROFILE_ID only as the dev/test override. The
+                // #32h discovery (solo login + admin profile ranking) is gone
+                // from this path — the web has none; it survives only as the
+                // one-time migration (screens::launch::startup).
+                let profile = start.profile();
+                match Conversation::connect(&server, &token, &profile, cwd.clone(), Some(waker.clone())) {
                     Ok((conv, evt_rx)) => {
                         screens::recents::set_connected_endpoint(&server);
                         let conv = Arc::new(conv);
         // A7: the turn controller starts queued prompts on the runtime.
         conv.attach();
+                        conv.remember_opens(start.remembers());
                         let mut evt_rx = evt_rx;
                         if let Ok(mut b) = bridge.lock() {
                             // #32h: swap ALL THREE, mirroring the start()
@@ -3044,71 +3018,19 @@ impl OctoscodeView {
                                 SignalToUI::set_ui_signal();
                             }
                         });
+                        // A19 — the connect-time launch on its own task (the
+                        // drain above already runs): a restore, the one-time
+                        // migration, or the web's launch with no profile id.
+                        // The #32h "session/open failed -> ensure a profile"
+                        // fallback is gone: the web never auto-creates.
                         let conv2 = conv.clone();
                         tokio::spawn(async move {
                             makepad_widgets::log!(
-                                "[octoscode] live: profile={effective} env_profile={}",
-                                std::env::var_os("OCTOS_PROFILE_ID").is_some()
+                                "[octoscode] live: profile={profile:?} plan={start:?}"
                             );
-                            let open = async {
-                                if let Err(e) = conv2.open_workspace(cwd).await {
-                                    makepad_widgets::log!(
-                                        "[octoscode] session/open failed: {e} — ensuring a profile"
-                                    );
-                                    match tokio::time::timeout(
-                                        std::time::Duration::from_secs(15),
-                                        conv2.create_profile(),
-                                    )
-                                    .await
-                                    {
-                                        Ok(Ok(id)) => {
-                                            conv2.adopt_profile(id.clone());
-                                            makepad_widgets::log!(
-                                                "[octoscode] profile ready: {id}"
-                                            );
-                                        }
-                                        Ok(Err(e)) => makepad_widgets::log!(
-                                            "[octoscode] profile/local/create failed: {e}"
-                                        ),
-                                        Err(_) => makepad_widgets::log!(
-                                            "[octoscode] profile/local/create: timed out"
-                                        ),
-                                    }
-                                    match tokio::time::timeout(
-                                        std::time::Duration::from_secs(15),
-                                        conv2.open_workspace(None),
-                                    )
-                                    .await
-                                    {
-                                        Ok(Ok(_)) => makepad_widgets::log!(
-                                            "[octoscode] workspace open: {}",
-                                            conv2.session_id()
-                                        ),
-                                        Ok(Err(e)) => {
-                                            makepad_widgets::log!("[octoscode] session/open: {e}")
-                                        }
-                                        Err(_) => {
-                                            makepad_widgets::log!("[octoscode] session/open: timed out")
-                                        }
-                                    }
-                                } else {
-                                    makepad_widgets::log!(
-                                        "[octoscode] workspace open: {}",
-                                        conv2.session_id()
-                                    );
-                                }
-                            };
-                            if tokio::time::timeout(
-                                std::time::Duration::from_secs(15),
-                                open,
-                            )
-                            .await
-                            .is_err()
-                            {
-                                makepad_widgets::log!(
-                                    "[octoscode] session/open: timed out (15 s)"
-                                );
-                            }
+                            let r = screens::launch::startup(&conv2, start, cwd).await;
+                            makepad_widgets::log!("[octoscode] startup: {r:?}");
+                            SignalToUI::set_ui_signal();
                         });
                     }
                     Err(e) => {
@@ -3129,6 +3051,12 @@ impl OctoscodeView {
                 // outer loop's diagnosis — no connect line was ever visible
                 // on the 6T); makepad_widgets::log! reaches the platform log.
                 makepad_widgets::log!("[octoscode] connect: {server}");
+                // A19 — another identity (this origin's stored token differs
+                // from the one typed) starts with no remembered Session: the
+                // web resets sessionId/profileId/cwd when the endpoint or the
+                // token changes (`ConnectionGate.tsx:266-307`). Compared in
+                // memory before the store below; never logged.
+                screens::remembered::on_connect_identity(&server, &token);
                 // A1: "Stored for this server only" — remember the address
                 // (the web's durable endpoint) and this origin's token
                 // (credentials.rs: per origin, 0600). The token is never
@@ -3151,9 +3079,9 @@ impl OctoscodeView {
                     ui.failure = None;
                     ui.raw_error = None;
                 }
-                let profile =
-                    std::env::var("OCTOS_PROFILE_ID").unwrap_or_else(|_| "octoscode".to_string());
-                connect_now(handle, bridge, store, screens, server, token, profile, true);
+                // A19 — the web's plan for this connection (screens::launch::plan).
+                let start = screens::launch::plan(&server);
+                connect_now(handle, bridge, store, screens, server, token, start);
             }
             // The web's `onConfigured` (`onboarding-submission.ts:126`): once
             // the provider is saved, open the canonical session — here a
@@ -3190,7 +3118,7 @@ impl OctoscodeView {
                             }
                             connect_now(
                                 handle, bridge, store2, screens2, server,
-                                String::new(), out.profile_id, false,
+                                String::new(), screens::launch::Start::Created(out.profile_id),
                             );
                         }
                         Err(e) => {
@@ -4719,7 +4647,14 @@ impl OctoscodeView {
         // the mount arm above accepted ANY non-connect name — every other
         // mounted card was lowered, wired and drawn into a HIDDEN dock (0x0
         // rects, no screen_splash in /d). Both now read `docked_screen()`.
-        let screen_dock_shown = self.docked_screen().is_some() || !live;
+        // A19 — the launch panel on a connection with no Session yet (a fresh
+        // server's onboarding) owns the first-run frame: no Connect form
+        // behind it (the web shows its panel in the shell, App.tsx:2470-2490).
+        let launch_holds = {
+            let store = self.bridge.lock().unwrap().store.clone();
+            screens::launch::holds_first_run(&store)
+        };
+        let screen_dock_shown = self.docked_screen().is_some() || (!live && !launch_holds);
         self.view
             .widget(cx, ids!(screen_dock))
             .set_visible(cx, screen_dock_shown);

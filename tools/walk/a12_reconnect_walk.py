@@ -309,6 +309,8 @@ def launch_app(serve_port):
         # Brief §8 (extended after A10): the pane's advanced file and the
         # per-install driver id too (outer/scripts/iso-env.sh).
         "OCTOSCODE_PANE_ADVANCED_FILE": "pane-advanced.json", "OCTOSCODE_DRIVER_ID_PATH": "driver-id",
+        # A19: the remembered connection.
+        "OCTOSCODE_CONNECTION_FILE": "connection-v1.json",
     }.items():
         env[k] = os.path.join(STATE, v)
     env.update({

@@ -713,6 +713,14 @@ pub struct Conversation {
     /// A15 — the last turn edge (`<turn>:start|end`) that re-listed the
     /// catalog (a turn's end arrives both bare and as an envelope).
     catalog_edge: Mutex<Option<String>>,
+    /// A19 — every accepted open is remembered for this server (the web's
+    /// tab state, `App.tsx:974-992`; `screens::remembered`). Off unless the
+    /// host turns it on, so a test conversation never writes the file.
+    remember_opens: Mutex<bool>,
+    /// A19 — the next `session/open`'s outcome, for a caller that must know
+    /// it (a restore the server refuses falls back to a fresh launch, the
+    /// web's `restoreRejected`, `use-octos-session.ts:2988-3000`).
+    open_watch: Mutex<Option<tokio::sync::oneshot::Sender<Result<String, String>>>>,
 }
 
 /// A4 — the HTTP origin for the media endpoints (`media.ts:14-35`): `ws` ->
@@ -895,9 +903,32 @@ impl Conversation {
                 link,
                 attempt_base: Mutex::new(0),
                 catalog_edge: Mutex::new(None),
+                remember_opens: Mutex::new(false),
+                open_watch: Mutex::new(None),
             },
             evt_rx,
         ))
+    }
+
+    /// A19 — remember every accepted open for this server
+    /// ([`crate::screens::remembered::note_opened`]).
+    pub fn remember_opens(&self, on: bool) {
+        *self.remember_opens.lock().unwrap() = on;
+    }
+
+    /// A19 — the outcome of the NEXT `session/open` this connection sends:
+    /// `Ok(session)` once the server's answer is adopted, `Err(reason)` when
+    /// it refuses (an RPC error, or another workspace than requested).
+    pub fn watch_next_open(&self) -> tokio::sync::oneshot::Receiver<Result<String, String>> {
+        let (tx, rx) = tokio::sync::oneshot::channel();
+        *self.open_watch.lock().unwrap() = Some(tx);
+        rx
+    }
+
+    fn settle_open_watch(&self, outcome: Result<String, String>) {
+        if let Some(tx) = self.open_watch.lock().unwrap().take() {
+            let _ = tx.send(outcome);
+        }
     }
 
     /// A4 — `POST <base>/api/upload` (multipart, field `file`, one file per
@@ -1070,7 +1101,10 @@ impl Conversation {
     /// `profile/local/create` — onboard a profile on a fresh solo serve
     /// (the precondition; not a matrix row).
     pub async fn create_profile(&self) -> Result<String, ClientError> {
-        let id = format!("{}-{}", self.profile(), std::process::id());
+        // A19 — a fresh connection carries no profile id; the requested id
+        // keeps the old built-in base then.
+        let base = Some(self.profile()).filter(|p| !p.trim().is_empty()).unwrap_or_else(|| "octoscode".to_owned());
+        let id = format!("{base}-{}", std::process::id());
         let result = self
             .client
             .request(
@@ -1483,6 +1517,13 @@ impl Conversation {
     /// `:23`). Resume is unchanged: [`Conversation::open_session`] takes any
     /// existing id the server listed.
     pub async fn new_chat(&self, cwd: Option<String>) -> Result<String, String> {
+        // A19 — no Session without a profile: a fresh connection's first
+        // Session comes from the launch decision (`screens::launch`), which
+        // adopts the resolved profile before it opens.
+        if self.profile().trim().is_empty() {
+            makepad_widgets::log!("[octoscode] new chat refused: no profile yet (the launch decides it)");
+            return Err("Choose a workspace first: the server has not named a profile for this connection yet.".to_owned());
+        }
         let id = Self::fresh_session_id_for(&self.profile());
         ::log::info!("octoscode: new chat -> {id}");
         // A8 — the new-session defaults apply at CREATION only
@@ -1997,6 +2038,13 @@ impl Conversation {
             );
             return Ok(String::new());
         }
+        // A19 — a fresh connection has no profile until the launch decides
+        // one: the web shows its launch panel instead of a composer then
+        // (`App.tsx:2470-2490`); nothing is sent and the text stays.
+        if !*self.workspace_opened.lock().unwrap() && self.profile().trim().is_empty() {
+            makepad_widgets::log!("[octoscode] submit held: no Session yet (the launch decides the profile)");
+            return Ok(String::new());
+        }
         // The web's first message creates the thread: never turn/start on a
         // session the server has not opened.
         if !*self.workspace_opened.lock().unwrap() {
@@ -2308,6 +2356,8 @@ impl Conversation {
                                 .connection
                                 .note_outage_error("The server opened a different workspace from this conversation's.");
                         }
+                        // A19 — a restore that lands elsewhere is refused.
+                        self.settle_open_watch(Err(format!("the server opened {actual} instead of {req}")));
                         return FlowEvent::Other("session/open-workspace-mismatch".to_owned());
                     }
                 }
@@ -2410,6 +2460,24 @@ impl Conversation {
                 // workspace, now that it is known (the web's `refreshKey`
                 // carries `opened.session_id`): the server's titles.
                 self.spawn_catalog_refresh("open");
+                // A19 — the committed open is what the next launch restores
+                // (the web: `App.tsx:974-992` session id, active profile and
+                // workspace root into the saved connection).
+                if *self.remember_opens.lock().unwrap() {
+                    let profile = r
+                        .opened
+                        .active_profile_id
+                        .clone()
+                        .filter(|p| !p.trim().is_empty())
+                        .unwrap_or_else(|| self.profile());
+                    crate::screens::remembered::note_opened(
+                        &self.http_base,
+                        &profile,
+                        &r.opened.session_id.0,
+                        r.opened.workspace_root.as_deref(),
+                    );
+                }
+                self.settle_open_watch(Ok(r.opened.session_id.0.clone()));
                 FlowEvent::WorkspaceOpened(r.opened.session_id.0.clone())
             }
             TransportEvent::SessionsListed { sessions } => {
@@ -2578,6 +2646,11 @@ impl Conversation {
                 if method == "session/open" && self.store.outage().is_some_and(|o| o.restoring) {
                     self.store.connection.note_outage_error(&error.message);
                     makepad_widgets::log!("[octoscode] link: the re-open was refused: {}", error.message);
+                }
+                // A19 — a refused open settles its watcher (a restore falls
+                // back to a fresh launch).
+                if method == "session/open" {
+                    self.settle_open_watch(Err(error.message.clone()));
                 }
                 FlowEvent::Other(format!("rpc-error {method}"))
             }

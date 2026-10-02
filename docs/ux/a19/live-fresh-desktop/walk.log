@@ -1,0 +1,31 @@
+PASS the onboarding panel opens at the first launch — 'Create your local coding profile'
+PASS the provider catalog loads (the form's Provider select)
+PASS no Connect form behind the panel
+PASS no Session yet (no composer)
+PASS wire: the capability read (the web's authenticate)
+PASS wire: launch/resolve carries the folder and NO profile id — [{"cwd": "<scratch>/live/fresh/ws"}]
+PASS wire: Core answered no_profile — [{"decision": "no_profile"}]
+PASS wire: the catalog was read (profile/llm/catalog)
+PASS wire: no profile/local/create
+PASS wire: no session/open
+PASS wire: no profile/llm/test
+PASS wire: no profile/llm/upsert
+PASS wire: no turn/start
+SHOT 01-onboarding-desktop
+PASS UX onboarding (live, fresh server): frame=760x447 centre_dx=0.0 margins L=20 R=20 labels=11 outside=0 overlaps=0 controls=5 under28=0; gutters L115 R115 T78 B78; b3_onb_submit_off 145x36; b3_onb_disconnect 102x36; b3_close 28x28
+the live catalog's default provider: 'anthropic', model 'claude-3-5-haiku-20241022'
+CLICK b3_onb_provider r=[189, 404, 207, 38] at (292,423)
+CLICK b3_onb_opt_2 r=[193, 459, 193, 31] at (290,474)
+PASS the provider field shows 'deepseek' — 'deepseek'
+PASS the provider's first model is selected — 'deepseek-v4-flash'
+CLICK b3_onb_route r=[692, 404, 207, 38] at (796,423)
+CLICK b3_onb_opt_0 r=[696, 397, 193, 31] at (792,412)
+PASS the route field shows 'Official API' — 'Official API'
+PASS no key typed: 'Test, save & open' stays disabled
+SHOT 02-filled-no-key-desktop
+PASS UX filled form, no key (live): frame=760x447 centre_dx=0.0 margins L=20 R=20 labels=11 outside=0 overlaps=0 controls=5 under28=0; gutters L115 R115 T78 B78; b3_onb_submit_off 145x36; b3_onb_disconnect 102x36; b3_close 28x28
+PASS wire after filling: still no profile/local/create
+PASS wire after filling: still no session/open
+PASS wire after filling: still no profile/llm/test
+PASS wire after filling: still no profile/llm/upsert
+== 23/23 checks passed

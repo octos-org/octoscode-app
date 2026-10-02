@@ -201,6 +201,9 @@ pub async fn disconnect(conv: &crate::flow::Conversation) {
 pub fn forget_saved(server: &str) {
     crate::credentials::forget_token(server);
     crate::credentials::forget_server();
+    // A19 — and the remembered Session/profile/workspace (the web's
+    // forgetConnection clears its tab connection, `ConnectionGate.tsx:319-356`).
+    crate::screens::remembered::forget(server);
 }
 
 pub const ACTION_DISCONNECT: &str = "a9.leave.disconnect";

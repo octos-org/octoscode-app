@@ -1,0 +1,7 @@
+PASS the first connect after the upgrade lands in a Session
+PASS wire: no launch/resolve (the previous build's landing)
+PASS wire: <profile>:main reopened — [{"cwd": null, "profile_id": "dsflash", "sandbox": null, "session_id": "dsflash:main"}]
+PASS wire: nothing created
+SHOT 01-migrated-desktop
+redacted 01-migrated-desktop: ['hd_path']
+== 4/4 checks passed

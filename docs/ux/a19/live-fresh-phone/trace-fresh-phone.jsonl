@@ -1,0 +1,12 @@
+{"at_ms":0,"body":{"state":"Idle"},"dir":"in","method":"state:Idle","wall_ms":1790950142494}
+{"at_ms":0,"body":{"state":"Dialing"},"dir":"in","method":"state:Dialing","wall_ms":1790950142495}
+{"at_ms":0,"body":{},"dir":"out","method":"config/capabilities/list","wall_ms":1790950142495}
+{"at_ms":0,"body":{},"dir":"out","method":"config/capabilities/list","wall_ms":1790950142495}
+{"at_ms":1,"body":{"state":"Handshaking"},"dir":"in","method":"state:Handshaking","wall_ms":1790950142496}
+{"at_ms":2,"body":{"supported_features":["approval.typed.v1","pane.snapshots.v1","session.workspace_cwd.v1","harness.task_control.v1","state.session_hydrate.v1","state.thread_graph.v1","state.turn_state_get.v1","projection.envelope.v2","auxiliary.rest_to_ws.v1","coding.autonomy.v1","coding.agent_control.v1","coding.goal_runtime.v1","coding.loop_runtime.v1","coding.monitor_runtime.v1","review.start.v1","context.lifecycle.v1","harness.task_artifacts.v1","user_question.v1","plan.todos.v1","event.turn_steer_dropped.v1","permission.profile.v1","runtime.policy_stamp.v1","coding.tool_contract.v1","coding.image_view.v1","coding.dynamic_tool_search.v1","coding.bash.v1","coding.delegate.v1","coding.browser.v1","harness.task_supervision_inspection.v1","profile.local_create.v1","profile.local_create.requested_id.v1","profile.local_create.default.v1","onboarding.workspace_probe.v1","onboarding.workspace_browse.v1"],"supported_methods":106},"dir":"in","method":"config/capabilities/list","wall_ms":1790950142497}
+{"at_ms":2,"body":{"path":null},"dir":"out","method":"onboarding/workspace_list","wall_ms":1790950142497}
+{"at_ms":2,"body":{"path":null},"dir":"out","method":"onboarding/workspace_list","wall_ms":1790950142497}
+{"at_ms":2,"body":{"cwd":"<scratch>/live/fresh/ws"},"dir":"out","method":"launch/resolve","wall_ms":1790950142497}
+{"at_ms":2,"body":{"decision":"no_profile"},"dir":"in","method":"launch/resolve","wall_ms":1790950142497}
+{"at_ms":2,"body":{},"dir":"out","method":"profile/llm/catalog","wall_ms":1790950142497}
+{"at_ms":2,"body":{},"dir":"out","method":"profile/llm/catalog","wall_ms":1790950142497}

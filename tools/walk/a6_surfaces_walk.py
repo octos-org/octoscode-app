@@ -928,6 +928,8 @@ def main():
         "OCTOSCODE_DISPLAY_PREFS_PATH": str(work / "display-v1.json"),
         "OCTOSCODE_PANE_ADVANCED_FILE": str(work / "pane-advanced.json"),
         "OCTOSCODE_DRIVER_ID_PATH": str(work / "driver-id"),
+        # A19: the remembered connection.
+        "OCTOSCODE_CONNECTION_FILE": str(work / "connection-v1.json"),
         "HEADLESS_STATE": str(work / "state"),
         # launch-octoscode opens the app directly: the shell's phone home layout is
         # dynamic (a fixed icon tap opened Photos on another run).
