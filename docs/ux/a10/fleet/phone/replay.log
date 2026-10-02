@@ -29,30 +29,30 @@
 [replay-serve] <- peer/prepare (id=13)
 [replay-serve] -> peer/prepare (fleet sim) 
 [replay-serve] <- peer/dispatch (id=14)
-[replay-serve] -> peer/dispatch (fleet sim) operation_id=50e6b2ba-515f-4e90-b2df-3e22b0174f6b model=lane-primary
+[replay-serve] -> peer/dispatch (fleet sim) operation_id=f8ed0374-4462-40a8-99d2-1934857dc866 model=lane-primary
 [replay-serve] <- session/open (id=15)
 [replay-serve] => turn/started (fleet)
 [replay-serve] => approval/requested (fleet)
 [replay-serve] <- peer/control (id=16)
-[replay-serve] -> peer/control (fleet sim) operation_id=9045f075-acaf-4a7d-a6b8-9e86bb9aa989 target_operation_id=50e6b2ba-515f-4e90-b2df-3e22b0174f6b expected_turn_id=00000000-0000-4000-8000-0000000000d2 command=approval_respond
+[replay-serve] -> peer/control (fleet sim) operation_id=fbe6bd2f-6c46-4739-99c1-83fc350ec7f0 target_operation_id=f8ed0374-4462-40a8-99d2-1934857dc866 expected_turn_id=00000000-0000-4000-8000-0000000000d2 command=approval_respond
 [replay-serve] => approval/decided (fleet)
 [replay-serve] <- peer/control (id=17)
-[replay-serve] -> peer/control (fleet sim) operation_id=e50d1188-e2ad-4686-9e54-01225b365335 target_operation_id=50e6b2ba-515f-4e90-b2df-3e22b0174f6b expected_turn_id=00000000-0000-4000-8000-0000000000d2 command=steer
+[replay-serve] -> peer/control (fleet sim) operation_id=68fbc7bb-bbcb-4bea-b73e-7908a8d01276 target_operation_id=f8ed0374-4462-40a8-99d2-1934857dc866 expected_turn_id=00000000-0000-4000-8000-0000000000d2 command=steer
 [replay-serve] <- peer/prepare (id=18)
 [replay-serve] -> peer/prepare (fleet sim) 
 [replay-serve] <- peer/dispatch (id=19)
-[replay-serve] -> peer/dispatch REFUSED "driver_model_unavailable" (fleet sim) operation_id=3c2406d3-1b36-4da0-90f1-0421d39fc90b
+[replay-serve] -> peer/dispatch REFUSED "driver_model_unavailable" (fleet sim) operation_id=24df41db-e33c-4fdf-8f1e-ef31c1187083
 [replay-serve] <- peer/prepare (id=20)
 [replay-serve] -> peer/prepare (fleet sim) 
 [replay-serve] <- peer/dispatch (id=21)
-[replay-serve] -> peer/dispatch (fleet sim) operation_id=7bf11ddb-94d7-4530-a332-a157838a153f model=lane-primary
+[replay-serve] -> peer/dispatch (fleet sim) operation_id=7154ad11-6dc3-43ad-86ce-0aabdb35177b model=lane-primary
 [replay-serve] <- session/open (id=22)
 [replay-serve] => turn/started (fleet)
 [replay-serve] => user_question/requested (fleet)
 [replay-serve] <- peer/control (id=23)
-[replay-serve] -> peer/control (fleet sim) operation_id=2b7f4135-b539-446a-b5dc-f3ffa52e4645 target_operation_id=7bf11ddb-94d7-4530-a332-a157838a153f expected_turn_id=00000000-0000-4000-8000-0000000000d3 command=question_respond
+[replay-serve] -> peer/control (fleet sim) operation_id=daa6e95a-b874-485e-8fd7-d2f8511b7b56 target_operation_id=7154ad11-6dc3-43ad-86ce-0aabdb35177b expected_turn_id=00000000-0000-4000-8000-0000000000d3 command=question_respond
 [replay-serve] <- peer/control (id=24)
-[replay-serve] -> peer/control (fleet sim) operation_id=00df2531-2ebe-4fa1-9552-abe8212f59ae target_operation_id=7bf11ddb-94d7-4530-a332-a157838a153f expected_turn_id=00000000-0000-4000-8000-0000000000d3 command=interrupt
+[replay-serve] -> peer/control (fleet sim) operation_id=3891f695-fca0-4466-a81a-207bc037607a target_operation_id=7154ad11-6dc3-43ad-86ce-0aabdb35177b expected_turn_id=00000000-0000-4000-8000-0000000000d3 command=interrupt
 [replay-serve] => turn/error (fleet)
 [replay-serve] <- session/driver/renew (id=25)
 [replay-serve] -> session/driver/renew (fleet sim) 
@@ -81,4 +81,4 @@
 [replay-serve] <- session/driver/get (id=37)
 [replay-serve] -> session/driver/get (fleet sim) 
 [replay-serve] <- peer/control (id=38)
-[replay-serve] -> peer/control (fleet sim) operation_id=e23c1e3a-d7ba-4751-818d-41eee144a297 target_operation_id=synthetic-pending-op expected_turn_id=01a0fb93-af2f-72e2-b743-906b6b5ceb7f command=steer
+[replay-serve] -> peer/control (fleet sim) operation_id=6898f921-16f5-4e58-a01b-b10149c6edab target_operation_id=synthetic-pending-op expected_turn_id=01a0fbae-9818-70d6-beac-a70b7fc8689a command=steer

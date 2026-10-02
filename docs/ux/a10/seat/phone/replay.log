@@ -77,7 +77,7 @@
 [replay-serve] <- session/driver/renew (id=37)
 [replay-serve] -> session/driver/renew (fleet sim) 
 [replay-serve] <- peer/control (id=38)
-[replay-serve] -> peer/control (fleet sim) operation_id=beaad70a-53ba-4bbb-8cc9-5292a647f366 target_operation_id=synthetic-pending-op expected_turn_id=01a0fb9b-5489-77ce-be51-db45fc75f17a command=steer
+[replay-serve] -> peer/control (fleet sim) operation_id=07e59db6-f458-43fb-906a-ceb3e0163f30 target_operation_id=synthetic-pending-op expected_turn_id=01a0fbab-9c13-72f3-9c55-c7b73a407eb9 command=steer
 [replay-serve] <- session/driver/renew (id=39)
 [replay-serve] -> session/driver/renew (fleet sim) 
 [replay-serve] <- session/driver/renew (id=40)

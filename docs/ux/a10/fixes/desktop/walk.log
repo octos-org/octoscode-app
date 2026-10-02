@@ -1,9 +1,12 @@
 == Models: the route pills sit inside the provider card
     log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
     log: [I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under <PATH>
-    log: [I] apps/octoscode/module/src/lib.rs:1322:13 - [octoscode] synthetic live: board-4 seed (no transport)
-    log: [I] apps/octoscode/module/src/lib.rs:3002:17 - [octoscode] composer remounted
-    log: [I] apps/octoscode/module/src/lib.rs:3565:25 - [octoscode] board3 StatusRead: no connection
+    log: [I] apps/octoscode/module/src/lib.rs:1409:13 - [octoscode] synthetic live: board-4 seed (no transport)
+    log: [I] apps/octoscode/module/src/lib.rs:3249:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4056:25 - [octoscode] board3 PermissionLoad: no connection
+    log: [I] apps/octoscode/module/src/lib.rs:4056:25 - [octoscode] board3 StatusRead: no connection
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session board:Fix steer queue drop on reconnect restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3671:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
 CLICK composer r=[375, 585, 629, 28]
 TYPE '/'
 TYPE 'mo'
@@ -21,13 +24,13 @@ TYPE 'loo'
 CLICK palette_row_name '/loop' r=[286, 252, 48, 28]
 PASS loops: /loop palette row CLICK opens the dialog
 PASS loops: row 1 icons share one centre line — [('pause', [632, 283, 22, 22]), ('play', [668, 283, 22, 22]), ('trash', [704, 283, 22, 22])]
-PASS loops: row 1 icons at one pitch — pitches [36.0, 36.0]
+PASS loops: row 1 icons at one pitch (±1 px scale rounding) — pitches [36.0, 36.0]
 PASS loops: row 1 last icon inside the card — icon [704, 283, 22, 22] card [356, 231, 386, 346]
 PASS loops: row 2 icons share one centre line — [('pause', [632, 396, 22, 22]), ('play', [668, 396, 22, 22]), ('trash', [704, 396, 22, 22])]
-PASS loops: row 2 icons at one pitch — pitches [36.0, 36.0]
+PASS loops: row 2 icons at one pitch (±1 px scale rounding) — pitches [36.0, 36.0]
 PASS loops: row 2 last icon inside the card — icon [704, 396, 22, 22] card [356, 231, 386, 346]
 PASS loops: row 3 icons share one centre line — [('play', [668, 503, 22, 22]), ('trash', [704, 503, 22, 22])]
-PASS loops: row 3 icons at one pitch — pitches [36.0]
+PASS loops: row 3 icons at one pitch (±1 px scale rounding) — pitches [36.0]
 PASS loops: row 3 last icon inside the card — icon [704, 503, 22, 22] card [356, 231, 386, 346]
 PASS loops: every row icon is one square size <= 24 px — sizes [(22, 22)]
 PASS loops: every icon hit target >= 28 px — 8 hits, min 36
@@ -40,7 +43,7 @@ TYPE 'moni'
 CLICK palette_row_name '/monitor' r=[286, 252, 76, 28]
 PASS monitors: /monitor palette row CLICK opens the dialog
 PASS monitors: row icons are the Loops dialog's size — monitors [(22, 22)] loops [(22, 22)]
-PASS monitors: dialog numeric checks — frame=418x461 centre_dx=0.0 margins L=27 R=39 labels=8 outside=0 overlaps=0 controls=4 under28=0
+PASS monitors: dialog numeric checks — frame=418x472 centre_dx=0.0 margins L=27 R=39 labels=9 outside=0 overlaps=0 controls=5 under28=0
 SHOT monitors-desktop
-CLICK dialog_close r=[718, 165, 28, 28] at (732,179)
+CLICK dialog_close r=[718, 167, 28, 28] at (732,181)
 == 20/20 checks passed

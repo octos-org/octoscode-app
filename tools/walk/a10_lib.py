@@ -33,6 +33,9 @@ class Walk:
         self.transcript: list[str] = []
         # The replay server's own log (set by run_session): the wire proof.
         self.replay_log: pathlib.Path | None = None
+        # Phone: the shell's emulated soft keyboard is up (a field was typed
+        # into since the last dismissal).
+        self.kb_up = False
 
     def replay_saw(self, method: str, secs: float = 6.0) -> int:
         """How many `<- method` requests the replay server logged (waits up to
@@ -177,6 +180,8 @@ class Walk:
     def type_text(self, text: str) -> None:
         self.note(f"TYPE {text!r}")
         self.get("/t?" + urllib.parse.urlencode({"t": text, "wait": 1}), tolerant=True)
+        if self.mode == "phone":
+            self.kb_up = True
         time.sleep(0.2)
 
     def key(self, code: str) -> None:
@@ -280,11 +285,37 @@ class Walk:
         under it. Desktop: nothing to do."""
         if self.mode != "phone":
             return
-        r = self.rect(neutral)
+        if self.kb_up:
+            # The shell draws the keyboard (it is not in /snap) and A8's
+            # keyboard avoidance pans the dialog above it, so a tap on a label
+            # may land nowhere: the keyboard's own hide chevron (top-right of
+            # the keyboard in the 360x780 frame, as A7's walk does).
+            self.note("TAP the keyboard's hide chevron (337,513)")
+            self.click_xy(337, 513)
+            self.kb_up = False
+            time.sleep(0.8)
+            return
+        sn = self.snap()
+        module = self.module_rect(sn) or [0, 0, 0, 0]
+        r = self.rect(neutral, sn=sn)
+        what = neutral
+        if r and r[1] < module[1] + 4:
+            r = None  # panned above the module by the keyboard avoidance
+        if not r:
+            # A8's keyboard avoidance (KeyboardView) pans the dialog up while a
+            # field has focus, so its title can sit above the screen: the
+            # card's own left padding, just inside the module's top, is
+            # neutral and visible.
+            for frame in ("b3_dialog", "dialog_frame"):
+                f = self.rect(frame, sn=sn)
+                if f:
+                    what = frame
+                    r = [f[0], max(f[1], module[1]) + 8, 8, 16]
+                    break
         if r:
-            self.note(f"TAP {neutral} (drop the keyboard)")
+            self.note(f"TAP {what} (drop the keyboard)")
             self.click_xy(r[0] + 4, r[1] + r[3] / 2)
-            time.sleep(0.4)
+            time.sleep(0.6)
 
     def open_phone_app(self) -> None:
         """The shell's phone page: open OctosCode from the phone home once."""
@@ -317,6 +348,8 @@ class Walk:
         r = rows[0]["r"]
         self.note(f"CLICK palette_row_name {row_text!r} r={r}")
         self.click_xy(r[0] + r[2] / 2, r[1] + r[3] / 2)
+        # The run closes the palette and the composer's keyboard with it.
+        self.kb_up = False
         return True
 
 
@@ -469,6 +502,7 @@ def run_session(walk_fn, *, mode: str, outdir: str, port: int = 8420, replay_por
         "OCTOSCODE_DOWNLOAD_DIR": str(iso / "downloads"),
         "OCTOSCODE_DRIVER_ID_PATH": str(iso / "driver-id"),
         "OCTOSCODE_PANE_ADVANCED_FILE": str(iso / "session-pane-advanced.json"),
+        "OCTOSCODE_DISPLAY_PREFS_PATH": str(iso / "display-v1.json"),
     })
     if replay_port:
         bin_ = pathlib.Path(os.environ.get("CARGO_TARGET_DIR") or (ROOT / "target")) / "debug" / "examples" / "replay_serve"

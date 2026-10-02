@@ -100,10 +100,11 @@ def walk(W: Walk) -> None:
             W.palette_run("resea", "/research") and W.wait_shown("b3_dialog", 10))
     W.check("research: the first list's late reply is dropped (logged superseded); the current one publishes the lanes",
             W.logged("superseded", 14) and W.wait(lambda: seen(W, "b3_research_lane_1_key"), 14))
+    # Each line is read once it is in view (a row scrolled out reads empty).
     W.check("research: lane rows carry the web's lines (key / provider · model / API style)",
-            W.text("b3_research_lane_0_key") == "strong"
-            and W.text("b3_research_lane_0_route") == "moonshot · kimi-k3"
-            and W.text("b3_research_lane_0_style") == "API style: openai")
+            seen(W, "b3_research_lane_0_key") and W.text("b3_research_lane_0_key") == "strong"
+            and seen(W, "b3_research_lane_0_route") and W.text("b3_research_lane_0_route") == "moonshot · kimi-k3"
+            and seen(W, "b3_research_lane_0_style") and W.text("b3_research_lane_0_style") == "API style: openai")
     W.scroll_into("b3_research_intro", VP)
     numeric(W, "lanes")
     W.shot(f"02-lanes-{MODE}")
@@ -196,4 +197,4 @@ def walk(W: Walk) -> None:
 if __name__ == "__main__":
     sys.exit(run_session(walk, mode=MODE, outdir=OUT, scenario="a10",
                          replay_args=["--slow", "profile/sub_providers/list=4000",
-                                      "--slow", "profile/sub_providers/remove=2500"]))
+                                      "--slow", "profile/sub_providers/remove=6000"]))

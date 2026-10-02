@@ -11,18 +11,19 @@
    on one centre line per row, at one pitch; the Monitors dialog's icons are
    the same size.
 
-usage: a10_dialog_fixes.py <port> <desktop|phone> <outdir>
-The app runs hidden with OCTOSCODE_SYNTHETIC_LIVE=1 OCTOSCODE_DIALOG_SEED=1
-(the A5 reference-board fixture); every dialog is opened by a palette CLICK.
+usage: OCTOSCODE_APP_BIN=<host octosense> a10_dialog_fixes.py <desktop|phone> <outdir>
+`run_session` starts the app hidden with OCTOSCODE_SYNTHETIC_LIVE=1
+OCTOSCODE_DIALOG_SEED=1 (the A5 reference-board fixture; no server) and its
+state isolated in a per-run temp dir (brief §8), then ALWAYS stops it; every
+dialog is opened by a palette CLICK.
 """
 import sys
 
-from a10_lib import Walk, checks_line, dialog_checks
+from a10_lib import Walk, checks_line, dialog_checks, run_session
 
-PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8420
-MODE = sys.argv[2] if len(sys.argv) > 2 else "desktop"
-OUT = sys.argv[3] if len(sys.argv) > 3 else "tmp/a10-fixes"
-W = Walk(PORT, OUT, MODE)
+MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"
+OUT = sys.argv[2] if len(sys.argv) > 2 else f"docs/ux/a10/fixes/{MODE}"
+W: Walk = None  # set by walk()
 
 
 def close_dialog():
@@ -98,10 +99,13 @@ def loops():
     close_dialog()
 
 
-if __name__ == "__main__":
-    if MODE == "phone":
-        W.open_phone_app()
-    W.wait(lambda: W.composer() is not None, 20)
+def walk(w: Walk) -> None:
+    global W
+    W = w
     models()
     loops()
-    sys.exit(W.summary())
+
+
+if __name__ == "__main__":
+    sys.exit(run_session(walk, mode=MODE, outdir=OUT, replay_port=None,
+                         env={"OCTOSCODE_SYNTHETIC_LIVE": "1", "OCTOSCODE_DIALOG_SEED": "1"}))

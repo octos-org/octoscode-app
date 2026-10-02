@@ -11,7 +11,7 @@ SHOT 01-offered-phone
 CLICK b3_fleet_console_acquire r=[46, 797, 111, 21] at (102,808)
 PASS acquire: Acquire seat CLICK -> ONE acquire expected_revision=0 -> Release seat live — [replay-serve] -> session/driver/acquire (fleet sim) expected_revision=0
 PASS held: the re-walked disclosure names this app's peer (SELF) — 'A peer you started is using this session'
-PASS held: the console is bound to this app's stable driver id — 'Bound to octoscode-native:e0ce4898-e065-48eb-9e4a-c6d1096c035d @ epoch 1'
+PASS held: the console is bound to this app's stable driver id — 'Bound to octoscode-native:8026da45-c062-429c-a2c3-7bdc51c0be8a @ epoch 1'
 PASS held: pane numeric checks — frame=328x741 centre_dx=0.0 margins L=16 R=16 labels=26 outside=0 overlaps=0 controls=5 under28=0
 SHOT 02-held-phone
 == 3. the lease renews on the cadence
@@ -20,7 +20,7 @@ PASS renew: session/driver/renew x2 while held (2 s cadence in this walk; 45 s i
 CLICK b3_fleet_console_release r=[141, 775, 114, 32] at (198,791)
 PASS release: Release seat CLICK -> ONE release next=external -> Acquire seat offered — [replay-serve] -> session/driver/release (fleet sim) expected_revision=1 next=external
 SHOT 03-released-phone
-CLICK b3_fleet_console_acquire r=[46, 815, 111, 4] at (102,817)
+CLICK b3_fleet_console_acquire r=[46, 775, 111, 32] at (102,791)
 PASS acquire: Acquire seat CLICK -> the CAS on the revision the release moved (2)
 == 5. a chat send hands the held seat back first
 CLICK b3_close r=[300, 111, 28, 28] at (314,125)
@@ -37,7 +37,7 @@ PASS pane: reopened, the console offers Acquire seat again (handed back)
 CLICK b3_fleet_console_acquire r=[46, 779, 111, 32] at (102,795)
 PASS acquire: Acquire seat CLICK during the live turn -> the seat panel 'Peer control'
 CLICK b3_fleet_seat_cmd_2 r=[46, 794, 258, 25] at (175,806)
-PASS seat: Steer CLICK -> ONE peer/control on the pending work + the live turn -> Worker + 'Newly applied' — worker='lint-sweep' dup='Newly applied' [replay-serve] -> peer/control (fleet sim) operation_id=beaad70a-53ba-4bbb-8cc9-5292a647f366 target_operation_id=synthetic-pending-op expected_turn_id=01a0fb9b-5489-77ce-be51-db45fc75f17a command=steer
+PASS seat: Steer CLICK -> ONE peer/control on the pending work + the live turn -> Worker + 'Newly applied' — worker='lint-sweep' dup='Newly applied' [replay-serve] -> peer/control (fleet sim) operation_id=07e59db6-f458-43fb-906a-ceb3e0163f30 target_operation_id=synthetic-pending-op expected_turn_id=01a0fbab-9c13-72f3-9c55-c7b73a407eb9 command=steer
 PASS seat: pane numeric checks — frame=328x741 centre_dx=0.0 margins L=16 R=16 labels=29 outside=0 overlaps=0 controls=7 under28=0
 SHOT 04-seat-phone
 == 7. another app takes the lease: the seat is dropped, the label stays

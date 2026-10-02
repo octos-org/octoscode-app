@@ -245,10 +245,12 @@ pub fn drop_stale(session: &str) {
 }
 
 /// `settleControlState`: a typed `driver_fence_stale` from ANY call (renew,
-/// control, dispatch) never leaves a dead fence mounted.
+/// control, dispatch, a handover's release) never leaves a dead fence
+/// mounted — nor a dead proof in the composer's cell.
 pub fn note_refusal(session: &str, kind: Option<&str>) {
     if kind == Some("driver_fence_stale") {
         drop_stale(session);
+        crate::seat::drop_proof(session);
     }
 }
 
@@ -307,7 +309,12 @@ pub async fn acquire_seat(conv: &Conversation) -> Result<(), xd::DriverError> {
     let view = xd::acquire(conv.client(), &scope, &acquiring_driver_id(), revision).await?;
     let epoch = view.fence.epoch;
     share_proof(&scope.session_id, &view);
-    *SEAT.lock().unwrap() = Some(Seat { session_id: scope.session_id.clone(), view });
+    let previous = SEAT.lock().unwrap().replace(Seat { session_id: scope.session_id.clone(), view });
+    if let Some(old) = previous.filter(|old| old.session_id != scope.session_id) {
+        // One seat at a time: another Session's hold ends here (no frame; its
+        // renewals stop, its proof leaves the composer's cell).
+        crate::seat::drop_proof(&old.session_id);
+    }
     *PARKED.lock().unwrap() = None;
     *EXPIRED.lock().unwrap() = None;
     spawn_renew(conv, &scope.session_id, epoch);

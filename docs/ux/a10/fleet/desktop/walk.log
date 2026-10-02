@@ -44,12 +44,12 @@ TYPE 'Review the reconnect diff'
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 6 tap(s), 2 input(s)
 CLICK b3_fleet_start r=[950, 409, 63, 34] at (982,426)
     log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.fleet.start
-    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.fleet.start #0 -> Spawn(FleetStart { operation_id: "d2803347-c13d-4536-82a0-ed83c300d685", lane: "lane-primary", brief: "Review the reconnect diff" })
-    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 FleetStart { operation_id: "d2803347-c13d-4536-82a0-ed83c300d685", lane: "lane-primary", brief: "Review the reconnect diff" }: Accepted { slug: "review-the-reconnect-dif", operation_id: "d2803347-c13d-4536-82a0-ed83c300d685", duplicate: false }
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.fleet.start #0 -> Spawn(FleetStart { operation_id: "39f420b7-7c7e-46d3-bc2c-3edf912b3aca", lane: "lane-primary", brief: "Review the reconnect diff" })
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 FleetStart { operation_id: "39f420b7-7c7e-46d3-bc2c-3edf912b3aca", lane: "lane-primary", brief: "Review the reconnect diff" }: Accepted { slug: "review-the-reconnect-dif", operation_id: "39f420b7-7c7e-46d3-bc2c-3edf912b3aca", duplicate: false }
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 5 tap(s), 2 input(s)
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 7 tap(s), 3 input(s)
 PASS fleet: Start CLICK -> FleetStart job
-PASS fleet: the wire was acquire -> prepare -> ONE dispatch, the CAS on the walked revision 42 — [replay-serve] -> session/driver/acquire (fleet sim) expected_revision=42; [replay-serve] -> peer/prepare (fleet sim) ; [replay-serve] -> peer/dispatch (fleet sim) operation_id=d2803347-c13d-4536-82a0-ed83c300d685 model=lane-primary
+PASS fleet: the wire was acquire -> prepare -> ONE dispatch, the CAS on the walked revision 42 — [replay-serve] -> session/driver/acquire (fleet sim) expected_revision=42; [replay-serve] -> peer/prepare (fleet sim) ; [replay-serve] -> peer/dispatch (fleet sim) operation_id=39f420b7-7c7e-46d3-bc2c-3edf912b3aca model=lane-primary
 PASS fleet: the adopted row 'Peer 2 · gpt-5.4' appears and the brief clears — row1='Peer 2 · gpt-5.4'
 PASS fleet: the adopted session's own frames drive it to 'Waiting for your approval' — status='⚠ Waiting for your approval'
 PASS fleet: the live region announces it ('Peer 2 · gpt-5.4 is waiting for your approval') — announce='Peer 2 · gpt-5.4 is waiting for your approval'
@@ -69,7 +69,7 @@ CLICK b3_fleet_row_1_approve r=[365, 611, 83, 32] at (406,627)
     log: [I] apps/octoscode/module/src/lib.rs:2849:9 - [octoscode] screen action: b3.fleet.approve#1
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 8 tap(s), 3 input(s)
     log: [I] apps/octoscode/module/src/screens/peers.rs:180:13 - [octoscode] peer session dsflash:main#peer-review-the-reconnect-dif: AttentionResolved
-PASS fleet: Approve CLICK -> peer/control(approval_respond) on the row's accepted operation + adopted turn — [replay-serve] -> peer/control (fleet sim) operation_id=2153a76e-50ec-4ae7-89e8-91d84b80125f target_operation_id=d2803347-c13d-4536-82a0-ed83c300d685 expected_turn_id=00000000-0000-4000-8000-0000000000d2 command=approval_respond
+PASS fleet: Approve CLICK -> peer/control(approval_respond) on the row's accepted operation + adopted turn — [replay-serve] -> peer/control (fleet sim) operation_id=b506e58c-a6ff-4c45-a5ec-6d70c704066a target_operation_id=39f420b7-7c7e-46d3-bc2c-3edf912b3aca expected_turn_id=00000000-0000-4000-8000-0000000000d2 command=approval_respond
 PASS fleet: the row says 'Sent'
 == 5. Steer the working peer
 TYPE 'Focus on the reconnect tests'
@@ -83,7 +83,7 @@ CLICK b3_fleet_row_1_steer_btn r=[947, 643, 66, 34] at (980,660)
     log: [I] apps/octoscode/module/src/lib.rs:5007:21 - [octoscode] nav route: b3.fleet.steer#1
     log: [I] apps/octoscode/module/src/lib.rs:2849:9 - [octoscode] screen action: b3.fleet.steer#1
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 7 tap(s), 3 input(s)
-PASS fleet: Steer CLICK -> ONE peer/control(steer) — [replay-serve] -> peer/control (fleet sim) operation_id=0373e5c3-2d2e-4f27-99b4-1752b5f43c87 target_operation_id=d2803347-c13d-4536-82a0-ed83c300d685 expected_turn_id=00000000-0000-4000-8000-0000000000d2 command=steer
+PASS fleet: Steer CLICK -> ONE peer/control(steer) — [replay-serve] -> peer/control (fleet sim) operation_id=aed230fc-942d-45c8-a425-997754737a0b target_operation_id=39f420b7-7c7e-46d3-bc2c-3edf912b3aca expected_turn_id=00000000-0000-4000-8000-0000000000d2 command=steer
 == 6. a refused Start keeps the brief and the bounded label; its staging is a Failed row; the next Start mints a NEW id
 CLICK b3_fleet_model_tap r=[365, 297, 648, 36] at (689,315)
     log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.fleet.lane.toggle
@@ -100,8 +100,8 @@ TYPE 'Run the full test suite'
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 8 tap(s), 3 input(s)
 CLICK b3_fleet_start r=[950, 435, 63, 34] at (982,452)
     log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.fleet.start
-    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.fleet.start #0 -> Spawn(FleetStart { operation_id: "0dbc921d-f39f-4df3-8e3b-9e2ed82cfa69", lane: "lane-review", brief: "Run the full test suite" })
-    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 FleetStart { operation_id: "0dbc921d-f39f-4df3-8e3b-9e2ed82cfa69", lane: "lane-review", brief: "Run the full test suite" }: Refused { kind: "driver_model_unavailable" }
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.fleet.start #0 -> Spawn(FleetStart { operation_id: "96faffc0-f48b-4d80-ada7-7422094ac237", lane: "lane-review", brief: "Run the full test suite" })
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 FleetStart { operation_id: "96faffc0-f48b-4d80-ada7-7422094ac237", lane: "lane-review", brief: "Run the full test suite" }: Refused { kind: "driver_model_unavailable" }
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 7 tap(s), 3 input(s)
     log: [I] apps/octoscode/module/src/screens/board3/host.rs:266:13 - [octoscode] fleet announce: Peer 3 failed
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 9 tap(s), 3 input(s)
@@ -121,12 +121,12 @@ CLICK b3_fleet_opt_0 r=[369, 345, 640, 32] at (689,361)
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 9 tap(s), 3 input(s)
 CLICK b3_fleet_start r=[950, 435, 63, 34] at (982,452)
     log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.fleet.start
-    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.fleet.start #0 -> Spawn(FleetStart { operation_id: "05dc33e0-e601-4b52-bfae-ccf46ca5799a", lane: "lane-primary", brief: "Run the full test suite" })
-    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 FleetStart { operation_id: "05dc33e0-e601-4b52-bfae-ccf46ca5799a", lane: "lane-primary", brief: "Run the full test suite" }: Accepted { slug: "run-the-full-test-suite", operation_id: "05dc33e0-e601-4b52-bfae-ccf46ca5799a", duplicate: false }
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.fleet.start #0 -> Spawn(FleetStart { operation_id: "58588bf8-1284-40e1-bde6-3093bf247082", lane: "lane-primary", brief: "Run the full test suite" })
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 FleetStart { operation_id: "58588bf8-1284-40e1-bde6-3093bf247082", lane: "lane-primary", brief: "Run the full test suite" }: Accepted { slug: "run-the-full-test-suite", operation_id: "58588bf8-1284-40e1-bde6-3093bf247082", duplicate: false }
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 8 tap(s), 3 input(s)
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 10 tap(s), 4 input(s)
 PASS fleet: Start again (same brief, lane-primary) -> accepted 'Peer 4 · gpt-5.4' — row3='Peer 4 · gpt-5.4'
-PASS fleet: three Starts = three DISTINCT operation ids on the wire — ['d2803347-c13d-4536-82a0-ed83c300d685', '0dbc921d-f39f-4df3-8e3b-9e2ed82cfa69', '05dc33e0-e601-4b52-bfae-ccf46ca5799a']
+PASS fleet: three Starts = three DISTINCT operation ids on the wire — ['39f420b7-7c7e-46d3-bc2c-3edf912b3aca', '96faffc0-f48b-4d80-ada7-7422094ac237', '58588bf8-1284-40e1-bde6-3093bf247082']
 == 6b. the peer asks a question: the row is an answer card; Answer -> ONE question_respond
 PASS fleet: the adopted session's question folds into 'Waiting for your answer' with the question on the card — status='⚠ Waiting for your answer' question='Which color would you like to pick?'
 TYPE 'Blue'
@@ -145,7 +145,7 @@ CLICK b3_fleet_row_3_answer r=[933, 584, 80, 34] at (973,601)
     log: [I] apps/octoscode/module/src/lib.rs:5007:21 - [octoscode] nav route: b3.fleet.answer#3
     log: [I] apps/octoscode/module/src/lib.rs:2849:9 - [octoscode] screen action: b3.fleet.answer#3
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 10 tap(s), 4 input(s)
-PASS fleet: Answer CLICK -> ONE peer/control(question_respond) on the row's operation + adopted turn; 'Sent' — [replay-serve] -> peer/control (fleet sim) operation_id=6b822d80-2ebd-4073-8ef8-422af66f7ead target_operation_id=05dc33e0-e601-4b52-bfae-ccf46ca5799a expected_turn_id=00000000-0000-4000-8000-0000000000d3 command=question_respond
+PASS fleet: Answer CLICK -> ONE peer/control(question_respond) on the row's operation + adopted turn; 'Sent' — [replay-serve] -> peer/control (fleet sim) operation_id=53d8d71a-5c27-4b04-af76-3c1817c59d05 target_operation_id=58588bf8-1284-40e1-bde6-3093bf247082 expected_turn_id=00000000-0000-4000-8000-0000000000d3 command=question_respond
 == 7. Stop -> ONE interrupt -> the row finishes under its group's Finished (n)
 CLICK b3_fleet_row_3_stop r=[365, 633, 61, 32] at (396,649)
     log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.fleet.stop#3
@@ -170,7 +170,7 @@ PASS fleet: the Finished (2) disclosure CLICK shows the stopped and the failed r
 PASS finished: pane numeric checks (no clipped/overlapping labels, controls >= 28 px, column centred) — frame=709x603 centre_dx=140.5 margins L=16 R=17 labels=23 outside=0 overlaps=0 controls=4 under28=0 column=676 column_dx=-0.5
 SHOT 05-finished-desktop
 == 8. Advanced: the driver disclosure, Release seat -> re-walk -> Acquire seat
-    log: [I] apps/octoscode/module/src/screens/fleet_driver.rs:400:26 - [octoscode] seat: dsflash:main: lease renewed
+    log: [I] apps/octoscode/module/src/screens/fleet_driver.rs:407:26 - [octoscode] seat: dsflash:main: lease renewed
 CLICK b3_fleet_advanced r=[351, 645, 676, 32] at (689,661)
     log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.fleet.advanced
     log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.fleet.advanced #0 -> Done
@@ -180,23 +180,23 @@ CLICK b3_fleet_advanced r=[351, 645, 676, 32] at (689,661)
     log: [I] apps/octoscode/module/src/lib.rs:2849:9 - [octoscode] screen action: b3.fleet.advanced
 PASS fleet: Advanced CLICK opens the session controller
 PASS fleet: the disclosure names the external controller — 'External controller'
-CLICK b3_fleet_disclosure_toggle r=[365, 611, 648, 30] at (689,626)
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 17 tap(s), 7 input(s)
+CLICK b3_fleet_disclosure_toggle r=[365, 537, 648, 30] at (689,552)
     log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.fleet.console.disclosure
     log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.fleet.console.disclosure #0 -> Done
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 17 tap(s), 7 input(s)
     log: [I] apps/octoscode/module/src/lib.rs:5997:17 - [octoscode] nav tap: b3.fleet.console.disclosure
     log: [I] apps/octoscode/module/src/lib.rs:5007:21 - [octoscode] nav route: b3.fleet.console.disclosure
     log: [I] apps/octoscode/module/src/lib.rs:2849:9 - [octoscode] screen action: b3.fleet.console.disclosure
-PASS fleet: the disclosure CLICK opens the read-only driver facts (recovery, driver, epoch, revision, lease) — revision='43' epoch='8' lease='Lease expires Oct 2 07:46:12 UTC'
+PASS fleet: the disclosure CLICK opens the read-only driver facts (recovery, driver, epoch, revision, lease) — revision='43' epoch='8' lease='Lease expires Oct 2 08:15:48 UTC'
 PASS fleet: the session peers roster lists the rows
 PASS advanced: pane numeric checks (no clipped/overlapping labels, controls >= 28 px, column centred) — frame=709x603 centre_dx=140.5 margins L=30 R=31 labels=23 outside=0 overlaps=0 controls=4 under28=0 column=676 column_dx=-0.5
 SHOT 06-advanced-desktop
-    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 17 tap(s), 7 input(s)
 CLICK b3_fleet_console_release r=[460, 569, 114, 32] at (517,585)
     log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.fleet.console.release
     log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.fleet.console.release #0 -> Spawn(FleetSeatRelease)
     log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 FleetSeatRelease: seat released
-    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 15 tap(s), 7 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 16 tap(s), 7 input(s)
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 17 tap(s), 7 input(s)
 PASS fleet: Release seat CLICK -> session/driver/release -> 'Acquire seat' appears
 PASS fleet: the release re-walks the inventory (web refreshControlInventory) — gets=3
@@ -205,7 +205,7 @@ CLICK b3_fleet_console_acquire r=[582, 615, 111, 32] at (638,631)
     log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.fleet.console.acquire
     log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.fleet.console.acquire #0 -> Spawn(FleetSeatAcquire)
     log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 FleetSeatAcquire: seat acquired
-    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 15 tap(s), 7 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 16 tap(s), 7 input(s)
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 17 tap(s), 7 input(s)
 PASS fleet: Acquire seat CLICK -> ONE acquire on the re-walked revision — [replay-serve] -> session/driver/acquire (fleet sim) expected_revision=42; [replay-serve] -> session/driver/acquire (fleet sim) expected_revision=44
 == 9. Peer gather: ONE peer/gather -> the synthesis as ONE ordinary turn
@@ -213,8 +213,8 @@ CLICK b3_fleet_gather r=[923, 94, 104, 30] at (975,109)
     log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.fleet.gather
     log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.fleet.gather #0 -> Spawn(FleetGather)
     log: [I] apps/octoscode/module/src/flow_controller.rs:268:9 - [octoscode] seat: hand back dsflash:main: released (internal)
-    log: [I] apps/octoscode/module/src/flow_controller.rs:186:9 - [octoscode] turn/start 01a0fb92-66d6-7685-9f4b-79afeaeb8dc4: Accepted
-    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 FleetGather: queued 01a0fb92-66d6-7685-9f4b-79afeaeb8dc4 (1 peers)
+    log: [I] apps/octoscode/module/src/flow_controller.rs:186:9 - [octoscode] turn/start 01a0fbad-77f1-74ff-b6c8-f7f87c0ad4b2: Accepted
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 FleetGather: queued 01a0fbad-77f1-74ff-b6c8-f7f87c0ad4b2 (1 peers)
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 16 tap(s), 7 input(s)
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 17 tap(s), 7 input(s)
 PASS fleet: Peer gather CLICK -> peer/gather -> turn/start -> 'Peer synthesis queued'
@@ -242,15 +242,14 @@ CLICK b3_fleet_console_acquire r=[582, 633, 111, 32] at (638,649)
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 15 tap(s), 7 input(s)
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 21 tap(s), 7 input(s)
 PASS fleet: Acquire seat CLICK -> ONE more acquire; the control seat mounts (held seat + pending work + live turn)
-    log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 21 tap(s), 7 input(s)
-CLICK b3_fleet_seat_cmd_2 r=[678, 612, 66, 32] at (711,628)
+CLICK b3_fleet_seat_cmd_2 r=[678, 448, 66, 32] at (711,464)
     log: [I] apps/octoscode/module/src/lib.rs:5237:25 - [octoscode] board3 tap: b3.fleet.console.seat#2
-    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.fleet.console.seat #2 -> Spawn(FleetSeatControl { kind: "steer", live_turn: Some("01a0fb92-66d6-7685-9f4b-79afeaeb8dc4") })
-    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 FleetSeatControl { kind: "steer", live_turn: Some("01a0fb92-66d6-7685-9f4b-79afeaeb8dc4") }: lint-sweep duplicate=false
+    log: [I] apps/octoscode/module/src/lib.rs:1590:13 - [octoscode] board3 action b3.fleet.console.seat #2 -> Spawn(FleetSeatControl { kind: "steer", live_turn: Some("01a0fbad-77f1-74ff-b6c8-f7f87c0ad4b2") })
+    log: [I] apps/octoscode/module/src/lib.rs:4048:42 - [octoscode] board3 FleetSeatControl { kind: "steer", live_turn: Some("01a0fbad-77f1-74ff-b6c8-f7f87c0ad4b2") }: lint-sweep duplicate=false
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 17 tap(s), 7 input(s)
     log: [I] apps/octoscode/module/src/lib.rs:3868:17 - [octoscode] board3 mounted Some(Fleet): 21 tap(s), 7 input(s)
 PASS fleet: seat Steer CLICK -> ONE peer/control on the pending work + the master's live turn -> the receipt facts — worker='lint-sweep' dup='Newly applied'
-PASS seat: pane numeric checks (no clipped/overlapping labels, controls >= 28 px, column centred) — frame=709x603 centre_dx=140.5 margins L=30 R=31 labels=33 outside=0 overlaps=0 controls=6 under28=0 column=676 column_dx=-0.5
+PASS seat: pane numeric checks (no clipped/overlapping labels, controls >= 28 px, column centred) — frame=709x603 centre_dx=140.5 margins L=30 R=31 labels=30 outside=0 overlaps=0 controls=6 under28=0 column=676 column_dx=-0.5
 SHOT 07-seat-desktop
 == 11. the wire: every click's method reached the replay server
 PASS wire: session/driver/acquire x3 — replay log: 3
