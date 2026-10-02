@@ -1,0 +1,95 @@
+makepad remote bridge: refuse browser requests and drop the wildcard CORS header (decision D10c).
+
+The bridge (`--remote` / MAKEPAD_REMOTE) injects real input, serves screen grabs and returns every TextInput's raw
+buffer. It answered every request with `Access-Control-Allow-Origin: *` and checked nothing, so any web page open on
+the machine could read /snap and fire /click on a running app. This patch:
+- refuses (403) any request carrying `Origin`, `Referer` or `Sec-Fetch-*` (every browser request carries one; curl,
+  urllib and the harness send none);
+- refuses a `Host` that names a domain other than localhost (DNS rebinding; IP literals stay allowed for fleet boxes);
+- stops sending `Access-Control-Allow-Origin: *`.
+Applied to every tree by scripts/apply-makepad-patches.sh; tests/makepad_bridge_guard.rs checks its shape.
+
+--- a/platform/src/remote.rs
++++ b/platform/src/remote.rs
+@@ -1636,6 +1636,10 @@
+         };
+ 
+         let head = String::from_utf8_lossy(&buf[..head_end]).to_string();
++        if refused_head(&head) {
++            let _ = respond(&mut stream, 403, "application/json", b"{\"err\":\"browser\"}");
++            return;
++        }
+         let mut lines = head.split("\r\n");
+         let Some(request_line) = lines.next() else {
+             return;
+@@ -1733,8 +1737,53 @@
+ 
+     fn find_head_end(buf: &[u8]) -> Option<usize> {
+         buf.windows(4).position(|w| w == b"\r\n\r\n")
++    }
++
++    /// The bridge injects real input and serves the screen, so no web page
++    /// may reach it: a page could read `/snap` through a permissive CORS
++    /// header, or fire `/click` as an `<img>` GET without reading anything.
++    /// Every browser request carries an `Origin`, `Referer` or `Sec-Fetch-*`
++    /// header; the scripted clients this bridge is for (curl, urllib, the
++    /// harness) send none. A `Host` naming a domain other than `localhost` is
++    /// DNS rebinding (a fleet box is reached by IP, which stays allowed).
++    fn refused_head(head: &str) -> bool {
++        head.split("\r\n").skip(1).any(|line| {
++            let Some((name, value)) = line.split_once(':') else {
++                return false;
++            };
++            let name = name.trim().to_ascii_lowercase();
++            if name == "origin" || name == "referer" || name.starts_with("sec-fetch-") {
++                return true;
++            }
++            name == "host" && !host_is_local(value.trim())
++        })
++    }
++
++    fn host_is_local(host: &str) -> bool {
++        let name = match host.strip_prefix('[') {
++            Some(rest) => rest.split(']').next().unwrap_or(""),
++            None => host.rsplit_once(':').map(|(h, _)| h).unwrap_or(host),
++        };
++        name.eq_ignore_ascii_case("localhost") || name.parse::<std::net::IpAddr>().is_ok()
+     }
+ 
++    #[cfg(test)]
++    mod browser_guard_tests {
++        use super::refused_head;
++
++        #[test]
++        fn scripted_clients_pass_and_browser_requests_are_refused() {
++            assert!(!refused_head("GET /snap HTTP/1.1\r\nHost: 127.0.0.1:8400\r\nUser-Agent: curl/8.7\r\nAccept: */*"));
++            assert!(!refused_head("GET /s HTTP/1.1\r\nHost: localhost:8400\r\nUser-Agent: Python-urllib/3.12"));
++            assert!(!refused_head("GET /s HTTP/1.1\r\nHost: 10.0.0.5:8399"));
++            assert!(!refused_head("GET /s HTTP/1.1\r\nHost: [::1]:8400"));
++            assert!(refused_head("GET /snap HTTP/1.1\r\nHost: 127.0.0.1:8400\r\nOrigin: https://site.example"));
++            assert!(refused_head("GET /click?x=1&y=1 HTTP/1.1\r\nHost: 127.0.0.1:8400\r\nSec-Fetch-Site: cross-site"));
++            assert!(refused_head("GET /click HTTP/1.1\r\nHost: 127.0.0.1:8400\r\nReferer: https://site.example/"));
++            assert!(refused_head("GET /snap HTTP/1.1\r\nHost: rebound.site.example:8400"));
++        }
++    }
++
+     fn respond(
+         stream: &mut TcpStream,
+         status: u16,
+@@ -1744,6 +1793,7 @@
+         let reason = match status {
+             200 => "OK",
+             400 => "Bad Request",
++            403 => "Forbidden",
+             404 => "Not Found",
+             408 => "Request Timeout",
+             431 => "Request Header Fields Too Large",
+@@ -1753,7 +1803,7 @@
+         let mut out = Vec::with_capacity(body.len() + 256);
+         out.extend_from_slice(
+             format!(
+-                "HTTP/1.1 {status} {reason}\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nCache-Control: no-store\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n",
++                "HTTP/1.1 {status} {reason}\r\nContent-Type: {content_type}\r\nContent-Length: {}\r\nCache-Control: no-store\r\nConnection: close\r\n\r\n",
+                 body.len()
+             )
+             .as_bytes(),
