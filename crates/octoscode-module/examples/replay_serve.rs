@@ -300,7 +300,7 @@ fn a10_sequenced() -> BTreeMap<String, Vec<(Value, String)>> {
                 .map(|e| e.file_name().to_string_lossy().to_string())
                 .filter(|n| n.starts_with("a10-") && n.ends_with("-faithful.jsonl"))
                 // The seats' fixture is served by the stateful simulator.
-                .filter(|n| n != "a10-seats-faithful.jsonl")
+                .filter(|n| n != "a10-seats-faithful.jsonl" && n != "a10-routes-faithful.jsonl")
                 .collect()
         })
         .unwrap_or_default();
@@ -337,6 +337,12 @@ struct SeatSim {
     r26_terminal: Value,
     /// Envelope sequence for the terminals this simulator emits.
     seq: u64,
+    /// The Profile's configured providers (r2's recorded config with the
+    /// r2-route fallback), changed by each upsert / delete.
+    config: Value,
+    /// `a10-routes-faithful.jsonl`: the fetch_models and passing test replies.
+    fetched: Value,
+    tested: Value,
 }
 
 impl SeatSim {
@@ -368,7 +374,27 @@ impl SeatSim {
             .find(|f| f.dir == "in" && f.body["payload"]["type"] == "turn_terminal" && f.body["payload"]["data"]["outcome"] == "interrupted")
             .map(|f| f.body)
             .unwrap_or_default();
-        SeatSim { current: list["current"].clone(), profiles: list["profiles"].clone(), models, selects, r2_select, r26_terminal, seq: 0 }
+        let config = r2
+            .iter()
+            .filter(|f| f.dir == "in" && f.method == "profile/llm/list")
+            .map(|f| f.body.clone())
+            .find(|b| b["fallbacks"].as_array().is_some_and(|a| !a.is_empty()))
+            .unwrap_or_default();
+        let routes = fixture("a10-routes-faithful.jsonl");
+        let reply = |m: &str| routes.iter().find(|f| f.dir == "in" && f.method == m).map(|f| f.body.clone()).unwrap_or_default();
+        let (fetched, tested) = (reply("profile/llm/fetch_models"), reply("profile/llm/test"));
+        SeatSim {
+            current: list["current"].clone(),
+            profiles: list["profiles"].clone(),
+            models,
+            selects,
+            r2_select,
+            r26_terminal,
+            seq: 0,
+            config,
+            fetched,
+            tested,
+        }
     }
 
     /// The reply (or the JSON-RPC error) for one seat method.
@@ -391,6 +417,44 @@ impl SeatSim {
                 Ok(serde_json::json!({"applied": true, "current": self.current, "session_id": session}))
             }
             "profile/llm/list" => Ok(serde_json::json!({"session_id": session, "models": self.models})),
+            // A10 — the configured providers (the Routes dialog).
+            "profile/llm/list@profile" => Ok(self.config.clone()),
+            "profile/llm/fetch_models" => {
+                let mut r = self.fetched.clone();
+                r["family_id"] = params["selection"]["family_id"].clone();
+                Ok(r)
+            }
+            "profile/llm/test" => Ok(self.tested.clone()),
+            "profile/llm/upsert" => {
+                let sel = &params["selection"];
+                let row = serde_json::json!({
+                    "family_id": sel["family_id"], "model_id": sel["model_id"], "model": sel["model_id"],
+                    "provider": sel["family_id"], "route": sel["route"], "route_id": sel["route"]["route_id"],
+                    "has_api_key": true, "available": true, "selected": false,
+                });
+                if let Some(f) = self.config["fallbacks"].as_array_mut() {
+                    f.push(row);
+                }
+                let mut r = self.config.clone();
+                r["applied"] = Value::Bool(true);
+                Ok(r)
+            }
+            "profile/llm/delete" => {
+                let hit = |m: &Value| {
+                    m["family_id"] == params["family_id"] && m["model_id"] == params["model_id"]
+                        && m["route"]["route_id"] == params["route_id"]
+                };
+                if let Some(f) = self.config["fallbacks"].as_array_mut() {
+                    f.retain(|m| !hit(m));
+                }
+                if hit(&self.config["primary"]) {
+                    self.config["primary"] = Value::Null;
+                }
+                let mut r = self.config.clone();
+                r["applied"] = Value::Bool(true);
+                r["restart_required"] = Value::Bool(true);
+                Ok(r)
+            }
             // A10 — native review (octos-core `ReviewStartResult`, the web's
             // `parseReviewStartResult`): the request's own turn echoed.
             "review/start" => Ok(serde_json::json!({
@@ -1563,7 +1627,8 @@ async fn main() {
                         })).await;
                     }
                     // A10 — the composer seats' simulator (scenario a10).
-                    m @ ("permission/profile/list" | "permission/profile/set" | "profile/llm/select" | "review/start")
+                    m @ ("permission/profile/list" | "permission/profile/set" | "profile/llm/select" | "review/start"
+                        | "profile/llm/fetch_models" | "profile/llm/test" | "profile/llm/upsert" | "profile/llm/delete")
                         if seat_sim.is_some() =>
                     {
                         let sim = seat_sim.as_mut().expect("a10");
@@ -1621,10 +1686,12 @@ async fn main() {
                             let _ = tx2.lock().await.send(Message::Text(note.to_string().into())).await;
                         });
                     }
-                    "profile/llm/list" if seat_sim.is_some() && v["params"].get("session_id").is_some() => {
+                    "profile/llm/list" if seat_sim.is_some() => {
                         let sim = seat_sim.as_mut().expect("a10");
-                        let r = sim.answer("profile/llm/list", &v["params"], &active_session).unwrap_or_default();
-                        println!("[replay-serve] -> profile/llm/list (seat simulator, session-scoped)");
+                        let scoped = v["params"].get("session_id").is_some();
+                        let m = if scoped { "profile/llm/list" } else { "profile/llm/list@profile" };
+                        let r = sim.answer(m, &v["params"], &active_session).unwrap_or_default();
+                        println!("[replay-serve] -> profile/llm/list (seat simulator, {})", if scoped { "session-scoped" } else { "profile config" });
                         send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r})).await;
                     }
                     // #P4a1 — echo the requested mode as the read-back.

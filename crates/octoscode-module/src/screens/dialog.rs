@@ -1077,6 +1077,7 @@ fn live_models(tree: &mut UiNode, ctx: &Ctx<'_>) {
         remove(tree, &["btn_discover"]);
     }
     seat_route_pills(tree);
+    manage_providers_pill(tree, ctx);
     match mine.iter().position(|m| m.selected) {
         Some(0) => {}
         Some(1) => {
@@ -2239,6 +2240,8 @@ pub fn controls(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState) -> Vec<Control> {
         Dialog::Models => vec![
             ctl("btn_test_control", "models.test_route"),
             ctl("btn_discover_control", "models.discover"),
+            // A10 — the configured providers (board-3 Routes dialog).
+            ctl("manage_providers_control", "b3.open.routes"),
         ],
         Dialog::Context => vec![
             ctl("btn_compact_control", format!("{ACTION_ASK}context.compact_now")),
@@ -2700,6 +2703,38 @@ fn form_controls(f: Option<&Form>) -> Vec<Control> {
 /// A kit pill (`X` + `X_surface` / `X_control` / `X_label`) cloned from the
 /// Context card's `btn_compact` face at `(x, y, w, h)`: `primary` = the
 /// filled black pill with white text, else the outlined one.
+/// A10 — "Manage providers" under the provider cards: opens the Profile's
+/// configured model providers (board-3 Routes dialog: fetch available
+/// models, add, delete — web `ModelManagementSection`).
+fn manage_providers_pill(tree: &mut UiNode, ctx: &Ctx<'_>) {
+    if !advertises(ctx.store, "profile/llm/list") {
+        return;
+    }
+    let Ok(raw) = card_tree(Dialog::Skills, ctx, &AutonomyState::default()) else { return };
+    let Some(face) = find(&raw, "btn_3_install").cloned() else { return };
+    let frames = frame_ids(tree);
+    let mut bottom: f64 = 0.0;
+    let mut right: f64 = 0.0;
+    walk(tree, &mut |n| {
+        let frame = n.attrs.id.as_deref().is_some_and(|id| frames.iter().any(|f| f == id));
+        if !frame && draws(n) {
+            let (x, y, w, h) = rect(n);
+            bottom = bottom.max(y + h);
+            right = right.max(x + w);
+        }
+    });
+    let (w, h) = (176.0, 40.0);
+    let y = bottom + 16.0;
+    let pill = kit_pill(&face, "manage_providers", "Manage providers", right - w, y, w, h, false, 14.5);
+    tree.children.push(pill);
+    walk_mut(tree, &mut |n| {
+        if n.attrs.id.as_deref().is_some_and(|id| frames.iter().any(|f| f == id)) {
+            let fh = n.attrs.h.unwrap_or(0.0) as f64;
+            n.attrs.h = Some(fh.max(y + h + 20.0) as f32);
+        }
+    });
+}
+
 fn kit_pill(face: &UiNode, id: &str, label: &str, x: f64, y: f64, w: f64, h: f64, primary: bool, size: f32) -> UiNode {
     let base = face.attrs.id.clone().unwrap_or_default();
     let mut b = face.clone();

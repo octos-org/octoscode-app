@@ -19,6 +19,7 @@ use octoscode_store::Store;
 pub mod agents;
 pub mod research;
 pub mod seats;
+pub mod routes;
 pub mod checkpoints;
 // A10: the Fleet's Advanced session controller and its zh catalog.
 pub mod fleet_console;

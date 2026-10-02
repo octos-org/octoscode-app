@@ -50,6 +50,9 @@ pub enum Dialog {
     Permission,
     /// A10 — the model seat's menu (web `ModelMenu`; no board).
     ModelMenu,
+    /// A10 — the Profile's configured model providers (web
+    /// `ModelManagementSection`; no board).
+    Routes,
 }
 
 impl Dialog {
@@ -68,6 +71,7 @@ impl Dialog {
             "research" | "lanes" => Dialog::Research,
             "permission_menu" => Dialog::Permission,
             "model_menu" => Dialog::ModelMenu,
+            "routes" | "providers" => Dialog::Routes,
             _ => return None,
         })
     }
@@ -94,6 +98,8 @@ pub struct State {
     pub research: super::research::ResearchState,
     /// A10 — the composer seats' menus.
     pub seats: super::seats::SeatsState,
+    /// A10 — the model providers dialog.
+    pub routes: super::routes::RoutesState,
     /// Text a finished job wants on the clipboard (the host writes it on the
     /// UI thread, where `cx` lives).
     pub pending_clipboard: Option<String>,
@@ -116,6 +122,7 @@ impl Default for State {
             agents: Default::default(),
             research: Default::default(),
             seats: Default::default(),
+            routes: Default::default(),
             pending_clipboard: None,
         }
     }
@@ -255,6 +262,7 @@ pub fn lower_open(store: &Store) -> Option<Lowered> {
         Dialog::Research => super::research::build(&mut d, &st.research, &st.frame, store),
         Dialog::Permission => super::seats::build_permission(&mut d, &st.seats, &st.frame, store),
         Dialog::ModelMenu => super::seats::build_models(&mut d, &st.seats, &st.frame, store),
+        Dialog::Routes => super::routes::build(&mut d, &st.routes, &st.frame, store),
         Dialog::Images => {
             let session = store.domains.session.active().unwrap_or_default();
             let drafts = crate::screens::media::drafts_for_session(&session);
@@ -345,6 +353,14 @@ pub enum Job {
     ModelsLoad,
     /// A10 — `profile/llm/select` the listed model at this index.
     ModelSelect(usize),
+    /// A10 — `profile/llm/list {profile_id}` (the configured providers).
+    RoutesLoad(u64),
+    /// A10 — `profile/llm/fetch_models` for the route at this index.
+    RoutesFetch(u64, usize),
+    /// A10 — `profile/llm/test` then `profile/llm/upsert` (route, model).
+    RoutesSave(u64, usize, String),
+    /// A10 — `profile/llm/delete` the route at this index.
+    RoutesDelete(u64, usize),
 }
 
 /// What a routed action asks of the host.
@@ -424,6 +440,11 @@ pub fn open(dialog: Dialog) -> Outcome {
         Dialog::Research => super::research::on_open(&mut st.research),
         Dialog::Permission => super::seats::on_open_permission(&mut st.seats),
         Dialog::ModelMenu => super::seats::on_open_models(&mut st.seats),
+        Dialog::Routes => {
+            // Opened from the Models dialog: one modal at a time.
+            crate::screens::dialog::close();
+            super::routes::on_open(&mut st.routes)
+        }
     }
 }
 
@@ -553,6 +574,9 @@ fn perform_inner(action: &str, index: usize, store: &Store) -> Outcome {
     if action.starts_with("b3.perm.") || action.starts_with("b3.model.") {
         return super::seats::perform(&mut st.seats, action, index, store);
     }
+    if action.starts_with("b3.routes.") {
+        return super::routes::perform(&mut st.routes, action, index, store);
+    }
     Outcome::Unrouted
 }
 
@@ -565,6 +589,7 @@ pub fn input_changed(key: &str, text: &str) {
         "fleet" => super::fleetview::input_changed(&mut st.fleet, key, text),
         "agents" => super::agents::input_changed(&mut st.agents, key, text),
         "research" => super::research::input_changed(&mut st.research, key, text),
+        "routes" => super::routes::input_changed(&mut st.routes, key, text),
         // A7 — the history dialog's fork name.
         "ck" => super::checkpoints::input_changed(&mut st.ck, key, text),
         _ => {}
@@ -596,6 +621,7 @@ pub fn live_visibility(store: &Store) -> Vec<(String, bool)> {
         Some(Dialog::Resume) => super::resume::visibility(&st.resume),
         Some(Dialog::Agents) => super::agents::visibility(&st.agents),
         Some(Dialog::Research) => super::research::visibility(&st.research),
+        Some(Dialog::Routes) => super::routes::visibility(&st.routes),
         Some(Dialog::History) => super::checkpoints::visibility(&st.ck),
         _ => Vec::new(),
     }
@@ -779,6 +805,10 @@ pub fn job_unavailable(job: &Job) {
             st.seats.models_busy = false;
             st.seats.models_error = Some(msg);
         }
+        Job::RoutesLoad(_) | Job::RoutesFetch(..) | Job::RoutesSave(..) | Job::RoutesDelete(..) => {
+            st.routes.busy = false;
+            st.routes.error = Some(msg);
+        }
         Job::FileFetch(id, _) => {
             drop(st);
             let mut f = super::rows::file_state();
@@ -874,6 +904,10 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
         Job::PermissionSet(mode, network) => super::seats::set_permission(conv, mode, network).await,
         Job::ModelsLoad => super::seats::load_models(conv).await,
         Job::ModelSelect(index) => super::seats::select_model(conv, index).await,
+        Job::RoutesLoad(g) => super::routes::load(conv, g).await,
+        Job::RoutesFetch(g, i) => super::routes::fetch(conv, g, i).await,
+        Job::RoutesSave(g, i, model) => super::routes::save(conv, g, i, model).await,
+        Job::RoutesDelete(g, i) => super::routes::delete(conv, g, i).await,
     }
 }
 
