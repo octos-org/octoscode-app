@@ -18,6 +18,11 @@
 //!     [--launch activate|resume|cross_profile|no_profile] [--parked] [--log tmp/a8/serve.jsonl]
 //! ```
 //!
+//! `turn/start` is accepted and streams one scripted turn in the recorded
+//! a6ea8505 `projection/envelope` shape (r22-live), ~1.5 s per step:
+//! thinking, a `shell` tool start + end, the answer text, `turn/completed`
+//! — what the session strip's live word follows.
+//!
 //! `--parked` advertises `approval/respond` + `user_question/respond` and
 //! lists "Parked approval" (`a8:api:parked`), whose canonical hydrate
 //! (`include: ["pending_approvals"]`) carries one parked approval in the
@@ -199,10 +204,43 @@ fn driver_view(w: &World, session: &str, with_ops: bool) -> Value {
     }
 }
 
+/// The scripted turn (see the module docs); `out` is the socket's writer.
+async fn stream_turn(out: tokio::sync::mpsc::UnboundedSender<String>, session: String, turn: String) {
+    let step = std::time::Duration::from_millis(1500);
+    let env = |seq: u64, payload: Value| {
+        json!({"session_id": session, "thread_id": turn, "turn_id": turn, "seq": seq,
+               "cursor": {"stream": session, "seq": 100 + seq}, "payload": payload})
+    };
+    let script = vec![
+        ("turn/started", json!({"session_id": session, "turn_id": turn, "timestamp": "2026-10-01T10:00:00Z"})),
+        ("projection/envelope", env(1, json!({"type": "reasoning_delta", "data": {"text": "Reading the steer queue before changing it."}}))),
+        ("projection/envelope", env(2, json!({"type": "tool_start", "data": {"tool_call_id": "call-a8-1", "name": "shell", "arguments_preview": "cargo test -p octoscode-module"}}))),
+        ("projection/envelope", env(3, json!({"type": "tool_end", "data": {"tool_call_id": "call-a8-1", "status": "complete", "output_preview": "test result: ok"}}))),
+        ("projection/envelope", env(4, json!({"type": "assistant_delta", "data": {"text": "The queue now re-drains after the socket is back.", "assistant_segment_id": format!("{turn}:assistant:iteration:1")}}))),
+        ("turn/completed", json!({"session_id": session, "turn_id": turn})),
+    ];
+    tokio::time::sleep(std::time::Duration::from_millis(300)).await;
+    for (method, params) in script {
+        if out.send(json!({"jsonrpc": "2.0", "method": method, "params": params}).to_string()).is_err() {
+            return;
+        }
+        tokio::time::sleep(step).await;
+    }
+}
+
 async fn ws(stream: TcpStream, cfg: Cfg, world: Arc<Mutex<World>>) {
     let Ok(ws) = tokio_tungstenite::accept_async(stream).await else { return };
     println!("[a8-serve] ui-protocol socket open");
     let (mut tx, mut rx) = ws.split();
+    // One writer per socket: replies and streamed notifications share it.
+    let (out, mut out_rx) = tokio::sync::mpsc::unbounded_channel::<String>();
+    let writer = tokio::spawn(async move {
+        while let Some(frame) = out_rx.recv().await {
+            if tx.send(Message::Text(frame.into())).await.is_err() {
+                break;
+            }
+        }
+    });
     while let Some(Ok(msg)) = rx.next().await {
         let Message::Text(text) = msg else { continue };
         let Ok(v) = serde_json::from_str::<Value>(&text) else { continue };
@@ -368,6 +406,8 @@ async fn ws(stream: TcpStream, cfg: Cfg, world: Arc<Mutex<World>>) {
                 })),
                 "thread/graph/get" => Ok(json!({"session_id": session, "cursor": {"stream": session, "seq": 1}, "threads": [], "orphans": []})),
                 "approval/scopes/list" => Ok(json!({"scopes": []})),
+                // Accepted; the scripted turn streams after the reply.
+                "turn/start" => Ok(json!({"accepted": true})),
                 _ => Ok(json!({})),
             }
         };
@@ -375,9 +415,15 @@ async fn ws(stream: TcpStream, cfg: Cfg, world: Arc<Mutex<World>>) {
             Ok(r) => json!({"jsonrpc": "2.0", "id": id, "result": r}),
             Err(e) => json!({"jsonrpc": "2.0", "id": id, "error": e}),
         };
-        if tx.send(Message::Text(frame.to_string().into())).await.is_err() {
+        if out.send(frame.to_string()).is_err() {
             break;
         }
+        if method == "turn/start" {
+            let turn = params["turn_id"].as_str().unwrap_or_default().to_owned();
+            tokio::spawn(stream_turn(out.clone(), session.clone(), turn));
+        }
     }
+    drop(out);
+    let _ = writer.await;
     println!("[a8-serve] socket closed");
 }

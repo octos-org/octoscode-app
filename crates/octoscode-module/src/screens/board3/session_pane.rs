@@ -1256,4 +1256,27 @@ mod tests {
             assert!(dsl.contains(text), "{text}");
         }
     }
+
+    /// `model-section.tsx:76-81`: "This response is using:" only while a turn
+    /// runs; the saved default and the session runtime always.
+    #[test]
+    fn the_running_response_stamp_shows_only_while_a_turn_runs() {
+        let store = Store::new();
+        store.set_connection("Live".into(), true);
+        store.set_active(Some("s".into()));
+        let st = PaneState {
+            status: Some(StatusFacts { model: Some("deepseek-v4-flash".into()), ..Default::default() }),
+            ..Default::default()
+        };
+        let lower = |store: &Store| {
+            let mut d = Dsl::new();
+            build(&mut d, &st, &Frame::DESKTOP, store);
+            d.finish()
+        };
+        let idle = lower(&store);
+        assert!(idle.contains("Session runtime") && idle.contains("deepseek-v4-flash"));
+        assert!(!idle.contains("This response is using:"), "no stamp while idle");
+        store.domains.turn.started("t1");
+        assert!(lower(&store).contains("This response is using:"), "the stamp while the turn runs");
+    }
 }

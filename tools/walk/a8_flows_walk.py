@@ -378,6 +378,30 @@ def phase2():
     check("the panel closes", wait(lambda: text("b3_title") is None, 6))
     check("the draft moved with the committed launch", wait(lambda: composer() == "unsent words", 6), repr(composer()))
 
+    # ---- the strip's live word over a running turn ---------------------------
+    # (the fixture streams one scripted turn: thinking, a shell tool, the
+    # answer, ~1.5 s a step). Send the composer's text with Return.
+    n_ts = len(wire("turn/start"))
+    click("i0_composer_0")
+    key("ReturnKey")
+    words, shot_taken = [text("b3_strip_state")], False
+    end = time.time() + 16
+    while time.time() < end:
+        w = text("b3_strip_state")
+        if w and w != words[-1]:
+            words.append(w)
+            if w == "Running shell…" and not shot_taken:
+                shot("06b-strip-running")
+                shot_taken = True
+        if w == "Ready" and len(words) > 2:
+            break
+        time.sleep(0.15)
+    check("wire: one turn/start for the sent text", wait(lambda: len(wire("turn/start")) == n_ts + 1, 4), str(wire("turn/start")[-1:]))
+    steps = [x for x in words if x in ("Thinking…", "Running shell…", "Writing…")]
+    check("strip: the live word follows the turn (Thinking… -> Running shell… -> Thinking… -> Writing…)",
+          steps == ["Thinking…", "Running shell…", "Thinking…", "Writing…"], str(words))
+    check("strip: back to 'Ready' when the turn completes", words[-1] == "Ready", str(words))
+
     # ---- a parked approval comes back with its Session ----------------------
     # (the restarted server runs `--parked`: approval/respond advertised, and
     # "Parked approval" hydrates one parked approval canonically)

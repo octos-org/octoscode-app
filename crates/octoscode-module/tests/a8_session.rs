@@ -446,6 +446,26 @@ async fn full_access_is_never_sent_without_the_acknowledgement() {
     assert_eq!(server.params_of("permission/profile/set"), vec![json!({"session_id": conv.session_id(), "update": {"mode": "danger_full_access", "network": "allow"}})]);
 }
 
+/// `SessionConfigPane.tsx:340-368` + `App.tsx:3302-3306`: the Show thinking
+/// row flips THIS Session's visibility and the persisted preference.
+#[tokio::test]
+async fn the_show_thinking_row_flips_the_sessions_visibility_and_the_saved_preference() {
+    let _g = lock();
+    let server = FakeServer::start(Script::default()).await;
+    let (conv, _ev) = connected(&server).await;
+    open_pane(&conv).await;
+    let session = conv.session_id();
+    let before = conv.store.domains.session.thinking(&session).show_reasoning;
+    assert_eq!(host::perform("b3.sc.thinking", 0, &conv.store), Outcome::Done);
+    assert_eq!(conv.store.domains.session.thinking(&session).show_reasoning, !before, "the Session's visibility");
+    let file = std::env::var("OCTOSCODE_SHOW_THINKING_FILE").unwrap();
+    let saved = std::fs::read_to_string(file).unwrap();
+    assert_eq!(saved.trim(), if before { "false" } else { "true" }, "the saved preference");
+    host::perform("b3.sc.thinking", 0, &conv.store);
+    assert_eq!(conv.store.domains.session.thinking(&session).show_reasoning, before, "and back");
+    assert!(host::lower_open(&conv.store).unwrap().dsl.contains("Show thinking"));
+}
+
 #[tokio::test]
 async fn resume_chat_takes_the_seat_hands_it_back_and_sends_the_prompt_once() {
     let _g = lock();

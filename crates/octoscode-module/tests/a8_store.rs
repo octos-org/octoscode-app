@@ -28,9 +28,32 @@ struct FakeServer {
     kick: tokio::sync::broadcast::Sender<()>,
 }
 
+/// The recorded a6ea8505 live-turn frames (r22-live's `projection/envelope`
+/// shape: `{session_id, thread_id, turn_id, seq, cursor, payload: {type,
+/// data}}`) for one scripted turn: thinking, a shell tool, the answer.
+fn turn_script(session: &str, turn: &str) -> Vec<(&'static str, Value)> {
+    let env = |seq: u64, payload: Value| {
+        json!({"session_id": session, "thread_id": turn, "turn_id": turn, "seq": seq,
+               "cursor": {"stream": session, "seq": 100 + seq}, "payload": payload})
+    };
+    vec![
+        ("turn/started", json!({"session_id": session, "turn_id": turn, "timestamp": "2026-10-01T10:00:00Z"})),
+        ("projection/envelope", env(1, json!({"type": "reasoning_delta", "data": {"text": "Reading the steer queue first."}}))),
+        ("projection/envelope", env(2, json!({"type": "tool_start", "data": {"tool_call_id": "call-a8-1", "name": "shell", "arguments_preview": "cargo test"}}))),
+        ("projection/envelope", env(3, json!({"type": "tool_end", "data": {"tool_call_id": "call-a8-1", "status": "complete", "output_preview": "ok"}}))),
+        ("projection/envelope", env(4, json!({"type": "assistant_delta", "data": {"text": "The queue re-drains now.", "assistant_segment_id": format!("{turn}:assistant:iteration:1")}}))),
+        ("turn/completed", json!({"session_id": session, "turn_id": turn})),
+    ]
+}
+
 impl FakeServer {
     /// `hydrate_delay`: how long each `session/hydrate` reply is held back.
     async fn start(hydrate_delay: Duration) -> Self {
+        Self::start_with(hydrate_delay, false).await
+    }
+
+    /// `stream_turns`: `turn/start` is accepted and [`turn_script`] streams.
+    async fn start_with(hydrate_delay: Duration, stream_turns: bool) -> Self {
         let listener = TcpListener::bind("127.0.0.1:0").await.expect("bind");
         let base_url = format!("http://{}", listener.local_addr().expect("addr"));
         let seen = Arc::new(Mutex::new(Vec::new()));
@@ -85,6 +108,11 @@ impl FakeServer {
                                     "supported_features": ["state.session_hydrate.v1"]
                                 }
                             }}),
+                            // The streaming server has nothing parked.
+                            "session/hydrate" if p["include"] == json!(["pending_approvals"]) && stream_turns => json!({
+                                "session_id": session, "cursor": {"stream": session, "seq": 12},
+                                "pending_approvals": [], "pending_questions": []
+                            }),
                             "session/hydrate" if p["include"] == json!(["pending_approvals"]) => json!({
                                 "session_id": session, "cursor": {"stream": session, "seq": 12},
                                 // The recorded r23 approval/question shapes; one foreign row.
@@ -111,6 +139,20 @@ impl FakeServer {
                             "session/list" => json!({"sessions": []}),
                             _ => json!({}),
                         };
+                        if method == "turn/start" && stream_turns {
+                            let turn = p["turn_id"].as_str().unwrap_or_default().to_owned();
+                            let ok = json!({"jsonrpc": "2.0", "id": v["id"].clone(), "result": {"accepted": true}}).to_string();
+                            let tx = tx.clone();
+                            tokio::spawn(async move {
+                                let _ = tx.lock().await.send(Message::Text(ok.into())).await;
+                                for (m, params) in turn_script(&session, &turn) {
+                                    tokio::time::sleep(Duration::from_millis(120)).await;
+                                    let frame = json!({"jsonrpc": "2.0", "method": m, "params": params}).to_string();
+                                    let _ = tx.lock().await.send(Message::Text(frame.into())).await;
+                                }
+                            });
+                            continue;
+                        }
                         let frame = if method == "turn/start" {
                             // A send the server refuses (after a while).
                             json!({"jsonrpc": "2.0", "id": v["id"].clone(), "error": {"code": -32603, "message": "No ProfileRuntime registered"}}).to_string()
@@ -327,6 +369,50 @@ async fn an_unsent_draft_survives_a_restart_per_principal_and_stays_with_its_ses
     drafts::follow(Some(&a2), "");
     assert_eq!(drafts::bind_connection(&conv2).await.as_deref(), Some("half a thought"), "the unsent text is restored, not sent");
     assert_eq!(server.count("turn/start"), 0, "a restored draft is never dispatched");
+}
+
+/// `SessionStatusStrip.tsx:44-71` + `turn-activity.ts`: while OUR turn runs,
+/// the strip's state word is its live step — Thinking… (reasoning), Running
+/// shell… (a tool started), Thinking… (the tool ended), Writing… (answer
+/// text) — and Ready once it completes. A prompt sent through the composer's
+/// production path; the recorded envelope shapes streamed over the socket.
+#[tokio::test]
+async fn the_strip_word_follows_the_running_turn_step_by_step() {
+    use octoscode_module::screens::board3::strip;
+    let server = FakeServer::start_with(Duration::ZERO, true).await;
+    let (conv, mut events) = connected(&server).await;
+    let conv = Arc::new(conv);
+    let word = |c: &Conversation| {
+        let active = c.ui_ref().lock().unwrap().active_turn();
+        strip::state_word(&c.store, active.as_deref(), None)
+    };
+    assert_eq!(word(&conv), "Ready");
+    conv.set_draft("check the queue");
+    let c2 = conv.clone();
+    tokio::spawn(async move { c2.submit_draft().await });
+    let mut seen: Vec<String> = vec![word(&conv)];
+    for _ in 0..80 {
+        match tokio::time::timeout(Duration::from_millis(200), events.recv()).await {
+            Ok(Some(evt)) => {
+                conv.on_event(evt);
+            }
+            _ => {}
+        }
+        let w = word(&conv);
+        if seen.last() != Some(&w) {
+            seen.push(w.clone());
+        }
+        if w == "Ready" && seen.len() > 1 {
+            break;
+        }
+    }
+    let steps: Vec<&str> = seen.iter().map(String::as_str).filter(|w| *w != "Responding").collect();
+    assert_eq!(
+        steps,
+        ["Ready", "Thinking…", "Running shell…", "Thinking…", "Writing…", "Ready"],
+        "the strip's word over the turn: {seen:?}"
+    );
+    assert_eq!(server.count("turn/start"), 1, "one send");
 }
 
 /// A slash command the app consumes (here `/sessions`, a board-3 surface) is
