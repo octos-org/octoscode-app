@@ -27,19 +27,23 @@ check, soon, snap, rect, visible, is_shown, text_of, click, click_rect, key, typ
 )
 MODE = w.MODE
 CELL = "rl_hit" if MODE == "phone" else "nv_hit"
+# The replay server this walk runs against (A9's recipe: 8429). A11: the walk
+# aggregator allocates the port (8429 can be another agent's) and says so.
+SERVE = os.environ.get("A9_SERVE_PORT", "8429")
 
 # A11: the walk aggregator's convention (tools/walk/native.py; never imported).
 WALK = {
     "name": "a9_settings",
     "title": "Settings General (server row, workspace, profile) + Connection (Disconnect, Forget server + confirm)",
     "modes": ["desktop", "phone"],
-    # The walk asserts the server it was run against (127.0.0.1:8429) and a
-    # known workspace (the session opened in OCTOS_WORKSPACE_CWD): A9's recipe.
-    "fixture": {"argv": ["{examples}/replay_serve", "{fport}", "--scenario", "activity"], "fport": 8429},
+    # The walk asserts the server it was run against (A9_SERVE_PORT, the
+    # aggregator's fixture port) and a known workspace (the session opened in
+    # OCTOS_WORKSPACE_CWD): A9's recipe.
+    "fixture": {"argv": ["{examples}/replay_serve", "{fport}", "--scenario", "activity"]},
     "app": {"env": {"OCTOS_BASE_URL": "http://127.0.0.1:{fport}", "OCTOS_PROFILE_ID": "a9walk",
                     "OCTOS_WORKSPACE_CWD": "/home/user/src/octos"},
             "ready": ["i0_composer_0"]},
-    "runs": [{"argv": ["{port}", "{mode}", "{fixture_log}", "{out}"]}],
+    "runs": [{"argv": ["{port}", "{mode}", "{fixture_log}", "{out}"], "env": {"A9_SERVE_PORT": "{fport}"}}],
     "needs": ["target/debug/examples/replay_serve"],
     "timeout": 600,
     "rows": {
@@ -81,7 +85,7 @@ def general_checks():
     check("General: the state reads Connected", text_of("set_server_status", s) == "Connected", f"{text_of('set_server_status', s)!r}")
     check("General: the green dot shows (one dot)",
           is_shown("set_server_dot_ok", s) and not any(is_shown(f"set_server_dot_{d}", s) for d in ("busy", "err", "idle")))
-    check("General: the origin is the connected server", text_of("set_server_value", s) == "127.0.0.1:8429", f"{text_of('set_server_value', s)!r}")
+    check("General: the origin is the connected server", text_of("set_server_value", s) == f"127.0.0.1:{SERVE}", f"{text_of('set_server_value', s)!r}")
     check("General: Current workspace shows (known)", is_shown("set_ws_row", s) and bool(text_of("set_ws_value", s)), f"{text_of('set_ws_value', s)!r} {text_of('set_ws_path', s)!r}")
     check("General: Profile shows the opened Profile", text_of("set_profile_value", s) == "a9walk", f"{text_of('set_profile_value', s)!r}")
     body = rect("set_body", s=s)
@@ -134,7 +138,7 @@ def main():
     check("…closes the transport and returns to the Connect card",
           soon(lambda: is_shown("connect_card")) and any("a9 leave done: Disconnect" in l for l in lines + log_since()), "")
     srv = w.visible(snap(), "connect_server")
-    check("…on the same server (remembered)", srv and srv[0].get("t") == "http://127.0.0.1:8429", f"{srv and srv[0].get('t')!r}")
+    check("…on the same server (remembered)", srv and srv[0].get("t") == f"http://127.0.0.1:{SERVE}", f"{srv and srv[0].get('t')!r}")
     shot(f"{MODE}-after-disconnect")
     # Reconnect from the card.
     click("connect_btn")
