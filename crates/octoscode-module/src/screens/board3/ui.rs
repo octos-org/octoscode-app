@@ -1,5 +1,5 @@
 //! A4 — the board-3 native surface kit: the renderer's own vocabulary
-//! (`DesignSurface`, `Label` with the kit's Inter / LXGW / mono text family,
+//! (`DesignSurface`, `Label` with the kit's Inter / Noto Sans SC / mono text family,
 //! `DesignNativeButton` tap targets, `TextInput`, `Svg`, `ScrollYView`), laid
 //! out as FLOW regions sized from the live window instead of the atlas's
 //! frozen 406x776 artboard.
@@ -94,7 +94,8 @@ pub enum Face {
 }
 
 /// The renderer's own text family (`octoscript-makepad design.rs:732`): the
-/// kit face for latin, LXGW WenKai for CJK (without it every Chinese glyph is
+/// kit face for latin, Noto Sans SC for CJK with LXGW WenKai as the lazy rare-glyph
+/// fallback (without a CJK member every Chinese glyph is
 /// a font miss), the symbols face, the platform emoji face. Sizes are design
 /// pixels; the renderer emits `font_size = px * 0.75` and so do we, so a
 /// board-3 label and a lowered card label of the same px match exactly.
@@ -106,7 +107,8 @@ pub fn text_style(face: Face, px: f64) -> String {
         Face::Mono => ("ux/LiberationMono-Regular.ttf", 400),
     };
     let latin = crate::design::font_file(file);
-    let cjk = if weight >= 600 { "LXGWWenKaiBold.ttf" } else { "LXGWWenKaiRegular.ttf" };
+    // Noto Sans SC first, LXGW WenKai as the lazy rare-glyph fallback (operator, board 4).
+    let cjk_members = crate::design::cjk_members(weight as u32);
     let emoji = if cfg!(target_os = "macos") {
         "file_resource(\"/System/Library/Fonts/Apple Color Emoji.ttc\")".to_owned()
     } else {
@@ -114,7 +116,7 @@ pub fn text_style(face: Face, px: f64) -> String {
     };
     let (asc, desc) = if face == Face::Mono { (0.0, 0.0) } else { (0.04, 0.04) };
     format!(
-        "TextStyle{{font_family: FontFamily{{latin := FontMember{{res: file_resource({latin:?}) asc: {asc} desc: {desc} weight: {weight}}} cjk := FontMember{{res: crate_resource(\"makepad_widgets:resources/{cjk}\") asc: 0.0 desc: 0.0 weight: {weight}}} symbols := FontMember{{res: crate_resource(\"makepad_widgets:resources/jetbrains_mono_variable.ttf\") asc: 0 desc: 0 weight: 400}} emoji := FontMember{{res: {emoji} asc: 0 desc: 0}}}} font_size: {} line_spacing: 1.25}}",
+        "TextStyle{{font_family: FontFamily{{latin := FontMember{{res: file_resource({latin:?}) asc: {asc} desc: {desc} weight: {weight}}} {cjk_members} symbols := FontMember{{res: crate_resource(\"makepad_widgets:resources/jetbrains_mono_variable.ttf\") asc: 0 desc: 0 weight: 400}} emoji := FontMember{{res: {emoji} asc: 0 desc: 0}}}} font_size: {} line_spacing: 1.25}}",
         fmt_num(px * 0.75)
     )
 }
@@ -139,7 +141,7 @@ pub fn text_w(s: &str, px: f64, face: Face) -> f64 {
 }
 
 /// One character's advance in em (see [`text_w`]). A CJK / full-width
-/// character is one em in every face: the family's LXGW WenKai member draws
+/// character is one em in every face: the family's CJK members (Noto Sans SC, WenKai) draw
 /// it, mono runs included.
 pub fn char_em(c: char, face: Face) -> f64 {
     if (c as u32) > 0x2e80 {

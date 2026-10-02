@@ -59,15 +59,18 @@ script_mod! {
     // ---------------------------------------------------------- type + ink
     let OcFace400 = FontFamily{
         latin := FontMember{res: file_resource(#(crate::chrome::face(400))) asc: 0.04 desc: 0.04 weight: 400}
-        cjk := FontMember{res: crate_resource("makepad_widgets:resources/LXGWWenKaiRegular.ttf") asc: 0.0 desc: 0.0 weight: 400}
+        cjk := FontMember{res: file_resource(#(crate::design::cjk_face_path(400))) asc: 0.0 desc: 0.0 weight: 400}
+        cjk_rare := FontMember{res: crate_resource("makepad_widgets:resources/LXGWWenKaiRegular.ttf") asc: 0.0 desc: 0.0 lazy: 1}
     }
     let OcFace500 = FontFamily{
         latin := FontMember{res: file_resource(#(crate::chrome::face(500))) asc: 0.04 desc: 0.04 weight: 500}
-        cjk := FontMember{res: crate_resource("makepad_widgets:resources/LXGWWenKaiRegular.ttf") asc: 0.0 desc: 0.0 weight: 500}
+        cjk := FontMember{res: file_resource(#(crate::design::cjk_face_path(500))) asc: 0.0 desc: 0.0 weight: 500}
+        cjk_rare := FontMember{res: crate_resource("makepad_widgets:resources/LXGWWenKaiRegular.ttf") asc: 0.0 desc: 0.0 lazy: 1}
     }
     let OcFace600 = FontFamily{
         latin := FontMember{res: file_resource(#(crate::chrome::face(600))) asc: 0.04 desc: 0.04 weight: 600}
-        cjk := FontMember{res: crate_resource("makepad_widgets:resources/LXGWWenKaiBold.ttf") asc: 0.0 desc: 0.0 weight: 600}
+        cjk := FontMember{res: file_resource(#(crate::design::cjk_face_path(600))) asc: 0.0 desc: 0.0 weight: 600}
+        cjk_rare := FontMember{res: crate_resource("makepad_widgets:resources/LXGWWenKaiBold.ttf") asc: 0.0 desc: 0.0 lazy: 1}
     }
 
     // The shell's own labels (lib.rs: the brand, the autonomy sections) use
@@ -965,9 +968,12 @@ script_mod! {
                 }
             }
             OcRule{}
-            // A plain View: a ScrollYView lays its children out at an
-            // unbounded width, so wrapping help text never wrapped (clipped).
-            set_body := View{
+            // A ScrollYView (as the board-3 dialog bodies, ui::body_open_id):
+            // a section taller than the dialog scrolls instead of clipping
+            // its last rows (Preferences with Language + Palette cut "Save
+            // preferences" to 6 px). Help text keeps wrapping: its rows are
+            // width-Fill inside the body's bounded width.
+            set_body := ScrollYView{
                 width: Fill height: Fill flow: Down
                 padding: Inset{left: 24 right: 24 top: 4 bottom: 16}
 
@@ -1358,7 +1364,7 @@ script_mod! {
                     // (PreferencesDialog.tsx:42-55, its options "English" /
                     // "简体中文"); a choice re-renders every surface at once.
                     View{
-                        width: Fill height: Fit flow: Down padding: Inset{top: 10 bottom: 12}
+                        width: Fill height: Fit flow: Down padding: Inset{top: 6 bottom: 8}
                         View{
                             width: Fill height: 32 flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Language"}}
@@ -1380,10 +1386,10 @@ script_mod! {
                     // "Palette": General's "Theme" row is the System /
                     // Light / Dark appearance Terminal follows.
                     View{
-                        width: Fill height: Fit flow: Down spacing: 0 padding: Inset{top: 10 bottom: 10}
+                        width: Fill height: Fit flow: Down spacing: 0 padding: Inset{top: 8 bottom: 6}
                         pal_title := OcRowTitle{width: Fit text: "Palette"}
                         View{
-                            width: Fill height: Fit flow: Down padding: Inset{top: 4 bottom: 4 right: 24}
+                            width: Fill height: Fit flow: Down padding: Inset{top: 2 bottom: 2 right: 24}
                             pal_help := OcRowHelp{text: "Terminal follows the light or dark theme; named palettes are dark."}
                         }
                         pal_terminal := OcPaletteRow{
@@ -1409,7 +1415,7 @@ script_mod! {
                     }
                     OcRule{}
                     View{
-                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 14}
+                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 8 bottom: 8}
                         View{
                             width: Fill height: 32 flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Vim editing"}}
@@ -1418,27 +1424,6 @@ script_mod! {
                         View{
                             width: Fill height: Fit flow: Down padding: Inset{right: 64}
                             OcRowHelp{text: "Use Vim-style normal and insert modes in the composer."}
-                        }
-                    }
-                    OcRule{}
-                    View{
-                        width: Fill height: Fit flow: Down spacing: 12 padding: Inset{top: 14 bottom: 14}
-                        View{
-                            width: Fill height: Fit flow: Down
-                            OcRowHelp{text: "Changes apply immediately. Save remembers them on this device; no server configuration, credentials or conversations are stored."}
-                        }
-                        View{
-                            width: Fill height: Fit flow: Right spacing: 12 align: Align{y: 0.5}
-                            View{
-                                width: 148 height: 36 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                                RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_even border_radius: 9.0}}
-                                OcLabel{text: "Save preferences" draw_text +: {text_style +: {font_size: 9.75}}}
-                                prefs_save := OcHit{draw_bg.border_radius: 9.0}
-                            }
-                            View{
-                                width: Fill height: Fit flow: Down
-                                prefs_status := OcMuted{width: Fill text: ""}
-                            }
                         }
                     }
                 }
@@ -1459,6 +1444,32 @@ script_mod! {
                         OcRowText{
                             OcRowTitle{text: "Server"}
                             set_about_server := OcRowHelp{text: ""}
+                        }
+                    }
+                }
+            }
+            // The Preferences footer (the web dialog's fixed footer: the body scrolls,
+            // Save stays in view). Shown only while Preferences is the section.
+            set_footer := View{
+                width: Fill height: Fit flow: Down visible: false padding: Inset{left: 24 right: 24 top: 0 bottom: 0}
+                OcRule{}
+                View{
+                    width: Fill height: Fit flow: Down spacing: 10 padding: Inset{top: 10 bottom: 8}
+                    View{
+                        width: Fill height: Fit flow: Down
+                        OcRowHelp{text: "Changes apply immediately. Save remembers them on this device; no server configuration, credentials or conversations are stored."}
+                    }
+                    View{
+                        width: Fill height: Fit flow: Right spacing: 12 align: Align{y: 0.5}
+                        View{
+                            width: 148 height: 36 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                            RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_even border_radius: 9.0}}
+                            OcLabel{text: "Save preferences" draw_text +: {text_style +: {font_size: 9.75}}}
+                            prefs_save := OcHit{draw_bg.border_radius: 9.0}
+                        }
+                        View{
+                            width: Fill height: Fit flow: Down
+                            prefs_status := OcMuted{width: Fill text: ""}
                         }
                     }
                 }
@@ -2174,6 +2185,7 @@ impl ChromeRuntime {
             show(cx, view, &[rail, live_id!(rl_off_icon)], !on);
             show(cx, view, &[sec], on);
         }
+        show(cx, view, ids!(set_footer), st.section == Section::Preferences);
         show(cx, view, ids!(set_nav), !compact);
         show(cx, view, ids!(set_rail), compact);
         show(cx, view, ids!(set_close_slot), !compact);

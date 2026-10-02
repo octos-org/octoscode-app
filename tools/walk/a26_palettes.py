@@ -120,9 +120,12 @@ def main():
             body is not None and all(r and L.inside(r, body) for r in rows), f"body={body} rows={rows}")
     small = [r for r in hits if r[3] < 28 or r[2] < 28]
     w.check("palette rows are >= 28 px targets", len(hits) == 5 and not small, f"{hits}")
-    save = w.rect("prefs_save", sn=sn)
-    w.check("Save sits whole inside the Settings body (not clipped)", bool(save and body and L.inside(save, body) and save[3] >= 34),
-            f"save={save} body={body}")
+    save, foot = w.rect("prefs_save", sn=sn), w.rect("set_footer", sn=sn)
+    # Save lives in Preferences' fixed footer under the scrolling body.
+    w.check("Save sits whole inside the fixed footer (not clipped)", bool(save and foot and L.inside(save, foot) and save[3] >= 34),
+            f"save={save} footer={foot}")
+    w.check("the footer sits below the body", bool(body and foot and foot[1] >= body[1] + body[3] - 1),
+            f"body={body} footer={foot}")
     current = "solarized" if PHASE == "relaunch" else "terminal"
     w.check(f"the {L.LABELS[current]} radio is on", radio_on(w, current, sn))
     if PHASE == "relaunch":

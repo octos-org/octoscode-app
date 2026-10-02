@@ -80,18 +80,15 @@ pub fn font_spaced(weight: u16, px: f64, line_spacing: f64) -> String {
         _ => "ux/Inter-400.ttf",
     };
     let latin = crate::design::font_file(face).display().to_string();
-    let cjk = if weight >= 600 {
-        "LXGWWenKaiBold.ttf"
-    } else {
-        "LXGWWenKaiRegular.ttf"
-    };
+    // Noto Sans SC first, LXGW WenKai as the lazy rare-glyph fallback (operator, board 4).
+    let cjk_members = crate::design::cjk_members(weight as u32);
     let emoji = if cfg!(target_os = "macos") {
         "file_resource(\"/System/Library/Fonts/Apple Color Emoji.ttc\")"
     } else {
         "crate_resource(\"makepad_widgets:resources/NotoColorEmoji.ttf\")"
     };
     format!(
-        "TextStyle{{font_family: FontFamily{{latin := FontMember{{res: file_resource({latin:?}) asc: 0.04 desc: 0.04 weight: {weight}}} cjk := FontMember{{res: crate_resource(\"makepad_widgets:resources/{cjk}\") asc: 0.0 desc: 0.0 weight: {weight}}} symbols := FontMember{{res: crate_resource(\"makepad_widgets:resources/jetbrains_mono_variable.ttf\") asc: 0 desc: 0 weight: 400}} emoji := FontMember{{res: {emoji} asc: 0 desc: 0}}}} font_size: {:.2} line_spacing: {line_spacing}}}",
+        "TextStyle{{font_family: FontFamily{{latin := FontMember{{res: file_resource({latin:?}) asc: 0.04 desc: 0.04 weight: {weight}}} {cjk_members} symbols := FontMember{{res: crate_resource(\"makepad_widgets:resources/jetbrains_mono_variable.ttf\") asc: 0 desc: 0 weight: 400}} emoji := FontMember{{res: {emoji} asc: 0 desc: 0}}}} font_size: {:.2} line_spacing: {line_spacing}}}",
         scaled(px) * 0.75
     )
 }

@@ -311,6 +311,15 @@ pub fn cjk_face(weight: u32) -> Option<PathBuf> {
     path.is_file().then_some(path)
 }
 
+/// The sans CJK face's path as a string, for the shell's static `script_mod!`
+/// families (`file_resource(#(crate::design::cjk_face_path(400)))`): the
+/// operator chose Noto Sans SC for ALL UI text (2026-10-02, board 4). The
+/// materialized design root carries it like the Inter faces.
+pub fn cjk_face_path(weight: u32) -> String {
+    let rel = if weight >= 600 { "ux/NotoSansSC-SemiBold.ttf" } else { "ux/NotoSansSC-Regular.ttf" };
+    font_file(rel).display().to_string()
+}
+
 /// The CJK members of a font family (A1), as DSL: the sans face eagerly, then
 /// the renderer's LXGW WenKai as a LAZY last resort (`FontMember.lazy: 1`
 /// loads it only after a glyph the subset lacks — draw_text.rs:3500-3507), so

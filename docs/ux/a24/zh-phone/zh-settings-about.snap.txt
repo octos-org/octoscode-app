@@ -13,4 +13,4 @@ set_title	Label	[81, 91, 267, 22]	About
 -	Label	[81, 149, 255, 18]	OctosCode
 set_about_version	Label	[81, 171, 255, 16]	Version 0.1.0
 -	Label	[81, 216, 255, 18]	服务器地址
-set_about_server	Label	[81, 238, 255, 36]	127.0.0.1:8508 · 106 protocol methods advertised
+set_about_server	Label	[81, 238, 255, 36]	127.0.0.1:8432 · 106 protocol methods advertised

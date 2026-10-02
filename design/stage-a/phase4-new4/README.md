@@ -176,4 +176,5 @@ The generator got these strings wrong. Build from the corrections, not from the 
 - Phone diff review: a full-screen sheet (as the web and this board), not the small pop-up.
 - /btw aside: keep the collapsed one-row state, the asking-session line, and a sidebar marker on a Session row that holds an aside. The answer arrives in one reply ("Answering…" then the answer).
 - CJK typeface: Noto Sans SC for all UI text; LXGW WenKai stays as the fallback for rare characters.
+  - Done: `chrome.rs` OcFace400/500/600 (the CJK member is `design::cjk_face_path`, WenKai lazy), `board1_kit::font_spaced` and board 3 `ui::text_style` (both `design::cjk_members`). Evidence: docs/ux/a24/zh-{desktop,phone}.
 - Defaults the operator did not change (the board's proposals): the dock starts folded on phone; one dock button set (Approve once, Deny, Stop, plus Approve for session); skill jobs cover the dialog's Session.
