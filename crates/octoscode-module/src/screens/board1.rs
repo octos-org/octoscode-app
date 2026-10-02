@@ -248,6 +248,14 @@ pub fn picker() -> PickerUi {
     host().picker.clone()
 }
 
+/// A session is being opened from the picker or the browser: the surface
+/// stays up until it settles (the web's "keeps an in-flight workspace
+/// creation visible when Escape or the backdrop is used",
+/// `closeOnBackdrop={!creating}`, the back button `disabled={creating}`).
+fn starting() -> bool {
+    host().picker.starting.is_some()
+}
+
 // --------------------------------------------------------------------- work
 
 /// What the host performs after an action.
@@ -369,7 +377,7 @@ pub fn route(action: &str, value: Option<&str>) -> Vec<Work> {
         "b1.backdrop" => {
             // Never mid-exchange or mid-save: the web's ModalSurface keeps the
             // dialog while work is in flight (`closeOnBackdrop={!creating}`).
-            let busy = pairing::state().exchanging || provider::state().busy;
+            let busy = pairing::state().exchanging || provider::state().busy || starting();
             if !busy {
                 close_all();
             }
@@ -435,7 +443,9 @@ pub fn route(action: &str, value: Option<&str>) -> Vec<Work> {
                     host().picker.starting = Some(path.clone());
                     out.push(Work::NewSession { cwd: path });
                 }
-                Some(browser::Effect::Close) => pop(),
+                // An in-flight session start stays visible (the web disables
+                // the back button and Escape while creating).
+                Some(browser::Effect::Close) if !starting() => pop(),
                 Some(_) => {}
             }
         }
@@ -469,7 +479,8 @@ fn route_picker(action: &str) -> Vec<Work> {
         out.push(Work::NewSession { cwd: path });
     };
     match action {
-        "picker.close" => pop(),
+        "picker.close" if !starting() => pop(),
+        "picker.close" => {}
         "picker.server" => {
             if let Some(root) = pk.server_root.clone() {
                 start(root, &mut out);
@@ -993,7 +1004,11 @@ pub async fn execute(work: Work, conv: Option<Arc<Conversation>>) -> Result<(), 
         }
         Work::NewSession { cwd } => {
             let Some(conv) = conv else {
-                host().picker.error = Some("Connect to a server first.".to_owned());
+                {
+                    let mut h = host();
+                    h.picker.error = Some("Connect to a server first.".to_owned());
+                    h.picker.starting = None;
+                }
                 mark_dirty();
                 return need_conv("new session");
             };

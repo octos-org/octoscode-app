@@ -269,6 +269,28 @@ fn the_provider_editor_gates_each_operation_on_its_own_advertised_method() {
 }
 
 #[test]
+fn an_explicit_path_starts_a_session_and_stays_visible_while_it_starts() {
+    // Row 162 (workspaceCreateRequest: the typed path, trimmed) and the web's
+    // "keeps an in-flight workspace creation visible when Escape or the
+    // backdrop is used".
+    let _s = serial();
+    board1::close_all();
+    board1::note_context(&board1::Context { capabilities: vec![browser::BROWSE_FEATURE.into()], ..Default::default() });
+    board1::route("b1.open.add", None);
+    board1::route("browser.path", Some("  /home/user/typed  "));
+    assert_eq!(board1::route("browser.use", None), vec![board1::Work::NewSession { cwd: "/home/user/typed".into() }]);
+    for action in ["browser.close", "b1.backdrop", board1::escape_action()] {
+        board1::route(action, None);
+        assert_eq!(board1::top(), Some(board1::Surface::Browser), "{action} must not close an in-flight start");
+    }
+    board1::close_all();
+    // A fresh picker clears the in-flight marker.
+    board1::route("b1.open.picker", None);
+    board1::route("picker.close", None);
+    assert!(!board1::is_open());
+}
+
+#[test]
 fn escape_steps_back_like_each_back_chevron() {
     let _s = serial();
     board1::close_all();

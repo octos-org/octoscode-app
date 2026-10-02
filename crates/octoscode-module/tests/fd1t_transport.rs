@@ -393,6 +393,13 @@ mod replay {
         click("picker.server", None, &conv).await;
         assert_eq!(s.sent("session/open").last().unwrap()["cwd"], "/home/user/code");
         assert!(!board1::is_open());
+
+        // Row 162: an explicit path typed into the path box, trimmed.
+        click("b1.open.add", None, &conv).await;
+        board1::route("browser.path", Some("  /home/user/typed  "));
+        click("browser.use", None, &conv).await;
+        assert_eq!(s.sent("session/open").last().unwrap()["cwd"], "/home/user/typed");
+        assert!(!board1::is_open());
     }
 
     #[tokio::test]
