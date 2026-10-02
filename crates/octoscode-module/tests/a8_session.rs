@@ -292,7 +292,8 @@ async fn drain(conv: &Conversation, events: &mut tokio::sync::mpsc::Receiver<oct
 }
 
 async fn wait_for(server: &FakeServer, method: &str, n: usize) {
-    for _ in 0..60 {
+    // Up to 10 s; returns as soon as `n` calls arrived (3 s could flake on a loaded host).
+    for _ in 0..200 {
         if server.params_of(method).len() >= n {
             return;
         }
