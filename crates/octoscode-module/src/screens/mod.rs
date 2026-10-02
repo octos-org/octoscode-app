@@ -16,6 +16,8 @@ pub mod copy_button;
 // A5: the dialog host — the Stage-B screens reachable from the palette and
 // the sidebar, lowered slot-relative, wired by node id.
 pub mod dialog;
+// A8: per-Session composer drafts, durable per authenticated principal.
+pub mod drafts;
 // A8: the external-driver disclosure walk (session/driver/get operations chain).
 pub mod driver_discovery;
 pub mod fleet;

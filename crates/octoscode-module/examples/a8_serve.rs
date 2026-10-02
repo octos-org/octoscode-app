@@ -89,8 +89,17 @@ async fn main() {
             let text = String::from_utf8_lossy(&head[..n]).to_ascii_lowercase();
             if text.contains("upgrade: websocket") {
                 ws(stream, cfg, world).await;
+            } else if text.starts_with("get /api/auth/me") {
+                // The drafts' principal (`resolveDraftPrincipal`).
+                let mut stream = stream;
+                let body = r#"{"user":{"id":"a8-user"}}"#;
+                let resp = format!(
+                    "HTTP/1.1 200 OK\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{body}",
+                    body.len()
+                );
+                let _ = stream.write_all(resp.as_bytes()).await;
             } else {
-                // No HTTP routes here (no solo login, no pairing): 404.
+                // No other HTTP routes here (no solo login, no pairing): 404.
                 let mut stream = stream;
                 let _ = stream
                     .write_all(b"HTTP/1.1 404 Not Found\r\ncontent-length: 0\r\nconnection: close\r\n\r\n")

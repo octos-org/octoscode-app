@@ -2989,6 +2989,31 @@ impl OctoscodeView {
         // set_text — the lowered DSL no longer carries the draft, so typing
         // never remounts the composer (the mount cache hits: the DSL is
         // stable while focused).
+        // A8 — per-Session drafts: a Session switch files the composer's text
+        // under the Session it was typed in and restores the new one's own;
+        // the durable binding starts once per connection.
+        {
+            let conv = { self.bridge.lock().unwrap().conv.clone() };
+            if let Some(conv) = conv {
+                if screens::drafts::needs_bind(conv.scope().authority_epoch) {
+                    if let Some(rt) = self.runtime.as_ref() {
+                        let c = conv.clone();
+                        rt.spawn(async move {
+                            if let Some(text) = screens::drafts::bind_connection(&c).await {
+                                makepad_widgets::log!("[octoscode] draft restored: {} chars", text.len());
+                                c.set_draft(text);
+                            }
+                            SignalToUI::set_ui_signal();
+                        });
+                    }
+                }
+                let active = screens::drafts::active_key(&conv);
+                let current = conv.ui_ref().lock().unwrap().draft();
+                if let Some(next) = screens::drafts::follow(active.as_deref(), &current) {
+                    conv.set_draft(next);
+                }
+            }
+        }
         let store_draft = { self.bridge.lock().unwrap().ui.lock().unwrap().draft() };
         if self.composer_synced.as_deref() != Some(store_draft.as_str()) {
             if store_draft.is_empty() && self.composer_synced.is_none() {

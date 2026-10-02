@@ -11,6 +11,7 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use futures_util::{SinkExt, StreamExt};
+use tokio::io::AsyncWriteExt;
 use serde_json::{json, Value};
 use tokio::net::TcpListener;
 use tokio_tungstenite::tungstenite::Message;
@@ -37,6 +38,17 @@ impl FakeServer {
                 let Ok((stream, _)) = listener.accept().await else { return };
                 let seen = s2.clone();
                 tokio::spawn(async move {
+                    // REST: the drafts' principal read (`/api/auth/me`).
+                    let mut head = [0u8; 64];
+                    let n = stream.peek(&mut head).await.unwrap_or(0);
+                    if String::from_utf8_lossy(&head[..n]).starts_with("GET /api/auth/me") {
+                        let mut stream = stream;
+                        let body = r#"{"user":{"id":"a8-user"}}"#;
+                        let resp = format!("HTTP/1.1 200 OK\r\ncontent-type: application/json\r\ncontent-length: {}\r\nconnection: close\r\n\r\n{body}", body.len());
+                        let _ = stream.write_all(resp.as_bytes()).await;
+                        let _ = stream.shutdown().await;
+                        return;
+                    }
                     let Ok(ws) = tokio_tungstenite::accept_async(stream).await else { return };
                     let (tx, mut rx) = ws.split();
                     let tx = Arc::new(tokio::sync::Mutex::new(tx));
@@ -72,9 +84,18 @@ impl FakeServer {
                             "session/list" => json!({"sessions": []}),
                             _ => json!({}),
                         };
-                        let frame = json!({"jsonrpc": "2.0", "id": v["id"].clone(), "result": result}).to_string();
+                        let frame = if method == "turn/start" {
+                            // A send the server refuses (after a while).
+                            json!({"jsonrpc": "2.0", "id": v["id"].clone(), "error": {"code": -32603, "message": "No ProfileRuntime registered"}}).to_string()
+                        } else {
+                            json!({"jsonrpc": "2.0", "id": v["id"].clone(), "result": result}).to_string()
+                        };
                         let tx = tx.clone();
-                        let delay = if method == "session/hydrate" { hydrate_delay } else { Duration::ZERO };
+                        let delay = match method.as_str() {
+                            "session/hydrate" => hydrate_delay,
+                            "turn/start" => Duration::from_millis(300),
+                            _ => Duration::ZERO,
+                        };
                         tokio::spawn(async move {
                             tokio::time::sleep(delay).await;
                             let _ = tx.lock().await.send(Message::Text(frame.into())).await;
@@ -219,4 +240,64 @@ async fn the_runtime_scope_key_is_the_webs_tuple_with_a_per_connection_epoch() {
     let before = a.scope_key();
     a.open_session("a8:other", None).await.unwrap();
     assert_ne!(a.scope_key(), before);
+}
+
+/// The drafts' process-global state is shared by the tests that use it.
+fn drafts_lock() -> std::sync::MutexGuard<'static, ()> {
+    static L: Mutex<()> = Mutex::new(());
+    let g = L.lock().unwrap_or_else(|p| p.into_inner());
+    octoscode_module::screens::drafts::reset();
+    g
+}
+
+#[tokio::test]
+async fn an_unsent_draft_survives_a_restart_per_principal_and_stays_with_its_session() {
+    use octoscode_module::screens::drafts;
+    let _g = drafts_lock();
+    let store: Arc<dyn octoscode_module::screens::recents::Storage> = Arc::new(octoscode_module::screens::recents::MemoryStore::new());
+    drafts::set_storage(store.clone());
+    let server = FakeServer::start(Duration::ZERO).await;
+    let (conv, mut events) = connected(&server).await;
+    // The principal is read over REST (`/api/auth/me`), then the scope binds.
+    assert_eq!(drafts::resolve_principal(&conv).await.as_deref(), Some("a8-user"));
+    drafts::bind_connection(&conv).await;
+    let a = drafts::active_key(&conv).expect("the open reply named the workspace");
+    assert_eq!(a, r#"["/home/user/octos","a8","a8:main"]"#, "the web's workspaceSessionKey");
+    assert_eq!(drafts::follow(Some(&a), ""), None);
+    conv.set_draft("half a thought");
+    drafts::follow(Some(&a), "half a thought");
+    // Switch Sessions: A's text is filed, the new Session starts empty.
+    conv.open_session("a8:api:other", None).await.unwrap();
+    fold_until(&conv, &mut events, |c| drafts::active_key(c).is_some_and(|k| k != a)).await;
+    let b = drafts::active_key(&conv).unwrap();
+    assert_eq!(drafts::follow(Some(&b), "half a thought").as_deref(), Some(""), "the new Session has its own (empty) draft");
+    assert_eq!(drafts::get(&a).as_deref(), Some("half a thought"), "A keeps its draft");
+    // "Restart": a fresh process state and a fresh connection.
+    drafts::reset();
+    let (conv2, _e2) = connected(&server).await;
+    let a2 = drafts::active_key(&conv2).unwrap();
+    assert_eq!(a2, a);
+    drafts::follow(Some(&a2), "");
+    assert_eq!(drafts::bind_connection(&conv2).await.as_deref(), Some("half a thought"), "the unsent text is restored, not sent");
+    assert_eq!(server.count("turn/start"), 0, "a restored draft is never dispatched");
+}
+
+#[tokio::test]
+async fn a_failed_send_returns_the_prompt_to_its_own_session() {
+    use octoscode_module::screens::drafts;
+    let _g = drafts_lock();
+    drafts::set_storage(Arc::new(octoscode_module::screens::recents::MemoryStore::new()));
+    let server = FakeServer::start(Duration::ZERO).await;
+    let (conv, _ev) = connected(&server).await;
+    let a_key = drafts::key_of(&conv, "a8:main");
+    // The send is in flight (the server answers after 300 ms)…
+    let conv = Arc::new(conv);
+    let c2 = conv.clone();
+    let send = tokio::spawn(async move { c2.start_turn_with_id("prompt for A", "01920000-0000-7000-8000-0000000000a1".into()).await });
+    tokio::time::sleep(Duration::from_millis(50)).await;
+    // …when the person switches to another Session.
+    conv.open_session("a8:api:other", None).await.unwrap();
+    assert!(send.await.unwrap().is_err(), "the server refused the turn");
+    assert_eq!(drafts::get(&a_key).as_deref(), Some("prompt for A"), "the prompt went back to A");
+    assert_eq!(conv.ui_ref().lock().unwrap().draft(), "", "never into the other Session's composer");
 }

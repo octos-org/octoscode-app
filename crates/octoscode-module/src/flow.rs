@@ -851,6 +851,17 @@ impl Conversation {
         self.profile.lock().unwrap().clone()
     }
 
+    /// A8 — the server's HTTP origin (the drafts' principal read, REST).
+    pub fn http_base(&self) -> String {
+        self.http_base.clone()
+    }
+
+    /// A8 — the connection's credential, for the one REST read that needs it
+    /// (`/api/auth/me`). Never logged.
+    pub(crate) fn bearer(&self) -> String {
+        self.bearer.clone()
+    }
+
     /// #P4e1b row 4: the commands identity this connection currently
     /// presents to the autonomy fence. The `open_seq` counter makes every
     /// `session/open` a NEW identity for the same session id — which is
@@ -1117,6 +1128,17 @@ impl Conversation {
         }
     }
 
+    /// A8 — return a failed prompt to its OWN Session: the composer when it
+    /// still shows that Session, else that Session's stored draft
+    /// (`session-composer-drafts.ts` restores stay on their owning record).
+    fn return_prompt(&self, owner: &str, text: &str) {
+        if self.session_id() == owner {
+            self.ui.lock().unwrap().set_draft_inner(text.to_owned());
+        } else {
+            crate::screens::drafts::restore_for(&crate::screens::drafts::key_of(self, owner), text);
+        }
+    }
+
     /// `turn/start` with an explicit `turn_id`.
     ///
     /// The web mints the turn id client-side and sends it in the request
@@ -1133,6 +1155,9 @@ impl Conversation {
         turn_id: String,
     ) -> Result<String, ClientError> {
         let text: String = text.into();
+        // A8 — the Session this prompt belongs to (a failed send returns it
+        // there, even if the composer moved to another Session meanwhile).
+        let owner = self.session_id();
         #[allow(unused_mut)]
         let mut params = serde_json::json!({
             "session_id": self.session_id(),
@@ -1189,7 +1214,7 @@ impl Conversation {
                 // user's text — the clear happened optimistically before the
                 // request, so put it back (and drop the optimistic row's
                 // turn from live, the web's dispatch rollback).
-                self.ui.lock().unwrap().set_draft_inner(text.clone());
+                self.return_prompt(&owner, &text);
                 makepad_widgets::log!(
                     "[octoscode] draft restored: {} chars",
                     text.chars().count()
