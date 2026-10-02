@@ -100,29 +100,65 @@ fn fmt_num(v: f64) -> String {
 /// first build: `b3_insp_copy_btn_box [0,0,0,0]`), so pills and links carry
 /// an explicit width from this estimate instead.
 pub fn text_w(s: &str, px: f64, face: Face) -> f64 {
-    if face == Face::Mono {
-        return (s.chars().count() as f64 * 0.6 * px).ceil();
+    let em: f64 = s.chars().map(|c| char_em(c, face)).sum();
+    (em * px * weight_factor(face)).ceil()
+}
+
+/// One character's advance in em (see [`text_w`]). A CJK / full-width
+/// character is one em in every face: the family's LXGW WenKai member draws
+/// it, mono runs included.
+pub fn char_em(c: char, face: Face) -> f64 {
+    if (c as u32) > 0x2e80 {
+        return 1.0;
     }
-    let em: f64 = s
-        .chars()
-        .map(|c| match c {
-            'i' | 'l' | 'j' | '.' | ',' | '\'' | '|' | ':' | ';' | '!' | 'I' => 0.27,
-            ' ' | 'f' | 't' | 'r' | '(' | ')' | '/' | '-' => 0.34,
-            'm' | 'w' => 0.86,
-            'M' | 'W' => 0.92,
-            'A'..='Z' => 0.68,
-            '0'..='9' => 0.58,
-            '…' => 0.9,
-            c if (c as u32) > 0x2e80 => 1.0, // CJK
-            _ => 0.56,
-        })
-        .sum();
-    let weight = match face {
+    if face == Face::Mono {
+        return 0.6;
+    }
+    match c {
+        'i' | 'l' | 'j' | '.' | ',' | '\'' | '|' | ':' | ';' | '!' | 'I' => 0.27,
+        ' ' | 'f' | 't' | 'r' | '(' | ')' | '/' | '-' => 0.34,
+        'm' | 'w' => 0.86,
+        'M' | 'W' => 0.92,
+        'A'..='Z' => 0.68,
+        '0'..='9' => 0.58,
+        '…' => 0.9,
+        _ => 0.56,
+    }
+}
+
+/// The heavier faces' advance factor.
+pub fn weight_factor(face: Face) -> f64 {
+    match face {
         Face::Semibold => 1.05,
         Face::Medium => 1.025,
         _ => 1.0,
-    };
-    (em * px * weight).ceil()
+    }
+}
+
+/// Truncate `s` with an ellipsis so its estimated run fits `px_budget`
+/// (per-character advances, so a CJK line is cut where it really ends).
+pub fn fit_w(s: &str, px_budget: f64, px: f64, face: Face) -> String {
+    // A small margin for the estimate's error (measured: LXGW's full-width
+    // advance is ~1.02 em at 13 px).
+    let budget = px_budget * 0.97;
+    if text_w(s, px, face) <= budget {
+        return s.to_owned();
+    }
+    let k = px * weight_factor(face);
+    let ell = char_em('…', face) * k;
+    let mut out = String::new();
+    let mut w = 0.0;
+    for c in s.chars() {
+        let cw = char_em(c, face) * k;
+        if w + cw + ell > budget {
+            break;
+        }
+        out.push(c);
+        w += cw;
+    }
+    let mut out = out.trim_end().to_owned();
+    out.push('…');
+    out
 }
 
 /// Escape a runtime string for a DSL string literal (`text: "…"`). Debug

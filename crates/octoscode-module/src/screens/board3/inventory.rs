@@ -331,14 +331,8 @@ pub fn input_changed(st: &mut InvState, key: &str, text: &str) {
 
 /// Truncate to a pixel budget (Inter ~0.56em per glyph, mono 0.6em).
 pub fn fit(s: &str, px_budget: f64, font_px: f64, mono: bool) -> String {
-    let per = font_px * if mono { 0.61 } else { 0.56 };
-    let max = (px_budget / per).floor().max(1.0) as usize;
-    if s.chars().count() <= max {
-        return s.to_owned();
-    }
-    let mut out: String = s.chars().take(max.saturating_sub(1)).collect();
-    out.push('…');
-    out
+    let face = if mono { ui::Face::Mono } else { ui::Face::Regular };
+    ui::fit_w(s, px_budget, font_px, face)
 }
 
 fn status_chip(d: &mut Dsl, id: &str, status: &str) {

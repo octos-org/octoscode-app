@@ -173,15 +173,24 @@ pub fn lower(
     d.close();
     d.tap("b3_strip_tap", "b3.strip.settings");
     d.close();
-    // The transitional states read in blue under the strip (the board's
+    // The board's caption under the strip is the web strip's own title
+    // (`SessionStatusStrip.tsx:106`, "Model, permissions, sandbox"); on its
+    // right, the composer's Vim field note while Vim editing is on
+    // (`ComposerInput.tsx:270-274`: `Vim · Insert` / `Vim · Normal`).
+    let caption = d.anon();
+    d.view(
+        &caption,
+        &format!("width: {width} height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 2 right: 2}}"),
+    );
+    d.text("b3_strip_caption", "Model, permissions, sandbox", &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill));
+    if let Some(note) = vim_note {
+        d.text("b3_strip_vim", note, &Txt::new(12.0, Face::Medium, tok::TEXT));
+    }
+    d.close();
+    // The transitional states read in blue under it (the board's
     // "Reconnecting" / "Resuming chat…" / "Handing back control…").
     if matches!(state.as_str(), "Reconnecting" | "Resuming chat…" | "Handing back control…") {
         d.text("b3_strip_transition", &state, &Txt::new(12.5, Face::Regular, tok::BLUE));
-    }
-    // Screen 12: the composer's Vim field note (`ComposerInput.tsx:270-274`
-    // renders `Vim · Insert` / `Vim · Normal` with the input).
-    if let Some(note) = vim_note {
-        d.text("b3_strip_vim", note, &Txt::new(12.0, Face::Regular, tok::MUTED));
     }
     d.close();
     d.finish()

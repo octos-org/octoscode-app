@@ -415,13 +415,24 @@ script_mod! {
                     }
                     fleet_nav_hit := Button {
                         width: Fill height: Fill text: ""
+                        // Flat states (no bevel gradient, no focus fill): the
+                        // sidebar rows' hover is a plain 6 % tint.
                         draw_bg.color: #00000000
-                        draw_bg.color_hover: #00000010
-                        draw_bg.color_down: #00000020
+                        draw_bg.color_hover: #0000000f
+                        draw_bg.color_down: #0000001a
+                        draw_bg.color_focus: #00000000
                         draw_bg.border_size: 0.0
                         draw_bg.color_2: #00000000
+                        draw_bg.color_2_hover: #0000000f
+                        draw_bg.color_2_down: #0000001a
+                        draw_bg.color_2_focus: #00000000
                         draw_bg.border_color: #00000000
                         draw_bg.border_color_2: #00000000
+                        draw_bg.border_color_hover: #00000000
+                        draw_bg.border_color_focus: #00000000
+                        draw_bg.border_color_2_hover: #00000000
+                        draw_bg.border_color_2_down: #00000000
+                        draw_bg.border_color_2_focus: #00000000
                     }
                 }
             }

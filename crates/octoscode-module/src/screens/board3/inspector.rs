@@ -435,11 +435,26 @@ pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, _store: &Store) {
     if let Some(e) = &st.error {
         d.text("b3_insp_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
     }
-    if let (Mode::Turn(id), Some(t)) = (&st.mode, &st.turn) {
-        turn_card(d, id, t);
+    // The command's own subject first: `/permissions` reads the remembered
+    // approvals (`InspectionDialog.tsx` "scopes"), `/turn` the turn state,
+    // `/threads` the graph; the other server facts follow.
+    match &st.mode {
+        Mode::Permissions => {
+            scopes_card(d, st);
+            graph_card(d, st);
+        }
+        Mode::Turn(id) => {
+            if let Some(t) = &st.turn {
+                turn_card(d, id, t);
+            }
+            graph_card(d, st);
+            scopes_card(d, st);
+        }
+        Mode::Threads => {
+            graph_card(d, st);
+            scopes_card(d, st);
+        }
     }
-    graph_card(d, st);
-    scopes_card(d, st);
     link_card(d, st);
     d.close();
     ui::body_close(d);

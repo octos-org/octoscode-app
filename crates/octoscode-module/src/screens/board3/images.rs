@@ -222,7 +222,7 @@ pub fn build(d: &mut Dsl, st: &ImgState, frame: &Frame, drafts: Option<&media::A
     ui::body_open(d, frame, width, 84.0);
     // The board's four slots.
     let gap = 10.0;
-    let size = ((inner_w - 3.0 * gap - 10.0) / 4.0).clamp(64.0, 110.0).floor();
+    let size = ((inner_w - 3.0 * gap - 10.0) / 4.0).clamp(64.0, 150.0).floor();
     let grid = d.anon();
     d.view(&grid, &format!("width: Fill height: Fit flow: Right spacing: {gap}"));
     for i in 0..media::MAX_TURN_IMAGES {
