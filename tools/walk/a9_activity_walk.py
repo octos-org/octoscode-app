@@ -162,7 +162,7 @@ def rows(s=None):
     return sorted(out)
 
 
-def open_activity():
+def open_activity(wait_dialog=True):
     """Open the palette from the composer and click the /activity row."""
     comp = rect("i0_composer_0")
     if comp is None:
@@ -182,6 +182,8 @@ def open_activity():
         if n.get("t") == "/activity":
             row = [h for h in hits if abs(h["r"][1] - n["r"][1]) < 20]
             click_rect((row[0] if row else n)["r"])
+            if not wait_dialog:
+                return True
             return soon(lambda: is_shown("a9_act_dialog"))
     return False
 

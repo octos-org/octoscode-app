@@ -591,6 +591,7 @@ pub const ACTION_NOOP: &str = "a9.act.noop";
 
 pub fn routes(action: &str) -> bool {
     action == ACTION_OPEN
+        || action == ACTION_CANCEL
         || action == ACTION_CLOSE
         || action == ACTION_BACKDROP
         || action == ACTION_ROW
@@ -620,7 +621,7 @@ pub fn perform(action: &str, row: usize, store: &Store) -> Outcome {
             None => Outcome::Done,
         };
     }
-    if action == ACTION_CLOSE || action == ACTION_BACKDROP {
+    if action == ACTION_CLOSE || action == ACTION_BACKDROP || action == ACTION_CANCEL {
         close();
         return Outcome::Done;
     }
@@ -728,6 +729,15 @@ pub fn lower(store: &Store) -> Option<Lowered> {
     let mut st = state();
     if !st.open {
         return None;
+    }
+    // The first catalog read has not settled: the web's loading fallback for
+    // a dismissable surface (`SurfaceBoundary.tsx:25-33/:44-83`, "Loading
+    // <name>…" + Cancel); a cancelled load never opens afterwards (the close
+    // bumps the generation, so the late read is refused).
+    if st.available && st.reads == 0 {
+        let frame = st.frame;
+        drop(st);
+        return Some(lower_loading(&frame));
     }
     let frame = st.frame;
     let (w, h, compact) = dialog_box(&frame);
@@ -916,6 +926,41 @@ pub fn lower(store: &Store) -> Option<Lowered> {
     let taps = d.taps.clone();
     let inputs = d.inputs.clone();
     Some(Lowered { dsl: d.finish(), taps, inputs })
+}
+
+/// Cancel the loading Activity (the loading fallback's only action).
+pub const ACTION_CANCEL: &str = "a9.act.cancel";
+
+/// The loading fallback (`UnavailableSurface` with `loading`): a centred
+/// panel "Loading activity…", what it is waiting for, and Cancel.
+fn lower_loading(frame: &Frame) -> Lowered {
+    let w = (frame.avail_w - 32.0).min(360.0).max(240.0).floor();
+    let mut d = Dsl::new();
+    d.view("a9_act_root", "width: Fill height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5}");
+    d.rule("a9_act_mask", "width: Fill height: Fill", tok::MASK);
+    d.view("a9_act_backdrop_box", "width: Fill height: Fill flow: Overlay");
+    d.tap("a9_act_backdrop", ACTION_CANCEL);
+    d.close();
+    d.surface(
+        "a9_act_loading",
+        &format!("width: {w} height: Fit flow: Down spacing: 10 padding: Inset{{left: 22 right: 22 top: 22 bottom: 20}}"),
+        tok::SURFACE,
+        16.0,
+        Some(tok::HAIRLINE),
+    );
+    d.text("a9_act_loading_title", "Loading activity…", &Txt::new(17.0, Face::Semibold, tok::TEXT).w(W::Fill));
+    d.text(
+        "a9_act_loading_detail",
+        "Reading task snapshots from your confirmed sessions.",
+        &Txt::new(13.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
+    );
+    d.view("a9_act_loading_actions", "width: Fill height: Fit flow: Right align: Align{x: 1.0 y: 0.5} margin: Inset{top: 4}");
+    d.button("a9_act_loading_cancel", "Cancel", ACTION_CANCEL, Btn::Outline, W::Fit, 36.0);
+    d.close();
+    d.close();
+    d.close();
+    let taps = d.taps.clone();
+    Lowered { dsl: d.finish(), taps, inputs: Vec::new() }
 }
 
 fn status_line(d: &mut Dsl, id: &str, text: &str) {
@@ -1322,6 +1367,34 @@ mod tests {
         let second = lower(&store).unwrap().dsl;
         assert_ne!(first, second);
         assert!(second.contains("text: \"zzz\""));
+        reset();
+    }
+
+    #[test]
+    fn the_first_load_shows_the_cancelable_fallback_and_a_cancelled_load_never_opens() {
+        let _g = lock();
+        reset();
+        let store = Store::new();
+        store.domains.config.set_supported_methods(vec!["task/list".into()]);
+        let gen = match perform(ACTION_OPEN, 0, &store) {
+            Outcome::Read(g) => g,
+            other => panic!("{other:?}"),
+        };
+        let low = lower(&store).unwrap();
+        assert!(low.dsl.contains("Loading activity…"));
+        assert!(low.taps.iter().any(|(_, e)| e == ACTION_CANCEL));
+        assert!(!low.dsl.contains("a9_act_dialog"), "no dialog before the first read");
+        // Cancel: the late read is refused and nothing opens.
+        assert_eq!(perform(ACTION_CANCEL, 0, &store), Outcome::Done);
+        assert!(!publish(gen, Catalog::default(), BTreeMap::new()));
+        assert!(!is_open() && lower(&store).is_none());
+        // A settled first read shows the navigator.
+        let gen = match perform(ACTION_OPEN, 0, &store) {
+            Outcome::Read(g) => g,
+            other => panic!("{other:?}"),
+        };
+        assert!(publish(gen, Catalog::default(), BTreeMap::new()));
+        assert!(lower(&store).unwrap().dsl.contains("a9_act_dialog"));
         reset();
     }
 

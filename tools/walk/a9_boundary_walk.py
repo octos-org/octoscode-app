@@ -113,12 +113,34 @@ def inline():
     check("Close dismisses it", soon(lambda: not is_shown("a9_un_panel")))
 
 
+def loading():
+    """A9_SCENARIO=loading (replay --task-delay-ms 3000): the first catalog
+    read is slow -> 'Loading activity…' + Cancel; a cancelled load never
+    opens; an uncancelled one opens when the read lands."""
+    log_since()
+    w.open_activity(wait_dialog=False)
+    check("the slow first read shows 'Loading activity…'", soon(lambda: is_shown("a9_act_loading")),
+          f"{text_of('a9_act_loading_title')!r}")
+    s = snap()
+    check("…with a Cancel action (>= 28 px)", rect("a9_act_loading_cancel", s=s) is not None and rect("a9_act_loading_cancel", s=s)[3] >= 28)
+    check("…and no navigator yet", not is_shown("a9_act_dialog", s))
+    shot(f"{MODE}-activity-loading")
+    click("a9_act_loading_cancel")
+    check("Cancel closes it at once", soon(lambda: not is_shown("a9_act_loading")))
+    time.sleep(4.0)  # past the held reply
+    check("a cancelled load never opens afterwards", not is_shown("a9_act_dialog") and not is_shown("a9_act_loading"))
+    w.open_activity(wait_dialog=False)
+    soon(lambda: is_shown("a9_act_loading"))
+    check("left alone, it opens when the read lands", soon(lambda: is_shown("a9_act_dialog") and len(w.rows()) == 3, tries=40))
+    click("a9_act_close")
+
+
 def main():
     if MODE == "phone" and not is_shown("conversation_column"):
         w.get("/click?x=153&y=363&wait=1")
         time.sleep(3)
     check("connected", connected())
-    {"fatal": fatal, "modal": modal, "inline": inline}[SCENARIO]()
+    {"fatal": fatal, "modal": modal, "inline": inline, "loading": loading}[SCENARIO]()
     failed = [n for n, ok, _ in w.RESULTS if not ok]
     print(f"== WALK a9 boundary {SCENARIO} {MODE}: {len(w.RESULTS) - len(failed)}/{len(w.RESULTS)} passed")
     sys.exit(1 if failed else 0)

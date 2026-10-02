@@ -338,6 +338,14 @@ async fn main() {
         .and_then(|i| args.get(i + 1))
         .and_then(|v| v.parse().ok())
         .unwrap_or(2);
+    // A9: `--task-delay-ms N` holds every activity `task/list` reply N ms (a
+    // slow catalog, for the loading fallback's Cancel).
+    let task_delay_ms: u64 = args
+        .iter()
+        .position(|a| a == "--task-delay-ms")
+        .and_then(|i| args.get(i + 1))
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(0);
     let scenario = args
         .iter()
         .position(|a| a == "--scenario")
@@ -522,7 +530,15 @@ async fn main() {
                             Err(e) => serde_json::json!({"jsonrpc": "2.0", "id": id, "error": e}),
                         };
                         println!("[replay-serve] -> task/list {session}");
-                        send(&tx, frame).await;
+                        if task_delay_ms > 0 {
+                            let tx2 = tx.clone();
+                            tokio::spawn(async move {
+                                tokio::time::sleep(std::time::Duration::from_millis(task_delay_ms)).await;
+                                send(&tx2, frame).await;
+                            });
+                        } else {
+                            send(&tx, frame).await;
+                        }
                     }
                     "session/list" => {
                         let session = v["params"]["session_id"]
