@@ -477,8 +477,10 @@ fn num_w(files: &[DiffPreviewFile]) -> f64 {
         .map(|l| l.old_line.unwrap_or(0).max(l.new_line.unwrap_or(0)))
         .max()
         .unwrap_or(0);
+    // The web's columns are 44 px; two-digit numbers keep A13's 30 px, a
+    // wider number keeps ~10 px clear of the next column.
     let digits = most.to_string().len() as f64;
-    (digits * NUM_PX * 0.6 + 2.0).ceil().max(30.0)
+    (digits * NUM_PX * 0.6 + 10.0).ceil().max(30.0)
 }
 
 // -------------------------------------------------------------- the view
