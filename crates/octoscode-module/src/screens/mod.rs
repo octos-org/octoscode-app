@@ -6,6 +6,8 @@
 //! #30c adds `fleet` (board 3.6/3.7) on task/30c.
 // A9: Activity — the operator-opened cross-session task scan.
 pub mod activity;
+// A9: Settings connection additions (status, info rows, Disconnect/Forget).
+pub mod a9_settings;
 pub mod autonomy;
 // #A2: board 1 as live, reachable native surfaces (the host + its view kit).
 pub mod board1;

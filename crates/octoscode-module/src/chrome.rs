@@ -847,27 +847,62 @@ script_mod! {
                         OcRowSlot{set_theme := OcValueButton{}}
                     }
                     OcRule{}
+                    // A9: the web's "Octos server" row (GeneralSettingsContent
+                    // .tsx:150-168): the title over the connection state (a
+                    // status dot + one of five states), the origin on the
+                    // right. One layout at every width (the state moved under
+                    // the title, so the origin alone fits the phone row).
                     set_server_row := View{
-                        width: Fill height: 52 flow: Overlay
-                        View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Octos server"}}
+                        width: Fill height: Fit flow: Overlay padding: Inset{top: 12 bottom: 12}
                         View{
-                            width: Fill height: Fill flow: Right align: Align{x: 1.0 y: 0.5}
+                            width: Fill height: Fit flow: Down spacing: 5
+                            OcRowTitle{width: Fit text: "Octos server"}
+                            View{
+                                width: Fit height: Fit flow: Right spacing: 7 align: Align{y: 0.5}
+                                set_server_dot_ok := RoundedView{width: 8 height: 8 draw_bg +: {color: #22C55E border_radius: 4.0}}
+                                set_server_dot_busy := RoundedView{width: 8 height: 8 visible: false draw_bg +: {color: #F59E0B border_radius: 4.0}}
+                                set_server_dot_err := RoundedView{width: 8 height: 8 visible: false draw_bg +: {color: #EC1313 border_radius: 4.0}}
+                                set_server_dot_idle := RoundedView{width: 8 height: 8 visible: false draw_bg +: {color: #8E8E93 border_radius: 4.0}}
+                                set_server_status := OcMuted{text: "Connected"}
+                            }
+                        }
+                        View{
+                            width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
                             set_server_value := OcLabel{text: "" draw_text +: {text_style +: {font_size: 9.75}}}
-                            OcMuted{text: "  ·  "}
-                            set_server_ok := OcLabel{text: "Connected" draw_text +: {color: #1F883D text_style +: {font_size: 9.75}}}
-                            set_server_off := OcLabel{text: "Offline" visible: false draw_text +: {color: #6E6E73 text_style +: {font_size: 9.75}}}
                         }
                     }
-                    set_server_row_compact := View{
-                        width: Fill height: Fit flow: Down spacing: 4 padding: Inset{top: 14 bottom: 14}
-                        visible: false
-                        OcRowTitle{text: "Octos server"}
+                    // A9: "Current workspace" / "Profile", shown only when known
+                    // (GeneralSettingsContent.tsx:170-200).
+                    set_ws_row := View{
+                        width: Fill height: Fit flow: Down visible: false
+                        OcRule{}
                         View{
-                            width: Fill height: Fit flow: Right align: Align{y: 0.5}
-                            set_server_value_c := OcLabel{text: "" draw_text +: {text_style +: {font_size: 9.75}}}
-                            OcMuted{text: "  ·  "}
-                            set_server_ok_c := OcLabel{text: "Connected" draw_text +: {color: #1F883D text_style +: {font_size: 9.75}}}
-                            set_server_off_c := OcLabel{text: "Offline" visible: false draw_text +: {color: #6E6E73 text_style +: {font_size: 9.75}}}
+                            width: Fill height: Fit flow: Overlay padding: Inset{top: 12 bottom: 12}
+                            View{
+                                width: Fill height: Fit flow: Down spacing: 5 padding: Inset{right: 120}
+                                OcRowTitle{width: Fit text: "Current workspace"}
+                                set_ws_path := OcMuted{width: Fill text: ""}
+                            }
+                            View{
+                                width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
+                                set_ws_value := OcLabel{text: "" draw_text +: {text_style +: {font_size: 9.75}}}
+                            }
+                        }
+                    }
+                    set_profile_row := View{
+                        width: Fill height: Fit flow: Down visible: false
+                        OcRule{}
+                        View{
+                            width: Fill height: Fit flow: Overlay padding: Inset{top: 12 bottom: 12}
+                            View{
+                                width: Fill height: Fit flow: Down spacing: 5 padding: Inset{right: 120}
+                                OcRowTitle{width: Fit text: "Profile"}
+                                OcMuted{width: Fill text: "The Octos profile backing this session."}
+                            }
+                            View{
+                                width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
+                                set_profile_value := OcLabel{text: "" draw_text +: {text_style +: {font_size: 9.75}}}
+                            }
                         }
                     }
                     set_stop_row := View{
@@ -1097,24 +1132,32 @@ script_mod! {
                         }
                     }
                     OcRule{}
+                    // A9: the web's Connection row (GeneralSettingsContent.tsx
+                    // :286-313): Disconnect keeps the server remembered;
+                    // Forget server removes it and its saved token. Each asks
+                    // first while work is unfinished or a draft would be lost
+                    // (screens::a9_settings, LeaveConnectionDialog.tsx).
                     View{
-                        width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 12 bottom: 14}
+                        width: Fill height: Fit flow: Down spacing: 6 padding: Inset{top: 12 bottom: 14}
+                        OcRowTitle{width: Fit text: "Connection"}
                         View{
-                            width: Fill height: 34 flow: Overlay
-                            View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Disconnect"}}
-                            View{
-                                width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
-                                View{
-                                    width: 112 height: 32 flow: Overlay align: Align{x: 0.5 y: 0.5}
-                                    RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
-                                    OcLabel{text: "Disconnect" draw_text +: {text_style +: {font_size: 9.75}}}
-                                    settings_disconnect := OcHit{draw_bg.border_radius: 9.0}
-                                }
-                            }
+                            width: Fill height: Fit flow: Down
+                            OcRowHelp{text: "Disconnect keeps this server remembered. Forget removes the saved server and its saved access token."}
                         }
                         View{
-                            width: Fill height: Fit flow: Down padding: Inset{right: 124}
-                            OcRowHelp{text: "Leave this server; it stays remembered"}
+                            width: Fill height: Fit flow: Right spacing: 10 margin: Inset{top: 6}
+                            View{
+                                width: 112 height: 36 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_even border_radius: 9.0}}
+                                OcLabel{text: "Disconnect" draw_text +: {text_style +: {font_size: 9.75}}}
+                                settings_disconnect := OcHit{draw_bg.border_radius: 9.0}
+                            }
+                            View{
+                                width: 120 height: 36 flow: Overlay align: Align{x: 0.5 y: 0.5}
+                                RoundedView{width: Fill height: Fill draw_bg +: {color: theme.color_bg_app border_radius: 9.0 border_size: 1.0 border_color: theme.color_outset_1}}
+                                OcLabel{text: "Forget server" draw_text +: {color: #C4141B text_style +: {font_size: 9.75}}}
+                                settings_forget := OcHit{draw_bg.border_radius: 9.0}
+                            }
                         }
                     }
                     // #A2 (board 1 screen 5): how this device signs in — the
@@ -1519,9 +1562,15 @@ impl ChromeRuntime {
             if c(cx, live_id!(set_models_manage)) {
                 out.push(Intent::Action("dialog.open.models", 0));
             }
+            // A9: the Connection row's Disconnect / Forget server (each asks
+            // first when work would be lost; screens::a9_settings).
+            if c(cx, live_id!(settings_disconnect)) {
+                out.push(Intent::Action(crate::screens::a9_settings::ACTION_DISCONNECT, 0));
+            }
+            if c(cx, live_id!(settings_forget)) {
+                out.push(Intent::Action(crate::screens::a9_settings::ACTION_FORGET, 0));
+            }
             // Settings is modal (the web's ModalSurface): nothing under it.
-            // Disconnect lives in the Connection section and keeps the
-            // shell's own handler (lib.rs `settings_disconnect`).
             return out;
         }
         // The in-app dock (the folder browser) sits over the base chrome.
@@ -1771,17 +1820,30 @@ impl ChromeRuntime {
         let theme = theme_label(&crate::screens::theme::preference());
         text(cx, view, &[live_id!(set_theme), live_id!(vb_text)], theme);
         let endpoint = server_label();
-        // One row on desktop; two lines at phone width (the title and the
-        // address + status do not fit side by side in 255 px).
-        show(cx, view, ids!(set_server_row), !compact);
-        show(cx, view, ids!(set_server_row_compact), compact);
-        for (value, ok, off) in [
-            (live_id!(set_server_value), live_id!(set_server_ok), live_id!(set_server_off)),
-            (live_id!(set_server_value_c), live_id!(set_server_ok_c), live_id!(set_server_off_c)),
-        ] {
-            text(cx, view, &[value], &endpoint);
-            show(cx, view, &[ok], store.is_live());
-            show(cx, view, &[off], !store.is_live());
+        // A9: the web's five connection states (a9_settings::status_of) with
+        // the status dot; the origin on the right.
+        {
+            use crate::screens::a9_settings::{self as a9s, Dot};
+            let status = a9s::status_of(&store.connection(), false);
+            text(cx, view, ids!(set_server_status), status.copy());
+            let dot = status.dot();
+            show(cx, view, ids!(set_server_dot_ok), dot == Dot::Ok);
+            show(cx, view, ids!(set_server_dot_busy), dot == Dot::Busy);
+            show(cx, view, ids!(set_server_dot_err), dot == Dot::Err);
+            show(cx, view, ids!(set_server_dot_idle), dot == Dot::Idle);
+            text(cx, view, ids!(set_server_value), &endpoint);
+            let rows = a9s::info_rows(store, &store.domains.profile.current().unwrap_or_default());
+            let ws = rows.iter().find(|r| r.title == "Current workspace");
+            let profile = rows.iter().find(|r| r.title == "Profile");
+            show(cx, view, ids!(set_ws_row), ws.is_some());
+            if let Some(r) = ws {
+                text(cx, view, ids!(set_ws_value), &r.value);
+                text(cx, view, ids!(set_ws_path), &r.description);
+            }
+            show(cx, view, ids!(set_profile_row), profile.is_some());
+            if let Some(r) = profile {
+                text(cx, view, ids!(set_profile_value), &r.value);
+            }
         }
         show(cx, view, ids!(set_stop_row), settings::can_stop_server(store));
         // Permissions.
@@ -1815,7 +1877,10 @@ impl ChromeRuntime {
             cx,
             view,
             ids!(set_conn_value),
-            &format!("{endpoint} · {}", if store.is_live() { "Connected" } else { "Offline" }),
+            &format!(
+                "{endpoint} · {}",
+                crate::screens::a9_settings::status_of(&store.connection(), false).copy()
+            ),
         );
         text(cx, view, ids!(set_about_version), &format!("Version {}", env!("CARGO_PKG_VERSION")));
         let methods = store.domains.config.supported_methods().len();

@@ -4993,14 +4993,10 @@ impl Widget for OctoscodeView {
                 // Disconnect flips the store's connection row to Offline —
                 // the same state the transport-loss path sets — and logs;
                 // never a silent no-op.
-                if self.view.button(cx, ids!(settings_disconnect)).clicked(actions) {
-                    let b = self.bridge.lock().unwrap();
-                    b.store.set_connection("Offline".to_owned(), false);
-                    ::log::info!(
-                        "octoscode: settings.disconnect — connection set Offline \
-                         (reconnect via the connect screen)"
-                    );
-                }
+                // A9: Settings > Connection's Disconnect / Forget server route
+                // through the chrome intents (`a9.leave.*`, a9_host): they
+                // close the transport for real and ask first when work would
+                // be lost.
                 // #31a -> A3: the <760 menu trigger now lives in the header
                 // and opens the drawer (`drawer.open`, handle_chrome).
                 self.sync_labels(cx);

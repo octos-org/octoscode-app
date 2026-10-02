@@ -131,6 +131,11 @@ pub fn remember_server_in(dir: &Path, server: &str) -> Result<(), String> {
     write_private(&last_server_file(dir), server.trim()).map_err(|e| format!("store server: {e}"))
 }
 
+/// A9 — forget the remembered server address (Settings > Forget server).
+pub fn forget_server_in(dir: &Path) {
+    let _ = std::fs::remove_file(last_server_file(dir));
+}
+
 /// The last server address, if one was remembered.
 pub fn last_server_in(dir: &Path) -> Option<String> {
     let s = std::fs::read_to_string(last_server_file(dir)).ok()?;
@@ -158,6 +163,10 @@ pub fn remember_server(server: &str) -> Result<(), String> {
 
 pub fn last_server() -> Option<String> {
     last_server_in(&dir())
+}
+
+pub fn forget_server() {
+    forget_server_in(&dir())
 }
 
 /// The connect screen's prefill at start: the last server and ITS token.
@@ -214,6 +223,21 @@ mod tests {
             let name = e.unwrap().file_name().to_string_lossy().to_string();
             assert!(!name.contains("sk-"), "{name}");
         }
+        let _ = std::fs::remove_dir_all(&d);
+    }
+
+    #[test]
+    fn forget_server_removes_the_address_and_keeps_other_origins_tokens() {
+        let d = tmp("forget-server");
+        remember_server_in(&d, "http://127.0.0.1:50190").unwrap();
+        remember_token_in(&d, "http://127.0.0.1:50190", "sk-one").unwrap();
+        remember_token_in(&d, "http://10.0.0.2:50190", "sk-two").unwrap();
+        // Settings > Forget server: this origin's token and the address.
+        forget_token_in(&d, "http://127.0.0.1:50190");
+        forget_server_in(&d);
+        assert_eq!(last_server_in(&d), None);
+        assert_eq!(token_for_in(&d, "http://127.0.0.1:50190"), None);
+        assert_eq!(token_for_in(&d, "http://10.0.0.2:50190").as_deref(), Some("sk-two"));
         let _ = std::fs::remove_dir_all(&d);
     }
 
