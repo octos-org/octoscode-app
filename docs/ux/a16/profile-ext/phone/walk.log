@@ -105,8 +105,8 @@ TAP the keyboard's hide chevron (337,513)
     log: [I] apps/octoscode/module/src/lib.rs:2571:17 - [octoscode] palette run /skills -> dialog.open.skills
     log: [I] apps/octoscode/module/src/lib.rs:2367:9 - [octoscode] dialog action: dialog.open.skills
     log: [I] apps/octoscode/module/src/lib.rs:2367:9 - [octoscode] dialog action: dialog.refresh.profile
-    log: [I] apps/octoscode/module/src/lib.rs:2510:29 - [octoscode] dialog load dialog.refresh.profile: 3 reads
     log: [I] apps/octoscode/module/src/lib.rs:2769:33 - [octoscode] dialog skills mounted: frame 328x748 scale 1.000, 2 tap(s)
+    log: [I] apps/octoscode/module/src/lib.rs:2510:29 - [octoscode] dialog load dialog.refresh.profile: 3 reads
 CLICK dlg_skills_src_review_control r=[152, 671, 152, 32] at (228,687)
     log: [I] apps/octoscode/module/src/lib.rs:5284:25 - [octoscode] dialog tap: dialog.ask.skills.install_source
     log: [I] apps/octoscode/module/src/lib.rs:2367:9 - [octoscode] dialog action: dialog.ask.skills.install_source
@@ -220,7 +220,7 @@ SHOT 02-research-locked-phone
     log: [I] apps/octoscode/module/src/lib.rs:5184:21 - [octoscode] draft synced: 6 chars
     log: [I] apps/octoscode/module/src/lib.rs:5354:25 - [octoscode] palette row 0 clicked
     log: [I] apps/octoscode/module/src/lib.rs:2571:17 - [octoscode] palette run /research -> compose:/research
-    log: [I] apps/octoscode/module/src/flow.rs:1813:17 - [octoscode] command /research: board-3 surface (Spawn(ResearchLoad(1)))
+    log: [I] apps/octoscode/module/src/flow.rs:2063:17 - [octoscode] command /research: board-3 surface (Spawn(ResearchLoad(1)))
     log: [I] apps/octoscode/module/src/lib.rs:3923:17 - [octoscode] board3 mounted Some(Research): 4 tap(s), 10 input(s)
     log: [I] apps/octoscode/module/src/lib.rs:3923:17 - [octoscode] board3 mounted Some(Research): 4 tap(s), 10 input(s)
 CLICK the drawn pill b3_research_lane_0_remove_box (no tap target while locked) r=[155, 365, 126, 32]

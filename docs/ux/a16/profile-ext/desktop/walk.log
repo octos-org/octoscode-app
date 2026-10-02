@@ -218,7 +218,7 @@ SHOT 02-research-locked-desktop
     log: [I] apps/octoscode/module/src/lib.rs:5184:21 - [octoscode] draft synced: 6 chars
     log: [I] apps/octoscode/module/src/lib.rs:5354:25 - [octoscode] palette row 0 clicked
     log: [I] apps/octoscode/module/src/lib.rs:2571:17 - [octoscode] palette run /research -> compose:/research
-    log: [I] apps/octoscode/module/src/flow.rs:1813:17 - [octoscode] command /research: board-3 surface (Spawn(ResearchLoad(1)))
+    log: [I] apps/octoscode/module/src/flow.rs:2063:17 - [octoscode] command /research: board-3 surface (Spawn(ResearchLoad(1)))
     log: [I] apps/octoscode/module/src/lib.rs:3923:17 - [octoscode] board3 mounted Some(Research): 4 tap(s), 10 input(s)
     log: [I] apps/octoscode/module/src/lib.rs:3923:17 - [octoscode] board3 mounted Some(Research): 4 tap(s), 10 input(s)
 CLICK the drawn pill b3_research_lane_0_remove_box (no tap target while locked) r=[332, 316, 126, 32]

@@ -35,8 +35,8 @@ CLICK approval_pill_hit r=[407, 622, 171, 30] at (492,637)
 PASS permission: reopened, the read-back is current (Read · Network blocked first, checked)
 CLICK b3_perm_opt_2 r=[411, 568, 302, 42] at (562,589)
     log: [I] apps/octoscode/module/src/lib.rs:5485:21 - [octoscode] permission seat clicked
-    log: [I] apps/octoscode/module/src/lib.rs:4103:42 - [octoscode] board3 PermissionLoad: 3 preset(s)
     log: [I] apps/octoscode/module/src/lib.rs:3923:17 - [octoscode] board3 mounted Some(Permission): 4 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:4103:42 - [octoscode] board3 PermissionLoad: 3 preset(s)
     log: [I] apps/octoscode/module/src/lib.rs:5299:25 - [octoscode] board3 tap: b3.perm.choose#2
     log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.perm.choose #2 -> Done
     log: [I] apps/octoscode/module/src/lib.rs:3923:17 - [octoscode] board3 mounted Some(Permission): 3 tap(s), 0 input(s)
@@ -62,8 +62,8 @@ SHOT 03-risk-ack-desktop
 CLICK b3_risk_confirm r=[606, 472, 157, 36] at (684,490)
     log: [I] apps/octoscode/module/src/lib.rs:5299:25 - [octoscode] board3 tap: b3.perm.confirm
     log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.perm.confirm #0 -> Spawn(PermissionSet("danger_full_access", "allow"))
+    log: [I] apps/octoscode/module/src/lib.rs:3923:17 - [octoscode] board3 mounted Some(Permission): 4 tap(s), 0 input(s)
     log: [I] apps/octoscode/module/src/lib.rs:4103:42 - [octoscode] board3 PermissionSet("danger_full_access", "allow"): danger_full_access/allow applied
-    log: [I] apps/octoscode/module/src/lib.rs:3923:17 - [octoscode] board3 mounted None: 1 tap(s), 0 input(s)
     log: [I] apps/octoscode/module/src/lib.rs:3300:17 - [octoscode] composer remounted
 PASS risk: 'Enable full access' CLICK -> permission/profile/set {danger_full_access, allow}; closed
 == 4. the model menu (model seat CLICK)
@@ -94,8 +94,10 @@ SHOT 05-model-restart-desktop
 CLICK b3_model_opt_2 r=[646, 439, 284, 44] at (788,461)
     log: [I] apps/octoscode/module/src/lib.rs:5299:25 - [octoscode] board3 tap: b3.model.choose#2
     log: [I] apps/octoscode/module/src/lib.rs:1622:13 - [octoscode] board3 action b3.model.choose #2 -> Spawn(ModelSelect(2))
+    log: [I] apps/octoscode/module/src/lib.rs:6068:17 - [octoscode] nav tap: b3.model.choose#2
     log: [I] apps/octoscode/module/src/lib.rs:4103:42 - [octoscode] board3 ModelSelect(2): Saved. Your next message uses kimi-k3
-    log: [I] apps/octoscode/module/src/lib.rs:3923:17 - [octoscode] board3 mounted Some(ModelMenu): 1 tap(s), 0 input(s)
+    log: [I] apps/octoscode/module/src/lib.rs:5069:21 - [octoscode] nav route: b3.model.choose#2
+    log: [I] apps/octoscode/module/src/lib.rs:2900:9 - [octoscode] screen action: b3.model.choose#2
     log: [I] apps/octoscode/module/src/lib.rs:3300:17 - [octoscode] composer remounted
     log: [I] apps/octoscode/module/src/lib.rs:3923:17 - [octoscode] board3 mounted Some(ModelMenu): 4 tap(s), 0 input(s)
     log: [I] apps/octoscode/module/src/lib.rs:3923:17 - [octoscode] board3 mounted Some(ModelMenu): 4 tap(s), 0 input(s)
