@@ -57,8 +57,14 @@ async fn a_resume_candidate_confirmed_in_another_workspace_is_refused_before_any
     while let Ok(Some(evt)) = tokio::time::timeout(Duration::from_millis(100), events.recv()).await {
         conv.on_event(evt);
     }
-    assert!(refused.is_err(), "the candidate is refused: {refused:?}");
-    assert_eq!(server.of("session/open", XRAY).len(), opens, "no session/open for the refused candidate");
+    // The wire first: nothing was opened and no history was requested for it.
+    assert_eq!(
+        server.of("session/open", XRAY).len(),
+        opens,
+        "no session/open for the refused candidate: {:?}",
+        server.of("session/open", XRAY).last()
+    );
     assert_eq!(server.of("session/hydrate", XRAY).len(), reads, "and no history request");
+    assert!(refused.is_err(), "the candidate is refused: {refused:?}");
     assert_eq!(conv.store.active_session().as_deref(), Some(MAIN), "the Session on screen is untouched");
 }
