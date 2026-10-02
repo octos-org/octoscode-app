@@ -1,0 +1,48 @@
+CLICK OctosCode icon on the phone home at (153,363)
+== Models: the route pills sit inside the provider card
+    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: /Users/yuechen/home/octoscode-app/.claude/worktrees/agent-acd69cc2de99fe743/design
+    log: [I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under /Users/yuechen/home/oa.noindex/host-agent-acd69cc2de99fe743/apps/octoscode/module/resources/ux/Inter-400.ttf
+    log: [I] apps/octoscode/module/src/lib.rs:1322:13 - [octoscode] synthetic live: board-4 seed (no transport)
+    log: [I] apps/octoscode/module/src/lib.rs:3002:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:3565:25 - [octoscode] board3 StatusRead: no connection
+    log: [I] apps/octoscode/module/src/lib.rs:3002:17 - [octoscode] composer remounted
+CLICK composer r=[28, 765, 304, 29]
+TYPE '/'
+TYPE 'mo'
+CLICK palette_row_name '/model' r=[30, 260, 63, 28]
+PASS models: /model palette row CLICK opens the dialog
+PASS models: dlg_models_btn_test_surface inside the card with a bottom inset >= 8 and ~= its side inset — pill [36, 386, 136, 44] card [20, 142, 320, 303] side=16.0 bottom=15.0
+PASS models: dlg_models_btn_discover_surface inside the card with a bottom inset >= 8 and ~= its side inset — pill [191, 386, 135, 44] card [20, 142, 320, 303] side=14.0 bottom=15.0
+PASS models: dialog numeric checks — frame=360x776 centre_dx=0.0 margins L=26 R=34 labels=11 outside=0 overlaps=0 controls=2 under28=0
+SHOT models-phone
+CLICK dialog_close r=[320, 92, 28, 28] at (334,106)
+== Loops: one icon size, one centre line, one pitch
+CLICK composer r=[28, 765, 304, 29]
+TYPE '/'
+TYPE 'loo'
+CLICK palette_row_name '/loop' r=[30, 260, 48, 28]
+PASS loops: /loop palette row CLICK opens the dialog
+PASS loops: row 1 icons share one centre line — [('pause', [250, 183, 19, 19]), ('play', [281, 183, 19, 19]), ('trash', [311, 183, 19, 19])]
+FAIL loops: row 1 icons at one pitch — pitches [31.0, 30.0]
+PASS loops: row 1 last icon inside the card — icon [311, 183, 19, 19] card [17, 139, 326, 292]
+PASS loops: row 2 icons share one centre line — [('pause', [250, 279, 19, 19]), ('play', [281, 279, 19, 19]), ('trash', [311, 279, 19, 19])]
+FAIL loops: row 2 icons at one pitch — pitches [31.0, 30.0]
+PASS loops: row 2 last icon inside the card — icon [311, 279, 19, 19] card [17, 139, 326, 292]
+PASS loops: row 3 icons share one centre line — [('play', [281, 369, 19, 19]), ('trash', [311, 369, 19, 19])]
+PASS loops: row 3 icons at one pitch — pitches [30.0]
+PASS loops: row 3 last icon inside the card — icon [311, 369, 19, 19] card [17, 139, 326, 292]
+PASS loops: every row icon is one square size <= 24 px — sizes [(19, 19)]
+PASS loops: every icon hit target >= 28 px — 8 hits, min 30
+PASS loops: dialog numeric checks — frame=360x776 centre_dx=0.0 margins L=27 R=30 labels=8 outside=0 overlaps=0 controls=9 under28=0
+SHOT loops-phone
+CLICK dialog_close r=[326, 94, 28, 28] at (340,108)
+CLICK composer r=[28, 765, 304, 29]
+TYPE '/'
+TYPE 'moni'
+CLICK palette_row_name '/monitor' r=[30, 260, 76, 28]
+PASS monitors: /monitor palette row CLICK opens the dialog
+PASS monitors: row icons are the Loops dialog's size — monitors [(19, 19)] loops [(19, 19)]
+PASS monitors: dialog numeric checks — frame=360x776 centre_dx=0.0 margins L=23 R=33 labels=8 outside=0 overlaps=0 controls=4 under28=0
+SHOT monitors-phone
+CLICK dialog_close r=[326, 90, 28, 28] at (340,104)
+== 18/20 checks passed

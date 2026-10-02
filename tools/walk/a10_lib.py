@@ -152,11 +152,28 @@ class Walk:
         return bool(ok)
 
     def shot(self, name: str) -> pathlib.Path:
+        """`/g` PNG of the app. Desktop: cropped to the OctosCode window (the
+        module view plus its 32 px title bar), like the A5 evidence; phone:
+        the whole phone shell. Downscaled to <= 1400 px."""
         png = self.out / f"{name}.png"
+        sn = self.snap()
         data = urllib.request.urlopen(self.base + "/g?raw=1", timeout=30).read()
         png.write_bytes(data)
+        if self.mode == "desktop":
+            try:
+                from PIL import Image
+
+                mod = self.module_rect(sn)
+                win = next((w["r"] for w in sn if w.get("ty") == "Window" and self.shown(w)), None)
+                img = Image.open(png)
+                if mod and win:
+                    k = img.width / win[2]
+                    x, y, w, h = mod[0], max(mod[1] - 32, 0), mod[2], mod[3] + 32
+                    img.crop((int(x * k), int(y * k), int((x + w) * k), int((y + h) * k))).save(png)
+            except Exception as e:  # keep the full capture
+                self.note(f"crop skipped: {e}")
         subprocess.run(["sips", "-Z", "1400", str(png)], capture_output=True)
-        (self.out / f"{name}.snap.json").write_text(json.dumps(self.snap()))
+        (self.out / f"{name}.snap.json").write_text(json.dumps(sn))
         self.note(f"SHOT {name}")
         return png
 

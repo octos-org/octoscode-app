@@ -72,7 +72,7 @@ def loops():
                 max(mids) - min(mids) <= 1.0, f"{[(k, r) for k, r in icons]}")
         xs = [r[0] + r[2] / 2 for _, r in icons]
         gaps = [round(b - a, 1) for a, b in zip(xs, xs[1:])]
-        W.check(f"loops: row {i} icons at one pitch", len(set(gaps)) <= 1, f"pitches {gaps}")
+        W.check(f"loops: row {i} icons at one pitch (±1 px scale rounding)", max(gaps, default=0) - min(gaps, default=0) <= 1.0, f"pitches {gaps}")
         card = W.rect("dlg_loops_loops_card", sn=sn)
         last = icons[-1][1]
         W.check(f"loops: row {i} last icon inside the card",

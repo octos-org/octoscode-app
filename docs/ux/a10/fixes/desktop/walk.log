@@ -1,0 +1,46 @@
+== Models: the route pills sit inside the provider card
+    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: /Users/yuechen/home/octoscode-app/.claude/worktrees/agent-acd69cc2de99fe743/design
+    log: [I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under /Users/yuechen/home/oa.noindex/host-agent-acd69cc2de99fe743/apps/octoscode/module/resources/ux/Inter-400.ttf
+    log: [I] apps/octoscode/module/src/lib.rs:1322:13 - [octoscode] synthetic live: board-4 seed (no transport)
+    log: [I] apps/octoscode/module/src/lib.rs:3002:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:3565:25 - [octoscode] board3 StatusRead: no connection
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'mo'
+CLICK palette_row_name '/model' r=[286, 252, 63, 28]
+PASS models: /model palette row CLICK opens the dialog
+PASS models: dlg_models_btn_test_surface inside the card with a bottom inset >= 8 and ~= its side inset — pill [403, 407, 138, 44] card [387, 161, 324, 306] side=16.0 bottom=16.0
+PASS models: dlg_models_btn_discover_surface inside the card with a bottom inset >= 8 and ~= its side inset — pill [560, 407, 136, 44] card [387, 161, 324, 306] side=15.0 bottom=16.0
+PASS models: dialog numeric checks — frame=364x571 centre_dx=0.0 margins L=26 R=35 labels=10 outside=0 overlaps=0 controls=2 under28=0
+SHOT models-desktop
+CLICK dialog_close r=[691, 111, 28, 28] at (705,125)
+== Loops: one icon size, one centre line, one pitch
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'loo'
+CLICK palette_row_name '/loop' r=[286, 252, 48, 28]
+PASS loops: /loop palette row CLICK opens the dialog
+PASS loops: row 1 icons share one centre line — [('pause', [632, 283, 22, 22]), ('play', [668, 283, 22, 22]), ('trash', [704, 283, 22, 22])]
+PASS loops: row 1 icons at one pitch — pitches [36.0, 36.0]
+PASS loops: row 1 last icon inside the card — icon [704, 283, 22, 22] card [356, 231, 386, 346]
+PASS loops: row 2 icons share one centre line — [('pause', [632, 396, 22, 22]), ('play', [668, 396, 22, 22]), ('trash', [704, 396, 22, 22])]
+PASS loops: row 2 icons at one pitch — pitches [36.0, 36.0]
+PASS loops: row 2 last icon inside the card — icon [704, 396, 22, 22] card [356, 231, 386, 346]
+PASS loops: row 3 icons share one centre line — [('play', [668, 503, 22, 22]), ('trash', [704, 503, 22, 22])]
+PASS loops: row 3 icons at one pitch — pitches [36.0]
+PASS loops: row 3 last icon inside the card — icon [704, 503, 22, 22] card [356, 231, 386, 346]
+PASS loops: every row icon is one square size <= 24 px — sizes [(22, 22)]
+PASS loops: every icon hit target >= 28 px — 8 hits, min 36
+PASS loops: dialog numeric checks — frame=426x447 centre_dx=0.0 margins L=32 R=36 labels=8 outside=0 overlaps=0 controls=9 under28=0
+SHOT loops-desktop
+CLICK dialog_close r=[722, 178, 28, 28] at (736,192)
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'moni'
+CLICK palette_row_name '/monitor' r=[286, 252, 76, 28]
+PASS monitors: /monitor palette row CLICK opens the dialog
+PASS monitors: row icons are the Loops dialog's size — monitors [(22, 22)] loops [(22, 22)]
+PASS monitors: dialog numeric checks — frame=418x461 centre_dx=0.0 margins L=27 R=39 labels=8 outside=0 overlaps=0 controls=4 under28=0
+SHOT monitors-desktop
+CLICK dialog_close r=[718, 165, 28, 28] at (732,179)
+== 20/20 checks passed
