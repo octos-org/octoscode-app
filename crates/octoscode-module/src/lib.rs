@@ -2451,7 +2451,18 @@ impl OctoscodeView {
             Err(e) => makepad_widgets::log!("[octoscode] composer mount: {e}"),
             // #32h TOP: one line per REAL remount — the per-key typing test
             // asserts this fires only at the initial mount, never per char.
-            Ok(true) => makepad_widgets::log!("[octoscode] composer remounted"),
+            Ok(true) => {
+                makepad_widgets::log!("[octoscode] composer remounted");
+                // A1: a remount (density or theme) replaces the TextInput —
+                // carry the draft it held over, and re-apply the label fit.
+                let draft = self.composer_synced.clone().unwrap_or_default();
+                if !draft.is_empty() {
+                    self.view
+                        .text_input(cx, &[live_id!(composer_splash), live_id!(i0_composer_0)])
+                        .set_text(cx, &draft);
+                }
+                self.apply_composer_fit(cx);
+            }
             Ok(false) => {}
         }
         self.view
@@ -2982,6 +2993,23 @@ impl OctoscodeView {
         self.view.redraw(cx);
     }
 
+    /// A1 — the composer row's label maxima ([`fluid::composer_row_fit`]) on
+    /// the LIVE labels: the composer's DSL carries no width, so a resize
+    /// never remounts it (each remount replaced the TextInput; measured on a
+    /// maximize: nine remounts and the typed draft gone).
+    fn apply_composer_fit(&mut self, cx: &mut Cx) {
+        let fit = fluid::composer_row_fit(&conv_layout::current());
+        let (approval_max, model_max) = (fit.approval_max, fit.model_max);
+        let mut approval = self
+            .view
+            .widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_2_0)]);
+        script_apply_eval!(cx, approval, { max_width: #(approval_max) });
+        let mut model = self
+            .view
+            .widget(cx, &[live_id!(composer_splash), live_id!(i0_composer_4)]);
+        script_apply_eval!(cx, model, { max_width: #(model_max) });
+    }
+
     /// A1 — the token field's eye: masked (eye shown) by default; revealed
     /// (eye-off shown) only while the person asked to see it.
     fn apply_token_visibility(&mut self, cx: &mut Cx) {
@@ -3059,6 +3087,7 @@ impl OctoscodeView {
             return;
         }
         self.applied_metrics = Some(m);
+        self.apply_composer_fit(cx);
         if let Some(mut dock) = self.view.view(cx, ids!(composer_dock)).borrow_mut() {
             let side = m.composer_side_pad();
             dock.layout.padding.left = side;

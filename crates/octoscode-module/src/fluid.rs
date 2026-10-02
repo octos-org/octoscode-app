@@ -730,6 +730,12 @@ const COMPOSER_ROW_LINE: f64 = 20.0;
 /// fixed part, two thirds for the approval pill. Measured at 360x780 before
 /// this budget: the row needed 362 px of a 336 px card and the send control
 /// was cut to 15 px.
+///
+/// The maxima are NOT in the composer's DSL: the host applies them to the
+/// live labels (`lib.rs` `apply_composer_fit`). A width in the DSL changed
+/// the mount string on every resize step, and each remount replaced the
+/// TextInput — measured on a maximize: nine remounts and the typed draft
+/// gone. Only the density-level spacing below rides the DSL.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct ComposerRowFit {
     /// The row's side padding.
@@ -797,9 +803,9 @@ pub fn composer(c: &ComposerView, m: &Metrics) -> String {
             hit = hit(hit_id, 16.0),
         )
     };
-    let one_line = |max: f64| {
-        format!("width: Fit height: Fit max_width: {max} max_lines: 1 text_overflow: TextOverflow.Ellipsis")
-    };
+    // The labels' max widths are applied by the host (`apply_composer_fit`),
+    // never written here: the DSL must not change with the width.
+    let one_line = "width: Fit height: Fit max_lines: 1 text_overflow: TextOverflow.Ellipsis";
     format!(
         "i0_composer := RoundedView{{width: Fill height: Fit flow: Down padding: 0\n\
          draw_bg +: {{color: {SURFACE} border_radius: 9.0 border_size: 1.0 border_color: {BORDER}}}\n\
@@ -848,7 +854,7 @@ pub fn composer(c: &ComposerView, m: &Metrics) -> String {
             &c.approval,
             &style(Face::Regular, COMPOSER_ROW_PX, COMPOSER_ROW_LINE),
             INK,
-            &one_line(fit.approval_max),
+            one_line,
         ),
         approval_hit = hit("approval_pill_hit", 15.0),
         model = label(
@@ -856,7 +862,7 @@ pub fn composer(c: &ComposerView, m: &Metrics) -> String {
             &c.model,
             &style(Face::Medium, COMPOSER_ROW_PX, COMPOSER_ROW_LINE),
             INK,
-            &one_line(fit.model_max),
+            one_line,
         ),
         model_chev = svg("i0_composer_4_chev", "chevron_down.svg", COMPOSER_CHEVRON, MUTED),
         mic = icon_btn("mic_hit", "icon_mic1.svg", 18.0, gap),
@@ -1233,15 +1239,21 @@ mod tests {
         };
         let dsl = composer(&c, &phone);
         assert!(dsl.contains("spacing: 0 padding: Inset{left: 8 right: 8"), "{dsl}");
-        let fit = composer_row_fit(&phone);
-        for (id, max) in [("i0_composer_2_0", fit.approval_max), ("i0_composer_4", fit.model_max)] {
+        for id in ["i0_composer_2_0", "i0_composer_4"] {
             let at = dsl.find(&format!("{id} := Label{{")).unwrap();
             let head = &dsl[at..at + dsl[at..].find('\n').unwrap()];
-            assert!(
-                head.contains(&format!("max_width: {max} max_lines: 1 text_overflow: TextOverflow.Ellipsis")),
-                "{head}"
-            );
+            assert!(head.contains("max_lines: 1 text_overflow: TextOverflow.Ellipsis"), "{head}");
+            assert!(!head.contains("max_width"), "the host applies the max (no width in the DSL): {head}");
             assert!(dsl[at..].contains("font_size: 9.75"), "13 px: the web's strip type");
+        }
+        // The mount string is the same at every width of one density: a
+        // resize never remounts the composer (and never drops the draft).
+        for (a, b) in [(361.0, 759.0), (990.0, 1376.0)] {
+            assert_eq!(
+                composer(&c, &Metrics::for_window(a, a >= 760.0)),
+                composer(&c, &Metrics::for_window(b, b >= 760.0)),
+                "{a} vs {b}"
+            );
         }
         // The send disc keeps its 32 px box (it is never the one that gives).
         assert!(dsl.contains("i0_composer_5 := View{width: 32 height: 32 margin: Inset{left: 4}"), "{dsl}");
