@@ -5,7 +5,7 @@ script starts and stops — never the operator's), at most 3 model calls.
     python3 tools/judge/a29_live_btw.py <host-bin> [app-port 8606] [serve-port 50311]
 
 1. A private `octos serve --solo` on 127.0.0.1:<serve-port> over a COPY of
-   ~/home/oa.noindex/live-gate/data (the dsflash profile), its token in a
+   the live gate data dir (oa.noindex/live-gate/data, the dsflash profile), its token in a
    mode-600 file and only in the serve's environment (OCTOS_AUTH_TOKEN) and
    the app's (OCTOS_BEARER) — never printed, logged or saved. The served
    workspace is a fresh /tmp folder (deleted after), so no home path is
