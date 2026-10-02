@@ -1,0 +1,41 @@
+# A30 failing-first: `cargo test -p octoscode-module --test a30_peer_dock` at the RED commit 76f2cc89
+# (the tests + the API stub, before the implementation), run from a `git archive` of that commit.
+# 7 of 8 fail on their dock assertions; `the_dock_is_hidden_with_no_peers` passes because the stub's
+# lower() returns None (the property holds trivially). Machine paths scrubbed to <PATH>.
+
+     Running tests/a30_peer_dock.rs (target/debug/deps/a30_peer_dock-635262ef0cb894b0)
+test out_of_order_peer_updates_never_revive_or_clear_the_wrong_request ... FAILED
+test rows_use_the_fleet_words_the_web_elapsed_and_the_pill ... FAILED
+test the_dock_is_hidden_with_no_peers ... ok
+test the_dock_folds_to_one_pill_and_starts_folded_on_a_phone ... FAILED
+test each_dock_action_answers_only_the_row_it_was_drawn_for ... FAILED
+test alt_y_and_alt_n_act_on_the_focused_row ... FAILED
+test the_dock_speaks_chinese_from_the_catalogs ... FAILED
+test a_stale_approval_id_sends_nothing ... FAILED
+failures:
+thread 'out_of_order_peer_updates_never_revive_or_clear_the_wrong_request' (244650876) panicked at crates/octoscode-module/tests/a30_peer_dock.rs:608:5:
+assertion `left == right` failed: a resolve for another request is ignored
+  left: (Live, None)
+thread 'rows_use_the_fleet_words_the_web_elapsed_and_the_pill' (244650877) panicked at crates/octoscode-module/tests/a30_peer_dock.rs:559:5:
+assertion `left == right` failed
+  left: []
+thread 'the_dock_folds_to_one_pill_and_starts_folded_on_a_phone' (244650878) panicked at crates/octoscode-module/tests/a30_peer_dock.rs:495:5:
+a phone starts folded
+thread 'each_dock_action_answers_only_the_row_it_was_drawn_for' (244650875) panicked at crates/octoscode-module/tests/a30_peer_dock.rs:343:70:
+the dock shows
+thread 'alt_y_and_alt_n_act_on_the_focused_row' (244650874) panicked at crates/octoscode-module/tests/a30_peer_dock.rs:465:56:
+called `Option::unwrap()` on a `None` value
+thread 'the_dock_speaks_chinese_from_the_catalogs' (244650880) panicked at crates/octoscode-module/tests/a30_peer_dock.rs:583:65:
+called `Option::unwrap()` on a `None` value
+thread 'a_stale_approval_id_sends_nothing' (244650873) panicked at crates/octoscode-module/tests/a30_peer_dock.rs:424:56:
+the dock shows
+failures:
+    a_stale_approval_id_sends_nothing
+    alt_y_and_alt_n_act_on_the_focused_row
+    each_dock_action_answers_only_the_row_it_was_drawn_for
+    out_of_order_peer_updates_never_revive_or_clear_the_wrong_request
+    rows_use_the_fleet_words_the_web_elapsed_and_the_pill
+    the_dock_folds_to_one_pill_and_starts_folded_on_a_phone
+    the_dock_speaks_chinese_from_the_catalogs
+test result: FAILED. 1 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+exit 101
