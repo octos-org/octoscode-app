@@ -109,8 +109,13 @@ impl crate::OctoscodeView {
         // `focus-restore.ts`: the removed card held the keyboard -> the
         // composer gets it back.
         if sf::take_focus_restore(showing) {
-            self.view.widget(cx, &[live_id!(i0_composer_0)]).set_key_focus(cx);
-            makepad_widgets::log!("[octoscode] takeover removed: focus restored to the composer");
+            // A phone has no hardware keyboard to keep: a programmatic focus
+            // there would pop the on-screen keyboard over the conversation
+            // (mobile browsers ignore a focus() without a gesture too).
+            if !phone {
+                self.view.widget(cx, &[live_id!(i0_composer_0)]).set_key_focus(cx);
+                makepad_widgets::log!("[octoscode] takeover removed: focus restored to the composer");
+            }
             // A list that was following keeps following the taller viewport.
             if let Some(mut list) = self.view.portal_list(cx, ids!(timeline_list)).borrow_mut() {
                 if list.is_at_end() {

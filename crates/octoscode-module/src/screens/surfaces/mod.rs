@@ -914,6 +914,28 @@ mod tests {
             trajectory::detail_dialog(&mut d, &s, &ts, &frame);
             eval("detail", &d.finish());
         }
+        // The transcript rows this area owns (A4's rows + A6's notices): the
+        // fold bar, a thinking block folded and open, every notice shape and
+        // a delivered file. (A blank-id `rule("")` in the notice row failed
+        // here — the row had never evaluated in the app.)
+        use crate::screens::board3::rows::{self, TRow};
+        use octoscode_store::timeline::EntryKind;
+        let s = live_store();
+        let tl = &s.domains.session.timeline;
+        tl.upsert_user_message("s1", "t1", "hi", json!({}));
+        let r = tl.append_delta_timed("s1", Some("t1"), EntryKind::REASONING, "Weighing the retry path\nthen the queue", 1_000);
+        tl.append_delta_timed("s1", Some("t1"), EntryKind::REASONING, " order", 13_000);
+        let n1 = tl.upsert_notice("s1", Some("t1".into()), "terminal:t1", "errored: boom".into(), json!({"outcome": "errored", "code": "e", "message": "boom"}));
+        let n2 = tl.upsert_notice("s1", None, "warning:3", "w".into(), json!({"code": "provider_busy", "message": "Retry later"}));
+        let n3 = tl.upsert_notice("s1", Some("t1".into()), "approval:a", "Auto-approved".into(), json!({"title": "Auto-approved", "message": "bash · matched the session scope"}));
+        let f = tl.append_data("s1", Some("t1".into()), EntryKind::ATTACHMENT, "out/report.pdf".into(), json!({"path": "out/report.pdf", "size_bytes": 2048}));
+        let mut rows_to_eval = vec![TRow::FoldBar, TRow::Thinking(r), TRow::Notice(n1), TRow::Notice(n2), TRow::Notice(n3), TRow::File(f)];
+        s.domains.session.set_thinking_expanded("s1", vec![format!("r{r}")]);
+        rows_to_eval.push(TRow::Thinking(r));
+        for row in rows_to_eval {
+            let dsl = rows::lower(&row, &s);
+            eval(&format!("{row:?}"), &dsl);
+        }
     }
 
     /// Debug aid: evaluate every DSL dumped by `OCTOSCODE_SURFACES_DUMP`

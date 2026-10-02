@@ -185,3 +185,54 @@ fn cancel_and_auto_resolve_update_the_ui_and_auto_resolve_leaves_a_deterministic
     let dsl = rows::lower(&notices[0], &store);
     assert!(dsl.contains("Auto-approved") && dsl.contains("bash · matched the session scope"), "{dsl}");
 }
+
+/// The recorded turn `turn` of r23 (every inbound frame naming it), in order.
+fn r23_turn(turn: &str) -> Vec<(String, Value)> {
+    fixture("r23-conversation-a6ea8505.jsonl")
+        .into_iter()
+        .filter(|f| f["dir"] == "in" && f["body"]["turn_id"] == turn)
+        .map(|f| (f["method"].as_str().unwrap().to_owned(), f["body"].clone()))
+        .collect()
+}
+
+/// Shape of the composed transcript rows (for readable assertions).
+fn shape(store: &Arc<Store>) -> Vec<String> {
+    rows::timeline(store, false)
+        .iter()
+        .map(|r| match r {
+            rows::TRow::Base(b) => b.kind.id().to_owned(),
+            rows::TRow::FoldBar => "fold".into(),
+            rows::TRow::Thinking(_) => "thinking".into(),
+            rows::TRow::Notice(_) => "notice".into(),
+            rows::TRow::File(_) => "file".into(),
+        })
+        .collect()
+}
+
+#[test]
+fn an_auto_resolved_approval_inside_a_recorded_turn_renders_its_notice_row() {
+    let _g = lock();
+    let turn = "01920000-0000-7000-8000-000000000242";
+    let (store, mut reg) = wired("dsflash:main");
+    for (method, body) in r23_turn(turn) {
+        if method == "approval/decided" {
+            continue;
+        }
+        let (method, body) = if method == "approval/requested" {
+            // The policy resolves it instead (octos-core
+            // `ApprovalAutoResolvedEvent`).
+            (
+                "approval/auto_resolved".to_owned(),
+                json!({"session_id": body["session_id"], "approval_id": body["approval_id"], "turn_id": body["turn_id"],
+                       "tool_name": body["tool_name"], "scope": "session", "scope_match": "exact", "decision": "approve"}),
+            )
+        } else {
+            (method, body)
+        };
+        if let Ok(n) = UiNotification::from_method_and_params(&method, body) {
+            reg.dispatch(&n);
+        }
+    }
+    let s = shape(&store);
+    assert!(s.iter().any(|x| x == "notice"), "the auto-resolve notice is a row: {s:?}");
+}
