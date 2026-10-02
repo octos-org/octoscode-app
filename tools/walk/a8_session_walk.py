@@ -56,6 +56,26 @@ def key(code):
     get(f"/k?k=up&c={code}&wait=1")
 
 
+def composer():
+    """The composer's text ('' when it only shows its placeholder)."""
+    hits = [w for w in snap() if w.get("i") == "i0_composer_0" and w["r"][2] > 0]
+    t = hits[0].get("t", "") if hits else None
+    return "" if t in (None, "Ask Octos anything") else t
+
+
+def clear_composer():
+    """Empty the composer before typing into it: it may hold a RESTORED
+    prompt (Stop puts an interrupted prompt back, drafts come back with their
+    Session), and the instrument's synthetic Cmd+A does not reach the
+    TextInput's select-all — End, then one Backspace per character."""
+    n = len(composer() or "")
+    if n:
+        get("/k?c=end&wait=1")
+        for _ in range(n + 1):
+            get("/k?c=backspace&wait=1")
+        time.sleep(0.35)
+
+
 def snap():
     return json.loads(get("/snap?all=1"))["s"]
 
@@ -236,7 +256,9 @@ def main():
               and abs(st_[2] - (m[2] + p[2] + 1)) <= 2, str(cells))
     else:
         check("strip: three equal cells", all(cells) and len({round(c[2]) for c in cells}) == 1, str(cells))
-    check("strip: the foreign holder is the state word", wait(lambda: text("b3_strip_state") == "Another app is using this session"), str(text("b3_strip_state")))
+    # The holder arrives with the startup session/driver/get (slow on a busy host).
+    check("strip: the foreign holder is the state word",
+          wait(lambda: text("b3_strip_state") == "Another app is using this session", 20), str(text("b3_strip_state")))
     shot("00-strip")
 
     # 1. The strip's click opens the Session settings pane (not app Settings).
@@ -337,6 +359,7 @@ def main():
 
     # 10c. The inspection dialog: /permissions from the composer.
     click("i0_composer_0", scroll=False)
+    clear_composer()
     get("/t?" + urllib.parse.urlencode({"t": "/permissions", "wait": 1}))
     time.sleep(0.3)
     key("ReturnKey")

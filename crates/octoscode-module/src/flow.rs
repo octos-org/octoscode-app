@@ -1512,7 +1512,12 @@ impl Conversation {
                     .and_then(|d| d.diff.as_ref())
                     .map(|d| octoscode_client::protocol_id::preview_id_string(&d.preview_id))
                     .filter(|id| octoscode_client::protocol_id::is_protocol_uuid(&serde_json::json!(id)));
-                store.domains.approval.request_with_preview(&a.approval_id.0.to_string(), Some(a.tool_name.clone()), preview);
+                let id = a.approval_id.0.to_string();
+                store.domains.approval.request_with_preview(&id, Some(a.tool_name.clone()), preview);
+                // A6's takeover card draws from the same detail a live
+                // `approval/requested` records: a restored approval is asked
+                // again, exactly like the one that parked it.
+                store.domains.approval.set_detail(&id, octoscode_client::domains::approval::approval_detail(&a));
                 approvals += 1;
             }
             for q in h.pending_questions.unwrap_or_default() {

@@ -482,6 +482,10 @@ async fn an_open_restores_its_parked_approvals_and_questions_from_the_canonical_
     let pending = conv.store.domains.approval.pending();
     assert_eq!(pending.iter().map(|a| a.id.as_str()).collect::<Vec<_>>(), ["01a0eb92-9444-7101-aa6f-10065886f57d"]);
     assert_eq!(pending[0].target.as_deref(), Some("bash"));
+    // The restored approval carries the takeover card's payload (A6), scoped
+    // to its Session — it is asked again, not just counted.
+    let (_, detail) = conv.store.domains.approval.showing(&session).expect("the card for this Session");
+    assert_eq!((detail.title.as_str(), detail.body.as_str()), ("Approve command", "Run command: sudo -n true"));
     let q = conv.store.domains.approval.question().expect("the parked question");
     assert_eq!((q.question_id.as_str(), q.session_id.as_str()), ("01a0eb8f-7b23-7030-9f26-a284864217a0", session.as_str()));
 }

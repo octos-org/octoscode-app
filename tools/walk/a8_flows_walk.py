@@ -158,8 +158,22 @@ def composer():
     return "" if t in (None, "Ask Octos anything") else t
 
 
+def clear_composer():
+    """Empty the composer before typing into it: it may hold a RESTORED
+    prompt (Stop puts an interrupted prompt back, drafts come back with their
+    Session), and the instrument's synthetic Cmd+A does not reach the
+    TextInput's select-all — End, then one Backspace per character."""
+    n = len(composer() or "")
+    if n:
+        get("/k?c=end&wait=1")
+        for _ in range(n + 1):
+            get("/k?c=backspace&wait=1")
+        time.sleep(0.35)
+
+
 def slash(cmd):
     click("i0_composer_0")
+    clear_composer()
     type_text(cmd)
     wait(lambda: (composer() or "").strip() == cmd, 3)
     key("ReturnKey")
@@ -321,6 +335,7 @@ def phase1():
 
     # ---- per-Session drafts --------------------------------------------------
     click("i0_composer_0")
+    clear_composer()
     type_text("unsent words")
     check("draft typed in 'Add session fork'", wait(lambda: composer() == "unsent words", 4), str(composer()))
     open_session_in_sidebar("Fix steer queue drop on reconnect")
@@ -410,8 +425,16 @@ def phase2():
     check("parked: opening the Session read its parked interactions (session/hydrate include pending_approvals)",
           wait(lambda: any(p.get("session_id") == "a8:api:parked" and p.get("include") == ["pending_approvals"]
                            for p in wire("session/hydrate")[n_h:]), 8))
-    check("parked: the restored approval holds the strip ('Waiting for your approval')",
-          wait(lambda: text("b3_strip_state") == "Waiting for your approval", 8), str(text("b3_strip_state")))
+    # The restored approval is asked again: A6's takeover card shows its
+    # recorded payload (and holds the composer row while it waits).
+    check("parked: the restored approval is asked again (the takeover card)",
+          wait(lambda: text("cv_ap_title") == "Approve command", 8), str(text("cv_ap_title")))
+    check("parked: with its recorded command body",
+          "cargo test -p octoscode-module" in (text("cv_ap_body") or text("cv_ap_cmd") or ""),
+          f"{text('cv_ap_body')!r} {text('cv_ap_cmd')!r}")
+    strip_word = text("b3_strip_state")
+    check("parked: the strip, when shown, waits for the approval",
+          strip_word in (None, "Waiting for your approval"), str(strip_word))
     shot("07-parked-approval")
 
 
