@@ -33,6 +33,9 @@ use octoscode_store::Store;
 pub mod actions;
 // A9 — the host half of the A9 surfaces (Activity, …): mount + routing.
 pub mod a9_host;
+// A12 — the outage host: the connection banner's mount/taps and the offline
+// refusals (impl OctoscodeView, like a9_host).
+pub mod a12_host;
 pub mod bindings;
 pub mod cards;
 // A7: the highlighted code block body widget.
@@ -230,6 +233,14 @@ script_mod! {
                     // person (`App.tsx:2759-2826`).
                     // (A `Splash` ignores `set_visible` — the trait default is
                     // a no-op — so each slot hides through a plain View.)
+                    // A12 — the connection banner ("Reconnecting to Octos"):
+                    // the web's recovery banner sits where the composer form
+                    // is while a live connection is re-dialing
+                    // (`App.tsx:2724-2754`); it heads the dock.
+                    link_row := View {
+                        width: Fill height: Fit visible: false
+                        link_splash := Splash { width: Fill height: Fit }
+                    }
                     plan_row := View {
                         width: Fill height: Fit visible: false
                         plan_splash := Splash { width: Fill height: Fit }
@@ -1309,6 +1320,9 @@ pub struct OctoscodeView {
     a9_taps: Vec<(LiveId, String)>,
     #[rust]
     a9_inputs: Vec<(LiveId, String)>,
+    /// A12 — the connection banner's taps (`link_splash`).
+    #[rust]
+    link_taps: Vec<(LiveId, String)>,
     /// A7 — fires one second after a code block's Copy, so its "Copied"
     /// label returns to "Copy" (`CodeBlock.tsx:75-79`).
     #[rust]
@@ -1467,6 +1481,12 @@ impl OctoscodeView {
             b.store = conv.store.clone();
             b.ui = conv.ui();
             b.conv = Some(conv.clone());
+            // A12 — the Connect card (after a give-up or a Disconnect) shows
+            // the server in USE, never the authored default: pressing
+            // Connect there must dial this same server.
+            let mut ui = b.screens.lock().unwrap();
+            ui.endpoint_error = screens::connect::endpoint_error(&base);
+            ui.server = base.clone();
         }
         // #31e — the keyboard-decision seed, AFTER the bridge swap: connect
         // REPLACES `b.store` with the Conversation's own store above, so a
@@ -1573,6 +1593,18 @@ impl OctoscodeView {
         // one owner here; the palette's `/activity` row runs `activity.open`.
         if a9_host::routes(action) {
             self.perform_a9(cx, action, index);
+            return;
+        }
+        // A12 — the connection banner's ids (Retry now / Disconnect /
+        // Dismiss) have one owner.
+        if screens::reconnect::routes(action) {
+            self.perform_link(cx, action);
+            return;
+        }
+        // A12 — while a retained connection is down, an action that needs the
+        // wire is refused HONESTLY (the banner says so; the composer keeps its
+        // text) instead of parking in a dead socket's queue.
+        if self.refuse_offline(cx, action) {
             return;
         }
         // A5 — the dialog host's own ids (open / close / the on-open loads)
@@ -2074,6 +2106,9 @@ impl OctoscodeView {
             _ => {}
         }
         let Some(rt) = self.runtime.as_ref() else {
+            // A12 — no runtime means no transport at all (a capture seed):
+            // the wire-bound action is refused visibly, never dropped.
+            self.refuse_no_conversation(cx, action);
             return;
         };
         // #29d — `connection.retry` replays the production handshake. It must
@@ -2125,9 +2160,18 @@ impl OctoscodeView {
             return;
         }
         let Some(conv) = conv else {
-            makepad_widgets::log!("[octoscode] action dropped: no conversation (connect first)");
+            // A12 — was a log line only (the judge tour: /review, /undo …
+            // typed with no connection did nothing visible). The banner now
+            // says what was not done; the composer keeps its text.
+            self.refuse_no_conversation(cx, action);
             return;
         };
+        // A12 — every arm below needs the wire: during an outage it is
+        // refused on the banner instead of failing deep in a surface.
+        if conv.in_outage() {
+            self.refuse_outage_generic(cx, action);
+            return;
+        }
         // Entry #29c: the stage-C screens own their action ids (the cards'
         // service-actions events); route them through the production client.
         if screens::research::owns(action) {
@@ -2475,6 +2519,13 @@ impl OctoscodeView {
     /// slash draft that typed the command is consumed (`/btw <question>` keeps
     /// its question for the aside).
     fn run_palette_row(&mut self, cx: &mut Cx, index: usize, args: &str) {
+        // A12 — during an outage a command is refused on the banner BEFORE
+        // the typed `/command` is cleared below (every row needs the wire).
+        if let Some(cmd) = screens::palette::COMMANDS.get(index) {
+            if self.refuse_palette_offline(cx, cmd.name) {
+                return;
+            }
+        }
         let (store, ui) = {
             let b = self.bridge.lock().unwrap();
             (b.store.clone(), b.ui.clone())
@@ -3573,6 +3624,9 @@ impl OctoscodeView {
         self.sync_surfaces(cx);
         // A7: the queued chip / recovery notice / peer row + draft recovery.
         self.sync_composer_extras(cx);
+        // A12 — the connection banner (after the surfaces: an outage hides
+        // the takeover the surfaces just placed).
+        self.sync_link(cx);
         // A9 — the open A9 surface (Activity).
         self.a9_guarded(cx, a9_host::Guard::A9);
         // #28e4 item 2: the first-run card area mounts the REAL board-2
@@ -3590,7 +3644,8 @@ impl OctoscodeView {
         // tmp/28e-evidence/28e6-*) proved every first-run-shaped slot
         // mis-seats the measured DSL to 133x700 while the dock seats and
         // renders it — so first-run mounts through the dock.
-        let live = { self.bridge.lock().unwrap().store.is_live() };
+        // A12: a retained outage keeps the shell (no Connect card).
+        let live = { self.bridge.lock().unwrap().store.keeps_shell() };
         // A docked OCTOSCODE_SCREEN owns `screen_splash` (mounted above); the
         // setup names (connect / connect_failed / onboarding) fall through to
         // the first-run card, as before.
@@ -4441,7 +4496,8 @@ impl OctoscodeView {
         let pane_w = if pane_w > 0.0 {
             pane_w
         } else if win_w >= conv_layout::PHONE_BREAKPOINT {
-            let live = self.bridge.lock().unwrap().store.is_live();
+            // A12: the shell (live or a retained outage) seats the sidebar.
+            let live = self.bridge.lock().unwrap().store.keeps_shell();
             let seat = if live { conv_layout::SIDEBAR_W } else { conv_layout::FIRST_RUN_SIDEBAR_W };
             (win_w - seat).max(1.0)
         } else {
@@ -4477,10 +4533,15 @@ impl OctoscodeView {
         // headless run cannot click the toggle). Parsed once per process.
         // #M2: `fleet` is the 4th arm (see chrome_env).
         let (env_review, env_settings, env_palette, _env_fleet) = chrome_env();
+        // A12 — `live` here means "the shell is up": the connection is live,
+        // or it WAS live and is re-dialing (the outage keeps the sidebar and
+        // the conversation, `Store::keeps_shell`). Only a first connect, a
+        // give-up with nothing retained, or a voluntary leave shows the
+        // first-run Connect card.
         let (live, review, settings, palette) = {
             let b = self.bridge.lock().unwrap();
             (
-                b.store.is_live(),
+                b.store.keeps_shell(),
                 b.ui.lock().map(|u| u.review_open()).unwrap_or(false) || env_review,
                 b.ui.lock().map(|u| u.settings_open()).unwrap_or(false) || env_settings,
                 b.ui.lock().map(|u| u.palette_open()).unwrap_or(false) || env_palette,
@@ -5241,6 +5302,8 @@ impl OctoscodeView {
                 }
                 // A9 — the open A9 surface's taps and its search input.
                 self.a9_actions(cx, actions);
+                // A12 — the connection banner's Retry now / Disconnect.
+                self.link_actions(cx, actions);
                 // A6 — the conversation surfaces' taps, inputs and the
                 // header's Chat | Trajectory tabs.
                 self.surfaces_actions(cx, actions);
@@ -5853,12 +5916,19 @@ impl OctoscodeView {
                         // production path the composer's send affordance takes).
                         // A1: and re-follows the latest turn, like the send click.
                         self.follow_latest(cx);
-                        if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
-                            rt.spawn(async move {
-                                if let Err(e) = conv.submit_draft().await {
-                                    makepad_widgets::log!("[octoscode] submit dropped: {e}");
-                                }
-                            });
+                        let handle = self.runtime.as_ref().map(|rt| rt.handle().clone());
+                        match (handle, conv) {
+                            (Some(handle), Some(conv)) => {
+                                handle.spawn(async move {
+                                    if let Err(e) = conv.submit_draft().await {
+                                        makepad_widgets::log!("[octoscode] submit dropped: {e}");
+                                    }
+                                });
+                            }
+                            // A12 — no conversation: Enter used to do nothing
+                            // at all (the judge tour's typed /review, /undo …).
+                            // The banner says it was not sent; the text stays.
+                            _ => self.refuse_no_conversation(cx, bindings::ACTION_SUBMIT),
                         }
                     }
                     KeyAction::Interrupt => {

@@ -32,7 +32,6 @@ use std::time::{Duration, Instant, SystemTime};
 
 use octos_app_transport::{
     LifecycleResult, OutboundCommand, ProfileId, SecretString, TransportConfig, TransportEvent,
-    ws,
 };
 use octos_core::app_ui::AppUiBackendEvent as UiNotification;
 use octos_core::ui_protocol::{SessionOpenParams, TurnId};
@@ -45,6 +44,11 @@ use url::Url;
 #[path = "flow_controller.rs"]
 mod controller;
 pub use controller::hydrated_turns;
+// A12 — the transport link: one stable command/event channel over a WS
+// transport that can be replaced (give-up, "Retry now") under the SAME
+// conversation.
+#[path = "flow_link.rs"]
+pub mod link;
 
 /// Which way a traced frame went.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -696,6 +700,12 @@ pub struct Conversation {
     /// suspends the transport generation; the next Live reconciles).
     was_live: Mutex<bool>,
     transport_suspended: Mutex<bool>,
+    /// A12 — the transport link (stable channels over a replaceable
+    /// transport; outage bookkeeping for the requests).
+    link: Arc<link::Link>,
+    /// A12 — the outage's attempt count before the current transport
+    /// started (each transport counts its own re-dials from 1).
+    attempt_base: Mutex<u32>,
 }
 
 /// A4 — the HTTP origin for the media endpoints (`media.ts:14-35`): `ws` ->
@@ -831,7 +841,9 @@ impl Conversation {
             workspace_cwd,
             local_kernel: false,
         };
-        let (cmd_tx, evt_rx) = ws::spawn_with_waker(cfg, waker);
+        // A12 — the link owns the transport (and replaces it when it gives
+        // up); the app holds its stable channels.
+        let (link, cmd_tx, evt_rx) = link::Link::start(cfg, waker);
         let store = Arc::new(Store::new());
         let mut registry = Registry::new();
         octoscode_client::domains::register_all(&mut registry, store.clone());
@@ -873,6 +885,8 @@ impl Conversation {
                 pending_starts: Mutex::new(Vec::new()),
                 was_live: Mutex::new(false),
                 transport_suspended: Mutex::new(false),
+                link,
+                attempt_base: Mutex::new(0),
             },
             evt_rx,
         ))
@@ -1085,6 +1099,13 @@ impl Conversation {
         cwd: Option<String>,
         sandbox: Option<octos_core::ui_protocol::SessionSandboxParams>,
     ) -> Result<String, String> {
+        // A12 — no Session change while the connection is down: the open would
+        // be dropped at the link, yet the window would switch to a Session the
+        // server never opened (and the reconnect would re-open THAT one).
+        if self.in_outage() {
+            makepad_widgets::log!("[octoscode] session/open {id} refused while reconnecting");
+            return Err(link::NOT_CONNECTED.to_owned());
+        }
         let session_id = octos_core::SessionKey(id.to_owned());
         // #P4e1b row 4: retire the previous commands identity BEFORE the open
         // goes out, so the reply arm binds the NEW one and any result captured
@@ -1541,6 +1562,82 @@ impl Conversation {
         });
     }
 
+    /// A12 — the outage bookkeeping for one transport state: a drop of a
+    /// connection that was live is RETAINED (the shell stays, the banner
+    /// counts the re-dials against the server in use), a re-dialed socket is
+    /// "restoring", and a transport that gave up is replaced while the
+    /// conversation is retained (the web never stops retrying an opened
+    /// Session). A first connect that never went live keeps the old
+    /// behaviour: its failure is the Connect card's.
+    fn note_link(&self, s: &octos_app_transport::ConnectionState, t: link::Transition) {
+        use octos_app_transport::ConnectionState as C;
+        let conn = &self.store.connection;
+        let base = *self.attempt_base.lock().unwrap();
+        match (s, t) {
+            (C::Live, _) => {
+                // Back: the next outage counts its re-dials from 1 again.
+                *self.attempt_base.lock().unwrap() = 0;
+            }
+            (C::Reconnecting { attempt }, _) => {
+                conn.note_outage(&self.http_base, Some(base + attempt), false);
+            }
+            (_, link::Transition::Redial) => {
+                conn.note_outage(&self.http_base, None, true);
+            }
+            (C::Dialing | C::Idle, _) => {
+                if conn.outage().is_some() {
+                    conn.note_outage(&self.http_base, None, false);
+                }
+            }
+            (C::Failed, _) => {
+                if conn.ever_live() && conn.note_outage(&self.http_base, None, false) {
+                    // Retained: a fresh transport keeps re-dialing (its own
+                    // count restarts at 1; the banner's keeps going).
+                    *self.attempt_base.lock().unwrap() = conn.outage().map(|o| o.attempt).unwrap_or(base);
+                    makepad_widgets::log!(
+                        "[octoscode] link: the transport gave up on {} — starting a fresh one",
+                        self.http_base
+                    );
+                    self.link.respawn();
+                } else {
+                    // Nothing retained: queued commands fail instead of
+                    // waiting for a transport that will never come.
+                    self.link.mark_dead();
+                }
+            }
+            _ => {}
+        }
+    }
+
+    /// A12 — the banner's "Retry now": re-dial at once instead of waiting
+    /// out the transport's backoff (up to 30 s between attempts,
+    /// `ws/mod.rs` `RECONNECT_DELAY_MAX`). Only while an outage is retained.
+    pub fn retry_now(&self) -> bool {
+        let conn = &self.store.connection;
+        let Some(o) = conn.outage() else { return false };
+        if conn.is_live() || self.link.is_closed() {
+            return false;
+        }
+        *self.attempt_base.lock().unwrap() = o.attempt;
+        makepad_widgets::log!("[octoscode] link: retry now — re-dialing {}", o.endpoint);
+        self.link.respawn()
+    }
+
+    /// A12 — the server this conversation's transport dials (the HTTP
+    /// origin, never a default).
+    pub fn endpoint(&self) -> String {
+        self.http_base.clone()
+    }
+
+    /// A12 — the connection dropped and the Session is not back yet (still
+    /// re-dialing, or re-opening on a new socket): the composer and the
+    /// transport-bound actions refuse (the web replaces the composer with
+    /// its recovery banner until the Session is healthy again,
+    /// `App.tsx:2724-2754`).
+    pub fn in_outage(&self) -> bool {
+        self.store.outage().is_some() || self.link.in_outage()
+    }
+
     /// A8 — the reconnect path (`active-session-runtime.ts` recovery): bump
     /// the generation BEFORE anything goes out (every result captured under
     /// the old one is now stale), re-open the active Session at its workspace
@@ -1633,6 +1730,21 @@ impl Conversation {
             // #32h: this was ::log::debug! + Ok — the invisible silent drop
             // the phone showed (no drop log, draft kept). Visible now.
             makepad_widgets::log!("[octoscode] submit ignored: empty draft");
+            return Ok(String::new());
+        }
+        // A12 — while the connection is down the composer refuses HONESTLY:
+        // the text stays, the banner says it was not sent, nothing is queued
+        // to fire later (the web hides its composer behind the recovery
+        // banner until the Session is healthy, `App.tsx:2724-2754`).
+        if self.in_outage() {
+            let t = text.trim_start();
+            let cmd = t.starts_with('/').then(|| t.split_whitespace().next().unwrap_or(t)).filter(|c| c.len() > 1);
+            crate::screens::reconnect::note_held(crate::screens::reconnect::held_line(cmd));
+            makepad_widgets::log!(
+                "[octoscode] submit held: reconnecting to {} (draft kept, {} chars)",
+                self.http_base,
+                text.chars().count()
+            );
             return Ok(String::new());
         }
         // The web's first message creates the thread: never turn/start on a
@@ -1865,8 +1977,17 @@ impl Conversation {
     fn dispatch(&self, evt: &TransportEvent) -> FlowEvent {
         match evt {
             TransportEvent::ConnectionState(s) => {
+                // A12 — a voluntary leave (Disconnect / Forget / a confirmed
+                // stop: the store reads Offline) is final for this
+                // conversation: a transport still winding down never brings
+                // it back.
+                if self.store.connection.is_offline() || self.link.is_closed() {
+                    return FlowEvent::Other(format!("after-leave {s:?}"));
+                }
+                let transition = self.link.note_state(s);
                 let live = matches!(s, octos_app_transport::ConnectionState::Live);
                 self.store.set_connection(format!("{s:?}"), live);
+                self.note_link(s, transition);
                 // A7: a drop suspends the turn controller's transport
                 // generation; the next Live reconciles from a hydrate.
                 let dropped = matches!(
@@ -1887,7 +2008,13 @@ impl Conversation {
                 // subscriptions), so the flow re-opens the active Session at
                 // its workspace and hydrates it, under a NEW authority
                 // generation (`active-session-runtime.ts` recovery).
-                if matches!(s, octos_app_transport::ConnectionState::Handshaking) && *self.ever_live.lock().unwrap() {
+                // A12 — keyed on the SOCKET, not on an earlier Live: a socket
+                // that dropped before its first `session/open` answered was
+                // never Live, and its re-dial parked in Handshaking forever.
+                // Any re-dialed socket re-opens the Session the window shows.
+                if transition == link::Transition::Redial
+                    && (*self.ever_live.lock().unwrap() || self.store.active_session().is_some())
+                {
                     self.reopen_after_reconnect();
                 }
                 if live {
@@ -1924,6 +2051,13 @@ impl Conversation {
                             req,
                             actual,
                         );
+                        // A12 — a reconnect's re-open answered another
+                        // workspace: recovery is required, never adopted.
+                        if self.store.outage().is_some_and(|o| o.restoring) {
+                            self.store
+                                .connection
+                                .note_outage_error("The server opened a different workspace from this conversation's.");
+                        }
                         return FlowEvent::Other("session/open-workspace-mismatch".to_owned());
                     }
                 }
@@ -2118,6 +2252,25 @@ impl Conversation {
                             // idempotent by seq identity, NEVER a delete. Sits
                             // INSIDE the #P4g1 mismatch guard's else: only a
                             // matching snapshot commits anything.
+                            // A12 — Core stamps a user/assistant row's
+                            // `thread_id` with its turn UUID and usually omits
+                            // `turn_id` (the web's `turnByThread`,
+                            // `session-record-manager.ts:1052-1066`): a thread
+                            // id the transcript already knows AS a turn is that
+                            // turn — so a reconnect's re-hydrate recognises the
+                            // rows this client streamed live instead of
+                            // appending them a second time (the live proof's
+                            // duplicated turn).
+                            let known_turns: std::collections::HashSet<String> = self
+                                .store
+                                .domains
+                                .session
+                                .timeline
+                                .entries(&session_id)
+                                .into_iter()
+                                .filter_map(|e| e.turn_id)
+                                .collect();
+                            let known_turn = |thread: &str| known_turns.contains(thread);
                             let rows: Vec<octoscode_store::timeline::HydratedRow> = h
                                 .messages
                                 .iter()
@@ -2126,7 +2279,9 @@ impl Conversation {
                                     seq: m.seq,
                                     role: m.role.as_str(),
                                     content: m.content.as_str(),
-                                    turn_id: m.turn_id.as_ref().map(|t| t.0.to_string()),
+                                    turn_id: m.turn_id.as_ref().map(|t| t.0.to_string()).or_else(|| {
+                                        m.thread_id.as_deref().filter(|t| known_turn(t)).map(str::to_owned)
+                                    }),
                                     reasoning: m.reasoning_content.as_deref(),
                                 })
                                 .collect();
@@ -2154,6 +2309,13 @@ impl Conversation {
             }
             TransportEvent::RpcError { method, error, .. } => {
                 ::log::warn!("octoscode: rpc error {method}: {}", error.message);
+                // A12 — the re-open on a re-dialed socket was refused: the
+                // banner turns into the web's "Session recovery required"
+                // with the reason (Retry now re-dials and re-opens again).
+                if method == "session/open" && self.store.outage().is_some_and(|o| o.restoring) {
+                    self.store.connection.note_outage_error(&error.message);
+                    makepad_widgets::log!("[octoscode] link: the re-open was refused: {}", error.message);
+                }
                 FlowEvent::Other(format!("rpc-error {method}"))
             }
             other => FlowEvent::Other(format!("{other:?}")),

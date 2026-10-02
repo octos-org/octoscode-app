@@ -1,0 +1,50 @@
+# tools/walk/a12_reconnect_walk.py, host build abc90c05
+# captures kept in docs/ux/a12-reconnect/: live-port-moved-desktop-4-server-moved.png, live-port-moved-desktop-6-connect-card-old-address.png, live-port-moved-desktop-7-repointed.png
+PASS server up — port 50290
+PASS app launched (hidden, isolated state)
+PASS the shell is up and live
+PASS strip Ready — 'Ready'
+PASS turn/start sent for 'Reply with one short sentence: what is 2'
+PASS live turn 1 streamed and finished (its terminal arrived, strip Ready)
+  shot tmp/live-abc-port/desktop-live-turn.png
+PASS the unsent draft is in the composer — 'In one short sentence: what does main.rs in this workspace print?'
+  shot tmp/live-abc-port/desktop-1-live.png
+PASS outage: the banner appears — after 0.4s
+PASS outage: the banner shows — [359, 431, 661, 56]
+PASS outage: 'Reconnecting to Octos' — 'Reconnecting to Octos'
+PASS outage: the detail names the server in use + the retry count — 'Connection lost · retry 5 · 127.0.0.1:50290'
+PASS outage: the shell stays (no Connect card)
+PASS outage: the sidebar stays (desktop)
+PASS outage: the strip says Reconnecting — 'Reconnecting'
+PASS outage: banner spans the composer column (x/w ±1) — banner [359, 431, 661, 56] composer [359, 571, 661, 92]
+PASS outage: banner inside the conversation column — [359, 431, 661, 56] in [335, 76, 709, 603]
+PASS outage: a12_link_title inside the banner — [417, 443, 379, 16]
+PASS outage: a12_link_detail inside the banner — [417, 462, 379, 13]
+PASS outage: a12_link_mark inside the banner — [375, 444, 30, 30]
+PASS outage: a12_link_retry >= 28 px and inside the banner — [808, 443, 92, 32]
+PASS outage: a12_link_leave >= 28 px and inside the banner — [912, 443, 94, 32]
+PASS outage: banner sits above the strip (no overlap) — [359, 431, 661, 56] / [359, 495, 661, 75]
+PASS outage: title above detail, no overlap — [417, 443, 379, 16] / [417, 462, 379, 13]
+PASS outage: the draft is intact — 'In one short sentence: what does main.rs in this workspace print?'
+  shot tmp/live-abc-port/desktop-2-reconnecting.png
+PASS send while down: refused on the banner — 'Not sent — your text stays in the composer.'
+PASS send while down: the draft is kept — 'In one short sentence: what does main.rs in this workspace print?'
+PASS send while down: no turn/start reached the wire
+PASS held line inside the banner — [417, 461, 379, 15] in [359, 414, 661, 74]
+  shot tmp/live-abc-port/desktop-3-send-refused.png
+PASS Retry now is clickable
+PASS Retry now re-dials (a fresh transport)
+PASS …and the banner stays while the server is down
+PASS server back on a NEW port — 50291
+PASS moved: still 'Reconnecting', naming the OLD server (no silent fallback) — 'Connection lost · retry 11 · 127.0.0.1:50290'
+  shot tmp/live-abc-port/desktop-4-server-moved.png
+  shot tmp/live-abc-port/desktop-5-disconnect-confirm.png
+PASS re-point: the Connect card shows the address it was using — 'http://127.0.0.1:50290'
+  shot tmp/live-abc-port/desktop-6-connect-card-old-address.png
+PASS re-point: the new address typed — 'http://127.0.0.1:50291'
+PASS re-point: connected to the new port (shell back)
+NOTE re-point: turn 1 is NOT shown after the fresh connect (first-open history load is outside A12)
+PASS re-point: the Session opened on the new port is the one in use before — ['dsflash:main'] vs 'dsflash:main'
+  shot tmp/live-abc-port/desktop-7-repointed.png
+== WALK a12 reconnect desktop (live, TERM, port change): 37/37 passed
+   state dir (trace, serve log): <TMP>

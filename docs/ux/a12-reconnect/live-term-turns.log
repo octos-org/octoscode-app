@@ -1,0 +1,60 @@
+# tools/walk/a12_reconnect_walk.py, host build 4621ce7a+dirty (= aa51075d)
+# captures kept in docs/ux/a12-reconnect/: live-term-turns-desktop-live-turn.png, live-term-turns-desktop-2-reconnecting.png, live-term-turns-desktop-3-send-refused.png, live-term-turns-desktop-4-recovered.png, live-term-turns-desktop-5-next-turn.png
+PASS server up — port 50290
+PASS app launched (hidden, isolated state)
+PASS the shell is up and live
+PASS strip Ready — 'Ready'
+PASS turn/start sent for 'Reply with one short sentence: what is 2'
+PASS live turn 1 streamed and finished (its terminal arrived, strip Ready)
+  shot tmp/live-final-term/desktop-live-turn.png
+PASS the unsent draft is in the composer — 'In one short sentence: what does main.rs in this workspace print?'
+  shot tmp/live-final-term/desktop-1-live.png
+PASS outage: the banner appears — after 0.4s
+PASS outage: the banner shows — [359, 431, 661, 56]
+PASS outage: 'Reconnecting to Octos' — 'Reconnecting to Octos'
+PASS outage: the detail names the server in use + the retry count — 'Connection lost · retry 5 · 127.0.0.1:50290'
+PASS outage: the shell stays (no Connect card)
+PASS outage: the sidebar stays (desktop)
+PASS outage: the strip says Reconnecting — 'Reconnecting'
+PASS outage: banner spans the composer column (x/w ±1) — banner [359, 431, 661, 56] composer [359, 571, 661, 92]
+PASS outage: banner inside the conversation column — [359, 431, 661, 56] in [335, 76, 709, 603]
+PASS outage: a12_link_title inside the banner — [417, 443, 379, 16]
+PASS outage: a12_link_detail inside the banner — [417, 462, 379, 13]
+PASS outage: a12_link_mark inside the banner — [375, 444, 30, 30]
+PASS outage: a12_link_retry >= 28 px and inside the banner — [808, 443, 92, 32]
+PASS outage: a12_link_leave >= 28 px and inside the banner — [912, 443, 94, 32]
+PASS outage: banner sits above the strip (no overlap) — [359, 431, 661, 56] / [359, 495, 661, 75]
+PASS outage: title above detail, no overlap — [417, 443, 379, 16] / [417, 462, 379, 13]
+PASS outage: the draft is intact — 'In one short sentence: what does main.rs in this workspace print?'
+  shot tmp/live-final-term/desktop-2-reconnecting.png
+PASS send while down: refused on the banner — 'Not sent — your text stays in the composer.'
+PASS send while down: the draft is kept — 'In one short sentence: what does main.rs in this workspace print?'
+PASS send while down: no turn/start reached the wire
+PASS held line inside the banner — [417, 461, 379, 15] in [359, 414, 661, 74]
+  shot tmp/live-final-term/desktop-3-send-refused.png
+PASS server back on the same port
+PASS recovered: the banner goes by itself (the transport's own re-dial) — 0.3s
+PASS recovered: strip Ready — 'Ready'
+PASS recovered: the SAME Session re-opened ({reconnect: true}) — [{'reconnect': True, 'session_id': 'dsflash:main'}] vs 'dsflash:main'
+PASS recovered: and re-hydrated (the canonical history came back) — 1 hydrate replies
+PASS recovered: the header names the same conversation — 'New chat' vs 'New chat'
+PASS recovered: the timeline survived (turn 1 is still there)
+PASS recovered: the re-hydrate did not duplicate turn 1 — 1 prompts, 1 answers
+PASS recovered: the unsent draft survived — 'In one short sentence: what does main.rs in this workspace print?'
+PASS recovered: no Connect card at any point
+  shot tmp/live-final-term/desktop-4-recovered.png
+PASS the draft goes out as the next prompt
+PASS …and it streams to the end (its terminal arrived, strip Ready)
+  shot tmp/live-final-term/desktop-5-next-turn.png
+PASS give-up: the outage again
+PASS banner Disconnect is clickable
+PASS the unsaved draft asks first (A9's confirmation) — 'Disconnect from Octos?'
+  shot tmp/live-final-term/desktop-7-disconnect-confirm.png
+PASS give-up: the Connect card returns
+PASS …showing the server IN USE (not the default) — 'http://127.0.0.1:50290'
+  shot tmp/live-final-term/desktop-8-connect-card.png
+PASS server back
+PASS the card's Connect dials that same server and the shell returns
+  shot tmp/live-final-term/desktop-9-reconnected-from-card.png
+== WALK a12 reconnect desktop (live, TERM): 47/47 passed
+   state dir (trace, serve log): <TMP>
