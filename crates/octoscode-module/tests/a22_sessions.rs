@@ -53,6 +53,9 @@ enum Reply {
     /// one socket, in this order (the candidate race: live events of a
     /// Session reach the client between its open and its history read).
     Around { before: Vec<Value>, result: Value, after: Vec<Value> },
+    /// Frames now, the result `delay_ms` later (a history read that settles
+    /// after the person moved on).
+    Late { before: Vec<Value>, delay_ms: u64, result: Value },
 }
 
 type Script = Arc<dyn Fn(&str, &Value) -> Reply + Send + Sync>;
@@ -115,6 +118,16 @@ impl Core {
                                 for f in after {
                                     let _ = tx.send(f.to_string());
                                 }
+                            }
+                            Reply::Late { before, delay_ms, result } => {
+                                for f in before {
+                                    let _ = tx.send(f.to_string());
+                                }
+                                let (tx, frame) = (tx.clone(), ok(result).to_string());
+                                tokio::spawn(async move {
+                                    tokio::time::sleep(Duration::from_millis(delay_ms)).await;
+                                    let _ = tx.send(frame);
+                                });
                             }
                         }
                     }
@@ -516,6 +529,65 @@ async fn row_203_a_candidate_fails_closed_on_the_4097th_buffered_event() {
     quit(&conv);
 }
 
+/// `candidate-session.test.ts` "keeps a newer candidate owned when an older
+/// stage settles after cancel": the person opens B, and opens C before B's
+/// history answered. C's open replaces B's candidate — B's buffered live
+/// events are dropped with it — C is prepared and shown in order, and B's
+/// history, answered late under a retired generation, never commits B (it
+/// is no record of this connection: its later events are foreign).
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn row_203_a_newer_open_replaces_an_unprepared_candidate() {
+    let _g = lock();
+    let (b, c) = ("a22:api:slow", "a22:api:next");
+    let core = Core::start(Arc::new(move |method, p| {
+        let session = p["session_id"].as_str().unwrap_or("").to_owned();
+        match method {
+            "session/open" => Reply::Ok(opened(&session, p["cwd"].as_str().unwrap_or(CWD), None)),
+            "session/hydrate" if session == b => Reply::Late {
+                before: vec![
+                    started(b, T3),
+                    env(b, T3, 1, 15, json!({"type": "user_message", "data": {"text": "B's live prompt"}})),
+                ],
+                delay_ms: 900,
+                result: hydrated(b, 14, vec![row(1, "user", "B history", T1)], &[(T1, 1)]),
+            },
+            "session/hydrate" if session == c => Reply::Around {
+                before: vec![
+                    started(c, T3.replace("a3", "c3").as_str()),
+                    env(c, &T3.replace("a3", "c3"), 1, 9, json!({"type": "user_message", "data": {"text": "C live"}})),
+                ],
+                result: hydrated(c, 8, vec![row(1, "user", "C history", T2), row(2, "assistant", "C answer", T2)], &[(T2, 2)]),
+                after: vec![],
+            },
+            "session/hydrate" => Reply::Ok(empty_history(&session)),
+            "session/list" => Reply::Ok(json!({"sessions": []})),
+            _ => Reply::Ok(json!({})),
+        }
+    }))
+    .await;
+    let conv = launch(&core).await;
+    conv.open_session(b, Some(CWD.to_owned())).await.expect("open B");
+    until("B's history read went out", || core.params_of("session/hydrate").iter().any(|p| p["session_id"] == json!(b))).await;
+    until("B's live events are buffered", || conv.candidate_session().as_deref() == Some(b)).await;
+    tokio::time::sleep(Duration::from_millis(150)).await;
+    // The person moves on before B's history answered.
+    open(&conv, c).await;
+    let rows = shown(&conv);
+    assert_eq!(texts(&rows, ItemKind::UserBubble), vec!["C history", "C live"], "C: history first, then its live turn");
+    // B's late history (a retired generation) settles after: never committed.
+    tokio::time::sleep(Duration::from_millis(1_100)).await;
+    assert!(conv.store.domains.session.timeline.entries(b).is_empty(), "nothing of B reached its transcript");
+    assert!(!conv.store.domains.session.is_record(b), "B never became a record");
+    assert!(conv.store.domains.session.is_record(c));
+    assert_eq!(conv.store.active_session().as_deref(), Some(c));
+    // A later event of B is foreign to this connection now.
+    core.notify("projection/envelope", json!({"session_id": b, "thread_id": T3, "turn_id": T3, "seq": 2,
+        "cursor": {"stream": b, "seq": 16}, "payload": {"type": "assistant_delta", "data": {"text": "late", "assistant_segment_id": "s"}}}));
+    quiet().await;
+    assert!(conv.store.domains.session.timeline.entries(b).is_empty());
+    quit(&conv);
+}
+
 // ================================================================ row 216
 
 /// `session-composer-drafts.ts:40` + "restores server thinking choice once":
@@ -555,12 +627,15 @@ async fn row_216_the_effort_is_seeded_once_per_record() {
 /// `session-composer-drafts.test.ts` "keeps full returned drafts in order
 /// without replacing new images or another Session", on the native send
 /// path: two prompts queued behind a running turn capture the effort (and
-/// the first one the uploaded image) AT ADMISSION; when the server refuses
-/// both starts each comes back WHOLE — its text, its effort, its image — to
-/// its own Session, in order.
+/// the first one the uploaded image) AT ADMISSION; the server refuses both
+/// starts, and each comes back WHOLE — its text, its effort, its image — to
+/// its own Session, in order; never over images the person selected since,
+/// and never into another Session. Sent again, the image rides without a
+/// second upload.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn row_216_returned_prompts_come_back_whole_and_in_order() {
-    use octoscode_module::screens::media::{self, TurnMedia};
+    use octoscode_module::screens::composer_drafts;
+    use octoscode_module::screens::media::{self, LocalFile, TurnMedia};
     let _g = lock();
     let starts = Arc::new(Mutex::new(0usize));
     let s2 = starts.clone();
@@ -573,10 +648,10 @@ async fn row_216_returned_prompts_come_back_whole_and_in_order() {
             "turn/start" => {
                 let mut n = s2.lock().unwrap();
                 *n += 1;
-                if *n == 1 {
-                    Reply::Ok(json!({"accepted": true}))
-                } else {
+                if *n == 2 || *n == 3 {
                     Reply::Err(-32000, "the server refused this turn".to_owned())
+                } else {
+                    Reply::Ok(json!({"accepted": true}))
                 }
             }
             _ => Reply::Ok(json!({})),
@@ -585,6 +660,7 @@ async fn row_216_returned_prompts_come_back_whole_and_in_order() {
     .await;
     let conv = launch(&core).await;
     let a = conv.session_id();
+    let effort = |c: &Conversation| c.store.domains.session.thinking(&a).effort;
     let image = TurnMedia {
         path: format!("up/{}/original.png", b64("a22/original")),
         mime: "image/png".into(),
@@ -599,12 +675,16 @@ async fn row_216_returned_prompts_come_back_whole_and_in_order() {
     assert!(drafts.restore_uploaded(vec![image.clone()]).expect("uploaded"), "the image is in A's draft");
     conv.set_draft("first returned draft");
     conv.submit_draft().await.expect("first");
-    assert!(media::drafts_for_conv(&conv).is_empty(), "admission consumed the image");
+    assert!(drafts.is_empty(), "admission consumed the image");
     // The second is queued with Low, no image.
     octoscode_module::screens::board3::thinking::apply_arg(&conv.store, &a, "low").expect("low");
     conv.set_draft("second returned draft");
     conv.submit_draft().await.expect("second");
     assert_eq!(conv.store.domains.composer.snapshot(&a).pending.len(), 2);
+    // The person selects a NEW image meanwhile.
+    drafts
+        .select_files(vec![LocalFile { name: "new.png".into(), bytes: 3, mime: "image/png".into(), content: Arc::new(b"new".to_vec()) }])
+        .expect("select");
     // The running turn ends: each queued head is started and REFUSED.
     core.notify("projection/envelope", json!({"session_id": a, "thread_id": busy, "turn_id": busy, "seq": 1,
         "cursor": {"stream": a, "seq": 2}, "payload": {"type": "turn_terminal", "data": {"outcome": "completed"}}}));
@@ -614,13 +694,48 @@ async fn row_216_returned_prompts_come_back_whole_and_in_order() {
     assert_eq!(sent[1]["reasoning_effort"], json!("high"), "captured at admission: {}", sent[1]);
     assert_eq!(sent[1]["media"][0]["path"], json!(image.path), "the image rode the first prompt");
     assert_eq!(sent[2]["reasoning_effort"], json!("low"));
-    // The first returned prompt is back in the empty composer WHOLE: its
-    // text, its effort, its uploaded image (not uploaded again).
-    until("the first prompt returns", || conv.ui().lock().unwrap().draft() == "first returned draft").await;
-    assert_eq!(conv.store.domains.session.thinking(&a).effort, "high", "the returned turn's own effort");
-    let back = media::drafts_for_conv(&conv).entries();
-    assert_eq!(back.len(), 1, "the returned turn's image is back in the draft: {back:?}");
-    assert_eq!(back[0].name, "original.png");
+    assert!(sent[2].get("media").is_none(), "admission consumed A's media: the next prompt cannot borrow it");
+    // Never over new images: both wait on A's record, in order.
+    assert_eq!(conv.ui().lock().unwrap().draft(), "", "nothing replaced the new image");
+    assert_eq!(effort(&conv), "low");
+    assert_eq!(drafts.entries()[0].name, "new.png");
+    assert_eq!(composer_drafts::pending(&conv, &a), 2);
+    assert_eq!(composer_drafts::consume_restore(&conv, &a), None, "new images block the restore");
+    // Another Session never takes A's.
+    assert_eq!(composer_drafts::consume_restore(&conv, "a22:api:other"), None);
+    assert_eq!(composer_drafts::peek_restore(&conv, "a22:api:other"), None);
+    // The person removes the new image; the empty composer takes the FIRST
+    // returned prompt back whole (what lib.rs `sync_composer_extras` calls).
+    drafts.remove(&drafts.entries()[0].id);
+    assert_eq!(composer_drafts::consume_restore(&conv, &a).as_deref(), Some("first returned draft"));
+    assert_eq!(effort(&conv), "high", "the returned turn's own effort");
+    let back = drafts.entries();
+    assert_eq!(back.len(), 1, "{back:?}");
+    assert_eq!((back[0].name.as_str(), back[0].status), ("original.png", media::DraftStatus::Ready), "uploaded, not selected");
+    assert_eq!(composer_drafts::consume_restore(&conv, &a), None, "the restored image blocks the next restore");
+    // Sent again: the SAME uploaded handle rides with High (an upload would
+    // mint a new handle; the draft re-adopted this one).
+    conv.set_draft("first returned draft");
+    conv.submit_draft().await.expect("resend");
+    until("the resend went out", || core.params_of("turn/start").len() == 4).await;
+    let again = core.params_of("turn/start")[3].clone();
+    assert_eq!(again["media"], json!([{"path": image.path, "mime": "image/png", "size_bytes": 11}]), "{again}");
+    assert_eq!(again["reasoning_effort"], json!("high"));
+    // The composer is empty again: the second comes back with its own Low.
+    assert_eq!(composer_drafts::consume_restore(&conv, &a).as_deref(), Some("second returned draft"));
+    assert_eq!(effort(&conv), "low");
+    assert_eq!(composer_drafts::consume_restore(&conv, &a), None);
+    // Reasoning visibility is per record and never captured by a turn.
+    octoscode_module::screens::board3::thinking::perform(&conv.store, &a, "b3.think.show");
+    assert!(!conv.store.domains.session.thinking(&a).show_reasoning);
+    assert!(conv.store.domains.session.thinking("a22:api:other").show_reasoning, "another record keeps its own");
+    assert!(again.get("show_reasoning").is_none());
+    // A retired record drops its restores and ignores a late one.
+    composer_drafts::restore_interrupt_prompt(&conv, &a, "interrupted prompt");
+    composer_drafts::retire(&conv, &a);
+    composer_drafts::restore_interrupt_prompt(&conv, &a, "late");
+    assert_eq!(composer_drafts::peek_restore(&conv, &a), None);
+    assert!(drafts.disposed(), "the record's image draft is released");
     quit(&conv);
 }
 
@@ -680,9 +795,29 @@ async fn row_236_a_background_session_keeps_its_own_visible_state() {
     // C: a turn that fails, then a later one that completes, then generic
     // activity on the OLD turn.
     open(&conv, c).await;
-    // The person switches back to A: B and C are background Sessions now.
+    // D: a Session that will wait for an answer in the background.
+    let d = "a22:api:bg-ask";
+    open(&conv, d).await;
+    // The person switches back to A: B, C and D are background Sessions now.
     open(&conv, &a).await;
     assert_eq!(status_of(&conv, b), Some(sidebar::Status::Running), "B's own queue is still working");
+    // The web's BackgroundSessionSnapshot for B.
+    let snap = |id: &str| sidebar::background_sessions(&conv.store).into_iter().find(|s| s.session_id == id).expect("a background record");
+    let sb = snap(b);
+    assert_eq!((sb.state, sb.active_turn_id.as_deref(), sb.queued_count, sb.waiting), (sidebar::Status::Running, Some(tb.as_str()), 1, false));
+    assert!(!sidebar::background_sessions(&conv.store).iter().any(|s| s.session_id == a), "the selected Session is not background");
+    assert_eq!(sidebar::status_label(sb.state, true), "Working in background");
+    // D's question arrives while it is in the background: D waits, A's
+    // foreground does not.
+    core.notify("user_question/requested", json!({"session_id": d, "turn_id": "01920000-0000-7000-8000-0000000002d1",
+        "question_id": "01a0eb8f-7b23-7030-9f26-a284864217a1", "title": "Which branch?", "body": "1. Which branch?",
+        "questions": [{"allow_free_text": true, "header": "Branch", "multi_select": false,
+                       "options": [{"label": "main", "description": "the default"}], "question": "Which branch?"}]}));
+    until("D waits", || status_of(&conv, d) == Some(sidebar::Status::Waiting)).await;
+    let sd = snap(d);
+    assert!(sd.waiting && sd.unread, "{sd:?}");
+    assert_eq!(sidebar::status_label(sd.state, true), "Waiting for input");
+    assert!(!conv.ui().lock().unwrap().question_pending(), "A's foreground is not waiting for D's question");
     // C's turns land while it is in the background.
     for f in [
         started(c, TC1),
@@ -698,6 +833,8 @@ async fn row_236_a_background_session_keeps_its_own_visible_state() {
     until("C's terminals landed", || conv.store.domains.turn.terminal(TC2).as_deref() == Some("completed")).await;
     quiet().await;
     assert_eq!(status_of(&conv, c), Some(sidebar::Status::Done), "the latest real terminal decides");
+    assert!(snap(c).unread, "C's activity is unread");
+    assert_eq!(sidebar::status_label(sidebar::Status::Done, true), "Completed in background");
     // B's running turn completes in the background: its queued prompt
     // starts THERE (the second turn/start names B), so B keeps working.
     core.notify("projection/envelope", json!({"session_id": b, "thread_id": tb, "turn_id": tb, "seq": 1,
@@ -714,5 +851,15 @@ async fn row_236_a_background_session_keeps_its_own_visible_state() {
     // The foreground never took B's or C's work for its own.
     assert_eq!(conv.store.active_session().as_deref(), Some(a.as_str()));
     assert!(!conv.ui().lock().unwrap().turn_active(), "A's composer is not live for B's turn");
+    // B's turns were B's: its transcript holds both prompts; A's none.
+    let prompts = |id: &str| -> Vec<String> {
+        conv.store.domains.session.timeline.of_kind(id, octoscode_store::EntryKind::USER_MESSAGE).into_iter().map(|e| e.text).collect()
+    };
+    assert_eq!(prompts(b), vec!["build the release", "then package it"]);
+    assert!(prompts(&a).is_empty());
+    // Selecting C reads it.
+    open(&conv, c).await;
+    assert!(!conv.store.domains.session.unread(c), "selected: read");
+    assert_eq!(status_of(&conv, c), Some(sidebar::Status::Done), "the foreground's own terminal");
     quit(&conv);
 }

@@ -117,6 +117,17 @@ impl Conversation {
     /// comes back, the occupier is observed) or a rejection.
     pub async fn dispatch_turn(&self, turn: PromptTurn) -> Result<String, ClientError> {
         let session = self.session_id();
+        self.dispatch_turn_in(&session, turn).await
+    }
+
+    /// A22 row 236 — `startTurn` for the queue of `session`, which may be a
+    /// BACKGROUND record: its FIFO advances where it lives (a terminal
+    /// advances a background queue while another Session is selected,
+    /// `use-octos-session.ts:2711-2713`). Only the selected Session's turn
+    /// becomes the foreground's live turn.
+    pub async fn dispatch_turn_in(&self, session: &str, turn: PromptTurn) -> Result<String, ClientError> {
+        let session = session.to_owned();
+        let foreground = |me: &Self| me.session_id() == session;
         let Some(turn) = self.store.domains.composer.begin_dispatch(&session, &turn.turn_id) else {
             return Ok(String::new());
         };
@@ -142,7 +153,9 @@ impl Conversation {
             &turn.text,
             serde_json::json!({"optimistic": true}),
         );
-        self.ui.lock().unwrap().begin_turn(&turn_id, self.started);
+        if foreground(self) {
+            self.ui.lock().unwrap().begin_turn(&turn_id, self.started);
+        }
         // A8 — a turn this client dispatched is its OWN: the strip shows its
         // live step, never "Another client is working in this session"
         // (`origin === "adopted"` is the web's other-client test).
@@ -541,11 +554,23 @@ impl Conversation {
                 n.tone,
             );
         }
-        if let Some((owner, text)) = fx.restore {
-            self.restore_text(&owner, &text);
+        // A22 row 216 — what comes back is parked on its OWN record, in
+        // order: a turn that never started WHOLE (text, effort, images), an
+        // interrupted prompt as text (`restoreUnsentTurn` /
+        // `restoreInterruptPrompt`, session-composer-drafts.ts:121-143).
+        match (fx.returned, fx.restore) {
+            (Some((owner, turn)), _) => {
+                crate::screens::composer_drafts::restore_unsent_turn(self, &owner, &turn);
+                self.restore_text(&owner);
+            }
+            (None, Some((owner, text))) => {
+                crate::screens::composer_drafts::restore_interrupt_prompt(self, &owner, &text);
+                self.restore_text(&owner);
+            }
+            (None, None) => {}
         }
         if let Some(turn) = fx.start {
-            self.spawn_dispatch(turn);
+            self.spawn_dispatch(session, turn);
         }
         if fx.check_state.is_some() {
             self.spawn_check();
@@ -557,26 +582,35 @@ impl Conversation {
     /// owning Session's composer when it is empty, else it waits there
     /// (`restoreUnsentTurn`: "kept for retry and will return when the composer
     /// is empty").
-    fn restore_text(&self, session: &str, text: &str) {
+    fn restore_text(&self, session: &str) {
+        // A22 row 216 — the composer of the owning Session takes it back
+        // now when it is empty (`consumeRestore`: never over new images);
+        // else it waits on the record and the host's composer sync takes it
+        // when the composer empties (lib.rs `sync_composer_extras`).
+        // The composer lock is held across the take, so a keystroke cannot
+        // land between the check and the restore (`consume_restore` never
+        // takes it — the host's sync holds it the same way).
         let mut ui = self.ui.lock().unwrap();
-        if self.session_id() == session && ui.draft().trim().is_empty() {
-            ui.set_draft_inner(text.to_owned());
-        } else {
-            ui.park_restore(session, text);
+        if self.session_id() != session || !ui.draft().trim().is_empty() {
+            return;
+        }
+        if let Some(text) = crate::screens::composer_drafts::consume_restore(self, session) {
+            ui.set_draft_inner(text);
         }
     }
 
-    fn spawn_dispatch(&self, turn: PromptTurn) {
+    fn spawn_dispatch(&self, session: &str, turn: PromptTurn) {
         let me = self.weak_self.lock().unwrap().upgrade();
+        let session = session.to_owned();
         match (me, tokio::runtime::Handle::try_current()) {
             (Some(me), Ok(handle)) => {
                 handle.spawn(async move {
-                    if let Err(e) = me.dispatch_turn(turn).await {
+                    if let Err(e) = me.dispatch_turn_in(&session, turn).await {
                         makepad_widgets::log!("[octoscode] queued turn: {e}");
                     }
                 });
             }
-            _ => self.pending_starts.lock().unwrap().push(turn),
+            _ => self.pending_starts.lock().unwrap().push((session, turn)),
         }
     }
 
@@ -591,8 +625,8 @@ impl Conversation {
     /// attached (a test drives this; production spawns directly).
     pub async fn pump(&self) {
         let pending: Vec<_> = std::mem::take(&mut *self.pending_starts.lock().unwrap());
-        for turn in pending {
-            let _ = self.dispatch_turn(turn).await;
+        for (session, turn) in pending {
+            let _ = self.dispatch_turn_in(&session, turn).await;
         }
     }
 

@@ -31,6 +31,11 @@ struct Inner {
     /// keeps a per-thread sequence and a max cursor), so the domain that owns
     /// the turn owns this too.
     envelopes: EnvelopeFold,
+    /// A22 row 236 — every Session's turn terminals in ARRIVAL order, one
+    /// entry per turn: the web reads a record's latest real terminal from its
+    /// timeline's `terminal:<turn>` entries (`background-session-status.ts:
+    /// 16-26`), so later generic activity never changes the answer.
+    session_terminals: HashMap<String, Vec<(String, String)>>,
 }
 
 /// `projection/envelope` ordering state (the web's per-thread sequence +
@@ -219,6 +224,23 @@ impl Turns {
             .envelopes
             .terminals
             .insert(turn_id.to_owned(), outcome.to_owned());
+    }
+
+    /// A22 row 236 — record `turn_id`'s terminal under its Session, in
+    /// arrival order (a replay of the same terminal keeps its place and takes
+    /// the newer outcome).
+    pub fn note_session_terminal(&self, session: &str, turn_id: &str, outcome: &str) {
+        let mut i = self.inner.lock().unwrap();
+        let log = i.session_terminals.entry(session.to_owned()).or_default();
+        match log.iter_mut().find(|(t, _)| t == turn_id) {
+            Some(entry) => entry.1 = outcome.to_owned(),
+            None => log.push((turn_id.to_owned(), outcome.to_owned())),
+        }
+    }
+
+    /// A22 row 236 — the Session's LATEST real terminal: `(turn, outcome)`.
+    pub fn latest_terminal(&self, session: &str) -> Option<(String, String)> {
+        self.inner.lock().unwrap().session_terminals.get(session).and_then(|l| l.last().cloned())
     }
 
     /// The recorded terminal outcome for `turn_id`, if any.

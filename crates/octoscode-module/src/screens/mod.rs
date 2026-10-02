@@ -20,6 +20,9 @@ pub mod board1;
 pub mod board1_kit;
 pub mod board3;
 pub mod browser;
+// A22 row 216: per-record composer inputs (effort, visibility, images) and
+// the ordered restores of what came back to a Session.
+pub mod composer_drafts;
 // A22 row 228: the per-workspace catalog's projection (attested, full
 // Sessions of the requested profile).
 pub mod catalog;

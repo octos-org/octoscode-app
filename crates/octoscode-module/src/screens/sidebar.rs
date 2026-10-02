@@ -464,7 +464,8 @@ pub fn project_with(store: &Store, ui: &SidebarUi, now: u64, recents: &[String])
         })
         .collect();
 
-    let status_of = |it: &Item| session_status(store, &it.id, active.as_deref());
+    // A22 row 236 — a background record shows its OWN state.
+    let status_of = |it: &Item| row_status(store, &it.id, active.as_deref());
     let query = ui.query.trim().to_owned();
     let row_of = |it: &Item, matched: Option<(usize, usize)>| Row::Session {
         store_index: it.store_index,
@@ -613,6 +614,12 @@ pub fn session_status(store: &Store, id: &str, active: Option<&str>) -> Status {
     // (`terminal = timeline.findLast(latestTurnOutcome)`,
     // SessionSidebar.tsx:65-98): completed -> completed, anything else ->
     // failed (an interrupted turn reads "Stopped", `terminal_label`).
+    // A22 row 236 — the Session's terminals in arrival order decide when
+    // they are known (a turn with no transcript rows has a terminal too, and
+    // later generic activity of an older turn never changes the answer).
+    if let Some((_, outcome)) = store.domains.turn.latest_terminal(id) {
+        return if outcome == "completed" { Status::Done } else { Status::Failed };
+    }
     let entries = store.domains.session.timeline.entries(id);
     let mut seen: Vec<String> = Vec::new();
     for e in entries.iter().rev() {
@@ -628,6 +635,114 @@ pub fn session_status(store: &Store, id: &str, active: Option<&str>) -> Status {
         }
     }
     Status::Idle
+}
+
+/// A22 row 236 — a background Session's visible state: the web's
+/// `BackgroundSessionSnapshot` (`use-octos-session.ts:199-214`), published
+/// for every record that is not the selected one (`publishBackgroundTurns`,
+/// `:2714-2763`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Background {
+    pub session_id: String,
+    /// `backgroundSessionState(queue, waiting, timeline)`.
+    pub state: Status,
+    pub active_turn_id: Option<String>,
+    /// The record's queued prompts (`queue.pending.length`).
+    pub queued_count: usize,
+    /// Activity arrived while it was not selected (`record.unread`).
+    pub unread: bool,
+    /// Its own interaction ledger holds a pending approval or question.
+    pub waiting: bool,
+}
+
+/// The record's own pending interaction (`record.interactions
+/// .waitingSnapshot().length > 0`): a user question of THIS Session, or an
+/// actionable approval whose payload names it.
+pub fn waiting_for(store: &Store, id: &str) -> bool {
+    store.domains.approval.question().is_some_and(|q| q.session_id == id) || store.domains.approval.showing(id).is_some()
+}
+
+/// `backgroundSessionState(queue, waiting, timeline)`
+/// (`background-session-status.ts:9-28`): waiting first; then the record's
+/// OWN live work (an active or queued prompt); then its LATEST real
+/// terminal — completed or failed — regardless of later generic activity;
+/// else idle. A held turn whose outcome recovery could not prove is
+/// "failed" (`use-octos-session.ts:2729-2735`).
+pub fn background_state(store: &Store, id: &str) -> Status {
+    if waiting_for(store, id) {
+        return Status::Waiting;
+    }
+    let queue = store.domains.composer.snapshot(id);
+    if let Some(active) = &queue.active {
+        let lost = store.domains.composer.recovery(id).is_some_and(|r| {
+            r.turn_id == active.turn_id && r.phase != octoscode_store::domains::composer::RecoveryPhase::Checking
+        });
+        return if lost { Status::Failed } else { Status::Running };
+    }
+    if !queue.pending.is_empty() {
+        return Status::Running;
+    }
+    match store.domains.turn.latest_terminal(id) {
+        Some((_, outcome)) if outcome == "completed" => Status::Done,
+        Some(_) => Status::Failed,
+        None => Status::Idle,
+    }
+}
+
+/// The snapshot for one background record (`publishBackgroundTurns`).
+pub fn background_snapshot(store: &Store, id: &str) -> Background {
+    let queue = store.domains.composer.snapshot(id);
+    Background {
+        session_id: id.to_owned(),
+        state: background_state(store, id),
+        active_turn_id: queue.active.map(|t| t.turn_id),
+        queued_count: queue.pending.len(),
+        unread: store.domains.session.unread(id),
+        waiting: waiting_for(store, id),
+    }
+}
+
+/// Every background record: the records of this connection that are not
+/// the active Session, oldest open first.
+pub fn background_sessions(store: &Store) -> Vec<Background> {
+    let active = store.active_session();
+    store
+        .domains
+        .session
+        .records()
+        .into_iter()
+        .filter(|id| active.as_deref() != Some(id.as_str()))
+        .map(|id| background_snapshot(store, &id))
+        .collect()
+}
+
+/// The status label a row's dot carries (the web's visually-hidden
+/// `statusLabel`): a background record's own words
+/// (`backgroundSessionStatus`, `SessionSidebar.tsx:251-264`), else the
+/// foreground's (`:70-98`).
+pub fn status_label(status: Status, background: bool) -> &'static str {
+    match (status, background) {
+        (Status::Running, true) => "Working in background",
+        (Status::Done, true) => "Completed in background",
+        (Status::Failed, true) => "Background turn failed",
+        (Status::Running, false) => "Working",
+        (Status::Done, false) => "Completed",
+        (Status::Failed, false) => "Failed",
+        (Status::Waiting, _) => "Waiting for input",
+        (Status::Idle, _) => "Idle",
+    }
+}
+
+/// Which status a row shows: the active Session's own (the foreground,
+/// [`session_status`]); a background RECORD's own state
+/// ([`background_state`], `SessionSidebar.tsx:163-176`); any other row
+/// keeps the store's signals.
+pub fn row_status(store: &Store, id: &str, active: Option<&str>) -> Status {
+    if active != Some(id) && store.domains.session.is_record(id) {
+        background_state(store, id)
+    } else {
+        session_status(store, id, active)
+    }
 }
 
 /// Case-insensitive substring search, returning the CHAR range of the first
@@ -1168,6 +1283,67 @@ mod tests {
         let p = project_with(&store, &ui, NOW, &[]);
         let fixed: Vec<String> = rows_text(&p).iter().map(|r| r.split(" |").next().unwrap().to_owned()).collect();
         assert_eq!(fixed[2], "Review PR #2566", "store order, not recency");
+    }
+
+    /// A22 row 236 — `background-session-status.test.ts`, case for case, on
+    /// a background RECORD of the store (its own queue, interactions and
+    /// terminal record).
+    #[test]
+    fn background_records_follow_background_session_state() {
+        use octoscode_store::domains::approval::PendingQuestion;
+        use octoscode_store::domains::composer::PromptTurn;
+        use octoscode_store::timeline::EntryKind;
+        let store = Store::new();
+        for id in ["fg", "never", "noise", "latest", "latest2", "ledger", "ledger2", "queued"] {
+            store.domains.session.note_record(id);
+        }
+        store.set_active(Some("fg".into()));
+        let st = |id: &str| row_status(&store, id, Some("fg"));
+        // "keeps a never-run confirmed Session idle"
+        assert_eq!(st("never"), Status::Idle);
+        // "does not infer completion or failure from metadata, messages,
+        // tools or warnings"
+        let tl = &store.domains.session.timeline;
+        tl.append("noise", Some("t-msg".into()), EntryKind::ASSISTANT_TEXT, "hydrated answer".into());
+        tl.append_data("noise", Some("t-tool".into()), EntryKind::TOOL_CALL, "read_file".into(), serde_json::json!({"status": "complete"}));
+        tl.upsert_notice("noise", Some("t-warn".into()), "warning:1", "Warning", "something failed", "error");
+        tl.upsert_notice("noise", Some("t-x".into()), "terminal:", "Event", "", "info");
+        assert_eq!(st("noise"), Status::Idle);
+        // "uses the latest real terminal, regardless of later generic activity"
+        store.domains.turn.note_session_terminal("latest", "one", "completed");
+        assert_eq!(st("latest"), Status::Done);
+        store.domains.turn.note_session_terminal("latest", "two", "errored");
+        assert_eq!(st("latest"), Status::Failed);
+        store.domains.turn.note_session_terminal("latest2", "two", "errored");
+        store.domains.turn.note_session_terminal("latest2", "one", "completed");
+        tl.upsert_notice("latest2", Some("two".into()), "warning:later", "Warning", "later", "error");
+        assert_eq!(st("latest2"), Status::Done);
+        // "prioritizes the interaction ledger even without a local queue head"
+        let question = |s: &str| PendingQuestion {
+            question_id: format!("q-{s}"),
+            session_id: s.into(),
+            turn_id: "t".into(),
+            title: "Which branch?".into(),
+            body: String::new(),
+            questions: serde_json::Value::Null,
+        };
+        store.domains.approval.set_question(question("ledger"));
+        assert_eq!(st("ledger"), Status::Waiting);
+        store.domains.composer.submit("ledger2", PromptTurn::local("next", "Continue"));
+        store.domains.turn.note_session_terminal("ledger2", "old", "completed");
+        store.domains.approval.set_question(question("ledger2"));
+        assert_eq!(st("ledger2"), Status::Waiting);
+        // "prioritizes current queued work over retained past terminal evidence"
+        store.domains.composer.submit("queued", PromptTurn::local("next", "Continue"));
+        store.domains.turn.note_session_terminal("queued", "old", "errored");
+        assert_eq!(st("queued"), Status::Running);
+        store.domains.composer.submit("queued", PromptTurn::local("later", "And then"));
+        let snap = background_snapshot(&store, "queued");
+        assert_eq!((snap.active_turn_id.as_deref(), snap.queued_count), (Some("next"), 1));
+        // The selected Session is never "background".
+        assert!(!background_sessions(&store).iter().any(|b| b.session_id == "fg"));
+        assert_eq!(status_label(Status::Running, true), "Working in background");
+        assert_eq!(status_label(Status::Failed, true), "Background turn failed");
     }
 
     #[test]

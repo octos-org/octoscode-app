@@ -152,6 +152,15 @@ struct Inner {
     /// workspace path). A newer attested listing of that workspace replaces
     /// its rows; another workspace's rows are untouched.
     listed_under: HashMap<String, String>,
+    /// A22 row 236 — the Session RECORDS of this connection: Sessions whose
+    /// open committed (their history settled), oldest first. A record that
+    /// is not the active Session keeps running in the background
+    /// (`session-record-manager.ts`: persistent records, one selected).
+    records: Vec<String>,
+    /// A22 row 236 — records with activity the person has not seen: set by a
+    /// background record's event, cleared when it is selected
+    /// (`session-record-manager.ts:449` / `:1207`).
+    unread: std::collections::HashSet<String>,
 }
 
 /// A22 — the known registry's bound (`known-session-registry.ts:57`).
@@ -278,6 +287,8 @@ impl Sessions {
         i.sessions.retain(|s| s.id != id);
         i.known.retain(|(k, _)| k != id);
         i.listed_under.remove(id);
+        i.records.retain(|r| r != id);
+        i.unread.remove(id);
         if i.active.as_deref() == Some(id) {
             i.active = None;
         }
@@ -342,6 +353,41 @@ impl Sessions {
     /// A22 row 228 — the workspace whose attested catalog listed `id`.
     pub fn listed_root(&self, id: &str) -> Option<String> {
         self.inner.lock().unwrap().listed_under.get(id).cloned()
+    }
+
+    /// A22 row 236 — `id`'s open committed: it is a record of this
+    /// connection from now on.
+    pub fn note_record(&self, id: &str) {
+        let mut i = self.inner.lock().unwrap();
+        if !i.records.iter().any(|r| r == id) {
+            i.records.push(id.to_owned());
+        }
+    }
+
+    /// A22 row 236 — whether `id` is a record of this connection.
+    pub fn is_record(&self, id: &str) -> bool {
+        self.inner.lock().unwrap().records.iter().any(|r| r == id)
+    }
+
+    /// A22 row 236 — the records, oldest first.
+    pub fn records(&self) -> Vec<String> {
+        self.inner.lock().unwrap().records.clone()
+    }
+
+    /// A22 row 236 — a background record's activity (`record.unread = true`)
+    /// or its selection (`= false`).
+    pub fn set_unread(&self, id: &str, unread: bool) {
+        let mut i = self.inner.lock().unwrap();
+        if unread {
+            i.unread.insert(id.to_owned());
+        } else {
+            i.unread.remove(id);
+        }
+    }
+
+    /// A22 row 236 — whether `id` holds activity the person has not seen.
+    pub fn unread(&self, id: &str) -> bool {
+        self.inner.lock().unwrap().unread.contains(id)
     }
 
     /// The session count — what the module tile shows.

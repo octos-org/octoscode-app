@@ -3670,7 +3670,14 @@ impl OctoscodeView {
                 {
                     let mut u = ui.lock().unwrap();
                     if u.draft().trim().is_empty() {
-                        if let Some(text) = u.take_parked_restore(session) {
+                        // A22 row 216 — the record's next restore, whole and
+                        // in order (`consumeRestore`, session-composer-drafts.ts
+                        // :148-166); A7's text-only park is its predecessor.
+                        let returned = conv
+                            .as_ref()
+                            .and_then(|c| screens::composer_drafts::consume_restore(c, session))
+                            .or_else(|| u.take_parked_restore(session));
+                        if let Some(text) = returned {
                             makepad_widgets::log!("[octoscode] composer: not-sent text returned ({} chars)", text.chars().count());
                             u.set_draft_inner(text);
                         } else if self.drafts_restored_for.as_deref() != Some(session.as_str()) {

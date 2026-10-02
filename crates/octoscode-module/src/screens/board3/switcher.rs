@@ -156,6 +156,9 @@ pub async fn delete(conv: &crate::flow::Conversation, id: String) -> Result<Stri
             drop(st);
             conv.store.domains.session.forget(&id);
             crate::screens::drafts::restore_for(&crate::screens::drafts::key_of(conv, &id), "");
+            // A22 row 216 — the deleted Session's record retires: its
+            // returned prompts and images go (`retire`, session-composer-drafts.ts:196-201).
+            crate::screens::composer_drafts::retire(conv, &id);
             Ok(format!("deleted {id}"))
         }
         Err(e) => {

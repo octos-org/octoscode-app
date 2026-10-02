@@ -58,6 +58,8 @@ impl NotificationHandler for TurnCompletedHandler {
             let session = completed.session_id.0.clone();
             let turn_id = completed.turn_id.0.to_string();
             self.store.domains.turn.ended(&turn_id);
+            // A22 row 236: the Session's terminals, in arrival order.
+            self.store.domains.turn.note_session_terminal(&session, &turn_id, "completed");
             // #P4b1 [14]: the turn's plan dies with the turn that authored it
             // (clearPlanForTurn, plan.ts:31).
             self.store.domains.task.clear_plan_for_turn(&session, &turn_id);
@@ -85,6 +87,8 @@ impl NotificationHandler for TurnErrorHandler {
             let session = error.session_id.0.clone();
             let turn_id = error.turn_id.0.to_string();
             self.store.domains.turn.ended(&turn_id);
+            // A22 row 236: the Session's terminals, in arrival order.
+            self.store.domains.turn.note_session_terminal(&session, &turn_id, "errored");
             // #P4b1 [14]: an errored authoring turn drops its plan too.
             self.store.domains.task.clear_plan_for_turn(&session, &turn_id);
             self.store.domains.approval.settle_turn(&turn_id);
@@ -420,6 +424,8 @@ impl NotificationHandler for ProjectionEnvelopeHandler {
                 };
                 self.store.domains.turn.ended(&turn_id);
                 self.store.domains.turn.set_terminal(&turn_id, name);
+                // A22 row 236: the Session's terminals, in arrival order.
+                self.store.domains.turn.note_session_terminal(&session, &turn_id, name);
                 // #P4b1 [14]: every terminal outcome drops the authoring
                 // turn's plan (the web's terminalTurnId treats turn_terminal
                 // as the canonical terminal, entry-model.ts:87-99).

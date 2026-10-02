@@ -220,6 +220,10 @@ pub struct FlowUi {
     code_copied: Option<(String, usize, Instant)>,
     /// A7 — not-sent / interrupted text waiting for its composer to empty.
     parked_restores: Vec<(String, String)>,
+    /// A22 row 236 — the live turn of each Session the person LEFT, with its
+    /// start: the foreground shows the selected Session's own turn only, and
+    /// gets this one back (its time intact) when the person returns.
+    parked_live: HashMap<String, (String, Instant)>,
 }
 
 impl FlowUi {
@@ -480,6 +484,27 @@ impl FlowUi {
         }
     }
 
+    /// A22 row 236 — the window switched from `from` to `to`: the live turn
+    /// of `from` stays with its record (parked), and the foreground's live
+    /// turn becomes `to`'s own (`to_live`, its queue's active turn), with the
+    /// start it had when the person left it. The web selects a record and
+    /// shows ITS queue (`installSelectedRecord`, `use-octos-session.ts:
+    /// 2774-2800`); one global live turn leaked a background Session's
+    /// STOP / "Working" into the Session on screen.
+    pub fn switch_live(&mut self, from: &str, to: &str, to_live: Option<String>) {
+        if from == to {
+            return;
+        }
+        if let Some(live) = self.active_turn.take() {
+            self.parked_live.insert(from.to_owned(), live);
+        }
+        let parked = self.parked_live.remove(to);
+        self.active_turn = to_live.map(|id| match parked {
+            Some((pid, started)) if pid == id => (id, started),
+            _ => (id, Instant::now()),
+        });
+    }
+
     /// A7 — park text handed back while the owning composer was busy; it
     /// returns when that composer is empty (`restoreUnsentTurn`).
     pub fn park_restore(&mut self, session: &str, text: &str) {
@@ -699,7 +724,7 @@ pub struct Conversation {
     weak_self: Mutex<std::sync::Weak<Conversation>>,
     /// A7 — queue heads to start when no shared handle is attached yet
     /// (drained by [`Conversation::pump`]).
-    pending_starts: Mutex<Vec<octoscode_store::domains::composer::PromptTurn>>,
+    pending_starts: Mutex<Vec<(String, octoscode_store::domains::composer::PromptTurn)>>,
     /// A7 — the connection was live before the last transition (a drop
     /// suspends the transport generation; the next Live reconciles).
     was_live: Mutex<bool>,
@@ -1103,6 +1128,45 @@ impl Conversation {
         }
     }
 
+    /// A22 row 236 — `session`'s open committed (its history settled): a
+    /// record of this connection, which keeps running in the background
+    /// once another Session is selected.
+    fn commit_record(&self, session: &str) {
+        self.store.domains.session.note_record(session);
+    }
+
+    /// A22 row 236 — the turn of `session` that is still running: its queue's
+    /// active turn with no terminal yet.
+    fn foreground_turn_of(&self, session: &str) -> Option<String> {
+        self.store
+            .domains
+            .composer
+            .snapshot(session)
+            .active
+            .map(|t| t.turn_id)
+            .filter(|t| self.store.domains.turn.terminal(t).is_none())
+    }
+
+    /// A22 row 236 — the background RECORD an event belongs to: a Session
+    /// this connection opened (and committed) that is not the one on screen
+    /// (the web routes every pooled event to its own record's reducer; only
+    /// the selected record forwards to the product view,
+    /// `use-octos-session.ts:2884-2900`). A topic frame is its topic's.
+    fn background_owner(&self, payload: &UiNotification) -> Option<String> {
+        let session = match payload {
+            UiNotification::EnvelopeV2(frame) => frame
+                .topic
+                .as_deref()
+                .is_none_or(|t| t.trim().is_empty())
+                .then(|| frame.session_id.0.clone()),
+            other => crate::screens::peers::notification_session(other),
+        }?;
+        if session.is_empty() || self.store.active_session().as_deref() == Some(session.as_str()) {
+            return None;
+        }
+        self.store.domains.session.is_record(&session).then_some(session)
+    }
+
     /// The candidate's open or history read failed: fail closed, its buffer
     /// is dropped (`candidate-session.ts:103-110`).
     fn dispose_candidate(&self, session: &str, why: &str) {
@@ -1230,6 +1294,7 @@ impl Conversation {
             self.history.lock().unwrap().remove(&session);
             // A22 row 203 — an empty history: its events need not wait.
             self.release_candidate(&session, None);
+            self.commit_record(&session);
             return;
         }
         let retry = {
@@ -1638,6 +1703,14 @@ impl Conversation {
         // shows "Loading conversation…" until its history settles, never the
         // empty welcome for the open's round trip.
         self.history_pending(&session_id.0);
+        // A22 row 236 — the foreground follows the selected Session: the one
+        // left keeps its own live turn (now a background record), the new
+        // one shows its own (if a turn of it is still running), and it is
+        // read (`select`: `record.unread = false`, session-record-manager.ts:449).
+        let previous = self.store.active_session().unwrap_or_default();
+        let live = self.foreground_turn_of(&session_id.0);
+        self.ui.lock().unwrap().switch_live(&previous, &session_id.0, live);
+        self.store.domains.session.set_unread(&session_id.0, false);
         self.store.set_active(Some(session_id.0.clone()));
         if let Err(e) = self.refresh_sessions().await {
             ::log::warn!("octoscode: session/list after open: {e}");
@@ -2095,6 +2168,18 @@ impl Conversation {
             let PayloadV2::TurnTerminal { outcome, error, .. } = &env.payload else { continue };
             use octos_core::ui_protocol::TurnTerminalOutcome as O;
             let holds = held.contains(env.turn_id.as_str());
+            // A22 row 236 — a held turn's retained terminal is part of the
+            // Session's terminal record, in stream order (the web's hydrated
+            // timeline carries its `terminal:<turn>` entries).
+            if holds {
+                let wire = match outcome {
+                    O::Completed => "completed",
+                    O::Errored => "errored",
+                    O::Interrupted => "interrupted",
+                    O::RateLimited => "rate_limited",
+                };
+                self.store.domains.turn.note_session_terminal(session, &env.turn_id, wire);
+            }
             let name = match outcome {
                 O::Completed => {
                     discarded = !holds;
@@ -2896,12 +2981,18 @@ impl Conversation {
                 // reply's `reasoning_effort` (session-composer-drafts.ts:40),
                 // and the show-thinking preference applies to the first opened
                 // Session (App.tsx:524-537).
-                if let Some(level) = &r.opened.reasoning_effort {
-                    if let Ok(serde_json::Value::String(e)) = serde_json::to_value(level) {
-                        self.store
-                            .domains
-                            .session
-                            .set_thinking_effort(&r.opened.session_id.0, &e);
+                // A22 row 216 — ONCE per record (`get(record)`, `:36-49`): a
+                // re-open of a Session this connection already holds (a
+                // switch back, a reconnect) never overwrites the effort the
+                // person chose since ("restores server thinking choice once").
+                if crate::screens::composer_drafts::seed_record(self, &r.opened.session_id.0) {
+                    if let Some(level) = &r.opened.reasoning_effort {
+                        if let Ok(serde_json::Value::String(e)) = serde_json::to_value(level) {
+                            self.store
+                                .domains
+                                .session
+                                .set_thinking_effort(&r.opened.session_id.0, &e);
+                        }
                     }
                 }
                 crate::screens::board3::thinking::apply_pref_once(&self.store, &r.opened.session_id.0);
@@ -2979,6 +3070,7 @@ impl Conversation {
                     self.history.lock().unwrap().remove(&r.opened.session_id.0);
                     // A22 row 203 — nor anything for its events to wait on.
                     self.release_candidate(&r.opened.session_id.0, None);
+                    self.commit_record(&r.opened.session_id.0);
                 }
                 // A15 — and the catalog re-lists for the opened Session's
                 // workspace, now that it is known (the web's `refreshKey`
@@ -3033,6 +3125,18 @@ impl Conversation {
                 // history (released in order by the hydrate arm below).
                 if self.stage_for_candidate(evt, payload) {
                     return FlowEvent::Other(format!("staged {}", payload.method()));
+                }
+                // A22 row 236 — a background record's own event folds into
+                // ITS state (transcript, terminals, interactions, its queue,
+                // which advances there) and marks it unread; the Session on
+                // screen is never touched by it (no live turn, no catalog
+                // re-list, no resync of its own).
+                if let Some(owner) = self.background_owner(payload) {
+                    self.registry.lock().unwrap().dispatch(payload);
+                    self.composer_observe(payload);
+                    self.store.domains.session.set_unread(&owner, true);
+                    makepad_widgets::SignalToUI::set_ui_signal();
+                    return FlowEvent::Other(format!("background {} {}", payload.method(), owner));
                 }
                 // #P4g1 rows 205/213: the runtime scope gate. The durable
                 // projection (projection/envelope, protocol/replay_lossy)
@@ -3184,6 +3288,8 @@ impl Conversation {
                             // buffered live events follow the history, in
                             // order, minus what the history already holds.
                             self.release_candidate(session_id, Some((h.cursor.stream.as_str(), h.cursor.seq)));
+                            // A22 row 236 — a record from now on.
+                            self.commit_record(session_id);
                             ::log::info!(
                                 "octoscode: session/hydrate folded for {session_id} (+{added} rows)"
                             );
