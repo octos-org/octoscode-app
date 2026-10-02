@@ -226,12 +226,16 @@ def scenario_for(area: str) -> str:
     return AREA_SCENARIO[area]
 
 
-APPROVAL_MISSING = ("missing: inline approval card — design scene conversation-05 "
-                    "is not in the built batch (design/bindings.json:40); "
-                    "approval/requested reaches the store but has no widget")
-CONNECT_MISSING = ("missing: gate-mode app instance — the walk app auto-connects to "
-                   "the replay server, so the pre-connection gate states (invalid "
-                   "auth, pairing links, workspace chooser) never mount")
+# A11: both reasons were Phase-3 facts. The approval takeover is built (A6,
+# tools/walk/a6_surfaces_walk.py) and the pre-connection gate IS walked by the
+# native walks that launch first-run instances (A2, A11); a row of these
+# areas that no native walk maps is "not walked", with the parity matrix's
+# own verdict where it cites the case (`parity_reason`).
+APPROVAL_MISSING = ("not walked: no native click walk maps this approval case "
+                    "(the takeover card itself is walked by tools/walk/a6_surfaces_walk.py)")
+CONNECT_MISSING = ("not walked: run.py's own instances auto-connect; the pre-connection "
+                   "gate is walked only by the native walks that launch first-run apps "
+                   "(tools/walk/a2_board1_walk.py, a11_offer_walk.py), and none maps this case")
 
 # The subset marker used by `@check(rows=…)` for "every row of the area".
 ALL = "__all__"
@@ -2431,7 +2435,8 @@ def select_targets(limit: int | None):
     while limit is None or len(picked) < limit:
         progressed = False
         for a in order:
-            if len(picked) >= limit:
+            # A11: `--full` passes no limit (every scriptable row).
+            if limit is not None and len(picked) >= limit:
                 break
             c = cursors[a]
             if c < len(eligible[a]):
@@ -2457,6 +2462,146 @@ def missing_capability(spec: str) -> str:
     return "native capability not yet built (see docs/parity-matrix.csv)"
 
 
+# --------------------------------------------------------------------------- #
+# A11 — the native click walks (tools/walk/native.py) and the honest reasons
+# for the rows nothing walks.
+# --------------------------------------------------------------------------- #
+def load_parity() -> list:
+    try:
+        with open(PARITY, newline="") as f:
+            return list(csv.DictReader(f))
+    except FileNotFoundError:
+        return []
+
+
+def final_bucket(p: dict) -> str:
+    """The FINAL parity bucket: the manual verdict when set (the brief §3)."""
+    return (p.get("phase4_bucket_manual") or "").strip() or (p.get("phase4_bucket") or "").strip()
+
+
+def parity_hits(row: dict, parity: list) -> list:
+    """The parity rows whose web_e2e_specs cite this walk row's case."""
+    spec = row["spec"].split("/")[-1]
+    key = row["case"][:40]
+    return [p for p in parity if spec in (p.get("web_e2e_specs") or "") and key in (p.get("web_e2e_specs") or "")]
+
+
+def parity_reason(row: dict, parity: list):
+    """(status, reason) for a row no check covers, from the parity matrix's
+    FINAL verdicts of the capabilities that cite its case — or None.
+
+    * any cited capability still C → `not-yet-implemented` (named);
+    * all built (A) → `not-walked`: built, but no click-walk check covers it;
+    * only web-only (B) → None (the existing verdict stands)."""
+    hits = parity_hits(row, parity)
+    if not hits:
+        return None
+    missing = [p["capability"] for p in hits if final_bucket(p) == "C"]
+    built = [p["capability"] for p in hits if final_bucket(p) == "A"]
+    if missing:
+        return ("not-yet-implemented",
+                "missing: " + "; ".join(f"{c[:110]} [C]" for c in missing[:2]))
+    if built:
+        return ("not-walked",
+                "built (" + "; ".join(f"{c[:90]} [A]" for c in built[:2])
+                + ") — no click-walk check covers this case yet")
+    return None
+
+
+def relabel_unwalked(out_rows: list, rows: list, parity: list) -> int:
+    """Give every `not-yet-implemented` row the parity matrix's own reason
+    (and `not-walked` when its capabilities are built). Returns the count."""
+    n = 0
+    for r in out_rows:
+        if r["status"] != "not-yet-implemented":
+            continue
+        got = parity_reason(rows[r["row_id"] - 1], parity)
+        if got:
+            r["status"], r["reason"] = got
+            n += 1
+    return n
+
+
+def merge_native(out_rows: list, check_rows: list, native_rows: dict) -> tuple:
+    """Re-point every row a native walk maps: its verdict, depth, evidence and
+    per-check rows become the native walk's (run.py's area-mapped checks for
+    that row are dropped — they were Phase-3 generic checks)."""
+    by_id = {r["row_id"]: r for r in out_rows}
+    for rid, v in native_rows.items():
+        r = by_id.get(rid)
+        if r is not None:
+            r.update(status=v["status"], depth=v["depth"], evidence=v["evidence"], reason=v["reason"])
+    kept = [c for c in check_rows if int(c["row_id"]) not in native_rows]
+    for rid, v in sorted(native_rows.items()):
+        r = by_id.get(rid)
+        if r is None:
+            continue
+        for name, ok, detail, ev in v["checks"]:
+            kept.append({"row_id": rid, "area": r["area"], "spec": r["spec"], "case": r["case"],
+                         "check": name, "status": "pass" if ok else "fail", "evidence": ev,
+                         "reason": (detail or "")[:200]})
+    kept.sort(key=lambda c: int(c["row_id"]))
+    return out_rows, kept
+
+
+def read_csv(path: pathlib.Path) -> list:
+    with open(path, newline="") as f:
+        out = list(csv.DictReader(f))
+    for r in out:
+        r["row_id"] = int(r["row_id"])
+    return out
+
+
+def run_native(args) -> dict:
+    """Run the native click walks (every `WALK` the convention finds) and
+    fold them into per-row verdicts. Also leaves the raw per-check results in
+    tmp/walk/native/last.json for a later `--native-only` merge."""
+    import native  # tools/walk/native.py (same directory)
+    only = {w.strip() for w in args.walks.split(",") if w.strip()} or None
+    modes = [m.strip() for m in args.modes.split(",") if m.strip()]
+    results, specs = native.run_all(str(BIN), args.port, args.fixture_port, modes=modes, only=only,
+                                    log=lambda s: print(s, flush=True))
+    native.SCRATCH.mkdir(parents=True, exist_ok=True)
+    native.write_json(results, native.SCRATCH / "last.json")
+    verdicts = native.row_verdicts(results, specs)
+    n_pass = sum(1 for v in verdicts.values() if v["status"] == "pass")
+    print(f"[native] {len(verdicts)} rows re-pointed to native click walks: "
+          f"{n_pass} pass, {len(verdicts) - n_pass} fail", flush=True)
+    return verdicts
+
+
+def native_only(args) -> int:
+    """`--native-only`: the native walks merged into the EXISTING results
+    (the rows they map are re-pointed; every other row keeps its verdict)."""
+    try:
+        if not (BIN.is_file() and os.access(BIN, os.X_OK)):
+            raise PrereqError(APP_BIN_HELP)
+    except PrereqError as e:
+        print(f"tools/walk: {e}", file=sys.stderr)
+        return 2
+    rows = load_rows()
+    out_rows = read_csv(WALK / "results.csv")
+    check_rows = read_csv(WALK / "results-checks.csv")
+    native_rows = run_native(args)
+    out_rows, check_rows = merge_native(out_rows, check_rows, native_rows)
+    relabel_unwalked(out_rows, rows, load_parity())
+    with open(WALK / "results.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["row_id", "area", "spec", "case", "status", "depth", "evidence", "reason"])
+        w.writeheader()
+        w.writerows(out_rows)
+    with open(WALK / "results-checks.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["row_id", "area", "spec", "case", "check", "status", "evidence", "reason"])
+        w.writeheader()
+        w.writerows(check_rows)
+    from collections import Counter
+    counts = Counter(r["status"] for r in out_rows)
+    print("\n== walk results (native merged) ==")
+    for k in ("pass", "fail", "not-walked", "not-yet-implemented", "live-only", "blocked", "skipped"):
+        if counts.get(k):
+            print(f"   {k:20} {counts[k]}")
+    return 1 if any(v["status"] == "fail" for v in native_rows.values()) else 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=30)
@@ -2467,7 +2612,28 @@ def main():
     ap.add_argument("--live", action="store_true",
                     help="run the live-only rows against the RUNNING real gate "
                          "(OCTOS_LIVE_TOKEN_FILE required; no replay server)")
+    # A11 — the native click walks (tools/walk/native.py; docs/walk/README.md).
+    ap.add_argument("--full", action="store_true",
+                    help="the official run: every scriptable row (no --limit) AND every "
+                         "native click walk in desktop + phone")
+    ap.add_argument("--native", dest="native", action="store_true", default=None,
+                    help="also run the native click walks (the default with --full)")
+    ap.add_argument("--no-native", dest="native", action="store_false",
+                    help="skip the native click walks")
+    ap.add_argument("--native-only", action="store_true",
+                    help="run only the native walks and merge them into the EXISTING "
+                         "results.csv / results-checks.csv (the other rows are kept)")
+    ap.add_argument("--walks", default="", help="comma list of native walk names (default: all)")
+    ap.add_argument("--modes", default="desktop,phone", help="native walk modes")
+    ap.add_argument("--fixture-port", type=int, default=8434,
+                    help="first port for a native walk's fixture server (one per walk)")
     args = ap.parse_args()
+    if args.full:
+        args.limit = None
+        if args.native is None:
+            args.native = True
+    if args.native_only:
+        return native_only(args)
 
     # Fail fast on the documented prerequisites, with a message that says exactly
     # what to run (card #19b, defect 2). Building the replay server is cached.
@@ -2696,6 +2862,14 @@ def main():
                              "status": "not-yet-implemented", "evidence": "",
                              "reason": f"missing: {missing_capability(spec)}"})
 
+    # A11: the native click walks re-point the rows they map; the rows nothing
+    # covers get the parity matrix's own verdict and reason.
+    native_rows: dict = {}
+    if args.native and not args.live:
+        native_rows = run_native(args)
+        out_rows, check_rows = merge_native(out_rows, check_rows, native_rows)
+    relabel_unwalked(out_rows, rows, load_parity())
+
     live_suffix = "_live" if args.live else ""
     # #43b: a WALK_ONLY_ROWS run drives a SUBSET of rows, but the loop above
     # still emits an aggregate row for EVERY walk row — the unselected ones as
@@ -2720,13 +2894,14 @@ def main():
     for a in areas_seen:
         c = Counter(r["status"] for r in out_rows if r["area"] == a)
         cells = ", ".join(f"{k}={c[k]}" for k in
-                          ("pass", "fail", "live-only", "not-yet-implemented",
+                          ("pass", "fail", "live-only", "not-walked", "not-yet-implemented",
                            "blocked", "skipped") if c.get(k))
         print(f"   {a:14} {cells}")
     infra_blocked = sum(1 for i, r in enumerate(out_rows, start=1)
                         if i in target_area and r["status"] == "blocked")
     print("\n== walk-runner summary ==")
-    for k in ("pass", "fail", "not-yet-implemented", "blocked", "skipped", "not-run"):
+    for k in ("pass", "fail", "not-walked", "not-yet-implemented", "live-only", "blocked",
+              "skipped", "not-run"):
         if counts.get(k):
             print(f"   {k:20} {counts[k]}")
     print(f"   total                {len(out_rows)}")
@@ -2736,6 +2911,8 @@ def main():
     by_depth = Counter((r["status"], r.get("depth", "")) for r in out_rows)
     print(f"   pass by depth        specific={by_depth.get(('pass', 'specific'), 0)}"
           f" smoke={by_depth.get(('pass', 'smoke'), 0)}"
+          f" native={by_depth.get(('pass', 'native'), 0)}"
+          f" native-partial={by_depth.get(('pass', 'native-partial'), 0)}"
           f"  (distinct checks: {len({c['check'] for c in check_rows})})")
     if infra_blocked:
         print(f"   NOTE: {infra_blocked} selected row(s) blocked by a start failure")

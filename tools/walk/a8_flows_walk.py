@@ -27,6 +27,45 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+# A11: the walk aggregator's convention (tools/walk/native.py; never imported).
+# phase1 restarts the fixture itself (the pidfile hand-off; the port is fixed
+# in that restart), then the APP restarts for phase2 with its state kept.
+WALK = {
+    "name": "a8_flows",
+    "title": "session flows: resume guards, delete, per-Session drafts, reconnect, restart, launch decision, parked approval",
+    "modes": ["desktop", "phone"],
+    "fixture": {"argv": ["{examples}/a8_serve", "{fport}", "--log", "{state}/serve.jsonl"], "fport": 8428,
+                "pidfile": "{state}/serve.pid"},
+    "app": {"env": {"OCTOS_BASE_URL": "http://127.0.0.1:{fport}", "OCTOS_PROFILE_ID": "a8",
+                    "OCTOSCODE_PANE_ADVANCED_FILE": "{state}/adv.json"},
+            "ready": ["b3_strip_tap", "i0_composer_0"]},
+    "runs": [
+        {"argv": ["{port}", "{mode}", "phase1", "{state}/serve.jsonl", "{out}"],
+         "env": {"A8_SERVE_BIN": "{examples}/a8_serve", "A8_SERVE_PIDFILE": "{state}/serve.pid"}},
+        {"restart": "app", "argv": ["{port}", "{mode}", "phase2", "{state}/serve.jsonl", "{out}"]},
+    ],
+    "needs": ["target/debug/examples/a8_serve"],
+    "timeout": 900,
+    "rows": {
+        38: {"checks": ["restart: the unsent draft is restored, never sent"],
+             "partial": "'sent drafts stay cleared' is not asserted"},
+        65: {"checks": ["parked:"],
+             "partial": "the parked approval is restored and asked again on its owning Session; this walk does not "
+                        "send the decision (A6 walks approval/respond)"},
+        154: {"checks": ["parked: the strip, when shown, waits for the approval"],
+              "partial": "a restored parked approval reads as waiting; the recovery-admission path is not staged"},
+        161: ["nothing opened before the choice", "the draft moved with the committed launch"],
+        169: {"checks": ["reconnect:", "header: the re-opened Session is the one shown",
+                         "the unsent draft survived the outage"],
+              "partial": "a real outage and re-open; a lossy replay gap is not staged"},
+        176: ["+ Add workspace opens the picker", "wire: the launch asked launch/resolve first", "the decision panel:",
+              "nothing opened before the choice", "wire: the chosen profile opens the new Session", "the panel closes"],
+        186: ["/resume opens 'Resume chat'", "resume:", "wire: the candidate was opened",
+              "wire: the previous Session was put back", "header: the resumed Session's title",
+              "wire: resuming never starts a turn"],
+    },
+}
+
 PORT = int(sys.argv[1])
 MODE = sys.argv[2]
 PHASE = sys.argv[3]

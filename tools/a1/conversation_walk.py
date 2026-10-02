@@ -28,6 +28,25 @@ import tempfile
 import time
 import urllib.request
 
+# A11: the walk aggregator's convention (tools/walk/native.py; never imported).
+# Desktop only: the seeded sidebar row is a drawer on the phone.
+WALK = {
+    "name": "a1_conversation",
+    "title": "conversation pane: tool rows, Worked-for fold, session row, GFM answer, layout",
+    "modes": ["desktop"],
+    "app": {"env": {"OCTOSCODE_SYNTHETIC_LIVE": "1", "OCTOSCODE_SYNTHETIC_EMPTY": "1",
+                    "OCTOSCODE_SYNTHETIC_TOOLS": "gfm"},
+            "ready": ["i0_composer_0"]},
+    "runs": [{"argv": ["{port}"]}],
+    "timeout": 300,
+    "rows": {
+        215: {"checks": ["a tool header opens its output", "…and closes it",
+                         "Worked for folds the turn's calls", "…and shows them again"],
+              "partial": "reader-controlled disclosures on a seeded settled transcript (A6 walks the replayed "
+                         "turns' folds); ten live streamed turns are not walked"},
+    },
+}
+
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else 8411
 BASE = f"http://127.0.0.1:{PORT}"
 RESULTS = []

@@ -47,14 +47,18 @@ WALK = {
     "name": "a11_offer",
     "title": "pairing discovery (offer once) + pairing-link refusals",
     "modes": ["desktop", "phone"],
-    "launch": "self",
-    "argv": ["{bin}", "{mode}", "{port}", "{fport}", "{out}"],
+    "app": "self",
+    "runs": [{"argv": ["{bin}", "{mode}", "{port}", "{fport}", "{out}"]}],
     "needs": ["target/debug/examples/board1_serve"],
+    "timeout": 900,
     "rows": {
         108: ["[108]"],
         109: ["[109]"],
         110: ["[110]"],
         111: ["[111]"],
+        112: {"checks": ["[112]"],
+              "partial": "the web's tab scope (a fresh tab has no credential) does not apply: the native "
+                         "credential is device-scoped by design (parity 'Tab-scoped vs durable credential split' C)"},
         113: ["[113]"],
         114: ["[114]"],
     },
@@ -360,13 +364,16 @@ def phase_seen_via_ui():
         stored = sorted(p.name for p in (st / "cred").glob("*"))
         check("[114] connecting remembers the server", (st / "cred" / "last-server").read_text().strip() == origin(FPORT)
               if (st / "cred" / "last-server").exists() else False, f"{stored}")
-        check("[114] Settings > Connection > Forget this device: the Connect card is back, no dialog or dimmer left",
+        check("[112] the paired credential is kept for the next start (one token file, owner-only)",
+              len(list((st / "cred").glob("*.token"))) == 1
+              and all((p.stat().st_mode & 0o777) == 0o600 for p in (st / "cred").glob("*.token")), f"{stored}")
+        check("[112][114] Settings > Connection > Forget this device: the Connect card is back, no dialog or dimmer left",
               forget(app))
         app.wait(lambda: app.text("connect_token") in ("", "Paste your server token"), timeout=4)
         s = app.snap()
         tokens = list((st / "cred").glob("*.token"))
         field = app.text("connect_token", s)
-        check("[114] seen, no credential: the server stays remembered, its token is gone",
+        check("[112][114] seen, no credential: the server stays remembered, its token is gone, the field is empty",
               not tokens and (st / "cred" / "last-server").exists() and field in ("", "Paste your server token"),
               f"token files {len(tokens)}, token field {'empty' if field in ('', 'Paste your server token') else 'not empty'}")
         capture(app, "forgotten")
@@ -384,6 +391,8 @@ def phase_offer(st):
         shown = app.wait(lambda: app.find("connect_offer_box"), timeout=10)
         time.sleep(1.0)
         s = app.snap()
+        check("[112] after Forget, a restart prefills no token (the form stays empty)",
+              app.text("connect_token", s) in ("", "Paste your server token"))
         msgs = [w for w in s if w.get("i") == "connect_offer_text" and App.shown(w)]
         check("[114] one unauthenticated GET /pair/info on the remembered origin",
               fx.count("GET /pair/info") == 1, f"x{fx.count('GET /pair/info')}")

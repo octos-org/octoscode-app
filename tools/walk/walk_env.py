@@ -82,11 +82,20 @@ def app_env(mode: str, state: pathlib.Path, extra: dict | None = None,
 
 
 def scrub(text: str) -> str:
-    """No machine paths in committed evidence (the hermetic test): the
-    checkout reads `<repo>`, any other absolute home path keeps its last part."""
+    """No machine paths in committed evidence (the repo's hermetic test,
+    crates/octoscode-client/tests/repo_hermetic.rs): the checkout reads
+    `<repo>`, any other absolute home or temp path keeps its last part."""
     text = text.replace(str(ROOT), "<repo>")
-    home = "/" + "Users" + "/"  # assembled: the literal never appears here
-    return re.sub(re.escape(home) + r"[^\s\"']+",
+    # Assembled: the literals never appear in this file.
+    roots = ["/" + "Users" + "/", "/private" + "/var/", "/var/" + "folders/", "/private" + "/tmp/"]
+    for root in roots:
+        text = re.sub(re.escape(root) + r"[^\s\"',;)\]]+",
+                      lambda m: "<abs>/" + m.group(0).rstrip("/").rsplit("/", 1)[-1], text)
+    # A non-mock /home/<user>/ path, or its ~/home/<user> display form (the
+    # guard allows only its mock homes).
+    mock = r"(?!user\b|octos\b|runner\b|profiles\b|apps\b)"
+    text = re.sub(r"~/home/" + mock + r"[A-Za-z0-9._-]+", "~/<abs>", text)
+    return re.sub(r"(?<![~\w])/home/" + mock + r"[A-Za-z0-9._-]+[^\s\"',;)\]]*",
                   lambda m: "<abs>/" + m.group(0).rstrip("/").rsplit("/", 1)[-1], text)
 
 

@@ -37,6 +37,48 @@ import urllib.request
 import zlib
 from pathlib import Path
 
+# A11: the walk aggregator's convention (tools/walk/native.py; never imported).
+# This walk starts its own replay server and app; {out} keeps the aggregator's
+# run out of the committed docs/ux/a6/walk evidence.
+WALK = {
+    "name": "a6_surfaces",
+    "title": "conversation surfaces: approval, question, plan, trajectory + task detail, folds, files",
+    "modes": ["desktop", "phone"],
+    "app": "self",
+    "runs": [{"argv": ["{bin}", "{mode}", "{port}", "{fport}", "{out}"]}],
+    "needs": ["target/debug/examples/replay_serve"],
+    "timeout": 900,
+    "rows": {
+        17: {"checks": ["CLICK Trajectory -> the pane", "CLICK a task row -> its detail",
+                        "CLICK an artifact -> its content", "CLICK × -> the detail closes"],
+             "partial": "the task detail opens from the Trajectory tab; the web's Activity navigator has no native card"},
+        33: {"checks": ["turn 2: delivered files are attachment rows", "files: r23-report.pdf",
+                        "CLICK Download -> GET /api/files", "CLICK Preview -> the image shows"],
+             "partial": "'keeps them on reload' is not walked"},
+        85: {"checks": ["CLICK Review diff -> the review opens", "CLICK × closes the review back to the card",
+                        "Esc closes the review back to the card"],
+             "partial": "Escape above the approval is walked; Tab ownership is not"},
+        141: {"checks": ["turn 5: the plan card", "plan: headline"],
+              "partial": "'clears it when the turn ends' is not asserted"},
+        142: {"checks": ["CLICK the plan header -> collapses, again -> expands"],
+              "partial": "collapsed and expanded by CLICK; the keyboard path is not walked"},
+        166: ["CLICK Trajectory -> the pane", "trajectory: r4's live task/updated", "trajectory: runtime status",
+              "trajectory: c24b's listed tasks", "trajectory: the plan section", "CLICK Refresh -> task/list again"],
+        170: ["turn 4: the approval takes the composer over", "approval: title, risk",
+              "CLICK Deny -> approval/respond deny", "CLICK Approve for session", "CLICK Approve once",
+              "key S -> approval/respond", "turn 3: the question takes the composer over",
+              "CLICK option 'Green'", "CLICK Other + type", "Return (inside the Other field)",
+              "CLICK Submit answer"],
+        208: {"checks": ["Esc closes the review back to the card (no turn/interrupt)"],
+              "partial": "the review here loads; the web's FAILED review is not staged"},
+        215: {"checks": ["CLICK thinking header -> expands", "CLICK again -> folded",
+                         "CLICK the tool row -> its output discloses", "CLICK Expand all", "CLICK Collapse all"],
+              "partial": "a replayed six-turn transcript, not ten live streamed turns"},
+        233: {"checks": ["decided: the composer is back", "the turn settles: the card closes, the composer is back"],
+              "partial": "the composer returns after both takeovers; keyboard focus itself is not asserted"},
+    },
+}
+
 ROOT = Path(__file__).resolve().parents[2]
 BINARY = sys.argv[1] if len(sys.argv) > 1 else ""
 MODE = sys.argv[2] if len(sys.argv) > 2 else "desktop"

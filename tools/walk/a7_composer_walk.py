@@ -48,6 +48,55 @@ import urllib.parse
 import urllib.request
 import zlib
 
+# A11: the walk aggregator's convention (tools/walk/native.py; never imported).
+# Four runs on one isolated state: an unsent draft, an app restart that must
+# bring it back unsent, the main walk, then the held seat (the fixture
+# restarted with A7_SERVE_HELD).
+WALK = {
+    "name": "a7_composer",
+    "title": "composer: markdown/code copy, queue/steer, collision, recovery, history, peer, attention, media, seat, drafts",
+    "modes": ["desktop", "phone"],
+    "fixture": {"argv": ["{examples}/a7_serve", "{fport}"]},
+    "app": {"env": {"OCTOS_BASE_URL": "http://127.0.0.1:{fport}", "OCTOS_PROFILE_ID": "a7",
+                    "OCTOSCODE_TURN_START_TIMEOUT_MS": "4000"},
+            "ready": ["i0_composer_0", "hd_held"]},
+    "runs": [
+        {"argv": ["{port}", "{mode}", "draft-save"]},
+        {"restart": "app", "argv": ["{port}", "{mode}", "draft-check"],
+         "env": {"A7_SERVE_LOG": "{fixture_log}"}},
+        {"restart": "app", "argv": ["{port}", "{mode}", "main"],
+         "env": {"A7_WALK_OUT": "{out}", "A7_SERVE_LOG": "{fixture_log}"}},
+        {"restart": "both", "fixture_env": {"A7_SERVE_HELD": "octos-tui", "A7_SERVE_RELEASE_DELAY_MS": "1500"},
+         "argv": ["{port}", "{mode}", "seat"], "env": {"A7_WALK_OUT": "{out}", "A7_SERVE_LOG": "{fixture_log}"}},
+    ],
+    "needs": ["target/debug/examples/a7_serve"],
+    "timeout": 900,
+    "rows": {
+        4: {"checks": ["attention:"],
+            "partial": "the opt-in and its persistence; OS notices staying silent while reading are not observable headless"},
+        14: ["seat:"],
+        15: {"checks": ["collision:"],
+             "partial": "the busy refusal keeps the text; a LATE collision against newer text and images is not staged"},
+        19: {"checks": ["history: /fork opens", "history: Create is disabled", "history: a valid name arms Create",
+                        "history: the typed name stays", "history: the fork opens in the background",
+                        "history: the dialog names the child", "history: the sidebar lists the forked conversation"],
+             "partial": "the receipt across a parent refresh is not walked"},
+        20: {"checks": ["history: /undo opens", "history: Restore asks for confirmation first",
+                        "history: Confirm restores the snapshot"],
+             "partial": "the receipt through a canonical refresh is not walked"},
+        38: {"checks": ["draft:"], "partial": "'sent drafts stay cleared' is not asserted"},
+        140: {"checks": ["peer:"], "partial": "'Esc never leaks' is not asserted here"},
+        151: ["recovery: an unacknowledged start holds the turn", "recovery: the timeout is disclosed",
+              "recovery: Continue without it releases the hold"],
+        152: ["recovery: Check status asks turn/state/get and clears the hold",
+              "recovery: an unknown lifecycle keeps the turn held", "recovery: the second lost turn is held"],
+        190: {"checks": ["recovery:"], "partial": "the queue and a new draft across the unknown turn are not asserted"},
+        225: {"checks": ["queue: a prompt sent while a turn runs is queued",
+                         "queue: ✕ removes the queued prompt without interrupting"],
+              "partial": "queued messages can be removed; IME confirmation and multiline editing are not walked natively"},
+    },
+}
+
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8417
 MODE = sys.argv[2] if len(sys.argv) > 2 else "desktop"
 SCENARIO = sys.argv[3] if len(sys.argv) > 3 else "main"
