@@ -593,12 +593,12 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
     v.button("b1_prov_eye", "provider.key.reveal");
     if ui.screen == Screen::Rejected {
         v.push(kit::gap(8.0));
-        v.push(Text::new("b1_prov_error", &ui.failure_line()).px(14.0).color(kit::RED).fill().dsl());
+        v.push(Text::new("b1_prov_error", &ui.failure_line()).px(15.0).color(kit::RED).fill().dsl());
         v.push(kit::gap(2.0));
-        v.push(Text::new("b1_prov_kept", "Your draft is kept.").px(14.0).color(kit::RED).fill().one_line().dsl());
+        v.push(Text::new("b1_prov_kept", "Your draft is kept.").px(15.0).color(kit::RED).fill().one_line().dsl());
     }
     v.push(kit::gap(if l.phone { 18.0 } else { 14.0 }));
-    v.push(Text::new("", "Models").px(14.0).weight(500).fill().one_line().dsl());
+    v.push(Text::new("", "Models").px(15.0).fill().one_line().dsl());
     v.push(kit::gap(if l.phone { 8.0 } else { 6.0 }));
     let rows: Vec<String> = ui
         .models

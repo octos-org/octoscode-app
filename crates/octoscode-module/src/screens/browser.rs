@@ -613,7 +613,8 @@ pub fn view(ui: &BrowserUi, l: &Layout) -> Ui {
 }
 
 fn listing_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
-    let row_h = if l.phone { 52 } else { 44 };
+    let row_h = if l.phone { 56 } else { 44 };
+    let glyph = if l.phone { 24.0 } else { 22.0 };
     let rows: Vec<String> = ui
         .entries
         .iter()
@@ -630,7 +631,7 @@ fn listing_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
             };
             format!(
                 "View {{ width: Fill height: {row_h} flow: Overlay\n{bg}View {{ width: Fill height: Fill flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 16 right: 12}} spacing: 14\n{}{}}}\n{}}}\n",
-                kit::svg("", "b1_folder.svg", 22.0),
+                kit::svg("", "b1_folder.svg", glyph),
                 Text::new(&format!("b1_br_row_t{i}"), &e.name).px(15.0).fill().one_line().dsl(),
                 kit::hit(&id, !selected)
             )
@@ -652,9 +653,9 @@ fn listing_view(ui: &BrowserUi, l: &Layout, v: &mut Ui) {
     v.push(kit::gap(8.0));
     v.push(format!(
         "View {{ width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} padding: Inset{{left: 6}}\n{}{}}}\n",
-        Text::new("b1_br_notice", &notices.join(" ")).px(14.0).color(kit::MUTED).fill().one_line().dsl(),
+        Text::new("b1_br_notice", &notices.join(" ")).px(15.0).color(kit::MUTED).fill().one_line().dsl(),
         if ui.writable && !ui.new_folder_open {
-            kit::link("b1_br_newfolder", "New folder", kit::BLUE, 14.0, 500)
+            kit::link("b1_br_newfolder", "New folder", kit::BLUE, 15.0, 500)
         } else {
             String::new()
         }

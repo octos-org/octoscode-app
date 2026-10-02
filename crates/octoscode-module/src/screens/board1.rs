@@ -117,7 +117,7 @@ impl Ui {
     /// (`NewSessionWorkspacePicker.tsx` header: back button + heading).
     pub fn header(&mut self, l: &Layout, back_id: &str, back_action: &str, title: &str) {
         let t = Text::new("b1_title", title)
-            .px(if l.phone { 22.0 } else { 21.0 })
+            .px(title_px(l, title))
             .weight(600)
             .fill()
             .centered()
@@ -137,6 +137,21 @@ impl Ui {
         }
         self.button(back_id, back_action);
     }
+}
+
+/// The header title's size: the board's (23 desktop, 24 phone before the
+/// phone type scale), shrunk so a long title still fits its row on a narrow
+/// phone (Inter SemiBold runs ~0.5 em per character; 0.56 keeps a margin).
+pub fn title_px(l: &Layout, title: &str) -> f64 {
+    let (target, scale, avail) = if l.phone {
+        (24.0, 1.08, l.content_w)
+    } else {
+        // The desktop row keeps 40 px each side for the back chevron.
+        (23.0, 1.0, l.content_w - 80.0)
+    };
+    let chars = title.chars().count().max(1) as f64;
+    let fit = (avail / (chars * 0.56 * scale)).floor();
+    target.min(fit).max(17.0)
 }
 
 // ------------------------------------------------------------------ surfaces
@@ -493,7 +508,7 @@ fn picker_view(pk: &PickerUi, l: &Layout) -> Ui {
     v.push(kit::list_card("b1_pk_server_card", &[root_row]));
     v.button("b1_pk_server", "picker.server");
     v.push(kit::gap(if l.phone { 22.0 } else { 16.0 }));
-    v.push(Text::new("", "Recent").px(15.0).weight(500).fill().one_line().dsl());
+    v.push(Text::new("", "Recent").px(15.0).fill().one_line().dsl());
     v.push(kit::gap(8.0));
     let rows: Vec<String> = pk
         .recents
@@ -1087,6 +1102,23 @@ mod tests {
         assert!(p.phone);
         assert_eq!(p.card_w, 360.0);
         assert_eq!(p.content_w, 320.0);
+    }
+
+    #[test]
+    fn a_long_title_shrinks_to_its_row_on_a_narrow_phone() {
+        let desk = Layout::of(Surface::Browser, 990.0, 603.0);
+        assert_eq!(title_px(&desk, "Choose workspace folder"), 23.0);
+        assert_eq!(title_px(&Layout::of(Surface::Pairing, 990.0, 603.0), "Pair with Octos"), 23.0);
+        for w in [360.0, 412.0] {
+            let p = Layout::of(Surface::Browser, w, 780.0);
+            for t in ["Pair with Octos", "Connection", "Edit provider", "Open a workspace", "Choose workspace folder"] {
+                let px = title_px(&p, t);
+                assert!(px <= 24.0 && px >= 17.0, "{t} at {w}: {px}");
+                // The estimated scaled width stays inside the sheet's content.
+                assert!(t.chars().count() as f64 * 0.56 * 1.08 * px <= p.content_w, "{t} at {w}: {px}");
+            }
+        }
+        assert_eq!(title_px(&Layout::of(Surface::Pairing, 412.0, 794.0), "Pair with Octos"), 24.0);
     }
 
     #[test]

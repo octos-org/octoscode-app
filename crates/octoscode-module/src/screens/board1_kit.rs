@@ -255,7 +255,8 @@ pub fn svg(id: &str, file: &str, size: f64) -> String {
 pub fn back_button(id: &str) -> String {
     format!(
         "View {{ width: 32 height: 32 flow: Overlay align: Align{{x: 0.5 y: 0.5}}\n{}{}}}\n",
-        svg("", "b1_chevron_left.svg", 20.0),
+        // The board draws the back chevron ~17 px tall (26 px glyph box).
+        svg("", "b1_chevron_left.svg", 26.0),
         hit(id, true)
     )
 }

@@ -567,7 +567,7 @@ fn pairing_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
     v.push(kit::gap(if l.phone { 160.0 } else { 52.0 }));
     v.push(format!(
         "View {{ width: Fill height: Fit align: Align{{x: 0.5 y: 0.0}}\n{}}}\n",
-        kit::svg("b1_pair_spinner", "b1_spinner.svg", if l.phone { 48.0 } else { 40.0 })
+        kit::svg("b1_pair_spinner", "b1_spinner.svg", if l.phone { 56.0 } else { 48.0 })
     ));
     v.push(kit::gap(if l.phone { 34.0 } else { 20.0 }));
     let line = format!("Pairing with {host}\u{2026}");
@@ -617,9 +617,12 @@ fn no_pairing_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
     v.push(kit::callout(false, true, head, None));
     v.push(kit::gap(14.0));
     v.push(kit::callout(false, false, next, None));
-    v.push(kit::gap(if l.phone { 150.0 } else { 40.0 }));
+    v.spacer(l, 40.0, 64.0);
     v.push(kit::pill_primary("b1_pair_manual", "Use server and token", "Fill"));
     v.button("b1_pair_manual", "pair.manual");
+    if l.phone {
+        v.push(kit::gap(70.0));
+    }
 }
 
 fn paired_view(ui: &PairingUi, l: &Layout, v: &mut Ui) {
