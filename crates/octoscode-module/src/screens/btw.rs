@@ -34,6 +34,12 @@ const RED_TEXT: &str = "#c50f0fff";
 pub const FAILED_COPY: &str = "The aside could not be answered. Try again.";
 pub const STALE_COPY: &str =
     "The Session connection changed before the aside completed. Ask again when it is ready.";
+/// The same copy as the board draws it: a red lead over a muted cause (each
+/// half its own source key: a translation has no ". " to split at).
+pub const FAILED_LEAD: &str = "The aside could not be answered.";
+pub const FAILED_CAUSE: &str = "Try again.";
+pub const STALE_LEAD: &str = "The Session connection changed before the aside completed.";
+pub const STALE_CAUSE: &str = "Ask again when it is ready.";
 
 /// The panel's header row height (the chevron and Close hits are >= 32 px).
 const HEAD_H: f64 = 36.0;
@@ -43,7 +49,7 @@ const PAD_BOTTOM: f64 = 14.0;
 const HEAD_GAP: f64 = 2.0;
 
 /// The failed / stale copy, in the current language (the web renders the
-/// controller's English string; no catalog key exists for it).
+/// controller's English string; the Chinese is native, `i18n::native`).
 pub fn failure_copy(f: Failure) -> &'static str {
     match f {
         Failure::Failed => tr(FAILED_COPY),
@@ -52,13 +58,13 @@ pub fn failure_copy(f: Failure) -> &'static str {
 }
 
 /// The copy as the board draws it: a red lead and a muted cause, like the
-/// kit's notices (`ui::failure`) — split after the first sentence.
+/// kit's notices (`ui::failure`).
 pub fn failure_split(f: Failure) -> (String, String) {
-    let copy = failure_copy(f);
-    match copy.find(". ") {
-        Some(at) => (copy[..=at].to_owned(), copy[at + 2..].trim().to_owned()),
-        None => (copy.to_owned(), String::new()),
-    }
+    let (lead, cause) = match f {
+        Failure::Failed => (FAILED_LEAD, FAILED_CAUSE),
+        Failure::Stale => (STALE_LEAD, STALE_CAUSE),
+    };
+    (tr(lead).to_owned(), tr(cause).to_owned())
 }
 
 /// The panel's height bound: min(50 % of the window, 480 px)
@@ -353,6 +359,17 @@ mod tests {
         assert_eq!(cap_height(1200.0), 480.0);
         assert_eq!(cap_height(0.0), 300.0);
         assert_eq!(body_cap(780.0), 330.0);
+    }
+
+    #[test]
+    fn the_failure_copy_reads_chinese_in_zh() {
+        use crate::i18n::{set_language, Lang};
+        set_language(Lang::Zh);
+        assert_eq!(failure_split(Failure::Stale), ("旁问完成前，会话连接已变更。".to_owned(), "请在连接就绪后重新提问。".to_owned()));
+        assert_eq!(failure_copy(Failure::Failed), "无法回答此旁问。请重试。");
+        assert_eq!(tr("Answered"), "已回答");
+        set_language(Lang::En);
+        assert_eq!(failure_copy(Failure::Failed), FAILED_COPY);
     }
 
     #[test]
