@@ -26,6 +26,7 @@
 //! | `task` | `r4-task-a6ea8505` | `task/updated`, task artifacts |
 //! | `peer` | `r6-peer-a6ea8505` | `peer/gather`, `peer/prepare` |
 //! | `session` | `r3-session-a6ea8505` | the context-compaction lifecycle |
+//! | `fleet` | `a10-fleet-driver-synthetic` (SYNTHETIC) | the external-driver chain: walk, acquire, prepare, dispatch, peer frames, peer/control |
 //!
 //! ## Session-id rewriting (why the recording is portable)
 //!
@@ -84,6 +85,13 @@ fn scenario_fixture(name: &str) -> (&'static str, &'static str) {
         // carries, the faithful `a10-*-faithful.jsonl` frames served IN ORDER
         // (a load-more's second read gets the second reply).
         "a10" => ("a10", "r1-autonomy-a6ea8505.jsonl"),
+        // A10 fleet: the FAITHFUL external-driver fixture (synthetic — no
+        // live server advertises `external_driver_v1`; built by
+        // tools/fixtures/a10_fleet_fixture.py from r6/r23/c24 + the web's
+        // protocol). Its open advertises the driver methods; `FleetSim`
+        // answers the chain, echoing each request's ids like the web's own
+        // fixture server.
+        "fleet" => ("fleet", "a10-fleet-driver-synthetic.jsonl"),
         // #32b3: one synthetic turn whose fenced code block carries a 227-column
         // line — the long-code-line render capture (the web wraps: pre-wrap).
         "longcodeline" => ("longcodeline", "longcodeline-a6ea8505.jsonl"),
@@ -305,6 +313,325 @@ fn a10_sequenced() -> BTreeMap<String, Vec<(Value, String)>> {
     out
 }
 
+/// A10 — the `fleet` scenario's external-driver simulator. Every reply is a
+/// fixture shape (`a10-fleet-driver-synthetic.jsonl`) with the per-request
+/// ids echoed (operation id, requested lane, acquiring driver, control
+/// target), the way `apps/web/scripts/mock-ui-server.mjs` answers its
+/// `peer-control-*` workspaces; the binding's revision moves on acquire /
+/// release, dispatches join the walked inventory, and a dispatched peer's
+/// background attach gets its session's frames (turn/started; the FIRST
+/// peer then asks for an approval).
+struct FleetSim {
+    get: Value,
+    acquire: Value,
+    lanes: Value,
+    started: Value,
+    requested: Value,
+    decided: Value,
+    turn_error: Value,
+    refusal: Value,
+    binding: Value,
+    revision: u64,
+    token: Option<String>,
+    ops: Vec<Value>,
+    slugs: Vec<String>,
+    receipts: BTreeMap<String, Value>,
+    controls: Vec<String>,
+    approvals: BTreeMap<String, String>,
+    dispatched: u64,
+    workspace: String,
+}
+
+/// One reply + the notifications that follow it (`(delay ms, method, params)`).
+type SimOut = (Result<Value, Value>, Vec<(u64, String, Value)>);
+
+fn now_ms() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0)
+}
+
+impl FleetSim {
+    fn new(frames: &[Frame], workspace: &str) -> Self {
+        let body = |m: &str| -> Value {
+            frames
+                .iter()
+                .find(|f| f.dir == "in" && f.method == m)
+                .map(|f| f.body.clone())
+                .unwrap_or_else(|| panic!("the fleet fixture has no {m}"))
+        };
+        let get = body("session/driver/get");
+        let binding = get["binding"].clone();
+        let revision = binding["revision"].as_u64().unwrap_or(0);
+        let ops = get["operations"]["items"].as_array().cloned().unwrap_or_default();
+        let mut sim = FleetSim {
+            acquire: body("session/driver/acquire"),
+            lanes: body("profile/sub_providers/list"),
+            started: body("turn/started"),
+            requested: body("approval/requested"),
+            decided: body("approval/decided"),
+            turn_error: body("turn/error"),
+            refusal: body("err:peer/dispatch"),
+            get,
+            binding,
+            revision,
+            token: None,
+            ops,
+            slugs: Vec::new(),
+            receipts: BTreeMap::new(),
+            controls: Vec::new(),
+            approvals: BTreeMap::new(),
+            dispatched: 0,
+            workspace: workspace.to_owned(),
+        };
+        let ws = sim.workspace.clone();
+        for v in [&mut sim.get, &mut sim.binding] {
+            rewrite_session(v, "<WORKSPACE>", &ws);
+        }
+        for op in sim.ops.iter_mut() {
+            rewrite_session(op, "<WORKSPACE>", &ws);
+        }
+        sim
+    }
+
+    fn handles(method: &str) -> bool {
+        matches!(
+            method,
+            "session/driver/get"
+                | "session/driver/acquire"
+                | "session/driver/renew"
+                | "session/driver/release"
+                | "profile/sub_providers/list"
+                | "peer/prepare"
+                | "peer/dispatch"
+                | "peer/control"
+        )
+    }
+
+    fn refuse(&self, kind: &str) -> Value {
+        let mut e = self.refusal.clone();
+        e["data"]["kind"] = Value::String(kind.to_owned());
+        e
+    }
+
+    /// The held fence matches the request's (`driver_fence_stale` otherwise).
+    fn fenced(&self, p: &Value) -> bool {
+        self.token.as_deref().is_some_and(|t| p["control_token"] == t)
+            && p["driver_id"] == self.binding["driver_id"]
+            && p["epoch"] == self.binding["epoch"]
+    }
+
+    fn slugify(text: &str) -> String {
+        let mut out = String::new();
+        for c in text.chars().flat_map(char::to_lowercase) {
+            if c.is_ascii_alphanumeric() {
+                out.push(c);
+            } else if !out.ends_with('-') && !out.is_empty() {
+                out.push('-');
+            }
+            if out.len() >= 24 {
+                break;
+            }
+        }
+        let out = out.trim_matches('-').to_owned();
+        if out.is_empty() { "peer".to_owned() } else { out }
+    }
+
+    fn reply(&mut self, method: &str, p: &Value, base: &str) -> SimOut {
+        let now = now_ms();
+        match method {
+            "session/driver/get" => {
+                let mut v = serde_json::json!({
+                    "mode": "external", "recovery": "none", "binding": self.binding,
+                });
+                if p.get("operations").is_some() {
+                    v["operations"] = serde_json::json!({
+                        "items": self.ops,
+                        "snapshot": format!("synthetic-snapshot-{}", self.revision),
+                        "observed_revision": self.revision.to_string(),
+                        "complete": true,
+                        "next_cursor": null,
+                    });
+                }
+                (Ok(v), Vec::new())
+            }
+            "session/driver/acquire" => {
+                if p["expected_revision"].as_u64() != Some(self.revision) {
+                    return (Err(self.refuse("driver_revision_conflict")), Vec::new());
+                }
+                self.revision += 1;
+                let epoch = self.binding["epoch"].as_u64().unwrap_or(0) + 1;
+                let lease = p["lease_seconds"].as_u64().unwrap_or(120);
+                self.binding["driver_id"] = p["driver_id"].clone();
+                self.binding["epoch"] = epoch.into();
+                self.binding["revision"] = self.revision.into();
+                self.binding["lease_expires_at_ms"] = (now + lease * 1000).into();
+                let token = format!("synthetic-control-token-{epoch}");
+                self.token = Some(token.clone());
+                let mut a = self.acquire.clone();
+                a["control_token"] = Value::String(token);
+                a["binding"] = self.binding.clone();
+                (Ok(a), Vec::new())
+            }
+            "session/driver/renew" => {
+                if !self.fenced(p) {
+                    return (Err(self.refuse("driver_fence_stale")), Vec::new());
+                }
+                let lease = p["lease_seconds"].as_u64().unwrap_or(120);
+                self.binding["lease_expires_at_ms"] = (now + lease * 1000).into();
+                (Ok(serde_json::json!({ "lease_expires_at_ms": self.binding["lease_expires_at_ms"] })), Vec::new())
+            }
+            "session/driver/release" => {
+                if !self.fenced(p) {
+                    return (Err(self.refuse("driver_fence_stale")), Vec::new());
+                }
+                self.revision += 1;
+                self.token = None;
+                self.binding["revision"] = self.revision.into();
+                self.binding["lease_expires_at_ms"] = 0.into();
+                let next = p["next"].as_str().unwrap_or("external").to_owned();
+                let binding = if next == "external" { self.binding.clone() } else { Value::Null };
+                (Ok(serde_json::json!({ "mode": next, "recovery": "none", "binding": binding })), Vec::new())
+            }
+            "profile/sub_providers/list" => (Ok(self.lanes.clone()), Vec::new()),
+            "peer/prepare" => {
+                let title = p["title"].as_str().filter(|t| !t.trim().is_empty()).or(p["brief"].as_str()).unwrap_or("peer");
+                let mut slug = Self::slugify(title);
+                let mut n = 2;
+                while self.slugs.contains(&slug) {
+                    slug = format!("{}-{n}", Self::slugify(title));
+                    n += 1;
+                }
+                self.slugs.push(slug.clone());
+                let profile = p["profile_id"].as_str().unwrap_or("dsflash");
+                let peer = serde_json::json!({
+                    "slug": slug, "topic": format!("peer-{slug}"), "profile_id": profile, "cwd": self.workspace,
+                    "brief_path": format!("~/.octos/profiles/{profile}/data/peers/{slug}/brief.md"),
+                });
+                let mut v = peer.clone();
+                v["peers"] = serde_json::json!([peer]);
+                (Ok(v), Vec::new())
+            }
+            "peer/dispatch" => {
+                if !self.fenced(p) {
+                    return (Err(self.refuse("driver_fence_stale")), Vec::new());
+                }
+                let op = p["operation_id"].as_str().unwrap_or("").to_owned();
+                if let Some(r) = self.receipts.get(&op) {
+                    let mut r = r.clone();
+                    r["duplicate"] = true.into();
+                    return (Ok(r), Vec::new());
+                }
+                let lane = p["model"].as_str().unwrap_or("");
+                let Some(model) = self.lanes["sub_providers"]
+                    .as_array()
+                    .and_then(|ls| ls.iter().find(|l| l["key"] == lane))
+                    .map(|l| l["model"].clone())
+                else {
+                    return (Err(self.refuse("driver_model_unavailable")), Vec::new());
+                };
+                let slug = match p["dispatch"]["kind"].as_str() {
+                    Some("existing_slug") => p["dispatch"]["slug"].as_str().unwrap_or("peer").to_owned(),
+                    _ => p["dispatch"]["title"].as_str().map(Self::slugify).unwrap_or_else(|| "peer".to_owned()),
+                };
+                self.dispatched += 1;
+                let adopted = format!("{base}#peer-{slug}");
+                let turn = format!("00000000-0000-4000-8000-{:012x}", 0xd1 + self.dispatched);
+                let acceptance = serde_json::json!({
+                    "model": model, "model_lane": lane, "workspace_root": self.workspace, "scoped_goal": null,
+                    "adopted_turn_id": turn, "adopted_session_id": adopted, "slug": slug,
+                    "accepted_at_ms": now, "payload_digest": format!("synthetic-payload-digest-{}", self.dispatched),
+                });
+                self.ops.push(serde_json::json!({
+                    "operation_id": op, "kind": "peer_dispatch", "lifecycle": "started",
+                    "created_at_ms": now, "started_at_ms": now, "acceptance": acceptance,
+                }));
+                let mut r = acceptance.clone();
+                r["operation_id"] = Value::String(op.clone());
+                r["state"] = "accepted".into();
+                r["duplicate"] = false.into();
+                self.receipts.insert(op, r.clone());
+                (Ok(r), Vec::new())
+            }
+            "peer/control" => {
+                if !self.fenced(p) {
+                    return (Err(self.refuse("driver_fence_stale")), Vec::new());
+                }
+                let target = p["target_operation_id"].as_str().unwrap_or("");
+                let (slug, session) = match self.ops.iter().find(|o| o["operation_id"] == target) {
+                    Some(o) => (
+                        o["acceptance"]["slug"].as_str().unwrap_or("").to_owned(),
+                        o["acceptance"]["adopted_session_id"].as_str().unwrap_or("").to_owned(),
+                    ),
+                    // The acquire's pending work (the seat's target).
+                    None => ("lint-sweep".to_owned(), format!("{base}#peer-lint-sweep")),
+                };
+                let op = p["operation_id"].as_str().unwrap_or("").to_owned();
+                let duplicate = self.controls.contains(&op);
+                self.controls.push(op.clone());
+                let turn = p["expected_turn_id"].clone();
+                let mut pushes = Vec::new();
+                match p["command"]["kind"].as_str() {
+                    Some("approval_respond") => {
+                        if let Some(approval) = self.approvals.remove(&session) {
+                            let mut d = self.decided.clone();
+                            d["session_id"] = Value::String(session.clone());
+                            d["turn_id"] = turn.clone();
+                            d["approval_id"] = Value::String(approval);
+                            d["decision"] = p["command"]["decision"].clone();
+                            pushes.push((200, "approval/decided".to_owned(), d));
+                        }
+                    }
+                    Some("interrupt") => {
+                        let mut e = self.turn_error.clone();
+                        e["session_id"] = Value::String(session.clone());
+                        e["turn_id"] = turn.clone();
+                        pushes.push((300, "turn/error".to_owned(), e));
+                        if let Some(o) = self.ops.iter_mut().find(|o| o["operation_id"] == target) {
+                            o["lifecycle"] = "terminal".into();
+                            o["terminal_at_ms"] = now.into();
+                        }
+                    }
+                    _ => {}
+                }
+                let r = serde_json::json!({
+                    "operation_id": op, "state": "accepted", "target_operation_id": target,
+                    "expected_turn_id": turn, "target_session_id": session, "slug": slug,
+                    "accepted_at_ms": now, "payload_digest": "synthetic-payload-digest", "duplicate": duplicate,
+                });
+                (Ok(r), pushes)
+            }
+            _ => (Ok(serde_json::json!({})), Vec::new()),
+        }
+    }
+
+    /// A dispatched peer's background attach: its own frames follow.
+    fn attached(&mut self, peer: &str) -> Vec<(u64, String, Value)> {
+        let Some(op) = self.ops.iter().find(|o| o["acceptance"]["adopted_session_id"] == peer) else {
+            return Vec::new();
+        };
+        let turn = op["acceptance"]["adopted_turn_id"].clone();
+        let first = self.ops.iter().filter(|o| o["acceptance"]["model_lane"].is_string()).position(|o| o["acceptance"]["adopted_session_id"] == peer);
+        let mut started = self.started.clone();
+        started["session_id"] = Value::String(peer.to_owned());
+        started["turn_id"] = turn.clone();
+        let mut out = vec![(300, "turn/started".to_owned(), started)];
+        // The FIRST dispatched peer asks for an approval (the row's
+        // Approve / Deny); later ones keep working.
+        if first == Some(1) && !self.approvals.contains_key(peer) {
+            let id = format!("01a0eb92-9444-7101-aa6f-{:012x}", self.dispatched);
+            let mut r = self.requested.clone();
+            r["session_id"] = Value::String(peer.to_owned());
+            r["turn_id"] = turn;
+            r["approval_id"] = Value::String(id.clone());
+            self.approvals.insert(peer.to_owned(), id);
+            out.push((1500, "approval/requested".to_owned(), r));
+        }
+        out
+    }
+}
+
 #[tokio::main]
 async fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -322,7 +649,8 @@ async fn main() {
         .cloned()
         .unwrap_or_default();
     let (label, file) = scenario_fixture(&scenario);
-    let replies = if label == "screens" || label == "a10" { screens_replies() } else { BTreeMap::new() };
+    let replies =
+        if label == "screens" || label == "a10" || label == "fleet" { screens_replies() } else { BTreeMap::new() };
     let sequenced = if label == "a10" { a10_sequenced() } else { BTreeMap::new() };
     if !sequenced.is_empty() {
         println!(
@@ -362,7 +690,11 @@ async fn main() {
     // the monitor as created, the goal as set — the same step its reads
     // answer with), so the store's autonomy domain, and with it the
     // sidebar's GOALS / LOOPS rows, hold what the dialogs show.
-    let standalone = if label == "screens" || label == "a10" {
+    let standalone = if label == "fleet" {
+        // The fleet fixture's inbound frames are replies + peer-session
+        // frames, never standalone notifications.
+        Vec::new()
+    } else if label == "screens" || label == "a10" {
         let all = standalone_notifications(&frames);
         ["loop/updated", "monitor/updated", "session/goal/updated"]
             .iter()
@@ -396,7 +728,11 @@ async fn main() {
         let standalone = standalone.clone();
         let replies = replies.clone();
         let sequenced = sequenced.clone();
+        let fleet_frames = if label == "fleet" { frames.clone() } else { Vec::new() };
         tokio::spawn(async move {
+            // A10 fleet: the per-connection external-driver simulator.
+            let workspace = open_result["workspace_root"].as_str().unwrap_or("workspace").to_owned();
+            let mut fleet = (label == "fleet").then(|| FleetSim::new(&fleet_frames, &workspace));
             // A10: how many sequenced replies each method has consumed.
             let mut seq_pos: BTreeMap<String, usize> = BTreeMap::new();
             let Ok(ws) = tokio_tungstenite::accept_async(stream).await else {
@@ -420,6 +756,65 @@ async fn main() {
                 // A helper to send one JSON-RPC reply/notification.
                 async fn send(tx: &std::sync::Arc<tokio::sync::Mutex<futures_util::stream::SplitSink<tokio_tungstenite::WebSocketStream<tokio::net::TcpStream>, Message>>>, v: Value) {
                     let _ = tx.lock().await.send(Message::Text(v.to_string().into())).await;
+                }
+
+                // A10 fleet: send `(delay, method, params)` notifications
+                // after a reply, in order.
+                fn push_later(
+                    tx: &std::sync::Arc<tokio::sync::Mutex<futures_util::stream::SplitSink<tokio_tungstenite::WebSocketStream<tokio::net::TcpStream>, Message>>>,
+                    frames: Vec<(u64, String, Value)>,
+                ) {
+                    if frames.is_empty() {
+                        return;
+                    }
+                    let tx = tx.clone();
+                    tokio::spawn(async move {
+                        for (delay, m, params) in frames {
+                            tokio::time::sleep(std::time::Duration::from_millis(delay)).await;
+                            println!("[replay-serve] => {m} (fleet)");
+                            let frame = serde_json::json!({"jsonrpc": "2.0", "method": m, "params": params});
+                            let _ = tx.lock().await.send(Message::Text(frame.to_string().into())).await;
+                        }
+                    });
+                }
+
+                // A10 fleet: a dispatched peer's background attach.
+                if method == "session/open" {
+                    if let (Some(sim), Some(peer)) = (fleet.as_mut(), v["params"]["session_id"].as_str().filter(|s| s.contains("#peer-"))) {
+                        let peer = peer.to_owned();
+                        let mut opened = open_result.clone();
+                        rewrite_session(&mut opened, &recorded, &peer);
+                        if let Some(obj) = opened.as_object_mut() {
+                            obj.insert("session_id".to_owned(), Value::String(peer.clone()));
+                        }
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {"opened": opened}})).await;
+                        let mut frames = sim.attached(&peer);
+                        for f in frames.iter_mut() {
+                            rewrite_session(&mut f.2, &recorded, &active_session);
+                        }
+                        push_later(&tx, frames);
+                        continue;
+                    }
+                }
+                if let Some(sim) = fleet.as_mut().filter(|_| FleetSim::handles(&method)) {
+                    let (reply, mut pushes) = sim.reply(&method, &v["params"], &active_session);
+                    let frame = match reply {
+                        Ok(mut r) => {
+                            rewrite_session(&mut r, &recorded, &active_session);
+                            println!("[replay-serve] -> {method} (fleet sim)");
+                            serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r})
+                        }
+                        Err(e) => {
+                            println!("[replay-serve] -> {method} REFUSED {} (fleet sim)", e["data"]["kind"]);
+                            serde_json::json!({"jsonrpc": "2.0", "id": id, "error": e})
+                        }
+                    };
+                    send(&tx, frame).await;
+                    for f in pushes.iter_mut() {
+                        rewrite_session(&mut f.2, &recorded, &active_session);
+                    }
+                    push_later(&tx, pushes);
+                    continue;
                 }
 
                 match method.as_str() {
