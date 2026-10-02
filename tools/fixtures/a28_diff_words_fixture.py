@@ -2,7 +2,7 @@
 """A28 — the diff review's word-mark / syntax / bound fixture (SYNTHETIC).
 
 No live server ever answered `diff/preview/get` with a preview (r30a recorded
-only the request and a preview-less refusal), so this writes two replies in
+only the request and a preview-less refusal), so this writes three replies in
 the octos-core `DiffPreviewGetResult` shape (`ui_protocol.rs`
 `DiffPreviewGetResult` / `DiffPreviewFile` / `DiffPreviewHunk` /
 `DiffPreviewLine`), one frame per line, the same `{dir, method, body}` frame
@@ -16,10 +16,13 @@ shape every recording in this directory uses:
      removed line) that keeps the line tint only;
    - `config/octos.conf` (no grammar: plain text, still word-marked);
    - `docs/steer.md`: a 1:1 pair sharing < 25 % of its words (no marks).
-2. `large` (preview ...0f2, "Bump octos to 0.24.1") — frame 1b: 520 + 2 lines
+2. `large` (preview ...0f2, "Bump octos to 0.24.1") — frame 1b: 520 + 4 lines
    (> 400) so NOTHING is decorated: `Cargo.lock` (no grammar) and
    `crates/octos-cli/Cargo.toml` (TOML grammar), each with a version bump
    pair that WOULD be word-marked below the bound.
+3. `dense` (preview ...0f3, "Cap every backoff step"): 394 Rust lines, just
+   under the bound — the heaviest preview still drawn as runs and marks (the
+   walk times its opening).
 
 The session id is the placeholder `<SESSION>`; the replay server and the
 tests put the opened Session's id there. Regenerate with:
@@ -33,6 +36,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 OUT = os.path.join(ROOT, "crates", "octoscode-client", "tests", "fixtures", "a28-diff-words-synthetic.jsonl")
 WORDS_ID = "01920000-0000-7000-8000-0000000000f1"
 LARGE_ID = "01920000-0000-7000-8000-0000000000f2"
+DENSE_ID = "01920000-0000-7000-8000-0000000000f3"
 
 
 def ctx(content, old, new):
@@ -134,16 +138,55 @@ def large_preview():
     }
 
 
+def dense_preview():
+    """396 Rust lines (just under the 400-line bound): every line decorated,
+    49 equal 1:1 pairs word-marked — the heaviest preview still drawn as runs."""
+    lines = [ctx("impl Backoff {", 100, 100)]
+    old = new = 101
+    for n in range(49):
+        block = [
+            ("context", f"    pub fn step_{n:02}(&mut self, attempt: u32) -> Duration {{"),
+            ("context", f"        let base = self.base_ms * {n + 1};"),
+            ("removed", f"        let delay = base.saturating_mul(2u64.pow(attempt));"),
+            ("added", f"        let delay = base.saturating_mul(self.factor.pow(attempt.min({n + 3})));"),
+            ("context", "        // clamp before sleeping"),
+            ("removed", f"        Duration::from_millis(delay.min({1000 * (n + 1)}))"),
+            ("added", f"        Duration::from_millis(delay.min(self.cap_ms)).max(MIN_{n:02})"),
+            ("context", "    }"),
+        ]
+        for kind, content in block:
+            if kind == "context":
+                lines.append(ctx(content, old, new)); old += 1; new += 1
+            elif kind == "removed":
+                lines.append(rem(content, old)); old += 1
+            else:
+                lines.append(add(content, new)); new += 1
+    lines.append(ctx("}", old, new))
+    assert len(lines) <= 400, len(lines)
+    return {
+        "status": "ready",
+        "source": "pending_store",
+        "preview": {
+            "session_id": "<SESSION>",
+            "preview_id": DENSE_ID,
+            "title": "Cap every backoff step",
+            "files": [{"path": "crates/octos-cli/src/backoff.rs", "status": "modified",
+                       "hunks": [{"header": f"@@ -100,{old - 100} +100,{new - 100} @@", "lines": lines}]}],
+        },
+    }
+
+
 def main():
     frames = [
         {"dir": "in", "method": "res:diff/preview/get", "fixture": "words", "body": words_preview()},
         {"dir": "in", "method": "res:diff/preview/get", "fixture": "large", "body": large_preview()},
+        {"dir": "in", "method": "res:diff/preview/get", "fixture": "dense", "body": dense_preview()},
     ]
     with open(OUT, "w") as f:
         for fr in frames:
             f.write(json.dumps(fr, ensure_ascii=False, separators=(",", ":")) + "\n")
-    total = sum(len(h["lines"]) for fr in frames[1:] for fl in fr["body"]["preview"]["files"] for h in fl["hunks"])
-    print(f"wrote {os.path.relpath(OUT, ROOT)}: words + large ({total} lines)")
+    count = lambda fr: sum(len(h["lines"]) for fl in fr["body"]["preview"]["files"] for h in fl["hunks"])
+    print(f"wrote {os.path.relpath(OUT, ROOT)}: " + ", ".join(f"{fr['fixture']} {count(fr)} lines" for fr in frames))
 
 
 if __name__ == "__main__":

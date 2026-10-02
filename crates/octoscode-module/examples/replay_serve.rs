@@ -32,7 +32,8 @@
 //! `--diff-words` (A28, `surfaces`): the approvals turn's diff approvals
 //! announce the SYNTHETIC previews of `a28-diff-words-synthetic.jsonl` — word
 //! marks + syntax colours (`…0f1`), then a preview past the decoration bound
-//! (`…0f2`) — and `diff/preview/get` answers each by its id.
+//! (`…0f2`), then the heaviest preview still decorated (`…0f3`, 394 lines) —
+//! and `diff/preview/get` answers each by its id.
 //!
 //! `--stale-window` (A18, any scenario): every `session/hydrate` answers with
 //! the A15 live smoke's first-launch hydrate (`a18-stale-window-a6ea8505`): no
@@ -1041,8 +1042,9 @@ mod surfaces {
     /// previews of `a28-diff-words-synthetic.jsonl` (built by
     /// tools/fixtures/a28_diff_words_fixture.py): the second approval is the
     /// word-mark / syntax preview (`…0f1`), the third a large preview past
-    /// the decoration bound (`…0f2`); `diff/preview/get` answers each by its
-    /// id. Off by default, so the A6 / A10 walks keep their preview.
+    /// the decoration bound (`…0f2`), the fourth 394 decorated lines
+    /// (`…0f3`); `diff/preview/get` answers each by its id. Off by default,
+    /// so the A6 / A10 walks keep their preview.
     pub static DIFF_WORDS: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
 
     fn diff_words() -> bool {
@@ -1062,6 +1064,8 @@ mod surfaces {
 
     /// A28 — the large preview's id (the third approval's).
     pub const A28_LARGE_PREVIEW: &str = "01920000-0000-7000-8000-0000000000f2";
+    /// A28 — the dense preview's id (the fourth approval's: 394 decorated lines).
+    pub const A28_DENSE_PREVIEW: &str = "01920000-0000-7000-8000-0000000000f3";
 
     pub const TURNS: &[&str] = &[
         "01920000-0000-7000-8000-00000000023b",
@@ -1177,7 +1181,20 @@ mod surfaces {
                         }});
                     }
                     out.push((third, Some(Hold::Approval)));
-                    out.push((with_id("ad"), Some(Hold::Approval)));
+                    let mut fourth = with_id("ad");
+                    if diff_words() {
+                        // A28: the heaviest preview still decorated (394 lines).
+                        fourth.body["approval_kind"] = json!("diff");
+                        fourth.body["tool_name"] = json!("apply_patch");
+                        fourth.body["title"] = json!("Apply a patch to backoff.rs");
+                        fourth.body["body"] = json!("Caps every backoff step.");
+                        fourth.body["risk"] = json!("medium");
+                        fourth.body["typed_details"] = json!({"kind": "diff", "diff": {
+                            "preview_id": A28_DENSE_PREVIEW, "operation": "apply_patch", "file_count": 1,
+                            "additions": 98, "deletions": 98, "summary": "backoff.rs: +98 -98"
+                        }});
+                    }
+                    out.push((fourth, Some(Hold::Approval)));
                     continue;
                 }
                 "user_question/requested" => {

@@ -589,8 +589,9 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
         d.close();
     }
 
-    // The body (`.review-content`): it fills the rest of the box and scrolls.
-    // The right inset is the scroll bar's gutter.
+    // The body (`.review-content`): it fills the rest of the box and scrolls
+    // (the web's 16 px content inset; 12 on the compact sheet, where the
+    // cards keep the board's ~12 px margins).
     let body_pad = if sheet { 12.0 } else { pad };
     d.open(
         ui::B3_IDS.scroll,

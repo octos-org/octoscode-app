@@ -106,7 +106,7 @@ def fixture(name):
     raise SystemExit(f"fixture {name} missing")
 
 
-WORDS, LARGE = fixture("words"), fixture("large")
+WORDS, LARGE, DENSE = fixture("words"), fixture("large"), fixture("dense")
 
 
 # ------------------------------------------------------------------ helpers
@@ -498,7 +498,27 @@ def walk(W: Walk) -> None:
     W.shot(f"large-{MODE}")
     large_checks(W, "large")
     close_review(W)
+
+    W.note("== the heaviest preview still decorated (394 lines, just under the bound)")
     W.click("cv_ap_once")
+    W.check("approval: Approve once -> the dense diff approval",
+            W.wait(lambda: shows(W.text("cv_ap_title"), "Apply a patch to backoff.rs")
+                   and bool(W.visible("cv_ap_diff")), 12), repr(W.text("cv_ap_title")))
+    t0 = time.time()
+    W.click("cv_ap_diff")
+    last = f"b3_diff_file_0_h0_l{len(DENSE['files'][0]['hunks'][0]['lines']) - 1}"
+    drawn = W.wait(lambda: shows(W.text("b3_title"), DENSE["title"]) and any(
+        str(w.get("i", "")).startswith(last + "_c") for w in W.snap()), 30, 0.1)
+    secs = time.time() - t0
+    sn = W.snap()
+    runs = runs_of(sn)
+    marked = sum(1 for lid in runs if id_marks(runs, lid))
+    W.check("dense: 394 decorated lines open as runs and marks within 4 s of the CLICK",
+            drawn and secs <= 4.0 and len(runs) == 394 and marked == 196,
+            f"{secs:.2f} s, lines with runs={len(runs)}, lines with marks={marked}")
+    W.shot(f"dense-{MODE}")
+    close_review(W)
+    W.click("cv_ap_session")
     time.sleep(0.5)
 
 
