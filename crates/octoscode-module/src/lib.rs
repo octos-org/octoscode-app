@@ -1449,7 +1449,6 @@ impl OctoscodeView {
         // remembered open is restored; OCTOS_PROFILE_ID is a dev/test
         // override only (screens::launch::Start).
         let start = screens::launch::plan(&base);
-        let profile = start.profile();
         // The workspace cwd the web passes to `session/open` (`session-defaults.ts:5-7`).
         let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
 
@@ -1464,6 +1463,24 @@ impl OctoscodeView {
                 return;
             }
         };
+        // A19b — the one-time migration's profile is resolved BEFORE the
+        // socket, so the connection carries it (Core finds `<profile>:main`'s
+        // history only through the connection's profile). Bounded: once per
+        // server, after an upgrade; unresolved, the migration resolves later.
+        let start = if start == screens::launch::Start::Migrate {
+            runtime
+                .block_on(async {
+                    tokio::time::timeout(
+                        std::time::Duration::from_secs(5),
+                        screens::launch::resolve_migration(&base, start.clone()),
+                    )
+                    .await
+                })
+                .unwrap_or(start)
+        } else {
+            start
+        };
+        let profile = start.profile();
 
         let connected = {
             let _guard = runtime.enter();
@@ -2967,6 +2984,9 @@ impl OctoscodeView {
                 // #32h discovery (solo login + admin profile ranking) is gone
                 // from this path — the web has none; it survives only as the
                 // one-time migration (screens::launch::startup).
+                // A19b — the migration's profile is resolved before the socket,
+                // so the connection carries it (as the previous build's did).
+                let start = screens::launch::resolve_migration(&server, start).await;
                 let profile = start.profile();
                 match Conversation::connect(&server, &token, &profile, cwd.clone(), Some(waker.clone())) {
                     Ok((conv, evt_rx)) => {

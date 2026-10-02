@@ -339,8 +339,14 @@ pub enum Start {
     /// `launch/resolve` (`use-octos-session.ts:2978-3001`).
     Restore(super::remembered::Remembered),
     /// The one-time migration from the previous build
-    /// (`super::remembered` module doc).
+    /// (`super::remembered` module doc), its profile not resolved yet.
     Migrate,
+    /// A19b — the migration with the previous build's profile resolved
+    /// BEFORE the socket ([`resolve_migration`]), so the connection carries it
+    /// as the previous build's did: Core resolves a Session id that does not
+    /// embed its profile (`<profile>:main`) from the connection's profile
+    /// header, and without it answers that Session's history "unknown".
+    MigrateAs(String),
     /// Nothing known: NO profile id (`connection-bootstrap.ts:21`), so
     /// `launch/resolve`'s answer decides.
     Fresh,
@@ -350,7 +356,7 @@ impl Start {
     /// The profile id the connection carries (`""` = none).
     pub fn profile(&self) -> String {
         match self {
-            Start::Explicit(p) | Start::Created(p) => p.clone(),
+            Start::Explicit(p) | Start::Created(p) | Start::MigrateAs(p) => p.clone(),
             Start::Restore(r) => r.profile_id.clone(),
             Start::Migrate | Start::Fresh => String::new(),
         }
@@ -381,6 +387,26 @@ pub fn plan(server: &str) -> Start {
         return Start::Migrate;
     }
     Start::Fresh
+}
+
+/// A19b — resolve the migration's profile BEFORE the connection is made (the
+/// previous build discovered it before its socket too): `Migrate` becomes
+/// `MigrateAs(profile)`, or `Fresh` when the server has no profile to
+/// migrate. Every other plan is returned unchanged.
+pub async fn resolve_migration(server: &str, start: Start) -> Start {
+    if start != Start::Migrate {
+        return start;
+    }
+    match crate::flow::Conversation::discover_solo_profile(server).await {
+        Some(profile) => {
+            makepad_widgets::log!("[octoscode] migration: the previous build's profile is {profile}");
+            Start::MigrateAs(profile)
+        }
+        None => {
+            makepad_widgets::log!("[octoscode] migration: no previous profile on this server — a fresh launch");
+            Start::Fresh
+        }
+    }
 }
 
 /// The profile a re-dial to `server` carries (the retry path): the plan's,
@@ -504,6 +530,7 @@ pub async fn startup(conv: &std::sync::Arc<crate::flow::Conversation>, start: St
             }
         }
         Start::Migrate => migrate(conv, cwd).await,
+        Start::MigrateAs(profile) => migrate_as(conv, profile, cwd).await,
         Start::Fresh => fresh(conv, cwd).await,
     }
 }
@@ -621,12 +648,19 @@ const MAX_HOME_FOLDERS: usize = 40;
 /// accepted open is remembered, so every later launch restores it.
 /// No profile to migrate (a fresh server, no solo login): a fresh launch. A
 /// profile with no Session holding history: the web's launch, carrying that
-/// profile (nothing to restore, the same profile kept).
+/// profile (nothing to restore, the same profile kept). The caller resolves
+/// the profile before the socket when it can (`MigrateAs`, the connection
+/// then carries it); an unresolved `Migrate` resolves it here.
 async fn migrate(conv: &std::sync::Arc<crate::flow::Conversation>, cwd: Option<String>) -> Started {
     let Some(profile) = crate::flow::Conversation::discover_solo_profile(&conv.http_base()).await else {
         makepad_widgets::log!("[octoscode] migration: no previous profile on this server — a fresh launch");
         return fresh(conv, cwd).await;
     };
+    migrate_as(conv, profile, cwd).await
+}
+
+/// The migration for a resolved `profile` (see [`migrate`]).
+async fn migrate_as(conv: &std::sync::Arc<crate::flow::Conversation>, profile: String, cwd: Option<String>) -> Started {
     conv.adopt_profile(profile.clone());
     match read_capabilities(conv).await {
         Ok(n) => makepad_widgets::log!("[octoscode] connect: {n} methods advertised"),

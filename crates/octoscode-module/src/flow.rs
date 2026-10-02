@@ -1065,6 +1065,25 @@ impl Conversation {
                 makepad_widgets::SignalToUI::set_ui_signal();
                 return;
             };
+            // Core resolves a Session id without its profile (`<profile>:main`)
+            // from the CONNECTION's profile header (octos-core types.rs
+            // `SessionKey::profile_id`; octos-cli `resolve_sessions_for_lookup`):
+            // measured live, the same open answers "unknown session" without
+            // it and the whole history with it. A socket that does not carry
+            // the Session's profile is re-dialed carrying it; the A12 re-dial
+            // re-opens the Session in its folder and asks its history again.
+            if me.link.header_profile() != profile {
+                makepad_widgets::log!(
+                    "[octoscode] history retry: {session} lives in {} — re-dialing as {profile}",
+                    home.root
+                );
+                me.store.domains.session.set_workspace_root(&session, &home.root);
+                if !me.link.carry_profile(&profile) {
+                    me.history_failed(&session, format!("unknown session: {session}"));
+                }
+                makepad_widgets::SignalToUI::set_ui_signal();
+                return;
+            }
             makepad_widgets::log!("[octoscode] history retry: {session} lives in {} — reopening there", home.root);
             let outcome = me.watch_next_open();
             if let Err(e) = me.open_session(&session, Some(home.root.clone())).await {

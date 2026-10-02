@@ -137,6 +137,8 @@ struct World {
     /// `include: ["messages"]`) is held until released.
     hold_hydrate: Option<(usize, Arc<tokio::sync::Notify>)>,
     hydrates: usize,
+    /// Each socket's `X-Profile-Id`, in connect order.
+    sockets: Vec<String>,
     seen: Vec<(String, Value)>,
     http: Vec<String>,
 }
@@ -169,6 +171,11 @@ impl FakeServer {
         self.world.lock().unwrap().seen.iter().map(|(m, _)| m.clone()).collect()
     }
 
+    /// Each socket's `X-Profile-Id`, in connect order.
+    fn sockets(&self) -> Vec<String> {
+        self.world.lock().unwrap().sockets.clone()
+    }
+
     fn http(&self) -> Vec<String> {
         self.world.lock().unwrap().http.clone()
     }
@@ -187,10 +194,23 @@ async fn route(stream: TcpStream, world: Arc<Mutex<World>>) {
     }
     let text = String::from_utf8_lossy(&head[..n]).to_ascii_lowercase();
     if text.contains("upgrade: websocket") {
-        serve_ws(stream, world).await;
+        // The socket's profile header (`X-Profile-Id`), fixed at the upgrade.
+        let header = text
+            .lines()
+            .find_map(|l| l.strip_prefix("x-profile-id:").map(|v| v.trim().to_owned()))
+            .unwrap_or_default();
+        world.lock().unwrap().sockets.push(header.clone());
+        serve_ws(stream, world, header).await;
     } else {
         serve_http(stream, world).await;
     }
+}
+
+/// octos-core `SessionKey::profile_id`: only a `profile:channel:chat` id names
+/// its profile (types.rs:535-556); `dsflash:main` does not.
+fn id_profile(session: &str) -> Option<&str> {
+    let parts: Vec<&str> = session.splitn(3, ':').collect();
+    (parts.len() == 3 && parts[1] == "api").then(|| parts[0])
 }
 
 async fn serve_http(mut stream: TcpStream, world: Arc<Mutex<World>>) {
@@ -273,13 +293,21 @@ fn core_decision(w: &World, p: &Value) -> Value {
 /// Core's hydrate: a Session recorded in a project store is found only by an
 /// open that carried that store's folder (octos-cli `runtime/cache.rs:379-384`
 /// keys the runtime by its store root; a folder-less open reads the derived
-/// Tier-3 store) — else "unknown session". A Session with no store is new.
-fn hydrate(w: &World, p: &Value) -> Result<Value, Refusal> {
+/// Tier-3 store) AND only when its profile resolves — from its id, else from
+/// the connection's profile header (`resolve_sessions_for_lookup`; measured
+/// live: `dsflash:main` answers "unknown session" on a socket without
+/// `X-Profile-Id: dsflash`, its whole history with it) — else "unknown
+/// session". A Session with no store is new.
+fn hydrate(w: &World, p: &Value, header: &str) -> Result<Value, Refusal> {
     let session = p["session_id"].as_str().unwrap_or("").to_owned();
     let opened_in = w.opened_with.get(&session).cloned().flatten();
     let stored = w.stores.iter().find(|s| s.session == session);
+    let profile = id_profile(&session).map(str::to_owned).or_else(|| {
+        let h = header.trim();
+        (!h.is_empty() && w.profiles.iter().any(|p| p == h)).then(|| h.to_owned())
+    });
     let messages: Vec<Value> = match stored {
-        Some(s) if opened_in.as_deref() == Some(s.root.as_str()) => s
+        Some(s) if opened_in.as_deref() == Some(s.root.as_str()) && profile.as_deref() == Some(s.profile.as_str()) => s
             .messages
             .iter()
             .enumerate()
@@ -297,7 +325,7 @@ fn hydrate(w: &World, p: &Value) -> Result<Value, Refusal> {
     Ok(json!({"session_id": session, "cursor": {"stream": session, "seq": n + 1}, "messages": messages}))
 }
 
-fn reply(w: &mut World, method: &str, p: &Value) -> Result<Value, Refusal> {
+fn reply(w: &mut World, method: &str, p: &Value, header: &str) -> Result<Value, Refusal> {
     let caps = recorded("config/capabilities/list")["capabilities"].clone();
     match method {
         "config/capabilities/list" => Ok(recorded("config/capabilities/list")),
@@ -311,9 +339,9 @@ fn reply(w: &mut World, method: &str, p: &Value) -> Result<Value, Refusal> {
         "session/hydrate" => {
             if p.get("include").and_then(|i| i.as_array()).is_some_and(|i| i.iter().any(|x| x == "pending_approvals")) {
                 // The parked-interactions read rides the same rule.
-                return hydrate(w, p).map(|_| json!({"session_id": p["session_id"], "cursor": {"stream": p["session_id"], "seq": 1}}));
+                return hydrate(w, p, header).map(|_| json!({"session_id": p["session_id"], "cursor": {"stream": p["session_id"], "seq": 1}}));
             }
-            hydrate(w, p)
+            hydrate(w, p, header)
         }
         "session/list" => match p["cwd"].as_str() {
             // The scoped catalog attests its scope (octos-core `SessionListResult`).
@@ -364,7 +392,7 @@ fn reply(w: &mut World, method: &str, p: &Value) -> Result<Value, Refusal> {
     }
 }
 
-async fn serve_ws(stream: TcpStream, world: Arc<Mutex<World>>) {
+async fn serve_ws(stream: TcpStream, world: Arc<Mutex<World>>, header: String) {
     let Ok(ws) = tokio_tungstenite::accept_async(stream).await else { return };
     let (mut tx, mut rx) = ws.split();
     while let Some(Ok(msg)) = rx.next().await {
@@ -397,7 +425,7 @@ async fn serve_ws(stream: TcpStream, world: Arc<Mutex<World>>) {
         let out = {
             let mut w = world.lock().unwrap();
             w.seen.push((method.clone(), params.clone()));
-            match reply(&mut w, &method, &params) {
+            match reply(&mut w, &method, &params, &header) {
                 Ok(result) => json!({"jsonrpc": "2.0", "id": v["id"], "result": result}),
                 Err((code, message, data)) => {
                     json!({"jsonrpc": "2.0", "id": v["id"], "error": {"code": code, "message": message, "data": data}})
@@ -719,11 +747,17 @@ async fn the_one_time_migration_reopens_the_previous_session_in_its_folder_with_
     let start = launch::plan(&server.base_url);
     assert_eq!(start, Start::Migrate);
     assert!(!remembered::legacy_candidate(&server.base_url), "the migration runs once per origin");
+    // lib.rs `start` / `connect_now`: the profile is resolved BEFORE the socket.
+    let start = launch::resolve_migration(&server.base_url, start).await;
+    assert_eq!(start, Start::MigrateAs("dsflash".into()));
     let conv = connect(&server, &start);
 
     let r = launch::startup(&conv, start, None).await;
     assert_eq!(r, Started::Migrated("dsflash:main".into()));
     assert_eq!(server.http(), vec!["POST /api/auth/solo".to_owned(), "GET /api/admin/profiles".to_owned()]);
+    // The socket carries the profile, as the previous build's did: Core finds
+    // `dsflash:main` (no profile in the id) only through it.
+    assert_eq!(server.sockets(), vec!["dsflash".to_owned()], "one socket, carrying dsflash");
     // The catalog read found the folder: the server's working directory and
     // its folders, each listed for dsflash.
     let lists = server.params_of("session/list");
@@ -902,6 +936,33 @@ async fn a_listed_session_resumes_in_its_workspace() {
     let _ = std::fs::remove_dir_all(dir);
 }
 
+/// A Session whose id does not name its profile (`dsflash:main`), opened
+/// from the sidebar on a FRESH connection (no profile header): Core answers
+/// its history "unknown session" even in the right folder (measured live) —
+/// the retry re-dials CARRYING the Session's profile, the A12 re-dial
+/// re-opens it in its folder, and the history shows. Fails on main.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn a_legacy_session_opened_on_a_fresh_connection_is_redialed_with_its_profile() {
+    let (_g, dir) = lock("redial");
+    let server = FakeServer::start(operator_world()).await;
+    let start = launch::plan(&server.base_url);
+    assert_eq!(start, Start::Fresh);
+    let conv = connect(&server, &start);
+    // The fresh launch: a new dsflash Session in OTHER (its id names dsflash).
+    let r = launch::startup(&conv, start, Some(OTHER.into())).await;
+    assert!(matches!(r, Started::Launched(Launched::Opened(_))), "{r:?}");
+    until("live", || conv.store.is_live()).await;
+    // lib.rs `thread.open`: the listed legacy Session, with its workspace.
+    conv.open_session("dsflash:main", Some(WS.into())).await.expect("sent");
+    until("the history is on screen", || user_texts(&conv, "dsflash:main").len() == 2).await;
+    assert_eq!(server.sockets(), vec![String::new(), "dsflash".to_owned()], "re-dialed carrying dsflash");
+    let opens = server.params_of("session/open");
+    let last = opens.last().unwrap();
+    assert_eq!((last["session_id"].clone(), last["cwd"].clone()), (json!("dsflash:main"), json!(WS)));
+    assert_eq!(conv.history("dsflash:main"), octoscode_module::flow::History::Ready);
+    let _ = std::fs::remove_dir_all(dir);
+}
+
 /// The migration on a server with no profile (a fresh data dir): nothing to
 /// migrate, so it is the fresh launch — no profile id, Core's `no_profile`,
 /// the onboarding panel; nothing created.
@@ -912,6 +973,8 @@ async fn the_migration_on_a_fresh_server_is_the_fresh_launch() {
     remembered::set_legacy_for_test(octoscode_module::credentials::origin(&server.base_url).as_deref());
     let start = launch::plan(&server.base_url);
     assert_eq!(start, Start::Migrate);
+    let start = launch::resolve_migration(&server.base_url, start).await;
+    assert_eq!(start, Start::Fresh, "nothing to migrate");
     let conv = connect(&server, &start);
     let r = launch::startup(&conv, start, Some(FOLDER.into())).await;
     assert_eq!(r, Started::Launched(Launched::AwaitingChoice));

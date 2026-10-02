@@ -328,12 +328,102 @@ def phase_migrate(w: a10_lib.Walk, tr: str, prompt: str) -> None:
     shot(w, f"01-migrated-{w.mode}")
 
 
+CHROME_PREFIXES = ("hd_", "sb_", "sg_", "b3_strip", "i0_composer", "composer_", "empty_", "set_", "history_")
+
+
+def transcript_scrolled(w: a10_lib.Walk, top_shot: str | None = None, steps: int = 60) -> set[str]:
+    """tools/judge/live_smoke.py's transcript_scrolled: every transcript text
+    from the bottom to the top of the conversation (the list lays out only
+    the rows in view), then back to the bottom. Chrome texts are left out.
+    `top_shot`: a capture once the top is reached."""
+    conv = w.composer()
+    x = (conv["r"][0] + conv["r"][2] / 2) if conv else 600
+    y = max(150, (conv["r"][1] - 220) if conv else 300)
+    seen, quiet, last = set(), 0, None
+    for _ in range(steps):
+        now = {(x_.get("t") or "") for x_ in w.snap()
+               if w.shown(x_) and (x_.get("t") or "").strip()
+               and not str(x_.get("i", "")).startswith(CHROME_PREFIXES)}
+        seen |= now
+        quiet = quiet + 1 if now == last else 0
+        if quiet >= 2:
+            break
+        last = now
+        w.get(f"/m?k=scroll&x={x}&y={y}&dy=-350&wait=1")
+        time.sleep(0.3)
+    if top_shot:
+        shot(w, top_shot)
+    for _ in range(steps + 10):
+        w.get(f"/m?k=scroll&x={x}&y={y}&dy=600&wait=1")
+    time.sleep(1.0)
+    return seen
+
+
+def phase_upgrade(w: a10_lib.Walk, tr: str, prompt: str) -> None:
+    """A19b — the operator's first launch after the upgrade: nothing
+    remembered, the previous build's server in A1's last-server, an existing
+    Session WITH history. It must open in its folder at once and show the
+    WHOLE history (scroll-read), then the next prompt streams."""
+    # The Session's distinct user prompts (a JSON list), read from its copied
+    # transcript by the caller.
+    expected = json.loads(pathlib.Path(os.environ["A19_EXPECT_FILE"]).read_text()) if os.environ.get("A19_EXPECT_FILE") else []
+    w.check("the first launch after the upgrade lands in a Session", wait_live(w, 60))
+    rows = trace(tr)
+    opens = frames(rows, "out", "session/open")
+    lists = frames(rows, "out", "session/list")
+    refused = frames(rows, "in", "error:session/hydrate")
+    want = os.environ.get("A19_EXPECT_SESSION", "")
+    w.check("wire: the per-workspace catalog read found the Session's folder (session/list {cwd, profile_id})",
+            any(str(p.get("cwd", "")).endswith("/ws") and p.get("profile_id") for p in lists), scrub(json.dumps(lists[:6])))
+    w.check("wire: the FIRST open is the Session, carrying that folder",
+            bool(opens) and opens[0].get("session_id") == want and str(opens[0].get("cwd") or "").endswith("/ws"),
+            scrub(json.dumps(opens[:1])))
+    w.check("wire: no launch/resolve, nothing created",
+            not frames(rows, "out", "launch/resolve") and not frames(rows, "out", "profile/local/create"))
+    w.check("wire: no history read refused", not refused, scrub(json.dumps(refused[:2])))
+    w.check("no loading or failure state left on screen", w.wait(lambda: not w.visible("history_title"), 20))
+    time.sleep(1.0)
+    shot(w, f"01-first-launch-{w.mode}")
+    seen = transcript_scrolled(w, top_shot=f"02-history-top-{w.mode}")
+    text = "\n".join(seen)
+    missing = [e for e in expected if e[:70] not in text]
+    w.check(f"the full history by scrolling: all {len(expected)} distinct prompts of the Session",
+            bool(expected) and not missing, f"missing {missing}")
+    w.note(f"scroll-read {len(seen)} distinct transcript texts")
+    if prompt:
+        send_prompt(w, prompt)
+        # The history already holds finished turns: the NEW turn is judged on
+        # the wire — its turn/start, streamed `response` progress, and its
+        # `stream_end` (live-gate.sh's verdict).
+        def new_turn() -> str:
+            starts = frames(trace(tr), "out", "turn/start")
+            return str(starts[0].get("turn_id", "")) if starts else ""
+
+        def progress(kind: str) -> bool:
+            t = new_turn()
+            return bool(t) and any(
+                r.get("dir") == "in" and r.get("method") == "progress/updated"
+                and (r.get("body") or {}).get("turn_id") == t
+                and ((r.get("body") or {}).get("metadata") or {}).get("kind") == kind
+                for r in trace(tr))
+
+        w.check("wire: one turn/start for the next prompt", w.wait(lambda: bool(new_turn()), 20)
+                and len(frames(trace(tr), "out", "turn/start")) == 1)
+        w.check("the answer streams (response progress)", w.wait(lambda: progress("response"), 120, 1.0))
+        w.check("the turn reaches its end (stream_end)", w.wait(lambda: progress("stream_end"), 150, 1.0))
+        w.check("the composer is idle again", w.wait(lambda: bool(w.visible("composer_send_icon"))
+                                                      and not w.visible("composer_stop_icon"), 30))
+        time.sleep(1.0)
+        shot(w, f"03-next-prompt-{w.mode}")
+
+
 PHASES = {
     "fresh": phase_fresh,
     "session": phase_session,
     "restore": phase_restore,
     "restore-turn": phase_restore_turn,
     "migrate": phase_migrate,
+    "upgrade": phase_upgrade,
 }
 
 
