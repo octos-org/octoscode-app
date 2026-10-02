@@ -22,6 +22,8 @@ fn row(id: &str) -> TaskSnapshot {
         output_files: vec![],
         error: None,
         updated_at: None,
+        phase: None,
+        session_id: None,
     }
 }
 
@@ -53,6 +55,8 @@ fn task_updated_merges_a_sparse_live_update_onto_the_row() {
         output_files: vec![],
         error: None,
         updated_at: None,
+        phase: None,
+        session_id: None,
     });
 
     let got = store.domains.task.snapshot("t1").expect("row kept");

@@ -607,6 +607,43 @@ script_mod! {
                         draw_text +: {text_style +: {font_size: 8.25}}
                     }
                 }
+                // A6 — the web's "Chat | Trajectory" session views
+                // (`App.tsx:2377-2403`, `.conversationTabs`): shown only while
+                // the server advertises a supervision surface; the current
+                // view is ink with a 2 px blue underline, the other muted.
+                hd_tabs := View{
+                    width: Fit height: Fill flow: Right spacing: 2 visible: false
+                    hd_tab_chat := View{
+                        width: Fit height: Fill flow: Overlay
+                        View{
+                            width: Fit height: Fill flow: Right align: Align{y: 0.5}
+                            padding: Inset{left: 10 right: 10}
+                            hd_tab_chat_on := OcLabel{text: "Chat" draw_text +: {text_style +: {font_size: 9.75}}}
+                            hd_tab_chat_off := OcMuted{text: "Chat" visible: false draw_text +: {text_style +: {font_size: 9.75}}}
+                        }
+                        View{
+                            width: Fill height: Fill flow: Down align: Align{y: 1.0}
+                            padding: Inset{left: 9 right: 9}
+                            hd_tab_chat_bar := RoundedView{width: Fill height: 2 draw_bg +: {color: #2F6FEB border_radius: 1.0}}
+                        }
+                        hd_tab_chat_hit := OcHit{draw_bg.border_radius: 6.0}
+                    }
+                    hd_tab_traj := View{
+                        width: Fit height: Fill flow: Overlay
+                        View{
+                            width: Fit height: Fill flow: Right align: Align{y: 0.5}
+                            padding: Inset{left: 10 right: 10}
+                            hd_tab_traj_on := OcLabel{text: "Trajectory" visible: false draw_text +: {text_style +: {font_size: 9.75}}}
+                            hd_tab_traj_off := OcMuted{text: "Trajectory" draw_text +: {text_style +: {font_size: 9.75}}}
+                        }
+                        View{
+                            width: Fill height: Fill flow: Down align: Align{y: 1.0}
+                            padding: Inset{left: 9 right: 9}
+                            hd_tab_traj_bar := RoundedView{width: Fill height: 2 visible: false draw_bg +: {color: #2F6FEB border_radius: 1.0}}
+                        }
+                        hd_tab_traj_hit := OcHit{draw_bg.border_radius: 6.0}
+                    }
+                }
             }
             hd_actions := View{
                 width: Fill height: Fill flow: Right spacing: 8 align: Align{x: 1.0 y: 0.5}

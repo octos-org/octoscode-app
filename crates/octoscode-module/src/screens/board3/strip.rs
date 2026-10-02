@@ -95,10 +95,14 @@ pub fn state_word_held(store: &Store, active_turn: Option<&str>, handover: Optio
     if let Some(h) = handover {
         return h.to_owned();
     }
-    if !store.domains.approval.pending().is_empty() {
+    let session = store.active_session().unwrap_or_default();
+    // A6: only an ACTIONABLE approval of this session waits (the raw list
+    // keeps decided / cancelled rows, so a settled approval read "Waiting"
+    // forever); then a pending question (`App.tsx:2047-2088`).
+    if store.domains.approval.actionable_count(&session) > 0 {
         return "Waiting for your approval".into();
     }
-    if store.domains.approval.question().is_some() {
+    if store.domains.approval.question().map(|q| q.session_id == session).unwrap_or(false) {
         return "Waiting for your answer".into();
     }
     if crate::chrome::held_by_other(store).is_some() {
