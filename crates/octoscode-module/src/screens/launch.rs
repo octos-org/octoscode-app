@@ -124,6 +124,16 @@ fn parse_decision(v: &serde_json::Value) -> Option<Decision> {
     })
 }
 
+/// `launch/resolve`'s params: `{cwd}`, plus `profile_id` only when the
+/// connection carries one (`use-octos-session.ts:3033-3036`).
+pub fn resolve_params(cwd: &str, profile: &str) -> serde_json::Value {
+    let mut p = json!({"cwd": cwd});
+    if !profile.trim().is_empty() {
+        p["profile_id"] = json!(profile.trim());
+    }
+    p
+}
+
 /// Open the new Session in `cwd` under `profile` (the connection adopts the
 /// chosen profile first when it differs).
 async fn open_as(conv: &crate::flow::Conversation, cwd: &str, profile: Option<&str>, lease: u64) -> Launched {
@@ -163,10 +173,17 @@ pub async fn create(conv: &crate::flow::Conversation, cwd: String) -> Launched {
     if !advertised(&conv.store) {
         return open_as(conv, &cwd, None, lease).await;
     }
-    let reply = conv
-        .client()
-        .request("launch/resolve", json!({"cwd": cwd, "profile_id": conv.profile()}))
-        .await;
+    // A19 — the profile id rides only when the connection carries one
+    // (`use-octos-session.ts:3033-3036`: `...(config.profileId ? {profile_id}
+    // : {})`): a fresh connection has none (`connection-bootstrap.ts:21`), so
+    // Core's answer decides — `no_profile` on a server with no profile yet.
+    let reply = conv.client().request("launch/resolve", resolve_params(&cwd, &conv.profile())).await;
+    // A19 — the decision on the protocol trace too (OCTOSCODE_TRACE_FILE; a
+    // generic reply is not traced inbound, and this one carries no secret).
+    match &reply {
+        Ok(v) => conv.client().trace().inbound("launch/resolve", v),
+        Err(e) => conv.client().trace().inbound("launch/resolve", &json!({"error": e.to_string()})),
+    }
     // A newer launch took the transition while this one resolved.
     if !is_current(lease) {
         return Launched::Stale;
@@ -292,6 +309,271 @@ pub async fn open_onboarded(conv: &crate::flow::Conversation, profile: String) -
         Launched::Stale => Ok(()),
         _ => Err("The new coding session could not be opened.".into()),
     }
+}
+
+// ---------------------------------------------------- A19 connect-time launch
+
+/// A19 — what a new connection carries and opens first. The web decides the
+/// same two things at its start: whether a remembered tab connection is
+/// restored (`connection-bootstrap.ts:44-48`, `use-octos-session.ts:2956-3008`)
+/// and, for a launch, which profile id `launch/resolve` gets
+/// (`use-octos-session.ts:3010-3060`). It never invents a profile id and
+/// never creates a profile outside its onboarding panel
+/// (`onboarding-submission.ts:59` is the web's only `profile/local/create`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Start {
+    /// `OCTOS_PROFILE_ID` — a DEV/TEST override only (the walks, the live
+    /// gate, the replay harnesses). The web has no such setting (its only
+    /// build-time default is the endpoint, `connection-bootstrap.ts:11-15`),
+    /// and the product never sets it: the profile is used as given and
+    /// `<profile>:main` opens at the startup workspace, as before.
+    /// `OCTOS_CREATE_PROFILE` (test-only too, used by no script) still mints
+    /// `<profile>-<pid>` first, on this path only.
+    Explicit(String),
+    /// A profile the person just created in the connect screen's onboarding
+    /// (`screens::connect::run_onboarding`, the web's `onConfigured`,
+    /// `onboarding-submission.ts:126`): its id comes from the server; its
+    /// `<profile>:main` opens and is remembered.
+    Created(String),
+    /// The remembered open for this server, restored directly — no
+    /// `launch/resolve` (`use-octos-session.ts:2978-3001`).
+    Restore(super::remembered::Remembered),
+    /// The one-time migration from the previous build
+    /// (`super::remembered` module doc).
+    Migrate,
+    /// Nothing known: NO profile id (`connection-bootstrap.ts:21`), so
+    /// `launch/resolve`'s answer decides.
+    Fresh,
+}
+
+impl Start {
+    /// The profile id the connection carries (`""` = none).
+    pub fn profile(&self) -> String {
+        match self {
+            Start::Explicit(p) | Start::Created(p) => p.clone(),
+            Start::Restore(r) => r.profile_id.clone(),
+            Start::Migrate | Start::Fresh => String::new(),
+        }
+    }
+
+    /// Whether this connection's opens are remembered: not for the explicit
+    /// override (a harness's profile is not the person's).
+    pub fn remembers(&self) -> bool {
+        !matches!(self, Start::Explicit(_))
+    }
+}
+
+/// The dev/test override, when set.
+pub fn explicit_profile() -> Option<String> {
+    std::env::var("OCTOS_PROFILE_ID").ok().map(|p| p.trim().to_owned()).filter(|p| !p.is_empty())
+}
+
+/// A19 — the plan for a new connection to `server` (consumes the one-time
+/// migration when it applies).
+pub fn plan(server: &str) -> Start {
+    if let Some(p) = explicit_profile() {
+        return Start::Explicit(p);
+    }
+    if let Some(r) = super::remembered::load(server) {
+        return Start::Restore(r);
+    }
+    if super::remembered::legacy_candidate(server) {
+        return Start::Migrate;
+    }
+    Start::Fresh
+}
+
+/// The profile a re-dial to `server` carries (the retry path): the plan's,
+/// without consuming the migration.
+pub fn planned_profile(server: &str) -> String {
+    explicit_profile()
+        .or_else(|| super::remembered::load(server).map(|r| r.profile_id))
+        .unwrap_or_default()
+}
+
+/// What the connect-time launch came to (logged; the tests assert it).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Started {
+    /// The explicit profile's open was sent (its Session id).
+    Explicit(String),
+    /// The remembered Session was restored (its id).
+    Restored(String),
+    /// The previous build's landing was reopened (its id).
+    Migrated(String),
+    /// The launch decision: a Session opened, or a panel waits for the person.
+    Launched(Launched),
+    /// No folder to resolve: the workspace picker is open (the web's hero,
+    /// `App.tsx:2492-2526`, when no Session is open).
+    Picker,
+    Failed(String),
+}
+
+/// How long a restore waits for the server's answer before it lets the
+/// transport carry on alone (the open stays queued; a late accept still lands).
+const OPEN_WAIT: std::time::Duration = std::time::Duration::from_secs(20);
+
+/// The web's authenticate (`active-session-runtime.ts:482-532`, the read at
+/// `:507`): the server's capability object BEFORE any Session, so the launch
+/// probe's gate (`advertised`) and the onboarding's (`onboarding::supported`)
+/// read the server's own answer.
+pub async fn read_capabilities(conv: &crate::flow::Conversation) -> Result<usize, String> {
+    use octoscode_client::domains::config::{CapabilitiesList, CapabilitiesListParams};
+    let caps = conv
+        .client()
+        .call::<CapabilitiesList>(CapabilitiesListParams {})
+        .await
+        .map_err(|e| format!("config/capabilities/list: {e}"))?
+        .capabilities;
+    let n = caps.supported_methods.len();
+    // On the protocol trace: the counts and the features (no secret).
+    conv.client().trace().inbound(
+        "config/capabilities/list",
+        &json!({"supported_methods": n, "supported_features": caps.supported_features}),
+    );
+    conv.store.domains.config.set_supported_methods(caps.supported_methods);
+    conv.store.domains.config.set_supported_features(caps.supported_features.clone());
+    conv.store.set_capabilities(caps.supported_features);
+    Ok(n)
+}
+
+/// The server's own working directory (`onboarding/workspace_list` with no
+/// path) — the picker's first entry (parity row 163), when the server offers it.
+async fn server_working_directory(conv: &crate::flow::Conversation) -> Option<String> {
+    use octoscode_client::domains::profile::{WorkspaceList, WorkspaceListParams};
+    let offered = conv.store.domains.config.supported_methods().iter().any(|m| m == "onboarding/workspace_list");
+    if !offered {
+        return None;
+    }
+    conv.client()
+        .call::<WorkspaceList>(WorkspaceListParams { path: None })
+        .await
+        .ok()
+        .map(|l| l.canonical_path)
+        .filter(|p| !p.trim().is_empty())
+}
+
+/// A19 — the connect-time launch for `start`, on a connection just made
+/// (its event drain already running).
+///
+/// * `Explicit` — the dev/test override: `<profile>:main` at `cwd`.
+/// * `Restore` — the remembered Session, opened directly; a refusal clears it
+///   and launches fresh (the web's `restoreRejected`, `App.tsx:947-974`).
+/// * `Migrate` — once: the previous build's landing (`remembered` doc).
+/// * `Fresh` — the web's launch with NO profile id for the startup
+///   workspace: `cwd` (`OCTOS_WORKSPACE_CWD`), else the server's working
+///   directory, else the picker. The native has no hero step at connect (it
+///   always opened its startup workspace); the decision is Core's, exactly
+///   as `resolveInitialLaunch` takes it: `resume`/`activate` open the Session,
+///   `cross_profile` waits on the panel, `no_profile` shows the onboarding.
+pub async fn startup(conv: &std::sync::Arc<crate::flow::Conversation>, start: Start, cwd: Option<String>) -> Started {
+    let cwd = cwd.filter(|c| !c.trim().is_empty());
+    match start {
+        Start::Explicit(_) => {
+            if std::env::var_os("OCTOS_CREATE_PROFILE").is_some() {
+                match conv.create_profile().await {
+                    Ok(id) => {
+                        conv.adopt_profile(id.clone());
+                        makepad_widgets::log!("[octoscode] profile ready: {id} (OCTOS_CREATE_PROFILE, test-only)");
+                    }
+                    Err(e) => makepad_widgets::log!("[octoscode] profile/local/create failed: {e}"),
+                }
+            }
+            match conv.open_workspace(cwd).await {
+                Ok(id) => Started::Explicit(id),
+                Err(e) => Started::Failed(e),
+            }
+        }
+        Start::Created(_) => match conv.open_workspace(cwd).await {
+            Ok(id) => Started::Explicit(id),
+            Err(e) => Started::Failed(e),
+        },
+        Start::Restore(r) => {
+            let outcome = conv.watch_next_open();
+            if let Err(e) = conv.open_session(&r.session_id, Some(r.cwd.clone())).await {
+                return Started::Failed(e);
+            }
+            match tokio::time::timeout(OPEN_WAIT, outcome).await {
+                Ok(Ok(Ok(id))) => Started::Restored(id),
+                Ok(Ok(Err(reason))) => {
+                    makepad_widgets::log!("[octoscode] the remembered Session was refused ({reason}): a fresh launch");
+                    super::remembered::forget(&conv.http_base());
+                    conv.adopt_profile(String::new());
+                    fresh(conv, cwd).await
+                }
+                _ => Started::Failed("the restore was not answered yet".into()),
+            }
+        }
+        Start::Migrate => migrate(conv, cwd).await,
+        Start::Fresh => fresh(conv, cwd).await,
+    }
+}
+
+/// The one-time migration: the previous build connected with the profile the
+/// solo login ranks first (`Conversation::discover_solo_profile`, commit
+/// 04c49631) and reopened `<profile>:main` at the startup workspace. Reopen
+/// exactly that — nothing is created — and the accepted open is remembered,
+/// so every later launch restores it. No such profile (a fresh server, or no
+/// solo login) means there is nothing to migrate: a fresh launch.
+async fn migrate(conv: &std::sync::Arc<crate::flow::Conversation>, cwd: Option<String>) -> Started {
+    let Some(profile) = crate::flow::Conversation::discover_solo_profile(&conv.http_base()).await else {
+        makepad_widgets::log!("[octoscode] migration: no previous profile on this server — a fresh launch");
+        return fresh(conv, cwd).await;
+    };
+    makepad_widgets::log!("[octoscode] migration: reopening the previous build's {profile}:main");
+    conv.adopt_profile(profile);
+    let outcome = conv.watch_next_open();
+    if let Err(e) = conv.open_workspace(cwd.clone()).await {
+        return Started::Failed(e);
+    }
+    match tokio::time::timeout(OPEN_WAIT, outcome).await {
+        // Exactly the previous build's landing (a folder-less open). Its
+        // reply's workspace is what is remembered, so every later launch
+        // restores the Session IN that workspace (measured live: Core may
+        // answer `session/hydrate` "unknown session" right after a
+        // folder-less open; the next launch's restore hydrates the history).
+        Ok(Ok(Ok(id))) => Started::Migrated(id),
+        Ok(Ok(Err(reason))) => {
+            makepad_widgets::log!("[octoscode] migration refused ({reason}): a fresh launch");
+            conv.adopt_profile(String::new());
+            fresh(conv, cwd).await
+        }
+        _ => Started::Failed("the migration's open was not answered yet".into()),
+    }
+}
+
+/// The fresh launch (see [`startup`]).
+async fn fresh(conv: &std::sync::Arc<crate::flow::Conversation>, cwd: Option<String>) -> Started {
+    match read_capabilities(conv).await {
+        Ok(n) => makepad_widgets::log!("[octoscode] connect: {n} methods advertised"),
+        Err(e) => return Started::Failed(e),
+    }
+    let folder = match cwd {
+        Some(c) => Some(c),
+        None => server_working_directory(conv).await,
+    };
+    match folder {
+        Some(f) => {
+            makepad_widgets::log!("[octoscode] launch at connect: {f} (no profile id)");
+            Started::Launched(create(conv, f).await)
+        }
+        None => {
+            makepad_widgets::log!("[octoscode] launch at connect: no folder reported — the workspace picker");
+            for work in super::board1::route("b1.open.picker", None) {
+                let _ = super::board1::execute(work, Some(conv.clone())).await;
+            }
+            Started::Picker
+        }
+    }
+}
+
+/// A19 — the launch panel owns the first-run frame: the connection is up
+/// with no Session yet (a fresh server's onboarding, a cross-profile choice)
+/// — the web shows its panel in the shell then (`App.tsx:2470-2490`), never
+/// the Connect form, so the Connect card stays hidden behind it.
+pub fn holds_first_run(store: &Store) -> bool {
+    !store.keeps_shell()
+        && super::board3::host::open_dialog() == Some(super::board3::host::Dialog::Launch)
+        && lock().phase != Phase::Idle
 }
 
 /// `cancelLaunch`: the pending launch is dropped (its lease retired), and the

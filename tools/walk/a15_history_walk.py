@@ -174,6 +174,7 @@ def env():
         "OCTOSCODE_RECENTS_DIR": "recents", "OCTOSCODE_SHOW_THINKING_FILE": "show-thinking.json",
         "OCTOSCODE_DOWNLOAD_DIR": "downloads", "OCTOSCODE_DISPLAY_PREFS_PATH": "display-v1.json",
         "OCTOSCODE_PANE_ADVANCED_FILE": "pane-advanced.json", "OCTOSCODE_DRIVER_ID_PATH": "driver-id",
+        "OCTOSCODE_CONNECTION_FILE": "connection-v1.json",
     }.items():
         e[k] = os.path.join(STATE, v)
     for d in ("cred", "downloads", "recents"):

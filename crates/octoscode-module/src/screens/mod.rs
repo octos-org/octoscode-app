@@ -42,7 +42,11 @@ pub mod fleet_driver;
 pub mod history;
 pub mod keys;
 // A8: the workspace launch (launch/resolve, the decision panel, the lease).
+// A19: and the connect-time launch (which profile a connection carries).
 pub mod launch;
+// A19: the remembered connection (the web's tab state: profile, Session and
+// workspace of the last committed open), per server origin.
+pub mod remembered;
 // A17: the solo onboarding panel a `no_profile` launch shows (catalog ->
 // profile/local/create -> profile/llm/test -> profile/llm/upsert -> open).
 pub mod onboarding;

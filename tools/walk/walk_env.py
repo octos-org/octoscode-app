@@ -42,6 +42,8 @@ ISOLATED_KEYS = (
     # A10: the per-install driver id and the Session pane's Advanced memory.
     "OCTOSCODE_DRIVER_ID_PATH",
     "OCTOSCODE_PANE_ADVANCED_FILE",
+    # A19: the remembered profile/Session/workspace per server origin.
+    "OCTOSCODE_CONNECTION_FILE",
 )
 
 PHONE_SIZE = "360x780"
@@ -67,6 +69,8 @@ def isolated_env(state: pathlib.Path) -> dict:
         # Session pane's Advanced disclosure memory.
         "OCTOSCODE_DRIVER_ID_PATH": str(state / "driver-id"),
         "OCTOSCODE_PANE_ADVANCED_FILE": str(state / "session-pane-advanced.json"),
+        # A19: the remembered connection (never ~/.octoscode/connection-v1.json).
+        "OCTOSCODE_CONNECTION_FILE": str(state / "connection-v1.json"),
     }
 
 

@@ -68,8 +68,9 @@ fn last_server_file(dir: &Path) -> PathBuf {
 
 /// Write `contents` to `path` readable by the owner only (0600), inside a
 /// 0700 directory. The mode is set at CREATE time, so the bytes never sit on
-/// disk world-readable even for an instant.
-fn write_private(path: &Path, contents: &str) -> std::io::Result<()> {
+/// disk world-readable even for an instant. (A19: the remembered connection
+/// is written the same way.)
+pub(crate) fn write_private(path: &Path, contents: &str) -> std::io::Result<()> {
     if let Some(parent) = path.parent() {
         std::fs::create_dir_all(parent)?;
         #[cfg(unix)]
