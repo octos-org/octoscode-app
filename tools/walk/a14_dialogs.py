@@ -3,7 +3,7 @@
 
 Every dialog of the family (Tasks /ps, Skills /skills, Goal /goal, Loops
 /loop, Monitors /monitor, Models /model, Code review /review, Context
-/context, the Fleet slice /peer) is opened by a palette CLICK against
+/compact (alias /context), the Fleet slice /peer) is opened by a palette CLICK against
 `replay_serve --scenario screens` (the judge tour's scenario), captured, and
 measured from /snap:
 
@@ -46,7 +46,7 @@ DIALOGS = [
     ("monitors", "moni", "/monitor", "dlg_monitors_t_title"),
     ("models", "mo", "/model", "dlg_models_t_title"),
     ("review", "revi", "/review", "dlg_review_t_status"),
-    ("context", "cont", "/context", "dlg_context_t_title"),
+    ("context", "compa", "/compact", "dlg_context_t_title"),
     ("fleet", "pee", "/peer", "dlg_fleet_t_title"),
 ]
 

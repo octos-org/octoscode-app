@@ -912,8 +912,14 @@ fn loops(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(Stri
             );
             let c = b.d.anon();
             b.d.view(&c, "width: Fill height: Fit flow: Down spacing: 3");
+            // The prompt is the loop's identity (the web shows it whole):
+            // it wraps, bounded to two lines (a prompt may run to 8 KB).
             let prompt = l["prompt"].as_str().unwrap_or_default();
-            b.text(&format!("loop_{r}_name"), &ui::fit_w(prompt, text_w, 13.5, Face::Semibold), &row_title().w(W::Fill));
+            b.text(
+                &format!("loop_{r}_name"),
+                &ui::fit_w(prompt, 2.0 * text_w, 13.5, Face::Semibold),
+                &row_title().w(W::Fill).wrap(),
+            );
             b.text(&format!("loop_{r}_cad"), &au::cadence(l), &ui::meta().w(W::Fill));
             b.close();
             b.dot(&format!("loop_{r}_dot"), if paused { "#c7c7ccff" } else { tok::GREEN });
@@ -963,7 +969,9 @@ fn monitors(b: &mut B<'_>, ctx: &Ctx<'_>, st: &AutonomyState, notice: Option<&(S
                 .as_array()
                 .map(|a| a.iter().filter_map(|v| v.as_str()).collect::<Vec<_>>().join(" "))
                 .unwrap_or_default();
-            b.text(&format!("mon_{r}_cmd"), &ui::fit_w(&argv, text_w, 12.5, Face::Mono), &row_mono().w(W::Fill));
+            // The command wraps too (the web's `.argv` `overflow-wrap: anywhere`),
+            // bounded to two lines.
+            b.text(&format!("mon_{r}_cmd"), &ui::fit_w(&argv, 2.0 * text_w, 12.5, Face::Mono), &row_mono().w(W::Fill).wrap());
             let mut state = m["status"].as_str().unwrap_or_default().to_owned();
             if let Some(reason) = m["pause_reason"].as_str() {
                 state = format!("{state} ({reason})");
