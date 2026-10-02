@@ -822,8 +822,16 @@ def main():
         "OCTOSCODE_DOWNLOAD_DIR": str(DOWNLOADS[0]),
         "OCTOSCODE_SHOW_THINKING_FILE": str(work / "show-thinking.json"),
         "OCTOSCODE_RECENTS_DIR": str(work),
+        # Isolated app state: never the operator's ~/.octoscode (a restored
+        # draft from another run was typed over on the phone walk's turn 1).
+        "OCTOSCODE_DRAFTS_FILE": str(work / "drafts.json"),
+        "OCTOSCODE_CREDENTIALS_DIR": str(work / "cred"),
+        "OCTOSCODE_PREF_PATH": str(work / "prefs.json"),
+        "OCTOSCODE_NOTIFICATIONS_FILE": str(work / "notifications.json"),
         "HEADLESS_STATE": str(work / "state"),
-        "HEADLESS_ARGS": "--module octoscode" + (" --test-action page:0" if PHONE else ""),
+        # launch-octoscode opens the app directly: the shell's phone home layout is
+        # dynamic (a fixed icon tap opened Photos on another run).
+        "HEADLESS_ARGS": "--module octoscode" + (" --test-action page:0 --test-action launch-octoscode" if PHONE else ""),
     })
     if PHONE:
         env["OCTOSENSE_WINDOW_SIZE"] = "360x780"

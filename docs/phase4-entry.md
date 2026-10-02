@@ -10,16 +10,16 @@ Counts use the FINAL bucket (phase4_bucket_manual when set, else phase4_bucket).
 | error | 1 | 0 | 6 | 7 |
 | g-autonomy | 22 | 0 | 18 | 40 |
 | g-autonomy2 | 14 | 1 | 11 | 26 |
-| g-composer | 30 | 5 | 26 | 61 |
+| g-composer | 41 | 5 | 15 | 61 |
 | g-connection | 7 | 0 | 0 | 7 |
 | g-control | 32 | 1 | 10 | 43 |
 | g-history | 13 | 4 | 7 | 24 |
 | g-settings | 9 | 2 | 12 | 23 |
-| g-timeline | 29 | 9 | 12 | 50 |
-| session:links-resume | 4 | 4 | 10 | 18 |
-| session:list-sidebar | 6 | 6 | 7 | 19 |
-| session:store-hydrate | 7 | 9 | 6 | 22 |
-| workspace | 7 | 2 | 3 | 12 |
-| **total** | **181** | **44** | **136** | **361** |
+| g-timeline | 34 | 9 | 7 | 50 |
+| session:links-resume | 10 | 4 | 4 | 18 |
+| session:list-sidebar | 9 | 6 | 4 | 19 |
+| session:store-hydrate | 11 | 9 | 2 | 22 |
+| workspace | 10 | 2 | 0 | 12 |
+| **total** | **213** | **44** | **104** | **361** |
 
-Regenerated 2026-10-02 06:03 UTC by phase0/protocol-matrix.py — A rows were flipped to exists with screens+test evidence in phase4_bucket/phase4_evidence columns.
+Regenerated 2026-10-02 06:32 UTC by phase0/protocol-matrix.py — A rows were flipped to exists with screens+test evidence in phase4_bucket/phase4_evidence columns.

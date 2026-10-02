@@ -1589,6 +1589,28 @@ impl OctoscodeView {
             self.board3_outcome(cx, outcome);
             return;
         }
+        // A8 — the header's "Copy as Markdown": one read of the canonical
+        // history per click (disabled while copying), the markdown to the
+        // clipboard on the UI thread (sync_board3), the phase on the pill.
+        if screens::copy_button::owns(action) {
+            let (store, conv) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.conv.clone())
+            };
+            let session = store.active_session().unwrap_or_default();
+            if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
+                if let Some(req) = screens::copy_button::begin(&session) {
+                    makepad_widgets::log!("[octoscode] copy as markdown: {session}");
+                    rt.spawn(async move {
+                        let phase = screens::copy_button::run(req, &conv).await;
+                        makepad_widgets::log!("[octoscode] copy as markdown -> {phase:?}");
+                        screens::copy_button::wake_after_result().await;
+                    });
+                }
+            }
+            self.sync_labels(cx);
+            return;
+        }
         // A6 — the conversation surfaces own every `cv.*` id (the takeovers,
         // the plan card, the Trajectory, the task detail, the fold bar).
         if screens::surfaces::routes(action) {
@@ -1845,10 +1867,20 @@ impl OctoscodeView {
                     let conv = { self.bridge.lock().unwrap().conv.clone() };
                     if let (Some(rt), Some(conv)) = (self.runtime.as_ref(), conv) {
                         rt.spawn(async move {
-                            match conv.new_chat(path).await {
+                            // A8 — a workspace launch resolves first when advertised.
+                            let r = match path {
+                                Some(cwd) => match screens::launch::create(&conv, cwd).await {
+                                    screens::launch::Launched::Opened(id) => Ok(id),
+                                    screens::launch::Launched::Failed(e) => Err(e),
+                                    other => Ok(format!("{other:?}")),
+                                },
+                                None => conv.new_chat(None).await,
+                            };
+                            match r {
                                 Ok(id) => ::log::info!("octoscode: new chat in {workspace}: {id}"),
                                 Err(e) => makepad_widgets::log!("[octoscode] new chat dropped: {e}"),
                             }
+                            SignalToUI::set_ui_signal();
                         });
                     }
                     return;
@@ -3080,6 +3112,31 @@ impl OctoscodeView {
         // set_text — the lowered DSL no longer carries the draft, so typing
         // never remounts the composer (the mount cache hits: the DSL is
         // stable while focused).
+        // A8 — per-Session drafts: a Session switch files the composer's text
+        // under the Session it was typed in and restores the new one's own;
+        // the durable binding starts once per connection.
+        {
+            let conv = { self.bridge.lock().unwrap().conv.clone() };
+            if let Some(conv) = conv {
+                if screens::drafts::needs_bind(conv.scope().authority_epoch) {
+                    if let Some(rt) = self.runtime.as_ref() {
+                        let c = conv.clone();
+                        rt.spawn(async move {
+                            if let Some(text) = screens::drafts::bind_connection(&c).await {
+                                makepad_widgets::log!("[octoscode] draft restored: {} chars", text.len());
+                                c.set_draft(text);
+                            }
+                            SignalToUI::set_ui_signal();
+                        });
+                    }
+                }
+                let active = screens::drafts::active_key(&conv);
+                let current = conv.ui_ref().lock().unwrap().draft();
+                if let Some(next) = screens::drafts::follow(active.as_deref(), &current) {
+                    conv.set_draft(next);
+                }
+            }
+        }
         let store_draft = { self.bridge.lock().unwrap().ui.lock().unwrap().draft() };
         if self.composer_synced.as_deref() != Some(store_draft.as_str()) {
             if store_draft.is_empty() && self.composer_synced.is_none() {
@@ -3618,7 +3675,9 @@ impl OctoscodeView {
             let slot_w = self.view.widget(cx, ids!(strip_splash)).area().rect(cx).size.x;
             let strip_w = if slot_w > 0.0 && composer_w > 0.0 { composer_w.min(slot_w) } else { composer_w };
             screens::board3::host::set_strip_width(strip_w);
-            let strip = if store.is_live() {
+            // A8 — the strip stays while the connection drops: its state word
+            // then reads "Reconnecting" (`App.tsx:2047-2050`), as the web's.
+            let strip = if store.is_live() || store.active_session().is_some() {
                 screens::board3::host::lower_strip(&store, active_turn.as_deref(), mode.as_deref())
             } else {
                 String::new()
@@ -3662,14 +3721,38 @@ impl OctoscodeView {
             .map(|(n, k)| (LiveId::from_str(n), k.clone()))
             .collect();
         let splash = self.view.splash(cx, ids!(board3_splash));
+        // A8 — a state change remounts the dialog; keep the body's scroll
+        // position when it is the SAME dialog (a toggle low in the Session
+        // settings pane must not jump the pane back to its top).
+        let scroll_path = [live_id!(board3_splash), live_id!(b3_scroll)];
+        // The body's first child sits at `scroll_view.y - scroll` (the body has
+        // no top padding), which reads the offset on every makepad the module
+        // builds against.
+        let keep_scroll = {
+            let sv = self.view.widget(cx, &scroll_path);
+            let top = sv.area().rect(cx).pos.y;
+            let mut first = None;
+            sv.children(&mut |_, child| {
+                if first.is_none() {
+                    first = Some(child.area().rect(cx).pos.y);
+                }
+            });
+            dvec2(0.0, first.map(|y| (top - y).max(0.0)).unwrap_or(0.0))
+        };
+        let same_dialog = screens::board3::host::note_mounted();
         match self.mounts.mount(cx, &splash, &lowered.dsl) {
             Err(e) => makepad_widgets::log!("[octoscode] board3 mount: {e}"),
-            Ok(true) => makepad_widgets::log!(
-                "[octoscode] board3 mounted {:?}: {} tap(s), {} input(s)",
-                screens::board3::host::open_dialog(),
-                self.b3_taps.len(),
-                self.b3_inputs.len()
-            ),
+            Ok(true) => {
+                if same_dialog && keep_scroll.y > 0.0 {
+                    screens::board3::host::set_pending_scroll(keep_scroll.y);
+                }
+                makepad_widgets::log!(
+                    "[octoscode] board3 mounted {:?}: {} tap(s), {} input(s)",
+                    screens::board3::host::open_dialog(),
+                    self.b3_taps.len(),
+                    self.b3_inputs.len()
+                )
+            }
             Ok(false) => {}
         }
         self.board3_visibility(cx, &store);
@@ -4670,6 +4753,14 @@ impl OctoscodeView {
         // old column until some unrelated event).
         let shell = cx.owning_window_or_root_pass_size();
         self.track_conversation_geometry(cx, shell);
+        // A8 — a remounted board-3 dialog gets its body scroll back once this
+        // frame laid it out (a scroll set before the layout clamps to 0).
+        if let Some(y) = screens::board3::host::take_pending_scroll() {
+            self.view
+                .view(cx, &[live_id!(board3_splash), live_id!(b3_scroll)])
+                .set_scroll_pos(cx, dvec2(0.0, y));
+            self.view.redraw(cx);
+        }
         DrawStep::done()
     }
 

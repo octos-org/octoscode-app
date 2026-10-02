@@ -296,15 +296,20 @@ impl Thinking {
     }
 }
 
-/// The new-chat sandbox defaults (board 9; the web's `SessionDefaults`,
-/// session-defaults.ts:24-35 — a client preference applied at creation).
+/// The new-chat defaults as Settings > Sandbox's three switches (board 9).
+/// A8: a VIEW of the persisted `screens::session_defaults` (the web's
+/// `SessionDefaults`, session-defaults.ts:24-35 — stored per endpoint,
+/// applied at creation only): "Workspace write" = the permission mode
+/// (`workspace_write`; off = `read_only`), "Network access" = the network
+/// policy (and the sandbox's network access), "Sandbox" = `sandbox.enabled`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct SandboxDefaults {
-    /// `permissionMode: workspace_write` (off = read_only).
+    /// `permissionMode` is not `read_only`.
     pub workspace_write: bool,
     /// `network: allow` / `sandbox.networkAccess`.
     pub network: bool,
-    /// Reads outside the workspace (the sandbox disabled for reads).
+    /// `sandbox.enabled` (the third switch, the web's "Sandbox" checkbox,
+    /// `SettingsDefaultsSection.tsx:88-100`). Field name kept for the chrome.
     pub read_outside: bool,
 }
 
@@ -312,7 +317,18 @@ impl Default for SandboxDefaults {
     fn default() -> Self {
         // The web's fallback (SettingsDefaultsSection.tsx:41-45):
         // workspace_write, network deny, sandbox off.
-        Self { workspace_write: true, network: false, read_outside: false }
+        Self::of(&crate::screens::session_defaults::SessionDefaults::default())
+    }
+}
+
+impl SandboxDefaults {
+    pub fn of(d: &crate::screens::session_defaults::SessionDefaults) -> Self {
+        use crate::screens::session_defaults::{NetworkPolicy, PermissionMode};
+        Self {
+            workspace_write: d.permission_mode != PermissionMode::ReadOnly,
+            network: d.network == NetworkPolicy::Allow,
+            read_outside: d.sandbox.enabled,
+        }
     }
 }
 
@@ -402,14 +418,21 @@ fn state() -> &'static Mutex<SettingsState> {
     S.get_or_init(|| Mutex::new(SettingsState::default()))
 }
 
-/// A copy of the state (the chrome reads it once per sync).
+/// A copy of the state (the chrome reads it once per sync). The sandbox
+/// switches are read from the persisted new-session defaults.
 pub fn snapshot() -> SettingsState {
-    state().lock().unwrap().clone()
+    let mut s = state().lock().unwrap().clone();
+    s.sandbox = SandboxDefaults::of(&crate::screens::session_defaults::current().value);
+    s
 }
 
-/// Test seam.
+/// Test seam (also forgets the new-session defaults: unit tests run on a
+/// fresh memory store).
 pub fn reset_state() {
     *state().lock().unwrap() = SettingsState::default();
+    if cfg!(test) {
+        crate::screens::session_defaults::set_storage(std::sync::Arc::new(crate::screens::recents::MemoryStore::new()));
+    }
 }
 
 /// What a UI-local action asks the host to do besides the state change.
@@ -468,16 +491,27 @@ pub fn apply_ui(action: &str) -> UiEffect {
             UiEffect::Send
         }
         "settings.model.next" => UiEffect::Send,
+        // A8 — the switches edit the persisted new-session defaults
+        // (`App.tsx:3538-3546` onDefaultsChange -> saveSessionDefaults).
         "sandbox_write.toggle" => {
-            st.sandbox.workspace_write = !st.sandbox.workspace_write;
+            use crate::screens::session_defaults::PermissionMode as M;
+            let live = crate::screens::session_defaults::update(|d| {
+                d.permission_mode = if d.permission_mode == M::ReadOnly { M::WorkspaceWrite } else { M::ReadOnly };
+            });
+            st.sandbox = SandboxDefaults::of(&live.value);
             UiEffect::None
         }
         "sandbox_network.toggle" => {
-            st.sandbox.network = !st.sandbox.network;
+            use crate::screens::session_defaults::NetworkPolicy as N;
+            let live = crate::screens::session_defaults::update(|d| {
+                d.network = if d.network == N::Allow { N::Deny } else { N::Allow };
+            });
+            st.sandbox = SandboxDefaults::of(&live.value);
             UiEffect::None
         }
         "sandbox_read_outside.toggle" => {
-            st.sandbox.read_outside = !st.sandbox.read_outside;
+            let live = crate::screens::session_defaults::update(|d| d.sandbox.enabled = !d.sandbox.enabled);
+            st.sandbox = SandboxDefaults::of(&live.value);
             UiEffect::None
         }
         "notifications_toggle.toggle" => {

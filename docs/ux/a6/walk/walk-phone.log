@@ -7,7 +7,7 @@ PASS turn 1: a folded thinking row — b3_tl_think_1
 PASS thinking row: the one-line summary '<s> s · <n> words' — '0 s · 2 words'
   shot docs/ux/a6/walk/phone-01-thinking-folded.png
 PASS CLICK thinking header -> expands (b3.think.block) — height 42 -> 80
-PASS expanded thinking: its body is in view (the list revealed it) — row bottom 351 <= composer top 765
+PASS expanded thinking: its body is in view (the list revealed it) — row bottom 351 <= composer top 743
 PASS expanded thinking: no hover tint after the click — header (255, 255, 255) vs ground (255, 255, 255)
   shot docs/ux/a6/walk/phone-02-thinking-expanded.png
 PASS CLICK again -> folded
@@ -18,29 +18,29 @@ PASS CLICK the tool row -> its output discloses — ['37:29 - [octoscode] tool.t
   shot docs/ux/a6/walk/phone-03-tool-expanded.png
 PASS CLICK Download -> GET /api/files on the wire, saved to the download dir — saved=True wire=True
 PASS CLICK Preview -> the image shows in its row — b3_tl_file_img_7
-PASS preview: the image keeps its aspect inside its row — [16, 475, 328, 185] in [16, 371, 328, 96]
+FAIL preview: the image keeps its aspect inside its row — [16, 604, 328, 44] in [16, 349, 328, 96]
   shot docs/ux/a6/walk/phone-04-files.png
 PASS fold bar shown at the transcript head
-PASS CLICK Expand all -> every visible block opens — {'b3_tl_think_1': 42, 'b3_tl_think_4': 42} -> {'b3_tl_think_1': 80, 'b3_tl_think_4': 68}
+FAIL CLICK Expand all -> every visible block opens — {'b3_tl_think_4': 42, 'b3_tl_think_1': 42} -> {'b3_tl_think_4': 46, 'b3_tl_think_1': 80}
   shot docs/ux/a6/walk/phone-05-expand-all.png
-PASS CLICK Collapse all -> every block folds — heights {'b3_tl_think_1': 42, 'b3_tl_think_4': 42} (folded {'b3_tl_think_1': 42, 'b3_tl_think_4': 42})
+PASS CLICK Collapse all -> every block folds — heights {'b3_tl_think_4': 42, 'b3_tl_think_1': 42} (folded {'b3_tl_think_4': 42, 'b3_tl_think_1': 42})
   shot docs/ux/a6/walk/phone-06-collapse-all.png
 PASS turn 3: CLICK composer + type + Return -> turn/start
 PASS turn 3: the question takes the composer over — card=True composer=False None
 PASS question: title + rule hint + disabled primary with its reason — 'Which color would you like to pick?' 'Choose one, or write your own' 'Choose an option to continue'
 PASS question: the consequence copy — 'Sends this answer and resumes the turn'
 PASS question card: card shown — cv_q_card
-PASS question card: inside the frame with gutters >= 12 px — card [12, 209, 336, 635] frame [0, 74, 360, 776] gutters 12/12
-PASS question card: cv_q_stop >= 28 px tall and inside the card — [28, 792, 304, 40]
-PASS question card: cv_q_0_opt_0 >= 28 px tall and inside the card — [28, 326, 300, 73]
-PASS question card: cv_q_0_opt_1 >= 28 px tall and inside the card — [28, 399, 300, 73]
-PASS question card: cv_q_0_opt_2 >= 28 px tall and inside the card — [28, 472, 300, 73]
-PASS question card: cv_q_0_opt_3 >= 28 px tall and inside the card — [28, 545, 300, 73]
-PASS question card: cv_q_0_opt_0_label inside cv_q_0_opt_0 — [68, 336, 250, 18] in [28, 326, 300, 73]
-PASS question card: cv_q_0_opt_1_label inside cv_q_0_opt_1 — [68, 409, 250, 18] in [28, 399, 300, 73]
-PASS question card: cv_q_0_opt_2_label inside cv_q_0_opt_2 — [68, 482, 250, 18] in [28, 472, 300, 73]
-PASS question card: cv_q_0_opt_3_label inside cv_q_0_opt_3 — [68, 555, 250, 18] in [28, 545, 300, 73]
-PASS question card: cv_q_submit_off_label inside cv_q_submit_off_box — [134, 757, 92, 16] in [28, 742, 304, 46]
+PASS question card: inside the frame with gutters >= 12 px — card [12, 187, 336, 635] frame [0, 74, 360, 776] gutters 12/12
+PASS question card: cv_q_stop >= 28 px tall and inside the card — [28, 770, 304, 40]
+PASS question card: cv_q_0_opt_0 >= 28 px tall and inside the card — [28, 304, 300, 73]
+PASS question card: cv_q_0_opt_1 >= 28 px tall and inside the card — [28, 377, 300, 73]
+PASS question card: cv_q_0_opt_2 >= 28 px tall and inside the card — [28, 450, 300, 73]
+PASS question card: cv_q_0_opt_3 >= 28 px tall and inside the card — [28, 523, 300, 73]
+PASS question card: cv_q_0_opt_0_label inside cv_q_0_opt_0 — [68, 314, 250, 18] in [28, 304, 300, 73]
+PASS question card: cv_q_0_opt_1_label inside cv_q_0_opt_1 — [68, 387, 250, 18] in [28, 377, 300, 73]
+PASS question card: cv_q_0_opt_2_label inside cv_q_0_opt_2 — [68, 460, 250, 18] in [28, 450, 300, 73]
+PASS question card: cv_q_0_opt_3_label inside cv_q_0_opt_3 — [68, 533, 250, 18] in [28, 523, 300, 73]
+PASS question card: cv_q_submit_off_label inside cv_q_submit_off_box — [134, 735, 92, 16] in [28, 720, 304, 46]
   shot docs/ux/a6/walk/phone-07-question.png
 PASS CLICK option 'Green' -> selected, the primary is live
 PASS CLICK Other + type -> the text stays (no remount) — 'teal'
@@ -54,31 +54,32 @@ PASS CLICK Submit answer -> user_question/respond on the wire
 PASS next: a third question
 PASS CLICK Stop turn -> turn/interrupt on the wire
 PASS the turn settles: the card closes, the composer is back
+PASS Stop turn restores the interrupted prompt into the composer — 'I need to pick a color. Use your question tool to ask me which color I prefer.'
 PASS turn 4: CLICK composer + type + Return -> turn/start
 PASS turn 4: the approval takes the composer over — card=True composer=False None
 PASS approval: title, risk, tool · kind, the typed command, Y / S / N — 'M9 approval fixture' 'low risk' 'shell · command' 'printf m9-approval-e2e' 'Y / S / N'
 PASS approval card: card shown — cv_ap_card
-PASS approval card: inside the frame with gutters >= 12 px — card [12, 530, 336, 314] frame [0, 74, 360, 776] gutters 12/12
-PASS approval card: cv_ap_once >= 28 px tall and inside the card — [28, 659, 304, 46]
-PASS approval card: cv_ap_session >= 28 px tall and inside the card — [28, 715, 304, 46]
-PASS approval card: cv_ap_deny >= 28 px tall and inside the card — [28, 771, 304, 40]
-PASS approval card: cv_ap_once_label inside cv_ap_once_box — [137, 675, 87, 16] in [28, 659, 304, 46]
-PASS approval card: cv_ap_session_label inside cv_ap_session_box — [118, 731, 125, 16] in [28, 715, 304, 46]
-PASS approval card: cv_ap_deny_label inside cv_ap_deny_box — [164, 784, 32, 16] in [28, 771, 304, 40]
-PASS approval card: cv_ap_cmd inside cv_ap_cmd_box — [42, 593, 276, 15] in [28, 582, 304, 37]
+PASS approval card: inside the frame with gutters >= 12 px — card [12, 508, 336, 314] frame [0, 74, 360, 776] gutters 12/12
+PASS approval card: cv_ap_once >= 28 px tall and inside the card — [28, 637, 304, 46]
+PASS approval card: cv_ap_session >= 28 px tall and inside the card — [28, 693, 304, 46]
+PASS approval card: cv_ap_deny >= 28 px tall and inside the card — [28, 749, 304, 40]
+PASS approval card: cv_ap_once_label inside cv_ap_once_box — [137, 653, 87, 16] in [28, 637, 304, 46]
+PASS approval card: cv_ap_session_label inside cv_ap_session_box — [118, 709, 125, 16] in [28, 693, 304, 46]
+PASS approval card: cv_ap_deny_label inside cv_ap_deny_box — [164, 762, 32, 16] in [28, 749, 304, 40]
+PASS approval card: cv_ap_cmd inside cv_ap_cmd_box — [42, 571, 276, 15] in [28, 560, 304, 37]
   shot docs/ux/a6/walk/phone-10-approval.png
 PASS CLICK Deny -> approval/respond deny/request
 PASS next: a typed diff approval with Review diff — 'Apply a patch to sr…'
 PASS diff approval card: card shown — cv_ap_card
-PASS diff approval card: inside the frame with gutters >= 12 px — card [12, 487, 336, 357] frame [0, 74, 360, 776] gutters 12/12
-PASS diff approval card: cv_ap_once >= 28 px tall and inside the card — [28, 613, 304, 46]
-PASS diff approval card: cv_ap_session >= 28 px tall and inside the card — [28, 669, 304, 46]
-PASS diff approval card: cv_ap_deny >= 28 px tall and inside the card — [28, 725, 304, 40]
-PASS diff approval card: cv_ap_diff >= 28 px tall and inside the card — [28, 775, 304, 36]
-PASS diff approval card: cv_ap_once_label inside cv_ap_once_box — [137, 629, 87, 16] in [28, 613, 304, 46]
-PASS diff approval card: cv_ap_session_label inside cv_ap_session_box — [118, 685, 125, 16] in [28, 669, 304, 46]
-PASS diff approval card: cv_ap_deny_label inside cv_ap_deny_box — [164, 738, 32, 16] in [28, 725, 304, 40]
-PASS diff approval card: cv_ap_diff_label inside cv_ap_diff_box — [146, 786, 69, 16] in [28, 775, 304, 36]
+PASS diff approval card: inside the frame with gutters >= 12 px — card [12, 465, 336, 357] frame [0, 74, 360, 776] gutters 12/12
+PASS diff approval card: cv_ap_once >= 28 px tall and inside the card — [28, 591, 304, 46]
+PASS diff approval card: cv_ap_session >= 28 px tall and inside the card — [28, 647, 304, 46]
+PASS diff approval card: cv_ap_deny >= 28 px tall and inside the card — [28, 703, 304, 40]
+PASS diff approval card: cv_ap_diff >= 28 px tall and inside the card — [28, 753, 304, 36]
+PASS diff approval card: cv_ap_once_label inside cv_ap_once_box — [137, 607, 87, 16] in [28, 591, 304, 46]
+PASS diff approval card: cv_ap_session_label inside cv_ap_session_box — [118, 663, 125, 16] in [28, 647, 304, 46]
+PASS diff approval card: cv_ap_deny_label inside cv_ap_deny_box — [164, 716, 32, 16] in [28, 703, 304, 40]
+PASS diff approval card: cv_ap_diff_label inside cv_ap_diff_box — [146, 764, 69, 16] in [28, 753, 304, 36]
   shot docs/ux/a6/walk/phone-11-approval-diff.png
 PASS CLICK Review diff -> the review opens on diff/preview/get
   shot docs/ux/a6/walk/phone-12-approval-review.png
@@ -91,13 +92,13 @@ PASS key S -> approval/respond approve/session
 PASS decided: the composer is back
 PASS turn 5: CLICK composer + type + Return -> turn/start
 PASS turn 5: the plan card (replaced wholesale: 1 of 3 done) — '1 of 3 done'
-PASS plan: headline = the in-progress step, statuses, updated-at — 'Plan · Wire --help to docum…' 'Updated 2d ago'
+PASS plan: headline = the in-progress step, statuses, updated-at — 'Plan · Wire --help to docum…' 'Updated 3d ago'
 PASS plan card: card shown — cv_pl_card
-PASS plan card: inside the frame with gutters >= 12 px — card [12, 512, 336, 158] frame [0, 74, 360, 776] gutters 12/12
-PASS plan card: cv_pl_toggle >= 28 px tall and inside the card — [24, 520, 312, 34]
-PASS plan card: cv_pl_item_0 inside cv_pl_card — [56, 562, 237, 16] in [12, 512, 336, 158]
-PASS plan card: cv_pl_item_1 inside cv_pl_card — [56, 592, 205, 16] in [12, 512, 336, 158]
-PASS plan card: cv_pl_item_2 inside cv_pl_card — [56, 622, 222, 16] in [12, 512, 336, 158]
+PASS plan card: inside the frame with gutters >= 12 px — card [12, 490, 336, 158] frame [0, 74, 360, 776] gutters 12/12
+PASS plan card: cv_pl_toggle >= 28 px tall and inside the card — [24, 498, 312, 34]
+PASS plan card: cv_pl_item_0 inside cv_pl_card — [56, 540, 237, 16] in [12, 490, 336, 158]
+PASS plan card: cv_pl_item_1 inside cv_pl_card — [56, 570, 205, 16] in [12, 490, 336, 158]
+PASS plan card: cv_pl_item_2 inside cv_pl_card — [56, 600, 222, 16] in [12, 490, 336, 158]
   shot docs/ux/a6/walk/phone-13-plan.png
 PASS CLICK the plan header -> collapses, again -> expands
 PASS CLICK Trajectory -> the pane, task/list + session/status/read on the wire
@@ -134,4 +135,4 @@ PASS CLICK stop -> turn/interrupt; the authoring turn's terminal drops the plan
 PASS turn 6: CLICK composer + type + Return -> turn/start
 PASS turn 6: the auto-resolved approval is a notice row (no card) — ['', 'Auto-denied', 'bash · matched the session scope']
   shot docs/ux/a6/walk/phone-18-notice.png
-== 117/117 passed (phone)
+== 116/118 passed (phone)
