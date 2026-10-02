@@ -32,6 +32,7 @@ the walk taps the OctosCode icon itself. Writes <outdir>/<state>.png,
 <state>.snap.json, checks.json and walk.log (the routed board-1 lines)."""
 import json, os, sys, time, urllib.parse, urllib.request
 import bridgeauth  # noqa: E402,F401  (D10c: the bridge token on every request)
+from snapsafe import scrub as _scrub  # noqa: E402  (A23: the typed provider key never reaches a saved snap)
 
 # A11: the walk aggregator's convention (tools/walk/native.py) — a literal,
 # read with `ast`, never imported. The aggregator starts board1_serve and the
@@ -121,7 +122,7 @@ def wait(wid, secs=10, gone=False):
         time.sleep(0.25)
     try:
         open(f"{OUT}/TIMEOUT-{wid}.png", "wb").write(get("/g?raw=1"))
-        open(f"{OUT}/TIMEOUT-{wid}.snap.json", "w").write(json.dumps(snap(), indent=0))
+        open(f"{OUT}/TIMEOUT-{wid}.snap.json", "w").write(json.dumps(_scrub(snap()), indent=0))
         log = json.loads(get("/log?n=60"))["l"]
         open(f"{OUT}/TIMEOUT-{wid}.log", "w").write("\n".join(log) + "\n")
     except Exception:
@@ -263,7 +264,7 @@ def capture(state):
     get(f"/m?k=move&x=2&y=2&wait=1")
     time.sleep(0.3)
     s = snap()
-    open(f"{OUT}/{state}.snap.json", "w").write(json.dumps(s, indent=0))
+    open(f"{OUT}/{state}.snap.json", "w").write(json.dumps(_scrub(s), indent=0))
     open(f"{OUT}/{state}.png", "wb").write(get("/g?raw=1"))
     r = check(state, s)
     print(f"[{state}] pass={r.get('pass')} card={r.get('card')} margins={r.get('margins_lr')} small={r.get('controls_lt_28')} overlaps={r.get('overlaps')} outside={r.get('outside_card')}")
@@ -278,7 +279,7 @@ def capture_entry(state, wid):
     get(f"/m?k=move&x=2&y=2&wait=1")
     time.sleep(0.3)
     s = snap()
-    open(f"{OUT}/{state}.snap.json", "w").write(json.dumps(s, indent=0))
+    open(f"{OUT}/{state}.snap.json", "w").write(json.dumps(_scrub(s), indent=0))
     open(f"{OUT}/{state}.png", "wb").write(get("/g?raw=1"))
     w = find(wid, s)
     view = module_rect(s)
