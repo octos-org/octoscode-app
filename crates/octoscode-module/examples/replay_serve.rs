@@ -33,6 +33,13 @@
 //! the A15 live smoke's first-launch hydrate (`a18-stale-window-a6ea8505`): no
 //! durable rows, an earlier run's retained turn terminals (a reset store).
 //!
+//! `--history-delay-ms N` / `--history-unknown` (A19b, `history`): the
+//! recorded Session's history read (`session/hydrate {include: [messages]}`)
+//! answers N ms late (the "Loading conversation…" state), or "unknown
+//! session" the way octos does (`-32100`, `data.kind = unknown_session`;
+//! the "Session recovery required" state once the client's retry is refused
+//! too).
+//!
 //! ## Session-id rewriting (why the recording is portable)
 //!
 //! A recording carries the session id of the profile it was captured under
@@ -1626,6 +1633,14 @@ async fn main() {
         .any(|a| a == "--stale-window")
         .then(|| fixture("a18-stale-window-a6ea8505.jsonl").into_iter().next().map(|f| f.body).unwrap_or(Value::Null));
     let revoke_file = args.iter().position(|a| a == "--revoke-file").and_then(|i| args.get(i + 1)).cloned();
+    // A19b — the `history` scenario's history read: late, or refused.
+    let history_delay_ms: u64 = args
+        .iter()
+        .position(|a| a == "--history-delay-ms")
+        .and_then(|i| args.get(i + 1))
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(0);
+    let history_unknown = args.iter().any(|a| a == "--history-unknown");
     // A16: `--fail-scoped-list N` — the first N session-scoped
     // `profile/llm/list` reads (per connection) answer an error.
     let fail_scoped_list: u64 = args
@@ -1808,11 +1823,35 @@ async fn main() {
                 if history {
                     if let Some(reply) = history_reply(&method, &v["params"], &recorded, &recorded_hydrate) {
                         println!("[replay-serve] -> {method} (history) {}", v["params"]["session_id"]);
+                        // A19b — the recorded Session's history read: refused
+                        // as octos refuses an unknown one, or answered late.
+                        let home_read = method == "session/hydrate"
+                            && v["params"]["include"] == serde_json::json!(["messages"])
+                            && v["params"]["session_id"].as_str() == Some(recorded.as_str());
+                        let reply = if home_read && history_unknown {
+                            println!("[replay-serve] -> session/hydrate refused: unknown session (--history-unknown)");
+                            Err(serde_json::json!({
+                                "code": -32100,
+                                "message": format!("unknown session: {recorded}"),
+                                "data": {"kind": "unknown_session", "session_id": recorded}
+                            }))
+                        } else {
+                            reply
+                        };
                         let frame = match reply {
                             Ok(r) => serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r}),
                             Err(e) => serde_json::json!({"jsonrpc": "2.0", "id": id, "error": e}),
                         };
-                        send(&tx, frame).await;
+                        if home_read && history_delay_ms > 0 {
+                            println!("[replay-serve] -> session/hydrate held {history_delay_ms} ms (--history-delay-ms)");
+                            let tx = tx.clone();
+                            tokio::spawn(async move {
+                                tokio::time::sleep(std::time::Duration::from_millis(history_delay_ms)).await;
+                                send(&tx, frame).await;
+                            });
+                        } else {
+                            send(&tx, frame).await;
+                        }
                         continue;
                     }
                 }

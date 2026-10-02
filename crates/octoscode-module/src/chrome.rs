@@ -1494,6 +1494,10 @@ pub struct ChromeRuntime {
     pub attention: Option<Attention>,
     /// The profile's model list was requested for this connection.
     pub models_requested: bool,
+    /// A19b — the active Session's history is still loading or could not be
+    /// read (`flow::History`): its conversation is not a New chat's, so the
+    /// "New chat defaults" strip stays off.
+    pub history_unsettled: bool,
 }
 
 /// What the desktop-notification hook compares between syncs: the active
@@ -1912,11 +1916,14 @@ impl ChromeRuntime {
             .unwrap_or_default();
         text(cx, view, ids!(hd_title), &title);
         text(cx, view, ids!(hd_path), &root);
-        // Board 10: the defaults strip shows above an EMPTY conversation.
+        // Board 10: the defaults strip shows above an EMPTY conversation —
+        // a New chat's (A19b: not a Session whose history is still loading,
+        // or could not be read: that one is not empty, its rows are coming).
         let empty = active
             .as_deref()
             .map(|a| store.domains.session.timeline.entries(a).is_empty())
-            .unwrap_or(true);
+            .unwrap_or(true)
+            && !self.history_unsettled;
         show(cx, view, ids!(hd_defaults), live && empty);
         if live && empty {
             // A13: on a phone the one line ends at a whole segment, then "…"

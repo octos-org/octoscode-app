@@ -4619,13 +4619,21 @@ impl OctoscodeView {
             self.window_h = self.view.area().rect(cx).size.y;
         }
         {
-            let store = { self.bridge.lock().unwrap().store.clone() };
+            let (store, history_unsettled) = {
+                let b = self.bridge.lock().unwrap();
+                let unsettled = match (b.store.active_session(), b.conv.as_ref()) {
+                    (Some(s), Some(conv)) => conv.history(&s) != flow::History::Ready,
+                    _ => false,
+                };
+                (b.store.clone(), unsettled)
+            };
             let (w, h) = (self.window_w, self.window_h);
             let mut chrome = std::mem::take(&mut self.chrome);
             chrome.origin = {
                 let r = self.view.area().rect(cx);
                 (r.pos.x, r.pos.y)
             };
+            chrome.history_unsettled = history_unsettled;
             chrome.sync(cx, &self.view, &store, live, settings, w, h);
             self.chrome = chrome;
         }
