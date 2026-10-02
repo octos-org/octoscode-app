@@ -452,6 +452,18 @@ async fn main() {
                         rewrite_session(&mut opened, &recorded, &requested);
                         if let Some(obj) = opened.as_object_mut() {
                             obj.insert("session_id".to_owned(), Value::String(requested));
+                            // A9 — the activity scenario opens in the requested
+                            // cwd, as a server does (its recording had none).
+                            if activity {
+                                if let Some(cwd) = v["params"]["cwd"].as_str() {
+                                    obj.insert("workspace_root".to_owned(), Value::String(cwd.to_owned()));
+                                }
+                                // …under the Profile it asked for (the
+                                // recording's own id would leak otherwise).
+                                if let Some(p) = v["params"]["profile_id"].as_str() {
+                                    obj.insert("active_profile_id".to_owned(), Value::String(p.to_owned()));
+                                }
+                            }
                         }
                         send(&tx, serde_json::json!({
                             "jsonrpc": "2.0", "id": id, "result": {"opened": opened}

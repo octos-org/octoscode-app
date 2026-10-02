@@ -225,6 +225,29 @@ impl OctoscodeView {
             ui.failure = None;
             ui.raw_error = None;
             ui.connecting = false;
+        } else {
+            // Disconnect keeps this server remembered: the Connect card
+            // returns on the address just left (durable, like the web's
+            // remembered origin) and the session's token stays in the field
+            // in memory only (an env-launched token is never written down).
+            let mut ui = screens.lock().unwrap_or_else(|e| e.into_inner());
+            let endpoint = crate::screens::recents::endpoint();
+            if !endpoint.trim().is_empty() {
+                ui.endpoint_error = crate::screens::connect::endpoint_error(&endpoint);
+                ui.server = endpoint.clone();
+                if let Err(e) = crate::credentials::remember_server(&endpoint) {
+                    makepad_widgets::log!("[octoscode] a9 leave: {e}");
+                }
+            }
+            if ui.token.is_empty() {
+                if let Ok(t) = std::env::var("OCTOS_BEARER") {
+                    ui.token = t;
+                }
+            }
+            ui.failure = None;
+            ui.raw_error = None;
+            ui.connecting = false;
+            self.connect_token_pending = !ui.token.is_empty();
         }
         makepad_widgets::log!("[octoscode] a9 leave done: {kind:?} (transport closed, Offline)");
         self.perform_action(cx, "settings.panel.close", 0);

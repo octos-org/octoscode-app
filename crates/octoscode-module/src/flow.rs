@@ -1470,6 +1470,12 @@ impl Conversation {
                         .session
                         .set_workspace_root(&r.opened.session_id.0, root);
                 }
+                // A9 — the opened Profile (the web's `session.opened
+                // .active_profile_id`, Settings > General's Profile row); the
+                // `session/open` notification handler folds the same field.
+                if let Some(profile) = &r.opened.active_profile_id {
+                    self.store.domains.profile.set_current(profile.clone());
+                }
                 // A4 — the Session's initial thinking effort is the open
                 // reply's `reasoning_effort` (session-composer-drafts.ts:40),
                 // and the show-thinking preference applies to the first opened
