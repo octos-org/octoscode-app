@@ -78,12 +78,22 @@ const CONVERTED: &[&str] = &[
     "screens/review.rs",
     "screens/skill_jobs.rs",
     "components.rs",
+    // phase 2, after A23 / A28 / A29 / A30 / A31 landed
+    "screens/provider.rs",
+    "screens/model_settings.rs",
+    "screens/dialog_view.rs",
+    "screens/board3/diff_review.rs",
+    "screens/board3/fleetview.rs",
+    "screens/btw.rs",
+    "screens/peer_dock.rs",
+    "screens/peers.rs",
 ];
 
-/// The phase-2 ceiling: bypasses left in the rest of the crate (A24 phase 1
-/// measured `screens/`; phase 2 counts every file and resolves string
-/// constants too). Lower it as files are converted; it must reach 0.
-const REMAINING_CEILING: usize = 21;
+/// The ceiling: bypasses left in the rest of the crate (A24 phase 1 measured
+/// `screens/` at 314; phase 2 counts every file and resolves string
+/// constants too, and drove it to 0). It stays 0: new copy goes through
+/// `tr()` from the start.
+const REMAINING_CEILING: usize = 0;
 
 /// (call prefix, text-argument indices). A prefix starting with `.` or `::`
 /// matches a method / path call; otherwise the name must stand alone.
@@ -826,11 +836,10 @@ fn reads_in_chinese(key: &str) -> bool {
     }
 }
 
-/// Every literal the converted surfaces route through `tr*()` has Chinese:
-/// the web's catalog first, else the reviewed native supplement
+/// Every literal (or string constant) the crate routes through `tr*()` has
+/// Chinese: the web's catalog first, else the reviewed native supplement
 /// (`i18n/native.rs`) — wrapped copy that would still render English in
-/// Chinese fails here. The rest of the crate is listed, not asserted (its
-/// owners add their supplement entries as they convert).
+/// Chinese fails here, in the converted files and everywhere else.
 #[test]
 fn every_wrapped_literal_reads_in_chinese() {
     let mut bad = Vec::new();
@@ -856,6 +865,7 @@ fn every_wrapped_literal_reads_in_chinese() {
     for r in &rest {
         println!("  {r}");
     }
+    bad.extend(rest);
     assert!(bad.is_empty(), "{} wrapped literal(s) with no Chinese:\n{}", bad.len(), bad.join("\n"));
 }
 

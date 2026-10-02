@@ -903,7 +903,7 @@ fn start_form(d: &mut Dsl, st: &FleetState, store: &Store) {
         d.close();
     }
     ui::field_label(d, "b3_fleet_brief_label", &t("Brief"));
-    d.input("b3_fleet_brief", "fleet.brief", &st.brief_snap, "Describe the task for the peer", false, 64.0);
+    d.input("b3_fleet_brief", "fleet.brief", &st.brief_snap, &t("Describe the task for the peer"), false, 64.0);
     match &st.start {
         StartState::Failed { kind, .. } => {
             d.text(
@@ -1106,7 +1106,7 @@ pub fn build(d: &mut Dsl, st: &mut FleetState, frame: &Frame, store: &Store) {
     // own centred empty state below ([`empty_state`]).
     let head = d.anon();
     d.view(&head, "width: Fill height: 34 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10");
-    d.button("b3_fleet_back", "Back", "b3.close", Btn::Outline, W::Fit, 30.0);
+    d.button("b3_fleet_back", &t("Back"), "b3.close", Btn::Outline, W::Fit, 30.0);
     d.text("b3_title", &t("Fleet"), &ui::title().w(W::Fill));
     let session_open = store.domains.session.active().is_some();
     // The blackboard gather (`/gather`): the synthesis rides one turn.

@@ -122,15 +122,16 @@ pub mod copy {
 
     /// `"{count} available models found."`.
     pub fn models_found(n: usize) -> String {
-        format!("{n} available models found.")
+        crate::i18n::tr_with("{count} available models found.", &[("count", &n.to_string())])
     }
 
     /// `fetchFailureMessage` (`model-settings.ts:603-609`).
     pub fn fetch_failure(reason: &str) -> String {
+        use crate::i18n::{tr, tr1};
         match reason {
-            "no_api_key" => "Add an API key before checking models.".to_owned(),
-            "provider_unavailable" => "The provider did not return an available-model catalog.".to_owned(),
-            other => format!("Could not check provider models: {}", super::redact(other, "")),
+            "no_api_key" => tr("Add an API key before checking models.").to_owned(),
+            "provider_unavailable" => tr("The provider did not return an available-model catalog.").to_owned(),
+            other => tr1("Could not check provider models: {value0}", &super::redact(other, "")),
         }
     }
 }

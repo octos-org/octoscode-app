@@ -270,6 +270,25 @@ mod tests {
         }
     }
 
+    /// A24 — a row's time is in the interface language (the judge saw
+    /// "now" / "2m" / "1h" in a Chinese dialog, docs/ux/a31 07-zh-desktop).
+    #[test]
+    fn a_row_time_reads_in_the_interface_language() {
+        let j = SkillJob::from_wire(
+            "p",
+            "p:s",
+            &serde_json::json!({"job_id": "j", "status": "running", "updated_at": "2026-10-02T10:00:00Z"}),
+        )
+        .unwrap();
+        let then = (j.updated_ns().unwrap() / 1_000_000) as u64;
+        i18n::set_language(Lang::Zh);
+        let zh: Vec<String> = [30_000, 2 * 60_000, 3_600_000].iter().map(|d| row(&j, then + d).time).collect();
+        i18n::set_language(Lang::En);
+        let en: Vec<String> = [30_000, 2 * 60_000, 3_600_000].iter().map(|d| row(&j, then + d).time).collect();
+        assert_eq!(zh, ["刚刚", "2 分钟前", "1 小时前"]);
+        assert_eq!(en, ["now", "2m", "1h"]);
+    }
+
     #[test]
     fn a_long_output_keeps_its_first_line() {
         let mut j = SkillJob::from_wire(

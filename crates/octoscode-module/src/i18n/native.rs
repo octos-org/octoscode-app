@@ -792,6 +792,37 @@ pub static NATIVE_ZH: &[(&str, &str)] = &[
         "Use /btw <question> for a temporary side answer. Nothing was sent to the model.",
         "使用 /btw <问题> 获取临时旁问回答。未向模型发送任何内容。",
     ),
+    // ---- model providers: the board-1 provider editor and the board-3 Model providers dialog (provider.rs, routes.rs, model_settings.rs copy); the Fleet's Back / brief
+    ("Edit provider", "编辑提供商"),
+    ("Your draft is kept.", "草稿已保留。"),
+    ("The provider rejected this key.", "提供商拒绝了此密钥。"),
+    ("The provider rejected this key ({value0}).", "提供商拒绝了此密钥（{value0}）。"),
+    ("No catalog models for this provider.", "此提供商在目录中没有模型。"),
+    ("Provider \u{b7} Route", "提供商 \u{b7} 路由"),
+    ("Paste the provider's API key", "粘贴提供商的 API 密钥"),
+    ("OpenAI-compatible", "OpenAI 兼容"),
+    ("Anthropic-compatible", "Anthropic 兼容"),
+    (
+        "This Octos server cannot report the active Profile\u{2019}s configured providers.",
+        "此 Octos 服务器无法报告当前配置档案已配置的提供商。",
+    ),
+    ("Octos did not identify an active Profile for model settings.", "Octos 未能确定用于模型设置的当前配置档案。"),
+    ("Could not load the active Profile\u{2019}s configured providers.", "无法加载当前配置档案已配置的提供商。"),
+    (
+        "This entry contains settings the editor cannot preserve. Edit it through Core configuration instead.",
+        "此条目包含编辑器无法保留的设置。请改为通过 Core 配置进行编辑。",
+    ),
+    (
+        "This configured model contains settings this editor cannot preserve. Edit it through Core configuration instead.",
+        "此已配置模型包含此编辑器无法保留的设置。请改为通过 Core 配置进行编辑。",
+    ),
+    ("The configured model inference settings cannot be safely preserved.", "无法安全保留已配置模型的推理设置。"),
+    ("The model settings response belongs to another profile.", "模型设置响应属于另一个配置档案。"),
+    ("The provider test did not pass.", "提供商测试未通过。"),
+    ("The server did not save the tested model configuration.", "服务器未保存已测试的模型配置。"),
+    ("No models are configured for this Profile.", "此配置档案未配置模型。"),
+    ("Back", "返回"),
+    ("Describe the task for the peer", "描述要交给同侪的任务"),
 ];
 
 /// The web catalog's vocabulary: each English term (matched as a word,

@@ -612,7 +612,7 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
         d.text("b3_diff_empty_head", tr(NO_PREVIEW_HEAD), &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill).wrap());
         d.text("b3_diff_empty_body", tr(body_text), &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
         if native_review_available(store) {
-            d.button("b3_diff_native", NATIVE_REVIEW, "b3.diff.native", Btn::Outline, W::Fit, 32.0);
+            d.button("b3_diff_native", tr(NATIVE_REVIEW), "b3.diff.native", Btn::Outline, W::Fit, 32.0);
         }
         d.close();
     } else if st.loading {

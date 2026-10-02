@@ -1195,21 +1195,24 @@ pub fn mono_box(d: &mut Dsl, id: &str, value: &str, trailing: Option<(&str, &str
 /// `now` under a minute, then `Nm`, `Nh`, `Nd` under a week, then a short
 /// date (`Sep 24`). `then_ms`/`now_ms` are Unix milliseconds.
 pub fn rel_time(now_ms: u64, then_ms: u64) -> String {
+    // A24: in the interface language (刚刚 / N 分钟前 / N 小时前 / N 天前), the
+    // sidebar's own buckets (`sidebar::relative_label`) — the web prints them
+    // without t().
     let secs = now_ms.saturating_sub(then_ms) / 1000;
     if secs < 60 {
-        return "now".into();
+        return tr("now").into();
     }
     let mins = secs / 60;
     if mins < 60 {
-        return format!("{mins}m");
+        return crate::i18n::tr1("{value0}m", &mins.to_string());
     }
     let hours = mins / 60;
     if hours < 24 {
-        return format!("{hours}h");
+        return crate::i18n::tr1("{value0}h", &hours.to_string());
     }
     let days = hours / 24;
     if days < 7 {
-        return format!("{days}d");
+        return crate::i18n::tr1("{value0}d", &days.to_string());
     }
     short_date(then_ms)
 }

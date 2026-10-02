@@ -270,16 +270,19 @@ fn a_switch_re_renders_the_lowered_surfaces() {
 }
 
 /// Times read in the interface language: the sidebar's buckets (the web's
-/// `formatRelativeTime`) and the short date (its Intl month + day).
+/// `formatRelativeTime`), the board-3 kit's same label (`ui::rel_time`: the
+/// switcher's rows, Resume's candidates, the Skills dialog's background
+/// jobs) and the short date (its Intl month + day).
 #[test]
 fn times_read_in_the_interface_language() {
-    use crate::screens::board3::ui::{rel_ago, short_date};
+    use crate::screens::board3::ui::{rel_ago, rel_time, short_date};
     use crate::screens::sidebar::relative_label;
     const DAY: u64 = 86_400_000;
     let oct1 = 1_790_812_800_000; // 2026-10-01T00:00:00Z
     set_language(Lang::En);
     assert_eq!(relative_label(oct1, oct1 + 3 * DAY), "3d");
     assert_eq!(relative_label(oct1, oct1 + 30_000), "now");
+    assert_eq!(rel_time(oct1 + 2 * 60_000, oct1), "2m");
     assert_eq!(short_date(oct1), "Oct 1");
     assert!(set_language(Lang::Zh));
     assert_eq!(relative_label(oct1, oct1 + 3 * DAY), "3 天前");
@@ -288,6 +291,9 @@ fn times_read_in_the_interface_language() {
     assert_eq!(relative_label(oct1, oct1 + 9 * DAY), "10月1日");
     assert_eq!(short_date(oct1), "10月1日");
     assert_eq!(rel_ago(oct1 + 2 * 3_600_000, oct1), "2 小时前");
+    for (now, want) in [(oct1 + 30_000, "刚刚"), (oct1 + 2 * 60_000, "2 分钟前"), (oct1 + 5 * 60_000, "5 分钟前"), (oct1 + 3_600_000, "1 小时前"), (oct1 + 2 * DAY, "2 天前")] {
+        assert_eq!(rel_time(now, oct1), want);
+    }
     assert!(set_language(Lang::En));
 }
 
