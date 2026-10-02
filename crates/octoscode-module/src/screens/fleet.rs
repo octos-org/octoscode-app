@@ -105,14 +105,14 @@ pub fn is_action(id: &str) -> bool {
 /// `Peer N · model` labels and status words (`fleet-facts.ts:239-312`; the
 /// old slug-sorted `peer/staged` + gather list showed raw slugs and leaked
 /// gather rows into the roster).
-fn peer_rows(store: &Store) -> Vec<crate::screens::board3::fleetview::FleetRow> {
+pub(crate) fn peer_rows(store: &Store) -> Vec<crate::screens::board3::fleetview::FleetRow> {
     crate::screens::board3::fleetview::rows(store, crate::screens::peers::now_ms())
 }
 
 /// The badge word the slice's compact pill shows: the Fleet word, with the
 /// two waiting words folded to "Waiting" (the full word rides the meta line)
 /// and "Outcome unknown" to "Unknown".
-fn badge_word(status: crate::screens::board3::fleetview::Status) -> String {
+pub(crate) fn badge_word(status: crate::screens::board3::fleetview::Status) -> String {
     use crate::screens::board3::fleetview::Status;
     use crate::screens::board3::fleet_copy::t;
     match status {
@@ -124,7 +124,7 @@ fn badge_word(status: crate::screens::board3::fleetview::Status) -> String {
 
 /// Running tasks in a STABLE order (id-sorted) — row `i` must always be the
 /// same item (the steer/cancel targets depend on it).
-fn running_tasks(store: &Store) -> Vec<TaskSnapshot> {
+pub(crate) fn running_tasks(store: &Store) -> Vec<TaskSnapshot> {
     let mut rows: Vec<TaskSnapshot> = store
         .domains
         .task
@@ -137,7 +137,7 @@ fn running_tasks(store: &Store) -> Vec<TaskSnapshot> {
 }
 
 /// Terminal (non-running) tasks, same stability contract.
-fn settled_tasks(store: &Store) -> Vec<TaskSnapshot> {
+pub(crate) fn settled_tasks(store: &Store) -> Vec<TaskSnapshot> {
     let mut rows: Vec<TaskSnapshot> = store
         .domains
         .task
@@ -162,7 +162,7 @@ fn settled_task(store: &Store) -> Option<TaskSnapshot> {
 /// `planStatusLabel("completed") -> "Done"`; the plan labels are the Tasks
 /// card's own vocabulary), and the card's authored copy is capitalized
 /// ("Running" / "Done") — a raw wire state must not paint lowercase.
-fn status_word(state: &str) -> String {
+pub(crate) fn status_word(state: &str) -> String {
     match state {
         "pending" => "Pending".to_owned(),
         "running" => "Running".to_owned(),
@@ -173,7 +173,7 @@ fn status_word(state: &str) -> String {
     }
 }
 
-fn task_label(t: &TaskSnapshot) -> String {
+pub(crate) fn task_label(t: &TaskSnapshot) -> String {
     t.title
         .clone()
         .or_else(|| t.summary.clone())
@@ -182,7 +182,7 @@ fn task_label(t: &TaskSnapshot) -> String {
 
 /// A task row's output, split to one line (`task/output/delta` folds land in
 /// `Tasks.output` via the domain's `TaskOutputDeltaHandler`).
-fn output_line(store: &Store, task_id: &str, line: usize) -> Option<String> {
+pub(crate) fn output_line(store: &Store, task_id: &str, line: usize) -> Option<String> {
     store
         .domains
         .task
@@ -542,8 +542,8 @@ pub fn lower_card_src(screen_id: &str, ctx: &Ctx<'_>) -> Result<(String, Value, 
 /// The web's empty-state copy, verbatim: "No peers yet"
 /// (`FleetView.tsx:537-540`) and "No background tasks in this session."
 /// (`SessionTrajectory.tsx:137-139`).
-const FLEET_EMPTY: &str = "No peers yet";
-const TASKS_EMPTY: &str = "No background tasks in this session.";
+pub(crate) const FLEET_EMPTY: &str = "No peers yet";
+pub(crate) const TASKS_EMPTY: &str = "No background tasks in this session.";
 
 /// First-index..past-last-index of the `{…}` block whose text starts at
 /// `anchor` (the anchor's own opening brace included).
@@ -619,7 +619,7 @@ fn put_placements(data: &mut Value, rows: &[(String, &'static str, f64, f64, f64
 /// The slice row's meta line: the full waiting word for a waiting row, else
 /// elapsed (the web's `formatElapsed`, at the dialog's minute granularity) ·
 /// `↓` tokens (`—` before the first).
-fn row_meta(p: &crate::screens::board3::fleetview::FleetRow) -> String {
+pub(crate) fn row_meta(p: &crate::screens::board3::fleetview::FleetRow) -> String {
     use crate::screens::board3::fleetview::Status;
     let elapsed = crate::screens::dialog::minute_granularity(&crate::screens::peers::format_elapsed(p.elapsed_ms));
     let tokens = if p.tokens > 0 { crate::screens::peers::format_tokens(p.tokens) } else { "—".to_owned() };

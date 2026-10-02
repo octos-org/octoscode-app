@@ -1,0 +1,110 @@
+== tasks: /ps palette CLICK
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'ps'
+CLICK palette_row_name '/ps' r=[286, 252, 33, 28]
+PASS tasks: the /ps palette row CLICK opens the dialog
+PASS tasks [seeded]: no label outside the frame, none overlapping, every hit >= 28 — frame=640x333 centre_dx=0.0 margins L=20 R=20 labels=12 outside=0 overlaps=0 controls=2 under28=0 title_h=21 close=[28, 28] min_hit=28 max_pill_h=32
+PASS tasks [seeded]: the board-3 width (480-800), centred — w=640 centre_dx=0.0
+PASS tasks [seeded]: the board-3 header (21 px title line, 28 px close) — title_h=21 close=[28, 28]
+PASS tasks [seeded]: compact pills (<= 36 px) — max_pill_h=32
+SHOT tasks-seeded-desktop
+PASS tasks: the caret follows the last output line — caret=[391, 392, 7, 14] last=[275, 392, 115, 14]
+CLICK dialog_close r=[821, 233, 28, 28] at (835,247)
+== skills: /skills palette CLICK
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'ski'
+CLICK palette_row_name '/skills' r=[286, 252, 54, 28]
+PASS skills: the /skills palette row CLICK opens the dialog
+PASS skills [seeded]: no label outside the frame, none overlapping, every hit >= 28 — frame=720x568 centre_dx=0.0 margins L=20 R=20 labels=21 outside=0 overlaps=0 controls=6 under28=0 title_h=21 close=[28, 28] min_hit=28 max_pill_h=32
+PASS skills [seeded]: the board-3 width (480-800), centred — w=720 centre_dx=0.0
+PASS skills [seeded]: the board-3 header (21 px title line, 28 px close) — title_h=21 close=[28, 28]
+PASS skills [seeded]: compact pills (<= 36 px) — max_pill_h=32
+SHOT skills-seeded-desktop
+CLICK dialog_close r=[861, 115, 28, 28] at (875,129)
+== goal: /goal palette CLICK
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'goa'
+CLICK palette_row_name '/goal' r=[286, 252, 46, 28]
+PASS goal: the /goal palette row CLICK opens the dialog
+PASS goal [seeded]: no label outside the frame, none overlapping, every hit >= 28 — frame=560x292 centre_dx=0.0 margins L=20 R=20 labels=11 outside=0 overlaps=0 controls=4 under28=0 title_h=21 close=[28, 28] min_hit=28 max_pill_h=32
+PASS goal [seeded]: the board-3 width (480-800), centred — w=560 centre_dx=0.0
+PASS goal [seeded]: the board-3 header (21 px title line, 28 px close) — title_h=21 close=[28, 28]
+PASS goal [seeded]: compact pills (<= 36 px) — max_pill_h=32
+SHOT goal-seeded-desktop
+CLICK dialog_close r=[781, 253, 28, 28] at (795,267)
+== loops: /loop palette CLICK
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'loo'
+CLICK palette_row_name '/loop' r=[286, 252, 48, 28]
+PASS loops: the /loop palette row CLICK opens the dialog
+PASS loops [seeded]: no label outside the frame, none overlapping, every hit >= 28 — frame=600x301 centre_dx=0.0 margins L=20 R=20 labels=9 outside=0 overlaps=0 controls=9 under28=0 title_h=21 close=[28, 28] min_hit=28 max_pill_h=32
+PASS loops [seeded]: the board-3 width (480-800), centred — w=600 centre_dx=0.0
+PASS loops [seeded]: the board-3 header (21 px title line, 28 px close) — title_h=21 close=[28, 28]
+PASS loops [seeded]: compact pills (<= 36 px) — max_pill_h=32
+SHOT loops-seeded-desktop
+CLICK dialog_close r=[801, 249, 28, 28] at (815,263)
+== monitors: /monitor palette CLICK
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'moni'
+CLICK palette_row_name '/monitor' r=[286, 252, 76, 28]
+PASS monitors: the /monitor palette row CLICK opens the dialog
+PASS monitors [seeded]: no label outside the frame, none overlapping, every hit >= 28 — frame=600x266 centre_dx=0.0 margins L=20 R=20 labels=10 outside=0 overlaps=0 controls=5 under28=0 title_h=21 close=[28, 28] min_hit=28 max_pill_h=32
+PASS monitors [seeded]: the board-3 width (480-800), centred — w=600 centre_dx=0.0
+PASS monitors [seeded]: the board-3 header (21 px title line, 28 px close) — title_h=21 close=[28, 28]
+PASS monitors [seeded]: compact pills (<= 36 px) — max_pill_h=32
+SHOT monitors-seeded-desktop
+CLICK dialog_close r=[801, 266, 28, 28] at (815,280)
+== models: /model palette CLICK
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'mo'
+CLICK palette_row_name '/model' r=[286, 252, 63, 28]
+PASS models: the /model palette row CLICK opens the dialog
+PASS models [seeded]: no label outside the frame, none overlapping, every hit >= 28 — frame=600x495 centre_dx=0.0 margins L=20 R=20 labels=13 outside=0 overlaps=0 controls=3 under28=0 title_h=21 close=[28, 28] min_hit=28 max_pill_h=32
+PASS models [seeded]: the board-3 width (480-800), centred — w=600 centre_dx=0.0
+PASS models [seeded]: the board-3 header (21 px title line, 28 px close) — title_h=21 close=[28, 28]
+PASS models [seeded]: compact pills (<= 36 px) — max_pill_h=32
+SHOT models-seeded-desktop
+CLICK dialog_close r=[801, 152, 28, 28] at (815,166)
+== review: /review palette CLICK
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'revi'
+CLICK palette_row_name '/review' r=[286, 252, 66, 28]
+PASS review: the /review palette row CLICK opens the dialog
+PASS review [seeded]: no label outside the frame, none overlapping, every hit >= 28 — frame=640x407 centre_dx=0.0 margins L=20 R=20 labels=7 outside=0 overlaps=0 controls=1 under28=0 title_h=21 close=[28, 28] min_hit=28 max_pill_h=32
+PASS review [seeded]: the board-3 width (480-800), centred — w=640 centre_dx=0.0
+PASS review [seeded]: the board-3 header (21 px title line, 28 px close) — title_h=21 close=[28, 28]
+PASS review [seeded]: compact pills (<= 36 px) — max_pill_h=32
+SHOT review-seeded-desktop
+CLICK dialog_close r=[821, 196, 28, 28] at (835,210)
+== context: /compact palette CLICK
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'compa'
+CLICK palette_row_name '/compact' r=[286, 252, 82, 28]
+PASS context: the /compact palette row CLICK opens the dialog
+PASS context [seeded]: no label outside the frame, none overlapping, every hit >= 28 — frame=560x297 centre_dx=0.0 margins L=20 R=20 labels=12 outside=0 overlaps=0 controls=3 under28=0 title_h=21 close=[28, 28] min_hit=28 max_pill_h=32
+PASS context [seeded]: the board-3 width (480-800), centred — w=560 centre_dx=0.0
+PASS context [seeded]: the board-3 header (21 px title line, 28 px close) — title_h=21 close=[28, 28]
+PASS context [seeded]: compact pills (<= 36 px) — max_pill_h=32
+SHOT context-seeded-desktop
+CLICK dialog_close r=[781, 251, 28, 28] at (795,265)
+== fleet: /peer palette CLICK
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'pee'
+CLICK palette_row_name '/peer' r=[286, 252, 50, 28]
+PASS fleet: the /peer palette row CLICK opens the dialog
+PASS fleet [seeded]: no label outside the frame, none overlapping, every hit >= 28 — frame=600x287 centre_dx=0.0 margins L=20 R=20 labels=14 outside=0 overlaps=0 controls=4 under28=0 title_h=21 close=[28, 28] min_hit=28 max_pill_h=28
+PASS fleet [seeded]: the board-3 width (480-800), centred — w=600 centre_dx=0.0
+PASS fleet [seeded]: the board-3 header (21 px title line, 28 px close) — title_h=21 close=[28, 28]
+PASS fleet [seeded]: compact pills (<= 36 px) — max_pill_h=28
+SHOT fleet-seeded-desktop
+CLICK dialog_close r=[801, 256, 28, 28] at (815,270)
+== 46/46 checks passed
