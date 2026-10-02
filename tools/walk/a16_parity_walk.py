@@ -70,7 +70,7 @@ def profile_ext(W: Walk) -> None:
             W.text("dlg_skills_scope"))
     W.check("skills: no lock line while the Profile is idle", not W.visible("dlg_skills_skills_locked"))
 
-    W.note("== 2. Install from source -> the confirm card -> Confirm (the server answers in 9 s)")
+    W.note("== 2. Install from source -> the confirm card -> Confirm (the server answers in 25 s)")
     W.scroll_into("dlg_skills_src_repo", SK_VP)
     r = W.rect("dlg_skills_src_repo")
     if r:
@@ -102,17 +102,18 @@ def profile_ext(W: Walk) -> None:
     W.check("research (locked): dialog numeric checks", c["ok"], checks_line(c))
     W.shot(f"02-research-locked-{MODE}")
     W.mark()
-    W.scroll_into("b3_research_lane_0_remove", RS_VP)
-    r = W.rect("b3_research_lane_0_remove")
+    W.scroll_into("b3_research_lane_0_remove_box", RS_VP)
+    r = W.rect("b3_research_lane_0_remove_box")
     if r:
-        W.note(f"CLICK b3_research_lane_0_remove r={r}")
+        W.note(f"CLICK the drawn pill b3_research_lane_0_remove_box (no tap target while locked) r={r}")
         W.click_xy(r[0] + r[2] / 2, r[1] + r[3] / 2)
-    W.check("research: a 'Remove strong' CLICK while locked routes nothing (no confirmation)",
-            r is not None and not W.wait(lambda: bool(W.visible("b3_research_confirm_detail")), 1.5))
+    W.check("research: a 'Remove strong' CLICK while locked routes nothing (no confirmation; still locked)",
+            r is not None and not W.wait(lambda: bool(W.visible("b3_research_confirm_detail")), 1.5)
+            and seen(W, "b3_research_locked", RS_VP))
 
     W.note("== 4. the install lands: the lease is released, Research unlocks")
     W.check("research: the lock line goes once the skill install is answered",
-            W.wait(lambda: not W.visible("b3_research_locked"), 14))
+            W.wait(lambda: not W.visible("b3_research_locked"), 30))
     W.check("research: 'Remove strong' CLICK now asks ('Confirm lane removal' naming the key)",
             W.click_in("b3_research_lane_0_remove", RS_VP)
             and W.wait(lambda: seen(W, "b3_research_confirm_detail", RS_VP) and W.text("b3_research_confirm_detail") == "strong", 6))
@@ -248,6 +249,15 @@ def sidebar_open(W: Walk) -> None:
         W.wait(lambda: bool(W.visible("sb_new_chat_hit")), 4)
 
 
+def sidebar_close(W: Walk) -> None:
+    """Phone: the drawer covers the composer — its close control (the web's
+    compact navigation surface dismiss)."""
+    if MODE == "phone" and W.visible("sb_new_chat_hit"):
+        if not W.click("drawer_close"):
+            W.click("drawer_scrim_hit")
+        W.wait(lambda: not W.visible("sb_new_chat_hit"), 4)
+
+
 def row_titles(W: Walk) -> list:
     sb = W.rect("thread_list")
     rows = W.visible("sb_r_title")
@@ -301,6 +311,7 @@ def sidebar_walk_for(log: pathlib.Path):
         W.shot(f"02-sidebar-selected-{MODE}")
 
         W.note("== 3. a Session deleted from the switcher (/sessions) leaves the sidebar")
+        sidebar_close(W)
         c = W.composer()
         if c:
             x, y, w, h = c["r"]
@@ -365,7 +376,7 @@ def run_sidebar() -> int:
 if __name__ == "__main__":
     if WHICH == "profile-ext":
         sys.exit(run_session(profile_ext, mode=MODE, outdir=OUT, scenario="a10",
-                             replay_args=["--slow", "profile/skills/install=9000"]))
+                             replay_args=["--slow", "profile/skills/install=25000"]))
     if WHICH == "restart":
         sys.exit(run_session(restart, mode=MODE, outdir=OUT, scenario="a10"))
     if WHICH == "sidebar":

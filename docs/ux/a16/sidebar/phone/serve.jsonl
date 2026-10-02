@@ -1,0 +1,16 @@
+{"method":"session/open","params":{"profile_id":"a8","session_id":"a8:main"}}
+{"method":"session/list","params":{}}
+{"method":"permission/profile/list","params":{"session_id":"a8:main"}}
+{"method":"session/driver/get","params":{"session_id":"a8:main"}}
+{"method":"profile/llm/list","params":{"profile_id":"a8"}}
+{"method":"profile/skills/list","params":{"profile_id":"a8"}}
+{"method":"session/status/read","params":{"session_id":"a8:main"}}
+{"method":"permission/profile/list","params":{"session_id":"a8:main"}}
+{"method":"profile/sub_providers/list","params":{"profile_id":"a8"}}
+{"method":"session/open","params":{"profile_id":"a8","session_id":"a8:api:beta"}}
+{"method":"session/list","params":{}}
+{"method":"session/driver/get","params":{"session_id":"a8:api:beta"}}
+{"method":"session/status/read","params":{"session_id":"a8:api:beta"}}
+{"method":"permission/profile/list","params":{"session_id":"a8:api:beta"}}
+{"method":"session/list","params":{}}
+{"method":"session/delete","params":{"session_id":"a8:api:hollow"}}
