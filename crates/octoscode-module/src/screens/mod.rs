@@ -15,6 +15,8 @@ pub mod connect;
 // the sidebar, lowered slot-relative, wired by node id.
 pub mod dialog;
 pub mod fleet;
+// A10: the external-driver chains behind the Fleet (seat, Start, row control).
+pub mod fleet_driver;
 pub mod history;
 pub mod keys;
 pub mod media;

@@ -1465,6 +1465,8 @@ impl OctoscodeView {
                 // A5 — loop/monitor/goal notifications keep the autonomy
                 // dialogs' cache current (the web store's applyNotification).
                 screens::autonomy::note_transport_event(&evt);
+                // A10 — peer/staged + peer/closed drive the peer manager.
+                screens::peers::note_transport_event(&drv, &evt);
                 let e = drv.on_event(evt);
                 ::log::debug!("[octoscode] {e:?}");
                 SignalToUI::set_ui_signal();
@@ -1512,6 +1514,12 @@ impl OctoscodeView {
             let store = { self.bridge.lock().unwrap().store.clone() };
             let outcome = screens::board3::host::perform(action, index, &store);
             makepad_widgets::log!("[octoscode] board3 action {action} #{index} -> {outcome:?}");
+            // A10 — a form submit takes the focus from its field, so the
+            // remount that settles it does not hand the focus (and a phone's
+            // on-screen keyboard) back to the rebuilt input.
+            if screens::board3::host::take_blur() {
+                cx.set_key_focus(Area::Empty);
+            }
             self.board3_outcome(cx, outcome);
             return;
         }
@@ -1971,6 +1979,8 @@ impl OctoscodeView {
                     ::log::info!("octoscode: connection.retry connected");
                     rt.spawn(async move {
                         while let Some(evt) = evt_rx.recv().await {
+                            // A10 — the peer manager's staged/closed.
+                            screens::peers::note_transport_event(&conv, &evt);
                             let e = conv.on_event(evt);
                             ::log::debug!("[octoscode] {e:?}");
                             SignalToUI::set_ui_signal();
@@ -2807,6 +2817,8 @@ impl OctoscodeView {
                                 screens::models::note_transport_event(&evt);
                                 screens::review::note_transport_event(&evt);
                                 screens::autonomy::note_transport_event(&evt);
+                                // A10 — the peer manager's staged/closed.
+                                screens::peers::note_transport_event(&drv, &evt);
                                 let _ = drv.on_event(evt);
                                 SignalToUI::set_ui_signal();
                             }
@@ -3556,6 +3568,8 @@ impl OctoscodeView {
         {
             let ui = { self.bridge.lock().unwrap().ui.clone() };
             let active_turn = ui.lock().unwrap().active_turn();
+            // A10 — the Fleet's control seat targets the master's live turn.
+            screens::board3::host::set_live_turn(active_turn.clone());
             // A10 — the Agents panel's spawn is idle-only.
             screens::board3::host::note_turn_busy(active_turn.is_some());
             let mode = {
@@ -3601,6 +3615,14 @@ impl OctoscodeView {
         }
         let lowered = screens::board3::host::lower_open(&store);
         self.view.widget(cx, ids!(board3_dock)).set_visible(cx, lowered.is_some());
+        // A10 — the Fleet pane REPLACES the chat area (FleetPane.tsx): the
+        // composer under it goes too, so its hidden field and buttons can
+        // never take a tap (or a phone's keyboard focus) meant for the pane.
+        let fleet_open = screens::board3::host::open_dialog() == Some(screens::board3::host::Dialog::Fleet);
+        let dock = self.view.widget(cx, ids!(composer_dock));
+        if dock.visible() == fleet_open {
+            dock.set_visible(cx, !fleet_open);
+        }
         let Some(lowered) = lowered else {
             self.b3_taps.clear();
             self.b3_inputs.clear();
@@ -3618,12 +3640,32 @@ impl OctoscodeView {
         let splash = self.view.splash(cx, ids!(board3_splash));
         match self.mounts.mount(cx, &splash, &lowered.dsl) {
             Err(e) => makepad_widgets::log!("[octoscode] board3 mount: {e}"),
-            Ok(true) => makepad_widgets::log!(
-                "[octoscode] board3 mounted {:?}: {} tap(s), {} input(s)",
-                screens::board3::host::open_dialog(),
-                self.b3_taps.len(),
-                self.b3_inputs.len()
-            ),
+            Ok(true) => {
+                makepad_widgets::log!(
+                    "[octoscode] board3 mounted {:?}: {} tap(s), {} input(s)",
+                    screens::board3::host::open_dialog(),
+                    self.b3_taps.len(),
+                    self.b3_inputs.len()
+                );
+                // A10 — a remount rebuilds every input: when none of the
+                // rebuilt inputs holds the key focus, the text IME must not
+                // stay up (a phone's on-screen keyboard over the Fleet pane
+                // with no field to type in). Phone only: there the pane's
+                // fields are the only ones on screen (the composer is hidden
+                // under the pane, the sidebar is a closed drawer), so this
+                // never takes the focus from another field.
+                if conv_layout::current().density == conv_layout::Density::Phone
+                    && screens::board3::host::open_dialog() == Some(screens::board3::host::Dialog::Fleet)
+                {
+                    let focused = self.b3_inputs.iter().any(|(id, _)| {
+                        self.view.text_input(cx, &[live_id!(board3_splash), *id]).key_focus(cx)
+                    });
+                    if !focused {
+                        cx.set_key_focus(Area::Empty);
+                        cx.hide_text_ime();
+                    }
+                }
+            }
             Ok(false) => {}
         }
         self.board3_visibility(cx, &store);

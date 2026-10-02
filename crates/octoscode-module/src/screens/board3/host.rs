@@ -185,6 +185,19 @@ pub fn take_clipboard() -> Option<String> {
     state().pending_clipboard.take()
 }
 
+/// A10 — a submit asked the host to take the key focus from its field.
+static BLUR: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// Ask the host to drop the key focus after this action (a form submit).
+pub fn request_blur() {
+    BLUR.store(true, std::sync::atomic::Ordering::SeqCst);
+}
+
+/// Whether an action asked for the focus to drop (clears the request).
+pub fn take_blur() -> bool {
+    BLUR.swap(false, std::sync::atomic::Ordering::SeqCst)
+}
+
 /// What the host mounts: the DSL, its tap targets (also recoverable with
 /// `taps::wired_taps`) and its text inputs (widget id, input key).
 #[derive(Debug, Clone)]
@@ -208,22 +221,29 @@ pub fn set_content_x(x: f64) {
     state().fleet.content_x = x.max(0.0);
 }
 
+/// A10 — the master session's live turn (the control seat's expected turn).
+pub fn set_live_turn(turn: Option<String>) {
+    state().fleet.console.live_turn = turn;
+}
+
 /// Lower the open dialog against the live store, or `None` when closed.
 pub fn lower_open(store: &Store) -> Option<Lowered> {
     let mut st = state();
     let open = st.open?;
     let mut d = Dsl::new();
     if open == Dialog::Fleet {
-        // Announce a peer that changed into an announced state, once.
-        let rows = super::fleetview::rows(&st.fleet, store);
+        // A10: announce a peer that changed into an announced state, once
+        // (keyed by the row, `fleetAnnouncement`).
+        let rows = super::fleetview::rows(store, crate::screens::peers::now_ms());
         if let Some(a) = super::fleetview::announce(&st.fleet.seen, &rows) {
             makepad_widgets::log!("[octoscode] fleet announce: {a}");
             st.fleet.announcement = Some(a);
         }
-        st.fleet.seen = rows.iter().map(|r| (r.label.clone(), r.phase)).collect();
+        st.fleet.seen = rows.iter().map(|r| (r.key.clone(), r.status)).collect();
     }
+    let frame = st.frame;
     match open {
-        Dialog::Fleet => super::fleetview::build(&mut d, &st.fleet, &st.frame, store),
+        Dialog::Fleet => super::fleetview::build(&mut d, &mut st.fleet, &frame, store),
         Dialog::Inventory => super::inventory::build(&mut d, &st.inv, &st.frame, store),
         Dialog::Inspector => super::inspector::build(&mut d, &st.insp, &st.frame, store),
         Dialog::Thinking => super::thinking::build(&mut d, &st.frame, store),
@@ -272,12 +292,27 @@ pub enum Job {
     SwitchOpen(String),
     /// `POST /api/upload` per selected image.
     ImagesUpload,
-    /// `profile/sub_providers/list` (the Start form's models).
+    /// The Fleet's opening reads: `profile/sub_providers/list` (the Start
+    /// form's models, when advertised) + the `session/driver/get`
+    /// inventory walk (A10).
     FleetLanes,
-    /// prepare -> driver seat -> one dispatch.
-    FleetStart(String, String),
-    /// `peer/control` steer (op index, text).
-    FleetSteer(usize, String),
+    /// A10 — Start: acquire (CAS) -> prepare -> EXACTLY ONE dispatch with
+    /// this operation id (a retry reuses it).
+    FleetStart { operation_id: String, lane: String, brief: String },
+    /// A10 — ONE `peer/control` for a Fleet row (row key, roster identity).
+    FleetRow { key: String, identity: String, action: crate::screens::peers::RowAction, text: String },
+    /// A10 — the console's explicit seat acquire / release (next external).
+    FleetSeatAcquire,
+    FleetSeatRelease,
+    /// A10 — ONE control-seat command (`PeerControlPanel`).
+    FleetSeatControl { kind: String, live_turn: Option<String> },
+    /// A10 — the console's staged dispatch (held seat only).
+    FleetConsoleDispatch { lane: String, brief: String, title: Option<String> },
+    /// A10 — ONE console roster control.
+    FleetConsoleRow { identity: String, action: String, text: String },
+    /// A10 — the blackboard gather (`/gather`): `peer/gather` -> the
+    /// composed synthesis prompt as ONE ordinary turn.
+    FleetGather,
     /// `session/status/read` for the strip's model.
     StatusRead,
     /// `GET /api/files` for a delivered file (entry id, preview?).
@@ -377,7 +412,7 @@ pub fn open(dialog: Dialog) -> Outcome {
         }
         Dialog::Fleet => {
             st.fleet.announcement = None;
-            st.fleet.brief_snap = st.fleet.brief.clone();
+            st.fleet.snap_inputs();
             Outcome::Spawn(Job::FleetLanes)
         }
         Dialog::Vim => Outcome::Done,
@@ -686,10 +721,27 @@ pub fn job_unavailable(job: &Job) {
             st.switch.error = Some(msg);
         }
         Job::ImagesUpload => st.img.error = Some(msg),
-        Job::FleetLanes => st.fleet.lanes_loading = false,
-        Job::FleetStart(..) | Job::FleetSteer(..) => {
-            st.fleet.starting = false;
-            st.fleet.start_error = Some(msg);
+        Job::FleetLanes => st.fleet.lane_read = super::fleetview::LaneRead::Unread,
+        Job::FleetStart { lane, brief, operation_id } => {
+            st.fleet.start = super::fleetview::StartState::Unknown {
+                lane: lane.clone(),
+                brief: brief.clone(),
+                operation_id: operation_id.clone(),
+            };
+        }
+        Job::FleetRow { key, .. } => {
+            st.fleet.row_note.insert(key.clone(), msg);
+        }
+        Job::FleetSeatAcquire | Job::FleetSeatRelease | Job::FleetConsoleRow { .. } => {}
+        Job::FleetSeatControl { .. } => {
+            st.fleet.console.seat = super::fleet_console::SeatPanel::Refused(msg);
+        }
+        Job::FleetConsoleDispatch { .. } => {
+            st.fleet.console.outcome = super::fleet_console::ConsoleOutcome::Unknown { dispatch: true };
+        }
+        Job::FleetGather => {
+            st.fleet.gathering = false;
+            st.fleet.announcement = Some(super::fleet_copy::t(super::fleetview::GATHER_FAILED));
         }
         Job::StatusRead => {}
         Job::AgentsLoad => st.agents.loading = false,
@@ -768,9 +820,28 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
         Job::SwitchLoad => super::switcher::load(conv).await,
         Job::SwitchOpen(id) => super::switcher::open(conv, id).await,
         Job::ImagesUpload => super::images::upload(conv).await,
-        Job::FleetLanes => super::fleetview::load_lanes(conv).await,
-        Job::FleetStart(model, brief) => super::fleetview::start(conv, model, brief).await,
-        Job::FleetSteer(op, text) => super::fleetview::steer(conv, op, text).await,
+        Job::FleetLanes => {
+            let lanes = super::fleetview::load_lanes(conv).await;
+            let inv = crate::screens::fleet_driver::load_inventory(conv).await;
+            Ok(format!("{lanes:?}; {inv:?}"))
+        }
+        Job::FleetStart { operation_id, lane, brief } => super::fleetview::run_start(conv, operation_id, lane, brief).await,
+        Job::FleetRow { key, identity, action, text } => super::fleetview::run_row(conv, key, identity, action, text).await,
+        Job::FleetSeatAcquire => crate::screens::fleet_driver::acquire_seat(conv).await.map(|_| "seat acquired".to_owned()).map_err(|e| e.to_string()),
+        Job::FleetSeatRelease => {
+            let released = crate::screens::fleet_driver::release_seat(conv).await;
+            // The web re-walks after a release (`releaseControlSeat` ->
+            // `refreshControlInventory`), so the next acquire's CAS reads the
+            // revision the release moved, and the disclosure follows it.
+            if released.is_ok() {
+                let _ = crate::screens::fleet_driver::load_inventory(conv).await;
+            }
+            released.map(|_| "seat released".to_owned()).map_err(|e| e.to_string())
+        }
+        Job::FleetSeatControl { kind, live_turn } => super::fleet_console::run_seat(conv, kind, live_turn).await,
+        Job::FleetConsoleDispatch { lane, brief, title } => super::fleet_console::run_dispatch(conv, lane, brief, title).await,
+        Job::FleetConsoleRow { identity, action, text } => super::fleet_console::run_row(conv, identity, action, text).await,
+        Job::FleetGather => super::fleetview::run_gather(conv).await,
         Job::StatusRead => super::strip::load_status(conv).await,
         Job::FileFetch(id, preview) => super::rows::fetch(conv, id, preview).await,
         Job::AgentsLoad => super::agents::load(conv).await,
