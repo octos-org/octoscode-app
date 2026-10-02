@@ -12,7 +12,7 @@ PASS sidebar: the row is titled by the catalog — 'Recording fixture. Reply wit
 PASS layout: the row title stays inside its row — [38, 308, 226, 17] in [10, 300, 292, 32]
 PASS CLICK New chat
 PASS new chat: an empty Session
-PASS wire: the new Session's open hydrated too — dsflash:api:01a0feae-fbb6-7621-9958-1ec5c06666e6
+PASS wire: the new Session's open hydrated too — dsflash:api:01a0fec0-5396-736a-ac6c-c718fa35b0e1
 PASS defaults line: what a New chat gets (nothing stored: the server's defaults) — 'New chat defaults · Server defaults · …'
 PASS layout: the defaults line inside its strip — [16, 142, 256, 16] in [0, 127, 360, 47]
 PASS seat: the new Session's permissions are the server's — 'Write'

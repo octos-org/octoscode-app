@@ -8,7 +8,7 @@ PASS draft: the unsent text is back after the restart — 'unsent draft survives
 PASS draft: it was restored, not sent — 0 turn/start at the fixture
 == WALK phone draft-check: 2/2 passed
 -- app restart (state kept)
--- run 3: exit 0 in 94 s
+-- run 3: exit 0 in 100 s
 PASS markdown: the answer renders highlighted code (A7CodeLines)
 PASS markdown: inline + display math typeset (MathView) — 3
 PASS markdown: money stays prose ($12 and $5)
@@ -74,7 +74,10 @@ PASS media: the late receipt was ignored (not uploaded) — 'walk-shot.png · 0.
 PASS media: removing an in-flight entry frees the slot
 PASS media: its late receipt does not resurrect it
 PASS media: the picker is available again
-== WALK phone main: 65/65 passed
+PASS media: the composer + opens Turn images
+PASS media: + routes through the /images command arm
+PASS media: the draft survives + — 'keep this draft'
+== WALK phone main: 68/68 passed
 -- fixture restart with {'A7_SERVE_HELD': 'octos-tui', 'A7_SERVE_RELEASE_DELAY_MS': '1500'}
 -- run 4: exit 0 in 3 s
 PASS seat: the held banner names the other app — 'This session is open in octos-tui. You can read along; take over to send.'
@@ -90,7 +93,7 @@ PASS seat: the banner is gone
 PASS seat: the status line is gone
 == WALK phone seat: 11/11 passed
 -- fixture log tail:
-[a7-serve] <- session/open
+[a7-serve] <- session/list
 [a7-serve] <- session/list
 [a7-serve] <- session/hydrate
 [a7-serve] <- profile/llm/list

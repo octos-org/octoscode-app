@@ -1,8 +1,8 @@
 == native walk a12_reconnect [phone] (tools/walk/a12_reconnect_walk.py)
--- run 1: exit 0 in 20 s
+-- run 1: exit 0 in 36 s
 PASS server up — port 8498
-[makepad-remote] listening on 127.0.0.1:8494 pid=4448 app=octosense grabs=<abs>/octosense-4448 token_file=<abs>/port-8494.token
-[headless] up: pid 4448  port 8494  log <abs>/port-8494.log
+[makepad-remote] listening on 127.0.0.1:8494 pid=48248 app=octosense grabs=<abs>/octosense-48248 token_file=<abs>/port-8494.token
+[headless] up: pid 48248  port 8494  log <abs>/port-8494.log
 PASS app launched (hidden, isolated state)
 PASS the shell is up and live
 PASS strip Ready — 'Ready'
@@ -35,7 +35,7 @@ PASS Retry now is clickable
 PASS Retry now re-dials (a fresh transport)
 PASS …and the banner stays while the server is down
 PASS server back on the same port
-PASS recovered: the banner goes by itself (the transport's own re-dial) — 1.6s
+PASS recovered: the banner goes by itself (the transport's own re-dial) — 17.5s
 PASS recovered: strip Ready — 'Ready'
 PASS recovered: the SAME Session re-opened ({reconnect: true}) — [{'cwd': '/home/user/octos', 'reconnect': True, 'session_id': 'a12walk:main'}] vs 'a12walk:main'
 PASS recovered: and re-hydrated (the canonical history came back) — 1 hydrate replies
@@ -57,4 +57,4 @@ PASS server back
 PASS the card's Connect dials that same server and the shell returns
   shot <repo>/tmp/a22-regress/scratch/a12_reconnect-phone/out/phone-9-reconnected-from-card.png
 == WALK a12 reconnect phone (replay, TERM): 46/46 passed
-   state dir (trace, serve log): <abs>/a12walk.mtxj5vt4
+   state dir (trace, serve log): <abs>/a12walk.i2otg7tb

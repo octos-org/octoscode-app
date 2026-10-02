@@ -1,7 +1,7 @@
 PASS loading: replay server up
 PASS loading: app up
   shot tmp/a22-regress/a19/phone-01-loading.png
-PASS loading: never the empty welcome, from the first frame until the history arrived — 46 frames: 0 welcome, 45 loading
+PASS loading: never the empty welcome, from the first frame until the history arrived — 44 frames: 0 welcome, 43 loading
 PASS loading: 'Loading conversation…' while the read is in flight
 PASS loading: the hint is 'Restoring session state' — 'Restoring session state'
 PASS loading: no transcript row under it
