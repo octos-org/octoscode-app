@@ -416,6 +416,9 @@ async fn stop_pressed_in_y_never_interrupts_another_sessions_turn() {
     tokio::time::sleep(Duration::from_millis(200)).await;
     assert!(interrupts_naming(&core, &tx).is_empty(), "Stop in Y sent an interrupt for X's turn: {:?}", core.params_of("turn/interrupt"));
     until("X's turn streams to its end", || !core.is_running(&tx)).await;
+    // (the fake Core ends the turn as it SENDS the terminal; the app folds it
+    // a moment later)
+    until("X's terminal reached the app", || conv.store.domains.turn.terminal(&tx).is_some()).await;
     assert_eq!(conv.store.domains.turn.terminal(&tx).as_deref(), Some("completed"), "X's turn finished, not interrupted");
 
     // 2. A Session opened and left before its history answered (Z): another
