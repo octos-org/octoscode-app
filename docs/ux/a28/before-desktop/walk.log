@@ -1,0 +1,46 @@
+== A28 diff review (desktop, en)
+CLICK composer r=[375, 585, 629, 28]
+KEY End
+TYPE 'retry the steer queue'
+KEY Return
+PASS turn: a prompt CLICK + Return -> turn/start (the approvals turn)
+PASS approval: the command approval takes the composer over
+CLICK cv_ap_deny r=[647, 615, 64, 34] at (679,632)
+PASS approval: Deny -> the typed DIFF approval with 'Review diff' — 'Apply a patch to steer_queue.rs, octos.conf and steer.md'
+CLICK cv_ap_diff r=[535, 615, 104, 34] at (587,632)
+PASS words: 'Review diff' CLICK opens the review on ONE diff/preview/get — title='Retry the steer queue with backoff'
+SHOT words-desktop
+FAIL words: desktop = min(1080, 100%) x min(780, 100%) inside the 24 px inset, centred — dialog=[169, 106, 760, 542] want=942x555 module=[54, 76, 990, 603] centre=(0.0,-0.5)
+PASS words: desktop shows the preview id
+PASS words: dialog numeric checks (no clipped label, no overlap, controls >= 28 px) — frame=760x542 centre_dx=0.0 margins L=20 R=21 labels=61 outside=0 overlaps=0 controls=2 under28=0
+FAIL words: every line is whole (its runs join to the fixture text) — b3_diff_file_0_h0_l0: '' != '    fn redeliver(&mut self, conn: &Conn) -> Result<()> {'; b3_diff_file_0_h0_l1: '' != '        let pending = self.drain_pending();'; b3_diff_file_0_h0_l2: '' != '        let delay = Duration::from_millis(500);'
+FAIL words: keyword / function / constant runs on context, removed and added lines — l0=[]
+FAIL conf: no grammar -> plain runs only, word marks on 500 / 250 — classes=[] l0=[] l1=[]
+FAIL words: the equal 1:1 blocks carry the web's word marks — _h0_l2=[]; _h0_l3=[]; _h0_l5=[]; _h0_l6=[]; _h0_l0=[]; _h0_l1=[]
+PASS words: the unequal block (+48, +49), context lines and the < 25 % pair carry no mark — []
+FAIL words: each mark lies in its row on its words' columns (x, width) — marks=0 
+FAIL words: the marks are drawn in the success / error fills — added=None want (187, 234, 203); removed=None want (250, 193, 193)
+FAIL words: a keyword run is drawn in the keyword colour (#b4235a family) — fn ink=None
+CLICK b3_close r=[881, 130, 28, 28] at (895,144)
+PASS words: the close CLICK returns to the approval card
+== the header Review control re-opens the announced preview
+CLICK review_open_hit r=[841, 87, 86, 30] at (884,102)
+PASS header: Review CLICK re-opens the same preview (one more read)
+FAIL header: the re-opened review carries the same marks — []
+CLICK b3_close r=[881, 130, 28, 28] at (895,144)
+== the large preview: past the bound, nothing is decorated
+CLICK cv_ap_session r=[719, 615, 157, 34] at (798,632)
+PASS approval: Approve for session -> the large diff approval — 'Apply a patch to Cargo.lock and Cargo.toml'
+CLICK cv_ap_diff r=[535, 615, 104, 34] at (587,632)
+PASS large: 'Review diff' CLICK opens the large preview — title='Bump octos to 0.24.1'
+SHOT large-desktop
+FAIL large: desktop = min(1080, 100%) x min(780, 100%) inside the 24 px inset, centred — dialog=[169, 106, 760, 542] want=942x555 module=[54, 76, 990, 603] centre=(0.0,-0.5)
+PASS large: desktop shows the preview id
+PASS large: dialog numeric checks (no clipped label, no overlap, controls >= 28 px) — frame=760x542 centre_dx=0.0 margins L=20 R=21 labels=72 outside=0 overlaps=0 controls=2 under28=0
+FAIL large: the note 'Large preview shown as plain text. All lines are included.' — ''
+PASS large: no run and no word mark anywhere (all or nothing) — runs=0 marks=0
+FAIL large: every line is included (522 lines, the last one scrolled into view) — lines=0 want=520 blocks=0
+FAIL large: the removed line keeps its tint and red text (no syntax colour) — block=None ink=None
+CLICK b3_close r=[881, 130, 28, 28] at (895,144)
+CLICK cv_ap_once r=[884, 615, 118, 34] at (943,632)
+== 14/27 checks passed

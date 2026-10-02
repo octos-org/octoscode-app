@@ -1,0 +1,38 @@
+# A29 failing-first run (main @ af2beb2f, before the fix): cargo test -p octoscode-module --test a29_btw_aside
+running 7 tests
+test a_late_answer_after_dismiss_stays_hidden ... FAILED
+test a_connection_change_while_answering_stales_the_aside ... FAILED
+test a_second_ask_while_answering_is_busy_and_keeps_the_draft ... FAILED
+test an_admitted_prompt_clears_a_settled_aside_never_an_answering_one ... FAILED
+test an_answer_after_a_switch_lands_only_in_the_asking_session ... FAILED
+test btw_without_a_question_reports_how_to_use_it_and_sends_nothing ... FAILED
+test the_ask_captures_its_session_before_a_switch ... FAILED
+thread 'a_late_answer_after_dismiss_stays_hidden' (242153768) panicked at crates/octoscode-module/tests/a29_btw_aside.rs:390:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+thread 'a_connection_change_while_answering_stales_the_aside' (242153767) panicked at crates/octoscode-module/tests/a29_btw_aside.rs:415:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+thread 'a_second_ask_while_answering_is_busy_and_keeps_the_draft' (242153769) panicked at crates/octoscode-module/tests/a29_btw_aside.rs:459:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+thread 'an_admitted_prompt_clears_a_settled_aside_never_an_answering_one' (242153770) panicked at crates/octoscode-module/tests/a29_btw_aside.rs:439:5:
+assertion `left == right` failed
+  left: 0
+ right: 1
+thread 'an_answer_after_a_switch_lands_only_in_the_asking_session' (242157324) panicked at crates/octoscode-module/tests/a29_btw_aside.rs:309:5:
+assertion `left == right` failed: the typed /btw reached the wire
+  left: 0
+ right: 1
+thread 'btw_without_a_question_reports_how_to_use_it_and_sends_nothing' (242161093) panicked at crates/octoscode-module/tests/a29_btw_aside.rs:485:5:
+assertion `left == right` failed: one receipt row
+  left: 0
+ right: 1
+thread 'the_ask_captures_its_session_before_a_switch' (242164486) panicked at crates/octoscode-module/tests/a29_btw_aside.rs:374:5:
+assertion `left == right` failed: the asking Session's id, captured at admission
+  left: String("a29:y")
+ right: String("a29:x")
+test result: FAILED. 0 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 53.86s

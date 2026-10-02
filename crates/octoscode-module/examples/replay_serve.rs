@@ -28,7 +28,14 @@
 //! | `session` | `r3-session-a6ea8505` | the context-compaction lifecycle |
 //! | `fleet` | `a10-fleet-driver-synthetic` (SYNTHETIC) | the external-driver chain: walk, acquire, prepare, dispatch, peer frames, peer/control |
 //! | `onboarding` | `live-gate-a6ea8505` handshake + `r29a-onboarding-a6ea8505` replies | A17: the solo onboarding panel (see [`onboarding`]) |
+//! | `btw` | `live-gate-a6ea8505` handshake + turns, `r43a` hydrate shape | A29: the `/btw` aside per Session (see [`btw`]) |
 //! | `skill-jobs` | r1's handshake + SYNTHETIC jobs (`replay_scenarios/skill_jobs.rs`) | A31: the Skills dialog's Background jobs — `skill.action_jobs.v1` advertised (withdraw it with `--drop-feature skill.action_jobs.v1 --drop-method skill/action/job/list`), `skill/action/job/list` per Session, `skill/action/job/updated` around it; `--jobs-trigger <file>` sends a live transition when the file appears |
+//!
+//! `--diff-words` (A28, `surfaces`): the approvals turn's diff approvals
+//! announce the SYNTHETIC previews of `a28-diff-words-synthetic.jsonl` — word
+//! marks + syntax colours (`…0f1`), then a preview past the decoration bound
+//! (`…0f2`), then the heaviest preview still decorated (`…0f3`, 394 lines) —
+//! and `diff/preview/get` answers each by its id.
 //!
 //! `--stale-window` (A18, any scenario): every `session/hydrate` answers with
 //! the A15 live smoke's first-launch hydrate (`a18-stale-window-a6ea8505`): no
@@ -145,6 +152,12 @@ fn scenario_fixture(name: &str) -> (&'static str, &'static str) {
         // catalog names it by its first prompt (see `history_reply`). Run the
         // app with OCTOS_PROFILE_ID=dsflash (the recorded profile).
         "history" => ("history", "r43a-recovery-a6ea8505.jsonl"),
+        // A29: the /btw aside walk. live-gate's handshake (its recorded open
+        // advertises `session/btw` in `supported_methods`) and its turns
+        // (`--adopt-turn-ids --delay-ms`: a main turn keeps working while the
+        // aside answers); three Sessions of one `octos` workspace; the
+        // aside's replies come from the `btw` module.
+        "btw" => ("btw", "live-gate-a6ea8505.jsonl"),
         // A31: the Skills dialog's Background jobs (see `skill_jobs`): r1's
         // handshake and the `screens` replies, the jobs synthetic.
         "skill-jobs" => ("skill-jobs", "r1-autonomy-a6ea8505.jsonl"),
@@ -283,6 +296,99 @@ fn history_reply(method: &str, p: &Value, home: &str, hydrate: &Value) -> Option
             }))
         }
         _ => None,
+    }
+}
+
+/// A29 — the `btw` scenario: the `/btw` aside per Session.
+///
+/// No recording carries a `session/btw` frame (#30d recon), so the reply is
+/// SYNTHETIC in octos-core's shape (`SessionBtwResult {session_id, answer,
+/// model}`, `ui_protocol.rs:3106`; the web client's `parseSessionBtwResult`
+/// admits exactly that, `btw.ts:34-52`): the asking Session's id echoed back,
+/// a Markdown answer, the model. It arrives `--btw-delay-ms` (default 4000)
+/// after the request, so a walk can switch Sessions while it answers.
+/// `--btw-drop <n>[,<n>…]` closes the socket ~1.2 s after the n-th aside
+/// (counted across connections; the app re-dials: the stale state) and
+/// `--btw-fail <n>[,…]` answers the n-th with a JSON-RPC error (the failed
+/// state). The catalog names three Sessions of the `/home/user/src/octos`
+/// workspace; the main one has a short history in the recorded hydrate's
+/// shape (`r43a-recovery`), the others none.
+mod btw {
+    use serde_json::{json, Value};
+
+    pub const WORKSPACE: &str = "/home/user/src/octos";
+    pub const SESSIONS: &[(&str, &str, &str)] = &[
+        ("main", "Fix steer queue drop on reconnect", "2026-10-02T09:12:00Z"),
+        ("hydrate", "Why is hydrate slow?", "2026-10-02T08:40:00Z"),
+        ("fork", "Add session fork", "2026-10-01T16:05:00Z"),
+    ];
+
+    /// The aside's answer (Markdown), by question.
+    pub fn answer(question: &str, session: &str) -> String {
+        let q = question.to_lowercase();
+        if q.contains("redeliver") {
+            "Draining first keeps the order stable: `redeliver` resends from a snapshot, so a message that \
+             arrives mid-resend waits for the next pass."
+                .to_owned()
+        } else if q.contains("hydrate") {
+            "Hydrate reads the whole canonical history before the first row draws. The slow part is the \
+             projection replay, not the transport."
+                .to_owned()
+        } else if q.contains("测试") || q.contains("为什么") {
+            "因为重连会先排空队列，再按快照重发，所以顺序保持稳定。".to_owned()
+        } else {
+            format!("Aside for `{session}`: {question}")
+        }
+    }
+
+    /// The catalog (`session/list`), in the catalog reply's shape.
+    pub fn list(profile: &str, cwd: Option<&str>) -> Value {
+        let rows: Vec<Value> = SESSIONS
+            .iter()
+            .map(|(suffix, title, when)| {
+                json!({
+                    "id": format!("{profile}:{suffix}"), "title": title, "message_count": 4,
+                    "updated_at": when, "active_turn": false
+                })
+            })
+            .collect();
+        match cwd {
+            Some(cwd) => json!({"sessions": rows, "workspace_root": cwd, "profile_id": profile}),
+            None => json!({"sessions": rows}),
+        }
+    }
+
+    /// `session/hydrate` for `session`: the recorded reply's shape with this
+    /// Session's own (short) history.
+    pub fn hydrate(template: &Value, recorded: &str, session: &str) -> Value {
+        let mut body = template.clone();
+        super::rewrite_session(&mut body, recorded, session);
+        if let Some(obj) = body.as_object_mut() {
+            obj.insert("session_id".to_owned(), Value::String(session.to_owned()));
+            let messages = if session.ends_with(":main") {
+                json!([
+                    {"content": "Make redeliver survive a reconnect.", "message_id": format!("{session}:0:1"),
+                     "persisted_at": "2026-10-02T09:10:00Z", "role": "user", "seq": 0},
+                    {"content": "I traced `redeliver`: it drains the queue from a snapshot before it resends. I'll make the drain resumable, so a reconnect picks up where the last pass stopped.",
+                     "message_id": format!("{session}:1:1"), "persisted_at": "2026-10-02T09:11:30Z",
+                     "role": "assistant", "seq": 1}
+                ])
+            } else {
+                json!([])
+            };
+            obj.insert("messages".to_owned(), messages);
+            obj.remove("pending_approvals");
+            obj.remove("pending_questions");
+        }
+        body
+    }
+
+    /// `--btw-drop` / `--btw-fail`: the 1-based request numbers.
+    pub fn nths(args: &[String], flag: &str) -> Vec<usize> {
+        args.windows(2)
+            .filter(|w| w[0] == flag)
+            .flat_map(|w| w[1].split(',').filter_map(|n| n.trim().parse().ok()).collect::<Vec<usize>>())
+            .collect()
     }
 }
 
@@ -1263,6 +1369,35 @@ mod surfaces {
     use super::{fixture, recorded_session, Frame};
     use serde_json::{json, Value};
 
+    /// A28 — `--diff-words`: the diff approvals announce the SYNTHETIC
+    /// previews of `a28-diff-words-synthetic.jsonl` (built by
+    /// tools/fixtures/a28_diff_words_fixture.py): the second approval is the
+    /// word-mark / syntax preview (`…0f1`), the third a large preview past
+    /// the decoration bound (`…0f2`), the fourth 394 decorated lines
+    /// (`…0f3`); `diff/preview/get` answers each by its id. Off by default,
+    /// so the A6 / A10 walks keep their preview.
+    pub static DIFF_WORDS: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+    fn diff_words() -> bool {
+        DIFF_WORDS.load(std::sync::atomic::Ordering::Relaxed)
+    }
+
+    /// The A28 fixture's `diff/preview/get` reply for `preview_id` (the
+    /// opened Session's id in place of the placeholder).
+    pub fn a28_preview(preview_id: &str, session: &str) -> Option<Value> {
+        let mut body = fixture("a28-diff-words-synthetic.jsonl")
+            .into_iter()
+            .find(|f| f.method == "res:diff/preview/get" && f.body["preview"]["preview_id"] == preview_id)?
+            .body;
+        body["preview"]["session_id"] = json!(session);
+        Some(body)
+    }
+
+    /// A28 — the large preview's id (the third approval's).
+    pub const A28_LARGE_PREVIEW: &str = "01920000-0000-7000-8000-0000000000f2";
+    /// A28 — the dense preview's id (the fourth approval's: 394 decorated lines).
+    pub const A28_DENSE_PREVIEW: &str = "01920000-0000-7000-8000-0000000000f3";
+
     pub const TURNS: &[&str] = &[
         "01920000-0000-7000-8000-00000000023b",
         "01920000-0000-7000-8000-00000000023c",
@@ -1353,9 +1488,44 @@ mod surfaces {
                         "preview_id": DIFF_PREVIEW, "operation": "apply_patch", "file_count": 1,
                         "additions": 4, "deletions": 1, "summary": "src/main.rs: +4 -1"
                     }});
+                    if diff_words() {
+                        // A28: the word-mark / syntax preview (board 4 frame 1).
+                        diff.body["title"] = json!("Apply a patch to steer_queue.rs, octos.conf and steer.md");
+                        diff.body["body"] = json!("Retries the steer queue with backoff.");
+                        diff.body["typed_details"]["diff"] = json!({
+                            "preview_id": DIFF_PREVIEW, "operation": "apply_patch", "file_count": 3,
+                            "additions": 6, "deletions": 4, "summary": "3 files: +6 -4"
+                        });
+                    }
                     out.push((diff, Some(Hold::Approval)));
-                    out.push((with_id("ac"), Some(Hold::Approval)));
-                    out.push((with_id("ad"), Some(Hold::Approval)));
+                    let mut third = with_id("ac");
+                    if diff_words() {
+                        // A28: a preview past the decoration bound (board 4 frame 1b).
+                        third.body["approval_kind"] = json!("diff");
+                        third.body["tool_name"] = json!("apply_patch");
+                        third.body["title"] = json!("Apply a patch to Cargo.lock and Cargo.toml");
+                        third.body["body"] = json!("Bumps octos to 0.24.1.");
+                        third.body["risk"] = json!("medium");
+                        third.body["typed_details"] = json!({"kind": "diff", "diff": {
+                            "preview_id": A28_LARGE_PREVIEW, "operation": "apply_patch", "file_count": 2,
+                            "additions": 2, "deletions": 2, "summary": "2 files: +2 -2"
+                        }});
+                    }
+                    out.push((third, Some(Hold::Approval)));
+                    let mut fourth = with_id("ad");
+                    if diff_words() {
+                        // A28: the heaviest preview still decorated (394 lines).
+                        fourth.body["approval_kind"] = json!("diff");
+                        fourth.body["tool_name"] = json!("apply_patch");
+                        fourth.body["title"] = json!("Apply a patch to backoff.rs");
+                        fourth.body["body"] = json!("Caps every backoff step.");
+                        fourth.body["risk"] = json!("medium");
+                        fourth.body["typed_details"] = json!({"kind": "diff", "diff": {
+                            "preview_id": A28_DENSE_PREVIEW, "operation": "apply_patch", "file_count": 1,
+                            "additions": 98, "deletions": 98, "summary": "backoff.rs: +98 -98"
+                        }});
+                    }
+                    out.push((fourth, Some(Hold::Approval)));
                     continue;
                 }
                 "user_question/requested" => {
@@ -1436,6 +1606,10 @@ mod surfaces {
     pub fn reply(method: &str, params: &Value, session: &str) -> Option<Value> {
         let task_id = params["task_id"].as_str().unwrap_or_default();
         Some(match method {
+            // A28: the synthetic word-mark / large previews, by id.
+            "diff/preview/get" if diff_words() => {
+                return a28_preview(params["preview_id"].as_str().unwrap_or_default(), session);
+            }
             // `DiffPreviewGetResult` (octos-core): the patch the diff
             // approval asks about (no successful reply is recorded).
             "diff/preview/get" => json!({
@@ -1899,6 +2073,22 @@ async fn main() {
         .and_then(|v| v.parse().ok())
         .unwrap_or(0);
     let history_unknown = args.iter().any(|a| a == "--history-unknown");
+    // A29 — the `btw` scenario's aside replies (see [`btw`]).
+    let btw_delay_ms: u64 = args
+        .iter()
+        .position(|a| a == "--btw-delay-ms")
+        .and_then(|i| args.get(i + 1))
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(4000);
+    let btw_drop = btw::nths(&args, "--btw-drop");
+    let btw_fail = btw::nths(&args, "--btw-fail");
+    let btw_seen = std::sync::Arc::new(std::sync::atomic::AtomicUsize::new(0));
+    // The recorded hydrate's shape (r43a) for the `btw` Sessions' histories.
+    let btw_hydrate_template = fixture("r43a-recovery-a6ea8505.jsonl")
+        .into_iter()
+        .find(|f| f.dir == "in" && f.method == "session/hydrate")
+        .map(|f| (f.body, String::from("dsflash:main")))
+        .unwrap_or((Value::Null, String::new()));
     // A16: `--fail-scoped-list N` — the first N session-scoped
     // `profile/llm/list` reads (per connection) answer an error.
     // A23: `--fail-config-file <path>` — while <path> exists, every
@@ -1919,6 +2109,12 @@ async fn main() {
         .and_then(|i| args.get(i + 1))
         .and_then(|v| v.parse().ok())
         .unwrap_or(0);
+    // A28 — `--diff-words` (`surfaces`): the diff approvals announce the
+    // synthetic word-mark and large previews (see `surfaces::DIFF_WORDS`).
+    if args.iter().any(|a| a == "--diff-words") {
+        surfaces::DIFF_WORDS.store(true, std::sync::atomic::Ordering::Relaxed);
+        println!("[replay-serve] surfaces: --diff-words (a28-diff-words-synthetic.jsonl previews)");
+    }
     let recorded = recorded_session(&frames);
     let recorded_turns: Vec<String> = by_turn
         .iter()
@@ -2007,6 +2203,9 @@ async fn main() {
         let onb_world = onb_world.clone();
         let refuse = refuse.clone();
         let refuse_seen = refuse_seen.clone();
+        // A29 — the `btw` scenario's per-run controls.
+        let (btw_drop, btw_fail, btw_seen) = (btw_drop.clone(), btw_fail.clone(), btw_seen.clone());
+        let btw_hydrate_template = btw_hydrate_template.clone();
         // A31 — the walk's live-transition trigger (per connection).
         let jobs_trigger = jobs_trigger.clone();
         // A15: the recorded canonical hydrate (the `history` scenario).
@@ -2456,8 +2655,11 @@ async fn main() {
                             // `<WORKSPACE>` placeholder). A17 — and the
                             // onboarding one (the onboarded Session opens in
                             // the launch's folder).
-                            if activity || history || label == "onboarding" {
-                                if let Some(cwd) = v["params"]["cwd"].as_str() {
+                            if activity || history || label == "onboarding" || label == "btw" {
+                                // A29 — `btw` opens in the `octos` workspace
+                                // unless the app asked for one.
+                                let default_root = (label == "btw").then_some(btw::WORKSPACE);
+                                if let Some(cwd) = v["params"]["cwd"].as_str().or(default_root) {
                                     obj.insert("workspace_root".to_owned(), Value::String(cwd.to_owned()));
                                 } else if activity {
                                     // A22 row 228: a folder-less open still names
@@ -2617,6 +2819,65 @@ async fn main() {
                             });
                         } else {
                             send(&tx, frame).await;
+                        }
+                    }
+                    // A29 — the `btw` scenario (see [`btw`]).
+                    "session/list" if label == "btw" => {
+                        let profile = active_session.split(':').next().unwrap_or("dsflash").to_owned();
+                        let reply = btw::list(&profile, v["params"]["cwd"].as_str());
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": reply})).await;
+                    }
+                    "session/hydrate" if label == "btw" => {
+                        let session = v["params"]["session_id"].as_str().unwrap_or(&active_session).to_owned();
+                        let (template, from) = &btw_hydrate_template;
+                        let reply = btw::hydrate(template, from, &session);
+                        println!("[replay-serve] -> session/hydrate (btw) {session}");
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": reply})).await;
+                    }
+                    // A29 — a reconnect re-checks the last turn (`turn/state/get`,
+                    // the A7 recovery): every turn this fixture streamed ended
+                    // with its recorded terminal, so it reports `completed`
+                    // for the asked turn (the server's `TurnStateGetResult`
+                    // shape the controller reads: session_id, turn_id, state).
+                    "turn/state/get" if label == "btw" => {
+                        let p = &v["params"];
+                        println!("[replay-serve] -> turn/state/get (btw) {} completed", p["turn_id"]);
+                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {
+                            "session_id": p["session_id"], "turn_id": p["turn_id"], "state": "completed"
+                        }})).await;
+                    }
+                    "session/btw" if label == "btw" => {
+                        let n = btw_seen.fetch_add(1, std::sync::atomic::Ordering::SeqCst) + 1;
+                        let session = v["params"]["session_id"].as_str().unwrap_or("").to_owned();
+                        let question = v["params"]["question"].as_str().unwrap_or("").to_owned();
+                        println!("[replay-serve] session/btw #{n} asked: session_id={session} question={question:?}");
+                        let tx2 = tx.clone();
+                        if btw_drop.contains(&n) {
+                            tokio::spawn(async move {
+                                tokio::time::sleep(std::time::Duration::from_millis(1200)).await;
+                                println!("[replay-serve] -> session/btw #{n}: the connection drops (--btw-drop)");
+                                let _ = tx2.lock().await.close().await;
+                            });
+                        } else {
+                            let frame = if btw_fail.contains(&n) {
+                                serde_json::json!({"jsonrpc": "2.0", "id": id, "error": {
+                                    "code": -32603,
+                                    "message": format!("the replay fixture failed session/btw #{n} (--btw-fail)")
+                                }})
+                            } else {
+                                serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {
+                                    "session_id": session,
+                                    "answer": btw::answer(&question, &session),
+                                    "model": "deepseek-v4-flash"
+                                }})
+                            };
+                            let ms = btw_delay_ms;
+                            tokio::spawn(async move {
+                                tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
+                                println!("[replay-serve] -> session/btw #{n} answered after {ms} ms (btw: synthetic SessionBtwResult) session_id={}",
+                                    frame["result"]["session_id"].as_str().unwrap_or("error"));
+                                let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                            });
                         }
                     }
                     "session/list" => {

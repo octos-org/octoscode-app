@@ -19,6 +19,8 @@ pub mod autonomy;
 pub mod board1;
 pub mod board1_kit;
 pub mod board3;
+// A29: the /btw aside panel of the Session that asked (parity row 6).
+pub mod btw;
 // A21: the pre-connection bootstrap (default endpoint, the auto-start
 // decision) and the native connection envelope (the web's tab/durable split).
 pub mod bootstrap;

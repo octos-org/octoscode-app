@@ -65,6 +65,12 @@ impl Conversation {
             // "sent drafts stay cleared").
             self.ui.lock().unwrap().set_draft_inner(String::new());
             crate::drafts::save(&session, "");
+            // A29 — an ordinary prompt admitted in this Session clears its
+            // SETTLED aside; an answering one stays (`clearSettled`,
+            // `use-octos-session.ts:2622-2626`).
+            if self.store.domains.btw.clear_settled(&session) {
+                makepad_widgets::log!("[octoscode] aside of {session} cleared (a prompt was admitted)");
+            }
         }
         makepad_widgets::SignalToUI::set_ui_signal();
         match admitted {

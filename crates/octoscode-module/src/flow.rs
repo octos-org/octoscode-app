@@ -44,6 +44,10 @@ use url::Url;
 #[path = "flow_controller.rs"]
 mod controller;
 pub use controller::hydrated_turns;
+// A29 — the `/btw` aside owned by the Session that asked (parity row 6).
+#[path = "flow_btw.rs"]
+mod btw;
+pub use btw::{btw_timeout, USAGE_HINT};
 // A12 — the transport link: one stable command/event channel over a WS
 // transport that can be replaced (give-up, "Retry now") under the SAME
 // conversation.
@@ -2838,6 +2842,19 @@ impl Conversation {
                 return Ok(String::new());
             }
         }
+        // A29 — `/btw <question>` (alias `/aside`; `registry.ts:186`,
+        // `intent.ts:96-104`, `App.tsx:1199-1203`): an aside for THIS
+        // Session, admitted here with the draft intact and answered out of
+        // band — never a turn, never queued to the host (the queued route
+        // re-read the Session at send time: ask in X, switch, and the call
+        // carried Y's id).
+        if let Some((name, args)) = crate::screens::palette::parse_command_invocation(&text) {
+            if matches!(name.to_ascii_lowercase().as_str(), "btw" | "aside") {
+                let admitted = self.btw_command(&args).await;
+                makepad_widgets::log!("[octoscode] command /btw: {admitted:?}");
+                return Ok(String::new());
+            }
+        }
         // A4 — the board-3 surfaces answer their web commands locally
         // (`/tools`, `/mcp`, `/threads`, `/turn`, `/permissions`,
         // `/thinking`, `/resume`, `/images`, `/rewind`, `/undo`, `/fork`,
@@ -3043,6 +3060,17 @@ impl Conversation {
                 self.note_connection(live, dropped);
                 if live {
                     *self.ever_live.lock().unwrap() = true;
+                }
+                // A29 — the Session's connection changed (a drop, a re-dial):
+                // every aside still answering fails stale at once
+                // (`lazy-btw-controller.ts:74-78`, the runtime subscription),
+                // and a reply admitted under the old epoch can no longer
+                // answer.
+                if dropped || transition == link::Transition::Redial {
+                    let staled = self.store.domains.btw.link_changed();
+                    if staled > 0 {
+                        makepad_widgets::log!("[octoscode] aside: {staled} answering aside(s) stale (the connection changed)");
+                    }
                 }
                 // A8 — a handshake AFTER an earlier Live is a reconnect. The
                 // WS transport parks a re-dialed socket in Handshaking until a

@@ -90,8 +90,13 @@ impl ReplayServer {
                 // A22 row 228: the scoped catalog, as octos a6ea8505 offers it.
                 "session.workspace_cwd.v1".to_owned(),
             ];
+            // A29: the gate reads `session/btw` as a METHOD (octos lists it
+            // in `supported_methods`, `btw.ts:66`); "not advertised" withdraws
+            // it from both lists.
+            let mut methods = vec!["session/open".to_owned(), "session/list".to_owned()];
             if btw_advertised {
                 features.push("session/btw".to_owned());
+                methods.push("session/btw".to_owned());
             }
             while let Some(Ok(msg)) = rx_in.next().await {
                 let Message::Text(text) = msg else { continue };
@@ -116,8 +121,7 @@ impl ReplayServer {
                                     "version": {"protocol": "octos-ui/v1alpha1",
                                                 "schema_version": 1, "jsonrpc": "2.0"},
                                     "capabilities_schema_version": 1,
-                                    "supported_methods": ["session/open", "session/list",
-                                                          "session/btw"],
+                                    "supported_methods": methods,
                                     "supported_notifications": ["projection/envelope"],
                                     "supported_features": features
                                 }
@@ -267,10 +271,12 @@ async fn aside_ask_sends_session_btw_and_the_answer_lands() {
     ui_handle.lock().unwrap().set_draft_inner("What does steer_dropped mean?");
 
     let effect = sessions::resolve("aside.ask", 0, &ctx);
-    let SessEffect::AsideAsk(question) = &effect else {
+    let SessEffect::AsideAsk(ticket) = &effect else {
         panic!("the advertised ask resolves to AsideAsk, got {effect:?}");
     };
-    assert_eq!(question, "What does steer_dropped mean?");
+    assert_eq!(ticket.question, "What does steer_dropped mean?");
+    // A29: the ticket captures the asking Session at admission.
+    assert_eq!(ticket.session, "dsflash:main");
     sessions::apply(effect, &conv).await.expect("the aside call");
     assert!(server.saw("session/btw"), "the wire carried session/btw");
 
@@ -369,12 +375,19 @@ async fn a_wrong_session_or_blank_aside_reply_is_rejected_as_a_protocol_error() 
             err.contains("Invalid or wrong-Session aside result"),
             "{label}: {err}"
         );
-        // The panel never shows it: the aside reports unavailable, and NO
-        // answer is projected (the web raises before it can render one).
+        // The panel never shows it: the aside FAILS with the web's copy
+        // (`lazy-btw-controller.ts:197`, FAILED — the old native
+        // "unavailable" was its own invention, A29), and NO answer is
+        // projected (the web raises before it can render one).
         assert_eq!(
             sessions::query(&ctx, "aside.state").unwrap(),
-            serde_json::json!("unavailable"),
-            "{label}: the panel reports unavailable (btw.ts:85)"
+            serde_json::json!("failed"),
+            "{label}: the aside fails (lazy-btw-controller.ts:197)"
+        );
+        assert_eq!(
+            sessions::query(&ctx, "aside.error").unwrap(),
+            serde_json::json!("The aside could not be answered. Try again."),
+            "{label}: the web's FAILED copy"
         );
         assert_eq!(
             sessions::query(&ctx, "aside.answer").unwrap(),
@@ -402,8 +415,12 @@ async fn the_aside_fails_closed_without_the_advertisement() {
         panic!("an unadvertised ask fails closed, got {effect:?}");
     };
     assert!(why.contains("not-advertised"), "{why}");
+    // A29: an unavailable ask leaves NO visible state (the web's
+    // `lazy-btw-controller.test.ts:166` "rejects empty/unavailable commands
+    // without factory work or visible state"); the command layer reports
+    // "/btw is unavailable" instead (flow_btw.rs).
     let state = sessions::query(&ctx, "aside.state").unwrap();
-    assert_eq!(state, serde_json::json!("unavailable"), "btw.ts:66");
+    assert_eq!(state, serde_json::json!("hidden"), "btw.ts:66");
     assert!(!server.saw("session/btw"), "nothing left the process");
 }
 

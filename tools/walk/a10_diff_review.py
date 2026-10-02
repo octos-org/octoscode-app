@@ -62,6 +62,17 @@ def numeric(W: Walk, name: str):
             bool(title and dialog) and inside(title, dialog), f"title={title} dialog={dialog}")
 
 
+def code_text(W: Walk, lid: str) -> str:
+    """A28: a decorated line is drawn as its runs `<line>_c<k>_<class>`; its
+    text is their texts in order (a plain block's `<hunk>_b<n>_code` past
+    the decoration bound)."""
+    import re
+    pat = re.compile(re.escape(lid) + r"_(?:w\d+_)?c(\d+)_[a-z]+$")
+    runs = sorted(((int(m.group(1)), w.get("t") or "") for w in W.snap()
+                   for m in [pat.match(str(w.get("i", "")))] if m), key=lambda t: t[0])
+    return "".join(t for _, t in runs)
+
+
 def header_review(W: Walk) -> bool:
     ok = W.click("review_open_hit") and W.wait(lambda: bool(W.visible("b3_diff_eyebrow")), 8)
     if not ok:
@@ -126,10 +137,10 @@ def walk(W: Walk) -> None:
             and "01920000-0000-7000-8000-0000000000f1".startswith(W.text("b3_diff_preview_id").rstrip("…")[:12])
             and W.text("b3_diff_file_0_path") == "src/main.rs" and W.text("b3_diff_file_0_status") == "modified"
             and W.text("b3_diff_file_0_h0_header").startswith("@@ -10,6 +10,9 @@")
-            and W.text("b3_diff_file_0_h0_l2_code").strip() == "if args.version {"
+            and code_text(W, "b3_diff_file_0_h0_l2").strip() == "if args.version {"
             and W.text("b3_diff_file_0_h0_l2_prefix") == "+" and W.text("b3_diff_file_0_h0_l1_prefix") == "−",
             f"add={W.text('b3_diff_add')!r} del={W.text('b3_diff_del')!r} status={W.text("b3_diff_status")!r} "
-            f"path={W.text('b3_diff_file_0_path')!r} l2={W.text('b3_diff_file_0_h0_l2_code')!r}")
+            f"path={W.text('b3_diff_file_0_path')!r} l2={code_text(W, 'b3_diff_file_0_h0_l2')!r}")
     numeric(W, "preview")
     W.shot(f"02-preview-{MODE}")
     W.check("diff: Refresh CLICK -> one more diff/preview/get",

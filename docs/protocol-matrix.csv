@@ -66,7 +66,7 @@ router/failover,notification,,,,octos-core/src/ui_protocol.rs:1281,,0,handled,oc
 router/get_metrics,request,,,,octos-core/src/ui_protocol.rs:1289,,0,absent,,
 router/set_mode,request,,,,octos-core/src/ui_protocol.rs:1284,,0,absent,,
 router/status,notification,,,,octos-core/src/ui_protocol.rs:1279,,0,handled,octoscode-client/src/domains/mod.rs,
-session/btw,request,,,,octos-core/src/ui_protocol.rs:1065,apps/web/src/features/btw/lazy-btw-controller.ts;apps/web/src/features/commands/registry.ts;packages/client/src/btw.ts,3,handled,octoscode-client/src/domains/session.rs;octoscode-module/src/screens/dialog.rs;octoscode-module/src/screens/palette.rs,
+session/btw,request,,,,octos-core/src/ui_protocol.rs:1065,apps/web/src/features/btw/lazy-btw-controller.ts;apps/web/src/features/commands/registry.ts;packages/client/src/btw.ts,3,handled,octoscode-client/src/domains/session.rs;octoscode-module/src/flow_btw.rs;octoscode-module/src/screens/dialog.rs,
 session/delete,request,,,,octos-core/src/ui_protocol.rs:1235,apps/web/src/features/workspace/use-workspace-product.ts;packages/client/src/client.ts,1,handled,octoscode-client/src/domains/session.rs;octoscode-module/src/screens/board3/switcher.rs,
 session/event,notification,,,,octos-core/src/ui_protocol.rs:1206,,0,handled,octoscode-client/src/domains/session.rs,
 session/files.list,request,,,,octos-core/src/ui_protocol.rs:1226,packages/client/src/client.ts;packages/client/src/media.ts,2,handled,octoscode-client/src/domains/session.rs,
