@@ -420,118 +420,24 @@ fn highlightable(code: &str) -> bool {
     code.len() <= 24_000 && code.lines().count() <= 600
 }
 
-/// The highlighted code: one `Html` region holding a `<pre>` (whitespace
-/// verbatim, makepad_html `preserves_whitespace`) whose token runs are
-/// custom tags; each tag is an inline `TextFlowLink` template carrying its
-/// token colour (`theme.css:101-112`, `--shiki-token-*`), so the code still
-/// wraps as one text flow and stays one selectable run.
+/// The highlighted code: the module's own `A7CodeLines` widget
+/// (`code_view.rs`) — the code lexed in Rust (`crate::highlight`), each line
+/// a wrapping row of runs in the web's token colours (`theme.css:101-112`,
+/// `--shiki-token-*`), indentation kept, on the code face.
 fn highlighted_body(id: &str, g: crate::highlight::Grammar, code: &str) -> String {
-    use crate::highlight::Tok;
     let dark = crate::screens::theme::resolved() == "dark";
-    // Line breaks are `<br>` and indentation / whitespace-only runs are
-    // NO-BREAK spaces: makepad_html collapses a whitespace-only text node
-    // that follows a closing tag even inside `<pre>` (measured: a toml
-    // `[workspace]` key line joined the next line), while U+00A0 is not HTML
-    // whitespace and survives; an empty line holds one so `<br>` keeps it.
-    let mut html = String::from("<pre>");
-    for (i, spans) in crate::highlight::block(Some(g), code).iter().enumerate() {
-        if i > 0 {
-            html.push_str("<br>");
-        }
-        if spans.is_empty() {
-            html.push('\u{a0}');
-        }
-        let mut at_line_start = true;
-        for (tok, text) in spans {
-            let shown: String = if at_line_start || text.trim().is_empty() {
-                let lead = text.len() - text.trim_start().len();
-                let (ws, rest) = text.split_at(lead);
-                let mut out: String = ws
-                    .chars()
-                    .map(|c| if c == '\t' { "\u{a0}\u{a0}\u{a0}\u{a0}" } else { "\u{a0}" })
-                    .collect();
-                out.push_str(rest);
-                out
-            } else {
-                text.clone()
-            };
-            if !text.trim().is_empty() {
-                at_line_start = false;
-            }
-            let esc = html_escape(&shown);
-            match tok_tag(*tok) {
-                Some(tag) => {
-                    html.push('<');
-                    html.push_str(tag);
-                    html.push('>');
-                    html.push_str(&esc);
-                    html.push_str("</");
-                    html.push_str(tag);
-                    html.push('>');
-                }
-                None => html.push_str(&esc),
-            }
-        }
-    }
-    html.push_str("</pre>");
-    let template = |tag: &str, tok: Tok| {
-        let c = tok.color(dark);
-        format!(
-            "{tag} := TextFlowLink{{color: {c} color_hover: {c} color_down: {c} margin: 0 \
-             grab_key_focus: false}}\n"
-        )
-    };
     format!(
-        "{id} := Html{{width: Fill height: Fit padding: 0 margin: 0\n\
-         body: {html:?}\n\
-         font_size: {fs}\n\
-         font_color: {ink}\n\
-         draw_text +: {{color: {ink}}}\n\
-         text_style_normal: {mono}\n\
-         text_style_fixed: {mono}\n\
-         code_layout: Layout{{flow: Right{{wrap: true}} padding: 0}}\n\
-         draw_block +: {{code_color: #00000000 line_color: #00000000 sep_color: {BORDER} \
-         quote_bg_color: {BORDER} quote_fg_color: {MUTED} \
-         table_header_bg_color: #00000000 table_border_color: {BORDER}}}\n\
-         {k}{s}{c}{n}{f}\
+        "{id} := mod.widgets.A7CodeLines{{width: Fill height: Fit\n\
+         text: {code:?}\n\
+         lang: {lang:?}\n\
+         dark: {dark}\n\
+         draw_text +: {{text_style: {mono}}}\n\
          }}\n",
-        fs = CODE_PX * 0.75,
-        ink = Tok::Plain.color(dark),
-        mono = flow_style(Face::Mono, CODE_PX, CODE_LINE),
-        k = template("hk", Tok::Keyword),
-        s = template("hs", Tok::String),
-        c = template("hc", Tok::Comment),
-        n = template("hn", Tok::Constant),
-        f = template("hf", Tok::Function),
+        lang = g.id,
+        mono = style(Face::Mono, CODE_PX, CODE_LINE),
     )
 }
 
-/// The custom tag a token class renders through (`None` = plain text; the
-/// web's punctuation colour is near the text colour, so it stays plain).
-fn tok_tag(tok: crate::highlight::Tok) -> Option<&'static str> {
-    use crate::highlight::Tok;
-    match tok {
-        Tok::Keyword => Some("hk"),
-        Tok::String => Some("hs"),
-        Tok::Comment => Some("hc"),
-        Tok::Constant => Some("hn"),
-        Tok::Function => Some("hf"),
-        Tok::Plain | Tok::Punctuation => None,
-    }
-}
-
-fn html_escape(s: &str) -> String {
-    let mut out = String::with_capacity(s.len() + 8);
-    for ch in s.chars() {
-        match ch {
-            '&' => out.push_str("&amp;"),
-            '<' => out.push_str("&lt;"),
-            '>' => out.push_str("&gt;"),
-            _ => out.push(ch),
-        }
-    }
-    out
-}
 
 /// The code itself: ONE `Markdown` region holding just this block, re-fenced
 /// with a backtick run longer than any inside the code, so its whitespace and

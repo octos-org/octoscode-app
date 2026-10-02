@@ -363,6 +363,7 @@ mod tests {
     fn a7_answer_variants_evaluate_in_the_app_vm() {
         use crate::conv_layout::Metrics;
         let mut cx = cx_with_vocabulary();
+        cx.with_vm(crate::code_view::script_mod);
         let samples = [
             ("math", "Energy $E = mc^2$ powers it.\n\n$$\na^2 + b^2 = c^2\n$$"),
             ("code", "Run it:\n\n```rust\nfn main() {\n    println!(\"hi\");\n}\n```\n\nThen `cargo test`."),

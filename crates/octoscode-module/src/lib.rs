@@ -33,6 +33,8 @@ use octoscode_store::Store;
 pub mod actions;
 pub mod bindings;
 pub mod cards;
+// A7: the highlighted code block body widget.
+pub mod code_view;
 // A3: the board-2 chrome (sidebar body, header, Settings, Stop confirm).
 pub mod chrome;
 pub mod components;
@@ -5576,6 +5578,8 @@ impl AppModule for OctoscodeModule {
         // A3: the board-2 chrome templates (`mod.widgets.Oc*`) must exist
         // before the shell's own DSL below instantiates them.
         chrome::script_mod(vm);
+        // A7: `A7CodeLines` (the highlighted code body) before any row names it.
+        code_view::script_mod(vm);
         script_mod(vm);
         // Card #21b: the design/kit vocabulary every lowered #16 component names
         // (`DesignSurface`, `KitButton`, …) must be in THIS VM — the isolate the
