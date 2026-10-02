@@ -162,6 +162,26 @@ def rows(s=None):
     return sorted(out)
 
 
+def composer_text(s=None):
+    """The composer's value (`val`; `t` on older instruments)."""
+    v = visible(s or snap(), "i0_composer_0")
+    return (v[0].get("val") or v[0].get("t") or "") if v else ""
+
+
+def clear_composer():
+    """Empty the composer before typing: it may hold an interrupted turn's
+    restored prompt (A6, like the web) or a saved draft (A7). End + one
+    Backspace per character - the instrument's synthetic Cmd+A does not
+    reach the TextInput's select-all. Waited presses (`wait=1`) and one
+    settle at the end, so a step racing a held reply (the switch window)
+    is not slowed down."""
+    n = len(composer_text())
+    get("/k?c=end&wait=1")
+    for _ in range(max(n + 1, 8)):
+        get("/k?c=backspace&wait=1")
+    time.sleep(0.35)
+
+
 def open_activity(wait_dialog=True):
     """Open the palette from the composer and click the /activity row."""
     comp = rect("i0_composer_0")
@@ -169,8 +189,7 @@ def open_activity(wait_dialog=True):
         return False
     click_rect(comp)
     # Clear whatever draft is there, then the palette's "/" + the filter.
-    for _ in range(8):
-        key("Backspace")
+    clear_composer()
     type_text("/")
     type_text("act")
     if not soon(lambda: "/activity" in [w.get("t") for w in visible(snap(), "palette_row_name")]):

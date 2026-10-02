@@ -116,6 +116,7 @@ def main():
     comp = rect("i0_composer_0")
     if comp:
         click_rect(comp)
+    w.clear_composer()
     type_text("unsent idea")
     check("Settings reopens", open_settings())
     section("connection")
