@@ -169,13 +169,25 @@ pub fn catalog_loaded() -> bool {
 /// translation.
 pub fn zh_for(source: &str) -> Option<&'static str> {
     let cat = catalog();
-    let lookup = |s: &str| cat.get(s).copied().or_else(|| alias::web_key(s).and_then(|k| cat.get(k).copied()));
-    lookup(source).or_else(|| {
-        source
-            .contains(['\u{2018}', '\u{2019}', '\u{201c}', '\u{201d}'])
-            .then(|| source.replace(['\u{2018}', '\u{2019}'], "'").replace(['\u{201c}', '\u{201d}'], "\""))
-            .and_then(|plain| lookup(&plain))
-    })
+    let lookup = |s: &str| {
+        cat.get(s)
+            .copied()
+            .or_else(|| alias::web_key(s).and_then(|k| cat.get(k).copied()))
+            // A30: the web's peer table (`peer-copy.ts`), which the web's
+            // loader never merges — after the merged catalog, so a merged
+            // key always wins.
+            .or_else(|| zh::PEER_ZH.iter().find(|(k, _)| *k == s).map(|(_, v)| *v))
+    };
+    lookup(source)
+        .or_else(|| {
+            source
+                .contains(['\u{2018}', '\u{2019}', '\u{201c}', '\u{201d}'])
+                .then(|| source.replace(['\u{2018}', '\u{2019}'], "'").replace(['\u{201c}', '\u{201d}'], "\""))
+                .and_then(|plain| lookup(&plain))
+        })
+        // A30: last, the Fleet's native copy (`fleet_copy.rs`: the pane's
+        // gather words and the peer dock's own) — copy no web table has.
+        .or_else(|| crate::screens::board3::fleet_copy::native_zh(source))
 }
 
 /// `t(source)` in `lang` (no interpolation).

@@ -1222,3 +1222,26 @@ pub static TABLES: &[&[(&str, &str)]] = &[ZH_BASE, FLEET_ZH, REASONING_ZH, SESSI
 
 /// The number of distinct keys after the merge (the web's loaded catalog).
 pub const MERGED_LEN: usize = 1167;
+
+/// `features/peers/peer-copy.ts` `PEER_ZH_COPY` (the peers' own table; the web's loader does not merge it - `super::zh_for` reads it after the merged catalog): 19 entries.
+pub static PEER_ZH: &[(&str, &str)] = &[
+    ("Hide peers", "隐藏同侪"),
+    ("Show peers", "显示同侪"),
+    ("needs you", "需要你"),
+    ("streaming", "正在输出"),
+    ("done", "已完成"),
+    ("idle", "空闲"),
+    ("Approve for this session", "本次会话内批准"),
+    ("Approve {value0} for this session", "本次会话内批准 {value0}"),
+    ("Answer {value0}", "回答 {value0}"),
+    ("Steer {value0}", "引导 {value0}"),
+    ("Stop {value0}", "停止 {value0}"),
+    ("Peer started a new turn", "同侪开始了新的回合"),
+    ("Enter steering text", "输入引导文字"),
+    ("Sends this answer and resumes the peer", "发送此回答并让同侪继续"),
+    ("Peer {value0}", "同侪 {value0}"),
+    ("Approve once", "仅此一次批准"),
+    ("Approve {value0} once", "仅此一次批准 {value0}"),
+    ("asks to run", "请求运行"),
+    ("needs your answer", "需要你的回答"),
+];

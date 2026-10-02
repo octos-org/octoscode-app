@@ -541,6 +541,13 @@ impl Peers {
             }
             PeerSessionEvent::ControlAck { interrupt } => {
                 let row = &mut i.rows[pos];
+                // A30 (outer/LESSONS.md: a terminal is final): the receipt's
+                // continuation runs on the control task, the peer's own
+                // frames on the drain task — a turn that already ended keeps
+                // its outcome and never gets a stale "Sent" / "Stop requested".
+                if row.activity == Activity::Done {
+                    return false;
+                }
                 row.acknowledgment = Some(if *interrupt { Ack::StopRequested } else { Ack::Sent });
                 row.turn_changed_since_ack = false;
             }
@@ -558,6 +565,17 @@ impl Peers {
                 row.activity = Activity::Blocked;
             }
             PeerSessionEvent::AttentionResolved | PeerSessionEvent::AttentionResolvedFor { .. } => {
+                // A30: a NAMED resolution settles only the request it names.
+                // A late or duplicate `approval/decided` for an earlier
+                // request (or one of two concurrent requests) must never
+                // clear the request that is pending now — the dock would
+                // lose the card while the peer still waits on it.
+                if let PeerSessionEvent::AttentionResolvedFor { request_id } = event {
+                    let pending = i.rows[pos].request_id.as_deref();
+                    if pending.is_some_and(|p| p != request_id) {
+                        return false;
+                    }
+                }
                 let restored = i.pre_block.remove(identity);
                 let row = &mut i.rows[pos];
                 if restored.is_some() || row.activity == Activity::Blocked {
