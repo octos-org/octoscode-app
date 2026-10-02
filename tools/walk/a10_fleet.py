@@ -50,7 +50,9 @@ def wholly(W: Walk, wid: str) -> bool:
 def wheel(W: Walk, dy: float) -> None:
     vp = W.rect("b3_scroll")
     if vp:
-        W.get(f"/m?k=scroll&x={vp[0] + vp[2] / 2:.0f}&y={vp[1] + vp[3] / 2:.0f}&dy={dy:.0f}&wait=1", tolerant=True)
+        # In the pane's empty left gutter: on a phone the wheel is a touch drag,
+        # and a drag that starts on a field focuses it (the soft keyboard).
+        W.get(f"/m?k=scroll&x={vp[0] + 6:.0f}&y={vp[1] + vp[3] / 3:.0f}&dy={dy:.0f}&wait=1", tolerant=True)
         time.sleep(0.2)
 
 

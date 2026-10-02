@@ -3414,6 +3414,14 @@ impl OctoscodeView {
         }
         let lowered = screens::board3::host::lower_open(&store);
         self.view.widget(cx, ids!(board3_dock)).set_visible(cx, lowered.is_some());
+        // A10 — the Fleet pane REPLACES the chat area (FleetPane.tsx): the
+        // composer under it goes too, so its hidden field and buttons can
+        // never take a tap (or a phone's keyboard focus) meant for the pane.
+        let fleet_open = screens::board3::host::open_dialog() == Some(screens::board3::host::Dialog::Fleet);
+        let dock = self.view.widget(cx, ids!(composer_dock));
+        if dock.visible() == fleet_open {
+            dock.set_visible(cx, !fleet_open);
+        }
         let Some(lowered) = lowered else {
             self.b3_taps.clear();
             self.b3_inputs.clear();
