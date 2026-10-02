@@ -170,6 +170,15 @@ pub fn forget_server() {
     forget_server_in(&dir())
 }
 
+// A21 failing-first stubs (main's behaviour: per-origin device memory).
+pub fn forget_all_tokens() {}
+pub fn purge_device_memory() {}
+pub fn auto_connect() -> Option<bool> {
+    None
+}
+pub fn set_auto_connect(_on: bool) {}
+pub fn clear_auto_connect() {}
+
 /// The connect screen's prefill at start: the last server and ITS token.
 pub fn prefill() -> (Option<String>, Option<String>) {
     let server = last_server();

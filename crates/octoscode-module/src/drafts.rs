@@ -76,6 +76,15 @@ pub fn load(session: &str) -> Option<String> {
     read_all().remove(session).filter(|t| !t.trim().is_empty())
 }
 
+// A21 failing-first stubs (main's behaviour: no identity scope).
+pub const MAX_DRAFTS: usize = 50;
+pub fn attach(_server: &str, _token: &str) {}
+pub fn remember_principal(_principal: &str) {}
+pub fn principal_scope() -> Option<(String, String)> {
+    None
+}
+pub fn forget() {}
+
 #[cfg(test)]
 mod tests {
     use super::*;

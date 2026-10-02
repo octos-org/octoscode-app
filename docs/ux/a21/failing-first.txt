@@ -1,0 +1,46 @@
+test a_pairing_link_wins_and_the_harness_start_needs_a_harness_credential_or_profile ... FAILED
+test a_first_launch_with_nothing_remembered_prefills_the_default_endpoint_and_never_dials ... FAILED
+test a_remembered_server_restores_itself_until_a_disconnect_or_forget ... FAILED
+test one_identity_at_a_time_switching_servers_drops_the_previous_token_and_restore_hints ... FAILED
+test the_former_device_memory_is_purged_at_start_and_forget_leaves_no_token ... FAILED
+test the_tab_drafts_are_bounded_and_the_51st_evicts_the_oldest ... FAILED
+test the_tab_drafts_restore_only_for_the_matching_identity_and_never_from_an_unscoped_file ... FAILED
+test a_restore_dials_its_remembered_server_with_its_token ... FAILED
+test a_token_change_never_carries_drafts_to_another_principal_and_the_same_principal_gets_them_back ... FAILED
+test forget_clears_the_confirmed_principals_drafts_and_the_tab_drafts ... FAILED
+thread 'a_pairing_link_wins_and_the_harness_start_needs_a_harness_credential_or_profile' (238580687) panicked at crates/octoscode-module/tests/a21_connection.rs:421:5:
+assertion `left == right` failed
+  left: Harness(http://127.0.0.1:50082)
+ right: None
+thread 'a_first_launch_with_nothing_remembered_prefills_the_default_endpoint_and_never_dials' (238580686) panicked at crates/octoscode-module/tests/a21_connection.rs:361:5:
+assertion `left == right` failed: no unattended dial
+  left: Harness(http://127.0.0.1:50082)
+ right: None
+thread 'a_remembered_server_restores_itself_until_a_disconnect_or_forget' (238580690) panicked at crates/octoscode-module/tests/a21_connection.rs:385:5:
+assertion `left == right` failed
+  left: Harness(http://127.0.0.1:50082)
+ right: Restore(http://127.0.0.1:50190)
+thread 'one_identity_at_a_time_switching_servers_drops_the_previous_token_and_restore_hints' (238580694) panicked at crates/octoscode-module/tests/a21_connection.rs:482:5:
+assertion `left == right` failed: X's token went with its identity
+  left: Some("tok-x")
+ right: None
+thread 'the_former_device_memory_is_purged_at_start_and_forget_leaves_no_token' (238580696) panicked at crates/octoscode-module/tests/a21_connection.rs:500:5:
+assertion `left == right` failed: another origin's saved token is purged at start
+  left: Some("tok-z")
+ right: None
+thread 'the_tab_drafts_are_bounded_and_the_51st_evicts_the_oldest' (238580697) panicked at crates/octoscode-module/tests/a21_connection.rs:340:5:
+assertion `left == right` failed: the oldest went
+  left: Some("draft 0")
+ right: None
+thread 'the_tab_drafts_restore_only_for_the_matching_identity_and_never_from_an_unscoped_file' (238580698) panicked at crates/octoscode-module/tests/a21_connection.rs:291:5:
+assertion `left == right` failed: an unscoped draft restores for nobody
+  left: Some("words from another identity")
+ right: None
+thread 'a_restore_dials_its_remembered_server_with_its_token' (238580691) panicked at crates/octoscode-module/tests/a21_connection.rs:447:65:
+expected a restore, got Harness(http://127.0.0.1:50082)
+thread 'a_token_change_never_carries_drafts_to_another_principal_and_the_same_principal_gets_them_back' (238580692) panicked at crates/octoscode-module/tests/a21_connection.rs:268:5:
+assertion `left == right` failed: the tab drafts belong to alice's identity
+  left: Some("alice's unsent words")
+ right: None
+thread 'forget_clears_the_confirmed_principals_drafts_and_the_tab_drafts' (238580693) panicked at crates/octoscode-module/tests/a21_connection.rs:227:5:
+test result: FAILED. 0 passed; 10 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s

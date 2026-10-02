@@ -364,6 +364,12 @@ pub fn reset() {
     *DRAFTS.lock().unwrap_or_else(|p| p.into_inner()) = None;
 }
 
+// A21 failing-first stubs (main's behaviour).
+pub fn on_new_connection(_conv: &crate::flow::Conversation) {}
+pub fn forget(_scope: Option<(&str, &str)>) -> bool {
+    false
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
