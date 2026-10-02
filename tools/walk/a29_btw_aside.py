@@ -64,7 +64,7 @@ WALK = {
 
 X = "Fix steer queue drop on reconnect"
 Y = "Why is hydrate slow?"
-XID, YID = "dsflash:main", "dsflash:hydrate"
+XID, YID = "dsflash:main", "dsflash:api:hydrate"
 Q1 = "why does redeliver drain the whole queue first?"
 Q2 = "does redeliver keep the order across a reconnect?"
 Q3 = "is the queue persisted across restarts?"

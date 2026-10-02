@@ -317,10 +317,13 @@ mod btw {
     use serde_json::{json, Value};
 
     pub const WORKSPACE: &str = "/home/user/src/octos";
+    /// (A22 row 228: a catalog lists FULL Sessions of the profile —
+    /// `<profile>:<channel>:<chat>`, as Core's are — plus the ones this app
+    /// opened; `<profile>:main` is the startup Session.)
     pub const SESSIONS: &[(&str, &str, &str)] = &[
         ("main", "Fix steer queue drop on reconnect", "2026-10-02T09:12:00Z"),
-        ("hydrate", "Why is hydrate slow?", "2026-10-02T08:40:00Z"),
-        ("fork", "Add session fork", "2026-10-01T16:05:00Z"),
+        ("api:hydrate", "Why is hydrate slow?", "2026-10-02T08:40:00Z"),
+        ("api:fork", "Add session fork", "2026-10-01T16:05:00Z"),
     ];
 
     /// The aside's answer (Markdown), by question.

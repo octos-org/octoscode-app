@@ -38,7 +38,7 @@ PASS advanced: the pane sits inside the window with equal side margins — modul
 PASS advanced: section cards share one left edge and width — [[32, 177, 286, 186], [32, 374, 286, 75]]
 PASS advanced: every pane tap target is >= 28 px high — []
 PASS advanced: no pane label runs past its card — []
-PASS wire: session/driver/acquire at the observed revision — [{'driver_id': 'octoscode-native:4175c6b9-59c5-4f98-92fc-e059527fe1bc', 'expected_revision': 9, 'lease_seconds': 60, 'session_id': 'a8:main'}]
+PASS wire: session/driver/acquire at the observed revision — [{'driver_id': 'octoscode-native:13c70235-3c59-42e5-8b78-c1223ef5b74c', 'expected_revision': 9, 'lease_seconds': 60, 'session_id': 'a8:main'}]
 PASS wire: session/driver/release next=internal
 PASS resume chat: the holder banner is gone
 PASS resume chat: 'This app' controls the session now — This app
@@ -46,7 +46,7 @@ PASS close: the pane is gone
 PASS strip: the state word left the foreign-holder copy — Ready
 PASS phone header: no copy control
 PASS /permissions opens 'Remembered approvals' — Remembered approvals
-PASS inspector: the scope line names the Session — Session: a8:main
+PASS inspector: the scope line names the Session — None
 PASS inspector: 'Reading…' settles to 'Refresh' — Refresh
 PASS inspector: Refresh re-reads the snapshot — 1 -> 2
 PASS inspector: 'Conversation link copied.'
@@ -58,8 +58,8 @@ PASS the third switch is the web's 'Sandbox'
 PASS the defaults persisted per endpoint — {'network': 'deny', 'permissionMode': 'read_only', 'sandbox': {'enabled': True, 'networkAccess': False, 'readAllowPaths': []}, 'version': 1}
 PASS Settings closes
 PASS New chat clicked
-PASS wire: the created open carries the sandbox default — [{'profile_id': 'a8', 'sandbox': {'enabled': True, 'network_access': False}, 'session_id': 'a8:api:01a0fed6-6cd8-776c-ab6b-d21631678d92'}]
-PASS wire: ONE permission/profile/set for the created id — [{'session_id': 'a8:api:01a0fed6-6cd8-776c-ab6b-d21631678d92', 'update': {'mode': 'read_only', 'network': 'deny'}}]
+PASS wire: the created open carries the sandbox default — [{'profile_id': 'a8', 'sandbox': {'enabled': True, 'network_access': False}, 'session_id': 'a8:api:01a0fee9-fe2a-75f2-84ac-e1ec6a4c1753'}]
+PASS wire: ONE permission/profile/set for the created id — [{'session_id': 'a8:api:01a0fee9-fe2a-75f2-84ac-e1ec6a4c1753', 'update': {'mode': 'read_only', 'network': 'deny'}}]
 
 60/60 passed
 -- fixture log tail:

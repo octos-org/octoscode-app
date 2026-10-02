@@ -1,8 +1,8 @@
 == native walk a12_reconnect [phone] (tools/walk/a12_reconnect_walk.py)
 -- run 1: exit 0 in 20 s
 PASS server up — port 8498
-[makepad-remote] listening on 127.0.0.1:8494 pid=99844 app=octosense grabs=<abs>/octosense-99844 token_file=<abs>/port-8494.token
-[headless] up: pid 99844  port 8494  log <abs>/port-8494.log
+[makepad-remote] listening on 127.0.0.1:8494 pid=8681 app=octosense grabs=<abs>/octosense-8681 token_file=<abs>/port-8494.token
+[headless] up: pid 8681  port 8494  log <abs>/port-8494.log
 PASS app launched (hidden, isolated state)
 PASS the shell is up and live
 PASS strip Ready — 'Ready'
@@ -57,4 +57,4 @@ PASS server back
 PASS the card's Connect dials that same server and the shell returns
   shot <repo>/tmp/a22-regress/scratch/a12_reconnect-phone/out/phone-9-reconnected-from-card.png
 == WALK a12 reconnect phone (replay, TERM): 46/46 passed
-   state dir (trace, serve log): <abs>/a12walk.jhtfb4jd
+   state dir (trace, serve log): <abs>/a12walk.psbxnky3

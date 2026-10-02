@@ -1,5 +1,5 @@
 == native walk a8_session [desktop] (tools/walk/a8_session_walk.py)
--- run 1: exit 0 in 28 s
+-- run 1: exit 0 in 29 s
 PASS strip is laid out
 PASS strip: three equal cells — [[359, 506, 219, 32], [579, 497, 219, 51], [799, 506, 219, 32]]
 PASS strip: the foreign holder is the state word — Another app is using this session
@@ -38,7 +38,7 @@ PASS advanced: the pane sits inside the window with equal side margins — modul
 PASS advanced: section cards share one left edge and width — [[289, 173, 510, 28], [289, 213, 510, 57]]
 PASS advanced: every pane tap target is >= 28 px high — []
 PASS advanced: no pane label runs past its card — []
-PASS wire: session/driver/acquire at the observed revision — [{'driver_id': 'octoscode-native:b567a36a-20c9-4c64-bf6e-0db4fcb2035f', 'expected_revision': 9, 'lease_seconds': 60, 'session_id': 'a8:main'}]
+PASS wire: session/driver/acquire at the observed revision — [{'driver_id': 'octoscode-native:37feaf20-fc42-4bd7-b4ee-7ca49b353fc3', 'expected_revision': 9, 'lease_seconds': 60, 'session_id': 'a8:main'}]
 PASS wire: session/driver/release next=internal
 PASS resume chat: the holder banner is gone
 PASS resume chat: 'This app' controls the session now — This app
@@ -49,7 +49,7 @@ PASS header copy: 'Copied' — Copied
 PASS wire: the copy read the canonical history (session/hydrate)
 PASS header copy: the result resets after 2.5 s — Copy as Markdown
 PASS /permissions opens 'Remembered approvals' — Remembered approvals
-PASS inspector: the scope line names the Session — None
+PASS inspector: the scope line names the Session — Session: a8:main
 PASS inspector: 'Reading…' settles to 'Refresh' — Refresh
 PASS inspector: Refresh re-reads the snapshot — 1 -> 2
 PASS inspector: 'Conversation link copied.'
@@ -61,8 +61,8 @@ PASS the third switch is the web's 'Sandbox'
 PASS the defaults persisted per endpoint — {'network': 'deny', 'permissionMode': 'read_only', 'sandbox': {'enabled': True, 'networkAccess': False, 'readAllowPaths': []}, 'version': 1}
 PASS Settings closes
 PASS New chat clicked
-PASS wire: the created open carries the sandbox default — [{'profile_id': 'a8', 'sandbox': {'enabled': True, 'network_access': False}, 'session_id': 'a8:api:01a0fed6-1116-7339-ac7e-e6e5a1a46124'}]
-PASS wire: ONE permission/profile/set for the created id — [{'session_id': 'a8:api:01a0fed6-1116-7339-ac7e-e6e5a1a46124', 'update': {'mode': 'read_only', 'network': 'deny'}}]
+PASS wire: the created open carries the sandbox default — [{'profile_id': 'a8', 'sandbox': {'enabled': True, 'network_access': False}, 'session_id': 'a8:api:01a0fee9-9f80-76b7-91af-12ff8596bd6c'}]
+PASS wire: ONE permission/profile/set for the created id — [{'session_id': 'a8:api:01a0fee9-9f80-76b7-91af-12ff8596bd6c', 'update': {'mode': 'read_only', 'network': 'deny'}}]
 
 63/63 passed
 -- fixture log tail:

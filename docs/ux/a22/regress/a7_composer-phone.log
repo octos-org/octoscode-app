@@ -93,7 +93,7 @@ PASS seat: the banner is gone
 PASS seat: the status line is gone
 == WALK phone seat: 11/11 passed
 -- fixture log tail:
-[a7-serve] <- session/list
+[a7-serve] <- session/open
 [a7-serve] <- session/list
 [a7-serve] <- session/hydrate
 [a7-serve] <- profile/llm/list

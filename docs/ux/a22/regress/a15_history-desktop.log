@@ -1,12 +1,12 @@
 PASS app up against the recorded history
 PASS startup: the Session's history is on screen without a click
-PASS startup: tool rows are the replayed cards, named — ['peer_list', 'peer_handoff']
+PASS startup: tool rows are the replayed cards, named — ['peer_handoff', 'peer_list']
 PASS startup: no tool output drawn as a 'System' notice
 PASS title: the header names the Session from the server's catalog — 'Recording fixture. Reply with exactly: ok'
 PASS strip: the model is the status read's — 'deepseek-v4-flash'
 PASS layout: i1_toolcell_title inside the conversation column — [393, 320, 83, 16] in [335, 1033]
 PASS layout: i23_assistantprose inside the conversation column — [359, 360, 660, 94] in [335, 1033]
-PASS layout: tool rows >= 28 px tall — [36, 37]
+PASS layout: tool rows >= 28 px tall — [37, 36]
 PASS wire: the startup open hydrated once — opens 1, hydrates 1
   shot tmp/a22-regress/a15/desktop-01-startup-history.png
 PASS sidebar: the row is titled by the catalog — 'Recording fixture. Reply with exactly: ok'
@@ -14,7 +14,7 @@ PASS layout: the row title stays inside its row — [92, 300, 194, 17] in [64, 2
   shot tmp/a22-regress/a15/desktop-02-sidebar-titled.png
 PASS CLICK New chat
 PASS new chat: an empty Session
-PASS wire: the new Session's open hydrated too — dsflash:api:01a0fed3-01a1-7603-9fba-a9d32a1b9326
+PASS wire: the new Session's open hydrated too — dsflash:api:01a0fee6-9404-74fb-ad18-a635d26e9de6
 PASS defaults line: what a New chat gets (nothing stored: the server's defaults) — 'New chat defaults · Server defaults · deepseek-v4-flash · Thinking: On'
 PASS layout: the defaults line inside its strip — [351, 144, 605, 16] in [335, 129, 709, 47]
 PASS layout: one line on desktop — [351, 144, 605, 16]
