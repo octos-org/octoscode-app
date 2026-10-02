@@ -1121,6 +1121,45 @@ fn model_rows(v: &mut Ui, l: &Layout, ui: &ProviderUi, list: &[String], action: 
         .collect()
 }
 
+/// The Models list (board 1 #6), the endpoint's models after a fetch
+/// ("Available from endpoint" with its count) and "Fetch available models".
+fn models_section(v: &mut Ui, l: &Layout, ui: &ProviderUi, read_only: bool) {
+    v.push(Text::new("", "Models").px(15.0).fill().one_line().dsl());
+    v.push(kit::gap(if l.phone { 8.0 } else { 6.0 }));
+    let models: Vec<String> = ui.models.clone();
+    let rows = model_rows(v, l, ui, &models, "provider.model", "b1_prov_model", !read_only);
+    let row_h = if l.phone { 46.0 } else { 40.0 };
+    let max_h = (rows.len() > 5).then_some(row_h * 5.0);
+    if rows.is_empty() {
+        v.push(Text::new("b1_prov_models_none", "No catalog models for this provider.").px(14.0).color(kit::MUTED).fill().dsl());
+    } else {
+        v.push(kit::list_card_scroll("b1_prov_models", &rows, max_h));
+    }
+    if !ui.fetched.is_empty() {
+        v.push(kit::gap(12.0));
+        v.push(format!(
+            "View {{ width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8\n{}{}}}\n",
+            Text::new("b1_prov_fetched_label", copy::FROM_ENDPOINT).px(15.0).one_line().dsl(),
+            Text::new("b1_prov_fetched_count", &ui.fetched.len().to_string()).px(13.0).color(kit::MUTED).one_line().dsl()
+        ));
+        v.push(kit::gap(6.0));
+        let fetched = ui.fetched.clone();
+        let rows = model_rows(v, l, ui, &fetched, "provider.fetched", "b1_prov_fetched", !read_only);
+        let max_h = (rows.len() > 5).then_some(row_h * 5.0);
+        v.push(kit::list_card_scroll("b1_prov_fetched_list", &rows, max_h));
+    }
+    if let Some(f) = &ui.fetch_feedback {
+        v.push(kit::gap(8.0));
+        v.push(kit::status_line("b1_prov_fetch_feedback", &f.text, f.ok));
+    }
+    if !read_only && ui.can_fetch {
+        v.push(kit::gap(10.0));
+        let label = if ui.busy && ui.last_op == Op::Fetch { copy::FETCHING } else { copy::FETCH };
+        v.push(kit::pill_outline_fit("b1_prov_fetch", label, 40.0));
+        v.button("b1_prov_fetch", "provider.fetch");
+    }
+}
+
 /// The scroll budget of the editor's body: the window less the dialog's
 /// chrome (header + footer + card padding), so the footer stays on screen.
 fn body_max(l: &Layout) -> f64 {
@@ -1142,8 +1181,12 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
     let read_only = ui.read_only();
     let field_gap = if l.phone { 14.0 } else { 10.0 };
     v.push(kit::gap(if l.phone { 16.0 } else { 12.0 }));
+    // The scroll bar's gutter (board 3 measured the bar drawing over a row's
+    // right edge without one) sits inside the card's own side padding: the
+    // view reaches 10 px into it and pads 10 px back, so the fields keep the
+    // board's margins on both sides.
     v.push(format!(
-        "b1_prov_scroll := ScrollYView {{ width: Fill height: Fit max_height: {} flow: Down padding: Inset{{right: 4}}\n",
+        "b1_prov_scroll := ScrollYView {{ width: Fill height: Fit max_height: {} flow: Down margin: Inset{{right: -10}} padding: Inset{{right: 10}}\n",
         body_max(l)
     ));
     if ui.mode == Mode::Add {
@@ -1161,7 +1204,11 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
         v.push(Field::new("b1_prov_model_id", &ui.model_id()).label("Model ID").placeholder("deepseek-chat").dsl());
         v.input("b1_prov_model_id", "provider.model_id");
         issue_line(&mut v, ui, ms::Field::ModelId, "b1_prov_model_issue");
+        // The catalog's (and the endpoint's) models, right under the id
+        // they fill (`SuggestionGroup`).
         v.push(kit::gap(field_gap));
+        models_section(&mut v, l, ui, read_only);
+        v.push(kit::gap(if l.phone { 18.0 } else { 14.0 }));
     }
     v.push(Field::new("b1_prov_name", &ui.name).label("Name").placeholder("Provider · Route").read_only(read_only).dsl());
     v.input("b1_prov_name", "provider.name");
@@ -1225,40 +1272,9 @@ pub fn view(ui: &ProviderUi, l: &Layout) -> Ui {
         v.push(kit::pill_outline_fit("b1_prov_test", label, 40.0));
         v.button("b1_prov_test", "prov.test");
     }
-    v.push(kit::gap(if l.phone { 18.0 } else { 14.0 }));
-    v.push(Text::new("", "Models").px(15.0).fill().one_line().dsl());
-    v.push(kit::gap(if l.phone { 8.0 } else { 6.0 }));
-    let models: Vec<String> = ui.models.clone();
-    let rows = model_rows(&mut v, l, ui, &models, "provider.model", "b1_prov_model", !read_only);
-    let row_h = if l.phone { 46.0 } else { 40.0 };
-    let max_h = (rows.len() > 5).then_some(row_h * 5.0);
-    if rows.is_empty() {
-        v.push(Text::new("b1_prov_models_none", "No catalog models for this provider.").px(14.0).color(kit::MUTED).fill().dsl());
-    } else {
-        v.push(kit::list_card_scroll("b1_prov_models", &rows, max_h));
-    }
-    if !ui.fetched.is_empty() {
-        v.push(kit::gap(12.0));
-        v.push(format!(
-            "View {{ width: Fill height: Fit flow: Right align: Align{{x: 0.0 y: 0.5}} spacing: 8\n{}{}}}\n",
-            Text::new("b1_prov_fetched_label", copy::FROM_ENDPOINT).px(15.0).one_line().dsl(),
-            Text::new("b1_prov_fetched_count", &ui.fetched.len().to_string()).px(13.0).color(kit::MUTED).one_line().dsl()
-        ));
-        v.push(kit::gap(6.0));
-        let fetched = ui.fetched.clone();
-        let rows = model_rows(&mut v, l, ui, &fetched, "provider.fetched", "b1_prov_fetched", !read_only);
-        let max_h = (rows.len() > 5).then_some(row_h * 5.0);
-        v.push(kit::list_card_scroll("b1_prov_fetched_list", &rows, max_h));
-    }
-    if let Some(f) = &ui.fetch_feedback {
-        v.push(kit::gap(8.0));
-        v.push(kit::status_line("b1_prov_fetch_feedback", &f.text, f.ok));
-    }
-    if !read_only && ui.can_fetch {
-        v.push(kit::gap(10.0));
-        let label = if ui.busy && ui.last_op == Op::Fetch { copy::FETCHING } else { copy::FETCH };
-        v.push(kit::pill_outline_fit("b1_prov_fetch", label, 40.0));
-        v.button("b1_prov_fetch", "provider.fetch");
+    if ui.mode == Mode::Edit {
+        v.push(kit::gap(if l.phone { 18.0 } else { 14.0 }));
+        models_section(&mut v, l, ui, read_only);
     }
     // The route's protocol and credential reference (the web editor's
     // "API protocol" select and "Credential environment" field).
