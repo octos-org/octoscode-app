@@ -69,10 +69,16 @@ async fn main() {
         approval: "on-request".into(),
         selected_model: "deepseek-v4-flash".into(),
         held: cfg.held,
+        // Full ids (the identity grammar), one hollow row (listed with
+        // messages, its history empty), one the server refuses to delete,
+        // and one legacy bare id (never resumable by the grammar).
         sessions: vec![
             ("a8:main".into(), "Fix steer queue drop on reconnect".into()),
-            ("a8:alpha".into(), "Add session fork".into()),
-            ("a8:beta".into(), "Review PR #2566".into()),
+            ("a8:api:alpha".into(), "Add session fork".into()),
+            ("a8:api:beta".into(), "Review PR #2566".into()),
+            ("a8:api:hollow".into(), "Why is hydrate slow?".into()),
+            ("a8:api:locked".into(), "Bump octos-core to a6ea8505".into()),
+            ("a8:legacy".into(), "Legacy chat".into()),
         ],
     }));
     let listener = TcpListener::bind(("127.0.0.1", port)).await.expect("bind");
@@ -323,7 +329,7 @@ async fn ws(stream: TcpStream, cfg: Cfg, world: Arc<Mutex<World>>) {
                 // The recorded r43a hydrate shape; the main session has history.
                 "session/hydrate" => Ok(json!({
                     "session_id": session, "cursor": {"stream": session, "seq": 2},
-                    "messages": if session == "a8:main" { json!([
+                    "messages": if session != "a8:api:hollow" && !session.contains("api:0") { json!([
                         {"seq": 1, "role": "user", "content": "Fix the steer queue drop on reconnect", "persisted_at": "2026-10-01T09:00:00Z"},
                         {"seq": 2, "role": "assistant", "content": "The queue now re-drains after the socket is back.", "persisted_at": "2026-10-01T09:00:01Z"}
                     ]) } else { json!([]) }

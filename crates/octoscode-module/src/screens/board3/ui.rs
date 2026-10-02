@@ -670,9 +670,16 @@ pub fn dialog_pad(frame: &Frame, width: f64) -> f64 {
 /// calc(100dvh - 32px)` + `overflow: auto`).
 pub fn shell_open(d: &mut Dsl, frame: &Frame, width: f64) {
     let pad = dialog_pad(frame, width);
-    d.view(
+    // A8 — the root pans its content above an on-screen keyboard (makepad's
+    // `KeyboardView`: the focused field stays visible while typing, the way a
+    // phone browser scrolls the web dialog's focused input into view). The
+    // kept gap (56 = 8 + a 38 button + 10) leaves a field's primary button,
+    // set right under it, above the keyboard too. No keyboard (the desktop),
+    // no shift.
+    d.open(
         "b3_root",
-        "width: Fill height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5}",
+        "KeyboardView",
+        "width: Fill height: Fill flow: Overlay align: Align{x: 0.5 y: 0.5} keyboard_min_shift: 56.",
     );
     d.rule("b3_backdrop", "width: Fill height: Fill", tok::MASK);
     // The backdrop is modal: it swallows presses so nothing under it (the

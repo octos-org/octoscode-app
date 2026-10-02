@@ -791,6 +791,7 @@ async fn a_cross_profile_launch_waits_for_the_choice_and_moves_the_draft_only_af
     drafts::follow(Some(&a), "");
     conv.set_draft("plan the fix");
     drafts::follow(Some(&a), "plan the fix");
+    let old_session = conv.session_id();
     let opens = server.params_of("session/open").len();
     assert_eq!(launch::create(&conv, "/home/user/octos".into()).await, launch::Launched::AwaitingChoice);
     assert_eq!(server.params_of("launch/resolve"), vec![json!({"cwd": "/home/user/octos", "profile_id": "a8"})]);
@@ -811,6 +812,13 @@ async fn a_cross_profile_launch_waits_for_the_choice_and_moves_the_draft_only_af
     assert_eq!((open["profile_id"].clone(), open["cwd"].clone()), (json!("glm-coder"), json!("/home/user/octos")));
     assert_eq!(host::open_dialog(), None, "the panel closes on success");
     assert_eq!(launch::snapshot().phase, launch::Phase::Idle);
+    // Adopting the chosen profile never re-keys the Session still in the
+    // composer (its key carries its OWN profile) ...
+    assert_eq!(drafts::key_of(&conv, &old_session), a, "the old Session keeps its key");
+    // ... and a frame taken before the open's reply lands keeps the text in
+    // the composer (the frame loop follows the composer every frame).
+    let mid = drafts::active_key(&conv);
+    assert_eq!(drafts::follow(mid.as_deref(), "plan the fix"), None, "the composer keeps the text mid-transition");
     // The open committed (its reply named the workspace): the draft moves now.
     drain(&conv, &mut ev).await;
     let b = drafts::active_key(&conv).unwrap();

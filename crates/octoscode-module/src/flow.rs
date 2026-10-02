@@ -591,10 +591,10 @@ pub struct Conversation {
     pending_open_cwd: Mutex<Option<String>>,
     /// A8 — this connection's authority epoch (the scope key's last part).
     epoch: u64,
-    /// A8 — the transport has been Live before: a later Live is a RECONNECT,
-    /// which re-opens the active Session and hydrates it under a new
-    /// authority generation (`active-session-runtime.ts`: connect -> open ->
-    /// hydrate -> ready, every reconnect a new generation).
+    /// A8 — the transport has been Live before: a later handshake is a
+    /// RECONNECT, which re-opens the active Session and hydrates it under a
+    /// new authority generation (`active-session-runtime.ts`: connect -> open
+    /// -> hydrate -> ready, every reconnect a new generation).
     was_live: Mutex<bool>,
     /// A8 — the generation (`open_seq`) each in-flight `session/hydrate` was
     /// requested under, by session: a reply from a retired generation is a
@@ -1726,17 +1726,19 @@ impl Conversation {
         match evt {
             TransportEvent::ConnectionState(s) => {
                 let live = matches!(s, octos_app_transport::ConnectionState::Live);
-                let was_live_now = self.store.is_live();
                 self.store.set_connection(format!("{s:?}"), live);
-                // A8 — a Live AFTER an earlier Live is a reconnect: the server
-                // dropped this socket's session subscriptions, so re-open the
-                // active Session (the transport replays from its cursor) and
-                // hydrate it, under a NEW authority generation.
-                if live && !was_live_now {
-                    let reconnect = std::mem::replace(&mut *self.was_live.lock().unwrap(), true);
-                    if reconnect && *self.workspace_opened.lock().unwrap() {
-                        self.reopen_after_reconnect();
-                    }
+                if live {
+                    *self.was_live.lock().unwrap() = true;
+                }
+                // A8 — a handshake AFTER an earlier Live is a reconnect. The
+                // WS transport parks a re-dialed socket in Handshaking until a
+                // `session/open` answers (it does not replay the opens
+                // itself, and the server dropped the old socket's session
+                // subscriptions), so the flow re-opens the active Session at
+                // its workspace and hydrates it, under a NEW authority
+                // generation (`active-session-runtime.ts` recovery).
+                if matches!(s, octos_app_transport::ConnectionState::Handshaking) && *self.was_live.lock().unwrap() {
+                    self.reopen_after_reconnect();
                 }
                 if live {
                     FlowEvent::Live

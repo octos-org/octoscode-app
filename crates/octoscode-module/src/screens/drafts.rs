@@ -280,8 +280,20 @@ pub fn get(key: &str) -> Option<String> {
 }
 
 /// The composer's Session key for a conversation.
+///
+/// The profile part is the Session's OWN profile (a full id's prefix,
+/// `<profile>:<channel>:<chat>` / `<profile>:main`; the connection's for a
+/// bare legacy id), so a launch adopting another profile never re-keys the
+/// Session still in the composer (`workspaceSessionKey` takes the Session
+/// scope's profile, not the connection's).
 pub fn key_of(conv: &crate::flow::Conversation, session: &str) -> String {
-    session_key(&conv.store.domains.session.workspace_root(session).unwrap_or_default(), &conv.profile(), session)
+    let profile = session
+        .split_once(':')
+        .map(|(p, _)| p)
+        .filter(|p| !p.is_empty())
+        .map(str::to_owned)
+        .unwrap_or_else(|| conv.profile());
+    session_key(&conv.store.domains.session.workspace_root(session).unwrap_or_default(), &profile, session)
 }
 
 /// The web's principal: REST `GET /api/auth/me` with the connection's bearer

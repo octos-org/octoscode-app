@@ -16,7 +16,7 @@ use serde_json::{json, Value};
 use tokio::net::TcpListener;
 use tokio_tungstenite::tungstenite::Message;
 
-use octos_app_transport::{ConnectionState, TransportEvent};
+use octos_app_transport::TransportEvent;
 use octoscode_module::flow::{Conversation, FlowEvent};
 
 const PROFILE: &str = "a8";
@@ -24,6 +24,8 @@ const PROFILE: &str = "a8";
 struct FakeServer {
     base_url: String,
     seen: Arc<Mutex<Vec<(String, Value)>>>,
+    /// Closes every socket open at the time (the server side of an outage).
+    kick: tokio::sync::broadcast::Sender<()>,
 }
 
 impl FakeServer {
@@ -33,10 +35,13 @@ impl FakeServer {
         let base_url = format!("http://{}", listener.local_addr().expect("addr"));
         let seen = Arc::new(Mutex::new(Vec::new()));
         let s2 = seen.clone();
+        let (kick, _) = tokio::sync::broadcast::channel::<()>(4);
+        let kick2 = kick.clone();
         tokio::spawn(async move {
             loop {
                 let Ok((stream, _)) = listener.accept().await else { return };
                 let seen = s2.clone();
+                let mut kicked = kick2.subscribe();
                 tokio::spawn(async move {
                     // REST: the drafts' principal read (`/api/auth/me`).
                     let mut head = [0u8; 64];
@@ -52,6 +57,12 @@ impl FakeServer {
                     let Ok(ws) = tokio_tungstenite::accept_async(stream).await else { return };
                     let (tx, mut rx) = ws.split();
                     let tx = Arc::new(tokio::sync::Mutex::new(tx));
+                    let closer = tx.clone();
+                    tokio::spawn(async move {
+                        if kicked.recv().await.is_ok() {
+                            let _ = closer.lock().await.close().await;
+                        }
+                    });
                     while let Some(Ok(msg)) = rx.next().await {
                         let Message::Text(text) = msg else { continue };
                         let Ok(v) = serde_json::from_str::<Value>(&text) else { continue };
@@ -120,7 +131,12 @@ impl FakeServer {
                 });
             }
         });
-        Self { base_url, seen }
+        Self { base_url, seen, kick }
+    }
+
+    /// Drop every open socket (the client sees its stream end).
+    fn drop_sockets(&self) {
+        let _ = self.kick.send(());
     }
 
     fn count(&self, method: &str) -> usize {
@@ -183,15 +199,25 @@ async fn a_reconnect_reopens_the_active_session_and_hydrates_under_a_new_generat
     let session = conv.session_id();
     let g0 = conv.generation();
     assert_eq!(server.count("session/open"), 1);
-    // The socket drops and comes back (the transport's own state events).
-    conv.on_event(TransportEvent::ConnectionState(ConnectionState::Reconnecting { attempt: 1 }));
-    assert!(!conv.store.is_live());
-    conv.on_event(TransportEvent::ConnectionState(ConnectionState::Live));
+    // The server drops the socket. The REAL transport re-dials and parks the
+    // new socket in Handshaking until a `session/open` answers: the flow's
+    // re-open is what brings it back to Live.
+    server.drop_sockets();
+    let seen = fold_until(&conv, &mut events, |c| {
+        c.store.is_live() && server.count("session/open") >= 2 && c.store.domains.session.timeline.len(&session) >= 2
+    })
+    .await;
+    assert!(
+        seen.iter().any(|e| matches!(e, FlowEvent::Connecting(s) if s.starts_with("Reconnecting"))),
+        "the outage is seen: {seen:?}"
+    );
+    assert!(seen.iter().any(|e| *e == FlowEvent::Live), "Live again: {seen:?}");
+    assert!(conv.store.is_live());
     assert_eq!(conv.generation(), g0 + 1, "a reconnect is a new authority generation");
-    let seen = fold_until(&conv, &mut events, |c| c.store.domains.session.timeline.len(&session) >= 2).await;
     let opens = server.params_of("session/open");
-    assert_eq!(opens.len(), 2, "the active Session is re-opened after the reconnect");
+    assert_eq!(opens.len(), 2, "the active Session is re-opened after the reconnect (once)");
     assert_eq!(opens[1]["session_id"], json!(session));
+    assert_eq!(opens[1]["cwd"], json!("/home/user/octos"), "at its workspace");
     assert_eq!(server.message_hydrates()[0]["session_id"], json!(session), "then hydrated canonically");
     assert!(seen.iter().any(|e| *e == FlowEvent::Other("session/hydrate".into())), "{seen:?}");
     assert!(conv.store.domains.session.timeline.len(&session) >= 2, "the canonical history folded");

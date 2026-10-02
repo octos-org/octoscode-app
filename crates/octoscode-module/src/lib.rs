@@ -3426,7 +3426,9 @@ impl OctoscodeView {
             let slot_w = self.view.widget(cx, ids!(strip_splash)).area().rect(cx).size.x;
             let strip_w = if slot_w > 0.0 && composer_w > 0.0 { composer_w.min(slot_w) } else { composer_w };
             screens::board3::host::set_strip_width(strip_w);
-            let strip = if store.is_live() {
+            // A8 — the strip stays while the connection drops: its state word
+            // then reads "Reconnecting" (`App.tsx:2047-2050`), as the web's.
+            let strip = if store.is_live() || store.active_session().is_some() {
                 screens::board3::host::lower_strip(&store, active_turn.as_deref(), mode.as_deref())
             } else {
                 String::new()
