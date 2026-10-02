@@ -86,6 +86,29 @@ pub fn timeline_rows(store: &Arc<Store>, live: bool) -> Vec<Row> {
 /// a settled turn named in `folded` keeps its "Worked for" header but hides
 /// its tool rows.
 ///
+/// A1 — the answer text a turn's copy control writes: the turn's FINAL
+/// assistant text, the same entry its prose row renders (the web copies the
+/// answer's Markdown source, `MessageActions`). Empty when the turn has none.
+pub fn answer_text(store: &Store, turn: Option<&str>) -> String {
+    let Some(session) = store.active_session() else {
+        return String::new();
+    };
+    store
+        .domains
+        .session
+        .timeline
+        .entries(&session)
+        .into_iter()
+        .filter(|e| e.turn_id.as_deref().unwrap_or("") == turn.unwrap_or(""))
+        .filter(|e| {
+            (e.kind == EntryKind::ASSISTANT_TEXT || e.kind == crate::screens::palette::REPORT_KIND)
+                && !e.text.is_empty()
+        })
+        .next_back()
+        .map(|e| e.text)
+        .unwrap_or_default()
+}
+
 /// A1 — the space a row's list item adds above it. The web keeps 20 px
 /// between the person's message and the assistant's entry
 /// (`Timeline.module.css:1-3`); the bubble keeps [`crate::fluid::BUBBLE_BOTTOM`]
@@ -297,6 +320,28 @@ mod tests {
     //! The row model + the lowering cache: pure, no window, no transport.
     use super::*;
     use octoscode_store::Session;
+
+    #[test]
+    fn the_copy_control_copies_its_own_turns_final_answer() {
+        let store = Arc::new(Store::new());
+        store.set_sessions(vec![Session {
+            id: "s1".into(),
+            title: None,
+            message_count: 0,
+            updated_at: None,
+            last_prompt: None,
+            active_turn: false,
+        }]);
+        store.set_active(Some("s1".into()));
+        let tl = &store.domains.session.timeline;
+        tl.upsert_user_message("s1", "t1", "one", serde_json::json!({}));
+        tl.append("s1", Some("t1".into()), EntryKind::ASSISTANT_TEXT, "first answer".into());
+        tl.upsert_user_message("s1", "t2", "two", serde_json::json!({}));
+        tl.append("s1", Some("t2".into()), EntryKind::ASSISTANT_TEXT, "# second\n\n- a".into());
+        assert_eq!(super::answer_text(&store, Some("t1")), "first answer");
+        assert_eq!(super::answer_text(&store, Some("t2")), "# second\n\n- a", "the Markdown source");
+        assert_eq!(super::answer_text(&store, Some("t9")), "");
+    }
 
     #[test]
     fn work_under_a_bubble_starts_at_the_web_timeline_gap() {

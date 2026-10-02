@@ -3884,9 +3884,19 @@ impl Widget for OctoscodeView {
                     if row.kind == components::ItemKind::AnswerActions
                         && item.button(cx, ids!(answer_copy_hit)).clicked(actions)
                     {
-                        if let Some(action) = components::action_for(row.kind, "copy") {
-                            self.perform_action(cx, action, 0);
-                        }
+                        // A1: the copy control writes ITS turn's answer
+                        // (the Markdown source) to the clipboard; the
+                        // routed `answer.copy` effect was a no-op.
+                        let text = {
+                            let b = self.bridge.lock().unwrap();
+                            screen::answer_text(&b.store, row.turn.as_deref())
+                        };
+                        cx.copy_to_clipboard(&text);
+                        makepad_widgets::log!(
+                            "[octoscode] {}: {} chars to the clipboard",
+                            components::action_for(row.kind, "copy").unwrap_or("answer.copy"),
+                            text.chars().count()
+                        );
                         continue;
                     }
                     // A1: each clickable row's own header hit (fluid.rs).
