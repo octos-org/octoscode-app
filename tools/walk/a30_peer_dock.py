@@ -26,6 +26,7 @@ usage: OCTOSCODE_APP_BIN=<host octosense> a30_peer_dock.py <desktop|phone> <outd
 """
 import json
 import os
+import pathlib
 import re
 import sys
 import time
@@ -231,30 +232,41 @@ def row_status(W: Walk, i: int, sn=None) -> str:
     return text_any(W, f"pd_row_{i}_status", sn=sn)
 
 
+def wholly_in(r, vp) -> bool:
+    """`r` lies wholly in the scroll viewport `vp`. The instrument reports a
+    scrolled child's CLIPPED rect, so a rect touching the viewport's edge may
+    be cut: it counts only at a full tap height (>= 27.5 px)."""
+    if not (r[1] >= vp[1] - 0.5 and r[1] + r[3] <= vp[1] + vp[3] + 0.5):
+        return False
+    touches = r[1] <= vp[1] + 1.0 or r[1] + r[3] >= vp[1] + vp[3] - 1.0
+    return not touches or r[3] >= 27.5
+
+
 def dock_seek(W: Walk, wid: str, tries: int = 16) -> bool:
     """Bring a dock control wholly into view: on a short desktop column the
     rows region scrolls (the user's own wheel over it)."""
-    for _ in range(tries):
+    for attempt in range(tries):
         sn = W.snap()
         r = W.rect(wid, sn=sn)
         # The rows region is the viewport (a ScrollYView when capped; the
         # instrument may name its type View).
         vp = next((w["r"] for w in sn if w.get("i") == "pd_rows" and Walk.shown(w)), None)
         in_rows = wid.startswith("pd_row_")
-        if r and (not in_rows or vp is None or (r[1] >= vp[1] - 0.5 and r[1] + r[3] <= vp[1] + vp[3] + 0.5)):
+        if r and (not in_rows or vp is None or wholly_in(r, vp)):
             return True
         if vp is None:
             # A remount not drawn yet (or a folded dock): wait for the frame.
             time.sleep(0.3)
             continue
-        # Scrolled out below (or no rect yet): wheel down; above: up.
-        dy = -60 if (r and r[1] < vp[1]) else 60
-        if r is None:
-            # Not drawn: find whether it lies above or below by its row index.
-            m = re.match(r"pd_row_(\d+)_", wid)
-            first = next((int(re.match(r"pd_row_(\d+)_", w["i"]).group(1)) for w in sn
-                          if re.match(r"pd_row_\d+_head$", str(w.get("i", ""))) and Walk.shown(w)), None)
-            dy = -60 if (m and first is not None and int(m.group(1)) < first) else 60
+        # Scrolled out above: wheel up; below or not drawn: down for the
+        # first half of the tries, then up (a short column lists the waiting
+        # peers first, so the drawn order is not the index order).
+        if r and r[1] < vp[1]:
+            dy = -60
+        elif r:
+            dy = 60
+        else:
+            dy = 60 if attempt < tries // 2 else -60
         W.get(f"/m?k=scroll&x={vp[0] + 20:.0f}&y={vp[1] + vp[3] / 2:.0f}&dy={dy}&wait=1", tolerant=True)
         time.sleep(0.25)
     sn = W.snap()
@@ -326,12 +338,18 @@ def dock_checks(W: Walk, name: str, sn=None) -> bool:
         align.append(("pill_inside", inside(pill, content, 1.0)))
     aligned = all(abs(v) <= 1.0 if isinstance(v, (int, float)) and not isinstance(v, bool) else v for _, v in align)
     tree_room = tree[3]
-    ok = not outside and not over and not under and order and aligned and tree_room >= 30
-    detail = (f"dock={[round(x) for x in slot]} tree_h={round(tree_room)} order={order} labels={len(labels)} "
+    # The judge's tree check: at least two SESSION rows laid out wholly inside
+    # the tree (the group header aside) — never squeezed to its header.
+    # (A 32-px row at full height: the instrument reports a clipped row's cut
+    # rect, so a sliver at the tree's edge does not count.)
+    session_rows = [w["r"] for w in shown if w.get("i") == "sb_r_open" and inside(w["r"], tree, 0.5) and w["r"][3] >= 31]
+    ok = not outside and not over and not under and order and aligned and len(session_rows) >= 2
+    detail = (f"dock={[round(x) for x in slot]} tree_h={round(tree_room)} session_rows={len(session_rows)} "
+              f"order={order} labels={len(labels)} "
               f"outside={outside[:3]} overlaps={over[:3]} controls={len(hits)} under28={under[:3]} "
               f"align={align}")
-    return W.check(f"{name}: dock numeric checks (inside the column, between tree and footer, the tree's grid, "
-                   f"no clipped/overlapping labels, controls >= 28 px)", ok, detail)
+    return W.check(f"{name}: dock numeric checks (inside the column, between tree and footer, the tree keeps 2+ session "
+                   f"rows, the tree's grid, no clipped/overlapping labels, controls >= 28 px)", ok, detail)
 
 
 def capture(W: Walk, name: str, state: str) -> None:
@@ -669,10 +687,120 @@ def main_walk(W: Walk) -> None:
     zh_phase(W)
 
 
+# The deterministic race (judge item 1): the app holds every DRAWN control
+# DELAY_MS before its send-time check (OCTOSCODE_PEER_CONTROL_DELAY_MS, inert
+# unless set) and the replay re-issues every pending approval when TRIGGER
+# appears (--reissue-trigger): approval/cancelled + approval/requested with a
+# new id for another command, on the SAME turn — the row changes between the
+# tap and the send, every time.
+DELAY_MS = 4000
+CHANGED = "This peer changed. Review it and tap again."
+
+
+def race_trigger(out: str) -> pathlib.Path:
+    return pathlib.Path(out).resolve() / "reissue.trigger"
+
+
+def reissued(W: Walk, session: str) -> list[str]:
+    """The approval ids the replay re-issued for `session`, oldest first."""
+    return [kv(l).get("approval_id", "") for l in replay_lines(W, "=> approval/requested (reissue)")
+            if kv(l).get("session_id") == session]
+
+
+def race_walk(W: Walk) -> None:
+    mode = W.mode
+    trigger = race_trigger(str(W.out))
+    W.note("== race 1. three peers from the Fleet's production Start")
+    drawer_open(W)
+    W.click("fleet_nav_hit")
+    W.check("race: the Fleet pane opens", W.wait_shown("b3_fleet_panel", 10) and W.wait_shown("b3_fleet_form_title", 10))
+    started = all(fleet_start(W, n) for n in range(3))
+    d = dispatches(W)
+    W.check("race: three dispatches", started and len(d) == 3, f"{[(x.get('model'), x.get('adopted_session_id')) for x in d]}")
+    if len(d) < 3:
+        return
+    (p1_op, p1_sess, p1_turn), (p2_op, p2_sess, p2_turn) = [(x.get("operation_id"), x.get("adopted_session_id"),
+                                                            x.get("adopted_turn_id")) for x in d[:2]]
+    seek(W, "b3_fleet_back")
+    W.click("b3_fleet_back")
+    W.wait(lambda: not W.visible("b3_fleet_panel"), 8)
+    drawer_open(W)
+    if not W.wait_shown("pd_row_0_label", 4):
+        W.click("pd_pill")  # the phone starts folded
+    W.check("race: both peers wait on an approval (two cards)",
+            W.wait(lambda: row_status(W, 0) == row_status(W, 1) == "Waiting for your approval", 12),
+            f"{row_status(W, 0)!r} {row_status(W, 1)!r}")
+
+    W.note("== race 2. Stop on Peer 2 is tapped; Peer 2's approval is re-issued before the send -> ONE interrupt (re-resolved)")
+    before = len(controls(W))
+    W.mark()
+    dock_click(W, "pd_row_1_stop")
+    tapped = W.logged("peer dock pd.stop#", 6)
+    trigger.touch()
+    W.note(f"TRIGGER the re-issue ({trigger.name})")
+    re2 = W.wait(lambda: len(reissued(W, p2_sess)) >= 1, 4)
+    W.check("race: the re-issue landed between the tap and the send (Stop's tap logged, then the server re-issued Peer 2's approval)",
+            tapped and re2, f"reissued={reissued(W, p2_sess)}")
+    sent = W.wait(lambda: len(controls(W)) > before, DELAY_MS / 1000 + 6)
+    time.sleep(1.0)
+    c = controls(W)[before:]
+    W.check("race: Stop re-resolves to the same operation and turn: exactly ONE peer/control interrupt on Peer 2's ids",
+            sent and len(c) == 1 and c[0].get("command") == "interrupt" and c[0].get("target_operation_id") == p2_op
+            and c[0].get("expected_turn_id") == p2_turn, f"{c}")
+    W.check("race: Peer 2 -> Stopped", W.wait(lambda: row_status(W, 1) == "Stopped", 8), repr(row_status(W, 1)))
+
+    W.note("== race 3. Approve once on Peer 1 is tapped; Peer 1's approval is re-issued before the send -> nothing sent, said on the card")
+    W.wait(lambda: text_any(W, "pd_row_0_target") == "git push --force origin main", 6)
+    before = len(controls(W))
+    W.mark()
+    dock_click(W, "pd_row_0_approve")
+    tapped = W.logged("peer dock pd.approve#", 6)
+    n_before = len(reissued(W, p1_sess))
+    trigger.touch()
+    W.note(f"TRIGGER the re-issue ({trigger.name})")
+    re1 = W.wait(lambda: len(reissued(W, p1_sess)) > n_before, 4)
+    W.check("race: the re-issue landed between the tap and the send (Approve once's tap logged, then Peer 1's approval re-issued)",
+            tapped and re1, f"reissued={reissued(W, p1_sess)}")
+    refused = W.logged("peer dock control refused: " + CHANGED, DELAY_MS / 1000 + 6)
+    time.sleep(1.0)
+    W.check("race: the decision drawn for the replaced approval sends NOTHING (zero peer/control frames)",
+            refused and len(controls(W)) == before, f"{controls(W)[before:]}")
+    sn = W.snap()
+    W.check("race: the refusal is SAID on Peer 1's card, which shows the new command",
+            text_any(W, "pd_row_0_note", sn) == CHANGED and text_any(W, "pd_row_0_target", sn) == "rm -rf ~/.cache",
+            f"note={text_any(W, 'pd_row_0_note', sn)!r} target={text_any(W, 'pd_row_0_target', sn)!r}")
+    dock_checks(W, f"{mode} race refused", sn)
+    capture(W, f"{mode}-race-refused-on-the-card", "race: a decision drawn for a re-issued approval, refused on the card")
+
+    W.note("== race 4. Approve once again on the card as drawn now -> exactly ONE frame with the current approval id")
+    current = reissued(W, p1_sess)[-1]
+    before = len(controls(W))
+    dock_click(W, "pd_row_0_approve")
+    sent = W.wait(lambda: len(controls(W)) > before, DELAY_MS / 1000 + 6)
+    time.sleep(1.0)
+    c = controls(W)[before:]
+    W.check("race: the re-drawn Approve once sends exactly ONE approval_respond with Peer 1's CURRENT approval id",
+            sent and len(c) == 1 and c[0].get("command") == "approval_respond" and c[0].get("decision") == "approve"
+            and c[0].get("approval_id") == current and c[0].get("target_operation_id") == p1_op
+            and c[0].get("expected_turn_id") == p1_turn, f"{c} current={current}")
+    W.check("wire (race): two peer/control frames in all, each to the row tapped",
+            [x.get("target_operation_id") for x in controls(W)] == [p2_op, p1_op], f"{[x.get('target_operation_id') for x in controls(W)]}")
+    drawer_close(W)
+
+
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
     rc = run_session(main_walk, mode=MODE, outdir=OUT, port=PORT, replay_port=REPLAY, scenario="fleet",
                      replay_args=["--peer-dock"])
+    race_out = os.path.join(OUT, "race")
+    os.makedirs(race_out, exist_ok=True)
+    trig = race_trigger(race_out)
+    if trig.exists():
+        trig.unlink()
+    rc_race = run_session(race_walk, mode=MODE, outdir=race_out, port=PORT, replay_port=REPLAY, scenario="fleet",
+                          env={"OCTOSCODE_PEER_CONTROL_DELAY_MS": str(DELAY_MS)},
+                          replay_args=["--peer-dock", "--reissue-trigger", str(trig)])
+    rc = rc or rc_race
     with open(os.path.join(OUT, "captures.json"), "w") as f:
         json.dump(CAPTURES, f, indent=1, ensure_ascii=False)
     print(f"== WALK a30 peer dock {MODE}: {'PASS' if rc == 0 else 'FAIL'}")

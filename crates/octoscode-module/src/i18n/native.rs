@@ -63,6 +63,13 @@ pub static NATIVE_ZH: &[(&str, &str, &str)] = &[
     ("This peer is no longer in the roster.", "此同侪已不在名单中。", "fleet_driver::row_control's fail-closed label"),
     ("Take control of this session to do this", "需要先取得此会话的控制权", "fleet_driver::row_control's fail-closed label"),
     ("That action is not available right now.", "此操作当前不可用。", "fleet_driver::row_control's fail-closed label"),
+    // A30 follow-up: a control drawn for a request / turn the peer has since
+    // replaced is refused on the card (never a silent no-op).
+    (
+        "This peer changed. Review it and tap again.",
+        "此同侪已变化，请查看后重试。",
+        "fleet_driver::CHANGED_DRAWN, the dock's and the Fleet's stale-control refusal",
+    ),
     // ---- A28: the diff review (parity row 23; board 4 frames 1 / 1b / 2,
     // README "Row 23"; screens/board3/diff_review.rs). Terms as the web's
     // zh: diff 差异, preview 预览, review 审查, plain text 纯文本.
