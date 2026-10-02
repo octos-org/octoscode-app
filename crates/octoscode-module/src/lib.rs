@@ -54,6 +54,8 @@ pub mod l0_host;
 pub mod flow;
 // A7: the answer's markdown display rules + code-block colouring.
 pub mod highlight;
+// A24: the UI language + the web's Chinese catalog (tr(), keyed by the English).
+pub mod i18n;
 pub mod markdown;
 // A7: the driver-seat handover before one send (composer-seat-handover.ts).
 pub mod seat;

@@ -1,0 +1,12 @@
+{
+  "repo": "src-web",
+  "commit": "70a8a1cfbc7f677fff76dd863abdcc9231807793",
+  "root": "apps/web/src",
+  "files": [
+    "features/preferences/zh.ts",
+    "features/fleet/fleet-copy.ts",
+    "features/reasoning/reasoning-copy.ts",
+    "features/session-config/session-config-copy.ts"
+  ],
+  "note": "Verbatim copies of the web's Chinese catalog tables (the oracle). tools/i18n/zh_catalog.py generates crates/octoscode-module/src/i18n/zh.rs from them; --refresh <apps/web/src> re-vendors them."
+}
