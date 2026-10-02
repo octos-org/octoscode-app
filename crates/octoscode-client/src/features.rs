@@ -64,6 +64,37 @@ pub const WEB_UI_FEATURES: &[&str] = &[
     "external_driver_v1",
 ];
 
+/// A31 — the features the native client asks for BEYOND the web's list,
+/// each because a native surface consumes what it gates. Sent after
+/// [`WEB_UI_FEATURES`] (the web's own order stays a prefix).
+///
+/// - `skill.action_jobs.v1` (octos-cli `APPUI_FEATURE_SKILL_ACTION_JOBS_V1`,
+///   `ui_protocol_transport.rs:401`): a connection that sends features
+///   without it never receives `skill/action/job/updated` (the ledger filter
+///   drops it, live and on replay) and is not offered
+///   `skill/action/job/list|read` (`skill_action_jobs_available`). The
+///   Skills dialog's Background jobs section (parity row 15) needs both.
+///   The web has no job UI, so it never asks. Asking changes nothing else a
+///   native client uses: the token also lets `skill/action/invoke` run
+///   background actions, which the native client never calls.
+pub const NATIVE_UI_FEATURES: &[&str] = &["skill.action_jobs.v1"];
+
+/// Every feature the native client requests: the web's list in its order,
+/// then [`NATIVE_UI_FEATURES`].
+pub fn requested_ui_features() -> impl Iterator<Item = &'static str> {
+    WEB_UI_FEATURES.iter().chain(NATIVE_UI_FEATURES.iter()).copied()
+}
+
+/// [`web_capabilities`] plus [`NATIVE_UI_FEATURES`]: the handshake header's
+/// set, matching the query params [`requested_ui_features`] sets.
+pub fn requested_capabilities() -> Capabilities {
+    let mut caps = web_capabilities();
+    for f in NATIVE_UI_FEATURES {
+        caps.raw.insert((*f).to_owned(), serde_json::Value::Bool(true));
+    }
+    caps
+}
+
 /// The subset the transport has a typed boolean for
 /// (`octos-app-transport`'s `Capabilities` fields). The rest go through
 /// `Capabilities::raw`.
