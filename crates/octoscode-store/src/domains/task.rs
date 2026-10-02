@@ -38,9 +38,28 @@ pub struct TaskSnapshot {
     pub output_files: Vec<String>,
     pub error: Option<String>,
     pub updated_at: Option<String>,
+    /// A6: `current_phase` (`SupervisedTask.phase`, `model.ts:98`). Set with
+    /// [`TaskSnapshot::with_phase`]; a sparse live update keeps the row's.
+    pub phase: Option<String>,
+    /// A6: the session the row belongs to (`task/list`'s `session_id`, a
+    /// `task/updated`'s own) — the trajectory is session-local
+    /// (`SessionTrajectory.tsx:16`). `None` = unknown (kept for old callers).
+    pub session_id: Option<String>,
 }
 
 impl TaskSnapshot {
+    /// A6: attach the row's `current_phase`.
+    pub fn with_phase(mut self, phase: Option<String>) -> Self {
+        self.phase = phase;
+        self
+    }
+
+    /// A6: attach the session the row was listed/updated under.
+    pub fn with_session(mut self, session: &str) -> Self {
+        self.session_id = Some(session.to_owned());
+        self
+    }
+
     /// The `task/list` projection (`tasksFromList`, `model.ts:84`).
     pub fn from_list_row(
         id: String,
@@ -69,6 +88,8 @@ impl TaskSnapshot {
             output_files,
             error,
             updated_at,
+            phase: None,
+            session_id: None,
         }
     }
 }
@@ -109,6 +130,9 @@ struct Inner {
     plans: HashMap<String, Plan>,
     /// Accumulated `task/output/delta` text per task.
     output: HashMap<String, String>,
+    /// A6: recency per task id (the trajectory's newest-first order).
+    touched: HashMap<String, u64>,
+    touch_seq: u64,
 }
 
 impl Tasks {
@@ -166,10 +190,58 @@ impl Tasks {
                     },
                     error: pick(incoming.error.clone(), existing.error.clone()),
                     updated_at: pick(incoming.updated_at.clone(), existing.updated_at.clone()),
+                    phase: pick(incoming.phase.clone(), existing.phase.clone()),
+                    session_id: pick(incoming.session_id.clone(), existing.session_id.clone()),
                 }
             }
         };
+        // A6: the trajectory lists the newest update first (the web's
+        // `applyTaskUpdated` returns `[next, ...rest]`, `model.ts:136`).
+        i.touch_seq += 1;
+        let seq = i.touch_seq;
+        i.touched.insert(merged.id.clone(), seq);
         i.snapshots.insert(merged.id.clone(), merged);
+    }
+
+    /// A6: one session's rows, most recently listed/updated first (the web's
+    /// trajectory order: `tasksFromList` keeps the server's order and every
+    /// `task/updated` moves its row to the top, `model.ts:104-137`). A row
+    /// with no recorded session belongs to no session's trajectory.
+    pub fn session_rows(&self, session: &str) -> Vec<TaskSnapshot> {
+        let i = self.inner.lock().unwrap();
+        let mut v: Vec<(u64, TaskSnapshot)> = i
+            .snapshots
+            .values()
+            .filter(|t| t.session_id.as_deref() == Some(session))
+            .map(|t| (i.touched.get(&t.id).copied().unwrap_or(0), t.clone()))
+            .collect();
+        v.sort_by(|a, b| b.0.cmp(&a.0).then_with(|| a.1.id.cmp(&b.1.id)));
+        v.into_iter().map(|(_, t)| t).collect()
+    }
+
+    /// A6: replace a session's rows with an authoritative `task/list`, in the
+    /// server's order (first row on top), keeping rows of other sessions.
+    pub fn replace_session_rows(&self, session: &str, rows: Vec<TaskSnapshot>) {
+        let mut i = self.inner.lock().unwrap();
+        let stale: Vec<String> = i
+            .snapshots
+            .values()
+            .filter(|t| t.session_id.as_deref() == Some(session))
+            .map(|t| t.id.clone())
+            .collect();
+        for id in stale {
+            i.snapshots.remove(&id);
+            i.touched.remove(&id);
+        }
+        // The server's first row ends with the highest sequence (top).
+        let n = rows.len() as u64;
+        let base = i.touch_seq;
+        for (k, mut row) in rows.into_iter().enumerate() {
+            row.session_id = Some(session.to_owned());
+            i.touched.insert(row.id.clone(), base + n - k as u64);
+            i.snapshots.insert(row.id.clone(), row);
+        }
+        i.touch_seq = base + n + 1;
     }
 
     pub fn snapshot(&self, id: &str) -> Option<TaskSnapshot> {

@@ -284,10 +284,17 @@ impl NotificationHandler for WarningHandler {
             // system notice (`timeline/model.ts:432-439`: title = code or
             // "Warning", body = message or "The server reported a
             // warning.").
-            self.store.domains.session.timeline.append_data(
+            // A6 — under the web's DETERMINISTIC ordinal id
+            // (`nextNoticeId(entries, "warning")`, `entry-model.ts:101-110`):
+            // two same-millisecond warnings keep two rows, and the id is a
+            // function of the transcript, never of the wall clock
+            // (`model.test.ts:1610-1637`).
+            let tl = &self.store.domains.session.timeline;
+            let notice_id = tl.next_notice_id(&event.session_id.0, "warning");
+            tl.upsert_notice_data(
                 &event.session_id.0,
                 None,
-                octoscode_store::timeline::EntryKind::SYSTEM_NOTICE,
+                &notice_id,
                 format!("{}: {}", event.code, event.message),
                 serde_json::json!({"code": event.code, "message": event.message}),
             );

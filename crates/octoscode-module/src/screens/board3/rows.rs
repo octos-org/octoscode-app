@@ -102,7 +102,9 @@ pub fn timeline_folded(store: &Arc<Store>, live: bool, folded: &[String]) -> Vec
         }
     }
     let mut out: Vec<TRow> = Vec::with_capacity(base.len() + 8);
-    if any_thinking {
+    // A6: the fold bar heads the transcript whenever a foldable block exists
+    // — a visible reasoning block OR a tool call (`Timeline.tsx:72-75`).
+    if any_thinking || crate::screens::surfaces::folds::has_foldable(store, &session) {
         out.push(TRow::FoldBar);
     }
     let take = |per_turn: &mut Vec<(String, Extras)>, turn: &str| -> Option<Extras> {
@@ -170,9 +172,16 @@ fn entry(store: &Store, id: u64) -> Option<TimelineEntry> {
 /// splits at the first ": "; terminal outcomes read as the web's titles.
 pub fn notice_parts(e: &TimelineEntry) -> (String, String) {
     // A7: a client-authored notice (`Timeline::upsert_notice`, the web's
-    // `addSystemMessage(…, title, body)`) names its own title.
+    // `addSystemMessage(…, title, body)`) names its own title. A6: so does
+    // the approval auto-resolve notice (`Auto-approved` / `Auto-denied`,
+    // its body in `message`).
     if let Some(title) = e.data.get("title").and_then(|t| t.as_str()) {
-        let body = e.data.get("body").and_then(|b| b.as_str()).unwrap_or(&e.text);
+        let body = e
+            .data
+            .get("body")
+            .or_else(|| e.data.get("message"))
+            .and_then(|b| b.as_str())
+            .unwrap_or(&e.text);
         return (title.to_owned(), body.to_owned());
     }
     if let Some(outcome) = e.data.get("outcome").and_then(|o| o.as_str()) {
@@ -182,7 +191,11 @@ pub fn notice_parts(e: &TimelineEntry) -> (String, String) {
             "completed" => "Turn complete",
             _ => "Turn failed",
         };
-        return (title.to_owned(), String::new());
+        // A6: the readable error rides the terminal notice
+        // (`octoscode_client::domains::turn::terminal_notice`): the server's
+        // message, or `Server error (<code>).` — never protocol metadata.
+        let body = e.data.get("message").and_then(|m| m.as_str()).unwrap_or("").to_owned();
+        return (title.to_owned(), body);
     }
     if let (Some(code), Some(msg)) = (
         e.data.get("code").and_then(|c| c.as_str()),
@@ -254,8 +267,16 @@ pub fn lower(row: &TRow, store: &Store) -> String {
     match row {
         TRow::Base(_) => return String::new(),
         TRow::FoldBar => {
-            d.view("b3_tl_fold", "width: Fill height: Fit flow: Down padding: Inset{left: 4 right: 21 top: 2 bottom: 6}");
-            super::thinking::fold_bar(&mut d, "b3_tl_fold");
+            // A6: the TRANSCRIPT's fold bar covers reasoning AND tool blocks
+            // (`App.tsx:2589-2603`), so it routes to the surfaces' fold owner
+            // (`surfaces::folds`); the /thinking dialog keeps its own
+            // reasoning-only bar (`b3.think.*`).
+            d.view("b3_tl_fold", "width: Fill height: Fit flow: Down padding: Inset{left: 0 right: 0 top: 2 bottom: 6}");
+            let row = d.anon();
+            d.view(&row, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 18");
+            d.link("b3_tl_fold_expand", "Expand all", Some("cv.fold.expand_all"), 12.5);
+            d.link("b3_tl_fold_collapse", "Collapse all", Some("cv.fold.collapse_all"), 12.5);
+            d.close();
             d.close();
         }
         TRow::Thinking(id) => {
@@ -265,9 +286,18 @@ pub fn lower(row: &TRow, store: &Store) -> String {
             let block = super::thinking::blocks(store, &session, None)
                 .into_iter()
                 .find(|b| b.key == format!("r{id}"));
-            let Some(block) = block else { return String::new() };
+            let Some(mut block) = block else { return String::new() };
             let open = prefs.expanded.contains(&block.key);
-            d.view("b3_tl_think", "width: Fill height: Fit flow: Down padding: Inset{left: 4 right: 21 top: 4 bottom: 8}");
+            // A6: the one-line summary is fitted to the LIVE column with an
+            // ellipsis (a fixed 72-char cut clipped mid-word on a phone): the
+            // row's 12 px insets, the chevron, two 8 px gaps and the meta.
+            if !block.live {
+                let col = crate::conv_layout::current().column_w;
+                let meta_w = super::ui::text_w(&super::thinking::meta(&block), 11.5, Face::Regular);
+                let budget = (col - 24.0 - 14.0 - 16.0 - meta_w - 4.0).max(60.0);
+                block.summary = super::ui::fit_w(&block.summary, budget, 13.0, Face::Medium);
+            }
+            d.view("b3_tl_think", "width: Fill height: Fit flow: Down padding: Inset{left: 0 right: 0 top: 4 bottom: 8}");
             super::thinking::block_view(&mut d, &format!("b3_tl_think_{id}"), &block, open, &format!("b3.think.block.r{id}"));
             d.close();
             let _ = e;
@@ -275,8 +305,10 @@ pub fn lower(row: &TRow, store: &Store) -> String {
         TRow::Notice(id) => {
             let Some(e) = entry(store, *id) else { return String::new() };
             let (title, body) = notice_parts(&e);
-            d.view("b3_tl_notice", "width: Fill height: Fit flow: Down padding: Inset{left: 4 right: 21 top: 6 bottom: 10}");
-            d.rule("", "width: Fill height: 1", tok::HAIRLINE);
+            d.view("b3_tl_notice", "width: Fill height: Fit flow: Down padding: Inset{left: 0 right: 0 top: 6 bottom: 10}");
+            // A6: `hairline()` (an anonymous id) — `rule("")` emitted a
+            // blank `:= DesignSurface` id, so the notice row never evaluated.
+            d.hairline();
             let row = d.anon();
             d.view(&row, "width: Fill height: Fit flow: Right spacing: 10 padding: Inset{top: 10}");
             d.surface("b3_tl_notice_icon_box", "width: 26 height: 26 flow: Overlay align: Align{x: 0.5 y: 0.5}", tok::SURFACE2, 13.0, Some(tok::HAIRLINE));
@@ -298,7 +330,7 @@ pub fn lower(row: &TRow, store: &Store) -> String {
             let name = file_name(&path);
             let size = e.data.get("size_bytes").and_then(|s| s.as_u64());
             let st = file_state().get(id).cloned().unwrap_or_default();
-            d.view("b3_tl_file", "width: Fill height: Fit flow: Down padding: Inset{left: 4 right: 21 top: 4 bottom: 10}");
+            d.view("b3_tl_file", "width: Fill height: Fit flow: Down padding: Inset{left: 0 right: 0 top: 4 bottom: 10}");
             d.surface(
                 &format!("b3_tl_file_{id}"),
                 "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 12 padding: Inset{left: 14 right: 14 top: 12 bottom: 12}",
@@ -364,6 +396,10 @@ pub async fn fetch(conv: &crate::flow::Conversation, id: u64, preview: bool) -> 
         Ok(bytes) => {
             let dir = if preview {
                 std::env::temp_dir().join("octoscode-previews")
+            } else if let Some(d) = std::env::var_os("OCTOSCODE_DOWNLOAD_DIR") {
+                // A6: a walk / test saves into its own directory, never the
+                // person's real Downloads folder.
+                std::path::PathBuf::from(d)
             } else {
                 std::env::var("HOME")
                     .map(|h| std::path::PathBuf::from(h).join("Downloads"))
