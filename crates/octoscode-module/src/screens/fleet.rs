@@ -1055,9 +1055,9 @@ pub fn spawn(
         // text comes from.
         if text.trim().is_empty() {
             ::log::warn!("octoscode: fleet steer: nothing to send — the steering text is empty");
-            crate::screens::dialog::set_notice(
+            crate::screens::dialog::set_notice(crate::i18n::tr(
                 "Type the steering text in the composer first, then choose Steer.",
-            );
+            ));
             return;
         }
         let rows = peer_rows(store);

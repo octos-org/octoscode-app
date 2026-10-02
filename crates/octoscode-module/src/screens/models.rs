@@ -852,7 +852,7 @@ pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result
             // dialogs' `setError(errorText(cause))` alert line); a skill
             // mutation's failure is the web's fixed may-have-applied copy.
             if mutation {
-                crate::screens::dialog::set_notice(SKILLS_MUTATION_FAILED);
+                crate::screens::dialog::set_notice(crate::i18n::tr(SKILLS_MUTATION_FAILED));
             } else {
                 crate::screens::dialog::set_notice(format!("{e}"));
             }
@@ -878,13 +878,13 @@ pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result
         "models.test_route" => {
             // `LlmTestResult` {applied, message, error}.
             match result.get("error").and_then(|e| e.as_str()).filter(|e| !e.is_empty()) {
-                Some(err) => crate::screens::dialog::set_notice(format!("Route test failed: {err}")),
+                Some(err) => crate::screens::dialog::set_notice(crate::i18n::tr1("Route test failed: {value0}", err)),
                 None => {
                     let msg = result.get("message").and_then(|m| m.as_str()).unwrap_or("");
                     crate::screens::dialog::set_info(if msg.is_empty() {
-                        "Route test finished.".to_owned()
+                        crate::i18n::tr("Route test finished.").to_owned()
                     } else {
-                        format!("Route test: {msg}")
+                        crate::i18n::tr1("Route test: {value0}", msg)
                     });
                 }
             }
@@ -897,14 +897,12 @@ pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result
                 .map(|a| a.iter().filter_map(|v| v.as_str()).collect())
                 .unwrap_or_default();
             if models.is_empty() {
-                let why = result.get("reason").and_then(|r| r.as_str()).unwrap_or("no models reported");
-                crate::screens::dialog::set_notice(format!("Model discovery: {why}"));
+                let why = result.get("reason").and_then(|r| r.as_str()).unwrap_or(crate::i18n::tr("no models reported"));
+                crate::screens::dialog::set_notice(crate::i18n::tr1("Model discovery: {value0}", why));
             } else {
-                crate::screens::dialog::set_info(format!(
-                    "Found {} model{}: {}",
-                    models.len(),
-                    if models.len() == 1 { "" } else { "s" },
-                    models.join(", ")
+                crate::screens::dialog::set_info(crate::i18n::tr_with(
+                    if models.len() == 1 { "Found {value0} model: {value1}" } else { "Found {value0} models: {value1}" },
+                    &[("value0", &models.len().to_string()), ("value1", &models.join(", "))],
                 ));
             }
         }
@@ -920,7 +918,10 @@ pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result
                     }).unwrap_or_default()
                 });
                 let profile = store.domains.profile.current().unwrap_or_default();
-                crate::screens::dialog::set_info(format!("Removed {name} from server Profile {profile}."));
+                crate::screens::dialog::set_info(crate::i18n::tr_with(
+                    "Removed {value0} from server Profile {value1}.",
+                    &[("value0", &name), ("value1", &profile)],
+                ));
             }
             store.domains.profile.set_registry_packages(Vec::new());
             crate::screens::dialog::set_skills_query(None);

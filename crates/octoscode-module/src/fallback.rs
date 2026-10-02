@@ -102,6 +102,6 @@ pub fn render(view: &View, cx: &mut Cx, values: &dyn Fn(&str) -> Option<Value>) 
     // The composer's STOP vs send follows `turn.active` (a binding) — the
     // renderer reads the id, it does not consult any turn state of its own.
     let active = values("turn.active").and_then(|v| v.as_bool()).unwrap_or(false);
-    view.button(cx, ids!(send)).set_text(cx, if active { "Queue" } else { "Send" });
-    view.button(cx, ids!(stop)).set_text(cx, if active { "Stop" } else { "Stop" });
+    view.button(cx, ids!(send)).set_text(cx, if active { crate::i18n::tr_ctx("verb", "Queue") } else { crate::i18n::tr("Send") });
+    view.button(cx, ids!(stop)).set_text(cx, crate::i18n::tr("Stop"));
 }

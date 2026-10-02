@@ -26,6 +26,7 @@ use octoscode_store::Store;
 use serde_json::{json, Value};
 
 use crate::screens::board3::ui::{self, tok, Btn, Dsl, Face, Frame, Txt, W};
+use crate::i18n::{tr, tr1};
 
 // ------------------------------------------------------------ availability
 
@@ -82,7 +83,7 @@ pub fn task_title(t: &TaskSnapshot) -> String {
         .or_else(|| t.role.clone())
         .or_else(|| t.title.clone())
         .filter(|s| !s.trim().is_empty())
-        .unwrap_or_else(|| if t.tool_name.is_empty() { "Task".to_owned() } else { t.tool_name.clone() })
+        .unwrap_or_else(|| if t.tool_name.is_empty() { tr("Task").to_owned() } else { t.tool_name.clone() })
 }
 
 /// `taskIsCancellable` (`model.ts:139-141`).
@@ -98,14 +99,12 @@ pub fn task_meta(t: &TaskSnapshot) -> String {
         parts.push(p.trim().to_owned());
     }
     if t.artifact_count > 0 {
-        parts.push(format!(
-            "{} artifact{}",
-            t.artifact_count,
-            if t.artifact_count == 1 { "" } else { "s" }
-        ));
+        let n = t.artifact_count;
+        parts.push(tr1(if n == 1 { "{value0} artifact" } else { "{value0} artifacts" }, &n.to_string()));
     }
     if !t.output_files.is_empty() {
-        parts.push(format!("{} file{}", t.output_files.len(), if t.output_files.len() == 1 { "" } else { "s" }));
+        let n = t.output_files.len();
+        parts.push(tr1(if n == 1 { "{value0} file" } else { "{value0} files" }, &n.to_string()));
     }
     parts.join(" · ")
 }
@@ -709,15 +708,15 @@ pub fn pane(d: &mut Dsl, store: &Store, st: &TrajState, width: f64, phone: bool)
     d.view(&head, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 12");
     let tcol = d.anon();
     d.view(&tcol, "width: Fill height: Fit flow: Down spacing: 4");
-    d.text("cv_tr_title", "Trajectory", &Txt::new(if phone { 19.0 } else { 21.0 }, Face::Semibold, tok::TEXT).w(W::Fill));
+    d.text("cv_tr_title", tr("Trajectory"), &Txt::new(if phone { 19.0 } else { 21.0 }, Face::Semibold, tok::TEXT).w(W::Fill));
     d.text(
         "cv_tr_sub",
-        "Plan and background work for this session.",
+        tr("Plan and background work for this session."),
         &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
     );
     d.close();
     if avail.task_list || avail.status {
-        let label = if st.loading { "Refreshing…" } else { "Refresh" };
+        let label = tr(if st.loading { "Refreshing…" } else { "Refresh" });
         d.button("cv_tr_refresh", label, "cv.traj.refresh", if st.loading { Btn::Disabled } else { Btn::Outline }, W::Fit, 32.0);
     }
     d.close();
@@ -730,13 +729,13 @@ pub fn pane(d: &mut Dsl, store: &Store, st: &TrajState, width: f64, phone: bool)
             10.0,
             None,
         );
-        d.text("cv_tr_error", err, &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
+        d.text("cv_tr_error", tr(err), &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
         d.close();
     }
     // Session status.
     if avail.status {
         d.gap(W::Fill, 22.0);
-        section_title(d, "cv_tr_status_title", "Session status", None);
+        section_title(d, "cv_tr_status_title", tr("Session status"), None);
         d.gap(W::Fill, 8.0);
         let status = st.status.as_ref().filter(|(s, _)| s == &session).map(|(_, r)| r.clone());
         match status {
@@ -755,24 +754,24 @@ pub fn pane(d: &mut Dsl, store: &Store, st: &TrajState, width: f64, phone: bool)
                     }
                     let row = d.anon();
                     d.view(&row, "width: Fill height: 34 flow: Right align: Align{x: 0.0 y: 0.5} spacing: 12");
-                    d.text(&format!("cv_tr_st_label_{i}"), label, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill));
+                    d.text(&format!("cv_tr_st_label_{i}"), tr(label), &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill));
                     d.text(
                         &format!("cv_tr_st_value_{i}"),
-                        value.as_deref().unwrap_or("Not reported"),
+                        value.as_deref().unwrap_or(tr("Not reported")),
                         &Txt::new(12.5, Face::Medium, if value.is_some() { tok::TEXT } else { tok::FAINT }),
                     );
                     d.close();
                 }
                 d.close();
             }
-            None => empty_box(d, "cv_tr_status_empty", "Session status has not loaded yet."),
+            None => empty_box(d, "cv_tr_status_empty", tr("Session status has not loaded yet.")),
         }
     }
     // Plan.
     if avail.plan {
         d.gap(W::Fill, 22.0);
         let plan = store.domains.task.plan(&session).filter(|p| !p.items.is_empty());
-        section_title(d, "cv_tr_plan_title", "Plan", Some(plan.as_ref().map(|p| p.items.len()).unwrap_or(0)));
+        section_title(d, "cv_tr_plan_title", tr("Plan"), Some(plan.as_ref().map(|p| p.items.len()).unwrap_or(0)));
         d.gap(W::Fill, 8.0);
         match plan {
             Some(p) => {
@@ -799,24 +798,24 @@ pub fn pane(d: &mut Dsl, store: &Store, st: &TrajState, width: f64, phone: bool)
                     }
                     d.text(
                         &format!("cv_tr_plan_status_{i}"),
-                        super::plan::status_label(&item.status),
+                        tr(super::plan::status_label(&item.status)),
                         &Txt::new(11.5, Face::Regular, tok::FAINT),
                     );
                     d.close();
                 }
                 d.close();
             }
-            None => empty_box(d, "cv_tr_plan_empty", "No plan is active."),
+            None => empty_box(d, "cv_tr_plan_empty", tr("No plan is active.")),
         }
     }
     // Background tasks.
     if avail.task_list {
         d.gap(W::Fill, 22.0);
         let rows = store.domains.task.session_rows(&session);
-        section_title(d, "cv_tr_tasks_title", "Background tasks", Some(rows.len()));
+        section_title(d, "cv_tr_tasks_title", tr("Background tasks"), Some(rows.len()));
         d.gap(W::Fill, 8.0);
         if rows.is_empty() {
-            empty_box(d, "cv_tr_tasks_empty", "No background tasks in this session.");
+            empty_box(d, "cv_tr_tasks_empty", tr("No background tasks in this session."));
         } else {
             let list = d.anon();
             d.view(&list, "width: Fill height: Fit flow: Down spacing: 6");
@@ -870,9 +869,9 @@ fn task_row(d: &mut Dsl, i: usize, t: &TaskSnapshot, avail: &Avail, col_w: f64) 
     }
     d.close();
     if avail.cancel && cancellable(t) {
-        d.button(&format!("cv_tr_task_cancel_{i}"), "Cancel", &format!("cv.task.cancel#{i}"), Btn::Outline, W::Fit, 30.0);
+        d.button(&format!("cv_tr_task_cancel_{i}"), tr("Cancel"), &format!("cv.task.cancel#{i}"), Btn::Outline, W::Fit, 30.0);
     } else if t.state == "cancelling" {
-        d.button(&format!("cv_tr_task_cancel_{i}"), "Cancelling…", "cv.noop", Btn::Disabled, W::Fit, 30.0);
+        d.button(&format!("cv_tr_task_cancel_{i}"), tr("Cancelling…"), "cv.noop", Btn::Disabled, W::Fit, 30.0);
     }
     d.close();
 }
@@ -891,8 +890,8 @@ pub fn detail_dialog(d: &mut Dsl, store: &Store, st: &TrajState, frame: &Frame) 
     d.view(&head, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.0} spacing: 10");
     let tcol = d.anon();
     d.view(&tcol, "width: Fill height: Fit flow: Down spacing: 3");
-    d.text("cv_td_eyebrow", "SUPERVISED TASK", &Txt::new(11.0, Face::Medium, tok::BLUE_TEXT).w(W::Fill));
-    let title = task.as_ref().map(task_title).unwrap_or_else(|| "Task output".into());
+    d.text("cv_td_eyebrow", &tr("Supervised task").to_uppercase(), &Txt::new(11.0, Face::Medium, tok::BLUE_TEXT).w(W::Fill));
+    let title = task.as_ref().map(task_title).unwrap_or_else(|| tr("Task output").into());
     d.text("cv_td_title", &ui::fit_w(&title, width - 180.0, 17.0, Face::Semibold), &Txt::new(17.0, Face::Semibold, tok::TEXT).w(W::Fill));
     d.close();
     let state = task.as_ref().map(|t| t.state.clone()).unwrap_or_else(|| "loading".into());
@@ -902,7 +901,7 @@ pub fn detail_dialog(d: &mut Dsl, store: &Store, st: &TrajState, frame: &Frame) 
         "running" | "pending" | "cancelling" => (tok::BLUE_TEXT, tok::BLUE_BG),
         _ => (tok::MUTED, tok::CHIP),
     };
-    d.chip("cv_td_state", &state, fg, bg, None, false);
+    d.chip("cv_td_state", if task.is_some() { &state } else { tr("loading") }, fg, bg, None, false);
     ui::close_glyph(d, "cv.detail.close");
     d.close();
     d.gap(W::Fill, 14.0);
@@ -919,11 +918,17 @@ pub fn detail_dialog(d: &mut Dsl, store: &Store, st: &TrajState, frame: &Frame) 
         d.view(&pane, "width: Fill height: Fit flow: Down spacing: 8");
         let ph = d.anon();
         d.view(&ph, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
-        d.text("cv_td_out_title", "Output", &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
+        d.text("cv_td_out_title", tr("Output"), &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
         if let Some(o) = &det.output {
+            // :70-73 — the count, t("bytes ·"), the source as sent.
             d.text(
                 "cv_td_out_meta",
-                &format!("{} bytes · {}", group_thousands(o.total_bytes), if o.source.is_empty() { "runtime".into() } else { o.source.replace('_', " ") }),
+                &format!(
+                    "{} {} {}",
+                    group_thousands(o.total_bytes),
+                    tr("bytes ·"),
+                    if o.source.is_empty() { "runtime".into() } else { o.source.replace('_', " ") }
+                ),
                 &Txt::new(11.5, Face::Regular, tok::MUTED),
             );
         }
@@ -941,9 +946,9 @@ pub fn detail_dialog(d: &mut Dsl, store: &Store, st: &TrajState, frame: &Frame) 
             &format!("width: Fill height: Fit max_height: {pane_h} flow: Down padding: Inset{{right: 8}}"),
         );
         let text = if det.loading {
-            "Reading task output…".to_owned()
+            tr("Reading task output…").to_owned()
         } else if det.text.is_empty() {
-            "No output has been captured.".to_owned()
+            tr("No output has been captured.").to_owned()
         } else {
             // Show the tail of a long log (the renderer lays out every line).
             tail_lines(&det.text, 400)
@@ -957,7 +962,7 @@ pub fn detail_dialog(d: &mut Dsl, store: &Store, st: &TrajState, frame: &Frame) 
         d.close();
         d.close();
         if det.output.as_ref().map(|o| !o.complete).unwrap_or(false) {
-            let label = if det.loading_more { "Loading…" } else { "Load more output" };
+            let label = tr(if det.loading_more { "Loading…" } else { "Load more output" });
             d.button("cv_td_more", label, "cv.detail.more", if det.loading_more { Btn::Disabled } else { Btn::Outline }, W::Fit, 32.0);
         }
         d.close();
@@ -967,12 +972,12 @@ pub fn detail_dialog(d: &mut Dsl, store: &Store, st: &TrajState, frame: &Frame) 
         d.view(&pane, &format!("width: {} height: Fit flow: Down spacing: 8", if compact || !avail.task_output { "Fill".to_owned() } else { "300".to_owned() }));
         let ph = d.anon();
         d.view(&ph, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8");
-        d.text("cv_td_art_title", "Artifacts", &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
+        d.text("cv_td_art_title", tr("Artifacts"), &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill));
         d.chip("cv_td_art_count", &det.artifacts.as_ref().map(Vec::len).unwrap_or(0).to_string(), tok::MUTED, tok::CHIP, None, false);
         d.close();
         let arts = det.artifacts.clone().unwrap_or_default();
         if arts.is_empty() {
-            empty_box(d, "cv_td_art_empty", if det.loading { "Reading artifacts…" } else { "No artifacts were reported." });
+            empty_box(d, "cv_td_art_empty", tr(if det.loading { "Reading artifacts…" } else { "No artifacts were reported." }));
         } else {
             let list = d.anon();
             d.view(&list, "width: Fill height: Fit flow: Down spacing: 6");
@@ -996,7 +1001,7 @@ pub fn detail_dialog(d: &mut Dsl, store: &Store, st: &TrajState, frame: &Frame) 
             d.close();
         }
         if det.artifact_loading {
-            d.text("cv_td_art_loading", "Reading artifact…", &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill));
+            d.text("cv_td_art_loading", tr("Reading artifact…"), &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill));
         } else if let Some(sel) = &det.selected {
             d.surface(
                 "cv_td_art_content_box",
@@ -1007,12 +1012,12 @@ pub fn detail_dialog(d: &mut Dsl, store: &Store, st: &TrajState, frame: &Frame) 
             );
             d.text("cv_td_art_content_title", &sel.artifact.title, &Txt::new(12.5, Face::Medium, tok::TEXT).w(W::Fill));
             d.open("cv_td_art_scroll", "ScrollYView", "width: Fill height: Fit max_height: 180 flow: Down padding: Inset{right: 8}");
-            let body = if sel.content.is_empty() { "No text content.".to_owned() } else { tail_lines(&sel.content, 200) };
+            let body = if sel.content.is_empty() { tr("No text content.").to_owned() } else { tail_lines(&sel.content, 200) };
             d.text("cv_td_art_content", &super::takeover::hard_wrap(&body, 36), &Txt::new(12.0, Face::Mono, tok::TEXT).w(W::Fill).wrap());
             d.close();
             d.close();
             if sel.has_more {
-                d.button("cv_td_art_more", "Load more artifact", "cv.art.more", Btn::Outline, W::Fit, 30.0);
+                d.button("cv_td_art_more", tr("Load more artifact"), "cv.art.more", Btn::Outline, W::Fit, 30.0);
             }
         }
         d.close();
@@ -1020,7 +1025,7 @@ pub fn detail_dialog(d: &mut Dsl, store: &Store, st: &TrajState, frame: &Frame) 
     d.close(); // grid
     if let Some(err) = &det.error {
         d.gap(W::Fill, 10.0);
-        d.text("cv_td_error", err, &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
+        d.text("cv_td_error", tr(err), &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
     ui::shell_close(d);
 }

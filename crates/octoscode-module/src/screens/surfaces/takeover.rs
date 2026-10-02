@@ -23,6 +23,7 @@ use octoscode_store::domains::approval::{ApprovalDetail, PendingQuestion};
 use serde_json::{json, Value};
 
 use crate::screens::board3::ui::{self, tok, Btn, Dsl, Face, Txt, W};
+use crate::i18n::tr;
 
 // ------------------------------------------------------------ the question
 
@@ -316,9 +317,9 @@ pub fn approval_card(
     d.icon("cv_ap_icon", "cv_shield.svg", if look.phone { 24.0 } else { 22.0 }, tok::TEXT);
     let title_px = if look.phone { 17.0 } else { 16.0 };
     let risk = a.risk.as_deref().map(str::trim).filter(|r| !r.is_empty());
-    let risk_w = risk.map(|r| ui::text_w(&format!("{r} risk"), 11.0, Face::Medium) + 22.0).unwrap_or(0.0);
+    let risk_w = risk.map(|r| ui::text_w(&format!("{r} {}", tr("risk")), 11.0, Face::Medium) + 22.0).unwrap_or(0.0);
     let title_budget = look.inner() - 34.0 - risk_w;
-    let title = if a.title.trim().is_empty() { "Approval required" } else { a.title.trim() };
+    let title = if a.title.trim().is_empty() { tr("Approval required") } else { a.title.trim() };
     d.text(
         "cv_ap_title",
         &ui::fit_w(title, title_budget, title_px, Face::Semibold),
@@ -330,7 +331,7 @@ pub fn approval_card(
             "medium" | "moderate" => (tok::AMBER, tok::AMBER_BG, Some(tok::AMBER_LINE)),
             _ => (tok::MUTED, tok::SURFACE2, Some(tok::HAIRLINE)),
         };
-        d.chip("cv_ap_risk", &format!("{r} risk"), fg, bg, line, false);
+        d.chip("cv_ap_risk", &format!("{r} {}", tr("risk")), fg, bg, line, false);
     }
     d.close();
     d.gap(W::Fill, 12.0);
@@ -368,7 +369,7 @@ pub fn approval_card(
     if let Some((id, err)) = &ui_state.error {
         if id == &p.id {
             d.gap(W::Fill, 6.0);
-            d.text("cv_ap_error", err, &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
+            d.text("cv_ap_error", tr(err), &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
         }
     }
     d.gap(W::Fill, if look.phone { 16.0 } else { 14.0 });
@@ -382,16 +383,16 @@ pub fn approval_card(
             Btn::Outline
         }
     };
-    let once_label = if busy { "Sending…" } else { "Approve once" };
+    let once_label = tr(if busy { "Sending…" } else { "Approve once" });
     if look.phone {
         // Gate-B: three stacked pills, the key hint centred under them.
         let col = d.anon();
         d.view(&col, "width: Fill height: Fit flow: Down spacing: 10");
         d.button("cv_ap_once", once_label, "cv.approval.once", kind(true), W::Fill, 46.0);
-        d.button("cv_ap_session", "Approve for session", "cv.approval.session", kind(false), W::Fill, 46.0);
-        d.button("cv_ap_deny", "Deny", "cv.approval.deny", if busy { Btn::Disabled } else { Btn::Ghost }, W::Fill, 40.0);
+        d.button("cv_ap_session", tr("Approve for session"), "cv.approval.session", kind(false), W::Fill, 46.0);
+        d.button("cv_ap_deny", tr("Deny"), "cv.approval.deny", if busy { Btn::Disabled } else { Btn::Ghost }, W::Fill, 40.0);
         if diff {
-            d.button("cv_ap_diff", "Review diff", "cv.approval.diff", if busy { Btn::Disabled } else { Btn::Ghost }, W::Fill, 36.0);
+            d.button("cv_ap_diff", tr("Review diff"), "cv.approval.diff", if busy { Btn::Disabled } else { Btn::Ghost }, W::Fill, 36.0);
         }
         d.close();
         d.gap(W::Fill, 6.0);
@@ -407,10 +408,10 @@ pub fn approval_card(
         d.text("cv_ap_hint", hint, &Txt::new(12.0, Face::Regular, tok::FAINT));
         d.gap(W::Fill, 1.0);
         if diff {
-            d.button("cv_ap_diff", "Review diff", "cv.approval.diff", kind(false), W::Fit, 34.0);
+            d.button("cv_ap_diff", tr("Review diff"), "cv.approval.diff", kind(false), W::Fit, 34.0);
         }
-        d.button("cv_ap_deny", "Deny", "cv.approval.deny", kind(false), W::Fit, 34.0);
-        d.button("cv_ap_session", "Approve for session", "cv.approval.session", kind(false), W::Fit, 34.0);
+        d.button("cv_ap_deny", tr("Deny"), "cv.approval.deny", kind(false), W::Fit, 34.0);
+        d.button("cv_ap_session", tr("Approve for session"), "cv.approval.session", kind(false), W::Fit, 34.0);
         d.button("cv_ap_once", once_label, "cv.approval.once", kind(true), W::Fit, 34.0);
         d.close();
     }
@@ -429,7 +430,7 @@ pub fn question_card(d: &mut Dsl, q: &PendingQuestion, qs: &[Question], st: &Que
     d.icon("cv_q_icon", "cv_question.svg", if look.phone { 24.0 } else { 22.0 }, tok::TEXT);
     d.text(
         "cv_q_eyebrow",
-        "Octos needs a decision",
+        tr("Octos needs a decision"),
         &Txt::new(if look.phone { 17.0 } else { 16.0 }, Face::Semibold, tok::TEXT).w(W::Fill),
     );
     d.close();
@@ -480,7 +481,7 @@ pub fn question_card(d: &mut Dsl, q: &PendingQuestion, qs: &[Question], st: &Que
             );
         }
         d.gap(W::Fill, 3.0);
-        d.text(&format!("cv_q_{qi}_hint"), choice_hint(question), &Txt::new(11.5, Face::Regular, tok::FAINT).w(W::Fill));
+        d.text(&format!("cv_q_{qi}_hint"), tr(choice_hint(question)), &Txt::new(11.5, Face::Regular, tok::FAINT).w(W::Fill));
         d.gap(W::Fill, 6.0);
         for (oi, (label, desc)) in question.options.iter().enumerate() {
             let selected = draft.selected.iter().any(|l| l == label);
@@ -489,14 +490,14 @@ pub fn question_card(d: &mut Dsl, q: &PendingQuestion, qs: &[Question], st: &Que
         }
         if question.allow_free_text {
             d.gap(W::Fill, 6.0);
-            d.text(&format!("cv_q_{qi}_other_label"), "Other", &Txt::new(12.0, Face::Medium, tok::MUTED).w(W::Fill));
+            d.text(&format!("cv_q_{qi}_other_label"), tr("Other"), &Txt::new(12.0, Face::Medium, tok::MUTED).w(W::Fill));
             d.gap(W::Fill, 5.0);
             let snap = st.free_snap.get(qi).cloned().unwrap_or_default();
             d.input(
                 &format!("cv_q_{qi}_other"),
                 &format!("cv.q.other#{qi}"),
                 &snap,
-                "Type another answer",
+                tr("Type another answer"),
                 false,
                 if look.phone { 44.0 } else { 38.0 },
             );
@@ -505,30 +506,30 @@ pub fn question_card(d: &mut Dsl, q: &PendingQuestion, qs: &[Question], st: &Que
     d.close(); // scroll
     if let Some(err) = &st.error {
         d.gap(W::Fill, 8.0);
-        d.text("cv_q_error", err, &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
+        d.text("cv_q_error", tr(err), &Txt::new(12.5, Face::Regular, tok::RED_TEXT).w(W::Fill).wrap());
     }
     d.gap(W::Fill, 14.0);
-    let reason = submit_blocked_reason(st.busy, &st.answers).unwrap_or("Choose an option to continue");
-    let primary_label = if st.busy { "Sending…" } else { "Submit answer" };
+    let reason = tr(submit_blocked_reason(st.busy, &st.answers).unwrap_or("Choose an option to continue"));
+    let primary_label = tr(if st.busy { "Sending…" } else { "Submit answer" });
     if look.phone {
-        d.text("cv_q_consequence", CONSEQUENCE, &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill));
+        d.text("cv_q_consequence", tr(CONSEQUENCE), &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill));
         d.gap(W::Fill, 4.0);
         d.text("cv_q_reason", reason, &Txt::new(12.0, Face::Regular, tok::FAINT).w(W::Fill));
         d.gap(W::Fill, 8.0);
         d.button("cv_q_submit", primary_label, "cv.q.submit", Btn::Primary, W::Fill, 46.0);
         d.button("cv_q_submit_off", primary_label, "cv.q.submit", Btn::Disabled, W::Fill, 46.0);
         d.gap(W::Fill, 4.0);
-        d.button("cv_q_stop", "Stop turn", "cv.q.stop", if st.busy { Btn::Disabled } else { Btn::Ghost }, W::Fill, 40.0);
+        d.button("cv_q_stop", tr("Stop turn"), "cv.q.stop", if st.busy { Btn::Disabled } else { Btn::Ghost }, W::Fill, 40.0);
     } else {
         let row = d.anon();
         d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 10");
         // `Esc stops the active turn` (UserQuestionPanel.tsx:188-192), as a
         // control too: the phone has no Escape key.
-        d.link("cv_q_stop", "Stop turn · Esc", if st.busy { None } else { Some("cv.q.stop") }, 12.5);
+        d.link("cv_q_stop", tr("Stop turn · Esc"), if st.busy { None } else { Some("cv.q.stop") }, 12.5);
         d.gap(W::Fill, 1.0);
         let col = d.anon();
         d.view(&col, "width: Fit height: Fit flow: Down align: Align{x: 1.0 y: 0.5} spacing: 2");
-        d.text("cv_q_consequence", CONSEQUENCE, &Txt::new(12.0, Face::Regular, tok::MUTED));
+        d.text("cv_q_consequence", tr(CONSEQUENCE), &Txt::new(12.0, Face::Regular, tok::MUTED));
         d.text("cv_q_reason", reason, &Txt::new(12.0, Face::Regular, tok::FAINT));
         d.close();
         d.button("cv_q_submit", primary_label, "cv.q.submit", Btn::Primary, W::Px(150.0), 38.0);

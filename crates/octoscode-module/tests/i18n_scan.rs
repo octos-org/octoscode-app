@@ -24,6 +24,7 @@ const CONVERTED: &[&str] = &[
     "chrome.rs",
     "lib.rs",
     "fluid.rs",
+    "fallback.rs",
     "seat.rs",
     "screens/sidebar.rs",
     "screens/settings.rs",
@@ -61,11 +62,19 @@ const CONVERTED: &[&str] = &[
     "screens/board3/switcher.rs",
     "screens/board3/thinking.rs",
     "screens/board3/vim.rs",
+    "screens/surfaces/trajectory.rs",
+    "screens/surfaces/takeover.rs",
+    "screens/surfaces/plan.rs",
+    "screens/models.rs",
+    "screens/launch.rs",
+    "screens/fleet.rs",
+    "screens/onboarding.rs",
 ];
 
-/// The phase-2 ceiling: bypasses left in the rest of `screens/` (A24 phase 1
-/// measured this). Lower it as screens are converted; it must reach 0.
-const REMAINING_CEILING: usize = 100;
+/// The phase-2 ceiling: bypasses left in the rest of the crate (A24 phase 1
+/// measured `screens/`; phase 2 counts every file and resolves string
+/// constants too). Lower it as files are converted; it must reach 0.
+const REMAINING_CEILING: usize = 47;
 
 /// (call prefix, text-argument indices). A prefix starting with `.` or `::`
 /// matches a method / path call; otherwise the name must stand alone.
@@ -124,6 +133,7 @@ const ALLOW: &[&str] = &[
     "简体中文",
     "Octos",                // the product name
     "sessions: {sessions}", // lib.rs's 0x0 `/g` metadata label (never drawn)
+    "octoscode onboard",    // a command to type (OnboardingPanel.tsx:299 shows it in <code>, untranslated)
 ];
 
 fn root() -> PathBuf {
@@ -387,7 +397,7 @@ fn args_of(code: &str, open: usize) -> Vec<(usize, usize)> {
 /// translated.
 fn tr_spans(arg: &str) -> Vec<(usize, usize)> {
     let mut out = Vec::new();
-    for w in ["tr(", "tr1(", "tr_with(", "tr_in(", "tr_ctx(", "text_in(", "keep("] {
+    for w in ["tr(", "tr1(", "tr_with(", "tr_in(", "tr_ctx(", "text_in(", "keep(", "t(", "t1("] {
         let mut from = 0;
         while let Some(at) = arg[from..].find(w).map(|n| n + from) {
             from = at + 1;
@@ -428,6 +438,14 @@ fn bare_literals(arg: &str) -> Vec<Lit> {
 
 /// Every builder-argument bypass in one file: (line, call, text).
 fn bypasses(src: &str) -> Vec<(usize, String, String)> {
+    bypasses_in(None, src)
+}
+
+/// [`bypasses`] for the file `rel`: a text argument that names a string
+/// constant (`d.text(id, KEY_HINT, …)`, `ui::header(d, super::x::TITLE, …)`)
+/// is that constant's literal — prose there bypasses `tr()` as surely as the
+/// literal itself would.
+fn bypasses_in(rel: Option<&str>, src: &str) -> Vec<(usize, String, String)> {
     let code = code_only(src);
     let mut out = Vec::new();
     for (prefix, idxs) in BUILDERS {
@@ -459,12 +477,112 @@ fn bypasses(src: &str) -> Vec<(usize, String, String)> {
                         out.push((line, prefix.to_string(), lit.value));
                     }
                 }
+                let translated_inside = rel.is_some_and(|r| translates_inside(r, &code, prefix));
+                if let Some(value) = rel.filter(|_| !translated_inside).and_then(|r| const_value(r, arg)) {
+                    if is_prose(&value) {
+                        let line = code[..a + (arg.len() - arg.trim_start().len())].matches('\n').count() + 1;
+                        out.push((line, prefix.to_string(), value));
+                    }
+                }
             }
         }
     }
     out.sort();
     out.dedup();
     out
+}
+
+/// Helpers that put their text argument through `tr()` themselves (the
+/// file that defines each): a constant passed to one is translated where it
+/// is drawn. A literal at the call site is still held to `tr()` there.
+const TRANSLATING: &[(&str, &str)] = &[
+    ("screens/board3/ui.rs", "failure("),      // d.text(id, tr(lead), …)
+    ("screens/board3/ui.rs", "error_line("),   // failure(…) or tr(msg)
+    ("screens/board3/ui.rs", "dialog_error("), // failure(…) or error_line(…)
+    ("screens/board3/seats.rs", "menu_title("), // d.text("b3_title", tr(text), …)
+    ("screens/board3/seats.rs", "status_line("), // d.text(id, tr(text), …)
+];
+
+/// Whether `prefix` called in `rel` is a [`TRANSLATING`] helper: the file's
+/// own definition when it has one, else the board-3 kit's (`ui::failure`).
+fn translates_inside(rel: &str, code: &str, prefix: &str) -> bool {
+    let name = prefix.trim_start_matches('.');
+    let local = code.contains(&format!("fn {name}"));
+    let home = if local { rel } else { "screens/board3/ui.rs" };
+    TRANSLATING.iter().any(|(f, p)| *f == home && *p == prefix)
+}
+
+/// Every `const NAME: &str = "…";` in the crate: name -> [(file, value)].
+fn str_consts() -> &'static BTreeMap<String, Vec<(String, String)>> {
+    static TABLE: std::sync::OnceLock<BTreeMap<String, Vec<(String, String)>>> = std::sync::OnceLock::new();
+    TABLE.get_or_init(|| {
+        let mut out: BTreeMap<String, Vec<(String, String)>> = BTreeMap::new();
+        for rel in rs_files("") {
+            let code = code_only(&read(&rel));
+            let b = code.as_bytes();
+            let mut from = 0;
+            while let Some(at) = code[from..].find("const ").map(|n| n + from) {
+                from = at + 1;
+                if at > 0 && (b[at - 1].is_ascii_alphanumeric() || b[at - 1] == b'_') {
+                    continue;
+                }
+                let rest = &code[at + 6..];
+                let name: String = rest.chars().take_while(|c| c.is_ascii_alphanumeric() || *c == '_').collect();
+                if name.is_empty() {
+                    continue;
+                }
+                let after = rest[name.len()..].trim_start();
+                let Some(ty) = after.strip_prefix(':') else { continue };
+                let Some(eq) = ty.find('=') else { continue };
+                if !ty[..eq].contains("str") || ty[..eq].contains('[') || ty[..eq].contains('(') {
+                    continue;
+                }
+                let value = ty[eq + 1..].trim_start();
+                let vb = value.as_bytes();
+                if vb.first() != Some(&b'"') {
+                    continue;
+                }
+                let Some(end) = skip_string(vb, 0) else { continue };
+                if !value[end..].trim_start().starts_with(';') {
+                    continue;
+                }
+                out.entry(name).or_default().push((rel.clone(), unescape(&value[1..end - 1])));
+            }
+        }
+        out
+    })
+}
+
+/// The literal a text argument names when it is a string constant: in the
+/// same file, else the module the path names (`fleet_copy::TITLE`), else the
+/// only constant of that name in the crate.
+fn const_value(rel: &str, arg: &str) -> Option<String> {
+    let path = arg.trim().trim_start_matches('&').trim();
+    let segs: Vec<&str> = path.split("::").collect();
+    let ok_seg = |s: &str| !s.is_empty() && s.chars().all(|c| c.is_ascii_alphanumeric() || c == '_');
+    if !segs.iter().all(|s| ok_seg(s)) {
+        return None;
+    }
+    let name = *segs.last()?;
+    let upper = name.chars().any(|c| c.is_ascii_uppercase())
+        && name.chars().all(|c| c.is_ascii_uppercase() || c.is_ascii_digit() || c == '_');
+    if !upper {
+        return None;
+    }
+    let found = str_consts().get(name)?;
+    let stem = |f: &str| f.rsplit('/').next().unwrap_or(f).trim_end_matches(".rs").to_owned();
+    if segs.len() == 1 || matches!(segs[0], "Self" | "self") {
+        if let Some((_, v)) = found.iter().find(|(f, _)| f == rel) {
+            return Some(v.clone());
+        }
+    }
+    if segs.len() > 1 {
+        let module = segs[segs.len() - 2];
+        if let Some((_, v)) = found.iter().find(|(f, _)| stem(f) == module) {
+            return Some(v.clone());
+        }
+    }
+    (found.len() == 1).then(|| found[0].1.clone())
 }
 
 fn read(rel: &str) -> String {
@@ -517,22 +635,22 @@ mod tests { fn f(d: &mut Dsl) { d.text("x", "Test only", &t); } }
 fn no_converted_surface_bypasses_tr() {
     let mut bad = Vec::new();
     for rel in CONVERTED {
-        for (line, call, text) in bypasses(&read(rel)) {
+        for (line, call, text) in bypasses_in(Some(rel), &read(rel)) {
             bad.push(format!("{rel}:{line} {call}… {text:?}"));
         }
     }
     assert!(bad.is_empty(), "{} user-visible literal(s) bypass tr():\n{}", bad.len(), bad.join("\n"));
 }
 
-/// The rest of `screens/` (phase 2): counted, and the count may only fall.
+/// The rest of the crate (phase 2): counted, and the count may only fall.
 #[test]
-fn the_remaining_screens_only_get_fewer_bypasses() {
+fn the_rest_of_the_crate_only_gets_fewer_bypasses() {
     let mut per_file: BTreeMap<String, Vec<(usize, String, String)>> = BTreeMap::new();
-    for rel in screens_files() {
+    for rel in rs_files("").into_iter().filter(|r| !r.starts_with("i18n/")) {
         if CONVERTED.contains(&rel.as_str()) {
             continue;
         }
-        let found = bypasses(&read(&rel));
+        let found = bypasses_in(Some(&rel), &read(&rel));
         if !found.is_empty() {
             per_file.insert(rel, found);
         }
@@ -612,12 +730,18 @@ fn every_static_shell_literal_is_re_texted() {
 /// The literal copy each `tr*()` call names in one file: (line, key). A
 /// literal inside the source argument counts (`tr(if busy { "Saving…" } else
 /// { "Save" })`), except a match pattern or a comparison operand (wire
-/// values that pick the copy). `tr_ctx(ctx, "…")` names `ctx|…`.
+/// values that pick the copy). `tr_ctx(ctx, "…")` names `ctx|…`. In the
+/// file `rel`, a source argument naming a string constant (`tr(KEY_HINT)`)
+/// is that constant's text. The Fleet's own `t()` / `t1()` count too.
 fn wrapped_literals(src: &str) -> Vec<(usize, String)> {
+    wrapped_literals_in(None, src)
+}
+
+fn wrapped_literals_in(rel: Option<&str>, src: &str) -> Vec<(usize, String)> {
     let code = code_only(src);
     let b = code.as_bytes();
     let mut out = Vec::new();
-    for w in ["tr(", "tr1(", "tr_with(", "tr_ctx("] {
+    for w in ["tr(", "tr1(", "tr_with(", "tr_ctx(", "t(", "t1("] {
         let mut from = 0;
         while let Some(at) = code[from..].find(w).map(|n| n + from) {
             from = at + 1;
@@ -638,6 +762,14 @@ fn wrapped_literals(src: &str) -> Vec<(usize, String)> {
                 (None, args.first().copied())
             };
             let Some((a, z)) = source else { continue };
+            if let Some(value) = rel.and_then(|r| const_value(r, &code[a..z])) {
+                let key = match &ctx {
+                    Some(c) => format!("{c}|{value}"),
+                    None => value,
+                };
+                out.push((code[..a].matches('\n').count() + 1, key));
+                continue;
+            }
             let mut i = a;
             while i < z {
                 if b[i] != b'"' {
@@ -677,9 +809,11 @@ fn wrapped_literals(src: &str) -> Vec<(usize, String)> {
 /// it) or the native supplement; a context key falls back to its source.
 fn reads_in_chinese(key: &str) -> bool {
     use octoscode_module::i18n::{native_zh, zh_for};
+    // The Fleet's `t()` adds its gather table (`fleet_copy::GATHER_ZH`).
+    let fleet = |k: &str| octoscode_module::screens::board3::fleet_copy::t_in("zh", k, None) != k;
     match key.split_once('|') {
         Some((_, source)) if native_zh(key).is_some() || zh_for(source).is_some() => true,
-        _ => zh_for(key).is_some(),
+        _ => zh_for(key).is_some() || fleet(key),
     }
 }
 
@@ -692,7 +826,7 @@ fn reads_in_chinese(key: &str) -> bool {
 fn every_wrapped_literal_reads_in_chinese() {
     let mut bad = Vec::new();
     for rel in CONVERTED {
-        for (line, key) in wrapped_literals(&read(rel)) {
+        for (line, key) in wrapped_literals_in(Some(rel), &read(rel)) {
             if !reads_in_chinese(&key) {
                 bad.push(format!("{rel}:{line} {key:?}"));
             }
@@ -703,7 +837,7 @@ fn every_wrapped_literal_reads_in_chinese() {
         if CONVERTED.contains(&rel.as_str()) || rel.starts_with("i18n/") {
             continue;
         }
-        for (line, key) in wrapped_literals(&read(&rel)) {
+        for (line, key) in wrapped_literals_in(Some(&rel), &read(&rel)) {
             if !reads_in_chinese(&key) {
                 rest.push(format!("{rel}:{line} {key:?}"));
             }
@@ -735,4 +869,34 @@ fn f() {
     }
     assert!(!keys.contains(&"read_only".to_owned()) && !keys.contains(&"Not a call".to_owned()), "{keys:?}");
     assert!(reads_in_chinese("verb|Type") && reads_in_chinese("Recent") && !reads_in_chinese("No such copy anywhere"));
+}
+
+/// [`TRANSLATING`] is true: each listed helper's body calls `tr(` (or hands
+/// the text to a listed helper of the same file).
+#[test]
+fn the_translating_helpers_translate() {
+    for (file, prefix) in TRANSLATING {
+        let code = code_only(&read(file));
+        let name = prefix.trim_end_matches('(');
+        let at = code.find(&format!("fn {name}(")).unwrap_or_else(|| panic!("{file}: no fn {name}"));
+        let open = at + code[at..].find('{').expect("body");
+        let mut depth = 0usize;
+        let mut end = open;
+        for (i, c) in code[open..].char_indices() {
+            match c {
+                '{' => depth += 1,
+                '}' => {
+                    depth -= 1;
+                    if depth == 0 {
+                        end = open + i;
+                        break;
+                    }
+                }
+                _ => {}
+            }
+        }
+        let body = &code[open..end];
+        let hands_on = TRANSLATING.iter().any(|(f, p)| f == file && *p != *prefix && body.contains(*p));
+        assert!(body.contains("tr(") || hands_on, "{file}: {name} does not translate its text");
+    }
 }

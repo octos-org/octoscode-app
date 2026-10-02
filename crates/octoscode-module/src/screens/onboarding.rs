@@ -54,6 +54,7 @@ use octoscode_store::Store;
 
 use super::board3::host::{Job, Outcome};
 use super::board3::ui::{self, tok, Btn, Dsl, Face, Frame, Txt, W};
+use crate::i18n::tr;
 
 /// `OFFICIAL_ROUTE` (`onboarding-submission.ts:13`).
 pub const OFFICIAL_ROUTE: &str = "__official__";
@@ -956,7 +957,7 @@ fn disabled_field(d: &mut Dsl, id: &str, value: &str, mono: bool, w: f64) {
 fn text_field(d: &mut Dsl, id: &str, label: &str, key: &str, snap: &str, live: &str, mono: bool, enabled: bool, w: W, px_w: f64) {
     let col = d.anon();
     d.view(&col, &format!("width: {} height: Fit flow: Down spacing: 6", w_dsl(w)));
-    ui::field_label(d, &format!("{id}_label"), label);
+    ui::field_label(d, &format!("{id}_label"), tr(label));
     if enabled {
         d.input(id, key, snap, "", mono, 38.0);
     } else {
@@ -982,7 +983,7 @@ fn select_field(d: &mut Dsl, st: &State, which: Select, label: &str, value: &str
     let open = enabled && st.open_select == Some(which);
     let col = d.anon();
     d.view(&col, &format!("width: {} height: Fit flow: Down spacing: 6", w_dsl(w)));
-    ui::field_label(d, &format!("{id}_label"), label);
+    ui::field_label(d, &format!("{id}_label"), tr(label));
     field_box(d, &id, enabled, open);
     let row = d.anon();
     d.view(&row, "width: Fill height: Fill flow: Right align: Align{x: 0.0 y: 0.5} spacing: 8 padding: Inset{left: 10 right: 10 top: 0 bottom: 0}");
@@ -1044,7 +1045,7 @@ fn options_list(d: &mut Dsl, st: &State, which: Select, mono: bool, px_w: f64, m
         let text_col = d.anon();
         d.view(&text_col, "width: Fill height: Fit flow: Down spacing: 2");
         let px = 13.0; // the kit input's size: a select reads like the text fields beside it
-        d.text(&format!("{id}_label"), &opt.label, &Txt::new(px, face, tok::TEXT).w(W::Fill).wrap());
+        d.text(&format!("{id}_label"), tr(&opt.label), &Txt::new(px, face, tok::TEXT).w(W::Fill).wrap());
         if let Some(detail) = &opt.detail {
             d.text(&format!("{id}_detail"), &ui::fit_w(detail, px_w - 60.0, 11.5, Face::Mono), &Txt::new(11.5, Face::Mono, tok::MUTED).w(W::Fill));
         }
@@ -1079,22 +1080,22 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
     ui::shell_open(d, frame, width);
 
     // ---- header: eyebrow, title + close, the lead paragraph
-    d.text("b3_onb_eyebrow", EYEBROW, &Txt::new(11.5, Face::Medium, tok::MUTED));
+    d.text("b3_onb_eyebrow", tr(EYEBROW), &Txt::new(11.5, Face::Medium, tok::MUTED));
     let row = d.anon();
     d.view(&row, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5}");
-    d.text("b3_title", TITLE, &ui::title().w(W::Fill).wrap());
+    d.text("b3_title", tr(TITLE), &ui::title().w(W::Fill).wrap());
     ui::close_glyph(d, "b3.onb.close");
     d.close();
     d.gap(W::Fill, 6.0);
-    d.text("b3_onb_lead", LEAD, &Txt::new(13.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+    d.text("b3_onb_lead", tr(LEAD), &Txt::new(13.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
     d.gap(W::Fill, 12.0);
 
     // The chrome around the body: the header above and the footer below —
     // the footer carrying the form's retained-profile note and its error
     // (they sit right above the actions, as in the web, and never scroll
     // away: on a phone the form is taller than the screen).
-    let title_lines = lines(TITLE, 17.0, Face::Semibold, width - 2.0 * pad - 28.0);
-    let lead_lines = lines(LEAD, 13.0, Face::Regular, width - 2.0 * pad);
+    let title_lines = lines(tr(TITLE), 17.0, Face::Semibold, width - 2.0 * pad - 28.0);
+    let lead_lines = lines(tr(LEAD), 13.0, Face::Regular, width - 2.0 * pad);
     let notes = form_notes(&st);
     let note_w = inner_w - 10.0 - 20.0 - 22.0;
     let notes_h: f64 = notes.iter().map(|n| 8.0 + n.height(note_w)).sum();
@@ -1114,14 +1115,14 @@ pub fn build(d: &mut Dsl, frame: &Frame) {
     } else if st.phase == Phase::LoadingCatalog {
         d.view("b3_onb_progress", "width: Fill height: 84 flow: Right spacing: 8 align: Align{x: 0.0 y: 0.5}");
         d.dot(tok::AMBER, 8.0);
-        d.text("b3_onb_loading", LOADING, &Txt::new(12.5, Face::Regular, tok::MUTED));
+        d.text("b3_onb_loading", tr(LOADING), &Txt::new(12.5, Face::Regular, tok::MUTED));
         d.close();
         Foot::None
     } else if st.catalog.is_none() {
         d.surface("b3_onb_failure", "width: Fill height: Fit flow: Down spacing: 9 padding: Inset{left: 14 right: 14 top: 14 bottom: 14}", tok::SURFACE2, 10.0, Some(tok::HAIRLINE));
-        d.text("b3_onb_failure_head", CATALOG_UNAVAILABLE, &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill).wrap());
+        d.text("b3_onb_failure_head", tr(CATALOG_UNAVAILABLE), &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill).wrap());
         let why = st.error.clone().unwrap_or_else(|| CATALOG_INVALID.into());
-        d.text("b3_onb_failure_body", &why, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+        d.text("b3_onb_failure_body", tr(&why), &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
         d.close();
         Foot::Failure
     } else {
@@ -1230,13 +1231,17 @@ fn form_notes(st: &State) -> Vec<Note> {
     }
     let mut out = Vec::new();
     if let Some(created) = &st.created_profile_id {
-        out.push(Note::Recovery(format!("Profile {created} exists. A retry only repeats provider test and save.")));
+        out.push(Note::Recovery(format!(
+            "{} {created} {}",
+            tr("Profile"),
+            tr("exists. A retry only repeats provider test and save.")
+        )));
     }
     if let Some(e) = &st.error {
         let lead = st
             .error_lead
             .clone()
-            .or_else(|| ui::is_protocol_error(e).then(|| SETUP_FAILED.to_owned()));
+            .or_else(|| ui::is_protocol_error(e).then(|| tr(SETUP_FAILED).to_owned()));
         out.push(Note::Error { lead, cause: e.clone() });
     }
     out
@@ -1257,9 +1262,9 @@ fn fallback(d: &mut Dsl) {
     let head = d.anon();
     d.view(&head, "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 0.0 y: 0.5}");
     d.icon("b3_onb_fallback_icon", "b3_terminal.svg", 16.0, tok::TEXT);
-    d.text("b3_onb_fallback_head", FALLBACK_HEAD, &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill).wrap());
+    d.text("b3_onb_fallback_head", tr(FALLBACK_HEAD), &Txt::new(13.0, Face::Semibold, tok::TEXT).w(W::Fill).wrap());
     d.close();
-    d.text("b3_onb_fallback_body", FALLBACK_BODY, &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+    d.text("b3_onb_fallback_body", tr(FALLBACK_BODY), &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
     let w = ui::text_w(FALLBACK_COMMAND, 12.0, Face::Mono) + 16.0;
     d.surface(
         "b3_onb_fallback_cmd_box",
@@ -1288,7 +1293,7 @@ fn picker_sheet(d: &mut Dsl, st: &State, which: Select, inner_w: f64) {
     d.icon("b3_onb_back_icon", "b1_chevron_left.svg", 16.0, tok::TEXT);
     d.tap("b3_onb_back", &format!("b3.onb.select.{}", which.key()));
     d.close();
-    d.text("b3_onb_sheet_title", title, &Txt::new(14.0, Face::Semibold, tok::TEXT).w(W::Fill));
+    d.text("b3_onb_sheet_title", tr(title), &Txt::new(14.0, Face::Semibold, tok::TEXT).w(W::Fill));
     d.close();
     options_list(d, st, which, mono, inner_w, None);
 }
@@ -1324,12 +1329,12 @@ fn form(d: &mut Dsl, st: &State, compact: bool, inner_w: f64, body_max: f64) {
 
     // The default checkbox (`OnboardingPanel.tsx:156-164`): the board's blue
     // toggle colour (a checkbox is a toggle; blue only for toggles + links).
-    let label_w = ui::text_w(DEFAULT_LABEL, 13.0, Face::Regular);
+    let label_w = ui::text_w(tr(DEFAULT_LABEL), 13.0, Face::Regular);
     d.view("b3_onb_default_box", &format!("width: {} height: 32 flow: Overlay align: Align{{x: 0.0 y: 0.5}}", (label_w + 22.0 + 8.0 + 4.0).ceil()));
     let check = d.anon();
     d.view(&check, "width: Fill height: Fill flow: Right spacing: 8 align: Align{x: 0.0 y: 0.5}");
     d.icon("b3_onb_default_icon", if st.form.make_default { "cv_check_on.svg" } else { "cv_check_off.svg" }, 22.0, tok::BLUE);
-    d.text("b3_onb_default_label", DEFAULT_LABEL, &Txt::new(13.0, Face::Regular, if identity_open { tok::TEXT } else { tok::FAINT }));
+    d.text("b3_onb_default_label", tr(DEFAULT_LABEL), &Txt::new(13.0, Face::Regular, if identity_open { tok::TEXT } else { tok::FAINT }));
     d.close();
     if identity_open {
         d.tap("b3_onb_default", "b3.onb.default");
@@ -1350,33 +1355,34 @@ fn form(d: &mut Dsl, st: &State, compact: bool, inner_w: f64, body_max: f64) {
     let grid = d.anon();
     d.view(&grid, &format!("width: Fill height: Fit flow: {} spacing: 10", if compact { "Down" } else { "Right" }));
     let route_label = st.routes().into_iter().find(|r| r.id == st.form.route_id).map(|r| r.label).unwrap_or_else(|| "Official API".into());
+    let route_label = tr(&route_label);
     select_field(d, st, Select::Provider, "Provider", &st.form.family_id, true, !busy, px(pw), pw, list_max);
     select_field(d, st, Select::Model, "Model", &st.form.model_id, true, !busy, px(mw), mw, list_max);
-    select_field(d, st, Select::Route, "Route", &route_label, true, !busy, px(rw), rw, list_max);
+    select_field(d, st, Select::Route, "Route", route_label, true, !busy, px(rw), rw, list_max);
     d.close();
 
     // The API key, or the keyless note (`OnboardingPanel.tsx:223-249`).
     if st.requires_key() {
         let col = d.anon();
         d.view(&col, "width: Fill height: Fit flow: Down spacing: 6");
-        ui::field_label(d, "b3_onb_apikey_label", "API key");
+        ui::field_label(d, "b3_onb_apikey_label", tr("API key"));
         if busy {
             let dots: String = "•".repeat(st.form.api_key.chars().count().clamp(8, 24));
             disabled_field(d, "b3_onb_apikey", &dots, false, inner_w);
         } else {
             d.input_secret("b3_onb_apikey", "onb.api_key", "", 38.0);
         }
-        d.text("b3_onb_apikey_hint", KEY_HINT, &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+        d.text("b3_onb_apikey_hint", tr(KEY_HINT), &Txt::new(11.5, Face::Regular, tok::MUTED).w(W::Fill).wrap());
         d.close();
     } else {
         note_box(d, "b3_onb_keyless");
         d.icon("b3_onb_keyless_icon", "b3_info.svg", 14.0, tok::MUTED);
         let col = d.anon();
         d.view(&col, &format!("width: Fill height: Fit flow: {} spacing: {}", if compact { "Down" } else { "Right" }, if compact { 2 } else { 7 }));
-        d.text("b3_onb_keyless_head", KEYLESS_HEAD, &Txt::new(12.5, Face::Medium, tok::TEXT));
+        d.text("b3_onb_keyless_head", tr(KEYLESS_HEAD), &Txt::new(12.5, Face::Medium, tok::TEXT));
         d.text(
             "b3_onb_keyless_body",
-            &format!("{} is marked keyless by the Core catalog.", st.form.family_id),
+            &format!("{} {}", st.form.family_id, tr("is marked keyless by the Core catalog.")),
             &Txt::new(12.5, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
         );
         d.close();
@@ -1403,24 +1409,24 @@ fn footer_row(d: &mut Dsl, st: &State, kind: Foot, compact: bool) {
         ),
     );
     if kind == Foot::Form {
-        d.text("b3_onb_status", status(st.phase), &Txt::new(12.0, Face::Regular, tok::MUTED).w(if compact { W::Fill } else { W::Fit }));
+        d.text("b3_onb_status", tr(status(st.phase)), &Txt::new(12.0, Face::Regular, tok::MUTED).w(if compact { W::Fill } else { W::Fit }));
     }
     let acts = d.anon();
     d.view(&acts, "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 1.0 y: 0.5}");
     match kind {
         Foot::Fallback => {
-            d.button("b3_onb_disconnect", DISCONNECT, "b3.onb.disconnect", Btn::Outline, W::Fit, 36.0);
+            d.button("b3_onb_disconnect", tr(DISCONNECT), "b3.onb.disconnect", Btn::Outline, W::Fit, 36.0);
         }
         Foot::Failure => {
-            d.button("b3_onb_retry", RETRY, "b3.onb.retry", Btn::Primary, W::Fit, 36.0);
-            d.button("b3_onb_disconnect", DISCONNECT, "b3.onb.disconnect", Btn::Outline, W::Fit, 36.0);
+            d.button("b3_onb_retry", tr(RETRY), "b3.onb.retry", Btn::Primary, W::Fit, 36.0);
+            d.button("b3_onb_disconnect", tr(DISCONNECT), "b3.onb.disconnect", Btn::Outline, W::Fit, 36.0);
         }
         Foot::Form => {
-            d.button("b3_onb_disconnect", DISCONNECT, "b3.onb.disconnect", if busy { Btn::OutlineOff } else { Btn::Outline }, W::Fit, 36.0);
+            d.button("b3_onb_disconnect", tr(DISCONNECT), "b3.onb.disconnect", if busy { Btn::OutlineOff } else { Btn::Outline }, W::Fit, 36.0);
             // The submit's two variants swap by live visibility while the
             // key is typed (no remount).
-            let label = if busy { WORKING } else { SUBMIT };
-            let w = if compact { W::Fill } else { W::Px(pill_w(SUBMIT).max(pill_w(WORKING))) };
+            let label = tr(if busy { WORKING } else { SUBMIT });
+            let w = if compact { W::Fill } else { W::Px(pill_w(tr(SUBMIT)).max(pill_w(tr(WORKING)))) };
             let both = d.anon();
             d.view(&both, &format!("width: {} height: 36 flow: Overlay", w_dsl(w)));
             d.view("b3_onb_submit_off", "width: Fill height: Fit flow: Right");
