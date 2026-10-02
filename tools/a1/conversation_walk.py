@@ -26,7 +26,27 @@ import subprocess
 import sys
 import tempfile
 import time
+import urllib.error
 import urllib.request
+
+# A11: the walk aggregator's convention (tools/walk/native.py; never imported).
+# Desktop only: the seeded sidebar row is a drawer on the phone.
+WALK = {
+    "name": "a1_conversation",
+    "title": "conversation pane: tool rows, Worked-for fold, session row, GFM answer, layout",
+    "modes": ["desktop"],
+    "app": {"env": {"OCTOSCODE_SYNTHETIC_LIVE": "1", "OCTOSCODE_SYNTHETIC_EMPTY": "1",
+                    "OCTOSCODE_SYNTHETIC_TOOLS": "gfm"},
+            "ready": ["i0_composer_0"]},
+    "runs": [{"argv": ["{port}"]}],
+    "timeout": 300,
+    "rows": {
+        215: {"checks": ["a tool header opens its output", "…and closes it",
+                         "Worked for folds the turn's calls", "…and shows them again"],
+              "partial": "reader-controlled disclosures on a seeded settled transcript (A6 walks the replayed "
+                         "turns' folds); ten live streamed turns are not walked"},
+    },
+}
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 and sys.argv[1].isdigit() else 8411
 BASE = f"http://127.0.0.1:{PORT}"
@@ -35,8 +55,17 @@ LOG_SEQ = [0]
 
 
 def get(path, timeout=20):
-    # The instrument answers 404 when the UI thread misses its 5 s window (a
-    # loaded machine); one retry after a pause tells a stall from a dead app.
+    # An input route with wait=1 answers HTTP 404 when its frame was
+    # coalesced — the input was delivered (A11), so it is never re-sent; a
+    # read that 404s (the UI thread missed its 5 s window on a loaded
+    # machine) is retried once after a pause, which tells a stall from a dead
+    # app (A13).
+    if path.startswith(("/click", "/t?", "/k?", "/m?")):
+        try:
+            with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
+                return r.read().decode()
+        except urllib.error.HTTPError:
+            return ""
     for attempt in (0, 1):
         try:
             with urllib.request.urlopen(BASE + path, timeout=timeout) as r:

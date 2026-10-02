@@ -29,6 +29,9 @@ pub mod dialog;
 // A14: the dialog host's family drawn with the board-3 kit (frame, header,
 // type ramp, pills, per-dialog widths), the ids its walks address kept.
 pub mod dialog_view;
+// A11: pairing discovery — the remembered server, probed once, offered once
+// on the first-run Connect card (walk row 114).
+pub mod discovery;
 // A8: per-Session composer drafts, durable per authenticated principal.
 pub mod drafts;
 // A8: the external-driver disclosure walk (session/driver/get operations chain).

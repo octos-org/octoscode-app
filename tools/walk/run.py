@@ -43,6 +43,7 @@ import json
 import os
 import pathlib
 import re
+import shutil
 import signal
 import subprocess
 import sys
@@ -96,7 +97,11 @@ PLACEHOLDER = "Ask Octos anything"
 # exist (probes tmp/33a-probe-A/B/C.json).
 INSTANCE_KIND_RE = re.compile(r"^i\d+_([a-z_]+?)(?:_\d+)*$")
 COMPOSER_INPUT_RE = re.compile(r"^i\d+_composer_0$")
-THREAD_ROW_RE = re.compile(r"^i\d+_threadrow")
+# A11: A3's sidebar tree (chrome.rs `SbRowTpl`): a session row's title is
+# `sb_r_title`, its click target `sb_r_open` (the old `i<N>_threadrow` rows are
+# gone; the regex matched nothing and the reselect crashed on None).
+THREAD_ROW_RE = re.compile(r"^sb_r_title$")
+THREAD_OPEN_RE = re.compile(r"^sb_r_open$")
 
 
 class PrereqError(RuntimeError):
@@ -119,10 +124,12 @@ def default_shell_cwd(bin_path: pathlib.Path) -> pathlib.Path:
 
 
 def ensure_replay_server(build: bool = True) -> pathlib.Path:
-    """The scenario server is ours: build it when missing (cached after the first)."""
-    if REPLAY.is_file():
-        return REPLAY
+    """The scenario server is ours: build it (cargo's own up-to-date check makes
+    a current binary a no-op). A11: always asked, not only when missing — a
+    stale binary silently ignores a flag the runner passes (`--adopt-turn-ids`)."""
     if not build:
+        if REPLAY.is_file():
+            return REPLAY
         raise PrereqError(
             f"missing {REPLAY}; run: cargo build -p octoscode-module --example replay_serve"
         )
@@ -154,7 +161,14 @@ def check_prereqs(build_replay: bool = True) -> tuple[pathlib.Path, pathlib.Path
 APP_PORT = 8370
 SCENARIO_PORTS = {"conversation": 8380, "approval": 8381, "task": 8382,
                   "autonomy": 8383, "peer": 8384, "session": 8385,
-                  "longcodeline": 8386}
+                  "longcodeline": 8386, "two-turn": 8387}
+
+
+def set_scenario_port_base(base: int) -> None:
+    """A11: move the replay servers to `base`.. (same order), so a run stays in
+    the port block its operator was given (`--scenario-port-base`)."""
+    for i, name in enumerate(list(SCENARIO_PORTS)):
+        SCENARIO_PORTS[name] = base + i
 
 # Areas the card names → the walk rows they cover. Order matters: `area_of`
 # returns the FIRST match, so the more specific areas come first. `conversation`
@@ -204,8 +218,12 @@ AREA_SCRIPTABLE = {"conversation": True, "threads": True, "composer": True,
                    "peer": True, "review": True, "settings": True,
                    "palette": True, "keyboard": True, "connect": False,
                    "longcode": True}
+# A11: the composer area sends two prompts in a row (c_queue): with the
+# replayed turns now the app's own (`--adopt-turn-ids`), `conversation`'s
+# second recorded turn is its INTERRUPTED one (no answer), so the area runs on
+# `two-turn` — two real consecutive completed turns from one live session.
 AREA_SCENARIO = {"conversation": "conversation", "threads": "conversation",
-                 "composer": "conversation", "recovery": "conversation",
+                 "composer": "two-turn", "recovery": "conversation",
                  "approval": "approval", "peer": "peer", "review": "autonomy",
                  "settings": "session", "palette": "conversation",
                  "keyboard": "conversation", "connect": "session",
@@ -226,12 +244,16 @@ def scenario_for(area: str) -> str:
     return AREA_SCENARIO[area]
 
 
-APPROVAL_MISSING = ("missing: inline approval card — design scene conversation-05 "
-                    "is not in the built batch (design/bindings.json:40); "
-                    "approval/requested reaches the store but has no widget")
-CONNECT_MISSING = ("missing: gate-mode app instance — the walk app auto-connects to "
-                   "the replay server, so the pre-connection gate states (invalid "
-                   "auth, pairing links, workspace chooser) never mount")
+# A11: both reasons were Phase-3 facts. The approval takeover is built (A6,
+# tools/walk/a6_surfaces_walk.py) and the pre-connection gate IS walked by the
+# native walks that launch first-run instances (A2, A11); a row of these
+# areas that no native walk maps is "not walked", with the parity matrix's
+# own verdict where it cites the case (`parity_reason`).
+APPROVAL_MISSING = ("not walked: no native click walk maps this approval case "
+                    "(the takeover card itself is walked by tools/walk/a6_surfaces_walk.py)")
+CONNECT_MISSING = ("not walked: run.py's own instances auto-connect; the pre-connection "
+                   "gate is walked only by the native walks that launch first-run apps "
+                   "(tools/walk/a2_board1_walk.py, a11_offer_walk.py), and none maps this case")
 
 # The subset marker used by `@check(rows=…)` for "every row of the area".
 ALL = "__all__"
@@ -274,7 +296,11 @@ ENV_GROUPS: dict[tuple, dict] = {
     # 1280 crosses the `wide` breakpoint (1260), 720 the `width_hides_sidebar`
     # one (760): the two edges the module actually branches on.
     ("peer", "viewport-1280"): {
-        "env": {"OCTOSENSE_WINDOW_SIZE": "1280x900"},
+        # A11: the env CAPS the module's frame (A3 `env_frame`); the floating
+        # module window is 990 wide, so the shell maximizes it first (its own
+        # scripted WM action) — the frame is then the requested 1280.
+        "env": {"OCTOSENSE_WINDOW_SIZE": "1280x900",
+                "HEADLESS_ARGS": "--module octoscode --test-action maximize"},
         "checks": [
             "the requested viewport width is honoured and picks the width breakpoints",
             "the settings drawer keeps one dialog and its geometry across a panel load",
@@ -381,11 +407,33 @@ class App:
                 return w["r"]
         return None
 
+    @staticmethod
+    def laid_out(w: dict) -> bool:
+        r = w.get("r") or [0, 0, 0, 0]
+        return r[2] > 0 and r[3] > 0 and w.get("v", 1) != 0
+
+    def shown_rect_re(self, snap: dict, pattern):
+        """The first LAID-OUT widget whose id matches (A11: a hidden template
+        twin comes first in the tree for several chrome ids)."""
+        return next((w["r"] for w in snap.get("s", [])
+                     if pattern.match(str(w.get("i", ""))) and self.laid_out(w)), None)
+
+    def shown_texts(self, snap: dict, pattern):
+        return [str(w.get("t")) for w in snap.get("s", [])
+                if pattern.match(str(w.get("i", ""))) and w.get("t") and self.laid_out(w)]
+
     def rect(self, snap: dict, ident: str):
+        # A11: the chrome mounts some ids twice (a hidden phone/rail twin), so
+        # the first match can be a zero rect — a click there lands at 0,0.
+        # Prefer the laid-out, visible instance.
+        first = None
         for w in snap.get("s", []):
             if str(w.get("i", "")) == ident:
-                return w["r"]
-        return None
+                r = w["r"]
+                if r[2] > 0 and r[3] > 0 and w.get("v", 1) != 0:
+                    return r
+                first = first or r
+        return first
 
     def click(self, x, y):
         return self._get_retry(f"/click?x={x}&y={y}&wait=1")
@@ -474,11 +522,15 @@ class App:
         """
         self.focus_composer()
         for attempt in range(3):
-            self.key("home")
-            time.sleep(0.3)
-            self.key_mod("end", shift=True)
-            time.sleep(0.3)
-            self.key("backspace")
+            # A11 (the brief's walk tip): the composer can hold a RESTORED
+            # prompt (an interrupted turn's text comes back, like the web),
+            # and Shift+End selection no longer clears it (measured: four
+            # "walk queue one" sends concatenated in one bubble). End, then
+            # one Backspace per character, is the method that empties it.
+            n = len(self.draft() or "")
+            self.key("end")
+            for _ in range(n + 1):
+                self.key("backspace")
             try:
                 return self.wait_for(
                     lambda s: (self.draft(s) or "") in ("", PLACEHOLDER),
@@ -537,8 +589,13 @@ class Procs:
         port = SCENARIO_PORTS[scenario]
         log = WALK / f"server-{scenario}.log"
         f = open(log, "w")
+        # A11: `--adopt-turn-ids` — the replayed turn is the app's own (a real
+        # server adopts the turn/start id). A7's turn controller settles only
+        # the turn it dispatched; without this every replayed turn stayed
+        # live and every later prompt queued behind it.
         proc = subprocess.Popen(
-            [str(REPLAY), str(port), "--scenario", scenario], stdout=f, stderr=f)
+            [str(REPLAY), str(port), "--scenario", scenario, "--adopt-turn-ids"],
+            stdout=f, stderr=f)
         self.servers[scenario] = proc
         for _ in range(75):
             if "listening" in log.read_text():
@@ -577,6 +634,13 @@ class Procs:
             "HEADLESS_ARGS": "--module octoscode",
             "HEADLESS_STATE": str(state),
         })
+        # Brief §8 (A11): every instance reads and writes a FRESH state tree
+        # (drafts, credentials, preferences, notifications, recents, ...),
+        # never the operator's own files.
+        from walk_env import isolated_env  # noqa: PLC0415 (same directory)
+        env.update(isolated_env(ROOT / "tmp" / "walk" / "state" / f"{scenario}-{time.time_ns()}"))
+        # This checkout's design files, never the shared materialized copy.
+        env.setdefault("OCTOSCODE_DESIGN_DIR", str(ROOT / "design"))
         if extra_env:
             env.update(extra_env)
         # The env of the running app, so a check can assert what it was LAUNCHED
@@ -678,6 +742,9 @@ class LiveGate:
         state.mkdir(parents=True, exist_ok=True)
         env = os.environ.copy()
         env.update(self.env_extra)
+        # Brief §8 (A11): isolated app state for the live instance too.
+        from walk_env import isolated_env  # noqa: PLC0415 (same directory)
+        env.update(isolated_env(ROOT / "tmp" / "walk" / "state" / f"live-{time.time_ns()}"))
         cwd = self.shell_cwd or default_shell_cwd(BIN)
         r = subprocess.run(["bash", str(HEADLESS), "start", str(BIN),
                             str(self.app_port)],
@@ -746,11 +813,15 @@ def c_live(app):
 
 @check("conversation", "the thread list renders the opened session row")
 def c_thread(app):
-    d = app.snap()
-    rows = [w.get("t") for w in d.get("s", [])
-            if THREAD_ROW_RE.match(str(w.get("i", ""))) and w.get("t")]
-    empty = "No threads yet" in [w.get("t") for w in d.get("s", [])]
-    return bool(rows) or empty, f"thread rows={rows[:2]} empty-state={empty}"
+    # A11: the opened session's row must be LAID OUT in the sidebar (the old
+    # fallback accepted a hidden "No threads yet" text, so it could not fail).
+    try:
+        d = app.wait_for(lambda s: bool(app.shown_texts(s, THREAD_ROW_RE)), timeout=15,
+                         what="the opened session's row in the sidebar")
+    except AssertionError:
+        d = app.snap()
+    rows = app.shown_texts(d, THREAD_ROW_RE)
+    return bool(rows), f"thread rows={rows[:2]}"
 
 
 @check("conversation", "the composer accepts typed text (prompt input)",
@@ -848,7 +919,9 @@ def t_refresh(app):
 @check("threads", "New chat mints a fresh Session and re-opens the workspace",
        rows=("new chat", "session"))
 def t_new_chat(app):
-    app.click_id(app.snap(), "new_chat_hit")
+    # A11: A3's sidebar renamed the control (sb_new_chat_hit).
+    d0 = app.snap()
+    app.click_id(d0, "sb_new_chat_hit" if app.rect(d0, "sb_new_chat_hit") else "new_chat_hit")
     app.wait_for(lambda s: ("OctosCode" in [w.get("t", "") for w in s.get("s", [])]
                             and app.rect_re(s, COMPOSER_INPUT_RE) is not None),
                  what="the workspace to re-open after New chat")
@@ -859,39 +932,55 @@ def t_new_chat(app):
 
 
 # ---- composer: draft, send, timeline, input round-trip -------------------- #
-@check("composer", "the approval pill cycles the permission mode and reflects the read-back")
+@check("composer", "the approval pill opens the permission menu above it and Escape closes it")
 def cp_pill_cycle(app):
-    # #P4a1 — the pill was static art; clicking it now sends the web's
-    # permission/profile/set (permissions-section.tsx:27-28) and the label
-    # reflects the reply's `current.mode` read-back. Replay echoes the
-    # requested mode, so the cycle is fully observable offline.
-    MODES = ("Ask for approval", "read_only", "workspace_write")
-    def pill(d):
-        w = next((w for w in d.get("s", [])
-                  if (w.get("t") or "").strip() in MODES
-                  and (w.get("r") or [0, 0, 0, 0])[2] > 0), None)
-        return ((w.get("t") or "").strip(), w.get("r")) if w else (None, None)
-    t0, r0 = None, None
+    # A11: since A10 the pill no longer CYCLES the mode (#P4a1): it is the
+    # permission seat (screens/board3/seats.rs, the web's SessionControlBar)
+    # and opens the "Permission" menu above it — the presets the server lists
+    # (permission/profile/list), "No permission presets are available." when
+    # it lists none (this replay answers {}). Choosing a preset, its read-back
+    # and the full-access confirmation are tools/walk/a10_seats.py's (row 163).
+    pill_re = re.compile(r"^i\d+_composer_2$")
+
+    def menu(d):
+        return (app.rect(d, "b3_dialog") or [0, 0, 0, 0])[2] > 0
+    r0 = None
     for _ in range(20):
-        t0, r0 = pill(app.snap())
+        r0 = app.shown_rect_re(app.snap(), pill_re)
         if r0:
             break
         time.sleep(0.5)
     if not r0:
-        return False, "approval pill not laid out (polled 10s)"
-    def cycle(expect_diff):
-        app.click(int(r0[0] + r0[2] / 2), int(r0[1] + r0[3] / 2))
-        for _ in range(20):
-            t, r = pill(app.snap())
-            if t and t != expect_diff:
-                return t, r
-            time.sleep(0.5)
-        return None, r0
-    t1, r1 = cycle(t0)
-    t2, r2 = cycle(t1 or "") if (r1 and t1) else (None, r0)
-    ok = (t1 in ("read_only", "workspace_write")
-          and t2 in ("read_only", "workspace_write") and t1 != t2)
-    return ok, f"pill cycle: {t0!r} -> {t1!r} -> {t2!r} (read-back reflected)"
+        return False, "the approval pill (the permission seat) is not laid out (polled 10s)"
+    app.click(int(r0[0] + r0[2] / 2), int(r0[1] + r0[3] / 2))
+    try:
+        app.wait_for(menu, timeout=8, what="the permission menu to open")
+    except AssertionError:
+        return False, f"the pill CLICK opened no menu (pill={r0})"
+    time.sleep(0.5)
+    d = app.snap()
+    m = app.rect(d, "b3_dialog")
+    laid = {str(w.get("t") or "").strip() for w in d.get("s", []) if app.laid_out(w)}
+    titled = "Permission" in laid
+    above = m[1] + m[3] <= r0[1] + 1
+    # With no presets the menu says why: empty / unavailable / loading, or the
+    # read's own error line with Retry (this replay's `{}` answer names no
+    # session: "permission/profile/list returned another session").
+    state = next((str(w.get("t")).strip() for w in d.get("s", [])
+                  if str(w.get("i", "")) in ("b3_perm_empty", "b3_perm_unavailable", "b3_perm_loading",
+                                             "b3_perm_error_text")
+                  and app.laid_out(w) and (w.get("t") or "").strip()), None)
+    opts = sum(1 for w in d.get("s", []) if re.match(r"^b3_perm_opt_\d+$", str(w.get("i", "")))
+               and app.laid_out(w))
+    app.key("escape")
+    try:
+        app.wait_for(lambda s: not menu(s), timeout=6, what="Escape to close the menu")
+        closed = True
+    except AssertionError:
+        closed = False
+    ok = titled and above and (opts > 0 or state is not None) and closed
+    return ok, (f"menu={m} above_pill={above} title={titled} presets={opts} state={state!r} "
+                f"escape_closes={closed}")
 
 
 @check("composer", "the draft is a single TextInput with a placeholder")
@@ -918,9 +1007,22 @@ def c_queue(app):
     # queued-mid-turn slice needs a keyboard-queue path this card did not
     # probe out; the retest server log saw ONE turn/start for the mid-turn
     # second send — it was an interrupt, not a send).
-    def proses(snap):
-        return sum(1 for w in snap.get("s", [])
-                   if "assistantprose" in str(w.get("i", "")))
+    # A11: each prompt's OWN turn is proven on the wire — the replay server's
+    # log of `turn/start` — and its settlement in the window (no working row,
+    # no queued chip left). Counting assistant rows was virtualization-bound:
+    # the second recorded answer is long and the list shows only its tail.
+    server_log = WALK / f"server-{scenario_for('composer')}.log"
+
+    def starts():
+        try:
+            return server_log.read_text().count("<- turn/start")
+        except OSError:
+            return -1
+
+    def settled(s):
+        queued = any(str(w.get("i", "")) == "queue_count" and app.laid_out(w) and (w.get("t") or "").strip()
+                     for w in s.get("s", []))
+        return "workingrow" not in app.kinds(s) and not queued
 
     r = None
     for _ in range(20):
@@ -933,22 +1035,30 @@ def c_queue(app):
     # turn LIVE, and the mounted composer DROPS text typed mid-turn (the
     # #34a instrument probes; retest8's clauses one=0 two=0 proses=0). Let
     # the earlier turn settle before typing.
-    app.wait_for(lambda s: "workingrow" not in app.kinds(s), timeout=45,
-                 what="earlier composer turns to settle")
+    app.wait_for(settled, timeout=45, what="earlier composer turns to settle")
     time.sleep(1.0)
-    app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
-    base = proses(app.snap())
-    app.clear_composer(); app.type("walk queue one"); app.send()
-    app.wait_for(lambda s: proses(s) > base, timeout=60,
-                 what="queue one's own answer")
-    r = app.rect_re(app.snap(), COMPOSER_INPUT_RE)
-    app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
-    app.clear_composer(); app.type("walk queue two"); app.send()
-    app.wait_for(lambda s: proses(s) > base + 1, timeout=60,
-                 what="queue two's own answer")
+    base = starts()
+    for n, prompt in enumerate(("walk queue one", "walk queue two"), start=1):
+        r = app.rect_re(app.snap(), COMPOSER_INPUT_RE)
+        app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
+        app.clear_composer(); app.type(prompt); app.send()
+        for _ in range(40):
+            if starts() >= base + n:
+                break
+            time.sleep(0.5)
+        if starts() < base + n:
+            return False, f"{prompt!r} never reached the wire (turn/start x{starts() - base})"
+        time.sleep(1.0)
+        app.wait_for(settled, timeout=60, what=f"{prompt!r}'s own turn to settle")
+    own_turns = starts() - base
     d = app.snap()
-    tr = app.rect_re(d, THREAD_ROW_RE)
+    tr = app.shown_rect_re(d, THREAD_OPEN_RE)
+    if not tr:
+        return False, "no laid-out session row (sb_r_open) to reselect"
     app.click(int(tr[0] + tr[2] / 2), int(tr[1] + tr[3] / 2))
+    time.sleep(3.0)
+    if starts() - base != own_turns:
+        return False, f"the reselect sent turn/start again (x{starts() - base - own_turns})"
     # The web contract (runtime-recovery.spec.ts:5): continuing past the turn
     # must not REPLAY anything and must not lose turns — the first bubble is
     # EXPECTED to sit above the viewport after a reselect (the timeline shows
@@ -965,37 +1075,17 @@ def c_queue(app):
                    and m.group(1) == "userbubble"
                    and (w.get("t") or "").strip().startswith(text))
 
-    def replayed(snap):
-        # Virtualization makes per-row text presence timing/viewport-dependent
-        # (retest10: proses=2 with both prompt texts absent from the window;
-        # the web keeps the full DOM, the native list materialises ~a screen).
-        # The contract's durable facts (runtime-recovery.spec.ts): NO
-        # duplicate bubbles (nothing replayed), both ANSWERS retained
-        # (nothing lost), one session.
-        proses = sum(1 for w in snap.get("s", [])
-                     if "assistantprose" in str(w.get("i", "")))
-        return (tree_count(snap, "walk queue one") <= 1
-                and tree_count(snap, "walk queue two") <= 1
-                and proses >= 2)
-
-    try:
-        app.wait_for(replayed, timeout=20,
-                     what="the timeline after the reselect (no replay, answers kept)")
-    except AssertionError as e:
-        # Instrumented failure (the runner env differs from the hand probe:
-        # earlier composer checks leave turns in the timeline): dump every
-        # clause so the retest log names the failing one.
-        d = app.snap()
-        proses = sum(1 for w in d.get("s", [])
-                     if "assistantprose" in str(w.get("i", "")))
-        raise AssertionError(
-            f"clauses one={tree_count(d, 'walk queue one')} "
-            f"two={tree_count(d, 'walk queue two')} proses={proses} "
-            f"sessions={app.text_of(d, 'sessions')!r}") from None
+    # Virtualization makes per-row presence viewport-dependent (the native list
+    # materialises ~a screen; the web keeps the whole DOM): what IS durable is
+    # that no prompt bubble is doubled (nothing replayed into the timeline),
+    # the timeline renders, and no session was minted.
     d = app.snap()
+    one, two = tree_count(d, "walk queue one"), tree_count(d, "walk queue two")
+    rendered = any(app.laid_out(w) for w in d.get("s", []) if INSTANCE_KIND_RE.match(str(w.get("i", ""))))
     sessions = (app.text_of(d, "sessions") or "").strip()
-    ok = "1" in sessions
-    return ok, (f"no_replay(one<=1,two=1) tail_kept {sessions!r}")
+    ok = own_turns == 2 and one <= 1 and two <= 1 and rendered and sessions.endswith(" 1")
+    return ok, (f"own turn/start x{own_turns}, each settled; reselect sent none; bubbles one={one} two={two} "
+                f"timeline_rendered={rendered} {sessions!r}")
 
 
 @check("composer", "the conversation column hosts the timeline PortalList")
@@ -1068,11 +1158,22 @@ def cp_command_receipts(app):
     time.sleep(1.0)
     d = app.snap()
     kept = (app.draft(d) or "") == "/bogus"
-    # 3. a path reaches the model: a working row appears (a real turn)
-    app.clear_composer(); app.type("/home/user/x/proj/main.rs"); app.key("return")
+    # 3. a path reaches the model: it becomes the user's own row and a turn
+    # runs for it. A11: the replayed turn is now the app's own and settles in
+    # well under the 0.5 s poll, so a working row alone could be missed — the
+    # prompt row carrying the path, plus a new answer (or the working row),
+    # is the turn.
+    def proses(snap):
+        return sum(1 for w in snap.get("s", []) if "assistantprose" in str(w.get("i", "")))
+    path = "/home/user/x/proj/main.rs"
+    base_proses = proses(app.snap())
+    app.clear_composer(); app.type(path); app.key("return")
     turned = False
     for _ in range(24):
-        if "workingrow" in app.kinds(app.snap()):
+        d = app.snap()
+        bubble = any((m := INSTANCE_KIND_RE.match(str(w.get("i", "")))) and m.group(1) == "userbubble"
+                     and (w.get("t") or "").strip() == path for w in d.get("s", []))
+        if bubble and ("workingrow" in app.kinds(d) or proses(d) > base_proses):
             turned = True
             break
         time.sleep(0.5)
@@ -1136,7 +1237,14 @@ def card_tap_error_reload(app):
 # /loop), which docs/ux/a5-dialogs/walk/walk.log clicks through.
 @check("peer", "the fleet roster is reached from the sidebar footer's Fleet entry")
 def p_roster(app):
-    d = app.snap()
+    # A11: the area's FIRST check — poll for the footer's layout instead of
+    # reading the first frame (measured: [0,0,0,0] here, [64,637,260,34] two
+    # checks later in the same instance).
+    try:
+        d = app.wait_for(lambda s: (app.rect(s, "fleet_nav_hit") or [0, 0, 0, 0])[2] > 0,
+                         timeout=15, what="the sidebar footer's Fleet entry to lay out")
+    except AssertionError:
+        d = app.snap()
     r = app.rect(d, "fleet_nav_hit")
     ok = bool(r) and r[2] >= 28 and r[3] >= 28
     return ok, f"fleet_nav_hit rect={r}"
@@ -1153,13 +1261,24 @@ def p_sections(app):
 @check("peer", "goals and loops open as dialogs from the palette",
        rows=("goal", "loop", "plan", "trajectory"))
 def p_rows(app):
+    # A11: the palette shows one page of rows (A5's palette fits its list), so
+    # '/' alone may not list /goal and /loop: filter for each, as a user does.
+    found = {}
+
+    def lists(s, want):
+        return any(w.get("t") == want for w in s.get("s", []) if w.get("i") == "palette_row_name")
+
+    for query, want in (("/go", "/goal"), ("/lo", "/loop")):
+        app.clear_composer()
+        app.type_into_composer(query)
+        try:
+            app.wait_for(lambda s: lists(s, want), timeout=4, what=f"the palette to list {want}")
+            found[want] = True
+        except AssertionError:
+            found[want] = False
     app.clear_composer()
-    app.type_into_composer("/")
-    d = app.snap()
-    rows = [w.get("t", "") for w in d.get("s", []) if w.get("i") == "palette_row_name"]
-    app.key("escape")
-    ok = "/goal" in rows and "/loop" in rows
-    return ok, f"palette rows={rows}"
+    ok = all(found.values())
+    return ok, f"palette rows found={found}"
 
 
 # ---- #41c: row-specific checks for the smoke-only rows --------------------- #
@@ -1171,15 +1290,54 @@ def p_rows(app):
 @check("peer", "Alt+D reaches a fleet capability notice surface to focus",
        rows=("alt+d",))
 def p_altd_notice(app):
-    # Row 72's own case (the web binds Alt+D, registry.ts; suppressed inside
-    # inputs). Native observable: a capability-notice surface must exist for
-    # focus to land on. Measured 41c recon: keys.rs has no KeyD arm, and the
-    # snap carries no notice widget — expected FAIL until wired.
+    # Row 72's own case (keyboard-parity.spec.ts:379: Alt+D focuses Fleet's
+    # capability notice; suppressed inside inputs). A11: A7 bound it since the
+    # 41c recon (lib.rs `ParityShortcut::FocusDispatch` -> b3.open.fleet, with
+    # the §8 suppression inside text inputs and dialogs). Both halves are
+    # driven: inside the composer the chord is suppressed (no Fleet; the app
+    # logs the suppression), and after a click on the open session's row
+    # (focus leaves the text input) Alt+D opens Fleet with its notice. Focus
+    # itself is not observable through /snap.
+    def fleet(s):
+        return (app.rect(s, "b3_fleet_panel") or [0, 0, 0, 0])[2] > 0
+
+    def log_mark():
+        return json.loads(app._get("/log?n=1")).get("n", 0)
+
+    def logged_since(mark, needle):
+        return any(needle in l for l in json.loads(app._get(f"/log?since={mark}")).get("l", []))
+
     app.key("escape")
+    app.focus_composer(app.snap())
+    mark = log_mark()
     app.key_mod("keyd", alt=True)
-    d = app.snap()
-    notice = [i for i in app.widget_ids(d) if "capab" in i or "notice" in i]
-    return bool(notice), f"capability-notice widgets={notice or 'none (Alt+D unbound)'}"
+    time.sleep(1.0)
+    suppressed = logged_since(mark, "shortcut FocusDispatch suppressed") and not fleet(app.snap())
+    row = app.shown_rect_re(app.snap(), THREAD_OPEN_RE)
+    if not row:
+        return False, f"suppressed_in_composer={suppressed}; no session row to move focus to"
+    app.click(int(row[0] + row[2] / 2), int(row[1] + row[3] / 2))
+    time.sleep(1.0)
+    mark = log_mark()
+    app.key_mod("keyd", alt=True)
+    try:
+        d = app.wait_for(fleet, timeout=6, what="Alt+D to open Fleet")
+    except AssertionError:
+        d = app.snap()
+    opened = fleet(d) and logged_since(mark, "shortcut Alt+D -> fleet")
+    laid = [str(w.get("t") or "") for w in d.get("s", [])
+            if str(w.get("i", "")).startswith("b3_fleet") and app.laid_out(w) and w.get("t")]
+    notice = next((t for t in laid if "does not support" in t or "No peer models" in t
+                   or t == "Start a peer"), None)
+    if fleet(d):
+        app.click_id(d, "b3_fleet_back")
+        try:
+            app.wait_for(lambda s: not fleet(s), timeout=6, what="Fleet's Back to close it")
+        except AssertionError:
+            pass
+    ok = suppressed and opened and notice is not None
+    return ok, (f"suppressed_in_composer={suppressed} opened_outside_inputs={opened} "
+                f"notice={notice!r}")
 
 
 @check("peer", "Alt+P toggles a peer dock fold (expands and collapses)",
@@ -1193,6 +1351,13 @@ def p_altp_fold(app):
     app.key_mod("keyp", alt=True)
     r2 = app.rect(app.snap(), "peer_dock")
     ok = bool(r1) and bool(r2) and (r1 != r2 or (r1[2] > 0 and r1[3] > 0))
+    if not ok and r1 is None and r2 is None:
+        # A11: there is no native peer dock to fold — A7 leaves the chord
+        # inert on purpose (lib.rs `ParityShortcut::TogglePeerDock`) and the
+        # parity matrix rates "Peer dock mounted between the session tree and
+        # Settings" C. An unbuilt surface, not a broken one.
+        return False, (NOT_BUILT + "no native peer dock (parity matrix 'Peer dock mounted "
+                       "between the session tree and Settings' = C); Alt+P is inert by design")
     return ok, f"peer_dock rects={r1} -> {r2}"
 
 
@@ -1236,7 +1401,33 @@ def r_monitor_entry(app):
     texts = [str(w.get("t", "")) for w in d.get("s", [])
              if "monitor" in str(w.get("t", "")).lower()
              and str(w.get("t", "")).strip().lower() != "/monitor"]
-    return bool(ids or texts), f"monitor ids={ids[:4]} texts={texts[:3]}"
+    # A11 hygiene: since A5, /monitor opens the Monitors DIALOG — a modal scrim
+    # over the whole module. Left open it swallowed the next checks' clicks and
+    # keys (the settings opener, the composer: three recovery checks timed
+    # out behind it). Close it with its own control, as a user does.
+    closed = _close_dialog(app)
+    return bool(ids or texts), f"monitor ids={ids[:4]} texts={texts[:3]} dialog_closed={closed}"
+
+
+def _close_dialog(app) -> bool:
+    """Close an open A5 dialog (its ✕, else Escape); True when none is up."""
+    def up(s):
+        return (app.rect(s, "dialog_root") or [0, 0, 0, 0])[2] > 0
+    for _ in range(3):
+        d = app.snap()
+        if not up(d):
+            return True
+        r = app.rect(d, "dialog_close")
+        if r and r[2] > 0:
+            app.click(int(r[0] + r[2] / 2), int(r[1] + r[3] / 2))
+        else:
+            app.key("escape")
+        try:
+            app.wait_for(lambda s: not up(s), timeout=4, what="the dialog to close")
+            return True
+        except AssertionError:
+            continue
+    return not up(app.snap())
 
 
 @check("settings", "the settings drawer exposes the Models management section",
@@ -1296,6 +1487,12 @@ def k_esc_drawer(app):
     app.wait_for(drawer_open, what="the settings drawer to open")
     # The row's own case: Escape hands control back. Fold the verdict (no
     # raw raise) so the cleanup always runs.
+    # A11: the press itself was lost in #41c's restructure (5ebac7b4 removed
+    # `app.key("escape")` here), so the check waited for a close nothing asked
+    # for and could never pass. A3's chrome closes Settings on Escape
+    # (lib.rs `escape_chrome`: "chrome: Escape closed the top surface").
+    time.sleep(0.5)
+    app.key("escape")
     esc_closes = True
     try:
         app.wait_for(lambda s: not drawer_open(s), timeout=6,
@@ -1414,7 +1611,8 @@ def c2_live_background(app):
     spend_turn()  # #41d budget
     app.wait_for(working, timeout=30, what="the background turn to go live")
     # focus a sibling: New chat mints a fresh session
-    nb = app.rect(app.snap(), "new_chat_hit") or app.rect(app.snap(), "newchat")
+    nb = (app.rect(app.snap(), "sb_new_chat_hit") or app.rect(app.snap(), "new_chat_hit")
+          or app.rect(app.snap(), "newchat"))
     assert nb, "no New chat control in the live app"
     app.click(int(nb[0] + nb[2] / 2), int(nb[1] + nb[3] / 2))
     time.sleep(8.0)  # away from the session while the turn runs
@@ -1603,13 +1801,17 @@ def v_fold(app):
                 f"(no receipt folded -> no fold line)")
 
 
-@check("review", "the closed-state review opener lays out and opens the panel by click",
+@check("review", "the closed-state review opener lays out and opens the diff review by click",
        rows=("review toggle", "opener", "closed-state"))
 def v_closed_opener(app):
-    # #40b defect 1: the in-panel toggle hit lives INSIDE the closed overlay
-    # (rect [0,0,0,0] — #40a's dead click). The sidebar header now carries an
-    # always-mounted opener; assert it lays out CLOSED and its click opens
-    # the panel (the in-panel pill closes it again — round-trip proven live).
+    # #40b defect 1: the in-panel toggle hit lived INSIDE the closed overlay
+    # (rect [0,0,0,0] — #40a's dead click); the header carries an
+    # always-mounted opener. A11: since A10 that opener is the web's diff
+    # review (board3/diff_review.rs: the eyebrow over "Review changes" in the
+    # dialog kit), no longer the docked panel — assert it lays out closed,
+    # its CLICK opens the dialog and the dialog's own ✕ closes it again.
+    def dialog(s):
+        return (app.rect(s, "b3_diff_eyebrow") or [0, 0, 0, 0])[2] > 0
     hit = None
     for _ in range(20):
         d = app.snap()
@@ -1620,10 +1822,21 @@ def v_closed_opener(app):
     if not (hit and hit[2] > 0):
         return False, f"closed-state opener not laid out: {hit}"
     app.click(int(hit[0] + hit[2] / 2), int(hit[1] + hit[3] / 2))
-    app.wait_for(lambda s: (app.rect(s, "review_panel") or [0, 0, 0, 0])[2] > 0,
-                 timeout=10, what="the review panel to open by click")
-    pw = (app.rect(app.snap(), "review_panel") or [0, 0, 0, 0])[2]
-    return pw > 0, f"opener={hit} panel w={pw}"
+    try:
+        app.wait_for(dialog, timeout=10, what="the diff review to open by click")
+    except AssertionError:
+        return False, f"opener={hit}: the CLICK opened no diff review"
+    d = app.snap()
+    box = app.rect(d, "b3_dialog")
+    close = app.rect(d, "b3_close") or [0, 0, 0, 0]
+    app.click_id(d, "b3_close")
+    try:
+        app.wait_for(lambda s: not dialog(s), timeout=6, what="the dialog's close to close it")
+        closed = True
+    except AssertionError:
+        closed = False
+    ok = close[2] >= 28 and close[3] >= 28 and closed
+    return ok, f"opener={hit} dialog={box} close={close} closed_by_its_x={closed}"
 
 
 @check("review", "the review toggle is keyboard/click reachable")
@@ -1679,14 +1892,45 @@ def s_drawer(app):
     return ok, f"drawer={'settings_drawer' in ids} close={'settings_close' in ids}"
 
 
-@check("settings", "the drawer header reads Session settings with its sections",
+@check("settings", "the Settings dialog opens with its section navigation",
        rows=("settings", "session settings"))
 def s_header(app):
+    # A11: A3 replaced #28e's drawer (header "Session settings" over Model /
+    # Permissions / Sandbox / Context) with the Settings dialog — a "Settings"
+    # nav over General, Permissions, Model, Sandbox, Connection, Preferences
+    # and About (chrome.rs `OcSettingsPanel`, `Section::title`); A8's Session
+    # settings pane is another surface (the session strip opens it). The old
+    # check read hidden texts; this one OPENS the dialog by its header control
+    # and asserts the laid-out nav, then closes it with its own ✕.
+    def drawer_open(s):
+        return (app.rect(s, "settings_drawer") or [0, 0, 0, 0])[2] > 0
+    opened = drawer_open(app.snap())
+    for _ in range(3):
+        if opened:
+            break
+        app.click_id(app.snap(), "settings_open_hit")
+        try:
+            app.wait_for(drawer_open, timeout=8, what="the Settings dialog to open")
+            opened = True
+        except AssertionError:
+            continue
+    if not opened:
+        return False, "the Settings dialog never opened via settings_open_hit"
+    time.sleep(0.5)
     d = app.snap()
-    texts = [w.get("t", "") for w in d.get("s", [])]
-    ok = "Session settings" in texts and all(
-        t in texts for t in ("Model", "Permissions", "Sandbox", "Context"))
-    return ok, f"sections present={'Session settings' in texts}"
+    shown = {str(w.get("t") or "").strip() for w in d.get("s", [])
+             if (w.get("r") or [0, 0, 0, 0])[2] > 0}
+    nav = ("General", "Permissions", "Model", "Sandbox", "Connection")
+    missing = [t for t in nav if t not in shown]
+    close = app.rect(d, "settings_close") or [0, 0, 0, 0]
+    app.click_id(d, "settings_close")
+    try:
+        app.wait_for(lambda s: not drawer_open(s), timeout=8, what="the Settings dialog to close")
+        closed = True
+    except AssertionError:
+        closed = False
+    ok = not missing and close[2] > 0 and closed
+    return ok, f"nav missing={missing} close={close} closed_by_its_x={closed}"
 
 
 @check("settings", "connection actions live in settings (Live status visible)",
@@ -1723,10 +1967,34 @@ def q_mount(app):
 @check("palette", "the palette hint row shows the key hints",
        rows=("command palette", "palette", "hint", "keyboard"))
 def q_hint(app):
+    # A11: A5's setup-08 footer reads "to move · to run · esc" (lib.rs
+    # `palette_hint`; it was "move" / "run"). The old check read hidden texts;
+    # this one opens the palette as a user does ('/' in the composer), asserts
+    # the hint is LAID OUT under the list, then empties the composer.
+    hints = ("to move", "to run", "· esc")
+    app.focus_composer(app.snap())
+    app.clear_composer()
+    app.type("/")
+    try:
+        d = app.wait_for(lambda s: (app.rect(s, "palette_search") or [0, 0, 0, 0])[2] > 0,
+                         timeout=10, what="the palette to open on '/'")
+    except AssertionError:
+        app.clear_composer()
+        return False, "the palette never opened on '/'"
+    time.sleep(0.5)
     d = app.snap()
-    texts = [w.get("t", "") for w in d.get("s", [])]
-    ok = "move" in texts and "run" in texts
-    return ok, f"hint parts={[t for t in texts if t in ('move','run','· esc')]}"
+    laid = [str(w.get("t") or "").strip() for w in d.get("s", [])
+            if (w.get("r") or [0, 0, 0, 0])[2] > 0]
+    shown = [h for h in hints if h in laid]
+    lst = app.rect(d, "palette_list") or [0, 0, 0, 0]
+    hint_y = min((w["r"][1] for w in d.get("s", [])
+                  if str(w.get("t") or "").strip() == "to move" and (w.get("r") or [0, 0, 0, 0])[2] > 0),
+                 default=0)
+    below = hint_y >= lst[1] + lst[3] - 1 if lst[2] > 0 else False
+    app.key("escape")
+    app.clear_composer()
+    ok = len(shown) == len(hints) and below
+    return ok, f"hint parts laid out={shown} below_list={below}"
 
 
 @check("palette", "an unknown command fails closed (fail-closed receipt visible)",
@@ -1795,8 +2063,10 @@ def k_focus(app):
     app.key("escape")
     d = app.snap()
     ids = app.widget_ids(d)
-    ok = "sidebar_toggle_hit" in ids and "new_chat_hit" in ids
-    return ok, f"sidebar={'sidebar_toggle_hit' in ids} new_chat={'new_chat_hit' in ids}"
+    # A11: A3's sidebar renamed New chat (sb_new_chat_hit).
+    new_chat = "sb_new_chat_hit" in ids or "new_chat_hit" in ids
+    ok = "sidebar_toggle_hit" in ids and new_chat
+    return ok, f"sidebar={'sidebar_toggle_hit' in ids} new_chat={new_chat}"
 
 
 @check("keyboard", "the a11y keyboard guarantees hold: Ctrl+K, Esc, / all route",
@@ -2058,14 +2328,20 @@ def vp_width(app):
     # [0,0,0,0] and the composer moves left to x=65. This check therefore
     # asserts the width was applied AND that the module took the branch the
     # width selects — at EITHER edge, whichever the instance was launched with.
+    # A11: since A3 the shell no longer sizes its window from the env: the
+    # module draws INSIDE a WxH frame (lib.rs `env_frame`, a CAP on the module
+    # window), so `main_window` is the 1400-wide shell, never the request. The
+    # module's own frame is `base` — and a 1280 frame needs a module window at
+    # least that wide, so the 1280 instance is MAXIMIZED by the shell's own
+    # `--test-action maximize` (ENV_GROUPS).
     want = app.env.get("OCTOSENSE_WINDOW_SIZE", "")
     m = re.match(r"^(\d+)x(\d+)$", want)
     if not m:
         return False, f"no OCTOSENSE_WINDOW_SIZE in the launch env: {want!r}"
     w_req = float(m.group(1))
-    d = app.wait_for(lambda s: (app.rect(s, "main_window") or [0, 0, 0, 0])[2] > 0,
+    d = app.wait_for(lambda s: (app.rect(s, "base") or [0, 0, 0, 0])[2] > 0,
                     timeout=20, what="the module to mount at the requested width")
-    win = app.rect(d, "main_window")
+    win = app.rect(d, "base")
     got = float(win[2])
     honoured = abs(got - w_req) < 1.0
     # The branch: at >= 1260 the sidebar column is laid out; below 760 it is
@@ -2082,7 +2358,7 @@ def vp_width(app):
         branch = col[2] > 0
         want_state = "mid: threads_column laid out"
     return (honoured and branch), (
-        f"requested={w_req:g} main_window_w={got:g} honoured={honoured} "
+        f"requested={w_req:g} module_frame_w={got:g} honoured={honoured} "
         f"threads_column={col} want={want_state} branch={branch}")
 
 
@@ -2091,14 +2367,9 @@ def vp_width(app):
 def vp_geometry(app):
     # Row 183's actual pass_condition: "the settings dialog's geometry is
     # IDENTICAL before and after the panel loads", with the dialog count at one
-    # and the Models control keeping focus.
-    # MEASURED (docs/parity/g-settings.csv:5, phase4-gaps.md:195): the native
-    # sidebar/drawer has NO workspace grouping and NO model-management section at
-    # all, and row 87's own `s_models_section` check is an expected-FAIL for the
-    # same reason. So there is no Models panel to load and no dialog to hold its
-    # geometry: this is an HONEST expected-fail, not a harness limit. What IS
-    # proven is the part the runner can decide — the drawer opens, and the
-    # geometry it has is stable (identical across a re-snap and a re-open).
+    # and the Models control keeping focus. (#43b measured no Models section
+    # in the old drawer — an expected FAIL then; A3's dialog carries one.)
+    # Focus is not observable through /snap, so it is not asserted.
     def drawer_open(s):
         return (app.rect(s, "settings_drawer") or [0, 0, 0, 0])[2] > 0
     d = app.snap()
@@ -2118,22 +2389,35 @@ def vp_geometry(app):
             continue
     if not opened:
         return False, "the settings drawer never opened via settings_open_hit"
+    # A11: A3's Settings dialog HAS a Model section (chrome.rs `Section::Model`),
+    # so the row's own sequence is drivable: measure the dialog, open the Model
+    # section (its nav cell, or the rail chip below the phone breakpoint), let
+    # it load, and measure again — the geometry must be IDENTICAL.
+    time.sleep(0.5)
     d1 = app.snap()
     geo1 = app.rect(d1, "settings_drawer")
-    # Re-read without touching anything: a stable layout must not drift.
+    cell = next((c for c in ("set_nav_model", "set_rail_model")
+                 if (app.rect(d1, c) or [0, 0, 0, 0])[2] > 0), None)
+    if cell:
+        app.click_id(d1, cell)
+    try:
+        d2 = app.wait_for(lambda s: app.text_of(s, "set_title") == "Model", timeout=8,
+                          what="the Model section to load")
+    except AssertionError:
+        d2 = app.snap()
+    time.sleep(1.0)  # whatever the section reads arrives and lays out
     d2 = app.snap()
     geo2 = app.rect(d2, "settings_drawer")
-    texts = [str(w.get("t", "")) for w in d1.get("s", [])]
-    has_models = any(t in texts for t in ("Model", "Models", "Manage models"))
-    one_dialog = geo1 is not None
-    stable = geo1 == geo2
+    loaded = app.text_of(d2, "set_title") == "Model"
+    dialogs = sum(1 for w in d2.get("s", [])
+                  if str(w.get("i", "")) == "settings_drawer" and (w.get("r") or [0, 0, 0, 0])[2] > 0)
+    stable = geo1 is not None and geo1 == geo2
     if drawer_open(d2):
         app.click_id(d2, "settings_close")
         app.wait_for(lambda s: not drawer_open(s), timeout=8, what="the drawer to close")
-    # Geometry stability + a single dialog is what the runner can decide; the
-    # Models panel itself is missing, so this stays red until it ships.
-    return (one_dialog and stable and has_models), (
-        f"dialog_geometry={geo1} stable={stable} models_section={has_models}")
+    return (loaded and stable and dialogs == 1), (
+        f"before={geo1} after_model_load={geo2} model_section={loaded} via={cell} "
+        f"dialogs={dialogs} identical={stable}")
 
 
 @check("settings", "manual light keeps conversation and settings text readable",
@@ -2251,6 +2535,25 @@ def _rel_lum(c):
     return 0.2126 * f(c[0]) + 0.7152 * f(c[1]) + 0.0722 * f(c[2])
 
 
+def shrink_png(path: pathlib.Path, width: int = 1400) -> None:
+    """A11: committed evidence stays <= 1400 px wide (the brief's capture rule;
+    the bridge grabs at 2x, 2800 px). Pillow when present, else macOS `sips`;
+    without either the capture is kept as grabbed."""
+    try:
+        from PIL import Image  # noqa: PLC0415
+        with Image.open(path) as im:
+            if im.width <= width:
+                return
+            im.resize((width, round(im.height * width / im.width))).save(path)
+        return
+    except ImportError:
+        pass
+    except Exception:  # noqa: BLE001 — evidence is best-effort
+        return
+    if shutil.which("sips"):
+        subprocess.run(["sips", "-Z", str(width), str(path)], capture_output=True)
+
+
 def _contrast_of(decoded, snap, png_w, sx):
     """(label, ratio) per text-bearing widget, measured on the app's own PNG.
 
@@ -2334,8 +2637,8 @@ SPECIFIC_CHECKS = {
     "Escape closes the settings drawer and the trigger still works",
     "the a11y keyboard guarantees hold: Ctrl+K, Esc, / all route",
     # from origin/main (#36g follow-ups):
-    "the closed-state review opener lays out and opens the panel by click",
-    "the approval pill cycles the permission mode and reflects the read-back",
+    "the closed-state review opener lays out and opens the diff review by click",
+    "the approval pill opens the permission menu above it and Escape closes it",
     "the drawer's close hit is a real 28x28 slot and Disconnect ends inside the window",
     # #43b — the three harness-limited rows, now driven by their own instances.
     "the first-run chrome mounts with no connection and a focused composer",
@@ -2364,6 +2667,21 @@ def decided_status(check_statuses, area_blocked: bool) -> str:
     if not check_statuses:
         return "fail"
     return "pass" if all(s == "pass" for s in check_statuses) else "fail"
+
+
+# A11: a check that finds its surface ABSENT by design (not broken) says so by
+# opening its reason with this prefix; a row whose every failing check does is
+# `not-yet-implemented` with that reason, never a `fail`.
+NOT_BUILT = "not built: "
+
+
+def not_built_reason(checks) -> str:
+    """`checks` as (name, status, reason, specific): the not-built reason when
+    every failing check is a not-built one, else ''."""
+    failing = [r for _n, s, r, *_ in checks if s != "pass"]
+    if failing and all(str(r).startswith(NOT_BUILT) for r in failing):
+        return "; ".join(sorted(set(failing)))
+    return ""
 
 
 def row_reason(check_statuses, area_reason: str = "") -> str:
@@ -2431,7 +2749,8 @@ def select_targets(limit: int | None):
     while limit is None or len(picked) < limit:
         progressed = False
         for a in order:
-            if len(picked) >= limit:
+            # A11: `--full` passes no limit (every scriptable row).
+            if limit is not None and len(picked) >= limit:
                 break
             c = cursors[a]
             if c < len(eligible[a]):
@@ -2457,6 +2776,200 @@ def missing_capability(spec: str) -> str:
     return "native capability not yet built (see docs/parity-matrix.csv)"
 
 
+# --------------------------------------------------------------------------- #
+# A11 — the native click walks (tools/walk/native.py) and the honest reasons
+# for the rows nothing walks.
+# --------------------------------------------------------------------------- #
+def load_parity() -> list:
+    try:
+        with open(PARITY, newline="") as f:
+            return list(csv.DictReader(f))
+    except FileNotFoundError:
+        return []
+
+
+def final_bucket(p: dict) -> str:
+    """The FINAL parity bucket: the manual verdict when set (the brief §3)."""
+    return (p.get("phase4_bucket_manual") or "").strip() or (p.get("phase4_bucket") or "").strip()
+
+
+def parity_hits(row: dict, parity: list) -> list:
+    """The parity rows whose web_e2e_specs cite this walk row's case."""
+    spec = row["spec"].split("/")[-1]
+    key = row["case"][:40]
+    return [p for p in parity if spec in (p.get("web_e2e_specs") or "") and key in (p.get("web_e2e_specs") or "")]
+
+
+def parity_reason(row: dict, parity: list):
+    """(status, reason) for a row no check covers, from the parity matrix's
+    FINAL verdicts of the capabilities that cite its case — or None.
+
+    * any cited capability still C → `not-yet-implemented` (named);
+    * all built (A) → `not-walked`: built, but no click-walk check covers it;
+    * only web-only (B) → None (the existing verdict stands)."""
+    hits = parity_hits(row, parity)
+    if not hits:
+        return None
+    missing = [p["capability"] for p in hits if final_bucket(p) == "C"]
+    built = [p["capability"] for p in hits if final_bucket(p) == "A"]
+    if missing:
+        return ("not-yet-implemented",
+                "missing: " + "; ".join(f"{c[:110]} [C]" for c in missing[:2]))
+    if built:
+        return ("not-walked",
+                "built (" + "; ".join(f"{c[:90]} [A]" for c in built[:2])
+                + ") — no click-walk check covers this case yet")
+    return None
+
+
+def relabel_unwalked(out_rows: list, rows: list, parity: list) -> int:
+    """Give every `not-yet-implemented` row the parity matrix's own reason
+    (and `not-walked` when its capabilities are built). Returns the count."""
+    n = 0
+    for r in out_rows:
+        if r["status"] != "not-yet-implemented":
+            continue
+        got = parity_reason(rows[r["row_id"] - 1], parity)
+        if got:
+            r["status"], r["reason"] = got
+            n += 1
+    return n
+
+
+def demote_unbuilt(out_rows: list, rows: list, parity: list) -> int:
+    """A row that PASSES only on run.py's own area-matched checks while a
+    capability the parity matrix cites for its case is still C cannot be a
+    pass: generic checks (a Phase-3 regex match on the case title) cannot
+    prove an unbuilt capability. It becomes `not-yet-implemented`, naming the
+    capability, the passing checks kept in the reason. Native rows (re-pointed
+    to click walks) are never demoted here. Returns the count."""
+    n = 0
+    for r in out_rows:
+        if r["status"] != "pass" or r.get("depth") not in ("smoke", "specific"):
+            continue
+        missing = [p["capability"] for p in parity_hits(rows[r["row_id"] - 1], parity) if final_bucket(p) == "C"]
+        if missing:
+            r["reason"] = ("missing: " + "; ".join(f"{c[:110]} [C]" for c in missing[:2])
+                           + f" — run.py's area-matched checks passed ({r['reason']}) but cannot prove it")
+            r["status"] = "not-yet-implemented"
+            n += 1
+    return n
+
+
+def merge_native(out_rows: list, check_rows: list, native_rows: dict) -> tuple:
+    """Re-point every row a native walk maps.
+
+    * `native` (a walk covers the whole case): the verdict, depth, evidence
+      and per-check rows become the native walk's — run.py's area-mapped
+      Phase-3 checks for that row are dropped.
+    * `native-partial`: the native checks are ADDED to run.py's own checks
+      that were TARGETED at rows (a `rows=` tuple, not the ALL smoke set) —
+      they may cover the part the walk does not — and the row passes only if
+      both do. run.py's ALL-generic smoke checks are dropped either way."""
+    by_id = {r["row_id"]: r for r in out_rows}
+    partial = {rid for rid, v in native_rows.items() if v["depth"] == "native-partial"}
+    targeted = {c["name"] for c in CHECKS if c["rows"] is not ALL}
+
+    def is_targeted(c):
+        return c["check"].split(" [")[0] in targeted
+
+    for rid, v in native_rows.items():
+        r = by_id.get(rid)
+        if r is None:
+            continue
+        own = ([c for c in check_rows if int(c["row_id"]) == rid and is_targeted(c)]
+               if rid in partial else [])
+        own_failed = [c["check"] for c in own if c["status"] != "pass"]
+        status = "fail" if (v["status"] != "pass" or own_failed) else "pass"
+        reason = v["reason"]
+        if own:
+            reason += (f"; with run.py's {len(own)} own checks"
+                       + (f", failing: {'; '.join(own_failed[:2])}" if own_failed else ", all pass"))
+        r.update(status=status, depth=v["depth"], evidence=v["evidence"], reason=reason)
+    kept = [c for c in check_rows
+            if int(c["row_id"]) not in native_rows or (int(c["row_id"]) in partial and is_targeted(c))]
+    for rid, v in sorted(native_rows.items()):
+        r = by_id.get(rid)
+        if r is None:
+            continue
+        for name, ok, detail, ev in v["checks"]:
+            kept.append({"row_id": rid, "area": r["area"], "spec": r["spec"], "case": r["case"],
+                         "check": name, "status": "pass" if ok else "fail", "evidence": ev,
+                         "reason": (detail or "")[:200]})
+    kept.sort(key=lambda c: int(c["row_id"]))
+    return out_rows, kept
+
+
+def read_csv(path: pathlib.Path) -> list:
+    with open(path, newline="") as f:
+        out = list(csv.DictReader(f))
+    for r in out:
+        r["row_id"] = int(r["row_id"])
+    return out
+
+
+def run_native(args) -> dict:
+    """Run the native click walks (every `WALK` the convention finds) and
+    fold them into per-row verdicts. Also leaves the raw per-check results in
+    tmp/walk/native/last.json for a later `--native-only` merge."""
+    import native  # tools/walk/native.py (same directory)
+    only = {w.strip() for w in args.walks.split(",") if w.strip()} or None
+    modes = [m.strip() for m in args.modes.split(",") if m.strip()]
+    results, _ = native.run_all(str(BIN), args.port, args.fixture_port, modes=modes, only=only,
+                                log=lambda s: print(s, flush=True))
+    native.SCRATCH.mkdir(parents=True, exist_ok=True)
+    last = native.SCRATCH / "last.json"
+    specs = {s["name"]: s for _, s in native.discover()}
+    if (only or len(modes) < 2) and last.exists():
+        # A subset re-run (`--walks` / `--modes`) replaces only what it ran:
+        # every row is still decided over the LATEST result of EVERY walk
+        # (a row two walks map must not lose the other walk's checks).
+        fresh = {(r["name"], r["mode"]) for r in results}
+        results = [r for r in native.load_json(last)
+                   if (r["name"], r["mode"]) not in fresh] + results
+    results = [r for r in results if r["name"] in specs]
+    native.write_json(results, last)
+    verdicts = native.row_verdicts(results, specs)
+    n_pass = sum(1 for v in verdicts.values() if v["status"] == "pass")
+    print(f"[native] {len(verdicts)} rows re-pointed to native click walks: "
+          f"{n_pass} pass, {len(verdicts) - n_pass} fail", flush=True)
+    return verdicts
+
+
+def native_only(args) -> int:
+    """`--native-only`: the native walks merged into the EXISTING results
+    (the rows they map are re-pointed; every other row keeps its verdict)."""
+    try:
+        if not (BIN.is_file() and os.access(BIN, os.X_OK)):
+            raise PrereqError(APP_BIN_HELP)
+    except PrereqError as e:
+        print(f"tools/walk: {e}", file=sys.stderr)
+        return 2
+    rows = load_rows()
+    out_rows = read_csv(WALK / "results.csv")
+    check_rows = read_csv(WALK / "results-checks.csv")
+    native_rows = run_native(args)
+    out_rows, check_rows = merge_native(out_rows, check_rows, native_rows)
+    parity = load_parity()
+    relabel_unwalked(out_rows, rows, parity)
+    demote_unbuilt(out_rows, rows, parity)
+    with open(WALK / "results.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["row_id", "area", "spec", "case", "status", "depth", "evidence", "reason"])
+        w.writeheader()
+        w.writerows(out_rows)
+    with open(WALK / "results-checks.csv", "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=["row_id", "area", "spec", "case", "check", "status", "evidence", "reason"])
+        w.writeheader()
+        w.writerows(check_rows)
+    from collections import Counter
+    counts = Counter(r["status"] for r in out_rows)
+    print("\n== walk results (native merged) ==")
+    for k in ("pass", "fail", "not-walked", "not-yet-implemented", "live-only", "blocked", "skipped"):
+        if counts.get(k):
+            print(f"   {k:20} {counts[k]}")
+    return 1 if any(v["status"] == "fail" for v in native_rows.values()) else 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--limit", type=int, default=30)
@@ -2467,7 +2980,36 @@ def main():
     ap.add_argument("--live", action="store_true",
                     help="run the live-only rows against the RUNNING real gate "
                          "(OCTOS_LIVE_TOKEN_FILE required; no replay server)")
+    # A11 — the native click walks (tools/walk/native.py; docs/walk/README.md).
+    ap.add_argument("--full", action="store_true",
+                    help="the official run: every scriptable row (no --limit) AND every "
+                         "native click walk in desktop + phone")
+    ap.add_argument("--native", dest="native", action="store_true", default=None,
+                    help="also run the native click walks (the default with --full)")
+    ap.add_argument("--no-native", dest="native", action="store_false",
+                    help="skip the native click walks")
+    ap.add_argument("--native-only", action="store_true",
+                    help="run only the native walks and merge them into the EXISTING "
+                         "results.csv / results-checks.csv (the other rows are kept)")
+    ap.add_argument("--walks", default="", help="comma list of native walk names (default: all)")
+    ap.add_argument("--modes", default="desktop,phone", help="native walk modes")
+    ap.add_argument("--fixture-port", type=int, default=8434,
+                    help="first port for a native walk's fixture server (one per walk)")
+    ap.add_argument("--native-json", default="",
+                    help="merge the native verdicts saved by an earlier run (tmp/walk/native/last.json) "
+                         "instead of running the walks again")
+    ap.add_argument("--scenario-port-base", type=int,
+                    default=int(os.environ.get("WALK_SCENARIO_PORT_BASE", "8380")),
+                    help="first port of run.py's own replay servers (one per scenario, "
+                         f"{len(SCENARIO_PORTS)} in all; default 8380)")
     args = ap.parse_args()
+    set_scenario_port_base(args.scenario_port_base)
+    if args.full:
+        args.limit = None
+        if args.native is None:
+            args.native = True
+    if args.native_only:
+        return native_only(args)
 
     # Fail fast on the documented prerequisites, with a message that says exactly
     # what to run (card #19b, defect 2). Building the replay server is cached.
@@ -2611,10 +3153,16 @@ def main():
                 try:
                     sj = EVIDENCE / f"area-{area}{suffix}.snap.json"
                     sj.write_text(json.dumps(app.snap()))
-                    subprocess.run(["curl", "-s", "--max-time", "20", "-o",
-                                    str(EVIDENCE / f"area-{area}{suffix}.png"),
-                                    f"http://127.0.0.1:{procs.app_port}/g?raw=1"],
-                                   capture_output=True)
+                    # A11: a grab can answer {"err": "grab frame could not be
+                    # submitted …; retry"} — two evidence PNGs were that JSON.
+                    for _ in range(4):
+                        png = app.raw("/g?raw=1")
+                        if png.startswith(b"\x89PNG"):
+                            shot = EVIDENCE / f"area-{area}{suffix}.png"
+                            shot.write_bytes(png)
+                            shrink_png(shot)
+                            break
+                        time.sleep(1.0)
                     evidence = str(sj.relative_to(ROOT))
                 except Exception:  # noqa: BLE001
                     pass
@@ -2665,6 +3213,9 @@ def main():
             checks = per_row_checks.get(i, [])
             status = decided_status([s for _, s, _, _ in checks], st.get("blocked", False))
             reason = row_reason([(n, s) for n, s, _, _ in checks], st.get("reason", ""))
+            nb = not_built_reason(checks) if status == "fail" else ""
+            if nb:
+                status, reason = "not-yet-implemented", nb
             depth = "specific" if any(sp for *_, sp in checks) else "smoke"
             ev = st.get("evidence", "")
             out_rows.append({"row_id": i, "area": area, "spec": spec, "case": case,
@@ -2696,6 +3247,22 @@ def main():
                              "status": "not-yet-implemented", "evidence": "",
                              "reason": f"missing: {missing_capability(spec)}"})
 
+    # A11: the native click walks re-point the rows they map; the rows nothing
+    # covers get the parity matrix's own verdict and reason.
+    native_rows: dict = {}
+    if args.native_json and not args.live:
+        import native  # tools/walk/native.py
+        saved = native.load_json(pathlib.Path(args.native_json))
+        specs = {s["name"]: s for _, s in native.discover()}
+        native_rows = native.row_verdicts([r for r in saved if r["name"] in specs], specs)
+        out_rows, check_rows = merge_native(out_rows, check_rows, native_rows)
+    elif args.native and not args.live:
+        native_rows = run_native(args)
+        out_rows, check_rows = merge_native(out_rows, check_rows, native_rows)
+    parity = load_parity()
+    relabel_unwalked(out_rows, rows, parity)
+    demote_unbuilt(out_rows, rows, parity)
+
     live_suffix = "_live" if args.live else ""
     # #43b: a WALK_ONLY_ROWS run drives a SUBSET of rows, but the loop above
     # still emits an aggregate row for EVERY walk row — the unselected ones as
@@ -2720,13 +3287,14 @@ def main():
     for a in areas_seen:
         c = Counter(r["status"] for r in out_rows if r["area"] == a)
         cells = ", ".join(f"{k}={c[k]}" for k in
-                          ("pass", "fail", "live-only", "not-yet-implemented",
+                          ("pass", "fail", "live-only", "not-walked", "not-yet-implemented",
                            "blocked", "skipped") if c.get(k))
         print(f"   {a:14} {cells}")
     infra_blocked = sum(1 for i, r in enumerate(out_rows, start=1)
                         if i in target_area and r["status"] == "blocked")
     print("\n== walk-runner summary ==")
-    for k in ("pass", "fail", "not-yet-implemented", "blocked", "skipped", "not-run"):
+    for k in ("pass", "fail", "not-walked", "not-yet-implemented", "live-only", "blocked",
+              "skipped", "not-run"):
         if counts.get(k):
             print(f"   {k:20} {counts[k]}")
     print(f"   total                {len(out_rows)}")
@@ -2736,6 +3304,8 @@ def main():
     by_depth = Counter((r["status"], r.get("depth", "")) for r in out_rows)
     print(f"   pass by depth        specific={by_depth.get(('pass', 'specific'), 0)}"
           f" smoke={by_depth.get(('pass', 'smoke'), 0)}"
+          f" native={by_depth.get(('pass', 'native'), 0)}"
+          f" native-partial={by_depth.get(('pass', 'native-partial'), 0)}"
           f"  (distinct checks: {len({c['check'] for c in check_rows})})")
     if infra_blocked:
         print(f"   NOTE: {infra_blocked} selected row(s) blocked by a start failure")

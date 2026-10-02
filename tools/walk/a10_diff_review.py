@@ -27,6 +27,24 @@ import time
 
 from a10_lib import Walk, checks_line, dialog_checks, inside, run_session
 
+# A11: the walk aggregator's convention (tools/walk/native.py; read with ast).
+WALK = {
+    "name": "a10_diff_review",
+    "title": "the diff review dialog: header Review, a typed diff approval's Review diff, Refresh, back to the card",
+    "modes": ["desktop", "phone"],
+    "app": "self",
+    "runs": [{"argv": ["{mode}", "{out}"], "env": {"A10_PORT": "{port}", "A10_REPLAY_PORT": "{fport}"}}],
+    "needs": ["target/debug/examples/replay_serve"],
+    "timeout": 900,
+    "rows": {
+        85: {"checks": {"desktop": ["diff: 'Review diff' CLICK opens the dialog on ONE diff/preview/get",
+                                    "diff: Escape returns to the approval card"],
+                        "phone": ["diff: 'Review diff' CLICK opens the dialog on ONE diff/preview/get",
+                                  "diff: the close CLICK returns to the approval card"]},
+             "partial": "the review over the approval and Escape back to the card; Tab ownership is not walked"},
+    },
+}
+
 MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"
 OUT = sys.argv[2] if len(sys.argv) > 2 else f"docs/ux/a10/diff-review/{MODE}"
 VP = "b3_scroll"

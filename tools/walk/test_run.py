@@ -62,6 +62,22 @@ class RowReason(unittest.TestCase):
         self.assertNotIn("all pass", reason)
 
 
+class NotBuilt(unittest.TestCase):
+    """A11: a check that finds its surface absent BY DESIGN says `not built:`;
+    the row is then not-yet-implemented — never a fail, never a pass."""
+
+    def test_every_failing_check_not_built_names_the_gap(self):
+        checks = [("a", "pass", "ok", True), ("b", "fail", run.NOT_BUILT + "no dock", True)]
+        self.assertEqual(run.not_built_reason(checks), run.NOT_BUILT + "no dock")
+
+    def test_a_real_failure_beside_it_keeps_the_row_failing(self):
+        checks = [("a", "fail", "broke", True), ("b", "fail", run.NOT_BUILT + "no dock", True)]
+        self.assertEqual(run.not_built_reason(checks), "")
+
+    def test_a_passing_row_has_no_gap(self):
+        self.assertEqual(run.not_built_reason([("a", "pass", "ok", True)]), "")
+
+
 class EnvGroups(unittest.TestCase):
     """#43b: the launch env a row needs is DATA (`ENV_GROUPS`), and a row that is
     a TEMPLATE (row 183 runs at every viewport width) needs MORE THAN ONE

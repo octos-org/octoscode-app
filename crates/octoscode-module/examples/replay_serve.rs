@@ -44,7 +44,9 @@
 //! one-row reply naming the opened session; the recording's standalone
 //! notifications (anything not tied to a turn — approvals, monitors, …) are
 //! delivered right after open; `turn/start` replays the next unplayed recorded
-//! turn; every other request gets `{}`.
+//! turn; every other request gets `{}`. With `--adopt-turn-ids` the replayed
+//! turn carries the app's own `turn/start` id and prompt text (a real server
+//! adopts the client's turn id; the walk runner passes it).
 use std::collections::BTreeMap;
 
 use futures_util::{SinkExt, StreamExt};
@@ -1548,6 +1550,12 @@ async fn main() {
         .and_then(|i| args.get(i + 1))
         .cloned()
         .unwrap_or_default();
+    // A11: `--adopt-turn-ids` plays each recorded turn AS the app's turn, the
+    // way A6's `surfaces` scenario does: a real server adopts the
+    // `turn/start` `turn_id`, and A7's turn controller settles (and drains its
+    // queue past) only the turn it dispatched. Without it the recorded id
+    // never matches, the app's turn never ends and every later prompt queues.
+    let adopt_turn_ids = args.iter().any(|a| a == "--adopt-turn-ids");
     let (label, file) = scenario_fixture(&scenario);
     // A15: `history` answers the seats' and the strip's reads (the profile's
     // models, the permission list, the status stamp) from the same recordings.
@@ -2216,9 +2224,28 @@ async fn main() {
                             .cloned()
                             .unwrap_or_else(|| recorded_turns.first().cloned().unwrap_or_default());
                         played += 1;
-                        let frames = by_turn.get(&turn).cloned().unwrap_or_default();
+                        let mut frames = by_turn.get(&turn).cloned().unwrap_or_default();
+                        let app_turn = v["params"]["turn_id"].as_str().unwrap_or("").to_owned();
+                        if adopt_turn_ids && !app_turn.is_empty() && !turn.is_empty() {
+                            // The recorded turn plays as the app's: its id is
+                            // replaced in every frame (item ids embed it), and
+                            // the canonical user message carries what was sent.
+                            let typed = v["params"]["input"][0]["text"].as_str().unwrap_or("").to_owned();
+                            for f in frames.iter_mut() {
+                                if let Ok(body) = serde_json::from_str(&f.body.to_string().replace(&turn, &app_turn)) {
+                                    f.body = body;
+                                }
+                                if !typed.is_empty()
+                                    && f.method == "projection/envelope"
+                                    && f.body["payload"]["type"] == "user_message"
+                                {
+                                    f.body["payload"]["data"]["text"] = serde_json::json!(typed);
+                                }
+                            }
+                        }
                         println!(
-                            "[replay-serve] replaying {turn} ({} recorded frames)",
+                            "[replay-serve] replaying {turn}{} ({} recorded frames)",
+                            if adopt_turn_ids && !app_turn.is_empty() { format!(" as {app_turn}") } else { String::new() },
                             frames.len()
                         );
                         let tx2 = tx.clone();

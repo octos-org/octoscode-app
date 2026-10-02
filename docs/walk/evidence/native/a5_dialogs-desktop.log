@@ -1,0 +1,56 @@
+== native walk a5_dialogs [desktop] (tools/walk/a5_dialogs_walk.py)
+-- run 1: exit 0 in 99 s
+PASS palette: '/' lists the dialog commands — ['/model', '/monitor', '/mode', '/compact', '/btw', '/resume']
+PASS /model by CLICK opens the models dialog — rows ['/model', '/monitor', '/mode']
+PASS models: Test route by CLICK — dlg_models_btn_test_control clicked=True
+PASS models: Discover models by CLICK — dlg_models_btn_discover_control clicked=True
+PASS /compact by KEYBOARD (filter + Enter) opens the Context dialog
+PASS context: Heuristic mode by CLICK — dlg_context_seg_heur_hit clicked=True
+PASS context: Compact now asks first (the confirm card) — dlg_context_btn_compact_control clicked=True
+PASS context: Confirm compacts (session/compact on the wire) — session/compact x1
+PASS /skills by CLICK opens the skills dialog — rows ['/skills']
+PASS skills: the registry search runs on Enter
+PASS /goal by CLICK opens the goal dialog — rows ['/goal']
+PASS goal: Pause by CLICK — dlg_goal_pause_btn_control clicked=True
+PASS goal: Stop by CLICK — dlg_goal_stop_btn_control clicked=True
+PASS goal: Clear goal by CLICK — dlg_goal_clear_goal_control clicked=True
+PASS goal: Set goal opens the goal form — dlg_goal_pause_btn_control clicked=True
+PASS goal: Set goal submits the objective + budget — dlg_goal_ff_submit_control clicked=True
+PASS /loop by CLICK opens the loops dialog — rows ['/loop']
+PASS loops: Pause by CLICK — dlg_loops_loop_1_pause_hit clicked=True
+PASS loops: Resume by CLICK — dlg_loops_loop_1_play_hit clicked=True
+PASS loops: Fire now by CLICK (one typed loop/fire_now) — dlg_loops_loop_1_play_hit clicked=True
+PASS loops: Fire now sent exactly one loop/fire_now — x1
+PASS loops: Delete by CLICK — dlg_loops_loop_1_trash_hit clicked=True
+PASS /loop by CLICK opens the loops dialog — rows ['/loop']
+PASS loops: + New loop opens the form — dlg_loops_new_loop_control clicked=True
+PASS /monitor by CLICK opens the monitors dialog — rows ['/monitor']
+PASS monitors: Pause by CLICK — dlg_monitors_mon_1_pause_hit clicked=True
+PASS monitors: Resume by CLICK — dlg_monitors_mon_1_pause_hit clicked=True
+PASS monitors: Delete by CLICK — dlg_monitors_mon_1_trash_hit clicked=True
+PASS /peer by CLICK opens the fleet dialog — rows ['/peer', '/permissions']
+PASS /ps by CLICK opens the tasks dialog — rows ['/ps']
+PASS tasks: Cancel by CLICK (task/cancel) — dlg_tasks_run_r0_cancel_control clicked=True
+PASS /review by CLICK opens the review dialog — rows ['/review']
+PASS a typed /model runs locally (the Models dialog)
+PASS a command with arguments is reported, never run
+PASS /stop is the interrupt intent
+PASS typed commands never reached the model (no turn/start) — x0
+PASS Settings > Model > Manage models… opens the Models dialog over Settings
+== WALK a5_dialogs desktop: 37/37 passed
+-- fixture log tail:
+[replay-serve] <- peer/gather (id=46)
+[replay-serve] -> peer/gather (recorded reply)
+[replay-serve] <- task/cancel (id=47)
+[replay-serve] <- profile/llm/list (id=48)
+[replay-serve] -> profile/llm/list (recorded reply)
+[replay-serve] <- profile/skills/list (id=49)
+[replay-serve] -> profile/skills/list (recorded reply)
+[replay-serve] <- profile/sub_providers/list (id=50)
+[replay-serve] -> profile/sub_providers/list (recorded reply)
+[replay-serve] <- profile/llm/list (id=51)
+[replay-serve] -> profile/llm/list (recorded reply)
+[replay-serve] <- profile/skills/list (id=52)
+[replay-serve] -> profile/skills/list (recorded reply)
+[replay-serve] <- profile/sub_providers/list (id=53)
+[replay-serve] -> profile/sub_providers/list (recorded reply)

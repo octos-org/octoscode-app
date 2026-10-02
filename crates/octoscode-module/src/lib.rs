@@ -1423,6 +1423,11 @@ impl OctoscodeView {
             makepad_widgets::log!("[octoscode] synthetic live: board-4 seed (no transport)");
             return;
         }
+        // A11 — pairing discovery (the web's §Discovery): the remembered
+        // server, probed ONCE off the UI thread when no credential is at hand;
+        // a pairing-capable answer is offered on the Connect card
+        // (screens/discovery.rs). Not in the capture seeds above (no card).
+        let _ = screens::discovery::start_once();
         // Card #28e item 6 (board 4 frame 4): the first-run frame needs NO
         // connection, so `is_live()` stays false and the window shows only the
         // centered 480 px card. `OCTOSCODE_NO_CONNECT`/`OCTOSCODE_FIRST_RUN`
@@ -1484,9 +1489,16 @@ impl OctoscodeView {
             // A12 — the Connect card (after a give-up or a Disconnect) shows
             // the server in USE, never the authored default: pressing
             // Connect there must dial this same server.
-            let mut ui = b.screens.lock().unwrap();
-            ui.endpoint_error = screens::connect::endpoint_error(&base);
-            ui.server = base.clone();
+            // A11 — but a launch default is not "in use" until it answers:
+            // while a REMEMBERED server differs from it, the card keeps the
+            // remembered one (the web's durable endpoint; walk row 113 dialed
+            // the dead default). `pin_server_in_use` names this base once the
+            // link has been live.
+            if crate::credentials::last_server().map_or(true, |r| r == base) {
+                let mut ui = b.screens.lock().unwrap();
+                ui.endpoint_error = screens::connect::endpoint_error(&base);
+                ui.server = base.clone();
+            }
         }
         // #31e — the keyboard-decision seed, AFTER the bridge swap: connect
         // REPLACES `b.store` with the Conversation's own store above, so a
@@ -2839,9 +2851,29 @@ impl OctoscodeView {
                 };
                 if let Ok(mut ui) = screens_ui.lock() {
                     ui.token.clear();
+                    // A11: the attempt that went live is over — the card
+                    // that returns reads "Connect", not "Connecting…".
+                    ui.connecting = false;
                     // A1: the per-origin token store forgets it too, or the
                     // next start would prefill the forgotten credential.
                     credentials::forget_token(&ui.server);
+                }
+                // A11: the card's mounted field still held the forgotten token
+                // (an identical card DSL is not remounted): empty it in place,
+                // so the form really returns empty (walk 112) and a Connect
+                // cannot resend it.
+                self.view
+                    .text_input(cx, &[live_id!(screen_splash), live_id!(connect_token)])
+                    .set_text(cx, "");
+                // A11: Forget is pressed inside Settings > Connection; the web
+                // returns to "Connect to Octos" with no dialog left. The
+                // Settings panel closes too (its dimmer stayed over the
+                // first-run chrome).
+                let flow_ui = self.bridge.lock().unwrap().ui.clone();
+                if let Ok(mut u) = flow_ui.lock() {
+                    if u.settings_open() {
+                        u.toggle_settings();
+                    }
                 }
                 store.set_connection("Offline".to_owned(), false);
                 self.connect_key = None;
@@ -3646,6 +3678,9 @@ impl OctoscodeView {
         // renders it — so first-run mounts through the dock.
         // A12: a retained outage keeps the shell (no Connect card).
         let live = { self.bridge.lock().unwrap().store.keeps_shell() };
+        if live {
+            self.pin_server_in_use();
+        }
         // A docked OCTOSCODE_SCREEN owns `screen_splash` (mounted above); the
         // setup names (connect / connect_failed / onboarding) fall through to
         // the first-run card, as before.
@@ -4270,6 +4305,20 @@ impl OctoscodeView {
         consumed
     }
 
+    /// A11 — once the link has been live (the shell is kept), the server it
+    /// dials is the one IN USE: the Connect card a give-up returns to names
+    /// it (A12's rule), whatever the card prefilled before it answered.
+    fn pin_server_in_use(&mut self) {
+        let b = self.bridge.lock().unwrap();
+        let Some(conv) = b.conv.as_ref() else { return };
+        let base = conv.endpoint();
+        let mut ui = b.screens.lock().unwrap();
+        if ui.server != base {
+            ui.endpoint_error = screens::connect::endpoint_error(&base);
+            ui.server = base;
+        }
+    }
+
     /// Card #28e — move the chrome state (FlowUi flags + store) onto the view:
     /// the first-run swap, the review panel / settings drawer / palette /
     /// dimmer visibility, and the GOALS/LOOPS/FLEET sidebar sections.
@@ -4312,19 +4361,24 @@ impl OctoscodeView {
             let ui = b.screens.lock().unwrap();
             (ui.view(), ui.token.clone(), ui.endpoint_error)
         };
+        // A11 — the discovery offer: the key follows the offer that APPEARED
+        // (sticky), so a dismissal hides it in place below instead of
+        // remounting the fields being typed into.
+        let offer = screens::discovery::offer();
         let key = (
             view.error.clone(),
             format!(
-                "{}|{}|{}|{:?}|{}",
+                "{}|{}|{}|{:?}|{}|{}",
                 view.error_actions,
                 view.last_tried,
                 view.connecting,
                 m.density,
-                screens::theme::resolved()
+                screens::theme::resolved(),
+                screens::discovery::appeared().unwrap_or_default()
             ),
         );
         if self.connect_key.as_ref() != Some(&key) {
-            let dsl = screens::theme::retint_dsl(&fluid::connect_card(&view, &m, left));
+            let dsl = screens::theme::retint_dsl(&fluid::connect_card_with_offer(&view, &m, left, offer.as_ref()));
             let splash = self.view.splash(cx, ids!(screen_splash));
             match self.mounts.mount(cx, &splash, &dsl) {
                 Ok(_) => {
@@ -4368,6 +4422,10 @@ impl OctoscodeView {
         self.view
             .widget(cx, &[live_id!(screen_splash), live_id!(connect_server_error)])
             .set_visible(cx, endpoint_error.is_some());
+        // A11: a used or dismissed offer leaves the card in place.
+        self.view
+            .widget(cx, &[live_id!(screen_splash), live_id!(connect_offer_box)])
+            .set_visible(cx, offer.is_some());
     }
 
     /// A1 — follow the latest turn again (the web's `jumpToLatest` on send):
@@ -5224,6 +5282,9 @@ impl OctoscodeView {
                         .text_input(cx, &[live_id!(screen_splash), *id])
                         .changed(actions)
                     {
+                        // A11: an edited Server/Access token is the web's
+                        // identity change — the discovery offer goes.
+                        screens::discovery::note_identity_edit();
                         self.perform_screen_action(ev, Some(&text));
                     }
                     if self
@@ -5907,8 +5968,9 @@ impl OctoscodeView {
                                 let draft = ui.lock().unwrap().draft();
                                 // A5: a slash draft no row matches still goes
                                 // to the command layer (it runs a board-3
-                                // command or reports an unknown one).
-                                if crate::screens::palette::looks_like_slash_command(&draft) {
+                                // command or reports an unknown one). A11:
+                                // so does a PATH-shaped draft — a prompt.
+                                if crate::screens::palette::enter_without_suggestion_submits(&draft) {
                                     self.perform_action(cx, bindings::ACTION_SUBMIT, 0);
                                 } else {
                                     makepad_widgets::log!(

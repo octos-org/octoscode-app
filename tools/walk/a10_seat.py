@@ -34,6 +34,26 @@ import time
 
 from a10_lib import ROOT, Walk, checks_line, dialog_checks, run_session
 
+# A11: the walk aggregator's convention (tools/walk/native.py; read with ast,
+# never imported). Both sessions run in one invocation, on the aggregator's
+# ports (A10_PORT / A10_REPLAY_PORT).
+WALK = {
+    "name": "a10_seat",
+    "title": "the peer-control seat in Session settings > Advanced: acquire / renew / release / expiry / no-method",
+    "modes": ["desktop", "phone"],
+    "app": "self",
+    "runs": [{"argv": ["{mode}", "{out}"], "env": {"A10_PORT": "{port}", "A10_REPLAY_PORT": "{fport}"}}],
+    "needs": ["target/debug/examples/replay_serve"],
+    "timeout": 900,
+    "rows": {
+        120: ["no-method: no seat panel and no console", "no-method: zero acquire / control frames"],
+        126: ["expired: the next renew is refused driver_fence_stale", "expired: dropped without a frame"],
+        123: {"checks": ["seat: Steer CLICK -> ONE peer/control"],
+              "partial": "the accepted receipt's facts after a seat Steer ('Newly applied' = duplicate:false); "
+                         "the slug text is not asserted"},
+    },
+}
+
 MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"
 OUT = sys.argv[2] if len(sys.argv) > 2 else f"docs/ux/a10/seat/{MODE}"
 VP = "b3_scroll"
