@@ -686,7 +686,9 @@ pub fn background_state(store: &Store, id: &str) -> Status {
     if !queue.pending.is_empty() {
         return Status::Running;
     }
-    match store.domains.turn.latest_terminal(id) {
+    // Only a REAL terminal: a stopped or rate-limited turn (`info`) is
+    // passed over for the one before it.
+    match store.domains.turn.latest_real_terminal(id) {
         Some((_, outcome)) if outcome == "completed" => Status::Done,
         Some(_) => Status::Failed,
         None => Status::Idle,

@@ -271,9 +271,24 @@ impl Turns {
         }
     }
 
-    /// A22 row 236 — the Session's LATEST real terminal: `(turn, outcome)`.
+    /// A22 row 236 — the Session's latest terminal, whatever its outcome:
+    /// `(turn, outcome)` (the selected row's rule, `SessionSidebar.tsx:65-97`).
     pub fn latest_terminal(&self, session: &str) -> Option<(String, String)> {
         self.inner.lock().unwrap().session_terminals.get(session).and_then(|l| l.last().cloned())
+    }
+
+    /// A22 row 236 — the Session's latest REAL terminal, a background
+    /// record's rule (`backgroundSessionState`, background-session-status.ts:
+    /// 16-24): an interrupted or rate-limited turn's terminal is `info`
+    /// (timeline/model.ts `settleTimelineTurn`) and is passed over for the
+    /// one before it.
+    pub fn latest_real_terminal(&self, session: &str) -> Option<(String, String)> {
+        self.inner
+            .lock()
+            .unwrap()
+            .session_terminals
+            .get(session)
+            .and_then(|l| l.iter().rev().find(|(_, o)| o != "interrupted" && o != "rate_limited").cloned())
     }
 
     /// The recorded terminal outcome for `turn_id`, if any.
