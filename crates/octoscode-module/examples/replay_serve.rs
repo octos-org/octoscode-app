@@ -315,7 +315,7 @@ fn activity_task_reply(session: &str) -> Result<Value, Value> {
             t["state"] = Value::from("failed");
             t["status"] = Value::from("failed");
             t["error"] = Value::from("cargo build: 2 errors");
-            t["summary"] = Value::from("Bump octos-core to a6ea8505");
+            t["summary"] = Value::from("Rebuild after the octos-core bump");
             vec![t]
         }
         "review" => {
@@ -419,6 +419,10 @@ async fn main() {
             let (tx, mut rx) = ws.split();
             let tx = std::sync::Arc::new(tokio::sync::Mutex::new(tx));
             let mut played = 0usize;
+            // A9 — session/open requests on this connection (the activity
+            // scenario holds a SWITCH's session/list reply back, so the walk
+            // can reopen Activity while that switch is still in flight).
+            let mut opens = 0usize;
             // The session id the app opens; every served frame is rewritten to it.
             let mut active_session = recorded.clone();
 
@@ -438,6 +442,7 @@ async fn main() {
 
                 match method.as_str() {
                     "session/open" => {
+                        opens += 1;
                         let requested = v["params"]["session_id"]
                             .as_str()
                             .unwrap_or(&recorded)
@@ -482,9 +487,21 @@ async fn main() {
                                 "active_turn": false
                             }))
                             .collect();
-                        send(&tx, serde_json::json!({
+                        let frame = serde_json::json!({
                             "jsonrpc": "2.0", "id": id, "result": {"sessions": rows}
-                        })).await;
+                        });
+                        if opens > 1 {
+                            // A switch (not the first open): its open settles
+                            // 6 s later, the window the walk reopens Activity in.
+                            println!("[replay-serve] holding the switch's session/list for 6 s");
+                            let tx2 = tx.clone();
+                            tokio::spawn(async move {
+                                tokio::time::sleep(std::time::Duration::from_secs(6)).await;
+                                send(&tx2, frame).await;
+                            });
+                        } else {
+                            send(&tx, frame).await;
+                        }
                     }
                     "task/list" if activity => {
                         let session = v["params"]["session_id"].as_str().unwrap_or("").to_owned();

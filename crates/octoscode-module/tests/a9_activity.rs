@@ -99,7 +99,7 @@ fn task_reply(session: &str) -> Result<Value, Value> {
             t["state"] = json!("failed");
             t["status"] = json!("failed");
             t["error"] = json!("cargo build: 2 errors");
-            t["summary"] = json!("Bump octos-core to a6ea8505");
+            t["summary"] = json!("Rebuild after the octos-core bump");
             vec![t]
         }
         // A reply that names another session: fail closed.

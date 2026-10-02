@@ -858,17 +858,13 @@ pub fn lower(store: &Store) -> Option<Lowered> {
             if compact { 8.0 } else { 12.0 }
         ),
     );
+    // The status lines (`role="status"` paragraphs, not alerts) sit on the
+    // rows' inset so they line up with the state dots.
     if !st.available {
-        d.text(
-            "a9_act_unavailable",
-            "This server does not advertise task snapshots.",
-            &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
-        );
-        d.gap(W::Fill, 6.0);
+        status_line(&mut d, "a9_act_unavailable", "This server does not advertise task snapshots.");
     }
     if let Some(e) = &st.error {
-        d.text("a9_act_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
-        d.gap(W::Fill, 6.0);
+        status_line(&mut d, "a9_act_error", e);
     }
     // The text column's width: card - results padding - row padding - dot
     // column - gaps - the action pill (desktop) - the scroll gutter.
@@ -907,7 +903,11 @@ pub fn lower(store: &Store) -> Option<Lowered> {
         ),
     );
     d.text("a9_act_footer_status", footer_text(&st), &Txt::new(11.0, Face::Mono, tok::MUTED).w(W::Fill));
-    d.text("a9_act_footer_esc", "Esc closes", &Txt::new(11.0, Face::Mono, tok::MUTED));
+    // The keyboard hint only where there is a keyboard (a phone frame closes
+    // with the ×).
+    if !compact {
+        d.text("a9_act_footer_esc", "Esc closes", &Txt::new(11.0, Face::Mono, tok::MUTED));
+    }
     d.close();
 
     d.close(); // col
@@ -916,6 +916,12 @@ pub fn lower(store: &Store) -> Option<Lowered> {
     let taps = d.taps.clone();
     let inputs = d.inputs.clone();
     Some(Lowered { dsl: d.finish(), taps, inputs })
+}
+
+fn status_line(d: &mut Dsl, id: &str, text: &str) {
+    d.view(&format!("{id}_box"), "width: Fill height: Fit flow: Down padding: Inset{left: 8 right: 8 top: 6 bottom: 6}");
+    d.text(id, text, &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap());
+    d.close();
 }
 
 fn search_input(d: &mut Dsl, snap: &str) {
@@ -966,21 +972,27 @@ fn row(d: &mut Dsl, i: usize, r: &Row, current: bool, enabled: bool, compact: bo
     d.text(
         &format!("{id}_detail"),
         &ui::fit_w(&detail, text_w, 11.0, Face::Mono),
-        &Txt::new(11.0, Face::Mono, tok::FAINT),
+        &Txt::new(11.0, Face::Mono, tok::MUTED),
     );
     let label = if current { "Inspect" } else { "Open session" };
     let kind = if enabled { Btn::Outline } else { Btn::OutlineOff };
     let event = format!("{ACTION_ROW}#{i}");
-    if compact {
-        // Phone: the action sits under the text (`styles.css:2141-2147`).
-        d.gap(W::Fill, 4.0);
-        pill(d, &format!("{id}_act"), label, &event, kind, btn_w);
-    }
     d.close(); // text
     if !compact {
         pill(d, &format!("{id}_act"), label, &event, kind, btn_w);
     }
     d.close(); // line
+    if compact {
+        // Phone: the action sits under the text, in the text's column
+        // (`styles.css:2141-2147`: grid-column 2), so the state dot stays
+        // centred on the text block, not on text + button.
+        d.view(
+            &format!("{id}_actrow"),
+            "width: Fill height: Fit flow: Right padding: Inset{left: 27 right: 8 top: 0 bottom: 10}",
+        );
+        pill(d, &format!("{id}_act"), label, &event, kind, btn_w);
+        d.close();
+    }
     d.hairline();
     d.close(); // row
 }
@@ -1076,7 +1088,7 @@ pub fn seed(store: &Store, variant: &str) {
     );
     tasks.insert(
         s2.0.clone(),
-        vec![task("01a0eb98-3200-7e33-9c35-6458c71400b2", "bash", "failed", "failed", Some("implementer"), Some("Bump octos-core to a6ea8505"), Some("build"), Some("cargo build: 2 errors"), "2026-09-29T04:40:02.000000Z")],
+        vec![task("01a0eb98-3200-7e33-9c35-6458c71400b2", "bash", "failed", "failed", Some("implementer"), Some("Rebuild after the octos-core bump"), Some("build"), Some("cargo build: 2 errors"), "2026-09-29T04:40:02.000000Z")],
     );
     tasks.insert(
         s3.0.clone(),
