@@ -10,7 +10,7 @@ Counts use the FINAL bucket (phase4_bucket_manual when set, else phase4_bucket).
 | error | 6 | 0 | 1 | 7 |
 | g-autonomy | 37 | 0 | 3 | 40 |
 | g-autonomy2 | 25 | 1 | 0 | 26 |
-| g-composer | 50 | 5 | 6 | 61 |
+| g-composer | 55 | 5 | 1 | 61 |
 | g-connection | 7 | 0 | 0 | 7 |
 | g-control | 42 | 1 | 0 | 43 |
 | g-history | 18 | 3 | 3 | 24 |
@@ -20,6 +20,6 @@ Counts use the FINAL bucket (phase4_bucket_manual when set, else phase4_bucket).
 | session:list-sidebar | 11 | 6 | 2 | 19 |
 | session:store-hydrate | 11 | 9 | 2 | 22 |
 | workspace | 10 | 2 | 0 | 12 |
-| **total** | **289** | **43** | **29** | **361** |
+| **total** | **294** | **43** | **24** | **361** |
 
-Regenerated 2026-10-02 16:15 UTC by phase0/protocol-matrix.py — A rows were flipped to exists with screens+test evidence in phase4_bucket/phase4_evidence columns.
+Regenerated 2026-10-02 16:20 UTC by phase0/protocol-matrix.py — A rows were flipped to exists with screens+test evidence in phase4_bucket/phase4_evidence columns.
