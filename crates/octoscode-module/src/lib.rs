@@ -3777,10 +3777,10 @@ impl OctoscodeView {
                     .and_then(|r| r.trim_end_matches(" }").parse::<u32>().ok())
                     .is_some_and(|n| n >= 2);
             if ui.connecting && ui.attempt_attached && gave_up {
-                ui.note_connect_error(
-                    "Could not open the Octos UI Protocol connection",
-                    &screens::connect::clock_12h(),
-                );
+                // A9: ask the server why (a refused token, a closed port, a
+                // refused origin) before classifying (screens::a9_connect).
+                let handle = self.runtime.as_ref().map(|r| r.handle().clone());
+                screens::a9_connect::on_gave_up(&mut ui, handle.as_ref());
             }
         }
         let (view, token, endpoint_error) = {
@@ -3817,6 +3817,9 @@ impl OctoscodeView {
                         (live_id!(connect_server), "input.server".to_owned()),
                         (live_id!(connect_token), "input.token".to_owned()),
                     ];
+                    // A9: a refused token focuses the token field (its value
+                    // is kept, ConnectionPanel.tsx:76-90).
+                    self.a9_after_connect_mount(cx);
                 }
                 Err(e) => makepad_widgets::log!("[octoscode] connect mount: {e}"),
             }
@@ -3832,6 +3835,8 @@ impl OctoscodeView {
             }
             self.apply_token_visibility(cx);
         }
+        // A9: a refused token's deferred focus (after the card was drawn).
+        self.a9_connect_tick(cx);
         // The live validation line takes room only while it says something.
         self.view
             .label(cx, &[live_id!(screen_splash), live_id!(connect_server_error)])

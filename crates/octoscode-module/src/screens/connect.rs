@@ -296,6 +296,11 @@ impl ConnectUi {
                 String::new()
             },
             connecting: self.connecting,
+            hint: if self.failure.is_some() || self.raw_error.is_some() {
+                crate::screens::a9_connect::hint().unwrap_or("").to_owned()
+            } else {
+                String::new()
+            },
         }
     }
 }
@@ -638,12 +643,15 @@ pub async fn run_onboarding(
 /// `H:MM AM/PM` wall clock for the "Last tried" row (`setup-02`'s authored
 /// copy shows a 12-hour time; the lane runs UTC+8, stated in the report).
 pub fn clock_12h() -> String {
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_secs())
-        .unwrap_or(0);
-    let sod = (now + 8 * 3600) % 86_400;
-    let (h24, m) = (sod / 3600, (sod % 3600) / 60);
+    // A9: the DEVICE's zone (it was pinned to UTC+8, the lane's own zone: a
+    // person elsewhere read a wrong "Last tried" time).
+    use chrono::Timelike;
+    let now = chrono::Local::now();
+    clock_12h_of(now.hour(), now.minute())
+}
+
+/// `H:MM AM/PM` for a wall-clock hour/minute.
+pub fn clock_12h_of(h24: u32, m: u32) -> String {
     let ampm = if h24 < 12 { "AM" } else { "PM" };
     let h12 = match h24 % 12 {
         0 => 12,

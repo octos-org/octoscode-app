@@ -276,6 +276,53 @@ impl OctoscodeView {
         self.connect_key = None;
     }
 
+    /// After the Connect card remounts: a §5.1 rejected-token failure
+    /// focuses the token field (`focus_token`); the typed value is kept (the
+    /// card pushes `ConnectUi::token` back into it right after).
+    pub(crate) fn a9_after_connect_mount(&mut self, cx: &mut Cx) {
+        let focus = {
+            let b = self.bridge.lock().unwrap();
+            let ui = b.screens.lock().unwrap_or_else(|e| e.into_inner());
+            ui.failure.as_ref().map(|f| f.focus_token).unwrap_or(false)
+        };
+        if focus {
+            crate::screens::a9_connect::request_token_focus();
+        }
+    }
+
+    /// Every Connect-card sync: apply a pending token focus once the
+    /// remounted card has been drawn.
+    pub(crate) fn a9_connect_tick(&mut self, cx: &mut Cx) {
+        if crate::screens::a9_connect::token_focus_due() {
+            let input = self
+                .view
+                .text_input(cx, &[live_id!(screen_splash), live_id!(connect_token)]);
+            // `take_key_focus`: focus + the caret/IME state a click gives
+            // (the bare set_key_focus leaves the field's animators parked).
+            input.take_key_focus(cx);
+            // The caret after the kept value (a browser's focus does the
+            // same), so re-typing edits it rather than prefixing it.
+            let end = input.text().len();
+            input.set_cursor(
+                cx,
+                makepad_widgets::text::selection::Cursor { index: end, prefer_next_row: false },
+                false,
+            );
+            let held = input.key_focus(cx);
+            makepad_widgets::log!(
+                "[octoscode] a9 connect: refused token - the token field has the focus (held={held})"
+            );
+            crate::screens::a9_connect::schedule_focus_recheck();
+        }
+        if crate::screens::a9_connect::focus_recheck_due() {
+            let held = self
+                .view
+                .text_input(cx, &[live_id!(screen_splash), live_id!(connect_token)])
+                .key_focus(cx);
+            makepad_widgets::log!("[octoscode] a9 connect: token focus still held={held}");
+        }
+    }
+
     /// Escape closes the open A9 surface (`ModalSurface` `onEscape`).
     pub(crate) fn a9_escape(&mut self, cx: &mut Cx) {
         if crate::screens::a9_boundary::unavailable().is_some() {

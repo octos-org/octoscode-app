@@ -10,6 +10,8 @@ pub mod activity;
 pub mod a9_settings;
 // A9: the fatal + per-surface error boundaries (crash screen, unavailable panel).
 pub mod a9_boundary;
+// A9: the Connect failure probe (unreachable / refused token / origin, honestly).
+pub mod a9_connect;
 pub mod autonomy;
 // #A2: board 1 as live, reachable native surfaces (the host + its view kit).
 pub mod board1;
