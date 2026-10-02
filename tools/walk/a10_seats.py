@@ -43,6 +43,14 @@ MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"
 OUT = sys.argv[2] if len(sys.argv) > 2 else f"docs/ux/a10/seats/{MODE}"
 
 
+
+def seat_label(full: str) -> str:
+    """The permission seat's text: the web's full trigger label on desktop; on a
+    phone only the mode ("Write" / "Read" / "Full access"), A13's compact label
+    (the full preset was cut to "Write · Network..." at 360 px). The menu rows
+    keep the full labels at every size."""
+    return full.split(" · ")[0] if MODE == "phone" else full
+
 def numeric(W: Walk, name: str, prefix=("b3_perm_", "b3_model_", "b3_risk_", "b3_title")):
     W.wait(lambda: bool(W.visible("b3_dialog")), 6)
     c = dialog_checks(W.snap(), "b3_dialog", prefix)
@@ -96,7 +104,7 @@ def walk(W: Walk) -> None:
     W.check("seats: both seats are drawn (the server offers both menus)",
             W.wait(lambda: bool(W.visible("i0_composer_2")) and bool(W.visible("i0_composer_model")), 10))
     W.check("seats: the permission seat names the server's preset before its menu opens (read at Session open)",
-            W.wait(lambda: W.text("i0_composer_2_0") == "Write · Network allowed", 10), W.text("i0_composer_2_0"))
+            W.wait(lambda: W.text("i0_composer_2_0") == seat_label("Write · Network allowed"), 10), W.text("i0_composer_2_0"))
 
     W.note("== 2. the permission menu (approval pill CLICK)")
     W.check("permission: approval pill CLICK -> the menu above it (permission/profile/list)",
@@ -111,7 +119,7 @@ def walk(W: Walk) -> None:
     W.check("permission: 'Read · Network blocked' CLICK -> permission/profile/set; the menu closes",
             click_logged(W, "b3_perm_opt_1", "PermissionSet", lambda: not W.visible("b3_dialog"), 10))
     W.check("permission: the seat shows the read-back (the web's trigger label)",
-            W.wait(lambda: W.text("i0_composer_2_0") == "Read · Network blocked", 8), W.text("i0_composer_2_0"))
+            W.wait(lambda: W.text("i0_composer_2_0") == seat_label("Read · Network blocked"), 8), W.text("i0_composer_2_0"))
     W.shot(f"01b-permission-applied-{MODE}")
 
     W.note("== 3. full access only through the acknowledged confirmation")
@@ -139,7 +147,7 @@ def walk(W: Walk) -> None:
     W.shot(f"03-risk-ack-{MODE}")
     W.check("risk: 'Enable full access' CLICK -> permission/profile/set {danger_full_access, allow}; closed",
             click_logged(W, "b3_risk_confirm", "PermissionSet", lambda: not W.visible("b3_dialog"), 10)
-            and W.wait(lambda: W.text("i0_composer_2_0") == "Full access · Network allowed", 8))
+            and W.wait(lambda: W.text("i0_composer_2_0") == seat_label("Full access · Network allowed"), 8))
 
     W.note("== 4. the model menu (model seat CLICK)")
     W.check("model: the model label CLICK -> the menu above it (profile/llm/list {session_id})",
