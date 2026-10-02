@@ -976,7 +976,11 @@ script_mod! {
                     }
                 }
 
-                // ----- Permissions (board 8)
+                // ----- Permissions (board 8). A15: the help says what octos
+                // enforces — on-request asks only when its command policy
+                // flags a command (sudo, rm -rf, force push, hard reset), and
+                // `never` refuses those instead of approving them; the
+                // readback under the presets is the server's own report.
                 sec_permissions := View{
                     width: Fill height: Fit flow: Down visible: false
                     View{
@@ -990,7 +994,7 @@ script_mod! {
                             }
                             View{
                                 width: Fill height: Fit flow: Down padding: Inset{left: 30}
-                                OcRowHelp{text: "Writes in the workspace, no network; asks before risky commands"}
+                                OcRowHelp{text: "No network · asks before risky commands"}
                             }
                         }
                         perm_ask := OcHit{}
@@ -1006,7 +1010,7 @@ script_mod! {
                             }
                             View{
                                 width: Fill height: Fit flow: Down padding: Inset{left: 30}
-                                OcRowHelp{text: "Writes in the workspace, no network; never asks, refuses risky commands"}
+                                OcRowHelp{text: "No network · never asks, refuses risky commands"}
                             }
                         }
                         perm_workspace := OcHit{}
