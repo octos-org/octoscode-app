@@ -1,0 +1,36 @@
+CLICK settings_open_hit r=[935, 87, 92, 30] at (981,102)
+PASS granted: Settings > General shows the row
+    log: [I] apps/octoscode/module/src/design.rs:163:9 - [octoscode] design root: <PATH>
+    log: [I] apps/octoscode/module/src/design.rs:404:9 - [octoscode] font faces resolve under <PATH>
+    log: [I] apps/octoscode/module/src/screens/discovery.rs:273:17 - [octoscode] discovery: no probe (a credential is at hand)
+    log: [I] apps/octoscode/module/src/attention.rs:936:9 - [octoscode] attention: start (platform api true, focused false)
+    log: [I] apps/octoscode/module/src/attention.rs:856:9 - [octoscode] attention(fake os): authorization not-determined requested=false
+    log: [I] apps/octoscode/module/src/lib.rs:1585:13 - [octoscode] startup: Explicit("dsflash:main")
+    log: [I] apps/octoscode/module/src/flow.rs:1022:9 - [octoscode] history of dsflash:main could not be read: session/hydrate returned an invalid result: missing field `session_id`
+    log: [I] apps/octoscode/module/src/lib.rs:3289:17 - [octoscode] composer remounted
+    log: [I] apps/octoscode/module/src/lib.rs:4089:43 - [octoscode] board3 PermissionLoad failed: permission/profile/list returned another session
+    log: [I] apps/octoscode/module/src/lib.rs:3387:38 - [octoscode] chrome: 3 profile reads folded
+    log: [I] apps/octoscode/module/src/lib.rs:4089:43 - [octoscode] board3 StatusRead failed: status belongs to another Session
+    log: [I] apps/octoscode/module/src/screens/surfaces/host.rs:221:17 - [octoscode] view: session dsflash:main restored (following)
+    log: [I] apps/octoscode/module/src/lib.rs:3704:25 - [octoscode] composer extras: 0 queued, steer=false, recovery=None, peer=None
+    log: [I] apps/octoscode/module/src/attention.rs:982:9 - [octoscode] attention: os Authorization { status: NotDetermined, requested: false, error: None }
+    log: [I] apps/octoscode/module/src/lib.rs:4175:13 - [octoscode] chrome: OpenSettings
+    log: [I] apps/octoscode/module/src/lib.rs:1806:13 - [octoscode] settings action: settings.panel.open
+PASS granted: off until the Settings action (no prompt yet) — {"toggle": true, "on": false, "state": "", "help": "Notify when a turn needs you or finishes while OctosCode is in the background", "alert": ""}
+SHOT row-off
+PASS ux row-off: 9/9 numeric checks — failed=[] rects={'row': [362, 203, 563, 74], 'title': [362, 219, 150, 18], 'control': [881, 213, 44, 32], 'message': [362, 247, 499, 16]}
+CLICK tg_notify r=[881, 213, 44, 32] at (903,229)
+    log: [I] apps/octoscode/module/src/lib.rs:4175:13 - [octoscode] chrome: Action("notifications_toggle.toggle", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1806:13 - [octoscode] settings action: notifications_toggle.toggle
+    log: [I] apps/octoscode/module/src/attention.rs:856:9 - [octoscode] attention(fake os): authorization granted requested=true
+    log: [I] apps/octoscode/module/src/attention.rs:982:9 - [octoscode] attention: os Authorization { status: Granted, requested: true, error: None }
+PASS granted: the toggle asks the OS once and turns on (aria-pressed) — {"toggle": true, "on": true, "state": "", "help": "Desktop notifications are on.", "alert": ""}
+PASS granted: the opt-in is persisted
+SHOT row-on
+PASS ux row-on: 9/9 numeric checks — failed=[] rects={'row': [362, 203, 563, 74], 'title': [362, 219, 150, 18], 'control': [881, 213, 44, 32], 'message': [362, 247, 499, 16]}
+CLICK tg_notify r=[881, 213, 44, 32] at (903,229)
+    log: [I] apps/octoscode/module/src/lib.rs:4175:13 - [octoscode] chrome: Action("notifications_toggle.toggle", 0)
+    log: [I] apps/octoscode/module/src/lib.rs:1806:13 - [octoscode] settings action: notifications_toggle.toggle
+PASS granted: off again without asking the OS — {"toggle": true, "on": false, "state": "", "help": "Notify when a turn needs you or finishes while OctosCode is in the background", "alert": ""}
+PASS granted: turning it off persists too
+== 8/8 checks passed

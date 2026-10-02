@@ -638,6 +638,17 @@ def notifications_walk():
         return
     off = not inside("tg_on", "tg_notify")
     check("attention: Desktop notifications are off until the Settings action (no prompt)", off)
+    if not is_shown("tg_notify"):
+        # A25: a hidden test app is a bare binary, which macOS never lets
+        # post a notice — the row reads "Unavailable" (no toggle, no prompt,
+        # no consent). Launch with OCTOSCODE_NOTIFY_FAKE=granted to walk the
+        # opt-in mechanics (tools/walk/a25_notifications.py walks every state).
+        check("attention: no notification backend here — the row says Unavailable",
+              text_of("notify_state") == "Unavailable")
+        click("set_back" if MODE == "phone" else "settings_close")
+        wait(lambda: not is_shown("settings_drawer"), 3)
+        close_drawer_if_phone()
+        return
     log_since()
     click("tg_notify")
     check("attention: the toggle opts in", wait(lambda: inside("tg_on", "tg_notify"), 3) and logged("notifications"))
