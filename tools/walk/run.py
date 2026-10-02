@@ -2649,6 +2649,9 @@ def main():
     ap.add_argument("--modes", default="desktop,phone", help="native walk modes")
     ap.add_argument("--fixture-port", type=int, default=8434,
                     help="first port for a native walk's fixture server (one per walk)")
+    ap.add_argument("--native-json", default="",
+                    help="merge the native verdicts saved by an earlier run (tmp/walk/native/last.json) "
+                         "instead of running the walks again")
     args = ap.parse_args()
     if args.full:
         args.limit = None
@@ -2887,7 +2890,13 @@ def main():
     # A11: the native click walks re-point the rows they map; the rows nothing
     # covers get the parity matrix's own verdict and reason.
     native_rows: dict = {}
-    if args.native and not args.live:
+    if args.native_json and not args.live:
+        import native  # tools/walk/native.py
+        saved = native.load_json(pathlib.Path(args.native_json))
+        specs = {s["name"]: s for _, s in native.discover()}
+        native_rows = native.row_verdicts([r for r in saved if r["name"] in specs], specs)
+        out_rows, check_rows = merge_native(out_rows, check_rows, native_rows)
+    elif args.native and not args.live:
         native_rows = run_native(args)
         out_rows, check_rows = merge_native(out_rows, check_rows, native_rows)
     parity = load_parity()

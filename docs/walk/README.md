@@ -71,6 +71,13 @@ python3 tools/walk/run.py --native-only --walks a11_offer --modes desktop --port
 Evidence: `docs/walk/evidence/native/<walk>-<mode>.log` (the walk's output,
 machine paths scrubbed); a check's evidence cell points at its line.
 
+A targeted run (`WALK_ONLY_ROWS=…` → `results-only*.csv`) can merge the last
+native run's verdicts without walking again:
+`--native-json tmp/walk/native/last.json` (every native run leaves it). The
+official files are `results.csv` / `results-checks.csv` from `--full`;
+`results_live*.csv` is the last `--live` run (real model turns), whose other
+rows are not maintained by it.
+
 ---
 
 ## Run it
