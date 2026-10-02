@@ -404,7 +404,7 @@ fn short(id: &str) -> String {
 }
 
 
-pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, _store: &Store) {
+pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, store: &Store) {
     let width = frame.dialog_w(800.0);
     ui::shell_open(d, frame, width);
     // The slash header + close (board: mono "/thread", the X at the right).
@@ -418,7 +418,11 @@ pub fn build(d: &mut Dsl, st: &InspState, frame: &Frame, _store: &Store) {
     // Scope line + refresh glyph (`InspectionDialog.tsx:70-76`).
     let scope_row = d.anon();
     d.view(&scope_row, "width: Fill height: 28 flow: Right align: Align{x: 0.0 y: 0.5}");
-    let mut scope = format!("Session: {}", st.session);
+    // A8 — before the first read starts, the scope is the active Session
+    // (the web's dialog is scoped by its props from the first frame; an
+    // empty "Session: " flashed between the open and the load).
+    let session = if st.session.is_empty() { store.active_session().unwrap_or_default() } else { st.session.clone() };
+    let mut scope = format!("Session: {session}");
     if let Mode::Turn(id) = &st.mode {
         scope.push_str(&format!(" · Turn: {}", short(id)));
     }
@@ -765,5 +769,14 @@ mod tests {
                 assert!(taps.iter().any(|(_, e)| e == ev), "{ev}");
             }
         }
+    }
+
+    #[test]
+    fn the_scope_line_names_the_active_session_before_the_first_read() {
+        let store = Store::new();
+        store.set_active(Some("dsflash:main".into()));
+        let mut d = Dsl::new();
+        build(&mut d, &InspState::default(), &Frame::DESKTOP, &store);
+        assert!(d.finish().contains("Session: dsflash:main"), "never an empty 'Session: '");
     }
 }

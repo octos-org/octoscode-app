@@ -11,7 +11,8 @@ The app must run hidden on PORT against the A8 fixture server
 
   OCTOS_BASE_URL=http://127.0.0.1:8428 OCTOS_PROFILE_ID=a8 \\
   OCTOSCODE_RECENTS_DIR=<tmp> OCTOSCODE_PANE_ADVANCED_FILE=<tmp>/adv.json \\
-  OCTOSCODE_SHOW_THINKING_FILE=<tmp>/think.json OCTOSCODE_DESIGN_DIR=$PWD/design \\
+  OCTOSCODE_SHOW_THINKING_FILE=<tmp>/think.json OCTOSCODE_DRAFTS_FILE=<tmp>/drafts.json \\
+  OCTOSCODE_DESIGN_DIR=$PWD/design \\
   MAKEPAD_WM_TEST_APP=octoscode HEADLESS_ARGS="--module octoscode" \\
     bash harness/headless.sh start <host-bin> 8418
   python3 tools/walk/a8_session_walk.py 8418 desktop <LOG> [captures-dir]
@@ -340,7 +341,8 @@ def main():
     time.sleep(0.3)
     key("ReturnKey")
     check("/permissions opens 'Remembered approvals'", wait(lambda: text("b3_title") == "Remembered approvals"), str(text("b3_title")))
-    check("inspector: the scope line names the Session", (text("b3_insp_scope") or "").startswith("Session: a8:"), str(text("b3_insp_scope")))
+    check("inspector: the scope line names the Session",
+          wait(lambda: (text("b3_insp_scope") or "").startswith("Session: a8:"), 6), str(text("b3_insp_scope")))
     # The first read must finish first: Refresh is disabled ("Reading…") while it runs.
     check("inspector: 'Reading…' settles to 'Refresh'", wait(lambda: text("b3_insp_refresh_label") == "Refresh"), str(text("b3_insp_refresh_label")))
     n_sc = len(wire("approval/scopes/list"))

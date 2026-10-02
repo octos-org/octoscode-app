@@ -329,6 +329,35 @@ async fn an_unsent_draft_survives_a_restart_per_principal_and_stays_with_its_ses
     assert_eq!(server.count("turn/start"), 0, "a restored draft is never dispatched");
 }
 
+/// A slash command the app consumes (here `/sessions`, a board-3 surface) is
+/// not an unsent draft: neither draft store may bring "/sessions" back when
+/// the Session comes round again (A7's draft recovery saves every edit).
+#[tokio::test]
+async fn a_consumed_command_leaves_no_unsent_draft_behind() {
+    use octoscode_module::screens::drafts;
+    let _g = drafts_lock();
+    drafts::set_storage(Arc::new(octoscode_module::screens::recents::MemoryStore::new()));
+    let dir = std::env::temp_dir().join(format!("a8-store-cmd-{}", std::process::id()));
+    let _ = std::fs::create_dir_all(&dir);
+    std::env::set_var("OCTOSCODE_DRAFTS_FILE", dir.join("composer-drafts.json"));
+    let server = FakeServer::start(Duration::ZERO).await;
+    let (conv, _ev) = connected(&server).await;
+    let session = conv.session_id();
+    let key = drafts::key_of(&conv, &session);
+    // The person types the command (each edit is saved by both stores)…
+    conv.set_draft("/sessions");
+    octoscode_module::drafts::save(&session, "/sessions");
+    drafts::follow(Some(&key), "/sessions");
+    // …and runs it.
+    conv.submit_draft().await.expect("a local command");
+    assert_eq!(conv.ui_ref().lock().unwrap().draft(), "", "the composer cleared");
+    assert_eq!(octoscode_module::drafts::load(&session), None, "the saved text went with it");
+    drafts::follow(Some(&key), "");
+    assert_eq!(drafts::get(&key), None, "no per-Session draft either");
+    assert_eq!(server.count("turn/start"), 0, "a command never reaches the model");
+    std::env::remove_var("OCTOSCODE_DRAFTS_FILE");
+}
+
 #[tokio::test]
 async fn a_failed_send_returns_the_prompt_to_its_own_session() {
     use octoscode_module::screens::drafts;

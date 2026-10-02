@@ -9,8 +9,11 @@ reached the wire (the A8 fixture server's request log).
   phase2: (after the wrapper restarted the APP)             phase2 <log> [shots]
 
 phase1 restarts the FIXTURE SERVER once (the reconnect check) with
-`--launch cross_profile`; the wrapper passes how to start it:
+`--launch cross_profile --parked`; the wrapper passes how to start it:
   A8_SERVE_BIN, A8_SERVE_PIDFILE (the walk only kills the pid it was given).
+The app runs as for tools/walk/a8_session_walk.py, plus a private
+OCTOSCODE_DRAFTS_FILE (A7's draft recovery, else $HOME/.octoscode) kept
+across the phase1 -> phase2 app restart.
 Exit status 0 when every step passes.
 """
 import json

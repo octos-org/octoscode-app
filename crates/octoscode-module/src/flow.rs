@@ -1672,6 +1672,10 @@ impl Conversation {
         if let Some((name, args)) = crate::screens::palette::parse_command_invocation(&text) {
             if let Some(outcome) = crate::screens::board3::host::command(&name, &args, self) {
                 self.ui.lock().unwrap().set_draft_inner(String::new());
+                // A8 — a consumed command is not an unsent draft: clear its
+                // saved text too, or A7's recovery puts "/resume" back when
+                // the Session comes round again ("sent drafts stay cleared").
+                crate::drafts::save(&self.session_id(), "");
                 makepad_widgets::SignalToUI::set_ui_signal();
                 makepad_widgets::log!("[octoscode] command /{name}: board-3 surface ({outcome:?})");
                 if let crate::screens::board3::host::Outcome::Spawn(job) = outcome {
@@ -1691,6 +1695,7 @@ impl Conversation {
             Some(crate::screens::palette::CommandMatch::Known(args, name)) => {
                 if crate::screens::palette::queue_run(&name, &args) {
                     self.ui.lock().unwrap().set_draft_inner(String::new());
+                    crate::drafts::save(&self.session_id(), "");
                     makepad_widgets::SignalToUI::set_ui_signal();
                     makepad_widgets::log!("[octoscode] command /{name}: queued to run locally");
                     return Ok(String::new());
@@ -1711,6 +1716,7 @@ impl Conversation {
                     ),
                 );
                 self.ui.lock().unwrap().set_draft_inner(String::new());
+                crate::drafts::save(&self.session_id(), "");
                 // #P4a's lesson, again: an async arm on the tokio thread that
                 // mutates the store never repaints by itself — wake the UI or
                 // the receipt stays invisible until some other event draws.
