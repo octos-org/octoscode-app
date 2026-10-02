@@ -1,5 +1,5 @@
 == native walk a8_flows [phone] (tools/walk/a8_flows_walk.py)
--- run 1: exit 0 in 21 s
+-- run 1: exit 0 in 38 s
 PASS app is up with the strip
 PASS /resume opens 'Resume chat' — Resume chat
 PASS resume: the catalog was read scoped (session/list {cwd, profile_id})
@@ -33,7 +33,7 @@ PASS the unsent draft survived the outage — 'unsent words'
 
 30/30 passed (phase1)
 -- app restart (state kept)
--- run 2: exit 0 in 13 s
+-- run 2: exit 0 in 14 s
 PASS app is up again
 PASS restart: the unsent draft is restored, never sent — 'unsent words'
 PASS + Add workspace opens the picker
@@ -43,7 +43,7 @@ PASS nothing opened before the choice
 PASS wire: the chosen profile opens the new Session
 PASS the panel closes
 PASS the draft moved with the committed launch — 'unsent words'
-PASS wire: one turn/start for the sent text — [{'input': [{'kind': 'text', 'text': 'unsent words'}], 'session_id': 'glm-coder:api:01a0fe96-57bf-7514-b2e5-24a9c6f7c847', 'turn_id': '01a0fe96-5a68-7115-a31a-f5a168c346c7'}]
+PASS wire: one turn/start for the sent text — [{'input': [{'kind': 'text', 'text': 'unsent words'}], 'session_id': 'glm-coder:api:01a0feb0-fb71-758a-9747-ddb3e3378467', 'turn_id': '01a0feb0-fe23-72e3-b464-76d2bf759f55'}]
 PASS strip: the live word follows the turn (Thinking… -> Running shell… -> Thinking… -> Writing…) — ['Responding', 'Thinking…', 'Running shell…', 'Thinking…', 'Writing…', 'Ready']
 PASS strip: back to 'Ready' when the turn completes — ['Responding', 'Thinking…', 'Running shell…', 'Thinking…', 'Writing…', 'Ready']
 PASS parked: opening the Session read its parked interactions (session/hydrate include pending_approvals)

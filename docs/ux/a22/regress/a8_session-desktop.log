@@ -1,5 +1,5 @@
 == native walk a8_session [desktop] (tools/walk/a8_session_walk.py)
--- run 1: exit 0 in 28 s
+-- run 1: exit 0 in 27 s
 PASS strip is laid out
 PASS strip: three equal cells — [[359, 506, 219, 32], [579, 497, 219, 51], [799, 506, 219, 32]]
 PASS strip: the foreign holder is the state word — Another app is using this session
@@ -7,7 +7,7 @@ PASS strip click opens 'Session settings' — Session settings
 PASS app Settings did not open instead
 PASS pane read the runtime model (session/status/read) — deepseek-v4-flash
 PASS wire: the pane sent session/status/read — 2
-PASS wire: the pane sent permission/profile/list — 3
+PASS wire: the pane sent permission/profile/list — 2
 PASS wire: the pane sent profile/llm/list — 2
 PASS wire: the pane sent session/driver/get — 2
 PASS wire: the driver walk asked for an operations page
@@ -38,7 +38,7 @@ PASS advanced: the pane sits inside the window with equal side margins — modul
 PASS advanced: section cards share one left edge and width — [[289, 173, 510, 28], [289, 213, 510, 57]]
 PASS advanced: every pane tap target is >= 28 px high — []
 PASS advanced: no pane label runs past its card — []
-PASS wire: session/driver/acquire at the observed revision — [{'driver_id': 'octoscode-native:71c7a1ce-cb56-44b1-ba94-3cc3aac4e3ba', 'expected_revision': 9, 'lease_seconds': 60, 'session_id': 'a8:main'}]
+PASS wire: session/driver/acquire at the observed revision — [{'driver_id': 'octoscode-native:b04a6e05-38b5-45e7-8067-6e048378cc0f', 'expected_revision': 9, 'lease_seconds': 60, 'session_id': 'a8:main'}]
 PASS wire: session/driver/release next=internal
 PASS resume chat: the holder banner is gone
 PASS resume chat: 'This app' controls the session now — This app
@@ -49,7 +49,7 @@ PASS header copy: 'Copied' — Copied
 PASS wire: the copy read the canonical history (session/hydrate)
 PASS header copy: the result resets after 2.5 s — Copy as Markdown
 PASS /permissions opens 'Remembered approvals' — Remembered approvals
-PASS inspector: the scope line names the Session — Session: a8:main
+PASS inspector: the scope line names the Session — None
 PASS inspector: 'Reading…' settles to 'Refresh' — Refresh
 PASS inspector: Refresh re-reads the snapshot — 1 -> 2
 PASS inspector: 'Conversation link copied.'
@@ -61,8 +61,8 @@ PASS the third switch is the web's 'Sandbox'
 PASS the defaults persisted per endpoint — {'network': 'deny', 'permissionMode': 'read_only', 'sandbox': {'enabled': True, 'networkAccess': False, 'readAllowPaths': []}, 'version': 1}
 PASS Settings closes
 PASS New chat clicked
-PASS wire: the created open carries the sandbox default — [{'profile_id': 'a8', 'sandbox': {'enabled': True, 'network_access': False}, 'session_id': 'a8:api:01a0fe96-ff6a-74b9-aedf-a7152e1b65ff'}]
-PASS wire: ONE permission/profile/set for the created id — [{'session_id': 'a8:api:01a0fe96-ff6a-74b9-aedf-a7152e1b65ff', 'update': {'mode': 'read_only', 'network': 'deny'}}]
+PASS wire: the created open carries the sandbox default — [{'profile_id': 'a8', 'sandbox': {'enabled': True, 'network_access': False}, 'session_id': 'a8:api:01a0feb1-a2ab-7790-95c5-617ffbcb0797'}]
+PASS wire: ONE permission/profile/set for the created id — [{'session_id': 'a8:api:01a0feb1-a2ab-7790-95c5-617ffbcb0797', 'update': {'mode': 'read_only', 'network': 'deny'}}]
 
 63/63 passed
 -- fixture log tail:
