@@ -17,6 +17,9 @@ use octoscode_store::Store;
 // `board3/ui.rs` for why: runtime lists + a desktop window shorter than the
 // 406x776 artboard).
 pub mod checkpoints;
+// A10: the Fleet's Advanced session controller and its zh catalog.
+pub mod fleet_console;
+pub mod fleet_copy;
 pub mod fleetview;
 pub mod host;
 pub mod images;

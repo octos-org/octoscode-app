@@ -21,6 +21,8 @@
 pub mod approval;
 pub mod autonomy;
 pub mod config;
+// A10: the typed external-driver leaf (session/driver/*, peer/dispatch, peer/control).
+pub mod external_driver;
 pub mod media;
 pub mod peer;
 pub mod profile;
