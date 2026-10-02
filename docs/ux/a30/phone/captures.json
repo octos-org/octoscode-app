@@ -1,0 +1,38 @@
+[
+ {
+  "name": "phone-01-folded-start",
+  "state": "collapsed (phone default)",
+  "png": "docs/ux/a30/phone/phone-01-folded-start.png",
+  "sidebar": "docs/ux/a30/phone/phone-01-folded-start-sidebar.png"
+ },
+ {
+  "name": "phone-02-expanded",
+  "state": "expanded: working / waiting + card / finished",
+  "png": "docs/ux/a30/phone/phone-02-expanded.png",
+  "sidebar": "docs/ux/a30/phone/phone-02-expanded-sidebar.png"
+ },
+ {
+  "name": "phone-02b-dark-expanded",
+  "state": "dark look: working / waiting + card / finished",
+  "png": "docs/ux/a30/phone/phone-02b-dark-expanded.png",
+  "sidebar": "docs/ux/a30/phone/phone-02b-dark-expanded-sidebar.png"
+ },
+ {
+  "name": "phone-03-collapsed",
+  "state": "collapsed pill",
+  "png": "docs/ux/a30/phone/phone-03-collapsed.png",
+  "sidebar": "docs/ux/a30/phone/phone-03-collapsed-sidebar.png"
+ },
+ {
+  "name": "phone-04-zh-expanded",
+  "state": "zh expanded",
+  "png": "docs/ux/a30/phone/phone-04-zh-expanded.png",
+  "sidebar": "docs/ux/a30/phone/phone-04-zh-expanded-sidebar.png"
+ },
+ {
+  "name": "phone-05-zh-collapsed",
+  "state": "zh collapsed",
+  "png": "docs/ux/a30/phone/phone-05-zh-collapsed.png",
+  "sidebar": "docs/ux/a30/phone/phone-05-zh-collapsed-sidebar.png"
+ }
+]

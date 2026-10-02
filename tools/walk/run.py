@@ -1347,22 +1347,26 @@ def p_altd_notice(app):
 @check("peer", "Alt+P toggles a peer dock fold (expands and collapses)",
        rows=("alt+p",))
 def p_altp_fold(app):
-    # Row 73's own case. Native observable: a peer dock whose rect toggles
-    # across two Alt+P presses. Measured 41c recon: no peer dock mounts.
+    # Row 73's own case. A30: the sidebar peer dock is built
+    # (screens/peer_dock.rs, `peer_dock_row` / `pd_dock`). With NO peers it is
+    # absent by design (the web renders nothing) and Alt+P draws none — the
+    # r6 replay stages no roster row, so this run proves that half; the fold
+    # itself (expanded -> one pill -> expanded) is walked with real peers by
+    # tools/walk/a30_peer_dock.py (row 73 in its WALK rows).
     app.key("escape")
+    def dock(s):
+        return app.rect(s, "pd_dock") if app.rect(s, "peer_dock_row") else None
+    d0 = app.snap()
+    rows_ = [w for w in d0.get("s", []) if str(w.get("i", "")).startswith("pd_row_") and app.laid_out(w)]
     app.key_mod("keyp", alt=True)
-    r1 = app.rect(app.snap(), "peer_dock")
+    r1 = dock(app.snap())
     app.key_mod("keyp", alt=True)
-    r2 = app.rect(app.snap(), "peer_dock")
-    ok = bool(r1) and bool(r2) and (r1 != r2 or (r1[2] > 0 and r1[3] > 0))
-    if not ok and r1 is None and r2 is None:
-        # A11: there is no native peer dock to fold — A7 leaves the chord
-        # inert on purpose (lib.rs `ParityShortcut::TogglePeerDock`) and the
-        # parity matrix rates "Peer dock mounted between the session tree and
-        # Settings" C. An unbuilt surface, not a broken one.
-        return False, (NOT_BUILT + "no native peer dock (parity matrix 'Peer dock mounted "
-                       "between the session tree and Settings' = C); Alt+P is inert by design")
-    return ok, f"peer_dock rects={r1} -> {r2}"
+    r2 = dock(app.snap())
+    if not rows_ and r1 is None and r2 is None:
+        return True, ("no peers in this replay: the dock is absent by design and Alt+P draws none "
+                      "(the fold with peers: tools/walk/a30_peer_dock.py)")
+    ok = bool(r1) and bool(r2) and r1 != r2
+    return ok, f"pd_dock rects={r1} -> {r2}"
 
 
 @check("peer", "Fleet's roster rows render with real rects (the mock's lanes)",
