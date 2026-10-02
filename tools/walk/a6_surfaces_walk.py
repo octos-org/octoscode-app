@@ -37,6 +37,49 @@ import urllib.request
 import zlib
 from pathlib import Path
 
+# A11: the walk aggregator's convention (tools/walk/native.py; never imported).
+# This walk starts its own replay server and app; {out} keeps the aggregator's
+# run out of the committed docs/ux/a6/walk evidence.
+WALK = {
+    "name": "a6_surfaces",
+    "title": "conversation surfaces: approval, question, plan, trajectory + task detail, folds, files",
+    "modes": ["desktop", "phone"],
+    "app": "self",
+    "runs": [{"argv": ["{bin}", "{mode}", "{port}", "{fport}", "{out}"]}],
+    "needs": ["target/debug/examples/replay_serve"],
+    "timeout": 900,
+    "rows": {
+        17: {"checks": ["CLICK Trajectory -> the pane", "CLICK a task row -> its detail",
+                        "CLICK an artifact -> its content", "CLICK × -> the detail closes"],
+             "partial": "the task detail opens from the Trajectory tab; the web's Activity navigator has no native card"},
+        33: {"checks": ["turn 2: delivered files are attachment rows", "files: r23-report.pdf",
+                        "CLICK Download -> GET /api/files", "CLICK Preview -> the image shows"],
+             "partial": "'keeps them on reload' is not walked"},
+        85: {"checks": ["CLICK Review diff -> the review opens", "CLICK × closes the review back to the card",
+                        "Esc closes the review back to the card"],
+             "partial": "Escape above the approval is walked; Tab ownership is not"},
+        141: {"checks": ["turn 5: the plan card", "plan: headline"],
+              "partial": "'clears it when the turn ends' is not asserted"},
+        142: {"checks": ["CLICK the plan header -> collapses, again -> expands"],
+              "partial": "collapsed and expanded by CLICK; the keyboard path is not walked"},
+        166: ["CLICK Trajectory -> the pane", "trajectory: r4's live task/updated", "trajectory: runtime status",
+              "trajectory: c24b's listed tasks", "trajectory: the plan section", "CLICK Refresh -> task/list again"],
+        170: ["turn 4: the approval takes the composer over", "approval: title, risk",
+              "CLICK Deny -> approval/respond deny", "CLICK Approve for session", "CLICK Approve once",
+              "key S -> approval/respond", "turn 3: the question takes the composer over",
+              "CLICK option 'Green'", "CLICK Other + type", "Return (inside the Other field)",
+              "CLICK Submit answer"],
+        # Escape is the row's own key: a phone has none (its × is row 85's).
+        208: {"checks": {"desktop": ["Esc closes the review back to the card (no turn/interrupt)"]},
+              "partial": "the review here loads; the web's FAILED review is not staged"},
+        215: {"checks": ["CLICK thinking header -> expands", "CLICK again -> folded",
+                         "CLICK the tool row -> its output discloses", "CLICK Expand all", "CLICK Collapse all"],
+              "partial": "a replayed six-turn transcript, not ten live streamed turns"},
+        233: {"checks": ["decided: the composer is back", "the turn settles: the card closes, the composer is back"],
+              "partial": "the composer returns after both takeovers; keyboard focus itself is not asserted"},
+    },
+}
+
 ROOT = Path(__file__).resolve().parents[2]
 BINARY = sys.argv[1] if len(sys.argv) > 1 else ""
 MODE = sys.argv[2] if len(sys.argv) > 2 else "desktop"
@@ -472,9 +515,17 @@ def walk_files_and_folds():
     png = [w["i"].rsplit("_", 1)[1] for w in prefixed(ws, "b3_tl_file_name_") if w.get("t") == "coverage.png"]
     # The tool row discloses its own call's output (A1's row; A6 reveals it).
     app_logs()
-    if click("tool_hit"):
-        out = wait(lambda: [w for w in snap() if "r23-tool-ok" in (w.get("t") or "") and w["r"][3] > 0], 5)
-        logs = app_logs()
+    if shown("tool_hit"):
+        # A11: a click dropped under load (no `tool.toggle` logged at all) is
+        # retried; a click that toggled but disclosed nothing still fails.
+        out, logs = None, []
+        for _ in range(3):
+            if not click("tool_hit"):
+                break
+            out = wait(lambda: [w for w in snap() if "r23-tool-ok" in (w.get("t") or "") and w["r"][3] > 0], 5)
+            logs += app_logs()
+            if out or any("tool.toggle" in l for l in logs):
+                break
         check("CLICK the tool row -> its output discloses", out and any("tool.toggle" in l and "open" in l for l in logs),
               f"{[l[-70:] for l in logs if 'tool.toggle' in l or 'reveal' in l]}")
         shot("tool-expanded")
@@ -487,8 +538,17 @@ def walk_files_and_folds():
         check("CLICK Download -> GET /api/files on the wire, saved to the download dir", saved and wire,
               f"saved={bool(saved)} wire={wire}")
     if png:
-        click(f"b3_tl_file_preview_{png[0]}")
-        img = wait(lambda: shown(f"b3_tl_file_img_{png[0]}"), 10)
+        # A11: a click dropped under load (no `b3.file.preview` action logged)
+        # is retried; one that ran gets more time, never a second fetch.
+        img, ran = None, False
+        app_logs()
+        for _ in range(3):
+            if not ran:
+                click(f"b3_tl_file_preview_{png[0]}")
+            img = wait(lambda: shown(f"b3_tl_file_img_{png[0]}"), 8)
+            ran = ran or any("b3.file.preview" in l for l in app_logs())
+            if img:
+                break
         check("CLICK Preview -> the image shows in its row", img, f"b3_tl_file_img_{png[0]}")
         r = rect(f"b3_tl_file_img_{png[0]}")
         row = rect(f"b3_tl_file_{png[0]}")

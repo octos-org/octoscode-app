@@ -963,7 +963,13 @@ impl Composer {
                     st.accepted_owner = None;
                 }
             }
-            let server_active = turns.iter().find(|(_, s)| s.live()).cloned();
+            // A turn's terminal is final. A hydrate requested before that
+            // terminal can be APPLIED after it (natively the reply and the
+            // terminal notification are handled on different tasks; the web's
+            // single event loop applies them in wire order), and must not
+            // revive the finished turn as the observed foreground: the queue
+            // would then wait behind a terminal that already came, forever.
+            let server_active = turns.iter().find(|(id, s)| s.live() && !st.has_terminal(id)).cloned();
             st.hydrated_active = server_active
                 .as_ref()
                 .map(|(id, s)| (id.clone(), *s == Lifecycle::Interrupting));
@@ -1245,6 +1251,25 @@ mod tests {
         assert_eq!(q.take_interrupt_prompt("turn-b").unwrap().prompt, "keep b");
         q.stash_interrupt_prompt("a", "turn-a", "   ");
         assert_eq!(q.take_interrupt_prompt("turn-a"), None, "an empty prompt is never stashed");
+    }
+
+    // A stale hydrate (requested before a turn's terminal, applied after it)
+    // never revives that turn: the prompt queued behind it still starts.
+    #[test]
+    fn a_hydrate_applied_after_a_terminal_does_not_revive_the_turn() {
+        let c = Composer::default();
+        // The reconnect's hydrate shows another client's turn X active: observed.
+        c.reconcile_hydrate("s", &[("X".into(), Lifecycle::Active)], true);
+        assert_eq!(c.snapshot("s").active.map(|a| a.turn_id), Some("X".into()));
+        assert!(matches!(c.enqueue("s", t("next")), Submit::Queued(_)));
+        // X's terminal arrives first; "next" is released to start.
+        let fx = c.settle("s", "X", true);
+        assert_eq!(fx.start.map(|p| p.turn_id), Some("next".into()));
+        // ...then the stale snapshot (X still "active" in it) is applied.
+        c.reconcile_hydrate("s", &[("X".into(), Lifecycle::Active)], true);
+        let snap = c.snapshot("s");
+        assert_eq!(snap.active.map(|a| a.turn_id), Some("next".into()), "X stays settled; next keeps the head");
+        assert!(snap.pending.is_empty());
     }
 
     // ---- use-turn-controller.test.ts:38 / :88: the first prompt starts,

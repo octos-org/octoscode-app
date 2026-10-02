@@ -35,6 +35,24 @@ import time
 import urllib.parse
 import urllib.request
 
+# A11: the walk aggregator's convention (tools/walk/native.py; never imported
+# by it — the other A9 walks import this module for its helpers, harmlessly).
+WALK = {
+    "name": "a9_activity",
+    "title": "Activity: palette /activity, catalog reads, filters, search, Inspect, Open session, close paths",
+    "modes": ["desktop", "phone"],
+    "fixture": {"argv": ["{examples}/replay_serve", "{fport}", "--scenario", "activity"]},
+    "app": {"env": {"OCTOS_BASE_URL": "http://127.0.0.1:{fport}", "OCTOS_PROFILE_ID": "a9walk"},
+            "ready": ["i0_composer_0"]},
+    "runs": [{"argv": ["{port}", "{mode}", "{fixture_log}", "{out}"]}],
+    "needs": ["target/debug/examples/replay_serve"],
+    "timeout": 600,
+    "rows": {
+        17: ["palette /activity opens Activity", "Inspect on the current session",
+             "Inspect opens the Tasks view and closes Activity", "…which closes back to the conversation"],
+    },
+}
+
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8419
 MODE = sys.argv[2] if len(sys.argv) > 2 else "desktop"
 REPLAY_LOG = sys.argv[3] if len(sys.argv) > 3 else None

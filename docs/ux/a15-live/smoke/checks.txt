@@ -1,0 +1,18 @@
+PASS app up against the live serve
+PASS connected: the Chat tab shows
+PASS approval: the turn completes
+PASS approval: judge.txt holds 'ok' on disk
+PASS CJK: the turn streams and completes
+PASS CJK: the answer renders Chinese text — 28 CJK chars in the prose
+PASS queue: the first turn starts
+PASS queue: the second prompt is queued (chip shown)
+PASS queue: both turns complete and the queue drains
+PASS queue: the queued prompt ran ('done' answered)
+PASS stop: the turn is streaming
+PASS stop: Stop returns the composer to idle
+PASS stop: the interrupted prompt is back in the composer — 'Write a 400-word story about a lighthouse keeper and a storm'
+PASS restart: app up again
+PASS restart: the session's earlier turns are shown after reopening
+PASS restart: every earlier turn is back (file, CJK, queue, stop) — found ['judge.txt', 'main.rs', 'done'], stop yes
+PASS restart: the next prompt streams and completes
+PASS restart: the new answer renders

@@ -26,8 +26,40 @@ Exit status: 0 when every step passes.
 import json
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
+
+# A11: the walk aggregator's convention (tools/walk/native.py; never imported).
+WALK = {
+    "name": "a3_chrome",
+    "title": "board 2 chrome: sidebar (groups, search, sort, menu, rail, drawer) and Settings",
+    "modes": ["desktop", "phone"],
+    "app": {"env": {"OCTOSCODE_BOARD2_SEED": "1"},
+            "ready": ["sidebar_toggle_hit", "sb_new_chat_hit", "conversation_column"]},
+    "runs": [{"argv": ["{port}", "{mode}"]}],
+    "timeout": 600,
+    "rows": {
+        4: {"checks": ["Desktop notifications toggles"],
+            "partial": "the opt-in only; OS notices staying silent while reading are not observable headless"},
+        144: ["All shows the flat list", "By workspace regroups", "layout: session rows are 32 px",
+              "layout: group headers are 36 px", "A group header collapses it", "…and expands it again"],
+        163: {"checks": ["Permissions preset Full access is offered"],
+              "partial": "the full-access confirmation is a8_session's"},
+        185: {"checks": ["Search highlights the match", "Search names the empty group",
+                         "Clear search restores every row"],
+              "partial": "'replies use the chat column' is not asserted"},
+        191: {"checks": ["Stop server… opens the confirm", "Cancel closes the confirm",
+                         "Cancel sent no server/shutdown"],
+              "partial": "the confirmed shutdown and its unconfirmed-result copy are covered at the wire "
+                         "(tests/a3_chrome.rs), never confirmed against a server"},
+        227: {"checks": {"phone": ["Menu opens the drawer", "drawer width is min(320, w - 48)",
+                                   "Opening a row dismisses the drawer"]},
+              "partial": "the navigation drawer only; the composer staying on screen is not asserted here"},
+        231: {"checks": ["Sort cycles the order", "A session row opens its session"],
+              "partial": "'tracks which Session was last opened' is not asserted"},
+    },
+}
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8413
 MODE = sys.argv[2] if len(sys.argv) > 2 else "desktop"
@@ -36,8 +68,16 @@ RESULTS = []
 
 
 def get(path, timeout=20):
-    with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
-        return r.read().decode()
+    # A11: an input route with wait=1 answers HTTP 404 when its frame was
+    # coalesced — the input itself was delivered (tools/walk/walk_env.py does
+    # the same). Raising there crashed the walk midway (12 checks never ran).
+    try:
+        with urllib.request.urlopen(BASE + path, timeout=timeout) as r:
+            return r.read().decode()
+    except urllib.error.HTTPError:
+        if path.startswith(("/click", "/t?", "/k?", "/m?")):
+            return ""
+        raise
 
 
 def snap():

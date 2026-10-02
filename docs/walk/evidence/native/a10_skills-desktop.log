@@ -1,0 +1,55 @@
+== native walk a10_skills [desktop] (tools/walk/a10_skills.py)
+-- run 1: exit 0 in 25 s
+[headless] launch: MAKEPAD_HIDE_WINDOWS=1 <abs>/octosense --remote 8421 --module octoscode
+[makepad-remote] listening on 127.0.0.1:8421 pid=74156 app=octosense grabs=<abs>/octosense-74156
+[headless] up: pid 74156  port 8421  log <repo>/tmp/hs/port-8421.log
+[headless] drive it:  curl -s http://127.0.0.1:8421/snap?q=Button   |   harness/headless.sh shot 8421 out.png
+== 1. /skills: the warning paragraph and the sections
+CLICK composer r=[375, 585, 629, 28]
+TYPE '/'
+TYPE 'ski'
+CLICK palette_row_name '/skills' r=[286, 252, 54, 28]
+PASS skills: /skills palette CLICK opens the dialog
+PASS skills open: dialog numeric checks — frame=720x505 centre_dx=0.0 margins L=20 R=20 labels=8 outside=0 overlaps=0 controls=1 under28=0
+SHOT 01-skills-desktop
+== 2. search the registry: rows with the web's fields
+TYPE 'lint'
+KEY Return
+PASS skills: Enter in the search box -> profile/skills/registry/search -> rows
+PASS skills: row fields — description, repo, tools/licence, Requires, Installed
+PASS registry rows: dialog numeric checks — frame=720x568 centre_dx=0.0 margins L=20 R=20 labels=18 outside=0 overlaps=0 controls=2 under28=0
+SHOT 02-registry-desktop
+== 3. Install (row 0) through the confirm card
+CLICK dlg_skills_reg_0_install_control r=[795, 389, 70, 32] at (830,405)
+PASS skills: Install CLICK -> 'Confirm server installation'
+SHOT 03-install-confirm-desktop
+CLICK dlg_skills_cf_confirm_control r=[640, 427, 123, 32] at (702,443)
+PASS skills: Confirm install CLICK -> installed; the receipt line; the row in Installed
+PASS after install: dialog numeric checks — frame=720x541 centre_dx=0.0 margins L=20 R=20 labels=11 outside=0 overlaps=0 controls=2 under28=0
+SHOT 04-installed-desktop
+== 4. Install from source: repo + branch through the confirm card
+TYPE 'octos-org/review-kit'
+TYPE 'dev'
+CLICK dlg_skills_src_review_control r=[713, 584, 152, 32] at (789,600)
+PASS skills: Review installation CLICK -> the confirm names 'octos-org/review-kit · branch dev'
+SHOT 05-source-confirm-desktop
+CLICK dlg_skills_cf_confirm_control r=[640, 427, 123, 32] at (702,443)
+== 4b. the Profile lock while the install is in flight (the server answers in 2.5 s)
+PASS skills: the lease holds -> the lock line shows
+SHOT 07-locked-desktop
+PASS skills: a Remove CLICK while locked routes nothing (no confirm asked)
+PASS skills: the source installs; the receipt names the skipped skill; the lock lifts
+== 5. Remove (row 0) through the confirm card
+CLICK dlg_skills_t_remove0_hit r=[813, 329, 52, 28] at (839,343)
+CLICK dlg_skills_cf_confirm_control r=[632, 427, 131, 32] at (698,443)
+PASS skills: Remove CLICK -> 'Confirm removal' -> Confirm -> 'Removed code-linter …'
+PASS after remove: dialog numeric checks — frame=720x541 centre_dx=0.0 margins L=20 R=20 labels=11 outside=0 overlaps=0 controls=2 under28=0
+SHOT 06-removed-desktop
+PASS wire: profile/skills/registry/search x1 — replay log: 1
+PASS wire: profile/skills/install x2 — replay log: 2
+PASS wire: profile/skills/remove x1 — replay log: 1
+CLICK dialog_close r=[861, 129, 28, 28] at (875,143)
+== 17/17 checks passed
+gq: {"png":["<abs>/grab-w0-00001.png"],"quit":1}
+[headless] pid 74156 exited after /gq
+[headless] port 8421 free

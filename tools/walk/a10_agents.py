@@ -16,6 +16,23 @@ import sys
 
 from a10_lib import Walk, checks_line, dialog_checks, run_session
 
+# A11: the walk aggregator's convention (tools/walk/native.py; read with ast).
+WALK = {
+    "name": "a10_agents",
+    "title": "the Agents panel: roster, status / artifacts / output reads, interrupt, close, spawn",
+    "modes": ["desktop", "phone"],
+    "app": "self",
+    "runs": [{"argv": ["{mode}", "{out}"], "env": {"A10_PORT": "{port}", "A10_REPLAY_PORT": "{fport}"}}],
+    "needs": ["target/debug/examples/replay_serve"],
+    "timeout": 900,
+    "rows": {
+        99: {"checks": ["agents: Read status CLICK", "agents: Read artifact CLICK", "agents: Read output CLICK",
+                        "agents: Interrupt agent CLICK", "agents: Close agent (by ID) CLICK"],
+             "partial": "the panel's receipts settle by CLICK (status, artifact, output, interrupt, close); a "
+                        "delayed artifact read crossing Session ownership is not staged"},
+    },
+}
+
 MODE = sys.argv[1] if len(sys.argv) > 1 else "desktop"
 OUT = sys.argv[2] if len(sys.argv) > 2 else f"docs/ux/a10/agents/{MODE}"
 

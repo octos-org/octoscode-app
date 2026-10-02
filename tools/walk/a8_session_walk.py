@@ -35,6 +35,41 @@ import urllib.error
 import urllib.parse
 import urllib.request
 
+# A11: the walk aggregator's convention (tools/walk/native.py; never imported).
+WALK = {
+    "name": "a8_session",
+    "title": "session config: strip, Session settings pane, presets, full access, driver disclosure, copy, inspector, defaults",
+    "modes": ["desktop", "phone"],
+    "fixture": {"argv": ["{examples}/a8_serve", "{fport}", "--held", "--log", "{state}/serve.jsonl"], "fport": 8428},
+    "app": {"env": {"OCTOS_BASE_URL": "http://127.0.0.1:{fport}", "OCTOS_PROFILE_ID": "a8",
+                    "OCTOSCODE_PANE_ADVANCED_FILE": "{state}/adv.json"},
+            "ready": ["b3_strip_tap", "i0_composer_0"]},
+    "runs": [{"argv": ["{port}", "{mode}", "{state}/serve.jsonl", "{out}"]}],
+    "needs": ["target/debug/examples/a8_serve"],
+    "timeout": 900,
+    "rows": {
+        14: ["holder banner:", "wire: session/driver/acquire", "wire: session/driver/release", "resume chat:"],
+        30: {"checks": {"desktop": ["header: 'Copy as Markdown' is offered", "header copy: 'Copied'",
+                                    "wire: the copy read the canonical history", "header copy: the result resets"]}},
+        32: {"checks": {"phone": ["phone header: no copy control"]}},
+        40: {"checks": ["advanced: 'Another controller'", "advanced: the disclosure names the driver",
+                        "advanced: the operations list shows the peer", "wire: the driver walk asked for an operations page"],
+             "partial": "a healthy EXTERNAL disclosure; the web's empty terminal operations page variant is not staged"},
+        96: {"checks": ["/permissions opens 'Remembered approvals'", "inspector: the scope line",
+                        "inspector: 'Reading…' settles", "inspector: Refresh re-reads"],
+             "partial": "the remembered-scope inspector; discarding a closed Session's late read is not staged"},
+        163: ["preset 'Read · Network blocked': Saved", "wire: permission/profile/set {mode read_only",
+              "the selected preset reads back", "the Full access preset is offered",
+              "full access shows the risk confirmation", "'Enable full access' is disabled until the box is ticked",
+              "Cancel closes the confirmation", "wire: nothing sent for full access"],
+        164: ["pane read the runtime model", "model pick: notice", "wire: profile/llm/select carries"],
+        189: {"checks": ["show thinking:"],
+              "partial": "the preference is written; its per-Session retention and the captured effort are not asserted"},
+        198: {"checks": ["inspector: 'Conversation link copied.'", "inspector: the full link stays visible"],
+              "partial": "the read-only link field is always shown; a DENIED clipboard is not simulated"},
+    },
+}
+
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8418
 MODE = sys.argv[2] if len(sys.argv) > 2 else "desktop"
 LOG = sys.argv[3] if len(sys.argv) > 3 else "tmp/a8/serve.jsonl"

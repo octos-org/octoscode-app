@@ -24,6 +24,30 @@ check, soon, snap, rect, is_shown, text_of, click, log_since, shot = (
     w.check, w.soon, w.snap, w.rect, w.is_shown, w.text_of, w.click, w.log_since, w.shot,
 )
 MODE = w.MODE
+
+# A11: the walk aggregator's convention (tools/walk/native.py; never imported).
+# Two launches on one isolated state: save, then a relaunch that must adopt it.
+WALK = {
+    "name": "a9_prefs",
+    "title": "Settings > Preferences: Vim editing toggle, explicit Save, the whitelist file, a relaunch adopts it",
+    "modes": ["desktop", "phone"],
+    "fixture": {"argv": ["{examples}/replay_serve", "{fport}", "--scenario", "activity"]},
+    "app": {"env": {"OCTOS_BASE_URL": "http://127.0.0.1:{fport}", "OCTOS_PROFILE_ID": "a9walk"},
+            "ready": ["i0_composer_0"]},
+    "runs": [
+        {"argv": ["{port}", "{mode}", "{fixture_log}", "{out}"], "env": {"A9_PHASE": "save"}},
+        {"restart": "app", "argv": ["{port}", "{mode}", "{fixture_log}", "{out}"], "env": {"A9_PHASE": "relaunch"}},
+    ],
+    "needs": ["target/debug/examples/replay_serve"],
+    "timeout": 600,
+    "rows": {
+        80: {"checks": ["the toggle flips Vim editing at once", "…and the change is unsaved",
+                        "Save -> 'Preferences saved.'", "the file holds exactly the display whitelist",
+                        "a fresh launch adopts the saved Vim editing"],
+             "partial": "only an explicit Save persists and a relaunch restores it; the separate draft store "
+                        "across that relaunch is not asserted here"},
+    },
+}
 PHASE = os.environ.get("A9_PHASE", "save")
 PREFS = os.environ.get("OCTOSCODE_DISPLAY_PREFS_PATH", "")
 

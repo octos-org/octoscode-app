@@ -32,12 +32,56 @@ the walk taps the OctosCode icon itself. Writes <outdir>/<state>.png,
 <state>.snap.json, checks.json and walk.log (the routed board-1 lines)."""
 import json, os, sys, time, urllib.parse, urllib.request
 
+# A11: the walk aggregator's convention (tools/walk/native.py) — a literal,
+# read with `ast`, never imported. The aggregator starts board1_serve and the
+# hidden first-run app (isolated state), runs this walk, stops both.
+WALK = {
+    "name": "a2_board1",
+    "title": "board 1: pairing p4-01..05, provider editor p4-06/07, folder browser p4-08/09, picker",
+    "modes": ["desktop", "phone"],
+    "fixture": {"argv": ["{examples}/board1_serve", "{fport}"]},
+    "app": {"env": {"OCTOS_BASE_URL": "http://127.0.0.1:8499", "OCTOS_PROFILE_ID": "octoscode"},
+            "ready": ["b1_connect_pair"]},
+    "runs": [
+        {"argv": ["{mode}", "{out}"], "env": {"PORT": "{port}", "A2_FIXTURE_PORT": "{fport}"}},
+        # Row 224: the same fixture WITHOUT the browse feature, the app
+        # connected at launch.
+        {"restart": "both", "fixture_args": ["--no-browse"],
+         "app_env": {"OCTOS_BASE_URL": "http://127.0.0.1:{fport}", "OCTOS_BEARER": "walk-dummy-token"},
+         "ready": ["sb_add_hit", "sidebar_toggle_hit", "i0_composer_0"],
+         "argv": ["{mode}", "{out}", "no-browse"], "env": {"PORT": "{port}", "A2_FIXTURE_PORT": "{fport}"}},
+    ],
+    "needs": ["target/debug/examples/board1_serve"],
+    "timeout": 600,
+    "rows": {
+        87: ["entry_settings_model", "p4-06_provider", "provider_saved_back_in_settings"],
+        88: ["p4-07"],
+        108: ["paired_live"],
+        109: ["p4-03_link_problem"],
+        113: ["p4-04_cant_pair"],
+        220: ["entry_add_workspace", "p4-08: the server's hidden", "p4-08: a second tap drills",
+              "p4-08: the breadcrumb drills"],
+        221: ["p4-09"],
+        222: ["p4-08: New folder creates it and moves into it",
+              "p4-08: Use this folder starts the session in the created folder"],
+        223: ["p4-08: picking a subfolder"],
+        224: ["picker without the browse feature"],
+    },
+}
+
 PORT = int(os.environ.get("PORT", "8412"))
 BASE = f"http://127.0.0.1:{PORT}"
 MODE, OUT = (sys.argv[1], sys.argv[2]) if len(sys.argv) > 2 else ("desktop", "/tmp/walk-unused")
 os.makedirs(OUT, exist_ok=True)
-LINK = "http://app.invalid/?octos=http://127.0.0.1:8422&pair={}"
+FIXTURE_PORT = int(os.environ.get("A2_FIXTURE_PORT", "8422"))
+LINK = "http://app.invalid/?octos=http://127.0.0.1:%d&pair={}" % FIXTURE_PORT
 CHECKS = {}
+
+
+def report(name, ok, detail=""):
+    """One PASS/FAIL line per check (the walks' shared output convention)."""
+    print(("PASS " if ok else "FAIL ") + name + (f" — {detail}" if detail else ""), flush=True)
+    return ok
 
 
 def get(path, tolerant=False, tries=6):
@@ -207,6 +251,9 @@ def capture(state):
     open(f"{OUT}/{state}.png", "wb").write(get("/g?raw=1"))
     r = check(state, s)
     print(f"[{state}] pass={r.get('pass')} card={r.get('card')} margins={r.get('margins_lr')} small={r.get('controls_lt_28')} overlaps={r.get('overlaps')} outside={r.get('outside_card')}")
+    report(f"{state}: reached by clicks, card centred, the web's width, nothing outside, controls >= 28 px, no overlap",
+           bool(r.get("pass")), f"card {r.get('card')} margins {r.get('margins_lr')} small {r.get('controls_lt_28')} "
+           f"overlaps {r.get('overlaps')} outside {r.get('outside_card')}")
 
 
 def capture_entry(state, wid):
@@ -222,6 +269,7 @@ def capture_entry(state, wid):
     ok = bool(w) and w["r"][3] >= 28 and w["r"][0] >= view[0] and w["r"][0] + w["r"][2] <= view[0] + view[2]
     CHECKS[state] = {"entry": wid, "rect": w and w["r"], "text": w and w.get("t"), "pass": ok}
     print(f"[{state}] entry={wid} rect={w and w['r']} pass={ok}")
+    report(f"{state}: the entry {wid} is laid out (>= 28 px, inside the view)", ok, f"{w and w['r']}")
 
 
 def submit(button_id):
@@ -304,6 +352,7 @@ def main():
     live = any("the paired token is live" in l for l in log)
     CHECKS["paired_live"] = {"log": "pairing: connected — the paired token is live", "pass": live}
     print("[paired] live:", live)
+    report("paired_live: the good link claims, connects and goes live (no token box)", live)
     # Settings (the header) -> Connection -> This device · Details (p4-05)
     wait("settings_open_hit", 10)
     click_until("settings_open_hit", "settings_drawer")
@@ -318,18 +367,61 @@ def main():
     capture_entry("entry_settings_model", "b1_set_provider")
     click_until("b1_set_provider", "b1_prov_save"); time.sleep(1.0)
     capture("p4-06_provider")
+    name0, url0 = (find("b1_prov_name") or {}).get("t"), (find("b1_prov_url") or {}).get("t")
     click("b1_prov_key"); typ("sk-bad-key-123456"); submit("b1_prov_save"); wait("b1_prov_error")
+    s7 = snap()
+    err, kept = (find("b1_prov_error", s7) or {}).get("t"), (find("b1_prov_kept", s7) or {}).get("t")
+    raw = [w.get("t") for w in s7 if "authentication failed" in (w.get("t") or "") or "HTTP 401" in (w.get("t") or "")]
+    report("p4-07: a rejected key shows the bounded copy (no server text) and keeps the draft",
+           err == "The provider rejected this key (401)." and kept == "Your draft is kept." and not raw
+           and (find("b1_prov_name", s7) or {}).get("t") == name0 and (find("b1_prov_url", s7) or {}).get("t") == url0,
+           f"{err!r} / {kept!r}; raw {raw}")
     capture("p4-07_rejected")
     click("b1_prov_key"); key("Backspace", 18); typ("sk-good-key-1"); submit("b1_prov_save")
     wait("b1_card", 10, gone=True)
     CHECKS["provider_saved_back_in_settings"] = {"pass": visible("b1_set_provider")}
+    report("provider_saved_back_in_settings: a good key saves and the editor closes back to Settings",
+           CHECKS["provider_saved_back_in_settings"]["pass"])
     click_until("set_back" if MODE == "phone" else "settings_close", "settings_drawer", gone=True)
     # The sidebar's + Add workspace: the browser over the picker (p4-08 / p4-09)
     if MODE == "phone" and not visible("sb_add_hit"):
         click_until("sidebar_toggle_hit", "sb_add_hit")
     capture_entry("entry_add_workspace", "sb_add_hit")
-    click_until("sb_add_hit", "b1_br_row_1"); click("b1_br_row_1")
+    click_until("sb_add_hit", "b1_br_row_1")
+    # A11 (rows 220/223): what the web's workspace-browse spec asserts, by clicks.
+    note = (find("b1_br_notice") or {}).get("t") or ""
+    report("p4-08: the server's hidden folders are reported", "3 hidden by the server" in note, repr(note))
+    rows0 = [(find(f"b1_br_row_t{i}") or {}).get("t") for i in range(4)]
+    click("b1_br_row_1")
+    end = time.time() + 6
+    while time.time() < end and (find("b1_br_path") or {}).get("t") != "/home/user/code/octoscode-app":
+        time.sleep(0.25)
+    path = (find("b1_br_path") or {}).get("t")
+    rows1 = [(find(f"b1_br_row_t{i}") or {}).get("t") for i in range(4)]
+    report("p4-08: picking a subfolder fills the path box without leaving the parent",
+           path == "/home/user/code/octoscode-app" and rows1 == rows0, f"path {path!r}, rows {rows1}")
     capture("p4-08_browser")
+    # The first tap rebuilt the dialog (the picked row's fill): a click that
+    # lands mid-rebuild is dropped, so tap again until the effect shows. A
+    # repeat is harmless — inside the subfolder it only picks a row.
+    for _ in range(3):
+        click("b1_br_row_1")
+        end = time.time() + 4
+        while time.time() < end and (find("b1_br_row_t0") or {}).get("t") != "crates":
+            time.sleep(0.25)
+        if (find("b1_br_row_t0") or {}).get("t") == "crates":
+            break
+    inside = [(find(f"b1_br_row_t{i}") or {}).get("t") for i in range(3)]
+    report("p4-08: a second tap drills into the folder", inside == ["crates", "design", "docs"], f"{inside}")
+    for _ in range(3):
+        click("b1_br_crumb_3")
+        end = time.time() + 4
+        while time.time() < end and (find("b1_br_row_t0") or {}).get("t") != rows0[0]:
+            time.sleep(0.25)
+        if (find("b1_br_row_t0") or {}).get("t") == rows0[0]:
+            break
+    back = [(find(f"b1_br_row_t{i}") or {}).get("t") for i in range(4)]
+    report("p4-08: the breadcrumb drills back out", back == rows0, f"{back}")
     click("b1_br_crumb_2"); time.sleep(1.0)
     click("b1_br_path"); key("Backspace", 12); typ("/private")
     for _ in range(3):
@@ -350,16 +442,53 @@ def main():
     # The browser's back lands on the picker (the web's add -> choose)
     click_until("b1_br_back", "b1_pk_browse"); time.sleep(0.8)
     capture("picker")
-    click_until("b1_pk_browse", "b1_br_row_0"); click("b1_br_row_0"); click("b1_br_use")
+    click_until("b1_pk_browse", "b1_br_row_0")
+    # A11 (row 222): New folder -> a name -> Create moves into it -> Use this
+    # folder starts the session there.
+    click_until("b1_br_newfolder", "b1_br_newname")
+    click("b1_br_newname"); typ("walk-made")
+    submit("b1_br_create")
+    end = time.time() + 8
+    while time.time() < end and (find("b1_br_path") or {}).get("t") != "/home/user/code/walk-made":
+        time.sleep(0.25)
+    made, empty = (find("b1_br_path") or {}).get("t"), (find("b1_br_empty") or {}).get("t")
+    report("p4-08: New folder creates it and moves into it",
+           made == "/home/user/code/walk-made" and empty == "No subfolders here.", f"path {made!r}, {empty!r}")
+    click("b1_br_use")
     wait("b1_card", 10, gone=True)
+    end = time.time() + 8
+    while time.time() < end and not any("walk-made" in (w.get("t") or "") for w in snap()):
+        time.sleep(0.25)
+    shown_in = [w.get("t") for w in snap() if "walk-made" in (w.get("t") or "")]
+    report("p4-08: Use this folder starts the session in the created folder", bool(shown_in), f"{shown_in[:2]}")
     log = [l for l in json.loads(get("/log?n=400"))["l"] if "board1" in l or "pairing" in l]
     open(f"{OUT}/walk.log", "w").write("\n".join(log) + "\n")
     json.dump(CHECKS, open(f"{OUT}/checks.json", "w"), indent=1)
     print("walk complete; checks pass:", {k: v.get("pass") for k, v in CHECKS.items()})
 
 
+def no_browse():
+    """A11 (row 224): against a server that does NOT advertise
+    onboarding.workspace_browse.v1 (board1_serve --no-browse), + Add workspace
+    opens the picker alone — no Browse folders…, no New folder (fail closed)."""
+    if MODE == "phone" and not visible("sb_add_hit"):
+        click_until("sidebar_toggle_hit", "sb_add_hit")
+    wait("sb_add_hit", 20)
+    click_until("sb_add_hit", "b1_pk_back")
+    time.sleep(1.0)
+    s = snap()
+    report("picker without the browse feature: no Browse and no New folder (fail closed)",
+           find("b1_pk_server", s) is not None and not find("b1_pk_browse", s) and not find("b1_pk_newfolder", s)
+           and not find("b1_br_row_0", s),
+           f"server row {bool(find('b1_pk_server', s))}, browse {bool(find('b1_pk_browse', s))}")
+    capture("picker-no-browse")
+    click_until("b1_pk_back", "b1_card", gone=True)
+
+
 if __name__ != "__main__":
     pass
+elif len(sys.argv) > 3 and sys.argv[3] == "no-browse":
+    no_browse()
 elif len(sys.argv) > 3 and sys.argv[3] == "--recheck":
     import glob
     for f in sorted(glob.glob(f"{OUT}/*.snap.json")):

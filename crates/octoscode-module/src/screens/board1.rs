@@ -20,6 +20,7 @@
 //! | surface | opened from | web |
 //! |---|---|---|
 //! | pairing p4-01 | the first-run Connect screen's "Pair with a link instead", or a launch link (`OCTOS_PAIRING_LINK`) | `pairing.ts:95-127` (the link in the address) |
+//! | pairing p4-01 (A11) | the Connect screen's discovery offer "Connect to <host>" ([`super::discovery`]) | `ConnectionPanel.tsx:178-194` (§Discovery) |
 //! | connection p4-05 | Settings → General → "Connection…" | Settings → General → Forget (walk 112) |
 //! | provider p4-06/07 | Settings → Model → "Edit provider…" | Settings → Models → Edit (walk 87/88) |
 //! | picker | Settings → General → "Open a workspace…" | `NewSessionWorkspacePicker.tsx` (New session) |
@@ -296,6 +297,7 @@ pub const OPENERS: &[(&str, &str)] = &[
     ("b1.open.picker", "open the new-session workspace picker (the web's view \"choose\")"),
     ("b1.open.add", "+ Add workspace: the folder browser over the picker (the web's view \"add\"/\"browse\"; the picker alone when browsing is not advertised)"),
     ("b1.backdrop", "a click on the dialog's backdrop closes it (ModalSurface closeOnBackdrop)"),
+    ("b1.open.discovered", "A11: the Connect card's discovery offer \"Connect to <host>\" — pairing (p4-01) with the remembered server that answered /pair/info, or a tokenless connect when it needs no token"),
 ];
 
 /// The picker's own action ids.
@@ -375,6 +377,28 @@ pub fn route(action: &str, value: Option<&str>) -> Vec<Work> {
             out.extend(route("b1.open.picker", None));
             if host().picker.browse_advertised {
                 out.extend(route_picker("picker.browse"));
+            }
+        }
+        "b1.open.discovered" => {
+            // A11 — the offer's one button, used once (the web's
+            // `useDiscoveredOrigin`, ConnectionGate.tsx:358-366): the form now
+            // names that server. A server that needs a token is paired with
+            // (p4-01, its origin kept for p4-03/p4-04's fallbacks); one that
+            // needs none connects at once, tokenless.
+            if let Some(offer) = super::discovery::take() {
+                makepad_widgets::log!(
+                    "[octoscode] discovery: offer used -> {}",
+                    if offer.pairing_required { "pairing" } else { "connect" }
+                );
+                if offer.pairing_required {
+                    out.push(Work::LeaveToForm { server: Some(offer.origin.clone()) });
+                    out.extend(route("b1.open.pairing", None));
+                    let mut p = pairing::state();
+                    p.server = offer.origin.clone();
+                    p.pairing_host = pairing::host_of(&offer.origin);
+                } else {
+                    out.push(Work::Connect { server: offer.origin, token: String::new() });
+                }
             }
         }
         "b1.backdrop" => {
@@ -757,6 +781,10 @@ pub struct Context {
 /// Fold the connection state in. Closes pairing once the connection a claim
 /// handed over is live; falls back to p4-03 when it failed.
 pub fn note_context(ctx: &Context) {
+    if ctx.live {
+        // A11: a live connection leaves the discovery offer nothing to do.
+        super::discovery::note_live();
+    }
     let advertised = ctx.capabilities.iter().any(|c| c == browser::BROWSE_FEATURE);
     {
         let mut h = host();
@@ -900,7 +928,12 @@ pub fn settings_controls() -> Vec<(String, String)> {
 /// sidebar's "+ Add workspace" is A3's (`sb_add_hit` -> `workspace.add`),
 /// which lib.rs answers with `b1.open.add`.
 pub fn entry_controls() -> Vec<(String, String)> {
-    let mut v = vec![("b1_connect_pair".to_owned(), "b1.open.pairing".to_owned())];
+    let mut v = vec![
+        ("b1_connect_pair".to_owned(), "b1.open.pairing".to_owned()),
+        // A11: the discovery offer's button on the same card
+        // (`fluid::connect_card_with_offer`, shown while `discovery::offer`).
+        ("connect_offer".to_owned(), "b1.open.discovered".to_owned()),
+    ];
     v.extend(settings_controls());
     v
 }

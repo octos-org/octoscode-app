@@ -1,0 +1,67 @@
+== native walk a9_boundary [desktop] (tools/walk/a9_boundary_walk.py)
+-- run 1: exit 0 in 3 s
+PASS connected
+PASS the panic is caught by the fatal boundary
+PASS the crash screen is drawn alone (no chrome behind it)
+PASS the web's copy
+PASS the report is redacted (token + bearer) — Panic: panic probe fatal:settings.panel.open: GET /ws?token=[redacted] Authorization: Bearer [redacted]
+    at apps/octo
+PASS crash actions are >= 28 px targets — []
+PASS the card fits the module — [229, 193, 640, 368]
+SHOT <repo>/tmp/walk/native/a9_boundary-desktop/out/desktop-crash.png
+PASS Copy diagnostics -> Copied
+PASS Report this crash (hidden window: logged, not opened)
+SHOT <repo>/tmp/walk/native/a9_boundary-desktop/out/desktop-crash-copied.png
+PASS Reload app starts the app again
+PASS …and it is usable (the composer is back)
+== WALK a9 boundary fatal desktop: 11/11 passed
+-- app restart (state kept) with {'OCTOSCODE_PANIC_PROBE': 'surface:activity'}
+-- run 2: exit 0 in 9 s
+PASS connected
+PASS the Activity surface fails under its own boundary — False
+PASS 'Activity unavailable' with the web's copy
+PASS a modal (over a backdrop)
+PASS the session owner stays mounted (the conversation and sidebar are there)
+PASS its actions are >= 28 px targets — []
+SHOT <repo>/tmp/walk/native/a9_boundary-desktop/out/desktop-unavailable-modal.png
+PASS Close dismisses it
+PASS the rest of the app still works (Settings opens)
+== WALK a9 boundary modal desktop: 8/8 passed
+-- app restart (state kept) with {'OCTOSCODE_PANIC_PROBE': 'surface:fleet'}
+-- run 3: exit 0 in 2 s
+PASS connected
+PASS the Fleet pane fails under its own boundary
+PASS an inline section (no backdrop)
+PASS …placed in the conversation column — [409, 200, 560, 187] in [335, 76, 709, 603]
+PASS …under its header (Review / Settings stay reachable) — [409, 200, 560, 187] under [335, 76, 709, 100]
+SHOT <repo>/tmp/walk/native/a9_boundary-desktop/out/desktop-unavailable-inline.png
+PASS the sidebar still works beside it (New chat routes)
+PASS Close dismisses it
+== WALK a9 boundary inline desktop: 7/7 passed
+-- fixture restart args ['--task-delay-ms', '3000']
+-- run 4: exit 0 in 14 s
+PASS connected
+PASS the slow first read shows 'Loading activity…' — 'Loading activity…'
+PASS …with a Cancel action (>= 28 px)
+PASS …and no navigator yet
+SHOT <repo>/tmp/walk/native/a9_boundary-desktop/out/desktop-activity-loading.png
+PASS Cancel closes it at once
+PASS a cancelled load never opens afterwards
+PASS left alone, it opens when the read lands
+== WALK a9 boundary loading desktop: 7/7 passed
+-- fixture log tail:
+[replay-serve] -> task/list a9walk:fork
+[replay-serve] <- task/list (id=11)
+[replay-serve] -> task/list a9walk:bump
+[replay-serve] <- task/list (id=12)
+[replay-serve] -> task/list a9walk:hydrate
+[replay-serve] <- task/list (id=13)
+[replay-serve] -> task/list a9walk:review
+[replay-serve] <- task/list (id=14)
+[replay-serve] -> task/list a9walk:main
+[replay-serve] <- task/list (id=15)
+[replay-serve] -> task/list a9walk:fork
+[replay-serve] <- task/list (id=16)
+[replay-serve] -> task/list a9walk:bump
+[replay-serve] <- task/list (id=17)
+[replay-serve] -> task/list a9walk:hydrate
