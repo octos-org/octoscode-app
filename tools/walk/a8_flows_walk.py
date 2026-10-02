@@ -183,13 +183,23 @@ def check(name, ok, detail=""):
 
 
 def shot(name):
-    """The capture AND its /snap (the numeric UX checks read the snap)."""
-    if SHOTS:
-        os.makedirs(SHOTS, exist_ok=True)
-        with open(os.path.join(SHOTS, f"{MODE}-{name}.png"), "wb") as f:
-            f.write(get("/g?raw=1", timeout=30))
-        with open(os.path.join(SHOTS, f"{MODE}-{name}.json"), "wb") as f:
-            f.write(get("/snap?all=1"))
+    """The capture AND its /snap (the numeric UX checks read the snap). A
+    grab the instrument refuses mid-remount is retried; a capture is
+    evidence, never a step, so a lost one is noted, not fatal."""
+    if not SHOTS:
+        return
+    os.makedirs(SHOTS, exist_ok=True)
+    for attempt in range(4):
+        try:
+            png = get("/g?raw=1", timeout=30)
+            with open(os.path.join(SHOTS, f"{MODE}-{name}.png"), "wb") as f:
+                f.write(png)
+            with open(os.path.join(SHOTS, f"{MODE}-{name}.json"), "wb") as f:
+                f.write(get("/snap?all=1"))
+            return
+        except urllib.error.HTTPError:
+            time.sleep(0.5)
+    print(f"NOTE capture {name} failed")
 
 
 def same_title(shown_t, title):
@@ -330,7 +340,7 @@ def phase1():
         check("reconnect: the outage is seen (the transport left Live)",
               wait(lambda: (tree_text("status") or "").startswith("conn: Reconnecting"), 10), str(tree_text("status")))
         time.sleep(1.0)
-        proc = subprocess.Popen([binp, "8428", "--launch", "cross_profile", "--log", LOG],
+        proc = subprocess.Popen([binp, "8428", "--launch", "cross_profile", "--parked", "--log", LOG],
                                 stdout=open(LOG + ".serve2.log", "w"), stderr=subprocess.STDOUT)
         open(pidfile, "w").write(str(proc.pid))
         check("reconnect: the active Session is re-opened",
@@ -364,6 +374,18 @@ def phase2():
           wait(lambda: any((p.get("session_id") or "").startswith("glm-coder:api:") and p.get("profile_id") == "glm-coder" for p in wire("session/open")[n_open:]), 8))
     check("the panel closes", wait(lambda: text("b3_title") is None, 6))
     check("the draft moved with the committed launch", wait(lambda: composer() == "unsent words", 6), repr(composer()))
+
+    # ---- a parked approval comes back with its Session ----------------------
+    # (the restarted server runs `--parked`: approval/respond advertised, and
+    # "Parked approval" hydrates one parked approval canonically)
+    n_h = len(wire("session/hydrate"))
+    open_session_in_sidebar("Parked approval")
+    check("parked: opening the Session read its parked interactions (session/hydrate include pending_approvals)",
+          wait(lambda: any(p.get("session_id") == "a8:api:parked" and p.get("include") == ["pending_approvals"]
+                           for p in wire("session/hydrate")[n_h:]), 8))
+    check("parked: the restored approval holds the strip ('Waiting for your approval')",
+          wait(lambda: text("b3_strip_state") == "Waiting for your approval", 8), str(text("b3_strip_state")))
+    shot("07-parked-approval")
 
 
 if __name__ == "__main__":

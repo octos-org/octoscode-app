@@ -15,7 +15,15 @@
 //!
 //! ```sh
 //! cargo run -p octoscode-module --example a8_serve -- 8428 [--held] [--no-sandbox] \
-//!     [--launch activate|resume|cross_profile|no_profile] [--log tmp/a8/serve.jsonl]
+//!     [--launch activate|resume|cross_profile|no_profile] [--parked] [--log tmp/a8/serve.jsonl]
+//! ```
+//!
+//! `--parked` advertises `approval/respond` + `user_question/respond` and
+//! lists "Parked approval" (`a8:api:parked`), whose canonical hydrate
+//! (`include: ["pending_approvals"]`) carries one parked approval in the
+//! recorded r23 shape (every other Session: none).
+//!
+//! ```sh
 //! OCTOS_BASE_URL=http://127.0.0.1:8428 OCTOS_PROFILE_ID=a8 ... (the app)
 //! ```
 use std::io::Write as _;
@@ -32,6 +40,7 @@ struct Cfg {
     held: bool,
     sandbox: bool,
     launch: String,
+    parked: bool,
     log: Option<String>,
 }
 
@@ -62,6 +71,7 @@ async fn main() {
         held: args.iter().any(|a| a == "--held"),
         sandbox: !args.iter().any(|a| a == "--no-sandbox"),
         launch: flag("--launch").unwrap_or_else(|| "activate".to_owned()),
+        parked: args.iter().any(|a| a == "--parked"),
         log: flag("--log"),
     };
     let world = Arc::new(Mutex::new(World {
@@ -79,7 +89,10 @@ async fn main() {
             ("a8:api:hollow".into(), "Why is hydrate slow?".into()),
             ("a8:api:locked".into(), "Bump octos-core to a6ea8505".into()),
             ("a8:legacy".into(), "Legacy chat".into()),
-        ],
+        ]
+        .into_iter()
+        .chain(cfg.parked.then(|| ("a8:api:parked".to_owned(), "Parked approval".to_owned())))
+        .collect(),
     }));
     let listener = TcpListener::bind(("127.0.0.1", port)).await.expect("bind");
     println!(
@@ -145,6 +158,15 @@ const METHODS: &[&str] = &[
     "thread/graph/get",
     "approval/scopes/list",
 ];
+
+/// What `session/open` advertises (`--parked` adds the two answer methods).
+fn methods(cfg: &Cfg) -> Vec<&'static str> {
+    let mut m = METHODS.to_vec();
+    if cfg.parked {
+        m.extend(["approval/respond", "user_question/respond"]);
+    }
+    m
+}
 
 fn driver_view(w: &World, session: &str, with_ops: bool) -> Value {
     let ops = |items: Vec<Value>| json!({"items": items, "snapshot": "snap-1", "observed_revision": "9", "complete": true, "next_cursor": null});
@@ -217,7 +239,7 @@ async fn ws(stream: TcpStream, cfg: Cfg, world: Arc<Mutex<World>>) {
                         "capabilities": {
                             "version": {"protocol": "octos-ui/v1alpha1", "schema_version": 1, "jsonrpc": "2.0"},
                             "capabilities_schema_version": 2,
-                            "supported_methods": METHODS,
+                            "supported_methods": methods(&cfg),
                             "supported_notifications": ["turn/started", "turn/completed"],
                             "supported_features": features,
                         }
@@ -327,6 +349,16 @@ async fn ws(stream: TcpStream, cfg: Cfg, world: Arc<Mutex<World>>) {
                     Ok(json!({"mode": "internal", "recovery": "none"}))
                 }
                 // The recorded r43a hydrate shape; the main session has history.
+                // The parked-interaction read (`include: ["pending_approvals"]`).
+                "session/hydrate" if params["include"].as_array().is_some_and(|a| a.iter().any(|x| x == "pending_approvals")) => Ok(json!({
+                    "session_id": session, "cursor": {"stream": session, "seq": 2},
+                    "pending_approvals": if session == "a8:api:parked" { json!([
+                        {"approval_id": "01a0eb92-9444-7101-aa6f-10065886f57d", "body": "Run command: cargo test -p octoscode-module",
+                         "risk": "unspecified", "session_id": session, "title": "Approve command", "tool_name": "bash",
+                         "turn_id": "01920000-0000-7000-8000-000000000241"}
+                    ]) } else { json!([]) },
+                    "pending_questions": []
+                })),
                 "session/hydrate" => Ok(json!({
                     "session_id": session, "cursor": {"stream": session, "seq": 2},
                     "messages": if session != "a8:api:hollow" && !session.contains("api:0") { json!([

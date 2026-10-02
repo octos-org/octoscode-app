@@ -170,13 +170,23 @@ def check(name, ok, detail=""):
 
 
 def shot(name):
-    """The capture AND its /snap (the numeric UX checks read the snap)."""
-    if SHOTS:
-        os.makedirs(SHOTS, exist_ok=True)
-        with open(os.path.join(SHOTS, f"{MODE}-{name}.png"), "wb") as f:
-            f.write(get("/g?raw=1", timeout=30))
-        with open(os.path.join(SHOTS, f"{MODE}-{name}.json"), "wb") as f:
-            f.write(get("/snap?all=1"))
+    """The capture AND its /snap (the numeric UX checks read the snap). A
+    grab the instrument refuses mid-remount is retried; a capture is
+    evidence, never a step, so a lost one is noted, not fatal."""
+    if not SHOTS:
+        return
+    os.makedirs(SHOTS, exist_ok=True)
+    for attempt in range(4):
+        try:
+            png = get("/g?raw=1", timeout=30)
+            with open(os.path.join(SHOTS, f"{MODE}-{name}.png"), "wb") as f:
+                f.write(png)
+            with open(os.path.join(SHOTS, f"{MODE}-{name}.json"), "wb") as f:
+                f.write(get("/snap?all=1"))
+            return
+        except urllib.error.HTTPError:
+            time.sleep(0.5)
+    print(f"NOTE capture {name} failed")
 
 
 def layout_checks(tag):
