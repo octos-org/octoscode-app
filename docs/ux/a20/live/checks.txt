@@ -1,0 +1,40 @@
+PASS app up against the private serve
+PASS connected: the Chat tab shows
+PASS Session X is the startup Session — dsflash:main
+PASS CLICK Settings
+PASS CLICK Permissions
+PASS CLICK Ask for approval
+PASS readback: the server asks on request — 'Server: Write · Network blocked · asks on request'
+PASS scratch_dir exists before
+PASS X: the approval card shows for the rm -rf (ask mode) — 'Approve command' None
+PASS CLICK New chat -> Session Y
+PASS Session Y opened (session/open of a new id) — dsflash:api:01a0fdb7-0433-764e-9422-e7355976a171
+PASS Y: no approval card (X's approval is not Y's)
+PASS Y: Y / S / N pressed in Y send nothing (no approval/respond in the trace) — []
+PASS sidebar: exactly one row waits — X's (the rm -rf conversation) — ['New chat']
+PASS CLICK X's row
+PASS wire: session/open X again
+PASS wire: X's parked interactions read (session/hydrate include pending_approvals)
+PASS X: its approval card again (restored, X's own)
+PASS CLICK Approve once
+PASS wire: one approval/respond, to X's exact Session — {"approval_id": "01a0fdb6-fdab-71c0-a609-66937d3b63ed", "approval_scope": "request", "decision": "approve", "session_id": "dsflash:main"}
+PASS the turn completes
+PASS Approve once ran it: scratch_dir is gone on disk
+PASS wire: no approval/respond was ever sent with Y's id
+PASS relaunch with the saved link (link-ws -> ws)
+PASS the panel 'Open saved conversation' is offered — 'Open saved conversation'
+PASS panel: the workspace the link names
+PASS CLICK Open conversation
+PASS refused on the panel — "Not opened: the server resolves the saved link's workspace to a different folder."
+PASS trace: the precondition read the server's attestation (session/list {cwd: link-ws})
+PASS trace: NO session/open for the linked Session — []
+PASS trace: NO session/hydrate for the linked Session — []
+PASS CLICK Dismiss link
+PASS dismissed: the conversation shows
+PASS relaunch with the exact saved link
+PASS panel offered
+PASS CLICK Open conversation (exact workspace)
+PASS trace: session/open {Y, cwd: ws}
+PASS trace: Y's history read after the accepted open
+PASS the panel closes
+== 39/39 checks passed

@@ -581,13 +581,13 @@ fn group_label(key: &str) -> String {
 /// waiting > running > the newest settled turn (completed / failed) > idle.
 pub fn session_status(store: &Store, id: &str, active: Option<&str>) -> Status {
     let is_active = active == Some(id);
-    let question = store
-        .domains
-        .approval
-        .question()
-        .is_some_and(|q| q.session_id == id);
-    let approval = is_active && store.domains.approval.pending().iter().any(|a| !a.decided && !a.cancelled);
-    if question || approval {
+    // A20 (parity row 250): Waiting is THIS Session's own interaction — an
+    // approval or question whose recorded origin is `id`, selected or not
+    // (a blocked background Session surfaces without selection,
+    // `session-record-manager.ts:351-357`). Before, ANY pending approval made
+    // the SELECTED row read Waiting (Session X's wait shown as Y's), and X's
+    // own row did not.
+    if store.domains.approval.waiting(id) {
         return Status::Waiting;
     }
     let listed_running = store
@@ -1175,6 +1175,7 @@ mod tests {
             title: "Which branch?".into(),
             body: String::new(),
             questions: serde_json::Value::Null,
+            ..Default::default()
         });
         // done / failed: the newest terminal turn of the session's timeline
         let tl = &store.domains.session.timeline;
