@@ -1098,7 +1098,7 @@ script_mod! {
         OcLabel{
             width: Fill text: "All sessions on this computer stop.\nRunning turns are interrupted."
             align: Align{x: 0.5}
-            draw_text +: {color: theme.color_text_muted text_style +: {font_size: 10.5 line_spacing: 1.4}}
+            draw_text +: {text_style +: {font_size: 10.5 line_spacing: 1.4}}
         }
         stop_error := OcLabel{
             width: Fill text: "Shutdown was not confirmed. Check the server before trying again."
