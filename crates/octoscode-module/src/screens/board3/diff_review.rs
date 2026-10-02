@@ -340,15 +340,17 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
                 let take = h.lines.len().min(MAX_LINES.saturating_sub(drawn));
                 let row_w = line_row_w(h.lines[..take].iter().map(|l| l.content.as_str()), inner_w - 2.0);
                 // An overflowing hunk keeps room under its last line for the
-                // bar (it draws over the box's bottom edge).
-                let bottom = if row_w > inner_w - 2.0 + 0.5 { 16 } else { 6 };
+                // bar: the bar sits at the bottom of the box's CONTENT, so the
+                // room is the inner column's padding (the scroll view's own
+                // padding is not part of its content).
+                let bottom = if row_w > inner_w - 2.0 + 0.5 { 14 } else { 6 };
                 d.open(
                     &format!("{hid}_scroll"),
                     "ScrollXView",
-                    &format!(
-                        "width: Fill height: Fit flow: Down padding: Inset{{bottom: {bottom}}}\nscroll_bars.scroll_bar_x.bar_side_margin: 4\nscroll_bars.scroll_bar_x.draw_bg.color: #d1d1d6ff\nscroll_bars.scroll_bar_x.draw_bg.color_hover: #aeaeb2ff\nscroll_bars.scroll_bar_x.draw_bg.color_drag: #aeaeb2ff"
-                    ),
+                    "width: Fill height: Fit flow: Down\nscroll_bars.scroll_bar_x.bar_side_margin: 4\nscroll_bars.scroll_bar_x.draw_bg.color: #d1d1d6ff\nscroll_bars.scroll_bar_x.draw_bg.color_hover: #aeaeb2ff\nscroll_bars.scroll_bar_x.draw_bg.color_drag: #aeaeb2ff",
                 );
+                let col = d.anon();
+                d.view(&col, &format!("width: Fit height: Fit flow: Down padding: Inset{{bottom: {bottom}}}"));
                 for (li, l) in h.lines.iter().enumerate() {
                     if drawn >= MAX_LINES {
                         break;
@@ -374,6 +376,7 @@ pub fn build(d: &mut Dsl, st: &DiffReviewState, frame: &Frame, store: &Store) {
                     d.text(&format!("{lid}_code"), &l.content, &Txt::new(11.5, Face::Mono, tok::TEXT));
                     d.close();
                 }
+                d.close();
                 d.close();
             }
             d.close();
