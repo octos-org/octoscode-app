@@ -5,6 +5,8 @@
 //! its domain with one `pub mod` line above and one field in [`State`].
 pub mod approval;
 pub mod autonomy;
+// A29: the /btw aside, one per Session (UI-local, like the composer's queue).
+pub mod btw;
 // A7: the composer's prompt queue + turn controller state.
 pub mod composer;
 pub mod config;
@@ -39,6 +41,8 @@ pub struct State {
     pub models: models::ModelNotices,
     pub config: config::Config,
     pub composer: composer::Composer,
+    /// A29 — each Session's `/btw` aside (parity row 6).
+    pub btw: btw::Asides,
 }
 
 impl State {
