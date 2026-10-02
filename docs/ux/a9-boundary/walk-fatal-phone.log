@@ -1,0 +1,15 @@
+PASS connected
+PASS the panic is caught by the fatal boundary
+PASS the crash screen is drawn alone (no chrome behind it)
+PASS the web's copy
+PASS the report is redacted (token + bearer) — Panic: panic probe fatal:settings.panel.open: GET /ws?token=[redacted] Authorization: Bearer [redacted]
+    at apps/octo
+PASS crash actions are >= 28 px targets — []
+PASS the card fits the module — [37, 231, 328, 461]
+SHOT docs/ux/a9-boundary/phone-crash.png
+PASS Copy diagnostics -> Copied
+PASS Report this crash (hidden window: logged, not opened)
+SHOT docs/ux/a9-boundary/phone-crash-copied.png
+PASS Reload app starts the app again
+PASS …and it is usable (the composer is back)
+== WALK a9 boundary fatal phone: 11/11 passed

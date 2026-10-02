@@ -1361,6 +1361,9 @@ pub struct ConnectView {
     /// "Last tried 9:41 PM ·" when an attempt failed.
     pub last_tried: String,
     pub connecting: bool,
+    /// A9: the handshake ambiguity's honest second half, when the failure
+    /// probe could not tell (`ConnectionPanel.tsx:284-292`); else empty.
+    pub hint: String,
 }
 
 /// Board 4 frame 4 — the first-run "Connect to Octos" card, centered in the
@@ -1445,17 +1448,30 @@ pub fn connect_card_with_offer(
     let error = if c.error.is_empty() {
         String::new()
     } else {
+        // A9: "Last tried 8:54 PM · check the address · Retry" (the time
+        // ran into the actions without a separator).
         let detail = [c.last_tried.as_str(), c.error_actions.as_str()]
             .iter()
             .filter(|s| !s.is_empty())
             .cloned()
             .collect::<Vec<_>>()
-            .join(" ");
+            .join(" · ");
         format!(
             "connect_error := RoundedView{{width: Fill height: Fit flow: Down spacing: 2 margin: Inset{{top: 14}} \
              padding: Inset{{left: 12 right: 12 top: 10 bottom: 10}} \
              draw_bg +: {{color: #fdececff border_radius: 4.0}}\n\
-             {msg}{detail}}}\n",
+             {msg}{hint}{detail}}}\n",
+            hint = if c.hint.is_empty() {
+                String::new()
+            } else {
+                label(
+                    "connect_error_hint",
+                    &c.hint,
+                    &style(Face::Regular, 13.0, 19.0),
+                    INK,
+                    "width: Fill height: Fit flow: Right{wrap: true}",
+                )
+            },
             msg = label(
                 "connect_error_text",
                 &c.error,

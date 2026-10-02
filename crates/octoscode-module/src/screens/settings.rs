@@ -107,6 +107,7 @@ pub const ACTIONS: &[&str] = &[
     "settings.section.model",
     "settings.section.sandbox",
     "settings.section.connection",
+    "settings.section.preferences",
     "settings.section.about",
     // The Model row: select the next configured model (profile/llm/select).
     "settings.model.next",

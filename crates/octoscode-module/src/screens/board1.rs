@@ -116,6 +116,9 @@ impl Ui {
     /// the chevron sits on its own row above the title (the atlas); in a
     /// desktop dialog both share one row, the web's dialog header shape
     /// (`NewSessionWorkspacePicker.tsx` header: back button + heading).
+    /// The back chevron's 32 px hit sits a few px into the card's left padding
+    /// (the board's optical alignment) but never so far that the card clips
+    /// it below the 28 px target (judge: b1_pk_back / b1_pair_back measured 24 px).
     pub fn header(&mut self, l: &Layout, back_id: &str, back_action: &str, title: &str) {
         let t = Text::new("b1_title", title)
             .px(title_px(l, title))
@@ -126,13 +129,13 @@ impl Ui {
             .dsl();
         if l.phone {
             self.push(format!(
-                "View {{ width: Fill height: Fit flow: Down\nView {{ width: Fill height: Fit margin: Inset{{left: -6}}\n{}}}\n{}{t}}}\n",
+                "View {{ width: Fill height: Fit flow: Down\nView {{ width: Fill height: Fit margin: Inset{{left: -2}}\n{}}}\n{}{t}}}\n",
                 kit::back_button(back_id),
                 kit::gap(14.0)
             ));
         } else {
             self.push(format!(
-                "View {{ width: Fill height: 36 flow: Overlay\nView {{ width: Fill height: Fill align: Align{{x: 0.5 y: 0.5}} padding: Inset{{left: 40 right: 40}}\n{t}}}\nView {{ width: Fit height: Fill align: Align{{x: 0.0 y: 0.5}} margin: Inset{{left: -8}}\n{}}}\n}}\n",
+                "View {{ width: Fill height: 36 flow: Overlay\nView {{ width: Fill height: Fill align: Align{{x: 0.5 y: 0.5}} padding: Inset{{left: 40 right: 40}}\n{t}}}\nView {{ width: Fit height: Fill align: Align{{x: 0.0 y: 0.5}} margin: Inset{{left: -4}}\n{}}}\n}}\n",
                 kit::back_button(back_id)
             ));
         }
