@@ -320,7 +320,8 @@ fn lock() -> std::sync::MutexGuard<'static, ()> {
 /// Wait (bounded) until the server saw `n` requests of `method`: the
 /// transport writes on its own task, so a fixed sleep races a loaded host.
 async fn wait_for(server: &FakeServer, method: &str, n: usize) {
-    for _ in 0..60 {
+    // Up to 10 s; returns as soon as `n` calls arrived (3 s could flake on a loaded host).
+    for _ in 0..200 {
         if server.params_of(method).len() >= n {
             return;
         }
