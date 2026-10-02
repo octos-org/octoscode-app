@@ -136,6 +136,8 @@ struct World {
     /// The n-th (1-based) history read (`session/hydrate` with
     /// `include: ["messages"]`) is held until released.
     hold_hydrate: Option<(usize, Arc<tokio::sync::Notify>)>,
+    /// The first `session/open` of this Session is held until released.
+    hold_open: Option<(String, Arc<tokio::sync::Notify>)>,
     hydrates: usize,
     /// Each socket's `X-Profile-Id`, in connect order.
     sockets: Vec<String>,
@@ -415,6 +417,10 @@ async fn serve_ws(stream: TcpStream, world: Arc<Mutex<World>>, header: String) {
                     Some((at, notify)) if *at == n => Some(notify.clone()),
                     _ => None,
                 }
+            } else if method == "session/open"
+                && w.hold_open.as_ref().is_some_and(|(s, _)| params["session_id"] == json!(s))
+            {
+                w.hold_open.take().map(|(_, notify)| notify)
             } else {
                 None
             }
@@ -867,6 +873,57 @@ async fn the_conversation_is_loading_until_the_history_arrives() {
     release.notify_one();
     until("the history", || conv.history("dsflash:main") == History::Ready).await;
     until("the rows", || user_texts(&conv, "dsflash:main").len() == 2).await;
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+/// Requirement 3 from the first frame: an open switches the window to the
+/// Session at once, before Core answers — for that round trip the Session is
+/// LOADING (its history may exist), never READY over an empty transcript
+/// (the welcome). Fails on main.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn an_opening_session_is_loading_not_the_welcome_while_core_answers() {
+    use octoscode_module::flow::History;
+    let (_g, dir) = lock("opening");
+    let release = Arc::new(tokio::sync::Notify::new());
+    let server = FakeServer::start(World {
+        hold_open: Some(("dsflash:main".into(), release.clone())),
+        ..operator_world()
+    })
+    .await;
+    std::env::set_var("OCTOS_PROFILE_ID", "dsflash");
+    let start = launch::plan(&server.base_url);
+    std::env::remove_var("OCTOS_PROFILE_ID");
+    let conv = connect(&server, &start);
+    let c2 = conv.clone();
+    tokio::spawn(async move { launch::startup(&c2, start, None).await });
+    until("the window shows the Session", || conv.store.active_session().as_deref() == Some("dsflash:main")).await;
+    tokio::time::sleep(Duration::from_millis(300)).await;
+    assert!(server.params_of("session/open").is_empty(), "the open is still unanswered");
+    assert!(user_texts(&conv, "dsflash:main").is_empty());
+    assert_eq!(conv.history("dsflash:main"), History::Loading, "loading, not the welcome");
+    release.notify_one();
+    until("the rows", || user_texts(&conv, "dsflash:main").len() == 2).await;
+    until("the history", || conv.history("dsflash:main") == History::Ready).await;
+    let _ = std::fs::remove_dir_all(dir);
+}
+
+/// A New chat has no history: its welcome shows at once and stays while its
+/// (empty) history read is in flight — never a "Loading conversation…" flash.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn a_new_chat_shows_its_welcome_at_once_never_a_loading_flash() {
+    use octoscode_module::flow::History;
+    let (_g, dir) = lock("new-chat-ready");
+    let release = Arc::new(tokio::sync::Notify::new());
+    let server = FakeServer::start(World { hold_hydrate: Some((1, release.clone())), ..operator_world() }).await;
+    let start = launch::plan(&server.base_url);
+    let conv = connect(&server, &start);
+    let r = launch::startup(&conv, start, Some(OTHER.into())).await;
+    let Started::Launched(Launched::Opened(id)) = r else { panic!("a new Session, got {r:?}") };
+    assert_eq!(conv.history(&id), History::Ready, "before Core answers the open");
+    until("its history read is in flight", || server.world.lock().unwrap().hydrates == 1).await;
+    tokio::time::sleep(Duration::from_millis(200)).await;
+    assert_eq!(conv.history(&id), History::Ready, "while its read is in flight");
+    release.notify_one();
     let _ = std::fs::remove_dir_all(dir);
 }
 

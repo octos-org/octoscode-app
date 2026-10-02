@@ -965,6 +965,59 @@ impl Conversation {
         }
     }
 
+    /// A19b — `session`'s history is not on screen yet and a read of it is
+    /// coming: "Loading conversation…" until it settles. Marked from the
+    /// moment an open switches the window to the Session (the switch is
+    /// immediate, before Core answers — an unmarked Session would draw the
+    /// empty welcome for that round trip), and again by each history read.
+    /// A Session this client just minted has no history: its welcome shows
+    /// at once, never a loading flash. The retry flag survives a re-ask.
+    fn history_pending(&self, session: &str) {
+        if self.fresh_ids.lock().unwrap().contains(session) {
+            return;
+        }
+        {
+            let mut h = self.history.lock().unwrap();
+            let e = h.entry(session.to_owned()).or_insert_with(|| HistoryRead {
+                started: Instant::now(),
+                retried: false,
+                failed: None,
+            });
+            e.started = Instant::now();
+            e.failed = None;
+        }
+        // A wake when the wait runs out, so an unanswered read turns into its
+        // visible failure without another event.
+        if let Ok(handle) = tokio::runtime::Handle::try_current() {
+            handle.spawn(async {
+                tokio::time::sleep(HISTORY_WAIT + std::time::Duration::from_millis(200)).await;
+                makepad_widgets::SignalToUI::set_ui_signal();
+            });
+        }
+    }
+
+    /// A19b — a refused `session/open`: the Session it was opening shows the
+    /// reason ("Session recovery required") instead of loading on. The error
+    /// names its Session when Core gives one (`data.session_id`), else it is
+    /// the open this client sent last (one socket answers in order; a later
+    /// open's own read clears a misattributed failure when it is asked).
+    fn on_open_error(&self, error: &octos_core::ui_protocol::RpcError) {
+        let session = error
+            .data
+            .as_ref()
+            .and_then(|d| d.get("session_id"))
+            .and_then(|s| s.as_str())
+            .map(str::to_owned)
+            .unwrap_or_else(|| self.session_id());
+        let mut h = self.history.lock().unwrap();
+        if let Some(e) = h.get_mut(&session) {
+            if e.failed.is_none() {
+                makepad_widgets::log!("[octoscode] history of {session}: the open was refused: {}", error.message);
+                e.failed = Some(error.message.clone());
+            }
+        }
+    }
+
     fn history_failed(&self, session: &str, reason: String) {
         makepad_widgets::log!("[octoscode] history of {session} could not be read: {reason}");
         let mut h = self.history.lock().unwrap();
@@ -1244,24 +1297,7 @@ impl Conversation {
                     .out("session/hydrate", &serde_json::json!({"session_id": session, "include": ["messages"]}));
                 // A19b — the Session's history is loading until this read
                 // settles (the retry flag survives a re-ask).
-                {
-                    let mut h = self.history.lock().unwrap();
-                    let e = h.entry(session.to_owned()).or_insert_with(|| HistoryRead {
-                        started: Instant::now(),
-                        retried: false,
-                        failed: None,
-                    });
-                    e.started = Instant::now();
-                    e.failed = None;
-                }
-                // A wake when the wait runs out, so an unanswered read turns
-                // into its visible failure without another event.
-                if let Ok(handle) = tokio::runtime::Handle::try_current() {
-                    handle.spawn(async {
-                        tokio::time::sleep(HISTORY_WAIT + std::time::Duration::from_millis(200)).await;
-                        makepad_widgets::SignalToUI::set_ui_signal();
-                    });
-                }
+                self.history_pending(session);
                 true
             }
             Err(e) => {
@@ -1424,6 +1460,10 @@ impl Conversation {
         // (the #39a row-2 gate behavior) can neither drop it nor dangle the
         // active id. The session/open RpcResult arm re-notes idempotently.
         self.store.note_session_opened(&session_id.0, None);
+        // A19b — the window switches NOW, before Core answers: the Session
+        // shows "Loading conversation…" until its history settles, never the
+        // empty welcome for the open's round trip.
+        self.history_pending(&session_id.0);
         self.store.set_active(Some(session_id.0.clone()));
         if let Err(e) = self.refresh_sessions().await {
             ::log::warn!("octoscode: session/list after open: {e}");
@@ -2606,6 +2646,11 @@ impl Conversation {
                         }
                         // A19 — a restore that lands elsewhere is refused.
                         self.settle_open_watch(Err(format!("the server opened {actual} instead of {req}")));
+                        // A19b — and the Session says why, instead of loading on.
+                        self.history_failed(
+                            &r.opened.session_id.0,
+                            "The server opened a different workspace from this conversation's.".to_owned(),
+                        );
                         return FlowEvent::Other("session/open-workspace-mismatch".to_owned());
                     }
                 }
@@ -2703,6 +2748,9 @@ impl Conversation {
                 // web's coding gate requires it, `coding-capabilities.ts:14-16`).
                 if caps.supported_methods.iter().any(|m| m == "session/hydrate") {
                     self.request_hydrate(&r.opened.session_id.0);
+                } else {
+                    // A19b — no history read is coming: nothing to wait for.
+                    self.history.lock().unwrap().remove(&r.opened.session_id.0);
                 }
                 // A15 — and the catalog re-lists for the opened Session's
                 // workspace, now that it is known (the web's `refreshKey`
@@ -2913,6 +2961,8 @@ impl Conversation {
                 // back to a fresh launch).
                 if method == "session/open" {
                     self.settle_open_watch(Err(error.message.clone()));
+                    // A19b — the Session it was opening says why.
+                    self.on_open_error(error);
                 }
                 // A19b — a refused history read: retried once with the
                 // Session's folder, else shown.
