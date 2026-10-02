@@ -805,9 +805,17 @@ pub fn tool_view(
         .as_ref()
         .and_then(|r| r.duration_ms)
         .map(|ms| (ms + 500) / 1000);
+    // A15 — a hydrated "Tool output" row (no call id, no record) carries the
+    // persisted output itself (`timelineFromHydrate`'s tool body).
     let output = record
         .as_ref()
         .and_then(|r| r.output_preview.clone())
+        .or_else(|| {
+            entry
+                .and_then(|e| e.data.get("output"))
+                .and_then(|v| v.as_str())
+                .map(str::to_owned)
+        })
         .unwrap_or_default();
     (
         crate::fluid::ToolView { title, target, state, secs, output },

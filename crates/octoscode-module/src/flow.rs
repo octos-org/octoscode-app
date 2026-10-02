@@ -671,8 +671,12 @@ pub struct Conversation {
     ever_live: Mutex<bool>,
     /// A8 — the generation (`open_seq`) each in-flight `session/hydrate` was
     /// requested under, by session: a reply from a retired generation is a
-    /// stale authority and fails closed.
-    hydrate_gen: Mutex<HashMap<String, u64>>,
+    /// stale authority and fails closed. A15: a QUEUE per session, in send
+    /// order — every open now hydrates, so an open, a resync and a second
+    /// open can each have one in flight; the transport's reply names only the
+    /// session, and one socket answers them in order. A re-dialed socket
+    /// clears it (the dropped socket's requests are never answered).
+    hydrate_gen: Mutex<HashMap<String, std::collections::VecDeque<u64>>>,
     /// A8 — the new-session defaults armed by `new_chat` for the FRESH id
     /// only; the open reply for exactly that id takes them once
     /// (`App.tsx:649` `appliedDefaultsForSession`).
@@ -998,11 +1002,13 @@ impl Conversation {
     /// CURRENT generation (the reply arm refuses it once the generation moved).
     pub fn request_hydrate(&self, session: &str) -> bool {
         let gen = self.generation();
-        self.hydrate_gen.lock().unwrap().insert(session.to_owned(), gen);
+        self.hydrate_gen.lock().unwrap().entry(session.to_owned()).or_default().push_back(gen);
         match self.cmd_tx.try_send(OutboundCommand::HydrateSession { session_id: session.to_owned() }) {
             Ok(()) => true,
             Err(e) => {
-                self.hydrate_gen.lock().unwrap().remove(session);
+                if let Some(q) = self.hydrate_gen.lock().unwrap().get_mut(session) {
+                    q.pop_back();
+                }
                 ::log::warn!("octoscode: session/hydrate send failed for {session}: {e}");
                 false
             }
@@ -1485,6 +1491,118 @@ impl Conversation {
         self.open_workspace_with(&id, cwd, sandbox).await
     }
 
+    /// A15 — fold one ACCEPTED canonical hydrate into `session`'s transcript:
+    /// the web's `timelineFromHydrate` (`timeline/model.ts:42-240`) reduced to
+    /// the native store's append-only rules (`Timeline::fold_hydrated_messages`).
+    ///
+    /// * **Turn identity.** Core stamps a turn's user/assistant/tool rows with
+    ///   `thread_id` = the turn UUID and usually omits `turn_id`; the web maps
+    ///   a thread to its turn (`turnByThread`, `model.ts:47-60`,
+    ///   `session-record-manager.ts:1052-1066`). The native row model groups a
+    ///   transcript BY TURN (`screen::timeline_rows_folded`: one prompt, its
+    ///   tools, its answer), so every row takes `turn_id ?? thread_id`: a turn
+    ///   this client streamed live is recognised (A12's no-duplicate rule) and
+    ///   a history turn keeps its own prompt and answer instead of collapsing
+    ///   into one group.
+    /// * **Tool rows.** The replayed tool envelopes (`replayed_tool_envelopes`
+    ///   + the tool records of `replayed_projection_envelopes`, deduped by
+    ///   (thread, seq), `model.ts:198-221`) are folded as the turn's tool cards
+    ///   — name, arguments, status, output — exactly as live delivery draws
+    ///   them; such a turn's persisted `tool` rows are the cards' outputs
+    ///   (`coalesceHydratedTools`, `model.ts:864+`) and are not repeated. A
+    ///   turn with no replayed card (a server restart evicts the replay
+    ///   window) keeps its rows as "Tool output" rows.
+    /// * A card this client already holds (same `tool_call_id`) is never
+    ///   drawn twice; nothing is deleted.
+    ///
+    /// Returns the entries added.
+    fn fold_history(&self, session: &str, h: &octos_core::ui_protocol::SessionHydrateResult) -> usize {
+        use octos_core::ui_protocol::PayloadV2;
+        let timeline = &self.store.domains.session.timeline;
+        // The replayed tool records, once each, in delivery order.
+        let mut seen_env: std::collections::HashSet<(String, u64)> = std::collections::HashSet::new();
+        let mut tool_envs: Vec<&octos_core::ui_protocol::EnvelopeV2> = h
+            .replayed_tool_envelopes
+            .iter()
+            .flatten()
+            .chain(h.replayed_projection_envelopes.iter().flatten().filter(|e| {
+                matches!(
+                    e.payload,
+                    PayloadV2::ToolStart { .. } | PayloadV2::ToolProgress { .. } | PayloadV2::ToolEnd { .. }
+                )
+            }))
+            .filter(|e| seen_env.insert((e.thread_id.clone(), e.seq)))
+            .collect();
+        tool_envs.sort_by_key(|e| e.cursor.as_ref().map(|c| c.seq).unwrap_or(e.seq));
+        let carded: std::collections::HashSet<&str> = tool_envs
+            .iter()
+            .filter(|e| matches!(e.payload, PayloadV2::ToolStart { .. }))
+            .map(|e| e.turn_id.as_str())
+            .collect();
+        let rows: Vec<octoscode_store::timeline::HydratedRow> = h
+            .messages
+            .iter()
+            .flatten()
+            .map(|m| octoscode_store::timeline::HydratedRow {
+                seq: m.seq,
+                role: m.role.as_str(),
+                content: m.content.as_str(),
+                turn_id: m.turn_id.as_ref().map(|t| t.0.to_string()).or_else(|| m.thread_id.clone()),
+                reasoning: m.reasoning_content.as_deref(),
+            })
+            .filter(|r| !(r.role == "tool" && r.turn_id.as_deref().is_some_and(|t| carded.contains(t))))
+            .collect();
+        let mut added = if rows.is_empty() { 0 } else { timeline.fold_hydrated_messages(session, &rows) };
+        if tool_envs.is_empty() {
+            return added;
+        }
+        let mut cards: std::collections::HashSet<String> = timeline
+            .of_kind(session, octoscode_store::EntryKind::TOOL_CALL)
+            .into_iter()
+            .filter_map(|e| e.data.get("tool_call_id").and_then(|v| v.as_str()).map(str::to_owned))
+            .collect();
+        let known_calls: std::collections::HashSet<String> =
+            self.store.domains.tool.calls().into_iter().map(|c| c.tool_call_id).collect();
+        let mut drawn: std::collections::HashSet<String> = std::collections::HashSet::new();
+        for env in tool_envs {
+            match &env.payload {
+                PayloadV2::ToolStart { tool_call_id, name, arguments_preview } => {
+                    if !cards.insert(tool_call_id.clone()) {
+                        continue; // already on screen (live, or an earlier hydrate)
+                    }
+                    self.store.domains.tool.call_started(tool_call_id, name, arguments_preview.as_deref());
+                    timeline.append_data(
+                        session,
+                        Some(env.turn_id.clone()),
+                        octoscode_store::EntryKind::TOOL_CALL,
+                        name.clone(),
+                        serde_json::json!({
+                            "tool_call_id": tool_call_id,
+                            "status": "running",
+                            "hydrate_id": format!("hydrate:tool:{tool_call_id}"),
+                            "replayed": true,
+                        }),
+                    );
+                    drawn.insert(tool_call_id.clone());
+                    added += 1;
+                }
+                PayloadV2::ToolEnd { tool_call_id, status, output_preview, duration_ms, .. }
+                    if drawn.contains(tool_call_id) || known_calls.contains(tool_call_id) =>
+                {
+                    let wire = match status {
+                        octos_core::ui_protocol::EnvelopeToolEndStatus::Complete => "complete",
+                        octos_core::ui_protocol::EnvelopeToolEndStatus::Error => "error",
+                        octos_core::ui_protocol::EnvelopeToolEndStatus::Skipped => "skipped",
+                        octos_core::ui_protocol::EnvelopeToolEndStatus::Aborted => "aborted",
+                    };
+                    self.store.domains.tool.call_ended(tool_call_id, wire, output_preview.as_deref(), *duration_ms);
+                }
+                _ => {}
+            }
+        }
+        added
+    }
+
     /// The created ids whose new-session defaults were applied (test seam).
     pub fn defaults_applied(&self) -> Vec<String> {
         self.creation_defaults.applied()
@@ -1641,10 +1759,14 @@ impl Conversation {
     /// A8 — the reconnect path (`active-session-runtime.ts` recovery): bump
     /// the generation BEFORE anything goes out (every result captured under
     /// the old one is now stale), re-open the active Session at its workspace
-    /// and ask for its canonical hydrate.
+    /// and ask for its canonical hydrate. A15: the hydrate is asked by the
+    /// open's reply arm (every open hydrates), so a refused re-open asks for
+    /// nothing and an accepted one asks exactly once.
     fn reopen_after_reconnect(&self) {
         let session = self.session_id();
         let cwd = self.store.domains.session.workspace_root(&session);
+        // A15 — the dropped socket's in-flight hydrates are never answered.
+        self.hydrate_gen.lock().unwrap().clear();
         *self.open_seq.lock().unwrap() += 1;
         *self.pending_open_cwd.lock().unwrap() = cwd.clone();
         let params = SessionOpenParams {
@@ -1660,7 +1782,6 @@ impl Conversation {
         match self.cmd_tx.try_send(OutboundCommand::OpenSession(params)) {
             Ok(()) => {
                 ::log::info!("octoscode: reconnect — re-opened {session} (generation {})", self.generation());
-                self.request_hydrate(&session);
             }
             Err(e) => ::log::warn!("octoscode: reconnect re-open of {session} failed: {e}"),
         }
@@ -2138,6 +2259,24 @@ impl Conversation {
                         &caps.supported_features,
                     ),
                 );
+                // A15 — EVERY open loads the Session's history, as the web's
+                // does: a candidate open is `openSession` then
+                // `hydrateSession({session_id: opened.session_id})`
+                // (`candidate-session.ts:166-183`, also the retained-owner path
+                // `active-session-runtime.ts:159-176`), and a reconnect re-opens
+                // and `#hydrate(authority, "reconnect")`s (`:1065`). So the
+                // startup open, a sidebar row, Resume, a switch, a New chat
+                // and a reconnect's re-open each ask once, here, when the open
+                // the server answered is adopted (before this, only a reconnect
+                // or a lossy replay did: a restarted app showed an empty "New
+                // chat"). The reply folds through `SessionHydrated` below —
+                // append-only, a row already streamed live recognised by
+                // Core's thread id = turn id (A12), so a re-open never
+                // duplicates. Only where `session/hydrate` is advertised (the
+                // web's coding gate requires it, `coding-capabilities.ts:14-16`).
+                if caps.supported_methods.iter().any(|m| m == "session/hydrate") {
+                    self.request_hydrate(&r.opened.session_id.0);
+                }
                 FlowEvent::WorkspaceOpened(r.opened.session_id.0.clone())
             }
             TransportEvent::SessionsListed { sessions } => {
@@ -2213,14 +2352,22 @@ impl Conversation {
                         // under the current one while the session still owes
                         // its resync (the web's "fails recovery preparation
                         // before committing the hydrate cursor").
-                        let requested_gen = self.hydrate_gen.lock().unwrap().remove(session_id.as_str());
+                        let (requested_gen, current_in_flight) = {
+                            let mut map = self.hydrate_gen.lock().unwrap();
+                            let q = map.entry(session_id.clone()).or_default();
+                            let g = q.pop_front();
+                            (g, q.contains(&self.generation()))
+                        };
                         if requested_gen.is_some_and(|g| g != self.generation()) {
                             ::log::warn!(
                                 "octoscode: session/hydrate for {session_id} from a retired generation — stale authority, not committed"
                             );
+                            // A15: unless a hydrate of the CURRENT generation
+                            // is already on its way (the new open's own).
                             if self.store.active_session().as_deref() == Some(session_id.as_str())
                                 && self.store.domains.config.recovery(session_id).phase
                                     != octoscode_store::domains::config::LossyPhase::Healthy
+                                && !current_in_flight
                             {
                                 self.request_hydrate(session_id);
                             }
@@ -2252,48 +2399,7 @@ impl Conversation {
                             // idempotent by seq identity, NEVER a delete. Sits
                             // INSIDE the #P4g1 mismatch guard's else: only a
                             // matching snapshot commits anything.
-                            // A12 — Core stamps a user/assistant row's
-                            // `thread_id` with its turn UUID and usually omits
-                            // `turn_id` (the web's `turnByThread`,
-                            // `session-record-manager.ts:1052-1066`): a thread
-                            // id the transcript already knows AS a turn is that
-                            // turn — so a reconnect's re-hydrate recognises the
-                            // rows this client streamed live instead of
-                            // appending them a second time (the live proof's
-                            // duplicated turn).
-                            let known_turns: std::collections::HashSet<String> = self
-                                .store
-                                .domains
-                                .session
-                                .timeline
-                                .entries(&session_id)
-                                .into_iter()
-                                .filter_map(|e| e.turn_id)
-                                .collect();
-                            let known_turn = |thread: &str| known_turns.contains(thread);
-                            let rows: Vec<octoscode_store::timeline::HydratedRow> = h
-                                .messages
-                                .iter()
-                                .flatten()
-                                .map(|m| octoscode_store::timeline::HydratedRow {
-                                    seq: m.seq,
-                                    role: m.role.as_str(),
-                                    content: m.content.as_str(),
-                                    turn_id: m.turn_id.as_ref().map(|t| t.0.to_string()).or_else(|| {
-                                        m.thread_id.as_deref().filter(|t| known_turn(t)).map(str::to_owned)
-                                    }),
-                                    reasoning: m.reasoning_content.as_deref(),
-                                })
-                                .collect();
-                            let added = if rows.is_empty() {
-                                0
-                            } else {
-                                self.store
-                                    .domains
-                                    .session
-                                    .timeline
-                                    .fold_hydrated_messages(&session_id, &rows)
-                            };
+                            let added = self.fold_history(session_id, &h);
                             self.store.domains.config.mark_recovered(&session_id);
                             ::log::info!(
                                 "octoscode: session/hydrate folded for {session_id} (+{added} rows)"

@@ -508,9 +508,12 @@ async fn durable_projection_frames_route_by_session_scope() {
         "a foreign lossy must not fold"
     );
     // …did not trigger a resync (a foreign loss is not ours)…
+    // A15 — the open's own history read is the ONE hydrate (every open
+    // hydrates, the web's open -> hydrate); a foreign loss adds none.
     let received = server.received.lock().unwrap().clone();
-    assert!(
-        !received.contains(&"session/hydrate".to_owned()),
+    assert_eq!(
+        received.iter().filter(|m| *m == "session/hydrate").count(),
+        1,
         "a foreign replay_lossy must not produce a resync; sent {received:?}"
     );
     // …and the in-scope envelope still folded normally.
