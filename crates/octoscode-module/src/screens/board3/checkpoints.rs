@@ -25,7 +25,7 @@ use crate::screens::history::{self, ConversationCheckpoint, HistoryMode};
 use super::host::Outcome;
 use super::ui::{self, tok, Btn, Dsl, Face, Frame, Txt, W};
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct CkState {
     pub loading: bool,
     pub applying: bool,
@@ -38,6 +38,59 @@ pub struct CkState {
     pub confirm: Option<usize>,
     pub copy_label: Option<String>,
     pub ticket: u64,
+    /// A7 — the dialog's mode (`HistoryDialog.tsx`: one modal, three
+    /// titles): `/rewind` (A4's checkpoints), `/undo`, `/fork`.
+    pub mode: HistoryMode,
+    /// A7 — undo: the fresh `snapshot/list` (enabled, available, rows).
+    pub snapshots: Option<octoscode_store::domains::config::SnapshotList>,
+    /// A7 — undo: the snapshot awaiting confirmation.
+    pub snap_confirm: Option<usize>,
+    /// A7 — fork: the typed conversation name (live) and its mount snapshot.
+    pub fork_name: String,
+    pub fork_name_snap: String,
+    /// A7 — fork: the exact child the server created.
+    pub forked: Option<String>,
+    /// A7 — the accepted change reconciled (`completed`): the controls lock.
+    pub completed: bool,
+}
+
+impl Default for CkState {
+    fn default() -> Self {
+        Self {
+            loading: false,
+            applying: false,
+            error: None,
+            notice: None,
+            rows: Vec::new(),
+            live: false,
+            blocked: None,
+            confirm: None,
+            copy_label: None,
+            ticket: 0,
+            mode: HistoryMode::Rewind,
+            snapshots: None,
+            snap_confirm: None,
+            fork_name: String::new(),
+            fork_name_snap: String::new(),
+            forked: None,
+            completed: false,
+        }
+    }
+}
+
+impl CkState {
+    /// A7 — reset for a fresh opening in `mode` (`HistoryDialog` is keyed by
+    /// `authorityKey:mode`: a new mode is a new dialog).
+    pub fn open_mode(&mut self, mode: HistoryMode) {
+        let ticket = self.ticket;
+        *self = CkState { mode, ticket, ..Default::default() };
+    }
+
+    /// A7 — fork: the typed name is a valid conversation name (the web's
+    /// `validForkChatId`, `packages/client/src/history.ts:54-61`).
+    pub fn fork_armed(&self) -> bool {
+        !self.applying && !self.completed && self.blocked.is_none() && history::valid_fork_chat_id(&self.fork_name)
+    }
 }
 
 /// The first user message time of each checkpoint, from the hydrate rows
@@ -76,13 +129,43 @@ fn checkpoint_times(messages: &[Value], cps: &[ConversationCheckpoint]) -> Vec<O
 
 pub async fn load(conv: &crate::flow::Conversation) -> Result<String, String> {
     let session = conv.session_id();
-    let ticket = {
+    let (ticket, mode) = {
         let mut st = super::host::state();
         st.ck.ticket += 1;
         st.ck.loading = true;
         st.ck.error = None;
-        st.ck.ticket
+        (st.ck.ticket, st.ck.mode)
     };
+    // A7 — the per-mode load (`history-coordinator.ts:99-131`): undo lists
+    // the snapshots, fork has nothing to load, rewind reads the checkpoints.
+    if mode != HistoryMode::Rewind {
+        let blocked = history::blocked_reason(&conv.store, &session, mode);
+        let listed = if mode == HistoryMode::Undo && blocked.is_none() {
+            Some(history::load_history(conv.client(), &conv.store, &session, HistoryMode::Undo).await)
+        } else {
+            None
+        };
+        let mut st = super::host::state();
+        if st.ck.ticket != ticket {
+            return Ok("stale history read dropped".into());
+        }
+        st.ck.loading = false;
+        st.ck.blocked = blocked;
+        return match listed {
+            Some(Err(e)) => {
+                st.ck.error = Some(e.clone());
+                Err(e)
+            }
+            Some(Ok(_)) => {
+                let list = conv.store.domains.config.snapshots();
+                let n = list.snapshots.len();
+                st.ck.snapshots = Some(list);
+                st.ck.snap_confirm = None;
+                Ok(format!("{n} snapshots"))
+            }
+            None => Ok("fork ready".into()),
+        };
+    }
     let blocked = history::blocked_reason(&conv.store, &session, HistoryMode::Rewind);
     let thread = history::read_history(conv.client(), &session).await;
     let mut st = super::host::state();
@@ -154,6 +237,89 @@ pub async fn rewind(conv: &crate::flow::Conversation, key: String) -> Result<Str
     Ok(out.notice)
 }
 
+/// A7 — Undo workspace changes (`history-coordinator.ts:161-186`): the
+/// production `history::undo_workspace_changes` (fresh `snapshot/list`, the
+/// target re-checked, `snapshot/restore`, the restored target validated, the
+/// owning record rehydrated), then the completed notice.
+pub async fn undo(conv: &crate::flow::Conversation, snapshot_id: String) -> Result<String, String> {
+    let session = conv.session_id();
+    let out = history::undo_workspace_changes(conv.client(), &conv.store, &session, &snapshot_id).await;
+    let mut st = super::host::state();
+    st.ck.applying = false;
+    st.ck.snap_confirm = None;
+    match out {
+        Ok(o) => {
+            st.ck.notice = Some(o.notice.clone());
+            st.ck.error = None;
+            st.ck.completed = true;
+            st.ck.snapshots = Some(conv.store.domains.config.snapshots());
+            Ok(o.notice)
+        }
+        Err(e) => {
+            st.ck.error = Some(e.clone());
+            Err(e)
+        }
+    }
+}
+
+/// A7 — Fork conversation (`history-coordinator.ts:196-205` + `:263-264`):
+/// `session/fork` with the typed name (`history::fork_conversation`
+/// validates it and the response's parent/child), the owning record's
+/// canonical rehydration, then the exact child is opened IN THE BACKGROUND —
+/// known to the session list and the sidebar, never selected, no kickoff
+/// turn ("Your selection was not changed").
+pub async fn fork(conv: &crate::flow::Conversation, name: String) -> Result<String, String> {
+    let session = conv.session_id();
+    let out = match history::fork_conversation(conv.client(), &session, &name, None).await {
+        Ok(o) => o,
+        Err(e) => {
+            let mut st = super::host::state();
+            st.ck.applying = false;
+            st.ck.error = Some(e.clone());
+            return Err(e);
+        }
+    };
+    super::host::state().ck.forked = Some(out.forked_session_id.clone());
+    // The owner's canonical rehydration, then the child in the background.
+    let reconciled = history::read_history(conv.client(), &session).await;
+    conv.store.note_session_opened(&out.forked_session_id, None);
+    let listed = conv.refresh_sessions().await.map_err(|e| e.to_string());
+    let mut st = super::host::state();
+    st.ck.applying = false;
+    match reconciled.and(listed) {
+        Ok(_) => {
+            st.ck.notice = Some(out.notice.clone());
+            st.ck.error = None;
+            st.ck.completed = true;
+            Ok(out.forked_session_id)
+        }
+        Err(e) => {
+            let msg = format!(
+                "The server accepted the history change, but local reconciliation failed. Retry refresh without repeating the change. {e}"
+            );
+            st.ck.error = Some(msg.clone());
+            Err(msg)
+        }
+    }
+}
+
+/// A7 — the fork name field's live text.
+pub fn input_changed(st: &mut CkState, key: &str, text: &str) {
+    if key == "ck.fork" {
+        st.fork_name = text.to_owned();
+    }
+}
+
+/// A7 — the armed/disarmed fork control without a remount (the input keeps
+/// its focus while typing; the resume dialog's pattern).
+pub fn visibility(st: &CkState) -> Vec<(String, bool)> {
+    if st.mode != HistoryMode::Fork {
+        return Vec::new();
+    }
+    let armed = st.fork_armed();
+    vec![("b3_ck_fork_on".into(), armed), ("b3_ck_fork_off".into(), !armed)]
+}
+
 /// "Copy as Markdown" — the export read (`screens/transcript.rs`); the host
 /// writes the text to the clipboard on the UI thread.
 pub async fn copy_markdown(conv: &crate::flow::Conversation) -> Result<String, String> {
@@ -201,6 +367,42 @@ pub fn perform(st: &mut CkState, action: &str, index: usize) -> Outcome {
             None => Outcome::Done,
         },
         "b3.ck.reload" => Outcome::Spawn(super::host::Job::CheckpointsLoad),
+        // A7 — undo: pick a snapshot, then confirm the workspace restore.
+        "b3.ck.snap" => {
+            let ok = st.snapshots.as_ref().is_some_and(|l| l.available && index < l.snapshots.len());
+            if st.blocked.is_some() || st.applying || st.completed || !ok {
+                return Outcome::Done;
+            }
+            st.snap_confirm = Some(index);
+            st.notice = None;
+            Outcome::Done
+        }
+        "b3.ck.snap_cancel" => {
+            st.snap_confirm = None;
+            Outcome::Done
+        }
+        "b3.ck.snap_confirm" => {
+            let id = st
+                .snap_confirm
+                .and_then(|i| st.snapshots.as_ref().and_then(|l| l.snapshots.get(i)))
+                .map(|s| s.id.clone());
+            match id {
+                Some(id) if !st.applying => {
+                    st.applying = true;
+                    Outcome::Spawn(super::host::Job::Undo(id))
+                }
+                _ => Outcome::Done,
+            }
+        }
+        // A7 — fork: create the branch with the typed name.
+        "b3.ck.fork" => {
+            if !st.fork_armed() {
+                return Outcome::Done;
+            }
+            st.applying = true;
+            st.error = None;
+            Outcome::Spawn(super::host::Job::Fork(st.fork_name.clone()))
+        }
         "b3.ck.copy_md" => {
             st.copy_label = Some("Copying…".into());
             Outcome::Spawn(super::host::Job::CopyMarkdown)
@@ -213,6 +415,155 @@ pub fn perform(st: &mut CkState, action: &str, index: usize) -> Outcome {
 
 
 pub fn build(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store) {
+    match st.mode {
+        HistoryMode::Rewind => build_rewind(d, st, frame, store),
+        mode => build_mode(d, st, frame, store, mode),
+    }
+}
+
+/// A7 — the dialog's undo and fork modes (`HistoryDialog.tsx:85-215`), in
+/// the screen-11 card's language: the web's title and consequence copy, the
+/// status lines, then the snapshot picker + "Restore “…” in this workspace?"
+/// confirmation (undo) or the conversation-name field + "Create conversation
+/// fork" (fork), and the completed receipt.
+fn build_mode(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store, mode: HistoryMode) {
+    let width = frame.dialog_w(640.0);
+    let pad = ui::dialog_pad(frame, width);
+    let inner_w = width - 2.0 * pad;
+    ui::shell_open(d, frame, width);
+    ui::header(d, mode.title(), "b3.close");
+    let session = store.domains.session.active().unwrap_or_default();
+    d.text("b3_ck_scope", &session, &Txt::new(11.5, Face::Mono, tok::MUTED).w(W::Fill));
+    d.gap(W::Fill, 10.0);
+    let consequence = match mode {
+        HistoryMode::Undo => "Restore server-owned files to a saved snapshot. This can replace workspace changes; conversation messages are not rewound.",
+        _ => "Copy the conversation into a new session in the same workspace. This does not create a Git worktree or a workspace copy.",
+    };
+    d.text("b3_ck_consequence", consequence, &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill).wrap());
+    d.gap(W::Fill, 12.0);
+    ui::body_open(d, frame, width, 120.0);
+    if st.loading {
+        d.text("b3_ck_loading", "Loading server history…", &ui::meta());
+    }
+    if let Some(why) = &st.blocked {
+        d.text("b3_ck_blocked", why, &Txt::new(12.0, Face::Regular, tok::AMBER).w(W::Fill).wrap());
+    }
+    if st.applying {
+        d.text("b3_ck_applying", "Applying and refreshing the owning Session…", &ui::meta());
+    }
+    let locked = st.blocked.is_some() || st.loading || st.applying || st.completed;
+    match mode {
+        HistoryMode::Undo => {
+            let list = st.snapshots.clone().unwrap_or_default();
+            if st.snapshots.is_some() && !list.enabled {
+                d.text("b3_ck_snap_off", "Automatic snapshots are disabled. Existing snapshots remain available.", &ui::meta().w(W::Fill).wrap());
+            }
+            if !st.loading && list.snapshots.is_empty() {
+                d.text("b3_ck_empty", "No workspace snapshots available.", &ui::meta());
+            }
+            if !list.snapshots.is_empty() {
+                d.surface("b3_ck_list", "width: Fill height: Fit flow: Down", tok::SURFACE, 12.0, Some(tok::HAIRLINE));
+                for (i, snap) in list.snapshots.iter().enumerate() {
+                    if i > 0 {
+                        d.hairline();
+                    }
+                    let rid = format!("b3_ck_snap_{i}");
+                    d.view(&rid, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 12 padding: Inset{left: 14 right: 14 top: 11 bottom: 11}");
+                    let col = d.anon();
+                    d.view(&col, "width: Fill height: Fit flow: Down spacing: 3");
+                    let label = if snap.label.is_empty() { snap.id.clone() } else { snap.label.clone() };
+                    d.text(
+                        &format!("{rid}_label"),
+                        &super::inventory::fit(&label, inner_w - 120.0, 13.0, false),
+                        &Txt::new(13.0, Face::Regular, tok::TEXT).w(W::Fill),
+                    );
+                    let when = match snap.timestamp_unix {
+                        t if t > 0 => {
+                            let r = ui::rel_time(ui::now_ms(), t as u64 * 1000);
+                            if r == "now" { "just now".to_owned() } else if r.ends_with(['m', 'h', 'd']) { format!("{r} ago") } else { r }
+                        }
+                        _ => snap.id.clone(),
+                    };
+                    d.text(&format!("{rid}_when"), &when, &Txt::new(11.5, Face::Regular, tok::MUTED));
+                    d.close();
+                    if locked || !list.available {
+                        d.text("", "Restore", &Txt::new(13.0, Face::Regular, tok::FAINT));
+                    } else {
+                        d.link(&format!("{rid}_restore"), "Restore", Some(&format!("b3.ck.snap#{i}")), 13.0);
+                    }
+                    d.close();
+                }
+                d.close();
+            }
+            if let Some(snap) = st.snap_confirm.and_then(|i| list.snapshots.get(i)) {
+                let label = if snap.label.is_empty() { snap.id.clone() } else { snap.label.clone() };
+                d.gap(W::Fill, 12.0);
+                d.surface("b3_ck_confirm", "width: Fill height: Fit flow: Down spacing: 8 padding: Inset{left: 14 right: 14 top: 12 bottom: 12}", tok::SURFACE2, 12.0, Some(tok::HAIRLINE));
+                d.text(
+                    "b3_ck_confirm_q",
+                    &format!("Restore “{label}” in this workspace?"),
+                    &Txt::new(13.0, Face::Medium, tok::TEXT).w(W::Fill).wrap(),
+                );
+                let row = d.anon();
+                d.view(&row, "width: Fill height: Fit flow: Right spacing: 8 align: Align{x: 1.0 y: 0.5}");
+                d.button("b3_ck_cancel", "Cancel", "b3.ck.snap_cancel", Btn::Outline, W::Fit, 32.0);
+                let kind = if st.applying { Btn::Disabled } else { Btn::Primary };
+                d.button("b3_ck_confirm_btn", "Confirm workspace restore", "b3.ck.snap_confirm", kind, W::Fit, 32.0);
+                d.close();
+                d.close();
+            }
+        }
+        _ => {
+            ui::field_label(d, "b3_ck_fork_label", "New conversation name");
+            d.gap(W::Fill, 6.0);
+            d.input("b3_ck_fork_name", "ck.fork", &st.fork_name_snap, "fork-name", false, 38.0);
+            d.gap(W::Fill, 6.0);
+            d.text(
+                "b3_ck_fork_help",
+                "Up to 50 UTF-8 bytes. No #, :, /, control characters, or the reserved name “default”.",
+                &Txt::new(12.0, Face::Regular, tok::MUTED).w(W::Fill).wrap(),
+            );
+            d.gap(W::Fill, 12.0);
+            // Both variants are emitted; the live gate shows one (no remount
+            // while typing — `visibility`).
+            let armed = st.fork_armed();
+            let label = if st.applying { "Creating…" } else { "Create conversation fork" };
+            d.view("b3_ck_fork_off", &format!("width: Fit height: Fit flow: Down visible: {}", !armed));
+            d.button("b3_ck_fork_disabled", label, "b3.ck.fork", Btn::Disabled, W::Fit, 36.0);
+            d.close();
+            d.view("b3_ck_fork_on", &format!("width: Fit height: Fit flow: Down visible: {armed}"));
+            d.button("b3_ck_fork_go", label, "b3.ck.fork", Btn::Primary, W::Fit, 36.0);
+            d.close();
+        }
+    }
+    if let Some(n) = &st.notice {
+        d.gap(W::Fill, 10.0);
+        d.text("b3_ck_notice", n, &Txt::new(12.5, Face::Regular, tok::GREEN).w(W::Fill).wrap());
+    }
+    if let Some(e) = &st.error {
+        d.gap(W::Fill, 10.0);
+        d.text("b3_ck_error", e, &Txt::new(12.0, Face::Regular, tok::RED).w(W::Fill).wrap());
+    }
+    if let Some(child) = &st.forked {
+        d.gap(W::Fill, 6.0);
+        d.text("b3_ck_forked", &format!("Fork: {child}"), &Txt::new(11.5, Face::Mono, tok::MUTED).w(W::Fill));
+    }
+    if !st.completed {
+        d.gap(W::Fill, 12.0);
+        let foot = d.anon();
+        d.view(&foot, "width: Fill height: Fit flow: Right align: Align{x: 0.0 y: 0.5} spacing: 14");
+        if st.loading || st.applying {
+            d.text("", "Reload history", &Txt::new(13.0, Face::Regular, tok::FAINT));
+        } else {
+            d.link("b3_ck_reload", "Reload history", Some("b3.ck.reload"), 13.0);
+        }
+        d.close();
+    }
+    ui::body_close(d);
+    ui::shell_close(d);
+}
+
+fn build_rewind(d: &mut Dsl, st: &CkState, frame: &Frame, store: &Store) {
     let width = frame.dialog_w(720.0);
     let pad = ui::dialog_pad(frame, width);
     let inner_w = width - 2.0 * pad;
@@ -382,6 +733,72 @@ mod tests {
         assert_eq!(cps[0].checkpoint, 2, "newest first");
         assert_eq!(times[0], Some(1_759_316_400_000));
         assert_eq!(times[1], ui::parse_iso_ms("2026-10-01T10:00:00Z"));
+    }
+
+    // ---- A7: the dialog's undo and fork modes (HistoryDialog.tsx).
+    #[test]
+    fn undo_mode_picks_a_snapshot_then_confirms_the_workspace_restore() {
+        use octoscode_store::domains::config::{SnapshotList, WorkspaceSnapshot};
+        let mut st = CkState::default();
+        st.open_mode(HistoryMode::Undo);
+        st.snapshots = Some(SnapshotList {
+            enabled: true,
+            available: true,
+            snapshots: vec![
+                WorkspaceSnapshot { id: "snap-2".into(), label: "Before refactor".into(), timestamp_unix: 1_790_000_000 },
+                WorkspaceSnapshot { id: "snap-1".into(), label: String::new(), timestamp_unix: 0 },
+            ],
+        });
+        assert_eq!(perform(&mut st, "b3.ck.snap", 0), Outcome::Done);
+        assert_eq!(st.snap_confirm, Some(0));
+        let mut d = Dsl::new();
+        build(&mut d, &st, &Frame::DESKTOP, &Store::new());
+        let dsl = d.finish();
+        assert_eq!(dsl.matches('{').count(), dsl.matches('}').count());
+        assert!(dsl.contains("Undo workspace changes"), "the web's title");
+        assert!(dsl.contains("Restore server-owned files to a saved snapshot."));
+        assert!(dsl.contains("Restore “Before refactor” in this workspace?"));
+        assert!(dsl.contains("Confirm workspace restore"));
+        let taps = crate::screens::taps::wired_taps(&dsl);
+        for ev in ["b3.ck.snap#0", "b3.ck.snap#1", "b3.ck.snap_cancel", "b3.ck.snap_confirm", "b3.close", "b3.ck.reload"] {
+            assert!(taps.iter().any(|(_, e)| e == ev), "{ev}");
+        }
+        assert_eq!(
+            perform(&mut st, "b3.ck.snap_confirm", 0),
+            Outcome::Spawn(super::super::host::Job::Undo("snap-2".into()))
+        );
+        assert!(st.applying);
+        // A blocked or unavailable list arms nothing.
+        let mut st = CkState { blocked: Some(history::SETTLE.into()), ..st };
+        st.applying = false;
+        st.snap_confirm = None;
+        perform(&mut st, "b3.ck.snap", 1);
+        assert_eq!(st.snap_confirm, None);
+    }
+
+    #[test]
+    fn fork_mode_arms_only_a_valid_conversation_name() {
+        let mut st = CkState::default();
+        st.open_mode(HistoryMode::Fork);
+        assert_eq!(perform(&mut st, "b3.ck.fork", 0), Outcome::Done, "no name, no fork");
+        for bad in ["", "   ", "a/b", "x#y", "a:b", "default", "DEFAULT", &"n".repeat(51)] {
+            input_changed(&mut st, "ck.fork", bad);
+            assert!(!st.fork_armed(), "{bad:?}");
+            assert_eq!(visibility(&st), vec![("b3_ck_fork_on".to_owned(), false), ("b3_ck_fork_off".to_owned(), true)]);
+        }
+        input_changed(&mut st, "ck.fork", "steer-queue-v2");
+        assert!(st.fork_armed());
+        let mut d = Dsl::new();
+        build(&mut d, &st, &Frame { avail_w: 360.0, avail_h: 780.0 }, &Store::new());
+        let dsl = d.finish();
+        assert_eq!(dsl.matches('{').count(), dsl.matches('}').count());
+        assert!(dsl.contains("Fork conversation") && dsl.contains("Create conversation fork"));
+        assert!(dsl.contains("Copy the conversation into a new session in the same workspace."));
+        assert_eq!(
+            perform(&mut st, "b3.ck.fork", 0),
+            Outcome::Spawn(super::super::host::Job::Fork("steer-queue-v2".into()))
+        );
+        assert!(!st.fork_armed(), "one fork per press");
     }
 
     #[test]
