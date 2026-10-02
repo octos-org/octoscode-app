@@ -1,0 +1,7 @@
+[octoscode] bootstrap: Restore(http://127.0.0.1:8493, token: true) (remembered server: true, saved token: true, restore target: false, auto-connect: None)
+[octoscode] connection memory: the first connect after the upgrade to http://127.0.0.1:8493 (the one-time migration)
+[octoscode] migration: the previous build's profile is dsflash
+[octoscode] bootstrap: the connection authenticated — it restores at the next launch
+[octoscode] migration: reopening dsflash:main in <repo>/tmp/a21-live/upgrade/ws (113 messages)
+[octoscode] remembered for http://127.0.0.1:8493: profile=dsflash session=dsflash:main
+[octoscode] startup: Migrated("dsflash:main")

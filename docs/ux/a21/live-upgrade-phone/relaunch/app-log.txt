@@ -1,0 +1,3 @@
+[octoscode] bootstrap: Restore(http://127.0.0.1:8493, token: true) (remembered server: true, saved token: true, restore target: true, auto-connect: Some(true))
+[octoscode] remembered for http://127.0.0.1:8493: profile=dsflash session=dsflash:main
+[octoscode] startup: Restored("dsflash:main")
