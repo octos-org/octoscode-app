@@ -20,6 +20,7 @@ import time
 import urllib.parse
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import bridgeauth  # noqa: E402,F401  (D10c: the bridge's per-launch token on every request)
 from snapsafe import scrub as scrub_secrets  # noqa: E402
 from walk_env import ROOT, App, Fixture, app_env, scrub  # noqa: E402
 

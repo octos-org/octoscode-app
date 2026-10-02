@@ -8,10 +8,10 @@ SHOT 01-first-launch-desktop
 PASS [199] Connect (a click) dials the prefilled server and goes live
 PASS [199] …one socket, opened by the click — sockets=1
 PASS [199] …the connection authenticated: it may restore at the next launch
-PASS [199] …a Session opened in the startup folder — [{'cwd': '/home/user/octos', 'profile_id': 'a8', 'session_id': 'a8:api:01a0fe57-783e-750d-9b42-54b64d810479'}]
+PASS [199] …a Session opened in the startup folder — [{'cwd': '/home/user/octos', 'profile_id': 'a8', 'session_id': 'a8:api:01a0fe72-5e0f-71fd-90e1-2ba6b658a2f1'}]
 PASS [199] relaunch: the remembered server restores itself — no click
 PASS [199] …a socket to it, opened by the restore — sockets=2
-PASS [199] …the remembered Session re-opened directly (no launch/resolve) — ['a8:api:01a0fe57-783e-750d-9b42-54b64d810479'] vs a8:api:01a0fe57-783e-750d-9b42-54b64d810479
+PASS [199] …the remembered Session re-opened directly (no launch/resolve) — ['a8:api:01a0fe72-5e0f-71fd-90e1-2ba6b658a2f1'] vs a8:api:01a0fe72-5e0f-71fd-90e1-2ba6b658a2f1
 PASS [199] …the bootstrap decided: restore
 PASS UX restored at launch: the composer by numbers — composer=[375, 585, 629, 28] row=[359, 571, 661, 92] column=[335, 76, 709, 603]
 SHOT 02-restored-desktop
