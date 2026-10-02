@@ -7,19 +7,19 @@ Counts use the FINAL bucket (phase4_bucket_manual when set, else phase4_bucket).
 | group | A | B | C | total triaged |
 |---|---|---|---|---|
 | activity | 8 | 1 | 0 | 9 |
-| error | 6 | 0 | 1 | 7 |
+| error | 7 | 0 | 0 | 7 |
 | g-autonomy | 37 | 0 | 3 | 40 |
 | g-autonomy2 | 25 | 1 | 0 | 26 |
 | g-composer | 55 | 5 | 1 | 61 |
 | g-connection | 7 | 0 | 0 | 7 |
 | g-control | 42 | 1 | 0 | 43 |
 | g-history | 18 | 3 | 3 | 24 |
-| g-settings | 16 | 2 | 5 | 23 |
-| g-timeline | 36 | 9 | 5 | 50 |
+| g-settings | 17 | 2 | 4 | 23 |
+| g-timeline | 37 | 9 | 4 | 50 |
 | session:links-resume | 14 | 4 | 0 | 18 |
 | session:list-sidebar | 11 | 6 | 2 | 19 |
 | session:store-hydrate | 11 | 9 | 2 | 22 |
 | workspace | 10 | 2 | 0 | 12 |
-| **total** | **296** | **43** | **22** | **361** |
+| **total** | **299** | **43** | **19** | **361** |
 
-Regenerated 2026-10-02 19:02 UTC by phase0/protocol-matrix.py — A rows were flipped to exists with screens+test evidence in phase4_bucket/phase4_evidence columns.
+Regenerated 2026-10-02 19:07 UTC by phase0/protocol-matrix.py — A rows were flipped to exists with screens+test evidence in phase4_bucket/phase4_evidence columns.

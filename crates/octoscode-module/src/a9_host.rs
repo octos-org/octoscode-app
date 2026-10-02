@@ -180,7 +180,15 @@ impl OctoscodeView {
                     let ok = a9_prefs::save();
                     makepad_widgets::log!("[octoscode] a9 prefs: save -> {}", if ok { "saved" } else { "not saved" });
                 }
-                _ => {}
+                // A26 — a display palette: applies at once (unsaved until
+                // Save, the web's `setTheme`) and re-themes the whole app.
+                other => {
+                    if let Some(next) = a9_prefs::choose_palette(other) {
+                        makepad_widgets::log!("[octoscode] a9 prefs: palette {}", next.id());
+                        self.retheme(cx);
+                        return;
+                    }
+                }
             }
             self.sync_labels(cx);
             self.view.redraw(cx);

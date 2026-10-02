@@ -467,12 +467,15 @@ fn highlightable(code: &str) -> bool {
 /// for the `ScrollXView` around it. `lang` is a grammar id, or `""` (plain).
 fn highlighted_body(id: &str, lang: &str, code: &str) -> String {
     let dark = crate::screens::theme::resolved() == "dark";
+    // A26: a named display palette colours the tokens its own way.
+    let palette = crate::screens::theme::palette().id();
     format!(
         "{id} := mod.widgets.A7CodeLines{{width: Fit height: Fit\n\
          wrap: false\n\
          text: {code:?}\n\
          lang: {lang:?}\n\
          dark: {dark}\n\
+         palette: {palette:?}\n\
          line_height: {CODE_LINE}\n\
          draw_text +: {{text_style: {mono}}}\n\
          }}\n",

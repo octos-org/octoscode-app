@@ -1009,7 +1009,7 @@ impl Conversation {
     /// names its Session when Core gives one (`data.session_id`), else it is
     /// the open this client sent last (one socket answers in order; a later
     /// open's own read clears a misattributed failure when it is asked).
-    fn on_open_error(&self, error: &octos_core::ui_protocol::RpcError) {
+    fn on_open_error(&self, error: &octos_core::ui_protocol::RpcError, toast: bool) -> bool {
         let session = error
             .data
             .as_ref()
@@ -1023,7 +1023,23 @@ impl Conversation {
                 makepad_widgets::log!("[octoscode] history of {session}: the open was refused: {}", error.message);
                 e.failed = Some(error.message.clone());
             }
+            return true;
         }
+        drop(h);
+        // A26 — no history read is waiting on this open (a NEW chat: its
+        // fresh id has nothing to read), so nothing on screen would say the
+        // server refused it — the window had already switched to the empty
+        // new Session. The error toast says so, with the server's reason.
+        if !toast {
+            return false;
+        }
+        let op = if self.fresh_ids.lock().unwrap().contains(&session) {
+            crate::screens::toasts::Op::NewChat
+        } else {
+            crate::screens::toasts::Op::OpenSession
+        };
+        crate::screens::toasts::failed(op, &error.message);
+        false
     }
 
     fn history_failed(&self, session: &str, reason: String) {
@@ -2966,8 +2982,11 @@ impl Conversation {
                 // back to a fresh launch).
                 if method == "session/open" {
                     self.settle_open_watch(Err(error.message.clone()));
-                    // A19b — the Session it was opening says why.
-                    self.on_open_error(error);
+                    // A19b — the Session it was opening says why; A26 — or,
+                    // when no surface would, the error toast (never during a
+                    // re-dial: the banner above owns that refusal).
+                    let restoring = self.store.outage().is_some_and(|o| o.restoring);
+                    self.on_open_error(error, !restoring);
                 }
                 // A19b — a refused history read: retried once with the
                 // Session's folder, else shown.

@@ -20,10 +20,12 @@
 //! (`screens::theme`, the web's separate `dsw-theme` key).
 //!
 //! What the section offers natively: **Vim editing** (the composer's Vim
-//! subset, `screens::board3::vim`), applied at once and restored at launch.
-//! The palette and the language are carried through the whitelist unchanged
-//! (no native palette set or zh catalog yet — they are not offered as
-//! controls, so nothing shown is a dead switch).
+//! subset, `screens::board3::vim`) and (A26) the **display palette** — the
+//! five named palettes of `screens::theme::Palette`, applied at once to the
+//! whole app (`a26_host::retheme`) and restored at launch
+//! (`theme::init_persistence`). The language is carried through the
+//! whitelist unchanged (no zh catalog yet — not offered as a control, so
+//! nothing shown is a dead switch).
 use std::path::PathBuf;
 use std::sync::Mutex;
 
@@ -167,6 +169,23 @@ pub fn set_vim(on: bool) {
     }
 }
 
+/// A26 — the display palette changed (Settings > Preferences): applies now,
+/// unsaved (`setTheme`, model.ts:124-126 — only a known palette).
+pub fn set_palette(id: &str) -> bool {
+    if !DISPLAY_THEMES.contains(&id) {
+        return false;
+    }
+    init();
+    if let Some(p) = lock().as_mut() {
+        if p.current.theme != id {
+            p.current.theme = id.to_owned();
+            p.just_saved = false;
+            p.error = None;
+        }
+    }
+    true
+}
+
 /// Save the whitelist (`DisplayPreferencesStore.save`, model.ts:144-162).
 /// `true` on success; a failed write keeps the choice and reports.
 pub fn save_to(path: &std::path::Path) -> bool {
@@ -198,9 +217,42 @@ pub fn save() -> bool {
 
 pub const ACTION_VIM: &str = "a9.prefs.vim";
 pub const ACTION_SAVE: &str = "a9.prefs.save";
+/// A26 — `a9.prefs.palette.<id>`: one per palette row.
+pub const ACTION_PALETTE: &str = "a9.prefs.palette.";
+/// The five palette rows' action ids, in `DISPLAY_THEMES` order.
+pub const PALETTE_ACTIONS: [&str; 5] = [
+    "a9.prefs.palette.terminal",
+    "a9.prefs.palette.codex",
+    "a9.prefs.palette.claude",
+    "a9.prefs.palette.slate",
+    "a9.prefs.palette.solarized",
+];
+
+/// A26 — a palette row's click (`a9.prefs.palette.<id>`), the production
+/// path the host's arm runs: the whitelist's `theme` changes (unsaved, as
+/// the web's `setTheme`) and the palette applies. `Some(palette)` when the
+/// look in effect changed (the host then re-themes the app), `None` for an
+/// unknown id or the palette already in effect.
+pub fn choose_palette(action: &str) -> Option<crate::screens::theme::Palette> {
+    use crate::screens::theme::{self, Palette};
+    let id = palette_of(action)?;
+    set_palette(id);
+    let next = Palette::parse(id)?;
+    if theme::palette() == next {
+        return None;
+    }
+    theme::set_palette(next);
+    Some(next)
+}
+
+/// The palette a palette action names (`a9.prefs.palette.codex` -> codex).
+pub fn palette_of(action: &str) -> Option<&'static str> {
+    let id = action.strip_prefix(ACTION_PALETTE)?;
+    DISPLAY_THEMES.into_iter().find(|t| *t == id)
+}
 
 pub fn routes(action: &str) -> bool {
-    matches!(action, ACTION_VIM | ACTION_SAVE)
+    matches!(action, ACTION_VIM | ACTION_SAVE) || palette_of(action).is_some()
 }
 
 #[cfg(test)]

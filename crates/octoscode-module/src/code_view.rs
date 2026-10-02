@@ -89,6 +89,11 @@ pub struct A7CodeLines {
     /// Dark theme colours (`theme.css` `light-dark(...)`).
     #[live(false)]
     dark: bool,
+    /// A26 — the display palette's id (`screens::theme::Palette::id`): a
+    /// named palette colours the tokens with its own colours
+    /// (`highlight::Tok::color_look`); "" / "terminal" follows `dark`.
+    #[live]
+    palette: ArcStringMut,
     /// One code line's height in logical px (the web's `12px/20px`); a row
     /// is padded to it, since a single laid-out run is only its glyph box.
     #[live(20.0)]
@@ -104,7 +109,7 @@ pub struct A7CodeLines {
     #[rust]
     lines: Vec<Vec<(Vec4f, String)>>,
     #[rust]
-    key: Option<(String, String, bool)>,
+    key: Option<(String, String, bool, String)>,
 }
 
 /// `#rrggbbaa` → linear Vec4 (the DSL's own colour parse).
@@ -155,26 +160,37 @@ fn tidy(row: Vec<(Vec4f, String)>) -> Vec<(Vec4f, String)> {
 }
 
 impl A7CodeLines {
+    /// The look the tokens are coloured for: a named palette, else Terminal's
+    /// light or dark.
+    fn look(&self) -> crate::screens::theme::Look {
+        use crate::screens::theme::{Look, Palette};
+        match Palette::parse(self.palette.as_ref()) {
+            Some(p) if p.named().is_some() => Look::Named(p),
+            _ if self.dark => Look::Dark,
+            _ => Look::Light,
+        }
+    }
+
     fn ensure_lines(&mut self) {
-        let key = (self.text.as_ref().to_owned(), self.lang.as_ref().to_owned(), self.dark);
+        let key = (self.text.as_ref().to_owned(), self.lang.as_ref().to_owned(), self.dark, self.palette.as_ref().to_owned());
         if self.key.as_ref() == Some(&key) {
             return;
         }
         let grammar = highlight::grammar(Some(key.1.as_str()).filter(|l| !l.is_empty()));
-        let dark = self.dark;
+        let look = self.look();
         self.lines = highlight::block(grammar, &key.0)
             .into_iter()
             .map(|spans| {
                 let mut row: Vec<(Vec4f, String)> = Vec::new();
                 let mut at_start = true;
                 for (tok, text) in spans {
-                    let color = hex(tok.color(dark));
+                    let color = hex(tok.color_look(look));
                     // The leading indentation stays one run (never split);
                     // the rest wraps at spaces.
                     if at_start {
                         let lead = text.len() - text.trim_start().len();
                         if lead > 0 {
-                            row.push((hex(Tok::Plain.color(dark)), text[..lead].to_owned()));
+                            row.push((hex(Tok::Plain.color_look(look)), text[..lead].to_owned()));
                         }
                         if lead < text.len() {
                             at_start = false;
@@ -199,7 +215,7 @@ impl Widget for A7CodeLines {
     fn draw_walk(&mut self, cx: &mut Cx2d, _scope: &mut Scope, walk: Walk) -> DrawStep {
         self.ensure_lines();
         cx.begin_turtle(walk, Layout { flow: Flow::Down, ..Layout::default() });
-        let plain = hex(Tok::Plain.color(self.dark));
+        let plain = hex(Tok::Plain.color_look(self.look()));
         // Every run sits in a box one code line tall (the web's 12px/20px),
         // centred in it — so a long line that wraps keeps the same pitch.
         let run_walk = Walk { width: Size::fit(), height: Size::Fixed(self.line_height), ..Walk::default() };
