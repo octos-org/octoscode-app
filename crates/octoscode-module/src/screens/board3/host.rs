@@ -273,6 +273,9 @@ pub enum Job {
     FleetConsoleDispatch { lane: String, brief: String, title: Option<String> },
     /// A10 — ONE console roster control.
     FleetConsoleRow { identity: String, action: String, text: String },
+    /// A10 — the blackboard gather (`/gather`): `peer/gather` -> the
+    /// composed synthesis prompt as ONE ordinary turn.
+    FleetGather,
     /// `session/status/read` for the strip's model.
     StatusRead,
     /// `GET /api/files` for a delivered file (entry id, preview?).
@@ -632,6 +635,10 @@ pub fn job_unavailable(job: &Job) {
         Job::FleetConsoleDispatch { .. } => {
             st.fleet.console.outcome = super::fleet_console::ConsoleOutcome::Unknown { dispatch: true };
         }
+        Job::FleetGather => {
+            st.fleet.gathering = false;
+            st.fleet.announcement = Some(super::fleet_copy::t(super::fleetview::GATHER_FAILED));
+        }
         Job::StatusRead => {}
         Job::AgentsLoad => st.agents.loading = false,
         Job::AgentsSpawn(_) => st.agents.spawn_error = Some(super::agents::SPAWN_REFUSED.into()),
@@ -703,6 +710,7 @@ pub async fn run(job: Job, conv: &crate::flow::Conversation) -> Result<String, S
         Job::FleetSeatControl { kind, live_turn } => super::fleet_console::run_seat(conv, kind, live_turn).await,
         Job::FleetConsoleDispatch { lane, brief, title } => super::fleet_console::run_dispatch(conv, lane, brief, title).await,
         Job::FleetConsoleRow { identity, action, text } => super::fleet_console::run_row(conv, identity, action, text).await,
+        Job::FleetGather => super::fleetview::run_gather(conv).await,
         Job::StatusRead => super::strip::load_status(conv).await,
         Job::FileFetch(id, preview) => super::rows::fetch(conv, id, preview).await,
         Job::AgentsLoad => super::agents::load(conv).await,

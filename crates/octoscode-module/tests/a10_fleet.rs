@@ -61,6 +61,19 @@ fn body(method: &str) -> Value {
         .unwrap_or_else(|| panic!("fixture has no {method}"))
 }
 
+/// r6's LAST recorded `peer/gather` reply (the staged `r6-smoke` peer).
+fn r6_gather() -> Value {
+    let path = format!("{}/../octoscode-client/tests/fixtures/r6-peer-a6ea8505.jsonl", env!("CARGO_MANIFEST_DIR"));
+    std::fs::read_to_string(&path)
+        .unwrap_or_else(|e| panic!("read {path}: {e}"))
+        .lines()
+        .filter_map(|l| serde_json::from_str::<Value>(l).ok())
+        .filter(|v| v["dir"] == "in" && v["method"] == "peer/gather")
+        .last()
+        .map(|v| v["body"].clone())
+        .expect("r6 recorded a gather")
+}
+
 // -------------------------------------------------------------- server
 
 #[derive(Default)]
@@ -129,6 +142,9 @@ impl Server {
                         "binding": {"driver_id": p["driver_id"], "epoch": 7, "revision": 42, "lease_expires_at_ms": 0}
                     })),
                     "peer/prepare" => Ok(body("peer/prepare")),
+                    // The RECORDED r6 gather (after its prepare: one staged
+                    // peer on the blackboard).
+                    "peer/gather" => Ok(r6_gather()),
                     "peer/dispatch" => {
                         let k = kn.lock().unwrap();
                         let lanes = ["lane-primary", "lane-review"];
@@ -541,4 +557,31 @@ async fn the_session_controller_discloses_releases_reacquires_and_dispatches() {
     assert_eq!(c.len(), before + 1, "ONE frame per command");
     assert_eq!(c.last().unwrap()["target_operation_id"], json!("synthetic-pending-op"));
     assert_eq!(c.last().unwrap()["command"], json!({"kind": "interrupt"}));
+}
+
+/// The blackboard gather (`/gather`, `gather.ts:78-145`): the Fleet's
+/// "Peer gather" tap reads `peer/gather` ONCE (the session + profile scope,
+/// no slug filter) and queues the composed synthesis as ONE ordinary
+/// `turn/start` — read-only on the blackboard, never a control frame.
+#[tokio::test]
+async fn gather_reads_the_blackboard_once_and_queues_one_synthesis_turn() {
+    let _s = serial();
+    fresh();
+    let server = Server::start().await;
+    let conv = connect(&server).await;
+    open_fleet(&conv).await;
+    let job = spawn_of(host::perform("b3.fleet.gather", 0, &conv.store));
+    assert_eq!(job, Job::FleetGather);
+    assert_eq!(host::perform("b3.fleet.gather", 0, &conv.store), Outcome::Done, "one gather at a time");
+    host::run(job, &conv).await.expect("gather");
+    assert_eq!(server.sent("peer/gather"), [json!({"session_id": SESSION, "profile_id": "dsflash"})]);
+    let turns = server.sent("turn/start");
+    assert_eq!(turns.len(), 1, "one synthesis turn");
+    let text = turns[0]["input"][0]["text"].as_str().unwrap_or_default().to_owned();
+    assert!(text.starts_with("Peer results gathered from the blackboard:\n"), "{text}");
+    assert!(text.contains("r6-smoke") && text.contains("R6 recording smoke"), "{text}");
+    assert!(server.sent("peer/control").is_empty() && server.sent("peer/dispatch").is_empty());
+    let st = host::state();
+    assert!(!st.fleet.gathering);
+    assert_eq!(st.fleet.announcement.as_deref(), Some(fleetview::GATHER_QUEUED));
 }

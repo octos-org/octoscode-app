@@ -82,6 +82,20 @@ pub const FLEET_ZH: &[(&str, &str)] = &[
     ("Goal {value0}", "目标 {value0}"),
 ];
 
+/// The gather copy the Fleet pane shares with the web's `/gather`
+/// (`features/preferences/zh.ts:910-913`, verbatim); the two progress words
+/// are the pane's own.
+pub const GATHER_ZH: &[(&str, &str)] = &[
+    ("Peer gather", "汇总协作结果"),
+    ("No peers staged on the blackboard.", "黑板上没有已准备的协作会话。"),
+    (
+        "Peer synthesis was not queued. Check this Session’s authority and write availability, then retry.",
+        "协作结果汇总未入队。请检查此会话的授权和写入权限后重试。",
+    ),
+    ("Gathering…", "正在汇总…"),
+    ("Peer synthesis queued", "协作结果汇总已入队"),
+];
+
 /// The UI language: `zh` or `en`.
 pub fn lang() -> &'static str {
     if let Ok(v) = std::env::var("OCTOSCODE_UI_LANG") {
@@ -104,7 +118,7 @@ pub fn lang() -> &'static str {
 /// `t(source, {value0})` for `lang`.
 pub fn t_in(lang: &str, source: &str, value0: Option<&str>) -> String {
     let text = if lang == "zh" {
-        FLEET_ZH.iter().find(|(k, _)| *k == source).map(|(_, v)| *v).unwrap_or(source)
+        FLEET_ZH.iter().chain(GATHER_ZH).find(|(k, _)| *k == source).map(|(_, v)| *v).unwrap_or(source)
     } else {
         source
     };
@@ -146,5 +160,6 @@ mod tests {
         assert_eq!(t_in("zh", "Finished ({value0})", Some("2")), "已完成（2）");
         assert_eq!(t_in("en", "Finished ({value0})", Some("2")), "Finished (2)");
         assert_eq!(t_in("zh", "not in the catalog", None), "not in the catalog");
+        assert_eq!(t_in("zh", "Peer gather", None), "汇总协作结果");
     }
 }

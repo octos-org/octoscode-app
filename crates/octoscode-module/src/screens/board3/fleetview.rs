@@ -468,6 +468,8 @@ pub struct FleetState {
     pub advanced_open: bool,
     pub console: super::fleet_console::ConsoleState,
     pub content_x: f64,
+    /// A gather (`peer/gather` -> one synthesis turn) is in flight.
+    pub gathering: bool,
 }
 
 impl FleetState {
@@ -588,6 +590,66 @@ pub async fn run_start(conv: &crate::flow::Conversation, operation_id: String, l
     Ok(msg)
 }
 
+/// The gather's bounded outcomes (`App.tsx:1365-1395`).
+pub const GATHER_QUEUED: &str = "Peer synthesis queued";
+pub const GATHER_EMPTY: &str = "No peers staged on the blackboard.";
+pub const GATHER_FAILED: &str =
+    "Peer synthesis was not queued. Check this Session’s authority and write availability, then retry.";
+
+/// `peer/gather` is advertised for this session (`canGather`).
+pub fn gather_admitted(store: &Store) -> bool {
+    store.active_session().is_some() && store.domains.config.supported_methods().iter().any(|m| m == "peer/gather")
+}
+
+/// The web's `/gather` (`gatherFromRecord`, `gather.ts:78-145`): ONE
+/// `peer/gather` read of the profile blackboard, `composeGatherPrompt` (the
+/// 64 KiB cap), then the synthesis as ONE ordinary turn — reading needs no
+/// write capability; the synthesis is ordinary input.
+pub async fn run_gather(conv: &crate::flow::Conversation) -> Result<String, String> {
+    use octoscode_client::domains::peer::{PeerGather, PeerGatherParams};
+    let settle = |copy: &str| {
+        let mut st = super::host::state();
+        st.fleet.gathering = false;
+        st.fleet.announcement = Some(t(copy));
+    };
+    let Some(session) = conv.store.active_session() else {
+        settle(GATHER_FAILED);
+        return Err("no session".into());
+    };
+    let read = conv
+        .client()
+        .call::<PeerGather>(PeerGatherParams { session_id: session, profile_id: conv.profile(), slugs: None })
+        .await;
+    let peers = match read {
+        Ok(r) => r.peers,
+        Err(e) => {
+            settle(GATHER_FAILED);
+            return Err(e.to_string());
+        }
+    };
+    if peers.is_empty() {
+        settle(GATHER_EMPTY);
+        return Ok("empty".into());
+    }
+    let text = match peers::compose_gather_prompt(&peers) {
+        Ok(t) => t,
+        Err(e) => {
+            settle(GATHER_FAILED);
+            return Err(e);
+        }
+    };
+    match conv.start_turn(text).await {
+        Ok(turn) => {
+            settle(GATHER_QUEUED);
+            Ok(format!("queued {turn} ({} peers)", peers.len()))
+        }
+        Err(e) => {
+            settle(GATHER_FAILED);
+            Err(e.to_string())
+        }
+    }
+}
+
 /// ONE row action through the production control chain.
 pub async fn run_row(conv: &crate::flow::Conversation, key: String, identity: String, action: RowAction, text: String) -> Result<String, String> {
     let res = fleet_driver::row_control(conv, &identity, action, &text).await;
@@ -659,6 +721,14 @@ pub fn perform(st: &mut FleetState, action: &str, index: usize, store: &Store) -
             HostOutcome::Done
         }
         "b3.fleet.providers" => HostOutcome::Action("settings.toggle".into()),
+        "b3.fleet.gather" => {
+            if st.gathering || !gather_admitted(store) {
+                return HostOutcome::Done;
+            }
+            st.gathering = true;
+            st.announcement = None;
+            HostOutcome::Spawn(Job::FleetGather)
+        }
         "b3.fleet.finished" => {
             let rows = rows(store, peers::now_ms());
             if let Some(g) = group(&rows).get(index) {
@@ -947,6 +1017,11 @@ pub fn build(d: &mut Dsl, st: &mut FleetState, frame: &Frame, store: &Store) {
     let session_open = store.domains.session.active().is_some();
     if list.is_empty() && session_open {
         d.text("b3_fleet_none", &t("No peers yet"), &ui::meta());
+    }
+    // The blackboard gather (`/gather`): the synthesis rides one turn.
+    if session_open && gather_admitted(store) {
+        let label = if st.gathering { t("Gathering…") } else { t("Peer gather") };
+        d.button("b3_fleet_gather", &label, "b3.fleet.gather", if st.gathering { Btn::Disabled } else { Btn::Outline }, W::Fit, 30.0);
     }
     d.close();
     if let Some(a) = &st.announcement {
