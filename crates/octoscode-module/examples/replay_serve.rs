@@ -194,12 +194,14 @@ fn standalone_notifications(frames: &[Frame]) -> Vec<Frame> {
 /// keeps the session id it was recorded under, for the rewrite.
 fn screens_replies() -> BTreeMap<String, (Value, String)> {
     let mut out: BTreeMap<String, (Value, String)> = BTreeMap::new();
+    // c24b before r4: its `task/list` recorded a RUNNING task (r4's is
+    // empty), so the Tasks dialog has a Cancel to click.
     for file in [
         "r2-profile-a6ea8505.jsonl",
         "r3-session-a6ea8505.jsonl",
         "r6-peer-a6ea8505.jsonl",
-        "r4-task-a6ea8505.jsonl",
         "c24b-subagent-a6ea8505.jsonl",
+        "r4-task-a6ea8505.jsonl",
     ] {
         let frames = fixture(file);
         let session = recorded_session(&frames);
@@ -215,6 +217,12 @@ fn screens_replies() -> BTreeMap<String, (Value, String)> {
             }
             out.entry(method).or_insert_with(|| (f.body.clone(), session.clone()));
         }
+    }
+    // r6 gathered twice: before and after `peer/prepare`; the later reply
+    // carries the staged peer, so the Fleet dialog has a row to steer.
+    let r6 = fixture("r6-peer-a6ea8505.jsonl");
+    if let Some(last) = r6.iter().rev().find(|f| f.dir == "in" && f.method == "peer/gather") {
+        out.insert("peer/gather".to_owned(), (last.body.clone(), recorded_session(&r6)));
     }
     let r1 = fixture("r1-autonomy-a6ea8505.jsonl");
     let r1_session = recorded_session(&r1);

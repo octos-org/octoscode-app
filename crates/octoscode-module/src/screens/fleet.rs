@@ -1196,10 +1196,13 @@ pub fn spawn(
     if matches!(effect, Effect::Steer { .. }) {
         ui.lock().unwrap().set_draft_inner("");
     }
-    ::log::info!("octoscode: fleet action -> {method}");
+    makepad_widgets::log!("[octoscode] fleet action -> {method}");
     let conv = conv.clone();
     rt.spawn(async move {
         if let Err(e) = conv.client().request(&method, params).await {
+            // A5: the open dialog shows the refusal (the web rows' error).
+            crate::screens::dialog::set_notice(format!("{e}"));
+            makepad_widgets::SignalToUI::set_ui_signal();
             ::log::warn!("octoscode: fleet {method}: {e}");
         }
     });
