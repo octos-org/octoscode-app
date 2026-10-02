@@ -52,7 +52,7 @@ CLICK b3_close r=[316, 133, 28, 28] at (330,147)
 CLICK cv_ap_once r=[28, 591, 304, 46] at (180,614)
 PASS approval: Approve once -> the dense diff approval — 'Apply a patch to b…'
 CLICK cv_ap_diff r=[28, 753, 304, 36] at (180,771)
-PASS dense: 394 decorated lines open as runs and marks within 4 s of the CLICK — 0.89 s, lines with runs=394, lines with marks=196
+PASS dense: 394 decorated lines open as runs and marks within 4 s of the CLICK — 0.90 s, lines with runs=394, lines with marks=196
 SHOT dense-phone
 CLICK b3_close r=[316, 133, 28, 28] at (330,147)
 CLICK cv_ap_session r=[28, 647, 304, 46] at (180,670)

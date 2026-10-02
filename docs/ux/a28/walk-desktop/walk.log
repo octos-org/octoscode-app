@@ -47,7 +47,7 @@ CLICK b3_close r=[975, 120, 28, 28] at (989,134)
 CLICK cv_ap_once r=[884, 615, 118, 34] at (943,632)
 PASS approval: Approve once -> the dense diff approval — 'Apply a patch to backoff.rs'
 CLICK cv_ap_diff r=[535, 615, 104, 34] at (587,632)
-PASS dense: 394 decorated lines open as runs and marks within 4 s of the CLICK — 0.90 s, lines with runs=394, lines with marks=196
+PASS dense: 394 decorated lines open as runs and marks within 4 s of the CLICK — 0.88 s, lines with runs=394, lines with marks=196
 SHOT dense-desktop
 CLICK b3_close r=[975, 120, 28, 28] at (989,134)
 CLICK cv_ap_session r=[719, 615, 157, 34] at (798,632)
