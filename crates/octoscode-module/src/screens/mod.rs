@@ -4,6 +4,8 @@
 //! #29d added `palette` (board 2.8/2.11/2.12) on task/29d while main carried
 //! `connect`/`models`/`workspace` (#29a/#29c) — the #29d2 merge keeps all four.
 //! #30c adds `fleet` (board 3.6/3.7) on task/30c.
+// A9: Activity — the operator-opened cross-session task scan.
+pub mod activity;
 pub mod autonomy;
 // #A2: board 1 as live, reachable native surfaces (the host + its view kit).
 pub mod board1;

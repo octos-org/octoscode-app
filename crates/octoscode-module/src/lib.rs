@@ -31,6 +31,8 @@ use std::sync::{Arc, Mutex};
 use octoscode_store::Store;
 
 pub mod actions;
+// A9 — the host half of the A9 surfaces (Activity, …): mount + routing.
+pub mod a9_host;
 pub mod bindings;
 pub mod cards;
 // A3: the board-2 chrome (sidebar body, header, Settings, Stop confirm).
@@ -875,6 +877,18 @@ script_mod! {
             }
         }
 
+        // A9 — the A9 surfaces (Activity: the cross-session task scan) as
+        // modal dialogs; LAST in the Overlay so the open one and its backdrop
+        // paint over all chrome. Hidden (with its Fill/Fill wrapper) while
+        // nothing is open, so it never shadows a click.
+        a9_dock := View {
+            width: Fill height: Fill
+            visible: false
+            a9_splash := Splash {
+                width: Fill height: Fill
+            }
+        }
+
     }
 }
 
@@ -1234,6 +1248,11 @@ pub struct OctoscodeView {
     /// A3: the window's inner height (the settings frame's max height).
     #[rust]
     window_h: f64,
+    /// A9 — the open A9 surface's taps and text inputs (`a9_splash`).
+    #[rust]
+    a9_taps: Vec<(LiveId, String)>,
+    #[rust]
+    a9_inputs: Vec<(LiveId, String)>,
 }
 
 impl OctoscodeView {
@@ -1288,6 +1307,11 @@ impl OctoscodeView {
             {
                 let b = self.bridge.lock().unwrap();
                 chrome::seed_board2(&b.store, &variant);
+                // A9 — the Activity capture seed (recorded task shapes over
+                // the board's sessions; `blocked` adds a switch in flight).
+                if let Ok(v) = std::env::var("OCTOSCODE_ACTIVITY_SEED") {
+                    screens::activity::seed(&b.store, &v);
+                }
             }
             makepad_widgets::log!("[octoscode] synthetic live: board-2 seed ({variant})");
             return;
@@ -1474,6 +1498,12 @@ impl OctoscodeView {
         // connection exists.
         if screens::board1::owns(action) {
             self.perform_board1(cx, action, None);
+            return;
+        }
+        // A9 — the A9 surfaces' ids (Activity: open/close/filter/row) have
+        // one owner here; the palette's `/activity` row runs `activity.open`.
+        if a9_host::routes(action) {
+            self.perform_a9(cx, action, index);
             return;
         }
         // A5 — the dialog host's own ids (open / close / the on-open loads)
@@ -2102,11 +2132,16 @@ impl OctoscodeView {
                     return;
                 }
                 let cwd = std::env::var("OCTOS_WORKSPACE_CWD").ok();
+                // A9 — a session switch is in flight until the open settles
+                // (the web's `transitioning`: Activity warns and refuses).
+                screens::activity::note_switch_started();
                 rt.spawn(async move {
                     match conv.open_session(&session, cwd).await {
                         Ok(id) => ::log::info!("octoscode: thread.open opened {id}"),
                         Err(e) => ::log::warn!("octoscode: thread.open: {e}"),
                     }
+                    screens::activity::note_switch_finished();
+                    SignalToUI::set_ui_signal();
                 });
             }
             // #29d — palette commands route to the EXISTING production effects
@@ -3299,6 +3334,8 @@ impl OctoscodeView {
         // the module's own laid-out rect, so the dialog sizes like the web's
         // `min(<max>px, 100%)` card on the desktop window AND a phone.
         self.sync_board3(cx);
+        // A9 — the open A9 surface (Activity).
+        self.sync_a9(cx);
         // #28e4 item 2: the first-run card area mounts the REAL board-2
         // Connect screen (setup-01, #29a) — `screens::connect::lower_screen`
         // lowers the authored Stage B card with the ConnectUi copies applied,
@@ -4651,6 +4688,8 @@ impl Widget for OctoscodeView {
                         self.perform_action(cx, base, row.unwrap_or(0));
                     }
                 }
+                // A9 — the open A9 surface's taps and its search input.
+                self.a9_actions(cx, actions);
                 // A5 — the Skills dialog's registry search: Enter in its box
                 // searches (the web's form submit); the reply re-lowers it.
                 if let Some((q, _)) = self
@@ -5039,6 +5078,13 @@ impl Widget for OctoscodeView {
                 if e.key_code == KeyCode::Escape {
                     makepad_widgets::log!("[octoscode] key Escape -> dialog close");
                     self.perform_action(cx, screens::dialog::ACTION_CLOSE, 0);
+                }
+            }
+            // A9 — Escape closes the open A9 surface (`onEscape`); while one
+            // is open it owns the keyboard (no palette / submit behind it).
+            Event::KeyDown(e) if a9_host::escape_owned() => {
+                if e.key_code == KeyCode::Escape {
+                    self.a9_escape(cx);
                 }
             }
             Event::KeyDown(e) if e.key_code == KeyCode::Escape

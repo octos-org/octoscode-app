@@ -80,6 +80,11 @@ fn scenario_fixture(name: &str) -> (&'static str, &'static str) {
         // are r1-autonomy's; every REQUEST the dialogs send is answered from
         // the recorded replies (`screens_replies`).
         "screens" => ("screens", "r1-autonomy-a6ea8505.jsonl"),
+        // A9: the Activity walk. r4-task's handshake (task/list,
+        // task/output/read advertised); `session/list` names five sessions of
+        // the opened Profile; `task/list` answers each from the recorded c24b
+        // snapshots (`activity_task_reply`).
+        "activity" => ("activity", "r4-task-a6ea8505.jsonl"),
         // #32b3: one synthetic turn whose fenced code block carries a 227-column
         // line — the long-code-line render capture (the web wraps: pre-wrap).
         "longcodeline" => ("longcodeline", "longcodeline-a6ea8505.jsonl"),
@@ -272,6 +277,57 @@ fn screens_replies() -> BTreeMap<String, (Value, String)> {
     out
 }
 
+/// A9 — the `activity` scenario's sessions (suffix, title): the opened
+/// session first; all scoped to the opened Profile.
+const ACTIVITY_SESSIONS: &[(&str, &str)] = &[
+    ("main", "Fix steer queue drop on reconnect"),
+    ("fork", "Add session fork"),
+    ("bump", "Bump octos-core to a6ea8505"),
+    ("review", "Review PR #2566"),
+    ("hydrate", "Why is hydrate slow?"),
+];
+
+/// A9 — the recorded c24b `task/list` snapshots, split by state.
+fn activity_recorded_tasks() -> (Vec<Value>, Vec<Value>) {
+    let all: Vec<Value> = fixture("c24b-subagent-a6ea8505.jsonl")
+        .into_iter()
+        .filter(|f| f.dir == "in" && f.method == "task/list")
+        .flat_map(|f| f.body["tasks"].as_array().cloned().unwrap_or_default())
+        .collect();
+    let running = all.iter().filter(|t| t["state"] == "running").cloned().collect();
+    let done = all.iter().filter(|t| t["state"] == "completed").cloned().collect();
+    (running, done)
+}
+
+/// A9 — one session's `task/list` reply: `main` the recorded running
+/// snapshot, `fork` the recorded completed one, `bump` the recorded entry in
+/// the terminal `failed` state (derived: no failed task was recorded),
+/// `review` a reply naming ANOTHER session (the fail-closed case), `hydrate`
+/// a JSON-RPC error (the unavailable case).
+fn activity_task_reply(session: &str) -> Result<Value, Value> {
+    let (running, done) = activity_recorded_tasks();
+    let suffix = session.rsplit(':').next().unwrap_or("");
+    let tasks = match suffix {
+        "main" => running,
+        "fork" => done,
+        "bump" => {
+            let mut t = running.first().cloned().unwrap_or(Value::Null);
+            t["state"] = Value::from("failed");
+            t["status"] = Value::from("failed");
+            t["error"] = Value::from("cargo build: 2 errors");
+            t["summary"] = Value::from("Bump octos-core to a6ea8505");
+            vec![t]
+        }
+        "review" => {
+            let profile = session.split(':').next().unwrap_or("");
+            return Ok(serde_json::json!({"session_id": format!("{profile}:private"), "tasks": running}));
+        }
+        "hydrate" => return Err(serde_json::json!({"code": -32603, "message": "task snapshot unavailable"})),
+        _ => vec![],
+    };
+    Ok(serde_json::json!({"session_id": session, "tasks": tasks}))
+}
+
 #[tokio::main]
 async fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -355,6 +411,7 @@ async fn main() {
         let recorded_turns = recorded_turns.clone();
         let standalone = standalone.clone();
         let replies = replies.clone();
+        let activity = label == "activity";
         tokio::spawn(async move {
             let Ok(ws) = tokio_tungstenite::accept_async(stream).await else {
                 return;
@@ -411,6 +468,32 @@ async fn main() {
                                 tokio::time::sleep(std::time::Duration::from_millis(20)).await;
                             }
                         });
+                    }
+                    // A9 — the activity scenario's session catalog.
+                    "session/list" if activity => {
+                        let profile = active_session.split(':').next().unwrap_or("").to_owned();
+                        let rows: Vec<Value> = ACTIVITY_SESSIONS
+                            .iter()
+                            .map(|(suffix, title)| serde_json::json!({
+                                "id": format!("{profile}:{suffix}"),
+                                "title": title,
+                                "message_count": 4,
+                                "updated_at": "2026-09-29T05:16:54Z",
+                                "active_turn": false
+                            }))
+                            .collect();
+                        send(&tx, serde_json::json!({
+                            "jsonrpc": "2.0", "id": id, "result": {"sessions": rows}
+                        })).await;
+                    }
+                    "task/list" if activity => {
+                        let session = v["params"]["session_id"].as_str().unwrap_or("").to_owned();
+                        let frame = match activity_task_reply(&session) {
+                            Ok(r) => serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r}),
+                            Err(e) => serde_json::json!({"jsonrpc": "2.0", "id": id, "error": e}),
+                        };
+                        println!("[replay-serve] -> task/list {session}");
+                        send(&tx, frame).await;
                     }
                     "session/list" => {
                         let session = v["params"]["session_id"]
