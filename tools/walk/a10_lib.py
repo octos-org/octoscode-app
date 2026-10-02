@@ -372,7 +372,10 @@ def dialog_checks(sn: list[dict], frame_id: str, prefix, module=None, viewport: 
         top, bot = vp[1], vp[1] + vp[3]
 
         def straddles(r):
-            return (r[1] < top - 0.5 < r[1] + r[3]) or (r[1] < bot - 0.5 < r[1] + r[3] - 0.5)
+            # The instrument reports a scrolled child's CLIPPED rect, so a row
+            # the edge cuts ends (or starts) exactly on it.
+            on_edge = abs((r[1] + r[3]) - bot) <= 1.5 or abs(r[1] - top) <= 1.5
+            return on_edge or (r[1] < top - 0.5 < r[1] + r[3]) or (r[1] < bot - 0.5 < r[1] + r[3] - 0.5)
 
         def scrolled_out(r):
             # Wholly below the viewport while horizontally inside it.
@@ -425,7 +428,8 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
 
 
 def run_session(walk_fn, *, mode: str, outdir: str, port: int = 8420, replay_port: int | None = 8432,
-                scenario: str = "a10", env: dict | None = None, app_bin: str | None = None) -> int:
+                scenario: str = "a10", env: dict | None = None, app_bin: str | None = None,
+                replay_args: list | None = None) -> int:
     """Start the replay server (recorded/faithful traffic, no model) and the
     app hidden on `port`, run `walk_fn(Walk)`, then ALWAYS stop the app (`/gq`
     through harness/headless.sh) and the replay server this run started —
@@ -451,7 +455,8 @@ def run_session(walk_fn, *, mode: str, outdir: str, port: int = 8420, replay_por
     if replay_port:
         bin_ = pathlib.Path(os.environ.get("CARGO_TARGET_DIR") or (ROOT / "target")) / "debug" / "examples" / "replay_serve"
         log = open(state / f"replay-{replay_port}.log", "w")
-        replay = subprocess.Popen([str(bin_), str(replay_port), "--scenario", scenario], stdout=log, stderr=subprocess.STDOUT)
+        replay = subprocess.Popen([str(bin_), str(replay_port), "--scenario", scenario] + list(replay_args or []),
+                                  stdout=log, stderr=subprocess.STDOUT)
         # The replay port must be OURS: a server another agent left on it
         # would answer this walk with its own traffic (seen once on 8429).
         logp = state / f"replay-{replay_port}.log"

@@ -64,5 +64,23 @@
   "capability_prefix": "Error surfacing under role=alert",
   "bucket": "A",
   "evidence": "A10: autonomy.rs:974 apply records the family error only while the epoch admits it and CLEARS it on a successful op (the web #runGuarded null-on-success); dialog.rs:2295 family_error -> :652 append_notice renders it as the dialog alert line (red) with the server message as the web shows it (dialog.rs:730 display_error: transport wrapper dropped, whitespace collapsed; wrapped, never clipped); test a10_autonomy.rs::the_monitor_form_creates_and_a_refusal_is_the_dialogs_alert (server monitor_invalid_spec refusal -> alert; corrected create -> alert cleared) + ::a_closed_dialogs_late_reply_never_publishes_and_a_stale_error_is_dropped (a failure answering after the identity moved is not recorded); walk a10_autonomy.py step 2 (docs/ux/a10/autonomy/*/06-monitor-alert-*.png)"
+ },
+ {
+  "feature": "skills",
+  "capability_prefix": "skills dialog: search the skill registry by query",
+  "bucket": "A",
+  "evidence": "A10: models.rs:733 search_registry (profile/skills/registry/search {q, profile_id}) folds the packages; dialog.rs:1467 live_skills_extra renders EVERY package as a row of the web fields (SkillsDialog.tsx:229-272): name, description, repo, Provides executable tools|Instruction skills · licence (License not reported), Requires: …, Installed: … (green), and its Install pill (tags/version/author parsed, not rendered — the web); test crates/octoscode-module/tests/a10_skills.rs::registry_rows_show_the_webs_fields_and_install_through_the_confirm (faithful a10-skills-faithful.jsonl search reply; no recording carries one); walk tools/walk/a10_skills.py step 2 (search box CLICK + Enter -> rows) desktop+phone 17/17"
+ },
+ {
+  "feature": "skills",
+  "capability_prefix": "skills dialog: install a skill from a repo/branch only after",
+  "bucket": "A",
+  "evidence": "A10: the Install from source section (dialog.rs:1467 live_skills_extra: Repository or server-side path / Branch (server default: main) inputs + Review installation) -> lib.rs:2193 reads the typed source -> dialog.rs:454 confirmation_for(skills.install_source) \"{repo} · branch {branch||main}\" + Applies to Profile … Existing skills are not forcibly overwritten (the executable-tools warning is the dialog paragraph SKILLS_WARNING) -> models.rs:606 install_params {profile_id, repo, branch?, force:false} -> models.rs:622 the receipt line \"Server installed: X. Skipped: Y. Dependencies: Z.\", the searched packages cleared, the list re-read; registry rows install through the same confirm; test a10_skills.rs::install_from_source_and_remove + ::registry_rows_show_the_webs_fields_and_install_through_the_confirm; walk a10_skills.py steps 3-4 (Install CLICK -> confirm -> Confirm install; Review installation CLICK -> confirm -> Confirm install)"
+ },
+ {
+  "feature": "skills",
+  "capability_prefix": "skills dialog: hold the Profile lock",
+  "bucket": "A",
+  "evidence": "A10: models.rs:825 perform holds the store Profile lease around a skill mutation (set_profile_busy; a second mutation while it is held is refused — deduplicated, nothing sent) and failures read the web copy SKILLS_MUTATION_FAILED; dialog.rs:255 profile_locked (lease held OR a turn running in the session) -> the lock line \"Skill changes are paused while known work is running in this Profile.\", Remove/Install/Review drawn paused and NOT wired (controls()); test a10_skills.rs::the_profile_lock_pauses_mutations_and_dedupes (lease held during a delayed remove: lock line + no ask wired + the second remove refused with one frame on the wire; a running turn locks; settling unlocks); walk a10_skills.py step 4b (replay --slow profile/skills/install=2500: the lock line shows while the install is in flight and a Remove CLICK routes nothing)"
  }
 ]

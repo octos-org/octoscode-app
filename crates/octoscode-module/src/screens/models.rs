@@ -574,20 +574,72 @@ pub fn action_params(action: &str, store: &Store) -> Option<(String, Value)> {
                 ))
             }
         }
+        // A10: the web's skill wires (`packages/client/src/skills.ts:160-200`):
+        // scoped to the Profile; an install says `force: false` and names a
+        // branch only when one was typed (the r2 recording's install shape).
         a if a.starts_with("skills.remove_") => {
             let i: usize = a.rsplit('_').next()?.parse().ok()?;
             let name = store.domains.profile.installed_skills().get(i)?.name.clone();
-            Some(("profile/skills/remove".to_owned(), json!({ "name": name })))
+            let mut p = json!({ "name": name });
+            if let Some(profile) = store.domains.profile.current() {
+                p["profile_id"] = json!(profile);
+            }
+            Some(("profile/skills/remove".to_owned(), p))
+        }
+        "skills.install_source" => {
+            let (repo, branch) = crate::screens::dialog::skills_source();
+            install_params(store, &repo, &branch)
         }
         a if a.starts_with("skills.install_") => {
             let i: usize = a.rsplit('_').next()?.parse().ok()?;
             let row = i.checked_sub(INSTALL_BASE)?;
             let repo = store.domains.profile.registry_packages().get(row)?.repo.clone();
-            Some(("profile/skills/install".to_owned(), json!({ "repo": repo })))
+            install_params(store, &repo, "")
         }
         _ => None,
     }
 }
+
+/// `profile/skills/install` (`skills.ts:160-187`): `{profile_id, repo,
+/// branch?, force: false}` — the repo/branch trimmed, a blank branch left out
+/// (the server's default, main). `None` for a blank repo.
+fn install_params(store: &Store, repo: &str, branch: &str) -> Option<(String, Value)> {
+    let repo = repo.trim();
+    if repo.is_empty() {
+        return None;
+    }
+    let mut p = json!({ "repo": repo, "force": false });
+    if let Some(profile) = store.domains.profile.current() {
+        p["profile_id"] = json!(profile);
+    }
+    if !branch.trim().is_empty() {
+        p["branch"] = json!(branch.trim());
+    }
+    Some(("profile/skills/install".to_owned(), p))
+}
+
+/// The web's install receipt line (`SkillsDialog.tsx:121-123`).
+pub fn install_notice(result: &Value) -> String {
+    let list = |k: &str| -> String {
+        let v: Vec<&str> = result
+            .get(k)
+            .and_then(|a| a.as_array())
+            .map(|a| a.iter().filter_map(|s| s.as_str()).collect())
+            .unwrap_or_default();
+        if v.is_empty() { "none".to_owned() } else { v.join(", ") }
+    };
+    format!(
+        "Server installed: {}. Skipped: {}. Dependencies: {}.",
+        list("installed"),
+        list("skipped"),
+        list("deps_installed")
+    )
+}
+
+/// The web's mutation failure copy (`SkillsDialog.tsx:76-79`): the change
+/// may have applied, so it never echoes a raw transport error.
+pub const SKILLS_MUTATION_FAILED: &str = "Could not confirm the server change. It may have been applied; \
+                                          refresh the Profile before reviewing another attempt.";
 
 /// `skills.install_N` targets registry row `N - INSTALL_BASE`: the authored
 /// card puts buttons 3/4 on registry rows 0/1 (`setup-10/service-actions.json`:
@@ -606,12 +658,20 @@ pub async fn refresh(conv: &Conversation, store: &Store) -> Result<usize, String
     let client = conv.client();
     let mut done = 0usize;
     let mut errs = Vec::new();
+    // A10: the reads are scoped to the connection's Profile (the r2
+    // recording's `{profile_id}` requests; the web's `skillCommands(profileId)`),
+    // and the store learns that Profile when no `session/opened` named one —
+    // the Skills/Research copy and the mutation wires need it.
+    if store.domains.profile.current().is_none() {
+        store.domains.profile.set_current(conv.profile());
+    }
+    let profile = store.domains.profile.current().unwrap_or_else(|| conv.profile());
     for (method, fold) in [
         ("profile/llm/list", fold_llm_list as fn(Value, &Store)),
         ("profile/skills/list", fold_skills_list),
         ("profile/sub_providers/list", fold_sub_providers),
     ] {
-        match client.request(method, json!({})).await {
+        match client.request(method, json!({ "profile_id": profile })).await {
             Ok(v) => {
                 fold(v, store);
                 done += 1;
@@ -766,12 +826,36 @@ pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result
     let Some((method, params)) = action_params(action, store) else {
         return Err(format!("screens/models: no protocol mapping for {action:?}"));
     };
-    let result = match conv.client().request(&method, params).await {
+    // A10 — a skill mutation holds the Profile lease (the web's
+    // `onMutationStart` / ProfileMutationLeases): one at a time — a second
+    // one while it is held is refused (deduplicated), and every other
+    // Profile mutation (research lanes) pauses until it is released.
+    let mutation = action.starts_with("skills.install_") || action.starts_with("skills.remove_");
+    if mutation {
+        if store.domains.profile.profile_busy() {
+            // The web's `run` returns silently on a pending request; the
+            // dialog already shows the lock line and wires no mutation.
+            return Err(format!("{method}: the Profile is busy (a mutation is pending)"));
+        }
+        store.domains.profile.set_profile_busy(true);
+        // The open dialog re-lowers with the lock line while it is held.
+        makepad_widgets::SignalToUI::set_ui_signal();
+    }
+    let sent = conv.client().request(&method, params).await;
+    if mutation {
+        store.domains.profile.set_profile_busy(false);
+    }
+    let result = match sent {
         Ok(v) => v,
         Err(e) => {
             // The open dialog shows the failure under its controls (the web
-            // dialogs' `setError(errorText(cause))` alert line).
-            crate::screens::dialog::set_notice(format!("{e}"));
+            // dialogs' `setError(errorText(cause))` alert line); a skill
+            // mutation's failure is the web's fixed may-have-applied copy.
+            if mutation {
+                crate::screens::dialog::set_notice(SKILLS_MUTATION_FAILED);
+            } else {
+                crate::screens::dialog::set_notice(format!("{e}"));
+            }
             return Err(format!("{method}: {e}"));
         }
     };
@@ -825,7 +909,26 @@ pub async fn perform(conv: &Conversation, action: &str, store: &Store) -> Result
             }
         }
         a if a.starts_with("skills.install_") || a.starts_with("skills.remove_") => {
-            if let Ok(v) = conv.client().request("profile/skills/list", json!({})).await {
+            // A10: the web's receipt line, the searched packages cleared
+            // (`setPackages(null)`), then the Profile's list re-read.
+            if a.starts_with("skills.install_") {
+                crate::screens::dialog::set_info(install_notice(&result));
+            } else {
+                let name = result.get("removed").and_then(|r| r.as_str()).map(str::to_owned).unwrap_or_else(|| {
+                    a.rsplit('_').next().and_then(|i| i.parse::<usize>().ok()).and_then(|i| {
+                        store.domains.profile.installed_skills().get(i).map(|s| s.name.clone())
+                    }).unwrap_or_default()
+                });
+                let profile = store.domains.profile.current().unwrap_or_default();
+                crate::screens::dialog::set_info(format!("Removed {name} from server Profile {profile}."));
+            }
+            store.domains.profile.set_registry_packages(Vec::new());
+            crate::screens::dialog::set_skills_query(None);
+            let mut p = json!({});
+            if let Some(profile) = store.domains.profile.current() {
+                p["profile_id"] = json!(profile);
+            }
+            if let Ok(v) = conv.client().request("profile/skills/list", p).await {
                 fold_skills_list(v, store);
             }
         }

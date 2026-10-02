@@ -324,6 +324,12 @@ async fn main() {
     let (label, file) = scenario_fixture(&scenario);
     let replies = if label == "screens" || label == "a10" { screens_replies() } else { BTreeMap::new() };
     let sequenced = if label == "a10" { a10_sequenced() } else { BTreeMap::new() };
+    // A10: `--slow <method>=<ms>` (repeatable) delays that method's faithful reply.
+    let slow: BTreeMap<String, u64> = args
+        .windows(2)
+        .filter(|w| w[0] == "--slow")
+        .filter_map(|w| w[1].split_once('=').and_then(|(m, ms)| Some((m.to_owned(), ms.parse().ok()?))))
+        .collect();
     if !sequenced.is_empty() {
         println!(
             "[replay-serve] a10: faithful sequenced replies: {:?}",
@@ -396,6 +402,7 @@ async fn main() {
         let standalone = standalone.clone();
         let replies = replies.clone();
         let sequenced = sequenced.clone();
+        let slow = slow.clone();
         tokio::spawn(async move {
             // A10: how many sequenced replies each method has consumed.
             let mut seq_pos: BTreeMap<String, usize> = BTreeMap::new();
@@ -515,17 +522,29 @@ async fn main() {
                         rewrite_session(&mut body, &from, &active_session);
                         // A faithful refusal (`{"__error__": {code, message,
                         // data}}`) answers as a JSON-RPC error.
-                        if let Some(err) = body.get("__error__").cloned() {
-                            println!("[replay-serve] -> {m} (faithful ERROR #{k})");
-                            send(&tx, serde_json::json!({
-                                "jsonrpc": "2.0", "id": id, "error": err
-                            })).await;
-                            continue;
+                        let frame = match body.get("__error__").cloned() {
+                            Some(err) => {
+                                println!("[replay-serve] -> {m} (faithful ERROR #{k})");
+                                serde_json::json!({"jsonrpc": "2.0", "id": id, "error": err})
+                            }
+                            None => {
+                                println!("[replay-serve] -> {m} (faithful reply #{k})");
+                                serde_json::json!({"jsonrpc": "2.0", "id": id, "result": body})
+                            }
+                        };
+                        // `--slow <method>=<ms>`: answer this method late (a
+                        // walk can then see the in-flight state), without
+                        // holding up the other requests.
+                        match slow.get(m).copied() {
+                            Some(ms) => {
+                                let tx2 = tx.clone();
+                                tokio::spawn(async move {
+                                    tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
+                                    let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                                });
+                            }
+                            None => send(&tx, frame).await,
                         }
-                        println!("[replay-serve] -> {m} (faithful reply #{k})");
-                        send(&tx, serde_json::json!({
-                            "jsonrpc": "2.0", "id": id, "result": body
-                        })).await;
                     }
                     // A5 — the `screens` scenario: the recorded reply for
                     // this method, re-pointed at the session the app opened.

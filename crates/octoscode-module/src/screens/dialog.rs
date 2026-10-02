@@ -234,6 +234,35 @@ pub fn set_skills_query(q: Option<String>) {
 /// The Skills search input's widget id (after the dialog's `dlg_skills_` prefix).
 pub const SKILLS_QUERY_INPUT: &str = "dlg_skills_skills_query";
 
+/// A10 — the "Install from source" fields (`SkillsDialog.tsx:276-307`): the
+/// repository (or server-side path) and the branch, kept between remounts
+/// once "Review installation" read them.
+static SKILLS_SOURCE: Mutex<(String, String)> = Mutex::new((String::new(), String::new()));
+pub const SKILLS_SOURCE_REPO_INPUT: &str = "dlg_skills_src_repo";
+pub const SKILLS_SOURCE_BRANCH_INPUT: &str = "dlg_skills_src_branch";
+
+pub fn skills_source() -> (String, String) {
+    SKILLS_SOURCE.lock().unwrap().clone()
+}
+
+pub fn set_skills_source(repo: &str, branch: &str) {
+    *SKILLS_SOURCE.lock().unwrap() = (repo.trim().to_owned(), branch.trim().to_owned());
+}
+
+/// A10 — the web's Profile lock (`profileBusy`, `App.tsx:3843-3849`): skill
+/// (and research-lane) mutations pause while a Profile mutation is in flight
+/// (the store's lease) or known work runs in the Profile (a turn).
+pub fn profile_locked(ctx: &Ctx<'_>) -> bool {
+    ctx.store.domains.profile.profile_busy() || ctx.ui.lock().map(|u| u.turn_active()).unwrap_or(false)
+}
+
+/// The web's lock line (`SkillsDialog.tsx:163-169`).
+pub const SKILLS_LOCKED: &str = "Skill changes are paused while known work is running in this Profile.";
+/// The web's warning paragraph (`SkillsDialog.tsx:158-162`), native wording
+/// ("not installed on this device" for "in your browser").
+pub const SKILLS_WARNING: &str = "Skills are shared by this Profile, not installed on this device. Installation may \
+                                  download executable tools and dependencies. Review and trust the source first.";
+
 /// A create form inside an autonomy dialog — the web's AutonomyPanel forms
 /// (goal objective + optional budget, `AutonomyPanel.tsx:194-219`; the loop
 /// prompt + interval, `LoopCreationControls.tsx:18`). Its fields are real
@@ -450,22 +479,28 @@ pub fn confirmation_for(action: &str, store: &octoscode_store::Store) -> Option<
             confirm_label: "Confirm remove".to_owned(),
         });
     }
+    // A10: the web's install confirmation (`SkillsDialog.tsx:308-353`):
+    // "{repo} · branch {branch || main}" and the Profile line; the
+    // executable-tools warning is the dialog's own paragraph.
+    let install = |repo: &str, branch: &str| Confirm {
+        dialog: Dialog::Skills,
+        action: action.to_owned(),
+        title: "Confirm server installation".to_owned(),
+        detail: format!("{repo} · branch {}", if branch.is_empty() { "main" } else { branch }),
+        body: format!(
+            "Applies to Profile {profile} and rebuilds its server skill runtime. \
+             Existing skills are not forcibly overwritten."
+        ),
+        confirm_label: "Confirm install".to_owned(),
+    };
+    if action == "skills.install_source" {
+        let (repo, branch) = skills_source();
+        return (!repo.is_empty()).then(|| install(&repo, &branch));
+    }
     if let Some(i) = action.strip_prefix("skills.install_").and_then(|n| n.parse::<usize>().ok()) {
         // `skills.install_N` names registry row N - 3 (`models.rs` INSTALL_BASE).
         let pkg = store.domains.profile.registry_packages().get(i.checked_sub(3)?)?.clone();
-        return Some(Confirm {
-            dialog: Dialog::Skills,
-            action: action.to_owned(),
-            title: "Confirm server installation".to_owned(),
-            detail: format!("{} · branch main", pkg.repo),
-            body: format!(
-                "Skills are shared by this Profile, not installed on this device. \
-                 Installation may download executable tools and dependencies; review \
-                 and trust the source first. Applies to Profile {profile} and rebuilds \
-                 its server skill runtime. Existing skills are not forcibly overwritten."
-            ),
-            confirm_label: "Confirm install".to_owned(),
-        });
+        return Some(install(&pkg.repo, ""));
     }
     None
 }
@@ -658,7 +693,10 @@ fn append_notice(tree: &mut UiNode, text: &str, alert: bool, card: (f64, f64)) -
     let mut title: Option<(f64, f64, f64, f64)> = None;
     walk(tree, &mut |n| {
         if n.kind == NodeKind::Text && n.attrs.font_src.is_some() {
-            if proto.is_none() {
+            // A10: a BODY face (the lightest weight), never the bold title's
+            // font file — the line set weight 400 on a bold face before.
+            let lighter = proto.as_ref().is_none_or(|p| n.attrs.weight.unwrap_or(400) < p.attrs.weight.unwrap_or(400));
+            if lighter {
                 proto = Some(n.clone());
             }
             if n.attrs.text.as_deref().is_some_and(|t| !t.trim().is_empty()) {
@@ -688,7 +726,9 @@ fn append_notice(tree: &mut UiNode, text: &str, alert: bool, card: (f64, f64)) -
     let per_line = ((right - tx).max(80.0) / (0.5 * 13.5)).floor().max(1.0);
     let lines = (text.chars().count() as f64 / per_line).ceil().max(1.0);
     let line_h = (lines * 13.5 * 1.45).ceil().max(20.0);
-    let y0 = ty + th + 10.0;
+    // A10: 6 px under the title, above anything a dialog inserted there
+    // itself (the Skills warning paragraph starts 8 px under the title).
+    let y0 = ty + th + 6.0;
     let delta = line_h + 6.0;
     // Containers that span the insertion line grow; everything below moves.
     walk_mut(tree, &mut |n| {
@@ -1291,6 +1331,10 @@ fn live_skills(tree: &mut UiNode, ctx: &Ctx<'_>) {
     // advertises profile/skills/registry/search; the authored box becomes a
     // real input (Enter searches) holding the last searched query.
     if advertises(ctx.store, "profile/skills/registry/search") {
+        // A10: the input spans the search box's height (its text centres in
+        // it); a 26 px input grew to the phone's 44 px touch minimum from its
+        // own top and sat the query on the box's bottom edge.
+        let boxed = rect_of(tree, "search_box");
         if let Some(n) = find_mut(tree, "t_search") {
             n.kind = NodeKind::Input;
             let a = &mut n.attrs;
@@ -1300,6 +1344,10 @@ fn live_skills(tree: &mut UiNode, ctx: &Ctx<'_>) {
             a.color = Some(0xff1d_1d1f);
             a.w = Some(250.0);
             a.variant = None;
+            if let Some((_, by, _, bh)) = boxed {
+                a.y = Some(by);
+                a.h = Some(bh as f32);
+            }
         }
     } else {
         remove(tree, &["search_box", "icon_search", "t_search"]);
@@ -1403,6 +1451,227 @@ fn live_skills(tree: &mut UiNode, ctx: &Ctx<'_>) {
             a.variant = None;
         }
     }
+}
+
+/// A10 — the parts of the web's Skills dialog the setup-10 card has no slot
+/// for, built from the card's own faces (the confirm/form precedent):
+/// * the warning paragraph and, while the Profile is busy, the lock line
+///   directly under the title (`SkillsDialog.tsx:158-169`);
+/// * every searched registry package as a row of the web's fields — the
+///   name, description, repo, "Provides executable tools" | "Instruction
+///   skills" · licence, "Requires: …", "Installed: …" — and its Install
+///   pill (`:229-272`; tags/version/author are parsed, never rendered);
+/// * "Install from source": the repository and branch inputs and "Review
+///   installation" (`:276-307`).
+/// Row/section geometry flows: each block's height comes from its text.
+fn live_skills_extra(tree: &mut UiNode, ctx: &Ctx<'_>) {
+    let Ok(raw) = card_tree(Dialog::Skills, ctx, &AutonomyState::default()) else { return };
+    let (Some(body_face), Some(head_face), Some(pill_face), Some(box_face), Some(field_face), Some(input_face), Some(div_face)) = (
+        find(&raw, "t_ver6").cloned(),
+        find(&raw, "t_reg_head").cloned(),
+        find(&raw, "btn_3_install").cloned(),
+        find(&raw, "card_registry").cloned(),
+        find(&raw, "search_box").cloned(),
+        find(&raw, "t_search").cloned(),
+        find(&raw, "div_3").cloned(),
+    ) else {
+        return;
+    };
+    let frames = frame_ids(tree);
+    let locked = profile_locked(ctx);
+    let line = |id: &str, text: &str, x: f64, y: f64, w: f64, size: f32, weight: i32, color: u32| -> (UiNode, f64) {
+        let (mut n, h) = wrapped_text(&body_face, id, text, y, w, size, color);
+        n.attrs.x = Some(x);
+        n.attrs.weight = Some(weight);
+        (n, h)
+    };
+    // ---- 1. warning paragraph (+ lock line) under the title.
+    let Some((tx, ty, _, th)) = rect_of(tree, "t_title") else { return };
+    let card_w = rect_of(tree, "card_installed").map(|(x, _, w, _)| x + w).unwrap_or(392.0) - tx;
+    let y0 = ty + th + 8.0;
+    let mut top: Vec<UiNode> = Vec::new();
+    let mut y = y0;
+    let (warn, h) = line("skills_warning", SKILLS_WARNING, tx, y, card_w, 13.0, 400, 0xff6e_6e73);
+    top.push(warn);
+    y += h + 6.0;
+    if locked {
+        let (lock, h) = line("skills_locked", SKILLS_LOCKED, tx, y, card_w, 13.0, 500, 0xff8a_5a00);
+        top.push(lock);
+        y += h + 6.0;
+    }
+    let grow = y - y0 + 6.0;
+    shift_below(tree, y0 - 0.5, grow, &frames);
+    tree.children.extend(top);
+    if locked {
+        // The Remove links stay drawn, paused (not wired — `controls`).
+        walk_mut(tree, &mut |n| {
+            if n.attrs.id.as_deref().is_some_and(|id| id.starts_with("t_remove")) {
+                n.attrs.color = Some(0xffa1_a1a6);
+            }
+        });
+    }
+    // ---- 2. the registry rows (only while there are packages to show).
+    let packages = ctx.store.domains.profile.registry_packages();
+    let install_ok = advertises(ctx.store, "profile/skills/install");
+    if !packages.is_empty() {
+        if let Some((cx, cy, cw, ch)) = rect_of(tree, "card_registry") {
+            remove(tree, &["t_name10", "t_ver11", "btn_3_install", "t_name12", "t_ver13", "btn_4_install", "div_3"]);
+            let (ix, pill_w) = (cx + 22.0, 93.0);
+            let text_w = cw - 44.0 - if install_ok { pill_w + 12.0 } else { 0.0 };
+            let mut rows: Vec<UiNode> = Vec::new();
+            let mut y = cy + 14.0;
+            for (j, p) in packages.iter().enumerate() {
+                if j > 0 {
+                    let mut d = div_face.clone();
+                    d.attrs.id = Some(format!("reg_{j}_div"));
+                    d.attrs.x = Some(ix - 2.0);
+                    d.attrs.y = Some(y);
+                    d.attrs.w = Some((cw - 40.0) as f32);
+                    rows.push(d);
+                    y += 12.0;
+                }
+                let row_top = y;
+                // The name in the installed rows' own face (the web's <strong>).
+                let (mut name, h) = match find(&raw, "t_name3") {
+                    Some(face) => wrapped_text(face, &format!("reg_{j}_name"), &p.name, y, text_w, 16.0, 0xff1d_1d1f),
+                    None => line(&format!("reg_{j}_name"), &p.name, ix, y, text_w, 16.0, 600, 0xff1d_1d1f),
+                };
+                name.attrs.x = Some(ix);
+                name.attrs.weight = find(&raw, "t_name3").and_then(|f| f.attrs.weight).or(Some(600));
+                rows.push(name);
+                y += h + 2.0;
+                let mut add = |id: &str, text: &str, size: f32, color: u32, rows: &mut Vec<UiNode>, y: &mut f64| {
+                    if text.trim().is_empty() {
+                        return;
+                    }
+                    let (n, h) = line(&format!("reg_{j}_{id}"), text, ix, *y, text_w, size, 400, color);
+                    rows.push(n);
+                    *y += h + 1.0;
+                };
+                add("desc", &p.description, 13.5, 0xff3a_3a3c, &mut rows, &mut y);
+                add("repo", &p.repo, 12.5, 0xff6e_6e73, &mut rows, &mut y);
+                let kind = if p.provides_tools { "Provides executable tools" } else { "Instruction skills" };
+                let licence = p.license.clone().unwrap_or_else(|| "License not reported".to_owned());
+                add("kind", &format!("{kind} · {licence}"), 12.5, 0xff6e_6e73, &mut rows, &mut y);
+                if !p.requires.is_empty() {
+                    add("requires", &format!("Requires: {}", p.requires.join(", ")), 12.5, 0xff6e_6e73, &mut rows, &mut y);
+                }
+                if p.installed {
+                    add("installed", &format!("Installed: {}", p.installed_skills.join(", ")), 12.5, 0xff28_7f3b, &mut rows, &mut y);
+                }
+                if install_ok {
+                    let px = cx + cw - 22.0 - pill_w;
+                    let mut pill = kit_pill(&pill_face, &format!("reg_{j}_install"), "Install", px, row_top, pill_w, 40.0, false, 14.5);
+                    if locked {
+                        // Drawn but paused (the web's `disabled={busy || profileBusy}`).
+                        walk_mut(&mut pill, &mut |n| {
+                            if n.attrs.text.is_some() {
+                                n.attrs.color = Some(0xffa1_a1a6);
+                            }
+                        });
+                    }
+                    rows.push(pill);
+                    y = y.max(row_top + 40.0);
+                }
+                y += 4.0;
+            }
+            let new_h = (y - cy) + 10.0;
+            let delta = new_h - ch;
+            shift_below(tree, cy + ch - 0.5, delta, &frames);
+            set_h(tree, "card_registry", new_h);
+            tree.children.extend(rows);
+        }
+    }
+    // ---- 3. Install from source (only when install is advertised).
+    if !install_ok {
+        return;
+    }
+    let mut bottom: f64 = 0.0;
+    walk(tree, &mut |n| {
+        let frame = n.attrs.id.as_deref().is_some_and(|id| frames.iter().any(|f| f == id));
+        if !frame && draws(n) {
+            let (_, y, _, h) = rect(n);
+            bottom = bottom.max(y + h);
+        }
+    });
+    let (bx, _, bw, _) = rect_of(tree, "card_installed").unwrap_or((14.0, 0.0, 378.0, 0.0));
+    let mut y = bottom + 30.0;
+    let mut head = head_face.clone();
+    head.children.clear();
+    head.attrs.id = Some("src_head".to_owned());
+    head.attrs.text = Some("Install from source".to_owned());
+    head.attrs.x = Some(tx);
+    head.attrs.y = Some(y);
+    head.attrs.w = Some(240.0);
+    let head_h = head.attrs.h.unwrap_or(25.0) as f64;
+    let mut nodes = vec![head];
+    y += head_h + 12.0;
+    let card_top = y;
+    let (ix, iw) = (bx + 20.0, bw - 40.0);
+    y += 14.0;
+    let (source, branch) = skills_source();
+    for (id, label, value) in [
+        ("src_repo", "Repository or server-side path", source),
+        ("src_branch", "Branch (server default: main)", branch),
+    ] {
+        let (l, h) = line(&format!("{id}_label"), label, ix, y, iw, 12.5, 500, 0xff6e_6e73);
+        nodes.push(l);
+        y += h + 4.0;
+        let mut b = field_face.clone();
+        b.children.clear();
+        b.attrs.id = Some(format!("{id}_box"));
+        b.attrs.x = Some(ix);
+        b.attrs.y = Some(y);
+        b.attrs.w = Some(iw as f32);
+        b.attrs.h = Some(44.0);
+        b.attrs.tapto = None;
+        nodes.push(b);
+        let mut i = input_face.clone();
+        i.children.clear();
+        i.kind = NodeKind::Input;
+        let a = &mut i.attrs;
+        a.id = Some(id.to_owned());
+        a.placeholder = Some(String::new());
+        a.text = Some(value);
+        a.color = Some(0xff1d_1d1f);
+        a.x = Some(ix + 14.0);
+        a.y = Some(y);
+        a.w = Some((iw - 28.0) as f32);
+        a.h = Some(44.0);
+        a.variant = None;
+        a.tapto = None;
+        nodes.push(i);
+        y += 44.0 + 10.0;
+    }
+    let review_w = 186.0;
+    let mut review = kit_pill(&pill_face, "src_review", "Review installation", ix + iw - review_w, y, review_w, 40.0, false, 14.5);
+    if locked {
+        walk_mut(&mut review, &mut |n| {
+            if n.attrs.text.is_some() {
+                n.attrs.color = Some(0xffa1_a1a6);
+            }
+        });
+    }
+    nodes.push(review);
+    y += 40.0 + 16.0;
+    let mut card = box_face.clone();
+    card.children.clear();
+    card.attrs.id = Some("card_source".to_owned());
+    card.attrs.x = Some(bx);
+    card.attrs.y = Some(card_top);
+    card.attrs.w = Some(bw as f32);
+    card.attrs.h = Some((y - card_top) as f32);
+    card.attrs.tapto = None;
+    // The card paints first (its rows draw over it).
+    tree.children.push(card);
+    tree.children.extend(nodes);
+    // The frame grows to hold the section.
+    walk_mut(tree, &mut |n| {
+        if n.attrs.id.as_deref().is_some_and(|id| frames.iter().any(|f| f == id)) {
+            let h = n.attrs.h.unwrap_or(0.0) as f64;
+            n.attrs.h = Some(h.max(y + 24.0) as f32);
+        }
+    });
 }
 
 /// The goal's status word (`describeGoalStatus`, AutonomyPanel) and its badge
@@ -1897,12 +2166,23 @@ pub fn controls(d: Dialog, ctx: &Ctx<'_>, st: &AutonomyState) -> Vec<Control> {
         ],
         Dialog::Skills => {
             let mut v = Vec::new();
+            // A10: while the Profile is busy, no mutation is wired (the web's
+            // `disabled={busy || profileBusy}`); the controls stay drawn.
+            if profile_locked(ctx) {
+                return v;
+            }
             for i in 0..ctx.store.domains.profile.installed_skills().len().min(3) {
                 v.push(ctl(format!("t_remove{i}"), format!("{ACTION_ASK}skills.remove_{i}")));
             }
             for (i, b) in [(3usize, "btn_3_install_control"), (4, "btn_4_install_control")] {
                 v.push(ctl(b, format!("{ACTION_ASK}skills.install_{i}")));
             }
+            // A10: one Install per searched package (`skills.install_N` names
+            // registry row N - 3), and the free-form source's review.
+            for j in 0..ctx.store.domains.profile.registry_packages().len() {
+                v.push(ctl(format!("reg_{j}_install_control"), format!("{ACTION_ASK}skills.install_{}", j + 3)));
+            }
+            v.push(ctl("src_review_control", format!("{ACTION_ASK}skills.install_source")));
             v
         }
         Dialog::Goal => {
@@ -2307,7 +2587,10 @@ fn live(d: Dialog, tree: &mut UiNode, ctx: &Ctx<'_>, st: &AutonomyState) {
     match d {
         Dialog::Models => live_models(tree, ctx),
         Dialog::Context => live_context(tree, ctx),
-        Dialog::Skills => live_skills(tree, ctx),
+        Dialog::Skills => {
+            live_skills(tree, ctx);
+            live_skills_extra(tree, ctx);
+        }
         Dialog::Goal => live_goal(tree, st),
         Dialog::Loops => live_loops(tree, st),
         Dialog::Review => live_review(tree, ctx),
@@ -2336,6 +2619,7 @@ fn form_controls(f: Option<&Form>) -> Vec<Control> {
 /// Context card's `btn_compact` face at `(x, y, w, h)`: `primary` = the
 /// filled black pill with white text, else the outlined one.
 fn kit_pill(face: &UiNode, id: &str, label: &str, x: f64, y: f64, w: f64, h: f64, primary: bool, size: f32) -> UiNode {
+    let base = face.attrs.id.clone().unwrap_or_default();
     let mut b = face.clone();
     b.attrs.id = Some(id.to_owned());
     b.attrs.x = Some(x);
@@ -2344,7 +2628,7 @@ fn kit_pill(face: &UiNode, id: &str, label: &str, x: f64, y: f64, w: f64, h: f64
     b.attrs.h = Some(h as f32);
     for ch in &mut b.children {
         let old = ch.attrs.id.clone().unwrap_or_default();
-        let suffix = old.strip_prefix("btn_compact").unwrap_or("").to_owned();
+        let suffix = old.strip_prefix(base.as_str()).unwrap_or("").to_owned();
         let a = &mut ch.attrs;
         a.id = Some(format!("{id}{suffix}"));
         a.x = Some(x);
@@ -3112,7 +3396,14 @@ mod tests {
         assert_eq!(remove.detail, store.domains.profile.installed_skills()[1].name);
         assert!(remove.body.contains("Applies to Profile dsflash"), "{}", remove.body);
         let install = confirmation_for("skills.install_3", &store).expect("install asks");
-        assert!(install.detail.ends_with("· branch main") && install.body.contains("executable tools"));
+        // A10: the web's confirm (`SkillsDialog.tsx:308-353`); the
+        // executable-tools warning is the dialog's own paragraph.
+        assert!(install.detail.ends_with("· branch main") && install.body.contains("not forcibly overwritten"));
+        set_skills_source(" octos-org/linter ", " dev ");
+        let src = confirmation_for("skills.install_source", &store).expect("source asks");
+        assert_eq!(src.detail, "octos-org/linter · branch dev");
+        set_skills_source("", "");
+        assert!(confirmation_for("skills.install_source", &store).is_none(), "a blank repo asks nothing");
         let compact = confirmation_for("context.compact_now", &store).expect("compact asks");
         assert!(compact.body.starts_with("Compact this session now?"));
         assert!(confirmation_for("skills.remove_9", &store).is_none(), "a gone row asks nothing");
@@ -3258,7 +3549,11 @@ mod tests {
         let m = lower(Dialog::Skills, &ctx, 990.0, 603.0).unwrap();
         assert!(m.dsl.contains("dlg_skills_skills_query := DesignInput"), "a real input");
         assert!(m.dsl.contains("empty_text: \"Search registry\""));
-        assert!(m.dsl.contains("1.1.0 · License not reported"), "a registry row's detail line");
+        // A10: a registry row carries the web's fields (`SkillsDialog.tsx:229-272`).
+        assert!(m.dsl.contains("Instruction skills · License not reported"), "a registry row's kind/licence line");
+        assert!(m.dsl.contains("octos-org/code-linter"), "the row's repo");
+        assert!(m.dsl.contains("Install from source") && m.dsl.contains("Review installation"));
+        assert!(m.dsl.contains(SKILLS_WARNING));
         set_skills_query(Some("zzz".into()));
         store.domains.profile.set_registry_packages(vec![]);
         let m = lower(Dialog::Skills, &ctx, 990.0, 603.0).unwrap();

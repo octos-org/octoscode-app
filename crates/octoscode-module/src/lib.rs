@@ -2188,6 +2188,22 @@ impl OctoscodeView {
             // card, Confirm performs the asked action through its owner,
             // Cancel returns to the dialog.
             screens::dialog::Effect::Ask(asked) => {
+                // A10 — "Review installation": the source fields' text is
+                // what the confirmation names (and later installs).
+                if asked == "skills.install_source" {
+                    let repo = self
+                        .view
+                        .text_input(cx, &[LiveId::from_str(screens::dialog::SKILLS_SOURCE_REPO_INPUT)])
+                        .text();
+                    let branch = self
+                        .view
+                        .text_input(cx, &[LiveId::from_str(screens::dialog::SKILLS_SOURCE_BRANCH_INPUT)])
+                        .text();
+                    screens::dialog::set_skills_source(&repo, &branch);
+                    if repo.trim().is_empty() {
+                        screens::dialog::set_notice("Type the repository or server-side path first.");
+                    }
+                }
                 let store = { self.bridge.lock().unwrap().store.clone() };
                 let c = screens::dialog::confirmation_for(asked, &store);
                 makepad_widgets::log!("[octoscode] dialog confirm asked: {asked} ({})", c.is_some());
