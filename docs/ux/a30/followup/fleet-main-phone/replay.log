@@ -1,0 +1,86 @@
+[replay-serve] screens: 52 recorded replies: ["agent/artifact/list", "agent/interrupt", "agent/list", "agent/output/read", "agent/status/read", "config/capabilities/list", "content/list", "launch/resolve", "loop/create", "loop/delete", "loop/fire_now", "loop/list", "loop/pause", "loop/resume", "mcp/status/list", "monitor/create", "monitor/delete", "monitor/list", "monitor/pause", "monitor/resume", "onboarding/workspace_create", "onboarding/workspace_list", "peer/gather", "peer/prepare", "permission/profile/list", "permission/profile/set", "profile/llm/catalog", "profile/llm/delete", "profile/llm/list", "profile/llm/select", "profile/llm/upsert", "profile/local/create", "profile/skills/list", "profile/skills/remove", "profile/sub_providers/list", "profile/sub_providers/remove", "profile/sub_providers/upsert", "server/shutdown", "session/compact", "session/compact/mode/set", "session/delete", "session/files.list", "session/fork", "session/goal/clear", "session/goal/get", "session/goal/set", "session/list", "session/rollback", "session/status/read", "snapshot/list", "task/list", "turn/start"]
+[replay-serve] scenario=fleet fixture=a10-fleet-driver-synthetic.jsonl: 22 frames; recorded session `dsflash:main`; 0 recorded turns []; 0 standalone notifications
+[replay-serve] listening on ws://127.0.0.1:8614/api/ui-protocol/ws (delay 2ms)
+[replay-serve] client connected
+[replay-serve] client connected
+[replay-serve] <- session/open (id=0)
+[replay-serve] <- session/list (id=1)
+[replay-serve] <- session/hydrate (id=2)
+[replay-serve] <- session/list (id=3)
+[replay-serve] <- session/hydrate (id=4)
+[replay-serve] <- permission/profile/list (id=5)
+[replay-serve] -> permission/profile/list (recorded reply)
+[replay-serve] <- session/driver/get (id=6)
+[replay-serve] -> session/driver/get (fleet sim) 
+[replay-serve] <- profile/llm/list (id=7)
+[replay-serve] -> profile/llm/list (recorded reply)
+[replay-serve] <- profile/skills/list (id=8)
+[replay-serve] -> profile/skills/list (recorded reply)
+[replay-serve] <- profile/sub_providers/list (id=9)
+[replay-serve] -> profile/sub_providers/list (fleet sim) 
+[replay-serve] <- session/status/read (id=10)
+[replay-serve] -> session/status/read (recorded reply)
+[replay-serve] <- permission/profile/list (id=11)
+[replay-serve] -> permission/profile/list (recorded reply)
+[replay-serve] <- profile/sub_providers/list (id=12)
+[replay-serve] -> profile/sub_providers/list (fleet sim) 
+[replay-serve] <- session/driver/get (id=13)
+[replay-serve] -> session/driver/get (fleet sim) 
+[replay-serve] <- session/driver/acquire (id=14)
+[replay-serve] -> session/driver/acquire (fleet sim) expected_revision=42
+[replay-serve] <- peer/prepare (id=15)
+[replay-serve] -> peer/prepare (fleet sim) 
+[replay-serve] <- peer/dispatch (id=16)
+[replay-serve] -> peer/dispatch (fleet sim) operation_id=1ba1d4b9-98ab-47a1-8f7f-217bb3109ca4 model=lane-primary adopted_session_id=dsflash:main#peer-review-the-reconnect-dif adopted_turn_id=00000000-0000-4000-8000-0000000000d2
+[replay-serve] <- session/open (id=17)
+[replay-serve] => turn/started (fleet) session_id=dsflash:main#peer-review-the-reconnect-dif
+[replay-serve] => approval/requested (fleet) session_id=dsflash:main#peer-review-the-reconnect-dif approval_id=01a0eb92-9444-7101-aa6f-000000000001
+[replay-serve] <- peer/control (id=18)
+[replay-serve] -> peer/control (fleet sim) operation_id=d5a53b08-a10b-4c4c-a085-334676a6e23e target_operation_id=1ba1d4b9-98ab-47a1-8f7f-217bb3109ca4 expected_turn_id=00000000-0000-4000-8000-0000000000d2 command=approval_respond approval_id=01a0eb92-9444-7101-aa6f-000000000001 decision=approve
+[replay-serve] => approval/decided (fleet) session_id=dsflash:main#peer-review-the-reconnect-dif approval_id=01a0eb92-9444-7101-aa6f-000000000001 decision=approve
+[replay-serve] <- peer/control (id=19)
+[replay-serve] -> peer/control (fleet sim) operation_id=33f603e8-eca8-4dc0-ab2d-7633738d0dd6 target_operation_id=1ba1d4b9-98ab-47a1-8f7f-217bb3109ca4 expected_turn_id=00000000-0000-4000-8000-0000000000d2 command=steer
+[replay-serve] <- peer/prepare (id=20)
+[replay-serve] -> peer/prepare (fleet sim) 
+[replay-serve] <- peer/dispatch (id=21)
+[replay-serve] -> peer/dispatch REFUSED "driver_model_unavailable" (fleet sim) operation_id=62057d28-745c-4846-a768-834b8e23930c
+[replay-serve] <- peer/prepare (id=22)
+[replay-serve] -> peer/prepare (fleet sim) 
+[replay-serve] <- peer/dispatch (id=23)
+[replay-serve] -> peer/dispatch (fleet sim) operation_id=946e32f4-4746-4afe-af06-abfba0e5f9d0 model=lane-primary adopted_session_id=dsflash:main#peer-run-the-full-test-suite adopted_turn_id=00000000-0000-4000-8000-0000000000d3
+[replay-serve] <- session/open (id=24)
+[replay-serve] => turn/started (fleet) session_id=dsflash:main#peer-run-the-full-test-suite
+[replay-serve] => user_question/requested (fleet) session_id=dsflash:main#peer-run-the-full-test-suite
+[replay-serve] <- peer/control (id=25)
+[replay-serve] -> peer/control (fleet sim) operation_id=69463ad2-f235-47ad-a6af-a28f302101c3 target_operation_id=946e32f4-4746-4afe-af06-abfba0e5f9d0 expected_turn_id=00000000-0000-4000-8000-0000000000d3 command=question_respond
+[replay-serve] <- peer/control (id=26)
+[replay-serve] -> peer/control (fleet sim) operation_id=e141351c-5aae-42af-b26e-f08058197ff5 target_operation_id=946e32f4-4746-4afe-af06-abfba0e5f9d0 expected_turn_id=00000000-0000-4000-8000-0000000000d3 command=interrupt
+[replay-serve] => turn/error (fleet) session_id=dsflash:main#peer-run-the-full-test-suite
+[replay-serve] <- session/driver/renew (id=27)
+[replay-serve] -> session/driver/renew (fleet sim) 
+[replay-serve] <- session/driver/release (id=28)
+[replay-serve] -> session/driver/release (fleet sim) expected_revision=43 next=external
+[replay-serve] <- session/driver/get (id=29)
+[replay-serve] -> session/driver/get (fleet sim) 
+[replay-serve] <- session/driver/acquire (id=30)
+[replay-serve] -> session/driver/acquire (fleet sim) expected_revision=44
+[replay-serve] <- session/driver/get (id=31)
+[replay-serve] -> session/driver/get (fleet sim) 
+[replay-serve] <- peer/gather (id=32)
+[replay-serve] -> peer/gather (recorded reply)
+[replay-serve] <- session/driver/release (id=33)
+[replay-serve] -> session/driver/release (fleet sim) expected_revision=45 next=internal
+[replay-serve] <- session/driver/get (id=34)
+[replay-serve] -> session/driver/get (fleet sim) 
+[replay-serve] <- turn/start (id=35)
+[replay-serve] replaying  (0 recorded frames)
+[replay-serve] <- profile/sub_providers/list (id=36)
+[replay-serve] -> profile/sub_providers/list (fleet sim) 
+[replay-serve] <- session/driver/get (id=37)
+[replay-serve] -> session/driver/get (fleet sim) 
+[replay-serve] <- session/driver/acquire (id=38)
+[replay-serve] -> session/driver/acquire (fleet sim) expected_revision=46
+[replay-serve] <- session/driver/get (id=39)
+[replay-serve] -> session/driver/get (fleet sim) 
+[replay-serve] <- peer/control (id=40)
+[replay-serve] -> peer/control (fleet sim) operation_id=8301dd7d-95b6-473b-a7b4-1a30e27eeeaf target_operation_id=synthetic-pending-op expected_turn_id=01a0feea-a137-7378-99fa-4a9da513f591 command=steer
