@@ -124,6 +124,9 @@ pub fn header_text(plan: &Plan, budget_px: f64) -> String {
 /// the spacing.
 pub fn card(d: &mut Dsl, plan: &Plan, ui: &PlanUi, width: f64, phone: bool, now_ms: i64) {
     let prog = progress(&plan.items);
+    // `PlanCard.module.css:1-12`: `margin: 0 auto var(--dsw-space-2)` — 8 px
+    // between the card and the composer under it.
+    d.view("cv_pl_wrap", "width: Fill height: Fit flow: Down padding: Inset{bottom: 8}");
     d.surface(
         "cv_pl_card",
         &format!(
@@ -183,6 +186,7 @@ pub fn card(d: &mut Dsl, plan: &Plan, ui: &PlanUi, width: f64, phone: bool, now_
             &Txt::new(11.5, Face::Regular, tok::FAINT).w(W::Fill),
         );
     }
+    d.close();
     d.close();
 }
 

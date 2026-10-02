@@ -1569,6 +1569,9 @@ impl Conversation {
                 }
                 let ev = self.note_notification(payload);
                 self.registry.lock().unwrap().dispatch(payload);
+                // A6: the open task detail appends this session's live
+                // `task/output/delta` by byte offset (`use-supervision.ts:516-522`).
+                crate::screens::surfaces::observe(payload, self.store.active_session().as_deref());
                 // Card #26 §2: a `protocol/replay_lossy` just marked the session
                 // lossy and raised a resync; issue the `session/hydrate` now.
                 // (Web: `active-session-runtime.ts:1256` `#hydrate(…, "recovery")`.)

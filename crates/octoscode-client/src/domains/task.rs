@@ -78,6 +78,7 @@ impl NotificationHandler for TaskUpdatedHandler {
     const METHOD: &'static str = methods::TASK_UPDATED;
     fn handle(&self, notification: &UiNotification) {
         if let UiNotification::TaskUpdated(TaskUpdatedEvent {
+            session_id,
             task_id,
             title,
             state,
@@ -91,12 +92,23 @@ impl NotificationHandler for TaskUpdatedHandler {
         {
             self.store.note_seen(Self::METHOD);
             let state = task_state_wire(*state);
+            let id = task_id.0.to_string();
+            // `applyTaskUpdated` (`model.ts:104-137`): the row keeps its
+            // tool name (`existing?.toolName ?? event.title` — a NEW row takes
+            // the event's title), and the display title is
+            // `summary ?? role ?? event.title`, so the event title rides
+            // `title` (A6: it used to overwrite the listed tool name).
+            let tool_name = if self.store.domains.task.snapshot(&id).is_some() {
+                String::new() // empty = the merge keeps the row's own
+            } else {
+                title.clone()
+            };
             let snapshot = TaskSnapshot::from_list_row(
-                task_id.0.to_string(),
-                String::new(),
+                id,
+                tool_name,
                 state.to_owned(),
                 runtime_detail.clone().unwrap_or_else(|| state.to_owned()),
-                None, // a live update carries no stable title; keep the row's
+                Some(title.clone()),
                 role.clone(),
                 source.clone(),
                 summary.clone(),
@@ -110,13 +122,9 @@ impl NotificationHandler for TaskUpdatedHandler {
                     None
                 },
                 None,
-            );
-            // `title` is the tool/task label on a live update; the store keeps
-            // it only when the row is new (`tool_name` empty keeps the old).
-            let mut snapshot = snapshot;
-            if snapshot.tool_name.is_empty() {
-                snapshot.tool_name = title.clone();
-            }
+            )
+            // A6: the trajectory is session-local (`use-supervision.ts:478`).
+            .with_session(&session_id.0);
             self.store.domains.task.upsert_snapshot(snapshot);
         }
     }

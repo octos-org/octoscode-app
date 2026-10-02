@@ -10,6 +10,7 @@
 //! (`taps::wired_taps`, the shared #FX1 path) back here. Transport work runs
 //! through [`run`] on the host's runtime, always the production client.
 pub mod folds;
+pub mod host;
 pub mod plan;
 pub mod takeover;
 pub mod trajectory;
@@ -49,6 +50,29 @@ pub struct State {
     pub question: takeover::QuestionUi,
     pub plan: plan::PlanUi,
     pub view: view::ViewState,
+    /// (session, entry count) the fold memory was last pruned against.
+    pub folds_seen: Option<(String, usize)>,
+}
+
+/// Whether the active session's transcript changed shape since the last
+/// prune (a session switch, or entries added/removed): the cheap trigger for
+/// `folds::prune`.
+pub fn folds_changed(store: &Store) -> bool {
+    let Some(session) = store.active_session() else { return false };
+    let n = store.domains.session.timeline.len(&session);
+    let mut st = state();
+    let now = Some((session, n));
+    if st.folds_seen == now {
+        return false;
+    }
+    st.folds_seen = now;
+    true
+}
+
+/// A row the person just opened (timeline item `item_id`): the next draws
+/// reveal its grown body ([`view::reveal_delta`]).
+pub fn reveal_item(item_id: usize) {
+    state().view.reveal = Some((format!("item:{item_id}"), 3));
 }
 
 static STATE: OnceLock<Mutex<State>> = OnceLock::new();
@@ -765,6 +789,155 @@ mod tests {
             other => panic!("{other:?}"),
         }
         assert_eq!(submit_question(&s), Outcome::Done, "busy: one send at a time");
+    }
+
+    /// Every surface's DSL, in every state, EVALUATES in the app VM (the
+    /// mount path's `eval_component`): a property a widget lacks fails the
+    /// whole mount at runtime ("pop_stack_value on empty stack"), so this
+    /// catches it before a launch — desktop and phone.
+    #[test]
+    fn every_surface_evaluates_in_the_app_vm() {
+        use crate::screens::board3::ui::Frame;
+        use makepad_widgets::*;
+        let _g = lock();
+        let mut cx = Cx::new(Box::new(|_, _| {}));
+        cx.with_vm(makepad_widgets::script_mod);
+        cx.with_vm(octoscript_widgets::design::script_mod);
+        cx.with_vm(octoscript_widgets::kit::script_mod);
+        let vm = makepad_widgets::widget_async::MAIN_SPLASH_VM_ID;
+        let mut eval = |name: &str, dsl: &str| {
+            assert!(!dsl.is_empty(), "{name} lowered nothing");
+            assert_eq!(dsl.matches('{').count(), dsl.matches('}').count(), "{name} is balanced");
+            assert!(crate::mount::eval_component(&mut cx, vm, dsl).is_ok(), "{name} must evaluate:\n{dsl}");
+        };
+        let p = octoscode_store::domains::approval::PendingApproval {
+            id: "a1".into(),
+            target: None,
+            decided: false,
+            auto_resolved: false,
+            cancelled: false,
+            preview_id: Some("p".into()),
+        };
+        let a = ApprovalDetail {
+            session_id: "s1".into(),
+            turn_id: "t".into(),
+            tool_name: "shell".into(),
+            title: "Run this command?".into(),
+            body: "Push the fix branch so CI can run".into(),
+            kind: Some("command".into()),
+            risk: Some("medium".into()),
+            command: Some("git push origin feat/steer-queue-with-a-long-branch-name-that-wraps".into()),
+        };
+        let q = PendingQuestion {
+            question_id: "q1".into(),
+            session_id: "s1".into(),
+            turn_id: "t".into(),
+            title: "Where should queued steers be persisted?".into(),
+            body: String::new(),
+            questions: json!([
+                {"header": "Store", "question": "Where?", "multi_select": false, "allow_free_text": true,
+                 "options": [{"label": "In the session ledger (recommended)", "description": "Durable"}, {"label": "In memory only", "description": ""}]},
+                {"header": "Extras", "question": "Any?", "multi_select": true, "allow_free_text": false,
+                 "options": [{"label": "Tests", "description": "add"}, {"label": "Docs", "description": ""}]}
+            ]),
+        };
+        let qs = takeover::parse_questions(&q.questions).unwrap();
+        for phone in [false, true] {
+            let look = takeover::Look { phone, width: if phone { 336.0 } else { 661.0 }, max_h: 480.0 };
+            for (busy, err) in [(None, None), (Some("a1".to_owned()), None), (None, Some(("a1".to_owned(), "denied".to_owned())))] {
+                let mut d = Dsl::new();
+                takeover::approval_card(&mut d, &p, &a, &takeover::ApprovalUi { busy, error: err }, &look);
+                eval("approval", &d.finish());
+            }
+            let mut st = takeover::QuestionUi::default();
+            st.bind(&q, qs.len());
+            st.focus_visible = true;
+            st.answers[0].selected = vec!["In memory only".into()];
+            st.error = Some("The server rejected the response".into());
+            let mut d = Dsl::new();
+            takeover::question_card(&mut d, &q, &qs, &st, &look);
+            eval("question", &d.finish());
+            let plan = octoscode_store::domains::task::Plan {
+                items: vec![
+                    octoscode_store::domains::task::PlanItem { id: "1".into(), title: "Reproduce".into(), status: "completed".into(), priority: Some("P1".into()) },
+                    octoscode_store::domains::task::PlanItem { id: "2".into(), title: "Fix".into(), status: "in_progress".into(), priority: None },
+                ],
+                title: None,
+                updated_at_ms: 0,
+                turn_id: None,
+            };
+            for collapsed in [false, true] {
+                let mut d = Dsl::new();
+                plan::card(&mut d, &plan, &plan::PlanUi { collapsed }, look.width, phone, 0);
+                eval("plan", &d.finish());
+            }
+            // The Trajectory with every section and a cancelling row, and
+            // the detail dialog loading / with output and a read artifact.
+            let s = live_store();
+            s.domains.config.set_supported_methods(vec![
+                "task/list".into(), "task/output/read".into(), "task/cancel".into(),
+                "task/artifact/list".into(), "task/artifact/read".into(), "session/status/read".into(),
+            ]);
+            s.set_capabilities(vec!["plan.todos.v1".into(), "harness.task_artifacts.v1".into()]);
+            s.domains.task.set_plan("s1", plan.clone());
+            let mut rows = Vec::new();
+            for (i, state) in ["running", "cancelling", "failed"].iter().enumerate() {
+                let mut t = octoscode_store::domains::task::TaskSnapshot::from_list_row(
+                    format!("t{i}"), "c24b-probe".into(), (*state).into(), (*state).into(),
+                    None, None, None, None, 1, vec![], Some("exit 1".into()), None,
+                );
+                t.phase = Some("verify".into());
+                rows.push(t);
+            }
+            s.domains.task.replace_session_rows("s1", rows);
+            let mut ts = trajectory::TrajState {
+                error: Some("task/list returned another session".into()),
+                status: Some(("s1".into(), trajectory::RuntimeStatus { model: Some("deepseek-v4-flash".into()), permission: None, health: Some("ok".into()) })),
+                ..Default::default()
+            };
+            let mut d = Dsl::new();
+            trajectory::pane(&mut d, &s, &ts, if phone { 360.0 } else { 709.0 }, phone);
+            eval("trajectory", &d.finish());
+            let frame = if phone { Frame { avail_w: 360.0, avail_h: 780.0 } } else { Frame::DESKTOP };
+            ts.detail = trajectory::Detail { active: true, task_id: Some("t0".into()), loading: true, ..Default::default() };
+            let mut d = Dsl::new();
+            trajectory::detail_dialog(&mut d, &s, &ts, &frame);
+            eval("detail loading", &d.finish());
+            ts.detail.loading = false;
+            ts.detail.text = "line one\nline two".into();
+            ts.detail.output = Some(trajectory::OutputPage { next_offset: 17, total_bytes: 2048, complete: false, source: "runtime_projection".into() });
+            let art = trajectory::Artifact { id: "a".into(), title: "report.md".into(), kind: "report".into(), status: "ready".into(), path: None, content: None };
+            ts.detail.artifacts = Some(vec![art.clone()]);
+            ts.detail.selected = Some(trajectory::ArtifactPage { artifact: art, content: "# r".into(), has_more: true, next_offset: Some(3) });
+            ts.detail.error = Some(trajectory::GAP_ERROR.into());
+            let mut d = Dsl::new();
+            trajectory::detail_dialog(&mut d, &s, &ts, &frame);
+            eval("detail", &d.finish());
+        }
+    }
+
+    /// Debug aid: evaluate every DSL dumped by `OCTOSCODE_SURFACES_DUMP`
+    /// (run with `A6_EVAL_DUMP=<dir> cargo test … -- --nocapture`).
+    #[test]
+    fn dumped_surfaces_evaluate() {
+        let Ok(dir) = std::env::var("A6_EVAL_DUMP") else { return };
+        use makepad_widgets::*;
+        let mut cx = Cx::new(Box::new(|_, _| {}));
+        cx.with_vm(makepad_widgets::script_mod);
+        cx.with_vm(octoscript_widgets::design::script_mod);
+        cx.with_vm(octoscript_widgets::kit::script_mod);
+        let vm = makepad_widgets::widget_async::MAIN_SPLASH_VM_ID;
+        let mut names: Vec<_> = std::fs::read_dir(&dir).unwrap().flatten().map(|e| e.path()).collect();
+        names.sort();
+        for p in names {
+            let dsl = std::fs::read_to_string(&p).unwrap();
+            if dsl.is_empty() {
+                continue;
+            }
+            eprintln!("== eval {}", p.display());
+            let r = crate::mount::eval_component(&mut cx, vm, &dsl);
+            eprintln!("   -> {}", if r.is_ok() { "ok" } else { "ERR" });
+        }
     }
 
     #[test]

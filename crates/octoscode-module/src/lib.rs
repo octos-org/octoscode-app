@@ -197,6 +197,13 @@ script_mod! {
                     empty_splash := Splash { width: Fill height: Fit }
                 }
                 } // conversation_inner
+                // A6 — the Trajectory tab replaces the transcript (and the
+                // composer) while chosen (`App.tsx:2546-2557`, `:2642`).
+                traj_view := View {
+                    width: Fill height: Fill flow: Down
+                    visible: false
+                    traj_splash := Splash { width: Fill height: Fill }
+                }
                 // A1: the composer dock — the fluid `composer` component
                 // (fluid.rs) centered at the web's composer width, its side
                 // padding set from the live metrics in sync_chrome. The hit
@@ -206,10 +213,27 @@ script_mod! {
                 composer_dock := View {
                     width: Fill height: Fit flow: Down
                     padding: Inset{left: 24 right: 24 top: 10 bottom: 16}
+                    // A6 — the plan checklist rides the sticky composer
+                    // (`App.tsx:2653-2667`); the approval / question takeover
+                    // REPLACES the composer form while the turn waits on the
+                    // person (`App.tsx:2759-2826`).
+                    // (A `Splash` ignores `set_visible` — the trait default is
+                    // a no-op — so each slot hides through a plain View.)
+                    plan_row := View {
+                        width: Fill height: Fit visible: false
+                        plan_splash := Splash { width: Fill height: Fit }
+                    }
+                    takeover_row := View {
+                        width: Fill height: Fit visible: false
+                        takeover_splash := Splash { width: Fill height: Fit }
+                    }
                     // A4 — board-3 screen 8: the session strip (model · state ·
                     // permissions) above the composer (SessionStatusStrip.tsx,
                     // the web's composer footer, App.tsx:2963-2982).
-                    strip_splash := Splash { width: Fill height: Fit }
+                    strip_row := View {
+                        width: Fill height: Fit
+                        strip_splash := Splash { width: Fill height: Fit }
+                    }
                     composer_row := View {
                         width: Fill height: Fit flow: Down
                         composer_splash := Splash { width: Fill height: Fit }
@@ -875,6 +899,16 @@ script_mod! {
             }
         }
 
+        // A6 — the task detail dialog (`TaskDetailDialog.tsx`, a modal over
+        // the Trajectory). Hidden (with its Fill/Fill wrapper) while closed.
+        surfaces_dock := View {
+            width: Fill height: Fill
+            visible: false
+            surfaces_splash := Splash {
+                width: Fill height: Fill
+            }
+        }
+
     }
 }
 
@@ -1133,6 +1167,13 @@ pub struct OctoscodeView {
     b3_taps: Vec<(LiveId, String)>,
     #[rust]
     b3_inputs: Vec<(LiveId, String)>,
+    /// A6 — the conversation surfaces' taps: (splash, widget id, event) for
+    /// the takeover, the plan card, the Trajectory and the task detail.
+    #[rust]
+    cv_taps: Vec<(LiveId, LiveId, String)>,
+    /// A6 — the takeover's text inputs (widget id, input key).
+    #[rust]
+    cv_inputs: Vec<(LiveId, String)>,
     /// #32h: the 1 Hz remount guard — sync_labels runs on EVERY Signal and
     /// the phone's transport events arrive constantly, so the first-run card
     /// was re-lowered + re-wired each time (device log: "card events: 1
@@ -1490,6 +1531,18 @@ impl OctoscodeView {
             let outcome = screens::board3::host::perform(action, index, &store);
             makepad_widgets::log!("[octoscode] board3 action {action} #{index} -> {outcome:?}");
             self.board3_outcome(cx, outcome);
+            return;
+        }
+        // A6 — the conversation surfaces own every `cv.*` id (the takeovers,
+        // the plan card, the Trajectory, the task detail, the fold bar).
+        if screens::surfaces::routes(action) {
+            let (store, ui) = {
+                let b = self.bridge.lock().unwrap();
+                (b.store.clone(), b.ui.clone())
+            };
+            let outcome = screens::surfaces::perform(action, index, &store, &ui);
+            makepad_widgets::log!("[octoscode] surfaces action {action} #{index} -> {outcome:?}");
+            self.surfaces_outcome(cx, outcome);
             return;
         }
         // A1: sending re-follows the latest turn, like the web's
@@ -3299,6 +3352,9 @@ impl OctoscodeView {
         // the module's own laid-out rect, so the dialog sizes like the web's
         // `min(<max>px, 100%)` card on the desktop window AND a phone.
         self.sync_board3(cx);
+        // A6 — the conversation surfaces (takeovers, plan card, Trajectory,
+        // task detail, the header tabs).
+        self.sync_surfaces(cx);
         // #28e4 item 2: the first-run card area mounts the REAL board-2
         // Connect screen (setup-01, #29a) — `screens::connect::lower_screen`
         // lowers the authored Stage B card with the ConnectUi copies applied,
@@ -4392,6 +4448,9 @@ impl Widget for OctoscodeView {
         }
         self.cache = cache;
         self.mounts = mounts;
+        // A6: a row the person just opened is revealed (its grown body in
+        // view, its header kept) — the list never re-measures it otherwise.
+        self.surfaces_after_draw(cx);
         // A1: the areas now hold THIS frame's layout. A resize (the WM
         // maximizing the module, a panel opening) is only visible here, so
         // re-check: a change drops the cache and redraws once more with the
@@ -4651,6 +4710,9 @@ impl Widget for OctoscodeView {
                         self.perform_action(cx, base, row.unwrap_or(0));
                     }
                 }
+                // A6 — the conversation surfaces' taps, inputs and the
+                // header's Chat | Trajectory tabs.
+                self.surfaces_actions(cx, actions);
                 // A5 — the Skills dialog's registry search: Enter in its box
                 // searches (the web's form submit); the reply re-lowers it.
                 if let Some((q, _)) = self
@@ -4855,6 +4917,10 @@ impl Widget for OctoscodeView {
                             for (name, ev) in screens::taps::wired_taps(&dsl) {
                                 if item.button(cx, &[LiveId::from_str(&name)]).clicked(actions) {
                                     makepad_widgets::log!("[octoscode] transcript row tap: {ev}");
+                                    // A6: an opened fold reveals its grown body.
+                                    if ev.starts_with("b3.think.block.") {
+                                        screens::surfaces::reveal_item(item_id);
+                                    }
                                     let (base, r) = screens::taps::split_row(&ev);
                                     self.perform_action(cx, base, r.unwrap_or(0));
                                     routed = true;
@@ -4935,6 +5001,10 @@ impl Widget for OctoscodeView {
                                 "[octoscode] tool.toggle: {key} {}",
                                 if open { "open" } else { "closed" }
                             );
+                            // A6: an opened tool row reveals its grown body.
+                            if open {
+                                screens::surfaces::reveal_item(item_id);
+                            }
                             self.view.redraw(cx);
                         }
                         _ => {}
@@ -5050,6 +5120,14 @@ impl Widget for OctoscodeView {
                 makepad_widgets::log!("[octoscode] board3 closed (Escape)");
                 self.sync_labels(cx);
             }
+            // A6 — Escape closes the task detail (`TaskDetailDialog.tsx:33`).
+            Event::KeyDown(e) if e.key_code == KeyCode::Escape && screens::surfaces::detail_open() => {
+                makepad_widgets::log!("[octoscode] task detail closed (Escape)");
+                self.perform_action(cx, "cv.detail.close", 0);
+            }
+            // A6 — the takeover's keys: Y/S/N/D on the approval card, Enter /
+            // arrows / Space on the question card (a consumed key stops here).
+            Event::KeyDown(e) if self.surfaces_key(cx, e) => {}
             // A4 — board-3 screen 12: the composer's Vim subset
             // (`ComposerInput.tsx:160-235`). A consumed key stops here (the
             // web's preventDefault); any other key reaches the resolver below.

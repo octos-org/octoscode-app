@@ -83,6 +83,10 @@ fn scenario_fixture(name: &str) -> (&'static str, &'static str) {
         // #32b3: one synthetic turn whose fenced code block carries a 227-column
         // line — the long-code-line render capture (the web wraps: pre-wrap).
         "longcodeline" => ("longcodeline", "longcodeline-a6ea8505.jsonl"),
+        // A6: the conversation surfaces' walk — r23's real turns (reasoning,
+        // a tool call, the user question, an approval, the plan), each
+        // interaction HELD until the app answers it (see `surfaces`).
+        "surfaces" => ("surfaces", "r23-conversation-a6ea8505.jsonl"),
         other => {
             eprintln!("[replay-serve] unknown scenario '{other}' — using `conversation`");
             ("conversation", "live-gate-a6ea8505.jsonl")
@@ -272,6 +276,187 @@ fn screens_replies() -> BTreeMap<String, (Value, String)> {
     out
 }
 
+/// A6 — the `surfaces` scenario: what each `turn/start` replays, in order,
+/// and how the stream is HELD at an interaction until the app answers it.
+///
+/// | # | recorded turn (r23) | exercises |
+/// |---|---|---|
+/// | 1 | `…23b` 17×23 | reasoning (folded thinking rows) + the answer |
+/// | 2 | `…23c` echo | a real tool call (a tool row to expand) |
+/// | 3 | `…240` color | `user_question/requested` — held until `user_question/respond` |
+/// | 4 | `…241` sudo  | `approval/requested` (r5's TYPED command approval in its place) — held until `approval/respond` |
+/// | 5 | `…243` plan  | `plan/updated` + a fixture progress update — held until `turn/interrupt` |
+/// | 6 | `…242` sudo  | `approval/auto_resolved` (fixture, r23's shape): the policy decides, no card |
+///
+/// Replies with no successful recording are fixture bodies in the
+/// octos-core shapes (`TaskOutputReadResult`, `TaskArtifactListResult`,
+/// `TaskArtifactReadResult`, `TaskCancelResult`, `UserQuestionRespondResult`,
+/// `ApprovalRespondResult`); the rest are recorded: c24b's `task/list` (a
+/// running and a completed task), r3's `session/status/read`, r4's live
+/// `task/updated` + `task/output/delta`.
+mod surfaces {
+    use super::{fixture, recorded_session, Frame};
+    use serde_json::{json, Value};
+
+    pub const TURNS: &[&str] = &[
+        "01920000-0000-7000-8000-00000000023b",
+        "01920000-0000-7000-8000-00000000023c",
+        "01920000-0000-7000-8000-000000000240",
+        "01920000-0000-7000-8000-000000000241",
+        "01920000-0000-7000-8000-000000000243",
+        "01920000-0000-7000-8000-000000000242",
+    ];
+
+    /// Where a turn's stream stops until the app acts.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub enum Hold {
+        Question,
+        Approval,
+        Plan,
+    }
+
+    /// The frames of turn `n` (0-based) for the `surfaces` walk, each with
+    /// the hold that follows it (if any).
+    pub fn turn_frames(frames: &[Frame], n: usize) -> Vec<(Frame, Option<Hold>)> {
+        let Some(turn) = TURNS.get(n.min(TURNS.len() - 1)) else { return Vec::new() };
+        let r5 = fixture("r5-turn-a6ea8505.jsonl");
+        let r5_session = recorded_session(&r5);
+        let mut out = Vec::new();
+        for f in frames.iter().filter(|f| f.dir == "in" && f.body.get("turn_id").and_then(|t| t.as_str()) == Some(turn)) {
+            match f.method.as_str() {
+                // The app answers; the decision is synthesized from ITS reply.
+                "approval/decided" => continue,
+                "approval/requested" if n == 5 => {
+                    // Turn 6: a recorded scope policy resolves it (no card).
+                    let b = &f.body;
+                    out.push((
+                        Frame {
+                            dir: "in".into(),
+                            method: "approval/auto_resolved".into(),
+                            body: json!({
+                                "session_id": b["session_id"], "approval_id": b["approval_id"],
+                                "turn_id": b["turn_id"], "tool_name": b["tool_name"],
+                                "scope": "session", "scope_match": "exact", "decision": "approve"
+                            }),
+                        },
+                        None,
+                    ));
+                    continue;
+                }
+                "approval/requested" => {
+                    // r5's typed command approval, re-pointed at this turn.
+                    let mut a = r5
+                        .iter()
+                        .find(|x| x.dir == "in" && x.method == "approval/requested")
+                        .cloned()
+                        .expect("r5 records an approval");
+                    super::rewrite_session(&mut a.body, &r5_session, f.body["session_id"].as_str().unwrap_or(""));
+                    a.body["turn_id"] = f.body["turn_id"].clone();
+                    out.push((a, Some(Hold::Approval)));
+                    continue;
+                }
+                "user_question/requested" => {
+                    out.push((f.clone(), Some(Hold::Question)));
+                    continue;
+                }
+                "plan/updated" => {
+                    out.push((f.clone(), None));
+                    // A wholesale replacement as the work progresses (the
+                    // update_plan tool resends the FULL list, plan.ts:20).
+                    let mut next = f.clone();
+                    if let Some(items) = next.body["plan"]["items"].as_array_mut() {
+                        let statuses = ["completed", "in_progress", "pending"];
+                        for (i, it) in items.iter_mut().enumerate() {
+                            it["status"] = json!(statuses.get(i).copied().unwrap_or("pending"));
+                        }
+                    }
+                    next.body["plan"]["updated_at_ms"] =
+                        json!(next.body["plan"]["updated_at_ms"].as_i64().unwrap_or(0) + 4_000);
+                    out.push((next, Some(Hold::Plan)));
+                    continue;
+                }
+                _ => {}
+            }
+            out.push((f.clone(), None));
+        }
+        out
+    }
+
+    /// The scenario's request replies (`None` = the default `{}`).
+    pub fn reply(method: &str, params: &Value, session: &str) -> Option<Value> {
+        let task_id = params["task_id"].as_str().unwrap_or_default();
+        Some(match method {
+            "task/list" => {
+                let c24b = fixture("c24b-subagent-a6ea8505.jsonl");
+                let mut v = c24b
+                    .iter()
+                    .find(|f| f.dir == "in" && f.method == "task/list")
+                    .map(|f| f.body.clone())
+                    .expect("c24b records a task/list reply");
+                v["session_id"] = json!(session);
+                v
+            }
+            "session/status/read" => {
+                let r3 = fixture("r3-session-a6ea8505.jsonl");
+                let mut v = r3
+                    .iter()
+                    .find(|f| f.method == "res:session/status/read")
+                    .map(|f| f.body.clone())
+                    .expect("r3 records a status reply");
+                if let Some(o) = v.as_object_mut() {
+                    o.remove("capabilities");
+                }
+                v["session_id"] = json!(session);
+                v
+            }
+            "task/output/read" => {
+                let lines = [
+                    "Compiling octos-cli v0.24.1",
+                    "Finished test [unoptimized + debuginfo] target(s) in 1.23s",
+                    "Running unittests src/lib.rs",
+                    "running 12 tests",
+                    "test steer_queue::drains_after_reconnect ... ok",
+                    "test steer_queue::keeps_order ... ok",
+                ];
+                let text = format!("{}\n", lines.join("\n"));
+                let len = text.len() as u64;
+                json!({
+                    "session_id": session, "task_id": task_id, "source": "runtime_projection",
+                    "cursor": {"offset": 0}, "next_cursor": {"offset": len}, "text": text,
+                    "bytes_read": len, "total_bytes": len + 2048, "truncated": true, "complete": false,
+                    "live_tail_supported": true, "is_snapshot_projection": false,
+                    "task_status": "running", "runtime_state": "executing_tool", "lifecycle_state": "running"
+                })
+            }
+            "task/artifact/list" => json!({
+                "session_id": session, "task_id": task_id,
+                "artifacts": [
+                    {"id": "art-1", "title": "test-report.md", "kind": "report", "status": "ready", "path": "artifacts/test-report.md"},
+                    {"id": "art-2", "title": "coverage.json", "kind": "data", "status": "ready"}
+                ]
+            }),
+            "task/artifact/read" => json!({
+                "session_id": session, "task_id": task_id,
+                "artifact": {"id": params["artifact_id"], "title": "test-report.md", "kind": "report", "status": "ready", "path": "artifacts/test-report.md"},
+                "content": "# Test report\n12 passed, 0 failed\n",
+                "has_more": false
+            }),
+            "task/cancel" => json!({"task_id": task_id, "status": "cancelled"}),
+            _ => return None,
+        })
+    }
+
+    /// r4's live supervision frames (`task/updated` + `task/output/delta`),
+    /// delivered after open so the Trajectory merges them live.
+    pub fn live_task_frames() -> Vec<Frame> {
+        let r4 = fixture("r4-task-a6ea8505.jsonl");
+        r4.into_iter()
+            .filter(|f| f.dir == "in" && (f.method == "task/updated" || f.method == "task/output/delta"))
+            .take(2)
+            .collect()
+    }
+}
+
 #[tokio::main]
 async fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -364,6 +549,12 @@ async fn main() {
             let mut played = 0usize;
             // The session id the app opens; every served frame is rewritten to it.
             let mut active_session = recorded.clone();
+            // A6 `surfaces`: the rest of a turn held at an interaction, and
+            // the approval it waits on.
+            type Held = (Option<surfaces::Hold>, Vec<(Frame, Option<surfaces::Hold>)>, Value);
+            let held: std::sync::Arc<tokio::sync::Mutex<Held>> =
+                std::sync::Arc::new(tokio::sync::Mutex::new((None, Vec::new(), Value::Null)));
+            let all_frames = if label == "surfaces" { fixture(file) } else { Vec::new() };
 
             while let Some(Ok(msg)) = rx.next().await {
                 let Message::Text(text) = msg else { continue };
@@ -379,6 +570,87 @@ async fn main() {
                     let _ = tx.lock().await.send(Message::Text(v.to_string().into())).await;
                 }
 
+                // A6 `surfaces`: stream a turn's frames until a hold; the
+                // remainder waits in `held` for the app's answer.
+                async fn stream_until_hold(
+                    tx: std::sync::Arc<tokio::sync::Mutex<futures_util::stream::SplitSink<tokio_tungstenite::WebSocketStream<tokio::net::TcpStream>, Message>>>,
+                    frames: Vec<(Frame, Option<surfaces::Hold>)>,
+                    from: String,
+                    to: String,
+                    delay_ms: u64,
+                    held: std::sync::Arc<tokio::sync::Mutex<(Option<surfaces::Hold>, Vec<(Frame, Option<surfaces::Hold>)>, Value)>>,
+                ) {
+                    let mut it = frames.into_iter();
+                    while let Some((mut f, hold)) = it.next() {
+                        rewrite_session(&mut f.body, &from, &to);
+                        if f.method != "projection/envelope" && f.method != "progress/updated" {
+                            println!("[replay-serve] surfaces -> {}", f.method);
+                        }
+                        let frame = serde_json::json!({"jsonrpc": "2.0", "method": f.method, "params": f.body});
+                        let _ = tx.lock().await.send(Message::Text(frame.to_string().into())).await;
+                        tokio::time::sleep(std::time::Duration::from_millis(delay_ms)).await;
+                        if let Some(h) = hold {
+                            println!("[replay-serve] surfaces: holding at {:?} ({} frames wait)", h, it.len());
+                            *held.lock().await = (Some(h), it.collect(), f.body.clone());
+                            return;
+                        }
+                    }
+                }
+                if label == "surfaces" {
+                    let params = v["params"].clone();
+                    let handled = match method.as_str() {
+                        "turn/start" => {
+                            send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": {"accepted": true}})).await;
+                            let frames = surfaces::turn_frames(&all_frames, played);
+                            println!("[replay-serve] surfaces: turn #{played} ({} frames)", frames.len());
+                            played += 1;
+                            tokio::spawn(stream_until_hold(tx.clone(), frames, recorded.clone(), active_session.clone(), delay_ms, held.clone()));
+                            true
+                        }
+                        "approval/respond" | "user_question/respond" | "turn/interrupt" => {
+                            let (hold, rest, request) = {
+                                let mut h = held.lock().await;
+                                std::mem::replace(&mut *h, (None, Vec::new(), Value::Null))
+                            };
+                            let result = match method.as_str() {
+                                "approval/respond" => serde_json::json!({
+                                    "approval_id": params["approval_id"], "accepted": true,
+                                    "status": "accepted", "runtime_resumed": true
+                                }),
+                                "user_question/respond" => serde_json::json!({
+                                    "question_id": params["question_id"], "accepted": true, "runtime_resumed": true
+                                }),
+                                _ => serde_json::json!({}),
+                            };
+                            send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": result})).await;
+                            if method == "approval/respond" && hold == Some(surfaces::Hold::Approval) {
+                                // The durable decision the server broadcasts.
+                                send(&tx, serde_json::json!({"jsonrpc": "2.0", "method": "approval/decided", "params": {
+                                    "session_id": active_session, "approval_id": params["approval_id"],
+                                    "turn_id": request["turn_id"], "decision": params["decision"],
+                                    "scope": params["approval_scope"], "decided_at": "2026-10-01T12:00:00Z",
+                                    "decided_by": "", "auto_resolved": false
+                                }})).await;
+                            }
+                            if hold.is_some() {
+                                println!("[replay-serve] surfaces: {method} releases {} frames", rest.len());
+                                tokio::spawn(stream_until_hold(tx.clone(), rest, recorded.clone(), active_session.clone(), delay_ms, held.clone()));
+                            }
+                            true
+                        }
+                        m => match surfaces::reply(m, &params, &active_session) {
+                            Some(body) => {
+                                println!("[replay-serve] -> {m} (surfaces reply)");
+                                send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": body})).await;
+                                true
+                            }
+                            None => false,
+                        },
+                    };
+                    if handled {
+                        continue;
+                    }
+                }
                 match method.as_str() {
                     "session/open" => {
                         let requested = v["params"]["session_id"]
@@ -398,9 +670,23 @@ async fn main() {
                         // monitors, task updates, …) so their cards can mount without
                         // needing a turn.
                         let tx2 = tx.clone();
-                        let notifs = standalone.clone();
+                        let mut notifs = standalone.clone();
                         let from = recorded.clone();
                         let to = active_session.clone();
+                        // A6 `surfaces`: r4's live task frames merge into the
+                        // Trajectory (re-pointed from r4's own session).
+                        let r4_session = if label == "surfaces" {
+                            let r4 = fixture("r4-task-a6ea8505.jsonl");
+                            recorded_session(&r4)
+                        } else {
+                            String::new()
+                        };
+                        if label == "surfaces" {
+                            for mut f in surfaces::live_task_frames() {
+                                rewrite_session(&mut f.body, &r4_session, &from);
+                                notifs.push(f);
+                            }
+                        }
                         tokio::spawn(async move {
                             for mut f in notifs {
                                 rewrite_session(&mut f.body, &from, &to);
