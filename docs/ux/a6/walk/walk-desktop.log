@@ -12,8 +12,8 @@ PASS expanded thinking: no hover tint after the click — header (255, 255, 255)
   shot docs/ux/a6/walk/desktop-02-thinking-expanded.png
 PASS CLICK again -> folded
 PASS turn 2: CLICK composer + type + Return -> turn/start
-PASS turn 2: delivered files are attachment rows — ['b3_tl_file_download_7', 'b3_tl_file_download_6']
-PASS files: r23-report.pdf (2 KiB) and coverage.png — ['coverage.png', 'r23-report.pdf'] ['96 KiB', '2 KiB']
+PASS turn 2: delivered files are attachment rows — ['b3_tl_file_download_6', 'b3_tl_file_download_7']
+PASS files: r23-report.pdf (2 KiB) and coverage.png — ['r23-report.pdf', 'coverage.png'] ['2 KiB', '96 KiB']
 PASS CLICK the tool row -> its output discloses — ['37:29 - [octoscode] tool.toggle: call_00_1nHw0JiGHc6HQdxNySqu4250 open']
   shot docs/ux/a6/walk/desktop-03-tool-expanded.png
 PASS CLICK Download -> GET /api/files on the wire, saved to the download dir — saved=True wire=True
@@ -54,6 +54,7 @@ PASS CLICK Submit answer -> user_question/respond on the wire
 PASS next: a third question
 PASS CLICK Stop turn -> turn/interrupt on the wire
 PASS the turn settles: the card closes, the composer is back
+PASS Stop turn restores the interrupted prompt into the composer — 'I need to pick a color. Use your question tool to ask me which color I prefer.'
 PASS turn 4: CLICK composer + type + Return -> turn/start
 PASS turn 4: the approval takes the composer over — card=True composer=False None
 PASS approval: title, risk, tool · kind, the typed command, Y / S / N — 'M9 approval fixture' 'low risk' 'shell · command' 'printf m9-approval-e2e' 'Y / S / N'
@@ -91,7 +92,7 @@ PASS key S -> approval/respond approve/session
 PASS decided: the composer is back
 PASS turn 5: CLICK composer + type + Return -> turn/start
 PASS turn 5: the plan card (replaced wholesale: 1 of 3 done) — '1 of 3 done'
-PASS plan: headline = the in-progress step, statuses, updated-at — 'Plan · Wire --help to document it' 'Updated 2d ago'
+PASS plan: headline = the in-progress step, statuses, updated-at — 'Plan · Wire --help to document it' 'Updated 3d ago'
 PASS plan card: card shown — cv_pl_card
 PASS plan card: inside the frame with gutters >= 12 px — card [359, 348, 661, 158] frame [335, 76, 709, 603] gutters 24/24
 PASS plan card: cv_pl_toggle >= 28 px tall and inside the card — [373, 356, 633, 34]
@@ -132,4 +133,4 @@ PASS Esc -> turn/interrupt; the authoring turn's terminal drops the plan
 PASS turn 6: CLICK composer + type + Return -> turn/start
 PASS turn 6: the auto-resolved approval is a notice row (no card) — ['', 'Auto-denied', 'bash · matched the session scope']
   shot docs/ux/a6/walk/desktop-18-notice.png
-== 115/115 passed (desktop)
+== 116/116 passed (desktop)
