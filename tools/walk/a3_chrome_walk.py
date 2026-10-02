@@ -167,7 +167,8 @@ def hit_checks():
 def settings_walk():
     step("Settings opens from the header", "settings_open_hit",
          lambda: is_shown("settings_drawer"), log_needle="settings.panel.open")
-    sections = ["general", "permissions", "model", "sandbox", "connection", "about"]
+    # A9 added Preferences before About.
+    sections = ["general", "permissions", "model", "sandbox", "connection", "preferences", "about"]
     cell = "rl_hit" if MODE == "phone" else "nv_hit"
     for i, sec in enumerate(sections):
         step(f"Settings nav -> {sec}", cell, lambda sec=sec: is_shown(f"sec_{sec}"),

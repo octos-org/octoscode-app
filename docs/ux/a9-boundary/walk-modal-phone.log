@@ -1,0 +1,10 @@
+PASS connected
+PASS the Activity surface fails under its own boundary — False
+PASS 'Activity unavailable' with the web's copy
+PASS a modal (over a backdrop)
+PASS the session owner stays mounted (the conversation and sidebar are there)
+PASS its actions are >= 28 px targets — []
+SHOT docs/ux/a9-boundary/phone-unavailable-modal.png
+PASS Close dismisses it
+PASS the rest of the app still works (Settings opens)
+== WALK a9 boundary modal phone: 8/8 passed

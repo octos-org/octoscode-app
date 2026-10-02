@@ -1,0 +1,9 @@
+PASS connected
+PASS the Fleet pane fails under its own boundary
+PASS an inline section (no backdrop)
+PASS …placed in the conversation column — [409, 200, 560, 187] in [335, 76, 709, 603]
+PASS …under its header (Review / Settings stay reachable) — [409, 200, 560, 187] under [335, 76, 709, 100]
+SHOT docs/ux/a9-boundary/desktop-unavailable-inline.png
+PASS the sidebar still works beside it (New chat routes)
+PASS Close dismisses it
+== WALK a9 boundary inline desktop: 7/7 passed

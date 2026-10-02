@@ -82,6 +82,9 @@ pub const COMMANDS: &[Command] = &[
     Command { name: "/review", description: "Run native code review", methods_any: &["review/start"], requires_all: &["review.start.v1"], aliases: &["code-review"], effect: Some("dialog.open.review") },
     Command { name: "/peer", description: "Inspect and steer peers", methods_any: &["peer/prepare", "peer/gather"], requires_all: &[], aliases: &["peers", "fleet"], effect: Some("dialog.open.fleet") },
     Command { name: "/ps", description: "Show background tasks", methods_any: &["task/list"], requires_all: &[], aliases: &["tasks"], effect: Some("dialog.open.tasks") },
+    // A9: the web's `activity` intent (`registry.ts:289`, alias `act`;
+    // `App.tsx:1336` opens the Activity navigator): the cross-session scan.
+    Command { name: "/activity", description: "Search activity across confirmed sessions", methods_any: &["task/list"], requires_all: &[], aliases: &["act"], effect: Some("activity.open") },
     // A5: the web's `interrupt` intent (`registry.ts:272`, methodsAll
     // turn/interrupt; App.tsx:1333 `conversation.interrupt()`): the composer
     // Stop button's own action.

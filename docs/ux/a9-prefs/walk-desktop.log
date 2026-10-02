@@ -1,0 +1,32 @@
+PASS connected
+PASS Vim editing starts off (no composer note) — None
+PASS Settings opens
+PASS Preferences shows
+PASS the toggle reads the current Vim editing — on=False
+PASS Preferences controls are >= 28 px targets — []
+PASS tg_vim inside the body — [881, 213, 44, 32]
+PASS prefs_save inside the body — [362, 339, 148, 36]
+PASS prefs_status inside the body — [522, 350, 403, 16]
+PASS the toggle flips Vim editing at once — 'Vim · Insert'
+PASS …and the change is unsaved — 'Unsaved preferences.'
+SHOT docs/ux/a9-prefs/desktop-prefs-save-unsaved.png
+PASS Save -> 'Preferences saved.' — 'Preferences saved.'
+PASS the file holds exactly the display whitelist — {'language': 'en', 'theme': 'terminal', 'version': 1, 'vimMode': True}
+SHOT docs/ux/a9-prefs/desktop-prefs-save-saved.png
+== WALK a9 prefs save desktop: 13/13 passed
+PASS connected
+PASS a fresh launch adopts the saved Vim editing (the composer's note) — 'Vim · Insert'
+PASS Settings opens
+PASS Preferences shows
+PASS the toggle reads the current Vim editing — on=True
+PASS Preferences controls are >= 28 px targets — []
+PASS tg_vim inside the body — [881, 213, 44, 32]
+PASS prefs_save inside the body — [362, 339, 148, 36]
+PASS prefs_status inside the body — [522, 350, 403, 16]
+PASS the toggle flips Vim editing at once — None
+PASS …and the change is unsaved — 'Unsaved preferences.'
+SHOT docs/ux/a9-prefs/desktop-prefs-relaunch-unsaved.png
+PASS Save -> 'Preferences saved.' — 'Preferences saved.'
+PASS the file holds exactly the display whitelist — {'language': 'en', 'theme': 'terminal', 'version': 1, 'vimMode': False}
+SHOT docs/ux/a9-prefs/desktop-prefs-relaunch-saved.png
+== WALK a9 prefs relaunch desktop: 13/13 passed

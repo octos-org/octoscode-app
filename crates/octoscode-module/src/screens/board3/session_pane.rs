@@ -1283,7 +1283,7 @@ mod tests {
         for st in [PaneState { loading: true, ..Default::default() }, loaded] {
             for frame in [Frame::DESKTOP, Frame { avail_w: 360.0, avail_h: 700.0 }] {
                 let mut d = Dsl::new();
-                build(&mut d, &st, &frame, &store);
+                build(&mut d, &st, &mut Default::default(), &frame, &store);
                 let dsl = d.finish();
                 assert!(
                     crate::mount::eval_component(&mut cx, makepad_widgets::MAIN_SPLASH_VM_ID, &dsl).is_ok(),
@@ -1318,7 +1318,7 @@ mod tests {
             ..Default::default()
         };
         let mut d = Dsl::new();
-        build(&mut d, &st, &Frame::DESKTOP, &store);
+        build(&mut d, &st, &mut Default::default(), &Frame::DESKTOP, &store);
         let dsl = d.finish();
         assert_eq!(dsl.matches('{').count(), dsl.matches('}').count());
         let taps = crate::screens::taps::wired_taps(&dsl);
@@ -1343,7 +1343,7 @@ mod tests {
         };
         let lower = |store: &Store| {
             let mut d = Dsl::new();
-            build(&mut d, &st, &Frame::DESKTOP, store);
+            build(&mut d, &st, &mut Default::default(), &Frame::DESKTOP, store);
             d.finish()
         };
         let idle = lower(&store);
