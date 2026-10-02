@@ -2960,6 +2960,14 @@ impl OctoscodeView {
                 self.connect_key = None;
             }
             Work::Scan => cx.show_qr_scanner(),
+            // A23 — the provider editor opened from the providers dialog
+            // closed: the dialog returns (re-read) with the editor's line.
+            Work::ReturnToProviders { notice } => {
+                let outcome = screens::board3::host::reopen_routes(notice);
+                self.board3_outcome(cx, outcome);
+            }
+            // A23 — the GLM-5.3-Flash guidance's "Official guide".
+            Work::OpenUrl(url) => cx.open_url(&url, OpenUrlInPlace::No),
             Work::Forget => {
                 // Walk 112: the credential goes and the connect form returns
                 // empty — the same Offline the drawer's Disconnect sets.
@@ -3034,8 +3042,25 @@ impl OctoscodeView {
         self.view.widget(cx, ids!(board1_dock)).set_visible(cx, open);
         if let Some(dsl) = screens::board1::view(size.x, size.y) {
             let splash = self.view.splash(cx, ids!(board1_splash));
-            if let Err(e) = self.mounts.mount(cx, &splash, &dsl) {
-                makepad_widgets::log!("[octoscode] board1 mount: {e}");
+            // A23 — a state change remounts the surface; keep its body's
+            // scroll when it is the SAME surface (board 3's rule): read the
+            // offset from the body's first child before the remount.
+            let keep_scroll = {
+                let sv = self.view.widget(cx, &[live_id!(board1_splash), LiveId::from_str(screens::board1::SCROLL_ID)]);
+                let top = sv.area().rect(cx).pos.y;
+                let mut first = None;
+                sv.children(&mut |_, child| {
+                    if first.is_none() {
+                        first = Some(child.area().rect(cx).pos.y);
+                    }
+                });
+                first.map(|y| (top - y).max(0.0)).unwrap_or(0.0)
+            };
+            let same_surface = screens::board1::note_mounted();
+            match self.mounts.mount(cx, &splash, &dsl) {
+                Err(e) => makepad_widgets::log!("[octoscode] board1 mount: {e}"),
+                Ok(true) if same_surface && keep_scroll > 0.0 => screens::board1::set_pending_scroll(keep_scroll),
+                Ok(_) => {}
             }
         }
         if screens::board1::take_ime_reset() {
@@ -5210,6 +5235,13 @@ impl OctoscodeView {
         if let Some(y) = screens::board3::host::take_pending_scroll() {
             self.view
                 .view(cx, &[live_id!(board3_splash), live_id!(b3_scroll)])
+                .set_scroll_pos(cx, dvec2(0.0, y));
+            self.view.redraw(cx);
+        }
+        // A23 — the board-1 editor's body likewise.
+        if let Some(y) = screens::board1::take_pending_scroll() {
+            self.view
+                .view(cx, &[live_id!(board1_splash), LiveId::from_str(screens::board1::SCROLL_ID)])
                 .set_scroll_pos(cx, dvec2(0.0, y));
             self.view.redraw(cx);
         }

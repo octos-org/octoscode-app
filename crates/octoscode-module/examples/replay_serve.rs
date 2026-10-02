@@ -34,6 +34,17 @@
 //! the A15 live smoke's first-launch hydrate (`a18-stale-window-a6ea8505`): no
 //! durable rows, an earlier run's retained turn terminals (a reset store).
 //!
+//! A23 (`a10`, the providers simulator): `profile/llm/upsert` replaces an
+//! existing identity in place (an edit) or adds one (`set_primary` makes it
+//! the primary); the dummy key `sk-test-rejected` gets r29a's recorded 401
+//! from `profile/llm/test`; `--providers-extra` adds the web unit tests' two
+//! configured rows (an edit-blocked `strong: false` row and a row with
+//! inference overrides); `--providers-empty` starts with no configured
+//! provider; `--fail-config-file <path>` refuses the profile-config reads
+//! while <path> exists, and `--slow profile/llm/list@profile=<ms>` holds them
+//! (from 5 s into the connection: the app's start-up reads the configuration
+//! too). The provider methods' log lines mask the key.
+//!
 //! `--history-delay-ms N` / `--history-unknown` (A19b, `history`): the
 //! recorded Session's history read (`session/hydrate {include: [messages]}`)
 //! answers N ms late (the "Loading conversation…" state), or "unknown
@@ -437,6 +448,54 @@ struct SeatSim {
     /// `a10-routes-faithful.jsonl`: the fetch_models and passing test replies.
     fetched: Value,
     tested: Value,
+    /// A23 — r29a's recorded `profile/llm/test` 401 (line 10), answered for
+    /// the dummy key [`A23_REJECTED_KEY`].
+    rejected: Value,
+}
+
+/// A23 — the dummy key the provider simulator refuses with the recorded 401.
+const A23_REJECTED_KEY: &str = "sk-test-rejected";
+
+/// A23 — `--providers-extra`: two more configured fallbacks with the WEB
+/// unit tests' values (`model-management-projection.test.ts:11` — a row
+/// carrying `strong: false`, which the closed write schema cannot preserve;
+/// `:53` — a row with configured inference overrides, `top_p: null`
+/// included). No recording carries either.
+fn a23_extra_rows() -> Vec<Value> {
+    vec![
+        serde_json::json!({"family_id": "moonshot", "model_id": "kimi-k2", "model": "kimi-k2", "provider": "moonshot",
+            "route": {"route_id": "moonshot", "label": "Official API", "api_type": "openai", "api_key_env": "MOONSHOT_API_KEY"},
+            "route_id": "moonshot", "has_api_key": true, "selected": false, "available": true, "strong": false}),
+        serde_json::json!({"family_id": "zai", "model_id": "glm-5.3-flash", "model": "glm-5.3-flash", "provider": "zai",
+            "route": {"route_id": "zai", "label": "Official API", "api_type": "openai", "api_key_env": "ZAI_API_KEY"},
+            "route_id": "zai", "has_api_key": true, "selected": false, "available": true,
+            "temperature": 0, "top_p": null, "context_window": 131072, "reasoning_effort": "max",
+            "model_hints": {"fixed_temperature": false, "reasoning_style": "effort_low_high_max"}}),
+    ]
+}
+
+/// A23 — the recorder's trace redacts every field whose NAME contains
+/// `api_key` (`octoscode-client/src/trace.rs`), so r2's configured rows read
+/// `"has_api_key": "<redacted>"` (a boolean on the wire — the web's parser
+/// rejects anything else) and `"api_key_env": "<redacted>"` (an env NAME,
+/// never a value). r2's configuration is DeepSeek's alone: restore the
+/// boolean, and the env name as the catalog's own for DeepSeek.
+fn restore_redacted_flags(v: &mut Value) {
+    match v {
+        Value::Object(m) => {
+            for (k, x) in m.iter_mut() {
+                if k == "has_api_key" && x.is_string() {
+                    *x = Value::Bool(true);
+                } else if k == "api_key_env" && x == "<redacted>" {
+                    *x = Value::from("DEEPSEEK_API_KEY");
+                } else {
+                    restore_redacted_flags(x);
+                }
+            }
+        }
+        Value::Array(a) => a.iter_mut().for_each(restore_redacted_flags),
+        _ => {}
+    }
 }
 
 impl SeatSim {
@@ -468,15 +527,21 @@ impl SeatSim {
             .find(|f| f.dir == "in" && f.body["payload"]["type"] == "turn_terminal" && f.body["payload"]["data"]["outcome"] == "interrupted")
             .map(|f| f.body)
             .unwrap_or_default();
-        let config = r2
+        let mut config = r2
             .iter()
             .filter(|f| f.dir == "in" && f.method == "profile/llm/list")
             .map(|f| f.body.clone())
             .find(|b| b["fallbacks"].as_array().is_some_and(|a| !a.is_empty()))
             .unwrap_or_default();
+        restore_redacted_flags(&mut config);
         let routes = fixture("a10-routes-faithful.jsonl");
         let reply = |m: &str| routes.iter().find(|f| f.dir == "in" && f.method == m).map(|f| f.body.clone()).unwrap_or_default();
         let (fetched, tested) = (reply("profile/llm/fetch_models"), reply("profile/llm/test"));
+        let rejected = fixture("r29a-onboarding-a6ea8505.jsonl")
+            .into_iter()
+            .find(|f| f.dir == "in" && f.method == "profile/llm/test")
+            .map(|f| f.body)
+            .unwrap_or_default();
         SeatSim {
             current: list["current"].clone(),
             profiles: list["profiles"].clone(),
@@ -488,7 +553,63 @@ impl SeatSim {
             config,
             fetched,
             tested,
+            rejected,
         }
+    }
+
+    /// A23 — `--providers-extra`: the web unit tests' two rows join the
+    /// configured fallbacks.
+    fn with_extra_rows(mut self) -> Self {
+        if let Some(f) = self.config["fallbacks"].as_array_mut() {
+            f.extend(a23_extra_rows());
+        }
+        self
+    }
+
+    /// A23 — `profile/llm/upsert` the way Core applies it: an existing
+    /// identity (family, model, route) is REPLACED in place (an edit), a new
+    /// one joins the fallbacks; `set_primary` (or an empty configuration)
+    /// makes it the primary and the previous primary a fallback.
+    fn upsert(&mut self, params: &Value) -> Value {
+        let sel = &params["selection"];
+        let same = |m: &Value| {
+            m["family_id"] == sel["family_id"] && m["model_id"] == sel["model_id"] && m["route"]["route_id"] == sel["route"]["route_id"]
+        };
+        let mut row = serde_json::json!({
+            "family_id": sel["family_id"], "model_id": sel["model_id"], "model": sel["model_id"],
+            "provider": sel["family_id"], "route": sel["route"], "route_id": sel["route"]["route_id"],
+            "has_api_key": true, "available": true, "selected": false,
+        });
+        for k in ["temperature", "top_p", "context_window", "reasoning_effort", "model_hints"] {
+            if let Some(v) = sel.get(k) {
+                row[k] = v.clone();
+            }
+        }
+        let empty = self.config["primary"].is_null() && self.config["fallbacks"].as_array().is_none_or(|a| a.is_empty());
+        let primary = params["set_primary"] == Value::Bool(true) || empty || same(&self.config["primary"]);
+        if same(&self.config["primary"]) {
+            self.config["primary"] = Value::Null;
+        }
+        if let Some(f) = self.config["fallbacks"].as_array_mut() {
+            f.retain(|m| !same(m));
+        }
+        if primary {
+            let old = std::mem::replace(&mut self.config["primary"], Value::Null);
+            if !old.is_null() {
+                let mut old = old;
+                old["selected"] = Value::Bool(false);
+                if let Some(f) = self.config["fallbacks"].as_array_mut() {
+                    f.insert(0, old);
+                }
+            }
+            row["selected"] = Value::Bool(true);
+            self.config["primary"] = row;
+        } else if let Some(f) = self.config["fallbacks"].as_array_mut() {
+            f.push(row);
+        }
+        let mut r = self.config.clone();
+        r["applied"] = Value::Bool(true);
+        r
     }
 
     /// The reply (or the JSON-RPC error) for one seat method.
@@ -518,21 +639,14 @@ impl SeatSim {
                 r["family_id"] = params["selection"]["family_id"].clone();
                 Ok(r)
             }
-            "profile/llm/test" => Ok(self.tested.clone()),
-            "profile/llm/upsert" => {
-                let sel = &params["selection"];
-                let row = serde_json::json!({
-                    "family_id": sel["family_id"], "model_id": sel["model_id"], "model": sel["model_id"],
-                    "provider": sel["family_id"], "route": sel["route"], "route_id": sel["route"]["route_id"],
-                    "has_api_key": true, "available": true, "selected": false,
-                });
-                if let Some(f) = self.config["fallbacks"].as_array_mut() {
-                    f.push(row);
-                }
-                let mut r = self.config.clone();
-                r["applied"] = Value::Bool(true);
+            // A23: the dummy key A23_REJECTED_KEY gets r29a's recorded 401.
+            "profile/llm/test" if params["api_key"] == A23_REJECTED_KEY => {
+                let mut r = self.rejected.clone();
+                r["profile_id"] = params["profile_id"].clone();
                 Ok(r)
             }
+            "profile/llm/test" => Ok(self.tested.clone()),
+            "profile/llm/upsert" => Ok(self.upsert(params)),
             "profile/llm/delete" => {
                 let hit = |m: &Value| {
                     m["family_id"] == params["family_id"] && m["model_id"] == params["model_id"]
@@ -1584,7 +1698,22 @@ async fn main() {
         BTreeMap::new()
     };
     let sequenced = if label == "a10" { a10_sequenced() } else { BTreeMap::new() };
-    let seat_sim = (label == "a10").then(SeatSim::load);
+    // A23: `--providers-extra` adds the web unit tests' configured rows.
+    let providers_extra = args.iter().any(|a| a == "--providers-extra");
+    // A23: `--providers-empty` — a Profile with no configured provider yet.
+    let providers_empty = args.iter().any(|a| a == "--providers-empty");
+    let seat_sim = (label == "a10").then(|| {
+        let mut sim = SeatSim::load();
+        if providers_empty {
+            sim.config["primary"] = Value::Null;
+            sim.config["fallbacks"] = serde_json::json!([]);
+        }
+        if providers_extra {
+            sim.with_extra_rows()
+        } else {
+            sim
+        }
+    });
     // A10: `--slow <method>=<ms>` (repeatable) delays that method's faithful reply.
     let slow: BTreeMap<String, u64> = args
         .windows(2)
@@ -1661,6 +1790,12 @@ async fn main() {
     let history_unknown = args.iter().any(|a| a == "--history-unknown");
     // A16: `--fail-scoped-list N` — the first N session-scoped
     // `profile/llm/list` reads (per connection) answer an error.
+    // A23: `--fail-config-file <path>` — while <path> exists, every
+    // profile-config `profile/llm/list` read (no session_id) answers an
+    // error: the providers dialog's UNREAD state; the walk creates the file
+    // right before it opens the dialog (the Models dialog it passes through
+    // reads the configuration too) and removes it before "Try again".
+    let fail_config_file = args.iter().position(|a| a == "--fail-config-file").and_then(|i| args.get(i + 1)).cloned();
     let fail_scoped_list: u64 = args
         .iter()
         .position(|a| a == "--fail-scoped-list")
@@ -1752,6 +1887,7 @@ async fn main() {
         let sequenced = sequenced.clone();
         let slow = slow.clone();
         let revoke_file = revoke_file.clone();
+        let fail_config_file = fail_config_file.clone();
         let stale_window = stale_window.clone();
         let mut seat_sim = seat_sim.clone();
         let fleet_frames = if label == "fleet" { frames.clone() } else { Vec::new() };
@@ -1791,6 +1927,11 @@ async fn main() {
             let mut seq_pos: BTreeMap<String, usize> = BTreeMap::new();
             // A16: the injected session-scoped list failures still to answer.
             let mut fail_scoped_list = fail_scoped_list;
+            // A23: `--slow profile/llm/list@profile` starts 5 s into the
+            // connection: the app's own start-up reads the configuration too
+            // (the new-chat defaults), the providers dialog opens later.
+            let connected_at = std::time::Instant::now();
+            let after_startup = move || connected_at.elapsed() > std::time::Duration::from_secs(5);
             // A6 `surfaces`: the web's delivered-file download
             // (`GET /api/files?path=…&session=…`, `media.ts:147-165`) is plain
             // HTTP on the same port; answer it with a small PDF body.
@@ -2349,7 +2490,8 @@ async fn main() {
                             Ok(r) => serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r}),
                             Err(e) => serde_json::json!({"jsonrpc": "2.0", "id": id, "error": e}),
                         };
-                        println!("[replay-serve] -> {m} (seat simulator) {}", v["params"]);
+                        // A23: the provider methods carry an API key: logged masked.
+                        println!("[replay-serve] -> {m} (seat simulator) {}", onboarding::masked(&v["params"]));
                         match slow.get(m).copied() {
                             Some(ms) => {
                                 let tx2 = tx.clone();
@@ -2412,10 +2554,31 @@ async fn main() {
                                 "error": {"code": -32000, "message": "profile store unavailable"}})).await;
                             continue;
                         }
+                        // A23: `--fail-config-file <path>` refuses the
+                        // profile-config reads while <path> exists (the
+                        // providers dialog's unread state, then Try again).
+                        if !scoped && fail_config_file.as_deref().is_some_and(|f| std::path::Path::new(f).exists()) {
+                            println!("[replay-serve] -> profile/llm/list (profile config: injected ERROR)");
+                            send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id,
+                                "error": {"code": -32000, "message": "profile store unavailable"}})).await;
+                            continue;
+                        }
                         let m = if scoped { "profile/llm/list" } else { "profile/llm/list@profile" };
                         let r = sim.answer(m, &v["params"], &active_session).unwrap_or_default();
                         println!("[replay-serve] -> profile/llm/list (seat simulator, {})", if scoped { "session-scoped" } else { "profile config" });
-                        send(&tx, serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r})).await;
+                        let frame = serde_json::json!({"jsonrpc": "2.0", "id": id, "result": r});
+                        // A23: `--slow profile/llm/list@profile=<ms>` holds the
+                        // profile-config read (the dialog's loading state).
+                        match slow.get(m).copied().filter(|_| !scoped && after_startup()) {
+                            Some(ms) => {
+                                let tx2 = tx.clone();
+                                tokio::spawn(async move {
+                                    tokio::time::sleep(std::time::Duration::from_millis(ms)).await;
+                                    let _ = tx2.lock().await.send(Message::Text(frame.to_string().into())).await;
+                                });
+                            }
+                            None => send(&tx, frame).await,
+                        }
                     }
                     // #P4a1 — echo the requested mode as the read-back.
                     "permission/profile/set" => {

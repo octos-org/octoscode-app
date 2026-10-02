@@ -50,10 +50,37 @@ fn recorded_open() -> Value {
 
 /// The recorded config WITH the r2-route fallback (r2 line 35).
 fn r2_config() -> Value {
-    dir(R2, "in", "profile/llm/list")
-        .into_iter()
-        .find(|b| b["fallbacks"].as_array().is_some_and(|a| !a.is_empty()))
-        .expect("r2 config with the fallback")
+    restore_flags(
+        dir(R2, "in", "profile/llm/list")
+            .into_iter()
+            .find(|b| b["fallbacks"].as_array().is_some_and(|a| !a.is_empty()))
+            .expect("r2 config with the fallback"),
+    )
+}
+
+/// A23 — the recorder's trace redacts every field whose NAME contains
+/// `api_key` (`octoscode-client/src/trace.rs` SUBSTR), so r2's configured
+/// rows read `"has_api_key": "<redacted>"` where the live server sent a
+/// boolean; the web's parser (and now the native one) rejects a non-boolean
+/// as an invalid result. The replay restores the boolean.
+fn restore_flags(mut v: Value) -> Value {
+    fn walk(v: &mut Value) {
+        match v {
+            Value::Object(m) => {
+                for (k, x) in m.iter_mut() {
+                    if k == "has_api_key" && x.is_string() {
+                        *x = json!(true);
+                    } else {
+                        walk(x);
+                    }
+                }
+            }
+            Value::Array(a) => a.iter_mut().for_each(walk),
+            _ => {}
+        }
+    }
+    walk(&mut v);
+    v
 }
 
 struct Server {
@@ -138,7 +165,7 @@ fn canned(test_reply: Value) -> Vec<(String, Value)> {
         ("profile/llm/fetch_models".into(), dir(FAITHFUL, "in", "profile/llm/fetch_models").remove(0)),
         ("profile/llm/test".into(), test_reply),
         ("profile/llm/upsert".into(), dir(R2, "in", "profile/llm/upsert").remove(0)),
-        ("profile/llm/delete".into(), dir(R2, "in", "profile/llm/delete").remove(0)),
+        ("profile/llm/delete".into(), restore_flags(dir(R2, "in", "profile/llm/delete").remove(0))),
     ]
 }
 
