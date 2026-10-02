@@ -1,0 +1,11 @@
+PASS app up against the fresh serve
+PASS first launch: the onboarding panel shows with the provider catalog (no_profile)
+PASS provider: picked 'minimax' — minimax
+PASS model: picked 'MiniMax-M3' — MiniMax-M3
+PASS route: picked 'Official API' — Official API
+PASS the key field renders masked — 125 chars, masked
+PASS no laid-out text carries the key
+PASS submit: tested, saved, the coding Session opened — title 'New chat'
+PASS the next prompt streams and completes
+PASS the answer renders — 2 + 3 = 5.
+PASS post-run scan: the key (whole / first 8 / last 8) is in none of the run's text files — 10 files scanned, hits {'whole': 0, 'head8': 0, 'tail8': 0}
