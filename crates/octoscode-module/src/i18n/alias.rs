@@ -44,7 +44,7 @@ pub static ALIASES: &[Alias] = &[
     // the first-run column's empty state (lib.rs), the same sidebar empty state
     a("No threads yet", "No sessions yet.", "features/shell/ProductSidebar.tsx:938"),
     // ---- the header (web app/App.tsx conversation header)
-    a("Review", "Review changes", "app/App.tsx:2442"),
+    a("Review", "Review changes", "app/App.tsx:2446"),
     // ---- Settings (web features/product-settings, session-config, connection)
     a("Stop server\u{2026}", "Stop server", "features/product-settings/GeneralSettingsContent.tsx:332"),
     a("Advanced\u{2026}", "Advanced", "features/session-config/SessionConfigPane.tsx:367"),
@@ -53,10 +53,8 @@ pub static ALIASES: &[Alias] = &[
     // the server-address row (About; the Connect card and pairing's field)
     a("Server", "Server origin", "features/connection/ConnectionPanel.tsx:199"),
     a("Server defaults", "server default", "features/autonomy/AutonomyPanel.tsx:126"),
-    // generic: the failure line after a refused preset save
-    a("Failed: {value0}", "Couldn't save: {value0}", "features/session-config/session-config-copy.ts:23"),
-    a("not offered by this server", "Not supported by this server", "features/session-config/sandbox-section.tsx:4"),
-    a("not connected", "Not connected", "app/App.tsx:3460"),
+    a("not offered by this server", "Not supported by this server", "features/session-config/sandbox-section.tsx:33"),
+    a("not connected", "Not connected", "features/product-settings/GeneralSettingsContent.tsx:158"),
     // ---- the slash menu: each command's description (registry.ts, CommandPalette.tsx:77 t(description))
     a("Manage session monitors", "Inspect and manage session monitors", "features/commands/registry.ts:435"),
     a("Ask a side question", "Ask a temporary side question without changing the main turn", "features/commands/registry.ts:188"),
@@ -73,18 +71,19 @@ pub static ALIASES: &[Alias] = &[
     a("Inspect tool availability", "Inspect server-owned tool availability and policy", "features/commands/registry.ts:349"),
     a("Inspect MCP connections", "Inspect server-reported MCP connections", "features/commands/registry.ts:358"),
     // ---- the composer, its strip and the connection banner
-    a("Ask Octos anything", "Ask Octos to change, explain, or review code\u{2026}", "app/App.tsx:2943"),
     // generic: the queued chip's steer action (the Fleet's Steer)
     a("Steer now", "Steer", "features/fleet/FleetView.tsx:730"),
     a("Reconnecting\u{2026}", "Reconnecting", "features/session-config/SessionStatusStrip.tsx:68"),
     a("Running", "running", "features/timeline/Timeline.tsx:401"),
     // generic: the banner's title and its retry action
-    a("Not connected to Octos", "Not connected", "app/App.tsx:3460"),
+    a("Not connected to Octos", "Not connected", "features/product-settings/GeneralSettingsContent.tsx:158"),
     a("Retry now", "Retry", "features/shell/ProductSidebar.tsx:696"),
     // ---- the Connect card and pairing (web features/connection/ConnectionPanel.tsx)
     a("Access token", "Auth token", "features/connection/ConnectionPanel.tsx:246"),
     a("That pairing link didn\u{2019}t work.", "That pairing link did not work", "features/connection/ConnectionPanel.tsx:174"),
-    // ---- board 1's workspace picker (web features/workspace-create)
+    // ---- board 1's workspace picker (web features/workspace-create; the
+    // web renders the server row's label without t(), its zh entry is the
+    // web's own translation of the same row)
     a("Server folder", "Server's working directory", "features/workspace-create/server-working-directory.ts:14"),
     a(
         "Server folder (path not reported)",
