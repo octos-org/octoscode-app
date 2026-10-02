@@ -902,18 +902,29 @@ script_mod! {
                 // ----- General (board 6)
                 sec_general := View{
                     width: Fill height: Fit flow: Down
-                    View{
+                    // A25: the web's toggle row (GeneralSettingsContent.tsx
+                    // :213-247) on board 2's toggle: the toggle while the OS
+                    // can answer (aria-pressed = on/off), "Enabling…" while
+                    // its permission prompt waits, "Unavailable" when this
+                    // process cannot post notices; the message under it
+                    // (role=status), red when it is an error (role=alert).
+                    notify_row := View{
                         width: Fill height: Fit flow: Down spacing: 2 padding: Inset{top: 10 bottom: 14}
                         View{
                             width: Fill height: 32 flow: Overlay
                             View{width: Fill height: Fill align: Align{y: 0.5} OcRowTitle{width: Fit text: "Desktop notifications"}}
-                            View{width: Fill height: Fill align: Align{x: 1.0 y: 0.5} tg_notify := OcToggle{}}
+                            View{
+                                width: Fill height: Fill align: Align{x: 1.0 y: 0.5}
+                                tg_notify := OcToggle{}
+                                notify_state := OcMuted{text: "" visible: false draw_text +: {text_style +: {font_size: 10.5}}}
+                            }
                         }
                         // Help text wraps only as a direct child of a Down
                         // flow (inside a Right/Overlay row it stays one line).
                         View{
                             width: Fill height: Fit flow: Down padding: Inset{right: 64}
-                            OcRowHelp{text: "Notify when a turn needs you or finishes while OctosCode is in the background"}
+                            notify_help := OcRowHelp{text: "Notify when a turn needs you or finishes while OctosCode is in the background"}
+                            notify_alert := OcRowHelp{text: "" visible: false draw_text +: {color: #(crate::chrome::ink("danger"))}}
                         }
                     }
                     OcRule{}
@@ -1437,6 +1448,46 @@ pub fn set_toggle<W: Widget>(cx: &mut Cx, root: &W, toggle: LiveId, on: bool) {
     show(cx, root, &[toggle, live_id!(tg_knob_off)], !on);
 }
 
+/// What the Desktop notifications row shows for the attention settings
+/// (GeneralSettingsContent.tsx:213-247): the toggle (pressed = enabled)
+/// unless the request is pending ("Enabling…", :239-243) or this process
+/// cannot post notices at all (the web's disabled button, :236); the
+/// message as status, or as an alert when it is an error (:225).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct NotifyRow {
+    pub toggle: Option<bool>,
+    pub state: &'static str,
+    pub message: String,
+    pub alert: bool,
+}
+
+pub fn notify_row(s: &crate::attention::AttentionSettings) -> NotifyRow {
+    let state = if s.pending {
+        "Enabling…"
+    } else if !s.available {
+        "Unavailable"
+    } else {
+        ""
+    };
+    NotifyRow {
+        toggle: state.is_empty().then_some(s.enabled),
+        state,
+        message: s.message.clone(),
+        alert: s.error,
+    }
+}
+
+pub fn sync_notify_row<W: Widget>(cx: &mut Cx, view: &W, s: &crate::attention::AttentionSettings) {
+    let row = notify_row(s);
+    show(cx, view, ids!(tg_notify), row.toggle.is_some());
+    set_toggle(cx, view, live_id!(tg_notify), row.toggle == Some(true));
+    show(cx, view, ids!(notify_state), !row.state.is_empty());
+    text(cx, view, ids!(notify_state), row.state);
+    show(cx, view, ids!(notify_help), !row.alert);
+    show(cx, view, ids!(notify_alert), row.alert);
+    text(cx, view, if row.alert { ids!(notify_alert) } else { ids!(notify_help) }, &row.message);
+}
+
 /// Flip a radio's two layers.
 pub fn set_radio<W: Widget>(cx: &mut Cx, root: &W, radio: LiveId, on: bool) {
     show(cx, root, &[radio, live_id!(rd_on)], on);
@@ -1487,66 +1538,12 @@ pub struct ChromeRuntime {
     pub docked: Option<String>,
     /// The session whose driver record was last read (board 12's probe).
     pub driver_probe: Option<String>,
-    /// Whether the app window has focus (desktop notifications fire only in
-    /// the background).
-    pub unfocused: bool,
-    /// The attention facts last seen, so a notification fires once per change.
-    pub attention: Option<Attention>,
     /// The profile's model list was requested for this connection.
     pub models_requested: bool,
     /// A19b — the active Session's history is still loading or could not be
     /// read (`flow::History`): its conversation is not a New chat's, so the
     /// "New chat defaults" strip stays off.
     pub history_unsettled: bool,
-}
-
-/// What the desktop-notification hook compares between syncs: the active
-/// session's newest settled turn and whether it waits for the person.
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub struct Attention {
-    pub session: String,
-    pub settled_turn: Option<String>,
-    pub waiting: bool,
-}
-
-impl Attention {
-    /// The active session's attention facts from the store.
-    pub fn of(store: &octoscode_store::Store) -> Option<Attention> {
-        let session = store.active_session()?;
-        let entries = store.domains.session.timeline.entries(&session);
-        let settled_turn = entries
-            .iter()
-            .rev()
-            .filter_map(|e| e.turn_id.clone())
-            .find(|t| store.domains.turn.terminal(t).is_some());
-        let waiting = crate::screens::sidebar::session_status(store, &session, Some(&session))
-            == crate::screens::sidebar::Status::Waiting;
-        Some(Attention { session, settled_turn, waiting })
-    }
-}
-
-/// The web's attention notice (desktop-notifications.ts: "Notify when a turn
-/// needs you or finishes while OctosCode is in the background"): a notice
-/// only when enabled, unfocused, and the SAME session newly settled a turn
-/// or newly waits. Returns (title, body).
-pub fn attention_notice(
-    prev: Option<&Attention>,
-    now: &Attention,
-    title: &str,
-    enabled: bool,
-    unfocused: bool,
-) -> Option<(String, String)> {
-    let prev = prev.filter(|p| p.session == now.session)?;
-    if !enabled || !unfocused {
-        return None;
-    }
-    if now.waiting && !prev.waiting {
-        return Some(("OctosCode needs you".to_owned(), format!("{title} is waiting for input")));
-    }
-    if now.settled_turn.is_some() && now.settled_turn != prev.settled_turn {
-        return Some(("OctosCode".to_owned(), format!("{title} finished")));
-    }
-    None
 }
 
 /// What the chrome's clicks ask the host to perform.
@@ -1989,7 +1986,7 @@ impl ChromeRuntime {
         show(cx, view, ids!(set_close_slot), !compact);
         text(cx, view, ids!(set_title), st.section.title());
         // General.
-        set_toggle(cx, view, live_id!(tg_notify), st.notifications);
+        sync_notify_row(cx, view, &crate::attention::settings());
         let theme = theme_label(&crate::screens::theme::preference());
         text(cx, view, &[live_id!(set_theme), live_id!(vb_text)], theme);
         let endpoint = server_label();
@@ -2474,23 +2471,19 @@ mod tests {
         assert_eq!(fit_segments("New chat defaults", 10.0), "New chat defaults", "the first segment stays");
     }
 
+    /// A25 — GeneralSettingsContent.tsx:213-247 on board 2's toggle.
     #[test]
-    fn a_notice_fires_once_per_new_settle_or_wait_and_only_in_the_background() {
-        let base = Attention { session: "s1".into(), settled_turn: Some("t1".into()), waiting: false };
-        let settled = Attention { settled_turn: Some("t2".into()), ..base.clone() };
-        let waiting = Attention { waiting: true, ..base.clone() };
-        // In the background, enabled: a new settled turn and a new wait notify.
-        assert!(attention_notice(Some(&base), &settled, "Fix it", true, true)
-            .is_some_and(|(_, b)| b == "Fix it finished"));
-        assert!(attention_notice(Some(&base), &waiting, "Fix it", true, true)
-            .is_some_and(|(_, b)| b == "Fix it is waiting for input"));
-        // No change, focused, disabled, first sight, or another session: none.
-        assert_eq!(attention_notice(Some(&base), &base, "x", true, true), None);
-        assert_eq!(attention_notice(Some(&base), &settled, "x", true, false), None);
-        assert_eq!(attention_notice(Some(&base), &settled, "x", false, true), None);
-        assert_eq!(attention_notice(None, &settled, "x", true, true), None);
-        let other = Attention { session: "s2".into(), ..settled };
-        assert_eq!(attention_notice(Some(&base), &other, "x", true, true), None);
+    fn the_notifications_row_shows_toggle_pending_unavailable_and_alert_states() {
+        use crate::attention::AttentionSettings as S;
+        let base = S { enabled: false, pending: false, available: true, message: "m".into(), error: false };
+        assert_eq!(notify_row(&base), NotifyRow { toggle: Some(false), state: "", message: "m".into(), alert: false });
+        assert_eq!(notify_row(&S { enabled: true, ..base.clone() }).toggle, Some(true), "aria-pressed");
+        let pending = notify_row(&S { pending: true, ..base.clone() });
+        assert_eq!((pending.toggle, pending.state), (None, "Enabling…"), "no toggle to press while asking");
+        let unavailable = notify_row(&S { available: false, ..base.clone() });
+        assert_eq!((unavailable.toggle, unavailable.state), (None, "Unavailable"), "the web's disabled button");
+        let error = notify_row(&S { error: true, ..base.clone() });
+        assert_eq!((error.toggle, error.alert), (Some(false), true), "an error is an alert, the toggle stays");
     }
 
     #[test]
